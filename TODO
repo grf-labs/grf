@@ -1,0 +1,91 @@
+
+## ----------------------------------------------------------------------- ##
+## TOOD software
+## ----------------------------------------------------------------------- ##
+
+- Validate survival
+  -> C index is okay
+  -> Check validation_survival script.. More terminal nodes in RJ!!
+
+- Validate for changing number of categories
+
+- When using survival from R with alternative interface: num independent
+  variables is wrong!
+
+- Compare speed for regression
+- Speed for continous covariates
+- Very slow for survival.. Why? Profile! Check for non-GWA data (biomarcare)
+  -> Problems with variables with many different values
+
+
+## ----------------------------------------------------------------------- ##
+## TODO after publication
+## ----------------------------------------------------------------------- ##
+
+- Change citation information
+	  -> in C++ (ArgumentHandler)
+		-> in R
+- Check R package description
+- Add reference to roxygen
+- Upload C++ version, source  + binaries. Gitlab public?
+- Create vignette
+- Check if new Rtools version with C++11 version is available, until then no
+	windows support. If availabel check README file.
+- Submit to CRAN
+    -> Add to readme
+
+
+## ----------------------------------------------------------------------- ##
+## Features: Maybe implement
+## ----------------------------------------------------------------------- ##
+
+- Lotus (high priority)
+- Conditional importance (Meng?)
+- Other splitting rules for Survival
+- Randomsplit-VIMP for Survival
+- For permutation importance use random splits for variable importance
+	(Hapfelmeier et al. 2012)
+- Conditional Inference Forests
+	-> Or another method to get unbiased vimp and faster? Use simpler test?
+	-> Maybe just use other split method, no new tree types?
+- Unbiased survival? Different to Hothorn et al.!
+- Different kinds of bootstrapping:
+	-> Use down/upsampling. For example in a study with less cases than
+		 controls upsample the cases and downsample the controls
+  -> Use balancing. Draw 63.2% of cases and 63.2% of controls
+- Handle missing data
+
+
+## ----------------------------------------------------------------------- ##
+## Ideas
+## ----------------------------------------------------------------------- ##
+
+- Tune terminal node size
+- Pruning for probability estimation
+- Cross validation
+- Look at similiarity of trees, find representative trees (Idea: sequence
+	alignment)
+- For faster growing: Section 3.5 in Daniels diss
+
+
+## ----------------------------------------------------------------------- ##
+## Advantages
+## ----------------------------------------------------------------------- ##
+
+- Platform independent, no/few dependencies
+- Modular
+- Faster
+- Parallel (very easy)
+- Open source
+- Use as R package
+- Handling of GenABEL gwa data
+- Survival (faster!)
+- Probability estimations, multiclass!
+- Split selection weights
+
+
+## ----------------------------------------------------------------------- ##
+## Archive
+## ----------------------------------------------------------------------- ##
+
+
