@@ -17,15 +17,14 @@ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 Written by: 
 
 Marvin N. Wright
-Institut f웦 Medizinische Biometrie und Statistik
-Universit둻 zu L웑eck
+Institut f체r Medizinische Biometrie und Statistik
+Universit채t zu L체beck
 Ratzeburger Allee 160
-23562 L웑eck 
+23562 L체beck 
 
 http://www.imbs-luebeck.de
 wright@imbs.uni-luebeck.de
 #-------------------------------------------------------------------------------*/
-
 
 #include "DataDouble.h"
 
