@@ -219,7 +219,9 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   ## If gwa mode, add snp variable names
   if (gwa.mode) {
     variable.names <- c(variable.names, snp.names)
-    independent.variable.names <- c(independent.variable.names, snp.names)
+    all.independent.variable.names <- c(independent.variable.names, snp.names)
+  } else {
+    all.independent.variable.names <- independent.variable.names
   }
 
   ## Number of trees
@@ -324,7 +326,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   ## Prepare results
   result$predictions <- drop(do.call(rbind, result$predictions))
   if (importance.mode != 0) {
-    names(result$variable.importance) <- independent.variable.names
+    names(result$variable.importance) <- all.independent.variable.names
   }
 
   if (treetype == 1) {
@@ -359,7 +361,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   result$num.samples <- nrow(data.final)
 
   ## Write forest object
-  if  (write.forest) {
+  if (write.forest) {
     result$forest$levels <- levels(response)
     result$forest$independent.variable.names <- independent.variable.names
     result$forest$treetype <- result$treetype

@@ -83,7 +83,7 @@ library(randomForestSRC)
 library(survival)
 
 ## Compare results: Classification
-res.rg <- ranger(Species ~ ., data = iris, num.trees = 10000, importance = "gini")
+res.rg <- ranger(Species ~ ., data = iris, num.trees = 10000, importance = "impurity")
 res.rf <- randomForest(Species ~., data = iris, ntree = 10000, importance = TRUE)
 res.rg
 res.rf
@@ -103,7 +103,7 @@ res.rg$variable.importance
 importance(res.rf, type=1, scale = FALSE)
 
 ## Compare results: Regression
-res.rg <- ranger(Sepal.Width ~ ., data = iris, importance = "gini")
+res.rg <- ranger(Sepal.Width ~ ., data = iris, importance = "impurity")
 res.rf <- randomForest(Sepal.Width ~., data = iris, importance = TRUE)
 res.rg
 res.rf
