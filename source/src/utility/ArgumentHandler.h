@@ -74,6 +74,7 @@ public:
   uint mtry;
   std::string outprefix;
   bool probability;
+  uint splitrule;
   std::string statusvarname;
   uint ntree;
   bool replace;

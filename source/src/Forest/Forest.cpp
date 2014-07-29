@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <math.h>
 #include <algorithm>
@@ -44,7 +44,7 @@ wright@imbs.uni-luebeck.de
 Forest::Forest() :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), num_variables(0), num_independent_variables(
         0), seed(0), dependent_varID(0), num_samples(0), prediction_mode(false), memory_mode(MEM_DOUBLE), sample_with_replacement(
-        true), num_threads(DEFAULT_NUM_THREADS), data(0), overall_prediction_error(0), importance_mode(
+        true), splitrule(DEFAULT_SPLITRULE), num_threads(DEFAULT_NUM_THREADS), data(0), overall_prediction_error(0), importance_mode(
         DEFAULT_IMPORTANCE_MODE), progress(0) {
 }
 
@@ -58,7 +58,7 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
     std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
     std::string load_forest_filename, ImportanceMode importance_mode, uint min_node_size,
     std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
-    std::string status_variable_name, bool sample_with_replacement) {
+    std::string status_variable_name, bool sample_with_replacement, uint splitrule) {
 
   this->verbose_out = verbose_out;
 
@@ -91,7 +91,7 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
 
   // Call other init function
   init(dependent_variable_name, memory_mode, data, mtry, output_prefix, num_trees, seed, num_threads, importance_mode,
-      min_node_size, status_variable_name, prediction_mode, sample_with_replacement);
+      min_node_size, status_variable_name, prediction_mode, sample_with_replacement, splitrule);
 
   if (prediction_mode) {
     loadFromFile(load_forest_filename);
@@ -117,13 +117,13 @@ void Forest::initR(std::string dependent_variable_name, MemoryMode memory_mode, 
     uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode,
     uint min_node_size, std::vector<double>& split_select_weights,
     std::vector<std::string>& always_split_variable_names, std::string status_variable_name, bool prediction_mode,
-    bool sample_with_replacement) {
+    bool sample_with_replacement, uint splitrule) {
 
   this->verbose_out = verbose_out;
 
   // Call other init function
   init(dependent_variable_name, memory_mode, input_data, mtry, "", num_trees, seed, num_threads, importance_mode,
-      min_node_size, status_variable_name, prediction_mode, sample_with_replacement);
+      min_node_size, status_variable_name, prediction_mode, sample_with_replacement, splitrule);
 
   // Set variables to be always considered for splitting
   setAlwaysSplitVariables(always_split_variable_names);
@@ -137,7 +137,8 @@ void Forest::initR(std::string dependent_variable_name, MemoryMode memory_mode, 
 
 void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
     std::string output_prefix, uint num_trees, uint seed, uint num_threads, ImportanceMode importance_mode,
-    uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement) {
+    uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
+    uint splitrule) {
 
   // Initialize data with memmode
   this->data = input_data;
@@ -167,6 +168,7 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
   this->memory_mode = memory_mode;
   this->prediction_mode = prediction_mode;
   this->sample_with_replacement = sample_with_replacement;
+  this->splitrule = splitrule;
 
   // Set number of samples and variables
   num_samples = data->getNumRows();
@@ -335,7 +337,7 @@ void Forest::grow() {
       tree_seed = (i + 1) * seed;
     }
     trees[i]->init(data, mtry, dependent_varID, num_samples, tree_seed, &deterministic_varIDs, &split_select_varIDs,
-        &split_select_weights, importance_mode, min_node_size, &no_split_variables, sample_with_replacement);
+        &split_select_weights, importance_mode, min_node_size, &no_split_variables, sample_with_replacement, splitrule);
   }
 
   // Grow trees in multiple threads

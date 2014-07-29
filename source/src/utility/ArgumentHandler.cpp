@@ -36,9 +36,9 @@ wright@imbs.uni-luebeck.de
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     depvarname(""), memmode(MEM_DOUBLE), predict(""), splitweights(""), nthreads(DEFAULT_NUM_THREADS), file(""), impmeasure(
-        DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false), statusvarname(
-        ""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(
-        0) {
+        DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false), splitrule(
+        DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(
+        TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -49,7 +49,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:D:M:P:S:U:Zf:hil::m:o:ps:t:uvwy:z:";
+  char const *short_options = "A:D:M:P:S:U:Zf:hil::m:o:pr:s:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
@@ -69,6 +69,7 @@ int ArgumentHandler::processArguments() {
       { "mtry",                 required_argument,  0, 'm'},
       { "outprefix",            required_argument,  0, 'o'},
       { "probability",          no_argument,        0, 'p'},
+      { "splitrule",            required_argument,  0, 'r'},
       { "statusvarname",        required_argument,  0, 's'},
       { "ntree",                required_argument,  0, 't'},
       { "noreplace",            no_argument,        0, 'u'},
@@ -197,6 +198,10 @@ int ArgumentHandler::processArguments() {
       probability = true;
       break;
 
+    case 'r':
+      splitrule = std::stoi(optarg);
+      break;
+
     case 's':
       statusvarname = optarg;
       break;
@@ -318,6 +323,25 @@ void ArgumentHandler::checkArguments() {
   if (!alwayssplitvars.empty() && !splitweights.empty()) {
     throw std::runtime_error("Please use only one option of splitweights and alwayssplitvars.");
   }
+
+  // Check splitrule
+  try {
+    switch (splitrule) {
+    case 1:
+      break;
+    case 2:
+      if (treetype != TREE_SURVIVAL) {
+        throw std::runtime_error("");
+      }
+      break;
+    default:
+      throw std::runtime_error("");
+      break;
+    }
+  } catch (...) {
+    throw std::runtime_error("Illegal splitrule selected. See '--help' for details.");
+  }
+
 }
 
 void ArgumentHandler::displayHelp() {
@@ -363,6 +387,10 @@ void ArgumentHandler::displayHelp() {
       << std::endl;
   std::cout << "    " << "                              (Default: 0)" << std::endl;
   std::cout << "    " << "--noreplace                   Sample without replacement." << std::endl;
+  std::cout << "    " << "--splitrule RULE              Splitting rule:" << std::endl;
+  std::cout << "    " << "                              RULE = 1: Gini for Classification, variance for Regression, logrank for Survival." << std::endl;
+  std::cout << "    " << "                              RULE = 2: AUC for Survival, not available for Classification and Regression." << std::endl;
+  std::cout << "    " << "                              (Default: 1)" << std::endl;
   std::cout << "    " << "--splitweights FILE           Filename of split select weights file." << std::endl;
   std::cout << "    " << "--alwayssplitvars V1,V2,..    Comma separated list of variable names to be always considered for splitting." << std::endl;
   std::cout << "    " << "--nthreads N                  Set number of parallel threads to N." << std::endl;

@@ -32,7 +32,8 @@
 ##'
 ##' The tree type is determined by the type of the dependent variable.
 ##' For factors Classification trees are grown, for numeric values Regression trees and for survival objects Survival trees.
-##' The Gini index is used as splitting rule for Classification, the estimated response variances for Regression and the log-rank test for Survival.
+##' The Gini index is used as splitting rule for Classification and the estimated response variances for Regression.
+##' For Survival the log-rank test or an AUC-based splitting rule are available.
 ##'
 ##' With the \code{probability} option and factor dependent variable a Probability forest is grown.
 ##' Here, the estimated response variances are used for splitting, as in Regression forests.
@@ -56,6 +57,7 @@
 ##' @param probability Grow a Probability forest. This is a Classification forest which returns class probabilities instead of classifications.
 ##' @param min.node.size Minimal node size. Default 1 for Classification, 5 for Regression, 3 for Survival, and 10 for Probability.
 ##' @param replace Sample with replacement. Default TRUE.
+##' @param splitrule Splitting rule, Survival only. The splitting rule can be chosen of "logrank" and "auc" with dedault "logrank". 
 ##' @param split.select.weights Numeric vector with weights representing the probability to select variables for splitting.
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
@@ -121,7 +123,7 @@
 ##' @export
 ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                     importance = "none", write.forest = FALSE, probability = FALSE,
-                    min.node.size = NULL, replace = TRUE,
+                    min.node.size = NULL, replace = TRUE, splitrule = NULL,
                     split.select.weights = NULL, always.split.variables = NULL,
                     scale.permutation.importance = FALSE,
                     num.threads = NULL,
@@ -302,6 +304,17 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   if (use.split.select.weights & use.always.split.variables) {
     stop("Error: Please use only one option of use.split.select.weights and use.always.split.variables.")
   }
+  
+  ## Splitting rule
+  if (is.null(splitrule)) {
+    splitrule <- 1
+  } else if (treetype == 5 & splitrule == "logrank") {
+    splitrule <- 1
+  } else if (treetype == 5 & splitrule == "auc") {
+    splitrule <- 2
+  } else {
+    stop("Error: Unknown splitrule.")
+  }
 
   ## Prediction mode always false. Use predict.ranger() method.
   prediction.mode <- FALSE
@@ -315,7 +328,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
               min.node.size, split.select.weights, use.split.select.weights,
               always.split.variables, use.always.split.variables,
               status.variable.name, prediction.mode, loaded.forest, sparse.data,
-              replace, probability)
+              replace, probability, splitrule)
 
   if (length(result) == 0) {
     stop("Internal error.")

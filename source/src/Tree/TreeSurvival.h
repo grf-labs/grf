@@ -61,6 +61,7 @@ private:
 
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplitLogRank(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs);
+  bool findBestSplitAUC(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs);
 
   void computeDeathCounts(size_t* num_deaths, size_t* num_samples_at_risk, size_t& num_unique_death_times,
       size_t nodeID);
@@ -69,6 +70,8 @@ private:
       size_t num_unique_death_times);
   void computeChildDeathCounts(size_t nodeID, size_t varID, double split_value, size_t* num_deaths_left_child,
       size_t* num_samples_at_risk_left_child, size_t* num_samples_left_child);
+
+  double computeAucSplit(size_t nodeID, size_t varID, double split_value);
 
   void reservePredictionMemory(size_t num_predictions) {
     predictions.resize(num_predictions, std::vector<double>());

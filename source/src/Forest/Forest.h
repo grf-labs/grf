@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #ifndef FOREST_H_
 #define FOREST_H_
@@ -49,14 +49,15 @@ public:
       std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
       std::string load_forest_filename, ImportanceMode importance_mode, uint min_node_size,
       std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
-      std::string status_variable_name, bool sample_with_replacement);
+      std::string status_variable_name, bool sample_with_replacement, uint splitrule);
   void initR(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry, uint num_trees,
       std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode, uint min_node_size,
       std::vector<double>& split_select_weights, std::vector<std::string>& always_split_variable_names,
-      std::string status_variable_name, bool prediction_mode, bool sample_with_replacement);
+      std::string status_variable_name, bool prediction_mode, bool sample_with_replacement, uint splitrule);
   void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
       std::string output_prefix, uint num_trees, uint seed, uint num_threads, ImportanceMode importance_mode,
-      uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement);
+      uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
+      uint splitrule);
   virtual void initInternal(std::string status_variable_name) = 0;
 
   // Grow or predict
@@ -166,6 +167,7 @@ protected:
   bool prediction_mode;
   MemoryMode memory_mode;
   bool sample_with_replacement;
+  uint splitrule;
 
   // Variable to not split at (only dependent_varID for non-survival forests)
   std::vector<size_t> no_split_variables;

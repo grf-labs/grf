@@ -75,6 +75,8 @@ const uint DEFAULT_MIN_NODE_SIZE_REGRESSION = 5;
 const uint DEFAULT_MIN_NODE_SIZE_SURVIVAL = 3;
 const uint DEFAULT_MIN_NODE_SIZE_PROBABILITY = 10;
 
+const uint DEFAULT_SPLITRULE = 1;
+
 // Interval to print progress in seconds
 const double STATUS_INTERVAL = 30.0;
 
