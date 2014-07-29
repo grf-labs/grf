@@ -1,11 +1,13 @@
-
+library(survival)
+library(ranger)
 
 ## Test classification
 ranger("Species ~ Petal.Length + Sepal.Length", data = iris, importance = "permutation")
 ranger("Species ~ .", data = iris)
 
 ## Test regression
-ranger("Sepal.Width ~ Petal.Length + Sepal.Length + Species", data = iris, importance = "gini")
+ranger("Sepal.Width ~ Petal.Length + Sepal.Length + Species", data = iris, 
+       importance = "impurity")
 ranger("Sepal.Width ~ .", data = iris)
 
 ## Test survival
@@ -16,7 +18,8 @@ yy <- ranger("Surv(time, status) ~ .", data = veteran)
 
 ## Test split select weights
 weights <- c(0,0.2,0.5,1)
-ww <- ranger("Species ~ .", data = iris, split.select.weights = weights, mtry = 3, importance = "gini")
+ww <- ranger("Species ~ .", data = iris, split.select.weights = weights, 
+             mtry = 3, importance = "impurity")
 
 ## Test verbose output
 temp <- ranger("Sepal.Width ~ .", data = iris, verbose = TRUE)
@@ -45,10 +48,10 @@ pred.nodep <- predict(temp$forest, data = veteran[, c(1:2, 4:8)])
 ## Test GWA mode
 library(GenABEL)
 ##convert.snp.ped("../../gwa_data/chr1.allChunks.ped", "../../gwa_data/chr1.allChunks.map", "../../gwa_data/chr1.allChunks.raw")
-chr21 <- load.gwaa.data("../../gwa_data/pheno.GenABEL", "../../gwa_data/chr21.allChunks.raw")
+chr21 <- load.gwaa.data("../../gaw_data/pheno.GenABEL", "../../gaw_data/chr21.allChunks.raw")
 phdata(chr21)$hyper <- factor(phdata(chr21)$hyper)
 temp <- ranger("hyper ~ .", data = chr21, write.forest = TRUE)
-pred <- predict(temp, data = chr21)
+pred <- predict(temp, data = chr21[1:10,])
 
 ##chr1 <- load.gwaa.data("../../gwa_data/pheno.GenABEL", "../../gwa_data/chr1.allChunks.raw")
 ##phdata(chr1)$hyper <- factor(phdata(chr1)$hyper)
