@@ -61,7 +61,6 @@ private:
 
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplitLogRank(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs);
-  bool findBestSplitCIndex(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs);
 
   void computeDeathCounts(size_t* num_deaths, size_t* num_samples_at_risk, size_t& num_unique_death_times,
       size_t nodeID);

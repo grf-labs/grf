@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <cmath>
@@ -74,7 +74,6 @@ void TreeSurvival::appendToFileInternal(std::ofstream& file) {
 bool TreeSurvival::splitNodeInternal(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
 
   return findBestSplitLogRank(nodeID, possible_split_varIDs);
-
 }
 
 void TreeSurvival::createEmptyNodeInternal() {
@@ -96,77 +95,74 @@ double TreeSurvival::computePredictionAccuracyInternal() {
 bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
 
   double best_logrank = -1;
-    size_t best_varID = 0;
-    double best_value = 0;
+  size_t best_varID = 0;
+  double best_value = 0;
 
-    // Number of deaths and samples at risk for each timepoint
-    size_t* num_deaths = new size_t[num_timepoints];
-    size_t* num_samples_at_risk = new size_t[num_timepoints];
-    size_t* num_deaths_left_child = new size_t[num_timepoints];
-    size_t* num_samples_at_risk_left_child = new size_t[num_timepoints];
+  // Number of deaths and samples at risk for each timepoint
+  size_t* num_deaths = new size_t[num_timepoints];
+  size_t* num_samples_at_risk = new size_t[num_timepoints];
+  size_t* num_deaths_left_child = new size_t[num_timepoints];
+  size_t* num_samples_at_risk_left_child = new size_t[num_timepoints];
 
-    size_t num_unique_death_times = 0;
-    computeDeathCounts(num_deaths, num_samples_at_risk, num_unique_death_times, nodeID);
+  size_t num_unique_death_times = 0;
+  computeDeathCounts(num_deaths, num_samples_at_risk, num_unique_death_times, nodeID);
 
-    // For all possible split variables
-    for (auto& varID : possible_split_varIDs) {
+  // For all possible split variables
+  for (auto& varID : possible_split_varIDs) {
 
-      // Create possible split values
-      std::vector<double> possible_split_values;
-      data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
+    // Create possible split values
+    std::vector<double> possible_split_values;
+    data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
 
-      // Try next variable if all equal for this
-      if (possible_split_values.size() < 2) {
-        continue;
-      }
-
-      // For all possible split values
-      for (auto& split_value : possible_split_values) {
-
-        // Compute logrank and use split if better than before
-        double logrank = computeLogRankTest(nodeID, varID, split_value, num_deaths, num_samples_at_risk,
-            num_deaths_left_child, num_samples_at_risk_left_child, num_unique_death_times);
-        if (logrank > best_logrank) {
-          best_value = split_value;
-          best_varID = varID;
-          best_logrank = logrank;
-        }
-      }
+    // Try next variable if all equal for this
+    if (possible_split_values.size() < 2) {
+      continue;
     }
 
-    bool result = false;
+    // For all possible split values
+    for (auto& split_value : possible_split_values) {
 
-    // Stop and save CHF if no good split found (this is terminal node).
-    if (best_logrank < 0) {
-      std::vector<double> chf_temp;
-      double chf_value = 0;
-      for (size_t i = 0; i < num_timepoints; ++i) {
-        if (num_samples_at_risk[i] != 0) {
-          chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
-        }
-        chf_temp.push_back(chf_value);
+      // Compute logrank and use split if better than before
+      double logrank = computeLogRankTest(nodeID, varID, split_value, num_deaths, num_samples_at_risk,
+          num_deaths_left_child, num_samples_at_risk_left_child, num_unique_death_times);
+      if (logrank > best_logrank) {
+        best_value = split_value;
+        best_varID = varID;
+        best_logrank = logrank;
       }
-      chf[nodeID] = chf_temp;
-      result = true;
-    } else {
-      // If not terminal node save best values
-      split_varIDs[nodeID] = best_varID;
-      split_values[nodeID] = best_value;
     }
+  }
 
-    // Clean up
-    delete[] num_deaths;
-    delete[] num_samples_at_risk;
-    delete[] num_deaths_left_child;
-    delete[] num_samples_at_risk_left_child;
+  bool result = false;
 
-    return result;
+  // Stop and save CHF if no good split found (this is terminal node).
+  if (best_logrank < 0) {
+    std::vector<double> chf_temp;
+    double chf_value = 0;
+    for (size_t i = 0; i < num_timepoints; ++i) {
+      if (num_samples_at_risk[i] != 0) {
+        chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
+      }
+      chf_temp.push_back(chf_value);
+    }
+    chf[nodeID] = chf_temp;
+    result = true;
+  } else {
+    // If not terminal node save best values
+    split_varIDs[nodeID] = best_varID;
+    split_values[nodeID] = best_value;
+  }
+
+  // Clean up
+  delete[] num_deaths;
+  delete[] num_samples_at_risk;
+  delete[] num_deaths_left_child;
+  delete[] num_samples_at_risk_left_child;
+
+  return result;
 }
 
-bool TreeSurvival::findBestSplitCIndex(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
 
-  return true;
-}
 
 void TreeSurvival::computeDeathCounts(size_t* num_deaths, size_t* num_samples_at_risk, size_t& num_unique_death_times,
     size_t nodeID) {
