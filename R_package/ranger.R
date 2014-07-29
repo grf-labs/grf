@@ -198,21 +198,19 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                                                          names(data.selected) != status.variable.name]
   }
 
-
-  ## Input data from formula
-  if (treetype == 5) {
-    data.temp <- cbind(response[, 1], response[, 2],
-                       data.selected[-1])
-    data.final <- data.matrix(data.temp)
+  ## Input data and variable names
+  if (!is.null(formula)) {
+    if (treetype == 5) {
+      data.final <- data.matrix(cbind(response[, 1], response[, 2],
+                         data.selected[-1]))
+      variable.names <- c(dependent.variable.name, status.variable.name,
+                          independent.variable.names)
+    } else {
+      data.final <- data.matrix(data.selected)
+      variable.names <- names(data.selected)
+    }
   } else {
     data.final <- data.matrix(data.selected)
-  }
-
-  ## Variable names
-  if (treetype == 5) {
-    variable.names <- c(dependent.variable.name, status.variable.name,
-                        independent.variable.names)
-  } else {
     variable.names <- names(data.selected)
   }
 

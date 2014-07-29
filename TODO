@@ -9,9 +9,6 @@
 
 - Validate for changing number of categories
 
-- When using survival from R with alternative interface: num independent
-  variables is wrong!
-
 - Compare speed for regression
 - Speed for continous covariates
 - Very slow for survival.. Why? Profile! Check for non-GWA data (biomarcare)
