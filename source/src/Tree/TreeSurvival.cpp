@@ -227,7 +227,7 @@ double TreeSurvival::computeLogRankTest(size_t nodeID, size_t varID, double spli
 
   for (size_t t = 0; t < num_timepoints; ++t) {
 
-    if (num_samples_at_risk_left_child[t] < 2 || num_samples_at_risk[t] < 1) {
+    if (num_samples_at_risk[t] < 2) {
       continue;
     }
 
@@ -237,7 +237,7 @@ double TreeSurvival::computeLogRankTest(size_t nodeID, size_t varID, double spli
     double Yi = (double) num_samples_at_risk[t];
     double Yi1 = (double) num_samples_at_risk_left_child[t];
     nominator += di1 - Yi1 * (di / Yi);
-    denominator_squared += (Yi1 / Yi) * (1 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
+    denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
   }
 
   if (denominator_squared != 0) {
