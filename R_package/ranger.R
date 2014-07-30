@@ -27,34 +27,36 @@
 # -------------------------------------------------------------------------------
 
 ##' Ranger is a fast implementation of Random Forest (Breiman 2001) or recursive partitioning, particularly suited for high dimensional data.
-##' Classification, Regression, and Survival forests are supported.
-##' Classification and Regression forests are implemented as in the original Random Forest (Breiman 2001), Survival forests as in Random Survival Forests (Ishwaran et al. 2008).
+##' Classification, regression, and survival forests are supported.
+##' Classification and regression forests are implemented as in the original Random Forest (Breiman 2001), survival forests as in Random Survival Forests (Ishwaran et al. 2008).
 ##'
 ##' The tree type is determined by the type of the dependent variable.
-##' For factors Classification trees are grown, for numeric values Regression trees and for survival objects Survival trees.
-##' The Gini index is used as splitting rule for Classification, the estimated response variances for Regression and the log-rank test for Survival.
+##' For factors classification trees are grown, for numeric values regression trees and for survival objects survival trees.
+##' The Gini index is used as splitting rule for classification, the estimated response variances for regression and the log-rank test for survival.
 ##'
-##' With the \code{probability} option and factor dependent variable a Probability forest is grown.
-##' Here, the estimated response variances are used for splitting, as in Regression forests.
-##' In contrast, the prediction error is measured with missclassifications as in Classification forests.
+##' With the \code{probability} option and factor dependent variable a probability forest is grown.
+##' Here, the estimated response variances are used for splitting, as in regression forests.
+##' In contrast, the prediction error is measured with missclassifications as in classification forests.
 ##' Predictions are class probabilities for each sample.
 ##' For details see Malley et al. (2012).
 ##'
-##' Note that for Classification and Regression nodes with size smaller than min.node.size can occur, like in original Random Forest.
-##' For Survival all nodes contain at least min.node.size samples. Variables selected with always.split.variables are tried additionaly to the mtry variables randomly selected.
+##' Note that for classification and regression nodes with size smaller than min.node.size can occur, like in original Random Forest.
+##' For survival all nodes contain at least min.node.size samples. Variables selected with always.split.variables are tried additionaly to the mtry variables randomly selected.
 ##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow.
-##' Alternatively dependent.variable.name (and status.variable.name for Survival) can be used.
+##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
+##' By setting \code{memory} to 'float' or 'char' the memory usage can be reduced with a possible loss of precision. 
+##' Use char only if all endpoints and covariates are integer values between -128 and 127 or factors with few levels. 
 ##'
 ##' @title Ranger
 ##' @param formula Object of class \code{formula} or \code{character} describing the model to fit.
 ##' @param data Training data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
 ##' @param num.trees Number of trees.
 ##' @param mtry Number of variables to possibly split at in each node.
-##' @param importance Variable importance mode, one of 'none', 'impurity', 'permutation'. The 'impurity' measure is the Gini index for Classification and the variance of the responses for Regression.
+##' @param importance Variable importance mode, one of 'none', 'impurity', 'permutation'. The 'impurity' measure is the Gini index for classification and the variance of the responses for regression.
 ##' @param write.forest Save \code{ranger.forest} object, needed for prediction.
-##' @param probability Grow a Probability forest. This is a Classification forest which returns class probabilities instead of classifications.
-##' @param min.node.size Minimal node size. Default 1 for Classification, 5 for Regression, 3 for Survival, and 10 for Probability.
+##' @param probability Grow a probability forest. This is a classification forest which returns class probabilities instead of classifications.
+##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. Default TRUE.
 ##' @param split.select.weights Numeric vector with weights representing the probability to select variables for splitting.
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
@@ -62,26 +64,26 @@
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param verbose Verbose output on or off.
 ##' @param seed Random seed.
-##' @param memory Memory mode, one of 'double', 'float', 'char'.
+##' @param memory Memory mode, one of 'double', 'float', 'char'. Default 'double'.
 ##' @param dependent.variable.name Name of dependent variable, needed if no formula given. For survival forests this is the time variable.
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
 ##' @return Object of class \code{ranger} with elements
 ##'   \tabular{ll}{
 ##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). \cr
-##'       \code{predictions}    \tab Predicted classes/values, based on out of bag samples (Classification and Regression only). \cr
+##'       \code{predictions}    \tab Predicted classes/values, based on out of bag samples (classification and regression only). \cr
 ##'       \code{variable.importance}     \tab Variable importance for each independent variable. \cr
-##'       \code{prediction.error}   \tab Overall out of bag prediction error. For Classification this is the fraction of missclassified samples, for Regression the mean squared error and for Survival one minus Harrell's c-index. \cr
-##'       \code{r.squared}   \tab R squared. Also called explained variance or coefficient of determination (Regression only). \cr
-##'       \code{classification.table} \tab Contingency table for classes and predictions (Classification only). \cr
-##'       \code{unique.death.times} \tab Unique death times (Survival only). \cr
-##'       \code{chf} \tab Estimated cumulative hazard function for each sample (Survival only). \cr
-##'       \code{survival} \tab Estimated survival function for each sample (Survival only). \cr
+##'       \code{prediction.error}   \tab Overall out of bag prediction error. For classification this is the fraction of missclassified samples, for regression the mean squared error and for survival one minus Harrell's c-index. \cr
+##'       \code{r.squared}   \tab R squared. Also called explained variance or coefficient of determination (regression only). \cr
+##'       \code{classification.table} \tab Contingency table for classes and predictions (classification only). \cr
+##'       \code{unique.death.times} \tab Unique death times (survival only). \cr
+##'       \code{chf} \tab Estimated cumulative hazard function for each sample (survival only). \cr
+##'       \code{survival} \tab Estimated survival function for each sample (survival only). \cr
 ##'       \code{call}    \tab Function call. \cr
 ##'       \code{num.trees}   \tab Number of trees. \cr
 ##'       \code{num.independent.variables} \tab Number of independent variables. \cr
 ##'       \code{mtry}    \tab Value of mtry used. \cr
 ##'       \code{min.node.size}   \tab Value of minimal node size used. \cr
-##'       \code{treetype}    \tab Type of forest/tree. Classification, Regression or Survival. \cr
+##'       \code{treetype}    \tab Type of forest/tree. classification, regression or survival. \cr
 ##'       \code{memory.mode}   \tab Memory mode used. \cr
 ##'       \code{importance.mode}     \tab Importance mode used. \cr
 ##'       \code{num.samples}     \tab Number of samples.
