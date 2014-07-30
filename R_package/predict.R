@@ -52,7 +52,7 @@
 ##' @export
 predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
                                    memory.mode = "double", verbose = TRUE, ...) {
-
+  
   ## GenABEL GWA data
   if (class(data) == "gwaa.data") {
     snp.names <- snp.names(data)

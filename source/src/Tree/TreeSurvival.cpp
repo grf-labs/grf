@@ -115,28 +115,32 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::unordered_set<size_t
   size_t num_unique_death_times = 0;
   computeDeathCounts(num_deaths, num_samples_at_risk, num_unique_death_times, nodeID);
 
-  // For all possible split variables
-  for (auto& varID : possible_split_varIDs) {
+  // Stop early if no split posssible
+  if (sampleIDs[nodeID].size() >= 2 * min_node_size) {
 
-    // Create possible split values
-    std::vector<double> possible_split_values;
-    data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
+    // For all possible split variables
+    for (auto& varID : possible_split_varIDs) {
 
-    // Try next variable if all equal for this
-    if (possible_split_values.size() < 2) {
-      continue;
-    }
+      // Create possible split values
+      std::vector<double> possible_split_values;
+      data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
 
-    // For all possible split values
-    for (auto& split_value : possible_split_values) {
+      // Try next variable if all equal for this
+      if (possible_split_values.size() < 2) {
+        continue;
+      }
 
-      // Compute logrank and use split if better than before
-      double logrank = computeLogRankTest(nodeID, varID, split_value, num_deaths, num_samples_at_risk,
-          num_deaths_left_child, num_samples_at_risk_left_child, num_unique_death_times);
-      if (logrank > best_logrank) {
-        best_value = split_value;
-        best_varID = varID;
-        best_logrank = logrank;
+      // For all possible split values
+      for (auto& split_value : possible_split_values) {
+
+        // Compute logrank and use split if better than before
+        double logrank = computeLogRankTest(nodeID, varID, split_value, num_deaths, num_samples_at_risk,
+            num_deaths_left_child, num_samples_at_risk_left_child, num_unique_death_times);
+        if (logrank > best_logrank) {
+          best_value = split_value;
+          best_varID = varID;
+          best_logrank = logrank;
+        }
       }
     }
   }
@@ -298,7 +302,7 @@ double TreeSurvival::computeLogRankTest(size_t nodeID, size_t varID, double spli
 
   for (size_t t = 0; t < num_timepoints; ++t) {
 
-    if (num_samples_at_risk_left_child[t] < 2 || num_samples_at_risk[t] < 1) {
+    if (num_samples_at_risk[t] < 2) {
       continue;
     }
 
@@ -308,7 +312,7 @@ double TreeSurvival::computeLogRankTest(size_t nodeID, size_t varID, double spli
     double Yi = (double) num_samples_at_risk[t];
     double Yi1 = (double) num_samples_at_risk_left_child[t];
     nominator += di1 - Yi1 * (di / Yi);
-    denominator_squared += (Yi1 / Yi) * (1 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
+    denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
   }
 
   if (denominator_squared != 0) {

@@ -69,21 +69,28 @@ temp$prediction.error
 pred.char <- predict(temp$forest, data = iris)
 
 ## Test non-formula interface
+ranger(Species ~., data = iris)
 ranger(data = iris, dependent.variable.name = "Species")
+
+ranger(Sepal.Length ~., data = iris)
 ranger(data = iris, dependent.variable.name = "Sepal.Length")
+
 data(veteran, package = "randomSurvivalForest")
+ranger(Surv(time, status) ~., data = veteran)
 ranger(data = veteran, dependent.variable.name = "time", status.variable.name = "status")
+
 
 ## Error
 ranger(data = iris, dependent.variable.name = "foo")
 
 library(ranger)
 library(randomForest)
+library(randomSurvivalForest)
 library(randomForestSRC)
 library(survival)
 
 ## Compare results: Classification
-res.rg <- ranger(Species ~ ., data = iris, num.trees = 10000, importance = "gini")
+res.rg <- ranger(Species ~ ., data = iris, num.trees = 10000, importance = "impurity")
 res.rf <- randomForest(Species ~., data = iris, ntree = 10000, importance = TRUE)
 res.rg
 res.rf
@@ -103,7 +110,7 @@ res.rg$variable.importance
 importance(res.rf, type=1, scale = FALSE)
 
 ## Compare results: Regression
-res.rg <- ranger(Sepal.Width ~ ., data = iris, importance = "gini")
+res.rg <- ranger(Sepal.Width ~ ., data = iris, importance = "impurity")
 res.rf <- randomForest(Sepal.Width ~., data = iris, importance = TRUE)
 res.rg
 res.rf
@@ -133,5 +140,10 @@ mult.rsf <- replicate(n, rsf(Surv(time, status) ~ ., data = veteran, ntree = 100
 
 boxplot(cbind(t(mult.rg), t(mult.src), t(mult.rsf)))
 
-
+## Test with many rows
+rows <- 10
+n <- 100000
+dat.long <-  data.frame(replicate(rows, rbinom(n, 1, 0.5)))
+colnames(dat.long) <- paste("x", 1:rows, sep = "")
+ranger(x1~., dat.long)
 

@@ -129,7 +129,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                     num.threads = NULL,
                     verbose = TRUE, seed = NULL, memory = "double",
                     dependent.variable.name = NULL, status.variable.name = NULL) {
-
+  
   ## GenABEL GWA data
   if (class(data) == "gwaa.data") {
     snp.names <- data@gtdata@snpnames
@@ -200,28 +200,28 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                                                          names(data.selected) != status.variable.name]
   }
 
-
-  ## Input data from formula
-  if (treetype == 5) {
-    data.temp <- cbind(response[, 1], response[, 2],
-                       data.selected[-1])
-    data.final <- data.matrix(data.temp)
+  ## Input data and variable names
+  if (!is.null(formula)) {
+    if (treetype == 5) {
+      data.final <- data.matrix(cbind(response[, 1], response[, 2],
+                         data.selected[-1]))
+      variable.names <- c(dependent.variable.name, status.variable.name,
+                          independent.variable.names)
+    } else {
+      data.final <- data.matrix(data.selected)
+      variable.names <- names(data.selected)
+    }
   } else {
     data.final <- data.matrix(data.selected)
-  }
-
-  ## Variable names
-  if (treetype == 5) {
-    variable.names <- c(dependent.variable.name, status.variable.name,
-                        independent.variable.names)
-  } else {
     variable.names <- names(data.selected)
   }
 
   ## If gwa mode, add snp variable names
   if (gwa.mode) {
     variable.names <- c(variable.names, snp.names)
-    independent.variable.names <- c(independent.variable.names, snp.names)
+    all.independent.variable.names <- c(independent.variable.names, snp.names)
+  } else {
+    all.independent.variable.names <- independent.variable.names
   }
 
   ## Number of trees
@@ -321,7 +321,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 
   ## No loaded forest object
   loaded.forest <- list()
-
+  
   ## Call Ranger
   result <- rangerCpp(treetype, dependent.variable.name, memory.mode, data.final, variable.names, mtry,
               num.trees, verbose, seed, num.threads, write.forest, importance.mode,
@@ -329,6 +329,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
               always.split.variables, use.always.split.variables,
               status.variable.name, prediction.mode, loaded.forest, sparse.data,
               replace, probability, splitrule)
+              replace, probability)
 
   if (length(result) == 0) {
     stop("Internal error.")
@@ -337,7 +338,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   ## Prepare results
   result$predictions <- drop(do.call(rbind, result$predictions))
   if (importance.mode != 0) {
-    names(result$variable.importance) <- independent.variable.names
+    names(result$variable.importance) <- all.independent.variable.names
   }
 
   if (treetype == 1) {
@@ -372,7 +373,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   result$num.samples <- nrow(data.final)
 
   ## Write forest object
-  if  (write.forest) {
+  if (write.forest) {
     result$forest$levels <- levels(response)
     result$forest$independent.variable.names <- independent.variable.names
     result$forest$treetype <- result$treetype
