@@ -59,7 +59,7 @@
 ##' @param probability Grow a probability forest. This is a classification forest which returns class probabilities instead of classifications.
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. Default TRUE.
-##' @param splitrule Splitting rule, Survival only. The splitting rule can be chosen of "logrank" and "auc" with dedault "logrank". 
+##' @param splitrule Splitting rule, Survival only. The splitting rule can be chosen of "logrank" and "auc" with default "logrank". 
 ##' @param split.select.weights Numeric vector with weights representing the probability to select variables for splitting.
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
