@@ -3,19 +3,11 @@
 ## TOOD software
 ## ----------------------------------------------------------------------- ##
 
-- Validate survival
-  -> C index is okay
-  -> Check validation_survival script.. Fewer terminal nodes in Ranger for 
-		 small min.node.size!
-
-- Validate for changing number of categories
-
-- Avoid copying in ranger function?
-
-- Compare speed for regression
-- Speed for continous covariates
+- Compare speed with biomarcare data with RSF
 - Very slow for survival.. Why? Profile! Check for non-GWA data (biomarcare)
   -> Problems with variables with many different values
+- Slow for variables with many different values (continous) 
+  -> Section 3.5 in Daniels diss
 
 
 ## ----------------------------------------------------------------------- ##
@@ -65,7 +57,6 @@
 - Cross validation
 - Look at similiarity of trees, find representative trees (Idea: sequence
 	alignment)
-- For faster growing: Section 3.5 in Daniels diss
 
 
 ## ----------------------------------------------------------------------- ##
@@ -89,3 +80,7 @@
 ## ----------------------------------------------------------------------- ##
 
 - Early stopping for AUC splitting
+- Validate survival
+  -> C index is okay
+  -> Check validation_survival script..
+  -> Different for return 0/-1 for denominator=0

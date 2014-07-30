@@ -127,7 +127,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                     num.threads = NULL,
                     verbose = TRUE, seed = NULL, memory = "double",
                     dependent.variable.name = NULL, status.variable.name = NULL) {
-
+  
   ## GenABEL GWA data
   if (class(data) == "gwaa.data") {
     snp.names <- data@gtdata@snpnames
@@ -308,7 +308,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 
   ## No loaded forest object
   loaded.forest <- list()
-
+  
   ## Call Ranger
   result <- rangerCpp(treetype, dependent.variable.name, memory.mode, data.final, variable.names, mtry,
               num.trees, verbose, seed, num.threads, write.forest, importance.mode,
@@ -316,7 +316,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
               always.split.variables, use.always.split.variables,
               status.variable.name, prediction.mode, loaded.forest, sparse.data,
               replace, probability)
-
+  
   if (length(result) == 0) {
     stop("Internal error.")
   }
