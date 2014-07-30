@@ -329,7 +329,6 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
               always.split.variables, use.always.split.variables,
               status.variable.name, prediction.mode, loaded.forest, sparse.data,
               replace, probability, splitrule)
-              replace, probability)
 
   if (length(result) == 0) {
     stop("Internal error.")
