@@ -5,9 +5,12 @@
 
 - Validate survival
   -> C index is okay
-  -> Check validation_survival script.. More terminal nodes in RJ!!
+  -> Check validation_survival script.. Fewer terminal nodes in Ranger for 
+		 small min.node.size!
 
 - Validate for changing number of categories
+
+- Avoid copying in ranger function?
 
 - Compare speed for regression
 - Speed for continous covariates

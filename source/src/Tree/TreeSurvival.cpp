@@ -73,6 +73,11 @@ void TreeSurvival::appendToFileInternal(std::ofstream& file) {
 
 bool TreeSurvival::splitNodeInternal(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
 
+  // Stop early if no split posssible
+  if (sampleIDs[nodeID].size() < 2 * min_node_size) {
+    return true;
+  }
+
   return findBestSplitLogRank(nodeID, possible_split_varIDs);
 }
 
