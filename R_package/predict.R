@@ -38,13 +38,13 @@
 ##' @param ... further arguments passed to or from other methods.
 ##' @return Object of class \code{ranger.prediction} with elements
 ##'   \tabular{ll}{
-##'       \code{predictions}    \tab Predicted classes/values (only for Classification and Regression)  \cr
-##'       \code{unique.death.times} \tab Unique death times (only for Survival). \cr
-##'       \code{chf} \tab Estimated cumulative hazard function for each sample (only for Survival). \cr
-##'       \code{survival} \tab Estimated survival function for each sample (only for Survival). \cr
+##'       \code{predictions}    \tab Predicted classes/values (only for classification and regression)  \cr
+##'       \code{unique.death.times} \tab Unique death times (only for survival). \cr
+##'       \code{chf} \tab Estimated cumulative hazard function for each sample (only for survival). \cr
+##'       \code{survival} \tab Estimated survival function for each sample (only for survival). \cr
 ##'       \code{num.trees}   \tab Number of trees. \cr
 ##'       \code{num.independent.variables} \tab Number of independent variables. \cr
-##'       \code{treetype}    \tab Type of forest/tree. Classification, Regression or Survival. \cr
+##'       \code{treetype}    \tab Type of forest/tree. Classification, regression or survival. \cr
 ##'       \code{num.samples}     \tab Number of samples.
 ##'   }
 ##' @seealso \code{\link{ranger}}
@@ -204,13 +204,13 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
 ##' @param ... further arguments passed to or from other methods.
 ##' @return Object of class \code{ranger.prediction} with elements
 ##'   \tabular{ll}{
-##'       \code{predictions}    \tab Predicted classes/values (only for Classification and Regression)  \cr
-##'       \code{unique.death.times} \tab Unique death times (only for Survival). \cr
-##'       \code{chf} \tab Estimated cumulative hazard function for each sample (only for Survival). \cr
-##'       \code{survival} \tab Estimated survival function for each sample (only for Survival). \cr
+##'       \code{predictions}    \tab Predicted classes/values (only for classification and regression)  \cr
+##'       \code{unique.death.times} \tab Unique death times (only for survival). \cr
+##'       \code{chf} \tab Estimated cumulative hazard function for each sample (only for survival). \cr
+##'       \code{survival} \tab Estimated survival function for each sample (only for survival). \cr
 ##'       \code{num.trees}   \tab Number of trees. \cr
 ##'       \code{num.independent.variables} \tab Number of independent variables. \cr
-##'       \code{treetype}    \tab Type of forest/tree. Classification, Regression or Survival. \cr
+##'       \code{treetype}    \tab Type of forest/tree. Classification, regression or survival. \cr
 ##'       \code{num.samples}     \tab Number of samples.
 ##'   }
 ##' @seealso \code{\link{ranger}}
