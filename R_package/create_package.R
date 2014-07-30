@@ -1,8 +1,8 @@
 
 ## Package infos
 package.name <- "ranger"
-package.title <- "Ranger"
-package.description <- paste("Ranger is a fast implementation of Random Forest (tm),",
+package.title <- "A fast implementation of Random Forests"
+package.description <- paste("Ranger is a fast implementation of Random Forests,",
   "particularly suited for high dimensional data.",
   "For now, ensembles of classification, regression and survival trees are supported.",
   "With Ranger data from Genome-wide association (GWA) studies can be analyzed efficiently.",
