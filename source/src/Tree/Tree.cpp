@@ -176,7 +176,7 @@ void Tree::appendToFile(std::ofstream& file) {
   appendToFileInternal(file);
 }
 
-void Tree::createPossibleSplitVarSubset(std::unordered_set<size_t>& result) {
+void Tree::createPossibleSplitVarSubset(std::vector<size_t>& result) {
 
   // Always use deterministic variables
   std::copy(deterministic_varIDs->begin(), deterministic_varIDs->end(), std::inserter(result, result.end()));
@@ -194,7 +194,7 @@ void Tree::createPossibleSplitVarSubset(std::unordered_set<size_t>& result) {
 void Tree::splitNode(size_t nodeID) {
 
   // Select random subset of variables to possibly split at
-  std::unordered_set<size_t> possible_split_varIDs;
+  std::vector<size_t> possible_split_varIDs;
   createPossibleSplitVarSubset(possible_split_varIDs);
 
   // Call subclass method, sets split_varIDs and split_values

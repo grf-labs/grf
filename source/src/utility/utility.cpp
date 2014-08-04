@@ -96,35 +96,74 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
   }
 }
 
-void drawWithoutReplacementSkip(std::unordered_set<size_t>& result, std::mt19937_64& random_number_generator,
-    size_t max, std::vector<size_t>& skip, size_t num_samples) {
+// TODO: Need speedup here if mtry large -> Test with different sizes!
+//void drawWithoutReplacementSkip(std::unordered_set<size_t>& result, std::mt19937_64& random_number_generator,
+//    size_t max, std::vector<size_t>& skip, size_t num_samples) {
+//
+//  std::uniform_int_distribution<size_t> unif_dist(0, max - 1 - skip.size());
+//  for (size_t i = 0; i < num_samples; ++i) {
+//    size_t draw;
+//    do {
+//      draw = unif_dist(random_number_generator);
+//      for (auto& skip_value : skip) {
+//        if (draw >= skip_value) {
+//          ++draw;
+//        }
+//      }
+//    } while (result.count(draw) > 0);
+//    result.insert(draw);
+//  }
+//}
 
-  std::uniform_int_distribution<size_t> unif_dist(0, max - 1 - skip.size());
-  for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
-    do {
-      draw = unif_dist(random_number_generator);
+// TODO: Correct ref
+// TODO: Beautify
+// Knuth 3.4.2 Algo S
+void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max, std::vector<size_t>& skip,
+    size_t num_samples) {
+
+  result.resize(num_samples);
+
+  std::uniform_real_distribution<double> distribution(0.0, 1.0);
+
+  int t = 0; // total input records dealt with
+  int m = 0; // number of items selected so far
+  double u;
+  int draw;
+
+  while (m < num_samples) {
+    u = distribution(random_number_generator); // call a uniform(0,1) random number generator
+
+    if ((max - t - skip.size()) * u >= num_samples - m) {
+      t++;
+    } else {
+      draw = t;
       for (auto& skip_value : skip) {
         if (draw >= skip_value) {
           ++draw;
         }
       }
-    } while (result.count(draw) > 0);
-    result.insert(draw);
+      result[m] = draw;
+      t++;
+      m++;
+    }
   }
+
 }
 
-void drawWithoutReplacementWeighted(std::unordered_set<size_t>& result, std::mt19937_64& random_number_generator,
+void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
     std::vector<size_t>& indizes, size_t num_samples, std::vector<double>& weights) {
 
+  std::unordered_set<size_t> temp;
   std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
   for (size_t i = 0; i < num_samples; ++i) {
     size_t draw;
     do {
       draw = weighted_dist(random_number_generator);
-    } while (result.count(indizes[draw]) > 0);
-    result.insert(indizes[draw]);
+    } while (temp.count(indizes[draw]) > 0);
+    temp.insert(indizes[draw]);
   }
+  result.resize(num_samples);
+  std::copy(temp.begin(), temp.end(), result.begin());
 }
 
 double mostFrequentValue(std::unordered_map<double, size_t>& class_count, std::mt19937_64 random_number_generator) {

@@ -31,7 +31,6 @@ wright@imbs.uni-luebeck.de
 
 #include <vector>
 #include <random>
-#include <unordered_set>
 #include <iostream>
 
 #include "globals.h"
@@ -86,10 +85,10 @@ public:
   }
 
 protected:
-  void createPossibleSplitVarSubset(std::unordered_set<size_t>& result);
+  void createPossibleSplitVarSubset(std::vector<size_t>& result);
 
   void splitNode(size_t nodeID);
-  virtual bool splitNodeInternal(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) = 0;
+  virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) = 0;
 
   void createEmptyNode();
   virtual void createEmptyNodeInternal() = 0;

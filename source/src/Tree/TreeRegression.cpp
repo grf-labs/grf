@@ -29,7 +29,6 @@ wright@imbs.uni-luebeck.de
 #include <algorithm>
 #include <iostream>
 #include <iterator>
-#include <unordered_set>
 #include <vector>
 
 #include "TreeRegression.h"
@@ -65,7 +64,7 @@ void TreeRegression::appendToFileInternal(std::ofstream& file) {
   // Empty on purpose
 }
 
-bool TreeRegression::splitNodeInternal(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
+bool TreeRegression::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {
@@ -99,7 +98,7 @@ double TreeRegression::computePredictionAccuracyInternal() {
   return (1.0 - sum_of_squares / (double) predictions[0].size());
 }
 
-bool TreeRegression::findBestSplit(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
+bool TreeRegression::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   //size_t num_samples = sampleIDs[nodeID].size();
   double best_decrease = -1;

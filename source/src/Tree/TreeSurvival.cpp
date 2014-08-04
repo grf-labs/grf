@@ -31,7 +31,6 @@
 #include <iostream>
 #include <iterator>
 #include <numeric>
-#include <unordered_set>
 #include <vector>
 
 #include "utility.h"
@@ -71,7 +70,7 @@ void TreeSurvival::appendToFileInternal(std::ofstream& file) {
   saveVector2D(chf_vector, file);
 }
 
-bool TreeSurvival::splitNodeInternal(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
+bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   return findBestSplitLogRank(nodeID, possible_split_varIDs);
 }
@@ -92,7 +91,7 @@ double TreeSurvival::computePredictionAccuracyInternal() {
   return computeConcordanceIndex(data, sum_chf, dependent_varID, status_varID, oob_sampleIDs);
 }
 
-bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
+bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   double best_logrank = -1;
   size_t best_varID = 0;

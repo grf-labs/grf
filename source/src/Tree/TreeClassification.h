@@ -48,13 +48,13 @@ public:
   void appendToFileInternal(std::ofstream& file);
 
 private:
-  bool splitNodeInternal(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs);
+  bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
   void createEmptyNodeInternal();
 
   double computePredictionAccuracyInternal();
 
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
-  bool findBestSplit(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs);
+  bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
 
   void addGiniImportance(size_t nodeID, size_t varID, double decrease);
 

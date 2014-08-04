@@ -3,6 +3,8 @@
 ## TOOD software
 ## ----------------------------------------------------------------------- ##
 
+- Note in help that slow when using splitweights
+
 - Compare speed with biomarcare data with RSF
 - Very slow for survival.. Why? Profile! Check for non-GWA data (biomarcare)
   -> Problems with variables with many different values
@@ -57,6 +59,7 @@
 - Cross validation
 - Look at similiarity of trees, find representative trees (Idea: sequence
 	alignment)
+- A Node impurity measure for survival forests?
 
 
 ## ----------------------------------------------------------------------- ##

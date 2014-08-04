@@ -26,7 +26,6 @@ http://www.imbs-luebeck.de
 wright@imbs.uni-luebeck.de
 #-------------------------------------------------------------------------------*/
 
-#include <unordered_set>
 #include <unordered_map>
 #include <random>
 #include <algorithm>
@@ -70,7 +69,7 @@ void TreeClassification::appendToFileInternal(std::ofstream& file) {
   // Empty on purpose
 }
 
-bool TreeClassification::splitNodeInternal(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
+bool TreeClassification::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   // TODO: <= okay? should it not be < ?
   // Check node size, stop if maximum reached
@@ -123,7 +122,7 @@ double TreeClassification::computePredictionAccuracyInternal() {
   return (1.0 - (double) num_missclassifications / (double) num_predictions);
 }
 
-bool TreeClassification::findBestSplit(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
+bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   size_t num_classes = class_values->size();
   double best_decrease = -1;

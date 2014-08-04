@@ -77,7 +77,7 @@ void TreeProbability::appendToFileInternal(std::ofstream& file) {
   saveVector2D(terminal_class_counts_vector, file);
 }
 
-bool TreeProbability::splitNodeInternal(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
+bool TreeProbability::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {
@@ -131,7 +131,7 @@ double TreeProbability::computePredictionAccuracyInternal() {
   return (1.0 - (double) num_missclassifications / (double) num_predictions);
 }
 
-bool TreeProbability::findBestSplit(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) {
+bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   //size_t num_samples = sampleIDs[nodeID].size();
   double best_decrease = -1;
