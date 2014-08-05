@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <math.h>
 #include <iostream>
@@ -96,7 +96,7 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
   }
 }
 
-// TODO: Need speedup here if mtry large -> Test with different sizes!
+// TODO: Remove
 //void drawWithoutReplacementSkip(std::unordered_set<size_t>& result, std::mt19937_64& random_number_generator,
 //    size_t max, std::vector<size_t>& skip, size_t num_samples) {
 //
@@ -115,36 +115,34 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
 //  }
 //}
 
-// TODO: Correct ref
-// TODO: Beautify
-// Knuth 3.4.2 Algo S
-void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max, std::vector<size_t>& skip,
-    size_t num_samples) {
+// from Knuth 1985, The Art of Computer Programming, Vol. 2, Sec. 3.4.2 Algorithm S
+void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
+    std::vector<size_t>& skip, size_t num_samples) {
 
+  size_t size_no_skip = max - skip.size();
   result.resize(num_samples);
+  double u;
+  size_t final_value;
 
   std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
-  int t = 0; // total input records dealt with
-  int m = 0; // number of items selected so far
-  double u;
-  int draw;
+  size_t i = 0;
+  size_t j = 0;
+  while (i < num_samples) {
+    u = distribution(random_number_generator);
 
-  while (m < num_samples) {
-    u = distribution(random_number_generator); // call a uniform(0,1) random number generator
-
-    if ((max - t - skip.size()) * u >= num_samples - m) {
-      t++;
+    if ((size_no_skip - j) * u >= num_samples - i) {
+      j++;
     } else {
-      draw = t;
+      final_value = j;
       for (auto& skip_value : skip) {
-        if (draw >= skip_value) {
-          ++draw;
+        if (final_value >= skip_value) {
+          ++final_value;
         }
       }
-      result[m] = draw;
-      t++;
-      m++;
+      result[i] = final_value;
+      j++;
+      i++;
     }
   }
 
