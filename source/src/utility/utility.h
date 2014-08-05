@@ -152,7 +152,7 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
 
 /**
  * Draw random numbers in a range without replacement and skip values.
- * @param result Unordered set to add results to. Will not be cleaned before filling.
+ * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param range_length Length of range. Interval to draw from: 0..max-1
  * @param skip Values to skip
@@ -160,6 +160,29 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
  */
 void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
     size_t range_length, std::vector<size_t>& skip, size_t num_samples);
+
+/**
+ * Simple algorithm for sampling without replacement, faster for smaller num_samples
+ * @param result Vector to add results to. Will not be cleaned before filling.
+ * @param random_number_generator Random number generator
+ * @param range_length Length of range. Interval to draw from: 0..max-1
+ * @param skip Values to skip
+ * @param num_samples Number of samples to draw
+ */
+void drawWithoutReplacementSimple(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
+    std::vector<size_t>& skip, size_t num_samples);
+
+/**
+ * Knuth's algorithm for sampling without replacement, faster for larger num_samples
+ * Idea from Knuth 1985, The Art of Computer Programming, Vol. 2, Sec. 3.4.2 Algorithm S
+ * @param result Vector to add results to. Will not be cleaned before filling.
+ * @param random_number_generator Random number generator
+ * @param range_length Length of range. Interval to draw from: 0..max-1
+ * @param skip Values to skip
+ * @param num_samples Number of samples to draw
+ */
+void drawWithoutReplacementKnuth(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
+    std::vector<size_t>& skip, size_t num_samples);
 
 /**
  * Draw random numers without replacement and with weighted probabilites.

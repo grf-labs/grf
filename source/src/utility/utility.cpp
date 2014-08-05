@@ -115,8 +115,41 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
 //  }
 //}
 
-// from Knuth 1985, The Art of Computer Programming, Vol. 2, Sec. 3.4.2 Algorithm S
 void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
+    std::vector<size_t>& skip, size_t num_samples) {
+  if (num_samples < max / 2) {
+    drawWithoutReplacementSimple(result, random_number_generator, max, skip, num_samples);
+  } else {
+    drawWithoutReplacementKnuth(result, random_number_generator, max, skip, num_samples);
+  }
+}
+
+void drawWithoutReplacementSimple(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
+    std::vector<size_t>& skip, size_t num_samples) {
+
+  result.reserve(num_samples);
+
+  // Set all to not selected
+  std::vector<bool> temp;
+  temp.resize(max, false);
+
+  std::uniform_int_distribution<size_t> unif_dist(0, max - 1 - skip.size());
+  for (size_t i = 0; i < num_samples; ++i) {
+    size_t draw;
+    do {
+      draw = unif_dist(random_number_generator);
+      for (auto& skip_value : skip) {
+        if (draw >= skip_value) {
+          ++draw;
+        }
+      }
+    } while (temp[draw]);
+    temp[draw] = true;
+    result.push_back(draw);
+  }
+}
+
+void drawWithoutReplacementKnuth(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
     std::vector<size_t>& skip, size_t num_samples) {
 
   size_t size_no_skip = max - skip.size();
@@ -145,7 +178,6 @@ void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& ra
       i++;
     }
   }
-
 }
 
 void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
