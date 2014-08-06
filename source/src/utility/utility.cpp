@@ -183,17 +183,21 @@ void drawWithoutReplacementKnuth(std::vector<size_t>& result, std::mt19937_64& r
 void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
     std::vector<size_t>& indizes, size_t num_samples, std::vector<double>& weights) {
 
-  std::unordered_set<size_t> temp;
+  result.reserve(num_samples);
+
+  // Set all to not selected
+  std::vector<bool> temp;
+  temp.resize(indizes.size(), false);
+
   std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
   for (size_t i = 0; i < num_samples; ++i) {
     size_t draw;
     do {
       draw = weighted_dist(random_number_generator);
-    } while (temp.count(indizes[draw]) > 0);
-    temp.insert(indizes[draw]);
+    } while (temp[indizes[draw]]);
+    temp[indizes[draw]] = true;
+    result.push_back(indizes[draw]);
   }
-  result.resize(num_samples);
-  std::copy(temp.begin(), temp.end(), result.begin());
 }
 
 double mostFrequentValue(std::unordered_map<double, size_t>& class_count, std::mt19937_64 random_number_generator) {
