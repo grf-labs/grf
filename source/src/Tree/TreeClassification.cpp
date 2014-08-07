@@ -133,6 +133,10 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
   size_t* class_counts_left = new size_t[num_classes];
   size_t* class_counts = new size_t[num_classes];
 
+  size_t* class_counts_0 = new size_t[num_classes];
+  size_t* class_counts_1 = new size_t[num_classes];
+  size_t* class_counts_2 = new size_t[num_classes];
+
   // Compute overall class counts
   for (size_t i = 0; i < num_classes; ++i) {
     class_counts[i] = 0;
@@ -150,58 +154,147 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
     std::vector<double> possible_split_values;
     data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
 
-    //Try next variable if all equal for this
-    if (possible_split_values.size() < 2) {
-      continue;
-    }
+    // If the column consists only of gwa data
+    if (possible_split_values.size() == 3 && possible_split_values[0] == 0 && possible_split_values[1] == 1
+        && possible_split_values[2] == 2) {
 
-    // For all possible split values
-    for (auto& split_value : possible_split_values) {
-
-      // Virtually split at this value. Count overall and for classes.
-      size_t n_left = 0;
       for (size_t i = 0; i < num_classes; ++i) {
-        class_counts_left[i] = 0;
+        class_counts_0[i] = 0;
+        class_counts_1[i] = 0;
+        class_counts_2[i] = 0;
       }
 
-      for (auto& sampleID : sampleIDs[nodeID]) {
+      size_t n_0 = 0;
+      size_t n_1 = 0;
+      size_t n_2 = 0;
+
+      for (size_t i = 0; i < num_samples_node; ++i) {
+        size_t sampleID = sampleIDs[nodeID][i];
         double value = data->get(sampleID, varID);
         uint sample_classID = (*response_classIDs)[sampleID];
-        if (value <= split_value) {
-          ++n_left;
-          ++class_counts_left[sample_classID];
+
+        // Add to count
+        if (value == 0) {
+          ++class_counts_0[sample_classID];
+          ++n_0;
+        } else if (value == 1) {
+          ++class_counts_1[sample_classID];
+          ++n_1;
+        } else {
+          ++class_counts_2[sample_classID];
+          ++n_2;
         }
       }
 
-      // Stop if one child empty
-      size_t n_right = num_samples_node - n_left;
-      if (n_left == 0 || n_right == 0) {
+      // Split at 0 or 1
+
+      // Sum of squares
+      double sum_left_split_0 = 0;
+      double sum_right_split_0 = 0;
+      double sum_left_split_1 = 0;
+      double sum_right_split_1 = 0;
+      for (size_t i = 0; i < num_classes; ++i) {
+        size_t class_count_right = class_counts[i] - class_counts_0[i];
+        sum_left_split_0 += class_counts_0[i] * class_counts_0[i];
+        //sum_right_split_0 += class_counts_1[i] * class_counts_1[i] + class_counts_2[i] * class_counts_2[i];
+        sum_right_split_0 += class_count_right * class_count_right;
+
+        size_t class_count_left = class_counts[i] - class_counts_2[i];
+        //sum_left_split_1 += class_counts_0[i] * class_counts_0[i] + class_counts_1[i] * class_counts_1[i];
+        sum_left_split_1 += class_count_left * class_count_left;
+        sum_right_split_1 += +class_counts_2[i] * class_counts_2[i];
+      }
+      size_t n_left_split_0 = n_0;
+      size_t n_right_split_0 = n_1 + n_2;
+      size_t n_left_split_1 = n_0 + n_1;
+      size_t n_right_split_1 = n_2;
+
+      // Decrease of impurity
+      double decrease_split_0 = sum_left_split_0 / (double) n_left_split_0
+          + sum_right_split_0 / (double) n_right_split_0;
+      double decrease_split_1 = sum_left_split_1 / (double) n_left_split_1
+          + sum_right_split_1 / (double) n_right_split_1;
+
+      // If better than before, use this
+      if (decrease_split_0 > best_decrease) {
+        best_value = 0;
+        best_varID = varID;
+        best_decrease = decrease_split_0;
+      }
+      if (decrease_split_1 > best_decrease) {
+        best_value = 1;
+        best_varID = varID;
+        best_decrease = decrease_split_1;
+      }
+
+      // TODO: Remove
+//      std::cout << "Var: " << varID << ", Val: " << best_value << ", dec: " << decrease_split_0 << ", sumleft: " << sum_left_split_0
+//          << ", sumright: " << sum_right_split_0 << ", nleft: " << n_left_split_0 << ", nright: " << n_right_split_0 << std::endl;
+
+    } else {
+
+      //Try next variable if all equal for this
+      if (possible_split_values.size() < 2) {
         continue;
       }
 
-      // Sum of squares
-      double sum_left = 0;
-      double sum_right = 0;
-      for (size_t i = 0; i < num_classes; ++i) {
-        size_t class_counts_right = class_counts[i] - class_counts_left[i];
-        sum_left += class_counts_left[i] * class_counts_left[i];
-        sum_right += class_counts_right * class_counts_right;
-      }
+      // For all possible split values
+      for (auto& split_value : possible_split_values) {
 
-      // Decrease of impurity
-      double decrease = sum_left / (double) n_left + sum_right / (double) n_right;
+        // Virtually split at this value. Count overall and for classes.
+        size_t n_left = 0;
+        for (size_t i = 0; i < num_classes; ++i) {
+          class_counts_left[i] = 0;
+          //        class_counts_right[i] = 0;
+        }
 
-      // If better than before, use this
-      if (decrease > best_decrease) {
-        best_value = split_value;
-        best_varID = varID;
-        best_decrease = decrease;
+        for (auto& sampleID : sampleIDs[nodeID]) {
+          double value = data->get(sampleID, varID);
+          uint sample_classID = (*response_classIDs)[sampleID];
+          if (value <= split_value) {
+            ++n_left;
+            ++class_counts_left[sample_classID];
+          }
+//          else {
+//            ++class_counts_right[sample_classID];
+//          }
+        }
+
+        // Stop if one child empty
+        size_t n_right = num_samples_node - n_left;
+        if (n_left == 0 || n_right == 0) {
+          continue;
+        }
+
+        // Sum of squares
+        double sum_left = 0;
+        double sum_right = 0;
+        for (size_t i = 0; i < num_classes; ++i) {
+          size_t class_count_right = class_counts[i] - class_counts_left[i];
+          sum_left += class_counts_left[i] * class_counts_left[i];
+          sum_right += class_count_right * class_count_right;
+          //         sum_right += class_counts_right[i] * class_counts_right[i];
+        }
+
+        // Decrease of impurity
+        double decrease = sum_left / (double) n_left + sum_right / (double) n_right;
+
+        // If better than before, use this
+        if (decrease > best_decrease) {
+          best_value = split_value;
+          best_varID = varID;
+          best_decrease = decrease;
+        }
       }
     }
   }
 
   delete[] class_counts_left;
   delete[] class_counts;
+
+  delete[] class_counts_0;
+  delete[] class_counts_1;
+  delete[] class_counts_2;
 
   // Stop if no good split found
   if (best_decrease < 0) {

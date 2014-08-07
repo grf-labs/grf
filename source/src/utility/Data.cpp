@@ -178,7 +178,7 @@ void Data::getAllValues(std::vector<double>& all_values, std::vector<size_t>& sa
     }
   } else {
     // If GWA data just use 0, 1. A split on 2 would always put all to the left.
-    all_values = std::vector<double>( { 0, 1 });
+    all_values = std::vector<double>( { 0, 1, 2 });
   }
 
 }
