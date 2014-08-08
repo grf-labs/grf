@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <unordered_map>
 #include <random>
@@ -124,13 +124,30 @@ double TreeClassification::computePredictionAccuracyInternal() {
 
 bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
+  size_t num_samples_node = sampleIDs[nodeID].size();
   size_t num_classes = class_values->size();
   double best_decrease = -1;
   size_t best_varID = 0;
   double best_value = 0;
 
+  // Class counts
   size_t* class_counts_left = new size_t[num_classes];
-  size_t* class_counts_right = new size_t[num_classes];
+  size_t* class_counts = new size_t[num_classes];
+
+  // Reuse class_counts_left
+  size_t* class_counts_0 = class_counts_left;
+  size_t* class_counts_1 = new size_t[num_classes];
+  size_t* class_counts_2 = new size_t[num_classes];
+
+  // Compute overall class counts
+  for (size_t i = 0; i < num_classes; ++i) {
+    class_counts[i] = 0;
+  }
+  for (size_t i = 0; i < num_samples_node; ++i) {
+    size_t sampleID = sampleIDs[nodeID][i];
+    uint sample_classID = (*response_classIDs)[sampleID];
+    ++class_counts[sample_classID];
+  }
 
   // For all possible split variables
   for (auto& varID : possible_split_varIDs) {
@@ -144,56 +161,25 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
       continue;
     }
 
-    // For all possible split values
-    for (auto& split_value : possible_split_values) {
+    // If the column consists only of gwa data
+    if (possible_split_values.size() == 3 && possible_split_values[0] == 0 && possible_split_values[1] == 1
+        && possible_split_values[2] == 2) {
 
-      // Virtually split at this value. Count overall and for classes.
-      size_t n_left = 0;
-      size_t n_right = 0;
-      for (size_t i = 0; i < num_classes; ++i) {
-        class_counts_left[i] = 0;
-        class_counts_right[i] = 0;
-      }
+      findBestSplitValueGWA(nodeID, varID, num_classes, num_samples_node, class_counts, class_counts_0, class_counts_1,
+          class_counts_2, best_value, best_varID, best_decrease);
 
-      for (auto& sampleID : sampleIDs[nodeID]) {
-        double value = data->get(sampleID, varID);
-        uint sample_classID = (*response_classIDs)[sampleID];
-        if (value <= split_value) {
-          ++n_left;
-          ++class_counts_left[sample_classID];
-        } else {
-          ++n_right;
-          ++class_counts_right[sample_classID];
-        }
-      }
+    } else {
 
-      // Stop if one child empty
-      if (n_left == 0 || n_right == 0) {
-        continue;
-      }
+      findBestSplitValue(nodeID, varID, possible_split_values, class_counts, class_counts_left, num_classes,
+          num_samples_node, best_value, best_varID, best_decrease);
 
-      // Sum of squares
-      double sum_left = 0;
-      double sum_right = 0;
-      for (size_t i = 0; i < num_classes; ++i) {
-        sum_left += class_counts_left[i] * class_counts_left[i];
-        sum_right += class_counts_right[i] * class_counts_right[i];
-      }
-
-      // Decrease of impurity
-      double decrease = sum_left / (double) n_left + sum_right / (double) n_right;
-
-      // If better than before, use this
-      if (decrease > best_decrease) {
-        best_value = split_value;
-        best_varID = varID;
-        best_decrease = decrease;
-      }
     }
   }
 
   delete[] class_counts_left;
-  delete[] class_counts_right;
+  delete[] class_counts;
+  delete[] class_counts_1;
+  delete[] class_counts_2;
 
   // Stop if no good split found
   if (best_decrease < 0) {
@@ -209,6 +195,129 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
     addGiniImportance(nodeID, best_varID, best_decrease);
   }
   return false;
+}
+
+void TreeClassification::findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+    size_t* class_counts, size_t* class_counts_left, size_t num_classes, size_t num_samples_node, double& best_value,
+    size_t& best_varID, double& best_decrease) {
+
+  // For all possible split values
+  for (auto& split_value : possible_split_values) {
+
+    // Initialize
+    size_t n_left = 0;
+    for (size_t i = 0; i < num_classes; ++i) {
+      class_counts_left[i] = 0;
+    }
+
+    // Virtually split at this value. Count overall and for classes.
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      double value = data->get(sampleID, varID);
+      uint sample_classID = (*response_classIDs)[sampleID];
+      if (value <= split_value) {
+        ++n_left;
+        ++class_counts_left[sample_classID];
+      }
+    }
+
+    // Stop if one child empty
+    size_t n_right = num_samples_node - n_left;
+    if (n_left == 0 || n_right == 0) {
+      continue;
+    }
+
+    // Sum of squares
+    double sum_left = 0;
+    double sum_right = 0;
+    for (size_t i = 0; i < num_classes; ++i) {
+      size_t class_count_right = class_counts[i] - class_counts_left[i];
+      sum_left += class_counts_left[i] * class_counts_left[i];
+      sum_right += class_count_right * class_count_right;
+    }
+
+    // Decrease of impurity
+    double decrease = sum_left / (double) n_left + sum_right / (double) n_right;
+
+    // If better than before, use this
+    if (decrease > best_decrease) {
+      best_value = split_value;
+      best_varID = varID;
+      best_decrease = decrease;
+    }
+  }
+
+}
+
+void TreeClassification::findBestSplitValueGWA(size_t nodeID, size_t varID, size_t num_classes, size_t num_samples_node,
+    size_t* class_counts, size_t* class_counts_0, size_t* class_counts_1, size_t* class_counts_2, double& best_value,
+    size_t& best_varID, double& best_decrease) {
+
+  // Initialize
+  for (size_t i = 0; i < num_classes; ++i) {
+    class_counts_0[i] = 0;
+    class_counts_1[i] = 0;
+    class_counts_2[i] = 0;
+  }
+  size_t n_0 = 0;
+  size_t n_1 = 0;
+  size_t n_2 = 0;
+
+  // Count 0,1,2 per classes
+  for (size_t i = 0; i < num_samples_node; ++i) {
+    size_t sampleID = sampleIDs[nodeID][i];
+    double value = data->get(sampleID, varID);
+    uint sample_classID = (*response_classIDs)[sampleID];
+
+    // Add to count
+    if (value == 0) {
+      ++class_counts_0[sample_classID];
+      ++n_0;
+    } else if (value == 1) {
+      ++class_counts_1[sample_classID];
+      ++n_1;
+    } else {
+      ++class_counts_2[sample_classID];
+      ++n_2;
+    }
+  }
+
+  // Split at 0 or 1
+  // Sum of squares
+  double sum_left_split_0 = 0;
+  double sum_right_split_0 = 0;
+  double sum_left_split_1 = 0;
+  double sum_right_split_1 = 0;
+  for (size_t i = 0; i < num_classes; ++i) {
+    size_t class_count_right = class_counts[i] - class_counts_0[i];
+    sum_left_split_0 += class_counts_0[i] * class_counts_0[i];
+    sum_right_split_0 += class_count_right * class_count_right;
+
+    size_t class_count_left = class_counts[i] - class_counts_2[i];
+    sum_left_split_1 += class_count_left * class_count_left;
+    sum_right_split_1 += +class_counts_2[i] * class_counts_2[i];
+  }
+
+  // Number of samples left and right per split
+  size_t n_left_split_0 = n_0;
+  size_t n_right_split_0 = n_1 + n_2;
+  size_t n_left_split_1 = n_0 + n_1;
+  size_t n_right_split_1 = n_2;
+
+  // Decrease of impurity
+  double decrease_split_0 = sum_left_split_0 / (double) n_left_split_0 + sum_right_split_0 / (double) n_right_split_0;
+  double decrease_split_1 = sum_left_split_1 / (double) n_left_split_1 + sum_right_split_1 / (double) n_right_split_1;
+
+  // If better than before, use this
+  if (decrease_split_0 > best_decrease) {
+    best_value = 0;
+    best_varID = varID;
+    best_decrease = decrease_split_0;
+  }
+  if (decrease_split_1 > best_decrease) {
+    best_value = 1;
+    best_varID = varID;
+    best_decrease = decrease_split_1;
+  }
 }
 
 void TreeClassification::addGiniImportance(size_t nodeID, size_t varID, double decrease) {
