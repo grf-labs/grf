@@ -345,7 +345,7 @@ void Forest::grow() {
   for (uint i = 0; i < num_threads; ++i) {
     threads.push_back(std::thread(&Forest::growTreesInThread, this, i));
   }
-  showProgress();
+  showProgress("Growing trees..");
   for (auto &thread : threads) {
     thread.join();
   }
@@ -360,7 +360,7 @@ void Forest::predict() {
   for (uint i = 0; i < num_threads; ++i) {
     threads.push_back(std::thread(&Forest::predictTreesInThread, this, i, data, false));
   }
-  showProgress();
+  showProgress("Predicting..");
   for (auto &thread : threads) {
     thread.join();
   }
@@ -411,7 +411,7 @@ void Forest::computePermutationImportance() {
   for (uint i = 0; i < num_threads; ++i) {
     threads.push_back(std::thread(&Forest::computeTreePermutationImportanceInThread, this, i));
   }
-  //showProgress();
+  showProgress("Computing permutation importance..");
   for (auto &thread : threads) {
     thread.join();
   }
@@ -555,7 +555,7 @@ void Forest::setAlwaysSplitVariables(std::vector<std::string>& always_split_vari
   }
 }
 
-void Forest::showProgress() {
+void Forest::showProgress(std::string operation) {
   using std::chrono::steady_clock;
   using std::chrono::duration_cast;
   using std::chrono::seconds;
@@ -573,7 +573,7 @@ void Forest::showProgress() {
       double relative_progress = (double) progress / (double) num_trees;
       seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
       uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
-      *verbose_out << "Progress: " << round(100 * relative_progress) << "%. Estimated remaining time: "
+      *verbose_out << operation << " Progress: " << round(100 * relative_progress) << "%. Estimated remaining time: "
           << beautifyTime(remaining_time) << "." << std::endl;
       last_time = steady_clock::now();
     }
