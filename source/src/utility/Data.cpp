@@ -177,8 +177,8 @@ void Data::getAllValues(std::vector<double>& all_values, std::vector<size_t>& sa
       }
     }
   } else {
-    // If GWA data just use 0, 1, 2.
-    all_values = std::vector<double>( { 0, 1, 2 });
+    // If GWA data just use 0, 1. A split at 2 would always produce empty right child.
+    all_values = std::vector<double>( { 0, 1});
   }
 
 }

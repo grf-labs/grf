@@ -162,8 +162,9 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
     }
 
     // If the column consists only of gwa data
-    if (possible_split_values.size() == 3 && possible_split_values[0] == 0 && possible_split_values[1] == 1
-        && possible_split_values[2] == 2) {
+    if ((possible_split_values.size() == 2 && possible_split_values[0] == 0 && possible_split_values[1] == 1)
+        || (possible_split_values.size() == 3 && possible_split_values[0] == 0 && possible_split_values[1] == 1
+            && possible_split_values[2] == 2)) {
 
       findBestSplitValueGWA(nodeID, varID, num_classes, num_samples_node, class_counts, class_counts_0, class_counts_1,
           class_counts_2, best_value, best_varID, best_decrease);
