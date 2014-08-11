@@ -21,7 +21,8 @@ src.file <- c("Makevars", "Makevars.win", "rangerCpp.cpp",
 src.file <- src.file[src.file != ("../source/src/main.cpp") &
                        src.file != ("../source/src/utility/ArgumentHandler.cpp") &
                        src.file != ("../source/src/utility/ArgumentHandler.h")]
-code.file <- c("ranger.R", "predict.R", "print.R", "importance.R", "predictions.R", "timepoints.R")
+code.file <- c("ranger.R", "predict.R", "print.R", "importance.R", "predictions.R", 
+               "timepoints.R", "tune.R")
 
 ## Get version
 package.version <- scan("../source/src/version.h", character(0))[5]
