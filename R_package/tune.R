@@ -27,39 +27,45 @@
 # -------------------------------------------------------------------------------
 
 ##' Runs ranger for a vector of \code{mtry} values and returns the prediction error for each run.
-##'
+##' For each \code{mtry} the analysis will be replicated \code{n} times.
 ##'
 ##' @title Tune mtry
 ##' @param mtry Vector of \code{mtry} values to try.
+##' @param n Number of replicates.
 ##' @param ... Further arguments passed to Ranger.
 ##' @return Prediction error for each tried \code{mtry} value.
 ##' @seealso \code{\link{ranger}}
 ##' @author Marvin N. Wright
 ##' @export
-tune.mtry <- function(mtry, ...) {
-  result <- sapply(mtry, function(x) {
-    rf <- ranger(mtry = x, ...)
-    rf$prediction.error
+tune.mtry <- function(mtry, n = 1, ...) {
+  result <- sapply(1:n, function(x) {
+    sapply(mtry, function(y) {
+      rf <- ranger(mtry = y, ...)
+      rf$prediction.error
+    })
   })
-  names(result) <- mtry
+  rownames(result) <- mtry
   return(result)
 }
 
 ##' Runs ranger for a vector of \code{min.node.size} values and returns the prediction error for each run.
-##'
+##' For each \code{mtry} the analysis will be replicated \code{n} times.
 ##'
 ##' @title Tune terminal node size
 ##' @param min.node.size Vector of \code{min.node.size} values to try.
+##' @param n Number of replicates.
 ##' @param ... Further arguments passed to Ranger.
 ##' @return Prediction error for each tried \code{min.node.size} value.
 ##' @seealso \code{\link{ranger}}
 ##' @author Marvin N. Wright
 ##' @export
-tune.nodesize <- function(min.node.size, ...) {
-  result <- sapply(min.node.size, function(x) {
-    rf <- ranger(min.node.size = x, ...)
-    rf$prediction.error
+tune.nodesize <- function(min.node.size, n = 1, ...) {
+  result <- sapply(1:n, function(x) {
+    sapply(min.node.size, function(y) {
+      rf <- ranger(min.node.size = y, ...)
+      rf$prediction.error
+    })
   })
-  names(result) <- min.node.size
+  rownames(result) <- min.node.size
   return(result)
 }
