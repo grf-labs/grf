@@ -76,6 +76,8 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   if (importance_mode == IMP_GINI) {
     variable_importance.resize(data->getNumCols() - no_split_variables->size());
   }
+
+  initInternal();
 }
 
 void Tree::grow() {
@@ -91,6 +93,7 @@ void Tree::grow() {
 
   // Delete sampleID vector to save memory
   sampleIDs.clear();
+  cleanUpInternal();
 }
 
 void Tree::predict(const Data* prediction_data, bool oob_prediction) {
