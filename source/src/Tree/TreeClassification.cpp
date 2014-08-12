@@ -38,20 +38,30 @@
 #include "Data.h"
 
 TreeClassification::TreeClassification(std::vector<double>* class_values, std::vector<uint>* response_classIDs) :
-    class_values(class_values), response_classIDs(response_classIDs) {
+    class_values(class_values), response_classIDs(response_classIDs), class_counts(0), class_counts_left(0), class_counts_0(
+        0), class_counts_1(0) {
 }
 
 TreeClassification::TreeClassification(std::vector<std::vector<size_t>>& child_nodeIDs,
     std::vector<size_t>& split_varIDs, std::vector<double>& split_values, std::vector<double>* class_values,
     std::vector<uint>* response_classIDs) :
-    Tree(child_nodeIDs, split_varIDs, split_values), class_values(class_values), response_classIDs(response_classIDs) {
+    Tree(child_nodeIDs, split_varIDs, split_values), class_values(class_values), response_classIDs(response_classIDs), class_counts(
+        0), class_counts_left(0), class_counts_0(0), class_counts_1(0) {
 }
 
 TreeClassification::~TreeClassification() {
 }
 
 void TreeClassification::initInternal() {
-  // TODO
+
+  size_t num_classes = class_values->size();
+  // Class counts
+  class_counts = new size_t[num_classes];
+  class_counts_left = new size_t[num_classes];
+
+  // For GWA mode, reuse left for 0
+  class_counts_0 = class_counts_left;
+  class_counts_1 = new size_t[num_classes];
 }
 
 void TreeClassification::addPrediction(size_t nodeID, size_t sampleID) {
@@ -134,14 +144,6 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
   size_t best_varID = 0;
   double best_value = 0;
 
-  // Class counts
-  size_t* class_counts_left = new size_t[num_classes];
-  size_t* class_counts = new size_t[num_classes];
-
-  // Reuse class_counts_left
-  size_t* class_counts_0 = class_counts_left;
-  size_t* class_counts_1 = new size_t[num_classes];
-
   // Compute overall class counts
   for (size_t i = 0; i < num_classes; ++i) {
     class_counts[i] = 0;
@@ -169,20 +171,15 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
         || (possible_split_values.size() == 3 && possible_split_values[0] == 0 && possible_split_values[1] == 1
             && possible_split_values[2] == 2)) {
 
-      findBestSplitValueGWA(nodeID, varID, num_classes, num_samples_node, class_counts, class_counts_0, class_counts_1,
-          best_value, best_varID, best_decrease);
+      findBestSplitValueGWA(nodeID, varID, num_classes, num_samples_node, best_value, best_varID, best_decrease);
 
     } else {
 
-      findBestSplitValue(nodeID, varID, possible_split_values, class_counts, class_counts_left, num_classes,
-          num_samples_node, best_value, best_varID, best_decrease);
+      findBestSplitValue(nodeID, varID, possible_split_values, num_classes, num_samples_node, best_value, best_varID,
+          best_decrease);
 
     }
   }
-
-  delete[] class_counts_left;
-  delete[] class_counts;
-  delete[] class_counts_1;
 
   // Stop if no good split found
   if (best_decrease < 0) {
@@ -201,8 +198,7 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
 }
 
 void TreeClassification::findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-    size_t* class_counts, size_t* class_counts_left, size_t num_classes, size_t num_samples_node, double& best_value,
-    size_t& best_varID, double& best_decrease) {
+    size_t num_classes, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 
   // For all possible split values
   for (auto& split_value : possible_split_values) {
@@ -252,8 +248,7 @@ void TreeClassification::findBestSplitValue(size_t nodeID, size_t varID, std::ve
 }
 
 void TreeClassification::findBestSplitValueGWA(size_t nodeID, size_t varID, size_t num_classes, size_t num_samples_node,
-    size_t* class_counts, size_t* class_counts_0, size_t* class_counts_1, double& best_value, size_t& best_varID,
-    double& best_decrease) {
+    double& best_value, size_t& best_varID, double& best_decrease) {
 
   // Initialize
   for (size_t i = 0; i < num_classes; ++i) {
