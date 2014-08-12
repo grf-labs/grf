@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #ifndef TREESURVIVAL_H_
 #define TREESURVIVAL_H_
@@ -69,6 +69,11 @@ private:
       size_t num_unique_death_times);
   void computeChildDeathCounts(size_t nodeID, size_t varID, double split_value, size_t* num_deaths_left_child,
       size_t* num_samples_at_risk_left_child, size_t* num_samples_left_child);
+
+  // Dirty but fast version for GWAS data
+  void findBestSplitValueLogRankGWA(size_t nodeID, size_t varID, size_t* num_samples_at_risk, size_t* num_deaths,
+        size_t* num_samples_at_risk_0, size_t* num_samples_at_risk_1, size_t* num_deaths_0, size_t* num_deaths_1,
+        double& best_value, size_t& best_varID, double& best_logrank);
 
   void reservePredictionMemory(size_t num_predictions) {
     predictions.resize(num_predictions, std::vector<double>());
