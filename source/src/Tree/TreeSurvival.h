@@ -82,7 +82,13 @@ private:
   }
 
   void cleanUpInternal() {
-    // TODO
+    delete[] num_deaths;
+    delete[] num_samples_at_risk;
+    delete[] num_deaths_left_child;
+    delete[] num_samples_at_risk_left_child;
+    delete[] num_deaths_1;
+    delete[] num_samples_at_risk_1;
+    // num_samples_at_risk_0 and num_deaths_0 are deleted by left_child ones
   }
 
   size_t status_varID;
@@ -93,6 +99,16 @@ private:
 
   // For all terminal nodes CHF for all unique timepoints. For other nodes empty vector.
   std::vector<std::vector<double>> chf;
+
+  // Fields to save to while tree growing
+  size_t* num_deaths;
+  size_t* num_samples_at_risk;
+  size_t* num_deaths_left_child;
+  size_t* num_samples_at_risk_left_child;
+  size_t* num_deaths_0;
+  size_t* num_samples_at_risk_0;
+  size_t* num_deaths_1;
+  size_t* num_samples_at_risk_1;
 
   DISALLOW_COPY_AND_ASSIGN(TreeSurvival);
 };
