@@ -51,6 +51,10 @@ TreeSurvival::TreeSurvival(std::vector<std::vector<size_t>>& child_nodeIDs, std:
 TreeSurvival::~TreeSurvival() {
 }
 
+void TreeSurvival::initInternal() {
+  // TODO
+}
+
 void TreeSurvival::addPrediction(size_t nodeID, size_t sampleID) {
   predictions[sampleID] = chf[nodeID];
 }

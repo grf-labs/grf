@@ -50,6 +50,10 @@ TreeClassification::TreeClassification(std::vector<std::vector<size_t>>& child_n
 TreeClassification::~TreeClassification() {
 }
 
+void TreeClassification::initInternal() {
+  // TODO
+}
+
 void TreeClassification::addPrediction(size_t nodeID, size_t sampleID) {
   predictions[0][sampleID] = split_values[nodeID];
 }

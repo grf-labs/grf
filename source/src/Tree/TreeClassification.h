@@ -71,6 +71,10 @@ private:
     predictions[0].resize(num_predictions, 0);
   }
 
+  void cleanUpInternal() {
+    // TODO
+  }
+
   // Classes of the dependent variable and classIDs for responses
   std::vector<double>* class_values;
   std::vector<uint>* response_classIDs;

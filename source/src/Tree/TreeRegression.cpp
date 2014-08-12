@@ -45,6 +45,10 @@ TreeRegression::TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, 
 TreeRegression::~TreeRegression() {
 }
 
+void TreeRegression::initInternal() {
+  // Empty on purpose
+}
+
 void TreeRegression::addPrediction(size_t nodeID, size_t sampleID) {
   predictions[0][sampleID] = split_values[nodeID];
 }

@@ -50,6 +50,7 @@ public:
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement);
+  virtual void initInternal() = 0;
 
   void grow();
 
@@ -102,6 +103,8 @@ protected:
   void bootstrapWithoutReplacement();
 
   virtual void reservePredictionMemory(size_t num_predictions) = 0;
+
+  virtual void cleanUpInternal() = 0;
 
   size_t dependent_varID;
   uint mtry;

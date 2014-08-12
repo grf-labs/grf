@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #ifndef TREEREGRESSION_H_
 #define TREEREGRESSION_H_
@@ -41,6 +41,8 @@ public:
       std::vector<double>& split_values);
 
   virtual ~TreeRegression();
+
+  void initInternal();
 
   void addPrediction(size_t nodeID, size_t sampleID);
   double estimate(size_t nodeID);
@@ -61,9 +63,13 @@ private:
   double computePredictionMSE();
 
   void reservePredictionMemory(size_t num_predictions) {
-      predictions.push_back(std::vector<double>());
-      predictions[0].resize(num_predictions, 0);
-    }
+    predictions.push_back(std::vector<double>());
+    predictions[0].resize(num_predictions, 0);
+  }
+
+  void cleanUpInternal() {
+    // Empty on purpose
+  }
 
   DISALLOW_COPY_AND_ASSIGN(TreeRegression);
 };

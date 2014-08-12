@@ -42,6 +42,8 @@ public:
 
   virtual ~TreeSurvival();
 
+  void initInternal();
+
   void addPrediction(size_t nodeID, size_t sampleID);
   void appendToFileInternal(std::ofstream& file);
   void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
@@ -56,9 +58,6 @@ private:
 
   double computePredictionAccuracyInternal();
 
-  // TODO: Remove
-  //double predictOobPermuted(size_t permuted_varID, std::vector<std::vector<size_t>>* permutations);
-
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplitLogRank(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
 
@@ -72,14 +71,18 @@ private:
 
   // Dirty but fast version for GWAS data
   void findBestSplitValueLogRankGWA(size_t nodeID, size_t varID, size_t* num_samples_at_risk, size_t* num_deaths,
-        size_t* num_samples_at_risk_0, size_t* num_samples_at_risk_1, size_t* num_deaths_0, size_t* num_deaths_1,
-        double& best_value, size_t& best_varID, double& best_logrank);
+      size_t* num_samples_at_risk_0, size_t* num_samples_at_risk_1, size_t* num_deaths_0, size_t* num_deaths_1,
+      double& best_value, size_t& best_varID, double& best_logrank);
 
   void reservePredictionMemory(size_t num_predictions) {
     predictions.resize(num_predictions, std::vector<double>());
     for (auto& sample_vector : predictions) {
       sample_vector.resize(num_timepoints, 0);
     }
+  }
+
+  void cleanUpInternal() {
+    // TODO
   }
 
   size_t status_varID;

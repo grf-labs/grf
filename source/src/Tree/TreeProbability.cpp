@@ -44,6 +44,10 @@ TreeProbability::TreeProbability(std::vector<std::vector<size_t>>& child_nodeIDs
 TreeProbability::~TreeProbability() {
 }
 
+void TreeProbability::initInternal() {
+  // Empty on purpose
+}
+
 void TreeProbability::addPrediction(size_t nodeID, size_t sampleID) {
 
   // TODO: We are copying everything .. Slow?
