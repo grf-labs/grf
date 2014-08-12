@@ -117,7 +117,7 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
   double best_value = 0;
 
   size_t num_unique_death_times = 0;
-  computeDeathCounts(num_deaths, num_samples_at_risk, num_unique_death_times, nodeID);
+  computeDeathCounts(num_unique_death_times, nodeID);
 
   // Stop early if no split posssible
   if (sampleIDs[nodeID].size() >= 2 * min_node_size) {
@@ -138,16 +138,14 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
       if ((possible_split_values.size() == 2 && possible_split_values[0] == 0 && possible_split_values[1] == 1)
           || (possible_split_values.size() == 3 && possible_split_values[0] == 0 && possible_split_values[1] == 1
               && possible_split_values[2] == 2)) {
-        findBestSplitValueLogRankGWA(nodeID, varID, num_samples_at_risk, num_deaths, num_samples_at_risk_0,
-            num_samples_at_risk_1, num_deaths_0, num_deaths_1, best_value, best_varID, best_logrank);
+        findBestSplitValueLogRankGWA(nodeID, varID, best_value, best_varID, best_logrank);
       } else {
 
         // For all possible split values
         for (auto& split_value : possible_split_values) {
 
           // Compute logrank and use split if better than before
-          double logrank = computeLogRankTest(nodeID, varID, split_value, num_deaths, num_samples_at_risk,
-              num_deaths_left_child, num_samples_at_risk_left_child, num_unique_death_times);
+          double logrank = computeLogRankTest(nodeID, varID, split_value, num_unique_death_times);
           if (logrank > best_logrank) {
             best_value = split_value;
             best_varID = varID;
@@ -181,8 +179,7 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
   return result;
 }
 
-void TreeSurvival::computeDeathCounts(size_t* num_deaths, size_t* num_samples_at_risk, size_t& num_unique_death_times,
-    size_t nodeID) {
+void TreeSurvival::computeDeathCounts(size_t& num_unique_death_times, size_t nodeID) {
 
   // Initialize
   for (size_t i = 0; i < num_timepoints; ++i) {
@@ -217,8 +214,7 @@ void TreeSurvival::computeDeathCounts(size_t* num_deaths, size_t* num_samples_at
 
 }
 
-double TreeSurvival::computeLogRankTest(size_t nodeID, size_t varID, double split_value, size_t* num_deaths,
-    size_t* num_samples_at_risk, size_t* num_deaths_left_child, size_t* num_samples_at_risk_left_child,
+double TreeSurvival::computeLogRankTest(size_t nodeID, size_t varID, double split_value,
     size_t num_unique_death_times) {
 
   double nominator = 0;
@@ -231,8 +227,7 @@ double TreeSurvival::computeLogRankTest(size_t nodeID, size_t varID, double spli
   }
 
   size_t num_samples_left_child = 0;
-  computeChildDeathCounts(nodeID, varID, split_value, num_deaths_left_child, num_samples_at_risk_left_child,
-      &num_samples_left_child);
+  computeChildDeathCounts(nodeID, varID, split_value, &num_samples_left_child);
 
   // Do not consider this split point if fewer than min_node_size samples in one node
   size_t num_samples_right_child = sampleIDs[nodeID].size() - num_samples_left_child;
@@ -264,7 +259,7 @@ double TreeSurvival::computeLogRankTest(size_t nodeID, size_t varID, double spli
 }
 
 void TreeSurvival::computeChildDeathCounts(size_t nodeID, size_t varID, double split_value,
-    size_t* num_deaths_left_child, size_t* num_samples_at_risk_left_child, size_t* num_samples_left_child) {
+    size_t* num_samples_left_child) {
 
   // Count deaths and samples at risk in left child for this split
   for (auto& sampleID : sampleIDs[nodeID]) {
@@ -291,9 +286,8 @@ void TreeSurvival::computeChildDeathCounts(size_t nodeID, size_t varID, double s
   }
 }
 
-void TreeSurvival::findBestSplitValueLogRankGWA(size_t nodeID, size_t varID, size_t* num_samples_at_risk,
-    size_t* num_deaths, size_t* num_samples_at_risk_0, size_t* num_samples_at_risk_1, size_t* num_deaths_0,
-    size_t* num_deaths_1, double& best_value, size_t& best_varID, double& best_logrank) {
+void TreeSurvival::findBestSplitValueLogRankGWA(size_t nodeID, size_t varID, double& best_value, size_t& best_varID,
+    double& best_logrank) {
 
   double nominator_split_0 = 0;
   double nominator_split_1 = 0;
