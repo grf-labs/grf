@@ -296,8 +296,8 @@ void TreeSurvival::findBestSplitValueLogRankGWA(size_t nodeID, size_t varID, dou
   size_t all_samples_0 = 0;
   size_t all_samples_1 = 0;
 
-  size_t* num_samples_at_risk_value;
-  size_t* num_deaths_value;
+  size_t* num_samples_at_risk_value = num_samples_at_risk_0;
+  size_t* num_deaths_value = num_deaths_0;
 
   // Initialize
   for (size_t i = 0; i < num_timepoints; ++i) {
