@@ -61,8 +61,8 @@ private:
       size_t* class_counts_left, size_t num_classes, size_t num_samples_node, double& best_value, size_t& best_varID,
       double& best_decrease);
   void findBestSplitValueGWA(size_t nodeID, size_t varID, size_t num_classes, size_t num_samples_node,
-      size_t* class_counts, size_t* class_counts_0, size_t* class_counts_1, size_t* class_counts_2, double& best_value,
-      size_t& best_varID, double& best_decrease);
+      size_t* class_counts, size_t* class_counts_0, size_t* class_counts_1, double& best_value, size_t& best_varID,
+      double& best_decrease);
 
   void addGiniImportance(size_t nodeID, size_t varID, double decrease);
 
