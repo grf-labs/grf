@@ -198,8 +198,8 @@ void TreeSurvival::computeDeathCounts(size_t& num_unique_death_times, size_t nod
 
     // Now t is the survival time, add to at risk and to death if death
     if (t < unique_timepoints->size()) {
-      ++num_samples_at_risk[t];
       if (data->get(sampleID, status_varID) == 1) {
+        ++num_samples_at_risk[t];
         ++num_deaths[t];
       }
     }
@@ -274,10 +274,10 @@ void TreeSurvival::computeChildDeathCounts(size_t nodeID, size_t varID, double s
         ++t;
       }
 
-      // Now t is the survival time, add to at risk and to death if death
+      // Now t is the survival time, add to at risk and to death if death.
       if (t < unique_timepoints->size()) {
-        ++num_samples_at_risk_left_child[t];
         if (data->get(sampleID, status_varID) == 1) {
+          ++num_samples_at_risk_left_child[t];
           ++num_deaths_left_child[t];
         }
       }
@@ -331,8 +331,8 @@ void TreeSurvival::findBestSplitValueLogRankGWA(size_t nodeID, size_t varID, dou
 
     // Now t is the survival time, add to at risk and to death if death
     if (t < unique_timepoints->size()) {
-      ++num_samples_at_risk_value[t];
       if (data->get(sampleID, status_varID) == 1) {
+        ++num_samples_at_risk_value[t];
         ++num_deaths_value[t];
       }
     }
