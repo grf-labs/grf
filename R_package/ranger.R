@@ -329,6 +329,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     names(result$variable.importance) <- all.independent.variable.names
   }
 
+  ## Set predictions
   if (treetype == 1) {
     result$predictions <- factor(result$predictions, levels = 1:nlevels(response),
                                  labels = levels(response))
@@ -343,6 +344,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$classification.table <- table(result$predictions, unlist(data[, dependent.variable.name]), dnn = c("predicted", "true"))
   }
 
+  ## Set treetype
   if (treetype == 1) {
     result$treetype <- "Classification"
   } else if (treetype == 3) {

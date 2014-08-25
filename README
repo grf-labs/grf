@@ -15,7 +15,7 @@ Written by:
 
 1. Introduction
 
-  Ranger is a fast implementation of Random Forest (Breiman 2001) or recursive partitioning, particularly suited for high dimensional data. Classification, Regression, and Survival forests are supported. Classification and Regression forests are implemented as in the original Random Forest (Breiman 2001), Survival forests as in Random Survival Forests (Ishwaran et al. 2008). 
+  Ranger is a fast implementation of Random Forest (Breiman 2001) or recursive partitioning, particularly suited for high dimensional data. Classification, regression, and survival forests are supported. Classification and regression forests are implemented as in the original Random Forest (Breiman 2001), survival forests as in Random Survival Forests (Ishwaran et al. 2008). 
 
   Ranger is written in C++, but a version for R is avaiable, too. We recommend to use the R version. It is easy to install and use and the results are readily available for further analysis. The R version is as fast as the pure C++ version.
 
@@ -23,9 +23,9 @@ Written by:
 
   To install the Ranger R package from the provided archive just run
 
-    install.packages("ranger_X.Y.tar.gz") 
+    install.packages("ranger_X.Y.Z.tar.gz") 
 
-  in R from the directory where the downloaded archive is or give the full path. If any dependencies are missing (i.e. Rcpp), please install them from CRAN. R version >= 3.1 is required. Note that for now the R package cannot be compiled from source in Microsoft Windows (because the compiler in RTools is too old).
+  in R from the directory where the downloaded archive is or give the full path. If any dependencies are missing (i.e. Rcpp), please install them from CRAN. R version >= 3.1 is required. Note that, for now, the R package cannot be compiled from source in Microsoft Windows (because the compiler in RTools is too old).
 
   To install the C++ version of Ranger in Linux or Mac OS X you will need a compiler supporting C++11 (i.e. gcc >= 4.7 or Clang >= 3.0) and Cmake. To build start a terminal from the Ranger main directory and run the following commands
 

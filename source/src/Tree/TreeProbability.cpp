@@ -50,7 +50,6 @@ void TreeProbability::initInternal() {
 
 void TreeProbability::addPrediction(size_t nodeID, size_t sampleID) {
 
-  // TODO: We are copying everything .. Slow?
   predictions[sampleID] = terminal_class_counts[nodeID];
 }
 

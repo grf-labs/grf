@@ -96,25 +96,6 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
   }
 }
 
-// TODO: Remove
-//void drawWithoutReplacementSkip(std::unordered_set<size_t>& result, std::mt19937_64& random_number_generator,
-//    size_t max, std::vector<size_t>& skip, size_t num_samples) {
-//
-//  std::uniform_int_distribution<size_t> unif_dist(0, max - 1 - skip.size());
-//  for (size_t i = 0; i < num_samples; ++i) {
-//    size_t draw;
-//    do {
-//      draw = unif_dist(random_number_generator);
-//      for (auto& skip_value : skip) {
-//        if (draw >= skip_value) {
-//          ++draw;
-//        }
-//      }
-//    } while (result.count(draw) > 0);
-//    result.insert(draw);
-//  }
-//}
-
 void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
     std::vector<size_t>& skip, size_t num_samples) {
   if (num_samples < max / 2) {

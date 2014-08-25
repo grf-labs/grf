@@ -162,7 +162,7 @@ void ForestProbability::computePredictionErrorInternal() {
   size_t num_missclassifications = 0;
   for (size_t i = 0; i < predictions.size(); ++i) {
     double predicted_value = predictions[i][0];
-    if (!isnan(predicted_value)) {
+    if (!std::isnan(predicted_value)) {
       double real_value = data->get(i, dependent_varID);
       if (predicted_value != real_value) {
         ++num_missclassifications;

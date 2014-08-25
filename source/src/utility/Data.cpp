@@ -163,7 +163,6 @@ bool Data::loadFromFileOther(std::ifstream& input_file, std::string header_line,
   return error;
 }
 
-// TODO: Speedup here for many different value?
 void Data::getAllValues(std::vector<double>& all_values, std::vector<size_t>& sampleIDs, size_t varID) {
 
   // All values for varID (no duplicates) for given sampleIDs

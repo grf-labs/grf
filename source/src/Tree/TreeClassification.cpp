@@ -85,7 +85,6 @@ void TreeClassification::appendToFileInternal(std::ofstream& file) {
 
 bool TreeClassification::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
-  // TODO: <= okay? should it not be < ?
   // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {
     split_values[nodeID] = estimate(nodeID);
