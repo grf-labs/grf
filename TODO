@@ -4,7 +4,9 @@
 ## ----------------------------------------------------------------------- ##
 
 - Progress output too often in long runs
-- Speedup regression, probability, survival
+- Speedup regression and probability for continouos covariates, like in
+	classification
+- How to speedup survival for continouos covariates? 
 
 
 ## ----------------------------------------------------------------------- ##
