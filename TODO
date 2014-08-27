@@ -3,12 +3,8 @@
 ## TOOD software
 ## ----------------------------------------------------------------------- ##
 
-- Compare speed with biomarcare data with RSF
-- Very slow for survival.. Why? Profile! Check for non-GWA data (biomarcare)
-  -> Problems with variables with many different values
-- Slow for variables with many different values (continous) 
-  -> Section 3.5 in Daniels diss
 - Progress output too often in long runs
+- Speedup regression, probability, survival
 
 
 ## ----------------------------------------------------------------------- ##

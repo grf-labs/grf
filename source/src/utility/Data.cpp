@@ -167,17 +167,17 @@ void Data::getAllValues(std::vector<double>& all_values, std::vector<size_t>& sa
 
   // All values for varID (no duplicates) for given sampleIDs
   if (varID < num_cols_no_sparse) {
+
     all_values.reserve(sampleIDs.size());
     for (size_t i = 0; i < sampleIDs.size(); ++i) {
-      double value = get(sampleIDs[i], varID);
-      std::vector<double>::iterator it = std::find(all_values.begin(), all_values.end(), value);
-      if (it == all_values.end()) {
-        all_values.push_back(value);
-      }
+      all_values.push_back(get(sampleIDs[i], varID));
     }
+    sort(all_values.begin(), all_values.end());
+    all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
+
   } else {
     // If GWA data just use 0, 1. A split at 2 would always produce empty right child.
-    all_values = std::vector<double>( { 0, 1});
+    all_values = std::vector<double>( { 0, 1 });
   }
 
 }
