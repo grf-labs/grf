@@ -3,10 +3,21 @@
 ## TOOD software
 ## ----------------------------------------------------------------------- ##
 
+- Use changelog now!
+- predictions function not working for probability trees
+- predictions slot should be probabilities for probability trees
+- Prediction VIMP with regression methods
+  -> Compare with regression on binary phenotype: Error, predictions, VIMP
+- Add importance function to run on existing forest
+- Add prediction error for tree subsets (as in randomForest)
+- Change help (see Silke's mail)
+
 - Progress output too often in long runs
 - Speedup regression and probability for continouos covariates, like in
 	classification
 - How to speedup survival for continouos covariates? 
+- Try to run it on Windows with gcc 4.6
+	-> Build minimal example and ask somewhere?
 
 
 ## ----------------------------------------------------------------------- ##
