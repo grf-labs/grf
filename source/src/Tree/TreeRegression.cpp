@@ -71,7 +71,7 @@ void TreeRegression::appendToFileInternal(std::ofstream& file) {
 bool TreeRegression::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   // Check node size, stop if maximum reached
-  if (sampleIDs[nodeID].size() < min_node_size) {
+  if (sampleIDs[nodeID].size() <= min_node_size) {
     split_values[nodeID] = estimate(nodeID);
     return true;
   }
