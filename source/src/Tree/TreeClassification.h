@@ -67,7 +67,6 @@ private:
     predictions[0].resize(num_predictions, 0);
   }
 
-  // TODO: needed?
   void cleanUpInternal() {
     // Empty on purpose
   }
