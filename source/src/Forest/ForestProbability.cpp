@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include "utility.h"
 #include "ForestProbability.h"
@@ -58,6 +58,7 @@ void ForestProbability::loadForest(size_t dependent_varID, size_t num_trees,
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
 }
 
+// TODO: Need class_values and response_classIDs?
 void ForestProbability::initInternal(std::string status_variable_name) {
 
   // If mtry not set, use floored square root of number of independent variables.
@@ -122,61 +123,101 @@ void ForestProbability::predictInternal() {
 
 void ForestProbability::computePredictionErrorInternal() {
 
-  // Class counts for samples
-  std::vector<std::vector<size_t>> class_counts;
-  class_counts.resize(num_samples, std::vector<size_t>());
+  // For each sample sum over trees where sample is OOB
+  std::vector<size_t> samples_oob_count;
+  samples_oob_count.resize(num_samples, 0);
+  predictions.resize(num_samples);
   for (size_t i = 0; i < num_samples; ++i) {
-    class_counts[i].resize(class_values.size(), 0);
+    predictions[i].resize(class_values.size(), 0);
   }
 
-  // For each tree loop over OOB samples and count classes
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
       size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
       std::vector<double> counts = trees[tree_idx]->getPredictions()[sample_idx];
-      size_t classID = mostFrequentClass(counts, random_number_generator);
 
-      // classID >= counts.size() means all zero
-      if (classID < counts.size()) {
-        ++class_counts[sampleID][classID];
+      double sum = 0;
+      for (size_t class_idx = 0; class_idx < counts.size(); ++class_idx) {
+        sum += counts[class_idx];
       }
+      for (size_t class_idx = 0; class_idx < counts.size(); ++class_idx) {
+        predictions[sampleID][class_idx] += counts[class_idx] / sum;
+      }
+      ++samples_oob_count[sampleID];
     }
   }
 
-// Compute majority vote for each sample
-  predictions.reserve(num_samples);
-  for (size_t i = 0; i < num_samples; ++i) {
-    std::vector<double> temp;
-    size_t classID = mostFrequentClass(class_counts[i], random_number_generator);
-
-    // classID >= class_counts[i].size() means all zero
-    if (classID < class_counts[i].size()) {
-      temp.push_back(class_values[classID]);
-    } else {
-      temp.push_back(NAN);
-    }
-    predictions.push_back(temp);
-  }
-
-  // Compare predictions with true data
-  size_t num_missclassifications = 0;
+  // MSE with predicted probability and true data
   for (size_t i = 0; i < predictions.size(); ++i) {
-    double predicted_value = predictions[i][0];
-    if (!std::isnan(predicted_value)) {
-      double real_value = data->get(i, dependent_varID);
-      if (predicted_value != real_value) {
-        ++num_missclassifications;
+    if (samples_oob_count[i] > 0) {
+      for (size_t j = 0; j < predictions[i].size(); ++j) {
+        predictions[i][j] /= (double) samples_oob_count[i];
       }
-      ++classification_table[std::make_pair(real_value, predicted_value)];
+      size_t real_classID = response_classIDs[i];
+      double predicted_value = predictions[i][real_classID];
+      overall_prediction_error += (1 - predicted_value) * (1 - predicted_value);
     }
   }
-  overall_prediction_error = (double) num_missclassifications / (double) predictions.size();
+
+  overall_prediction_error /= (double) predictions.size();
+
+// TODO: Remove
+//// Class counts for samples
+//  std::vector<std::vector<size_t>> class_counts;
+//  class_counts.resize(num_samples, std::vector<size_t>());
+//  for (size_t i = 0; i < num_samples; ++i) {
+//    class_counts[i].resize(class_values.size(), 0);
+//  }
+//
+//  // For each tree loop over OOB samples and count classes
+//  for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+//    for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
+//      size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
+//      std::vector<double> counts = trees[tree_idx]->getPredictions()[sample_idx];
+//      size_t classID = mostFrequentClass(counts, random_number_generator);
+//
+//      // classID >= counts.size() means all zero
+//      if (classID < counts.size()) {
+//        ++class_counts[sampleID][classID];
+//      }
+//    }
+//  }
+//
+//// Compute majority vote for each sample
+//  predictions.reserve(num_samples);
+//  for (size_t i = 0; i < num_samples; ++i) {
+//    std::vector<double> temp;
+//    size_t classID = mostFrequentClass(class_counts[i], random_number_generator);
+//
+//    // classID >= class_counts[i].size() means all zero
+//    if (classID < class_counts[i].size()) {
+//      temp.push_back(class_values[classID]);
+//    } else {
+//      temp.push_back(NAN);
+//    }
+//    predictions.push_back(temp);
+//  }
+//
+//  // Compare predictions with true data
+//  size_t num_missclassifications = 0;
+//  for (size_t i = 0; i < predictions.size(); ++i) {
+//    double predicted_value = predictions[i][0];
+//    if (!std::isnan(predicted_value)) {
+//      double real_value = data->get(i, dependent_varID);
+//      if (predicted_value != real_value) {
+//        ++num_missclassifications;
+//      }
+//      ++classification_table[std::make_pair(real_value, predicted_value)];
+//    }
+//  }
+//  overall_prediction_error = (double) num_missclassifications / (double) predictions.size();
 }
 
 void ForestProbability::writeOutputInternal() {
   *verbose_out << "Tree type:                         " << "Probability estimation" << std::endl;
 }
 
+// TODO: Change
 void ForestProbability::writeConfusionFile() {
 
   // Open confusion file for writing
@@ -220,6 +261,7 @@ void ForestProbability::writeConfusionFile() {
   *verbose_out << "Saved confusion matrix to file " << filename << "." << std::endl;
 }
 
+// TODO: Change
 void ForestProbability::writePredictionFile() {
 
   // Open prediction file for writing

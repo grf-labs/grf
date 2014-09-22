@@ -3,21 +3,26 @@
 ## TOOD software
 ## ----------------------------------------------------------------------- ##
 
-- Use changelog now!
-- predictions function not working for probability trees
-- predictions slot should be probabilities for probability trees
+- Use changelog!
+
+- If randomForest not loaded, importance function not working
+
 - Prediction VIMP with regression methods
-  -> Compare with regression on binary phenotype: Error, predictions, VIMP
-- Add importance function to run on existing forest
+  -> Compare with regression on binary phenotype: VIMP
+
 - Add prediction error for tree subsets (as in randomForest)
 - Change help (see Silke's mail)
 
 - Progress output too often in long runs
 - Speedup regression and probability for continouos covariates, like in
 	classification
-- How to speedup survival for continouos covariates? 
-- Try to run it on Windows with gcc 4.6
-	-> Build minimal example and ask somewhere?
+- Add importance function to run on existing forest
+
+## ----------------------------------------------------------------------- ##
+## Wishlist
+## ----------------------------------------------------------------------- ##
+
+- Handle missing data
 
 
 ## ----------------------------------------------------------------------- ##
@@ -35,39 +40,6 @@
 	windows support. If availabel check README file.
 - Submit to CRAN
     -> Add to readme
-
-
-## ----------------------------------------------------------------------- ##
-## Features: Maybe implement
-## ----------------------------------------------------------------------- ##
-
-- Lotus (high priority)
-- Conditional importance (Meng?)
-- Other splitting rules for Survival
-- Randomsplit-VIMP for Survival
-- For permutation importance use random splits for variable importance
-	(Hapfelmeier et al. 2012)
-- Conditional Inference Forests
-	-> Or another method to get unbiased vimp and faster? Use simpler test?
-	-> Maybe just use other split method, no new tree types?
-- Unbiased survival? Different to Hothorn et al.!
-- Different kinds of bootstrapping:
-	-> Use down/upsampling. For example in a study with less cases than
-		 controls upsample the cases and downsample the controls
-  -> Use balancing. Draw 63.2% of cases and 63.2% of controls
-- Handle missing data
-
-
-## ----------------------------------------------------------------------- ##
-## Ideas
-## ----------------------------------------------------------------------- ##
-
-- Tune terminal node size
-- Pruning for probability estimation
-- Cross validation
-- Look at similiarity of trees, find representative trees (Idea: sequence
-	alignment)
-- A Node impurity measure for survival forests?
 
 
 ## ----------------------------------------------------------------------- ##

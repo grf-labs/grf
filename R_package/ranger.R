@@ -339,9 +339,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
   } else if (treetype == 9) {
-    result$predictions <- factor(result$predictions, levels = 1:nlevels(response),
-                                 labels = levels(response))
-    result$classification.table <- table(result$predictions, unlist(data[, dependent.variable.name]), dnn = c("predicted", "true"))
+##    result$predictions <- factor(result$predictions, levels = 1:nlevels(response),
+##                                 labels = levels(response))
   }
 
   ## Set treetype

@@ -5,3 +5,6 @@
 ## ----------------------------------------------------------------------- ##
 
 - Fix name conflict with randomForest package for "importance"
+- Fixed a bug: prediction function is now working for probability
+	prediction forests
+- Slot "predictions" for probability forests now contains class probabilities
