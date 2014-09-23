@@ -45,6 +45,10 @@ pred.nodep <- predict(temp$forest, data = veteran[, c(1:2, 5:8)])
 pred.nodep <- predict(temp$forest, data = veteran[, c(1:3, 5:8)])
 pred.nodep <- predict(temp$forest, data = veteran[, c(1:2, 4:8)])
 
+temp <- ranger("Species ~ .", data = iris, verbose = FALSE, write.forest = TRUE, probability = TRUE)
+pred <- predict(temp$forest, data = iris)
+pred.nodep <- predict(temp$forest, data = iris[, 1:4])
+
 ## Test GWA mode
 library(GenABEL)
 ##convert.snp.ped("../../gwa_data/chr1.allChunks.ped", "../../gwa_data/chr1.allChunks.map", "../../gwa_data/chr1.allChunks.raw")
