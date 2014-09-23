@@ -40,7 +40,10 @@
 ##' For details see Malley et al. (2012).
 ##'
 ##' Note that for classification and regression nodes with size smaller than min.node.size can occur, like in original Random Forest.
-##' For survival all nodes contain at least min.node.size samples. Variables selected with always.split.variables are tried additionaly to the mtry variables randomly selected.
+##' For survival all nodes contain at least min.node.size samples. 
+##' Variables selected with \code{always.split.variables} are tried additionaly to the mtry variables randomly selected.
+##' In \code{split.select.weights} variables weighted with 0 are never selected and variables with 1 are always selected. 
+##' Weights do not need to sum up to 1, they will be normalized later.
 ##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
@@ -57,7 +60,7 @@
 ##' @param probability Grow a probability forest. This is a classification forest which returns class probabilities instead of classifications.
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. Default TRUE.
-##' @param split.select.weights Numeric vector with weights representing the probability to select variables for splitting.
+##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
@@ -73,7 +76,7 @@
 ##'       \code{variable.importance}     \tab Variable importance for each independent variable. \cr
 ##'       \code{prediction.error}   \tab Overall out of bag prediction error. For classification this is the fraction of missclassified samples, for regression the mean squared error and for survival one minus Harrell's c-index. \cr
 ##'       \code{r.squared}   \tab R squared. Also called explained variance or coefficient of determination (regression only). \cr
-##'       \code{classification.table} \tab Contingency table for classes and predictions (classification only). \cr
+##'       \code{classification.table} \tab Contingency table for classes and predictions based on out of bag samples (classification only). \cr
 ##'       \code{unique.death.times} \tab Unique death times (survival only). \cr
 ##'       \code{chf} \tab Estimated cumulative hazard function for each sample (survival only). \cr
 ##'       \code{survival} \tab Estimated survival function for each sample (survival only). \cr

@@ -26,8 +26,11 @@
 # wright@imbs.uni-luebeck.de
 # -------------------------------------------------------------------------------
 
-##' Runs ranger for a vector of \code{mtry} values and returns the prediction error for each run.
+##' Runs ranger for a vector of \code{mtry} values and returns the out of bag prediction error for each run.
 ##' For each \code{mtry} the analysis will be replicated \code{n} times.
+##' 
+##' The runs of ranger for different values of \code{mtry} are NOT based on the same bootstrap sample. 
+##' Be sure to run enough replicates (\code{n}) before you trust the results.  
 ##'
 ##' @title Tune mtry
 ##' @param mtry Vector of \code{mtry} values to try.
@@ -48,9 +51,12 @@ tune.mtry <- function(mtry, n = 1, ...) {
   return(result)
 }
 
-##' Runs ranger for a vector of \code{min.node.size} values and returns the prediction error for each run.
+##' Runs ranger for a vector of \code{min.node.size} values and returns the out of bag prediction error for each run.
 ##' For each \code{mtry} the analysis will be replicated \code{n} times.
 ##'
+##' The runs of ranger for different values of \code{min.node.size} are NOT based on the same bootstrap sample. 
+##' Be sure to run enough replicates (\code{n}) before you trust the results.  
+##' 
 ##' @title Tune terminal node size
 ##' @param min.node.size Vector of \code{min.node.size} values to try.
 ##' @param n Number of replicates.

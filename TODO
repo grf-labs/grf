@@ -5,12 +5,11 @@
 
 - Use changelog!
 
-- Add prediction error for tree subsets (as in randomForest)
-- Change help (see Silke's mail)
-
 - Speedup regression and probability for continouos covariates, like in
 	classification
 
+To Silke: tree subset prediction error not implemented, but measure of 
+convergence is on list now
 
 ## ----------------------------------------------------------------------- ##
 ## Wishlist
@@ -19,6 +18,9 @@
 - Handle missing data
 - Add importance function to run on existing forest
 - Progress output too often in long runs
+- Measure of convergence
+	 -> prediction error for tree subsets in randomForest?
+	 -> Auto mode for ntree? Grow until no change in prediction error
 
 
 ## ----------------------------------------------------------------------- ##

@@ -12,3 +12,4 @@
 - Slot "predictions" for probability forests now contains class probabilities
 - importance function is now working even if randomForest package is
 	loaded after ranger
+- Small changes in documentation
