@@ -58,7 +58,6 @@ void ForestProbability::loadForest(size_t dependent_varID, size_t num_trees,
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
 }
 
-// TODO: Need class_values and response_classIDs?
 void ForestProbability::initInternal(std::string status_variable_name) {
 
   // If mtry not set, use floored square root of number of independent variables.
@@ -91,18 +90,6 @@ void ForestProbability::initInternal(std::string status_variable_name) {
       uint classID = find(class_values.begin(), class_values.end(), value) - class_values.begin();
       response_classIDs.push_back(classID);
     }
-
-    // TODO: Remove
-//    for (size_t i = 0; i < num_samples; ++i) {
-//      double value = data->get(i, dependent_varID);
-//
-//      // If classID is already in class_values, use ID. Else create a new one.
-//      uint classID = find(class_values.begin(), class_values.end(), value) - class_values.begin();
-//      if (classID == class_values.size()) {
-//        class_values.push_back(value);
-//      }
-//      response_classIDs.push_back(classID);
-//    }
   }
 }
 
@@ -172,64 +159,12 @@ void ForestProbability::computePredictionErrorInternal() {
   }
 
   overall_prediction_error /= (double) predictions.size();
-
-// TODO: Remove
-//// Class counts for samples
-//  std::vector<std::vector<size_t>> class_counts;
-//  class_counts.resize(num_samples, std::vector<size_t>());
-//  for (size_t i = 0; i < num_samples; ++i) {
-//    class_counts[i].resize(class_values.size(), 0);
-//  }
-//
-//  // For each tree loop over OOB samples and count classes
-//  for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-//    for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
-//      size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
-//      std::vector<double> counts = trees[tree_idx]->getPredictions()[sample_idx];
-//      size_t classID = mostFrequentClass(counts, random_number_generator);
-//
-//      // classID >= counts.size() means all zero
-//      if (classID < counts.size()) {
-//        ++class_counts[sampleID][classID];
-//      }
-//    }
-//  }
-//
-//// Compute majority vote for each sample
-//  predictions.reserve(num_samples);
-//  for (size_t i = 0; i < num_samples; ++i) {
-//    std::vector<double> temp;
-//    size_t classID = mostFrequentClass(class_counts[i], random_number_generator);
-//
-//    // classID >= class_counts[i].size() means all zero
-//    if (classID < class_counts[i].size()) {
-//      temp.push_back(class_values[classID]);
-//    } else {
-//      temp.push_back(NAN);
-//    }
-//    predictions.push_back(temp);
-//  }
-//
-//  // Compare predictions with true data
-//  size_t num_missclassifications = 0;
-//  for (size_t i = 0; i < predictions.size(); ++i) {
-//    double predicted_value = predictions[i][0];
-//    if (!std::isnan(predicted_value)) {
-//      double real_value = data->get(i, dependent_varID);
-//      if (predicted_value != real_value) {
-//        ++num_missclassifications;
-//      }
-//      ++classification_table[std::make_pair(real_value, predicted_value)];
-//    }
-//  }
-//  overall_prediction_error = (double) num_missclassifications / (double) predictions.size();
 }
 
 void ForestProbability::writeOutputInternal() {
   *verbose_out << "Tree type:                         " << "Probability estimation" << std::endl;
 }
 
-// TODO: Change
 void ForestProbability::writeConfusionFile() {
 
   // Open confusion file for writing
@@ -241,39 +176,12 @@ void ForestProbability::writeConfusionFile() {
   }
 
   // Write confusion to file
-  outfile << "Overall OOB prediction error (Fraction missclassified): " << overall_prediction_error << std::endl;
-  outfile << std::endl;
-  outfile << "Class specific prediction errors:" << std::endl;
-  outfile << "           ";
-  for (auto& class_value : class_values) {
-    outfile << "     " << class_value;
-  }
-  outfile << std::endl;
-  for (auto& predicted_value : class_values) {
-    outfile << "predicted " << predicted_value << "     ";
-    for (auto& real_value : class_values) {
-      size_t value = classification_table[std::make_pair(real_value, predicted_value)];
-      outfile << value;
-      if (value < 10) {
-        outfile << "     ";
-      } else if (value < 100) {
-        outfile << "    ";
-      } else if (value < 1000) {
-        outfile << "   ";
-      } else if (value < 10000) {
-        outfile << "  ";
-      } else if (value < 100000) {
-        outfile << " ";
-      }
-    }
-    outfile << std::endl;
-  }
+    outfile << "Overall OOB prediction error (MSE): " << overall_prediction_error << std::endl;
 
-  outfile.close();
-  *verbose_out << "Saved confusion matrix to file " << filename << "." << std::endl;
+    outfile.close();
+    *verbose_out << "Saved prediction error to file " << filename << "." << std::endl;
 }
 
-// TODO: Change
 void ForestProbability::writePredictionFile() {
 
   // Open prediction file for writing

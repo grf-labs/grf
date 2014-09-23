@@ -50,7 +50,6 @@ TreeClassification::TreeClassification(std::vector<std::vector<size_t>>& child_n
 TreeClassification::~TreeClassification() {
 }
 
-// TODO: Needed?
 void TreeClassification::initInternal() {
   // Empty on purpose
 }
