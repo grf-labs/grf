@@ -5,7 +5,6 @@
 
 - Use changelog!
 
-- If randomForest not loaded, importance function not working
 
 - Prediction VIMP with regression methods
   -> Compare with regression on binary phenotype: VIMP

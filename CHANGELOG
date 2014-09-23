@@ -8,3 +8,5 @@
 - Fixed a bug: prediction function is now working for probability
 	prediction forests
 - Slot "predictions" for probability forests now contains class probabilities
+- importance function is now working even if randomForest package is
+	loaded after ranger
