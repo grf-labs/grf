@@ -47,6 +47,7 @@ public:
       std::vector<std::vector<size_t>>& forest_split_varIDs, std::vector<std::vector<double>>& forest_split_values,
       std::vector<double>& class_values, std::vector<std::vector<std::vector<double>>>& forest_terminal_class_counts);
 
+  // TODO: needed?
   std::vector<std::vector<std::vector<double>>> getTerminalClassCounts() {
     std::vector<std::vector<std::vector<double>>> result;
     result.reserve(num_trees);
@@ -57,6 +58,7 @@ public:
      return result;
    }
 
+  // TODO: needed?
 const std::vector<double>& getClassValues() const {
     return class_values;
 }

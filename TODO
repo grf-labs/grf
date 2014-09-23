@@ -5,23 +5,20 @@
 
 - Use changelog!
 
-
-- Prediction VIMP with regression methods
-  -> Compare with regression on binary phenotype: VIMP
-
 - Add prediction error for tree subsets (as in randomForest)
 - Change help (see Silke's mail)
 
-- Progress output too often in long runs
 - Speedup regression and probability for continouos covariates, like in
 	classification
-- Add importance function to run on existing forest
+
 
 ## ----------------------------------------------------------------------- ##
 ## Wishlist
 ## ----------------------------------------------------------------------- ##
 
 - Handle missing data
+- Add importance function to run on existing forest
+- Progress output too often in long runs
 
 
 ## ----------------------------------------------------------------------- ##

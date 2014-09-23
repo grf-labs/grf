@@ -74,16 +74,35 @@ void ForestProbability::initInternal(std::string status_variable_name) {
 
   // Create class_values and response_classIDs
   if (!prediction_mode) {
+
+    // Find all unique response values and sort them
     for (size_t i = 0; i < num_samples; ++i) {
       double value = data->get(i, dependent_varID);
-
-      // If classID is already in class_values, use ID. Else create a new one.
       uint classID = find(class_values.begin(), class_values.end(), value) - class_values.begin();
       if (classID == class_values.size()) {
         class_values.push_back(value);
       }
+    }
+    std::sort(class_values.begin(), class_values.end());
+
+    // Assign class ID to each observation
+    for (size_t i = 0; i < num_samples; ++i) {
+      double value = data->get(i, dependent_varID);
+      uint classID = find(class_values.begin(), class_values.end(), value) - class_values.begin();
       response_classIDs.push_back(classID);
     }
+
+    // TODO: Remove
+//    for (size_t i = 0; i < num_samples; ++i) {
+//      double value = data->get(i, dependent_varID);
+//
+//      // If classID is already in class_values, use ID. Else create a new one.
+//      uint classID = find(class_values.begin(), class_values.end(), value) - class_values.begin();
+//      if (classID == class_values.size()) {
+//        class_values.push_back(value);
+//      }
+//      response_classIDs.push_back(classID);
+//    }
   }
 }
 
@@ -109,12 +128,9 @@ void ForestProbability::predictInternal() {
     // For each sample compute proportions in each tree and average over trees
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
       std::vector<double> counts = trees[tree_idx]->getPredictions()[sample_idx];
-      double sum = 0;
+
       for (size_t class_idx = 0; class_idx < counts.size(); ++class_idx) {
-        sum += counts[class_idx];
-      }
-      for (size_t class_idx = 0; class_idx < counts.size(); ++class_idx) {
-        predictions[sample_idx][class_idx] += counts[class_idx] / sum / num_trees;
+        predictions[sample_idx][class_idx] += counts[class_idx] / num_trees;
       }
     }
   }
@@ -136,12 +152,8 @@ void ForestProbability::computePredictionErrorInternal() {
       size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
       std::vector<double> counts = trees[tree_idx]->getPredictions()[sample_idx];
 
-      double sum = 0;
       for (size_t class_idx = 0; class_idx < counts.size(); ++class_idx) {
-        sum += counts[class_idx];
-      }
-      for (size_t class_idx = 0; class_idx < counts.size(); ++class_idx) {
-        predictions[sampleID][class_idx] += counts[class_idx] / sum;
+        predictions[sampleID][class_idx] += counts[class_idx];
       }
       ++samples_oob_count[sampleID];
     }

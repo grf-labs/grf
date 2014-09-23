@@ -4,6 +4,8 @@
 ## Version 0.1.2
 ## ----------------------------------------------------------------------- ##
 
+- Prediction forests are now handled like regression forests: MSE used for
+	prediction error and permutation importance
 - Fix name conflict with randomForest package for "importance"
 - Fixed a bug: prediction function is now working for probability
 	prediction forests

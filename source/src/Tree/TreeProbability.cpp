@@ -55,12 +55,19 @@ void TreeProbability::addPrediction(size_t nodeID, size_t sampleID) {
 
 void TreeProbability::addToTerminalNodes(size_t nodeID) {
 
+  size_t num_samples_in_node = sampleIDs[nodeID].size();
   terminal_class_counts[nodeID].resize(class_values->size(), 0);
 
-  for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
+  // Compute counts
+  for (size_t i = 0; i < num_samples_in_node; ++i) {
     size_t node_sampleID = sampleIDs[nodeID][i];
     size_t classID = (*response_classIDs)[node_sampleID];
     ++terminal_class_counts[nodeID][classID];
+  }
+
+  // Compute fractions
+  for (size_t i = 0; i < terminal_class_counts[nodeID].size(); ++i) {
+    terminal_class_counts[nodeID][i] /= num_samples_in_node;
   }
 }
 
@@ -122,25 +129,12 @@ double TreeProbability::computePredictionAccuracyInternal() {
 
   double sum_of_squares = 0;
   for (size_t i = 0; i < predictions.size(); ++i) {
-    size_t real_classID = (*response_classIDs)[i];
+    size_t sampleID = oob_sampleIDs[i];
+    size_t real_classID = (*response_classIDs)[sampleID];
     double predicted_value = predictions[i][real_classID];
     sum_of_squares += (1 - predicted_value) * (1 - predicted_value);
   }
   return (1.0 - sum_of_squares / (double) predictions.size());
-
-  // TODO: Remove
-//  // Here, use majority vote, as in Classification tree
-//  size_t num_predictions = predictions.size();
-//  size_t num_missclassifications = 0;
-//  for (size_t i = 0; i < num_predictions; ++i) {
-//    size_t predicted_classID = mostFrequentClass(predictions[i], random_number_generator);
-//    double predicted_value = (*class_values)[predicted_classID];
-//    double real_value = data->get(oob_sampleIDs[i], dependent_varID);
-//    if (predicted_value != real_value) {
-//      ++num_missclassifications;
-//    }
-//  }
-//  return (1.0 - (double) num_missclassifications / (double) num_predictions);
 }
 
 bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
