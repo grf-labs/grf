@@ -154,7 +154,7 @@ void TreeRegression::findBestSplitValue(size_t nodeID, size_t varID, std::vector
 
   size_t num_splits = possible_split_values.size();
 
-// Initialize
+  // Initialize
   double* sums_right = new double[num_splits];
   size_t* n_right = new size_t[num_splits];
   for (size_t i = 0; i < num_splits; ++i) {
@@ -162,7 +162,7 @@ void TreeRegression::findBestSplitValue(size_t nodeID, size_t varID, std::vector
     n_right[i] = 0;
   }
 
-// Sum in right child and possbile split
+  // Sum in right child and possbile split
   for (auto& sampleID : sampleIDs[nodeID]) {
     double value = data->get(sampleID, varID);
     double response = data->get(sampleID, dependent_varID);
@@ -178,7 +178,7 @@ void TreeRegression::findBestSplitValue(size_t nodeID, size_t varID, std::vector
     }
   }
 
-// Compute decrease of impurity for each possible split
+  // Compute decrease of impurity for each possible split
   for (size_t i = 0; i < num_splits; ++i) {
 
     // Stop if one child empty
@@ -201,45 +201,6 @@ void TreeRegression::findBestSplitValue(size_t nodeID, size_t varID, std::vector
 
   delete[] sums_right;
   delete[] n_right;
-
-  // TODO: Remove
-// ------------------------------------------------------
-//
-//// For all possible split values
-//  for (auto& split_value : possible_split_values) {
-//
-//    // Virtually split at this value. Count and sum overall and for classes.
-//    size_t n_left = 0;
-//    size_t n_right = 0;
-//    double sum_left = 0;
-//    double sum_right = 0;
-//    for (auto& sampleID : sampleIDs[nodeID]) {
-//      double response = data->get(sampleID, dependent_varID);
-//      if (data->get(sampleID, varID) <= split_value) {
-//        n_left++;
-//        sum_left += response;
-//      } else {
-//        n_right++;
-//        sum_right += response;
-//      }
-//    }
-//
-//    // Stop if one child empty
-//    if (n_left == 0 || n_right == 0) {
-//      continue;
-//    }
-//
-//    // Decrease of impurity = variance reduction = MSE
-//    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
-//
-//    // If better than before, use this
-//    if (decrease > best_decrease) {
-//      best_value = split_value;
-//      best_varID = varID;
-//      best_decrease = decrease;
-//    }
-//  }
-
 }
 
 void TreeRegression::addImpurityImportance(size_t nodeID, size_t varID, double decrease) {

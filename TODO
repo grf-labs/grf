@@ -3,11 +3,6 @@
 ## TOOD software
 ## ----------------------------------------------------------------------- ##
 
-- Use changelog!
-
-- Speedup regression and probability for continouos covariates, like in
-	classification
-
 To Silke: tree subset prediction error not implemented, but measure of 
 convergence is on list now
 

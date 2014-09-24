@@ -139,10 +139,16 @@ double TreeProbability::computePredictionAccuracyInternal() {
 
 bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
-  //size_t num_samples = sampleIDs[nodeID].size();
+  size_t num_samples_node = sampleIDs[nodeID].size();
   double best_decrease = -1;
   size_t best_varID = 0;
   double best_value = 0;
+
+  // Compute sum of responses in node
+  double sum_node = 0;
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    sum_node += data->get(sampleID, dependent_varID);
+  }
 
   // For all possible split variables
   for (auto& varID : possible_split_varIDs) {
@@ -156,40 +162,8 @@ bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible
       continue;
     }
 
-    // For all possible split values
-    for (auto& split_value : possible_split_values) {
-
-      // Virtually split at this value. Count and sum overall and for classes.
-      size_t n_left = 0;
-      size_t n_right = 0;
-      double sum_left = 0;
-      double sum_right = 0;
-      for (auto& sampleID : sampleIDs[nodeID]) {
-        double response = data->get(sampleID, dependent_varID);
-        if (data->get(sampleID, varID) <= split_value) {
-          n_left++;
-          sum_left += response;
-        } else {
-          n_right++;
-          sum_right += response;
-        }
-      }
-
-      // Stop if one child empty
-      if (n_left == 0 || n_right == 0) {
-        continue;
-      }
-
-      // Decrease of impurity = variance reduction = MSE
-      double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
-
-      // If better than before, use this
-      if (decrease > best_decrease) {
-        best_value = split_value;
-        best_varID = varID;
-        best_decrease = decrease;
-      }
-    }
+    findBestSplitValue(nodeID, varID, possible_split_values, sum_node, num_samples_node, best_value, best_varID,
+        best_decrease);
   }
 
   // Stop if no good split found
@@ -206,6 +180,61 @@ bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible
     addImpurityImportance(nodeID, best_varID, best_decrease);
   }
   return false;
+}
+
+void TreeProbability::findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+    double sum_node, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
+
+  size_t num_splits = possible_split_values.size();
+
+  // Initialize
+  double* sums_right = new double[num_splits];
+  size_t* n_right = new size_t[num_splits];
+  for (size_t i = 0; i < num_splits; ++i) {
+    sums_right[i] = 0;
+    n_right[i] = 0;
+  }
+
+  // Sum in right child and possbile split
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    double value = data->get(sampleID, varID);
+    double response = data->get(sampleID, dependent_varID);
+
+    // Count samples until split_value reached
+    for (size_t i = 0; i < num_splits; ++i) {
+      if (value > possible_split_values[i]) {
+        ++n_right[i];
+        sums_right[i] += response;
+      } else {
+        break;
+      }
+    }
+  }
+
+  // Compute decrease of impurity for each possible split
+  for (size_t i = 0; i < num_splits; ++i) {
+
+    // Stop if one child empty
+    size_t n_left = num_samples_node - n_right[i];
+    if (n_left == 0 || n_right[i] == 0) {
+      continue;
+    }
+
+    double sum_right = sums_right[i];
+    double sum_left = sum_node - sum_right;
+    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right[i];
+
+    // If better than before, use this
+    if (decrease > best_decrease) {
+      best_value = possible_split_values[i];
+      best_varID = varID;
+      best_decrease = decrease;
+    }
+  }
+
+  delete[] sums_right;
+  delete[] n_right;
+
 }
 
 void TreeProbability::addImpurityImportance(size_t nodeID, size_t varID, double decrease) {

@@ -4,6 +4,7 @@
 ## Version 0.1.2
 ## ----------------------------------------------------------------------- ##
 
+- Speedup regression and probability prediction forests
 - Prediction forests are now handled like regression forests: MSE used for
 	prediction error and permutation importance
 - Fix name conflict with randomForest package for "importance"
