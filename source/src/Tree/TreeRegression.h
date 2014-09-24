@@ -58,6 +58,9 @@ private:
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
 
+  void findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values, double sum_node,
+      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
+
   void addImpurityImportance(size_t nodeID, size_t varID, double decrease);
 
   double computePredictionMSE();

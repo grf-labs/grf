@@ -63,8 +63,8 @@ void ForestRegression::initInternal(std::string status_variable_name) {
 
   // If mtry not set, use number of independent variables / 3.
   if (mtry == 0) {
-    uint temp = (num_variables - 1) / 3;
-    mtry = std::max((uint) 1, temp);
+    int temp = sqrt(num_variables - 1);
+    mtry = std::max(1, temp);
   }
 
   // Set minimal node size
