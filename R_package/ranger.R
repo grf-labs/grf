@@ -43,7 +43,8 @@
 ##' For survival all nodes contain at least min.node.size samples. 
 ##' Variables selected with \code{always.split.variables} are tried additionaly to the mtry variables randomly selected.
 ##' In \code{split.select.weights} variables weighted with 0 are never selected and variables with 1 are always selected. 
-##' Weights do not need to sum up to 1, they will be normalized later.
+##' Weights do not need to sum up to 1, they will be normalized later. 
+##' The usage of \code{split.select.weights} can increase the computation times for large forests.
 ##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.

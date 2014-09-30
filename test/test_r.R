@@ -19,7 +19,7 @@ yy <- ranger("Surv(time, status) ~ .", data = veteran)
 ## Test split select weights
 weights <- c(0,0.2,0.5,1)
 ww <- ranger("Species ~ .", data = iris, split.select.weights = weights, 
-             mtry = 3, importance = "impurity")
+             mtry = 3, importance = "impurity", verbose = TRUE, num.trees = 1)
 
 ## Test verbose output
 temp <- ranger("Sepal.Width ~ .", data = iris, verbose = TRUE)

@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <math.h>
 #include <algorithm>
@@ -126,13 +126,14 @@ void Forest::initR(std::string dependent_variable_name, MemoryMode memory_mode, 
       min_node_size, status_variable_name, prediction_mode, sample_with_replacement);
 
   // Set variables to be always considered for splitting
-  setAlwaysSplitVariables(always_split_variable_names);
+    if (!always_split_variable_names.empty()) {
+      setAlwaysSplitVariables(always_split_variable_names);
+    }
 
   // Set split select weights
   if (!split_select_weights.empty()) {
     setSplitWeightVector(split_select_weights);
   }
-
 }
 
 void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
@@ -190,9 +191,6 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
   if (this->mtry > num_variables - 1) {
     throw std::runtime_error("mtry can not be larger than number of variables in data.");
   }
-
-  // Load split select weights from file
-  this->split_select_weights = split_select_weights;
 }
 
 void Forest::run(bool verbose) {
@@ -205,6 +203,7 @@ void Forest::run(bool verbose) {
     if (verbose) {
       *verbose_out << "Growing trees .." << std::endl;
     }
+
     grow();
 
     if (verbose) {
@@ -524,6 +523,7 @@ void Forest::setSplitWeightVector(std::vector<double>& split_select_weights) {
         ++varID;
       }
     }
+
     if (weight == 1) {
       deterministic_varIDs.push_back(varID);
     } else if (weight < 1 && weight > 0) {

@@ -175,8 +175,8 @@ void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64
     size_t draw;
     do {
       draw = weighted_dist(random_number_generator);
-    } while (temp[indizes[draw]]);
-    temp[indizes[draw]] = true;
+    } while (temp[draw]);
+    temp[draw] = true;
     result.push_back(indizes[draw]);
   }
 }
