@@ -37,12 +37,15 @@
 ##'
 ##' With the \code{probability} option and factor dependent variable a probability forest is grown.
 ##' Here, the estimated response variances are used for splitting, as in regression forests.
-##' In contrast, the prediction error is measured with missclassifications as in classification forests.
 ##' Predictions are class probabilities for each sample.
 ##' For details see Malley et al. (2012).
 ##'
 ##' Note that for classification and regression nodes with size smaller than min.node.size can occur, like in original Random Forest.
-##' For survival all nodes contain at least min.node.size samples. Variables selected with always.split.variables are tried additionaly to the mtry variables randomly selected.
+##' For survival all nodes contain at least min.node.size samples. 
+##' Variables selected with \code{always.split.variables} are tried additionaly to the mtry variables randomly selected.
+##' In \code{split.select.weights} variables weighted with 0 are never selected and variables with 1 are always selected. 
+##' Weights do not need to sum up to 1, they will be normalized later. 
+##' The usage of \code{split.select.weights} can increase the computation times for large forests.
 ##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
@@ -59,8 +62,8 @@
 ##' @param probability Grow a probability forest. This is a classification forest which returns class probabilities instead of classifications.
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. Default TRUE.
-##' @param splitrule Splitting rule, Survival only. The splitting rule can be chosen of "logrank" and "auc" with default "logrank". 
-##' @param split.select.weights Numeric vector with weights representing the probability to select variables for splitting.
+##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "auc" with default "logrank". 
+##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
@@ -76,7 +79,7 @@
 ##'       \code{variable.importance}     \tab Variable importance for each independent variable. \cr
 ##'       \code{prediction.error}   \tab Overall out of bag prediction error. For classification this is the fraction of missclassified samples, for regression the mean squared error and for survival one minus Harrell's c-index. \cr
 ##'       \code{r.squared}   \tab R squared. Also called explained variance or coefficient of determination (regression only). \cr
-##'       \code{classification.table} \tab Contingency table for classes and predictions (classification only). \cr
+##'       \code{classification.table} \tab Contingency table for classes and predictions based on out of bag samples (classification only). \cr
 ##'       \code{unique.death.times} \tab Unique death times (survival only). \cr
 ##'       \code{chf} \tab Estimated cumulative hazard function for each sample (survival only). \cr
 ##'       \code{survival} \tab Estimated survival function for each sample (survival only). \cr
@@ -145,7 +148,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     sparse.data <- as.matrix(0)
     gwa.mode <- FALSE
   }
-
+  
   ## Formula interface. Use whole data frame is no formula provided and depvarname given
   if (is.null(formula)) {
     if (is.null(dependent.variable.name)) {
@@ -166,12 +169,12 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     data.selected <- model.frame(formula, data, na.action = na.fail)
     response <- data.selected[[1]]
   }
-
+  
   ## Probability estimation
   if (probability & !is.factor(response)) {
     stop("Error: Probability estimation is only applicable to categorical (factor) dependent variables.")
   }
-
+  
   ## Treetype
   if (is.factor(response)) {
     if (probability) {
@@ -186,7 +189,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else {
     stop("Error: Unsupported type of dependent variable.")
   }
-
+  
   ## Dependent and status variable name. For non-survival dummy status variable name.
   if (!is.null(formula)) {
     if (treetype == 5) {
@@ -201,12 +204,12 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     independent.variable.names <- names(data.selected)[names(data.selected) != dependent.variable.name &
                                                          names(data.selected) != status.variable.name]
   }
-
+  
   ## Input data and variable names
   if (!is.null(formula)) {
     if (treetype == 5) {
       data.final <- data.matrix(cbind(response[, 1], response[, 2],
-                         data.selected[-1]))
+                                      data.selected[-1]))
       variable.names <- c(dependent.variable.name, status.variable.name,
                           independent.variable.names)
     } else {
@@ -217,7 +220,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     data.final <- data.matrix(data.selected)
     variable.names <- names(data.selected)
   }
-
+  
   ## If gwa mode, add snp variable names
   if (gwa.mode) {
     variable.names <- c(variable.names, snp.names)
@@ -225,19 +228,19 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else {
     all.independent.variable.names <- independent.variable.names
   }
-
+  
   ## Number of trees
   if (!is.numeric(num.trees) | num.trees < 1) {
     stop("Error: Invalid value for num.trees.")
   }
-
+  
   ## mtry
   if (is.null(mtry)) {
     mtry <- 0
   } else if (!is.numeric(mtry) | mtry < 0) {
     stop("Error: Invalid value for mtry")
   }
-
+  
   ## Memory mode
   if (is.null(memory) | memory == "double") {
     memory.mode <- 0
@@ -248,12 +251,12 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else {
     stop("Error: Unknown memory mode.")
   }
-
+  
   ## Seed
   if (is.null(seed)) {
     seed <- 0
   }
-
+  
   ## Num threads
   ## Default 0 -> detect from system in C++.
   if (is.null(num.threads)) {
@@ -261,14 +264,14 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else if (!is.numeric(num.threads) | num.threads < 0) {
     stop("Error: Invalid value for num.threads")
   }
-
+  
   ## Minumum node size
   if (is.null(min.node.size)) {
     min.node.size <- 0
   } else if (!is.numeric(min.node.size) | min.node.size < 0) {
     stop("Error: Invalid value for min.node.size")
   }
-
+  
   ## Importance mode
   if (is.null(importance) | importance == "none") {
     importance.mode <- 0
@@ -286,7 +289,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else {
     stop("Error: Unknown importance mode.")
   }
-
+  
   ## Split select weights: NULL for no weights
   if (is.null(split.select.weights)) {
     split.select.weights <- c(0,0)
@@ -294,7 +297,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else {
     use.split.select.weights <- TRUE
   }
-
+  
   ## Always split variables: NULL for no variables
   if (is.null(always.split.variables)) {
     always.split.variables <- c("0", "0")
@@ -302,7 +305,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else {
     use.always.split.variables <- TRUE
   }
-
+  
   if (use.split.select.weights & use.always.split.variables) {
     stop("Error: Please use only one option of use.split.select.weights and use.always.split.variables.")
   }
@@ -320,7 +323,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 
   ## Prediction mode always false. Use predict.ranger() method.
   prediction.mode <- FALSE
-
+  
   ## No loaded forest object
   loaded.forest <- list()
   
@@ -335,13 +338,14 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   if (length(result) == 0) {
     stop("Internal error.")
   }
-
+  
   ## Prepare results
   result$predictions <- drop(do.call(rbind, result$predictions))
   if (importance.mode != 0) {
     names(result$variable.importance) <- all.independent.variable.names
   }
-
+  
+  ## Set predictions
   if (treetype == 1) {
     result$predictions <- factor(result$predictions, levels = 1:nlevels(response),
                                  labels = levels(response))
@@ -351,11 +355,10 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
   } else if (treetype == 9) {
-    result$predictions <- factor(result$predictions, levels = 1:nlevels(response),
-                                 labels = levels(response))
-    result$classification.table <- table(result$predictions, unlist(data[, dependent.variable.name]), dnn = c("predicted", "true"))
+    colnames(result$predictions) <- levels(response)
   }
-
+  
+  ## Set treetype
   if (treetype == 1) {
     result$treetype <- "Classification"
   } else if (treetype == 3) {
@@ -372,7 +375,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   result$memory.mode <- memory
   result$importance.mode <- importance
   result$num.samples <- nrow(data.final)
-
+  
   ## Write forest object
   if (write.forest) {
     result$forest$levels <- levels(response)
@@ -380,7 +383,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$forest$treetype <- result$treetype
     class(result$forest) <- "ranger.forest"
   }
-
+  
   class(result) <- "ranger"
   return(result)
 }

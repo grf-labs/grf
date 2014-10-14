@@ -31,7 +31,6 @@
 
 #include <vector>
 #include <random>
-#include <unordered_set>
 #include <iostream>
 
 #include "globals.h"
@@ -51,6 +50,7 @@ public:
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement, uint splitrule);
+  virtual void initInternal() = 0;
 
   void grow();
 
@@ -86,16 +86,16 @@ public:
   }
 
 protected:
-  void createPossibleSplitVarSubset(std::unordered_set<size_t>& result);
+  void createPossibleSplitVarSubset(std::vector<size_t>& result);
 
   void splitNode(size_t nodeID);
-  virtual bool splitNodeInternal(size_t nodeID, std::unordered_set<size_t>& possible_split_varIDs) = 0;
+  virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) = 0;
 
   void createEmptyNode();
   virtual void createEmptyNodeInternal() = 0;
 
   size_t dropDownSamplePermuted(size_t permuted_varID, size_t sampleID, size_t permuted_sampleID);
-  void permuteAndPredictOobSamples(size_t permuted_varID);
+  void permuteAndPredictOobSamples(size_t permuted_varID, std::vector<size_t>& permutations);
 
   virtual double computePredictionAccuracyInternal() = 0;
 
@@ -103,6 +103,8 @@ protected:
   void bootstrapWithoutReplacement();
 
   virtual void reservePredictionMemory(size_t num_predictions) = 0;
+
+  virtual void cleanUpInternal() = 0;
 
   size_t dependent_varID;
   uint mtry;

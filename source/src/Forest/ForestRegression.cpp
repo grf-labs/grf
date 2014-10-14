@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
 This file is part of Ranger.
-    
+
 Ranger is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -14,13 +14,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Written by: 
+Written by:
 
 Marvin N. Wright
 Institut für Medizinische Biometrie und Statistik
 Universität zu Lübeck
 Ratzeburger Allee 160
-23562 Lübeck 
+23562 Lübeck
 
 http://www.imbs-luebeck.de
 wright@imbs.uni-luebeck.de
@@ -63,8 +63,8 @@ void ForestRegression::initInternal(std::string status_variable_name) {
 
   // If mtry not set, use number of independent variables / 3.
   if (mtry == 0) {
-    uint temp = (num_variables - 1) / 3;
-    mtry = std::max((uint) 1, temp);
+    int temp = sqrt(num_variables - 1);
+    mtry = std::max(1, temp);
   }
 
   // Set minimal node size

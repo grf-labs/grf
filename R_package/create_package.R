@@ -21,7 +21,8 @@ src.file <- c("Makevars", "Makevars.win", "rangerCpp.cpp",
 src.file <- src.file[src.file != ("../source/src/main.cpp") &
                        src.file != ("../source/src/utility/ArgumentHandler.cpp") &
                        src.file != ("../source/src/utility/ArgumentHandler.h")]
-code.file <- c("ranger.R", "predict.R", "print.R", "importance.R", "predictions.R", "timepoints.R")
+code.file <- c("ranger.R", "predict.R", "print.R", "importance.R", "predictions.R", 
+               "timepoints.R", "tune.R")
 
 ## Get version
 package.version <- scan("../source/src/version.h", character(0))[5]
@@ -41,6 +42,12 @@ Rcpp.package.skeleton(package.name, attributes = TRUE, force = TRUE,
                       license = package.license)
 compileAttributes(file.path(".", package.name, ""))
 unlink(file.path(package.name, "man", paste(package.name, "-package.Rd", sep = "")))
+
+## TODO: Instead use inst/include/ranger.h ?
+## Add globals.h to RcppExports.cpp (for building on Windows)
+rcpp.exports.file <- file.path(".", package.name, "src", "RcppExports.cpp")
+input <- readLines(rcpp.exports.file)
+writeLines(c("#include \"globals.h\"", input), rcpp.exports.file)
 
 ## Change DESCRIPTION file
 dcf.file <- file.path(".", package.name, "DESCRIPTION")

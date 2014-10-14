@@ -39,7 +39,7 @@ importance <- function(x, ...)  UseMethod("importance")
 ##' @seealso \code{\link{ranger}}
 ##' @author Marvin N. Wright
 ##' @aliases importance
-##' @export
+##' @export importance.ranger
 importance.ranger <- function(x, ...) {
   if (class(x) != "ranger") {
     stop("Object ist no ranger object.")

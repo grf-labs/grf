@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <fstream>
 #include <sstream>
@@ -167,17 +167,17 @@ void Data::getAllValues(std::vector<double>& all_values, std::vector<size_t>& sa
 
   // All values for varID (no duplicates) for given sampleIDs
   if (varID < num_cols_no_sparse) {
+
     all_values.reserve(sampleIDs.size());
     for (size_t i = 0; i < sampleIDs.size(); ++i) {
-      double value = get(sampleIDs[i], varID);
-      std::vector<double>::iterator it = std::find(all_values.begin(), all_values.end(), value);
-      if (it == all_values.end()) {
-        all_values.push_back(value);
-      }
+      all_values.push_back(get(sampleIDs[i], varID));
     }
+    sort(all_values.begin(), all_values.end());
+    all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
+
   } else {
-    // If GWA data just use 0, 1, 2
-    all_values = std::vector<double>( { 0, 1, 2 });
+    // If GWA data just use 0, 1. A split at 2 would always produce empty right child.
+    all_values = std::vector<double>( { 0, 1 });
   }
 
 }

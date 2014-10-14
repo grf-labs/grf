@@ -151,7 +151,7 @@ protected:
   void setAlwaysSplitVariables(std::vector<std::string>& always_split_variable_names);
 
   // Show progress every few seconds
-  void showProgress();
+  void showProgress(std::string operation);
 
   // Verbose output stream, cout if verbose==true, logfile if not
   std::ostream* verbose_out;

@@ -19,7 +19,7 @@ yy <- ranger("Surv(time, status) ~ .", data = veteran)
 ## Test split select weights
 weights <- c(0,0.2,0.5,1)
 ww <- ranger("Species ~ .", data = iris, split.select.weights = weights, 
-             mtry = 3, importance = "impurity")
+             mtry = 3, importance = "impurity", verbose = TRUE, num.trees = 1)
 
 ## Test verbose output
 temp <- ranger("Sepal.Width ~ .", data = iris, verbose = TRUE)
@@ -44,6 +44,10 @@ pred <- predict(temp$forest, data = veteran)
 pred.nodep <- predict(temp$forest, data = veteran[, c(1:2, 5:8)])
 pred.nodep <- predict(temp$forest, data = veteran[, c(1:3, 5:8)])
 pred.nodep <- predict(temp$forest, data = veteran[, c(1:2, 4:8)])
+
+temp <- ranger("Species ~ .", data = iris, verbose = FALSE, write.forest = TRUE, probability = TRUE)
+pred <- predict(temp$forest, data = iris)
+pred.nodep <- predict(temp$forest, data = iris[, 1:4])
 
 ## Test GWA mode
 library(GenABEL)

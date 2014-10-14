@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <iterator>
 
@@ -77,6 +77,8 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   if (importance_mode == IMP_GINI) {
     variable_importance.resize(data->getNumCols() - no_split_variables->size());
   }
+
+  initInternal();
 }
 
 void Tree::grow() {
@@ -92,6 +94,7 @@ void Tree::grow() {
 
   // Delete sampleID vector to save memory
   sampleIDs.clear();
+  cleanUpInternal();
 }
 
 void Tree::predict(const Data* prediction_data, bool oob_prediction) {
@@ -148,6 +151,9 @@ void Tree::computePermutationImportance() {
   predictions.clear();
   reservePredictionMemory(num_samples_oob);
 
+  // Reserve space for permutations, initialize with oob_sampleIDs
+  std::vector<size_t> permutations(oob_sampleIDs);
+
   // Randomly permute for all independent variables
   for (size_t i = 0; i < num_independent_variables; ++i) {
 
@@ -160,7 +166,7 @@ void Tree::computePermutationImportance() {
     }
 
     // Permute and compute prediction accuracy again for this permutation and save difference
-    permuteAndPredictOobSamples(varID);
+    permuteAndPredictOobSamples(varID, permutations);
     double accuracy_permuted = computePredictionAccuracyInternal();
     variable_importance.push_back(accuracy_normal - accuracy_permuted);
   }
@@ -177,7 +183,7 @@ void Tree::appendToFile(std::ofstream& file) {
   appendToFileInternal(file);
 }
 
-void Tree::createPossibleSplitVarSubset(std::unordered_set<size_t>& result) {
+void Tree::createPossibleSplitVarSubset(std::vector<size_t>& result) {
 
   // Always use deterministic variables
   std::copy(deterministic_varIDs->begin(), deterministic_varIDs->end(), std::inserter(result, result.end()));
@@ -195,7 +201,7 @@ void Tree::createPossibleSplitVarSubset(std::unordered_set<size_t>& result) {
 void Tree::splitNode(size_t nodeID) {
 
   // Select random subset of variables to possibly split at
-  std::unordered_set<size_t> possible_split_varIDs;
+  std::vector<size_t> possible_split_varIDs;
   createPossibleSplitVarSubset(possible_split_varIDs);
 
   // Call subclass method, sets split_varIDs and split_values
@@ -265,10 +271,10 @@ size_t Tree::dropDownSamplePermuted(size_t permuted_varID, size_t sampleID, size
   return nodeID;
 }
 
-void Tree::permuteAndPredictOobSamples(size_t permuted_varID) {
+void Tree::permuteAndPredictOobSamples(size_t permuted_varID, std::vector<size_t>& permutations) {
 
   // Permute OOB sample
-  std::vector<size_t> permutations(oob_sampleIDs);
+  //std::vector<size_t> permutations(oob_sampleIDs);
   std::shuffle(permutations.begin(), permutations.end(), random_number_generator);
 
   // For each sample, drop down the tree and add prediction
@@ -313,9 +319,4 @@ void Tree::bootstrapWithoutReplacement() {
   shuffleAndSplit(sampleIDs[0], oob_sampleIDs, num_samples, num_samples_inbag, random_number_generator);
   num_samples_oob = oob_sampleIDs.size();
 }
-
-
-
-
-
 

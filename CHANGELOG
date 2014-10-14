@@ -1,0 +1,17 @@
+
+
+## ----------------------------------------------------------------------- ##
+## Version 0.1.2
+## ----------------------------------------------------------------------- ##
+
+- Speedup growing of regression and probability prediction forests
+- Prediction forests are now handled like regression forests: MSE used for
+	prediction error and permutation importance
+- Fixed name conflict with randomForest package for "importance"
+- Fixed a bug: prediction function is now working for probability
+	prediction forests
+- Slot "predictions" for probability forests now contains class probabilities
+- importance function is now working even if randomForest package is
+	loaded after ranger
+- Fixed a bug: Split selection weights are now working as expected
+- Small changes in documentation
