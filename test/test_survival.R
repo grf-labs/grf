@@ -2,7 +2,7 @@
 library(survival)
 library(ranger)
 
-n <- 20
+n <- 100
 
 std <- replicate(n, {
   ranger(Surv(time, status) ~ ., veteran, num.trees = 2000)$prediction.error
