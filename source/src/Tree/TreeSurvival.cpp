@@ -90,12 +90,37 @@ void TreeSurvival::appendToFileInternal(std::ofstream& file) {
 }
 
 bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
+
+  double best_decrease = -1;
+  size_t best_varID = 0;
+  double best_value = 0;
+
+  size_t num_unique_death_times = 0;
+  computeDeathCounts(num_unique_death_times, nodeID);
+
+  // Stop early if no split posssible
+  if (sampleIDs[nodeID].size() >= 2 * min_node_size) {
+    findBestSplit(nodeID, possible_split_varIDs, num_unique_death_times, best_value, best_varID, best_decrease);
+  }
+
   bool result = false;
 
-  if (splitrule == LOGRANK) {
-    result = findBestSplitLogRank(nodeID, possible_split_varIDs);
-  } else if (splitrule == AUC || splitrule == AUC_IGNORE_TIES) {
-    result = findBestSplitAUC(nodeID, possible_split_varIDs);
+  // Stop and save CHF if no good split found (this is terminal node).
+  if (best_decrease < 0) {
+    std::vector<double> chf_temp;
+    double chf_value = 0;
+    for (size_t i = 0; i < num_timepoints; ++i) {
+      if (num_samples_at_risk[i] != 0) {
+        chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
+      }
+      chf_temp.push_back(chf_value);
+    }
+    chf[nodeID] = chf_temp;
+    result = true;
+  } else {
+    // If not terminal node save best values
+    split_varIDs[nodeID] = best_varID;
+    split_values[nodeID] = best_value;
   }
 
   return result;
@@ -117,89 +142,8 @@ double TreeSurvival::computePredictionAccuracyInternal() {
   return computeConcordanceIndex(data, sum_chf, dependent_varID, status_varID, oob_sampleIDs);
 }
 
-bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
-
-  double best_logrank = -1;
-  size_t best_varID = 0;
-  double best_value = 0;
-
-  size_t num_unique_death_times = 0;
-  computeDeathCounts(num_unique_death_times, nodeID);
-
-  // Stop early if no split posssible
-  if (sampleIDs[nodeID].size() >= 2 * min_node_size) {
-
-    // For all possible split variables
-    for (auto& varID : possible_split_varIDs) {
-
-      // Create possible split values
-      std::vector<double> possible_split_values;
-      data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
-
-      // Try next variable if all equal for this
-      if (possible_split_values.size() < 2) {
-        continue;
-      }
-
-      // If the column consists only of gwa data
-      if ((possible_split_values.size() == 2 && possible_split_values[0] == 0 && possible_split_values[1] == 1)
-          || (possible_split_values.size() == 3 && possible_split_values[0] == 0 && possible_split_values[1] == 1
-              && possible_split_values[2] == 2)) {
-        findBestSplitValueLogRankGWA(nodeID, varID, best_value, best_varID, best_logrank);
-      } else {
-
-        // For all possible split values
-        for (auto& split_value : possible_split_values) {
-
-          // Compute logrank and use split if better than before
-          double logrank = computeLogRankTest(nodeID, varID, split_value, num_unique_death_times);
-          if (logrank > best_logrank) {
-            best_value = split_value;
-            best_varID = varID;
-            best_logrank = logrank;
-          }
-        }
-      }
-    }
-  }
-
-  bool result = false;
-
-  // Stop and save CHF if no good split found (this is terminal node).
-  if (best_logrank < 0) {
-    std::vector<double> chf_temp;
-    double chf_value = 0;
-    for (size_t i = 0; i < num_timepoints; ++i) {
-      if (num_samples_at_risk[i] != 0) {
-        chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
-      }
-      chf_temp.push_back(chf_value);
-    }
-    chf[nodeID] = chf_temp;
-    result = true;
-  } else {
-    // If not terminal node save best values
-    split_varIDs[nodeID] = best_varID;
-    split_values[nodeID] = best_value;
-  }
-
-  return result;
-}
-
-// TODO: Profile
-// TODO: Redundancies with logrank splitting -> fix when merging in master
-bool TreeSurvival::findBestSplitAUC(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
-
-  double best_auc = -1;
-  size_t best_varID = 0;
-  double best_value = 0;
-
-  // Number of deaths and samples at risk for each timepoint
-  size_t* num_deaths = new size_t[num_timepoints];
-  size_t* num_samples_at_risk = new size_t[num_timepoints];
-
-  size_t num_unique_death_times = 0;
-  computeDeathCounts(num_unique_death_times, nodeID);
+void TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs,
+    size_t num_unique_death_times, double& best_value, size_t& best_varID, double& best_decrease) {
 
   // For all possible split variables
   for (auto& varID : possible_split_varIDs) {
@@ -213,43 +157,156 @@ bool TreeSurvival::findBestSplitAUC(size_t nodeID, std::vector<size_t>& possible
       continue;
     }
 
+    if (splitrule == LOGRANK) {
+      findBestSplitValueLogRank(nodeID, varID, possible_split_values, num_unique_death_times, best_value, best_varID,
+          best_decrease);
+    } else if (splitrule == AUC || splitrule == AUC_IGNORE_TIES) {
+      findBestSplitValueAUC(nodeID, varID, possible_split_values, best_value, best_varID, best_decrease);
+    }
+  }
+}
+
+void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+    size_t num_unique_death_times, double& best_value, size_t& best_varID, double& best_logrank) {
+
+  // If the column consists only of gwa data
+  if ((possible_split_values.size() == 2 && possible_split_values[0] == 0 && possible_split_values[1] == 1)
+      || (possible_split_values.size() == 3 && possible_split_values[0] == 0 && possible_split_values[1] == 1
+          && possible_split_values[2] == 2)) {
+    findBestSplitValueLogRankGWA(nodeID, varID, best_value, best_varID, best_logrank);
+  } else {
+
     // For all possible split values
     for (auto& split_value : possible_split_values) {
-      double auc = computeAucSplit(nodeID, varID, split_value);
 
-      if (auc > best_auc) {
+      // Compute logrank and use split if better than before
+      double logrank = computeLogRankTest(nodeID, varID, split_value, num_unique_death_times);
+      if (logrank > best_logrank) {
         best_value = split_value;
         best_varID = varID;
-        best_auc = auc;
+        best_logrank = logrank;
       }
     }
   }
 
-  bool result = false;
+}
 
-  // Stop and save CHF if no good split found (this is terminal node).
-  if (best_auc < 0) {
-    std::vector<double> chf_temp;
-    double chf_value = 0;
-    for (size_t i = 0; i < num_timepoints; ++i) {
-      if (num_samples_at_risk[i] != 0) {
-        chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
-      }
-      chf_temp.push_back(chf_value);
-    }
-    chf[nodeID] = chf_temp;
-    result = true;
-  } else {
-    // If not terminal node save best values
-    split_varIDs[nodeID] = best_varID;
-    split_values[nodeID] = best_value;
+//void TreeSurvival::findBestSplitValueAUC(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+//    double& best_value, size_t& best_varID, double& best_auc) {
+//
+//  // For all possible split values
+//  for (auto& split_value : possible_split_values) {
+//    double auc = computeAucSplit(nodeID, varID, split_value);
+//
+//    if (auc > best_auc) {
+//      best_value = split_value;
+//      best_varID = varID;
+//      best_auc = auc;
+//    }
+//  }
+//}
+
+// TODO: Stop if both samples smaller than splitpoint, where to get counts?
+// TODO: Check ties. Second method?
+void TreeSurvival::findBestSplitValueAUC(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+    double& best_value, size_t& best_varID, double& best_auc) {
+
+  size_t num_node_samples = sampleIDs[nodeID].size();
+  size_t num_splits = possible_split_values.size();
+
+  // Initialize
+  size_t* num_total = new size_t[num_splits];
+  size_t* num_left_right = new size_t[num_splits];
+  size_t* num_left_left = new size_t[num_splits];
+  size_t* num_right_right = new size_t[num_splits];
+  size_t* num_samples_left_child = new size_t[num_splits];
+  for (size_t i = 0; i < num_splits; ++i) {
+    num_total[i] = 0;
+    num_left_right[i] = 0;
+    num_left_left[i] = 0;
+    num_right_right[i] = 0;
+    num_samples_left_child[i] = 0;
   }
 
-  // Clean up
-  delete[] num_deaths;
-  delete[] num_samples_at_risk;
+  // For all pairs
+  for (size_t k = 0; k < num_node_samples; ++k) {
+    size_t sample_k = sampleIDs[nodeID][k];
+    double time_k = data->get(sample_k, dependent_varID);
+    double status_k = data->get(sample_k, status_varID);
+    double value_k = data->get(sample_k, varID);
 
-  return result;
+    // TODO: Do this somewhere else
+    // Count samples in left node
+    for (size_t i = 0; i < num_splits; ++i) {
+      double split_value = possible_split_values[i];
+      if (value_k <= split_value) {
+        ++num_samples_left_child[i];
+      }
+    }
+
+    for (size_t l = k + 1; l < num_node_samples; ++l) {
+      size_t sample_l = sampleIDs[nodeID][l];
+      double time_l = data->get(sample_l, dependent_varID);
+      double status_l = data->get(sample_l, status_varID);
+      double value_l = data->get(sample_l, varID);
+
+      double value_smaller;
+      double value_larger;
+      double status_smaller;
+
+      if (time_k < time_l) {
+        value_smaller = value_k;
+        value_larger = value_l;
+        status_smaller = status_k;
+      } else if (time_l < time_k) {
+        value_smaller = value_l;
+        value_larger = value_k;
+        status_smaller = status_l;
+      } else {
+        continue;
+      }
+
+      // Do not count if smaller time censored
+      if (status_smaller == 0) {
+        continue;
+      }
+
+      // For all splitpoints
+      for (size_t i = 0; i < num_splits; ++i) {
+        double split_value = possible_split_values[i];
+
+        // Count total
+        ++num_total[i];
+
+        // Count
+        if (value_smaller <= split_value && value_larger > split_value) {
+          ++num_left_right[i];
+        } else if (value_smaller <= split_value && value_larger <= split_value) {
+          ++num_left_left[i];
+        } else if (value_smaller > split_value && value_larger > split_value) {
+          ++num_right_right[i];
+        }
+
+      }
+    }
+  }
+
+  for (size_t i = 0; i < num_splits; ++i) {
+    double split_value = possible_split_values[i];
+
+    double auc = fabs((num_left_right[i] + 0.5 * num_left_left[i] + 0.5 * num_right_right[i]) / num_total[i] - 0.5);
+
+    // Do not consider this split point if fewer than min_node_size samples in one node
+    size_t num_samples_right_child = num_node_samples - num_samples_left_child[i];
+    if (num_samples_left_child[i] < min_node_size || num_samples_right_child < min_node_size) {
+      continue;
+    } else if (auc > best_auc) {
+      best_value = split_value;
+      best_varID = varID;
+      best_auc = auc;
+    }
+  }
+
 }
 
 void TreeSurvival::computeDeathCounts(size_t& num_unique_death_times, size_t nodeID) {
@@ -359,6 +416,7 @@ void TreeSurvival::computeChildDeathCounts(size_t nodeID, size_t varID, double s
   }
 }
 
+// TODO: Not needed for new method
 double TreeSurvival::computeAucSplit(size_t nodeID, size_t varID, double split_value) {
 
   size_t num_node_samples = sampleIDs[nodeID].size();

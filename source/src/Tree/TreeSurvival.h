@@ -58,10 +58,12 @@ private:
 
   double computePredictionAccuracyInternal();
 
-  // Called by splitNodeInternal(). Sets split_varIDs and split_values.
-  // TODO: To vector for AUC?
-  bool findBestSplitAUC(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
-  bool findBestSplitLogRank(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
+  void findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs, size_t num_unique_death_times,
+      double& best_value, size_t& best_varID, double& best_decrease);
+  void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+      size_t num_unique_death_times, double& best_value, size_t& best_varID, double& best_logrank);
+  void findBestSplitValueAUC(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+      double& best_value, size_t& best_varID, double& best_auc);
 
   void computeDeathCounts(size_t& num_unique_death_times, size_t nodeID);
   double computeLogRankTest(size_t nodeID, size_t varID, double split_value, size_t num_unique_death_times);
