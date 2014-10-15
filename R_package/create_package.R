@@ -45,9 +45,9 @@ unlink(file.path(package.name, "man", paste(package.name, "-package.Rd", sep = "
 
 ## TODO: Instead use inst/include/ranger.h ?
 ## Add globals.h to RcppExports.cpp (for building on Windows)
-rcpp.exports.file <- file.path(".", package.name, "src", "RcppExports.cpp")
-input <- readLines(rcpp.exports.file)
-writeLines(c("#include \"globals.h\"", input), rcpp.exports.file)
+# rcpp.exports.file <- file.path(".", package.name, "src", "RcppExports.cpp")
+# input <- readLines(rcpp.exports.file)
+# writeLines(c("#include \"globals.h\"", input), rcpp.exports.file)
 
 ## Change DESCRIPTION file
 dcf.file <- file.path(".", package.name, "DESCRIPTION")

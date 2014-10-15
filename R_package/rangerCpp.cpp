@@ -48,7 +48,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
     std::vector<double>& split_select_weights, bool use_split_select_weights,
     std::vector<std::string>& always_split_variable_names, bool use_always_split_variable_names,
     std::string status_variable_name, bool prediction_mode, Rcpp::List loaded_forest, Rcpp::RawMatrix sparse_data,
-    bool sample_with_replacement, bool probability, uint splitrule) {
+    bool sample_with_replacement, bool probability, uint splitrule_r) {
 
   Rcpp::List result;
   Forest* forest = 0;
@@ -117,6 +117,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
     }
 
     ImportanceMode importance_mode = (ImportanceMode) importance_mode_r;
+    SplitRule splitrule = (SplitRule) splitrule_r;
 
     // Init Ranger
     forest->initR(dependent_variable_name, memory_mode, data, mtry, num_trees, verbose_out, seed, num_threads,

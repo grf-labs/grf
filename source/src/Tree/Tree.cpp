@@ -51,7 +51,7 @@ Tree::~Tree() {
 void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
     std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
     std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
-    std::vector<size_t>* no_split_variables, bool sample_with_replacement, uint splitrule) {
+    std::vector<size_t>* no_split_variables, bool sample_with_replacement, SplitRule splitrule) {
 
   this->data = data;
   this->mtry = mtry;

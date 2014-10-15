@@ -65,6 +65,13 @@ enum ImportanceMode {
 };
 const uint MAX_IMP_MODE = 4;
 
+// Split mode
+enum SplitRule {
+  LOGRANK = 1,
+  AUC = 2,
+  AUC_IGNORE_TIES = 3
+};
+
 // Default values
 const uint DEFAULT_NUM_TREE = 500;
 const uint DEFAULT_NUM_THREADS = 0;
@@ -75,7 +82,7 @@ const uint DEFAULT_MIN_NODE_SIZE_REGRESSION = 5;
 const uint DEFAULT_MIN_NODE_SIZE_SURVIVAL = 3;
 const uint DEFAULT_MIN_NODE_SIZE_PROBABILITY = 10;
 
-const uint DEFAULT_SPLITRULE = 1;
+const SplitRule DEFAULT_SPLITRULE = LOGRANK;
 
 // Interval to print progress in seconds
 const double STATUS_INTERVAL = 30.0;

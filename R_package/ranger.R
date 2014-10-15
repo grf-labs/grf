@@ -62,7 +62,7 @@
 ##' @param probability Grow a probability forest. This is a classification forest which returns class probabilities instead of classifications.
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. Default TRUE.
-##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "auc" with default "logrank". 
+##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank", "auc" and "auc_ignore_ties" with default "logrank". 
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
@@ -317,6 +317,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     splitrule <- 1
   } else if (treetype == 5 & splitrule == "auc") {
     splitrule <- 2
+  } else if (treetype == 5 & splitrule == "auc_ignore_ties") {
+    splitrule <- 3
   } else {
     stop("Error: Unknown splitrule.")
   }

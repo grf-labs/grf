@@ -92,9 +92,9 @@ void TreeSurvival::appendToFileInternal(std::ofstream& file) {
 bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   bool result = false;
 
-  if (splitrule == 1) {
+  if (splitrule == LOGRANK) {
     result = findBestSplitLogRank(nodeID, possible_split_varIDs);
-  } else if (splitrule == 2) {
+  } else if (splitrule == AUC || splitrule == AUC_IGNORE_TIES) {
     result = findBestSplitAUC(nodeID, possible_split_varIDs);
   }
 
@@ -186,9 +186,8 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
   return result;
 }
 
-// TODO: Test
 // TODO: Profile
-// TODO: Redundancies with logrank splitting
+// TODO: Redundancies with logrank splitting -> fix when merging in master
 bool TreeSurvival::findBestSplitAUC(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   double best_auc = -1;
@@ -402,6 +401,13 @@ double TreeSurvival::computeAucSplit(size_t nodeID, size_t varID, double split_v
         value_larger = value_k;
         status_smaller = status_l;
       } else {
+        if (splitrule == AUC) {
+          if (time_k == time_l && status_k == 1 && status_l == 1 && value_k != value_l) {
+            // Tie in survival time, event for both and no tie for covariate -> count with 0.5
+            ++num_total;
+            ++num_left_left;
+          }
+        }
         continue;
       }
 
