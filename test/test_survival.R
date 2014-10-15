@@ -5,15 +5,15 @@ library(ranger)
 n <- 20
 
 std <- replicate(n, {
-  ranger(Surv(time, status) ~ ., veteran)$prediction.error
+  ranger(Surv(time, status) ~ ., veteran, num.trees = 2000)$prediction.error
 })
 
 auc <- replicate(n, {
-  ranger(Surv(time, status) ~ ., veteran, splitrule = "auc")$prediction.error
+  ranger(Surv(time, status) ~ ., veteran, splitrule = "auc", num.trees = 2000)$prediction.error
 })
 
 auc.ignore.ties <- replicate(n, {
-  ranger(Surv(time, status) ~ ., veteran, splitrule = "auc_ignore_ties")$prediction.error
+  ranger(Surv(time, status) ~ ., veteran, splitrule = "auc_ignore_ties", num.trees = 2000)$prediction.error
 })
 
 result <- data.frame(std, auc, auc.ignore.ties)
