@@ -401,7 +401,7 @@ double TreeSurvival::computeAucSplit(size_t nodeID, size_t varID, double split_v
         value_larger = value_k;
         status_smaller = status_l;
       } else {
-        if (splitrule == AUC) {
+        if (splitrule != AUC_IGNORE_TIES) {
           if (time_k == time_l && status_k == 1 && status_l == 1 && value_k != value_l) {
             // Tie in survival time, event for both and no tie for covariate -> count with 0.5
             ++num_total;
