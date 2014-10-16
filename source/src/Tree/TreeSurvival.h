@@ -73,7 +73,8 @@ private:
   void findBestSplitValueLogRankGWA(size_t nodeID, size_t varID, double& best_value, size_t& best_varID,
       double& best_logrank);
 
-  double computeAucSplit(size_t nodeID, size_t varID, double split_value);
+  void computeAucSplit(double time_k, double time_l, double status_k, double status_l, double value_k, double value_l,
+      size_t num_splits, std::vector<double>& possible_split_values, double* num_count, double* num_total);
 
   void reservePredictionMemory(size_t num_predictions) {
     predictions.resize(num_predictions, std::vector<double>());
