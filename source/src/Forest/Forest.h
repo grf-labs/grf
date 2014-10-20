@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #ifndef FOREST_H_
 #define FOREST_H_
@@ -32,8 +32,11 @@ wright@imbs.uni-luebeck.de
 #include <vector>
 #include <iostream>
 #include <random>
+#include <ctime>
+#ifndef WIN_R_BUILD
 #include <mutex>
 #include <condition_variable>
+#endif
 
 #include "globals.h"
 #include "Tree.h"
@@ -150,7 +153,11 @@ protected:
   void setAlwaysSplitVariables(std::vector<std::string>& always_split_variable_names);
 
   // Show progress every few seconds
+#ifdef WIN_R_BUILD
+  void showProgress(std::string operation, clock_t start_time, clock_t& lap_time);
+#else
   void showProgress(std::string operation);
+#endif
 
   // Verbose output stream, cout if verbose==true, logfile if not
   std::ostream* verbose_out;
@@ -173,8 +180,10 @@ protected:
   // Multithreading
   uint num_threads;
   std::vector<uint> thread_ranges;
+#ifndef WIN_R_BUILD
   std::mutex mutex;
   std::condition_variable condition_variable;
+#endif
 
   std::vector<Tree*> trees;
   Data* data;

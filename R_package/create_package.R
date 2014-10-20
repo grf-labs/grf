@@ -80,3 +80,6 @@ library(package.name, character.only = TRUE)
 ## Test
 library(testthat)
 test_dir("test/", reporter = "summary")
+
+## Remove
+##system("cp ranger_0.1.2.44.tar.gz ~/myWork/vbox_share/")
