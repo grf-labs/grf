@@ -50,6 +50,8 @@
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
 ##' By setting \code{memory} to 'float' or 'char' the memory usage can be reduced with a possible loss of precision. 
 ##' Use char only if all endpoints and covariates are integer values between -128 and 127 or factors with few levels. 
+##' 
+##' Multithreading is currently not supported for Microsoft Windows platforms. 
 ##'
 ##' @title Ranger
 ##' @param formula Object of class \code{formula} or \code{character} describing the model to fit.
