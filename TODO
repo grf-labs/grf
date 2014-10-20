@@ -3,8 +3,6 @@
 ## TOOD software
 ## ----------------------------------------------------------------------- ##
 
-To Silke: tree subset prediction error not implemented, but measure of 
-convergence is on list now
 
 ## ----------------------------------------------------------------------- ##
 ## Wishlist
@@ -30,7 +28,7 @@ convergence is on list now
 - Upload C++ version, source  + binaries. Gitlab public?
 - Create vignette
 - Check if new Rtools version with C++11 version is available, until then no
-	windows support. If availabel check README file.
+	windows multithreading support. If available check README file.
 - Submit to CRAN
     -> Add to readme
 
@@ -55,7 +53,6 @@ convergence is on list now
 ## Archive
 ## ----------------------------------------------------------------------- ##
 
-- Early stopping for AUC splitting
 - Validate survival
   -> C index is okay
   -> Check validation_survival script..

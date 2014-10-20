@@ -254,19 +254,29 @@ double computeConcordanceIndex(Data* data, std::vector<double>& sum_chf, size_t 
 
 }
 
+std::string uintToString(uint number) {
+#if WIN_R_BUILD == 1
+  std::stringstream temp;
+  temp << number;
+  return temp.str();
+#else
+  return std::to_string(number);
+#endif
+}
+
 std::string beautifyTime(uint seconds) {
   std::string result;
 
   // Add seconds, minutes, hours, days if larger than zero
   uint out_seconds = (uint) seconds % 60;
-  result = std::to_string(out_seconds) + " seconds";
+  result = uintToString(out_seconds) + " seconds";
   uint out_minutes = (seconds / 60) % 60;
   if (seconds / 60 == 0) {
     return result;
   } else if (out_minutes == 1) {
     result = "1 minute, " + result;
   } else {
-    result = std::to_string(out_minutes) + " minutes, " + result;
+    result = uintToString(out_minutes) + " minutes, " + result;
   }
   uint out_hours = (seconds / 3600) % 24;
   if (seconds / 3600 == 0) {
@@ -274,7 +284,7 @@ std::string beautifyTime(uint seconds) {
   } else if (out_hours == 1) {
     result = "1 hour, " + result;
   } else {
-    result = std::to_string(out_hours) + " hours, " + result;
+    result = uintToString(out_hours) + " hours, " + result;
   }
   uint out_days = (seconds / 86400);
   if (out_days == 0) {
@@ -282,7 +292,7 @@ std::string beautifyTime(uint seconds) {
   } else if (out_days == 1) {
     result = "1 day, " + result;
   } else {
-    result = std::to_string(out_days) + " days, " + result;
+    result = uintToString(out_days) + " days, " + result;
   }
   return result;
 }

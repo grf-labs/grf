@@ -26,6 +26,8 @@
  wright@imbs.uni-luebeck.de
  #-------------------------------------------------------------------------------*/
 
+#include <stdexcept>
+
 #include "utility.h"
 #include "ForestProbability.h"
 #include "TreeProbability.h"
