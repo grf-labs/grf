@@ -1,12 +1,17 @@
 
 library(survival)
 library(ranger)
+library(randomForestSRC)
 
 n <- 20
 num.trees <- 500
 
-formula <- Surv(time, status) ~ celltype
+formula <- Surv(time, status) ~ .
   
+src <- replicate(n, {
+  rfsrc(formula, veteran, ntree = num.trees)$err.rate[num.trees]
+})
+
 std <- replicate(n, {
   ranger(formula, veteran, num.trees = num.trees)$prediction.error
 })
@@ -19,7 +24,7 @@ auc <- replicate(n, {
 #   ranger(formula, veteran, splitrule = "auc_ignore_ties", num.trees = num.trees)$prediction.error
 # })
 
-result <- data.frame(std, auc)
+result <- data.frame(src, std, auc)
 
 boxplot(result)
 
