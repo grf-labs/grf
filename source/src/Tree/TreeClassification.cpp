@@ -152,7 +152,7 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
     data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
 
     //Try next variable if all equal for this
-    if (possible_split_values.size() < 2) {
+    if (possible_split_values.size() == 0) {
       continue;
     }
 

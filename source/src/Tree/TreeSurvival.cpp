@@ -130,7 +130,7 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
       data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
 
       // Try next variable if all equal for this
-      if (possible_split_values.size() < 2) {
+      if (possible_split_values.size() == 0) {
         continue;
       }
 
