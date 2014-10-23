@@ -185,6 +185,7 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, std::v
         best_value = split_value;
         best_varID = varID;
         best_logrank = logrank;
+
       }
     }
   }
