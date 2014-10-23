@@ -3,6 +3,9 @@
 ## TOOD software
 ## ----------------------------------------------------------------------- ##
 
+- Survival slower than with rfsrc for cont. covariates
+- Survival pec prediction better with rfsrc -> why? 
+  -> check pec function for rfsrc
 
 ## ----------------------------------------------------------------------- ##
 ## Wishlist
