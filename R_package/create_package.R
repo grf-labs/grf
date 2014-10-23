@@ -82,4 +82,4 @@ library(testthat)
 test_dir("test/", reporter = "summary")
 
 ## Remove
-system(paste("cp", paste(package.name, "_", package.version, ".tar.gz", sep = ""), "~/myWork/vbox_share/"))
+##system(paste("cp", paste(package.name, "_", package.version, ".tar.gz", sep = ""), "~/myWork/vbox_share/"))

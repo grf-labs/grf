@@ -249,6 +249,11 @@ void TreeSurvival::findBestSplitValueAUC(size_t nodeID, size_t varID, std::vecto
       }
     }
   }
+
+  // Clean up
+  delete[] num_count;
+  delete[] num_total;
+  delete[] num_samples_left_child;
 }
 
 void TreeSurvival::computeDeathCounts(size_t& num_unique_death_times, size_t nodeID) {
