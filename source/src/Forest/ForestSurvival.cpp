@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <set>
 #include <algorithm>
@@ -122,7 +122,7 @@ void ForestSurvival::predictInternal() {
       for (size_t k = 0; k < num_trees; ++k) {
         sample_time_prediction += trees[k]->getPredictions()[i][j];
       }
-      sample_prediction.push_back(sample_time_prediction/num_trees);
+      sample_prediction.push_back(sample_time_prediction / num_trees);
     }
     predictions.push_back(sample_prediction);
   }
@@ -158,12 +158,14 @@ void ForestSurvival::computePredictionErrorInternal() {
   std::vector<double> sum_chf;
   sum_chf.reserve(predictions.size());
   for (size_t i = 0; i < predictions.size(); ++i) {
-    double sum = 0;
-    for (size_t j = 0; j < predictions[i].size(); ++j) {
-      predictions[i][j] /= samples_oob_count[i];
-      sum += predictions[i][j];
+    if (samples_oob_count[i] > 0) {
+      double sum = 0;
+      for (size_t j = 0; j < predictions[i].size(); ++j) {
+        predictions[i][j] /= samples_oob_count[i];
+        sum += predictions[i][j];
+      }
+      sum_chf.push_back(sum);
     }
-    sum_chf.push_back(sum);
   }
 
   // Use empty vector to use all samples in computeConcordanceIndex
