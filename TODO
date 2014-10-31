@@ -6,6 +6,11 @@
 - Survival slower than with rfsrc for cont. covariates
 - Survival pec prediction better with rfsrc -> why? 
   -> check pec function for rfsrc
+- Need to set R seed + ranger seed for same results
+  -> Is it possible to call ranger with R seed?
+- Survival Forest with few trees. 
+	-> ForestSurvival::computePredictionErrorInternal() will not compute sum_chf
+		 for each sample. But in CIndex computation this is assumed!
 
 ## ----------------------------------------------------------------------- ##
 ## Wishlist
