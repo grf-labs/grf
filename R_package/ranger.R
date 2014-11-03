@@ -70,7 +70,7 @@
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param verbose Verbose output on or off.
-##' @param seed Random seed.
+##' @param seed Random seed. Default is \code{NULL}, which generates the seed from \code{R}. 
 ##' @param memory Memory mode, one of 'double', 'float', 'char'. Default 'double'.
 ##' @param dependent.variable.name Name of dependent variable, needed if no formula given. For survival forests this is the time variable.
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
@@ -256,7 +256,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   
   ## Seed
   if (is.null(seed)) {
-    seed <- 0
+    seed <- runif(1 , 0, .Machine$integer.max)
   }
   
   ## Num threads

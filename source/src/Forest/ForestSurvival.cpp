@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <set>
 #include <algorithm>
@@ -37,7 +37,7 @@ wright@imbs.uni-luebeck.de
 #include "Data.h"
 
 ForestSurvival::ForestSurvival() :
-    status_varID(0) {
+    status_varID(0), response_timepointIDs(0) {
 }
 
 ForestSurvival::~ForestSurvival() {
@@ -57,7 +57,7 @@ void ForestSurvival::loadForest(size_t dependent_varID, size_t num_trees,
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree* tree = new TreeSurvival(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-        forest_chf[i], &unique_timepoints);
+        forest_chf[i], &unique_timepoints, &response_timepointIDs);
     trees.push_back(tree);
   }
 
@@ -88,20 +88,29 @@ void ForestSurvival::initInternal(std::string status_variable_name) {
   // Create unique timepoints
   std::set<double> unique_timepoint_set;
   for (size_t i = 0; i < num_samples; ++i) {
-    if (data->get(i, status_varID) == 1) {
       unique_timepoint_set.insert(data->get(i, dependent_varID));
-    }
   }
   unique_timepoints.reserve(unique_timepoint_set.size());
   for (auto& t : unique_timepoint_set) {
     unique_timepoints.push_back(t);
+  }
+
+  // Create response_timepointIDs
+  if (!prediction_mode) {
+    for (size_t i = 0; i < num_samples; ++i) {
+      double value = data->get(i, dependent_varID);
+
+      // If timepoint is already in unique_timepoints, use ID. Else create a new one.
+      uint timepointID = find(unique_timepoints.begin(), unique_timepoints.end(), value) - unique_timepoints.begin();
+      response_timepointIDs.push_back(timepointID);
+    }
   }
 }
 
 void ForestSurvival::growInternal() {
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new TreeSurvival(&unique_timepoints, status_varID));
+    trees.push_back(new TreeSurvival(&unique_timepoints, status_varID, &response_timepointIDs));
   }
 }
 
@@ -122,7 +131,7 @@ void ForestSurvival::predictInternal() {
       for (size_t k = 0; k < num_trees; ++k) {
         sample_time_prediction += trees[k]->getPredictions()[i][j];
       }
-      sample_prediction.push_back(sample_time_prediction/num_trees);
+      sample_prediction.push_back(sample_time_prediction / num_trees);
     }
     predictions.push_back(sample_prediction);
   }
@@ -158,12 +167,14 @@ void ForestSurvival::computePredictionErrorInternal() {
   std::vector<double> sum_chf;
   sum_chf.reserve(predictions.size());
   for (size_t i = 0; i < predictions.size(); ++i) {
-    double sum = 0;
-    for (size_t j = 0; j < predictions[i].size(); ++j) {
-      predictions[i][j] /= samples_oob_count[i];
-      sum += predictions[i][j];
+    if (samples_oob_count[i] > 0) {
+      double sum = 0;
+      for (size_t j = 0; j < predictions[i].size(); ++j) {
+        predictions[i][j] /= samples_oob_count[i];
+        sum += predictions[i][j];
+      }
+      sum_chf.push_back(sum);
     }
-    sum_chf.push_back(sum);
   }
 
   // Use empty vector to use all samples in computeConcordanceIndex
@@ -301,7 +312,8 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
     }
 
     // Create tree
-    Tree* tree = new TreeSurvival(child_nodeIDs, split_varIDs, split_values, chf, &unique_timepoints);
+    Tree* tree = new TreeSurvival(child_nodeIDs, split_varIDs, split_values, chf, &unique_timepoints,
+        &response_timepointIDs);
     trees.push_back(tree);
   }
 }

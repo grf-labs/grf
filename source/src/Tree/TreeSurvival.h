@@ -34,11 +34,12 @@
 
 class TreeSurvival: public Tree {
 public:
-  TreeSurvival(std::vector<double>* unique_timepoints, size_t status_varID);
+  TreeSurvival(std::vector<double>* unique_timepoints, size_t status_varID, std::vector<size_t>* response_timepointIDs);
 
   // Create from loaded forest
   TreeSurvival(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values, std::vector<std::vector<double>> chf, std::vector<double>* unique_timepoints);
+      std::vector<double>& split_values, std::vector<std::vector<double>> chf, std::vector<double>* unique_timepoints,
+      std::vector<size_t>* response_timepointIDs);
 
   virtual ~TreeSurvival();
 
@@ -58,20 +59,27 @@ private:
 
   double computePredictionAccuracyInternal();
 
-  void findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs, size_t num_unique_death_times,
-      double& best_value, size_t& best_varID, double& best_decrease);
-  void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-      size_t num_unique_death_times, double& best_value, size_t& best_varID, double& best_logrank);
+  void findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs, double& best_value, size_t& best_varID,
+      double& best_decrease);
+
+  bool findBestSplitLogRank(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
+
+//  void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+//      size_t num_unique_death_times, double& best_value, size_t& best_varID, double& best_logrank);
   void findBestSplitValueAUC(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
       double& best_value, size_t& best_varID, double& best_auc);
 
-  void computeDeathCounts(size_t& num_unique_death_times, size_t nodeID);
-  double computeLogRankTest(size_t nodeID, size_t varID, double split_value, size_t num_unique_death_times);
-  void computeChildDeathCounts(size_t nodeID, size_t varID, double split_value, size_t* num_samples_left_child);
+//  void computeDeathCounts(size_t& num_unique_death_times, size_t nodeID);
+//  double computeLogRankTest(size_t nodeID, size_t varID, double split_value, size_t num_unique_death_times);
+//  void computeChildDeathCounts(size_t nodeID, size_t varID, double split_value, size_t* num_samples_left_child);
 
-  // Dirty but fast version for GWAS data
-  void findBestSplitValueLogRankGWA(size_t nodeID, size_t varID, double& best_value, size_t& best_varID,
-      double& best_logrank);
+// Called by splitNodeInternal(). Sets split_varIDs and split_values.
+
+  void computeDeathCounts(size_t nodeID);
+  void computeChildDeathCounts(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+      size_t* num_samples_right_child, size_t* num_samples_at_risk_right_child, size_t* num_deaths_right_child);
+  void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+      double& best_value, size_t& best_varID, double& best_logrank);
 
   void computeAucSplit(double time_k, double time_l, double status_k, double status_l, double value_k, double value_l,
       size_t num_splits, std::vector<double>& possible_split_values, double* num_count, double* num_total);
@@ -86,11 +94,6 @@ private:
   void cleanUpInternal() {
     delete[] num_deaths;
     delete[] num_samples_at_risk;
-    delete[] num_deaths_left_child;
-    delete[] num_samples_at_risk_left_child;
-    delete[] num_deaths_1;
-    delete[] num_samples_at_risk_1;
-    // num_samples_at_risk_0 and num_deaths_0 are deleted by left_child ones
   }
 
   size_t status_varID;
@@ -98,6 +101,7 @@ private:
   // Unique time points for all individuals (not only this bootstrap), sorted
   std::vector<double>* unique_timepoints;
   size_t num_timepoints;
+  std::vector<size_t>* response_timepointIDs;
 
   // For all terminal nodes CHF for all unique timepoints. For other nodes empty vector.
   std::vector<std::vector<double>> chf;
@@ -105,12 +109,6 @@ private:
   // Fields to save to while tree growing
   size_t* num_deaths;
   size_t* num_samples_at_risk;
-  size_t* num_deaths_left_child;
-  size_t* num_samples_at_risk_left_child;
-  size_t* num_deaths_0;
-  size_t* num_samples_at_risk_0;
-  size_t* num_deaths_1;
-  size_t* num_samples_at_risk_1;
 
   DISALLOW_COPY_AND_ASSIGN(TreeSurvival);
 };

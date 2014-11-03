@@ -3,6 +3,11 @@
 ## TOOD software
 ## ----------------------------------------------------------------------- ##
 
+- Initialize with new int[50](); 
+- Survival slower than with rfsrc for cont. covariates
+- Survival pec prediction better with rfsrc -> why? 
+  -> check pec function for rfsrc
+  
 
 ## ----------------------------------------------------------------------- ##
 ## Wishlist
@@ -57,3 +62,4 @@
   -> C index is okay
   -> Check validation_survival script..
   -> Different for return 0/-1 for denominator=0
+  

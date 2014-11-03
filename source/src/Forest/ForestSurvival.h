@@ -76,6 +76,7 @@ private:
 
   size_t status_varID;
   std::vector<double> unique_timepoints;
+  std::vector<size_t> response_timepointIDs;
 
   DISALLOW_COPY_AND_ASSIGN(ForestSurvival);
 };
