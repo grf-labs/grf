@@ -154,13 +154,9 @@ void TreeRegression::findBestSplitValue(size_t nodeID, size_t varID, std::vector
 
   size_t num_splits = possible_split_values.size();
 
-  // Initialize
-  double* sums_right = new double[num_splits];
-  size_t* n_right = new size_t[num_splits];
-  for (size_t i = 0; i < num_splits; ++i) {
-    sums_right[i] = 0;
-    n_right[i] = 0;
-  }
+  // Initialize with 0
+  double* sums_right = new double[num_splits]();
+  size_t* n_right = new size_t[num_splits]();
 
   // Sum in right child and possbile split
   for (auto& sampleID : sampleIDs[nodeID]) {

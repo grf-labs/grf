@@ -133,11 +133,8 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
   size_t best_varID = 0;
   double best_value = 0;
 
-  size_t* class_counts = new size_t[num_classes];
+  size_t* class_counts = new size_t[num_classes]();
   // Compute overall class counts
-  for (size_t i = 0; i < num_classes; ++i) {
-    class_counts[i] = 0;
-  }
   for (size_t i = 0; i < num_samples_node; ++i) {
     size_t sampleID = sampleIDs[nodeID][i];
     uint sample_classID = (*response_classIDs)[sampleID];
@@ -184,15 +181,9 @@ void TreeClassification::findBestSplitValue(size_t nodeID, size_t varID, std::ve
 
   size_t num_splits = possible_split_values.size();
 
-  // Initialize
-  size_t* class_counts_right = new size_t[num_splits * num_classes];
-  for (size_t i = 0; i < num_splits * num_classes; ++i) {
-    class_counts_right[i] = 0;
-  }
-  size_t* n_right = new size_t[num_splits];
-  for (size_t i = 0; i < num_splits; ++i) {
-    n_right[i] = 0;
-  }
+  // Initialize with 0
+  size_t* class_counts_right = new size_t[num_splits * num_classes]();
+  size_t* n_right = new size_t[num_splits]();
 
   // Count samples in right child per class and possbile split
   for (auto& sampleID : sampleIDs[nodeID]) {
