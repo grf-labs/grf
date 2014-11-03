@@ -4,7 +4,7 @@ library(ranger)
 library(randomForestSRC)
 library(microbenchmark)
 
-ntree <- 50
+ntree <- 500
 mtry <- 3
 nodesize <- 10
 formula <- Surv(time, status) ~.
@@ -24,6 +24,3 @@ microbenchmark(
   SRC = rfsrc(formula, dat, ntree = ntree, mtry = mtry, nodesize = nodesize), 
   times = 1)
 
-
-rg = ranger(formula, dat, num.trees = ntree, mtry = mtry, min.node.size = nodesize, write.forest = TRUE)
-src = rfsrc(formula, dat, ntree = ntree, mtry = mtry, nodesize = nodesize)

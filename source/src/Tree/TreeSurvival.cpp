@@ -124,6 +124,7 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
         continue;
       }
 
+      // Find best split value
       findBestSplitValueLogRank(nodeID, varID, possible_split_values, best_value, best_varID, best_logrank);
     }
   }
@@ -151,7 +152,6 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
   return result;
 }
 
-// TODO: Here too with new idea?
 void TreeSurvival::computeDeathCounts(size_t nodeID) {
 
   // Initialize
@@ -197,7 +197,6 @@ void TreeSurvival::computeChildDeathCounts(size_t nodeID, size_t varID, std::vec
         if (data->get(sampleID, status_varID) == 1) {
           ++num_deaths_right_child[i * num_timepoints + survival_timeID];
         }
-
       } else {
         break;
       }
@@ -209,7 +208,7 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, std::v
     double& best_value, size_t& best_varID, double& best_logrank) {
   size_t num_splits = possible_split_values.size();
 
-  // Initialize. Splitpoints x Timepoints
+  // Initialize
   size_t* num_deaths_right_child = new size_t[num_splits * num_timepoints];
   size_t* delta_samples_at_risk_right_child = new size_t[num_splits * num_timepoints];
   for (size_t i = 0; i < num_splits * num_timepoints; ++i) {
@@ -229,24 +228,28 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, std::v
     double nominator = 0;
     double denominator_squared = 0;
 
+    // Stop if minimal node size reached
     size_t num_samples_left_child = sampleIDs[nodeID].size() - num_samples_right_child[i];
     if (num_samples_right_child[i] < min_node_size || num_samples_left_child < min_node_size) {
       continue;
     }
 
+    // Compute logrank test statistic for this split
     size_t num_samples_at_risk_right_child = num_samples_right_child[i];
     for (size_t t = 0; t < num_timepoints; ++t) {
       if (num_samples_at_risk[t] < 2) {
         break;
       }
 
-      // Nominator and demoninator for log-rank test, notation from Ishwaran et al.
-      double di = (double) num_deaths[t];
-      double di1 = (double) num_deaths_right_child[i * num_timepoints + t];
-      double Yi = (double) num_samples_at_risk[t];
-      double Yi1 = (double) num_samples_at_risk_right_child;
-      nominator += di1 - Yi1 * (di / Yi);
-      denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
+      if (num_deaths[t] > 0) {
+        // Nominator and demoninator for log-rank test, notation from Ishwaran et al.
+        double di = (double) num_deaths[t];
+        double di1 = (double) num_deaths_right_child[i * num_timepoints + t];
+        double Yi = (double) num_samples_at_risk[t];
+        double Yi1 = (double) num_samples_at_risk_right_child;
+        nominator += di1 - Yi1 * (di / Yi);
+        denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
+      }
 
       // Reduce number of samples at risk for next timepoint
       num_samples_at_risk_right_child -= delta_samples_at_risk_right_child[i * num_timepoints + t];

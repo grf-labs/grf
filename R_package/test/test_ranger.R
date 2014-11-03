@@ -35,7 +35,7 @@ test_that("results have right number of independent variables", {
 })
 
 test_that("unique death times in survival result is right", {
-  expect_that(rg.surv$unique.death.times, equals(sort(unique(veteran$time[veteran$status == 1]))))
+  expect_that(rg.surv$unique.death.times, equals(sort(unique(veteran$time))))
 })
 
 test_that("importance measures work", {
