@@ -3,6 +3,7 @@
 ## Next version
 ## ----------------------------------------------------------------------- ##
 
+- Speedup for survival forests with continuous covariates
 - R version: Generate seed from R. It is no longer necessary to set the
   seed argument in ranger calls.
 

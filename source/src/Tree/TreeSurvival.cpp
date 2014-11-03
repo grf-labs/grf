@@ -230,7 +230,7 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, std::v
     // Compute logrank test statistic for this split
     size_t num_samples_at_risk_right_child = num_samples_right_child[i];
     for (size_t t = 0; t < num_timepoints; ++t) {
-      if (num_samples_at_risk[t] < 2) {
+      if (num_samples_at_risk[t] < 2 || num_samples_at_risk_right_child < 1) {
         break;
       }
 
