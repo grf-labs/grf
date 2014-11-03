@@ -37,7 +37,7 @@
 #include "Data.h"
 
 ForestSurvival::ForestSurvival() :
-    status_varID(0) {
+    status_varID(0), response_timepointIDs(0) {
 }
 
 ForestSurvival::~ForestSurvival() {
@@ -57,7 +57,7 @@ void ForestSurvival::loadForest(size_t dependent_varID, size_t num_trees,
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree* tree = new TreeSurvival(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-        forest_chf[i], &unique_timepoints);
+        forest_chf[i], &unique_timepoints, &response_timepointIDs);
     trees.push_back(tree);
   }
 
@@ -88,20 +88,29 @@ void ForestSurvival::initInternal(std::string status_variable_name) {
   // Create unique timepoints
   std::set<double> unique_timepoint_set;
   for (size_t i = 0; i < num_samples; ++i) {
-    if (data->get(i, status_varID) == 1) {
       unique_timepoint_set.insert(data->get(i, dependent_varID));
-    }
   }
   unique_timepoints.reserve(unique_timepoint_set.size());
   for (auto& t : unique_timepoint_set) {
     unique_timepoints.push_back(t);
+  }
+
+  // Create response_timepointIDs
+  if (!prediction_mode) {
+    for (size_t i = 0; i < num_samples; ++i) {
+      double value = data->get(i, dependent_varID);
+
+      // If timepoint is already in unique_timepoints, use ID. Else create a new one.
+      uint timepointID = find(unique_timepoints.begin(), unique_timepoints.end(), value) - unique_timepoints.begin();
+      response_timepointIDs.push_back(timepointID);
+    }
   }
 }
 
 void ForestSurvival::growInternal() {
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new TreeSurvival(&unique_timepoints, status_varID));
+    trees.push_back(new TreeSurvival(&unique_timepoints, status_varID, &response_timepointIDs));
   }
 }
 
@@ -303,7 +312,8 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
     }
 
     // Create tree
-    Tree* tree = new TreeSurvival(child_nodeIDs, split_varIDs, split_values, chf, &unique_timepoints);
+    Tree* tree = new TreeSurvival(child_nodeIDs, split_varIDs, split_values, chf, &unique_timepoints,
+        &response_timepointIDs);
     trees.push_back(tree);
   }
 }

@@ -34,11 +34,12 @@
 
 class TreeSurvival: public Tree {
 public:
-  TreeSurvival(std::vector<double>* unique_timepoints, size_t status_varID);
+  TreeSurvival(std::vector<double>* unique_timepoints, size_t status_varID, std::vector<size_t>* response_timepointIDs);
 
   // Create from loaded forest
   TreeSurvival(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values, std::vector<std::vector<double>> chf, std::vector<double>* unique_timepoints);
+      std::vector<double>& split_values, std::vector<std::vector<double>> chf, std::vector<double>* unique_timepoints,
+      std::vector<size_t>* response_timepointIDs);
 
   virtual ~TreeSurvival();
 
@@ -60,7 +61,9 @@ private:
 
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplitLogRank(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
-  void computeDeathCounts(size_t& num_unique_death_times, size_t nodeID);
+  void computeDeathCounts(size_t nodeID);
+  void computeChildDeathCounts(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+      size_t* num_samples_right_child, size_t* num_samples_at_risk_right_child, size_t* num_deaths_right_child);
   void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
       double& best_value, size_t& best_varID, double& best_logrank);
 
@@ -81,6 +84,7 @@ private:
   // Unique time points for all individuals (not only this bootstrap), sorted
   std::vector<double>* unique_timepoints;
   size_t num_timepoints;
+  std::vector<size_t>* response_timepointIDs;
 
   // For all terminal nodes CHF for all unique timepoints. For other nodes empty vector.
   std::vector<std::vector<double>> chf;
