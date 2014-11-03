@@ -60,14 +60,9 @@ private:
 
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplitLogRank(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
-
   void computeDeathCounts(size_t& num_unique_death_times, size_t nodeID);
-  double computeLogRankTest(size_t nodeID, size_t varID, double split_value, size_t num_unique_death_times);
-  void computeChildDeathCounts(size_t nodeID, size_t varID, double split_value, size_t* num_samples_left_child);
-
-  // Dirty but fast version for GWAS data
-  void findBestSplitValueLogRankGWA(size_t nodeID, size_t varID, double& best_value, size_t& best_varID,
-      double& best_logrank);
+  void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+      double& best_value, size_t& best_varID, double& best_logrank);
 
   void reservePredictionMemory(size_t num_predictions) {
     predictions.resize(num_predictions, std::vector<double>());
@@ -79,11 +74,6 @@ private:
   void cleanUpInternal() {
     delete[] num_deaths;
     delete[] num_samples_at_risk;
-    delete[] num_deaths_left_child;
-    delete[] num_samples_at_risk_left_child;
-    delete[] num_deaths_1;
-    delete[] num_samples_at_risk_1;
-    // num_samples_at_risk_0 and num_deaths_0 are deleted by left_child ones
   }
 
   size_t status_varID;
@@ -98,12 +88,6 @@ private:
   // Fields to save to while tree growing
   size_t* num_deaths;
   size_t* num_samples_at_risk;
-  size_t* num_deaths_left_child;
-  size_t* num_samples_at_risk_left_child;
-  size_t* num_deaths_0;
-  size_t* num_samples_at_risk_0;
-  size_t* num_deaths_1;
-  size_t* num_samples_at_risk_1;
 
   DISALLOW_COPY_AND_ASSIGN(TreeSurvival);
 };

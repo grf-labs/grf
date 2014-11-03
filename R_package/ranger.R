@@ -255,7 +255,6 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   ## Seed
   if (is.null(seed)) {
     seed <- runif(1 , 0, .Machine$integer.max)
-    cat(seed)
   }
   
   ## Num threads
