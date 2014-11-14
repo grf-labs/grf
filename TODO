@@ -14,6 +14,8 @@
 - Measure of convergence
 	 -> prediction error for tree subsets in randomForest?
 	 -> Auto mode for ntree? Grow until no change in prediction error
+- Use Kaplan Meier instead of Nelson Aalen
+	 -> New parameter
 
 
 ## ----------------------------------------------------------------------- ##
