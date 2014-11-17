@@ -23,9 +23,13 @@ Written by:
 
   To install the Ranger R package from the provided archive just run
 
-    install.packages("ranger_X.Y.Z.tar.gz") 
+    install.packages("ranger_X.Y.Z.tar.gz”, repos = NULL, type = “source”) 
 
-  in R from the directory where the downloaded archive is or give the full path. If any dependencies are missing (i.e. Rcpp), please install them from CRAN. R version >= 3.1 is required. Note that, for now, in Microsoft Windows no multithreading is supported (The compiler in RTools is too old).
+  in R from the directory where the downloaded archive is or give the full path. If any dependencies are missing (i.e. Rcpp), please install them from CRAN. R version >= 3.1 is required. To install the binary version in Microsoft Windows, use
+
+   install.packages("ranger_X.Y.Z.zip”, repos = NULL) 
+
+  Note that, for now, no multithreading is supported on Windows platforms (the compiler in RTools is too old).
 
   To install the C++ version of Ranger in Linux or Mac OS X you will need a compiler supporting C++11 (i.e. gcc >= 4.7 or Clang >= 3.0) and Cmake. To build start a terminal from the Ranger main directory and run the following commands
 
@@ -35,13 +39,15 @@ Written by:
     cmake ..
     make
 
-  After compilation there should be an executable called "ranger" in the current directory. 
+  After compilation there should be an executable called "ranger" in the build directory. 
 
-  To run Ranger in Microsoft Windows please use one of the provided binaries.
+  To run the C++ version in Microsoft Windows please cross compile or ask for a binary.
 
 3. Usage
 
-  For usage of the R version see ?ranger in R. As a first example you could try ranger(Species ~ ., data = iris).
+  For usage of the R version see ?ranger in R. Most importantly, see the Examples section. As a first example you could try 
+  
+    ranger(Species ~ ., data = iris)
 
   In the C++ version type 
 
