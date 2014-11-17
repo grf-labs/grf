@@ -29,7 +29,7 @@ Written by:
 
    install.packages("ranger_X.Y.Z.zip”, repos = NULL) 
 
-  Note that, for now, no multithreading is supported on Windows platforms (the compiler in RTools is too old).
+  Note that, for now, no multithreading is supported in the R version on Windows platforms (the compiler in RTools is too old).
 
   To install the C++ version of Ranger in Linux or Mac OS X you will need a compiler supporting C++11 (i.e. gcc >= 4.7 or Clang >= 3.0) and Cmake. To build start a terminal from the Ranger main directory and run the following commands
 
