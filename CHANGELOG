@@ -1,8 +1,13 @@
+## ----------------------------------------------------------------------- ##
+## Version 0.1.5
+## ----------------------------------------------------------------------- ##
+- Set required Rcpp version to 0.11.2
+- Minor changes to documentation
+- Fix large $call objects when using BatchJobs
 
 ## ----------------------------------------------------------------------- ##
 ## Version 0.1.4
 ## ----------------------------------------------------------------------- ##
-
 - Speedup for survival forests with continuous covariates
 - R version: Generate seed from R. It is no longer necessary to set the
   seed argument in ranger calls.
@@ -10,13 +15,11 @@
 ## ----------------------------------------------------------------------- ##
 ## Version 0.1.3
 ## ----------------------------------------------------------------------- ##
-
 - Windows support for R version (without multithreading)
 
 ## ----------------------------------------------------------------------- ##
 ## Version 0.1.2
 ## ----------------------------------------------------------------------- ##
-
 - Speedup growing of regression and probability prediction forests
 - Prediction forests are now handled like regression forests: MSE used for
 	prediction error and permutation importance
