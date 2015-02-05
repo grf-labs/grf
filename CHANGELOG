@@ -2,8 +2,9 @@
 ## Version 0.1.5
 ## ----------------------------------------------------------------------- ##
 - Set required Rcpp version to 0.11.2
-- Minor changes to documentation
 - Fix large $call objects when using BatchJobs
+- Add details and example on GenABEL usage to documentation
+- Minor changes to documentation
 
 ## ----------------------------------------------------------------------- ##
 ## Version 0.1.4

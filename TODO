@@ -4,6 +4,8 @@
 ## ----------------------------------------------------------------------- ##
 
 - Handle missing data
+   -> Now misssing values in GenABEL object (-1) are treated as 0, because 
+      only split at 0/1 allowed
 - Add importance function to run on existing forest
 - Progress output too often in long runs
 - Measure of convergence

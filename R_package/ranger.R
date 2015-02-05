@@ -53,6 +53,8 @@
 ##' 
 ##' For GWAS data consider combining \code{ranger} with the \code{\link{GenABEL}} package. 
 ##' See the Examples section below for a demonstration using \code{Plink} data.
+##' All SNPs in the \code{GenABEL} object will be used for splitting. 
+##' To use only the SNPs without sex or other covariates from the phenotype file, use \code{0} on the right hand side of the formula. 
 ##' Note that missing values are treated as an extra category while splitting.
 ##' 
 ##' Notes:
