@@ -57,7 +57,6 @@
 ##' 
 ##' Notes:
 ##' \itemize{
-##'  \item Independent variables of class \code{factor} are considered to be ordinal in the current implementation.
 ##'  \item Multithreading is currently not supported for Microsoft Windows platforms.
 ##' }
 ##' 
