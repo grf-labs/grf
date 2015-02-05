@@ -51,8 +51,16 @@
 ##' By setting \code{memory} to 'float' or 'char' the memory usage can be reduced with a possible loss of precision. 
 ##' Use char only if all endpoints and covariates are integer values between -128 and 127 or factors with few levels. 
 ##' 
-##' Multithreading is currently not supported for Microsoft Windows platforms. 
-##'
+##' For GWAS data consider combining \code{ranger} with the \code{\link{GenABEL}} package. 
+##' See the Examples section below for a demonstration using \code{Plink} data.
+##' Note that missing values are treated as an extra category while splitting.
+##' 
+##' Notes:
+##' \itemize{
+##'  \item Independent variables of class \code{factor} are considered to be ordinal in the current implementation.
+##'  \item Multithreading is currently not supported for Microsoft Windows platforms.
+##' }
+##' 
 ##' @title Ranger
 ##' @param formula Object of class \code{formula} or \code{character} describing the model to fit.
 ##' @param data Training data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
@@ -74,7 +82,7 @@
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
 ##' @return Object of class \code{ranger} with elements
 ##'   \tabular{ll}{
-##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). \cr
+##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). Note that the variable IDs in the \code{split.varIDs} object do not necessarily represent the column number in R. \cr
 ##'       \code{predictions}    \tab Predicted classes/values, based on out of bag samples (classification and regression only). \cr
 ##'       \code{variable.importance}     \tab Variable importance for each independent variable. \cr
 ##'       \code{prediction.error}   \tab Overall out of bag prediction error. For classification this is the fraction of missclassified samples, for regression the mean squared error and for survival one minus Harrell's c-index. \cr
@@ -118,6 +126,16 @@
 ##'
 ##' ## Alternative interface
 ##' ranger(dependent.variable.name = "Species", data = iris)
+##' 
+##' \dontrun{
+##' ## Use GenABEL interface to read Plink data into R and grow a classification forest
+##' ## The ped and map files are not included
+##' library(GenABEL)
+##' convert.snp.ped("data.ped", "data.map", "data.raw")
+##' dat.gwaa <- load.gwaa.data("data.pheno", "data.raw")
+##' phdata(dat.gwaa)$trait <- factor(phdata(dat.gwaa)$trait)
+##' ranger(trait ~ ., data = dat.gwaa)
+##' }
 ##'
 ##' @author Marvin N. Wright
 ##' @references
@@ -360,7 +378,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   if (treetype == 3) {
     result$r.squared <- 1 - result$prediction.error / var(response)
   }
-  result$call <- match.call()
+  result$call <- sys.call()
   result$memory.mode <- memory
   result$importance.mode <- importance
   result$num.samples <- nrow(data.final)
