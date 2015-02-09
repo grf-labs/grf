@@ -47,10 +47,14 @@ public:
 
   void initInternal();
 
-  void addPrediction(size_t nodeID, size_t sampleID);
   void addToTerminalNodes(size_t nodeID);
   void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
   void appendToFileInternal(std::ofstream& file);
+
+  const std::vector<double>& getPrediction(size_t sampleID) const {
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
+    return (terminal_class_counts[terminal_nodeID]);
+  }
 
   const std::vector<std::vector<double>>& getTerminalClassCounts() const {
     return terminal_class_counts;
@@ -68,13 +72,6 @@ private:
       double sum_node, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
 
   void addImpurityImportance(size_t nodeID, size_t varID, double decrease);
-
-  void reservePredictionMemory(size_t num_predictions) {
-    predictions.resize(num_predictions, std::vector<double>());
-    for (size_t i = 0; i < num_predictions; ++i) {
-      predictions[i].resize(class_values->size(), 0);
-    }
-  }
 
   void cleanUpInternal() {
     // Empty on purpose

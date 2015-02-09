@@ -44,10 +44,14 @@ public:
 
   void initInternal();
 
-  void addPrediction(size_t nodeID, size_t sampleID);
   double estimate(size_t nodeID);
   void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
   void appendToFileInternal(std::ofstream& file);
+
+  double getPrediction(size_t sampleID) const {
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
+    return (split_values[terminal_nodeID]);
+  }
 
 private:
   bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
@@ -63,11 +67,6 @@ private:
   void addImpurityImportance(size_t nodeID, size_t varID, double decrease);
 
   double computePredictionMSE();
-
-  void reservePredictionMemory(size_t num_predictions) {
-    predictions.push_back(std::vector<double>());
-    predictions[0].resize(num_predictions, 0);
-  }
 
   void cleanUpInternal() {
     // Empty on purpose

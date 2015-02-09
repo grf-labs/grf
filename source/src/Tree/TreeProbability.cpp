@@ -48,11 +48,6 @@ void TreeProbability::initInternal() {
   // Empty on purpose
 }
 
-void TreeProbability::addPrediction(size_t nodeID, size_t sampleID) {
-
-  predictions[sampleID] = terminal_class_counts[nodeID];
-}
-
 void TreeProbability::addToTerminalNodes(size_t nodeID) {
 
   size_t num_samples_in_node = sampleIDs[nodeID].size();
@@ -127,14 +122,16 @@ void TreeProbability::createEmptyNodeInternal() {
 
 double TreeProbability::computePredictionAccuracyInternal() {
 
+  size_t num_predictions = prediction_terminal_nodeIDs.size();
   double sum_of_squares = 0;
-  for (size_t i = 0; i < predictions.size(); ++i) {
+  for (size_t i = 0; i < num_predictions; ++i) {
     size_t sampleID = oob_sampleIDs[i];
     size_t real_classID = (*response_classIDs)[sampleID];
-    double predicted_value = predictions[i][real_classID];
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[i];
+    double predicted_value = terminal_class_counts[terminal_nodeID][real_classID];
     sum_of_squares += (1 - predicted_value) * (1 - predicted_value);
   }
-  return (1.0 - sum_of_squares / (double) predictions.size());
+  return (1.0 - sum_of_squares / (double) num_predictions);
 }
 
 bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {

@@ -61,10 +61,6 @@ void TreeSurvival::initInternal() {
   num_samples_at_risk = new size_t[num_timepoints];
 }
 
-void TreeSurvival::addPrediction(size_t nodeID, size_t sampleID) {
-  predictions[sampleID] = chf[nodeID];
-}
-
 void TreeSurvival::appendToFileInternal(std::ofstream& file) {
 
   // Convert to vector without empty elements and save
@@ -93,8 +89,9 @@ double TreeSurvival::computePredictionAccuracyInternal() {
 
   // Compute summed chf for samples
   std::vector<double> sum_chf;
-  for (size_t i = 0; i < predictions.size(); ++i) {
-    sum_chf.push_back(std::accumulate(predictions[i].begin(), predictions[i].end(), 0));
+  for (size_t i = 0; i < prediction_terminal_nodeIDs.size(); ++i) {
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[i];
+    sum_chf.push_back(std::accumulate(chf[terminal_nodeID].begin(), chf[terminal_nodeID].end(), 0));
   }
 
   // Return concordance index

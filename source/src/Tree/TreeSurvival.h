@@ -45,12 +45,16 @@ public:
 
   void initInternal();
 
-  void addPrediction(size_t nodeID, size_t sampleID);
   void appendToFileInternal(std::ofstream& file);
   void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
 
   const std::vector<std::vector<double> >& getChf() const {
     return chf;
+  }
+
+  const std::vector<double>& getPrediction(size_t sampleID) const {
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
+    return (chf[terminal_nodeID]);
   }
 
 private:
@@ -66,13 +70,6 @@ private:
       size_t* num_samples_right_child, size_t* num_samples_at_risk_right_child, size_t* num_deaths_right_child);
   void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
       double& best_value, size_t& best_varID, double& best_logrank);
-
-  void reservePredictionMemory(size_t num_predictions) {
-    predictions.resize(num_predictions, std::vector<double>());
-    for (auto& sample_vector : predictions) {
-      sample_vector.resize(num_timepoints, 0);
-    }
-  }
 
   void cleanUpInternal() {
     delete[] num_deaths;

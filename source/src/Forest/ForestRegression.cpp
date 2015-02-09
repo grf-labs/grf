@@ -82,14 +82,14 @@ void ForestRegression::growInternal() {
 
 void ForestRegression::predictInternal() {
 
-  size_t num_prediction_samples = trees[0]->getPredictions()[0].size();
+  size_t num_prediction_samples = data->getNumRows();
   predictions.reserve(num_prediction_samples);
 
   // For all samples use mean over all trees
   for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
     double prediction_sum = 0;
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      prediction_sum += trees[tree_idx]->getPredictions()[0][sample_idx];
+      prediction_sum += ((TreeRegression*)  trees[tree_idx])->getPrediction(sample_idx);
     }
     std::vector<double> temp;
     temp.push_back(prediction_sum / num_trees);
@@ -110,7 +110,7 @@ void ForestRegression::computePredictionErrorInternal() {
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
       size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
-      double value = trees[tree_idx]->getPredictions()[0][sample_idx];
+      double value = ((TreeRegression*)  trees[tree_idx])->getPrediction(sample_idx);
 
       predictions[sampleID][0] += value;
       ++samples_oob_count[sampleID];

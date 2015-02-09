@@ -105,7 +105,7 @@ void ForestProbability::growInternal() {
 void ForestProbability::predictInternal() {
 
   // First dim samples, second dim classes
-  size_t num_prediction_samples = trees[0]->getPredictions().size();
+  size_t num_prediction_samples = data->getNumRows();
   predictions.resize(num_prediction_samples);
   for (size_t i = 0; i < num_prediction_samples; ++i) {
     predictions[i].resize(class_values.size(), 0);
@@ -116,7 +116,7 @@ void ForestProbability::predictInternal() {
 
     // For each sample compute proportions in each tree and average over trees
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      std::vector<double> counts = trees[tree_idx]->getPredictions()[sample_idx];
+      std::vector<double> counts = ((TreeProbability*)  trees[tree_idx])->getPrediction(sample_idx);
 
       for (size_t class_idx = 0; class_idx < counts.size(); ++class_idx) {
         predictions[sample_idx][class_idx] += counts[class_idx] / num_trees;
@@ -139,7 +139,7 @@ void ForestProbability::computePredictionErrorInternal() {
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
       size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
-      std::vector<double> counts = trees[tree_idx]->getPredictions()[sample_idx];
+      std::vector<double> counts = ((TreeProbability*) trees[tree_idx])->getPrediction(sample_idx);
 
       for (size_t class_idx = 0; class_idx < counts.size(); ++class_idx) {
         predictions[sampleID][class_idx] += counts[class_idx];

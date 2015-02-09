@@ -55,7 +55,6 @@ public:
   void grow();
 
   void predict(const Data* prediction_data, bool oob_prediction);
-  virtual void addPrediction(size_t nodeID, size_t sampleID) = 0;
 
   void computePermutationImportance();
 
@@ -64,9 +63,6 @@ public:
 
   const std::vector<double>& getVariableImportance() const {
     return variable_importance;
-  }
-  const std::vector<std::vector<double>>& getPredictions() const {
-    return predictions;
   }
   const std::vector<std::vector<size_t> >& getChildNodeIDs() const {
     return child_nodeIDs;
@@ -101,8 +97,6 @@ protected:
 
   void bootstrap();
   void bootstrapWithoutReplacement();
-
-  virtual void reservePredictionMemory(size_t num_predictions) = 0;
 
   virtual void cleanUpInternal() = 0;
 
@@ -154,9 +148,8 @@ protected:
   ImportanceMode importance_mode;
 
   // When growing here the OOB set is used
-  // For classification and regression only one vector with samples
-  // For survival for each sample one vector for timepoints
-  std::vector<std::vector<double>> predictions;
+  // Terminal nodeIDs for prediction samples
+  std::vector<size_t> prediction_terminal_nodeIDs;
 
   bool sample_with_replacement;
 

@@ -51,10 +51,6 @@ void TreeRegression::initInternal() {
   // Empty on purpose
 }
 
-void TreeRegression::addPrediction(size_t nodeID, size_t sampleID) {
-  predictions[0][sampleID] = split_values[nodeID];
-}
-
 double TreeRegression::estimate(size_t nodeID) {
 
   // Mean of responses of samples in node
@@ -93,15 +89,18 @@ void TreeRegression::createEmptyNodeInternal() {
 }
 
 double TreeRegression::computePredictionAccuracyInternal() {
+
+  size_t num_predictions = prediction_terminal_nodeIDs.size();
   double sum_of_squares = 0;
-  for (size_t i = 0; i < predictions[0].size(); ++i) {
-    double predicted_value = predictions[0][i];
+  for (size_t i = 0; i < num_predictions; ++i) {
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[i];
+    double predicted_value = split_values[terminal_nodeID];
     double real_value = data->get(oob_sampleIDs[i], dependent_varID);
     if (predicted_value != real_value) {
       sum_of_squares += (predicted_value - real_value) * (predicted_value - real_value);
     }
   }
-  return (1.0 - sum_of_squares / (double) predictions[0].size());
+  return (1.0 - sum_of_squares / (double) num_predictions);
 }
 
 bool TreeRegression::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {

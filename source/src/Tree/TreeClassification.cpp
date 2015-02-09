@@ -54,10 +54,6 @@ void TreeClassification::initInternal() {
   // Empty on purpose
 }
 
-void TreeClassification::addPrediction(size_t nodeID, size_t sampleID) {
-  predictions[0][sampleID] = split_values[nodeID];
-}
-
 double TreeClassification::estimate(size_t nodeID) {
 
   // Count classes over samples in node and return class with maximum count
@@ -113,10 +109,11 @@ void TreeClassification::createEmptyNodeInternal() {
 
 double TreeClassification::computePredictionAccuracyInternal() {
 
-  size_t num_predictions = predictions[0].size();
+  size_t num_predictions = prediction_terminal_nodeIDs.size();
   size_t num_missclassifications = 0;
   for (size_t i = 0; i < num_predictions; ++i) {
-    double predicted_value = predictions[0][i];
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[i];
+    double predicted_value = split_values[terminal_nodeID];
     double real_value = data->get(oob_sampleIDs[i], dependent_varID);
     if (predicted_value != real_value) {
       ++num_missclassifications;

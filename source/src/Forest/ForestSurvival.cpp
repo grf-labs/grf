@@ -88,7 +88,7 @@ void ForestSurvival::initInternal(std::string status_variable_name) {
   // Create unique timepoints
   std::set<double> unique_timepoint_set;
   for (size_t i = 0; i < num_samples; ++i) {
-      unique_timepoint_set.insert(data->get(i, dependent_varID));
+    unique_timepoint_set.insert(data->get(i, dependent_varID));
   }
   unique_timepoints.reserve(unique_timepoint_set.size());
   for (auto& t : unique_timepoint_set) {
@@ -116,8 +116,8 @@ void ForestSurvival::growInternal() {
 
 void ForestSurvival::predictInternal() {
 
-  size_t num_prediction_samples = trees[0]->getPredictions().size();
-  size_t num_timepoints = trees[0]->getPredictions()[0].size();
+  size_t num_prediction_samples = data->getNumRows();
+  size_t num_timepoints = ((TreeSurvival*) trees[0])->getPrediction(0).size();
 
   predictions.reserve(num_prediction_samples);
 
@@ -129,7 +129,7 @@ void ForestSurvival::predictInternal() {
     for (size_t j = 0; j < num_timepoints; ++j) {
       double sample_time_prediction = 0;
       for (size_t k = 0; k < num_trees; ++k) {
-        sample_time_prediction += trees[k]->getPredictions()[i][j];
+        sample_time_prediction += ((TreeSurvival*) trees[k])->getPrediction(i)[j];
       }
       sample_prediction.push_back(sample_time_prediction / num_trees);
     }
@@ -140,7 +140,7 @@ void ForestSurvival::predictInternal() {
 
 void ForestSurvival::computePredictionErrorInternal() {
 
-  size_t num_timepoints = trees[0]->getPredictions()[0].size();
+  size_t num_timepoints = ((TreeSurvival*) trees[0])->getPrediction(0).size();
 
   // For each sample sum over trees where sample is OOB
   std::vector<size_t> samples_oob_count;
@@ -154,7 +154,7 @@ void ForestSurvival::computePredictionErrorInternal() {
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
       size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
-      std::vector<double> tree_sample_chf = trees[tree_idx]->getPredictions()[sample_idx];
+      std::vector<double> tree_sample_chf = ((TreeSurvival*) trees[tree_idx])->getPrediction(sample_idx);
 
       for (size_t time_idx = 0; time_idx < tree_sample_chf.size(); ++time_idx) {
         predictions[sampleID][time_idx] += tree_sample_chf[time_idx];

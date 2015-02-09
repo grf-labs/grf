@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <unordered_map>
 #include <algorithm>
@@ -104,7 +104,7 @@ void ForestClassification::growInternal() {
 void ForestClassification::predictInternal() {
 
   // First dim trees, second dim samples
-  size_t num_prediction_samples = trees[0]->getPredictions()[0].size();
+  size_t num_prediction_samples = data->getNumRows();
   predictions.reserve(num_prediction_samples);
 
   // For all samples take majority vote over all trees
@@ -113,7 +113,7 @@ void ForestClassification::predictInternal() {
     // Count classes over trees and save class with maximum count
     std::unordered_map<double, size_t> class_count;
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      double value = trees[tree_idx]->getPredictions()[0][sample_idx];
+      double value = ((TreeClassification*) trees[tree_idx])->getPrediction(sample_idx);
       ++class_count[value];
     }
 
@@ -136,7 +136,7 @@ void ForestClassification::computePredictionErrorInternal() {
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
       size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
-      double value = trees[tree_idx]->getPredictions()[0][sample_idx];
+      double value = ((TreeClassification*) trees[tree_idx])->getPrediction(sample_idx);
       ++class_counts[sampleID][value];
     }
   }

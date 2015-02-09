@@ -105,7 +105,7 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
     num_samples_predict = prediction_data->getNumRows();
   }
 
-  reservePredictionMemory(num_samples_predict);
+  prediction_terminal_nodeIDs.resize(num_samples_predict, 0);
 
   // For each sample start in root, drop down the tree and return final value
   for (size_t i = 0; i < num_samples_predict; ++i) {
@@ -134,7 +134,7 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
       }
     }
 
-    addPrediction(nodeID, i);
+    prediction_terminal_nodeIDs[i] = nodeID;
   }
 }
 
@@ -147,8 +147,8 @@ void Tree::computePermutationImportance() {
   // Compute normal prediction accuracy for each tree. Predictions already computed..
   double accuracy_normal = computePredictionAccuracyInternal();
 
-  predictions.clear();
-  reservePredictionMemory(num_samples_oob);
+  prediction_terminal_nodeIDs.clear();
+  prediction_terminal_nodeIDs.resize(num_samples_oob, 0);
 
   // Reserve space for permutations, initialize with oob_sampleIDs
   std::vector<size_t> permutations(oob_sampleIDs);
@@ -279,7 +279,7 @@ void Tree::permuteAndPredictOobSamples(size_t permuted_varID, std::vector<size_t
   // For each sample, drop down the tree and add prediction
   for (size_t i = 0; i < num_samples_oob; ++i) {
     size_t nodeID = dropDownSamplePermuted(permuted_varID, oob_sampleIDs[i], permutations[i]);
-    addPrediction(nodeID, i);
+    prediction_terminal_nodeIDs[i] = nodeID;
   }
 }
 
