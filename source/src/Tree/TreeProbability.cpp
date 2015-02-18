@@ -151,16 +151,20 @@ bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible
   for (auto& varID : possible_split_varIDs) {
 
     // Create possible split values
-    std::vector<double> possible_split_values;
-    data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
+    std::vector<double> all_values;
+    data->getAllValues(all_values, sampleIDs[nodeID], varID);
 
     // Try next variable if all equal for this
-    if (possible_split_values.size() == 0) {
+    if (all_values.size() == 0) {
       continue;
     }
 
-    findBestSplitValue(nodeID, varID, possible_split_values, sum_node, num_samples_node, best_value, best_varID,
-        best_decrease);
+    // Find best split value, if ordered consider all values as split values, else all 2-partitions
+    if ((*is_ordered_variable)[varID]) {
+      findBestSplitValue(nodeID, varID, all_values, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+    } else {
+      // TODO
+    }
   }
 
   // Stop if no good split found

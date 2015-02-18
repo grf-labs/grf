@@ -142,16 +142,22 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
   for (auto& varID : possible_split_varIDs) {
 
     // Create possible split values
-    std::vector<double> possible_split_values;
-    data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
+    std::vector<double> all_values;
+    data->getAllValues(all_values, sampleIDs[nodeID], varID);
 
     //Try next variable if all equal for this
-    if (possible_split_values.size() == 0) {
+    if (all_values.size() == 0) {
       continue;
     }
 
-    findBestSplitValue(nodeID, varID, possible_split_values, num_classes, class_counts, num_samples_node, best_value,
-        best_varID, best_decrease);
+    // Find best split value, if ordered consider all values as split values, else all 2-partitions
+    if ((*is_ordered_variable)[varID]) {
+      findBestSplitValue(nodeID, varID, all_values, num_classes, class_counts, num_samples_node, best_value,
+                    best_varID, best_decrease);
+    } else {
+      // TODO
+      std::cout << "TODO"<< std::endl;
+    }
   }
 
   delete[] class_counts;
@@ -231,6 +237,13 @@ void TreeClassification::findBestSplitValue(size_t nodeID, size_t varID, std::ve
 
   delete[] class_counts_right;
   delete[] n_right;
+}
+
+void TreeClassification::findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+    size_t num_classes, size_t* class_counts, size_t num_samples_node, double& best_value, size_t& best_varID,
+    double& best_decrease) {
+
+ // TODO: Idea: Dont code splits but use vectors for values in left/right child or true/false for left/right child
 }
 
 void TreeClassification::addGiniImportance(size_t nodeID, size_t varID, double decrease) {

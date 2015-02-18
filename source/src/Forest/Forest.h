@@ -177,8 +177,8 @@ protected:
   MemoryMode memory_mode;
   bool sample_with_replacement;
 
-  // Variable IDs of unordered factor variables
-  std::vector<size_t> unordered_varIDs;
+  // For each varID true if ordered
+  std::vector<bool> is_ordered_variable;
 
   // Variable to not split at (only dependent_varID for non-survival forests)
   std::vector<size_t> no_split_variables;

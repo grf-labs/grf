@@ -113,16 +113,21 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
     for (auto& varID : possible_split_varIDs) {
 
       // Create possible split values
-      std::vector<double> possible_split_values;
-      data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
+      std::vector<double> all_values;
+      data->getAllValues(all_values, sampleIDs[nodeID], varID);
 
       // Try next variable if all equal for this
-      if (possible_split_values.size() == 0) {
+      if (all_values.size() == 0) {
         continue;
       }
 
-      // Find best split value
-      findBestSplitValueLogRank(nodeID, varID, possible_split_values, best_value, best_varID, best_logrank);
+      // Find best split value, if ordered consider all values as split values, else all 2-partitions
+      if ((*is_ordered_variable)[varID]) {
+        findBestSplitValueLogRank(nodeID, varID, all_values, best_value, best_varID, best_logrank);
+      } else {
+        // TODO
+      }
+
     }
   }
 
