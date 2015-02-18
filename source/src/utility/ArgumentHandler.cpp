@@ -49,7 +49,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:D:M:P:S:U:Zf:hil::m:o:ps:t:uvwy:z:";
+  char const *short_options = "A:D:M:P:S:U:Zc:f:hil::m:o:ps:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
@@ -62,6 +62,7 @@ int ArgumentHandler::processArguments() {
       { "nthreads",             required_argument,  0, 'U'},
       { "version",              no_argument,        0, 'Z'},
 
+      { "catvars",              required_argument,  0, 'c'},
       { "file",                 required_argument,  0, 'f'},
       { "help",                 no_argument,        0, 'h'},
       { "impmeasure",           required_argument,  0, 'i'},
@@ -140,6 +141,10 @@ int ArgumentHandler::processArguments() {
       break;
 
       // lower case options
+    case 'c':
+      splitString(catvars, optarg, ',');
+      break;
+
     case 'f':
       file = optarg;
       break;
@@ -352,6 +357,7 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              For Survival growing is stopped if one child would reach a size smaller than N." << std::endl;
   std::cout << "    " << "                              This means nodes with size smaller N can occur for Classification and Regression." << std::endl;
   std::cout << "    " << "                              (Default: 1 for Classification, 5 for Regression, and 3 for Survival)" << std::endl;
+  std::cout << "    " << "--catvars V1,V2,..            Comma separated list of names of (unordered) categorical variables." << std::endl;
   std::cout << "    " << "--write                       Save forest to file <outprefix>.forest." << std::endl;
   std::cout << "    " << "--predict FILE                Load forest from FILE and predict with new data." << std::endl;
   std::cout << "    " << "--impmeasure TYPE             Set importance mode to:" << std::endl;

@@ -151,3 +151,22 @@ dat.long <-  data.frame(replicate(rows, rbinom(n, 1, 0.5)))
 colnames(dat.long) <- paste("x", 1:rows, sep = "")
 ranger(x1~., dat.long)
 
+## Test unordered variables
+dat <- iris
+dat$Sepal.Length <- factor(iris$Sepal.Length, ordered = FALSE)
+dat$Petal.Width <- factor(iris$Petal.Width, ordered = FALSE)
+
+ranger(Species ~ ., data = dat, respect.unordered.factors = TRUE)
+ranger(Petal.Length ~ ., data = dat, respect.unordered.factors = TRUE)
+ranger(dependent.variable.name = "Species", data = dat, respect.unordered.factors = TRUE)
+
+ranger(Surv(time, status) ~ ., data = veteran, respect.unordered.factors = TRUE)
+ranger(dependent.variable.name = "time", status.variable.name = "status", data = veteran, 
+       respect.unordered.factors = TRUE)
+
+library(GenABEL)
+chr21 <- load.gwaa.data("~/sandbox/attic/medianImp/test.pheno", "~/sandbox/attic/medianImp/test.raw")
+phdata(chr21)$trait <- factor(phdata(chr21)$trait)
+phdata(chr21)$sex <- factor(phdata(chr21)$sex)
+temp <- ranger("trait ~ .", data = chr21, write.forest = TRUE, respect.unordered.factors = TRUE)
+##pred <- predict(temp, data = chr21)
