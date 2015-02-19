@@ -196,7 +196,7 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
   // TODO: Remove!
   std::cout << "Unordered variable IDs: ";
   for (size_t i = 0; i < is_ordered_variable.size(); ++i) {
-    if (is_ordered_variable[i]) {
+    if (!is_ordered_variable[i]) {
       std::cout << i << ", ";
     }
   }
@@ -205,10 +205,10 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
   // TODO: Remove!
   std::cout << "Unordered variable names: ";
   for (size_t i = 0; i < is_ordered_variable.size(); ++i) {
-      if (is_ordered_variable[i]) {
-        std::cout << data->getVariableNames()[i] << ", ";
-      }
+    if (!is_ordered_variable[i]) {
+      std::cout << data->getVariableNames()[i] << ", ";
     }
+  }
   std::cout << std::endl;
 
   no_split_variables.push_back(dependent_varID);
@@ -352,6 +352,9 @@ void Forest::saveToFile() {
 
 void Forest::grow() {
 
+  // TODO: Remove
+//  std::cout << "Start growing forest." << std::endl;
+
   // Create thread ranges
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
 
@@ -368,7 +371,8 @@ void Forest::grow() {
       tree_seed = (i + 1) * seed;
     }
     trees[i]->init(data, mtry, dependent_varID, num_samples, tree_seed, &deterministic_varIDs, &split_select_varIDs,
-        &split_select_weights, importance_mode, min_node_size, &no_split_variables, sample_with_replacement, &is_ordered_variable);
+        &split_select_weights, importance_mode, min_node_size, &no_split_variables, sample_with_replacement,
+        &is_ordered_variable);
   }
 
   // Grow trees in multiple threads
@@ -393,6 +397,9 @@ void Forest::grow() {
     thread.join();
   }
 #endif
+
+  // TODO: Remove
+//  std::cout << "Finished growing forest." << std::endl;
 }
 
 void Forest::predict() {
