@@ -124,15 +124,20 @@ bool TreeRegression::findBestSplit(size_t nodeID, std::vector<size_t>& possible_
     data->getAllValues(all_values, sampleIDs[nodeID], varID);
 
     // Try next variable if all equal for this
-    if (all_values.size() == 0) {
+    if (all_values.size() < 2) {
       continue;
     }
 
     // Find best split value, if ordered consider all values as split values, else all 2-partitions
     if ((*is_ordered_variable)[varID]) {
+
+      // Remove largest value because no split possible
+      all_values.pop_back();
+
       findBestSplitValue(nodeID, varID, all_values, sum_node, num_samples_node, best_value, best_varID, best_decrease);
     } else {
-      // TODO: Add unordered splitting
+      findBestSplitValueUnordered(nodeID, varID, all_values, sum_node, num_samples_node, best_value, best_varID,
+          best_decrease);
     }
   }
 
@@ -200,6 +205,69 @@ void TreeRegression::findBestSplitValue(size_t nodeID, size_t varID, std::vector
 
   delete[] sums_right;
   delete[] n_right;
+}
+
+// TODO: Why is the prediction error lower without unordered covars?
+void TreeRegression::findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
+    double sum_node, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
+
+  // Number of possible splits is 2^num_levels
+  size_t num_splits = (1 << factor_levels.size());
+
+  // TODO: Remove
+  std::cout << std::endl << "Number of factors: " << factor_levels.size() << std::endl;
+
+  // Compute decrease of impurity for each possible split
+  // Split where all left (0) or all right (1) are excluded
+  // The second half of numbers is just left/right switched the first half -> Exclude second half
+  for (size_t local_splitID = 1; local_splitID < num_splits / 2; ++local_splitID) {
+
+    // TODO: Remove
+    std::cout << "Local split id: " << local_splitID << std::endl;
+
+    // Compute overall splitID by shifting local factorIDs to global positions
+    size_t splitID = 0;
+    for (size_t j = 0; j < factor_levels.size(); ++j) {
+      if ((local_splitID & (1 << j))) {
+        double level = factor_levels[j];
+        size_t factorID = floor(level) - 1;
+        splitID = splitID | (1 << factorID);
+      }
+    }
+
+    // Initialize
+    double sum_right = 0;
+    size_t n_right = 0;
+
+    // Sum in right child
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      double response = data->get(sampleID, dependent_varID);
+      double value = data->get(sampleID, varID);
+      size_t factorID = floor(value) - 1;
+
+      // If in right child, count
+      // In right child, if bitwise splitID at position factorID is 1
+      if ((splitID & (1 << factorID))) {
+        ++n_right;
+        sum_right += response;
+      }
+    }
+    size_t n_left = num_samples_node - n_right;
+
+    // Sum of squares
+    double sum_left = sum_node - sum_right;
+    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
+
+    // TODO: Remove
+    std::cout << "n_left: " << n_left << ", n_right: " << n_right << ", decrease: " << decrease << std::endl;
+
+    // If better than before, use this
+    if (decrease > best_decrease) {
+      best_value = splitID;
+      best_varID = varID;
+      best_decrease = decrease;
+    }
+  }
 }
 
 void TreeRegression::addImpurityImportance(size_t nodeID, size_t varID, double decrease) {
