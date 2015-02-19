@@ -97,7 +97,6 @@ void Tree::grow() {
   cleanUpInternal();
 }
 
-// TODO: Add unordered splitting
 void Tree::predict(const Data* prediction_data, bool oob_prediction) {
 
   size_t num_samples_predict;
@@ -126,13 +125,28 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
       }
 
       // Move to child
-      double value = prediction_data->get(sample_idx, split_varIDs[nodeID]);
-      if (value <= split_values[nodeID]) {
-        // Move to left child
-        nodeID = child_nodeIDs[nodeID][0];
+      size_t split_varID = split_varIDs[nodeID];
+      double value = prediction_data->get(sample_idx, split_varID);
+      if ((*is_ordered_variable)[split_varID]) {
+        if (value <= split_values[nodeID]) {
+          // Move to left child
+          nodeID = child_nodeIDs[nodeID][0];
+        } else {
+          // Move to right child
+          nodeID = child_nodeIDs[nodeID][1];
+        }
       } else {
-        // Move to right child
-        nodeID = child_nodeIDs[nodeID][1];
+        size_t factorID = floor(value) - 1;
+        size_t splitID = floor(split_varID);
+
+        // Left if 0 found at position factorID
+        if (!(splitID & (1 << factorID))) {
+          // Move to left child
+          nodeID = child_nodeIDs[nodeID][0];
+        } else {
+          // Move to right child
+          nodeID = child_nodeIDs[nodeID][1];
+        }
       }
     }
 
@@ -223,7 +237,6 @@ void Tree::splitNode(size_t nodeID) {
   child_nodeIDs[nodeID].push_back(right_child_nodeID);
   createEmptyNode();
 
-  // TODO: Encapsulate in function?
   // For each sample in node, assign to left or right child
   if ((*is_ordered_variable)[split_varID]) {
     // Ordered: left is <= splitval and right is > splitval
@@ -266,7 +279,6 @@ void Tree::createEmptyNode() {
   createEmptyNodeInternal();
 }
 
-// TODO: Add unordered splitting
 size_t Tree::dropDownSamplePermuted(size_t permuted_varID, size_t sampleID, size_t permuted_sampleID) {
 
   // Start in root and drop down
@@ -281,13 +293,29 @@ size_t Tree::dropDownSamplePermuted(size_t permuted_varID, size_t sampleID, size
     }
 
     // Move to child
-    if (data->get(sampleID_final, split_varID) <= split_values[nodeID]) {
-      // Move to left child
-      nodeID = child_nodeIDs[nodeID][0];
+    double value = data->get(sampleID_final, split_varID);
+    if ((*is_ordered_variable)[split_varID]) {
+      if (value <= split_values[nodeID]) {
+        // Move to left child
+        nodeID = child_nodeIDs[nodeID][0];
+      } else {
+        // Move to right child
+        nodeID = child_nodeIDs[nodeID][1];
+      }
     } else {
-      // Move to right child
-      nodeID = child_nodeIDs[nodeID][1];
+      size_t factorID = floor(value) - 1;
+      size_t splitID = floor(split_values[nodeID]);
+
+      // Left if 0 found at position factorID
+      if (!(splitID & (1 << factorID))) {
+        // Move to left child
+        nodeID = child_nodeIDs[nodeID][0];
+      } else {
+        // Move to right child
+        nodeID = child_nodeIDs[nodeID][1];
+      }
     }
+
   }
   return nodeID;
 }
