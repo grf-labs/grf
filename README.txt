@@ -1,6 +1,6 @@
 
 
-Ranger 0.1.4
+Ranger 0.1.6
 
 Written by:
 
