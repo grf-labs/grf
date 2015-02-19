@@ -83,9 +83,6 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
 
 void Tree::grow() {
 
-  // TODO: Remove
-//  std::cout << "Start growing tree." << std::endl;
-
   if (sample_with_replacement) {
     bootstrap();
   } else {
@@ -98,11 +95,9 @@ void Tree::grow() {
   // Delete sampleID vector to save memory
   sampleIDs.clear();
   cleanUpInternal();
-
-  // TODO: Remove
-//  std::cout << "Finished growing tree." << std::endl;
 }
 
+// TODO: Add unordered splitting
 void Tree::predict(const Data* prediction_data, bool oob_prediction) {
 
   size_t num_samples_predict;
@@ -206,9 +201,6 @@ void Tree::createPossibleSplitVarSubset(std::vector<size_t>& result) {
 
 void Tree::splitNode(size_t nodeID) {
 
-  // TODO: Remove
-//  std::cout << "Start splitNode." << std::endl;
-
   // Select random subset of variables to possibly split at
   std::vector<size_t> possible_split_varIDs;
   createPossibleSplitVarSubset(possible_split_varIDs);
@@ -231,8 +223,10 @@ void Tree::splitNode(size_t nodeID) {
   child_nodeIDs[nodeID].push_back(right_child_nodeID);
   createEmptyNode();
 
+  // TODO: Encapsulate in function?
+  // For each sample in node, assign to left or right child
   if ((*is_ordered_variable)[split_varID]) {
-    // For each sample in node, assign to left (<= split val) or right (> split val) child
+    // Ordered: left is <= splitval and right is > splitval
     for (auto& sampleID : sampleIDs[nodeID]) {
       if (data->get(sampleID, split_varID) <= split_value) {
         sampleIDs[left_child_nodeID].push_back(sampleID);
@@ -241,14 +235,14 @@ void Tree::splitNode(size_t nodeID) {
       }
     }
   } else {
-    // For each sample in node, assign to left or right child
+    // Unordered: If bit at position is 1 -> right, 0 -> left
     for (auto& sampleID : sampleIDs[nodeID]) {
       double level = data->get(sampleID, split_varID);
       size_t factorID = floor(level) - 1;
       size_t splitID = floor(split_value);
 
       // Left if 0 found at position factorID
-      if ((splitID & (1 << factorID)) == 0) {
+      if (!(splitID & (1 << factorID))) {
         sampleIDs[left_child_nodeID].push_back(sampleID);
       } else {
         sampleIDs[right_child_nodeID].push_back(sampleID);
@@ -261,8 +255,6 @@ void Tree::splitNode(size_t nodeID) {
     splitNode(child_nodeIDs[nodeID][i]);
   }
 
-  // TODO: Remove
-//  std::cout << "Finish splitNode." << std::endl;
 }
 
 void Tree::createEmptyNode() {
@@ -274,6 +266,7 @@ void Tree::createEmptyNode() {
   createEmptyNodeInternal();
 }
 
+// TODO: Add unordered splitting
 size_t Tree::dropDownSamplePermuted(size_t permuted_varID, size_t sampleID, size_t permuted_sampleID) {
 
   // Start in root and drop down

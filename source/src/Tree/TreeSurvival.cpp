@@ -125,7 +125,7 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
       if ((*is_ordered_variable)[varID]) {
         findBestSplitValueLogRank(nodeID, varID, all_values, best_value, best_varID, best_logrank);
       } else {
-        // TODO
+        // TODO: Add unordered splitting
       }
 
     }

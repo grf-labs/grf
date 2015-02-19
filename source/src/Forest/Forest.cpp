@@ -352,9 +352,6 @@ void Forest::saveToFile() {
 
 void Forest::grow() {
 
-  // TODO: Remove
-//  std::cout << "Start growing forest." << std::endl;
-
   // Create thread ranges
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
 
@@ -398,8 +395,6 @@ void Forest::grow() {
   }
 #endif
 
-  // TODO: Remove
-//  std::cout << "Finished growing forest." << std::endl;
 }
 
 void Forest::predict() {

@@ -174,14 +174,9 @@ void Data::getAllValues(std::vector<double>& all_values, std::vector<size_t>& sa
     }
     sort(all_values.begin(), all_values.end());
     all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
-
-    // TODO: What to do here?
-    // Remove largest value because no split possible
-    //all_values.pop_back();
-
   } else {
-    // If GWA data just use 0, 1. A split at 2 would always produce empty right child.
-    all_values = std::vector<double>( { 0, 1 });
+    // If GWA data just use 0, 1, 2
+    all_values = std::vector<double>( { 0, 1, 2 });
   }
 
 }

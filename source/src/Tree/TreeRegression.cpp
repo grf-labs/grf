@@ -132,7 +132,7 @@ bool TreeRegression::findBestSplit(size_t nodeID, std::vector<size_t>& possible_
     if ((*is_ordered_variable)[varID]) {
       findBestSplitValue(nodeID, varID, all_values, sum_node, num_samples_node, best_value, best_varID, best_decrease);
     } else {
-      // TODO
+      // TODO: Add unordered splitting
     }
   }
 
