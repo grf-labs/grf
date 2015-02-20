@@ -252,16 +252,10 @@ void TreeClassification::findBestSplitValueUnordered(size_t nodeID, size_t varID
   // Number of possible splits is 2^num_levels
   size_t num_splits = (1 << factor_levels.size());
 
-  // TODO: Remove
-//  std::cout << std::endl << std::endl << "Number of factors: " << factor_levels.size() << std::endl;
-
   // Compute decrease of impurity for each possible split
   // Split where all left (0) or all right (1) are excluded
   // The second half of numbers is just left/right switched the first half -> Exclude second half
   for (size_t local_splitID = 1; local_splitID < num_splits / 2; ++local_splitID) {
-
-    // TODO: Remove
-//    std::cout << local_splitID << " ";
 
     // Compute overall splitID by shifting local factorIDs to global positions
     size_t splitID = 0;

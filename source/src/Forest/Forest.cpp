@@ -199,24 +199,6 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
     is_ordered_variable[varID] = false;
   }
 
-  // TODO: Remove!
-  std::cout << "Unordered variable IDs: ";
-  for (size_t i = 0; i < is_ordered_variable.size(); ++i) {
-    if (!is_ordered_variable[i]) {
-      std::cout << i << ", ";
-    }
-  }
-  std::cout << std::endl;
-
-  // TODO: Remove!
-  std::cout << "Unordered variable names: ";
-  for (size_t i = 0; i < is_ordered_variable.size(); ++i) {
-    if (!is_ordered_variable[i]) {
-      std::cout << data->getVariableNames()[i] << ", ";
-    }
-  }
-  std::cout << std::endl;
-
   no_split_variables.push_back(dependent_varID);
 
   initInternal(status_variable_name);
