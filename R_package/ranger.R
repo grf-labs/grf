@@ -57,9 +57,6 @@
 ##' To use only the SNPs without sex or other covariates from the phenotype file, use \code{0} on the right hand side of the formula. 
 ##' Note that missing values are treated as an extra category while splitting.
 ##' 
-##' Splitting on unordered factor variables (use \code{respect.unordered.factors = TRUE}) can be very time consuming for factors with many levels. 
-##' All 2-partitions of the factor levels are considered, limiting the number of unordered factor levels to 31 and 63 on 32 and 64 bit systems.
-##' 
 ##' Notes:
 ##' \itemize{
 ##'  \item Multithreading is currently not supported for Microsoft Windows platforms.
@@ -348,7 +345,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     max.level.count <- 8*.Machine$sizeof.pointer - 1
     if (max(num.levels) > max.level.count) {
       stop(paste("Too many levels in unordered categorical variable ", unordered.factor.variables[which.max(num.levels)], 
-                 ". Only ", max.level.count, " levels allowed on this system.", sep = ""))
+                 ". Only ", max.level.count, " levels allowed on this system. Consider ordering this factor.", sep = ""))
     }    
   } else {
     unordered.factor.variables <- c("0", "0")
