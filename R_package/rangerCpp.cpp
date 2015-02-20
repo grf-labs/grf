@@ -134,25 +134,27 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
       std::vector<std::vector<std::vector<size_t>> > child_nodeIDs = loaded_forest["child.nodeIDs"];
       std::vector<std::vector<size_t>> split_varIDs = loaded_forest["split.varIDs"];
       std::vector<std::vector<double>> split_values = loaded_forest["split.values"];
+      std::vector<bool> is_ordered = loaded_forest["split.ordered"];
 
       if (treetype == TREE_CLASSIFICATION) {
         std::vector<double> class_values = loaded_forest["class.values"];
         ((ForestClassification*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs,
-            split_values, class_values);
+            split_values, class_values, is_ordered);
       } else if (treetype == TREE_REGRESSION) {
-        ((ForestRegression*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values);
+        ((ForestRegression*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
+            is_ordered);
       } else if (treetype == TREE_SURVIVAL) {
         size_t status_varID = loaded_forest["status.varID"];
         std::vector<std::vector<std::vector<double>> > chf = loaded_forest["chf"];
         std::vector<double> unique_timepoints = loaded_forest["unique.death.times"];
         ((ForestSurvival*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
-            status_varID, chf, unique_timepoints);
+            status_varID, chf, unique_timepoints, is_ordered);
       } else if (treetype == TREE_PROBABILITY) {
         std::vector<double> class_values = loaded_forest["class.values"];
         std::vector<std::vector<std::vector<double>>>terminal_class_counts =
         loaded_forest["terminal.class.counts"];
         ((ForestProbability*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
-            class_values, terminal_class_counts);
+            class_values, terminal_class_counts, is_ordered);
       }
     }
 
@@ -193,6 +195,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
       forest_object.push_back(forest->getChildNodeIDs(), "child.nodeIDs");
       forest_object.push_back(forest->getSplitVarIDs(), "split.varIDs");
       forest_object.push_back(forest->getSplitValues(), "split.values");
+      forest_object.push_back(forest->getIsOrderedVariable(), "is.ordered");
 
       if (treetype == TREE_CLASSIFICATION) {
         ForestClassification* temp = (ForestClassification*) forest;

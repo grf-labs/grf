@@ -47,11 +47,12 @@ void ForestSurvival::loadForest(size_t dependent_varID, size_t num_trees,
     std::vector<std::vector<std::vector<size_t>> >& forest_child_nodeIDs,
     std::vector<std::vector<size_t>>& forest_split_varIDs, std::vector<std::vector<double>>& forest_split_values,
     size_t status_varID, std::vector<std::vector<std::vector<double>> >& forest_chf,
-    std::vector<double>& unique_timepoints) {
+    std::vector<double>& unique_timepoints, std::vector<bool>& is_ordered_variable) {
 
   this->dependent_varID = dependent_varID;
   this->status_varID = status_varID;
   this->num_trees = num_trees;
+  this->is_ordered_variable = is_ordered_variable;
 
   // Create trees
   trees.reserve(num_trees);

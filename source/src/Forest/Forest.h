@@ -127,6 +127,10 @@ public:
   {
     return num_independent_variables;
   }
+  const std::vector<bool>& getIsOrderedVariable() const
+  {
+    return is_ordered_variable;
+  }
 
 protected:
   void grow();
