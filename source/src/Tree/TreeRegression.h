@@ -38,7 +38,7 @@ public:
 
   // Create from loaded forest
   TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values);
+      std::vector<double>& split_values, std::vector<bool>* is_ordered_variable);
 
   virtual ~TreeRegression();
 

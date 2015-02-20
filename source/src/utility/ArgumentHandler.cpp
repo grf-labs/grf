@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
 This file is part of Ranger.
-    
+
 Ranger is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -14,13 +14,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Written by: 
+Written by:
 
 Marvin N. Wright
 Institut für Medizinische Biometrie und Statistik
 Universität zu Lübeck
 Ratzeburger Allee 160
-23562 Lübeck 
+23562 Lübeck
 
 http://www.imbs-luebeck.de
 wright@imbs.uni-luebeck.de
@@ -314,8 +314,14 @@ void ArgumentHandler::checkArguments() {
     if (!infile.good()) {
       throw std::runtime_error("Could not read from input file: " + predict + ".");
     }
-    // Do not read dependent_varID, num_variables and num_trees
-    infile.seekg(3 * sizeof(size_t));
+
+    // Do not read dependent_varID, num_variables, num_trees and is_ordered_variable
+    infile.seekg(2 * sizeof(size_t));
+    size_t length;
+    infile.read((char*) &length, sizeof(length));
+    infile.seekg(4 * sizeof(size_t) + length * sizeof(bool));
+
+    // Get treetype
     infile.read((char*) &treetype, sizeof(treetype));
     infile.close();
   }

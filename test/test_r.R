@@ -151,7 +151,6 @@ dat.long <-  data.frame(replicate(rows, rbinom(n, 1, 0.5)))
 colnames(dat.long) <- paste("x", 1:rows, sep = "")
 ranger(x1~., dat.long)
 
-## TODO: non-linear effect of covars
 ##----------------------------------------------------------------------
 ## Test unordered variables
 ##----------------------------------------------------------------------
@@ -162,8 +161,10 @@ rmultinomfactor <- function(n, size, prob) {
   dummy <- rmultinom(n, size, prob)
   nofac <- apply(dummy, 2, function(x) which(x == 1))
   fac <- factor(nofac)
+  levels(fac) <- sample.int(length(prob))
+  fac
 }
-n <- 100
+n <- 1000
 
 ## Covariates
 x1 <- rmultinomfactor(n, 1, rep(1, 2))

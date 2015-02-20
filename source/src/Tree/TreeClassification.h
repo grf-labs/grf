@@ -38,7 +38,8 @@ public:
 
   // Create from loaded forest
   TreeClassification(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values, std::vector<double>* class_values, std::vector<uint>* response_classIDs);
+      std::vector<double>& split_values, std::vector<double>* class_values, std::vector<uint>* response_classIDs,
+      std::vector<bool>* is_ordered_variable);
 
   virtual ~TreeClassification();
 

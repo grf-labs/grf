@@ -52,7 +52,7 @@ void ForestProbability::loadForest(size_t dependent_varID, size_t num_trees,
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree* tree = new TreeProbability(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-    &class_values, &response_classIDs, forest_terminal_class_counts[i]);
+    &class_values, &response_classIDs, forest_terminal_class_counts[i], &is_ordered_variable);
     trees.push_back(tree);
   }
 
@@ -116,7 +116,7 @@ void ForestProbability::predictInternal() {
 
     // For each sample compute proportions in each tree and average over trees
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      std::vector<double> counts = ((TreeProbability*)  trees[tree_idx])->getPrediction(sample_idx);
+      std::vector<double> counts = ((TreeProbability*) trees[tree_idx])->getPrediction(sample_idx);
 
       for (size_t class_idx = 0; class_idx < counts.size(); ++class_idx) {
         predictions[sample_idx][class_idx] += counts[class_idx] / num_trees;
@@ -178,10 +178,10 @@ void ForestProbability::writeConfusionFile() {
   }
 
   // Write confusion to file
-    outfile << "Overall OOB prediction error (MSE): " << overall_prediction_error << std::endl;
+  outfile << "Overall OOB prediction error (MSE): " << overall_prediction_error << std::endl;
 
-    outfile.close();
-    *verbose_out << "Saved prediction error to file " << filename << "." << std::endl;
+  outfile.close();
+  *verbose_out << "Saved prediction error to file " << filename << "." << std::endl;
 }
 
 void ForestProbability::writePredictionFile() {
@@ -274,7 +274,7 @@ void ForestProbability::loadFromFileInternal(std::ifstream& infile) {
 
     // Create tree
     Tree* tree = new TreeProbability(child_nodeIDs, split_varIDs, split_values, &class_values, &response_classIDs,
-        terminal_class_counts);
+        terminal_class_counts, &is_ordered_variable);
     trees.push_back(tree);
   }
 }

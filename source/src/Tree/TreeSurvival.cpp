@@ -46,9 +46,10 @@ TreeSurvival::TreeSurvival(std::vector<double>* unique_timepoints, size_t status
 
 TreeSurvival::TreeSurvival(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
     std::vector<double>& split_values, std::vector<std::vector<double>> chf, std::vector<double>* unique_timepoints,
-    std::vector<size_t>* response_timepointIDs) :
-    Tree(child_nodeIDs, split_varIDs, split_values), status_varID(0), unique_timepoints(unique_timepoints), response_timepointIDs(
-        response_timepointIDs), chf(chf), num_deaths(0), num_samples_at_risk(0) {
+    std::vector<size_t>* response_timepointIDs, std::vector<bool>* is_ordered_variable) :
+    Tree(child_nodeIDs, split_varIDs, split_values, is_ordered_variable), status_varID(0), unique_timepoints(
+        unique_timepoints), response_timepointIDs(response_timepointIDs), chf(chf), num_deaths(0), num_samples_at_risk(
+        0) {
   this->num_timepoints = unique_timepoints->size();
 }
 

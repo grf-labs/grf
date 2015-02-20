@@ -58,7 +58,7 @@ void ForestClassification::loadForest(size_t dependent_varID, size_t num_trees,
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree* tree = new TreeClassification(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-        &class_values, &response_classIDs);
+        &class_values, &response_classIDs, &is_ordered_variable);
     trees.push_back(tree);
   }
 
@@ -285,7 +285,8 @@ void ForestClassification::loadFromFileInternal(std::ifstream& infile) {
     }
 
     // Create tree
-    Tree* tree = new TreeClassification(child_nodeIDs, split_varIDs, split_values, &class_values, &response_classIDs);
+    Tree* tree = new TreeClassification(child_nodeIDs, split_varIDs, split_values, &class_values, &response_classIDs,
+        &is_ordered_variable);
     trees.push_back(tree);
   }
 }

@@ -99,7 +99,6 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
   if (prediction_mode) {
     loadFromFile(load_forest_filename);
   }
-
   // Set variables to be always considered for splitting
   if (!always_split_variable_names.empty()) {
     setAlwaysSplitVariables(always_split_variable_names);
@@ -116,9 +115,11 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
   }
 
   // Check if all catvars are coded in integers starting at
-  std::string error_message = checkUnorderedVariables(data, unordered_variable_names);
-  if (!error_message.empty()) {
-    throw std::runtime_error(error_message);
+  if (!unordered_variable_names.empty()) {
+    std::string error_message = checkUnorderedVariables(data, unordered_variable_names);
+    if (!error_message.empty()) {
+      throw std::runtime_error(error_message);
+    }
   }
 }
 
@@ -193,10 +194,12 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
   }
 
   // Set unordered factor variables
-  is_ordered_variable.resize(num_variables, true);
-  for (auto& variable_name : unordered_variable_names) {
-    size_t varID = data->getVariableID(variable_name);
-    is_ordered_variable[varID] = false;
+  if (!prediction_mode) {
+    is_ordered_variable.resize(num_variables, true);
+    for (auto& variable_name : unordered_variable_names) {
+      size_t varID = data->getVariableID(variable_name);
+      is_ordered_variable[varID] = false;
+    }
   }
 
   no_split_variables.push_back(dependent_varID);
@@ -325,6 +328,9 @@ void Forest::saveToFile() {
 
   // Write num_trees
   outfile.write((char*) &num_trees, sizeof(num_trees));
+
+  // Write is_ordered_variable
+  saveVector1D(is_ordered_variable, outfile);
 
   saveToFileInternal(outfile);
 
@@ -570,8 +576,12 @@ void Forest::loadFromFile(std::string filename) {
   infile.read((char*) &dependent_varID, sizeof(dependent_varID));
   infile.read((char*) &num_trees, sizeof(num_trees));
 
+  // Read is_ordered_variable
+  readVector1D(is_ordered_variable, infile);
+
   // Read tree data. This is different for tree types -> virtual function
   loadFromFileInternal(infile);
+
   infile.close();
 
   // Create thread ranges

@@ -36,9 +36,9 @@ TreeProbability::TreeProbability(std::vector<double>* class_values, std::vector<
 
 TreeProbability::TreeProbability(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
     std::vector<double>& split_values, std::vector<double>* class_values, std::vector<uint>* response_classIDs,
-    std::vector<std::vector<double>>& terminal_class_counts) :
-    Tree(child_nodeIDs, split_varIDs, split_values), class_values(class_values), response_classIDs(response_classIDs), terminal_class_counts(
-        terminal_class_counts) {
+    std::vector<std::vector<double>>& terminal_class_counts, std::vector<bool>* is_ordered_variable) :
+    Tree(child_nodeIDs, split_varIDs, split_values, is_ordered_variable), class_values(class_values), response_classIDs(
+        response_classIDs), terminal_class_counts(terminal_class_counts) {
 }
 
 TreeProbability::~TreeProbability() {

@@ -67,7 +67,8 @@ void saveVector1D(std::vector<T>& vector, std::ofstream& file) {
   file.write((char*) &length, sizeof(length));
 
   // Save vector
-  for (auto& v : vector) {
+  for (size_t i = 0; i < vector.size(); ++i) {
+    T v = vector[i];
     file.write((char*) &v, sizeof(v));
   }
 }
