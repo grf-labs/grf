@@ -246,7 +246,7 @@ void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, s
   size_t num_splits = (1 << factor_levels.size());
 
   // TODO: Remove
-  std::cout << std::endl << "Number of factors: " << factor_levels.size() << std::endl;
+//  std::cout << std::endl << "Number of factors: " << factor_levels.size() << std::endl;
 
   // Compute decrease of impurity for each possible split
   // Split where all left (0) or all right (1) are excluded
@@ -254,7 +254,7 @@ void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, s
   for (size_t local_splitID = 1; local_splitID < num_splits / 2; ++local_splitID) {
 
     // TODO: Remove
-    std::cout << "Local split id: " << local_splitID << std::endl;
+//    std::cout << "Local split id: " << local_splitID << std::endl;
 
     // Compute overall splitID by shifting local factorIDs to global positions
     size_t splitID = 0;
@@ -290,7 +290,7 @@ void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, s
     double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
 
     // TODO: Remove
-    std::cout << "n_left: " << n_left << ", n_right: " << n_right << ", decrease: " << decrease << std::endl;
+//    std::cout << "n_left: " << n_left << ", n_right: " << n_right << ", decrease: " << decrease << std::endl;
 
     // If better than before, use this
     if (decrease > best_decrease) {

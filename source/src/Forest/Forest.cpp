@@ -114,6 +114,12 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
     }
     setSplitWeightVector(split_select_weights);
   }
+
+  // Check if all catvars are coded in integers starting at
+  std::string error_message = checkUnorderedVariables(data, unordered_variable_names);
+  if (!error_message.empty()) {
+    throw std::runtime_error(error_message);
+  }
 }
 
 void Forest::initR(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,

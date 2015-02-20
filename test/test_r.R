@@ -151,22 +151,76 @@ dat.long <-  data.frame(replicate(rows, rbinom(n, 1, 0.5)))
 colnames(dat.long) <- paste("x", 1:rows, sep = "")
 ranger(x1~., dat.long)
 
+## TODO: non-linear effect of covars
+##----------------------------------------------------------------------
 ## Test unordered variables
-dat <- iris
-dat$Sepal.Length <- factor(iris$Sepal.Length, ordered = FALSE)
-dat$Petal.Width <- factor(iris$Petal.Width, ordered = FALSE)
-
-ranger(Species ~ ., data = dat, respect.unordered.factors = TRUE)
-ranger(Petal.Length ~ ., data = dat, respect.unordered.factors = TRUE)
-ranger(dependent.variable.name = "Species", data = dat, respect.unordered.factors = TRUE)
-
-ranger(Surv(time, status) ~ ., data = veteran, respect.unordered.factors = TRUE)
-ranger(dependent.variable.name = "time", status.variable.name = "status", data = veteran, 
-       respect.unordered.factors = TRUE)
-
+##----------------------------------------------------------------------
+library(ranger)
+library(survival)
 library(GenABEL)
+rmultinomfactor <- function(n, size, prob) {
+  dummy <- rmultinom(n, size, prob)
+  nofac <- apply(dummy, 2, function(x) which(x == 1))
+  fac <- factor(nofac)
+}
+n <- 100
+
+## Covariates
+x1 <- rmultinomfactor(n, 1, rep(1, 2))
+x2 <- rmultinomfactor(n, 1, rep(1, 4))
+x3 <- rmultinomfactor(n, 1, rep(1, 6))
+x4 <- rmultinomfactor(n, 1, rep(1, 8))
+x5 <- rnorm(n)
+X <- cbind(x1, x2, x3, x4, x5)
+beta <- c(3,1,2,1,4)
+beta0 <- -15
+
+## Endpoint
+y <- as.matrix(X) %*% matrix(beta, ncol = 1) + beta0
+yfac <- as.factor(rbinom(n, size=1, prob = plogis(y)))
+time <- y + rnorm(n)
+time <- time - min(time)
+status <- rbinom(n, 1, 0.8)
+
+## Data
+dat_reg <- data.frame(y, x1, x2, x3, x4, x5)
+dat_class <- data.frame(yfac, x1, x2, x3, x4, x5)
+dat_surv <- data.frame(time, status, x1, x2, x3, x4, x5)
+
+## Classification
+ranger(yfac ~ ., data = dat_class, respect.unordered.factors = FALSE)
+ranger(yfac ~ ., data = dat_class, respect.unordered.factors = TRUE)
+ranger(dependent.variable.name = "yfac", data = dat_class, respect.unordered.factors = FALSE)
+ranger(dependent.variable.name = "yfac", data = dat_class, respect.unordered.factors = TRUE)
+
+## Regression
+ranger(y ~ ., data = dat_reg, respect.unordered.factors = FALSE)
+ranger(y~ ., data = dat_reg, respect.unordered.factors = TRUE)
+ranger(dependent.variable.name = "y", data = dat_reg, respect.unordered.factors = FALSE)
+ranger(dependent.variable.name = "y", data = dat_reg, respect.unordered.factors = TRUE)
+
+## Probability prediction
+ranger(yfac ~ ., data = dat_class, probability = TRUE, respect.unordered.factors = FALSE)
+ranger(yfac ~ ., data = dat_class, probability = TRUE, respect.unordered.factors = TRUE)
+ranger(dependent.variable.name = "yfac", data = dat_class, probability = TRUE, respect.unordered.factors = FALSE)
+ranger(dependent.variable.name = "yfac", data = dat_class, probability = TRUE, respect.unordered.factors = TRUE)
+
+## Survival
+ranger(Surv(time, status) ~ ., data = dat_surv, respect.unordered.factors = FALSE)
+ranger(Surv(time, status) ~ ., data = dat_surv, respect.unordered.factors = TRUE)
+ranger(dependent.variable.name = "time", status.variable.name = "status", data = dat_surv, respect.unordered.factors = FALSE)
+ranger(dependent.variable.name = "time", status.variable.name = "status", data = dat_surv, respect.unordered.factors = TRUE)
+
+## GWAS data
 chr21 <- load.gwaa.data("~/sandbox/attic/medianImp/test.pheno", "~/sandbox/attic/medianImp/test.raw")
 phdata(chr21)$trait <- factor(phdata(chr21)$trait)
 phdata(chr21)$sex <- factor(phdata(chr21)$sex)
-temp <- ranger("trait ~ .", data = chr21, write.forest = TRUE, respect.unordered.factors = TRUE)
-##pred <- predict(temp, data = chr21)
+ranger("trait ~ .", data = chr21, write.forest = TRUE, respect.unordered.factors = FALSE)
+ranger("trait ~ .", data = chr21, write.forest = TRUE, respect.unordered.factors = TRUE)
+
+## Test maximum number of factor levels
+n <- 30
+x <- factor(1:n)
+y <- rbinom(n, 1, 0.5)
+dat <- data.frame(y, x)
+ranger(y ~ x, data = dat, respect.unordered.factors = TRUE)

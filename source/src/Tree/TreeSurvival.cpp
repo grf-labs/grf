@@ -277,7 +277,7 @@ void TreeSurvival::findBestSplitValueLogRankUnordered(size_t nodeID, size_t varI
   size_t num_splits = (1 << factor_levels.size());
 
   // TODO: Remove
-  std::cout << std::endl << std::endl << "Number of factors: " << factor_levels.size() << std::endl;
+//  std::cout << std::endl << std::endl << "Number of factors: " << factor_levels.size() << std::endl;
 
   // Compute logrank test statistic for each possible split
   // Split where all left (0) or all right (1) are excluded
@@ -285,7 +285,7 @@ void TreeSurvival::findBestSplitValueLogRankUnordered(size_t nodeID, size_t varI
   for (size_t local_splitID = 1; local_splitID < num_splits / 2; ++local_splitID) {
 
     // TODO: Remove
-    std::cout << local_splitID << " ";
+//    std::cout << local_splitID << " ";
 
     // Compute overall splitID by shifting local factorIDs to global positions
     size_t splitID = 0;

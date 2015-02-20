@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
-    
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This file is part of Ranger.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-Written by: 
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck 
+ Written by:
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
+
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #ifndef UTILITY_H_
 #define UTILITY_H_
@@ -280,7 +280,7 @@ size_t roundToNextMultiple(size_t value, uint multiple);
 void splitString(std::vector<std::string>& result, std::string input, char split_char);
 
 /**
- * Create numbers from 0 to n_all-1, shuffle and split in two parts
+ * Create numbers from 0 to n_all-1, shuffle and split in two parts.
  * @param first_part First part
  * @param second_part Second part
  * @param n_all Number elements
@@ -289,5 +289,20 @@ void splitString(std::vector<std::string>& result, std::string input, char split
  */
 void shuffleAndSplit(std::vector<size_t>& first_part, std::vector<size_t>& second_part, size_t n_all, size_t n_first,
     std::mt19937_64 random_number_generator);
+
+/**
+ * Check if not too many factor levels and all values in unordered categorical variables are positive integers.
+ * @param data Pointer to data object
+ * @param unordered_variable_names Names of unordered variables
+ * @return Error message, empty if no problem occured
+ */
+std::string checkUnorderedVariables(Data* data, std::vector<std::string> unordered_variable_names);
+
+/**
+ * Check if all values in double vector are positive integers.
+ * @param all_values Double vector to check
+ * @return True if all values are positive integers
+ */
+bool checkPositiveIntegers(std::vector<double>& all_values);
 
 #endif /* UTILITY_H_ */

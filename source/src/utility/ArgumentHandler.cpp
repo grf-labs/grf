@@ -357,7 +357,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              For Survival growing is stopped if one child would reach a size smaller than N." << std::endl;
   std::cout << "    " << "                              This means nodes with size smaller N can occur for Classification and Regression." << std::endl;
   std::cout << "    " << "                              (Default: 1 for Classification, 5 for Regression, and 3 for Survival)" << std::endl;
-  std::cout << "    " << "--catvars V1,V2,..            Comma separated list of names of (unordered) categorical variables." << std::endl;
+  std::cout << "    " << "--catvars V1,V2,..            Comma separated list of names of (unordered) categorical variables. " << std::endl;
+  std::cout << "    " << "                              Categorical variables must contain only positive integer values." << std::endl;
   std::cout << "    " << "--write                       Save forest to file <outprefix>.forest." << std::endl;
   std::cout << "    " << "--predict FILE                Load forest from FILE and predict with new data." << std::endl;
   std::cout << "    " << "--impmeasure TYPE             Set importance mode to:" << std::endl;
