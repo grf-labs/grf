@@ -134,7 +134,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
       std::vector<std::vector<std::vector<size_t>> > child_nodeIDs = loaded_forest["child.nodeIDs"];
       std::vector<std::vector<size_t>> split_varIDs = loaded_forest["split.varIDs"];
       std::vector<std::vector<double>> split_values = loaded_forest["split.values"];
-      std::vector<bool> is_ordered = loaded_forest["split.ordered"];
+      std::vector<bool> is_ordered = loaded_forest["is.ordered"];
 
       if (treetype == TREE_CLASSIFICATION) {
         std::vector<double> class_values = loaded_forest["class.values"];
