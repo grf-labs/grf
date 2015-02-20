@@ -207,7 +207,6 @@ void TreeRegression::findBestSplitValue(size_t nodeID, size_t varID, std::vector
   delete[] n_right;
 }
 
-// TODO: Why is the prediction error lower without unordered covars?
 void TreeRegression::findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
     double sum_node, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 

@@ -129,7 +129,7 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
 
         findBestSplitValueLogRank(nodeID, varID, all_values, best_value, best_varID, best_logrank);
       } else {
-        findBestSplitValueUnordered(nodeID, varID, all_values, best_value, best_varID, best_logrank);
+        findBestSplitValueLogRankUnordered(nodeID, varID, all_values, best_value, best_varID, best_logrank);
       }
 
     }
@@ -270,69 +270,95 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, std::v
   delete[] num_samples_right_child;
 }
 
-void TreeSurvival::findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
+void TreeSurvival::findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
     double& best_value, size_t& best_varID, double& best_logrank) {
 
-  // TODO: Unordered ..
+  // Number of possible splits is 2^num_levels
+  size_t num_splits = (1 << factor_levels.size());
 
-//  // Number of possible splits is 2^num_levels
-//  size_t num_splits = (1 << factor_levels.size());
-//
-//  // Compute decrease of impurity for each possible split
-//  // Split where all left (0) or all right (1) are excluded
-//  // The second half of numbers is just left/right switched the first half -> Exclude second half
-//  for (size_t local_splitID = 1; local_splitID < num_splits/2 - 1; ++local_splitID) {
-//
-//    // Compute overall splitID by shifting local factorIDs to global positions
-//    size_t splitID = 0;
-//    for (size_t j = 0; j < factor_levels.size(); ++j) {
-//      if ((local_splitID & (1 << j))) {
-//        double level = factor_levels[j];
-//        size_t factorID = floor(level) - 1;
-//        splitID = splitID | (1 << factorID);
-//      }
-//    }
-//
-//    // Initialize
-//    size_t* class_counts_right = new size_t[num_classes]();
-//    size_t n_right = 0;
-//
-//    // Count classes in left and right child
-//    for (auto& sampleID : sampleIDs[nodeID]) {
-//      uint sample_classID = (*response_classIDs)[sampleID];
-//      double value = data->get(sampleID, varID);
-//      size_t factorID = floor(value) - 1;
-//
-//      // If in right child, count
-//      // In right child, if bitwise splitID at position factorID is 1
-//      if ((splitID & (1 << factorID))) {
-//        ++n_right;
-//        ++class_counts_right[sample_classID];
-//      }
-//    }
-//    size_t n_left = num_samples_node - n_right;
-//
-//    // Sum of squares
-//    double sum_left = 0;
-//    double sum_right = 0;
-//    for (size_t j = 0; j < num_classes; ++j) {
-//      size_t class_count_right = class_counts_right[j];
-//      size_t class_count_left = class_counts[j] - class_count_right;
-//
-//      sum_right += class_count_right * class_count_right;
-//      sum_left += class_count_left * class_count_left;
-//    }
-//
-//    // Decrease of impurity
-//    double decrease = sum_left / (double) n_left + sum_right / (double) n_right;
-//
-//    // If better than before, use this
-//    if (decrease > best_decrease) {
-//      best_value = splitID;
-//      best_varID = varID;
-//      best_decrease = decrease;
-//    }
-//
-//    delete[] class_counts_right;
-//  }
+  // TODO: Remove
+  std::cout << std::endl << std::endl << "Number of factors: " << factor_levels.size() << std::endl;
+
+  // Compute logrank test statistic for each possible split
+  // Split where all left (0) or all right (1) are excluded
+  // The second half of numbers is just left/right switched the first half -> Exclude second half
+  for (size_t local_splitID = 1; local_splitID < num_splits / 2; ++local_splitID) {
+
+    // TODO: Remove
+    std::cout << local_splitID << " ";
+
+    // Compute overall splitID by shifting local factorIDs to global positions
+    size_t splitID = 0;
+    for (size_t j = 0; j < factor_levels.size(); ++j) {
+      if ((local_splitID & (1 << j))) {
+        double level = factor_levels[j];
+        size_t factorID = floor(level) - 1;
+        splitID = splitID | (1 << factorID);
+      }
+    }
+
+    // Initialize
+    size_t* num_deaths_right_child = new size_t[num_timepoints]();
+    size_t* delta_samples_at_risk_right_child = new size_t[num_timepoints]();
+    size_t num_samples_right_child = 0;
+    double nominator = 0;
+    double denominator_squared = 0;
+
+    // Count deaths in right child per timepoint
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      size_t survival_timeID = (*response_timepointIDs)[sampleID];
+      double value = data->get(sampleID, varID);
+      size_t factorID = floor(value) - 1;
+
+      // If in right child, count
+      // In right child, if bitwise splitID at position factorID is 1
+      if ((splitID & (1 << factorID))) {
+        ++num_samples_right_child;
+        ++delta_samples_at_risk_right_child[survival_timeID];
+        if (data->get(sampleID, status_varID) == 1) {
+          ++num_deaths_right_child[survival_timeID];
+        }
+      }
+
+    }
+
+    // Stop if minimal node size reached
+    size_t num_samples_left_child = sampleIDs[nodeID].size() - num_samples_right_child;
+    if (num_samples_right_child < min_node_size || num_samples_left_child < min_node_size) {
+      continue;
+    }
+
+    // Compute logrank test statistic for this split
+    size_t num_samples_at_risk_right_child = num_samples_right_child;
+    for (size_t t = 0; t < num_timepoints; ++t) {
+      if (num_samples_at_risk[t] < 2 || num_samples_at_risk_right_child < 1) {
+        break;
+      }
+
+      if (num_deaths[t] > 0) {
+        // Nominator and demoninator for log-rank test, notation from Ishwaran et al.
+        double di = (double) num_deaths[t];
+        double di1 = (double) num_deaths_right_child[t];
+        double Yi = (double) num_samples_at_risk[t];
+        double Yi1 = (double) num_samples_at_risk_right_child;
+        nominator += di1 - Yi1 * (di / Yi);
+        denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
+      }
+
+      // Reduce number of samples at risk for next timepoint
+      num_samples_at_risk_right_child -= delta_samples_at_risk_right_child[t];
+    }
+    double logrank = -1;
+    if (denominator_squared != 0) {
+      logrank = fabs(nominator / sqrt(denominator_squared));
+    }
+
+    if (logrank > best_logrank) {
+      best_value = splitID;
+      best_varID = varID;
+      best_logrank = logrank;
+    }
+
+  }
+
 }

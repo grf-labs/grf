@@ -245,7 +245,6 @@ void TreeClassification::findBestSplitValue(size_t nodeID, size_t varID, std::ve
   delete[] n_right;
 }
 
-// TODO: Test if prediction error differs with/without unordered covars. Need predictive covars
 void TreeClassification::findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
     size_t num_classes, size_t* class_counts, size_t num_samples_node, double& best_value, size_t& best_varID,
     double& best_decrease) {

@@ -242,68 +242,63 @@ void TreeProbability::findBestSplitValue(size_t nodeID, size_t varID, std::vecto
 void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
     double sum_node, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 
-  // TODO: Unordered ..
+  // Number of possible splits is 2^num_levels
+  size_t num_splits = (1 << factor_levels.size());
 
-//  // Number of possible splits is 2^num_levels
-//  size_t num_splits = (1 << factor_levels.size());
-//
-//  // Compute decrease of impurity for each possible split
-//  // Split where all left (0) or all right (1) are excluded
-//  // The second half of numbers is just left/right switched the first half -> Exclude second half
-//  for (size_t local_splitID = 1; local_splitID < num_splits/2 - 1; ++local_splitID) {
-//
-//    // Compute overall splitID by shifting local factorIDs to global positions
-//    size_t splitID = 0;
-//    for (size_t j = 0; j < factor_levels.size(); ++j) {
-//      if ((local_splitID & (1 << j))) {
-//        double level = factor_levels[j];
-//        size_t factorID = floor(level) - 1;
-//        splitID = splitID | (1 << factorID);
-//      }
-//    }
-//
-//    // Initialize
-//    size_t* class_counts_right = new size_t[num_classes]();
-//    size_t n_right = 0;
-//
-//    // Count classes in left and right child
-//    for (auto& sampleID : sampleIDs[nodeID]) {
-//      uint sample_classID = (*response_classIDs)[sampleID];
-//      double value = data->get(sampleID, varID);
-//      size_t factorID = floor(value) - 1;
-//
-//      // If in right child, count
-//      // In right child, if bitwise splitID at position factorID is 1
-//      if ((splitID & (1 << factorID))) {
-//        ++n_right;
-//        ++class_counts_right[sample_classID];
-//      }
-//    }
-//    size_t n_left = num_samples_node - n_right;
-//
-//    // Sum of squares
-//    double sum_left = 0;
-//    double sum_right = 0;
-//    for (size_t j = 0; j < num_classes; ++j) {
-//      size_t class_count_right = class_counts_right[j];
-//      size_t class_count_left = class_counts[j] - class_count_right;
-//
-//      sum_right += class_count_right * class_count_right;
-//      sum_left += class_count_left * class_count_left;
-//    }
-//
-//    // Decrease of impurity
-//    double decrease = sum_left / (double) n_left + sum_right / (double) n_right;
-//
-//    // If better than before, use this
-//    if (decrease > best_decrease) {
-//      best_value = splitID;
-//      best_varID = varID;
-//      best_decrease = decrease;
-//    }
-//
-//    delete[] class_counts_right;
-//  }
+  // TODO: Remove
+  std::cout << std::endl << "Number of factors: " << factor_levels.size() << std::endl;
+
+  // Compute decrease of impurity for each possible split
+  // Split where all left (0) or all right (1) are excluded
+  // The second half of numbers is just left/right switched the first half -> Exclude second half
+  for (size_t local_splitID = 1; local_splitID < num_splits / 2; ++local_splitID) {
+
+    // TODO: Remove
+    std::cout << "Local split id: " << local_splitID << std::endl;
+
+    // Compute overall splitID by shifting local factorIDs to global positions
+    size_t splitID = 0;
+    for (size_t j = 0; j < factor_levels.size(); ++j) {
+      if ((local_splitID & (1 << j))) {
+        double level = factor_levels[j];
+        size_t factorID = floor(level) - 1;
+        splitID = splitID | (1 << factorID);
+      }
+    }
+
+    // Initialize
+    double sum_right = 0;
+    size_t n_right = 0;
+
+    // Sum in right child
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      double response = data->get(sampleID, dependent_varID);
+      double value = data->get(sampleID, varID);
+      size_t factorID = floor(value) - 1;
+
+      // If in right child, count
+      // In right child, if bitwise splitID at position factorID is 1
+      if ((splitID & (1 << factorID))) {
+        ++n_right;
+        sum_right += response;
+      }
+    }
+    size_t n_left = num_samples_node - n_right;
+
+    // Sum of squares
+    double sum_left = sum_node - sum_right;
+    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
+
+    // TODO: Remove
+    std::cout << "n_left: " << n_left << ", n_right: " << n_right << ", decrease: " << decrease << std::endl;
+
+    // If better than before, use this
+    if (decrease > best_decrease) {
+      best_value = splitID;
+      best_varID = varID;
+      best_decrease = decrease;
+    }
+  }
 }
 
 void TreeProbability::addImpurityImportance(size_t nodeID, size_t varID, double decrease) {

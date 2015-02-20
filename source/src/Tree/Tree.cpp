@@ -137,7 +137,7 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
         }
       } else {
         size_t factorID = floor(value) - 1;
-        size_t splitID = floor(split_varID);
+        size_t splitID = floor(split_values[nodeID]);
 
         // Left if 0 found at position factorID
         if (!(splitID & (1 << factorID))) {
