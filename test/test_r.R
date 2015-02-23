@@ -190,6 +190,7 @@ dat_surv <- data.frame(time, status, x1, x2, x3, x4, x5)
 
 # write.table(dat_class, "../test_data/class_mem.dat", row.names = FALSE, quote = FALSE)
 # write.table(dat_surv, "../test_data/surv_mem.dat", row.names = FALSE, quote = FALSE)
+# write.table(dat_reg, "../test_data/reg_mem.dat", row.names = FALSE, quote = FALSE)
 
 ## Classification
 ranger(yfac ~ ., data = dat_class, respect.unordered.factors = FALSE)
