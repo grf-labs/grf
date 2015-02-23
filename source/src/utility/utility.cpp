@@ -354,7 +354,7 @@ std::string checkUnorderedVariables(Data* data, std::vector<std::string> unorder
     size_t max_level_count = 8 * sizeof(size_t) - 1;
     if (all_values.size() > max_level_count) {
       return "Too many levels in unordered categorical variable " + variable_name + ". Only "
-          + std::to_string(max_level_count) + " levels allowed.";
+          + uintToString(max_level_count) + " levels allowed on this system.";
     }
 
     // Check positive integers
