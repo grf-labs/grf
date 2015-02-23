@@ -338,15 +338,20 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     factor.idx <- sapply(data.selected, is.factor)
     independent.idx <- names.selected != dependent.variable.name & names.selected != status.variable.name
     unordered.factor.variables <- names.selected[factor.idx & !ordered.idx & independent.idx]
-    use.unordered.factor.variables <- TRUE
-
-    ## Check level count
-    num.levels <- sapply(data.selected[, factor.idx & !ordered.idx & independent.idx, drop = FALSE], nlevels)
-    max.level.count <- 8*.Machine$sizeof.pointer - 1
-    if (max(num.levels) > max.level.count) {
-      stop(paste("Too many levels in unordered categorical variable ", unordered.factor.variables[which.max(num.levels)], 
-                 ". Only ", max.level.count, " levels allowed on this system. Consider ordering this factor.", sep = ""))
-    }    
+    
+    if (length(unordered.factor.variables) > 0) {
+      use.unordered.factor.variables <- TRUE
+      ## Check level count
+      num.levels <- sapply(data.selected[, factor.idx & !ordered.idx & independent.idx, drop = FALSE], nlevels)
+      max.level.count <- 8*.Machine$sizeof.pointer - 1
+      if (max(num.levels) > max.level.count) {
+        stop(paste("Too many levels in unordered categorical variable ", unordered.factor.variables[which.max(num.levels)], 
+                   ". Only ", max.level.count, " levels allowed on this system. Consider ordering this factor.", sep = ""))
+      } 
+    } else {
+      unordered.factor.variables <- c("0", "0")
+      use.unordered.factor.variables <- FALSE
+    } 
   } else {
     unordered.factor.variables <- c("0", "0")
     use.unordered.factor.variables <- FALSE
