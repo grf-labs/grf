@@ -354,6 +354,8 @@ void TreeSurvival::findBestSplitValueLogRankUnordered(size_t nodeID, size_t varI
       best_logrank = logrank;
     }
 
+    delete[] num_deaths_right_child;
+    delete[] delta_samples_at_risk_right_child;
   }
 
 }

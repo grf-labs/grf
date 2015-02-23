@@ -367,7 +367,7 @@ std::string checkUnorderedVariables(Data* data, std::vector<std::string> unorder
 
 bool checkPositiveIntegers(std::vector<double>& all_values) {
   for (auto& value : all_values) {
-    if (!(floor(value) == value)) {
+    if (value < 1 || !(floor(value) == value)) {
       return false;
     }
   }
