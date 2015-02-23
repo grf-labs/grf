@@ -271,7 +271,6 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, std::v
   delete[] num_samples_right_child;
 }
 
-// TODO: Only 1 new and reassign 0 in loop? Check deletes!
 void TreeSurvival::findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
     double& best_value, size_t& best_varID, double& best_logrank) {
 
