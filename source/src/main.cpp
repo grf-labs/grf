@@ -96,19 +96,12 @@ int main(int argc, char **argv) {
     forest->writeOutput();
     *verbose_out << "Finished Ranger." << std::endl;
 
-    // TODO: Remove
-    std::cout << "Forest: " << sizeof(forest) << std::endl;
-    std::cout << "Press button to delete forest!" << std::getchar();
-
     delete forest;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << " Ranger will EXIT now." << std::endl;
     delete forest;
     return -1;
   }
-
-  // TODO: Remove
-  std::cout << "Finished.. Press button!" << std::getchar();
 
   return 0;
 }
