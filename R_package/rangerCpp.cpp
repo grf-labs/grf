@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
+ This file is part of Ranger.
 
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Written by:
+ Written by:
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <Rcpp.h>
 #include <vector>
@@ -48,7 +48,8 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
     std::vector<double>& split_select_weights, bool use_split_select_weights,
     std::vector<std::string>& always_split_variable_names, bool use_always_split_variable_names,
     std::string status_variable_name, bool prediction_mode, Rcpp::List loaded_forest, Rcpp::RawMatrix sparse_data,
-    bool sample_with_replacement, bool probability) {
+    bool sample_with_replacement, bool probability, std::vector<std::string>& unordered_variable_names,
+    bool use_unordered_variable_names) {
 
   Rcpp::List result;
   Forest* forest = 0;
@@ -61,6 +62,9 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
     }
     if (!use_always_split_variable_names) {
       always_split_variable_names.clear();
+    }
+    if (!use_unordered_variable_names) {
+      unordered_variable_names.clear();
     }
 
     std::ostream* verbose_out;
@@ -121,7 +125,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
     // Init Ranger
     forest->initR(dependent_variable_name, memory_mode, data, mtry, num_trees, verbose_out, seed, num_threads,
         importance_mode, min_node_size, split_select_weights, always_split_variable_names, status_variable_name,
-        prediction_mode, sample_with_replacement);
+        prediction_mode, sample_with_replacement, unordered_variable_names);
 
     // Load forest object if in prediction mode
     if (prediction_mode) {
@@ -130,25 +134,27 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
       std::vector<std::vector<std::vector<size_t>> > child_nodeIDs = loaded_forest["child.nodeIDs"];
       std::vector<std::vector<size_t>> split_varIDs = loaded_forest["split.varIDs"];
       std::vector<std::vector<double>> split_values = loaded_forest["split.values"];
+      std::vector<bool> is_ordered = loaded_forest["is.ordered"];
 
       if (treetype == TREE_CLASSIFICATION) {
         std::vector<double> class_values = loaded_forest["class.values"];
         ((ForestClassification*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs,
-            split_values, class_values);
+            split_values, class_values, is_ordered);
       } else if (treetype == TREE_REGRESSION) {
-        ((ForestRegression*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values);
+        ((ForestRegression*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
+            is_ordered);
       } else if (treetype == TREE_SURVIVAL) {
         size_t status_varID = loaded_forest["status.varID"];
         std::vector<std::vector<std::vector<double>> > chf = loaded_forest["chf"];
         std::vector<double> unique_timepoints = loaded_forest["unique.death.times"];
         ((ForestSurvival*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
-            status_varID, chf, unique_timepoints);
+            status_varID, chf, unique_timepoints, is_ordered);
       } else if (treetype == TREE_PROBABILITY) {
         std::vector<double> class_values = loaded_forest["class.values"];
-        std::vector<std::vector<std::vector<double>>> terminal_class_counts =
-            loaded_forest["terminal.class.counts"];
+        std::vector<std::vector<std::vector<double>>>terminal_class_counts =
+        loaded_forest["terminal.class.counts"];
         ((ForestProbability*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
-            class_values, terminal_class_counts);
+            class_values, terminal_class_counts, is_ordered);
       }
     }
 
@@ -189,6 +195,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
       forest_object.push_back(forest->getChildNodeIDs(), "child.nodeIDs");
       forest_object.push_back(forest->getSplitVarIDs(), "split.varIDs");
       forest_object.push_back(forest->getSplitValues(), "split.values");
+      forest_object.push_back(forest->getIsOrderedVariable(), "is.ordered");
 
       if (treetype == TREE_CLASSIFICATION) {
         ForestClassification* temp = (ForestClassification*) forest;

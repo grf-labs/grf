@@ -74,6 +74,7 @@
 ##' @param replace Sample with replacement. Default TRUE.
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
+##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param verbose Verbose output on or off.
@@ -149,6 +150,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    importance = "none", write.forest = FALSE, probability = FALSE,
                    min.node.size = NULL, replace = TRUE,
                    split.select.weights = NULL, always.split.variables = NULL,
+                   respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
                    num.threads = NULL,
                    verbose = TRUE, seed = NULL, memory = "double",
@@ -329,6 +331,32 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     stop("Error: Please use only one option of use.split.select.weights and use.always.split.variables.")
   }
   
+  ## Unordered factors  
+  if (respect.unordered.factors) {
+    names.selected <- names(data.selected)
+    ordered.idx <- sapply(data.selected, is.ordered)
+    factor.idx <- sapply(data.selected, is.factor)
+    independent.idx <- names.selected != dependent.variable.name & names.selected != status.variable.name
+    unordered.factor.variables <- names.selected[factor.idx & !ordered.idx & independent.idx]
+    
+    if (length(unordered.factor.variables) > 0) {
+      use.unordered.factor.variables <- TRUE
+      ## Check level count
+      num.levels <- sapply(data.selected[, factor.idx & !ordered.idx & independent.idx, drop = FALSE], nlevels)
+      max.level.count <- 8*.Machine$sizeof.pointer - 1
+      if (max(num.levels) > max.level.count) {
+        stop(paste("Too many levels in unordered categorical variable ", unordered.factor.variables[which.max(num.levels)], 
+                   ". Only ", max.level.count, " levels allowed on this system. Consider ordering this factor.", sep = ""))
+      } 
+    } else {
+      unordered.factor.variables <- c("0", "0")
+      use.unordered.factor.variables <- FALSE
+    } 
+  } else {
+    unordered.factor.variables <- c("0", "0")
+    use.unordered.factor.variables <- FALSE
+  }
+  
   ## Prediction mode always false. Use predict.ranger() method.
   prediction.mode <- FALSE
   
@@ -341,7 +369,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
-                      replace, probability)
+                      replace, probability, unordered.factor.variables, use.unordered.factor.variables)
   
   if (length(result) == 0) {
     stop("Internal error.")

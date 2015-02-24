@@ -68,6 +68,7 @@ public:
   uint nthreads;
 
   // All command line arguments as member: Small letters
+  std::vector<std::string> catvars;
   std::string file;
   ImportanceMode impmeasure;
   uint targetpartitionsize;

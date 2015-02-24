@@ -38,7 +38,7 @@ public:
 
   // Create from loaded forest
   TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values);
+      std::vector<double>& split_values, std::vector<bool>* is_ordered_variable);
 
   virtual ~TreeRegression();
 
@@ -62,6 +62,8 @@ private:
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
   void findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values, double sum_node,
+      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
+  void findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels, double sum_node,
       size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
 
   void addImpurityImportance(size_t nodeID, size_t varID, double decrease);

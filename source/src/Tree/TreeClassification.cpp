@@ -43,8 +43,9 @@ TreeClassification::TreeClassification(std::vector<double>* class_values, std::v
 
 TreeClassification::TreeClassification(std::vector<std::vector<size_t>>& child_nodeIDs,
     std::vector<size_t>& split_varIDs, std::vector<double>& split_values, std::vector<double>* class_values,
-    std::vector<uint>* response_classIDs) :
-    Tree(child_nodeIDs, split_varIDs, split_values), class_values(class_values), response_classIDs(response_classIDs) {
+    std::vector<uint>* response_classIDs, std::vector<bool>* is_ordered_variable) :
+    Tree(child_nodeIDs, split_varIDs, split_values, is_ordered_variable), class_values(class_values), response_classIDs(
+        response_classIDs) {
 }
 
 TreeClassification::~TreeClassification() {
@@ -62,6 +63,7 @@ double TreeClassification::estimate(size_t nodeID) {
     double value = data->get(sampleIDs[nodeID][i], dependent_varID);
     ++class_count[value];
   }
+
   return (mostFrequentValue(class_count, random_number_generator));
 }
 
@@ -71,13 +73,13 @@ void TreeClassification::appendToFileInternal(std::ofstream& file) {
 
 bool TreeClassification::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
-  // Check node size, stop if maximum reached
+// Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {
     split_values[nodeID] = estimate(nodeID);
     return true;
   }
 
-  // Check if node is pure and set split_value to estimate and stop if pure
+// Check if node is pure and set split_value to estimate and stop if pure
   bool pure = true;
   double pure_value = 0;
   for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
@@ -93,7 +95,7 @@ bool TreeClassification::splitNodeInternal(size_t nodeID, std::vector<size_t>& p
     return true;
   }
 
-  // Find best split, stop if no decrease of impurity
+// Find best split, stop if no decrease of impurity
   bool stop = findBestSplit(nodeID, possible_split_varIDs);
   if (stop) {
     split_values[nodeID] = estimate(nodeID);
@@ -142,16 +144,27 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
   for (auto& varID : possible_split_varIDs) {
 
     // Create possible split values
-    std::vector<double> possible_split_values;
-    data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
+    std::vector<double> all_values;
+    data->getAllValues(all_values, sampleIDs[nodeID], varID);
 
     //Try next variable if all equal for this
-    if (possible_split_values.size() == 0) {
+    if (all_values.size() < 2) {
       continue;
     }
 
-    findBestSplitValue(nodeID, varID, possible_split_values, num_classes, class_counts, num_samples_node, best_value,
-        best_varID, best_decrease);
+    // Find best split value, if ordered consider all values as split values, else all 2-partitions
+    if ((*is_ordered_variable)[varID]) {
+
+      // Remove largest value because no split possible
+      all_values.pop_back();
+
+      // Find best split value
+      findBestSplitValue(nodeID, varID, all_values, num_classes, class_counts, num_samples_node, best_value, best_varID,
+          best_decrease);
+    } else {
+      findBestSplitValueUnordered(nodeID, varID, all_values, num_classes, class_counts, num_samples_node, best_value,
+          best_varID, best_decrease);
+    }
   }
 
   delete[] class_counts;
@@ -233,6 +246,72 @@ void TreeClassification::findBestSplitValue(size_t nodeID, size_t varID, std::ve
   delete[] n_right;
 }
 
+void TreeClassification::findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
+    size_t num_classes, size_t* class_counts, size_t num_samples_node, double& best_value, size_t& best_varID,
+    double& best_decrease) {
+
+  // Number of possible splits is 2^num_levels
+  size_t num_splits = (1 << factor_levels.size());
+
+  // Compute decrease of impurity for each possible split
+  // Split where all left (0) or all right (1) are excluded
+  // The second half of numbers is just left/right switched the first half -> Exclude second half
+  for (size_t local_splitID = 1; local_splitID < num_splits / 2; ++local_splitID) {
+
+    // Compute overall splitID by shifting local factorIDs to global positions
+    size_t splitID = 0;
+    for (size_t j = 0; j < factor_levels.size(); ++j) {
+      if ((local_splitID & (1 << j))) {
+        double level = factor_levels[j];
+        size_t factorID = floor(level) - 1;
+        splitID = splitID | (1 << factorID);
+      }
+    }
+
+    // Initialize
+    size_t* class_counts_right = new size_t[num_classes]();
+    size_t n_right = 0;
+
+    // Count classes in left and right child
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      uint sample_classID = (*response_classIDs)[sampleID];
+      double value = data->get(sampleID, varID);
+      size_t factorID = floor(value) - 1;
+
+      // If in right child, count
+      // In right child, if bitwise splitID at position factorID is 1
+      if ((splitID & (1 << factorID))) {
+        ++n_right;
+        ++class_counts_right[sample_classID];
+      }
+    }
+    size_t n_left = num_samples_node - n_right;
+
+    // Sum of squares
+    double sum_left = 0;
+    double sum_right = 0;
+    for (size_t j = 0; j < num_classes; ++j) {
+      size_t class_count_right = class_counts_right[j];
+      size_t class_count_left = class_counts[j] - class_count_right;
+
+      sum_right += class_count_right * class_count_right;
+      sum_left += class_count_left * class_count_left;
+    }
+
+    // Decrease of impurity
+    double decrease = sum_left / (double) n_left + sum_right / (double) n_right;
+
+    // If better than before, use this
+    if (decrease > best_decrease) {
+      best_value = splitID;
+      best_varID = varID;
+      best_decrease = decrease;
+    }
+
+    delete[] class_counts_right;
+  }
+}
+
 void TreeClassification::addGiniImportance(size_t nodeID, size_t varID, double decrease) {
 
   std::vector<size_t> class_counts;
@@ -248,7 +327,7 @@ void TreeClassification::addGiniImportance(size_t nodeID, size_t varID, double d
   }
   double best_gini = decrease - sum_node / (double) sampleIDs[nodeID].size();
 
-  // No variable importance for no split variables
+// No variable importance for no split variables
   size_t tempvarID = varID;
   for (auto& skip : *no_split_variables) {
     if (varID >= skip) {

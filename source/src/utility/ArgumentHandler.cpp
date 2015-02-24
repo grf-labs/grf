@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
 This file is part of Ranger.
-    
+
 Ranger is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -14,13 +14,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Written by: 
+Written by:
 
 Marvin N. Wright
 Institut für Medizinische Biometrie und Statistik
 Universität zu Lübeck
 Ratzeburger Allee 160
-23562 Lübeck 
+23562 Lübeck
 
 http://www.imbs-luebeck.de
 wright@imbs.uni-luebeck.de
@@ -49,7 +49,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:D:M:P:S:U:Zf:hil::m:o:ps:t:uvwy:z:";
+  char const *short_options = "A:D:M:P:S:U:Zc:f:hil::m:o:ps:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
@@ -62,6 +62,7 @@ int ArgumentHandler::processArguments() {
       { "nthreads",             required_argument,  0, 'U'},
       { "version",              no_argument,        0, 'Z'},
 
+      { "catvars",              required_argument,  0, 'c'},
       { "file",                 required_argument,  0, 'f'},
       { "help",                 no_argument,        0, 'h'},
       { "impmeasure",           required_argument,  0, 'i'},
@@ -140,6 +141,10 @@ int ArgumentHandler::processArguments() {
       break;
 
       // lower case options
+    case 'c':
+      splitString(catvars, optarg, ',');
+      break;
+
     case 'f':
       file = optarg;
       break;
@@ -309,8 +314,14 @@ void ArgumentHandler::checkArguments() {
     if (!infile.good()) {
       throw std::runtime_error("Could not read from input file: " + predict + ".");
     }
-    // Do not read dependent_varID, num_variables and num_trees
-    infile.seekg(3 * sizeof(size_t));
+
+    // Do not read dependent_varID, num_variables, num_trees and is_ordered_variable
+    infile.seekg(2 * sizeof(size_t));
+    size_t length;
+    infile.read((char*) &length, sizeof(length));
+    infile.seekg(4 * sizeof(size_t) + length * sizeof(bool));
+
+    // Get treetype
     infile.read((char*) &treetype, sizeof(treetype));
     infile.close();
   }
@@ -352,6 +363,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              For Survival growing is stopped if one child would reach a size smaller than N." << std::endl;
   std::cout << "    " << "                              This means nodes with size smaller N can occur for Classification and Regression." << std::endl;
   std::cout << "    " << "                              (Default: 1 for Classification, 5 for Regression, and 3 for Survival)" << std::endl;
+  std::cout << "    " << "--catvars V1,V2,..            Comma separated list of names of (unordered) categorical variables. " << std::endl;
+  std::cout << "    " << "                              Categorical variables must contain only positive integer values." << std::endl;
   std::cout << "    " << "--write                       Save forest to file <outprefix>.forest." << std::endl;
   std::cout << "    " << "--predict FILE                Load forest from FILE and predict with new data." << std::endl;
   std::cout << "    " << "--impmeasure TYPE             Set importance mode to:" << std::endl;

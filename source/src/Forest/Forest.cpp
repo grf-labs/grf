@@ -60,7 +60,8 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
     std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
     std::string load_forest_filename, ImportanceMode importance_mode, uint min_node_size,
     std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
-    std::string status_variable_name, bool sample_with_replacement) {
+    std::string status_variable_name, bool sample_with_replacement,
+    std::vector<std::string>& unordered_variable_names) {
 
   this->verbose_out = verbose_out;
 
@@ -93,12 +94,11 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
 
   // Call other init function
   init(dependent_variable_name, memory_mode, data, mtry, output_prefix, num_trees, seed, num_threads, importance_mode,
-      min_node_size, status_variable_name, prediction_mode, sample_with_replacement);
+      min_node_size, status_variable_name, prediction_mode, sample_with_replacement, unordered_variable_names);
 
   if (prediction_mode) {
     loadFromFile(load_forest_filename);
   }
-
   // Set variables to be always considered for splitting
   if (!always_split_variable_names.empty()) {
     setAlwaysSplitVariables(always_split_variable_names);
@@ -113,19 +113,27 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
     }
     setSplitWeightVector(split_select_weights);
   }
+
+  // Check if all catvars are coded in integers starting at 1
+  if (!unordered_variable_names.empty()) {
+    std::string error_message = checkUnorderedVariables(data, unordered_variable_names);
+    if (!error_message.empty()) {
+      throw std::runtime_error(error_message);
+    }
+  }
 }
 
 void Forest::initR(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
     uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode,
     uint min_node_size, std::vector<double>& split_select_weights,
     std::vector<std::string>& always_split_variable_names, std::string status_variable_name, bool prediction_mode,
-    bool sample_with_replacement) {
+    bool sample_with_replacement, std::vector<std::string>& unordered_variable_names) {
 
   this->verbose_out = verbose_out;
 
   // Call other init function
   init(dependent_variable_name, memory_mode, input_data, mtry, "", num_trees, seed, num_threads, importance_mode,
-      min_node_size, status_variable_name, prediction_mode, sample_with_replacement);
+      min_node_size, status_variable_name, prediction_mode, sample_with_replacement, unordered_variable_names);
 
   // Set variables to be always considered for splitting
   if (!always_split_variable_names.empty()) {
@@ -140,7 +148,8 @@ void Forest::initR(std::string dependent_variable_name, MemoryMode memory_mode, 
 
 void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
     std::string output_prefix, uint num_trees, uint seed, uint num_threads, ImportanceMode importance_mode,
-    uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement) {
+    uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
+    std::vector<std::string>& unordered_variable_names) {
 
   // Initialize data with memmode
   this->data = input_data;
@@ -184,6 +193,15 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
     dependent_varID = data->getVariableID(dependent_variable_name);
   }
 
+  // Set unordered factor variables
+  if (!prediction_mode) {
+    is_ordered_variable.resize(num_variables, true);
+    for (auto& variable_name : unordered_variable_names) {
+      size_t varID = data->getVariableID(variable_name);
+      is_ordered_variable[varID] = false;
+    }
+  }
+
   no_split_variables.push_back(dependent_varID);
 
   initInternal(status_variable_name);
@@ -200,6 +218,7 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
 }
 
 void Forest::run(bool verbose) {
+
   if (prediction_mode) {
     if (verbose) {
       *verbose_out << "Predicting .." << std::endl;
@@ -310,6 +329,9 @@ void Forest::saveToFile() {
   // Write num_trees
   outfile.write((char*) &num_trees, sizeof(num_trees));
 
+  // Write is_ordered_variable
+  saveVector1D(is_ordered_variable, outfile);
+
   saveToFileInternal(outfile);
 
   // Write tree data for each tree
@@ -340,7 +362,8 @@ void Forest::grow() {
       tree_seed = (i + 1) * seed;
     }
     trees[i]->init(data, mtry, dependent_varID, num_samples, tree_seed, &deterministic_varIDs, &split_select_varIDs,
-        &split_select_weights, importance_mode, min_node_size, &no_split_variables, sample_with_replacement);
+        &split_select_weights, importance_mode, min_node_size, &no_split_variables, sample_with_replacement,
+        &is_ordered_variable);
   }
 
   // Grow trees in multiple threads
@@ -365,6 +388,7 @@ void Forest::grow() {
     thread.join();
   }
 #endif
+
 }
 
 void Forest::predict() {
@@ -552,8 +576,12 @@ void Forest::loadFromFile(std::string filename) {
   infile.read((char*) &dependent_varID, sizeof(dependent_varID));
   infile.read((char*) &num_trees, sizeof(num_trees));
 
+  // Read is_ordered_variable
+  readVector1D(is_ordered_variable, infile);
+
   // Read tree data. This is different for tree types -> virtual function
   loadFromFileInternal(infile);
+
   infile.close();
 
   // Create thread ranges
