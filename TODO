@@ -13,7 +13,7 @@
 	 -> Auto mode for ntree? Grow until no change in prediction error
 - Use Kaplan Meier instead of Nelson Aalen
 	 -> New parameter
-- Handle factor covariates: Search over all 2-partitions of factor levels
+- If only 1 split possible, just use it. Faster?
 
 
 ## ----------------------------------------------------------------------- ##
