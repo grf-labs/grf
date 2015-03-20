@@ -39,18 +39,22 @@ public:
   // Create from loaded forest
   TreeSurvival(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
       std::vector<double>& split_values, std::vector<std::vector<double>> chf, std::vector<double>* unique_timepoints,
-      std::vector<size_t>* response_timepointIDs);
+      std::vector<size_t>* response_timepointIDs, std::vector<bool>* is_ordered_variable);
 
   virtual ~TreeSurvival();
 
   void initInternal();
 
-  void addPrediction(size_t nodeID, size_t sampleID);
   void appendToFileInternal(std::ofstream& file);
   void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
 
   const std::vector<std::vector<double> >& getChf() const {
     return chf;
+  }
+
+  const std::vector<double>& getPrediction(size_t sampleID) const {
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
+    return (chf[terminal_nodeID]);
   }
 
 private:
@@ -59,37 +63,17 @@ private:
 
   double computePredictionAccuracyInternal();
 
-  void findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs, double& best_value, size_t& best_varID,
-      double& best_decrease);
-
-  bool findBestSplitLogRank(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
-
-//  void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-//      size_t num_unique_death_times, double& best_value, size_t& best_varID, double& best_logrank);
-  void findBestSplitValueAUC(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-      double& best_value, size_t& best_varID, double& best_auc);
-
-//  void computeDeathCounts(size_t& num_unique_death_times, size_t nodeID);
-//  double computeLogRankTest(size_t nodeID, size_t varID, double split_value, size_t num_unique_death_times);
-//  void computeChildDeathCounts(size_t nodeID, size_t varID, double split_value, size_t* num_samples_left_child);
-
-// Called by splitNodeInternal(). Sets split_varIDs and split_values.
-
+  // Called by splitNodeInternal(). Sets split_varIDs and split_values.
+  bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
   void computeDeathCounts(size_t nodeID);
   void computeChildDeathCounts(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
       size_t* num_samples_right_child, size_t* num_samples_at_risk_right_child, size_t* num_deaths_right_child);
   void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
       double& best_value, size_t& best_varID, double& best_logrank);
-
-  void computeAucSplit(double time_k, double time_l, double status_k, double status_l, double value_k, double value_l,
-      size_t num_splits, std::vector<double>& possible_split_values, double* num_count, double* num_total);
-
-  void reservePredictionMemory(size_t num_predictions) {
-    predictions.resize(num_predictions, std::vector<double>());
-    for (auto& sample_vector : predictions) {
-      sample_vector.resize(num_timepoints, 0);
-    }
-  }
+  void findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels, double& best_value,
+      size_t& best_varID, double& best_logrank);
+  void findBestSplitValueAUC(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+      double& best_value, size_t& best_varID, double& best_auc);
 
   void cleanUpInternal() {
     delete[] num_deaths;

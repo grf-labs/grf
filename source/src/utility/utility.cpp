@@ -339,3 +339,38 @@ void shuffleAndSplit(std::vector<size_t>& first_part, std::vector<size_t>& secon
   first_part.resize(n_first);
 }
 
+std::string checkUnorderedVariables(Data* data, std::vector<std::string> unordered_variable_names) {
+  size_t num_rows = data->getNumRows();
+  std::vector<size_t> sampleIDs(num_rows);
+  std::iota(sampleIDs.begin(), sampleIDs.end(), 0);
+
+  // Check for all unordered variables
+  for (auto& variable_name : unordered_variable_names) {
+    size_t varID = data->getVariableID(variable_name);
+    std::vector<double> all_values;
+    data->getAllValues(all_values, sampleIDs, varID);
+
+    // Check level count
+    size_t max_level_count = 8 * sizeof(size_t) - 1;
+    if (all_values.size() > max_level_count) {
+      return "Too many levels in unordered categorical variable " + variable_name + ". Only "
+          + uintToString(max_level_count) + " levels allowed on this system.";
+    }
+
+    // Check positive integers
+    if (!checkPositiveIntegers(all_values)) {
+      return "Not all values in unordered categorical variable " + variable_name + " are positive integers.";
+    }
+  }
+  return "";
+}
+
+bool checkPositiveIntegers(std::vector<double>& all_values) {
+  for (auto& value : all_values) {
+    if (value < 1 || !(floor(value) == value)) {
+      return false;
+    }
+  }
+  return true;
+}
+

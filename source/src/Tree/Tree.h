@@ -42,20 +42,19 @@ public:
 
   // Create from loaded forest
   Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values);
+      std::vector<double>& split_values, std::vector<bool>* is_ordered_variable);
 
   virtual ~Tree();
 
   void init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
-      std::vector<size_t>* no_split_variables, bool sample_with_replacement, SplitRule splitrule);
+      std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered, SplitRule splitrule);
   virtual void initInternal() = 0;
 
   void grow();
 
   void predict(const Data* prediction_data, bool oob_prediction);
-  virtual void addPrediction(size_t nodeID, size_t sampleID) = 0;
 
   void computePermutationImportance();
 
@@ -64,9 +63,6 @@ public:
 
   const std::vector<double>& getVariableImportance() const {
     return variable_importance;
-  }
-  const std::vector<std::vector<double>>& getPredictions() const {
-    return predictions;
   }
   const std::vector<std::vector<size_t> >& getChildNodeIDs() const {
     return child_nodeIDs;
@@ -102,8 +98,6 @@ protected:
   void bootstrap();
   void bootstrapWithoutReplacement();
 
-  virtual void reservePredictionMemory(size_t num_predictions) = 0;
-
   virtual void cleanUpInternal() = 0;
 
   size_t dependent_varID;
@@ -114,6 +108,9 @@ protected:
 
   // Number of OOB samples
   size_t num_samples_oob;
+
+  // For each varID true if unordered
+  std::vector<bool>* is_ordered_variable;
 
   // Variable to not split at (only dependent_varID for non-survival trees)
   std::vector<size_t>* no_split_variables;
@@ -154,9 +151,8 @@ protected:
   ImportanceMode importance_mode;
 
   // When growing here the OOB set is used
-  // For classification and regression only one vector with samples
-  // For survival for each sample one vector for timepoints
-  std::vector<std::vector<double>> predictions;
+  // Terminal nodeIDs for prediction samples
+  std::vector<size_t> prediction_terminal_nodeIDs;
 
   bool sample_with_replacement;
   SplitRule splitrule;
