@@ -134,7 +134,12 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
           findBestSplitValueAUC(nodeID, varID, all_values, best_value, best_varID, best_decrease);
         }
       } else {
-        findBestSplitValueLogRankUnordered(nodeID, varID, all_values, best_value, best_varID, best_decrease);
+        if (splitrule == LOGRANK) {
+          findBestSplitValueLogRankUnordered(nodeID, varID, all_values, best_value, best_varID, best_decrease);
+        } else if (splitrule == AUC || splitrule == AUC_IGNORE_TIES) {
+          // TODO: Implement unordered AUC splitting
+          findBestSplitValueAUC(nodeID, varID, all_values, best_value, best_varID, best_decrease);
+        }
       }
 
     }
