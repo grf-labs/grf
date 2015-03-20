@@ -49,7 +49,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
     std::vector<std::string>& always_split_variable_names, bool use_always_split_variable_names,
     std::string status_variable_name, bool prediction_mode, Rcpp::List loaded_forest, Rcpp::RawMatrix sparse_data,
     bool sample_with_replacement, bool probability, std::vector<std::string>& unordered_variable_names,
-    bool use_unordered_variable_names, bool probability, uint splitrule_r) {
+    bool use_unordered_variable_names, uint splitrule_r) {
 
   Rcpp::List result;
   Forest* forest = 0;

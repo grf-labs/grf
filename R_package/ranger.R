@@ -384,7 +384,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
-                      replace, probability, unordered.factor.variables, use.unordered.factor.variables, splitrule)
+                      replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
+                      splitrule)
   
   if (length(result) == 0) {
     stop("Internal error.")
