@@ -77,11 +77,6 @@ void TreeSurvival::appendToFileInternal(std::ofstream& file) {
   saveVector2D(chf_vector, file);
 }
 
-bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
-
-  return findBestSplit(nodeID, possible_split_varIDs);
-}
-
 void TreeSurvival::createEmptyNodeInternal() {
   chf.push_back(std::vector<double>());
 }
@@ -97,6 +92,11 @@ double TreeSurvival::computePredictionAccuracyInternal() {
 
   // Return concordance index
   return computeConcordanceIndex(data, sum_chf, dependent_varID, status_varID, oob_sampleIDs);
+}
+
+bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
+
+  return findBestSplit(nodeID, possible_split_varIDs);
 }
 
 bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
@@ -161,58 +161,6 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
   }
 
   return result;
-}
-
-void TreeSurvival::computeDeathCounts(size_t nodeID) {
-
-  // Initialize
-  for (size_t i = 0; i < num_timepoints; ++i) {
-    num_deaths[i] = 0;
-    num_samples_at_risk[i] = 0;
-  }
-
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    double survival_time = data->get(sampleID, dependent_varID);
-
-    size_t t = 0;
-    while (t < num_timepoints && (*unique_timepoints)[t] < survival_time) {
-      ++num_samples_at_risk[t];
-      ++t;
-    }
-
-    // Now t is the survival time, add to at risk and to death if death
-    if (t < num_timepoints) {
-      if (data->get(sampleID, status_varID) == 1) {
-        ++num_samples_at_risk[t];
-        ++num_deaths[t];
-      }
-    }
-  }
-}
-
-void TreeSurvival::computeChildDeathCounts(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-    size_t* num_samples_right_child, size_t* delta_samples_at_risk_right_child, size_t* num_deaths_right_child) {
-  size_t num_splits = possible_split_values.size();
-
-  // Count deaths in right child per timepoint and possbile split
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    double value = data->get(sampleID, varID);
-    size_t survival_timeID = (*response_timepointIDs)[sampleID];
-
-    // Count deaths until split_value reached
-    for (size_t i = 0; i < num_splits; ++i) {
-
-      if (value > possible_split_values[i]) {
-        ++num_samples_right_child[i];
-        ++delta_samples_at_risk_right_child[i * num_timepoints + survival_timeID];
-        if (data->get(sampleID, status_varID) == 1) {
-          ++num_deaths_right_child[i * num_timepoints + survival_timeID];
-        }
-      } else {
-        break;
-      }
-    }
-  }
 }
 
 void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
@@ -373,7 +321,7 @@ void TreeSurvival::findBestSplitValueAUC(size_t nodeID, size_t varID, std::vecto
   size_t num_splits = possible_split_values.size();
   size_t num_possible_pairs = num_node_samples * (num_node_samples - 1) / 2;
 
-// Initialize
+  // Initialize
   double* num_count = new double[num_splits];
   double* num_total = new double[num_splits];
   size_t* num_samples_left_child = new size_t[num_splits];
@@ -383,7 +331,7 @@ void TreeSurvival::findBestSplitValueAUC(size_t nodeID, size_t varID, std::vecto
     num_samples_left_child[i] = 0;
   }
 
-// For all pairs
+  // For all pairs
   for (size_t k = 0; k < num_node_samples; ++k) {
     size_t sample_k = sampleIDs[nodeID][k];
     double time_k = data->get(sample_k, dependent_varID);
@@ -425,9 +373,128 @@ void TreeSurvival::findBestSplitValueAUC(size_t nodeID, size_t varID, std::vecto
     }
   }
 
-// Clean up
+  // Clean up
   delete[] num_count;
   delete[] num_total;
   delete[] num_samples_left_child;
 }
 
+void TreeSurvival::computeDeathCounts(size_t nodeID) {
+
+  // Initialize
+  for (size_t i = 0; i < num_timepoints; ++i) {
+    num_deaths[i] = 0;
+    num_samples_at_risk[i] = 0;
+  }
+
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    double survival_time = data->get(sampleID, dependent_varID);
+
+    size_t t = 0;
+    while (t < num_timepoints && (*unique_timepoints)[t] < survival_time) {
+      ++num_samples_at_risk[t];
+      ++t;
+    }
+
+    // Now t is the survival time, add to at risk and to death if death
+    if (t < num_timepoints) {
+      if (data->get(sampleID, status_varID) == 1) {
+        ++num_samples_at_risk[t];
+        ++num_deaths[t];
+      }
+    }
+  }
+}
+
+void TreeSurvival::computeChildDeathCounts(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+    size_t* num_samples_right_child, size_t* delta_samples_at_risk_right_child, size_t* num_deaths_right_child) {
+  size_t num_splits = possible_split_values.size();
+
+  // Count deaths in right child per timepoint and possbile split
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    double value = data->get(sampleID, varID);
+    size_t survival_timeID = (*response_timepointIDs)[sampleID];
+
+    // Count deaths until split_value reached
+    for (size_t i = 0; i < num_splits; ++i) {
+
+      if (value > possible_split_values[i]) {
+        ++num_samples_right_child[i];
+        ++delta_samples_at_risk_right_child[i * num_timepoints + survival_timeID];
+        if (data->get(sampleID, status_varID) == 1) {
+          ++num_deaths_right_child[i * num_timepoints + survival_timeID];
+        }
+      } else {
+        break;
+      }
+    }
+  }
+}
+
+void TreeSurvival::computeAucSplit(double time_k, double time_l, double status_k, double status_l, double value_k,
+    double value_l, size_t num_splits, std::vector<double>& possible_split_values, double* num_count,
+    double* num_total) {
+
+  // TODO: In 1 variable?
+  bool ignore_pair = false;
+  bool do_nothing = false;
+
+  double value_smaller = 0;
+  double value_larger = 0;
+  double status_smaller = 0;
+
+  if (time_k < time_l) {
+    value_smaller = value_k;
+    value_larger = value_l;
+    status_smaller = status_k;
+  } else if (time_l < time_k) {
+    value_smaller = value_l;
+    value_larger = value_k;
+    status_smaller = status_l;
+  } else {
+    // TODO: Shorter?
+    // Tie in survival time
+    if (status_k == 0 || status_l == 0) {
+      ignore_pair = true;
+    } else {
+      if (splitrule == AUC_IGNORE_TIES) {
+        ignore_pair = true;
+      } else {
+        if (value_k == value_l) {
+          // Tie in survival time and in covariate
+          ignore_pair = true;
+        } else {
+          // Tie in survival time in covariate
+          do_nothing = true;
+        }
+      }
+    }
+  }
+
+  // Do not count if smaller time censored
+  if (status_smaller == 0) {
+    ignore_pair = true;
+  }
+
+  if (ignore_pair) {
+    for (size_t i = 0; i < num_splits; ++i) {
+      --num_count[i];
+      --num_total[i];
+    }
+  } else if (do_nothing) {
+    // Do nothing
+  } else {
+    for (size_t i = 0; i < num_splits; ++i) {
+      double split_value = possible_split_values[i];
+
+      if (value_smaller <= split_value && value_larger > split_value) {
+        ++num_count[i];
+      } else if (value_smaller > split_value && value_larger <= split_value) {
+        --num_count[i];
+      } else if (value_smaller <= split_value && value_larger <= split_value) {
+        break;
+      }
+    }
+  }
+
+}
