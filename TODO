@@ -1,19 +1,19 @@
 
 ## ----------------------------------------------------------------------- ##
-## TOOD software
-## ----------------------------------------------------------------------- ##
-
-
-## ----------------------------------------------------------------------- ##
 ## Wishlist
 ## ----------------------------------------------------------------------- ##
 
 - Handle missing data
+   -> Now misssing values in GenABEL object (-1) are treated as 0, because 
+      only split at 0/1 allowed
 - Add importance function to run on existing forest
 - Progress output too often in long runs
 - Measure of convergence
 	 -> prediction error for tree subsets in randomForest?
 	 -> Auto mode for ntree? Grow until no change in prediction error
+- Use Kaplan Meier instead of Nelson Aalen
+	 -> New parameter
+- If only 1 split possible, just use it. Faster?
 
 
 ## ----------------------------------------------------------------------- ##

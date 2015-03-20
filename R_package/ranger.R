@@ -52,8 +52,17 @@
 ##' By setting \code{memory} to 'float' or 'char' the memory usage can be reduced with a possible loss of precision. 
 ##' Use char only if all endpoints and covariates are integer values between -128 and 127 or factors with few levels. 
 ##' 
-##' Multithreading is currently not supported for Microsoft Windows platforms. 
-##'
+##' For GWAS data consider combining \code{ranger} with the \code{\link{GenABEL}} package. 
+##' See the Examples section below for a demonstration using \code{Plink} data.
+##' All SNPs in the \code{GenABEL} object will be used for splitting. 
+##' To use only the SNPs without sex or other covariates from the phenotype file, use \code{0} on the right hand side of the formula. 
+##' Note that missing values are treated as an extra category while splitting.
+##' 
+##' Notes:
+##' \itemize{
+##'  \item Multithreading is currently not supported for Microsoft Windows platforms.
+##' }
+##' 
 ##' @title Ranger
 ##' @param formula Object of class \code{formula} or \code{character} describing the model to fit.
 ##' @param data Training data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
@@ -67,6 +76,7 @@
 ##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank", "auc" and "auc_ignore_ties" with default "logrank". 
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
+##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param verbose Verbose output on or off.
@@ -76,7 +86,7 @@
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
 ##' @return Object of class \code{ranger} with elements
 ##'   \tabular{ll}{
-##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). \cr
+##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). Note that the variable IDs in the \code{split.varIDs} object do not necessarily represent the column number in R. \cr
 ##'       \code{predictions}    \tab Predicted classes/values, based on out of bag samples (classification and regression only). \cr
 ##'       \code{variable.importance}     \tab Variable importance for each independent variable. \cr
 ##'       \code{prediction.error}   \tab Overall out of bag prediction error. For classification this is the fraction of missclassified samples, for regression the mean squared error and for survival one minus Harrell's c-index. \cr
@@ -120,6 +130,16 @@
 ##'
 ##' ## Alternative interface
 ##' ranger(dependent.variable.name = "Species", data = iris)
+##' 
+##' \dontrun{
+##' ## Use GenABEL interface to read Plink data into R and grow a classification forest
+##' ## The ped and map files are not included
+##' library(GenABEL)
+##' convert.snp.ped("data.ped", "data.map", "data.raw")
+##' dat.gwaa <- load.gwaa.data("data.pheno", "data.raw")
+##' phdata(dat.gwaa)$trait <- factor(phdata(dat.gwaa)$trait)
+##' ranger(trait ~ ., data = dat.gwaa)
+##' }
 ##'
 ##' @author Marvin N. Wright
 ##' @references
@@ -129,13 +149,14 @@
 ##' @seealso \code{\link{predict.ranger}}
 ##' @export
 ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
-                    importance = "none", write.forest = FALSE, probability = FALSE,
-                    min.node.size = NULL, replace = TRUE, splitrule = NULL,
-                    split.select.weights = NULL, always.split.variables = NULL,
-                    scale.permutation.importance = FALSE,
-                    num.threads = NULL,
-                    verbose = TRUE, seed = NULL, memory = "double",
-                    dependent.variable.name = NULL, status.variable.name = NULL) {
+                   importance = "none", write.forest = FALSE, probability = FALSE,
+                   min.node.size = NULL, replace = TRUE, splitrule = NULL,
+                   split.select.weights = NULL, always.split.variables = NULL,
+                   respect.unordered.factors = FALSE,
+                   scale.permutation.importance = FALSE,
+                   num.threads = NULL,
+                   verbose = TRUE, seed = NULL, memory = "double",
+                   dependent.variable.name = NULL, status.variable.name = NULL) {
   
   ## GenABEL GWA data
   if (class(data) == "gwaa.data") {
@@ -325,6 +346,32 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     stop("Error: Unknown splitrule.")
   }
 
+  ## Unordered factors  
+  if (respect.unordered.factors) {
+    names.selected <- names(data.selected)
+    ordered.idx <- sapply(data.selected, is.ordered)
+    factor.idx <- sapply(data.selected, is.factor)
+    independent.idx <- names.selected != dependent.variable.name & names.selected != status.variable.name
+    unordered.factor.variables <- names.selected[factor.idx & !ordered.idx & independent.idx]
+    
+    if (length(unordered.factor.variables) > 0) {
+      use.unordered.factor.variables <- TRUE
+      ## Check level count
+      num.levels <- sapply(data.selected[, factor.idx & !ordered.idx & independent.idx, drop = FALSE], nlevels)
+      max.level.count <- 8*.Machine$sizeof.pointer - 1
+      if (max(num.levels) > max.level.count) {
+        stop(paste("Too many levels in unordered categorical variable ", unordered.factor.variables[which.max(num.levels)], 
+                   ". Only ", max.level.count, " levels allowed on this system. Consider ordering this factor.", sep = ""))
+      } 
+    } else {
+      unordered.factor.variables <- c("0", "0")
+      use.unordered.factor.variables <- FALSE
+    } 
+  } else {
+    unordered.factor.variables <- c("0", "0")
+    use.unordered.factor.variables <- FALSE
+  }
+  
   ## Prediction mode always false. Use predict.ranger() method.
   prediction.mode <- FALSE
   
@@ -333,12 +380,12 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   
   ## Call Ranger
   result <- rangerCpp(treetype, dependent.variable.name, memory.mode, data.final, variable.names, mtry,
-              num.trees, verbose, seed, num.threads, write.forest, importance.mode,
-              min.node.size, split.select.weights, use.split.select.weights,
-              always.split.variables, use.always.split.variables,
-              status.variable.name, prediction.mode, loaded.forest, sparse.data,
-              replace, probability, splitrule)
-
+                      num.trees, verbose, seed, num.threads, write.forest, importance.mode,
+                      min.node.size, split.select.weights, use.split.select.weights,
+                      always.split.variables, use.always.split.variables,
+                      status.variable.name, prediction.mode, loaded.forest, sparse.data,
+                      replace, probability, unordered.factor.variables, use.unordered.factor.variables, splitrule)
+  
   if (length(result) == 0) {
     stop("Internal error.")
   }
@@ -375,7 +422,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   if (treetype == 3) {
     result$r.squared <- 1 - result$prediction.error / var(response)
   }
-  result$call <- match.call()
+  result$call <- sys.call()
   result$memory.mode <- memory
   result$importance.mode <- importance
   result$num.samples <- nrow(data.final)

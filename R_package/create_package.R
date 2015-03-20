@@ -55,6 +55,7 @@ dcf <- read.dcf(dcf.file)
 dcf[1, "Title"] <- package.title
 dcf[1, "Description"] <- package.description
 dcf[1, "Version"] <- package.version
+dcf[1, "Imports"] <- gsub(">= [0-9]+.[0-9]+.[0-9]+", ">= 0.11.2", dcf[1, "Imports"])
 dcf.new <- cbind(cbind(dcf, "Depends" = package.depends), "Suggests" = package.suggests)
 write.dcf(dcf.new, dcf.file)
 
@@ -81,5 +82,5 @@ library(package.name, character.only = TRUE)
 library(testthat)
 test_dir("test/", reporter = "summary")
 
-## Remove
+## Copy to vbox
 ##system(paste("cp", paste(package.name, "_", package.version, ".tar.gz", sep = ""), "~/myWork/vbox_share/"))

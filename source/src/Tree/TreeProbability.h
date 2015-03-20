@@ -41,16 +41,20 @@ public:
   // Create from loaded forest
   TreeProbability(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
       std::vector<double>& split_values, std::vector<double>* class_values, std::vector<uint>* response_classIDs,
-      std::vector<std::vector<double>>& terminal_class_counts);
+      std::vector<std::vector<double>>& terminal_class_counts, std::vector<bool>* is_ordered_variable);
 
   virtual ~TreeProbability();
 
   void initInternal();
 
-  void addPrediction(size_t nodeID, size_t sampleID);
   void addToTerminalNodes(size_t nodeID);
   void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
   void appendToFileInternal(std::ofstream& file);
+
+  const std::vector<double>& getPrediction(size_t sampleID) const {
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
+    return (terminal_class_counts[terminal_nodeID]);
+  }
 
   const std::vector<std::vector<double>>& getTerminalClassCounts() const {
     return terminal_class_counts;
@@ -64,17 +68,12 @@ private:
 
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
-  void findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-      double sum_node, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
+  void findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values, double sum_node,
+      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
+  void findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels, double sum_node,
+      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
 
   void addImpurityImportance(size_t nodeID, size_t varID, double decrease);
-
-  void reservePredictionMemory(size_t num_predictions) {
-    predictions.resize(num_predictions, std::vector<double>());
-    for (size_t i = 0; i < num_predictions; ++i) {
-      predictions[i].resize(class_values->size(), 0);
-    }
-  }
 
   void cleanUpInternal() {
     // Empty on purpose

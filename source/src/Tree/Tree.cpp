@@ -32,17 +32,17 @@
 #include "utility.h"
 
 Tree::Tree() :
-    dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), no_split_variables(0), min_node_size(0), deterministic_varIDs(
-        0), split_select_varIDs(0), split_select_weights(0), oob_sampleIDs(0), data(0), importance_mode(
+    dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(0), no_split_variables(0), min_node_size(
+        0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), oob_sampleIDs(0), data(0), importance_mode(
         DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), splitrule(DEFAULT_SPLITRULE) {
 }
 
 Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-    std::vector<double>& split_values) :
-    dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), no_split_variables(0), min_node_size(0), deterministic_varIDs(
-        0), split_select_varIDs(0), split_select_weights(0), split_varIDs(split_varIDs), split_values(split_values), child_nodeIDs(
-        child_nodeIDs), oob_sampleIDs(0), data(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(
-        true), splitrule(DEFAULT_SPLITRULE) {
+    std::vector<double>& split_values, std::vector<bool>* is_ordered_variable) :
+    dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(is_ordered_variable), no_split_variables(0), min_node_size(
+        0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), split_varIDs(split_varIDs), split_values(
+        split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), data(0), importance_mode(
+        DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), splitrule(DEFAULT_SPLITRULE) {
 }
 
 Tree::~Tree() {
@@ -51,7 +51,7 @@ Tree::~Tree() {
 void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
     std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
     std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
-    std::vector<size_t>* no_split_variables, bool sample_with_replacement, SplitRule splitrule) {
+    std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered, SplitRule splitrule) {
 
   this->data = data;
   this->mtry = mtry;
@@ -70,6 +70,7 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   this->importance_mode = importance_mode;
   this->min_node_size = min_node_size;
   this->no_split_variables = no_split_variables;
+  this->is_ordered_variable = is_unordered;
   this->sample_with_replacement = sample_with_replacement;
   this->splitrule = splitrule;
 
@@ -106,7 +107,7 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
     num_samples_predict = prediction_data->getNumRows();
   }
 
-  reservePredictionMemory(num_samples_predict);
+  prediction_terminal_nodeIDs.resize(num_samples_predict, 0);
 
   // For each sample start in root, drop down the tree and return final value
   for (size_t i = 0; i < num_samples_predict; ++i) {
@@ -125,17 +126,32 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
       }
 
       // Move to child
-      double value = prediction_data->get(sample_idx, split_varIDs[nodeID]);
-      if (value <= split_values[nodeID]) {
-        // Move to left child
-        nodeID = child_nodeIDs[nodeID][0];
+      size_t split_varID = split_varIDs[nodeID];
+      double value = prediction_data->get(sample_idx, split_varID);
+      if ((*is_ordered_variable)[split_varID]) {
+        if (value <= split_values[nodeID]) {
+          // Move to left child
+          nodeID = child_nodeIDs[nodeID][0];
+        } else {
+          // Move to right child
+          nodeID = child_nodeIDs[nodeID][1];
+        }
       } else {
-        // Move to right child
-        nodeID = child_nodeIDs[nodeID][1];
+        size_t factorID = floor(value) - 1;
+        size_t splitID = floor(split_values[nodeID]);
+
+        // Left if 0 found at position factorID
+        if (!(splitID & (1 << factorID))) {
+          // Move to left child
+          nodeID = child_nodeIDs[nodeID][0];
+        } else {
+          // Move to right child
+          nodeID = child_nodeIDs[nodeID][1];
+        }
       }
     }
 
-    addPrediction(nodeID, i);
+    prediction_terminal_nodeIDs[i] = nodeID;
   }
 }
 
@@ -148,8 +164,8 @@ void Tree::computePermutationImportance() {
   // Compute normal prediction accuracy for each tree. Predictions already computed..
   double accuracy_normal = computePredictionAccuracyInternal();
 
-  predictions.clear();
-  reservePredictionMemory(num_samples_oob);
+  prediction_terminal_nodeIDs.clear();
+  prediction_terminal_nodeIDs.resize(num_samples_oob, 0);
 
   // Reserve space for permutations, initialize with oob_sampleIDs
   std::vector<size_t> permutations(oob_sampleIDs);
@@ -222,12 +238,29 @@ void Tree::splitNode(size_t nodeID) {
   child_nodeIDs[nodeID].push_back(right_child_nodeID);
   createEmptyNode();
 
-  // For each sample in node, assign to left (<= split val) or right (> split val) child
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    if (data->get(sampleID, split_varID) <= split_value) {
-      sampleIDs[left_child_nodeID].push_back(sampleID);
-    } else {
-      sampleIDs[right_child_nodeID].push_back(sampleID);
+  // For each sample in node, assign to left or right child
+  if ((*is_ordered_variable)[split_varID]) {
+    // Ordered: left is <= splitval and right is > splitval
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      if (data->get(sampleID, split_varID) <= split_value) {
+        sampleIDs[left_child_nodeID].push_back(sampleID);
+      } else {
+        sampleIDs[right_child_nodeID].push_back(sampleID);
+      }
+    }
+  } else {
+    // Unordered: If bit at position is 1 -> right, 0 -> left
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      double level = data->get(sampleID, split_varID);
+      size_t factorID = floor(level) - 1;
+      size_t splitID = floor(split_value);
+
+      // Left if 0 found at position factorID
+      if (!(splitID & (1 << factorID))) {
+        sampleIDs[left_child_nodeID].push_back(sampleID);
+      } else {
+        sampleIDs[right_child_nodeID].push_back(sampleID);
+      }
     }
   }
 
@@ -235,6 +268,7 @@ void Tree::splitNode(size_t nodeID) {
   for (size_t i = 0; i < child_nodeIDs[nodeID].size(); ++i) {
     splitNode(child_nodeIDs[nodeID][i]);
   }
+
 }
 
 void Tree::createEmptyNode() {
@@ -260,13 +294,29 @@ size_t Tree::dropDownSamplePermuted(size_t permuted_varID, size_t sampleID, size
     }
 
     // Move to child
-    if (data->get(sampleID_final, split_varID) <= split_values[nodeID]) {
-      // Move to left child
-      nodeID = child_nodeIDs[nodeID][0];
+    double value = data->get(sampleID_final, split_varID);
+    if ((*is_ordered_variable)[split_varID]) {
+      if (value <= split_values[nodeID]) {
+        // Move to left child
+        nodeID = child_nodeIDs[nodeID][0];
+      } else {
+        // Move to right child
+        nodeID = child_nodeIDs[nodeID][1];
+      }
     } else {
-      // Move to right child
-      nodeID = child_nodeIDs[nodeID][1];
+      size_t factorID = floor(value) - 1;
+      size_t splitID = floor(split_values[nodeID]);
+
+      // Left if 0 found at position factorID
+      if (!(splitID & (1 << factorID))) {
+        // Move to left child
+        nodeID = child_nodeIDs[nodeID][0];
+      } else {
+        // Move to right child
+        nodeID = child_nodeIDs[nodeID][1];
+      }
     }
+
   }
   return nodeID;
 }
@@ -280,7 +330,7 @@ void Tree::permuteAndPredictOobSamples(size_t permuted_varID, std::vector<size_t
   // For each sample, drop down the tree and add prediction
   for (size_t i = 0; i < num_samples_oob; ++i) {
     size_t nodeID = dropDownSamplePermuted(permuted_varID, oob_sampleIDs[i], permutations[i]);
-    addPrediction(nodeID, i);
+    prediction_terminal_nodeIDs[i] = nodeID;
   }
 }
 

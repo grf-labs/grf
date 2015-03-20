@@ -52,15 +52,17 @@ public:
       std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
       std::string load_forest_filename, ImportanceMode importance_mode, uint min_node_size,
       std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
-      std::string status_variable_name, bool sample_with_replacement, SplitRule splitrule);
+      std::string status_variable_name, bool sample_with_replacement,
+      std::vector<std::string>& unordered_variable_names, SplitRule splitrule);
   void initR(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry, uint num_trees,
       std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode, uint min_node_size,
       std::vector<double>& split_select_weights, std::vector<std::string>& always_split_variable_names,
-      std::string status_variable_name, bool prediction_mode, bool sample_with_replacement, SplitRule splitrule);
+      std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
+      std::vector<std::string>& unordered_variable_names, SplitRule splitrule);
   void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
       std::string output_prefix, uint num_trees, uint seed, uint num_threads, ImportanceMode importance_mode,
       uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
-      SplitRule splitrule);
+      std::vector<std::string>& unordered_variable_names, SplitRule splitrule);
   virtual void initInternal(std::string status_variable_name) = 0;
 
   // Grow or predict
@@ -125,6 +127,10 @@ public:
   {
     return num_independent_variables;
   }
+  const std::vector<bool>& getIsOrderedVariable() const
+  {
+    return is_ordered_variable;
+  }
 
 protected:
   void grow();
@@ -175,6 +181,9 @@ protected:
   MemoryMode memory_mode;
   bool sample_with_replacement;
   SplitRule splitrule;
+
+  // For each varID true if ordered
+  std::vector<bool> is_ordered_variable;
 
   // Variable to not split at (only dependent_varID for non-survival forests)
   std::vector<size_t> no_split_variables;

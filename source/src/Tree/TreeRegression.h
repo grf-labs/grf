@@ -38,16 +38,20 @@ public:
 
   // Create from loaded forest
   TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values);
+      std::vector<double>& split_values, std::vector<bool>* is_ordered_variable);
 
   virtual ~TreeRegression();
 
   void initInternal();
 
-  void addPrediction(size_t nodeID, size_t sampleID);
   double estimate(size_t nodeID);
   void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
   void appendToFileInternal(std::ofstream& file);
+
+  double getPrediction(size_t sampleID) const {
+    size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
+    return (split_values[terminal_nodeID]);
+  }
 
 private:
   bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
@@ -59,15 +63,12 @@ private:
   bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
   void findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values, double sum_node,
       size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
+  void findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels, double sum_node,
+      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
 
   void addImpurityImportance(size_t nodeID, size_t varID, double decrease);
 
   double computePredictionMSE();
-
-  void reservePredictionMemory(size_t num_predictions) {
-    predictions.push_back(std::vector<double>());
-    predictions[0].resize(num_predictions, 0);
-  }
 
   void cleanUpInternal() {
     // Empty on purpose

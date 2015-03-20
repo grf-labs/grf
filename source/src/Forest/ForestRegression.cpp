@@ -1,30 +1,30 @@
 /*-------------------------------------------------------------------------------
-This file is part of Ranger.
+ This file is part of Ranger.
 
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ Ranger is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Ranger is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Written by:
+ Written by:
 
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck
+ Marvin N. Wright
+ Institut für Medizinische Biometrie und Statistik
+ Universität zu Lübeck
+ Ratzeburger Allee 160
+ 23562 Lübeck
 
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
+ http://www.imbs-luebeck.de
+ wright@imbs.uni-luebeck.de
+ #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <stdexcept>
@@ -43,15 +43,17 @@ ForestRegression::~ForestRegression() {
 
 void ForestRegression::loadForest(size_t dependent_varID, size_t num_trees,
     std::vector<std::vector<std::vector<size_t>> >& forest_child_nodeIDs,
-    std::vector<std::vector<size_t>>& forest_split_varIDs, std::vector<std::vector<double>>& forest_split_values) {
+    std::vector<std::vector<size_t>>& forest_split_varIDs, std::vector<std::vector<double>>& forest_split_values, std::vector<bool>& is_ordered_variable) {
 
   this->dependent_varID = dependent_varID;
   this->num_trees = num_trees;
+  this->is_ordered_variable = is_ordered_variable;
 
   // Create trees
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    Tree* tree = new TreeRegression(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i]);
+    Tree* tree = new TreeRegression(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
+        &is_ordered_variable);
     trees.push_back(tree);
   }
 
@@ -82,14 +84,14 @@ void ForestRegression::growInternal() {
 
 void ForestRegression::predictInternal() {
 
-  size_t num_prediction_samples = trees[0]->getPredictions()[0].size();
+  size_t num_prediction_samples = data->getNumRows();
   predictions.reserve(num_prediction_samples);
 
   // For all samples use mean over all trees
   for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
     double prediction_sum = 0;
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      prediction_sum += trees[tree_idx]->getPredictions()[0][sample_idx];
+      prediction_sum += ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
     }
     std::vector<double> temp;
     temp.push_back(prediction_sum / num_trees);
@@ -104,13 +106,13 @@ void ForestRegression::computePredictionErrorInternal() {
   predictions.reserve(num_samples);
   samples_oob_count.resize(num_samples, 0);
   for (size_t i = 0; i < num_samples; ++i) {
-    std::vector<double> temp {0};
+    std::vector<double> temp { 0 };
     predictions.push_back(temp);
   }
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
       size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
-      double value = trees[tree_idx]->getPredictions()[0][sample_idx];
+      double value = ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
 
       predictions[sampleID][0] += value;
       ++samples_oob_count[sampleID];
@@ -217,7 +219,7 @@ void ForestRegression::loadFromFileInternal(std::ifstream& infile) {
     }
 
     // Create tree
-    Tree* tree = new TreeRegression(child_nodeIDs, split_varIDs, split_values);
+    Tree* tree = new TreeRegression(child_nodeIDs, split_varIDs, split_values, &is_ordered_variable);
     trees.push_back(tree);
   }
 }
