@@ -53,12 +53,13 @@ void ForestSurvival::loadForest(size_t dependent_varID, size_t num_trees,
   this->status_varID = status_varID;
   this->num_trees = num_trees;
   this->is_ordered_variable = is_ordered_variable;
+  this->unique_timepoints = unique_timepoints;
 
   // Create trees
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree* tree = new TreeSurvival(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-        forest_chf[i], &unique_timepoints, &response_timepointIDs, &is_ordered_variable);
+        forest_chf[i], &this->unique_timepoints, &response_timepointIDs, &this->is_ordered_variable);
     trees.push_back(tree);
   }
 
