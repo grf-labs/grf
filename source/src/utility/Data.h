@@ -54,6 +54,36 @@ public:
 
   void getAllValues(std::vector<double>& all_values, std::vector<size_t>& sampleIDs, size_t varID);
 
+  double getIndex(size_t row, size_t col) const {
+    if (col < num_cols_no_sparse) {
+      return index_data[col * num_rows + row];
+    } else {
+      // Get data out of sparse storage. -1 because of GenABEL coding.
+      size_t idx = (col - num_cols_no_sparse) * num_rows_rounded + row;
+      double result = (((sparse_data[idx / 4] & mask[idx % 4]) >> offset[idx % 4]) - 1);
+      return result;
+    }
+  }
+
+  // TODO: Used?
+  double getUniqueDataValue(size_t varID, size_t index) const {
+    if (varID < num_cols_no_sparse) {
+      return unique_data_values[varID][index];
+    } else {
+      // For GWAS data the index is the value
+      return (index);
+    }
+  }
+
+  size_t getNumUniqueDataValues(size_t varID) const {
+    if (varID < num_cols_no_sparse) {
+      return unique_data_values[varID].size();
+    } else {
+      // For GWAS data 0,1,2
+      return (3);
+    }
+  }
+
   void sort();
 
   const std::vector<std::string>& getVariableNames() const {

@@ -188,10 +188,10 @@ void Data::getAllValues(std::vector<double>& all_values, std::vector<size_t>& sa
 void Data::sort() {
 
   // Reserve memory
-  index_data = new size_t[num_cols * num_rows];
+  index_data = new size_t[num_cols_no_sparse * num_rows];
 
   // For all columns, get unique values and save index for each observation
-  for (size_t col = 0; col < num_cols; ++col) {
+  for (size_t col = 0; col < num_cols_no_sparse; ++col) {
 
     // TODO: More efficient way? Without sort and find!
     std::vector<double> unique_values(num_rows);

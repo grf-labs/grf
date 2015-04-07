@@ -142,28 +142,27 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
 
   // For all possible split variables
   for (auto& varID : possible_split_varIDs) {
-
-    // Create possible split values
-    std::vector<double> all_values;
-    data->getAllValues(all_values, sampleIDs[nodeID], varID);
-
-    //Try next variable if all equal for this
-    if (all_values.size() < 2) {
-      continue;
-    }
-
     // Find best split value, if ordered consider all values as split values, else all 2-partitions
     if ((*is_ordered_variable)[varID]) {
 
-      // Remove largest value because no split possible
-      all_values.pop_back();
-
-      // Find best split value
-      findBestSplitValue(nodeID, varID, all_values, num_classes, class_counts, num_samples_node, best_value, best_varID,
-          best_decrease);
+      // Use memory saving method if option set
+      if (memory_saving_splitting) {
+        findBestSplitValueSmallQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
+            best_decrease);
+      } else {
+        // Use faster method for both cases
+        double q = (double) num_samples_node / (double) data->getNumUniqueDataValues(varID);
+        if (q < Q_THRESHOLD) {
+          findBestSplitValueSmallQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
+              best_decrease);
+        } else {
+          findBestSplitValueLargeQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
+              best_decrease);
+        }
+      }
     } else {
-      findBestSplitValueUnordered(nodeID, varID, all_values, num_classes, class_counts, num_samples_node, best_value,
-          best_varID, best_decrease);
+      findBestSplitValueUnordered(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
+          best_decrease);
     }
   }
 
@@ -185,9 +184,20 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
   return false;
 }
 
-void TreeClassification::findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-    size_t num_classes, size_t* class_counts, size_t num_samples_node, double& best_value, size_t& best_varID,
-    double& best_decrease) {
+void TreeClassification::findBestSplitValueSmallQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+    size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
+
+  // Create possible split values
+  std::vector<double> possible_split_values;
+  data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
+
+  //Try next variable if all equal for this
+  if (possible_split_values.size() < 2) {
+    return;
+  }
+
+  // Remove largest value because no split possible
+  possible_split_values.pop_back();
 
   size_t num_splits = possible_split_values.size();
 
@@ -246,9 +256,75 @@ void TreeClassification::findBestSplitValue(size_t nodeID, size_t varID, std::ve
   delete[] n_right;
 }
 
-void TreeClassification::findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
-    size_t num_classes, size_t* class_counts, size_t num_samples_node, double& best_value, size_t& best_varID,
-    double& best_decrease) {
+void TreeClassification::findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+    size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
+
+  // TODO: Stop if only one unique value?
+  size_t num_unique = data->getNumUniqueDataValues(varID);
+  std::vector<size_t> count(num_unique);
+  std::vector<size_t> class_counts_per_value(num_classes * num_unique);
+
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    size_t index = data->getIndex(sampleID, varID);
+    size_t classID = (*response_classIDs)[sampleID];
+
+    ++count[index];
+    ++class_counts_per_value[index * num_classes + classID];
+  }
+
+  size_t n_left = 0;
+  std::vector<size_t> class_counts_left(num_classes);
+
+// Compute decrease of impurity for each split
+  for (size_t i = 0; i < num_unique; ++i) {
+
+    // Stop if nothing here
+    if (count[i] == 0) {
+      continue;
+    }
+
+    n_left += count[i];
+
+    // Stop if right child empty
+    size_t n_right = num_samples_node - n_left;
+    if (n_right == 0) {
+      break;
+    }
+
+    // Sum of squares
+    double sum_left = 0;
+    double sum_right = 0;
+    for (size_t j = 0; j < num_classes; ++j) {
+      class_counts_left[j] += class_counts_per_value[i * num_classes + j];
+      size_t class_count_right = class_counts[j] - class_counts_left[j];
+
+      sum_left += class_counts_left[j] * class_counts_left[j];
+      sum_right += class_count_right * class_count_right;
+    }
+
+    // Decrease of impurity
+    double decrease = sum_right / (double) n_right + sum_left / (double) n_left;
+
+    // If better than before, use this
+    if (decrease > best_decrease) {
+      best_value = data->getUniqueDataValue(varID, i);
+      best_varID = varID;
+      best_decrease = decrease;
+    }
+  }
+}
+
+void TreeClassification::findBestSplitValueUnordered(size_t nodeID, size_t varID, size_t num_classes,
+    size_t* class_counts, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
+
+  // Create possible split values
+  std::vector<double> factor_levels;
+  data->getAllValues(factor_levels, sampleIDs[nodeID], varID);
+
+  //Try next variable if all equal for this
+  if (factor_levels.size() < 2) {
+    return;
+  }
 
   // Number of possible splits is 2^num_levels
   size_t num_splits = (1 << factor_levels.size());
