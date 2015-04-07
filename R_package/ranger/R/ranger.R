@@ -48,7 +48,7 @@
 ##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
-##' Use char only if all endpoints and covariates are integer values between -128 and 127 or factors with few levels. 
+##' Consider setting \code{save.memory = TRUE} if you encounter memory problems.
 ##' 
 ##' For GWAS data consider combining \code{ranger} with the \code{GenABEL} package. 
 ##' See the Examples section below for a demonstration using \code{Plink} data.
@@ -76,6 +76,7 @@
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
+##' @param save.memory Use memory saving (but slower) splitting mode. 
 ##' @param verbose Verbose output on or off.
 ##' @param seed Random seed. Default is \code{NULL}, which generates the seed from \code{R}. 
 ##' @param dependent.variable.name Name of dependent variable, needed if no formula given. For survival forests this is the time variable.
@@ -151,7 +152,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    split.select.weights = NULL, always.split.variables = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
-                   num.threads = NULL,
+                   num.threads = NULL, save.memory = FALSE,
                    verbose = TRUE, seed = NULL, 
                    dependent.variable.name = NULL, status.variable.name = NULL) {
   
@@ -357,7 +358,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
-                      replace, probability, unordered.factor.variables, use.unordered.factor.variables)
+                      replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
+                      save.memory)
   
   if (length(result) == 0) {
     stop("Internal error.")

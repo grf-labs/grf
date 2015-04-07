@@ -63,6 +63,7 @@ public:
   std::vector<std::string> alwayssplitvars;
   std::string depvarname;
   MemoryMode memmode;
+  bool savemem;
   std::string predict;
   std::string splitweights;
   uint nthreads;
