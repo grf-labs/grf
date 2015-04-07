@@ -48,7 +48,6 @@
 ##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
-##' By setting \code{memory} to 'float' or 'char' the memory usage can be reduced with a possible loss of precision. 
 ##' Use char only if all endpoints and covariates are integer values between -128 and 127 or factors with few levels. 
 ##' 
 ##' For GWAS data consider combining \code{ranger} with the \code{GenABEL} package. 
@@ -79,7 +78,6 @@
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param verbose Verbose output on or off.
 ##' @param seed Random seed. Default is \code{NULL}, which generates the seed from \code{R}. 
-##' @param memory Memory mode, one of 'double', 'float', 'char'. Default 'double'.
 ##' @param dependent.variable.name Name of dependent variable, needed if no formula given. For survival forests this is the time variable.
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
 ##' @return Object of class \code{ranger} with elements
@@ -99,7 +97,6 @@
 ##'       \code{mtry}    \tab Value of mtry used. \cr
 ##'       \code{min.node.size}   \tab Value of minimal node size used. \cr
 ##'       \code{treetype}    \tab Type of forest/tree. classification, regression or survival. \cr
-##'       \code{memory.mode}   \tab Memory mode used. \cr
 ##'       \code{importance.mode}     \tab Importance mode used. \cr
 ##'       \code{num.samples}     \tab Number of samples.
 ##'   }
@@ -155,7 +152,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
                    num.threads = NULL,
-                   verbose = TRUE, seed = NULL, memory = "double",
+                   verbose = TRUE, seed = NULL, 
                    dependent.variable.name = NULL, status.variable.name = NULL) {
   
   ## GenABEL GWA data
@@ -264,17 +261,6 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     stop("Error: Invalid value for mtry")
   }
   
-  ## Memory mode
-  if (is.null(memory) | memory == "double") {
-    memory.mode <- 0
-  } else if (memory == "float") {
-    memory.mode <- 1
-  } else if (memory == "char") {
-    memory.mode <- 2
-  } else {
-    stop("Error: Unknown memory mode.")
-  }
-  
   ## Seed
   if (is.null(seed)) {
     seed <- runif(1 , 0, .Machine$integer.max)
@@ -366,7 +352,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   loaded.forest <- list()
   
   ## Call Ranger
-  result <- rangerCpp(treetype, dependent.variable.name, memory.mode, data.final, variable.names, mtry,
+  result <- rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
                       num.trees, verbose, seed, num.threads, write.forest, importance.mode,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
@@ -410,7 +396,6 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$r.squared <- 1 - result$prediction.error / var(response)
   }
   result$call <- sys.call()
-  result$memory.mode <- memory
   result$importance.mode <- importance
   result$num.samples <- nrow(data.final)
   

@@ -61,17 +61,6 @@ pred <- predict(temp, data = chr21[1:10,])
 ##phdata(chr1)$hyper <- factor(phdata(chr1)$hyper)
 ##ranger("hyper ~ .", data = chr1)
 
-## Test memory modes
-temp <- ranger("Species ~ .", data = iris, verbose = FALSE, write.forest = TRUE, memory = "double")
-temp$prediction.error
-pred.double <- predict(temp$forest, data = iris)
-temp <- ranger("Species ~ .", data = iris, verbose = FALSE, write.forest = TRUE, memory = "float")
-temp$prediction.error
-pred.float <- predict(temp$forest, data = iris)
-temp <- ranger("Species ~ .", data = iris, verbose = FALSE, write.forest = TRUE, memory = "char")
-temp$prediction.error
-pred.char <- predict(temp$forest, data = iris)
-
 ## Test non-formula interface
 ranger(Species ~., data = iris)
 ranger(data = iris, dependent.variable.name = "Species")

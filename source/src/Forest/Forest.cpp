@@ -123,16 +123,16 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
   }
 }
 
-void Forest::initR(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
-    uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode,
-    uint min_node_size, std::vector<double>& split_select_weights,
-    std::vector<std::string>& always_split_variable_names, std::string status_variable_name, bool prediction_mode,
-    bool sample_with_replacement, std::vector<std::string>& unordered_variable_names) {
+void Forest::initR(std::string dependent_variable_name, Data* input_data, uint mtry, uint num_trees,
+    std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode, uint min_node_size,
+    std::vector<double>& split_select_weights, std::vector<std::string>& always_split_variable_names,
+    std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
+    std::vector<std::string>& unordered_variable_names) {
 
   this->verbose_out = verbose_out;
 
   // Call other init function
-  init(dependent_variable_name, memory_mode, input_data, mtry, "", num_trees, seed, num_threads, importance_mode,
+  init(dependent_variable_name, MEM_DOUBLE, input_data, mtry, "", num_trees, seed, num_threads, importance_mode,
       min_node_size, status_variable_name, prediction_mode, sample_with_replacement, unordered_variable_names);
 
   // Set variables to be always considered for splitting

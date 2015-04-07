@@ -45,7 +45,6 @@ print.ranger <- function(x, ...) {
   cat("Mtry:                            ", x$mtry, "\n")
   cat("Target node size:                ", x$min.node.size, "\n")
   cat("Variable importance mode:        ", x$importance.mode, "\n")
-  cat("Memory mode:                     ", x$memory.mode, "\n")
   if (x$treetype == "Survival") {
     cat("Number of unique death times:    ", length(x$unique.death.times), "\n")
   }
