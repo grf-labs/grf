@@ -36,10 +36,14 @@
 #include "utility.h"
 
 Data::Data() :
-    num_rows(0), num_rows_rounded(0), num_cols(0), sparse_data(0), num_cols_no_sparse(0), externalData(true) {
+    num_rows(0), num_rows_rounded(0), num_cols(0), sparse_data(0), num_cols_no_sparse(0), externalData(true), index_data(
+        0) {
 }
 
 Data::~Data() {
+  if (index_data != 0) {
+    delete[] index_data;
+  }
 }
 
 size_t Data::getVariableID(std::string variable_name) {
@@ -172,11 +176,36 @@ void Data::getAllValues(std::vector<double>& all_values, std::vector<size_t>& sa
     for (size_t i = 0; i < sampleIDs.size(); ++i) {
       all_values.push_back(get(sampleIDs[i], varID));
     }
-    sort(all_values.begin(), all_values.end());
+    std::sort(all_values.begin(), all_values.end());
     all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
   } else {
     // If GWA data just use 0, 1, 2
     all_values = std::vector<double>( { 0, 1, 2 });
   }
 
+}
+
+void Data::sort() {
+
+  // Reserve memory
+  index_data = new size_t[num_cols * num_rows];
+
+  // For all columns, get unique values and save index for each observation
+  for (size_t col = 0; col < num_cols; ++col) {
+
+    // TODO: More efficient way? Without sort and find!
+    std::vector<double> unique_values(num_rows);
+    for (size_t row = 0; row < num_rows; ++row) {
+      unique_values[row] = get(row, col);
+    }
+    //      std::copy(data + col * num_rows, data + (col + 1) * num_rows, unique_values);
+    std::sort(unique_values.begin(), unique_values.end());
+    unique_values.erase(unique(unique_values.begin(), unique_values.end()), unique_values.end());
+    for (size_t row = 0; row < num_rows; ++row) {
+      size_t idx = std::find(unique_values.begin(), unique_values.end(), get(row, col)) - unique_values.begin();
+      index_data[col * num_rows + row] = idx;
+    }
+
+    unique_data_values.push_back(unique_values);
+  }
 }

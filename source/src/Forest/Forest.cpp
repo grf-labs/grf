@@ -220,6 +220,9 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
 
   // TODO: Call function from data?
   this->memory_saving_splitting = memory_saving_splitting;
+  if (!memory_saving_splitting) {
+    data->sort();
+  }
 }
 
 void Forest::run(bool verbose) {
