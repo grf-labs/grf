@@ -18,11 +18,6 @@ write.dcf(dcf, dcf.file)
 ## Create Rcpp files
 compileAttributes(package.name)
 
-## Add globals.h to RcppExports.cpp (for building on Windows)
-# rcpp.exports.file <- file.path(".", package.name, "src", "RcppExports.cpp")
-# input <- readLines(rcpp.exports.file)
-# writeLines(c("#include \"globals.h\"", input), rcpp.exports.file)
-
 ## Add Documentation
 roxygenize(package.name)
 

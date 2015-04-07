@@ -51,7 +51,7 @@
 ##' By setting \code{memory} to 'float' or 'char' the memory usage can be reduced with a possible loss of precision. 
 ##' Use char only if all endpoints and covariates are integer values between -128 and 127 or factors with few levels. 
 ##' 
-##' For GWAS data consider combining \code{ranger} with the \code{\link{GenABEL}} package. 
+##' For GWAS data consider combining \code{ranger} with the \code{GenABEL} package. 
 ##' See the Examples section below for a demonstration using \code{Plink} data.
 ##' All SNPs in the \code{GenABEL} object will be used for splitting. 
 ##' To use only the SNPs without sex or other covariates from the phenotype file, use \code{0} on the right hand side of the formula. 
