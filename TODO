@@ -14,6 +14,7 @@
 - Use Kaplan Meier instead of Nelson Aalen
 	 -> New parameter
 - If only 1 split possible, just use it. Faster?
+- Up-/Downsampling, see sampsize/strata in randomForest
 
 
 ## ----------------------------------------------------------------------- ##
