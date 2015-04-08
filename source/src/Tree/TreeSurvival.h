@@ -68,10 +68,12 @@ private:
   void computeDeathCounts(size_t nodeID);
   void computeChildDeathCounts(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
       size_t* num_samples_right_child, size_t* num_samples_at_risk_right_child, size_t* num_deaths_right_child);
-  void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-      double& best_value, size_t& best_varID, double& best_logrank);
-  void findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels, double& best_value,
+  void findBestSplitValueLogRank(size_t nodeID, size_t varID, double& best_value, size_t& best_varID,
+      double& best_logrank);
+  void findBestSplitValueLogRankNew(size_t nodeID, size_t varID, size_t num_samples_node, double& best_value,
       size_t& best_varID, double& best_logrank);
+  void findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, double& best_value, size_t& best_varID,
+      double& best_logrank);
 
   void cleanUpInternal() {
     delete[] num_deaths;
