@@ -274,7 +274,7 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, double
 
 // Compute logrank test for all splits and use best
   for (size_t i = 0; i < num_splits; ++i) {
-    double nominator = 0;
+    double numerator = 0;
     double denominator_squared = 0;
 
     // Stop if minimal node size reached
@@ -295,17 +295,17 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, double
       }
 
       if (num_deaths[t] > 0) {
-        // Nominator and demoninator for log-rank test, notation from Ishwaran et al.
+        // Numerator and demoninator for log-rank test, notation from Ishwaran et al.
         double di = (double) num_deaths[t];
         double di1 = (double) num_deaths_right_child[i * num_timepoints + t];
         double Yi = (double) num_samples_at_risk[t];
         double Yi1 = (double) num_samples_at_risk_right_child;
-        nominator += di1 - Yi1 * (di / Yi);
+        numerator += di1 - Yi1 * (di / Yi);
         denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
 
         //TODO: Remove
 //        std::cout << "time " << t << ", di " << di << ", di1 " << di1 << ", Yi " << Yi << ", Yi1 " << Yi1
-//            << ", numerator " << nominator << ", denominator_squared " << denominator_squared << std::endl;
+//            << ", numerator " << numerator << ", denominator_squared " << denominator_squared << std::endl;
       }
 
 //      // TODO: Remove
@@ -317,11 +317,11 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, double
     }
     double logrank = -1;
     if (denominator_squared != 0) {
-      logrank = fabs(nominator / sqrt(denominator_squared));
+      logrank = fabs(numerator / sqrt(denominator_squared));
     }
 
 //    //TODO: Remove
-//    std::cout << "split: " << possible_split_values[i] << ", logrank " << logrank << ", numerator " << nominator
+//    std::cout << "split: " << possible_split_values[i] << ", logrank " << logrank << ", numerator " << numerator
 //        << ", denominator_squared " << denominator_squared << std::endl;
 
     if (logrank > best_logrank) {
@@ -336,7 +336,8 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, double
   delete[] num_samples_right_child;
 }
 
-// TODO: Numerator.. not Nominator! Everywhere!
+// TODO: Try without extra loop ..
+// TODO: Use left counts instead of right?
 void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, size_t num_samples_node,
     double& best_value, size_t& best_varID, double& best_logrank) {
 
@@ -449,7 +450,7 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
       // TODO: Dont use minus -> left child
       // TODO: at_risk now counts right child
       if (num_samples_at_risk[t] > 1 && num_deaths[t] > 0) {
-        // Nominator and demoninator for log-rank test, notation from Ishwaran et al.
+        // Numerator and demoninator for log-rank test, notation from Ishwaran et al.
         double di = (double) num_deaths[t];
         double di1 = (double) death2[i * num_timepoints + t];
         double Yi = (double) num_samples_at_risk[t];
@@ -521,7 +522,7 @@ void TreeSurvival::findBestSplitValueLogRankUnordered(size_t nodeID, size_t varI
     size_t* num_deaths_right_child = new size_t[num_timepoints]();
     size_t* delta_samples_at_risk_right_child = new size_t[num_timepoints]();
     size_t num_samples_right_child = 0;
-    double nominator = 0;
+    double numerator = 0;
     double denominator_squared = 0;
 
     // Count deaths in right child per timepoint
@@ -558,12 +559,12 @@ void TreeSurvival::findBestSplitValueLogRankUnordered(size_t nodeID, size_t varI
       }
 
       if (num_deaths[t] > 0) {
-        // Nominator and demoninator for log-rank test, notation from Ishwaran et al.
+        // Numerator and demoninator for log-rank test, notation from Ishwaran et al.
         double di = (double) num_deaths[t];
         double di1 = (double) num_deaths_right_child[t];
         double Yi = (double) num_samples_at_risk[t];
         double Yi1 = (double) num_samples_at_risk_right_child;
-        nominator += di1 - Yi1 * (di / Yi);
+        numerator += di1 - Yi1 * (di / Yi);
         denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
       }
 
@@ -572,7 +573,7 @@ void TreeSurvival::findBestSplitValueLogRankUnordered(size_t nodeID, size_t varI
     }
     double logrank = -1;
     if (denominator_squared != 0) {
-      logrank = fabs(nominator / sqrt(denominator_squared));
+      logrank = fabs(numerator / sqrt(denominator_squared));
     }
 
     if (logrank > best_logrank) {
