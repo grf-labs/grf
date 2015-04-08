@@ -133,7 +133,7 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
 //        std::cout << std::endl;
 //        std::getchar();
 
-        if (best_logrank != best_logrank_temp) {
+        if (best_logrank != best_logrank_temp && best_value != best_value_temp) {
           std::cout << "best_value: " << best_value << ", " << best_value_temp << std::endl;
           std::cout << "best_varID: " << best_varID << ", " << best_varID_temp << std::endl;
           std::cout << "best_logrank: " << best_logrank << ", " << best_logrank_temp << std::endl;
@@ -378,11 +378,51 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
     for (size_t i = 0; i < num_unique - 1; ++i) {
       size_t ii = num_unique - 2 - i;
       sum_at_risk += delta_at_risk[(ii + 1) * num_timepoints + t];
+
+//      std::cout << sum_at_risk << " ";
+
       at_risk[ii * num_timepoints + t] = sum_at_risk;
       sum_death += death[(ii + 1) * num_timepoints + t];
       death2[ii * num_timepoints + t] = sum_death;
     }
+//    std::cout << std::endl;
   }
+
+  // TODO: -1?
+  std::vector<size_t> death3((num_unique-1) * num_timepoints);
+  for (size_t t = 0; t < num_timepoints; ++t) {
+    size_t sum_death = 0;
+    for (size_t i = 0; i < num_unique-1; ++i) {
+      sum_death += death[i * num_timepoints + t];
+      death3[i * num_timepoints + t] = sum_death;
+      if (death3[i * num_timepoints + t] != num_deaths[t] - death2[i * num_timepoints + t]) {
+        std::cout << "DIFF death" << std::endl;
+      }
+    }
+  }
+
+  std::cout << "AAAAAA" << std::endl << std::endl;
+
+  // TODO: Missing: Number of samples at risk in total
+  std::vector<size_t> at_risk3((num_unique-1) * num_timepoints);
+  for (size_t t = 0; t < num_timepoints; ++t) {
+    size_t sum_at_risk = 0;
+    for (size_t i = 0; i < num_unique-1; ++i) {
+
+      sum_at_risk += delta_at_risk[i * num_timepoints + t];
+
+      std::cout << num_samples_at_risk[t]-sum_at_risk << " ";
+
+      at_risk3[i * num_timepoints + t] = sum_at_risk;
+      //if (at_risk3[i * num_timepoints + t] != num_samples_at_risk[t] - at_risk[i * num_timepoints + t]) {
+     //   std::cout << "DIFF at_risk: " << num_samples_at_risk[t] - at_risk[i * num_timepoints + t] << " " << at_risk3[i * num_timepoints + t]  << std::endl;
+      //}
+
+    }
+    std::cout << std::endl;
+  }
+
+  std::cout << "BBBBB" << std::endl << std::endl;
 
 //  // TODO: Remove
 //  std::cout << "at_risk new: " << std::endl;
@@ -452,9 +492,10 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
       if (num_samples_at_risk[t] > 1 && num_deaths[t] > 0) {
         // Numerator and demoninator for log-rank test, notation from Ishwaran et al.
         double di = (double) num_deaths[t];
-        double di1 = (double) death2[i * num_timepoints + t];
+        //double di1 = di - (double) death2[i * num_timepoints + t];
+        double di1 = (double) death3[i * num_timepoints + t];
         double Yi = (double) num_samples_at_risk[t];
-        double Yi1 = (double) num_samples_at_risk_right_child;
+        double Yi1 = Yi - (double) num_samples_at_risk_right_child;
         numerator += di1 - Yi1 * (di / Yi);
         denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
 
@@ -468,7 +509,13 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
       //at_risk -= delta_at_risk[i * num_timepoints + t];
       num_samples_at_risk_right_child -= at_risk[i * num_timepoints + t];
 
+      // TODO: Remove
+      std::cout << num_samples_at_risk_right_child << " ";
+
     }
+
+    // TODO: Remove
+    std::cout << std::endl;
 
     double logrank = -1;
     if (denominator_squared != 0) {
