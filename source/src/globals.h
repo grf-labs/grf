@@ -78,6 +78,7 @@ const uint DEFAULT_MIN_NODE_SIZE_PROBABILITY = 10;
 // Interval to print progress in seconds
 const double STATUS_INTERVAL = 30.0;
 
+// TODO: Other value for other tree types?
 // Threshold for q value split method switch
 const double Q_THRESHOLD = 0.5;
 
