@@ -190,10 +190,12 @@ void TreeSurvival::computeDeathCounts(size_t nodeID) {
       ++t;
     }
 
+    // TODO: Check if this is okay
     // Now t is the survival time, add to at risk and to death if death
     if (t < num_timepoints) {
+      ++num_samples_at_risk[t]; // TODO: At risk too, if censored
       if (data->get(sampleID, status_varID) == 1) {
-        ++num_samples_at_risk[t];
+        //     ++num_samples_at_risk[t]; // TODO: Removed -> At risk too, if censored
         ++num_deaths[t];
       }
     }
@@ -359,6 +361,7 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
     }
   }
 
+  // TODO: No extra loops?
   // Compute deaths in left child
   std::vector<size_t> num_deaths_left_child((num_unique - 1) * num_timepoints);
   for (size_t t = 0; t < num_timepoints; ++t) {
@@ -369,39 +372,33 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
     }
   }
 
-  // TODO: Use left child!
-  // Compute at risk
-
-  // Compute sum_delta first
-  std::vector<size_t> sum_delta(num_unique * num_timepoints);
+  // sum delta left
+  std::vector<size_t> sum_delta_left(num_unique * num_timepoints);
   for (size_t t = 0; t < num_timepoints; ++t) {
     size_t sum = 0;
     for (size_t i = 0; i < num_unique; ++i) {
-      size_t ii = num_unique - 1 - i;
 
-      sum += delta_at_risk[ii * num_timepoints + t];
+      sum += delta_at_risk[i * num_timepoints + t];
       if (t > 0) {
-        sum_delta[ii * num_timepoints + t] = sum_delta[ii * num_timepoints + (t - 1)] + sum;
+        sum_delta_left[i * num_timepoints + t] = sum_delta_left[i * num_timepoints + (t - 1)] + sum;
       } else {
-        sum_delta[ii * num_timepoints + t] = sum;
+        sum_delta_left[i * num_timepoints + t] = sum;
       }
     }
   }
 
-  // Compute at_risk in right child
-  std::vector<size_t> num_at_risk_right_child((num_unique - 1) * num_timepoints);
-  size_t n_left_NEW = 0;
+  // Compute at_risk in left child
+  std::vector<size_t> num_at_risk_left_child((num_unique - 1) * num_timepoints);
+  size_t n_left_NEW_left = 0;
   for (size_t i = 0; i < num_unique - 1; ++i) {
-    n_left_NEW += count[i];
+    n_left_NEW_left += count[i];
 
-    num_at_risk_right_child[i * num_timepoints + 0] = num_samples_node - n_left_NEW;
+    num_at_risk_left_child[i * num_timepoints + 0] = n_left_NEW_left;
 
     for (size_t t = 1; t < num_timepoints; ++t) {
-      num_at_risk_right_child[i * num_timepoints + t] = num_samples_node - n_left_NEW
-          - sum_delta[(i + 1) * num_timepoints + (t - 1)];
+      num_at_risk_left_child[i * num_timepoints + t] = n_left_NEW_left - sum_delta_left[i * num_timepoints + (t - 1)];
     }
   }
-
 
   size_t n_left = 0;
 
@@ -433,21 +430,18 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
     // Compute logrank test
     for (size_t t = 0; t < num_timepoints; ++t) {
 
-      if (num_samples_at_risk[t] < 2 || num_at_risk_right_child[i * num_timepoints + t] < 1) {
+      size_t num_at_risk_right_child = num_samples_at_risk[t] - num_at_risk_left_child[i * num_timepoints + t];
+
+      if (num_samples_at_risk[t] < 2 || num_at_risk_right_child < 1) {
         break;
       }
 
-//      if (num_samples_at_risk[t] < 2) {
-//        continue;
-//      }
-
-      // TODO: Use left child
       if (num_samples_at_risk[t] > 1 && num_deaths[t] > 0) {
         // Numerator and demoninator for log-rank test, notation from Ishwaran et al.
         double di = (double) num_deaths[t];
         double di1 = (double) num_deaths_left_child[i * num_timepoints + t];
         double Yi = (double) num_samples_at_risk[t];
-        double Yi1 = Yi - (double) num_at_risk_right_child[i * num_timepoints + t];
+        double Yi1 = (double) num_at_risk_left_child[i * num_timepoints + t];
         numerator += di1 - Yi1 * (di / Yi);
         denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
       }
