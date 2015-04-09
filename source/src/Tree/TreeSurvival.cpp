@@ -116,36 +116,7 @@ bool TreeSurvival::findBestSplitLogRank(size_t nodeID, std::vector<size_t>& poss
 
       // Find best split value, if ordered consider all values as split values, else all 2-partitions
       if ((*is_ordered_variable)[varID]) {
-
-        // TODO: Here
-
-        double best_value_temp = best_value;
-        size_t best_varID_temp = best_varID;
-        double best_logrank_temp = best_logrank;
-
-        std::cout << "Old: " << std::endl;
-        clock_t begin = clock();
         findBestSplitValueLogRank(nodeID, varID, best_value, best_varID, best_logrank);
-        double elapsed_secs1 = 1000 * double(clock() - begin) / CLOCKS_PER_SEC;
-        std::cout << "Old:         " << elapsed_secs1 << "ms" << std::endl;
-
-        std::cout << "New: " << std::endl;
-        begin = clock();
-        findBestSplitValueLogRankNew(nodeID, varID, num_samples_node, best_value_temp, best_varID_temp,
-            best_logrank_temp);
-        double elapsed_secs2 = 1000 * double(clock() - begin) / CLOCKS_PER_SEC;
-        std::cout << "New:         " << elapsed_secs2 << "ms" << std::endl << std::endl;
-
-//        if (best_logrank != best_logrank_temp && best_value != best_value_temp) {
-//          std::cout << "best_value: " << best_value << ", " << best_value_temp << std::endl;
-//          std::cout << "best_varID: " << best_varID << ", " << best_varID_temp << std::endl;
-//          std::cout << "best_logrank: " << best_logrank << ", " << best_logrank_temp << std::endl;
-//          std::cout << std::endl;
-//        }
-
-//        findBestSplitValueLogRank(nodeID, varID, best_value, best_varID, best_logrank);
-//        findBestSplitValueLogRankNew(nodeID, varID, num_samples_node, best_value, best_varID, best_logrank);
-
       } else {
         findBestSplitValueLogRankUnordered(nodeID, varID, best_value, best_varID, best_logrank);
       }
@@ -302,105 +273,6 @@ void TreeSurvival::findBestSplitValueLogRank(size_t nodeID, size_t varID, double
   delete[] num_deaths_right_child;
   delete[] delta_samples_at_risk_right_child;
   delete[] num_samples_right_child;
-}
-
-void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, size_t num_samples_node,
-    double& best_value, size_t& best_varID, double& best_logrank) {
-
-  // TODO: Stop if only one unique value?
-  size_t num_unique = data->getNumUniqueDataValues(varID);
-//  std::vector<size_t> count(num_unique);
-//  std::vector<size_t> death(num_unique * num_timepoints);
-//  std::vector<size_t> delta_at_risk(num_unique * num_timepoints);
-
-  size_t* count = new size_t[num_unique]();
-  size_t* death = new size_t[num_unique * num_timepoints]();
-  size_t* delta_at_risk = new size_t[num_unique * num_timepoints]();
-
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    size_t index = data->getIndex(sampleID, varID);
-    size_t survival_timeID = (*response_timepointIDs)[sampleID];
-
-    ++count[index];
-    ++delta_at_risk[index * num_timepoints + survival_timeID];
-    if (data->get(sampleID, status_varID) == 1) {
-      ++death[index * num_timepoints + survival_timeID];
-    }
-  }
-
-  // TODO: Only to -1? for classification/regression too!
-  // Compute decrease of impurity for each split
-  size_t n_left = 0;
-//  std::vector<size_t> num_deaths_left_child_sum(num_timepoints);
-//  std::vector<size_t> num_at_risk_left_child_sum(num_timepoints);
-
-  size_t* num_deaths_left_child_sum = new size_t[num_timepoints]();
-  size_t* num_at_risk_left_child_sum = new size_t[num_timepoints]();
-
-  for (size_t i = 0; i < num_unique; ++i) {
-
-    // Stop if nothing here
-    if (count[i] == 0) {
-      continue;
-    }
-
-    n_left += count[i];
-
-    // Stop if right child empty
-    size_t n_right = num_samples_node - n_left;
-    if (n_right == 0) {
-      break;
-    }
-
-    // Compute logrank test
-    double numerator = 0;
-    double denominator_squared = 0;
-    size_t num_at_risk_left_child = n_left;
-
-    for (size_t t = 0; t < num_timepoints; ++t) {
-
-      // Count deaths at timepoint
-      num_deaths_left_child_sum[t] += death[i * num_timepoints + t];
-
-      // Count at risk at timepoint
-      num_at_risk_left_child_sum[t] += delta_at_risk[i * num_timepoints + t];
-      if (t > 0) {
-        num_at_risk_left_child -= num_at_risk_left_child_sum[t - 1];
-      }
-
-      size_t num_at_risk_right_child = num_samples_at_risk[t] - num_at_risk_left_child;
-      if (num_samples_at_risk[t] > 1 && num_at_risk_right_child > 0 && num_deaths[t] > 0 && n_left >= min_node_size
-          && n_right >= min_node_size) {
-        // Numerator and demoninator for log-rank test, notation from Ishwaran et al.
-        double di = (double) num_deaths[t];
-        double di1 = (double) num_deaths_left_child_sum[t];
-        double Yi = (double) num_samples_at_risk[t];
-        double Yi1 = (double) num_at_risk_left_child;
-        numerator += di1 - Yi1 * (di / Yi);
-        denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
-      }
-    }
-
-    double logrank = -1;
-    if (denominator_squared != 0) {
-      logrank = fabs(numerator / sqrt(denominator_squared));
-    }
-
-    // If better than before, use this
-    if (logrank > best_logrank) {
-      best_value = data->getUniqueDataValue(varID, i);
-      best_varID = varID;
-      best_logrank = logrank;
-    }
-  }
-
-  delete[] num_deaths_left_child_sum;
-  delete[] num_at_risk_left_child_sum;
-
-  delete[] count;
-  delete[] death;
-  delete[] delta_at_risk;
-
 }
 
 void TreeSurvival::findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, double& best_value,
