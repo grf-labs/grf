@@ -193,19 +193,21 @@ void Data::sort() {
   // For all columns, get unique values and save index for each observation
   for (size_t col = 0; col < num_cols_no_sparse; ++col) {
 
-    // TODO: More efficient way? Without sort and find!
+    // Get all unique values
     std::vector<double> unique_values(num_rows);
     for (size_t row = 0; row < num_rows; ++row) {
       unique_values[row] = get(row, col);
     }
-    //      std::copy(data + col * num_rows, data + (col + 1) * num_rows, unique_values);
     std::sort(unique_values.begin(), unique_values.end());
     unique_values.erase(unique(unique_values.begin(), unique_values.end()), unique_values.end());
+
+    // Get index of unique value
     for (size_t row = 0; row < num_rows; ++row) {
       size_t idx = std::find(unique_values.begin(), unique_values.end(), get(row, col)) - unique_values.begin();
       index_data[col * num_rows + row] = idx;
     }
 
+    // Save unique values
     unique_data_values.push_back(unique_values);
   }
 }

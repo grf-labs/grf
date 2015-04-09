@@ -65,7 +65,6 @@ public:
     }
   }
 
-  // TODO: Used?
   double getUniqueDataValue(size_t varID, size_t index) const {
     if (varID < num_cols_no_sparse) {
       return unique_data_values[varID][index];
@@ -107,10 +106,7 @@ protected:
 
   bool externalData;
 
-  // TODO: Need normal data still?
-  // TODO: Dont need all three!
   size_t* index_data;
-  // TODO: Really need this? Just use index everywhere!
   std::vector<std::vector<double>> unique_data_values;
 
 private:
