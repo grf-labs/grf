@@ -164,12 +164,10 @@ void TreeSurvival::computeDeathCounts(size_t nodeID) {
       ++t;
     }
 
-    // TODO: Check if this is okay
     // Now t is the survival time, add to at risk and to death if death
     if (t < num_timepoints) {
-      ++num_samples_at_risk[t]; // TODO: At risk too, if censored
+      ++num_samples_at_risk[t];
       if (data->get(sampleID, status_varID) == 1) {
-        //     ++num_samples_at_risk[t]; // TODO: Removed -> At risk too, if censored
         ++num_deaths[t];
       }
     }
