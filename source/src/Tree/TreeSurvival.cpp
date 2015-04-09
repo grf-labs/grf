@@ -411,6 +411,77 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
     }
   }
 
+  // TODO: Only one sum?
+  // New method for at risk
+//  std::vector<size_t> num_at_risk_left_child2((num_unique - 1) * num_timepoints);
+//  std::vector<size_t> sum_delta_left2(num_timepoints);
+//  std::vector<size_t> sum(num_timepoints);
+//  size_t n_left2 = 0;
+//  for (size_t i = 0; i < num_unique - 1; ++i) {
+//    n_left2 += count[i];
+//
+//    sum[0] += delta_at_risk[i * num_timepoints + 0];
+//
+//    sum_delta_left2[0] = sum[0];
+//    num_at_risk_left_child2[i * num_timepoints + 0] = n_left2;
+//
+//    for (size_t t = 1; t < num_timepoints; ++t) {
+//      sum[t] += delta_at_risk[i * num_timepoints + t];
+//
+//      sum_delta_left2[t] = sum_delta_left2[t - 1] + sum[t];
+//
+//      //sum_delta_left2[t] = sum_delta_left2[t - 1] + delta_at_risk[i * num_timepoints + t];
+//      num_at_risk_left_child2[i * num_timepoints + t] = n_left2 - sum_delta_left2[t - 1];
+//    }
+//  }
+
+  std::vector<size_t> num_at_risk_left_child2((num_unique - 1) * num_timepoints);
+  std::vector<size_t> num_at_risk_left_child_sum(num_timepoints);
+  size_t n_left2 = 0;
+  for (size_t i = 0; i < num_unique - 1; ++i) {
+    n_left2 += count[i];
+
+    num_at_risk_left_child_sum[0] += delta_at_risk[i * num_timepoints + 0];
+    num_at_risk_left_child2[i * num_timepoints + 0] = n_left2;
+
+    for (size_t t = 1; t < num_timepoints; ++t) {
+      num_at_risk_left_child_sum[t] += delta_at_risk[i * num_timepoints + t];
+      num_at_risk_left_child2[i * num_timepoints + t] = num_at_risk_left_child2[i * num_timepoints + (t - 1)]
+          - num_at_risk_left_child_sum[t - 1];
+    }
+  }
+
+  // Print
+//  std::cout << "num_at_risk_left_child" << std::endl;
+//  for (size_t i = 0; i < num_unique - 1; ++i) {
+//    std::cout << i << ": ";
+//    for (size_t t = 0; t < num_timepoints; ++t) {
+//      std::cout << num_at_risk_left_child[i * num_timepoints + t] << " ";
+//    }
+//    std::cout << std::endl;
+//  }
+//  std::cout << std::endl;
+//  std::cout << "num_at_risk_left_child2" << std::endl;
+//  for (size_t i = 0; i < num_unique - 1; ++i) {
+//    std::cout << i << ": ";
+//    for (size_t t = 0; t < num_timepoints; ++t) {
+//      std::cout << num_at_risk_left_child2[i * num_timepoints + t] << " ";
+//    }
+//    std::cout << std::endl;
+//  }
+//  std::cout << std::endl;
+
+  // Compare
+  for (size_t i = 0; i < num_unique - 1; ++i) {
+    //    std::cout << i << ": ";
+    for (size_t t = 0; t < num_timepoints; ++t) {
+      if (num_at_risk_left_child[i * num_timepoints + t] != num_at_risk_left_child2[i * num_timepoints + t]) {
+        std::cout << num_at_risk_left_child[i * num_timepoints + t] << ", "
+            << num_at_risk_left_child2[i * num_timepoints + t] << std::endl;
+      }
+    }
+  }
+
   size_t n_left = 0;
   std::vector<size_t> num_deaths_left_child_sum(num_timepoints);
 
