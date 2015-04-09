@@ -220,7 +220,6 @@ void TreeRegression::findBestSplitValueSmallQ(size_t nodeID, size_t varID, doubl
 void TreeRegression::findBestSplitValueLargeQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
     double& best_value, size_t& best_varID, double& best_decrease) {
 
-  // TODO: Stop if only one unique value?
   size_t num_unique = data->getNumUniqueDataValues(varID);
   std::vector<size_t> count(num_unique);
   std::vector<double> sums(num_unique);
