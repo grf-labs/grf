@@ -359,91 +359,49 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
     }
   }
 
-  // TODO: Remove
-//  std::cout << "delta_at_risk new: " << std::endl;
-//  for (size_t i = 0; i < num_unique; ++i) {
-//    for (size_t t = 0; t < num_timepoints; ++t) {
-//      std::cout << delta_at_risk[i * num_timepoints + t] << " ";
-//    }
-//    std::cout << std::endl;
-//  }
-//  std::cout << std::endl << std::endl;
-
-  // TODO: Dont use extra loop?
-  std::vector<size_t> at_risk((num_unique - 1) * num_timepoints);
-  std::vector<size_t> death2(num_unique * num_timepoints);
+  // Compute deaths in left child
+  std::vector<size_t> num_deaths_left_child((num_unique - 1) * num_timepoints);
   for (size_t t = 0; t < num_timepoints; ++t) {
-    size_t sum_at_risk = 0;
     size_t sum_death = 0;
     for (size_t i = 0; i < num_unique - 1; ++i) {
-      size_t ii = num_unique - 2 - i;
-      sum_at_risk += delta_at_risk[(ii + 1) * num_timepoints + t];
-
-//      std::cout << sum_at_risk << " ";
-
-      at_risk[ii * num_timepoints + t] = sum_at_risk;
-      sum_death += death[(ii + 1) * num_timepoints + t];
-      death2[ii * num_timepoints + t] = sum_death;
+      sum_death += death[i * num_timepoints + t];
+      num_deaths_left_child[i * num_timepoints + t] = sum_death;
     }
-//    std::cout << std::endl;
   }
 
-  // TODO: -1?
-  std::vector<size_t> death3((num_unique-1) * num_timepoints);
+  // TODO: Use left child!
+  // Compute at risk
+
+  // Compute sum_delta first
+  std::vector<size_t> sum_delta(num_unique * num_timepoints);
   for (size_t t = 0; t < num_timepoints; ++t) {
-    size_t sum_death = 0;
-    for (size_t i = 0; i < num_unique-1; ++i) {
-      sum_death += death[i * num_timepoints + t];
-      death3[i * num_timepoints + t] = sum_death;
-      if (death3[i * num_timepoints + t] != num_deaths[t] - death2[i * num_timepoints + t]) {
-        std::cout << "DIFF death" << std::endl;
+    size_t sum = 0;
+    for (size_t i = 0; i < num_unique; ++i) {
+      size_t ii = num_unique - 1 - i;
+
+      sum += delta_at_risk[ii * num_timepoints + t];
+      if (t > 0) {
+        sum_delta[ii * num_timepoints + t] = sum_delta[ii * num_timepoints + (t - 1)] + sum;
+      } else {
+        sum_delta[ii * num_timepoints + t] = sum;
       }
     }
   }
 
-  std::cout << "AAAAAA" << std::endl << std::endl;
+  // Compute at_risk in right child
+  std::vector<size_t> num_at_risk_right_child((num_unique - 1) * num_timepoints);
+  size_t n_left_NEW = 0;
+  for (size_t i = 0; i < num_unique - 1; ++i) {
+    n_left_NEW += count[i];
 
-  // TODO: Missing: Number of samples at risk in total
-  std::vector<size_t> at_risk3((num_unique-1) * num_timepoints);
-  for (size_t t = 0; t < num_timepoints; ++t) {
-    size_t sum_at_risk = 0;
-    for (size_t i = 0; i < num_unique-1; ++i) {
+    num_at_risk_right_child[i * num_timepoints + 0] = num_samples_node - n_left_NEW;
 
-      sum_at_risk += delta_at_risk[i * num_timepoints + t];
-
-      std::cout << num_samples_at_risk[t]-sum_at_risk << " ";
-
-      at_risk3[i * num_timepoints + t] = sum_at_risk;
-      //if (at_risk3[i * num_timepoints + t] != num_samples_at_risk[t] - at_risk[i * num_timepoints + t]) {
-     //   std::cout << "DIFF at_risk: " << num_samples_at_risk[t] - at_risk[i * num_timepoints + t] << " " << at_risk3[i * num_timepoints + t]  << std::endl;
-      //}
-
+    for (size_t t = 1; t < num_timepoints; ++t) {
+      num_at_risk_right_child[i * num_timepoints + t] = num_samples_node - n_left_NEW
+          - sum_delta[(i + 1) * num_timepoints + (t - 1)];
     }
-    std::cout << std::endl;
   }
 
-  std::cout << "BBBBB" << std::endl << std::endl;
-
-//  // TODO: Remove
-//  std::cout << "at_risk new: " << std::endl;
-//  for (size_t i = 0; i < num_unique-1; ++i) {
-//    std::cout << data->getUniqueDataValue(varID, i) << ": ";
-//    for (size_t t = 0; t < num_timepoints; ++t) {
-//      std::cout << at_risk[i * num_timepoints + t] << " ";
-//    }
-//    std::cout << std::endl;
-//  }
-//  std::cout << std::endl << std::endl;
-
-//  std::cout << "death new: " << std::endl;
-//  for (size_t i = 0; i < num_unique - 1; ++i) {
-//    std::cout << data->getUniqueDataValue(varID, i) << ": ";
-//    for (size_t t = 0; t < num_timepoints; ++t) {
-//      std::cout << death2[i * num_timepoints + t] << " ";
-//    }
-//    std::cout << std::endl;
-//  }
-//  std::cout << std::endl << std::endl;
 
   size_t n_left = 0;
 
@@ -471,15 +429,11 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
     // Init logrank test
     double numerator = 0;
     double denominator_squared = 0;
-//    size_t at_risk = n_left;
-
-//    std::cout << "new at risk ";
 
     // Compute logrank test
-    size_t num_samples_at_risk_right_child = n_right;
     for (size_t t = 0; t < num_timepoints; ++t) {
 
-      if (num_samples_at_risk[t] < 2 || num_samples_at_risk_right_child < 1) {
+      if (num_samples_at_risk[t] < 2 || num_at_risk_right_child[i * num_timepoints + t] < 1) {
         break;
       }
 
@@ -487,44 +441,22 @@ void TreeSurvival::findBestSplitValueLogRankNew(size_t nodeID, size_t varID, siz
 //        continue;
 //      }
 
-      // TODO: Dont use minus -> left child
-      // TODO: at_risk now counts right child
+      // TODO: Use left child
       if (num_samples_at_risk[t] > 1 && num_deaths[t] > 0) {
         // Numerator and demoninator for log-rank test, notation from Ishwaran et al.
         double di = (double) num_deaths[t];
-        //double di1 = di - (double) death2[i * num_timepoints + t];
-        double di1 = (double) death3[i * num_timepoints + t];
+        double di1 = (double) num_deaths_left_child[i * num_timepoints + t];
         double Yi = (double) num_samples_at_risk[t];
-        double Yi1 = Yi - (double) num_samples_at_risk_right_child;
+        double Yi1 = Yi - (double) num_at_risk_right_child[i * num_timepoints + t];
         numerator += di1 - Yi1 * (di / Yi);
         denominator_squared += (Yi1 / Yi) * (1.0 - Yi1 / Yi) * ((Yi - di) / (Yi - 1)) * di;
-
-        //TODO: Remove
-//        std::cout << "time " << t << ", di " << di << ", di1 " << di1 << ", Yi " << Yi << ", Yi1 " << Yi1
-//            << ", numerator " << numerator << ", denominator_squared " << denominator_squared << std::endl;
-
       }
-
-      // Reduce number of samples at risk for next timepoint
-      //at_risk -= delta_at_risk[i * num_timepoints + t];
-      num_samples_at_risk_right_child -= at_risk[i * num_timepoints + t];
-
-      // TODO: Remove
-      std::cout << num_samples_at_risk_right_child << " ";
-
     }
-
-    // TODO: Remove
-    std::cout << std::endl;
 
     double logrank = -1;
     if (denominator_squared != 0) {
       logrank = fabs(numerator / sqrt(denominator_squared));
     }
-
-//    //TODO: Remove
-//    std::cout << "split: " << data->getUniqueDataValue(varID, i) << ", logrank " << logrank << ", numerator "
-//        << numerator << ", denominator_squared " << denominator_squared << std::endl;
 
     // If better than before, use this
     if (logrank > best_logrank) {
