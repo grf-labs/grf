@@ -259,6 +259,7 @@ void TreeClassification::findBestSplitValueSmallQ(size_t nodeID, size_t varID, s
 void TreeClassification::findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
     size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 
+  // TODO: Try arrays
   // TODO: Stop if only one unique value?
   size_t num_unique = data->getNumUniqueDataValues(varID);
   std::vector<size_t> count(num_unique);
@@ -276,7 +277,7 @@ void TreeClassification::findBestSplitValueLargeQ(size_t nodeID, size_t varID, s
   std::vector<size_t> class_counts_left(num_classes);
 
 // Compute decrease of impurity for each split
-  for (size_t i = 0; i < num_unique; ++i) {
+  for (size_t i = 0; i < num_unique-1; ++i) {
 
     // Stop if nothing here
     if (count[i] == 0) {

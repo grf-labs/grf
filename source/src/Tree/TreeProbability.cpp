@@ -268,7 +268,7 @@ void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, doub
   double sum_left = 0;
 
   // Compute decrease of impurity for each split
-  for (size_t i = 0; i < num_unique; ++i) {
+  for (size_t i = 0; i < num_unique-1; ++i) {
 
     // Stop if nothing here
     if (count[i] == 0) {
