@@ -185,6 +185,7 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
   this->memory_mode = memory_mode;
   this->prediction_mode = prediction_mode;
   this->sample_with_replacement = sample_with_replacement;
+  this->memory_saving_splitting = memory_saving_splitting;
 
   // Set number of samples and variables
   num_samples = data->getNumRows();
@@ -216,12 +217,6 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
   // Check if mtry is in valid range
   if (this->mtry > num_variables - 1) {
     throw std::runtime_error("mtry can not be larger than number of variables in data.");
-  }
-
-  // TODO: Call function from data?
-  this->memory_saving_splitting = memory_saving_splitting;
-  if (!memory_saving_splitting) {
-    data->sort();
   }
 }
 

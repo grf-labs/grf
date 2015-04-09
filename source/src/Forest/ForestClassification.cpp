@@ -93,6 +93,11 @@ void ForestClassification::initInternal(std::string status_variable_name) {
       response_classIDs.push_back(classID);
     }
   }
+
+  // Sort data if memory saving mode
+  if (!memory_saving_splitting) {
+    data->sort();
+  }
 }
 
 void ForestClassification::growInternal() {
