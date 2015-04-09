@@ -253,8 +253,8 @@ void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, doub
     double& best_value, size_t& best_varID, double& best_decrease) {
 
   size_t num_unique = data->getNumUniqueDataValues(varID);
-  std::vector<size_t> count(num_unique);
-  std::vector<double> sums(num_unique);
+  size_t* count = new size_t[num_unique]();
+  double* sums = new double[num_unique]();
 
   for (auto& sampleID : sampleIDs[nodeID]) {
     size_t index = data->getIndex(sampleID, varID);
@@ -267,7 +267,7 @@ void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, doub
   double sum_left = 0;
 
   // Compute decrease of impurity for each split
-  for (size_t i = 0; i < num_unique-1; ++i) {
+  for (size_t i = 0; i < num_unique - 1; ++i) {
 
     // Stop if nothing here
     if (count[i] == 0) {
@@ -293,6 +293,9 @@ void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, doub
       best_decrease = decrease;
     }
   }
+
+  delete[] count;
+  delete[] sums;
 }
 
 void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,

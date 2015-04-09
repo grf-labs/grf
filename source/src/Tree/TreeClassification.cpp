@@ -259,10 +259,9 @@ void TreeClassification::findBestSplitValueSmallQ(size_t nodeID, size_t varID, s
 void TreeClassification::findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
     size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 
-  // TODO: Try arrays
   size_t num_unique = data->getNumUniqueDataValues(varID);
-  std::vector<size_t> count(num_unique);
-  std::vector<size_t> class_counts_per_value(num_classes * num_unique);
+  size_t* count = new size_t[num_unique]();
+  size_t* class_counts_per_value = new size_t[num_classes * num_unique]();
 
   for (auto& sampleID : sampleIDs[nodeID]) {
     size_t index = data->getIndex(sampleID, varID);
@@ -273,7 +272,7 @@ void TreeClassification::findBestSplitValueLargeQ(size_t nodeID, size_t varID, s
   }
 
   size_t n_left = 0;
-  std::vector<size_t> class_counts_left(num_classes);
+  size_t* class_counts_left = new size_t[num_classes]();
 
 // Compute decrease of impurity for each split
   for (size_t i = 0; i < num_unique-1; ++i) {
@@ -312,6 +311,10 @@ void TreeClassification::findBestSplitValueLargeQ(size_t nodeID, size_t varID, s
       best_decrease = decrease;
     }
   }
+
+  delete[] count;
+  delete[] class_counts_per_value;
+  delete[] class_counts_left;
 }
 
 void TreeClassification::findBestSplitValueUnordered(size_t nodeID, size_t varID, size_t num_classes,
