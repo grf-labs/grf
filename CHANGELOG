@@ -1,6 +1,8 @@
 ## ----------------------------------------------------------------------- ##
 ## Next version
 ## ----------------------------------------------------------------------- ##
+- Speedup growing for continuous covariates
+- Add memory save option to save memory for very large datasets (but slower)
 - Remove memory mode option from R version since no performance gain
 
 ## ----------------------------------------------------------------------- ##

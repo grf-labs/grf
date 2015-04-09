@@ -48,7 +48,7 @@
 ##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
-##' Consider setting \code{save.memory = TRUE} if you encounter memory problems.
+##' Consider setting \code{save.memory = TRUE} if you encounter memory problems for very large datasets.
 ##' 
 ##' For GWAS data consider combining \code{ranger} with the \code{GenABEL} package. 
 ##' See the Examples section below for a demonstration using \code{Plink} data.
