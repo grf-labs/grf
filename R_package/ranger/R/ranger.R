@@ -46,7 +46,7 @@
 ##' Weights do not need to sum up to 1, they will be normalized later. 
 ##' The usage of \code{split.select.weights} can increase the computation times for large forests.
 ##'
-##' For a large number of variables and data frame as input data the formula interface can be slow.
+##' For a large number of variables and data frame as input data the formula interface can be slow or impossible to use.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
 ##' Consider setting \code{save.memory = TRUE} if you encounter memory problems for very large datasets.
 ##' 
