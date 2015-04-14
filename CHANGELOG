@@ -1,5 +1,5 @@
 ## ----------------------------------------------------------------------- ##
-## Next version
+## Version 0.1.9
 ## ----------------------------------------------------------------------- ##
 - Speedup growing for continuous covariates
 - Add memory save option to save memory for very large datasets (but slower)
