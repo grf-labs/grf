@@ -80,6 +80,6 @@ const double STATUS_INTERVAL = 30.0;
 
 // TODO: Other value for other tree types?
 // Threshold for q value split method switch
-const double Q_THRESHOLD = 0.5;
+const double Q_THRESHOLD = 0.02;
 
 #endif /* GLOBALS_H_ */
