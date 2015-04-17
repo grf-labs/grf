@@ -92,3 +92,9 @@ test_that("probability estimations are between 0 and 1 and sum to 1", {
   expect_that(all(prob$predictions > -1e-5 & prob$predictions <= 1 + 1e-5), is_true())
   expect_that(rowSums(prob$predictions), equals(rep(1, nrow(prob$predictions))))
 })
+
+test_that("predict returns good prediction", {
+  rf <- ranger(Species ~ ., iris, write.forest = TRUE)
+  pred <- predict(rf, iris)
+  expect_that(mean(iris$Species == predictions(pred)), is_more_than(0.9))
+})
