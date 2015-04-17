@@ -2,14 +2,15 @@ Package: ranger
 Type: Package
 Title: A fast implementation of Random Forests
 Version: 0.1.9
-Date: 2015-04-14
+Date: 2015-04-17
 Author: Marvin N. Wright
 Maintainer: Marvin N. Wright <wright@imbs.uni-luebeck.de>
-Description: Ranger is a fast implementation of Random Forests, particularly suited for high dimensional
-           data. For now, ensembles of classification, regression and survival trees are supported. With
-           Ranger data from Genome-wide association (GWA) studies can be analyzed efficiently. In
-           addition to data frames, datasets of class 'gwaa.data' (R package GenABEL) can be directly
-           analyzed.
+Description: Ranger is a fast implementation of Random Forests, particularly
+         suited for high dimensional data. For now, ensembles of classification,
+         regression and survival trees are supported. With Ranger data from
+         Genome-wide association (GWA) studies can be analyzed efficiently. In
+         addition to data frames, datasets of class 'gwaa.data' (R package
+         GenABEL) can be directly analyzed.
 License: GPL-3
 Imports: Rcpp (>= 0.11.2)
 LinkingTo: Rcpp
