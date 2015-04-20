@@ -228,8 +228,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     }
     independent.variable.names <- names(data.selected)[-1]
   } else {
-    independent.variable.names <- names(data.selected)[names(data.selected) != dependent.variable.name &
-                                                         names(data.selected) != status.variable.name]
+    independent.variable.names <- colnames(data.selected)[colnames(data.selected) != dependent.variable.name &
+                                                          colnames(data.selected) != status.variable.name]
   }
   
   ## Input data and variable names
