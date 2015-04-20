@@ -181,14 +181,13 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     } else {
       response <- data[, c(dependent.variable.name, status.variable.name)]
     }
-    data.selected <- data
   } else {
     formula <- formula(formula)
     if (class(formula) != "formula") {
       stop("Error: Invalid formula.")
     }
-    data.selected <- model.frame(formula, data, na.action = na.fail)
-    response <- data.selected[[1]]
+    data <- model.frame(formula, data, na.action = na.fail)
+    response <- data[[1]]
   }
   
   ## Probability estimation
@@ -217,29 +216,29 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       dependent.variable.name <- dimnames(response)[[2]][1]
       status.variable.name <- dimnames(response)[[2]][2]
     } else {
-      dependent.variable.name <- names(data.selected)[1]
+      dependent.variable.name <- names(data)[1]
       status.variable.name <- "none"
     }
-    independent.variable.names <- names(data.selected)[-1]
+    independent.variable.names <- names(data)[-1]
   } else {
-    independent.variable.names <- names(data.selected)[names(data.selected) != dependent.variable.name &
-                                                         names(data.selected) != status.variable.name]
+    independent.variable.names <- names(data)[names(data) != dependent.variable.name &
+                                                         names(data) != status.variable.name]
   }
   
   ## Input data and variable names
   if (!is.null(formula)) {
     if (treetype == 5) {
       data.final <- data.matrix(cbind(response[, 1], response[, 2],
-                                      data.selected[-1]))
+                                      data[-1]))
       variable.names <- c(dependent.variable.name, status.variable.name,
                           independent.variable.names)
     } else {
-      data.final <- data.matrix(data.selected)
-      variable.names <- names(data.selected)
+      data.final <- data.matrix(data)
+      variable.names <- names(data)
     }
   } else {
-    data.final <- data.matrix(data.selected)
-    variable.names <- names(data.selected)
+    data.final <- data.matrix(data)
+    variable.names <- names(data)
   }
   
   ## If gwa mode, add snp variable names
@@ -322,16 +321,16 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   
   ## Unordered factors  
   if (respect.unordered.factors) {
-    names.selected <- names(data.selected)
-    ordered.idx <- sapply(data.selected, is.ordered)
-    factor.idx <- sapply(data.selected, is.factor)
+    names.selected <- names(data)
+    ordered.idx <- sapply(data, is.ordered)
+    factor.idx <- sapply(data, is.factor)
     independent.idx <- names.selected != dependent.variable.name & names.selected != status.variable.name
     unordered.factor.variables <- names.selected[factor.idx & !ordered.idx & independent.idx]
     
     if (length(unordered.factor.variables) > 0) {
       use.unordered.factor.variables <- TRUE
       ## Check level count
-      num.levels <- sapply(data.selected[, factor.idx & !ordered.idx & independent.idx, drop = FALSE], nlevels)
+      num.levels <- sapply(data[, factor.idx & !ordered.idx & independent.idx, drop = FALSE], nlevels)
       max.level.count <- 8*.Machine$sizeof.pointer - 1
       if (max(num.levels) > max.level.count) {
         stop(paste("Too many levels in unordered categorical variable ", unordered.factor.variables[which.max(num.levels)], 
