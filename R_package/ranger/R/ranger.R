@@ -81,6 +81,7 @@
 ##' @param seed Random seed. Default is \code{NULL}, which generates the seed from \code{R}. 
 ##' @param dependent.variable.name Name of dependent variable, needed if no formula given. For survival forests this is the time variable.
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
+##' @param classification Only needed if data is a matrix. Set to \code{TRUE} to treat values of dependent variable as factor levels.
 ##' @return Object of class \code{ranger} with elements
 ##'   \tabular{ll}{
 ##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). Note that the variable IDs in the \code{split.varIDs} object do not necessarily represent the column number in R. \cr
@@ -154,7 +155,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    scale.permutation.importance = FALSE,
                    num.threads = NULL, save.memory = FALSE,
                    verbose = TRUE, seed = NULL, 
-                   dependent.variable.name = NULL, status.variable.name = NULL) {
+                   dependent.variable.name = NULL, status.variable.name = NULL, 
+                   classification = NULL) {
   
   ## GenABEL GWA data
   if (class(data) == "gwaa.data") {
@@ -204,7 +206,11 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       treetype <- 1
     }
   } else if (is.numeric(response) & is.vector(response)) {
-    treetype <- 3
+    if (is.matrix(data) && !is.null(classification) && classification) {
+      treetype <- 1
+    } else {
+      treetype <- 3
+    }
   } else if (class(response) == "Surv" | class(response) == "data.frame") {
     treetype <- 5
   } else {
@@ -227,20 +233,19 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   }
   
   ## Input data and variable names
-  if (!is.null(formula)) {
-    if (treetype == 5) {
-      data.final <- data.matrix(cbind(response[, 1], response[, 2],
-                                      data.selected[-1]))
-      variable.names <- c(dependent.variable.name, status.variable.name,
-                          independent.variable.names)
-    } else {
-      data.final <- data.matrix(data.selected)
-      variable.names <- names(data.selected)
-    }
+  if (!is.null(formula) & treetype == 5) {
+    data.final <- cbind(response[, 1], response[, 2],
+                        data.selected[-1])
+    colnames(data.final) <- c(dependent.variable.name, status.variable.name,
+                              independent.variable.names)
   } else {
-    data.final <- data.matrix(data.selected)
-    variable.names <- names(data.selected)
+    data.final <- data.selected
   }
+  if (!is.matrix(data.selected)) {
+    data.final <- data.matrix(data.final)
+  }
+  variable.names <- colnames(data.final)
+  
   
   ## If gwa mode, add snp variable names
   if (gwa.mode) {
@@ -352,6 +357,9 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   ## No loaded forest object
   loaded.forest <- list()
   
+  ## Clean up
+  rm("data.selected")
+  
   ## Call Ranger
   result <- rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
                       num.trees, verbose, seed, num.threads, write.forest, importance.mode,
@@ -372,7 +380,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   }
   
   ## Set predictions
-  if (treetype == 1) {
+  if (treetype == 1 & !is.matrix(data)) {
     result$predictions <- factor(result$predictions, levels = 1:nlevels(response),
                                  labels = levels(response))
     result$classification.table <- table(result$predictions, unlist(data[, dependent.variable.name]), dnn = c("predicted", "true"))
@@ -380,7 +388,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$chf <- result$predictions
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
-  } else if (treetype == 9) {
+  } else if (treetype == 9 & !is.matrix(data)) {
     colnames(result$predictions) <- levels(response)
   }
   
