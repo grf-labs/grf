@@ -206,7 +206,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       treetype <- 1
     }
   } else if (is.numeric(response) & is.vector(response)) {
-    if (is.matrix(data) && !is.null(classification) && classification) {
+    if (!is.null(classification) && classification) {
       treetype <- 1
     } else {
       treetype <- 3
@@ -380,7 +380,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   }
   
   ## Set predictions
-  if (treetype == 1 & !is.matrix(data)) {
+  if (treetype == 1 & is.factor(response)) {
     result$predictions <- factor(result$predictions, levels = 1:nlevels(response),
                                  labels = levels(response))
     result$classification.table <- table(result$predictions, unlist(data[, dependent.variable.name]), dnn = c("predicted", "true"))
