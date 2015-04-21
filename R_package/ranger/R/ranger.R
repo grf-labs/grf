@@ -63,7 +63,7 @@
 ##' 
 ##' @title Ranger
 ##' @param formula Object of class \code{formula} or \code{character} describing the model to fit.
-##' @param data Training data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
+##' @param data Training data of class \code{data.frame}, \code{matrix} or \code{gwaa.data} (GenABEL).
 ##' @param num.trees Number of trees.
 ##' @param mtry Number of variables to possibly split at in each node.
 ##' @param importance Variable importance mode, one of 'none', 'impurity', 'permutation'. The 'impurity' measure is the Gini index for classification and the variance of the responses for regression.
@@ -81,7 +81,7 @@
 ##' @param seed Random seed. Default is \code{NULL}, which generates the seed from \code{R}. 
 ##' @param dependent.variable.name Name of dependent variable, needed if no formula given. For survival forests this is the time variable.
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
-##' @param classification Only needed if data is a matrix. Set to \code{TRUE} to classify on numeric response.
+##' @param classification Only needed if data is a matrix. Set to \code{TRUE} to grow a classification forest.
 ##' @return Object of class \code{ranger} with elements
 ##'   \tabular{ll}{
 ##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). Note that the variable IDs in the \code{split.varIDs} object do not necessarily represent the column number in R. \cr
