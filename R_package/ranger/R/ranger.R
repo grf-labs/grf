@@ -81,7 +81,7 @@
 ##' @param seed Random seed. Default is \code{NULL}, which generates the seed from \code{R}. 
 ##' @param dependent.variable.name Name of dependent variable, needed if no formula given. For survival forests this is the time variable.
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
-##' @param classification Only needed if data is a matrix. Set to \code{TRUE} to treat values of dependent variable as factor levels.
+##' @param classification Only needed if data is a matrix. Set to \code{TRUE} to classify on numeric response.
 ##' @return Object of class \code{ranger} with elements
 ##'   \tabular{ll}{
 ##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). Note that the variable IDs in the \code{split.varIDs} object do not necessarily represent the column number in R. \cr
