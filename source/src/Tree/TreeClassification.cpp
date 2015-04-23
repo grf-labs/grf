@@ -38,21 +38,30 @@
 #include "Data.h"
 
 TreeClassification::TreeClassification(std::vector<double>* class_values, std::vector<uint>* response_classIDs) :
-    class_values(class_values), response_classIDs(response_classIDs) {
+    class_values(class_values), response_classIDs(response_classIDs), counter(0), counter_per_class(0) {
 }
 
 TreeClassification::TreeClassification(std::vector<std::vector<size_t>>& child_nodeIDs,
     std::vector<size_t>& split_varIDs, std::vector<double>& split_values, std::vector<double>* class_values,
     std::vector<uint>* response_classIDs, std::vector<bool>* is_ordered_variable) :
     Tree(child_nodeIDs, split_varIDs, split_values, is_ordered_variable), class_values(class_values), response_classIDs(
-        response_classIDs) {
+        response_classIDs), counter(0), counter_per_class(0) {
 }
 
 TreeClassification::~TreeClassification() {
+  if (counter != 0) {
+    delete[] counter;
+  }
+  if (counter_per_class != 0) {
+    delete[] counter_per_class;
+  }
 }
 
 void TreeClassification::initInternal() {
-  // Empty on purpose
+  // Init counters
+  size_t num_classes = class_values->size();
+  counter = new size_t[num_samples];
+  counter_per_class = new size_t[num_classes * num_samples];
 }
 
 double TreeClassification::estimate(size_t nodeID) {
@@ -199,11 +208,12 @@ void TreeClassification::findBestSplitValueSmallQ(size_t nodeID, size_t varID, s
   // Remove largest value because no split possible
   possible_split_values.pop_back();
 
+  // Set to 0
   size_t num_splits = possible_split_values.size();
-
-  // Initialize with 0
-  size_t* class_counts_right = new size_t[num_splits * num_classes]();
-  size_t* n_right = new size_t[num_splits]();
+  size_t* class_counts_right = counter_per_class;
+  size_t* n_right = counter;
+  std::fill(class_counts_right, class_counts_right + num_splits * num_classes, 0);
+  std::fill(n_right, n_right + num_splits, 0);
 
   // Count samples in right child per class and possbile split
   for (auto& sampleID : sampleIDs[nodeID]) {
@@ -251,38 +261,37 @@ void TreeClassification::findBestSplitValueSmallQ(size_t nodeID, size_t varID, s
       best_decrease = decrease;
     }
   }
-
-  delete[] class_counts_right;
-  delete[] n_right;
 }
 
 void TreeClassification::findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
     size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 
+  // Set counters to 0
   size_t num_unique = data->getNumUniqueDataValues(varID);
-  size_t* count = new size_t[num_unique]();
-  size_t* class_counts_per_value = new size_t[num_classes * num_unique]();
+  std::fill(counter, counter + num_unique, 0);
+  std::fill(counter_per_class, counter_per_class + num_classes * num_unique, 0);
 
+  // Count values
   for (auto& sampleID : sampleIDs[nodeID]) {
     size_t index = data->getIndex(sampleID, varID);
     size_t classID = (*response_classIDs)[sampleID];
 
-    ++count[index];
-    ++class_counts_per_value[index * num_classes + classID];
+    ++counter[index];
+    ++counter_per_class[index * num_classes + classID];
   }
 
   size_t n_left = 0;
   size_t* class_counts_left = new size_t[num_classes]();
 
-// Compute decrease of impurity for each split
-  for (size_t i = 0; i < num_unique-1; ++i) {
+  // Compute decrease of impurity for each split
+  for (size_t i = 0; i < num_unique - 1; ++i) {
 
     // Stop if nothing here
-    if (count[i] == 0) {
+    if (counter[i] == 0) {
       continue;
     }
 
-    n_left += count[i];
+    n_left += counter[i];
 
     // Stop if right child empty
     size_t n_right = num_samples_node - n_left;
@@ -294,7 +303,7 @@ void TreeClassification::findBestSplitValueLargeQ(size_t nodeID, size_t varID, s
     double sum_left = 0;
     double sum_right = 0;
     for (size_t j = 0; j < num_classes; ++j) {
-      class_counts_left[j] += class_counts_per_value[i * num_classes + j];
+      class_counts_left[j] += counter_per_class[i * num_classes + j];
       size_t class_count_right = class_counts[j] - class_counts_left[j];
 
       sum_left += class_counts_left[j] * class_counts_left[j];
@@ -312,8 +321,6 @@ void TreeClassification::findBestSplitValueLargeQ(size_t nodeID, size_t varID, s
     }
   }
 
-  delete[] count;
-  delete[] class_counts_per_value;
   delete[] class_counts_left;
 }
 

@@ -91,10 +91,6 @@ void Tree::grow() {
     bootstrapWithoutReplacement();
   }
 
-  // TODO: Remove?
-  // Call recursive split function on root node
-//  splitNode(0);
-
   // While not all nodes terminal, split next node
   size_t num_open_nodes = 1;
   size_t i = 0;
@@ -280,15 +276,8 @@ bool Tree::splitNode(size_t nodeID) {
     }
   }
 
-  // TODO: Remove?
-//  // Recursively call split node on child nodes
-//  for (size_t i = 0; i < child_nodeIDs[nodeID].size(); ++i) {
-//    splitNode(child_nodeIDs[nodeID][i]);
-//  }
-
   // No terminal node
   return false;
-
 }
 
 void Tree::createEmptyNode() {
