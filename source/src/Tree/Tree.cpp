@@ -91,8 +91,22 @@ void Tree::grow() {
     bootstrapWithoutReplacement();
   }
 
+  // TODO: Remove?
   // Call recursive split function on root node
-  splitNode(0);
+//  splitNode(0);
+
+  // While not all nodes terminal, split next node
+  size_t num_open_nodes = 1;
+  size_t i = 0;
+  while (num_open_nodes > 0) {
+    bool is_terminal_node = splitNode(i);
+    if (is_terminal_node) {
+      --num_open_nodes;
+    } else {
+      ++num_open_nodes;
+    }
+    ++i;
+  }
 
   // Delete sampleID vector to save memory
   sampleIDs.clear();
@@ -215,7 +229,7 @@ void Tree::createPossibleSplitVarSubset(std::vector<size_t>& result) {
   }
 }
 
-void Tree::splitNode(size_t nodeID) {
+bool Tree::splitNode(size_t nodeID) {
 
   // Select random subset of variables to possibly split at
   std::vector<size_t> possible_split_varIDs;
@@ -224,7 +238,8 @@ void Tree::splitNode(size_t nodeID) {
   // Call subclass method, sets split_varIDs and split_values
   bool stop = splitNodeInternal(nodeID, possible_split_varIDs);
   if (stop) {
-    return;
+    // Terminal node
+    return true;
   }
 
   size_t split_varID = split_varIDs[nodeID];
@@ -265,10 +280,14 @@ void Tree::splitNode(size_t nodeID) {
     }
   }
 
-  // Recursively call split node on child nodes
-  for (size_t i = 0; i < child_nodeIDs[nodeID].size(); ++i) {
-    splitNode(child_nodeIDs[nodeID][i]);
-  }
+  // TODO: Remove?
+//  // Recursively call split node on child nodes
+//  for (size_t i = 0; i < child_nodeIDs[nodeID].size(); ++i) {
+//    splitNode(child_nodeIDs[nodeID][i]);
+//  }
+
+  // No terminal node
+  return false;
 
 }
 

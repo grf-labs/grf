@@ -85,7 +85,7 @@ public:
 protected:
   void createPossibleSplitVarSubset(std::vector<size_t>& result);
 
-  void splitNode(size_t nodeID);
+  bool splitNode(size_t nodeID);
   virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) = 0;
 
   void createEmptyNode();
