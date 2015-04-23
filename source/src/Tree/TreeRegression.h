@@ -76,6 +76,10 @@ private:
     // Empty on purpose
   }
 
+  // Pre-allocated counters
+  size_t* counter;
+  double* sums;
+
   DISALLOW_COPY_AND_ASSIGN(TreeRegression);
 };
 

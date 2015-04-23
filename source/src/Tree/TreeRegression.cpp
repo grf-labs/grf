@@ -36,19 +36,28 @@
 #include "TreeRegression.h"
 #include "Data.h"
 
-TreeRegression::TreeRegression() {
+TreeRegression::TreeRegression() :
+    counter(0), sums(0) {
 }
 
 TreeRegression::TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
     std::vector<double>& split_values, std::vector<bool>* is_ordered_variable) :
-    Tree(child_nodeIDs, split_varIDs, split_values, is_ordered_variable) {
+    Tree(child_nodeIDs, split_varIDs, split_values, is_ordered_variable), counter(0), sums(0) {
 }
 
 TreeRegression::~TreeRegression() {
+  if (counter != 0) {
+    delete[] counter;
+  }
+  if (sums != 0) {
+    delete[] sums;
+  }
 }
 
 void TreeRegression::initInternal() {
-  // Empty on purpose
+  // Init counters
+  counter = new size_t[num_samples];
+  sums = new double[num_samples];
 }
 
 double TreeRegression::estimate(size_t nodeID) {
@@ -170,11 +179,12 @@ void TreeRegression::findBestSplitValueSmallQ(size_t nodeID, size_t varID, doubl
   // Remove largest value because no split possible
   possible_split_values.pop_back();
 
+  // Set to 0
   size_t num_splits = possible_split_values.size();
-
-  // Initialize with 0
-  double* sums_right = new double[num_splits]();
-  size_t* n_right = new size_t[num_splits]();
+  double* sums_right = sums;
+  size_t* n_right = counter;
+  std::fill(counter, counter + num_splits, 0);
+  std::fill(sums, sums + num_splits, 0);
 
   // Sum in right child and possbile split
   for (auto& sampleID : sampleIDs[nodeID]) {
@@ -212,23 +222,21 @@ void TreeRegression::findBestSplitValueSmallQ(size_t nodeID, size_t varID, doubl
       best_decrease = decrease;
     }
   }
-
-  delete[] sums_right;
-  delete[] n_right;
 }
 
 void TreeRegression::findBestSplitValueLargeQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
     double& best_value, size_t& best_varID, double& best_decrease) {
 
+  // Set counter to 0
   size_t num_unique = data->getNumUniqueDataValues(varID);
-  size_t* count = new size_t[num_unique]();
-  double* sums = new double[num_unique]();
+  std::fill(counter, counter + num_unique, 0);
+  std::fill(sums, sums + num_unique, 0);
 
   for (auto& sampleID : sampleIDs[nodeID]) {
     size_t index = data->getIndex(sampleID, varID);
 
     sums[index] += data->get(sampleID, dependent_varID);
-    ++count[index];
+    ++counter[index];
   }
 
   size_t n_left = 0;
@@ -238,11 +246,11 @@ void TreeRegression::findBestSplitValueLargeQ(size_t nodeID, size_t varID, doubl
   for (size_t i = 0; i < num_unique - 1; ++i) {
 
     // Stop if nothing here
-    if (count[i] == 0) {
+    if (counter[i] == 0) {
       continue;
     }
 
-    n_left += count[i];
+    n_left += counter[i];
     sum_left += sums[i];
 
     // Stop if right child empty
@@ -261,9 +269,6 @@ void TreeRegression::findBestSplitValueLargeQ(size_t nodeID, size_t varID, doubl
       best_decrease = decrease;
     }
   }
-
-  delete[] count;
-  delete[] sums;
 }
 
 void TreeRegression::findBestSplitValueUnordered(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,

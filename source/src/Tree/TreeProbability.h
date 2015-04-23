@@ -88,6 +88,10 @@ private:
   // Class counts in terminal nodes. Empty for non-terminal nodes.
   std::vector<std::vector<double>> terminal_class_counts;
 
+  // Pre-allocated counters
+  size_t* counter;
+  double* sums;
+
   DISALLOW_COPY_AND_ASSIGN(TreeProbability);
 };
 

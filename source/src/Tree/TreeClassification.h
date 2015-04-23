@@ -79,12 +79,9 @@ private:
   std::vector<double>* class_values;
   std::vector<uint>* response_classIDs;
 
+  // Pre-allocated counters
   size_t* counter;
   size_t* counter_per_class;
-
-  //size_t* count;
-  //size_t* class_counts_per_value;
-  //size_t* class_counts_left;
 
   DISALLOW_COPY_AND_ASSIGN(TreeClassification);
 };
