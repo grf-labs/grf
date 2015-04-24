@@ -22,6 +22,7 @@ compileAttributes(package.name)
 roxygenize(package.name)
 
 ## Build/check/install/load package
+clean_dll(package.name)
 build(package.name)
 ##check(package.name)
 install(package.name)
