@@ -203,7 +203,7 @@ void Data::sort() {
 
     // Get index of unique value
     for (size_t row = 0; row < num_rows; ++row) {
-      size_t idx = std::find(unique_values.begin(), unique_values.end(), get(row, col)) - unique_values.begin();
+      size_t idx = std::lower_bound(unique_values.begin(), unique_values.end(), get(row, col)) - unique_values.begin();
       index_data[col * num_rows + row] = idx;
     }
 
