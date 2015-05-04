@@ -37,7 +37,7 @@
 
 Data::Data() :
     num_rows(0), num_rows_rounded(0), num_cols(0), sparse_data(0), num_cols_no_sparse(0), externalData(true), index_data(
-        0) {
+        0), max_num_unique_values(0) {
 }
 
 Data::~Data() {
@@ -209,5 +209,8 @@ void Data::sort() {
 
     // Save unique values
     unique_data_values.push_back(unique_values);
+    if (unique_values.size() > max_num_unique_values) {
+      max_num_unique_values = unique_values.size();
+    }
   }
 }

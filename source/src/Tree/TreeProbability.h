@@ -78,7 +78,12 @@ private:
   void addImpurityImportance(size_t nodeID, size_t varID, double decrease);
 
   void cleanUpInternal() {
-    // Empty on purpose
+    if (counter != 0) {
+      delete[] counter;
+    }
+    if (sums != 0) {
+      delete[] sums;
+    }
   }
 
   // Classes of the dependent variable and classIDs for responses
@@ -87,6 +92,9 @@ private:
 
   // Class counts in terminal nodes. Empty for non-terminal nodes.
   std::vector<std::vector<double>> terminal_class_counts;
+
+  size_t* counter;
+  double* sums;
 
   DISALLOW_COPY_AND_ASSIGN(TreeProbability);
 };

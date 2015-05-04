@@ -95,6 +95,16 @@ public:
     return num_rows;
   }
 
+  size_t getMaxNumUniqueValues() const {
+    if (sparse_data == 0 || max_num_unique_values > 3) {
+      // If no sparse data or one variable with more than 3 unique values, return that value
+      return max_num_unique_values;
+    } else {
+      // If sparse data and no variable with more than 3 unique values, return 3
+      return 3;
+    }
+  }
+
 protected:
   std::vector<std::string> variable_names;
   size_t num_rows;
@@ -108,6 +118,7 @@ protected:
 
   size_t* index_data;
   std::vector<std::vector<double>> unique_data_values;
+  size_t max_num_unique_values;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Data);

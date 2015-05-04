@@ -73,8 +73,16 @@ private:
   double computePredictionMSE();
 
   void cleanUpInternal() {
-    // Empty on purpose
+    if (counter != 0) {
+      delete[] counter;
+    }
+    if (sums != 0) {
+      delete[] sums;
+    }
   }
+
+  size_t* counter;
+  double* sums;
 
   DISALLOW_COPY_AND_ASSIGN(TreeRegression);
 };

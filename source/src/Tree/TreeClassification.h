@@ -72,12 +72,20 @@ private:
   void addGiniImportance(size_t nodeID, size_t varID, double decrease);
 
   void cleanUpInternal() {
-    // Empty on purpose
+    if (counter != 0) {
+      delete[] counter;
+    }
+    if (counter_per_class != 0) {
+      delete[] counter_per_class;
+    }
   }
 
   // Classes of the dependent variable and classIDs for responses
   std::vector<double>* class_values;
   std::vector<uint>* response_classIDs;
+
+  size_t* counter;
+  size_t* counter_per_class;
 
   DISALLOW_COPY_AND_ASSIGN(TreeClassification);
 };
