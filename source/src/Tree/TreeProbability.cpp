@@ -259,7 +259,7 @@ void TreeProbability::findBestSplitValueSmallQ(size_t nodeID, size_t varID, doub
   }
 
   if (memory_saving_splitting) {
-    delete[] sums;
+    delete[] sums_right;
     delete[] n_right;
   }
 }

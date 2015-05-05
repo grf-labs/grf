@@ -228,7 +228,7 @@ void TreeClassification::findBestSplitValueSmallQ(size_t nodeID, size_t varID, s
     // Count samples until split_value reached
     for (size_t i = 0; i < num_splits; ++i) {
       if (value > possible_split_values[i]) {
-        ++counter[i];
+        ++n_right[i];
         ++class_counts_right[i * num_classes + sample_classID];
       } else {
         break;

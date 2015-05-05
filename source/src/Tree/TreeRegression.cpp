@@ -229,7 +229,7 @@ void TreeRegression::findBestSplitValueSmallQ(size_t nodeID, size_t varID, doubl
   }
 
   if (memory_saving_splitting) {
-    delete[] sums;
+    delete[] sums_right;
     delete[] n_right;
   }
 }

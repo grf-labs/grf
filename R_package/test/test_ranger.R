@@ -131,3 +131,18 @@ test_that("Matrix interface works for survival", {
   expect_that(rf$treetype, equals("Survival"))
   expect_that(rf$forest$independent.variable.names, equals(colnames(veteran)[c(1:2, 5:8)]))
 })
+
+test_that("save.memory option works for classification", {
+  rf <- ranger(Species ~ ., data = iris, save.memory = TRUE)
+  expect_that(rf$treetype, equals("Classification"))
+})
+
+test_that("save.memory option works for regression", {
+  rf <- ranger(Sepal.Length ~ ., data = iris, save.memory = TRUE)
+  expect_that(rf$treetype, equals("Regression"))
+})
+
+test_that("save.memory option works for probability", {
+  rf <- ranger(Species ~ ., data = iris, probability = TRUE, save.memory = TRUE)
+  expect_that(rf$treetype, equals("Probability estimation"))
+})
