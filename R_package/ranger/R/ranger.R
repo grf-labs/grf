@@ -48,7 +48,7 @@
 ##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow or impossible to use.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
-##' Consider setting \code{save.memory = TRUE} if you encounter memory problems for very large datasets.
+##' Consider setting \code{save.memory = TRUE} if you encounter memory problems for very large datasets. 
 ##' 
 ##' For GWAS data consider combining \code{ranger} with the \code{GenABEL} package. 
 ##' See the Examples section below for a demonstration using \code{Plink} data.
@@ -65,18 +65,18 @@
 ##' @param formula Object of class \code{formula} or \code{character} describing the model to fit.
 ##' @param data Training data of class \code{data.frame}, \code{matrix} or \code{gwaa.data} (GenABEL).
 ##' @param num.trees Number of trees.
-##' @param mtry Number of variables to possibly split at in each node.
+##' @param mtry Number of variables to possibly split at in each node. Default is the (rounded down) square root of the number variables. 
 ##' @param importance Variable importance mode, one of 'none', 'impurity', 'permutation'. The 'impurity' measure is the Gini index for classification and the variance of the responses for regression.
 ##' @param write.forest Save \code{ranger.forest} object, needed for prediction.
-##' @param probability Grow a probability forest. This is a classification forest which returns class probabilities instead of classifications.
+##' @param probability Grow a probability forest as in Malley et al. (2012). 
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
-##' @param replace Sample with replacement. Default TRUE.
+##' @param replace Sample with replacement. 
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
-##' @param save.memory Use memory saving (but slower) splitting mode. 
+##' @param save.memory Use memory saving (but slower) splitting mode. No effect for GWAS data.
 ##' @param verbose Verbose output on or off.
 ##' @param seed Random seed. Default is \code{NULL}, which generates the seed from \code{R}. 
 ##' @param dependent.variable.name Name of dependent variable, needed if no formula given. For survival forests this is the time variable.
@@ -167,6 +167,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       data$"id" <- NULL
     }
     gwa.mode <- TRUE
+    save.memory <- FALSE
   } else {
     sparse.data <- as.matrix(0)
     gwa.mode <- FALSE
