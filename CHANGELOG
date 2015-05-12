@@ -1,6 +1,9 @@
+## ------- Version 0.2.5 ---------------------------------------------- ##
+- Fix matrix and gwaa alternative survival interface
+- Version submitted to JSS
+
 ## ------- Version 0.2.4 ---------------------------------------------- ##
 - Small changes in documentation
-- Version submitted to JSS
 
 ## ------- Version 0.2.3 ---------------------------------------------- ##
 - Preallocate memory for splitting

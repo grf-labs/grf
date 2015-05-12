@@ -212,7 +212,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     } else {
       treetype <- 3
     }
-  } else if (class(response) == "Surv" | class(response) == "data.frame") {
+  } else if (class(response) == "Surv" | is.data.frame(response) | is.matrix(response)) {
     treetype <- 5
   } else {
     stop("Error: Unsupported type of dependent variable.")

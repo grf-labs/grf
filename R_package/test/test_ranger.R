@@ -127,7 +127,7 @@ test_that("Matrix interface works for regression", {
 })
 
 test_that("Matrix interface works for survival", {
-  rf <- ranger(dependent.variable.name = "time", status.variable.name = "status", data = veteran, write.forest = TRUE)
+  rf <- ranger(dependent.variable.name = "time", status.variable.name = "status", data = data.matrix(veteran), write.forest = TRUE)
   expect_that(rf$treetype, equals("Survival"))
   expect_that(rf$forest$independent.variable.names, equals(colnames(veteran)[c(1:2, 5:8)]))
 })
