@@ -35,10 +35,10 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
-    depvarname(""), memmode(MEM_DOUBLE), predict(""), splitweights(""), nthreads(DEFAULT_NUM_THREADS), file(""), impmeasure(
-        DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false), splitrule(
-        DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(
-        TREE_CLASSIFICATION), seed(0) {
+    depvarname(""), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(DEFAULT_NUM_THREADS), file(
+        ""), impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(
+        false), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(
+        false), treetype(TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -49,7 +49,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:D:M:P:S:U:Zc:f:hil::m:o:pr:s:t:uvwy:z:";
+  char const *short_options = "A:D:M:NP:S:U:Zc:f:hil::m:o:pr:s:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
@@ -57,6 +57,7 @@ int ArgumentHandler::processArguments() {
       { "alwayssplitvars",      required_argument,  0, 'A'},
       { "depvarname",           required_argument,  0, 'D'},
       { "memmode",              required_argument,  0, 'M'},
+      { "savemem",              no_argument,        0, 'N'},
       { "predict",              required_argument,  0, 'P'},
       { "splitweights",         required_argument,  0, 'S'},
       { "nthreads",             required_argument,  0, 'U'},
@@ -112,6 +113,10 @@ int ArgumentHandler::processArguments() {
         throw std::runtime_error(
             "Illegal argument for option 'memmode'. Please give a positive integer. See '--help' for details.");
       }
+      break;
+
+    case 'N':
+      savemem = true;
       break;
 
     case 'P':
@@ -417,6 +422,7 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              MODE = 1: float." << std::endl;
   std::cout << "    " << "                              MODE = 2: char." << std::endl;
   std::cout << "    " << "                              (Default: 0)" << std::endl;
+  std::cout << "    " << "--savemem                     Use memory saving (but slower) splitting mode." << std::endl;
   std::cout << std::endl;
 
   std::cout << "See README file for details and examples." << std::endl;

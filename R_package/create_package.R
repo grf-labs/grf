@@ -22,6 +22,7 @@ compileAttributes(package.name)
 roxygenize(package.name)
 
 ## Build/check/install/load package
+clean_dll(package.name)
 build(package.name)
 ##check(package.name)
 install(package.name)
@@ -31,4 +32,4 @@ library(package.name, character.only = TRUE)
 test_dir("test/", reporter = "summary")
 
 ## Copy to vbox
-system(paste("cp", paste(package.name, "_", package.version, ".tar.gz", sep = ""), "~/myWork/vbox_share/"))
+##system(paste("cp", paste(package.name, "_", package.version, ".tar.gz", sep = ""), "~/myWork/vbox_share/"))

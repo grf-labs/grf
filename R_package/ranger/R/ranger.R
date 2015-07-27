@@ -47,10 +47,9 @@
 ##' Weights do not need to sum up to 1, they will be normalized later. 
 ##' The usage of \code{split.select.weights} can increase the computation times for large forests.
 ##'
-##' For a large number of variables and data frame as input data the formula interface can be slow.
+##' For a large number of variables and data frame as input data the formula interface can be slow or impossible to use.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
-##' By setting \code{memory} to 'float' or 'char' the memory usage can be reduced with a possible loss of precision. 
-##' Use char only if all endpoints and covariates are integer values between -128 and 127 or factors with few levels. 
+##' Consider setting \code{save.memory = TRUE} if you encounter memory problems for very large datasets. 
 ##' 
 ##' For GWAS data consider combining \code{ranger} with the \code{GenABEL} package. 
 ##' See the Examples section below for a demonstration using \code{Plink} data.
@@ -65,25 +64,26 @@
 ##' 
 ##' @title Ranger
 ##' @param formula Object of class \code{formula} or \code{character} describing the model to fit.
-##' @param data Training data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
+##' @param data Training data of class \code{data.frame}, \code{matrix} or \code{gwaa.data} (GenABEL).
 ##' @param num.trees Number of trees.
-##' @param mtry Number of variables to possibly split at in each node.
+##' @param mtry Number of variables to possibly split at in each node. Default is the (rounded down) square root of the number variables. 
 ##' @param importance Variable importance mode, one of 'none', 'impurity', 'permutation'. The 'impurity' measure is the Gini index for classification and the variance of the responses for regression.
 ##' @param write.forest Save \code{ranger.forest} object, needed for prediction.
-##' @param probability Grow a probability forest. This is a classification forest which returns class probabilities instead of classifications.
+##' @param probability Grow a probability forest as in Malley et al. (2012). 
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
-##' @param replace Sample with replacement. Default TRUE.
+##' @param replace Sample with replacement. 
 ##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank", "auc" and "auc_ignore_ties" with default "logrank". 
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
+##' @param save.memory Use memory saving (but slower) splitting mode. No effect for GWAS data.
 ##' @param verbose Verbose output on or off.
 ##' @param seed Random seed. Default is \code{NULL}, which generates the seed from \code{R}. 
-##' @param memory Memory mode, one of 'double', 'float', 'char'. Default 'double'.
 ##' @param dependent.variable.name Name of dependent variable, needed if no formula given. For survival forests this is the time variable.
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
+##' @param classification Only needed if data is a matrix. Set to \code{TRUE} to grow a classification forest.
 ##' @return Object of class \code{ranger} with elements
 ##'   \tabular{ll}{
 ##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). Note that the variable IDs in the \code{split.varIDs} object do not necessarily represent the column number in R. \cr
@@ -101,7 +101,6 @@
 ##'       \code{mtry}    \tab Value of mtry used. \cr
 ##'       \code{min.node.size}   \tab Value of minimal node size used. \cr
 ##'       \code{treetype}    \tab Type of forest/tree. classification, regression or survival. \cr
-##'       \code{memory.mode}   \tab Memory mode used. \cr
 ##'       \code{importance.mode}     \tab Importance mode used. \cr
 ##'       \code{num.samples}     \tab Number of samples.
 ##'   }
@@ -156,9 +155,10 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    split.select.weights = NULL, always.split.variables = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
-                   num.threads = NULL,
-                   verbose = TRUE, seed = NULL, memory = "double",
-                   dependent.variable.name = NULL, status.variable.name = NULL) {
+                   num.threads = NULL, save.memory = FALSE,
+                   verbose = TRUE, seed = NULL, 
+                   dependent.variable.name = NULL, status.variable.name = NULL, 
+                   classification = NULL) {
   
   ## GenABEL GWA data
   if (class(data) == "gwaa.data") {
@@ -169,6 +169,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       data$"id" <- NULL
     }
     gwa.mode <- TRUE
+    save.memory <- FALSE
   } else {
     sparse.data <- as.matrix(0)
     gwa.mode <- FALSE
@@ -208,8 +209,12 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       treetype <- 1
     }
   } else if (is.numeric(response) & is.vector(response)) {
-    treetype <- 3
-  } else if (class(response) == "Surv" | class(response) == "data.frame") {
+    if (!is.null(classification) && classification) {
+      treetype <- 1
+    } else {
+      treetype <- 3
+    }
+  } else if (class(response) == "Surv" | is.data.frame(response) | is.matrix(response)) {
     treetype <- 5
   } else {
     stop("Error: Unsupported type of dependent variable.")
@@ -226,25 +231,24 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     }
     independent.variable.names <- names(data.selected)[-1]
   } else {
-    independent.variable.names <- names(data.selected)[names(data.selected) != dependent.variable.name &
-                                                         names(data.selected) != status.variable.name]
+    independent.variable.names <- colnames(data.selected)[colnames(data.selected) != dependent.variable.name &
+                                                          colnames(data.selected) != status.variable.name]
   }
   
   ## Input data and variable names
-  if (!is.null(formula)) {
-    if (treetype == 5) {
-      data.final <- data.matrix(cbind(response[, 1], response[, 2],
-                                      data.selected[-1]))
-      variable.names <- c(dependent.variable.name, status.variable.name,
-                          independent.variable.names)
-    } else {
-      data.final <- data.matrix(data.selected)
-      variable.names <- names(data.selected)
-    }
+  if (!is.null(formula) & treetype == 5) {
+    data.final <- cbind(response[, 1], response[, 2],
+                        data.selected[-1])
+    colnames(data.final) <- c(dependent.variable.name, status.variable.name,
+                              independent.variable.names)
   } else {
-    data.final <- data.matrix(data.selected)
-    variable.names <- names(data.selected)
+    data.final <- data.selected
   }
+  if (!is.matrix(data.selected)) {
+    data.final <- data.matrix(data.final)
+  }
+  variable.names <- colnames(data.final)
+  
   
   ## If gwa mode, add snp variable names
   if (gwa.mode) {
@@ -264,17 +268,6 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     mtry <- 0
   } else if (!is.numeric(mtry) | mtry < 0) {
     stop("Error: Invalid value for mtry")
-  }
-  
-  ## Memory mode
-  if (is.null(memory) | memory == "double") {
-    memory.mode <- 0
-  } else if (memory == "float") {
-    memory.mode <- 1
-  } else if (memory == "char") {
-    memory.mode <- 2
-  } else {
-    stop("Error: Unknown memory mode.")
   }
   
   ## Seed
@@ -380,14 +373,17 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   ## No loaded forest object
   loaded.forest <- list()
   
+  ## Clean up
+  rm("data.selected")
+  
   ## Call Ranger
-  result <- rangerCpp(treetype, dependent.variable.name, memory.mode, data.final, variable.names, mtry,
+  result <- rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
                       num.trees, verbose, seed, num.threads, write.forest, importance.mode,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
-                      splitrule)
+                      save.memory, splitrule)
   
   if (length(result) == 0) {
     stop("Internal error.")
@@ -400,7 +396,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   }
   
   ## Set predictions
-  if (treetype == 1) {
+  if (treetype == 1 & is.factor(response)) {
     result$predictions <- factor(result$predictions, levels = 1:nlevels(response),
                                  labels = levels(response))
     result$classification.table <- table(result$predictions, unlist(data[, dependent.variable.name]), dnn = c("predicted", "true"))
@@ -408,7 +404,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$chf <- result$predictions
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
-  } else if (treetype == 9) {
+  } else if (treetype == 9 & !is.matrix(data)) {
     colnames(result$predictions) <- levels(response)
   }
   
@@ -426,7 +422,6 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$r.squared <- 1 - result$prediction.error / var(response)
   }
   result$call <- sys.call()
-  result$memory.mode <- memory
   result$importance.mode <- importance
   result$num.samples <- nrow(data.final)
   

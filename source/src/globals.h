@@ -87,4 +87,7 @@ const SplitRule DEFAULT_SPLITRULE = LOGRANK;
 // Interval to print progress in seconds
 const double STATUS_INTERVAL = 30.0;
 
+// Threshold for q value split method switch
+const double Q_THRESHOLD = 0.02;
+
 #endif /* GLOBALS_H_ */

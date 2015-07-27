@@ -70,7 +70,7 @@ private:
       double& best_value, size_t& best_varID, double& best_logrank);
   void findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
       double& best_value, size_t& best_varID, double& best_logrank);
-  void findBestSplitValueAUC(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
+  void findBestSplitValueAUC(size_t nodeID, size_t varID,
       double& best_value, size_t& best_varID, double& best_auc);
 
   void computeDeathCounts(size_t nodeID);
@@ -79,6 +79,11 @@ private:
 
   void computeAucSplit(double time_k, double time_l, double status_k, double status_l, double value_k, double value_l,
       size_t num_splits, std::vector<double>& possible_split_values, double* num_count, double* num_total);
+
+  void findBestSplitValueLogRank(size_t nodeID, size_t varID, double& best_value, size_t& best_varID,
+      double& best_logrank);
+  void findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, double& best_value, size_t& best_varID,
+      double& best_logrank);
 
   void cleanUpInternal() {
     delete[] num_deaths;

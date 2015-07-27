@@ -7,19 +7,19 @@ rg.class <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRU
 rg.reg <- ranger(Sepal.Length ~ ., data = iris, verbose = FALSE, write.forest = TRUE)
 rg.surv <- ranger(Surv(time, status) ~ ., data = veteran, verbose = FALSE, write.forest = TRUE)
 
-test_that("classification result is of class ranger with 15 elements", {
+test_that("classification result is of class ranger with 14 elements", {
   expect_that(rg.class, is_a("ranger"))
-  expect_that(length(rg.class), equals(15))
+  expect_that(length(rg.class), equals(14))
 })
 
-test_that("regression result is of class ranger with 15 elements", {
+test_that("regression result is of class ranger with 14 elements", {
   expect_that(rg.reg, is_a("ranger"))
-  expect_that(length(rg.reg), equals(15))
+  expect_that(length(rg.reg), equals(14))
 })
 
-test_that("survival result is of class ranger with 16 elements", {
+test_that("survival result is of class ranger with 15 elements", {
   expect_that(rg.surv, is_a("ranger"))
-  expect_that(length(rg.surv), equals(16))
+  expect_that(length(rg.surv), equals(15))
 })
 
 test_that("results have 500 trees", {
@@ -91,4 +91,64 @@ test_that("probability estimations are between 0 and 1 and sum to 1", {
 
   expect_that(all(prob$predictions > -1e-5 & prob$predictions <= 1 + 1e-5), is_true())
   expect_that(rowSums(prob$predictions), equals(rep(1, nrow(prob$predictions))))
+})
+
+test_that("predict returns good prediction", {
+  rf <- ranger(Species ~ ., iris, write.forest = TRUE)
+  pred <- predict(rf, iris)
+  expect_that(mean(iris$Species == predictions(pred)), is_more_than(0.9))
+})
+
+test_that("Alternative interface works for classification", {
+  rf <- ranger(dependent.variable.name = "Species", data = iris)
+  expect_that(rf$treetype, equals("Classification"))
+})
+
+test_that("Alternative interface works for regression", {
+  rf <- ranger(dependent.variable.name = "Sepal.Length", data = iris)
+  expect_that(rf$treetype, equals("Regression"))
+})
+
+test_that("Alternative interface works for survival", {
+  rf <- ranger(dependent.variable.name = "time", status.variable.name = "status", data = veteran)
+  expect_that(rf$treetype, equals("Survival"))
+})
+
+test_that("Matrix interface works for classification", {
+  rf <- ranger(dependent.variable.name = "Species", data = data.matrix(iris), write.forest = TRUE, classification = TRUE)
+  expect_that(rf$treetype, equals("Classification"))
+  expect_that(rf$forest$independent.variable.names, equals(colnames(iris)[1:4]))
+})
+
+test_that("Matrix interface works for regression", {
+  rf <- ranger(dependent.variable.name = "Sepal.Length", data = data.matrix(iris), write.forest = TRUE)
+  expect_that(rf$treetype, equals("Regression"))
+  expect_that(rf$forest$independent.variable.names, equals(colnames(iris)[2:5]))
+})
+
+test_that("Matrix interface works for survival", {
+  rf <- ranger(dependent.variable.name = "time", status.variable.name = "status", data = data.matrix(veteran), write.forest = TRUE)
+  expect_that(rf$treetype, equals("Survival"))
+  expect_that(rf$forest$independent.variable.names, equals(colnames(veteran)[c(1:2, 5:8)]))
+})
+
+test_that("save.memory option works for classification", {
+  rf <- ranger(Species ~ ., data = iris, save.memory = TRUE)
+  expect_that(rf$treetype, equals("Classification"))
+})
+
+test_that("save.memory option works for regression", {
+  rf <- ranger(Sepal.Length ~ ., data = iris, save.memory = TRUE)
+  expect_that(rf$treetype, equals("Regression"))
+})
+
+test_that("save.memory option works for probability", {
+  rf <- ranger(Species ~ ., data = iris, probability = TRUE, save.memory = TRUE)
+  expect_that(rf$treetype, equals("Probability estimation"))
+})
+
+test_that("C-index splitting works", {
+  rf <- ranger(Surv(time, status) ~ ., data = veteran, verbose = FALSE, 
+               splitrule = "auc")
+  expect_that(rf$treetype, equals("Survival"))
 })

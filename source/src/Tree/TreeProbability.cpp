@@ -31,21 +31,27 @@
 #include "Data.h"
 
 TreeProbability::TreeProbability(std::vector<double>* class_values, std::vector<uint>* response_classIDs) :
-    class_values(class_values), response_classIDs(response_classIDs) {
+    class_values(class_values), response_classIDs(response_classIDs), counter(0), sums(0) {
 }
 
 TreeProbability::TreeProbability(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
     std::vector<double>& split_values, std::vector<double>* class_values, std::vector<uint>* response_classIDs,
     std::vector<std::vector<double>>& terminal_class_counts, std::vector<bool>* is_ordered_variable) :
     Tree(child_nodeIDs, split_varIDs, split_values, is_ordered_variable), class_values(class_values), response_classIDs(
-        response_classIDs), terminal_class_counts(terminal_class_counts) {
+        response_classIDs), terminal_class_counts(terminal_class_counts), counter(0), sums(0) {
 }
 
 TreeProbability::~TreeProbability() {
+  // Empty on purpose
 }
 
 void TreeProbability::initInternal() {
-  // Empty on purpose
+  // Init counters if not in memory efficient mode
+  if (!memory_saving_splitting) {
+    size_t max_num_unique_values = data->getMaxNumUniqueValues();
+    counter = new size_t[max_num_unique_values];
+    sums = new double[max_num_unique_values];
+  }
 }
 
 void TreeProbability::addToTerminalNodes(size_t nodeID) {
@@ -150,25 +156,23 @@ bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible
   // For all possible split variables
   for (auto& varID : possible_split_varIDs) {
 
-    // Create possible split values
-    std::vector<double> all_values;
-    data->getAllValues(all_values, sampleIDs[nodeID], varID);
-
-    // Try next variable if all equal for this
-    if (all_values.size() < 2) {
-      continue;
-    }
-
     // Find best split value, if ordered consider all values as split values, else all 2-partitions
     if ((*is_ordered_variable)[varID]) {
 
-      // Remove largest value because no split possible
-      all_values.pop_back();
-
-      findBestSplitValue(nodeID, varID, all_values, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+      // Use memory saving method if option set
+      if (memory_saving_splitting) {
+        findBestSplitValueSmallQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+      } else {
+        // Use faster method for both cases
+        double q = (double) num_samples_node / (double) data->getNumUniqueDataValues(varID);
+        if (q < Q_THRESHOLD) {
+          findBestSplitValueSmallQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+        } else {
+          findBestSplitValueLargeQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+        }
+      }
     } else {
-      findBestSplitValueUnordered(nodeID, varID, all_values, sum_node, num_samples_node, best_value, best_varID,
-          best_decrease);
+      findBestSplitValueUnordered(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
     }
   }
 
@@ -188,14 +192,34 @@ bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible
   return false;
 }
 
-void TreeProbability::findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-    double sum_node, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
+void TreeProbability::findBestSplitValueSmallQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
+    double& best_value, size_t& best_varID, double& best_decrease) {
 
+  // Create possible split values
+  std::vector<double> possible_split_values;
+  data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
+
+  // Try next variable if all equal for this
+  if (possible_split_values.size() < 2) {
+    return;
+  }
+
+  // Remove largest value because no split possible
+  possible_split_values.pop_back();
+
+  // Initialize with 0m if not in memory efficient mode, use pre-allocated space
   size_t num_splits = possible_split_values.size();
-
-  // Initialize with 0
-  double* sums_right = new double[num_splits]();
-  size_t* n_right = new size_t[num_splits]();
+  double* sums_right;
+  size_t* n_right;
+  if (memory_saving_splitting) {
+    sums_right = new double[num_splits]();
+    n_right = new size_t[num_splits]();
+  } else {
+    sums_right = sums;
+    n_right = counter;
+    std::fill(sums_right, sums_right + num_splits, 0);
+    std::fill(n_right, n_right + num_splits, 0);
+  }
 
   // Sum in right child and possbile split
   for (auto& sampleID : sampleIDs[nodeID]) {
@@ -234,13 +258,70 @@ void TreeProbability::findBestSplitValue(size_t nodeID, size_t varID, std::vecto
     }
   }
 
-  delete[] sums_right;
-  delete[] n_right;
-
+  if (memory_saving_splitting) {
+    delete[] sums_right;
+    delete[] n_right;
+  }
 }
 
-void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
-    double sum_node, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
+void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
+    double& best_value, size_t& best_varID, double& best_decrease) {
+
+  // Set counters to 0
+  size_t num_unique = data->getNumUniqueDataValues(varID);
+  std::fill(counter, counter + num_unique, 0);
+  std::fill(sums, sums + num_unique, 0);
+
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    size_t index = data->getIndex(sampleID, varID);
+
+    sums[index] += data->get(sampleID, dependent_varID);
+    ++counter[index];
+  }
+
+  size_t n_left = 0;
+  double sum_left = 0;
+
+  // Compute decrease of impurity for each split
+  for (size_t i = 0; i < num_unique - 1; ++i) {
+
+    // Stop if nothing here
+    if (counter[i] == 0) {
+      continue;
+    }
+
+    n_left += counter[i];
+    sum_left += sums[i];
+
+    // Stop if right child empty
+    size_t n_right = num_samples_node - n_left;
+    if (n_right == 0) {
+      break;
+    }
+
+    double sum_right = sum_node - sum_left;
+    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
+
+    // If better than before, use this
+    if (decrease > best_decrease) {
+      best_value = data->getUniqueDataValue(varID, i);
+      best_varID = varID;
+      best_decrease = decrease;
+    }
+  }
+}
+
+void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
+    double& best_value, size_t& best_varID, double& best_decrease) {
+
+  // Create possible split values
+  std::vector<double> factor_levels;
+  data->getAllValues(factor_levels, sampleIDs[nodeID], varID);
+
+  // Try next variable if all equal for this
+  if (factor_levels.size() < 2) {
+    return;
+  }
 
   // Number of possible splits is 2^num_levels
   size_t num_splits = (1 << factor_levels.size());

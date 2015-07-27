@@ -61,18 +61,28 @@ private:
 
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
-  void findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values, double sum_node,
-      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
-  void findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels, double sum_node,
-      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
+  void findBestSplitValueSmallQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node, double& best_value,
+      size_t& best_varID, double& best_decrease);
+  void findBestSplitValueLargeQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node, double& best_value,
+      size_t& best_varID, double& best_decrease);
+  void findBestSplitValueUnordered(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
+      double& best_value, size_t& best_varID, double& best_decrease);
 
   void addImpurityImportance(size_t nodeID, size_t varID, double decrease);
 
   double computePredictionMSE();
 
   void cleanUpInternal() {
-    // Empty on purpose
+    if (counter != 0) {
+      delete[] counter;
+    }
+    if (sums != 0) {
+      delete[] sums;
+    }
   }
+
+  size_t* counter;
+  double* sums;
 
   DISALLOW_COPY_AND_ASSIGN(TreeRegression);
 };

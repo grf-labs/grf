@@ -42,14 +42,14 @@
 #include "DataFloat.h"
 
 // [[Rcpp::export]]
-Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint memory_mode_r,
+Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     Rcpp::NumericMatrix input_data, std::vector<std::string> variable_names, uint mtry, uint num_trees, bool verbose,
     uint seed, uint num_threads, bool write_forest, uint importance_mode_r, uint min_node_size,
     std::vector<double>& split_select_weights, bool use_split_select_weights,
     std::vector<std::string>& always_split_variable_names, bool use_always_split_variable_names,
     std::string status_variable_name, bool prediction_mode, Rcpp::List loaded_forest, Rcpp::RawMatrix sparse_data,
     bool sample_with_replacement, bool probability, std::vector<std::string>& unordered_variable_names,
-    bool use_unordered_variable_names, uint splitrule_r) {
+    bool use_unordered_variable_names, bool save_memory, uint splitrule_r) {
 
   Rcpp::List result;
   Forest* forest = 0;
@@ -77,24 +77,8 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
     size_t num_rows = input_data.nrow();
     size_t num_cols = input_data.ncol();
 
-    // Initialize data with memmode
-    MemoryMode memory_mode = (MemoryMode) memory_mode_r;
-    switch (memory_mode) {
-    case MEM_DOUBLE:
-      data = new DataDouble(input_data.begin(), variable_names, num_rows, num_cols);
-      break;
-    case MEM_FLOAT:
-      data = new DataFloat(input_data.begin(), variable_names, num_rows, num_cols);
-      break;
-    case MEM_CHAR:
-      bool error;
-      data = new DataChar(input_data.begin(), variable_names, num_rows, num_cols, error);
-      if (error) {
-        *verbose_out << "Warning: Rounding or Integer overflow occurred. Use FLOAT or DOUBLE precision to avoid this."
-            << std::endl;
-      }
-      break;
-    }
+    // Initialize data with double memmode
+    data = new DataDouble(input_data.begin(), variable_names, num_rows, num_cols);
 
     // If there is sparse data, add it
     if (sparse_data.nrow() > 1) {
@@ -124,9 +108,9 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name, uint me
     SplitRule splitrule = (SplitRule) splitrule_r;
 
     // Init Ranger
-    forest->initR(dependent_variable_name, memory_mode, data, mtry, num_trees, verbose_out, seed, num_threads,
+    forest->initR(dependent_variable_name, data, mtry, num_trees, verbose_out, seed, num_threads,
         importance_mode, min_node_size, split_select_weights, always_split_variable_names, status_variable_name,
-        prediction_mode, sample_with_replacement, unordered_variable_names, splitrule);
+        prediction_mode, sample_with_replacement, unordered_variable_names, save_memory, splitrule);
 
     // Load forest object if in prediction mode
     if (prediction_mode) {

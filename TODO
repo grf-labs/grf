@@ -15,6 +15,9 @@
 	 -> New parameter
 - If only 1 split possible, just use it. Faster?
 - Up-/Downsampling, see sampsize/strata in randomForest
+- Use match.arg for arguments in R
+- Idea for fast splitting mode: Dont search all possible splits.. 
+  Plot the decrease/mse for split values -> System?
 
 
 ## ----------------------------------------------------------------------- ##

@@ -33,7 +33,6 @@
 ##' @param data New test data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
 ##' @param seed Random seed used in Ranger.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
-##' @param memory.mode Memory mode, one of 'double', 'float', 'char'.
 ##' @param verbose Verbose output on or off.
 ##' @param ... further arguments passed to or from other methods.
 ##' @return Object of class \code{ranger.prediction} with elements
@@ -51,7 +50,7 @@
 ##' @author Marvin N. Wright
 ##' @export
 predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
-                                   memory.mode = "double", verbose = TRUE, ...) {
+                                  verbose = TRUE, ...) {
   
   ## GenABEL GWA data
   if (class(data) == "gwaa.data") {
@@ -115,17 +114,6 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
     stop("Error: Invalid value for num.threads")
   }
 
-  ## Memory mode
-  if (is.null(memory.mode) | memory.mode == "double") {
-    memory.mode <- 0
-  } else if (memory.mode == "float") {
-    memory.mode <- 1
-  } else if (memory.mode == "char") {
-    memory.mode <- 2
-  } else {
-    stop("Error: Unknown memory mode.")
-  }
-
   ## Seed
   if (is.null(seed)) {
     seed <- 0
@@ -159,15 +147,16 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
   probability <- FALSE
   unordered.factor.variables <- c("0", "0")
   use.unordered.factor.variables <- FALSE
+  save.memory <- FALSE
   splitrule <- 1
   
   ## Call Ranger
-  result <- rangerCpp(treetype, dependent.variable.name, memory.mode, data.final, variable.names, mtry,
+  result <- rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
                       forest$num.trees, verbose, seed, num.threads, write.forest, importance,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, forest, sparse.data, replace, probability,
-                      unordered.factor.variables, use.unordered.factor.variables, splitrule)
+                      unordered.factor.variables, use.unordered.factor.variables, save.memory, splitrule)
 
   if (length(result) == 0) {
     stop("Internal error.")
@@ -201,7 +190,6 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
 ##' @param data New test data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
 ##' @param seed Random seed used in Ranger.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
-##' @param memory.mode Memory mode, one of 'double', 'float', 'char'.
 ##' @param verbose Verbose output on or off.
 ##' @param ... further arguments passed to or from other methods.
 ##' @return Object of class \code{ranger.prediction} with elements
@@ -219,10 +207,10 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
 ##' @author Marvin N. Wright
 ##' @export
 predict.ranger <- function(object, data, seed = NULL, num.threads = NULL,
-                            memory.mode = "double", verbose = TRUE, ...) {
+                           verbose = TRUE, ...) {
   forest <- object$forest
   if (is.null(forest)) {
     stop("Error: No saved forest in ranger object. Please set write.forest to TRUE when calling ranger.")
   }
-  predict(forest, data, seed, num.threads, memory.mode, verbose)
+  predict(forest, data, seed, num.threads, verbose)
 }

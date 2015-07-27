@@ -53,7 +53,7 @@ void ForestProbability::loadForest(size_t dependent_varID, size_t num_trees,
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree* tree = new TreeProbability(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-    &class_values, &response_classIDs, forest_terminal_class_counts[i], &is_ordered_variable);
+    &this->class_values, &response_classIDs, forest_terminal_class_counts[i], &this->is_ordered_variable);
     trees.push_back(tree);
   }
 
@@ -93,6 +93,11 @@ void ForestProbability::initInternal(std::string status_variable_name) {
       uint classID = find(class_values.begin(), class_values.end(), value) - class_values.begin();
       response_classIDs.push_back(classID);
     }
+  }
+
+  // Sort data if memory saving mode
+  if (!memory_saving_splitting) {
+    data->sort();
   }
 }
 

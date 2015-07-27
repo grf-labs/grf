@@ -62,20 +62,30 @@ private:
 
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
   bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
-  void findBestSplitValue(size_t nodeID, size_t varID, std::vector<double>& possible_split_values, size_t num_classes,
-      size_t* class_counts, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
-  void findBestSplitValueUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels, size_t num_classes,
-      size_t* class_counts, size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
+  void findBestSplitValueSmallQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
+  void findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
+  void findBestSplitValueUnordered(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
 
   void addGiniImportance(size_t nodeID, size_t varID, double decrease);
 
   void cleanUpInternal() {
-    // Empty on purpose
+    if (counter != 0) {
+      delete[] counter;
+    }
+    if (counter_per_class != 0) {
+      delete[] counter_per_class;
+    }
   }
 
   // Classes of the dependent variable and classIDs for responses
   std::vector<double>* class_values;
   std::vector<uint>* response_classIDs;
+
+  size_t* counter;
+  size_t* counter_per_class;
 
   DISALLOW_COPY_AND_ASSIGN(TreeClassification);
 };

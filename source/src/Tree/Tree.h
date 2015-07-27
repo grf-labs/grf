@@ -49,7 +49,8 @@ public:
   void init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
-      std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered, SplitRule splitrule);
+      std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
+      bool memory_saving_splitting, SplitRule splitrule);
   virtual void initInternal() = 0;
 
   void grow();
@@ -84,7 +85,7 @@ public:
 protected:
   void createPossibleSplitVarSubset(std::vector<size_t>& result);
 
-  void splitNode(size_t nodeID);
+  bool splitNode(size_t nodeID);
   virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) = 0;
 
   void createEmptyNode();
@@ -155,6 +156,7 @@ protected:
   std::vector<size_t> prediction_terminal_nodeIDs;
 
   bool sample_with_replacement;
+  bool memory_saving_splitting;
   SplitRule splitrule;
 
 private:
