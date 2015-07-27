@@ -149,6 +149,6 @@ test_that("save.memory option works for probability", {
 
 test_that("C-index splitting works", {
   rf <- ranger(Surv(time, status) ~ ., data = veteran, verbose = FALSE, 
-               splitrule = "auc")
+               splitrule = "C")
   expect_that(rf$treetype, equals("Survival"))
 })
