@@ -61,7 +61,13 @@ public:
       // Get data out of sparse storage. -1 because of GenABEL coding.
       size_t idx = (col - num_cols_no_sparse) * num_rows_rounded + row;
       size_t result = (((sparse_data[idx / 4] & mask[idx % 4]) >> offset[idx % 4]) - 1);
-      return result;
+
+      // TODO: Better way to treat missing values?
+      if (result > 2) {
+        return 0;
+      } else {
+        return result;
+      }
     }
   }
 
