@@ -17,10 +17,11 @@
 # Written by:
 #
 #   Marvin N. Wright
-# Institut für Medizinische Biometrie und Statistik
-# Universität zu Lübeck
+# Institut fuer Medizinische Biometrie und Statistik
+# Universitaet zu Luebeck
 # Ratzeburger Allee 160
-# 23562 Lübeck
+# 23562 Luebeck
+# Germany
 #
 # http://www.imbs-luebeck.de
 # wright@imbs.uni-luebeck.de
@@ -39,7 +40,7 @@ importance <- function(x, ...)  UseMethod("importance")
 ##' @seealso \code{\link{ranger}}
 ##' @author Marvin N. Wright
 ##' @aliases importance
-##' @export importance.ranger
+##' @export 
 importance.ranger <- function(x, ...) {
   if (class(x) != "ranger") {
     stop("Object ist no ranger object.")

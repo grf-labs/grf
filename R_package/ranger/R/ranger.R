@@ -17,10 +17,11 @@
 # Written by:
 #
 #   Marvin N. Wright
-# Institut für Medizinische Biometrie und Statistik
-# Universität zu Lübeck
+# Institut fuer Medizinische Biometrie und Statistik
+# Universitaet zu Luebeck
 # Ratzeburger Allee 160
-# 23562 Lübeck
+# 23562 Luebeck
+# Germany
 #
 # http://www.imbs-luebeck.de
 # wright@imbs.uni-luebeck.de
@@ -148,6 +149,8 @@
 ##' @seealso \code{\link{predict.ranger}}
 ##' @useDynLib ranger
 ##' @importFrom Rcpp evalCpp
+##' @import stats 
+##' @import utils
 ##' @export
 ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    importance = "none", write.forest = FALSE, probability = FALSE,
