@@ -1,3 +1,7 @@
+## ------- Version 0.2.6 ---------------------------------------------- ##
+- Add C-index splitting
+- Fix NA SNP handling
+
 ## ------- Version 0.2.5 ---------------------------------------------- ##
 - Fix matrix and gwaa alternative survival interface
 - Version submitted to JSS
