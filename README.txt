@@ -1,6 +1,6 @@
 
 
-Ranger 0.2.5
+Ranger 0.2.7
 
 Written by:
 
@@ -21,15 +21,11 @@ Written by:
 
 2. Installation
 
-  To install the Ranger R package from the provided archive just run
+  To install the Ranger R package from CRAN, just run
 
-    install.packages("ranger_X.Y.Z.tar.gz”, repos = NULL, type = “source”) 
+    install.packages("ranger”) 
 
-  in R from the directory where the downloaded archive is or give the full path. If any dependencies are missing (i.e. Rcpp), please install them from CRAN. R version >= 3.1 is required. To install the binary version in Microsoft Windows, use
-
-   install.packages("ranger_X.Y.Z.zip”, repos = NULL) 
-
-  Note that, for now, no multithreading is supported in the R version on Windows platforms (the compiler in RTools is too old).
+  R version >= 3.1 is required. Note that, for now, no multithreading is supported in the R version on Windows platforms (the compiler in RTools is too old).
 
   To install the C++ version of Ranger in Linux or Mac OS X you will need a compiler supporting C++11 (i.e. gcc >= 4.7 or Clang >= 3.0) and Cmake. To build start a terminal from the Ranger main directory and run the following commands
 
