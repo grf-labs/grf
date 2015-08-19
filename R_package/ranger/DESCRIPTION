@@ -1,16 +1,15 @@
 Package: ranger
 Type: Package
 Title: A Fast Implementation of Random Forests
-Version: 0.2.7
-Date: 2015-07-29
+Version: 0.2.8
+Date: 2015-08-19
 Author: Marvin N. Wright
 Maintainer: Marvin N. Wright <wright@imbs.uni-luebeck.de>
 Description: A fast implementation of Random Forests, particularly suited for high
-         dimensional data. Ensembles of classification, regression, survival and
-         probability prediction trees are supported. Data from genome-wide
-         association studies can be analyzed efficiently. In addition to data
-         frames, datasets of class 'gwaa.data' (R package GenABEL) can be directly
-         analyzed.
+          dimensional data. Ensembles of classification, regression, survival and
+          probability prediction trees are supported. Data from genome-wide association
+          studies can be analyzed efficiently. In addition to data frames, datasets of class
+          'gwaa.data' (R package GenABEL) can be directly analyzed.
 License: GPL-3
 Imports: Rcpp (>= 0.11.2)
 LinkingTo: Rcpp

@@ -117,7 +117,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
 
   ## Seed
   if (is.null(seed)) {
-    seed <- 0
+    seed <- runif(1 , 0, .Machine$integer.max)
   }
 
   if (forest$treetype == "Classification") {
