@@ -7,6 +7,10 @@ rg.class <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRU
 rg.reg <- ranger(Sepal.Length ~ ., data = iris, verbose = FALSE, write.forest = TRUE)
 rg.surv <- ranger(Surv(time, status) ~ ., data = veteran, verbose = FALSE, write.forest = TRUE)
 
+dat.gwaa <- readRDS("test_gwaa.Rds")
+rg.gwaa <- ranger(CHD ~ ., data = dat.gwaa, verbose = FALSE, write.forest = TRUE)
+
+
 test_that("classification result is of class ranger with 14 elements", {
   expect_that(rg.class, is_a("ranger"))
   expect_that(length(rg.class), equals(14))
@@ -20,6 +24,11 @@ test_that("regression result is of class ranger with 14 elements", {
 test_that("survival result is of class ranger with 15 elements", {
   expect_that(rg.surv, is_a("ranger"))
   expect_that(length(rg.surv), equals(15))
+})
+
+test_that("classification gwaa rf is of class ranger with 14 elements", {
+  expect_that(rg.gwaa, is_a("ranger"))
+  expect_that(length(rg.gwaa), equals(14))
 })
 
 test_that("results have 500 trees", {
