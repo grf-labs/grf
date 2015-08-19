@@ -1,6 +1,6 @@
 
 
-Ranger 0.2.7
+ranger: A Fast Implementation of Random Forests
 
 Written by:
 
