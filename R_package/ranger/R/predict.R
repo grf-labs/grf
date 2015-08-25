@@ -177,7 +177,12 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
   } else if (forest$treetype == "Probability estimation") {
-    colnames(result$predictions) <- forest$levels
+    if (is.matrix(result$predictions)) {
+      colnames(result$predictions) <- forest$levels
+    } else {
+      names(result$predictions) <- forest$levels
+    }
+    
   }
 
   class(result) <- "ranger.prediction"

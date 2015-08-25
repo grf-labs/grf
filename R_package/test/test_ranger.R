@@ -161,3 +161,21 @@ test_that("C-index splitting works", {
                splitrule = "C")
   expect_that(rf$treetype, equals("Survival"))
 })
+
+test_that("predict works for single observations, classification", {
+  rf <- ranger(Species ~ ., iris, write.forest = TRUE)
+  pred <- predict(rf, head(iris, 1))
+  expect_that(pred$predictions, equals(iris[1,"Species"]))
+})
+
+test_that("predict works for single observations, probability prediction", {
+  rf <- ranger(Species ~ ., iris, write.forest = TRUE, probability = TRUE)
+  pred <- predict(rf, head(iris, 1))
+  expect_that(names(which.max(pred$predictions)), equals(as.character(iris[1,"Species"])))
+})
+
+test_that("predict works for single observations, survival", {
+  rf <- ranger(Surv(time, status) ~ ., veteran, write.forest = TRUE)
+  pred <- predict(rf, head(veteran, 1))
+  expect_that(length(pred$survival), equals(length(rf$unique.death.times)))
+})

@@ -1,5 +1,6 @@
 ## ------- Version 0.2.8 ---------------------------------------------- ##
-- 
+- Respect R seed for prediction
+- Fix bug: Probability prediction for single observations
 
 ## ------- Version 0.2.7 ---------------------------------------------- ##
 - Small fixes for Solaris compiler
