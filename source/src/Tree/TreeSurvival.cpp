@@ -96,7 +96,11 @@ double TreeSurvival::computePredictionAccuracyInternal() {
 
 bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
-  return findBestSplit(nodeID, possible_split_varIDs);
+  if (splitrule == MAXSTAT) {
+    return findBestSplitMaxstat(nodeID, possible_split_varIDs);
+  } else {
+    return findBestSplit(nodeID, possible_split_varIDs);
+  }
 }
 
 bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
@@ -116,19 +120,13 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
 
       // Find best split value, if ordered consider all values as split values, else all 2-partitions
       if ((*is_ordered_variable)[varID]) {
-
         if (splitrule == LOGRANK) {
           findBestSplitValueLogRank(nodeID, varID, best_value, best_varID, best_decrease);
         } else if (splitrule == AUC || splitrule == AUC_IGNORE_TIES) {
           findBestSplitValueAUC(nodeID, varID, best_value, best_varID, best_decrease);
         }
       } else {
-        if (splitrule == LOGRANK) {
-          findBestSplitValueLogRankUnordered(nodeID, varID, best_value, best_varID, best_decrease);
-        } else if (splitrule == AUC || splitrule == AUC_IGNORE_TIES) {
-          // TODO: Implement unordered AUC splitting
-          findBestSplitValueAUC(nodeID, varID, best_value, best_varID, best_decrease);
-        }
+        findBestSplitValueLogRankUnordered(nodeID, varID, best_value, best_varID, best_decrease);
       }
 
     }
@@ -155,6 +153,16 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
   }
 
   return result;
+}
+
+bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
+  // TODO: Scores?
+  // TODO: For each variable find best split with p-value
+  // TODO: Adjust p values with Benjamini/Hochberg, use smallest.
+  // TODO: If <= alpha, continue, else stop
+
+  // true = stop
+  return true;
 }
 
 void TreeSurvival::computeDeathCounts(size_t nodeID) {

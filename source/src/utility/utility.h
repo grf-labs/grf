@@ -306,4 +306,49 @@ std::string checkUnorderedVariables(Data* data, std::vector<std::string> unorder
  */
 bool checkPositiveIntegers(std::vector<double>& all_values);
 
+// TODO: Test!
+/**
+ * Compute p-value for maximally selected rank statistics using Lau92 approximation
+ * See Lausen, B. & Schumacher, M. (1992). Biometrics 48, 73-85.
+ * @param b Quantile
+ * @param minprop Minimal proportion of observations left of cutpoint
+ * @param maxprop Maximal proportion of observations left of cutpoint
+ * @return p-value for quantile b
+ */
+double maxstatPValueLau92(double b, double minprop, double maxprop);
+
+// TODO: Test!
+/**
+ * Compute p-value for maximally selected rank statistics using Lau92 approximation
+ * See Lausen, B., Sauerbrei, W. & Schumacher, M. (1994). Computational Statistics. 483-496.
+ * @param b Quantile
+ * @param minprop Minimal proportion of observations left of cutpoint
+ * @param maxprop Maximal proportion of observations left of cutpoint
+ * @param N Number of observations
+ * @param m Vector with number of observations smaller or equal than cutpoint, sorted, only for unique cutpoints
+ * @return p-value for quantile b
+ */
+double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t> m);
+
+// TODO: Test!
+/**
+ * Standard normal density
+ * @param x Quantile
+ * @return Standard normal density at quantile x
+ */
+double dstdnorm(double x) {
+  return exp(-0.5 * x * x) / sqrt(2 * M_PI);
+}
+
+// TODO: Test!
+/**
+ * Standard normal distribution
+ * @param x Quantile
+ * @return Standard normal distribution at quantile x
+ */
+double pstdnorm(double x) {
+  // TODO: Compare runtime with 0.5 * erfc(-x / sqrt(2.0));
+  return 0.5 * (1 + erf(x / sqrt(2.0)));
+}
+
 #endif /* UTILITY_H_ */

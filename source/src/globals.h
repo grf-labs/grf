@@ -69,7 +69,8 @@ const uint MAX_IMP_MODE = 4;
 enum SplitRule {
   LOGRANK = 1,
   AUC = 2,
-  AUC_IGNORE_TIES = 3
+  AUC_IGNORE_TIES = 3,
+  MAXSTAT = 4
 };
 
 // Default values

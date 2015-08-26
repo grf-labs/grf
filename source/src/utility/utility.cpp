@@ -374,3 +374,37 @@ bool checkPositiveIntegers(std::vector<double>& all_values) {
   return true;
 }
 
+// TODO: Compute log((maxprop*(1 - minprop))/((1-maxprop)*minprop)) only once!
+double maxstatPValueLau92(double b, double minprop, double maxprop) {
+
+  if (b < 1) {
+    return 1.0;
+  }
+
+  double db = dstdnorm(b);
+  double p = 4 * db / b + db * (b - 1 / b) * log((maxprop * (1 - minprop)) / ((1 - maxprop) * minprop));
+
+  if (p > 0) {
+    return p;
+  } else {
+    return 0;
+  }
+}
+
+// TODO: Scores?
+// m: Number of observations with value smaller or equal, only for unique values
+double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t> m) {
+
+  double D = 0;
+  for (size_t i = 0; i < m.size() - 1; ++i) {
+
+    // TODO: Simpler?
+    double m1 = m[i];
+    double m2 = m[i + 1];
+
+    double t = sqrt(1.0 - 1 * (N - m2) / ((N - m1) * m2));
+    D += 1 / M_PI * exp(-b * b / 2) * (t - (b * b / 4 - 1) * (t * t * t) / 6);
+  }
+
+  return 2 * (1 - pstdnorm(b)) + D;
+}

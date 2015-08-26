@@ -220,6 +220,9 @@ int ArgumentHandler::processArguments() {
         case 3:
           splitrule = AUC_IGNORE_TIES;
           break;
+        case 4:
+          splitrule = MAXSTAT;
+          break;
         default:
           throw std::runtime_error("");
           break;
@@ -359,10 +362,14 @@ void ArgumentHandler::checkArguments() {
   }
 
   // Check splitrule
-  if ((splitrule == AUC || splitrule == AUC_IGNORE_TIES) && treetype != TREE_SURVIVAL) {
+  if ((splitrule == AUC || splitrule == AUC_IGNORE_TIES || splitrule == MAXSTAT) && treetype != TREE_SURVIVAL) {
     throw std::runtime_error("Illegal splitrule selected. See '--help' for details.");
   }
 
+  // Unordered survival splitting only available for logrank splitrule
+  if (treetype == TREE_SURVIVAL && !catvars.empty() && splitrule != LOGRANK) {
+    throw std::runtime_error("Unordered splitting in survival trees only available for LOGRANK splitrule.");
+  }
 }
 
 void ArgumentHandler::displayHelp() {
@@ -409,6 +416,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--splitrule RULE              Splitting rule:" << std::endl;
   std::cout << "    " << "                              RULE = 1: Gini for Classification, variance for Regression, logrank for Survival." << std::endl;
   std::cout << "    " << "                              RULE = 2: AUC for Survival, not available for Classification and Regression." << std::endl;
+  std::cout << "    " << "                              RULE = 3: AUC (ignore ties) for Survival, not available for Classification and Regression." << std::endl;
+  std::cout << "    " << "                              RULE = 4: MAXSTAT for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
   std::cout << "    " << "--splitweights FILE           Filename of split select weights file." << std::endl;
   std::cout << "    " << "--alwayssplitvars V1,V2,..    Comma separated list of variable names to be always considered for splitting." << std::endl;

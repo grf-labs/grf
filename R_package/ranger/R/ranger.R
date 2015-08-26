@@ -73,7 +73,7 @@
 ##' @param probability Grow a probability forest as in Malley et al. (2012). 
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. 
-##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "C" with default "logrank". 
+##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank", "C" and "maxstat" with default "logrank". 
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
@@ -340,6 +340,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     splitrule <- 2
   } else if (treetype == 5 & (splitrule == "auc_ignore_ties" | splitrule == "C_ignore_ties")) {
     splitrule <- 3
+  } else if ("maxstat") {
+    splitrule <- 4
   } else {
     stop("Error: Unknown splitrule.")
   }
