@@ -354,6 +354,7 @@ double pstdnorm(double x);
  */
 std::vector<double> adjust_pvalues(std::vector<double>& unadjusted_pvalues);
 
+// TODO: Test
 template<typename T>
 std::vector<size_t> order(std::vector<T> values, bool descending) {
   // Create index vector
