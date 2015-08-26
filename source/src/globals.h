@@ -84,6 +84,7 @@ const uint DEFAULT_MIN_NODE_SIZE_SURVIVAL = 3;
 const uint DEFAULT_MIN_NODE_SIZE_PROBABILITY = 10;
 
 const SplitRule DEFAULT_SPLITRULE = LOGRANK;
+const double DEFAULT_ALPHA = 0.5;
 
 // Interval to print progress in seconds
 const double STATUS_INTERVAL = 30.0;

@@ -50,7 +50,7 @@ public:
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
-      bool memory_saving_splitting, SplitRule splitrule);
+      bool memory_saving_splitting, SplitRule splitrule, double alpha);
   virtual void initInternal() = 0;
 
   void grow();
@@ -158,6 +158,7 @@ protected:
   bool sample_with_replacement;
   bool memory_saving_splitting;
   SplitRule splitrule;
+  double alpha;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Tree);

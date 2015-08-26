@@ -35,10 +35,10 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
-    depvarname(""), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(DEFAULT_NUM_THREADS), file(
-        ""), impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(
-        false), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(
-        false), treetype(TREE_CLASSIFICATION), seed(0) {
+    depvarname(""), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(DEFAULT_NUM_THREADS), alpha(
+        DEFAULT_ALPHA), file(""), impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix(
+        "ranger_out"), probability(false), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(
+        true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -49,7 +49,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:D:M:NP:S:U:Zc:f:hil::m:o:pr:s:t:uvwy:z:";
+  char const *short_options = "A:D:M:NP:S:U:Za:c:f:hil::m:o:pr:s:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
@@ -63,6 +63,7 @@ int ArgumentHandler::processArguments() {
       { "nthreads",             required_argument,  0, 'U'},
       { "version",              no_argument,        0, 'Z'},
 
+      { "alpha",                required_argument,  0, 'a'},
       { "catvars",              required_argument,  0, 'c'},
       { "file",                 required_argument,  0, 'f'},
       { "help",                 no_argument,        0, 'h'},
@@ -71,7 +72,7 @@ int ArgumentHandler::processArguments() {
       { "mtry",                 required_argument,  0, 'm'},
       { "outprefix",            required_argument,  0, 'o'},
       { "probability",          no_argument,        0, 'p'},
-      { "splitrule",            required_argument, 0, 'r' },
+      { "splitrule",            required_argument,  0, 'r' },
       { "statusvarname",        required_argument,  0, 's'},
       { "ntree",                required_argument,  0, 't'},
       { "noreplace",            no_argument,        0, 'u'},
@@ -147,6 +148,20 @@ int ArgumentHandler::processArguments() {
       break;
 
       // lower case options
+    case 'a':
+      try {
+        double temp = std::stoi(optarg);
+        if (temp < 0 || temp > 1) {
+          throw std::runtime_error("");
+        } else {
+          alpha = temp;
+        }
+      } catch (...) {
+        throw std::runtime_error(
+            "Illegal argument for option 'alpha'. Please give a value between 0 and 1. See '--help' for details.");
+      }
+      break;
+
     case 'c':
       splitString(catvars, optarg, ',');
       break;
@@ -419,6 +434,7 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              RULE = 3: AUC (ignore ties) for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              RULE = 4: MAXSTAT for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
+  std::cout << "    " << "--alpha VAL                   Significance threshold to allow splitting (MAXSTAT splitrule only)." << std::endl;
   std::cout << "    " << "--splitweights FILE           Filename of split select weights file." << std::endl;
   std::cout << "    " << "--alwayssplitvars V1,V2,..    Comma separated list of variable names to be always considered for splitting." << std::endl;
   std::cout << "    " << "--nthreads N                  Set number of parallel threads to N." << std::endl;

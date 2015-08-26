@@ -154,7 +154,8 @@
 ##' @export
 ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    importance = "none", write.forest = FALSE, probability = FALSE,
-                   min.node.size = NULL, replace = TRUE, splitrule = NULL,
+                   min.node.size = NULL, replace = TRUE, 
+                   splitrule = NULL, alpha = 0.5, 
                    split.select.weights = NULL, always.split.variables = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
@@ -345,6 +346,11 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else {
     stop("Error: Unknown splitrule.")
   }
+  
+  ## Significance threshold
+  if (alpha < 0 | alpha > 1) {
+    stop("Error: Invalid value for alpha, please give a value between 0 and 1.")
+  }
 
   ## Unordered factors  
   if (respect.unordered.factors) {
@@ -388,7 +394,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
-                      save.memory, splitrule)
+                      save.memory, splitrule, alpha)
   
   if (length(result) == 0) {
     stop("Internal error.")

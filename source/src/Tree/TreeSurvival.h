@@ -67,6 +67,8 @@ private:
   bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
   bool findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
 
+  void computeMaxstat(size_t nodeID, size_t varID, double& best_maxstat, double& best_split_value);
+
   void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
       double& best_value, size_t& best_varID, double& best_logrank);
   void findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,

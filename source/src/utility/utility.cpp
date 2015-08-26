@@ -393,7 +393,7 @@ double maxstatPValueLau92(double b, double minprop, double maxprop) {
 
 // TODO: Scores?
 // m: Number of observations with value smaller or equal, only for unique values
-double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t> m) {
+double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t>& m) {
 
   double D = 0;
   for (size_t i = 0; i < m.size() - 1; ++i) {
@@ -407,4 +407,32 @@ double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, st
   }
 
   return 2 * (1 - pstdnorm(b)) + D;
+}
+
+double dstdnorm(double x) {
+  return exp(-0.5 * x * x) / sqrt(2 * M_PI);
+}
+
+double pstdnorm(double x) {
+  // TODO: Compare runtime with 0.5 * erfc(-x / sqrt(2.0));
+  return 0.5 * (1 + erf(x / sqrt(2.0)));
+}
+
+std::vector<double> adjust_pvalues(std::vector<double>& unadjusted_pvalues) {
+  size_t num_pvalues = unadjusted_pvalues.size();
+  std::vector<double> adjusted_pvalues(num_pvalues, 0);
+
+  // Get order of p-values
+  std::vector<size_t> indices = order(unadjusted_pvalues, true);
+
+  // Compute adjusted p-values
+  adjusted_pvalues[indices[0]] = unadjusted_pvalues[indices[0]];
+  for (size_t i = 1; i < indices.size(); ++i) {
+    size_t idx = indices[i];
+    size_t idx_last = indices[i - 1];
+
+    adjusted_pvalues[idx] = std::min(adjusted_pvalues[idx_last],
+        (double) num_pvalues / (double) i * unadjusted_pvalues[idx]);
+  }
+  return adjusted_pvalues;
 }

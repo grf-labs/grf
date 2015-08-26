@@ -69,6 +69,7 @@ public:
   uint nthreads;
 
   // All command line arguments as member: Small letters
+  double alpha;
   std::vector<std::string> catvars;
   std::string file;
   ImportanceMode impmeasure;

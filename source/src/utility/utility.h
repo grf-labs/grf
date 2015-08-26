@@ -336,9 +336,7 @@ double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, st
  * @param x Quantile
  * @return Standard normal density at quantile x
  */
-double dstdnorm(double x) {
-  return exp(-0.5 * x * x) / sqrt(2 * M_PI);
-}
+double dstdnorm(double x);
 
 // TODO: Test!
 /**
@@ -346,9 +344,29 @@ double dstdnorm(double x) {
  * @param x Quantile
  * @return Standard normal distribution at quantile x
  */
-double pstdnorm(double x) {
-  // TODO: Compare runtime with 0.5 * erfc(-x / sqrt(2.0));
-  return 0.5 * (1 + erf(x / sqrt(2.0)));
+double pstdnorm(double x);
+
+// TODO: Test
+/**
+ * Adjust p-values with Benjamini/Hochberg
+ * @param unadjusted_pvalues Unadjusted p-values (input)
+ * @param adjusted_pvalues Adjusted p-values (result)
+ */
+std::vector<double> adjust_pvalues(std::vector<double>& unadjusted_pvalues);
+
+template<typename T>
+std::vector<size_t> order(std::vector<T> values, bool descending) {
+  // Create index vector
+  std::vector<size_t> indices(values.size());
+  std::iota(indices.begin(), indices.end(), 0);
+
+  // Sort index vector based on value vector
+  if (descending) {
+    std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] > values[i2];});
+  } else {
+    std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] < values[i2];});
+  }
+  return indices;
 }
 
 #endif /* UTILITY_H_ */
