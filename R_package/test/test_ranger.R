@@ -179,3 +179,15 @@ test_that("predict works for single observations, survival", {
   pred <- predict(rf, head(veteran, 1))
   expect_that(length(pred$survival), equals(length(rf$unique.death.times)))
 })
+
+test_that("maxstat splitting works for survival", {
+  rf <- ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat")
+  expect_that(rf, is_a("ranger"))
+})
+
+test_that("maxstat splitting, alpha out of range throws error", {
+  expect_that(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", alpha = -1), 
+              throws_error())
+  expect_that(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", alpha = 2), 
+              throws_error())
+})
