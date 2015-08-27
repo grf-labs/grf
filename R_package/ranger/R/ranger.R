@@ -343,7 +343,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     splitrule <- 2
   } else if (treetype == 5 & (splitrule == "auc_ignore_ties" | splitrule == "C_ignore_ties")) {
     splitrule <- 3
-  } else if ("maxstat") {
+  } else if (treetype == 5 & splitrule == "maxstat") {
     splitrule <- 4
   } else {
     stop("Error: Unknown splitrule.")
