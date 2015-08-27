@@ -429,7 +429,7 @@ std::vector<double> adjust_pvalues(std::vector<double>& unadjusted_pvalues) {
     size_t idx_last = indices[i - 1];
 
     adjusted_pvalues[idx] = std::min(adjusted_pvalues[idx_last],
-        (double) num_pvalues / (double) i * unadjusted_pvalues[idx]);
+        (double) num_pvalues / (double) (num_pvalues - i) * unadjusted_pvalues[idx]);
   }
   return adjusted_pvalues;
 }

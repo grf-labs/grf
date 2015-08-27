@@ -342,7 +342,6 @@ double dstdnorm(double x);
  */
 double pstdnorm(double x);
 
-// TODO: Test
 /**
  * Adjust p-values with Benjamini/Hochberg
  * @param unadjusted_pvalues Unadjusted p-values (input)
