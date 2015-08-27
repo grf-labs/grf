@@ -168,18 +168,13 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
       chf_temp.push_back(chf_value);
     }
     chf[nodeID] = chf_temp;
-
-    // TODO: Remove
-    std::cout << "Node" << nodeID << ", nodesize: " << sampleIDs[nodeID].size() << ", return terminal, nodesize"
-        << std::endl;
-
     return true;
   }
 
   std::vector<double> pvalues;
   pvalues.reserve(possible_split_varIDs.size());
-  std::vector<double> split_values;
-  split_values.reserve(possible_split_varIDs.size());
+  std::vector<double> values;
+  values.reserve(possible_split_varIDs.size());
 
   // Compute p-values
   for (auto& varID : possible_split_varIDs) {
@@ -190,10 +185,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     // TODO: Use minLau
     double pvalue = maxstatPValueLau92(maxstat, minprop, 1 - minprop);
     pvalues.push_back(pvalue);
-    split_values.push_back(split_value);
-
-    // TODO: Remove
-    std::cout << "Node " << nodeID << ", value " << split_value << ", maxstat " << maxstat << ", pvalue " << pvalue << std::endl;
+    values.push_back(split_value);
   }
 
   // Adjust p-values with Benjamini/Hochberg
@@ -207,7 +199,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     if (adjusted_pvalues[i] < min_pvalue) {
       min_pvalue = adjusted_pvalues[i];
       best_varID = possible_split_varIDs[i];
-      best_value = split_values[i];
+      best_value = values[i];
     }
   }
 
@@ -222,25 +214,15 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
       chf_temp.push_back(chf_value);
     }
     chf[nodeID] = chf_temp;
-
-    // TODO: Remove
-//    std::cout << "Node" << nodeID << ", nodesize: " << sampleIDs[nodeID].size() << ", return terminal, alpha"
-//        << std::endl;
-
     return true;
   } else {
     // If not terminal node save best values
     split_varIDs[nodeID] = best_varID;
     split_values[nodeID] = best_value;
-
-    // TODO: Remove
-//    std::cout << "Node" << nodeID << ", nodesize: " << sampleIDs[nodeID].size() << ", return non-terminal" << std::endl;
-
     return false;
   }
 }
 
-// TODO: Use minprop for selecting split points
 // TODO: More efficently? Use presorted values?
 void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxstat, double& best_split_value) {
 
@@ -250,24 +232,15 @@ void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxs
   // Number of samples in node
   size_t n = sampleIDs[nodeID].size();
 
-  // TODO: Remove
-//  std::cout << "values: ";
-
-  // Get all observations
+// Get all observations
   std::vector<double> x;
   x.reserve(n);
   for (auto& sampleID : sampleIDs[nodeID]) {
     x.push_back(data->get(sampleID, varID));
-
-    // TODO: Remove
-//    std::cout << data->get(sampleID, varID) << " ";
   }
 
-  // TODO: Remove
-//  std::cout << std::endl;
-
-  // TODO: Too much copying ..
-  // Get timepoints and censoring
+// TODO: Too much copying ..
+// Get timepoints and censoring
   std::vector<double> time;
   time.reserve(n);
   std::vector<double> status;
@@ -303,30 +276,38 @@ void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxs
     sum_mean_diff += (scores[i] - mean_scores) * (scores[i] - mean_scores);
   }
 
+  // Get smallest and largest split to consider
+  size_t minsplit = n * minprop;
+  size_t maxsplit = n * (1 - minprop);
+
   // TODO: Inefficient?
   // For all unique x-values
   double sum_scores = 0;
   size_t n_left = 0;
-  for (size_t i = 0; i < n - 1; ++i) {
+  for (size_t i = 0; i <= maxsplit; ++i) {
 
     sum_scores += scores_sorted[i];
     n_left++;
 
-    // Consider only unique values
-    if (i < n - 1 && x_sorted[i] == x_sorted[i + 1]) {
+    // Dont consider splits smaller than minsplit for splitting (but count)
+    if (i < minsplit) {
       continue;
+    }
+
+    // Consider only unique values
+    if (i < maxsplit && x_sorted[i] == x_sorted[i + 1]) {
+      continue;
+    }
+
+    // If value is largest possible value, stop
+    if (x_sorted[i] == x_sorted[x_sorted.size() - 1]) {
+      break;
     }
 
     double S = sum_scores;
     double E = n_left / n * sum_all_scores;
     double V = (double) n_left * (double) (n - n_left) / (double) (n * (n - 1)) * sum_mean_diff;
     double T = fabs((S - E) / sqrt(V));
-
-    // TODO: Remove
-//    std::cout << "value " << x_sorted[i] << ", S " << S << ", E " << E << ", V " << V << ", T " << T << std::endl;
-
-    // TODO: Remove
-//    std::cout << "n " << n << ", n_left " << n_left << ", sum_mean_diff " << sum_mean_diff << std::endl;
 
     if (T > best_maxstat) {
       best_maxstat = T;
