@@ -169,15 +169,14 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     double maxstat;
     double split_value;
     computeMaxstat(nodeID, varID, maxstat, split_value);
-    // TODO: minprop/maxprop
-    // TODO: Parameter for pmethod
-    double pvalue = maxstatPValueLau92(maxstat, 0.1, 0.9);
+    // TODO: Use minLau
+    double pvalue = maxstatPValueLau92(maxstat, minprop, 1-minprop);
     pvalues.push_back(pvalue);
     split_values.push_back(split_value);
   }
 
   // Adjust p-values with Benjamini/Hochberg
-  std::vector<double> adjusted_pvalues = adjust_pvalues(pvalues);
+  std::vector<double> adjusted_pvalues = adjustPvalues(pvalues);
 
   // Use smallest p-value, stop if > alpha
   double min_pvalue = 1;

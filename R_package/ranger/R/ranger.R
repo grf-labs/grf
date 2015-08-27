@@ -74,6 +74,8 @@
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. 
 ##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank", "C" and "maxstat" with default "logrank". 
+##' @param alpha For "maxstat" splitrule: Significance threshold to allow splitting.
+##' @param minprop For "maxstat" splitrule: Lower quantile of covariate distribtuion to be considered for splitting.
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
@@ -154,8 +156,8 @@
 ##' @export
 ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    importance = "none", write.forest = FALSE, probability = FALSE,
-                   min.node.size = NULL, replace = TRUE, 
-                   splitrule = NULL, alpha = 0.5, 
+                   min.node.size = NULL, replace = TRUE, splitrule = NULL, 
+                   alpha = 0.5, minprop = 0.1,
                    split.select.weights = NULL, always.split.variables = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
@@ -347,9 +349,12 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     stop("Error: Unknown splitrule.")
   }
   
-  ## Significance threshold
+  ## Maxstat splitting
   if (alpha < 0 | alpha > 1) {
     stop("Error: Invalid value for alpha, please give a value between 0 and 1.")
+  }
+  if (minprop < 0 | minprop > 0.5) {
+    stop("Error: Invalid value for minprop, please give a value between 0 and 0.5.")
   }
 
   ## Unordered factors  
@@ -394,7 +399,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
-                      save.memory, splitrule, alpha)
+                      save.memory, splitrule, alpha, minprop)
   
   if (length(result) == 0) {
     stop("Internal error.")

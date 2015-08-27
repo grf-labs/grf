@@ -151,6 +151,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
   save.memory <- FALSE
   splitrule <- 1
   alpha <- 0
+  minprop <- 0
   
   ## Call Ranger
   result <- rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
@@ -159,7 +160,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, forest, sparse.data, replace, probability,
                       unordered.factor.variables, use.unordered.factor.variables, save.memory, splitrule, 
-                      alpha)
+                      alpha, minprop)
 
   if (length(result) == 0) {
     stop("Internal error.")

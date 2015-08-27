@@ -70,6 +70,7 @@ public:
 
   // All command line arguments as member: Small letters
   double alpha;
+  double minprop;
   std::vector<std::string> catvars;
   std::string file;
   ImportanceMode impmeasure;
