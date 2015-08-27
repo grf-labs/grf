@@ -655,8 +655,7 @@ TEST(maxstatPValueLau94, test1) {
 //  m <- which(!duplicated(sort(sample(seq(0.5,10,0.5), N, replace = TRUE)))) - 1
 //  dput(m)
 //  dput(sapply(seq(0.5,10,0.5), maxstat::pLausen94, N = N, minprop = 0.1, maxprop = 0.1, m = m))
-  std::vector<size_t> m = std::vector<size_t>( { 0, 3, 7, 8, 12, 15, 17, 18, 21, 25, 27, 30, 31, 35, 36, 39, 44,
-      46 });
+  std::vector<size_t> m = std::vector<size_t>( { 0, 3, 7, 8, 12, 15, 17, 18, 21, 25, 27, 30, 31, 35, 36, 39, 44, 46 });
   const std::vector<double> p_expect = std::vector<double>( { 3.24640516569147, 2.10411448384791, 1.07190625979408,
       0.426066236447909, 0.131558039703021, 0.0314590549699589, 0.00581093458428213, 0.000826972741261553,
       9.03968770946711e-05, 7.55926672751076e-06, 4.80774063093186e-07, 2.30447718702542e-08, 8.19448285148733e-10,
@@ -679,6 +678,60 @@ TEST(maxstatPValueLau94, test1) {
   // Compare with expectation
   for (size_t i = 0; i < p.size(); ++i) {
     EXPECT_NEAR(p[i], p_expect[i], fabs(p[i] * 0.05));
+  }
+}
+
+TEST(dstdnorm, test1) {
+
+  // From R call:
+  // dput(dnorm(seq(-4, 4, by = 0.5)))
+
+  const std::vector<double> expect = std::vector<double>( { 0.000133830225764885, 0.00087268269504576,
+      0.00443184841193801, 0.0175283004935685, 0.0539909665131881, 0.129517595665892, 0.241970724519143,
+      0.3520653267643, 0.398942280401433, 0.3520653267643, 0.241970724519143, 0.129517595665892, 0.0539909665131881,
+      0.0175283004935685, 0.00443184841193801, 0.00087268269504576, 0.000133830225764885 });
+
+  // Create sequence -4, 4, by=0.5
+  std::vector<double> test_x(17);
+  double x = -4.5;
+  std::generate(test_x.begin(), test_x.end(), [&]() {return x += 0.5;});
+
+  // Compute density
+  std::vector<double> density;
+  for (auto& x : test_x) {
+    density.push_back(dstdnorm(x));
+  }
+
+  // Compare with expectation
+  for (size_t i = 0; i < density.size(); ++i) {
+    EXPECT_NEAR(density[i], expect[i], fabs(density[i] * 0.05));
+  }
+}
+
+TEST(pstdnorm, test1) {
+
+  // From R call:
+  // dput(pnorm(seq(-4, 4, by = 0.5)))
+
+  const std::vector<double> expect = std::vector<double>( { 3.16712418331199e-05, 0.000232629079035525,
+      0.00134989803163009, 0.00620966532577613, 0.0227501319481792, 0.0668072012688581, 0.158655253931457,
+      0.308537538725987, 0.5, 0.691462461274013, 0.841344746068543, 0.933192798731142, 0.977249868051821,
+      0.993790334674224, 0.99865010196837, 0.999767370920964, 0.999968328758167 });
+
+  // Create sequence -4, 4, by=0.5
+  std::vector<double> test_x(17);
+  double x = -4.5;
+  std::generate(test_x.begin(), test_x.end(), [&]() {return x += 0.5;});
+
+  // Compute distribution
+  std::vector<double> dist;
+  for (auto& x : test_x) {
+    dist.push_back(pstdnorm(x));
+  }
+
+  // Compare with expectation
+  for (size_t i = 0; i < dist.size(); ++i) {
+    EXPECT_NEAR(dist[i], expect[i], fabs(dist[i] * 0.05));
   }
 }
 

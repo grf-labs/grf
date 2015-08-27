@@ -306,7 +306,6 @@ std::string checkUnorderedVariables(Data* data, std::vector<std::string> unorder
  */
 bool checkPositiveIntegers(std::vector<double>& all_values);
 
-// TODO: Test!
 /**
  * Compute p-value for maximally selected rank statistics using Lau92 approximation
  * See Lausen, B. & Schumacher, M. (1992). Biometrics 48, 73-85.
@@ -317,7 +316,6 @@ bool checkPositiveIntegers(std::vector<double>& all_values);
  */
 double maxstatPValueLau92(double b, double minprop, double maxprop);
 
-// TODO: Test!
 /**
  * Compute p-value for maximally selected rank statistics using Lau92 approximation
  * See Lausen, B., Sauerbrei, W. & Schumacher, M. (1994). Computational Statistics. 483-496.
@@ -330,7 +328,6 @@ double maxstatPValueLau92(double b, double minprop, double maxprop);
  */
 double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t>& m);
 
-// TODO: Test!
 /**
  * Standard normal density
  * @param x Quantile
@@ -338,7 +335,6 @@ double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, st
  */
 double dstdnorm(double x);
 
-// TODO: Test!
 /**
  * Standard normal distribution
  * @param x Quantile
@@ -355,6 +351,7 @@ double pstdnorm(double x);
 std::vector<double> adjust_pvalues(std::vector<double>& unadjusted_pvalues);
 
 // TODO: Test
+// TODO: Doc
 template<typename T>
 std::vector<size_t> order(std::vector<T> values, bool descending) {
   // Create index vector

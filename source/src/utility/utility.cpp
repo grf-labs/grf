@@ -391,8 +391,6 @@ double maxstatPValueLau92(double b, double minprop, double maxprop) {
   }
 }
 
-// TODO: Scores?
-// m: Number of observations with value smaller or equal, only for unique values
 double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t>& m) {
 
   double D = 0;
@@ -414,7 +412,6 @@ double dstdnorm(double x) {
 }
 
 double pstdnorm(double x) {
-  // TODO: Compare runtime with 0.5 * erfc(-x / sqrt(2.0));
   return 0.5 * (1 + erf(x / sqrt(2.0)));
 }
 
