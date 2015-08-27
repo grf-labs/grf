@@ -349,16 +349,20 @@ double pstdnorm(double x);
  */
 std::vector<double> adjust_pvalues(std::vector<double>& unadjusted_pvalues);
 
-// TODO: Test
-// TODO: Doc
+/**
+ * Get indices of sorted values
+ * @param values Values to sort
+ * @param decreasing Order decreasing
+ * @return Indices of sorted values
+ */
 template<typename T>
-std::vector<size_t> order(std::vector<T> values, bool descending) {
+std::vector<size_t> order(std::vector<T> values, bool decreasing) {
   // Create index vector
   std::vector<size_t> indices(values.size());
   std::iota(indices.begin(), indices.end(), 0);
 
   // Sort index vector based on value vector
-  if (descending) {
+  if (decreasing) {
     std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] > values[i2];});
   } else {
     std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] < values[i2];});
