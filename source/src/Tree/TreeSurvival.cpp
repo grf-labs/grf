@@ -156,8 +156,25 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
 }
 
 bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
-  // TODO: Scores?
-  // TODO: stop for nodesize?
+
+  // Check node size, stop if maximum reached
+  if (sampleIDs[nodeID].size() <= min_node_size) {
+    std::vector<double> chf_temp;
+    double chf_value = 0;
+    for (size_t i = 0; i < num_timepoints; ++i) {
+      if (num_samples_at_risk[i] != 0) {
+        chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
+      }
+      chf_temp.push_back(chf_value);
+    }
+    chf[nodeID] = chf_temp;
+
+    // TODO: Remove
+    std::cout << "Node" << nodeID << ", nodesize: " << sampleIDs[nodeID].size() << ", return terminal, nodesize"
+        << std::endl;
+
+    return true;
+  }
 
   std::vector<double> pvalues;
   pvalues.reserve(possible_split_varIDs.size());
@@ -169,16 +186,20 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     double maxstat;
     double split_value;
     computeMaxstat(nodeID, varID, maxstat, split_value);
+
     // TODO: Use minLau
-    double pvalue = maxstatPValueLau92(maxstat, minprop, 1-minprop);
+    double pvalue = maxstatPValueLau92(maxstat, minprop, 1 - minprop);
     pvalues.push_back(pvalue);
     split_values.push_back(split_value);
+
+    // TODO: Remove
+    std::cout << "Node " << nodeID << ", value " << split_value << ", maxstat " << maxstat << ", pvalue " << pvalue << std::endl;
   }
 
   // Adjust p-values with Benjamini/Hochberg
   std::vector<double> adjusted_pvalues = adjustPvalues(pvalues);
 
-  // Use smallest p-value, stop if > alpha
+  // Use smallest p-value
   double min_pvalue = 1;
   size_t best_varID = 0;
   double best_value = 0;
@@ -201,15 +222,25 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
       chf_temp.push_back(chf_value);
     }
     chf[nodeID] = chf_temp;
+
+    // TODO: Remove
+//    std::cout << "Node" << nodeID << ", nodesize: " << sampleIDs[nodeID].size() << ", return terminal, alpha"
+//        << std::endl;
+
     return true;
   } else {
     // If not terminal node save best values
     split_varIDs[nodeID] = best_varID;
     split_values[nodeID] = best_value;
+
+    // TODO: Remove
+//    std::cout << "Node" << nodeID << ", nodesize: " << sampleIDs[nodeID].size() << ", return non-terminal" << std::endl;
+
     return false;
   }
 }
 
+// TODO: Use minprop for selecting split points
 // TODO: More efficently? Use presorted values?
 void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxstat, double& best_split_value) {
 
@@ -219,15 +250,35 @@ void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxs
   // Number of samples in node
   size_t n = sampleIDs[nodeID].size();
 
+  // TODO: Remove
+//  std::cout << "values: ";
+
   // Get all observations
   std::vector<double> x;
   x.reserve(n);
   for (auto& sampleID : sampleIDs[nodeID]) {
     x.push_back(data->get(sampleID, varID));
+
+    // TODO: Remove
+//    std::cout << data->get(sampleID, varID) << " ";
   }
 
-  // TODO: Where to get?
-  std::vector<double> scores;
+  // TODO: Remove
+//  std::cout << std::endl;
+
+  // TODO: Too much copying ..
+  // Get timepoints and censoring
+  std::vector<double> time;
+  time.reserve(n);
+  std::vector<double> status;
+  status.reserve(n);
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    time.push_back(data->get(sampleID, dependent_varID));
+    status.push_back(data->get(sampleID, status_varID));
+  }
+
+  // Compute scores
+  std::vector<double> scores = logrankScores(time, status);
 
   // TODO: Inefficient?
   // Create sorted x and scores, based on x
@@ -256,20 +307,26 @@ void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxs
   // For all unique x-values
   double sum_scores = 0;
   size_t n_left = 0;
-  for (size_t i = 0; i < n; ++i) {
+  for (size_t i = 0; i < n - 1; ++i) {
 
     sum_scores += scores_sorted[i];
     n_left++;
 
     // Consider only unique values
-    if (i < n-1 && x_sorted[i] == x_sorted[i+1]) {
+    if (i < n - 1 && x_sorted[i] == x_sorted[i + 1]) {
       continue;
     }
 
     double S = sum_scores;
-    double E = n_left/n * sum_all_scores;
-    double V = n_left * (n - n_left) / (n*(n-1)) * sum_mean_diff;
-    double T = (S - E) / sqrt(V);
+    double E = n_left / n * sum_all_scores;
+    double V = (double) n_left * (double) (n - n_left) / (double) (n * (n - 1)) * sum_mean_diff;
+    double T = fabs((S - E) / sqrt(V));
+
+    // TODO: Remove
+//    std::cout << "value " << x_sorted[i] << ", S " << S << ", E " << E << ", V " << V << ", T " << T << std::endl;
+
+    // TODO: Remove
+//    std::cout << "n " << n << ", n_left " << n_left << ", sum_mean_diff " << sum_mean_diff << std::endl;
 
     if (T > best_maxstat) {
       best_maxstat = T;
