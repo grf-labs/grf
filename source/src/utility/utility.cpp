@@ -397,8 +397,6 @@ double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, st
 
   double D = 0;
   for (size_t i = 0; i < m.size() - 1; ++i) {
-
-    // TODO: Simpler?
     double m1 = m[i];
     double m2 = m[i + 1];
 
