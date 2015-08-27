@@ -95,7 +95,6 @@ double TreeSurvival::computePredictionAccuracyInternal() {
 }
 
 bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
-
   if (splitrule == MAXSTAT) {
     return findBestSplitMaxstat(nodeID, possible_split_varIDs);
   } else {
@@ -175,6 +174,8 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
   pvalues.reserve(possible_split_varIDs.size());
   std::vector<double> values;
   values.reserve(possible_split_varIDs.size());
+  std::vector<double> candidate_varIDs;
+  candidate_varIDs.reserve(possible_split_varIDs.size());
 
   // Compute p-values
   for (auto& varID : possible_split_varIDs) {
@@ -182,24 +183,30 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     double split_value;
     computeMaxstat(nodeID, varID, maxstat, split_value);
 
-    // TODO: Use minLau
-    double pvalue = maxstatPValueLau92(maxstat, minprop, 1 - minprop);
-    pvalues.push_back(pvalue);
-    values.push_back(split_value);
+    if (maxstat > -1) {
+      // TODO: Use minLau
+      double pvalue = maxstatPValueLau92(maxstat, minprop, 1 - minprop);
+      pvalues.push_back(pvalue);
+      values.push_back(split_value);
+      candidate_varIDs.push_back(varID);
+    }
   }
 
-  // Adjust p-values with Benjamini/Hochberg
-  std::vector<double> adjusted_pvalues = adjustPvalues(pvalues);
-
-  // Use smallest p-value
-  double min_pvalue = 1;
+  double min_pvalue = 2;
   size_t best_varID = 0;
   double best_value = 0;
-  for (size_t i = 0; i < adjusted_pvalues.size(); ++i) {
-    if (adjusted_pvalues[i] < min_pvalue) {
-      min_pvalue = adjusted_pvalues[i];
-      best_varID = possible_split_varIDs[i];
-      best_value = values[i];
+
+  if (pvalues.size() > 0) {
+    // Adjust p-values with Benjamini/Hochberg
+    std::vector<double> adjusted_pvalues = adjustPvalues(pvalues);
+
+    // Use smallest p-value
+    for (size_t i = 0; i < adjusted_pvalues.size(); ++i) {
+      if (adjusted_pvalues[i] < min_pvalue) {
+        min_pvalue = adjusted_pvalues[i];
+        best_varID = candidate_varIDs[i];
+        best_value = values[i];
+      }
     }
   }
 
@@ -314,7 +321,6 @@ void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxs
       best_split_value = x_sorted[i];
     }
   }
-
 }
 
 void TreeSurvival::computeDeathCounts(size_t nodeID) {
