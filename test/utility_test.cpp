@@ -189,7 +189,7 @@ TEST(readWrite2D, double1) {
 
 TEST(drawWithoutReplacementSkip, small_small1) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
@@ -219,7 +219,7 @@ TEST(drawWithoutReplacementSkip, small_small1) {
 
 TEST(drawWithoutReplacementSkip, small_small2) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
@@ -249,7 +249,7 @@ TEST(drawWithoutReplacementSkip, small_small2) {
 
 TEST(drawWithoutReplacementSkip, small_small3) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
@@ -279,7 +279,7 @@ TEST(drawWithoutReplacementSkip, small_small3) {
 
 TEST(drawWithoutReplacementSkip, small_large1) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
@@ -309,7 +309,7 @@ TEST(drawWithoutReplacementSkip, small_large1) {
 
 TEST(drawWithoutReplacementSkip, large_large1) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
@@ -620,4 +620,30 @@ TEST(shuffleAndSplit, test4) {
   EXPECT_EQ(3, second_part.size());
 }
 
+TEST(maxstatPValueLau92, test1) {
+
+  // From R call dput(sapply(seq(0.5, 10, by = 0.5), maxstat::pLausen92, minprop = 0.1, maxprop = 0.9))
+  const std::vector<double> p_expect = std::vector<double>( { 1.0, 0.967882898076573, 0.819678995766699,
+      0.463872768757117, 0.189802453892004, 0.0578438845691903, 0.0133240079314344, 0.00233924318507284,
+      0.00031467775847682, 3.25492795226314e-05, 2.59527010078785e-06, 1.59801511710768e-07, 7.6090999589879e-09,
+      2.80479710245055e-10, 8.01032048074225e-12, 1.77366479130538e-13, 3.04652951223938e-15, 4.06114941874027e-17,
+      4.20307813816918e-19, 3.37831711514353e-21 });
+
+  // Create sequence 0.5..10
+  std::vector<double> test_b(20);
+  double x = 0;
+  std::generate(test_b.begin(), test_b.end(), [&]() {return x += 0.5;});
+
+  // Compute approximation
+  double minprop = 0.1;
+  std::vector<double> p;
+  for (auto& x : test_b) {
+    p.push_back(maxstatPValueLau92(x, minprop, 1 - minprop));
+  }
+
+  // Compare with expectation
+  for (size_t i = 0; i < p.size(); ++i) {
+    EXPECT_NEAR(p[i], p_expect[i], p[i] * 0.05);
+  }
+}
 
