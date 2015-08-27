@@ -374,15 +374,17 @@ bool checkPositiveIntegers(std::vector<double>& all_values) {
   return true;
 }
 
-// TODO: Compute log((maxprop*(1 - minprop))/((1-maxprop)*minprop)) only once!
 double maxstatPValueLau92(double b, double minprop, double maxprop) {
 
   if (b < 1) {
     return 1.0;
   }
 
+  // Compute only once (minprop/maxprop don't change during runtime)
+  static double logprop = log((maxprop * (1 - minprop)) / ((1 - maxprop) * minprop));
+
   double db = dstdnorm(b);
-  double p = 4 * db / b + db * (b - 1 / b) * log((maxprop * (1 - minprop)) / ((1 - maxprop) * minprop));
+  double p = 4 * db / b + db * (b - 1 / b) * logprop;
 
   if (p > 0) {
     return p;
