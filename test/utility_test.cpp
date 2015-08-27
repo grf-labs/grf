@@ -643,7 +643,42 @@ TEST(maxstatPValueLau92, test1) {
 
   // Compare with expectation
   for (size_t i = 0; i < p.size(); ++i) {
-    EXPECT_NEAR(p[i], p_expect[i], p[i] * 0.05);
+    EXPECT_NEAR(p[i], p_expect[i], fabs(p[i] * 0.05));
+  }
+}
+
+TEST(maxstatPValueLau94, test1) {
+
+  // From R call:
+//  set.seed(123)
+//  N <- 50
+//  m <- which(!duplicated(sort(sample(seq(0.5,10,0.5), N, replace = TRUE)))) - 1
+//  dput(m)
+//  dput(sapply(seq(0.5,10,0.5), maxstat::pLausen94, N = N, minprop = 0.1, maxprop = 0.1, m = m))
+  std::vector<size_t> m = std::vector<size_t>( { 0, 3, 7, 8, 12, 15, 17, 18, 21, 25, 27, 30, 31, 35, 36, 39, 44,
+      46 });
+  const std::vector<double> p_expect = std::vector<double>( { 3.24640516569147, 2.10411448384791, 1.07190625979408,
+      0.426066236447909, 0.131558039703021, 0.0314590549699589, 0.00581093458428213, 0.000826972741261553,
+      9.03968770946711e-05, 7.55926672751076e-06, 4.80774063093186e-07, 2.30447718702542e-08, 8.19448285148733e-10,
+      2.09519635709089e-11, 3.56382497736666e-13, 3.02490041849519e-15, -4.80261133649249e-17, -1.6110288577566e-18,
+      -2.62248821317204e-20, -2.84175352170915e-22 });
+
+  // Create sequence 0.5..10
+  std::vector<double> test_b(20);
+  double x = 0;
+  std::generate(test_b.begin(), test_b.end(), [&]() {return x += 0.5;});
+
+  // Compute approximation
+  double minprop = 0.1;
+  size_t N = 50;
+  std::vector<double> p;
+  for (auto& x : test_b) {
+    p.push_back(maxstatPValueLau94(x, minprop, 1 - minprop, N, m));
+  }
+
+  // Compare with expectation
+  for (size_t i = 0; i < p.size(); ++i) {
+    EXPECT_NEAR(p[i], p_expect[i], fabs(p[i] * 0.05));
   }
 }
 

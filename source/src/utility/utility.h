@@ -328,7 +328,7 @@ double maxstatPValueLau92(double b, double minprop, double maxprop);
  * @param m Vector with number of observations smaller or equal than cutpoint, sorted, only for unique cutpoints
  * @return p-value for quantile b
  */
-double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t> m);
+double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t>& m);
 
 // TODO: Test!
 /**

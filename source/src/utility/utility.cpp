@@ -402,7 +402,7 @@ double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, st
     double m1 = m[i];
     double m2 = m[i + 1];
 
-    double t = sqrt(1.0 - 1 * (N - m2) / ((N - m1) * m2));
+    double t = sqrt(1.0 - m1 * (N - m2) / ((N - m1) * m2));
     D += 1 / M_PI * exp(-b * b / 2) * (t - (b * b / 4 - 1) * (t * t * t) / 6);
   }
 
