@@ -336,15 +336,16 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   
   ## Splitting rule
   if (is.null(splitrule)) {
-    splitrule <- 1
+    splitrule <- "logrank"
+    splitrule.num <- 1
   } else if (treetype == 5 & splitrule == "logrank") {
-    splitrule <- 1
+    splitrule.num <- 1
   } else if (treetype == 5 & (splitrule == "auc" | splitrule == "C")) {
-    splitrule <- 2
+    splitrule.num <- 2
   } else if (treetype == 5 & (splitrule == "auc_ignore_ties" | splitrule == "C_ignore_ties")) {
-    splitrule <- 3
+    splitrule.num <- 3
   } else if (treetype == 5 & splitrule == "maxstat") {
-    splitrule <- 4
+    splitrule.num <- 4
   } else {
     stop("Error: Unknown splitrule.")
   }
@@ -399,7 +400,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
-                      save.memory, splitrule, alpha, minprop)
+                      save.memory, splitrule.num, alpha, minprop)
   
   if (length(result) == 0) {
     stop("Internal error.")
@@ -420,6 +421,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$chf <- result$predictions
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
+    result$splitrule <- splitrule
   } else if (treetype == 9 & !is.matrix(data)) {
     colnames(result$predictions) <- levels(response)
   }
