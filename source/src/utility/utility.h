@@ -347,7 +347,7 @@ double pstdnorm(double x);
  * @param unadjusted_pvalues Unadjusted p-values (input)
  * @param adjusted_pvalues Adjusted p-values (result)
  */
-std::vector<double> adjust_pvalues(std::vector<double>& unadjusted_pvalues);
+std::vector<double> adjustPvalues(std::vector<double>& unadjusted_pvalues);
 
 /**
  * Get indices of sorted values
@@ -369,5 +369,13 @@ std::vector<size_t> order(std::vector<T> values, bool decreasing) {
   }
   return indices;
 }
+
+/**
+ * Compute Logrank scores for survival times
+ * @param time Survival time
+ * @param status Censoring indicator
+ * @return Logrank scores
+ */
+std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>& status);
 
 #endif /* UTILITY_H_ */

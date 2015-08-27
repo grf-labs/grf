@@ -415,7 +415,7 @@ double pstdnorm(double x) {
   return 0.5 * (1 + erf(x / sqrt(2.0)));
 }
 
-std::vector<double> adjust_pvalues(std::vector<double>& unadjusted_pvalues) {
+std::vector<double> adjustPvalues(std::vector<double>& unadjusted_pvalues) {
   size_t num_pvalues = unadjusted_pvalues.size();
   std::vector<double> adjusted_pvalues(num_pvalues, 0);
 
@@ -433,3 +433,40 @@ std::vector<double> adjust_pvalues(std::vector<double>& unadjusted_pvalues) {
   }
   return adjusted_pvalues;
 }
+
+// TODO: Do without creating vectors for time and status?
+// TODO: Inefficient?
+std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>& status) {
+  size_t n = time.size();
+  std::vector<double> scores(n);
+
+  // Get order of timepoints
+  std::vector<size_t> indices = order(time, false);
+
+  // Compute scores
+  double cumsum = 0;
+  size_t last_unique = -1;
+  for (size_t i = 0; i < n; ++i) {
+
+    // Continue if next value is the same
+    if (i < n - 1 && time[indices[i]] == time[indices[i+1]]) {
+      continue;
+    }
+
+    // Compute sum and scores for all non-unique values in a row
+    for (size_t j = last_unique + 1; j <= i; ++j) {
+      cumsum += status[indices[j]] / (n - i);
+    }
+    for (size_t j = last_unique + 1; j <= i; ++j) {
+      scores[indices[j]] = status[indices[j]] - cumsum;
+    }
+
+    // Save last computed value
+    last_unique = i;
+  }
+
+  return scores;
+}
+
+
+
