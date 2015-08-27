@@ -151,7 +151,7 @@ int ArgumentHandler::processArguments() {
       // lower case options
     case 'a':
       try {
-        double temp = std::stoi(optarg);
+        double temp = std::stod(optarg);
         if (temp < 0 || temp > 1) {
           throw std::runtime_error("");
         } else {
@@ -165,7 +165,7 @@ int ArgumentHandler::processArguments() {
 
     case 'b':
       try {
-        double temp = std::stoi(optarg);
+        double temp = std::stod(optarg);
         if (temp < 0 || temp > 0.5) {
           throw std::runtime_error("");
         } else {
