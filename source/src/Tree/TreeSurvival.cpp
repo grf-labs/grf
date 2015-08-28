@@ -95,6 +95,9 @@ double TreeSurvival::computePredictionAccuracyInternal() {
 }
 
 bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
+
+  computeDeathCounts(nodeID);
+
   if (splitrule == MAXSTAT) {
     return findBestSplitMaxstat(nodeID, possible_split_varIDs);
   } else {
@@ -108,8 +111,6 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
   size_t num_samples_node = sampleIDs[nodeID].size();
   size_t best_varID = 0;
   double best_value = 0;
-
-  computeDeathCounts(nodeID);
 
   // Stop early if no split posssible
   if (num_samples_node >= 2 * min_node_size) {
@@ -189,10 +190,6 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
       pvalues.push_back(pvalue);
       values.push_back(split_value);
       candidate_varIDs.push_back(varID);
-
-      // TODO: Remove
-      std::cout << "node " << nodeID << ", varID " << varID << ", split_value " << split_value << ", pvalue " << pvalue << std::endl;
-
     }
   }
 
@@ -210,9 +207,6 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
         min_pvalue = adjusted_pvalues[i];
         best_varID = candidate_varIDs[i];
         best_value = values[i];
-
-        // TODO: Remove
-        std::cout << "best split: " << "best_varID " << best_varID << ", best_value " << best_value << ", min_pvalue " << min_pvalue << std::endl;
       }
     }
   }
@@ -268,71 +262,6 @@ void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxs
   std::vector<double> scores = logrankScores(time, status);
 
   maxstat(scores, x, best_maxstat, best_split_value, minprop, 1-minprop);
-
-//  // TODO: Inefficient?
-//  // Create sorted x and scores, based on x
-//  std::vector<size_t> indices = order(x, false);
-//  std::vector<double> x_sorted;
-//  x_sorted.reserve(n);
-//  std::vector<double> scores_sorted;
-//  scores_sorted.reserve(n);
-//
-//  double sum_all_scores = 0;
-//  for (size_t i = 0; i < n; ++i) {
-//    size_t idx = indices[i];
-//    x_sorted.push_back(x[idx]);
-//    scores_sorted.push_back(scores[idx]);
-//    sum_all_scores += scores[idx];
-//  }
-
-//  // Compute sum of differences from mean for variance
-//  double mean_scores = sum_all_scores / n;
-//  double sum_mean_diff = 0;
-//  for (size_t i = 0; i < n; ++i) {
-//    sum_mean_diff += (scores[i] - mean_scores) * (scores[i] - mean_scores);
-//  }
-//
-//  // Get smallest and largest split to consider
-//  size_t minsplit = n * minprop;
-//  size_t maxsplit = n * (1 - minprop);
-//
-//  // TODO: Inefficient?
-//  // For all unique x-values
-//  double sum_scores = 0;
-//  size_t n_left = 0;
-//  for (size_t i = 0; i <= maxsplit; ++i) {
-//
-//    sum_scores += scores_sorted[i];
-//    n_left++;
-//
-//    // Dont consider splits smaller than minsplit for splitting (but count)
-//    if (i < minsplit) {
-//      continue;
-//    }
-//
-//    // Consider only unique values
-//    if (i < maxsplit && x_sorted[i] == x_sorted[i + 1]) {
-//      continue;
-//    }
-//
-//    // If value is largest possible value, stop
-//    if (x_sorted[i] == x_sorted[x_sorted.size() - 1]) {
-//      break;
-//    }
-//
-//    double S = sum_scores;
-//    double E = n_left / n * sum_all_scores;
-//    double V = (double) n_left * (double) (n - n_left) / (double) (n * (n - 1)) * sum_mean_diff;
-//    double T = fabs((S - E) / sqrt(V));
-//
-//    // TODO: Remove
-//    std::cout << "varID " << varID << ", value " << x_sorted[i] << ", teststat " << T << std::endl;
-//
-//    if (T > best_maxstat) {
-//      best_maxstat = T;
-//      best_split_value = x_sorted[i];
-//    }
-//  }
 }
 
 void TreeSurvival::computeDeathCounts(size_t nodeID) {
