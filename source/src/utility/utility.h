@@ -378,4 +378,16 @@ std::vector<size_t> order(std::vector<T> values, bool decreasing) {
  */
 std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>& status);
 
+/**
+ * Compute maximally selected rank statistics
+ * @param scores Scores for dependent variable (y)
+ * @param x Indepedenten variable
+ * @param best_maxstat Maximally selected statistic (output)
+ * @param best_split_value Split value for maximally selected statistic (output)
+ * @param minprop Minimal proportion of observations left of cutpoint
+ * @param maxprop Maximal proportion of observations left of cutpoint
+ */
+void maxstat(std::vector<double>& scores, std::vector<double>& x, double& best_maxstat, double& best_split_value,
+    double minprop, double maxprop);
+
 #endif /* UTILITY_H_ */

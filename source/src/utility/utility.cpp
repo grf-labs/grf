@@ -449,7 +449,7 @@ std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>
   for (size_t i = 0; i < n; ++i) {
 
     // Continue if next value is the same
-    if (i < n - 1 && time[indices[i]] == time[indices[i+1]]) {
+    if (i < n - 1 && time[indices[i]] == time[indices[i + 1]]) {
       continue;
     }
 
@@ -468,5 +468,72 @@ std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>
   return scores;
 }
 
+void maxstat(std::vector<double>& scores, std::vector<double>& x, double& best_maxstat, double& best_split_value,
+    double minprop, double maxprop) {
 
+  size_t n = x.size();
+
+  // Create sorted x and scores, based on x
+  std::vector<size_t> indices = order(x, false);
+  std::vector<double> x_sorted;
+  x_sorted.reserve(n);
+  std::vector<double> scores_sorted;
+  scores_sorted.reserve(n);
+
+  double sum_all_scores = 0;
+  for (size_t i = 0; i < n; ++i) {
+    size_t idx = indices[i];
+    x_sorted.push_back(x[idx]);
+    scores_sorted.push_back(scores[idx]);
+    sum_all_scores += scores[idx];
+  }
+
+  // Compute sum of differences from mean for variance
+  double mean_scores = sum_all_scores / n;
+  double sum_mean_diff = 0;
+  for (size_t i = 0; i < n; ++i) {
+    sum_mean_diff += (scores[i] - mean_scores) * (scores[i] - mean_scores);
+  }
+
+  // Get smallest and largest split to consider, -1 for compatibility with R maxstat
+  size_t minsplit = n * minprop - 1;
+  size_t maxsplit = n * (1 - minprop) - 1;
+
+  // TODO: Inefficient?
+  // For all unique x-values
+  best_maxstat = -1;
+  best_split_value = -1;
+  double sum_scores = 0;
+  size_t n_left = 0;
+  for (size_t i = 0; i <= maxsplit; ++i) {
+
+    sum_scores += scores_sorted[i];
+    n_left++;
+
+    // Dont consider splits smaller than minsplit for splitting (but count)
+    if (i < minsplit) {
+      continue;
+    }
+
+    // Consider only unique values
+    if (i < x_sorted.size() - 1 && x_sorted[i] == x_sorted[i + 1]) {
+      continue;
+    }
+
+    // If value is largest possible value, stop
+    if (x_sorted[i] == x_sorted[x_sorted.size() - 1]) {
+      break;
+    }
+
+    double S = sum_scores;
+    double E = (double) n_left / (double) n * sum_all_scores;
+    double V = (double) n_left * (double) (n - n_left) / (double) (n * (n - 1)) * sum_mean_diff;
+    double T = fabs((S - E) / sqrt(V));
+
+    if (T > best_maxstat) {
+      best_maxstat = T;
+      best_split_value = x_sorted[i];
+    }
+  }
+}
 
