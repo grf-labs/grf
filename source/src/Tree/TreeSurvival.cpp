@@ -169,16 +169,13 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
   // Compute scores
   std::vector<double> scores = logrankScoresData(data, dependent_varID, status_varID, sampleIDs[nodeID]);
 
+  // TODO: Need them all?
   std::vector<double> pvalues;
   pvalues.reserve(possible_split_varIDs.size());
-//  std::vector<double> values;
-//  values.reserve(possible_split_varIDs.size());
-//  std::vector<double> candidate_varIDs;
-//  candidate_varIDs.reserve(possible_split_varIDs.size());
-
-  double best_value = 0;
-  size_t best_varID = 0;
-  double best_pvalue = 2;
+  std::vector<double> values;
+  values.reserve(possible_split_varIDs.size());
+  std::vector<double> candidate_varIDs;
+  candidate_varIDs.reserve(possible_split_varIDs.size());
 
   // Compute p-values
   for (auto& varID : possible_split_varIDs) {
@@ -191,7 +188,6 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
       x.push_back(data->get(sampleID, varID));
     }
 
-    // TODO: More efficently? Use presorted values?
     // Order by x
     std::vector<size_t> indices = order(x, false);
 
@@ -210,18 +206,14 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
       double pvalue = std::min(pvalue_lau92, pvalue_lau94);
 
       pvalues.push_back(pvalue);
-
-      if (pvalue > best_pvalue) {
-        best_pvalue = pvalue;
-        best_varID = varID;
-        best_value = best_split_value;
-      }
-//      values.push_back(best_split_value);
-//      candidate_varIDs.push_back(varID);
+      values.push_back(best_split_value);
+      candidate_varIDs.push_back(varID);
     }
   }
 
   double min_pvalue = 2;
+  size_t best_varID = 0;
+  double best_value = 0;
 
   if (pvalues.size() > 0) {
     // Adjust p-values with Benjamini/Hochberg
@@ -231,8 +223,8 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     for (size_t i = 0; i < adjusted_pvalues.size(); ++i) {
       if (adjusted_pvalues[i] < min_pvalue) {
         min_pvalue = adjusted_pvalues[i];
-//        best_varID = candidate_varIDs[i];
-//        best_value = values[i];
+        best_varID = candidate_varIDs[i];
+        best_value = values[i];
       }
     }
   }
