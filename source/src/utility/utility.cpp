@@ -434,8 +434,6 @@ std::vector<double> adjustPvalues(std::vector<double>& unadjusted_pvalues) {
   return adjusted_pvalues;
 }
 
-// TODO: Do without creating vectors for time and status?
-// TODO: Inefficient?
 std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>& status) {
   size_t n = time.size();
   std::vector<double> scores(n);
@@ -459,6 +457,43 @@ std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>
     }
     for (size_t j = last_unique + 1; j <= i; ++j) {
       scores[indices[j]] = status[indices[j]] - cumsum;
+    }
+
+    // Save last computed value
+    last_unique = i;
+  }
+
+  return scores;
+}
+
+std::vector<double> logrankScoresData(Data* data, size_t time_varID, size_t status_varID,
+    std::vector<size_t> sampleIDs) {
+
+  size_t n = sampleIDs.size();
+  std::vector<double> scores(n);
+
+  // Get order of timepoints
+  std::vector<size_t> indices(n);
+  std::iota(indices.begin(), indices.end(), 0);
+  std::sort(std::begin(indices), std::end(indices),
+      [&](size_t i1, size_t i2) {return data->get(sampleIDs[i1], time_varID) < data->get(sampleIDs[i2], time_varID);});
+
+  // Compute scores
+  double cumsum = 0;
+  size_t last_unique = -1;
+  for (size_t i = 0; i < n; ++i) {
+
+    // Continue if next value is the same
+    if (i < n - 1 && data->get(sampleIDs[indices[i]], time_varID) == data->get(sampleIDs[indices[i + 1]], time_varID)) {
+      continue;
+    }
+
+    // Compute sum and scores for all non-unique values in a row
+    for (size_t j = last_unique + 1; j <= i; ++j) {
+      cumsum += data->get(sampleIDs[indices[j]], status_varID) / (n - i);
+    }
+    for (size_t j = last_unique + 1; j <= i; ++j) {
+      scores[indices[j]] = data->get(sampleIDs[indices[j]], status_varID) - cumsum;
     }
 
     // Save last computed value

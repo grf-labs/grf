@@ -166,6 +166,9 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     return true;
   }
 
+  // Compute scores
+  std::vector<double> scores = logrankScoresData(data, dependent_varID, status_varID, sampleIDs[nodeID]);
+
   std::vector<double> pvalues;
   pvalues.reserve(possible_split_varIDs.size());
   std::vector<double> values;
@@ -175,12 +178,23 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
 
   // Compute p-values
   for (auto& varID : possible_split_varIDs) {
-    double maxstat;
-    double split_value;
-    computeMaxstat(nodeID, varID, maxstat, split_value);
 
-    if (maxstat > -1) {
-      double pvalue_lau92 = maxstatPValueLau92(maxstat, minprop, 1 - minprop);
+    // TODO: More efficently? Use presorted values?
+    // TODO: avoid copying
+    // Get all observations
+    std::vector<double> x;
+    x.reserve(num_samples_node);
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      x.push_back(data->get(sampleID, varID));
+    }
+
+    // Compute maximally selected rank statistics
+    double best_maxstat;
+    double best_split_value;
+    maxstat(scores, x, best_maxstat, best_split_value, minprop, 1 - minprop);
+
+    if (best_maxstat > -1) {
+      double pvalue_lau92 = maxstatPValueLau92(best_maxstat, minprop, 1 - minprop);
 
       // TODO: This was already computed! Do it only once ..
       std::vector<double> x;
@@ -202,13 +216,13 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
         }
       }
 
-      double pvalue_lau94 = maxstatPValueLau94(maxstat, minprop, 1 - minprop, num_samples_node, m);
+      double pvalue_lau94 = maxstatPValueLau94(best_maxstat, minprop, 1 - minprop, num_samples_node, m);
 
       // Use minimum of Lau92 and Lau94
       double pvalue = std::min(pvalue_lau92, pvalue_lau94);
 
       pvalues.push_back(pvalue);
-      values.push_back(split_value);
+      values.push_back(best_split_value);
       candidate_varIDs.push_back(varID);
     }
   }
@@ -241,39 +255,6 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     split_values[nodeID] = best_value;
     return false;
   }
-}
-
-// TODO: More efficently? Use presorted values?
-void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxstat, double& best_split_value) {
-
-//  best_maxstat = -1;
-//  best_split_value = -1;
-
-// Number of samples in node
-  size_t n = sampleIDs[nodeID].size();
-
-// Get all observations
-  std::vector<double> x;
-  x.reserve(n);
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    x.push_back(data->get(sampleID, varID));
-  }
-
-// TODO: Too much copying ..
-// Get timepoints and censoring
-  std::vector<double> time;
-  time.reserve(n);
-  std::vector<double> status;
-  status.reserve(n);
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    time.push_back(data->get(sampleID, dependent_varID));
-    status.push_back(data->get(sampleID, status_varID));
-  }
-
-  // Compute scores
-  std::vector<double> scores = logrankScores(time, status);
-
-  maxstat(scores, x, best_maxstat, best_split_value, minprop, 1 - minprop);
 }
 
 void TreeSurvival::computeDeathCounts(size_t nodeID) {

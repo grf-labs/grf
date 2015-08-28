@@ -379,6 +379,16 @@ std::vector<size_t> order(std::vector<T> values, bool decreasing) {
 std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>& status);
 
 /**
+ * Compute Logrank scores for survival times directly from Data object
+ * @param data Pointer to Data object
+ * @param time_varID variable ID for time column
+ * @param status_varID Variable ID for status column
+ * @param sampleIDs IDs of samples to include
+ * @return Logrank scores
+ */
+std::vector<double> logrankScoresData(Data* data, size_t time_varID, size_t status_varID, std::vector<size_t> sampleIDs);
+
+/**
  * Compute maximally selected rank statistics
  * @param scores Scores for dependent variable (y)
  * @param x Indepedenten variable
