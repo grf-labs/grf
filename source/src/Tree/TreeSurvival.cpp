@@ -81,6 +81,18 @@ void TreeSurvival::createEmptyNodeInternal() {
   chf.push_back(std::vector<double>());
 }
 
+void TreeSurvival::computeSurvival(size_t nodeID) {
+  std::vector<double> chf_temp;
+  double chf_value = 0;
+  for (size_t i = 0; i < num_timepoints; ++i) {
+    if (num_samples_at_risk[i] != 0) {
+      chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
+    }
+    chf_temp.push_back(chf_value);
+  }
+  chf[nodeID] = chf_temp;
+}
+
 double TreeSurvival::computePredictionAccuracyInternal() {
 
   // Compute summed chf for samples
@@ -132,27 +144,16 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
     }
   }
 
-  bool result = false;
-
   // Stop and save CHF if no good split found (this is terminal node).
   if (best_decrease < 0) {
-    std::vector<double> chf_temp;
-    double chf_value = 0;
-    for (size_t i = 0; i < num_timepoints; ++i) {
-      if (num_samples_at_risk[i] != 0) {
-        chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
-      }
-      chf_temp.push_back(chf_value);
-    }
-    chf[nodeID] = chf_temp;
-    result = true;
+    computeSurvival(nodeID);
+    return true;
   } else {
     // If not terminal node save best values
     split_varIDs[nodeID] = best_varID;
     split_values[nodeID] = best_value;
+    return false;
   }
-
-  return result;
 }
 
 bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
@@ -161,15 +162,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
 
   // Check node size, stop if maximum reached
   if (num_samples_node <= min_node_size) {
-    std::vector<double> chf_temp;
-    double chf_value = 0;
-    for (size_t i = 0; i < num_timepoints; ++i) {
-      if (num_samples_at_risk[i] != 0) {
-        chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
-      }
-      chf_temp.push_back(chf_value);
-    }
-    chf[nodeID] = chf_temp;
+    computeSurvival(nodeID);
     return true;
   }
 
@@ -240,15 +233,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
 
   // Stop and save CHF if no good split found (this is terminal node).
   if (min_pvalue > alpha) {
-    std::vector<double> chf_temp;
-    double chf_value = 0;
-    for (size_t i = 0; i < num_timepoints; ++i) {
-      if (num_samples_at_risk[i] != 0) {
-        chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
-      }
-      chf_temp.push_back(chf_value);
-    }
-    chf[nodeID] = chf_temp;
+    computeSurvival(nodeID);
     return true;
   } else {
     // If not terminal node save best values

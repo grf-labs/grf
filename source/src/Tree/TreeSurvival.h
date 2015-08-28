@@ -60,6 +60,7 @@ public:
 private:
 
   void createEmptyNodeInternal();
+  void computeSurvival(size_t nodeID);
   double computePredictionAccuracyInternal();
 
   bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
