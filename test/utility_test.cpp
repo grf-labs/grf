@@ -907,11 +907,14 @@ TEST(maxstat, trt) {
   const double expect_split = 1;
 
   // Order
+  std::vector<size_t> indices = order(x, false);
+
+  // Scores
   std::vector<double> scores = logrankScores(time, status);
 
   double best_maxstat;
   double best_split_value;
-  maxstat(scores, x, best_maxstat, best_split_value, 0.1, 0.9);
+  maxstat(scores, x, indices, best_maxstat, best_split_value, 0.1, 0.9);
 
   // Compare with expectation
   EXPECT_NEAR(best_maxstat, expect_maxstat, fabs(best_maxstat * 0.05));
@@ -954,11 +957,14 @@ TEST(maxstat, celltype) {
   const double expect_split = 1;
 
   // Order
+  std::vector<size_t> indices = order(x, false);
+
+  // Scores
   std::vector<double> scores = logrankScores(time, status);
 
   double best_maxstat;
   double best_split_value;
-  maxstat(scores, x, best_maxstat, best_split_value, 0.1, 0.9);
+  maxstat(scores, x, indices, best_maxstat, best_split_value, 0.1, 0.9);
 
   // Compare with expectation
   EXPECT_NEAR(best_maxstat, expect_maxstat, fabs(best_maxstat * 0.05));
@@ -1003,11 +1009,14 @@ TEST(maxstat, karno) {
   const double expect_split = 40;
 
   // Order
+  std::vector<size_t> indices = order(x, false);
+
+  // Scores
   std::vector<double> scores = logrankScores(time, status);
 
   double best_maxstat;
   double best_split_value;
-  maxstat(scores, x, best_maxstat, best_split_value, 0.1, 0.9);
+  maxstat(scores, x, indices, best_maxstat, best_split_value, 0.1, 0.9);
 
   // Compare with expectation
   EXPECT_NEAR(best_maxstat, expect_maxstat, fabs(best_maxstat * 0.05));
@@ -1051,11 +1060,14 @@ TEST(maxstat, diagtime) {
   const double expect_split = 3;
 
   // Order
+  std::vector<size_t> indices = order(x, false);
+
+  // Scores
   std::vector<double> scores = logrankScores(time, status);
 
   double best_maxstat;
   double best_split_value;
-  maxstat(scores, x, best_maxstat, best_split_value, 0.1, 0.9);
+  maxstat(scores, x, indices, best_maxstat, best_split_value, 0.1, 0.9);
 
   // Compare with expectation
   EXPECT_NEAR(best_maxstat, expect_maxstat, fabs(best_maxstat * 0.05));
@@ -1100,11 +1112,14 @@ TEST(maxstat, age) {
   const double expect_split = 58;
 
   // Order
+  std::vector<size_t> indices = order(x, false);
+
+  // Scores
   std::vector<double> scores = logrankScores(time, status);
 
   double best_maxstat;
   double best_split_value;
-  maxstat(scores, x, best_maxstat, best_split_value, 0.1, 0.9);
+  maxstat(scores, x, indices, best_maxstat, best_split_value, 0.1, 0.9);
 
   // Compare with expectation
   EXPECT_NEAR(best_maxstat, expect_maxstat, fabs(best_maxstat * 0.05));
@@ -1148,13 +1163,52 @@ TEST(maxstat, prior) {
   const double expect_split = 0;
 
   // Order
+  std::vector<size_t> indices = order(x, false);
+
+  // Scores
   std::vector<double> scores = logrankScores(time, status);
 
   double best_maxstat;
   double best_split_value;
-  maxstat(scores, x, best_maxstat, best_split_value, 0.1, 0.9);
+  maxstat(scores, x, indices, best_maxstat, best_split_value, 0.1, 0.9);
 
   // Compare with expectation
   EXPECT_NEAR(best_maxstat, expect_maxstat, fabs(best_maxstat * 0.05));
   EXPECT_NEAR(best_split_value, expect_split, fabs(best_split_value * 0.05));
 }
+
+TEST(numSamplesLeftOfCutpoint, test1) {
+
+  // From R call:
+  //  library(survival)
+  //  x <- veteran$age
+  //  ties <- duplicated(sort(x))
+  //  m <- (which(!ties) - 1)[-1]
+  //  if (ties[length(x)]) {
+  //    m <- c(m, length(x))
+  //  }
+  //  dput(x, control = NULL)
+  //  dput(m, control = NULL)
+
+  std::vector<double> x = std::vector<double>( { 69, 64, 38, 63, 65, 49, 69, 68, 43, 70, 81, 63, 63, 52, 48, 61, 42, 35,
+      63, 56, 55, 67, 63, 65, 46, 53, 69, 68, 43, 55, 42, 64, 65, 65, 55, 66, 60, 67, 53, 62, 67, 72, 48, 68, 67, 61,
+      60, 62, 38, 50, 63, 64, 43, 34, 66, 62, 52, 47, 63, 68, 45, 41, 66, 62, 60, 66, 38, 53, 37, 54, 60, 48, 52, 70,
+      50, 62, 65, 58, 62, 64, 63, 58, 64, 52, 35, 63, 70, 51, 40, 69, 36, 71, 62, 60, 44, 54, 66, 49, 72, 68, 62, 71,
+      70, 61, 71, 59, 67, 60, 69, 57, 39, 62, 50, 43, 70, 66, 61, 81, 58, 63, 60, 62, 42, 69, 63, 45, 68, 39, 66, 63,
+      49, 64, 65, 64, 67, 65, 37 });
+
+  std::vector<size_t> expect = std::vector<size_t>( { 1, 3, 4, 6, 9, 11, 12, 13, 16, 20, 21, 23, 24, 25, 28, 31, 34, 35,
+      39, 42, 44, 47, 48, 49, 52, 53, 60, 64, 74, 86, 93, 100, 107, 113, 119, 125, 130, 133, 135, 137 });
+
+  // Order
+  std::vector<size_t> indices = order(x, false);
+
+  std::vector<size_t> m = numSamplesLeftOfCutpoint(x, indices);
+
+  // Compare with expectation
+  EXPECT_EQ(m.size(), expect.size());
+  for (size_t i = 0; i < expect.size(); ++i) {
+    EXPECT_EQ(m[i], expect[i]);
+  }
+}
+

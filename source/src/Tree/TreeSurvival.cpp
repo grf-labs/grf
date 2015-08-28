@@ -171,15 +171,18 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
 
   std::vector<double> pvalues;
   pvalues.reserve(possible_split_varIDs.size());
-  std::vector<double> values;
-  values.reserve(possible_split_varIDs.size());
-  std::vector<double> candidate_varIDs;
-  candidate_varIDs.reserve(possible_split_varIDs.size());
+//  std::vector<double> values;
+//  values.reserve(possible_split_varIDs.size());
+//  std::vector<double> candidate_varIDs;
+//  candidate_varIDs.reserve(possible_split_varIDs.size());
+
+  double best_value = 0;
+  size_t best_varID = 0;
+  double best_pvalue = 2;
 
   // Compute p-values
   for (auto& varID : possible_split_varIDs) {
 
-    // TODO: More efficently? Use presorted values?
     // TODO: avoid copying
     // Get all observations
     std::vector<double> x;
@@ -188,48 +191,37 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
       x.push_back(data->get(sampleID, varID));
     }
 
+    // TODO: More efficently? Use presorted values?
+    // Order by x
+    std::vector<size_t> indices = order(x, false);
+
     // Compute maximally selected rank statistics
     double best_maxstat;
     double best_split_value;
-    maxstat(scores, x, best_maxstat, best_split_value, minprop, 1 - minprop);
+    maxstat(scores, x, indices, best_maxstat, best_split_value, minprop, 1 - minprop);
 
     if (best_maxstat > -1) {
+      std::vector<size_t> num_samples_left = numSamplesLeftOfCutpoint(x, indices);
+
       double pvalue_lau92 = maxstatPValueLau92(best_maxstat, minprop, 1 - minprop);
-
-      // TODO: This was already computed! Do it only once ..
-      std::vector<double> x;
-      x.reserve(num_samples_node);
-      for (auto& sampleID : sampleIDs[nodeID]) {
-        x.push_back(data->get(sampleID, varID));
-      }
-      std::sort(x.begin(), x.end());
-
-      // TODO: Inefficient?
-      std::vector<size_t> m;
-      for (size_t i = 0; i < x.size(); ++i) {
-        if (i == 0) {
-          m.push_back(1);
-        } else if (x[i] == x[i - 1]) {
-          ++m[m.size() - 1];
-        } else {
-          m.push_back(m[m.size() - 1] + 1);
-        }
-      }
-
-      double pvalue_lau94 = maxstatPValueLau94(best_maxstat, minprop, 1 - minprop, num_samples_node, m);
+      double pvalue_lau94 = maxstatPValueLau94(best_maxstat, minprop, 1 - minprop, num_samples_node, num_samples_left);
 
       // Use minimum of Lau92 and Lau94
       double pvalue = std::min(pvalue_lau92, pvalue_lau94);
 
       pvalues.push_back(pvalue);
-      values.push_back(best_split_value);
-      candidate_varIDs.push_back(varID);
+
+      if (pvalue > best_pvalue) {
+        best_pvalue = pvalue;
+        best_varID = varID;
+        best_value = best_split_value;
+      }
+//      values.push_back(best_split_value);
+//      candidate_varIDs.push_back(varID);
     }
   }
 
   double min_pvalue = 2;
-  size_t best_varID = 0;
-  double best_value = 0;
 
   if (pvalues.size() > 0) {
     // Adjust p-values with Benjamini/Hochberg
@@ -239,8 +231,8 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     for (size_t i = 0; i < adjusted_pvalues.size(); ++i) {
       if (adjusted_pvalues[i] < min_pvalue) {
         min_pvalue = adjusted_pvalues[i];
-        best_varID = candidate_varIDs[i];
-        best_value = values[i];
+//        best_varID = candidate_varIDs[i];
+//        best_value = values[i];
       }
     }
   }

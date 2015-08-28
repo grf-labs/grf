@@ -356,7 +356,7 @@ std::vector<double> adjustPvalues(std::vector<double>& unadjusted_pvalues);
  * @return Indices of sorted values
  */
 template<typename T>
-std::vector<size_t> order(std::vector<T> values, bool decreasing) {
+std::vector<size_t> order(std::vector<T>& values, bool decreasing) {
   // Create index vector
   std::vector<size_t> indices(values.size());
   std::iota(indices.begin(), indices.end(), 0);
@@ -386,18 +386,28 @@ std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>
  * @param sampleIDs IDs of samples to include
  * @return Logrank scores
  */
-std::vector<double> logrankScoresData(Data* data, size_t time_varID, size_t status_varID, std::vector<size_t> sampleIDs);
+std::vector<double> logrankScoresData(Data* data, size_t time_varID, size_t status_varID,
+    std::vector<size_t> sampleIDs);
 
 /**
  * Compute maximally selected rank statistics
  * @param scores Scores for dependent variable (y)
  * @param x Indepedenten variable
+ * @param indices Ordering of x values
  * @param best_maxstat Maximally selected statistic (output)
  * @param best_split_value Split value for maximally selected statistic (output)
  * @param minprop Minimal proportion of observations left of cutpoint
  * @param maxprop Maximal proportion of observations left of cutpoint
  */
-void maxstat(std::vector<double>& scores, std::vector<double>& x, double& best_maxstat, double& best_split_value,
-    double minprop, double maxprop);
+void maxstat(std::vector<double>& scores, std::vector<double>& x, std::vector<size_t>& indices, double& best_maxstat,
+    double& best_split_value, double minprop, double maxprop);
+
+/**
+ * Compute number of samples smaller or equal than each unique value in x
+ * @param x Value vector
+ * @param indices Ordering of x
+ * @return Vector of number of samples smaller or equal than each unique value in x
+ */
+std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, std::vector<size_t> indices);
 
 #endif /* UTILITY_H_ */

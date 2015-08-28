@@ -503,24 +503,13 @@ std::vector<double> logrankScoresData(Data* data, size_t time_varID, size_t stat
   return scores;
 }
 
-void maxstat(std::vector<double>& scores, std::vector<double>& x, double& best_maxstat, double& best_split_value,
-    double minprop, double maxprop) {
-
+void maxstat(std::vector<double>& scores, std::vector<double>& x, std::vector<size_t>& indices, double& best_maxstat,
+    double& best_split_value, double minprop, double maxprop) {
   size_t n = x.size();
-
-  // Create sorted x and scores, based on x
-  std::vector<size_t> indices = order(x, false);
-  std::vector<double> x_sorted;
-  x_sorted.reserve(n);
-  std::vector<double> scores_sorted;
-  scores_sorted.reserve(n);
 
   double sum_all_scores = 0;
   for (size_t i = 0; i < n; ++i) {
-    size_t idx = indices[i];
-    x_sorted.push_back(x[idx]);
-    scores_sorted.push_back(scores[idx]);
-    sum_all_scores += scores[idx];
+    sum_all_scores += scores[indices[i]];
   }
 
   // Compute sum of differences from mean for variance
@@ -534,7 +523,6 @@ void maxstat(std::vector<double>& scores, std::vector<double>& x, double& best_m
   size_t minsplit = n * minprop - 1;
   size_t maxsplit = n * (1 - minprop) - 1;
 
-  // TODO: Inefficient?
   // For all unique x-values
   best_maxstat = -1;
   best_split_value = -1;
@@ -542,7 +530,7 @@ void maxstat(std::vector<double>& scores, std::vector<double>& x, double& best_m
   size_t n_left = 0;
   for (size_t i = 0; i <= maxsplit; ++i) {
 
-    sum_scores += scores_sorted[i];
+    sum_scores += scores[indices[i]];
     n_left++;
 
     // Dont consider splits smaller than minsplit for splitting (but count)
@@ -551,12 +539,12 @@ void maxstat(std::vector<double>& scores, std::vector<double>& x, double& best_m
     }
 
     // Consider only unique values
-    if (i < x_sorted.size() - 1 && x_sorted[i] == x_sorted[i + 1]) {
+    if (i < n - 1 && x[indices[i]] == x[indices[i + 1]]) {
       continue;
     }
 
     // If value is largest possible value, stop
-    if (x_sorted[i] == x_sorted[x_sorted.size() - 1]) {
+    if (x[indices[i]] == x[indices[n - 1]]) {
       break;
     }
 
@@ -567,8 +555,24 @@ void maxstat(std::vector<double>& scores, std::vector<double>& x, double& best_m
 
     if (T > best_maxstat) {
       best_maxstat = T;
-      best_split_value = x_sorted[i];
+      best_split_value = x[indices[i]];
     }
   }
 }
 
+std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, std::vector<size_t> indices) {
+  std::vector<size_t> num_samples_left;
+  num_samples_left.reserve(x.size());
+
+  for (size_t i = 0; i < x.size(); ++i) {
+    if (i == 0) {
+      num_samples_left.push_back(1);
+    } else if (x[indices[i]] == x[indices[i - 1]]) {
+      ++num_samples_left[num_samples_left.size() - 1];
+    } else {
+      num_samples_left.push_back(num_samples_left[num_samples_left.size() - 1] + 1);
+    }
+  }
+
+  return num_samples_left;
+}
