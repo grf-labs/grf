@@ -157,8 +157,10 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
 
 bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
+  size_t num_samples_node = sampleIDs[nodeID].size();
+
   // Check node size, stop if maximum reached
-  if (sampleIDs[nodeID].size() <= min_node_size) {
+  if (num_samples_node <= min_node_size) {
     std::vector<double> chf_temp;
     double chf_value = 0;
     for (size_t i = 0; i < num_timepoints; ++i) {
@@ -185,8 +187,33 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     computeMaxstat(nodeID, varID, maxstat, split_value);
 
     if (maxstat > -1) {
-      // TODO: Use minLau
-      double pvalue = maxstatPValueLau92(maxstat, minprop, 1 - minprop);
+      double pvalue_lau92 = maxstatPValueLau92(maxstat, minprop, 1 - minprop);
+
+      // TODO: This was already computed! Do it only once ..
+      std::vector<double> x;
+      x.reserve(num_samples_node);
+      for (auto& sampleID : sampleIDs[nodeID]) {
+        x.push_back(data->get(sampleID, varID));
+      }
+      std::sort(x.begin(), x.end());
+
+      // TODO: Inefficient?
+      std::vector<size_t> m;
+      for (size_t i = 0; i < x.size(); ++i) {
+        if (i == 0) {
+          m.push_back(1);
+        } else if (x[i] == x[i - 1]) {
+          ++m[m.size() - 1];
+        } else {
+          m.push_back(m[m.size() - 1] + 1);
+        }
+      }
+
+      double pvalue_lau94 = maxstatPValueLau94(maxstat, minprop, 1 - minprop, num_samples_node, m);
+
+      // Use minimum of Lau92 and Lau94
+      double pvalue = std::min(pvalue_lau92, pvalue_lau94);
+
       pvalues.push_back(pvalue);
       values.push_back(split_value);
       candidate_varIDs.push_back(varID);
@@ -237,7 +264,7 @@ void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxs
 //  best_maxstat = -1;
 //  best_split_value = -1;
 
-  // Number of samples in node
+// Number of samples in node
   size_t n = sampleIDs[nodeID].size();
 
 // Get all observations
@@ -261,7 +288,7 @@ void TreeSurvival::computeMaxstat(size_t nodeID, size_t varID, double& best_maxs
   // Compute scores
   std::vector<double> scores = logrankScores(time, status);
 
-  maxstat(scores, x, best_maxstat, best_split_value, minprop, 1-minprop);
+  maxstat(scores, x, best_maxstat, best_split_value, minprop, 1 - minprop);
 }
 
 void TreeSurvival::computeDeathCounts(size_t nodeID) {

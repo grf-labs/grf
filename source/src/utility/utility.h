@@ -317,7 +317,7 @@ bool checkPositiveIntegers(std::vector<double>& all_values);
 double maxstatPValueLau92(double b, double minprop, double maxprop);
 
 /**
- * Compute p-value for maximally selected rank statistics using Lau92 approximation
+ * Compute p-value for maximally selected rank statistics using Lau94 approximation
  * See Lausen, B., Sauerbrei, W. & Schumacher, M. (1994). Computational Statistics. 483-496.
  * @param b Quantile
  * @param minprop Minimal proportion of observations left of cutpoint
