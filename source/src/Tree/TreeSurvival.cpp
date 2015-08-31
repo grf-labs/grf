@@ -109,8 +109,6 @@ double TreeSurvival::computePredictionAccuracyInternal() {
 
 bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
-  computeDeathCounts(nodeID);
-
   if (splitrule == MAXSTAT) {
     return findBestSplitMaxstat(nodeID, possible_split_varIDs);
   } else {
@@ -124,6 +122,8 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
   size_t num_samples_node = sampleIDs[nodeID].size();
   size_t best_varID = 0;
   double best_value = 0;
+
+  computeDeathCounts(nodeID);
 
   // Stop early if no split posssible
   if (num_samples_node >= 2 * min_node_size) {
@@ -163,6 +163,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
 
   // Check node size, stop if maximum reached
   if (num_samples_node <= min_node_size) {
+    computeDeathCounts(nodeID);
     computeSurvival(nodeID);
     return true;
   }
@@ -232,6 +233,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
 
   // Stop and save CHF if no good split found (this is terminal node).
   if (min_pvalue > alpha) {
+    computeDeathCounts(nodeID);
     computeSurvival(nodeID);
     return true;
   } else {
