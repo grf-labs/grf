@@ -434,6 +434,22 @@ std::vector<double> adjustPvalues(std::vector<double>& unadjusted_pvalues) {
   return adjusted_pvalues;
 }
 
+std::vector<size_t> orderInData(Data* data, std::vector<size_t>& sampleIDs, size_t varID, bool decreasing) {
+  // Create index vector
+  std::vector<size_t> indices(sampleIDs.size());
+  std::iota(indices.begin(), indices.end(), 0);
+
+  // Sort index vector based on value vector
+  if (decreasing) {
+    std::sort(std::begin(indices), std::end(indices),
+        [&](size_t i1, size_t i2) {return data->get(sampleIDs[i1], varID) > data->get(sampleIDs[i2], varID);});
+  } else {
+    std::sort(std::begin(indices), std::end(indices),
+        [&](size_t i1, size_t i2) {return data->get(sampleIDs[i1], varID) < data->get(sampleIDs[i2], varID);});
+  }
+  return indices;
+}
+
 std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>& status) {
   size_t n = time.size();
   std::vector<double> scores(n);
@@ -556,6 +572,64 @@ void maxstat(std::vector<double>& scores, std::vector<double>& x, std::vector<si
     if (T > best_maxstat) {
       best_maxstat = T;
       best_split_value = x[indices[i]];
+    }
+  }
+}
+
+void maxstatInData(std::vector<double>& scores, Data* data, std::vector<size_t>& sampleIDs, size_t varID,
+    std::vector<size_t>& indices, double& best_maxstat, double& best_split_value, double minprop, double maxprop) {
+  size_t n = sampleIDs.size();
+
+  double sum_all_scores = 0;
+  for (size_t i = 0; i < n; ++i) {
+    sum_all_scores += scores[indices[i]];
+  }
+
+  // Compute sum of differences from mean for variance
+  double mean_scores = sum_all_scores / n;
+  double sum_mean_diff = 0;
+  for (size_t i = 0; i < n; ++i) {
+    sum_mean_diff += (scores[i] - mean_scores) * (scores[i] - mean_scores);
+  }
+
+  // Get smallest and largest split to consider, -1 for compatibility with R maxstat
+  size_t minsplit = n * minprop - 1;
+  size_t maxsplit = n * (1 - minprop) - 1;
+
+  // For all unique x-values
+  best_maxstat = -1;
+  best_split_value = -1;
+  double sum_scores = 0;
+  size_t n_left = 0;
+  for (size_t i = 0; i <= maxsplit; ++i) {
+
+    sum_scores += scores[indices[i]];
+    n_left++;
+
+    // Dont consider splits smaller than minsplit for splitting (but count)
+    if (i < minsplit) {
+      continue;
+    }
+
+    // Consider only unique values
+    double xi = data->get(sampleIDs[indices[i]], varID);
+    if (i < n - 1 && xi == data->get(sampleIDs[indices[i + 1]], varID)) {
+      continue;
+    }
+
+    // If value is largest possible value, stop
+    if (xi == data->get(sampleIDs[indices[n - 1]], varID)) {
+      break;
+    }
+
+    double S = sum_scores;
+    double E = (double) n_left / (double) n * sum_all_scores;
+    double V = (double) n_left * (double) (n - n_left) / (double) (n * (n - 1)) * sum_mean_diff;
+    double T = fabs((S - E) / sqrt(V));
+
+    if (T > best_maxstat) {
+      best_maxstat = T;
+      best_split_value = xi;
     }
   }
 }

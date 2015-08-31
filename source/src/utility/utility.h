@@ -371,6 +371,16 @@ std::vector<size_t> order(std::vector<T>& values, bool decreasing) {
 }
 
 /**
+ * Get indices of sorted values, compute in-place of Data.
+ * @param data Data object
+ * @param sampleIDs IDs of samples to sort
+ * @param varID ID of variable to sort by
+ * @param decreasing Order decreasing
+ * @return Indices of sorted values
+ */
+std::vector<size_t> orderInData(Data* data, std::vector<size_t>& sampleIDs, size_t varID, bool decreasing);
+
+/**
  * Compute Logrank scores for survival times
  * @param time Survival time
  * @param status Censoring indicator
@@ -392,7 +402,7 @@ std::vector<double> logrankScoresData(Data* data, size_t time_varID, size_t stat
 /**
  * Compute maximally selected rank statistics
  * @param scores Scores for dependent variable (y)
- * @param x Indepedenten variable
+ * @param x Independent variable
  * @param indices Ordering of x values
  * @param best_maxstat Maximally selected statistic (output)
  * @param best_split_value Split value for maximally selected statistic (output)
@@ -401,6 +411,21 @@ std::vector<double> logrankScoresData(Data* data, size_t time_varID, size_t stat
  */
 void maxstat(std::vector<double>& scores, std::vector<double>& x, std::vector<size_t>& indices, double& best_maxstat,
     double& best_split_value, double minprop, double maxprop);
+
+/**
+ * Compute maximally selected rank statistics in Data object
+ * @param scores Scores for dependent variable (y)
+ * @param data Data object
+ * @param sampleIDs IDs of samples to consider
+ * @param varID ID of variable to consider
+ * @param indices Ordering of x values
+ * @param best_maxstat Maximally selected statistic (output)
+ * @param best_split_value Split value for maximally selected statistic (output)
+ * @param minprop Minimal proportion of observations left of cutpoint
+ * @param maxprop Maximal proportion of observations left of cutpoint
+ */
+void maxstatInData(std::vector<double>& scores, Data* data, std::vector<size_t>& sampleIDs, size_t varID,
+    std::vector<size_t>& indices, double& best_maxstat, double& best_split_value, double minprop, double maxprop);
 
 /**
  * Compute number of samples smaller or equal than each unique value in x

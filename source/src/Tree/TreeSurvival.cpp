@@ -182,9 +182,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
   // Compute p-values
   for (auto& varID : possible_split_varIDs) {
 
-    // TODO: avoid copying
-    // TODO: Use presorted values?
-    // TODO: Compute order, maxstat, numSamplesLeftOfCutpoint in-place?
+    // TODO: maxstat in data, numSamplesLeftOfCutpoint in data, remove x
 
     // Get all observations
     std::vector<double> x;
@@ -193,13 +191,14 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
       x.push_back(data->get(sampleID, varID));
     }
 
-    // Order by x
-    std::vector<size_t> indices = order(x, false);
+    // Order by split variable
+    std::vector<size_t> indices = orderInData(data, sampleIDs[nodeID], varID, false);
 
     // Compute maximally selected rank statistics
     double best_maxstat;
     double best_split_value;
-    maxstat(scores, x, indices, best_maxstat, best_split_value, minprop, 1 - minprop);
+    maxstatInData(scores, data, sampleIDs[nodeID], varID, indices, best_maxstat, best_split_value, minprop,
+        1 - minprop);
 
     if (best_maxstat > -1) {
       std::vector<size_t> num_samples_left = numSamplesLeftOfCutpoint(x, indices);
