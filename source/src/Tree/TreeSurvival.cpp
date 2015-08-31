@@ -83,6 +83,7 @@ void TreeSurvival::createEmptyNodeInternal() {
 
 void TreeSurvival::computeSurvival(size_t nodeID) {
   std::vector<double> chf_temp;
+  chf_temp.reserve(num_timepoints);
   double chf_value = 0;
   for (size_t i = 0; i < num_timepoints; ++i) {
     if (num_samples_at_risk[i] != 0) {
