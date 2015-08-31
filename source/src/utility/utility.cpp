@@ -634,7 +634,7 @@ void maxstatInData(std::vector<double>& scores, Data* data, std::vector<size_t>&
   }
 }
 
-std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, std::vector<size_t> indices) {
+std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, std::vector<size_t>& indices) {
   std::vector<size_t> num_samples_left;
   num_samples_left.reserve(x.size());
 
@@ -642,6 +642,26 @@ std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, std::vector
     if (i == 0) {
       num_samples_left.push_back(1);
     } else if (x[indices[i]] == x[indices[i - 1]]) {
+      ++num_samples_left[num_samples_left.size() - 1];
+    } else {
+      num_samples_left.push_back(num_samples_left[num_samples_left.size() - 1] + 1);
+    }
+  }
+
+  return num_samples_left;
+}
+
+std::vector<size_t> numSamplesLeftOfCutpointInData(Data* data, std::vector<size_t>& sampleIDs, size_t varID,
+    std::vector<size_t>& indices) {
+  size_t n = indices.size();
+
+  std::vector<size_t> num_samples_left;
+  num_samples_left.reserve(n);
+
+  for (size_t i = 0; i < n; ++i) {
+    if (i == 0) {
+      num_samples_left.push_back(1);
+    } else if (data->get(sampleIDs[indices[i]], varID) == data->get(sampleIDs[indices[i - 1]], varID)) {
       ++num_samples_left[num_samples_left.size() - 1];
     } else {
       num_samples_left.push_back(num_samples_left[num_samples_left.size() - 1] + 1);

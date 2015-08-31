@@ -433,6 +433,17 @@ void maxstatInData(std::vector<double>& scores, Data* data, std::vector<size_t>&
  * @param indices Ordering of x
  * @return Vector of number of samples smaller or equal than each unique value in x
  */
-std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, std::vector<size_t> indices);
+std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, std::vector<size_t>& indices);
+
+/**
+ * Compute number of samples smaller or equal than each unique value in data
+ * @param data Data object
+ * @param sampleIDs IDs of samples to consider
+ * @param varID ID of variable to consider
+ * @param indices Ordering of x
+ * @return Vector of number of samples smaller or equal than each unique value in x
+ */
+std::vector<size_t> numSamplesLeftOfCutpointInData(Data* data, std::vector<size_t>& sampleIDs, size_t varID,
+    std::vector<size_t>& indices);
 
 #endif /* UTILITY_H_ */
