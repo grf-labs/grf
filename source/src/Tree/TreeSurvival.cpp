@@ -169,7 +169,16 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
   }
 
   // Compute scores
-  std::vector<double> scores = logrankScoresData(data, dependent_varID, status_varID, sampleIDs[nodeID]);
+  std::vector<double> time;
+  time.reserve(num_samples_node);
+  std::vector<double> status;
+  status.reserve(num_samples_node);
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    time.push_back(data->get(sampleID, dependent_varID));
+    status.push_back(data->get(sampleID, status_varID));
+  }
+  std::vector<double> scores = logrankScores(time, status);
+  //std::vector<double> scores = logrankScoresData(data, dependent_varID, status_varID, sampleIDs[nodeID]);
 
   // Save split stats
   std::vector<double> pvalues;
@@ -198,7 +207,6 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     double best_split_value;
     maxstat(scores, x, indices, best_maxstat, best_split_value, minprop, 1 - minprop);
     //maxstatInData(scores, data, sampleIDs[nodeID], varID, indices, best_maxstat, best_split_value, minprop, 1 - minprop);
-
 
     if (best_maxstat > -1) {
       // Compute number of samples left of cutpoints
