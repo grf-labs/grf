@@ -229,7 +229,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
 
   double min_pvalue = 2;
   size_t best_varID = 0;
-  size_t best_value = 0;
+  double best_value = 0;
 
   if (pvalues.size() > 0) {
     // Adjust p-values with Benjamini/Hochberg
