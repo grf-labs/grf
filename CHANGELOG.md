@@ -1,70 +1,70 @@
-## ------- Version 0.2.8 ---------------------------------------------- ##
-- Respect R seed for prediction
-- Fix bug: Probability prediction for single observations
+##### Version 0.2.8
+* Respect R seed for prediction
+* Fix bug: Probability prediction for single observations
 
-## ------- Version 0.2.7 ---------------------------------------------- ##
-- Small fixes for Solaris compiler
+##### Version 0.2.7 
+* Small fixes for Solaris compiler
 
-## ------- Version 0.2.6 ---------------------------------------------- ##
-- Add C-index splitting
-- Fix NA SNP handling
+##### Version 0.2.6 
+* Add C-index splitting
+* Fix NA SNP handling
 
-## ------- Version 0.2.5 ---------------------------------------------- ##
-- Fix matrix and gwaa alternative survival interface
-- Version submitted to JSS
+##### Version 0.2.5 
+* Fix matrix and gwaa alternative survival interface
+* Version submitted to JSS
 
-## ------- Version 0.2.4 ---------------------------------------------- ##
-- Small changes in documentation
+##### Version 0.2.4 
+* Small changes in documentation
 
-## ------- Version 0.2.3 ---------------------------------------------- ##
-- Preallocate memory for splitting
+##### Version 0.2.3 
+* Preallocate memory for splitting
 
-## ------- Version 0.2.2 ---------------------------------------------- ##
-- Remove recursive splitting
+##### Version 0.2.2 
+* Remove recursive splitting
 
-## ------- Version 0.2.1 ---------------------------------------------- ##
-- Allow matrix as input data in R version
+##### Version 0.2.1 
+* Allow matrix as input data in R version
 
-## ------- Version 0.2.0 ---------------------------------------------- ##
-- Fix prediction of classification forests in R
+##### Version 0.2.0 
+* Fix prediction of classification forests in R
 
-## ------- Version 0.1.9 ---------------------------------------------- ##
-- Speedup growing for continuous covariates
-- Add memory save option to save memory for very large datasets (but slower)
-- Remove memory mode option from R version since no performance gain
+##### Version 0.1.9 
+* Speedup growing for continuous covariates
+* Add memory save option to save memory for very large datasets (but slower)
+* Remove memory mode option from R version since no performance gain
 
-## ------- Version 0.1.8 ---------------------------------------------- ##
-- Fix problems when using Rcpp <0.11.4
+##### Version 0.1.8 
+* Fix problems when using Rcpp <0.11.4
 
-## ------- Version 0.1.7 ---------------------------------------------- ##
-- Add option to split on unordered categorical covariates
+##### Version 0.1.7 
+* Add option to split on unordered categorical covariates
 
-## ------- Version 0.1.6 ---------------------------------------------- ##
-- Optimize memory management for very large survival forests
+##### Version 0.1.6 
+* Optimize memory management for very large survival forests
 
-## ------- Version  0.1.5 ---------------------------------------------- ##
-- Set required Rcpp version to 0.11.2
-- Fix large $call objects when using BatchJobs
-- Add details and example on GenABEL usage to documentation
-- Minor changes to documentation
+##### Version  0.1.5 
+* Set required Rcpp version to 0.11.2
+* Fix large $call objects when using BatchJobs
+* Add details and example on GenABEL usage to documentation
+* Minor changes to documentation
 
-## ------- Version 0.1.4 ---------------------------------------------- ##
-- Speedup for survival forests with continuous covariates
-- R version: Generate seed from R. It is no longer necessary to set the
+##### Version 0.1.4 
+* Speedup for survival forests with continuous covariates
+* R version: Generate seed from R. It is no longer necessary to set the
   seed argument in ranger calls.
 
-## ------- Version 0.1.3 ---------------------------------------------- ##
-- Windows support for R version (without multithreading)
+##### Version 0.1.3 
+* Windows support for R version (without multithreading)
 
-## ------- Version 0.1.2 ---------------------------------------------- ##
-- Speedup growing of regression and probability prediction forests
-- Prediction forests are now handled like regression forests: MSE used for
+##### Version 0.1.2 
+* Speedup growing of regression and probability prediction forests
+* Prediction forests are now handled like regression forests: MSE used for
 	prediction error and permutation importance
-- Fixed name conflict with randomForest package for "importance"
-- Fixed a bug: prediction function is now working for probability
+* Fixed name conflict with randomForest package for "importance"
+* Fixed a bug: prediction function is now working for probability
 	prediction forests
-- Slot "predictions" for probability forests now contains class probabilities
-- importance function is now working even if randomForest package is
+* Slot "predictions" for probability forests now contains class probabilities
+* importance function is now working even if randomForest package is
 	loaded after ranger
-- Fixed a bug: Split selection weights are now working as expected
-- Small changes in documentation
+* Fixed a bug: Split selection weights are now working as expected
+* Small changes in documentation
