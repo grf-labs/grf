@@ -4,7 +4,6 @@ library(roxygen2)
 library(devtools)
 library(testthat)
 
-setwd("~/myWork/ranger/R_package")
 package.name <- "ranger"
 
 ## Set version and date
@@ -30,6 +29,3 @@ library(package.name, character.only = TRUE)
 
 ## Test
 test_dir("test/", reporter = "summary")
-
-## Copy to vbox
-##system(paste("cp", paste(package.name, "_", package.version, ".tar.gz", sep = ""), "~/myWork/vbox_share/"))
