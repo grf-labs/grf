@@ -1,4 +1,5 @@
 
+## Builds R package. Updates version and date first.
 library(Rcpp)
 library(roxygen2)
 library(devtools)
@@ -28,4 +29,4 @@ install(package.name)
 library(package.name, character.only = TRUE)
 
 ## Test
-test_dir("test/", reporter = "summary")
+test_package(package.name)
