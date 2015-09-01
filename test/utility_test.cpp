@@ -189,7 +189,7 @@ TEST(readWrite2D, double1) {
 
 TEST(drawWithoutReplacementSkip, small_small1) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
@@ -219,7 +219,7 @@ TEST(drawWithoutReplacementSkip, small_small1) {
 
 TEST(drawWithoutReplacementSkip, small_small2) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
@@ -249,7 +249,7 @@ TEST(drawWithoutReplacementSkip, small_small2) {
 
 TEST(drawWithoutReplacementSkip, small_small3) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
@@ -279,7 +279,7 @@ TEST(drawWithoutReplacementSkip, small_small3) {
 
 TEST(drawWithoutReplacementSkip, small_large1) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
@@ -309,7 +309,7 @@ TEST(drawWithoutReplacementSkip, small_large1) {
 
 TEST(drawWithoutReplacementSkip, large_large1) {
 
-  std::unordered_set<size_t> result;
+  std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
   random_number_generator.seed(random_device());
