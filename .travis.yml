@@ -11,11 +11,11 @@ before_install:
     - ./travis-tool.sh bootstrap
 install:
   - cd ./ranger-r-package/ranger
-  - ../travis-tool.sh install_deps
+  - ../../travis-tool.sh install_deps
 script: 
-  - ../travis-tool.sh run_tests
+  - ../../travis-tool.sh run_tests
 on_failure:
-    - ../travis-tool.sh dump_logs
+    - ../../travis-tool.sh dump_logs
 notifications:
   email:
     recipients:
