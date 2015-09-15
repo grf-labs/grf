@@ -6,14 +6,8 @@ before_install:
     - sudo apt-get -qq install g++-4.8
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-    - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-    - chmod 755 ./travis-tool.sh
 install:
   - cd ./ranger-r-package
-  - ../travis-tool.sh install_deps
-script: ../travis-tool.sh run_tests
-on_failure:
-  - ../travis-tool.sh dump_logs
 notifications:
   email:
     recipients:
