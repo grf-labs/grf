@@ -380,7 +380,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   rm("data.selected")
   
   ## Call Ranger
-  result <- ranger::rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
+  result <- rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
                       num.trees, verbose, seed, num.threads, write.forest, importance.mode,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
