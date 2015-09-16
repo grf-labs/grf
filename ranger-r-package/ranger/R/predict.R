@@ -152,7 +152,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
   splitrule <- 1
   
   ## Call Ranger
-  result <- rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
+  result <- ranger::rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
                       forest$num.trees, verbose, seed, num.threads, write.forest, importance,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
