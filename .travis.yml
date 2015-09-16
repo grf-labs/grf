@@ -9,11 +9,13 @@ before_install:
     - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
     - chmod 755 ./travis-tool.sh
     - ./travis-tool.sh bootstrap
+r_packages: 
+    - testthat
 install:
-  - cd ./ranger-r-package/ranger
-  - ../../travis-tool.sh install_deps
+    - cd ./ranger-r-package/ranger
+    - ../../travis-tool.sh install_deps
 script: 
-  - ../../travis-tool.sh run_tests
+    - ../../travis-tool.sh run_tests
 on_failure:
     - ../../travis-tool.sh dump_logs
 notifications:

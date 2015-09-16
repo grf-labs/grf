@@ -1,4 +1,4 @@
 library(testthat)
-library(yourpackage)
+library(ranger)
 
 test_check("ranger")
