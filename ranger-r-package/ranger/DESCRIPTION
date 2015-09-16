@@ -14,4 +14,4 @@ License: GPL-3
 Imports: Rcpp (>= 0.11.2)
 LinkingTo: Rcpp
 Depends: R (>= 3.1)
-Suggests: survival
+Suggests: survival, testthat
