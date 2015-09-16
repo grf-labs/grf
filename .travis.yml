@@ -11,6 +11,7 @@ before_install:
     - ./travis-tool.sh bootstrap
 r_packages: 
     - testthat
+    - Rcpp
 install:
     - cd ./ranger-r-package/ranger
     - ../../travis-tool.sh install_deps
