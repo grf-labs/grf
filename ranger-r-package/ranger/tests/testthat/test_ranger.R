@@ -179,3 +179,31 @@ test_that("predict works for single observations, survival", {
   pred <- predict(rf, head(veteran, 1))
   expect_that(length(pred$survival), equals(length(rf$unique.death.times)))
 })
+
+test_that("same result with same seed", {
+  ind = 1:150 %in% sample(150, 100)
+  
+  set.seed(2)
+  mod1 = ranger(Species ~ ., data = iris[ind, ], write.forest = TRUE, num.trees = 50)
+  pred1 = predict(mod1, data = iris[!ind, ])
+  
+  set.seed(2)
+  mod2 = ranger(Species ~ ., data = iris[ind, ], write.forest = TRUE, num.trees = 50)
+  pred2 = predict(mod2, data = iris[!ind, ])
+  
+  expect_that(pred1$predictions, equals(pred2$predictions))
+})
+
+test_that("same result with same seed, different interface", {
+  ind = 1:150 %in% sample(150, 100)
+  
+  set.seed(2)
+  mod1 = ranger(Species ~ ., data = iris[ind, ], write.forest = TRUE, num.trees = 50)
+  pred1 = predict(mod1, data = iris[!ind, ])
+  
+  set.seed(2)
+  mod3 = ranger(dependent.variable.name = "Species", data = iris[ind, ], write.forest = TRUE, num.trees = 50)
+  pred3 = predict(mod3, data = iris[!ind, ])
+  
+  expect_that(pred1$predictions, equals(pred3$predictions))
+})
