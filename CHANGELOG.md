@@ -1,6 +1,7 @@
 ##### Version 0.2.8
 * Respect R seed for prediction
 * Fix bug: Probability prediction for single observations
+* Fix bug: Results not identical when using alternative interface
 
 ##### Version 0.2.7 
 * Small fixes for Solaris compiler

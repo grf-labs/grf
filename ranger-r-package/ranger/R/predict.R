@@ -89,13 +89,24 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
   if (sum(!(forest$independent.variable.names %in% variable.names)) > 0) {
     stop("Error: One or more independent variables not found in data.")
   }
-  data.selected <- subset(data, select = forest$independent.variable.names)
+  
+  ## If alternative interface used, don't subset data
   if (forest$treetype == "Survival") {
-    data.final <- data.matrix(cbind(0, 0, data.selected))
-    variable.names <- c("time", "status", forest$independent.variable.names)
+    if (forest$dependent.varID > 0 & forest$status.varID > 1) {
+      data.final <- data.matrix(data)
+    } else {
+      data.selected <- subset(data, select = forest$independent.variable.names)
+      data.final <- data.matrix(cbind(0, 0, data.selected))
+      variable.names <- c("time", "status", forest$independent.variable.names)
+    }
   } else {
-    data.final <- data.matrix(cbind(0, data.selected))
-    variable.names <- c("dependent", forest$independent.variable.names)
+    if (forest$dependent.varID > 0) {
+      data.final <- data.matrix(data)
+    } else {
+      data.selected <- subset(data, select = forest$independent.variable.names)
+      data.final <- data.matrix(cbind(0, data.selected))
+      variable.names <- c("dependent", forest$independent.variable.names)
+    }
   }
 
   ## If gwa mode, add snp variable names
