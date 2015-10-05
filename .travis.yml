@@ -1,24 +1,23 @@
 language: r
+warnings_are_errors: true
+sudo: required
+
+env:
+ global:
+   - CRAN: http://cran.rstudio.com
+
 before_install:
+    - cd ./ranger-r-package/ranger
     - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test -y
     - sudo apt-get -qq update
     - sudo apt-get -qq install gcc-4.8
     - sudo apt-get -qq install g++-4.8
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-    - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-    - chmod 755 ./travis-tool.sh
-    - ./travis-tool.sh bootstrap
-install:
-  - cd ./ranger-r-package/ranger
-  - ../../travis-tool.sh install_deps
-script: 
-  - ../../travis-tool.sh run_tests
-on_failure:
-    - ../../travis-tool.sh dump_logs
+
 notifications:
   email:
     recipients:
         - work@wrig.de
-    on_success: always
-    on_failure: always
+    on_success: change
+    on_failure: change
