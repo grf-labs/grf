@@ -36,6 +36,9 @@
 #include <thread>
 #include <chrono>
 #endif
+#ifdef R_BUILD
+#include <Rcpp.h>
+#endif
 
 #include "utility.h"
 #include "Forest.h"
@@ -642,6 +645,9 @@ void Forest::setAlwaysSplitVariables(std::vector<std::string>& always_split_vari
 #ifdef WIN_R_BUILD
 void Forest::showProgress(std::string operation, clock_t start_time, clock_t& lap_time) {
 
+  // Check for user interrupt
+  Rcpp::checkUserInterrupt();
+
   double elapsed_time = (clock() - lap_time) / CLOCKS_PER_SEC;
   if (elapsed_time > STATUS_INTERVAL) {
     double relative_progress = (double) progress / (double) num_trees;
@@ -666,6 +672,11 @@ void Forest::showProgress(std::string operation) {
   while (progress < num_trees) {
     condition_variable.wait(lock);
     seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
+
+   // Check for user interrupt
+#ifdef R_BUILD
+    Rcpp::checkUserInterrupt();
+#endif
 
     if (progress > 0 && elapsed_time.count() > STATUS_INTERVAL) {
       double relative_progress = (double) progress / (double) num_trees;
