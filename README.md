@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/mnwright/ranger.svg?branch=master)](https://travis-ci.org/mnwright/ranger)
 ## ranger: A Fast Implementation of Random Forests
 Marvin N. Wright, wright@imbs.uni-luebeck.de
 
