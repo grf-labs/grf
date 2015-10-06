@@ -208,3 +208,10 @@ test_that("same result with same seed, different interface", {
   
   expect_that(pred1$predictions, equals(pred3$predictions))
 })
+
+test_that("no warning if data.frame has to classes", {
+  dat <- iris
+  class(dat) <- c("data.frame", "data.table")
+  expect_that(ranger(Species ~ ., data = dat, verbose = FALSE), 
+              not(gives_warning()))
+})
