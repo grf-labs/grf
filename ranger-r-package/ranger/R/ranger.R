@@ -164,7 +164,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    classification = NULL) {
   
   ## GenABEL GWA data
-  if (class(data) == "gwaa.data") {
+  if ("gwaa.data" %in% class(data)) {
     snp.names <- data@gtdata@snpnames
     sparse.data <- data@gtdata@gtps@.Data
     data <- data@phdata
