@@ -63,7 +63,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
   } else {
     sparse.data <- as.matrix(0)
     gwa.mode <- FALSE
-    variable.names <- names(data)
+    variable.names <- colnames(data)
   }
 
   ## Check forest argument
@@ -81,13 +81,6 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
   if (forest$treetype == "Survival" & (is.null(forest$status.varID)  |
                                          is.null(forest$chf) | is.null(forest$unique.death.times))) {
     stop("Error: Invalid forest object.")
-  }
-  if (forest$treetype == "Classification" & (is.null(forest$levels))) {
-    stop("Error: Invalid forest object.")
-  }
-
-  if (sum(!(forest$independent.variable.names %in% variable.names)) > 0) {
-    stop("Error: One or more independent variables not found in data.")
   }
   
   ## If alternative interface used, don't subset data
@@ -116,6 +109,10 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
 
   if (any(is.na(data.final))) {
     stop("Missing values in data.")
+  }
+  
+  if (sum(!(forest$independent.variable.names %in% variable.names)) > 0) {
+    stop("Error: One or more independent variables not found in data.")
   }
 
   ## Num threads
@@ -179,7 +176,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
   result$num.samples <- nrow(data.final)
   result$treetype <- forest$treetype
 
-  if (forest$treetype == "Classification") {
+  if (forest$treetype == "Classification" & !is.null(forest$levels)) {
     result$predictions <- factor(result$predictions, levels = 1:length(forest$levels),
                                  labels = forest$levels)
   } else if (forest$treetype == "Survival") {
@@ -187,7 +184,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
     result$chf <- result$predictions
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
-  } else if (forest$treetype == "Probability estimation") {
+  } else if (forest$treetype == "Probability estimation" & !is.null(forest$levels)) {
     if (is.matrix(result$predictions)) {
       colnames(result$predictions) <- forest$levels
     } else {
