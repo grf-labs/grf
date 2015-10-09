@@ -130,16 +130,34 @@ test_that("Matrix interface works for classification", {
   expect_that(rf$forest$independent.variable.names, equals(colnames(iris)[1:4]))
 })
 
+test_that("Matrix interface prediction works for classification", {
+  dat <- data.matrix(iris)
+  rf <- ranger(dependent.variable.name = "Species", data = dat, write.forest = TRUE, classification = TRUE)
+  expect_that(predict(rf, dat), not(throws_error()))
+})
+
 test_that("Matrix interface works for regression", {
   rf <- ranger(dependent.variable.name = "Sepal.Length", data = data.matrix(iris), write.forest = TRUE)
   expect_that(rf$treetype, equals("Regression"))
   expect_that(rf$forest$independent.variable.names, equals(colnames(iris)[2:5]))
 })
 
+test_that("Matrix interface prediction works for regression", {
+  dat <- data.matrix(iris)
+  rf <- ranger(dependent.variable.name = "Sepal.Length", data = dat, write.forest = TRUE)
+  expect_that(predict(rf, dat), not(throws_error()))
+})
+
 test_that("Matrix interface works for survival", {
   rf <- ranger(dependent.variable.name = "time", status.variable.name = "status", data = data.matrix(veteran), write.forest = TRUE)
   expect_that(rf$treetype, equals("Survival"))
   expect_that(rf$forest$independent.variable.names, equals(colnames(veteran)[c(1:2, 5:8)]))
+})
+
+test_that("Matrix interface prediction works for survival", {
+  dat <- data.matrix(veteran)
+  rf <- ranger(dependent.variable.name = "time", status.variable.name = "status", data = dat, write.forest = TRUE)
+  expect_that(predict(rf, dat), not(throws_error()))
 })
 
 test_that("save.memory option works for classification", {
