@@ -1,5 +1,6 @@
 ##### Version 0.2.8
 * Respect R seed for prediction
+* Memory improvements for variable importance computation
 * Fix bug: Probability prediction for single observations
 * Fix bug: Results not identical when using alternative interface
 
