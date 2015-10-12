@@ -259,7 +259,7 @@ test_that("no warning if character vector in data, alternative interface", {
 test_that("no error if character vector in data, alternative interface, prediction", {
   dat <- iris
   dat$Test <- paste0("AA",as.character(1:nrow(dat)))
-  rf <- ranger(dependent.variable.name = "Species", data = dat, verbose = FALSE)
+  rf <- ranger(dependent.variable.name = "Species", data = dat, verbose = FALSE, write.forest = TRUE)
   expect_that(predict(rf, dat),
               not(throws_error()))
 })

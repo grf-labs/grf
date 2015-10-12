@@ -86,17 +86,37 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
   ## If alternative interface used, don't subset data
   if (forest$treetype == "Survival") {
     if (forest$dependent.varID > 0 & forest$status.varID > 1) {
+      if (!is.matrix(data)) {
+        ## Recode characters
+        char.columns <- sapply(data, is.character)
+        data[char.columns] <- lapply(data[char.columns], factor)
+      }
       data.final <- data.matrix(data)
     } else {
       data.selected <- subset(data, select = forest$independent.variable.names)
+      if (!is.matrix(data.selected)) {
+        ## Recode characters
+        char.columns <- sapply(data.selected, is.character)
+        data.selected[char.columns] <- lapply(data.selected[char.columns], factor)
+      }
       data.final <- data.matrix(cbind(0, 0, data.selected))
       variable.names <- c("time", "status", forest$independent.variable.names)
     }
   } else {
     if (forest$dependent.varID > 0) {
+      if (!is.matrix(data)) {
+        ## Recode characters
+        char.columns <- sapply(data, is.character)
+        data[char.columns] <- lapply(data[char.columns], factor)
+      }
       data.final <- data.matrix(data)
     } else {
       data.selected <- subset(data, select = forest$independent.variable.names)
+      if (!is.matrix(data.selected)) {
+        ## Recode characters
+        char.columns <- sapply(data.selected, is.character)
+        data.selected[char.columns] <- lapply(data.selected[char.columns], factor)
+      }
       data.final <- data.matrix(cbind(0, data.selected))
       variable.names <- c("dependent", forest$independent.variable.names)
     }
