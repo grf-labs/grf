@@ -523,7 +523,7 @@ void Forest::computePermutationImportance() {
   variable_importance_threads.clear();
 
   // Sum thread variances
-  std::vector<double> variance;
+  std::vector<double> variance(num_independent_variables, 0);
   if (importance_mode == IMP_PERM_BREIMAN || importance_mode == IMP_PERM_LIAW) {
     for (size_t i = 0; i < num_independent_variables; ++i) {
       for (uint j = 0; j < num_threads; ++j) {
