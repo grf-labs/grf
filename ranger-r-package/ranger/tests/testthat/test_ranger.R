@@ -233,3 +233,34 @@ test_that("no warning if data.frame has to classes", {
   expect_that(ranger(Species ~ ., data = dat, verbose = FALSE), 
               not(gives_warning()))
 })
+
+test_that("no warning if character vector in data", {
+  dat <- iris
+  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
+  expect_that(ranger(Species ~ ., data = dat, verbose = FALSE), 
+              not(gives_warning()))
+})
+
+test_that("no error if character vector in data, prediction", {
+  dat <- iris
+  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
+  rf <- ranger(Species~., dat, write.forest = TRUE)
+  expect_that(predict(rf, dat),
+              not(throws_error()))
+})
+
+test_that("no warning if character vector in data, alternative interface", {
+  dat <- iris
+  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
+  expect_that(ranger(dependent.variable.name = "Species", data = dat, verbose = FALSE), 
+              not(gives_warning()))
+})
+
+test_that("no error if character vector in data, alternative interface, prediction", {
+  dat <- iris
+  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
+  rf <- ranger(dependent.variable.name = "Species", data = dat, verbose = FALSE)
+  expect_that(predict(rf, dat),
+              not(throws_error()))
+})
+
