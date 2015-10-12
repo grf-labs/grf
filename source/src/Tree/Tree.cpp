@@ -33,8 +33,8 @@
 
 Tree::Tree() :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(0), no_split_variables(0), min_node_size(
-        0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), oob_sampleIDs(0), data(0), importance_mode(
-        DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), memory_saving_splitting(false), splitrule(
+        0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), oob_sampleIDs(0), data(0), variable_importance(
+        0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), memory_saving_splitting(false), splitrule(
         DEFAULT_SPLITRULE) {
 }
 
@@ -42,8 +42,8 @@ Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>&
     std::vector<double>& split_values, std::vector<bool>* is_ordered_variable) :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(is_ordered_variable), no_split_variables(
         0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), split_varIDs(
-        split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), data(0), importance_mode(
-        DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), memory_saving_splitting(false), splitrule(
+        split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), data(0), variable_importance(
+        0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), memory_saving_splitting(false), splitrule(
         DEFAULT_SPLITRULE) {
 }
 
@@ -78,15 +78,12 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   this->sample_with_replacement = sample_with_replacement;
   this->splitrule = splitrule;
 
-  // Initialize with variable importance with 0.
-  if (importance_mode == IMP_GINI) {
-    variable_importance.resize(data->getNumCols() - no_split_variables->size());
-  }
-
   initInternal();
 }
 
-void Tree::grow() {
+void Tree::grow(std::vector<double>* variable_importance) {
+
+  this->variable_importance = variable_importance;
 
   if (sample_with_replacement) {
     bootstrap();
