@@ -149,7 +149,7 @@ protected:
   // Multithreading methods for growing/prediction/importance, called by each thread
   void growTreesInThread(uint thread_idx);
   void predictTreesInThread(uint thread_idx, const Data* prediction_data, bool oob_prediction);
-  void computeTreePermutationImportanceInThread(uint thread_idx);
+  void computeTreePermutationImportanceInThread(uint thread_idx, std::vector<double>* importance, std::vector<double>* variance);
 
   // Load forest from file
   void loadFromFile(std::string filename);

@@ -57,7 +57,7 @@ public:
 
   void predict(const Data* prediction_data, bool oob_prediction);
 
-  void computePermutationImportance();
+  void computePermutationImportance(std::vector<double>* forest_importance, std::vector<double>* forest_variance);
 
   void appendToFile(std::ofstream& file);
   virtual void appendToFileInternal(std::ofstream& file) = 0;
@@ -147,6 +147,7 @@ protected:
   // Pointer to original data
   Data* data;
 
+  // TODO: Remove variable_importance if not needed anymore
   // Variable importance for all variables
   std::vector<double> variable_importance;
   ImportanceMode importance_mode;
