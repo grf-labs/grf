@@ -54,7 +54,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
                                   verbose = TRUE, ...) {
   
   ## GenABEL GWA data
-  if (class(data) == "gwaa.data") {
+  if ("gwaa.data" %in% class(data)) {
     snp.names <- snp.names(data)
     sparse.data <- data@gtdata@gtps@.Data
     data <- data@phdata[, -1]
