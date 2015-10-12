@@ -430,6 +430,6 @@ void TreeClassification::addGiniImportance(size_t nodeID, size_t varID, double d
       --tempvarID;
     }
   }
-  variable_importance[tempvarID] += best_gini;
+  (*variable_importance)[tempvarID] += best_gini;
 }
 

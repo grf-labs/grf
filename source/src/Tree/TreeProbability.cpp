@@ -388,6 +388,6 @@ void TreeProbability::addImpurityImportance(size_t nodeID, size_t varID, double 
       --tempvarID;
     }
   }
-  variable_importance[tempvarID] += best_decrease;
+  (*variable_importance)[tempvarID] += best_decrease;
 }
 
