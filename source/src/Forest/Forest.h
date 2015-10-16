@@ -39,11 +39,6 @@
 #include <mutex>
 #include <condition_variable>
 #endif
-#ifdef R_BUILD
-#include <Rcpp.h>
-// [[Rcpp::depends(RcppProgress)]]
-#include <progress.hpp>
-#endif
 
 #include "globals.h"
 #include "Tree.h"
@@ -227,8 +222,8 @@ protected:
   // Computation progress (finished trees)
   size_t progress;
 #ifdef R_BUILD
-  InterruptableProgressMonitor* rcppProgressMonitor;
   size_t aborted_threads;
+  bool aborted;
 #endif
 
 private:
