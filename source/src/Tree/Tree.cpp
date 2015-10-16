@@ -33,8 +33,8 @@
 
 Tree::Tree() :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(0), no_split_variables(0), min_node_size(
-        0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), oob_sampleIDs(0), data(0), importance_mode(
-        DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), memory_saving_splitting(false), splitrule(
+        0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), oob_sampleIDs(0), data(0), variable_importance(
+        0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), memory_saving_splitting(false), splitrule(
         DEFAULT_SPLITRULE) {
 }
 
@@ -42,8 +42,8 @@ Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>&
     std::vector<double>& split_values, std::vector<bool>* is_ordered_variable) :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(is_ordered_variable), no_split_variables(
         0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), split_varIDs(
-        split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), data(0), importance_mode(
-        DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), memory_saving_splitting(false), splitrule(
+        split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), data(0), variable_importance(
+        0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), memory_saving_splitting(false), splitrule(
         DEFAULT_SPLITRULE) {
 }
 
@@ -78,15 +78,12 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   this->sample_with_replacement = sample_with_replacement;
   this->splitrule = splitrule;
 
-  // Initialize with variable importance with 0.
-  if (importance_mode == IMP_GINI) {
-    variable_importance.resize(data->getNumCols() - no_split_variables->size());
-  }
-
   initInternal();
 }
 
-void Tree::grow() {
+void Tree::grow(std::vector<double>* variable_importance) {
+
+  this->variable_importance = variable_importance;
 
   if (sample_with_replacement) {
     bootstrap();
@@ -169,11 +166,9 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
   }
 }
 
-void Tree::computePermutationImportance() {
+void Tree::computePermutationImportance(std::vector<double>* forest_importance, std::vector<double>* forest_variance) {
 
   size_t num_independent_variables = data->getNumCols() - no_split_variables->size();
-  variable_importance.clear();
-  variable_importance.reserve(num_independent_variables);
 
   // Compute normal prediction accuracy for each tree. Predictions already computed..
   double accuracy_normal = computePredictionAccuracyInternal();
@@ -198,7 +193,15 @@ void Tree::computePermutationImportance() {
     // Permute and compute prediction accuracy again for this permutation and save difference
     permuteAndPredictOobSamples(varID, permutations);
     double accuracy_permuted = computePredictionAccuracyInternal();
-    variable_importance.push_back(accuracy_normal - accuracy_permuted);
+    double accuracy_difference = accuracy_normal - accuracy_permuted;
+    (*forest_importance)[i] += accuracy_difference;
+
+    // Compute variance
+    if (importance_mode == IMP_PERM_BREIMAN) {
+      (*forest_variance)[i] += accuracy_difference * accuracy_difference;
+    } else if (importance_mode == IMP_PERM_LIAW) {
+      (*forest_variance)[i] += accuracy_difference * accuracy_difference * num_samples_oob;
+    }
   }
 }
 

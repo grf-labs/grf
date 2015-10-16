@@ -130,16 +130,34 @@ test_that("Matrix interface works for classification", {
   expect_that(rf$forest$independent.variable.names, equals(colnames(iris)[1:4]))
 })
 
+test_that("Matrix interface prediction works for classification", {
+  dat <- data.matrix(iris)
+  rf <- ranger(dependent.variable.name = "Species", data = dat, write.forest = TRUE, classification = TRUE)
+  expect_that(predict(rf, dat), not(throws_error()))
+})
+
 test_that("Matrix interface works for regression", {
   rf <- ranger(dependent.variable.name = "Sepal.Length", data = data.matrix(iris), write.forest = TRUE)
   expect_that(rf$treetype, equals("Regression"))
   expect_that(rf$forest$independent.variable.names, equals(colnames(iris)[2:5]))
 })
 
+test_that("Matrix interface prediction works for regression", {
+  dat <- data.matrix(iris)
+  rf <- ranger(dependent.variable.name = "Sepal.Length", data = dat, write.forest = TRUE)
+  expect_that(predict(rf, dat), not(throws_error()))
+})
+
 test_that("Matrix interface works for survival", {
   rf <- ranger(dependent.variable.name = "time", status.variable.name = "status", data = data.matrix(veteran), write.forest = TRUE)
   expect_that(rf$treetype, equals("Survival"))
   expect_that(rf$forest$independent.variable.names, equals(colnames(veteran)[c(1:2, 5:8)]))
+})
+
+test_that("Matrix interface prediction works for survival", {
+  dat <- data.matrix(veteran)
+  rf <- ranger(dependent.variable.name = "time", status.variable.name = "status", data = dat, write.forest = TRUE)
+  expect_that(predict(rf, dat), not(throws_error()))
 })
 
 test_that("save.memory option works for classification", {
@@ -208,3 +226,41 @@ test_that("same result with same seed, different interface", {
   
   expect_that(pred1$predictions, equals(pred3$predictions))
 })
+
+test_that("no warning if data.frame has to classes", {
+  dat <- iris
+  class(dat) <- c("data.frame", "data.table")
+  expect_that(ranger(Species ~ ., data = dat, verbose = FALSE), 
+              not(gives_warning()))
+})
+
+test_that("no warning if character vector in data", {
+  dat <- iris
+  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
+  expect_that(ranger(Species ~ ., data = dat, verbose = FALSE), 
+              not(gives_warning()))
+})
+
+test_that("no error if character vector in data, prediction", {
+  dat <- iris
+  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
+  rf <- ranger(Species~., dat, write.forest = TRUE)
+  expect_that(predict(rf, dat),
+              not(throws_error()))
+})
+
+test_that("no warning if character vector in data, alternative interface", {
+  dat <- iris
+  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
+  expect_that(ranger(dependent.variable.name = "Species", data = dat, verbose = FALSE), 
+              not(gives_warning()))
+})
+
+test_that("no error if character vector in data, alternative interface, prediction", {
+  dat <- iris
+  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
+  rf <- ranger(dependent.variable.name = "Species", data = dat, verbose = FALSE, write.forest = TRUE)
+  expect_that(predict(rf, dat),
+              not(throws_error()))
+})
+

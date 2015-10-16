@@ -53,18 +53,15 @@ public:
       bool memory_saving_splitting, SplitRule splitrule);
   virtual void initInternal() = 0;
 
-  void grow();
+  void grow(std::vector<double>* variable_importance);
 
   void predict(const Data* prediction_data, bool oob_prediction);
 
-  void computePermutationImportance();
+  void computePermutationImportance(std::vector<double>* forest_importance, std::vector<double>* forest_variance);
 
   void appendToFile(std::ofstream& file);
   virtual void appendToFileInternal(std::ofstream& file) = 0;
 
-  const std::vector<double>& getVariableImportance() const {
-    return variable_importance;
-  }
   const std::vector<std::vector<size_t> >& getChildNodeIDs() const {
     return child_nodeIDs;
   }
@@ -148,7 +145,7 @@ protected:
   Data* data;
 
   // Variable importance for all variables
-  std::vector<double> variable_importance;
+  std::vector<double>* variable_importance;
   ImportanceMode importance_mode;
 
   // When growing here the OOB set is used

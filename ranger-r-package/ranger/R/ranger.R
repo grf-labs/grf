@@ -164,7 +164,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    classification = NULL) {
   
   ## GenABEL GWA data
-  if (class(data) == "gwaa.data") {
+  if ("gwaa.data" %in% class(data)) {
     snp.names <- data@gtdata@snpnames
     sparse.data <- data@gtdata@gtps@.Data
     data <- data@phdata
@@ -248,6 +248,9 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     data.final <- data.selected
   }
   if (!is.matrix(data.selected)) {
+    ## Recode characters as factors and create matrix
+    char.columns <- sapply(data.final, is.character)
+    data.final[char.columns] <- lapply(data.final[char.columns], factor)
     data.final <- data.matrix(data.final)
   }
   variable.names <- colnames(data.final)
