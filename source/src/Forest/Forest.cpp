@@ -36,11 +36,6 @@
 #include <thread>
 #include <chrono>
 #endif
-#ifdef R_BUILD
-#include <Rcpp.h>
-// [[Rcpp::depends(RcppProgress)]]
-#include <progress.hpp>
-#endif
 
 #include "utility.h"
 #include "Forest.h"
@@ -711,7 +706,7 @@ void Forest::showProgress(std::string operation) {
 #ifdef R_BUILD
     if (Progress::check_abort()) {
       std::cout << "Abort..." << std::endl;
-      throw std::runtime_error("User interrupt.");
+      //throw std::runtime_error("User interrupt.");
     }
 #endif
 
