@@ -392,7 +392,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       save.memory, splitrule)
   
   if (length(result) == 0) {
-    stop("Internal error.")
+    stop("User interrupt or internal error.")
   }
   
   ## Prepare results

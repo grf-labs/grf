@@ -34,6 +34,8 @@
 #include <random>
 #include <ctime>
 #ifndef WIN_R_BUILD
+#include <thread>
+#include <chrono>
 #include <mutex>
 #include <condition_variable>
 #endif
@@ -224,6 +226,10 @@ protected:
 
   // Computation progress (finished trees)
   size_t progress;
+#ifdef R_BUILD
+  InterruptableProgressMonitor* rcppProgressMonitor;
+  size_t aborted_threads;
+#endif
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Forest);
