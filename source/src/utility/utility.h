@@ -310,6 +310,7 @@ std::string checkUnorderedVariables(Data* data, std::vector<std::string> unorder
  */
 bool checkPositiveIntegers(std::vector<double>& all_values);
 
+// User interrupt from R
 #ifdef R_BUILD
 static void chkIntFn(void *dummy) {
   R_CheckUserInterrupt();

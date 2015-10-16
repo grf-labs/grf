@@ -742,7 +742,7 @@ void Forest::setAlwaysSplitVariables(std::vector<std::string>& always_split_vari
 void Forest::showProgress(std::string operation, clock_t start_time, clock_t& lap_time) {
 
   // Check for user interrupt
-  if (Progress::check_abort()) {
+  if (checkInterrupt()) {
     throw std::runtime_error("User interrupt.");
   }
 
