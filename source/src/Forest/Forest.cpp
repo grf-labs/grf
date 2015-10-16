@@ -38,6 +38,8 @@
 #endif
 #ifdef R_BUILD
 #include <Rcpp.h>
+// [[Rcpp::depends(RcppProgress)]]
+#include <progress.hpp>
 #endif
 
 #include "utility.h"
@@ -646,7 +648,10 @@ void Forest::setAlwaysSplitVariables(std::vector<std::string>& always_split_vari
 void Forest::showProgress(std::string operation, clock_t start_time, clock_t& lap_time) {
 
   // Check for user interrupt
-  Rcpp::checkUserInterrupt();
+  if (Progress::check_abort()) {
+    std::cout << "Abort..." << std::endl;
+    throw std::runtime_error("User interrupt.");
+  }
 
   double elapsed_time = (clock() - lap_time) / CLOCKS_PER_SEC;
   if (elapsed_time > STATUS_INTERVAL) {
@@ -673,9 +678,12 @@ void Forest::showProgress(std::string operation) {
     condition_variable.wait(lock);
     seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
 
-   // Check for user interrupt
+    // Check for user interrupt
 #ifdef R_BUILD
-    Rcpp::checkUserInterrupt();
+    if (Progress::check_abort()) {
+      std::cout << "Abort..." << std::endl;
+      throw std::runtime_error("User interrupt.");
+    }
 #endif
 
     if (progress > 0 && elapsed_time.count() > STATUS_INTERVAL) {
