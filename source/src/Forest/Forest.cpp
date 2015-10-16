@@ -380,6 +380,11 @@ void Forest::grow() {
   }
 #else
   progress = 0;
+#ifdef R_BUILD
+  aborted = false;
+  aborted_threads = 0;
+#endif
+
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
@@ -396,6 +401,12 @@ void Forest::grow() {
   for (auto &thread : threads) {
     thread.join();
   }
+
+#ifdef R_BUILD
+  if (aborted_threads > 0) {
+    throw std::runtime_error("User interrupt.");
+  }
+#endif
 
   // Sum thread importances
   if (importance_mode == IMP_GINI) {
@@ -432,6 +443,11 @@ void Forest::predict() {
   }
 #else
   progress = 0;
+#ifdef R_BUILD
+  aborted = false;
+  aborted_threads = 0;
+#endif
+
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
   for (uint i = 0; i < num_threads; ++i) {
@@ -441,6 +457,12 @@ void Forest::predict() {
   for (auto &thread : threads) {
     thread.join();
   }
+
+#ifdef R_BUILD
+  if (aborted_threads > 0) {
+    throw std::runtime_error("User interrupt.");
+  }
+#endif
 #endif
 
   // Call special functions for subclasses
@@ -465,9 +487,16 @@ void Forest::computePredictionError() {
   for (uint i = 0; i < num_threads; ++i) {
     threads.push_back(std::thread(&Forest::predictTreesInThread, this, i, data, true));
   }
+  showProgress("Computing prediction error..");
   for (auto &thread : threads) {
     thread.join();
   }
+
+#ifdef R_BUILD
+  if (aborted_threads > 0) {
+    throw std::runtime_error("User interrupt.");
+  }
+#endif
 #endif
 
   // Call special function for subclasses
@@ -497,6 +526,11 @@ void Forest::computePermutationImportance() {
   }
 #else
   progress = 0;
+#ifdef R_BUILD
+  aborted = false;
+  aborted_threads = 0;
+#endif
+
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
@@ -518,6 +552,12 @@ void Forest::computePermutationImportance() {
   for (auto &thread : threads) {
     thread.join();
   }
+
+#ifdef R_BUILD
+  if (aborted_threads > 0) {
+    throw std::runtime_error("User interrupt.");
+  }
+#endif
 
   // Sum thread importances
   variable_importance.resize(num_independent_variables, 0);
@@ -559,6 +599,16 @@ void Forest::growTreesInThread(uint thread_idx, std::vector<double>* variable_im
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       trees[i]->grow(variable_importance);
 
+      // Check for user interrupt
+#ifdef R_BUILD
+      if (aborted) {
+        std::unique_lock<std::mutex> lock(mutex);
+        ++aborted_threads;
+        condition_variable.notify_one();
+        return;
+      }
+#endif
+
       // Increase progress by 1 tree
       std::unique_lock<std::mutex> lock(mutex);
       ++progress;
@@ -571,6 +621,16 @@ void Forest::predictTreesInThread(uint thread_idx, const Data* prediction_data, 
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       trees[i]->predict(prediction_data, oob_prediction);
+
+      // Check for user interrupt
+#ifdef R_BUILD
+      if (aborted) {
+        std::unique_lock<std::mutex> lock(mutex);
+        ++aborted_threads;
+        condition_variable.notify_one();
+        return;
+      }
+#endif
 
       // Increase progress by 1 tree
       std::unique_lock<std::mutex> lock(mutex);
@@ -585,6 +645,16 @@ void Forest::computeTreePermutationImportanceInThread(uint thread_idx, std::vect
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       trees[i]->computePermutationImportance(importance, variance);
+
+      // Check for user interrupt
+#ifdef R_BUILD
+      if (aborted) {
+        std::unique_lock<std::mutex> lock(mutex);
+        ++aborted_threads;
+        condition_variable.notify_one();
+        return;
+      }
+#endif
 
       // Increase progress by 1 tree
       std::unique_lock<std::mutex> lock(mutex);
@@ -671,6 +741,11 @@ void Forest::setAlwaysSplitVariables(std::vector<std::string>& always_split_vari
 #ifdef WIN_R_BUILD
 void Forest::showProgress(std::string operation, clock_t start_time, clock_t& lap_time) {
 
+  // Check for user interrupt
+  if (checkInterrupt()) {
+    throw std::runtime_error("User interrupt.");
+  }
+
   double elapsed_time = (clock() - lap_time) / CLOCKS_PER_SEC;
   if (elapsed_time > STATUS_INTERVAL) {
     double relative_progress = (double) progress / (double) num_trees;
@@ -695,6 +770,16 @@ void Forest::showProgress(std::string operation) {
   while (progress < num_trees) {
     condition_variable.wait(lock);
     seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
+
+    // Check for user interrupt
+#ifdef R_BUILD
+    if (!aborted && checkInterrupt()) {
+      aborted = true;
+    }
+    if (aborted && aborted_threads >= num_threads) {
+      return;
+    }
+#endif
 
     if (progress > 0 && elapsed_time.count() > STATUS_INTERVAL) {
       double relative_progress = (double) progress / (double) num_trees;

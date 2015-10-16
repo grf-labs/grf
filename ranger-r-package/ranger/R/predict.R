@@ -188,7 +188,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
                       unordered.factor.variables, use.unordered.factor.variables, save.memory, splitrule)
 
   if (length(result) == 0) {
-    stop("Internal error.")
+    stop("User interrupt or internal error.")
   }
 
   ## Prepare results

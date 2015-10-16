@@ -1,2 +1,3 @@
 ## Use c++11
 CXX_STD = CXX11
+PKG_CPPFLAGS = -DR_BUILD

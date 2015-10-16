@@ -37,6 +37,10 @@
 #include <unordered_set>
 #include <unordered_map>
 
+#ifdef R_BUILD
+#include <Rinternals.h>
+#endif
+
 #include "globals.h"
 #include "Data.h"
 
@@ -305,5 +309,16 @@ std::string checkUnorderedVariables(Data* data, std::vector<std::string> unorder
  * @return True if all values are positive integers
  */
 bool checkPositiveIntegers(std::vector<double>& all_values);
+
+// User interrupt from R
+#ifdef R_BUILD
+static void chkIntFn(void *dummy) {
+  R_CheckUserInterrupt();
+}
+
+inline bool checkInterrupt() {
+  return (R_ToplevelExec(chkIntFn, NULL) == FALSE);
+}
+#endif
 
 #endif /* UTILITY_H_ */
