@@ -182,8 +182,7 @@ test_that("C-index splitting works", {
 })
 
 test_that("predict works for single observations, classification", {
-  rf <- ranger(Species ~ ., iris, write.forest = TRUE)
-  pred <- predict(rf, head(iris, 1))
+  pred <- predict(rg.class, head(iris, 1))
   expect_that(pred$predictions, equals(iris[1,"Species"]))
 })
 
@@ -262,5 +261,15 @@ test_that("no error if character vector in data, alternative interface, predicti
   rf <- ranger(dependent.variable.name = "Species", data = dat, verbose = FALSE, write.forest = TRUE)
   expect_that(predict(rf, dat),
               not(throws_error()))
+})
+
+test_that("confusion matrix is of right dimension", {
+  expect_that(dim(rg.class$confusion.matrix), 
+              equals(rep(nlevels(iris$Species), 2)))
+})
+
+test_that("confusion matrix rows are the true classes", {
+  expect_that(as.numeric(rowSums(rg.class$confusion.matrix)), 
+              equals(as.numeric(table(iris$Species))))
 })
 
