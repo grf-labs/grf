@@ -1,5 +1,6 @@
 ##### Version 0.2.8
 * Allow the user to interrupt computation from R
+* Transpose classification.table and rename to confusion.matrix
 * Respect R seed for prediction
 * Memory improvements for variable importance computation
 * Fix bug: Probability prediction for single observations
