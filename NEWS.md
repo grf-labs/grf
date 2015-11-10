@@ -1,4 +1,4 @@
-##### Version 0.2.8
+##### Version 0.3.0
 * Allow the user to interrupt computation from R
 * Transpose classification.table and rename to confusion.matrix
 * Respect R seed for prediction
