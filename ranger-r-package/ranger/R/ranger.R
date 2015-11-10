@@ -58,6 +58,8 @@
 ##' To use only the SNPs without sex or other covariates from the phenotype file, use \code{0} on the right hand side of the formula. 
 ##' Note that missing values are treated as an extra category while splitting.
 ##' 
+##' See \url{https://github.com/mnwright/ranger} for the development version.
+##' 
 ##' Notes:
 ##' \itemize{
 ##'  \item Multithreading is currently not supported for Microsoft Windows platforms.
@@ -143,6 +145,8 @@
 ##'
 ##' @author Marvin N. Wright
 ##' @references
+##'   Wright, M. N., & Ziegler, A. (2015). ranger: A fast implementation of random forests for high dimensional data in C++ and R. arXiv preprint \url{http://arxiv.org/abs/1508.04409}.
+##' 
 ##'   Breiman, L. (2001). Random forests. Mach Learn, 45(1), 5-32. \cr
 ##'   Ishwaran, H., Kogalur, U. B., Blackstone, E. H., & Lauer, M. S. (2008). Random survival forests. Ann Appl Stat, 841-860. \cr
 ##'   Malley, J. D., Kruppa, J., Dasgupta, A., Malley, K. G., & Ziegler, A. (2012). Probability machines: consistent probability estimation using nonparametric learning machines. Methods Inf Med, 51(1), 74.
