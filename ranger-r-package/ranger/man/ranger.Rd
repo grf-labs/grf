@@ -64,7 +64,7 @@ Object of class \code{ranger} with elements
       \code{variable.importance}     \tab Variable importance for each independent variable. \cr
       \code{prediction.error}   \tab Overall out of bag prediction error. For classification this is the fraction of missclassified samples, for regression the mean squared error and for survival one minus Harrell's c-index. \cr
       \code{r.squared}   \tab R squared. Also called explained variance or coefficient of determination (regression only). \cr
-      \code{classification.table} \tab Contingency table for classes and predictions based on out of bag samples (classification only). \cr
+      \code{confusion.matrix} \tab Contingency table for classes and predictions based on out of bag samples (classification only). \cr
       \code{unique.death.times} \tab Unique death times (survival only). \cr
       \code{chf} \tab Estimated cumulative hazard function for each sample (survival only). \cr
       \code{survival} \tab Estimated survival function for each sample (survival only). \cr
