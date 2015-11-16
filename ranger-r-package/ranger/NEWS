@@ -1,3 +1,6 @@
+##### Version 0.3.1
+* Catch error of outdated gcc not supporting C++11 completely
+
 ##### Version 0.3.0
 * Allow the user to interrupt computation from R
 * Transpose classification.table and rename to confusion.matrix

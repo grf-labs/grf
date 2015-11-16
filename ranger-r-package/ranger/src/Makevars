@@ -2,11 +2,13 @@
 CXX_STD = CXX11
 PKG_CPPFLAGS = -DR_BUILD
 
-$(error Compiler: $(CC))
-
 ## Check for gcc >= 4.7
-GCC_VER := $(shell gcc -dumpversion)
-GCC_OK := $(shell echo `$(GCC_VER) | cut -f1-2 -d.` \>= 4.7 | bc )
-ifneq ($(GCC_OK),1)
-$(error Error: gcc >= 4.7 required, version $(GCC_VER) installed. Please update gcc.)
+ifeq ($(shell basename $(CC)),gcc)
+  GCC_VER := $(shell gcc -dumpversion)
+  GCC_MAJOR := $(shell gcc -dumpversion | cut -f1-2 -d.)
+  
+  GCC_OK := $(shell echo $(GCC_MAJOR) \>= 4.7 | bc )
+  ifneq ($(GCC_OK),1)
+    $(error Error: gcc >= 4.7 required, version $(GCC_VER) installed. Please update gcc.)
+  endif
 endif
