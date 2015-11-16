@@ -1,3 +1,4 @@
-## R build, use c++11
-PKG_CPPFLAGS = -DR_BUILD -std=c++11
+## Use c++11
+CXX_STD = CXX11
+PKG_CPPFLAGS = -DR_BUILD
 
