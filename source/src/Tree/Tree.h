@@ -50,7 +50,7 @@ public:
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
-      bool memory_saving_splitting, SplitRule splitrule);
+      bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights);
   virtual void initInternal() = 0;
 
   void grow(std::vector<double>* variable_importance);
@@ -96,6 +96,9 @@ protected:
   void bootstrap();
   void bootstrapWithoutReplacement();
 
+  void bootstrapWeighted();
+  void bootstrapWithoutReplacementWeighted();
+
   virtual void cleanUpInternal() = 0;
 
   size_t dependent_varID;
@@ -121,6 +124,9 @@ protected:
   std::vector<size_t>* deterministic_varIDs;
   std::vector<size_t>* split_select_varIDs;
   std::vector<double>* split_select_weights;
+
+  // Bootstrap weights
+  std::vector<double>* case_weights;
 
   // Splitting variable for each node
   std::vector<size_t> split_varIDs;

@@ -76,6 +76,7 @@
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. 
 ##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "C" with default "logrank". 
+##' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
@@ -159,6 +160,7 @@
 ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    importance = "none", write.forest = FALSE, probability = FALSE,
                    min.node.size = NULL, replace = TRUE, splitrule = NULL,
+                   case.weights = NULL, 
                    split.select.weights = NULL, always.split.variables = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
@@ -318,6 +320,14 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     stop("Error: Unknown importance mode.")
   }
   
+  ## Case weights: NULL for no weights
+  if (is.null(case.weights)) {
+    case.weights <- c(0,0)
+    use.case.weights <- FALSE
+  } else {
+    use.case.weights <- TRUE
+  }
+  
   ## Split select weights: NULL for no weights
   if (is.null(split.select.weights)) {
     split.select.weights <- c(0,0)
@@ -393,7 +403,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
-                      save.memory, splitrule)
+                      save.memory, splitrule, case.weights, use.case.weights)
   
   if (length(result) == 0) {
     stop("User interrupt or internal error.")

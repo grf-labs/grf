@@ -7,9 +7,10 @@
 ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   importance = "none", write.forest = FALSE, probability = FALSE,
   min.node.size = NULL, replace = TRUE, splitrule = NULL,
-  split.select.weights = NULL, always.split.variables = NULL,
-  respect.unordered.factors = FALSE, scale.permutation.importance = FALSE,
-  num.threads = NULL, save.memory = FALSE, verbose = TRUE, seed = NULL,
+  case.weights = NULL, split.select.weights = NULL,
+  always.split.variables = NULL, respect.unordered.factors = FALSE,
+  scale.permutation.importance = FALSE, num.threads = NULL,
+  save.memory = FALSE, verbose = TRUE, seed = NULL,
   dependent.variable.name = NULL, status.variable.name = NULL,
   classification = NULL)
 }
@@ -33,6 +34,8 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 \item{replace}{Sample with replacement.}
 
 \item{splitrule}{Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "C" with default "logrank".}
+
+\item{case.weights}{Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.}
 
 \item{split.select.weights}{Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.}
 
