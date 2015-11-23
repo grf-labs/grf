@@ -178,6 +178,8 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
   use.unordered.factor.variables <- FALSE
   save.memory <- FALSE
   splitrule <- 1
+  case.weights <- c(0, 0)
+  use.case.weights <- FALSE
   
   ## Call Ranger
   result <- rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
@@ -185,7 +187,8 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, forest, sparse.data, replace, probability,
-                      unordered.factor.variables, use.unordered.factor.variables, save.memory, splitrule)
+                      unordered.factor.variables, use.unordered.factor.variables, save.memory, splitrule, 
+                      case.weights, use.case.weights)
 
   if (length(result) == 0) {
     stop("User interrupt or internal error.")

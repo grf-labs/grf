@@ -61,6 +61,7 @@ public:
 
   // All command line arguments as member: Capital letters
   std::vector<std::string> alwayssplitvars;
+  std::string caseweights;
   std::string depvarname;
   MemoryMode memmode;
   bool savemem;

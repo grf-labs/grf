@@ -190,7 +190,7 @@ void drawWithoutReplacementKnuth(std::vector<size_t>& result, std::mt19937_64& r
     std::vector<size_t>& skip, size_t num_samples);
 
 /**
- * Draw random numers without replacement and with weighted probabilites.
+ * Draw random numers without replacement and with weighted probabilites from vector of indices.
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param indices Vector with numbers to draw
@@ -199,6 +199,17 @@ void drawWithoutReplacementKnuth(std::vector<size_t>& result, std::mt19937_64& r
  */
 void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
     std::vector<size_t>& indices, size_t num_samples, std::vector<double>& weights);
+
+/**
+ * Draw random numers without replacement and with weighted probabilites from 0..n-1.
+ * @param result Vector to add results to. Will not be cleaned before filling.
+ * @param random_number_generator Random number generator
+ * @param max_index Maximum index to draw
+ * @param num_samples Number of samples to draw
+ * @param weights A weight for each element of indices
+ */
+void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
+    size_t max_index, size_t num_samples, std::vector<double>& weights);
 
 /**
  * Returns the most frequent class index of a vector with counts for the classes. Returns a random class if counts are equal.
