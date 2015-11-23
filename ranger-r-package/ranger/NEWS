@@ -1,3 +1,6 @@
+##### Version 0.3.2
+* Add case weights (weighted bootstrapping or subsampling)
+
 ##### Version 0.3.1
 * Catch error of outdated gcc not supporting C++11 completely
 
