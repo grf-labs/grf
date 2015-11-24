@@ -27,6 +27,19 @@
 # wright@imbs.uni-luebeck.de
 # -------------------------------------------------------------------------------
 
+##' Case specific random forests.
+##'
+##' @param formula Object of class \code{formula} or \code{character} describing the model to fit.
+##' @param training_data Training data of class \code{data.frame}.
+##' @param test_data Test data of class \code{data.frame}.
+##' @param params1 Parameters for the proximity random forest grown in the first step. 
+##' @param params2Parameters for the prediction random forests grown in the second step. 
+##'
+##' @return Predictions for the test dataset
+##'
+##' @examples
+##' TODO
+##' @export
 csrf <- function(formula, training_data, test_data, params1 = list(), params2 = list()) {
   ## Grow a random forest on the training data to obtain weights
   rf.proximity <- do.call(ranger, c(list(formula = formula, data = training_data, 

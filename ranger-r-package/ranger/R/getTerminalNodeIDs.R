@@ -27,6 +27,18 @@
 # wright@imbs.uni-luebeck.de
 # -------------------------------------------------------------------------------
 
+##' Get terminal node IDs of observations.
+##'
+##' @param rf \code{ranger} object.
+##' @param dat New dataset. Terminal node IDs for this dataset are obtained. 
+##'
+##' @return Matrix with terminal nodeIDs for all observations in dataset and trees.
+##'
+##' @examples
+##' library(ranger)
+##' rf <- ranger(Species ~ ., data = iris, write.forest = TRUE)
+##' getTerminalNodeIDs(rf, iris)
+##' @export
 getTerminalNodeIDs <- function(rf, dat) {
   ## Check if forests exists
   if (is.null(rf$forest)) {
