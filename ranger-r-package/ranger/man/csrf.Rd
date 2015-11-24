@@ -15,7 +15,7 @@ csrf(formula, training_data, test_data, params1 = list(), params2 = list())
 
 \item{params1}{Parameters for the proximity random forest grown in the first step.}
 
-\item{params2Parameters}{for the prediction random forests grown in the second step.}
+\item{params2}{Parameters for the prediction random forests grown in the second step.}
 }
 \value{
 Predictions for the test dataset
@@ -24,6 +24,6 @@ Predictions for the test dataset
 Case specific random forests.
 }
 \examples{
-TODO
+#TODO
 }
 
