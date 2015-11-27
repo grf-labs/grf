@@ -1,3 +1,6 @@
+##### Version 0.3.3
+* Add case-specific random forests
+
 ##### Version 0.3.2
 * Add case weights (weighted bootstrapping or subsampling)
 
