@@ -27,7 +27,19 @@
 # wright@imbs.uni-luebeck.de
 # -------------------------------------------------------------------------------
 
-##' Case specific random forests.
+##' Case-specific random forests.
+##' 
+##' In case-specific random forests (CSRF), random forests are built specific to the cases of interest. 
+##' Instead of using equal probabilities, the cases are weighted according to their difference to the case of interest.
+##' 
+##' The algorithm consists of 3 steps: 
+##' \enumerate{
+##'   \item Grow a random forest on the training data
+##'   \item For each observation of interest (test data), the weights of all training observations are computed by counting the number of trees in which both observations are in the same terminal node.
+##'   \item For each test observation, grow a weighted random forest on the training data, using the weights obtained in step 2. Predict the outcome of the test observation as usual.
+##' }
+##'  In total, n+1 random forests are grown, where n is the number observations in the test dataset.
+##'  For details, see Xu et al. (2014).
 ##'
 ##' @param formula Object of class \code{formula} or \code{character} describing the model to fit.
 ##' @param training_data Training data of class \code{data.frame}.
@@ -35,10 +47,22 @@
 ##' @param params1 Parameters for the proximity random forest grown in the first step. 
 ##' @param params2 Parameters for the prediction random forests grown in the second step. 
 ##'
-##' @return Predictions for the test dataset
+##' @return Predictions for the test dataset.
 ##'
 ##' @examples
-##' #TODO
+##' ## Split in training and test data
+##' train.idx <- sample(nrow(iris), 2/3 * nrow(iris))
+##' iris.train <- iris[train.idx, ]
+##' iris.test <- iris[-train.idx, ]
+##' 
+##' ## Run case-specific RF
+##' csrf(Species ~ ., training_data = iris.train, test_data = iris.test, 
+##'      params1 = list(num.trees = 50, mtry = 4), 
+##'      params2 = list(num.trees = 5))
+##' 
+##' @author Marvin N. Wright
+##' @references
+##'   Xu, R., Nettleton, D. & Nordman, D.J. (2014). Case-specific random forests. J Comp Graph Stat, in press. DOI: 10.1080/10618600.2014.983641
 ##' @export
 csrf <- function(formula, training_data, test_data, params1 = list(), params2 = list()) {
   ## Grow a random forest on the training data to obtain weights
