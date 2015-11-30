@@ -379,7 +379,7 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--help                        Print this help." << std::endl;
   std::cout << "    " << "--version                     Print version and citation information." << std::endl;
   std::cout << "    " << "--verbose                     Turn on verbose mode." << std::endl;
-  std::cout << "    " << "--file FILE                   Filename of input data." << std::endl;
+  std::cout << "    " << "--file FILE                   Filename of input data. Only numerical values are supported." << std::endl;
   std::cout << "    " << "--treetype TYPE               Set tree type to:" << std::endl;
   std::cout << "    " << "                              TYPE = 1: Classification." << std::endl;
   std::cout << "    " << "                              TYPE = 3: Regression." << std::endl;

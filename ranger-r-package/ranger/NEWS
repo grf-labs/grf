@@ -1,3 +1,6 @@
+##### Version 0.3.4
+* Small changes in documentation
+
 ##### Version 0.3.3
 * Add case-specific random forests
 

@@ -23,7 +23,7 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 
 \item{mtry}{Number of variables to possibly split at in each node. Default is the (rounded down) square root of the number variables.}
 
-\item{importance}{Variable importance mode, one of 'none', 'impurity', 'permutation'. The 'impurity' measure is the Gini index for classification and the variance of the responses for regression.}
+\item{importance}{Variable importance mode, one of 'none', 'impurity', 'permutation'. The 'impurity' measure is the Gini index for classification and the variance of the responses for regression. For survival, only 'permutation' is available.}
 
 \item{write.forest}{Save \code{ranger.forest} object, needed for prediction.}
 
