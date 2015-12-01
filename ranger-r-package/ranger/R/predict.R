@@ -195,15 +195,17 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
   if (length(result) == 0) {
     stop("User interrupt or internal error.")
   }
-
+  
   ## Prepare results
   result$predictions <- drop(do.call(rbind, result$predictions))
   result$num.samples <- nrow(data.final)
   result$treetype <- forest$treetype
-
+  
   if (forest$treetype == "Classification" & !is.null(forest$levels)) {
-    result$predictions <- factor(result$predictions, levels = 1:length(forest$levels),
-                                 labels = forest$levels)
+    if (!predict.all) {
+      result$predictions <- factor(result$predictions, levels = 1:length(forest$levels),
+                                   labels = forest$levels)
+    }
   } else if (forest$treetype == "Survival") {
     result$unique.death.times <- forest$unique.death.times
     result$chf <- result$predictions
