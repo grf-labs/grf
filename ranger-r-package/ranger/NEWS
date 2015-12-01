@@ -1,5 +1,5 @@
 ##### Version 0.3.4
-* Add predict.all option in predict() to get individual predictions for each tree
+* Add predict.all option in predict() to get individual predictions for each tree for classification and regression
 * Small changes in documentation
 
 ##### Version 0.3.3
