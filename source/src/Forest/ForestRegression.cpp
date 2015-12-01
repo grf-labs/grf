@@ -93,21 +93,33 @@ void ForestRegression::predictInternal() {
   size_t num_prediction_samples = data->getNumRows();
   predictions.reserve(num_prediction_samples);
 
-  // For all samples use mean over all trees
+  // For all samples get tree predictions
   for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
-    double prediction_sum = 0;
-    for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      prediction_sum += ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
+
+    if (predict_all) {
+      // Get all tree predictions
+      std::vector<double> sample_predictions(num_trees);
+      for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+        double value = ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
+        sample_predictions.push_back(value);
+      }
+      predictions.push_back(sample_predictions);
+    } else {
+      // Mean over trees
+      double prediction_sum = 0;
+      for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+        prediction_sum += ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
+      }
+      std::vector<double> temp;
+      temp.push_back(prediction_sum / num_trees);
+      predictions.push_back(temp);
     }
-    std::vector<double> temp;
-    temp.push_back(prediction_sum / num_trees);
-    predictions.push_back(temp);
   }
 }
 
 void ForestRegression::computePredictionErrorInternal() {
 
-  // For each sample sum over trees where sample is OOB
+// For each sample sum over trees where sample is OOB
   std::vector<size_t> samples_oob_count;
   predictions.reserve(num_samples);
   samples_oob_count.resize(num_samples, 0);
@@ -125,8 +137,8 @@ void ForestRegression::computePredictionErrorInternal() {
     }
   }
 
-  // MSE with predictions and true data
-  //oob_anytree_sampleIDs.reserve(predictions.size());
+// MSE with predictions and true data
+//oob_anytree_sampleIDs.reserve(predictions.size());
   for (size_t i = 0; i < predictions.size(); ++i) {
     if (samples_oob_count[i] > 0) {
       //oob_anytree_sampleIDs.push_back(i);
@@ -146,7 +158,7 @@ void ForestRegression::writeOutputInternal() {
 
 void ForestRegression::writeConfusionFile() {
 
-  // Open confusion file for writing
+// Open confusion file for writing
   std::string filename = output_prefix + ".confusion";
   std::ofstream outfile;
   outfile.open(filename, std::ios::out);
@@ -154,7 +166,7 @@ void ForestRegression::writeConfusionFile() {
     throw std::runtime_error("Could not write to confusion file: " + filename + ".");
   }
 
-  // Write confusion to file
+// Write confusion to file
   outfile << "Overall OOB prediction error (MSE): " << overall_prediction_error << std::endl;
 
   outfile.close();
@@ -163,7 +175,7 @@ void ForestRegression::writeConfusionFile() {
 
 void ForestRegression::writePredictionFile() {
 
-  // Open prediction file for writing
+// Open prediction file for writing
   std::string filename = output_prefix + ".prediction";
   std::ofstream outfile;
   outfile.open(filename, std::ios::out);
@@ -171,7 +183,7 @@ void ForestRegression::writePredictionFile() {
     throw std::runtime_error("Could not write to prediction file: " + filename + ".");
   }
 
-  // Write
+// Write
   outfile << "Predictions: " << std::endl;
   for (size_t i = 0; i < predictions.size(); ++i) {
     for (size_t j = 0; j < predictions[i].size(); ++j) {
@@ -184,21 +196,21 @@ void ForestRegression::writePredictionFile() {
 
 void ForestRegression::saveToFileInternal(std::ofstream& outfile) {
 
-  // Write num_variables
+// Write num_variables
   outfile.write((char*) &num_variables, sizeof(num_variables));
 
-  // Write treetype
+// Write treetype
   TreeType treetype = TREE_REGRESSION;
   outfile.write((char*) &treetype, sizeof(treetype));
 }
 
 void ForestRegression::loadFromFileInternal(std::ifstream& infile) {
 
-  // Read number of variables
+// Read number of variables
   size_t num_variables_saved;
   infile.read((char*) &num_variables_saved, sizeof(num_variables_saved));
 
-  // Read treetype
+// Read treetype
   TreeType treetype;
   infile.read((char*) &treetype, sizeof(treetype));
   if (treetype != TREE_REGRESSION) {

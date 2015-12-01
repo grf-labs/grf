@@ -46,8 +46,9 @@
 Forest::Forest() :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), num_variables(0), num_independent_variables(
         0), seed(0), dependent_varID(0), num_samples(0), prediction_mode(false), memory_mode(MEM_DOUBLE), sample_with_replacement(
-        true), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE), num_threads(DEFAULT_NUM_THREADS), data(0), overall_prediction_error(
-        0), importance_mode(DEFAULT_IMPORTANCE_MODE), progress(0) {
+        true), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE), predict_all(false), num_threads(
+        DEFAULT_NUM_THREADS), data(0), overall_prediction_error(0), importance_mode(DEFAULT_IMPORTANCE_MODE), progress(
+        0) {
 }
 
 Forest::~Forest() {
