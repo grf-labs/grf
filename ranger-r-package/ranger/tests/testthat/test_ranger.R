@@ -284,4 +284,19 @@ test_that("case weights work", {
   expect_that(all(pred == "setosa"), is_true())
 })
 
+test_that("predict.all for classification returns numeric matrix of size trees x n", {
+  rf <- ranger(Species ~ ., iris, num.trees = 5, write.forest = TRUE)
+  pred <- predict(rf, iris, predict.all = TRUE)
+  expect_that(pred$predictions, is_a("matrix"))
+  expect_that(dim(pred$predictions), 
+              equals(c(nrow(iris), rf$num.trees)))
+})
+
+test_that("predict.all for regression returns numeric matrix of size n x trees", {
+  rf <- ranger(Petal.Width ~ ., iris, num.trees = 5, write.forest = TRUE)
+  pred <- predict(rf, iris, predict.all = TRUE)
+  expect_that(pred$predictions, is_a("matrix"))
+  expect_that(dim(pred$predictions), 
+              equals(c(nrow(iris), rf$num.trees)))
+})
 
