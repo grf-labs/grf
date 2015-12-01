@@ -183,12 +183,13 @@ void ForestRegression::writePredictionFile() {
     throw std::runtime_error("Could not write to prediction file: " + filename + ".");
   }
 
-// Write
+  // Write
   outfile << "Predictions: " << std::endl;
   for (size_t i = 0; i < predictions.size(); ++i) {
     for (size_t j = 0; j < predictions[i].size(); ++j) {
-      outfile << predictions[i][j] << std::endl;
+      outfile << predictions[i][j] << " ";
     }
+    outfile << std::endl;
   }
 
   *verbose_out << "Saved predictions to file " << filename << "." << std::endl;
