@@ -32,6 +32,7 @@
 ##' @title Ranger prediction
 ##' @param object Ranger \code{ranger.forest} object.
 ##' @param data New test data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
+##' @param predict.all Return a matrix with individual predictions for each tree instead of aggregated predictions for all trees (classification and regression only).
 ##' @param seed Random seed used in Ranger.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param verbose Verbose output on or off.
@@ -50,7 +51,8 @@
 ##' @seealso \code{\link{ranger}}
 ##' @author Marvin N. Wright
 ##' @export
-predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
+predict.ranger.forest <- function(object, data, predict.all = FALSE,
+                                  seed = NULL, num.threads = NULL,
                                   verbose = TRUE, ...) {
   
   ## GenABEL GWA data
@@ -188,20 +190,22 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, forest, sparse.data, replace, probability,
                       unordered.factor.variables, use.unordered.factor.variables, save.memory, splitrule, 
-                      case.weights, use.case.weights)
+                      case.weights, use.case.weights, predict.all)
 
   if (length(result) == 0) {
     stop("User interrupt or internal error.")
   }
-
+  
   ## Prepare results
   result$predictions <- drop(do.call(rbind, result$predictions))
   result$num.samples <- nrow(data.final)
   result$treetype <- forest$treetype
-
+  
   if (forest$treetype == "Classification" & !is.null(forest$levels)) {
-    result$predictions <- factor(result$predictions, levels = 1:length(forest$levels),
-                                 labels = forest$levels)
+    if (!predict.all) {
+      result$predictions <- factor(result$predictions, levels = 1:length(forest$levels),
+                                   labels = forest$levels)
+    }
   } else if (forest$treetype == "Survival") {
     result$unique.death.times <- forest$unique.death.times
     result$chf <- result$predictions
@@ -225,6 +229,7 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
 ##' @title Ranger prediction
 ##' @param object Ranger \code{ranger} object.
 ##' @param data New test data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
+##' @param predict.all Return a matrix with individual predictions for each tree instead of aggregated predictions for all trees (classification and regression only).
 ##' @param seed Random seed used in Ranger.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param verbose Verbose output on or off.
@@ -243,11 +248,12 @@ predict.ranger.forest <- function(object, data, seed = NULL, num.threads = NULL,
 ##' @seealso \code{\link{ranger}}
 ##' @author Marvin N. Wright
 ##' @export
-predict.ranger <- function(object, data, seed = NULL, num.threads = NULL,
+predict.ranger <- function(object, data, predict.all = FALSE,
+                           seed = NULL, num.threads = NULL,
                            verbose = TRUE, ...) {
   forest <- object$forest
   if (is.null(forest)) {
     stop("Error: No saved forest in ranger object. Please set write.forest to TRUE when calling ranger.")
   }
-  predict(forest, data, seed, num.threads, verbose)
+  predict(forest, data, predict.all, seed, num.threads, verbose)
 }

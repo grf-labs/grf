@@ -113,19 +113,31 @@ void ForestClassification::predictInternal() {
   size_t num_prediction_samples = data->getNumRows();
   predictions.reserve(num_prediction_samples);
 
-  // For all samples take majority vote over all trees
+  // For all samples get tree predictions
   for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
 
-    // Count classes over trees and save class with maximum count
-    std::unordered_map<double, size_t> class_count;
-    for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      double value = ((TreeClassification*) trees[tree_idx])->getPrediction(sample_idx);
-      ++class_count[value];
+    if (predict_all) {
+      // Get all tree predictions
+      std::vector<double> sample_predictions;
+      sample_predictions.reserve(num_trees);
+      for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+        double value = ((TreeClassification*) trees[tree_idx])->getPrediction(sample_idx);
+        sample_predictions.push_back(value);
+      }
+      predictions.push_back(sample_predictions);
+    } else {
+      // Count classes over trees and save class with maximum count
+      std::unordered_map<double, size_t> class_count;
+      for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+        double value = ((TreeClassification*) trees[tree_idx])->getPrediction(sample_idx);
+        ++class_count[value];
+      }
+
+      std::vector<double> temp;
+      temp.push_back(mostFrequentValue(class_count, random_number_generator));
+      predictions.push_back(temp);
     }
 
-    std::vector<double> temp;
-    temp.push_back(mostFrequentValue(class_count, random_number_generator));
-    predictions.push_back(temp);
   }
 }
 
@@ -235,8 +247,9 @@ void ForestClassification::writePredictionFile() {
   outfile << "Predictions: " << std::endl;
   for (size_t i = 0; i < predictions.size(); ++i) {
     for (size_t j = 0; j < predictions[i].size(); ++j) {
-      outfile << predictions[i][j] << std::endl;
+      outfile << predictions[i][j] << " ";
     }
+    outfile << std::endl;
   }
 
   *verbose_out << "Saved predictions to file " << filename << "." << std::endl;

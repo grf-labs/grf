@@ -50,7 +50,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     std::string status_variable_name, bool prediction_mode, Rcpp::List loaded_forest, Rcpp::RawMatrix sparse_data,
     bool sample_with_replacement, bool probability, std::vector<std::string>& unordered_variable_names,
     bool use_unordered_variable_names, bool save_memory, uint splitrule_r, 
-    std::vector<double>& case_weights, bool use_case_weights) {
+    std::vector<double>& case_weights, bool use_case_weights, bool predict_all) {
 
   Rcpp::List result;
   Forest* forest = 0;
@@ -114,7 +114,8 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     // Init Ranger
     forest->initR(dependent_variable_name, data, mtry, num_trees, verbose_out, seed, num_threads,
         importance_mode, min_node_size, split_select_weights, always_split_variable_names, status_variable_name,
-        prediction_mode, sample_with_replacement, unordered_variable_names, save_memory, splitrule, case_weights);
+        prediction_mode, sample_with_replacement, unordered_variable_names, save_memory, splitrule, case_weights, 
+        predict_all);
 
     // Load forest object if in prediction mode
     if (prediction_mode) {

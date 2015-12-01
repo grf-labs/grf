@@ -36,9 +36,9 @@ wright@imbs.uni-luebeck.de
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     caseweights(""), depvarname(""), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(
-        DEFAULT_NUM_THREADS), file(""), impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix(
-        "ranger_out"), probability(false), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(
-        true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
+        DEFAULT_NUM_THREADS), predall(false), file(""), impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(
+        0), outprefix("ranger_out"), probability(false), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(
+        DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -49,7 +49,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:C:D:M:NP:S:U:Zc:f:hil::m:o:pr:s:t:uvwy:z:";
+  char const *short_options = "A:C:D:M:NP:S:U:Zac:f:hil::m:o:pr:s:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
@@ -64,6 +64,7 @@ int ArgumentHandler::processArguments() {
       { "nthreads",             required_argument,  0, 'U'},
       { "version",              no_argument,        0, 'Z'},
 
+      { "predall",              no_argument,  0, 'a'},
       { "catvars",              required_argument,  0, 'c'},
       { "file",                 required_argument,  0, 'f'},
       { "help",                 no_argument,        0, 'h'},
@@ -151,7 +152,11 @@ int ArgumentHandler::processArguments() {
       return -1;
       break;
 
-      // lower case options
+    // lower case options
+    case 'a':
+      predall = true;
+      break;
+
     case 'c':
       splitString(catvars, optarg, ',');
       break;
@@ -359,6 +364,15 @@ void ArgumentHandler::checkArguments() {
     infile.close();
   }
 
+  // Option predall only for classification and regression
+  if (predall && treetype != TREE_CLASSIFICATION && treetype != TREE_REGRESSION) {
+    throw std::runtime_error("Option '--predall' only available for classification and regression.");
+  }
+
+  if (predict.empty() && predall) {
+    throw std::runtime_error("Option '--predall' only available in prediction mode.");
+  }
+
   if (!alwayssplitvars.empty() && !splitweights.empty()) {
     throw std::runtime_error("Please use only one option of splitweights and alwayssplitvars.");
   }
@@ -404,6 +418,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              Categorical variables must contain only positive integer values." << std::endl;
   std::cout << "    " << "--write                       Save forest to file <outprefix>.forest." << std::endl;
   std::cout << "    " << "--predict FILE                Load forest from FILE and predict with new data." << std::endl;
+  std::cout << "    " << "--predall                     Return a matrix with individual predictions for each tree instead of aggregated " << std::endl;
+  std::cout << "    " << "                              predictions for all trees (classification and regression only)." << std::endl;
   std::cout << "    " << "--impmeasure TYPE             Set importance mode to:" << std::endl;
   std::cout << "    " << "                              TYPE = 0: none." << std::endl;
   std::cout << "    " << "                              TYPE = 1: Node impurity: Gini for Classification, variance for Regression." << std::endl;
