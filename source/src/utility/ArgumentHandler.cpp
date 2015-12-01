@@ -365,7 +365,7 @@ void ArgumentHandler::checkArguments() {
   }
 
   // Option predall only for classification and regression
-  if (predall && treetype != TREE_CLASSIFICATION && treetype == TREE_REGRESSION) {
+  if (predall && treetype != TREE_CLASSIFICATION && treetype != TREE_REGRESSION) {
     throw std::runtime_error("Option '--predall' only available for classification and regression.");
   }
 
