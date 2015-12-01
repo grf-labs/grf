@@ -4,13 +4,15 @@
 \alias{predict.ranger.forest}
 \title{Ranger prediction}
 \usage{
-\method{predict}{ranger.forest}(object, data, seed = NULL,
-  num.threads = NULL, verbose = TRUE, ...)
+\method{predict}{ranger.forest}(object, data, predict.all = FALSE,
+  seed = NULL, num.threads = NULL, verbose = TRUE, ...)
 }
 \arguments{
 \item{object}{Ranger \code{ranger.forest} object.}
 
 \item{data}{New test data of class \code{data.frame} or \code{gwaa.data} (GenABEL).}
+
+\item{predict.all}{Return a matrix with individual predictions for each tree instead of aggregated predictions for all trees (classification and regression only).}
 
 \item{seed}{Random seed used in Ranger.}
 

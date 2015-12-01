@@ -253,5 +253,5 @@ predict.ranger <- function(object, data, predict.all = FALSE,
   if (is.null(forest)) {
     stop("Error: No saved forest in ranger object. Please set write.forest to TRUE when calling ranger.")
   }
-  predict(forest, data, seed, num.threads, verbose)
+  predict(forest, data, predict.all, seed, num.threads, verbose)
 }
