@@ -345,10 +345,6 @@ void ArgumentHandler::checkArguments() {
     throw std::runtime_error("Probability estimation is only applicable to classification forests.");
   }
 
-  if (predict.empty() && predall) {
-    throw std::runtime_error("Option '--predall' only available in prediction mode.");
-  }
-
   // Get treetype for prediction
   if (!predict.empty()) {
     std::ifstream infile;
@@ -366,6 +362,15 @@ void ArgumentHandler::checkArguments() {
     // Get treetype
     infile.read((char*) &treetype, sizeof(treetype));
     infile.close();
+  }
+
+  // Option predall only for classification and regression
+  if (predall && treetype != TREE_CLASSIFICATION && treetype == TREE_REGRESSION) {
+    throw std::runtime_error("Option '--predall' only available for classification and regression.");
+  }
+
+  if (predict.empty() && predall) {
+    throw std::runtime_error("Option '--predall' only available in prediction mode.");
   }
 
   if (!alwayssplitvars.empty() && !splitweights.empty()) {
@@ -413,7 +418,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              Categorical variables must contain only positive integer values." << std::endl;
   std::cout << "    " << "--write                       Save forest to file <outprefix>.forest." << std::endl;
   std::cout << "    " << "--predict FILE                Load forest from FILE and predict with new data." << std::endl;
-  std::cout << "    " << "--predall                     Return a matrix with individual predictions for each tree instead of aggregated predictions for all trees." << std::endl;
+  std::cout << "    " << "--predall                     Return a matrix with individual predictions for each tree instead of aggregated " << std::endl;
+  std::cout << "    " << "                              predictions for all trees (classification and regression only)." << std::endl;
   std::cout << "    " << "--impmeasure TYPE             Set importance mode to:" << std::endl;
   std::cout << "    " << "                              TYPE = 0: none." << std::endl;
   std::cout << "    " << "                              TYPE = 1: Node impurity: Gini for Classification, variance for Regression." << std::endl;

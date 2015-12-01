@@ -32,7 +32,7 @@
 ##' @title Ranger prediction
 ##' @param object Ranger \code{ranger.forest} object.
 ##' @param data New test data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
-##' @param predict.all Return a matrix with individual predictions for each tree instead of aggregated predictions for all trees.
+##' @param predict.all Return a matrix with individual predictions for each tree instead of aggregated predictions for all trees (classification and regression only).
 ##' @param seed Random seed used in Ranger.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param verbose Verbose output on or off.
@@ -227,7 +227,7 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
 ##' @title Ranger prediction
 ##' @param object Ranger \code{ranger} object.
 ##' @param data New test data of class \code{data.frame} or \code{gwaa.data} (GenABEL).
-##' @param predict.all Return a matrix with individual predictions for each tree instead of aggregated predictions for all trees.
+##' @param predict.all Return a matrix with individual predictions for each tree instead of aggregated predictions for all trees (classification and regression only).
 ##' @param seed Random seed used in Ranger.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param verbose Verbose output on or off.
