@@ -118,7 +118,8 @@ void ForestClassification::predictInternal() {
 
     if (predict_all) {
       // Get all tree predictions
-      std::vector<double> sample_predictions(num_trees);
+      std::vector<double> sample_predictions;
+      sample_predictions.reserve(num_trees);
       for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
         double value = ((TreeClassification*) trees[tree_idx])->getPrediction(sample_idx);
         sample_predictions.push_back(value);
