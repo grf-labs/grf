@@ -300,3 +300,25 @@ test_that("predict.all for regression returns numeric matrix of size n x trees",
               equals(c(nrow(iris), rf$num.trees)))
 })
 
+test_that("Majority vote of predict.all for classification is equal to forest prediction", {
+  rf <- ranger(Species ~ ., iris, num.trees = 5, write.forest = TRUE)
+  pred_forest <- predict(rf, iris, predict.all = FALSE)
+  pred_trees <- predict(rf, iris, predict.all = TRUE)
+  
+  ## Majority vote
+  pred_num <- apply(pred_trees$predictions, 1, function(x) {
+    which(tabulate(x) == max(tabulate(x)))
+  })
+  pred <- factor(pred_num, levels = 1:length(rf$forest$levels),
+                 labels = rf$forest$levels)
+  
+  expect_that(pred, equals(pred_forest$predictions))
+})
+
+test_that("Mean of predict.all for regression is equal to forest prediction", {
+  rf <- ranger(Petal.Width ~ ., iris, num.trees = 5, write.forest = TRUE)
+  pred_forest <- predict(rf, iris, predict.all = FALSE)
+  pred_trees <- predict(rf, iris, predict.all = TRUE)
+  expect_that(rowMeans(pred_trees$predictions), equals(pred_forest$predictions))
+})
+
