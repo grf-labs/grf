@@ -1,3 +1,6 @@
+##### Version 0.3.5
+* Add tree-wise split.select.weights
+
 ##### Version 0.3.4
 * Add predict.all option in predict() to get individual predictions for each tree for classification and regression
 * Small changes in documentation
