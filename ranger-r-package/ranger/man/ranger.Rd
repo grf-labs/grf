@@ -37,7 +37,7 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 
 \item{case.weights}{Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.}
 
-\item{split.select.weights}{Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.}
+\item{split.select.weights}{Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting. Alternatively, a list of size num.trees, containing split select weight vectors for each tree can be used.}
 
 \item{always.split.variables}{Character vector with variable names to be always tried for splitting.}
 
