@@ -45,7 +45,7 @@
 Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     Rcpp::NumericMatrix input_data, std::vector<std::string> variable_names, uint mtry, uint num_trees, bool verbose,
     uint seed, uint num_threads, bool write_forest, uint importance_mode_r, uint min_node_size,
-    std::vector<double>& split_select_weights, bool use_split_select_weights,
+    std::vector<std::vector<double>>& split_select_weights, bool use_split_select_weights,
     std::vector<std::string>& always_split_variable_names, bool use_always_split_variable_names,
     std::string status_variable_name, bool prediction_mode, Rcpp::List loaded_forest, Rcpp::RawMatrix sparse_data,
     bool sample_with_replacement, bool probability, std::vector<std::string>& unordered_variable_names,

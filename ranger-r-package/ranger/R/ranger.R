@@ -77,7 +77,7 @@
 ##' @param replace Sample with replacement. 
 ##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "C" with default "logrank". 
 ##' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
-##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting.  
+##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting. Alternatively, a list of size num.trees, containing split select weight vectors for each tree can be used.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
@@ -330,10 +330,21 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   
   ## Split select weights: NULL for no weights
   if (is.null(split.select.weights)) {
-    split.select.weights <- c(0,0)
+    split.select.weights <- list(c(0,0))
     use.split.select.weights <- FALSE
-  } else {
+  } else if (is.numeric(split.select.weights)) {
+    if (length(split.select.weights) != length(all.independent.variable.names)) {
+      stop("Error: Number of split select weights not equal to number of independent variables.")
+    }
+    split.select.weights <- list(split.select.weights)
     use.split.select.weights <- TRUE
+  } else if (is.list(split.select.weights)) {
+    if (length(split.select.weights) != num.trees) {
+      stop("Error: Size of split select weights list not equal to number of trees.")
+    }
+    use.split.select.weights <- TRUE
+  } else {
+    stop("Error: Invalid split select weights.")
   }
   
   ## Always split variables: NULL for no variables
@@ -345,7 +356,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   }
   
   if (use.split.select.weights & use.always.split.variables) {
-    stop("Error: Please use only one option of use.split.select.weights and use.always.split.variables.")
+    stop("Error: Please use only one option of split.select.weights and always.split.variables.")
   }
   
   ## Splitting rule

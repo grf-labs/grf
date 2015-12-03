@@ -167,7 +167,7 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
   mtry <- 0
   importance <- 0
   min.node.size <- 0
-  split.select.weights <- c(0, 0)
+  split.select.weights <- list(c(0, 0))
   use.split.select.weights <- FALSE
   always.split.variables <- c("0", "0")
   use.always.split.variables <- FALSE

@@ -59,7 +59,7 @@ public:
       std::string case_weights_file, bool predict_all);
   void initR(std::string dependent_variable_name, Data* input_data, uint mtry, uint num_trees,
       std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode, uint min_node_size,
-      std::vector<double>& split_select_weights, std::vector<std::string>& always_split_variable_names,
+      std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
       std::vector<double>& case_weights, bool predict_all);
@@ -160,7 +160,7 @@ protected:
   virtual void loadFromFileInternal(std::ifstream& infile) = 0;
 
   // Set split select weights and variables to be always considered for splitting
-  void setSplitWeightVector(std::vector<double>& split_select_weights);
+  void setSplitWeightVector(std::vector<std::vector<double>>& split_select_weights);
   void setAlwaysSplitVariables(std::vector<std::string>& always_split_variable_names);
 
   // Show progress every few seconds
@@ -212,7 +212,7 @@ protected:
   // Deterministic variables are always selected
   std::vector<size_t> deterministic_varIDs;
   std::vector<size_t> split_select_varIDs;
-  std::vector<double> split_select_weights;
+  std::vector<std::vector<double>> split_select_weights;
 
   // Bootstrap weights
   std::vector<double> case_weights;
