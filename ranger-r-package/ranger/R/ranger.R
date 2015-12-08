@@ -89,25 +89,25 @@
 ##' @param status.variable.name Name of status variable, only applicable to survival data and needed if no formula given. Use 1 for event and 0 for censoring.
 ##' @param classification Only needed if data is a matrix. Set to \code{TRUE} to grow a classification forest.
 ##' @return Object of class \code{ranger} with elements
-##'   \tabular{ll}{
-##'       \code{forest} \tab Saved forest (If write.forest set to TRUE). Note that the variable IDs in the \code{split.varIDs} object do not necessarily represent the column number in R. \cr
-##'       \code{predictions}    \tab Predicted classes/values, based on out of bag samples (classification and regression only). \cr
-##'       \code{variable.importance}     \tab Variable importance for each independent variable. \cr
-##'       \code{prediction.error}   \tab Overall out of bag prediction error. For classification this is the fraction of missclassified samples, for regression the mean squared error and for survival one minus Harrell's c-index. \cr
-##'       \code{r.squared}   \tab R squared. Also called explained variance or coefficient of determination (regression only). \cr
-##'       \code{confusion.matrix} \tab Contingency table for classes and predictions based on out of bag samples (classification only). \cr
-##'       \code{unique.death.times} \tab Unique death times (survival only). \cr
-##'       \code{chf} \tab Estimated cumulative hazard function for each sample (survival only). \cr
-##'       \code{survival} \tab Estimated survival function for each sample (survival only). \cr
-##'       \code{call}    \tab Function call. \cr
-##'       \code{num.trees}   \tab Number of trees. \cr
-##'       \code{num.independent.variables} \tab Number of independent variables. \cr
-##'       \code{mtry}    \tab Value of mtry used. \cr
-##'       \code{min.node.size}   \tab Value of minimal node size used. \cr
-##'       \code{treetype}    \tab Type of forest/tree. classification, regression or survival. \cr
-##'       \code{importance.mode}     \tab Importance mode used. \cr
-##'       \code{num.samples}     \tab Number of samples.
-##'   }
+##'   \item{\code{forest}}{Saved forest (If write.forest set to TRUE). Note that the variable IDs in the \code{split.varIDs} object do not necessarily represent the column number in R.}
+##'   \item{\code{predictions}}{Predicted classes/values, based on out of bag samples (classification and regression only).}
+##'   \item{\code{forest}}{Saved forest (If write.forest set to TRUE). Note that the variable IDs in the \code{split.varIDs} object do not necessarily represent the column number in R.}
+##'   \item{\code{predictions}}{Predicted classes/values, based on out of bag samples (classification and regression only).}
+##'   \item{\code{variable.importance}}{Variable importance for each independent variable.}
+##'   \item{\code{prediction.error}}{Overall out of bag prediction error. For classification this is the fraction of missclassified samples, for regression the mean squared error and for survival one minus Harrell's c-index.}
+##'   \item{\code{r.squared}}{R squared. Also called explained variance or coefficient of determination (regression only).}
+##'   \item{\code{confusion.matrix}}{Contingency table for classes and predictions based on out of bag samples (classification only).}
+##'   \item{\code{unique.death.times}}{Unique death times (survival only).}
+##'   \item{\code{chf}}{Estimated cumulative hazard function for each sample (survival only).}
+##'   \item{\code{survival}}{Estimated survival function for each sample (survival only).}
+##'   \item{\code{call}}{Function call.}
+##'   \item{\code{num.trees}}{Number of trees.}
+##'   \item{\code{num.independent.variables}}{Number of independent variables.}
+##'   \item{\code{mtry}}{Value of mtry used.}
+##'   \item{\code{min.node.size}}{Value of minimal node size used.}
+##'   \item{\code{treetype}}{Type of forest/tree. classification, regression or survival.}
+##'   \item{\code{importance.mode}}{Importance mode used.}
+##'   \item{\code{num.samples}}{Number of samples.}
 ##' @examples
 ##' require(ranger)
 ##'
