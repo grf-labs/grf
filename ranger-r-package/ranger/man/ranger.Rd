@@ -6,13 +6,13 @@
 \usage{
 ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   importance = "none", write.forest = FALSE, probability = FALSE,
-  min.node.size = NULL, replace = TRUE, splitrule = NULL,
-  case.weights = NULL, split.select.weights = NULL,
-  always.split.variables = NULL, respect.unordered.factors = FALSE,
-  scale.permutation.importance = FALSE, keep.inbag = FALSE,
-  num.threads = NULL, save.memory = FALSE, verbose = TRUE, seed = NULL,
-  dependent.variable.name = NULL, status.variable.name = NULL,
-  classification = NULL)
+  min.node.size = NULL, replace = TRUE, sample.fraction = ifelse(replace,
+  1, 0.632), splitrule = NULL, case.weights = NULL,
+  split.select.weights = NULL, always.split.variables = NULL,
+  respect.unordered.factors = FALSE, scale.permutation.importance = FALSE,
+  keep.inbag = FALSE, num.threads = NULL, save.memory = FALSE,
+  verbose = TRUE, seed = NULL, dependent.variable.name = NULL,
+  status.variable.name = NULL, classification = NULL)
 }
 \arguments{
 \item{formula}{Object of class \code{formula} or \code{character} describing the model to fit.}
@@ -32,6 +32,8 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 \item{min.node.size}{Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.}
 
 \item{replace}{Sample with replacement.}
+
+\item{sample.fraction}{Fraction of observations to sample. Default is 1 for sampling with replacement and 0.632 for sampling without replacement.}
 
 \item{splitrule}{Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "C" with default "logrank".}
 

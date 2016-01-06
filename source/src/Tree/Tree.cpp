@@ -35,7 +35,7 @@ Tree::Tree() :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(0), no_split_variables(0), min_node_size(
         0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), oob_sampleIDs(0), keep_inbag(
         false), data(0), variable_importance(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(
-        true), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE) {
+        true), sample_fraction(1), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE) {
 }
 
 Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
@@ -43,8 +43,8 @@ Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>&
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(is_ordered_variable), no_split_variables(
         0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), split_varIDs(
         split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), keep_inbag(false), data(
-        0), variable_importance(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), memory_saving_splitting(
-        false), splitrule(DEFAULT_SPLITRULE) {
+        0), variable_importance(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), sample_fraction(
+        1), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE) {
 }
 
 Tree::~Tree() {
@@ -54,7 +54,8 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
     std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
     std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
     std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
-    bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag) {
+    bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag,
+    double sample_fraction) {
 
   this->data = data;
   this->mtry = mtry;
@@ -79,6 +80,7 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   this->splitrule = splitrule;
   this->case_weights = case_weights;
   this->keep_inbag = keep_inbag;
+  this->sample_fraction = sample_fraction;
 
   initInternal();
 }
@@ -362,17 +364,20 @@ void Tree::permuteAndPredictOobSamples(size_t permuted_varID, std::vector<size_t
 
 void Tree::bootstrap() {
 
-  // Reserve space (37% percent are outbag on average, reserve a little more)
-  sampleIDs[0].reserve(num_samples);
-  oob_sampleIDs.reserve(num_samples * 0.4);
+  // Use fraction (default 63.21%) of the samples
+  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
+
+  // Reserve space, reserve a little more to be save)
+  sampleIDs[0].reserve(num_samples_inbag);
+  oob_sampleIDs.reserve(num_samples * (exp(-sample_fraction) + 0.1));
 
   std::uniform_int_distribution<size_t> unif_dist(0, num_samples - 1);
 
   // Start with all samples OOB
   inbag_counts.resize(num_samples, 0);
 
-  // Draw num_samples samples with replacement (n out of n) as inbag and mark as not OOB
-  for (size_t s = 0; s < num_samples; ++s) {
+  // Draw num_samples samples with replacement (num_samples_inbag out of n) as inbag and mark as not OOB
+  for (size_t s = 0; s < num_samples_inbag; ++s) {
     size_t draw = unif_dist(random_number_generator);
     sampleIDs[0].push_back(draw);
     ++inbag_counts[draw];
@@ -393,9 +398,12 @@ void Tree::bootstrap() {
 
 void Tree::bootstrapWeighted() {
 
-  // Reserve space (37% percent are outbag on average, reserve a little more)
-  sampleIDs[0].reserve(num_samples);
-  oob_sampleIDs.reserve(num_samples * 0.4);
+  // Use fraction (default 63.21%) of the samples
+  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
+
+  // Reserve space, reserve a little more to be save)
+  sampleIDs[0].reserve(num_samples_inbag);
+  oob_sampleIDs.reserve(num_samples * (exp(-sample_fraction) + 0.1));
 
   std::discrete_distribution<> weighted_dist(case_weights->begin(), case_weights->end());
 
@@ -403,7 +411,7 @@ void Tree::bootstrapWeighted() {
   inbag_counts.resize(num_samples, 0);
 
   // Draw num_samples samples with replacement (n out of n) as inbag and mark as not OOB
-  for (size_t s = 0; s < num_samples; ++s) {
+  for (size_t s = 0; s < num_samples_inbag; ++s) {
     size_t draw = weighted_dist(random_number_generator);
     sampleIDs[0].push_back(draw);
     ++inbag_counts[draw];
@@ -424,8 +432,8 @@ void Tree::bootstrapWeighted() {
 
 void Tree::bootstrapWithoutReplacement() {
 
-  // As in sampling with replacement use 63.21% of the samples
-  size_t num_samples_inbag = (size_t) num_samples * 0.6321;
+  // Use fraction (default 63.21%) of the samples
+  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
   shuffleAndSplit(sampleIDs[0], oob_sampleIDs, num_samples, num_samples_inbag, random_number_generator);
   num_samples_oob = oob_sampleIDs.size();
 
@@ -440,8 +448,8 @@ void Tree::bootstrapWithoutReplacement() {
 
 void Tree::bootstrapWithoutReplacementWeighted() {
 
-  // As in sampling with replacement use 63.21% of the samples
-  size_t num_samples_inbag = (size_t) num_samples * 0.6321;
+  // Use fraction (default 63.21%) of the samples
+  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
   drawWithoutReplacementWeighted(sampleIDs[0], random_number_generator, num_samples - 1, num_samples_inbag,
       *case_weights);
 

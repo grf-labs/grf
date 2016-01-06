@@ -35,7 +35,7 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
-    caseweights(""), depvarname(""), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(
+    caseweights(""), depvarname(""), fraction(1), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(
         DEFAULT_NUM_THREADS), predall(false), file(""), impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(
         0), outprefix("ranger_out"), probability(false), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(
         DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
@@ -49,7 +49,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:C:D:M:NP:S:U:Zac:f:hil::m:o:pr:s:t:uvwy:z:";
+  char const *short_options = "A:C:D:F:M:NP:S:U:Zac:f:hil::m:o:pr:s:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
@@ -57,6 +57,7 @@ int ArgumentHandler::processArguments() {
       { "alwayssplitvars",      required_argument,  0, 'A'},
       { "caseweights",          required_argument,  0, 'C'},
       { "depvarname",           required_argument,  0, 'D'},
+      { "fraction",             required_argument,  0, 'F'},
       { "memmode",              required_argument,  0, 'M'},
       { "savemem",              no_argument,        0, 'N'},
       { "predict",              required_argument,  0, 'P'},
@@ -107,6 +108,18 @@ int ArgumentHandler::processArguments() {
 
     case 'D':
       depvarname = optarg;
+      break;
+
+    case 'F':
+      try {
+        fraction = std::stod(optarg);
+        if (fraction > 1 || fraction <= 0) {
+          throw std::runtime_error("");
+        }
+      } catch (...) {
+        throw std::runtime_error(
+            "Illegal argument for option 'fraction'. Please give a value in (0,1]. See '--help' for details.");
+      }
       break;
 
     case 'M':
@@ -427,6 +440,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              TYPE = 3: Permutation importance, no scaling." << std::endl;
   std::cout << "    " << "                              (Default: 0)" << std::endl;
   std::cout << "    " << "--noreplace                   Sample without replacement." << std::endl;
+  std::cout << "    " << "--fraction X                  Fraction of observations to sample. Default is 1 for sampling with replacement " << std::endl;
+  std::cout << "    " << "                              and 0.632 for sampling without replacement." << std::endl;
   std::cout << "    " << "--splitrule RULE              Splitting rule:" << std::endl;
   std::cout << "    " << "                              RULE = 1: Gini for Classification, variance for Regression, logrank for Survival." << std::endl;
   std::cout << "    " << "                              RULE = 2: AUC for Survival, not available for Classification and Regression." << std::endl;

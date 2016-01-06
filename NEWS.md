@@ -1,5 +1,6 @@
 ##### Version 0.3.6
 * Add keep.inbag option to track in-bag counts
+* Add option sample.fraction for fraction of sampled observations
 
 ##### Version 0.3.5
 * Add tree-wise split.select.weights
