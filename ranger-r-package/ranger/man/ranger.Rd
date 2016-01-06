@@ -9,8 +9,8 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   min.node.size = NULL, replace = TRUE, splitrule = NULL,
   case.weights = NULL, split.select.weights = NULL,
   always.split.variables = NULL, respect.unordered.factors = FALSE,
-  scale.permutation.importance = FALSE, num.threads = NULL,
-  save.memory = FALSE, verbose = TRUE, seed = NULL,
+  scale.permutation.importance = FALSE, keep.inbag = FALSE,
+  num.threads = NULL, save.memory = FALSE, verbose = TRUE, seed = NULL,
   dependent.variable.name = NULL, status.variable.name = NULL,
   classification = NULL)
 }
@@ -44,6 +44,8 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 \item{respect.unordered.factors}{Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered.}
 
 \item{scale.permutation.importance}{Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.}
+
+\item{keep.inbag}{Save how often observations are in-bag in each tree.}
 
 \item{num.threads}{Number of threads. Default is number of CPUs available.}
 
@@ -80,6 +82,7 @@ Object of class \code{ranger} with elements
   \item{\code{treetype}}{Type of forest/tree. classification, regression or survival.}
   \item{\code{importance.mode}}{Importance mode used.}
   \item{\code{num.samples}}{Number of samples.}
+  \item{\code{inbag.counts}}{Number of times the observations are in-bag in the trees.}
 }
 \description{
 Ranger is a fast implementation of Random Forest (Breiman 2001) or recursive partitioning, particularly suited for high dimensional data.

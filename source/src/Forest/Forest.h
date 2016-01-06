@@ -62,7 +62,7 @@ public:
       std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-      std::vector<double>& case_weights, bool predict_all);
+      std::vector<double>& case_weights, bool predict_all, bool keep_inbag);
   void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
       std::string output_prefix, uint num_trees, uint seed, uint num_threads, ImportanceMode importance_mode,
       uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
@@ -137,6 +137,14 @@ public:
     return is_ordered_variable;
   }
 
+  std::vector<std::vector<size_t>> getInbagCounts() const {
+    std::vector<std::vector<size_t>> result;
+    for (auto& tree : trees) {
+      result.push_back(tree->getInbagCounts());
+    }
+    return result;
+  }
+
 protected:
   void grow();
   virtual void growInternal() = 0;
@@ -187,6 +195,7 @@ protected:
   bool memory_saving_splitting;
   SplitRule splitrule;
   bool predict_all;
+  bool keep_inbag;
 
   // For each varID true if ordered
   std::vector<bool> is_ordered_variable;

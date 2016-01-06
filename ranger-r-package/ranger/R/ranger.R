@@ -81,6 +81,7 @@
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
+##' @param keep.inbag Save how often observations are in-bag in each tree. 
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param save.memory Use memory saving (but slower) splitting mode. No effect for GWAS data.
 ##' @param verbose Verbose output on or off.
@@ -108,6 +109,7 @@
 ##'   \item{\code{treetype}}{Type of forest/tree. classification, regression or survival.}
 ##'   \item{\code{importance.mode}}{Importance mode used.}
 ##'   \item{\code{num.samples}}{Number of samples.}
+##'   \item{\code{inbag.counts}}{Number of times the observations are in-bag in the trees.}
 ##' @examples
 ##' require(ranger)
 ##'
@@ -164,6 +166,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    split.select.weights = NULL, always.split.variables = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
+                   keep.inbag = FALSE,
                    num.threads = NULL, save.memory = FALSE,
                    verbose = TRUE, seed = NULL, 
                    dependent.variable.name = NULL, status.variable.name = NULL, 
@@ -285,6 +288,11 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   ## Seed
   if (is.null(seed)) {
     seed <- runif(1 , 0, .Machine$integer.max)
+  }
+  
+  ## Keep inbag
+  if (!is.logical(keep.inbag)) {
+    stop("Error: Invalid value for keep.inbag")
   }
   
   ## Num threads
@@ -415,7 +423,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
-                      save.memory, splitrule, case.weights, use.case.weights, predict.all)
+                      save.memory, splitrule, case.weights, use.case.weights, predict.all, 
+                      keep.inbag)
   
   if (length(result) == 0) {
     stop("User interrupt or internal error.")

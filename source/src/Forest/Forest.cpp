@@ -46,7 +46,7 @@
 Forest::Forest() :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), num_variables(0), num_independent_variables(
         0), seed(0), dependent_varID(0), num_samples(0), prediction_mode(false), memory_mode(MEM_DOUBLE), sample_with_replacement(
-        true), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE), predict_all(false), num_threads(
+        true), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE), predict_all(false), keep_inbag(false), num_threads(
         DEFAULT_NUM_THREADS), data(0), overall_prediction_error(0), importance_mode(DEFAULT_IMPORTANCE_MODE), progress(
         0) {
 }
@@ -140,7 +140,7 @@ void Forest::initR(std::string dependent_variable_name, Data* input_data, uint m
     std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
     std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
     std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-    std::vector<double>& case_weights, bool predict_all) {
+    std::vector<double>& case_weights, bool predict_all, bool keep_inbag) {
 
   this->verbose_out = verbose_out;
 
@@ -166,6 +166,9 @@ void Forest::initR(std::string dependent_variable_name, Data* input_data, uint m
     }
     this->case_weights = case_weights;
   }
+
+  // Keep inbag counts
+  this->keep_inbag = keep_inbag;
 }
 
 void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
@@ -396,7 +399,7 @@ void Forest::grow() {
 
     trees[i]->init(data, mtry, dependent_varID, num_samples, tree_seed, &deterministic_varIDs, &split_select_varIDs,
         tree_split_select_weights, importance_mode, min_node_size, &no_split_variables, sample_with_replacement,
-        &is_ordered_variable, memory_saving_splitting, splitrule, &case_weights);
+        &is_ordered_variable, memory_saving_splitting, splitrule, &case_weights, keep_inbag);
   }
 
   // Init variable importance
