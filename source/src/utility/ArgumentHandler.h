@@ -63,6 +63,7 @@ public:
   std::vector<std::string> alwayssplitvars;
   std::string caseweights;
   std::string depvarname;
+  double fraction;
   MemoryMode memmode;
   bool savemem;
   std::string predict;

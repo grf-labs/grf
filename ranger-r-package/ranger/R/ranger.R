@@ -75,6 +75,7 @@
 ##' @param probability Grow a probability forest as in Malley et al. (2012). 
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. 
+##' @param sample.fraction Fraction of observations to sample. Default is 1 for sampling with replacement and 0.632 for sampling without replacement. 
 ##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "C" with default "logrank". 
 ##' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting. Alternatively, a list of size num.trees, containing split select weight vectors for each tree can be used.  
@@ -161,8 +162,9 @@
 ##' @export
 ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    importance = "none", write.forest = FALSE, probability = FALSE,
-                   min.node.size = NULL, replace = TRUE, splitrule = NULL,
-                   case.weights = NULL, 
+                   min.node.size = NULL, replace = TRUE, 
+                   sample.fraction = ifelse(replace, 1, 0.632), 
+                   splitrule = NULL, case.weights = NULL, 
                    split.select.weights = NULL, always.split.variables = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
@@ -310,6 +312,11 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     stop("Error: Invalid value for min.node.size")
   }
   
+  ## Sample fraction
+  if (!is.numeric(sample.fraction) | sample.fraction <= 0 | sample.fraction > 1) {
+    stop("Error: Invalid value for sample.fraction. Please give a value in (0,1].")
+  }
+  
   ## Importance mode
   if (is.null(importance) | importance == "none") {
     importance.mode <- 0
@@ -424,7 +431,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
                       save.memory, splitrule, case.weights, use.case.weights, predict.all, 
-                      keep.inbag)
+                      keep.inbag, sample.fraction)
   
   if (length(result) == 0) {
     stop("User interrupt or internal error.")

@@ -50,7 +50,8 @@ public:
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
-      bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag);
+      bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag,
+      double sample_fraction);
   virtual void initInternal() = 0;
 
   void grow(std::vector<double>* variable_importance);
@@ -167,6 +168,8 @@ protected:
   std::vector<size_t> prediction_terminal_nodeIDs;
 
   bool sample_with_replacement;
+  double sample_fraction;
+
   bool memory_saving_splitting;
   SplitRule splitrule;
 
