@@ -1,3 +1,6 @@
+##### Version 0.3.6
+* Add keep.inbag option to track in-bag counts
+
 ##### Version 0.3.5
 * Add tree-wise split.select.weights
 

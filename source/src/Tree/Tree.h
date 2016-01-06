@@ -50,7 +50,7 @@ public:
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
-      bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights);
+      bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag);
   virtual void initInternal() = 0;
 
   void grow(std::vector<double>* variable_importance);
@@ -77,6 +77,10 @@ public:
   }
   size_t getNumSamplesOob() const {
     return num_samples_oob;
+  }
+
+  const std::vector<size_t>& getInbagCounts() const {
+    return inbag_counts;
   }
 
 protected:
@@ -143,6 +147,10 @@ protected:
 
   // IDs of OOB individuals, sorted
   std::vector<size_t> oob_sampleIDs;
+
+  // Inbag counts
+  bool keep_inbag;
+  std::vector<size_t> inbag_counts;
 
   // Random number generator
   std::mt19937_64 random_number_generator;

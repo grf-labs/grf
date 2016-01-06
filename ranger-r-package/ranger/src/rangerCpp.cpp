@@ -50,7 +50,8 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     std::string status_variable_name, bool prediction_mode, Rcpp::List loaded_forest, Rcpp::RawMatrix sparse_data,
     bool sample_with_replacement, bool probability, std::vector<std::string>& unordered_variable_names,
     bool use_unordered_variable_names, bool save_memory, uint splitrule_r, 
-    std::vector<double>& case_weights, bool use_case_weights, bool predict_all) {
+    std::vector<double>& case_weights, bool use_case_weights, bool predict_all, 
+    bool keep_inbag) {
 
   Rcpp::List result;
   Forest* forest = 0;
@@ -115,7 +116,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     forest->initR(dependent_variable_name, data, mtry, num_trees, verbose_out, seed, num_threads,
         importance_mode, min_node_size, split_select_weights, always_split_variable_names, status_variable_name,
         prediction_mode, sample_with_replacement, unordered_variable_names, save_memory, splitrule, case_weights, 
-        predict_all);
+        predict_all, keep_inbag);
 
     // Load forest object if in prediction mode
     if (prediction_mode) {
@@ -175,6 +176,10 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
       result.push_back(forest->getMinNodeSize(), "min.node.size");
       result.push_back(forest->getVariableImportance(), "variable.importance");
       result.push_back(forest->getOverallPredictionError(), "prediction.error");
+    }
+    
+    if (keep_inbag) {
+      result.push_back(forest->getInbagCounts(), "inbag.counts");
     }
 
     // Save forest if needed

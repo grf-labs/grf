@@ -339,3 +339,27 @@ test_that("Tree-wise split select weights work", {
   expect_that(ranger(Species ~ ., iris, num.trees = num.trees, split.select.weights = weights), 
               throws_error())
 })
+
+test_that("Inbag count matrix if of right size, with replacement", {
+  rf <- ranger(Species ~ ., iris, num.trees = 5, keep.inbag = TRUE)
+  expect_that(dim(data.frame(rf$inbag.counts)), 
+              equals(c(nrow(iris), rf$num.trees)))
+})
+
+test_that("Inbag count matrix if of right size, without replacement", {
+  rf <- ranger(Species ~ ., iris, num.trees = 5, replace = FALSE, keep.inbag = TRUE)
+  expect_that(dim(data.frame(rf$inbag.counts)), 
+              equals(c(nrow(iris), rf$num.trees)))
+})
+
+test_that("Inbag count matrix if of right size, with replacement, weighted", {
+  rf <- ranger(Species ~ ., iris, num.trees = 5, case.weights = runif(nrow(iris)), keep.inbag = TRUE)
+  expect_that(dim(data.frame(rf$inbag.counts)), 
+              equals(c(nrow(iris), rf$num.trees)))
+})
+
+test_that("Inbag count matrix if of right size, without replacement, weighted", {
+  rf <- ranger(Species ~ ., iris, num.trees = 5, replace = FALSE, case.weights = runif(nrow(iris)), keep.inbag = TRUE)
+  expect_that(dim(data.frame(rf$inbag.counts)), 
+              equals(c(nrow(iris), rf$num.trees)))
+})
