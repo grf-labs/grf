@@ -440,7 +440,7 @@ void Tree::bootstrapWithoutReplacement() {
   if (keep_inbag) {
     // All observation are 0 or 1 times inbag
     inbag_counts.resize(num_samples, 1);
-    for (int i = 0; i < oob_sampleIDs.size(); i++) {
+    for (size_t i = 0; i < oob_sampleIDs.size(); i++) {
       inbag_counts[oob_sampleIDs[i]] = 0;
     }
   }
