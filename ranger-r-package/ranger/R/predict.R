@@ -105,7 +105,7 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
       variable.names <- c("time", "status", forest$independent.variable.names)
     }
   } else {
-    if (forest$dependent.varID > 0) {
+    if (ncol(data) == length(forest$independent.variable.names)+1 & forest$dependent.varID > 0) {
       if (!is.matrix(data)) {
         ## Recode characters
         char.columns <- sapply(data, is.character)
@@ -119,11 +119,25 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
         char.columns <- sapply(data.selected, is.character)
         data.selected[char.columns] <- lapply(data.selected[char.columns], factor)
       }
-      data.final <- data.matrix(cbind(0, data.selected))
-      variable.names <- c("dependent", forest$independent.variable.names)
+      ## Arange data as in original data
+      if (forest$dependent.varID == 0) {
+        data.final <- data.matrix(cbind(0, data.selected))
+        variable.names <- c("dependent", forest$independent.variable.names)
+      } else if (forest$dependent.varID >= ncol(data)) {
+        data.final <- data.matrix(cbind(data.selected, 0))
+        variable.names <- c(forest$independent.variable.names, "dependent")
+      } else {
+        data.final <- data.matrix(cbind(data.selected[, 1:forest$dependent.varID], 
+                                        0, 
+                                        data.selected[, (forest$dependent.varID+2):ncol(data.selected)]))
+        variable.names <- c(forest$independent.variable.names[1:forest$dependent.varID], 
+                            "dependent", 
+                            forest$independent.variable.names[(forest$dependent.varID+1):length(forest$independent.variable.names)])
+      }
     }
   }
 
+  
   ## If gwa mode, add snp variable names
   if (gwa.mode) {
     variable.names <- c(variable.names, snp.names)

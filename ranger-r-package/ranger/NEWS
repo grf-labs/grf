@@ -1,3 +1,6 @@
+##### Version 0.3.7
+* Fix bug with alternative interface and prediction
+
 ##### Version 0.3.6
 * Add keep.inbag option to track in-bag counts
 * Add option sample.fraction for fraction of sampled observations

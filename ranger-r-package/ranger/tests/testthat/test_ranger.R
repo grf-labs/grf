@@ -50,31 +50,31 @@ test_that("unique death times in survival result is right", {
 
 test_that("importance measures work", {
   rg.imp <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE,
-                    importance = "impurity")
+                   importance = "impurity")
   expect_that(rg.imp$variable.importance, is_a("numeric"))
   rg.imp <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE,
-                    importance = "permutation")
+                   importance = "permutation")
   expect_that(rg.imp$variable.importance, is_a("numeric"))
   rg.imp <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE,
-                    importance = "permutation", scale.permutation.importance = TRUE)
+                   importance = "permutation", scale.permutation.importance = TRUE)
   expect_that(rg.imp$variable.importance, is_a("numeric"))
 })
 
 test_that("gini importance is larger than 1", {
   rg.imp <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE,
-                    importance = "impurity")
+                   importance = "impurity")
   expect_that(rg.imp$variable.importance[1], is_more_than(1))
 })
 
 test_that("unscaled importance is smaller than 1", {
   rg.imp <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE,
-                    importance = "permutation", scale.permutation.importance = FALSE)
+                   importance = "permutation", scale.permutation.importance = FALSE)
   expect_that(rg.imp$variable.importance[1], is_less_than(1))
 })
 
 test_that("scaled importance is larger than 1", {
   rg.imp <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE,
-                    importance = "permutation", scale.permutation.importance = TRUE)
+                   importance = "permutation", scale.permutation.importance = TRUE)
   expect_that(rg.imp$variable.importance[1], is_more_than(1))
 })
 
@@ -82,10 +82,10 @@ test_that("probability estimations are a matrix with correct size", {
   train.idx <- sample(nrow(iris), 2/3 * nrow(iris))
   iris.train <- iris[train.idx, ]
   iris.test <- iris[-train.idx, ]
-
+  
   rg.prob <- ranger(Species ~ ., data = iris.train, write.forest = TRUE, probability = TRUE)
   prob <- predict(rg.prob, iris.test)
-
+  
   expect_that(prob$predictions, is_a("matrix"))
   expect_that(nrow(prob$predictions), equals(nrow(iris.test)))
   expect_that(ncol(prob$predictions), equals(length(rg.prob$forest$levels)))
@@ -95,10 +95,10 @@ test_that("probability estimations are between 0 and 1 and sum to 1", {
   train.idx <- sample(nrow(iris), 2/3 * nrow(iris))
   iris.train <- iris[train.idx, ]
   iris.test <- iris[-train.idx, ]
-
+  
   rg.prob <- ranger(Species ~ ., data = iris.train, write.forest = TRUE, probability = TRUE)
   prob <- predict(rg.prob, iris.test)
-
+  
   expect_that(all(prob$predictions > -1e-5 & prob$predictions <= 1 + 1e-5), is_true())
   expect_that(rowSums(prob$predictions), equals(rep(1, nrow(prob$predictions))))
 })
@@ -443,5 +443,88 @@ test_that("Number of samples is right sample fraction, replace=TRUE, 0.5, weight
   expect_that(sample.fraction, is_less_than(expected.sample.fraction+0.05))
 })
 
+test_that("Alternative interface classification prediction works if only independent variable given, one independent variable", {
+  n <- 50
+  
+  dt <- data.frame(x = runif(n), y = factor(rbinom(n, 1, 0.5)))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt), 
+              not(throws_error()))
+  expect_that(predict(rf, dt[, 1, drop = FALSE]), 
+              not(throws_error()))
+  
+  dt2 <- data.frame(y = factor(rbinom(n, 1, 0.5)), x = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt2), 
+              not(throws_error()))
+  expect_that(predict(rf, dt2[, 2, drop = FALSE]), 
+              not(throws_error()))
+})
 
+test_that("Alternative interface classification prediction works if only independent variable given, two independent variables", {
+  n <- 50
+  
+  dt <- data.frame(x1 = runif(n), x2 = runif(n), y = factor(rbinom(n, 1, 0.5)))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt), 
+              not(throws_error()))
+  expect_that(predict(rf, dt[, 1:2]), 
+              not(throws_error()))
+  
+  dt2 <- data.frame(y = factor(rbinom(n, 1, 0.5)), x1 = runif(n), x2 = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt2), 
+              not(throws_error()))
+  expect_that(predict(rf, dt2[, 2:3]), 
+              not(throws_error()))
+})
 
+test_that("Alternative interface regression prediction works if only independent variable given, one independent variable", {
+  n <- 50
+  
+  dt <- data.frame(x = runif(n), y = rbinom(n, 1, 0.5))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt), 
+              not(throws_error()))
+  expect_that(predict(rf, dt[, 1, drop = FALSE]), 
+              not(throws_error()))
+  
+  dt2 <- data.frame(y = rbinom(n, 1, 0.5), x = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt2), 
+              not(throws_error()))
+  expect_that(predict(rf, dt2[, 2, drop = FALSE]), 
+              not(throws_error()))
+})
+
+test_that("Alternative interface regression prediction works if only independent variable given, two independent variables", {
+  n <- 50
+  
+  dt <- data.frame(x1 = runif(n), x2 = runif(n), y = rbinom(n, 1, 0.5))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt), 
+              not(throws_error()))
+  expect_that(predict(rf, dt[, 1:2]), 
+              not(throws_error()))
+  
+  dt2 <- data.frame(y = rbinom(n, 1, 0.5), x1 = runif(n), x2 = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt2), 
+              not(throws_error()))
+  expect_that(predict(rf, dt2[, 2:3]), 
+              not(throws_error()))
+})
+
+test_that("Alternative interface regression prediction: Results not all the same", {
+  n <- 50
+  
+  dt <- data.frame(x = runif(n), y = rbinom(n, 1, 0.5))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(diff(range(predict(rf, dt)$predictions)), is_more_than(0))
+  expect_that(diff(range(predict(rf, dt[, 1, drop = FALSE])$predictions)), is_more_than(0))
+  
+  dt2 <- data.frame(y = rbinom(n, 1, 0.5), x = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(diff(range(predict(rf, dt2)$predictions)), is_more_than(0))
+  expect_that(diff(range(predict(rf, dt2[, 2, drop = FALSE])$predictions)), is_more_than(0))
+})
