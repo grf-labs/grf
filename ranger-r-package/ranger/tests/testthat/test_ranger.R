@@ -514,3 +514,17 @@ test_that("Alternative interface regression prediction works if only independent
   expect_that(predict(rf, dt2[, 2:3]), 
               not(throws_error()))
 })
+
+test_that("Alternative interface regression prediction: Results not all the same", {
+  n <- 50
+  
+  dt <- data.frame(x = runif(n), y = rbinom(n, 1, 0.5))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(diff(range(predict(rf, dt)$predictions)), is_more_than(0))
+  expect_that(diff(range(predict(rf, dt[, 1, drop = FALSE])$predictions)), is_more_than(0))
+  
+  dt2 <- data.frame(y = rbinom(n, 1, 0.5), x = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(diff(range(predict(rf, dt2)$predictions)), is_more_than(0))
+  expect_that(diff(range(predict(rf, dt2[, 2, drop = FALSE])$predictions)), is_more_than(0))
+})
