@@ -119,7 +119,7 @@ void ForestSurvival::growInternal() {
 void ForestSurvival::predictInternal() {
 
   size_t num_prediction_samples = data->getNumRows();
-  size_t num_timepoints = ((TreeSurvival*) trees[0])->getPrediction(0).size();
+  size_t num_timepoints = unique_timepoints.size();
 
   predictions.reserve(num_prediction_samples);
 
@@ -142,7 +142,7 @@ void ForestSurvival::predictInternal() {
 
 void ForestSurvival::computePredictionErrorInternal() {
 
-  size_t num_timepoints = ((TreeSurvival*) trees[0])->getPrediction(0).size();
+  size_t num_timepoints = unique_timepoints.size();
 
   // For each sample sum over trees where sample is OOB
   std::vector<size_t> samples_oob_count;
