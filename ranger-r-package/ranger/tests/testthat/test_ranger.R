@@ -528,3 +528,10 @@ test_that("Alternative interface regression prediction: Results not all the same
   expect_that(diff(range(predict(rf, dt2)$predictions)), is_more_than(0))
   expect_that(diff(range(predict(rf, dt2[, 2, drop = FALSE])$predictions)), is_more_than(0))
 })
+
+test_that("No error if survival tree without OOB observations", {
+  dat <- data.frame(time = c(1,2), status = c(0,1), x = c(1,2))
+  expect_that(ranger(Surv(time, status) ~ ., dat, num.trees = 1, num.threads = 1), 
+              not(throws_error()))
+})
+
