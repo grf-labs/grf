@@ -1,3 +1,6 @@
+##### Version 0.3.8
+* Small fixes
+
 ##### Version 0.3.7
 * Fix bug with alternative interface and prediction
 
