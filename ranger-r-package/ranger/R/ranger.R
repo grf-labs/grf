@@ -249,6 +249,12 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                                                           colnames(data.selected) != status.variable.name]
   }
   
+  ## Recode characters as factors
+  if (!is.matrix(data.selected)) {
+    char.columns <- sapply(data.selected, is.character)
+    data.selected[char.columns] <- lapply(data.selected[char.columns], factor)
+  }
+  
   ## Input data and variable names
   if (!is.null(formula) & treetype == 5) {
     data.final <- cbind(response[, 1], response[, 2],
@@ -259,9 +265,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     data.final <- data.selected
   }
   if (!is.matrix(data.selected)) {
-    ## Recode characters as factors and create matrix
-    char.columns <- sapply(data.final, is.character)
-    data.final[char.columns] <- lapply(data.final[char.columns], factor)
+    ## Create matrix
     data.final <- data.matrix(data.final)
   }
   variable.names <- colnames(data.final)
