@@ -65,14 +65,22 @@ void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts)
  * @param file ofstream object to write to.
  */
 template<typename T>
-void saveVector1D(std::vector<T>& vector, std::ofstream& file) {
+inline void saveVector1D(std::vector<T>& vector, std::ofstream& file) {
+  // Save length
+  size_t length = vector.size();
+  file.write((char*) &length, sizeof(length));
+  file.write((char*) vector.data(), length * sizeof(T));
+}
+
+template<>
+inline void saveVector1D(std::vector<bool>& vector, std::ofstream& file) {
   // Save length
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
 
   // Save vector
   for (size_t i = 0; i < vector.size(); ++i) {
-    T v = vector[i];
+    bool v = vector[i];
     file.write((char*) &v, sizeof(v));
   }
 }
@@ -83,14 +91,23 @@ void saveVector1D(std::vector<T>& vector, std::ofstream& file) {
  * @param file ifstream object to read from.
  */
 template<typename T>
-void readVector1D(std::vector<T>& result, std::ifstream& file) {
+inline void readVector1D(std::vector<T>& result, std::ifstream& file) {
+  // Read length
+  size_t length;
+  file.read((char*) &length, sizeof(length));
+  result.resize(length);
+  file.read((char*) result.data(), length * sizeof(T));
+}
+
+template<>
+inline void readVector1D(std::vector<bool>& result, std::ifstream& file) {
   // Read length
   size_t length;
   file.read((char*) &length, sizeof(length));
 
   // Read vector.
   for (size_t i = 0; i < length; ++i) {
-    T temp;
+    bool temp;
     file.read((char*) &temp, sizeof(temp));
     result.push_back(temp);
   }
@@ -102,21 +119,15 @@ void readVector1D(std::vector<T>& result, std::ifstream& file) {
  * @param file ofstream object to write to.
  */
 template<typename T>
-void saveVector2D(std::vector<std::vector<T>>& vector, std::ofstream& file) {
+inline void saveVector2D(std::vector<std::vector<T>>& vector, std::ofstream& file) {
   // Save length of first dim
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
 
   // Save outer vector
   for (auto& inner_vector : vector) {
-    // Save length of inner vector
-    size_t length_inner = inner_vector.size();
-    file.write((char*) &length_inner, sizeof(length_inner));
-
     // Save inner vector
-    for (auto& element : inner_vector) {
-      file.write((char*) &element, sizeof(element));
-    }
+    saveVector1D(inner_vector, file);
   }
 }
 
@@ -126,25 +137,16 @@ void saveVector2D(std::vector<std::vector<T>>& vector, std::ofstream& file) {
  * @param file ifstream object to read from.
  */
 template<typename T>
-void readVector2D(std::vector<std::vector<T>>& result, std::ifstream& file) {
+inline void readVector2D(std::vector<std::vector<T>>& result, std::ifstream& file) {
   // Read length of first dim
   size_t length;
   file.read((char*) &length, sizeof(length));
+  result.resize(length);
 
   // Read outer vector
   for (size_t i = 0; i < length; ++i) {
-    // Read length of inner vector
-    size_t length_inner;
-    file.read((char*) &length_inner, sizeof(length_inner));
-
     // Read inner vector
-    std::vector<T> temp_vector;
-    for (size_t j = 0; j < length_inner; ++j) {
-      T temp;
-      file.read((char*) &temp, sizeof(temp));
-      temp_vector.push_back(temp);
-    }
-    result.push_back(temp_vector);
+    readVector1D(result[i], file);
   }
 }
 
