@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/imbs-hl/ranger.svg?branch=master)](https://travis-ci.org/mnwright/ranger)
+[![Build Status](https://travis-ci.org/imbs-hl/ranger.svg?branch=master)](https://travis-ci.org/imbs-hl/ranger)
 [![Coverage Status](https://coveralls.io/repos/github/imbs-hl/ranger/badge.svg?branch=master)](https://coveralls.io/github/imbs-hl/ranger?branch=master)
 ![CRAN Downloads month](http://cranlogs.r-pkg.org/badges/ranger?color=brightgreen)
 ![CRAN Downloads overall](http://cranlogs.r-pkg.org/badges/grand-total/ranger?color=brightgreen)
@@ -8,7 +8,7 @@ Marvin N. Wright, wright@imbs.uni-luebeck.de
 ### Introduction
 Ranger is a fast implementation of random forest (Breiman 2001) or recursive partitioning, particularly suited for high dimensional data. Classification, regression, probability estimation and survival forests are supported. Classification and regression forests are implemented as in the original Random Forest (Breiman 2001), survival forests as in Random Survival Forests (Ishwaran et al. 2008). For probability estimation forests see Malley et al. (2012). 
 
-Ranger is written in C++, but a version for R is avaiable, too. We recommend to use the R version. It is easy to install and use and the results are readily available for further analysis. The R version is as fast as the pure C++ version.
+Ranger is written in C++, but a version for R is available, too. We recommend to use the R version. It is easy to install and use and the results are readily available for further analysis. The R version is as fast as the pure C++ version.
 
 ### Installation
 To install the Ranger R package from CRAN, just run
