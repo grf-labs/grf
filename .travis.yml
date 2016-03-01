@@ -19,7 +19,8 @@ r_github_packages:
   - jimhester/covr
 
 after_success:
-  - Rscript -e 'covr::codecov(exclusions = c("src/Data.h", "src/Data.cpp"))'
+  - sed -i '' src/*
+  - Rscript -e 'covr::codecov()'
 
 notifications:
   email:
