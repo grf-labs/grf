@@ -11,15 +11,16 @@ before_install:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
 
 r:
-  - oldrel
+#  - oldrel
   - release
-  - devel
+#  - devel
   
 r_github_packages:
   - jimhester/covr
 
 after_success:
   - sed -i '' src/*
+  - gcov --version
   - Rscript -e 'covr::codecov(quiet = FALSE)'
 
 notifications:
