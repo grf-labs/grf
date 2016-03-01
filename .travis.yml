@@ -20,7 +20,7 @@ r_github_packages:
 
 after_success:
   - sed -i '' src/*
-  - Rscript -e 'covr::codecov()'
+  - Rscript -e 'covr::codecov(quiet = FALSE)'
 
 notifications:
   email:
