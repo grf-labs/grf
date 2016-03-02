@@ -1,8 +1,9 @@
 ##### Version 0.3.8
-* Small fixes
+* Remove tuning functions, please use mlr or caret.
 
 ##### Version 0.3.7
 * Fix bug with alternative interface and prediction
+* Small fixes
 
 ##### Version 0.3.6
 * Add keep.inbag option to track in-bag counts
