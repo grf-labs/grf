@@ -1,3 +1,6 @@
+##### Version 0.3.9
+* Add p-values for variable importance.
+
 ##### Version 0.3.8
 * Remove tuning functions, please use mlr or caret.
 
