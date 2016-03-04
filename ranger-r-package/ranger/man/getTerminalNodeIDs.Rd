@@ -19,7 +19,7 @@ Get terminal node IDs of observations.
 }
 \examples{
 library(ranger)
-rf <- ranger(Species ~ ., data = iris, write.forest = TRUE)
+rf <- ranger(Species ~ ., data = iris, num.trees = 5, write.forest = TRUE)
 getTerminalNodeIDs(rf, iris)
 }
 
