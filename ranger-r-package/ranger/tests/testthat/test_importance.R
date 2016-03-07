@@ -83,3 +83,8 @@ test_that("Importance p-values Altmann: not working for holdoutRF", {
 test_that("HoldoutRF working", {
   expect_that(holdout_p0, is_a("holdoutRF"))
 })
+
+test_that("HoldoutRF ... argument working", {
+  rf <- holdoutRF(Species ~., iris, num.trees = 10)
+  expect_that(rf$rf1$num.trees, equals(10))
+})

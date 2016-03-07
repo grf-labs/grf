@@ -49,9 +49,9 @@ holdoutRF <- function(formula, data, ...) {
   ## Grow RFs
   res <- list(
     rf1 = ranger(formula = formula, data = data, importance = "permutation",  
-                 case.weights = weights, sample.fraction = mean(weights)),
+                 case.weights = weights, sample.fraction = mean(weights), ...),
     rf2 = ranger(formula = formula, data = data, importance = "permutation",
-                 case.weights = 1-weights, sample.fraction = mean(1-weights))
+                 case.weights = 1-weights, sample.fraction = mean(1-weights), ...)
   )
   
   ## Compute importance
