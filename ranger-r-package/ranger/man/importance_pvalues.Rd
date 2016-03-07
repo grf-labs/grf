@@ -2,15 +2,17 @@
 % Please edit documentation in R/importance.R
 \name{importance_pvalues}
 \alias{importance_pvalues}
-\title{ranger variable importance p-values}
+\title{ranger variable importance confidence intervals and p-values}
 \usage{
-importance_pvalues(x, method = c("janitza", "altmann"),
+importance_pvalues(x, method = c("janitza", "altmann"), conf.level = 0.95,
   num.permutations = 100, formula = NULL, data = NULL, ...)
 }
 \arguments{
 \item{x}{ranger or holdoutRF object.}
 
 \item{method}{Method to compute p-values. Use "janitza" for the method by Janitza et al. (2015) or "altmann" for the non-parametric method by Altmann et al. (2010).}
+
+\item{conf.level}{Confidence level for confidence intervals.}
 
 \item{num.permutations}{Number of permutations. Used in the "altmann" method only.}
 
@@ -21,10 +23,10 @@ importance_pvalues(x, method = c("janitza", "altmann"),
 \item{...}{Further arguments passed to ranger(). Used in the "altmann" method only.}
 }
 \value{
-Variable importance and p-values.
+Variable importance, confidence intervals and p-values.
 }
 \description{
-Compute variable importance with p-values.
+Compute variable importance with confidence intervals and p-values.
 }
 \author{
 Marvin N. Wright

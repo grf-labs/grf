@@ -30,7 +30,7 @@ test_that("Importance p-values Janitza: returns correct dimensions", {
     gives_warning()
   )
   expect_that(vimp, is_a("matrix"))
-  expect_that(dim(vimp), equals(c(104, 2)))
+  expect_that(dim(vimp), equals(c(104, 4)))
 })
 
 test_that("Importance p-values Janitza: error if no importance", {
@@ -60,14 +60,14 @@ test_that("Importance p-values Janitza-Holdout: returns correct dimensions", {
     vimp <- importance_pvalues(holdout_p100, method = "janitza"), gives_warning()
   )
   expect_that(vimp, is_a("matrix"))
-  expect_that(dim(vimp), equals(c(104, 2)))
+  expect_that(dim(vimp), equals(c(104, 4)))
 })
 
 ## Altmann
 test_that("Importance p-values Altmann: returns correct dimensions", {
   vimp <- importance_pvalues(rf_p0, method = "altmann", formula = Species ~ ., data = iris)
   expect_that(vimp, is_a("matrix"))
-  expect_that(dim(vimp), equals(c(4, 2)))
+  expect_that(dim(vimp), equals(c(4, 4)))
 })
 
 test_that("Importance p-values Altmann: error if no importance", {
