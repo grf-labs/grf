@@ -55,7 +55,7 @@ importance.ranger <- function(x, ...) {
 ##'
 ##'
 ##' @title ranger variable importance p-values
-##' @param x ranger object.
+##' @param x ranger or holdoutRF object.
 ##' @param method Method to compute p-values. Use "janitza" for the method by Janitza et al. (2015) or "altmann" for the non-parametric method by Altmann et al. (2010).
 ##' @param num.permutations Number of permutations. Used in the "altmann" method only.
 ##' @param formula Object of class formula or character describing the model to fit. Used in the "altmann" method only.
@@ -66,12 +66,11 @@ importance.ranger <- function(x, ...) {
 ##' @author Marvin N. Wright
 ##' @references
 ##'   Janitza, S., Celik, E. & Boulesteix, A.-L., (2015). A computationally fast variable importance test for random forest for high dimensional data, Technical Report 185, University of Munich, \url{https://epub.ub.uni-muenchen.de/25587}. \cr
-##'   Altmann, A., Tolosi, L., Sander, O. & Lengauer, T. (2010). Permutation importance: a corrected feature importance measure, Bioinformatics 26(10): 1340–1347.
-##' @aliases importance
+##'   Altmann, A., Tolosi, L., Sander, O. & Lengauer, T. (2010). Permutation importance: a corrected feature importance measure, Bioinformatics 26(10):1340-1347.
 ##' @export 
 importance_pvalues <- function(x, method = c("janitza", "altmann"), num.permutations = 100, formula = NULL, data = NULL, ...) {
-  if (class(x) != "ranger") {
-    stop("Object ist no ranger object.")
+  if (class(x) != "ranger" & class(x) != "holdoutRF") {
+    stop("Object is no ranger or holdoutRF object.")
   }
   if (x$importance.mode == "none" | is.null(x$variable.importance) | length(x$variable.importance) < 1) {
     stop("No variable importance found. Please use 'importance' option when growing the forest.")
@@ -81,7 +80,7 @@ importance_pvalues <- function(x, method = c("janitza", "altmann"), num.permutat
     if (x$importance.mode == "impurity") {
       stop("Impurity variable importance found. Please use (hold-out) permutation importance to use this method.")
     }
-    if (x$importance.mode == "permutation") {
+    if (class(x) != "holdoutRF" & x$importance.mode == "permutation") {
       warning("Permutation variable importance found, inaccurate p-values. Please use hold-out permutation importance to use this method.")
     }
     if (x$treetype != "Classification") {
@@ -109,6 +108,9 @@ importance_pvalues <- function(x, method = c("janitza", "altmann"), num.permutat
     colnames(res) <- c("importance", "pvalue")
     return(res)
   } else if (method == "altmann") {
+    if (class(x) != "ranger") {
+      stop("Altmann method not available for holdoutRF objects.")
+    }
     if (is.null(formula) | is.null(data)) {
       stop("Formula and data required for the 'altmann' method.")
     }
