@@ -198,6 +198,7 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
   use.case.weights <- FALSE
   keep.inbag <- FALSE
   sample.fraction <- 1
+  holdout <- FALSE
   
   ## Call Ranger
   result <- rangerCpp(treetype, dependent.variable.name, data.final, variable.names, mtry,
@@ -206,7 +207,7 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, forest, sparse.data, replace, probability,
                       unordered.factor.variables, use.unordered.factor.variables, save.memory, splitrule, 
-                      case.weights, use.case.weights, predict.all, keep.inbag, sample.fraction)
+                      case.weights, use.case.weights, predict.all, keep.inbag, sample.fraction, holdout)
 
   if (length(result) == 0) {
     stop("User interrupt or internal error.")

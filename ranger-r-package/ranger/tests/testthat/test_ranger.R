@@ -573,3 +573,21 @@ test_that("If respect.unordered.factors=FALSE, regard characters as ordered", {
   
   expect_that(rf.char$prediction.error, equals(rf.fac$prediction.error))
 })
+
+test_that("holdout mode holding out data with 0 weight", {
+  weights <- rbinom(nrow(iris), 1, 0.5)
+  rf <- ranger(Species ~ ., iris, num.trees = 5, importance = "permutation",  
+               case.weights = weights, replace = FALSE, sample.fraction = 0.632*mean(weights), 
+               holdout = TRUE, keep.inbag = TRUE)
+  inbag <- data.frame(rf$inbag.counts)
+  expect_that(all(inbag[weights == 0, ] == 0), is_true())
+})
+
+test_that("holdout mode uses holdout OOB data", {
+  weights <- rbinom(nrow(iris), 1, 0.5)
+  rf <- ranger(Species ~ ., iris, num.trees = 5, importance = "permutation",  
+               case.weights = weights, replace = FALSE, sample.fraction = 0.632*mean(weights), 
+               holdout = TRUE, keep.inbag = TRUE)
+  expect_that(any(is.na(rf$predictions[weights == 0])), is_false())
+  expect_that(all(is.na(rf$predictions[weights == 1])), is_true())
+})
