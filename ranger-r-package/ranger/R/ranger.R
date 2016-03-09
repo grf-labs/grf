@@ -344,8 +344,20 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   if (is.null(case.weights)) {
     case.weights <- c(0,0)
     use.case.weights <- FALSE
+    if (holdout) {
+      stop("Error: Case weights required to use holdout mode.")
+    }
   } else {
     use.case.weights <- TRUE
+    
+    ## Sample from non-zero weights in holdout mode
+    if (holdout) {
+      sample.fraction <- sample.fraction * mean(case.weights > 0)
+    }
+    
+    if (!replace && sum(case.weights > 0) < sample.fraction * nrow(data.final)) {
+      stop("Error: Fewer non-zero case weights than observations to sample.")
+    }
   }
   
   ## Split select weights: NULL for no weights

@@ -127,6 +127,17 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
     }
   }
 
+  // Sample from non-zero weights in holdout mode
+  if (holdout && !case_weights.empty()) {
+    size_t nonzero_weights = 0;
+    for (auto& weight : case_weights) {
+      if (weight > 0 ){
+        ++nonzero_weights;
+      }
+    }
+    this->sample_fraction = this->sample_fraction * ((double) nonzero_weights / (double) num_samples);
+  }
+
   // Check if all catvars are coded in integers starting at 1
   if (!unordered_variable_names.empty()) {
     std::string error_message = checkUnorderedVariables(data, unordered_variable_names);
@@ -407,7 +418,7 @@ void Forest::grow() {
 
     trees[i]->init(data, mtry, dependent_varID, num_samples, tree_seed, &deterministic_varIDs, &split_select_varIDs,
         tree_split_select_weights, importance_mode, min_node_size, &no_split_variables, sample_with_replacement,
-        &is_ordered_variable, memory_saving_splitting, splitrule, &case_weights, keep_inbag, sample_fraction);
+        &is_ordered_variable, memory_saving_splitting, splitrule, &case_weights, keep_inbag, sample_fraction, holdout);
   }
 
   // Init variable importance

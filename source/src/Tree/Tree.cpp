@@ -33,8 +33,8 @@
 
 Tree::Tree() :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(0), no_split_variables(0), min_node_size(
-        0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), oob_sampleIDs(0), keep_inbag(
-        false), data(0), variable_importance(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(
+        0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), oob_sampleIDs(0), holdout(
+        false), keep_inbag(false), data(0), variable_importance(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(
         true), sample_fraction(1), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE) {
 }
 
@@ -42,9 +42,9 @@ Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>&
     std::vector<double>& split_values, std::vector<bool>* is_ordered_variable) :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(is_ordered_variable), no_split_variables(
         0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), split_varIDs(
-        split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), keep_inbag(false), data(
-        0), variable_importance(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(true), sample_fraction(
-        1), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE) {
+        split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), holdout(false), keep_inbag(
+        false), data(0), variable_importance(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(
+        true), sample_fraction(1), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE) {
 }
 
 Tree::~Tree() {
@@ -55,7 +55,7 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
     std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
     std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
     bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag,
-    double sample_fraction) {
+    double sample_fraction, bool holdout) {
 
   this->data = data;
   this->mtry = mtry;
@@ -81,6 +81,7 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   this->case_weights = case_weights;
   this->keep_inbag = keep_inbag;
   this->sample_fraction = sample_fraction;
+  this->holdout = holdout;
 
   initInternal();
 }
@@ -417,10 +418,18 @@ void Tree::bootstrapWeighted() {
     ++inbag_counts[draw];
   }
 
-  // Save OOB samples
-  for (size_t s = 0; s < inbag_counts.size(); ++s) {
-    if (inbag_counts[s] == 0) {
-      oob_sampleIDs.push_back(s);
+  // Save OOB samples. In holdout mode these are the cases with 0 weight.
+  if (holdout) {
+    for (size_t s = 0; s < (*case_weights).size(); ++s) {
+      if ((*case_weights)[s] == 0) {
+        oob_sampleIDs.push_back(s);
+      }
+    }
+  } else {
+    for (size_t s = 0; s < inbag_counts.size(); ++s) {
+      if (inbag_counts[s] == 0) {
+        oob_sampleIDs.push_back(s);
+      }
     }
   }
   num_samples_oob = oob_sampleIDs.size();
@@ -432,7 +441,7 @@ void Tree::bootstrapWeighted() {
 
 void Tree::bootstrapWithoutReplacement() {
 
-  // Use fraction (default 63.21%) of the samples
+// Use fraction (default 63.21%) of the samples
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
   shuffleAndSplit(sampleIDs[0], oob_sampleIDs, num_samples, num_samples_inbag, random_number_generator);
   num_samples_oob = oob_sampleIDs.size();
@@ -459,10 +468,18 @@ void Tree::bootstrapWithoutReplacementWeighted() {
     inbag_counts[sampleID] = 1;
   }
 
-  // Save OOB samples
-  for (size_t s = 0; s < inbag_counts.size(); ++s) {
-    if (inbag_counts[s] == 0) {
-      oob_sampleIDs.push_back(s);
+  // Save OOB samples. In holdout mode these are the cases with 0 weight.
+  if (holdout) {
+    for (size_t s = 0; s < (*case_weights).size(); ++s) {
+      if ((*case_weights)[s] == 0) {
+        oob_sampleIDs.push_back(s);
+      }
+    }
+  } else {
+    for (size_t s = 0; s < inbag_counts.size(); ++s) {
+      if (inbag_counts[s] == 0) {
+        oob_sampleIDs.push_back(s);
+      }
     }
   }
   num_samples_oob = oob_sampleIDs.size();

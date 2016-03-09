@@ -591,3 +591,16 @@ test_that("holdout mode uses holdout OOB data", {
   expect_that(any(is.na(rf$predictions[weights == 0])), is_false())
   expect_that(all(is.na(rf$predictions[weights == 1])), is_true())
 })
+
+test_that("holdout mode not working if no weights", {
+  expect_that(ranger(Species ~ ., iris, num.trees = 5, importance = "permutation", holdout = TRUE), 
+              throws_error())
+})
+
+test_that("holdout mode: no OOB prediction if no 0 weights", {
+  weights <- runif(nrow(iris))
+  rf <- ranger(Species ~ ., iris, num.trees = 5, importance = "permutation",  
+               case.weights = weights, replace = FALSE, 
+               holdout = TRUE, keep.inbag = TRUE)
+  expect_that(all(is.na(rf$predictions)), is_true())
+})

@@ -400,6 +400,11 @@ void ArgumentHandler::checkArguments() {
     throw std::runtime_error("Illegal splitrule selected. See '--help' for details.");
   }
 
+  // Check holdout mode
+  if (holdout && caseweights.empty()) {
+    throw std::runtime_error("Case weights required to use holdout mode.");
+  }
+
 }
 
 void ArgumentHandler::displayHelp() {
