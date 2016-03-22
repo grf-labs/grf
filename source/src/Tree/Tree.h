@@ -140,7 +140,7 @@ protected:
   // For terminal nodes the prediction value is saved here
   std::vector<double> split_values;
 
-  // For each node a vector with child node IDs, for binary trees second dim = 2
+  // Vector of left and right child node IDs, 0 for no child
   std::vector<std::vector<size_t>> child_nodeIDs;
 
   // For each node a vector with IDs of samples in node
