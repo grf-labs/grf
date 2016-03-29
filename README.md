@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/imbs-hl/ranger.svg?branch=master)](https://travis-ci.org/imbs-hl/ranger)
-[![codecov.io](https://codecov.io/github/imbs-hl/ranger/coverage.svg?branch=master)](https://codecov.io/github/imbs-hl/ranger?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/imbs-hl/ranger/badge.svg?branch=coveralls_new)](https://coveralls.io/github/imbs-hl/ranger?branch=coveralls_new)
 ![CRAN Downloads month](http://cranlogs.r-pkg.org/badges/ranger?color=brightgreen)
 ![CRAN Downloads overall](http://cranlogs.r-pkg.org/badges/grand-total/ranger?color=brightgreen)
 ## ranger: A Fast Implementation of Random Forests
