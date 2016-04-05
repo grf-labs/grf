@@ -25,6 +25,6 @@ after_success:
 notifications:
   email:
     recipients:
-        - work@wrig.de
+        - bjoernhergen.laabs@student.uni-luebeck.de
     on_success: change
     on_failure: change
