@@ -1,113 +1,12 @@
 library(ranger)
 library(survival)
-
 context("ranger")
 
-rg.class <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE)
-rg.reg <- ranger(Sepal.Length ~ ., data = iris, verbose = FALSE, write.forest = TRUE)
-rg.surv <- ranger(Surv(time, status) ~ ., data = veteran, verbose = FALSE, write.forest = TRUE)
-
-
-test_that("predict returns good prediction", {
-  rf <- ranger(Species ~ ., iris, write.forest = TRUE)
-  pred <- predict(rf, iris)
-  expect_that(mean(iris$Species == predictions(pred)), is_more_than(0.9))
-})
-
-test_that("no warning if data.frame has to classes", {
+test_that("no warning if data.frame has two classes", {
   dat <- iris
   class(dat) <- c("data.frame", "data.table")
   expect_that(ranger(Species ~ ., data = dat, verbose = FALSE), 
               not(gives_warning()))
-})
-
-test_that("no warning if character vector in data", {
-  dat <- iris
-  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
-  expect_that(ranger(Species ~ ., data = dat, verbose = FALSE), 
-              not(gives_warning()))
-})
-
-test_that("no error if character vector in data, prediction", {
-  dat <- iris
-  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
-  rf <- ranger(Species~., dat, write.forest = TRUE)
-  expect_that(predict(rf, dat),
-              not(throws_error()))
-})
-
-test_that("no warning if character vector in data, alternative interface", {
-  dat <- iris
-  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
-  expect_that(ranger(dependent.variable.name = "Species", data = dat, verbose = FALSE), 
-              not(gives_warning()))
-})
-
-test_that("no error if character vector in data, alternative interface, prediction", {
-  dat <- iris
-  dat$Test <- paste0("AA",as.character(1:nrow(dat)))
-  rf <- ranger(dependent.variable.name = "Species", data = dat, verbose = FALSE, write.forest = TRUE)
-  expect_that(predict(rf, dat),
-              not(throws_error()))
-})
-
-test_that("confusion matrix is of right dimension", {
-  expect_that(dim(rg.class$confusion.matrix), 
-              equals(rep(nlevels(iris$Species), 2)))
-})
-
-test_that("confusion matrix rows are the true classes", {
-  expect_that(as.numeric(rowSums(rg.class$confusion.matrix)), 
-              equals(as.numeric(table(iris$Species))))
-})
-
-test_that("case weights work", {
-  expect_that(ranger(Species ~ ., iris, num.trees = 5, case.weights = rep(1, nrow(iris))), 
-              not(throws_error()))
-  
-  ## Should only predict setosa now
-  weights <- c(rep(1, 50), rep(0, 100))
-  rf <- ranger(Species ~ ., iris, num.trees = 5, case.weights = weights, write.forest = TRUE)
-  pred <- predict(rf, iris)$predictions
-  expect_that(all(pred == "setosa"), is_true())
-})
-
-test_that("predict.all for classification returns numeric matrix of size trees x n", {
-  rf <- ranger(Species ~ ., iris, num.trees = 5, write.forest = TRUE)
-  pred <- predict(rf, iris, predict.all = TRUE)
-  expect_that(pred$predictions, is_a("matrix"))
-  expect_that(dim(pred$predictions), 
-              equals(c(nrow(iris), rf$num.trees)))
-})
-
-test_that("predict.all for regression returns numeric matrix of size n x trees", {
-  rf <- ranger(Petal.Width ~ ., iris, num.trees = 5, write.forest = TRUE)
-  pred <- predict(rf, iris, predict.all = TRUE)
-  expect_that(pred$predictions, is_a("matrix"))
-  expect_that(dim(pred$predictions), 
-              equals(c(nrow(iris), rf$num.trees)))
-})
-
-test_that("Majority vote of predict.all for classification is equal to forest prediction", {
-  rf <- ranger(Species ~ ., iris, num.trees = 5, write.forest = TRUE)
-  pred_forest <- predict(rf, iris, predict.all = FALSE)
-  pred_trees <- predict(rf, iris, predict.all = TRUE)
-  
-  ## Majority vote
-  pred_num <- apply(pred_trees$predictions, 1, function(x) {
-    which(tabulate(x) == max(tabulate(x)))
-  })
-  pred <- factor(pred_num, levels = 1:length(rf$forest$levels),
-                 labels = rf$forest$levels)
-  
-  expect_that(pred, equals(pred_forest$predictions))
-})
-
-test_that("Mean of predict.all for regression is equal to forest prediction", {
-  rf <- ranger(Petal.Width ~ ., iris, num.trees = 5, write.forest = TRUE)
-  pred_forest <- predict(rf, iris, predict.all = FALSE)
-  pred_trees <- predict(rf, iris, predict.all = TRUE)
-  expect_that(rowMeans(pred_trees$predictions), equals(pred_forest$predictions))
 })
 
 test_that("split select weights work", {

@@ -42,8 +42,40 @@ test_that("save.memory option works for classification", {
   rf <- ranger(Species ~ ., data = iris, save.memory = TRUE)
   expect_that(rf$treetype, equals("Classification"))
 })
+
+test_that("predict.all for classification returns numeric matrix of size trees x n", {
+  rf <- ranger(Species ~ ., iris, num.trees = 5, write.forest = TRUE)
+  pred <- predict(rf, iris, predict.all = TRUE)
+  expect_that(pred$predictions, is_a("matrix"))
+  expect_that(dim(pred$predictions), 
+              equals(c(nrow(iris), rf$num.trees)))
+})
+
+test_that("Majority vote of predict.all for classification is equal to forest prediction", {
+  rf <- ranger(Species ~ ., iris, num.trees = 5, write.forest = TRUE)
+  pred_forest <- predict(rf, iris, predict.all = FALSE)
+  pred_trees <- predict(rf, iris, predict.all = TRUE)
+  ## Majority vote
+  pred_num <- apply(pred_trees$predictions, 1, function(x) {
+    which(tabulate(x) == max(tabulate(x)))
+  })
+  pred <- factor(pred_num, levels = 1:length(rf$forest$levels),
+                 labels = rf$forest$levels)
+  expect_that(pred, equals(pred_forest$predictions))
+})
+
 ##Special tests for random forests for classification
 test_that("predict works for single observations, classification", {
   pred <- predict(rg.class, head(iris, 1))
   expect_that(pred$predictions, equals(iris[1,"Species"]))
+})
+
+test_that("confusion matrix is of right dimension", {
+  expect_that(dim(rg.class$confusion.matrix), 
+              equals(rep(nlevels(iris$Species), 2)))
+})
+
+test_that("confusion matrix rows are the true classes", {
+  expect_that(as.numeric(rowSums(rg.class$confusion.matrix)), 
+              equals(as.numeric(table(iris$Species))))
 })

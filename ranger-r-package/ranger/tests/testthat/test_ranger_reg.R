@@ -43,4 +43,18 @@ test_that("save.memory option works for regression", {
   expect_that(rf$treetype, equals("Regression"))
 })
 
+test_that("predict.all for regression returns numeric matrix of size n x trees", {
+  rf <- ranger(Petal.Width ~ ., iris, num.trees = 5, write.forest = TRUE)
+  pred <- predict(rf, iris, predict.all = TRUE)
+  expect_that(pred$predictions, is_a("matrix"))
+  expect_that(dim(pred$predictions), 
+              equals(c(nrow(iris), rf$num.trees)))
+})
+
+test_that("Mean of predict.all for regression is equal to forest prediction", {
+  rf <- ranger(Petal.Width ~ ., iris, num.trees = 5, write.forest = TRUE)
+  pred_forest <- predict(rf, iris, predict.all = FALSE)
+  pred_trees <- predict(rf, iris, predict.all = TRUE)
+  expect_that(rowMeans(pred_trees$predictions), equals(pred_forest$predictions))
+})
 ##Special tests for random forests for regression
