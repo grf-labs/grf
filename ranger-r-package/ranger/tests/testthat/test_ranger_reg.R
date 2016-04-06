@@ -57,4 +57,55 @@ test_that("Mean of predict.all for regression is equal to forest prediction", {
   pred_trees <- predict(rf, iris, predict.all = TRUE)
   expect_that(rowMeans(pred_trees$predictions), equals(pred_forest$predictions))
 })
+
+test_that("Alternative interface regression prediction works if only independent variable given, one independent variable", {
+  n <- 50
+  
+  dt <- data.frame(x = runif(n), y = rbinom(n, 1, 0.5))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt), 
+              not(throws_error()))
+  expect_that(predict(rf, dt[, 1, drop = FALSE]), 
+              not(throws_error()))
+  
+  dt2 <- data.frame(y = rbinom(n, 1, 0.5), x = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt2), 
+              not(throws_error()))
+  expect_that(predict(rf, dt2[, 2, drop = FALSE]), 
+              not(throws_error()))
+})
+
+test_that("Alternative interface regression prediction works if only independent variable given, two independent variables", {
+  n <- 50
+  
+  dt <- data.frame(x1 = runif(n), x2 = runif(n), y = rbinom(n, 1, 0.5))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt), 
+              not(throws_error()))
+  expect_that(predict(rf, dt[, 1:2]), 
+              not(throws_error()))
+  
+  dt2 <- data.frame(y = rbinom(n, 1, 0.5), x1 = runif(n), x2 = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt2), 
+              not(throws_error()))
+  expect_that(predict(rf, dt2[, 2:3]), 
+              not(throws_error()))
+})
+
+test_that("Alternative interface regression prediction: Results not all the same", {
+  n <- 50
+  
+  dt <- data.frame(x = runif(n), y = rbinom(n, 1, 0.5))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(diff(range(predict(rf, dt)$predictions)), is_more_than(0))
+  expect_that(diff(range(predict(rf, dt[, 1, drop = FALSE])$predictions)), is_more_than(0))
+  
+  dt2 <- data.frame(y = rbinom(n, 1, 0.5), x = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(diff(range(predict(rf, dt2)$predictions)), is_more_than(0))
+  expect_that(diff(range(predict(rf, dt2[, 2, drop = FALSE])$predictions)), is_more_than(0))
+})
+
 ##Special tests for random forests for regression

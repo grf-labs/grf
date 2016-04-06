@@ -5,7 +5,10 @@ library(survival)
 context("ranger")
 
 ##Initialize the random forest for classification
+dat <- data.matrix(iris)
+
 rg.class <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE)
+rg.mat   <- ranger(dependent.variable.name = "Species", data = dat, write.forest = TRUE, classification = TRUE)
 
 ##Basic tests (for all random forests equal)
 test_that("classification result is of class ranger with 14 elements", {
@@ -27,15 +30,12 @@ test_that("Alternative interface works for classification", {
 })
 
 test_that("Matrix interface works for classification", {
-  rf <- ranger(dependent.variable.name = "Species", data = data.matrix(iris), write.forest = TRUE, classification = TRUE)
-  expect_that(rf$treetype, equals("Classification"))
-  expect_that(rf$forest$independent.variable.names, equals(colnames(iris)[1:4]))
+  expect_that(rg.mat$treetype, equals("Classification"))
+  expect_that(rg.mat$forest$independent.variable.names, equals(colnames(iris)[1:4]))
 })
 
 test_that("Matrix interface prediction works for classification", {
-  dat <- data.matrix(iris)
-  rf <- ranger(dependent.variable.name = "Species", data = dat, write.forest = TRUE, classification = TRUE)
-  expect_that(predict(rf, dat), not(throws_error()))
+    expect_that(predict(rg.mat, dat), not(throws_error()))
 })
 
 test_that("save.memory option works for classification", {
@@ -62,6 +62,42 @@ test_that("Majority vote of predict.all for classification is equal to forest pr
   pred <- factor(pred_num, levels = 1:length(rf$forest$levels),
                  labels = rf$forest$levels)
   expect_that(pred, equals(pred_forest$predictions))
+})
+
+test_that("Alternative interface classification prediction works if only independent variable given, one independent variable", {
+  n <- 50
+  
+  dt <- data.frame(x = runif(n), y = factor(rbinom(n, 1, 0.5)))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt), 
+              not(throws_error()))
+  expect_that(predict(rf, dt[, 1, drop = FALSE]), 
+              not(throws_error()))
+  
+  dt2 <- data.frame(y = factor(rbinom(n, 1, 0.5)), x = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt2), 
+              not(throws_error()))
+  expect_that(predict(rf, dt2[, 2, drop = FALSE]), 
+              not(throws_error()))
+})
+
+test_that("Alternative interface classification prediction works if only independent variable given, two independent variables", {
+  n <- 50
+  
+  dt <- data.frame(x1 = runif(n), x2 = runif(n), y = factor(rbinom(n, 1, 0.5)))
+  rf <- ranger(dependent.variable.name = "y", data = dt, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt), 
+              not(throws_error()))
+  expect_that(predict(rf, dt[, 1:2]), 
+              not(throws_error()))
+  
+  dt2 <- data.frame(y = factor(rbinom(n, 1, 0.5)), x1 = runif(n), x2 = runif(n))
+  rf <- ranger(dependent.variable.name = "y", data = dt2, num.trees = 5, write.forest = TRUE)
+  expect_that(predict(rf, dt2), 
+              not(throws_error()))
+  expect_that(predict(rf, dt2[, 2:3]), 
+              not(throws_error()))
 })
 
 ##Special tests for random forests for classification

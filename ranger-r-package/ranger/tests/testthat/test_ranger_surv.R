@@ -54,3 +54,9 @@ test_that("C-index splitting works", {
                splitrule = "C")
   expect_that(rf$treetype, equals("Survival"))
 })
+
+test_that("No error if survival tree without OOB observations", {
+  dat <- data.frame(time = c(1,2), status = c(0,1), x = c(1,2))
+  expect_that(ranger(Surv(time, status) ~ ., dat, num.trees = 1, num.threads = 1), 
+              not(throws_error()))
+})
