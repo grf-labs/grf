@@ -167,7 +167,7 @@ ranger(trait ~ ., data = dat.gwaa)
 Marvin N. Wright
 }
 \references{
-Wright, M. N., & Ziegler, A. (2015). ranger: A fast implementation of random forests for high dimensional data in C++ and R. arXiv preprint \url{http://arxiv.org/abs/1508.04409}.
+Wright, M. N. & Ziegler, A. (2016). ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R. Journal of Statistical Software, in press. \url{http://arxiv.org/abs/1508.04409}.
 
   Breiman, L. (2001). Random forests. Mach Learn, 45(1), 5-32. \cr
   Ishwaran, H., Kogalur, U. B., Blackstone, E. H., & Lauer, M. S. (2008). Random survival forests. Ann Appl Stat, 841-860. \cr
