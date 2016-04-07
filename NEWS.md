@@ -1,8 +1,11 @@
+##### Version 0.4.0
+* New CRAN version. New CRAN versions will be 0.x.0, development versions 0.x.y
+
 ##### Version 0.3.9
 * Reduce memory usage of savest forest objects (changed child.nodeIDs interface)
 
 ##### Version 0.3.8
-* Remove tuning functions, please use mlr or caret.
+* Remove tuning functions, please use mlr or caret
 
 ##### Version 0.3.7
 * Fix bug with alternative interface and prediction
