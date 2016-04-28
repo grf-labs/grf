@@ -1,3 +1,6 @@
+##### Version 0.4.1
+* Runtime improvement for regression forests on classification data
+
 ##### Version 0.4.0
 * New CRAN version. New CRAN versions will be 0.x.0, development versions 0.x.y
 
