@@ -32,7 +32,7 @@
 #include <string>
 #include <ctime>
 #include <math.h>
-#ifndef WIN_R_BUILD
+#ifndef OLD_WIN_R_BUILD
 #include <thread>
 #include <chrono>
 #endif
@@ -191,7 +191,7 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
 
   // Set number of threads
   if (num_threads == DEFAULT_NUM_THREADS) {
-#ifdef WIN_R_BUILD
+#ifdef OLD_WIN_R_BUILD
     this->num_threads = 1;
 #else
     this->num_threads = std::thread::hardware_concurrency();
@@ -413,7 +413,7 @@ void Forest::grow() {
   variable_importance.resize(num_independent_variables, 0);
 
   // Grow trees in multiple threads
-#ifdef WIN_R_BUILD
+#ifdef OLD_WIN_R_BUILD
   progress = 0;
   clock_t start_time = clock();
   clock_t lap_time = clock();
@@ -476,7 +476,7 @@ void Forest::grow() {
 void Forest::predict() {
 
   // Predict trees in multiple threads and join the threads with the main thread
-#ifdef WIN_R_BUILD
+#ifdef OLD_WIN_R_BUILD
   progress = 0;
   clock_t start_time = clock();
   clock_t lap_time = clock();
@@ -516,7 +516,7 @@ void Forest::predict() {
 void Forest::computePredictionError() {
 
   // Predict trees in multiple threads
-#ifdef WIN_R_BUILD
+#ifdef OLD_WIN_R_BUILD
   progress = 0;
   clock_t start_time = clock();
   clock_t lap_time = clock();
@@ -550,7 +550,7 @@ void Forest::computePredictionError() {
 void Forest::computePermutationImportance() {
 
   // Compute tree permutation importance in multiple threads
-#ifdef WIN_R_BUILD
+#ifdef OLD_WIN_R_BUILD
   progress = 0;
   clock_t start_time = clock();
   clock_t lap_time = clock();
@@ -637,7 +637,7 @@ void Forest::computePermutationImportance() {
   }
 }
 
-#ifndef WIN_R_BUILD
+#ifndef OLD_WIN_R_BUILD
 void Forest::growTreesInThread(uint thread_idx, std::vector<double>* variable_importance) {
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
@@ -813,7 +813,7 @@ void Forest::setAlwaysSplitVariables(std::vector<std::string>& always_split_vari
   }
 }
 
-#ifdef WIN_R_BUILD
+#ifdef OLD_WIN_R_BUILD
 void Forest::showProgress(std::string operation, clock_t start_time, clock_t& lap_time) {
 
   // Check for user interrupt
