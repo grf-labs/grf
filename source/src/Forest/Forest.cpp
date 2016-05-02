@@ -424,7 +424,7 @@ void Forest::grow() {
   }
 #else
   progress = 0;
-#ifdef OLD_WIN_R_BUILD
+#ifdef R_BUILD
   aborted = false;
   aborted_threads = 0;
 #endif
