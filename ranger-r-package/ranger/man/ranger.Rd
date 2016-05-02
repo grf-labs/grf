@@ -119,11 +119,12 @@ All SNPs in the \code{GenABEL} object will be used for splitting.
 To use only the SNPs without sex or other covariates from the phenotype file, use \code{0} on the right hand side of the formula. 
 Note that missing values are treated as an extra category while splitting.
 
-See \url{https://github.com/mnwright/ranger} for the development version.
+See \url{https://github.com/imbs-hl/ranger} for the development version.
 
-Notes:
+To use multithreading on Microsoft Windows platforms, there are currently two options:
 \itemize{
- \item To use multithreading on Microsoft Windows platforms, R-devel with the new toolchain is required.
+ \item Use R-devel with the new toolchain
+ \item Install a binary version of ranger, download: \url{https://github.com/imbs-hl/ranger/releases}
 }
 }
 \examples{
