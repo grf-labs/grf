@@ -1,3 +1,6 @@
+##### Version 0.4.2
+* Add Windows multithreading support for new toolchain
+
 ##### Version 0.4.1
 * Runtime improvement for regression forests on classification data
 

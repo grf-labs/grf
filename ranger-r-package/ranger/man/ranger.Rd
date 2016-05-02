@@ -123,7 +123,7 @@ See \url{https://github.com/mnwright/ranger} for the development version.
 
 Notes:
 \itemize{
- \item Multithreading is currently not supported for Microsoft Windows platforms.
+ \item To use multithreading on Microsoft Windows platforms, R-devel with the new toolchain is required.
 }
 }
 \examples{
