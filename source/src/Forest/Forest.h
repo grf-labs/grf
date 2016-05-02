@@ -33,7 +33,7 @@
 #include <iostream>
 #include <random>
 #include <ctime>
-#ifndef WIN_R_BUILD
+#ifndef OLD_WIN_R_BUILD
 #include <thread>
 #include <chrono>
 #include <mutex>
@@ -172,7 +172,7 @@ protected:
   void setAlwaysSplitVariables(std::vector<std::string>& always_split_variable_names);
 
   // Show progress every few seconds
-#ifdef WIN_R_BUILD
+#ifdef OLD_WIN_R_BUILD
   void showProgress(std::string operation, clock_t start_time, clock_t& lap_time);
 #else
   void showProgress(std::string operation);
@@ -207,7 +207,7 @@ protected:
   // Multithreading
   uint num_threads;
   std::vector<uint> thread_ranges;
-#ifndef WIN_R_BUILD
+#ifndef OLD_WIN_R_BUILD
   std::mutex mutex;
   std::condition_variable condition_variable;
 #endif
