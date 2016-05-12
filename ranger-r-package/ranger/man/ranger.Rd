@@ -7,12 +7,13 @@
 ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   importance = "none", write.forest = FALSE, probability = FALSE,
   min.node.size = NULL, replace = TRUE, sample.fraction = ifelse(replace,
-  1, 0.632), splitrule = NULL, case.weights = NULL,
-  split.select.weights = NULL, always.split.variables = NULL,
-  respect.unordered.factors = FALSE, scale.permutation.importance = FALSE,
-  keep.inbag = FALSE, num.threads = NULL, save.memory = FALSE,
-  verbose = TRUE, seed = NULL, dependent.variable.name = NULL,
-  status.variable.name = NULL, classification = NULL)
+  1, 0.632), case.weights = NULL, splitrule = NULL, alpha = 0.5,
+  minprop = 0.1, split.select.weights = NULL,
+  always.split.variables = NULL, respect.unordered.factors = FALSE,
+  scale.permutation.importance = FALSE, keep.inbag = FALSE,
+  num.threads = NULL, save.memory = FALSE, verbose = TRUE, seed = NULL,
+  dependent.variable.name = NULL, status.variable.name = NULL,
+  classification = NULL)
 }
 \arguments{
 \item{formula}{Object of class \code{formula} or \code{character} describing the model to fit.}
@@ -35,9 +36,13 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 
 \item{sample.fraction}{Fraction of observations to sample. Default is 1 for sampling with replacement and 0.632 for sampling without replacement.}
 
-\item{splitrule}{Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "C" with default "logrank".}
-
 \item{case.weights}{Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.}
+
+\item{splitrule}{Splitting rule, survival only. The splitting rule can be chosen of "logrank", "C" and "maxstat" with default "logrank".}
+
+\item{alpha}{For "maxstat" splitrule: Significance threshold to allow splitting.}
+
+\item{minprop}{For "maxstat" splitrule: Lower quantile of covariate distribtuion to be considered for splitting.}
 
 \item{split.select.weights}{Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting. Alternatively, a list of size num.trees, containing split select weight vectors for each tree can be used.}
 
@@ -94,8 +99,8 @@ Classification and regression forests are implemented as in the original Random 
 \details{
 The tree type is determined by the type of the dependent variable.
 For factors classification trees are grown, for numeric values regression trees and for survival objects survival trees.
-The Gini index is used as splitting rule for classification, the estimated response variances for regression and the log-rank test for survival.
-For Survival the log-rank test or an AUC-based splitting rule are available.
+The Gini index is used as splitting rule for classification and the estimated response variances for regression.
+For Survival the log-rank test, a C-index based splitting rule and maximally selected rank statistics are available.
 
 With the \code{probability} option and factor dependent variable a probability forest is grown.
 Here, the estimated response variances are used for splitting, as in regression forests.
