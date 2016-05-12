@@ -1,3 +1,6 @@
+##### Version 0.4.3
+* Add splitting by maximally selected rank statistics for survival forests
+
 ##### Version 0.4.2
 * Add Windows multithreading support for new toolchain
 

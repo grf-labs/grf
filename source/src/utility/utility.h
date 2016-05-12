@@ -323,6 +323,146 @@ std::string checkUnorderedVariables(Data* data, std::vector<std::string> unorder
  */
 bool checkPositiveIntegers(std::vector<double>& all_values);
 
+/**
+ * Compute p-value for maximally selected rank statistics using Lau92 approximation
+ * See Lausen, B. & Schumacher, M. (1992). Biometrics 48, 73-85.
+ * @param b Quantile
+ * @param minprop Minimal proportion of observations left of cutpoint
+ * @param maxprop Maximal proportion of observations left of cutpoint
+ * @return p-value for quantile b
+ */
+double maxstatPValueLau92(double b, double minprop, double maxprop);
+
+/**
+ * Compute p-value for maximally selected rank statistics using Lau94 approximation
+ * See Lausen, B., Sauerbrei, W. & Schumacher, M. (1994). Computational Statistics. 483-496.
+ * @param b Quantile
+ * @param minprop Minimal proportion of observations left of cutpoint
+ * @param maxprop Maximal proportion of observations left of cutpoint
+ * @param N Number of observations
+ * @param m Vector with number of observations smaller or equal than cutpoint, sorted, only for unique cutpoints
+ * @return p-value for quantile b
+ */
+double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t>& m);
+
+/**
+ * Standard normal density
+ * @param x Quantile
+ * @return Standard normal density at quantile x
+ */
+double dstdnorm(double x);
+
+/**
+ * Standard normal distribution
+ * @param x Quantile
+ * @return Standard normal distribution at quantile x
+ */
+double pstdnorm(double x);
+
+/**
+ * Adjust p-values with Benjamini/Hochberg
+ * @param unadjusted_pvalues Unadjusted p-values (input)
+ * @param adjusted_pvalues Adjusted p-values (result)
+ */
+std::vector<double> adjustPvalues(std::vector<double>& unadjusted_pvalues);
+
+/**
+ * Get indices of sorted values
+ * @param values Values to sort
+ * @param decreasing Order decreasing
+ * @return Indices of sorted values
+ */
+template<typename T>
+std::vector<size_t> order(std::vector<T>& values, bool decreasing) {
+  // Create index vector
+  std::vector<size_t> indices(values.size());
+  std::iota(indices.begin(), indices.end(), 0);
+
+  // Sort index vector based on value vector
+  if (decreasing) {
+    std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] > values[i2];});
+  } else {
+    std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] < values[i2];});
+  }
+  return indices;
+}
+
+/**
+ * Get indices of sorted values, compute in-place of Data.
+ * @param data Data object
+ * @param sampleIDs IDs of samples to sort
+ * @param varID ID of variable to sort by
+ * @param decreasing Order decreasing
+ * @return Indices of sorted values
+ */
+std::vector<size_t> orderInData(Data* data, std::vector<size_t>& sampleIDs, size_t varID, bool decreasing);
+
+/**
+ * Compute Logrank scores for survival times
+ * @param time Survival time
+ * @param status Censoring indicator
+ * @return Logrank scores
+ */
+std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>& status);
+
+/**
+ * Compute Logrank scores for survival times directly from Data object
+ * @param data Pointer to Data object
+ * @param time_varID variable ID for time column
+ * @param status_varID Variable ID for status column
+ * @param sampleIDs IDs of samples to include
+ * @return Logrank scores
+ */
+std::vector<double> logrankScoresData(Data* data, size_t time_varID, size_t status_varID,
+    std::vector<size_t> sampleIDs);
+
+/**
+ * Compute maximally selected rank statistics
+ * @param scores Scores for dependent variable (y)
+ * @param x Independent variable
+ * @param indices Ordering of x values
+ * @param best_maxstat Maximally selected statistic (output)
+ * @param best_split_value Split value for maximally selected statistic (output)
+ * @param minprop Minimal proportion of observations left of cutpoint
+ * @param maxprop Maximal proportion of observations left of cutpoint
+ */
+void maxstat(std::vector<double>& scores, std::vector<double>& x, std::vector<size_t>& indices, double& best_maxstat,
+    double& best_split_value, double minprop, double maxprop);
+
+/**
+ * Compute maximally selected rank statistics in Data object
+ * @param scores Scores for dependent variable (y)
+ * @param data Data object
+ * @param sampleIDs IDs of samples to consider
+ * @param varID ID of variable to consider
+ * @param indices Ordering of x values
+ * @param best_maxstat Maximally selected statistic (output)
+ * @param best_split_value Split value for maximally selected statistic (output)
+ * @param minprop Minimal proportion of observations left of cutpoint
+ * @param maxprop Maximal proportion of observations left of cutpoint
+ */
+void maxstatInData(std::vector<double>& scores, Data* data, std::vector<size_t>& sampleIDs, size_t varID,
+    std::vector<size_t>& indices, double& best_maxstat, double& best_split_value, double minprop, double maxprop);
+
+/**
+ * Compute number of samples smaller or equal than each unique value in x
+ * @param x Value vector
+ * @param indices Ordering of x
+ * @return Vector of number of samples smaller or equal than each unique value in x
+ */
+std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, std::vector<size_t>& indices);
+
+/**
+ * Compute number of samples smaller or equal than each unique value in data
+ * @param data Data object
+ * @param sampleIDs IDs of samples to consider
+ * @param varID ID of variable to consider
+ * @param indices Ordering of x
+ * @return Vector of number of samples smaller or equal than each unique value in x
+ */
+std::vector<size_t> numSamplesLeftOfCutpointInData(Data* data, std::vector<size_t>& sampleIDs, size_t varID,
+    std::vector<size_t>& indices);
+
 // User interrupt from R
 #ifdef R_BUILD
 static void chkIntFn(void *dummy) {

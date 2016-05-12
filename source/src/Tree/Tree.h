@@ -51,7 +51,8 @@ public:
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
       bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag,
-      double sample_fraction);
+      double sample_fraction, double alpha, double minprop);
+
   virtual void initInternal() = 0;
 
   void grow(std::vector<double>* variable_importance);
@@ -172,6 +173,8 @@ protected:
 
   bool memory_saving_splitting;
   SplitRule splitrule;
+  double alpha;
+  double minprop;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Tree);

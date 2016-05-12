@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
 This file is part of Ranger.
-    
+
 Ranger is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -14,13 +14,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Written by: 
+Written by:
 
 Marvin N. Wright
 Institut für Medizinische Biometrie und Statistik
 Universität zu Lübeck
 Ratzeburger Allee 160
-23562 Lübeck 
+23562 Lübeck
 
 http://www.imbs-luebeck.de
 wright@imbs.uni-luebeck.de
@@ -35,10 +35,12 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
+
     caseweights(""), depvarname(""), fraction(1), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(
-        DEFAULT_NUM_THREADS), predall(false), file(""), impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(
-        0), outprefix("ranger_out"), probability(false), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(
-        DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
+        DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""), impmeasure(
+        DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false), splitrule(
+        DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(
+        TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -49,7 +51,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:C:D:F:M:NP:S:U:Zac:f:hil::m:o:pr:s:t:uvwy:z:";
+  char const *short_options = "A:C:D:F:M:NP:S:U:XZa:b:c:f:hil::m:o:pr:s:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
@@ -63,9 +65,11 @@ int ArgumentHandler::processArguments() {
       { "predict",              required_argument,  0, 'P'},
       { "splitweights",         required_argument,  0, 'S'},
       { "nthreads",             required_argument,  0, 'U'},
+      { "predall",              no_argument,        0, 'X'},
       { "version",              no_argument,        0, 'Z'},
 
-      { "predall",              no_argument,  0, 'a'},
+      { "alpha",                required_argument,  0, 'a'},
+      { "minprop",              required_argument,  0, 'b'},
       { "catvars",              required_argument,  0, 'c'},
       { "file",                 required_argument,  0, 'f'},
       { "help",                 no_argument,        0, 'h'},
@@ -160,14 +164,42 @@ int ArgumentHandler::processArguments() {
       }
       break;
 
+    case 'X':
+      predall = true;
+      break;
+
     case 'Z':
       displayVersion();
       return -1;
       break;
 
-    // lower case options
+      // lower case options
     case 'a':
-      predall = true;
+      try {
+        double temp = std::stod(optarg);
+        if (temp < 0 || temp > 1) {
+          throw std::runtime_error("");
+        } else {
+          alpha = temp;
+        }
+      } catch (...) {
+        throw std::runtime_error(
+            "Illegal argument for option 'alpha'. Please give a value between 0 and 1. See '--help' for details.");
+      }
+      break;
+
+    case 'b':
+      try {
+        double temp = std::stod(optarg);
+        if (temp < 0 || temp > 0.5) {
+          throw std::runtime_error("");
+        } else {
+          minprop = temp;
+        }
+      } catch (...) {
+        throw std::runtime_error(
+            "Illegal argument for option 'minprop'. Please give a value between 0 and 0.5. See '--help' for details.");
+      }
       break;
 
     case 'c':
@@ -242,6 +274,9 @@ int ArgumentHandler::processArguments() {
           break;
         case 3:
           splitrule = AUC_IGNORE_TIES;
+          break;
+        case 4:
+          splitrule = MAXSTAT;
           break;
         default:
           throw std::runtime_error("");
@@ -391,10 +426,14 @@ void ArgumentHandler::checkArguments() {
   }
 
   // Check splitrule
-  if ((splitrule == AUC || splitrule == AUC_IGNORE_TIES) && treetype != TREE_SURVIVAL) {
+  if ((splitrule == AUC || splitrule == AUC_IGNORE_TIES || splitrule == MAXSTAT) && treetype != TREE_SURVIVAL) {
     throw std::runtime_error("Illegal splitrule selected. See '--help' for details.");
   }
 
+  // Unordered survival splitting only available for logrank splitrule
+  if (treetype == TREE_SURVIVAL && !catvars.empty() && splitrule != LOGRANK) {
+    throw std::runtime_error("Unordered splitting in survival trees only available for LOGRANK splitrule.");
+  }
 }
 
 void ArgumentHandler::displayHelp() {
@@ -445,7 +484,11 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--splitrule RULE              Splitting rule:" << std::endl;
   std::cout << "    " << "                              RULE = 1: Gini for Classification, variance for Regression, logrank for Survival." << std::endl;
   std::cout << "    " << "                              RULE = 2: AUC for Survival, not available for Classification and Regression." << std::endl;
+  std::cout << "    " << "                              RULE = 3: AUC (ignore ties) for Survival, not available for Classification and Regression." << std::endl;
+  std::cout << "    " << "                              RULE = 4: MAXSTAT for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
+  std::cout << "    " << "--alpha VAL                   Significance threshold to allow splitting (MAXSTAT splitrule only)." << std::endl;
+  std::cout << "    " << "--minprop VAL                 Lower quantile of covariate distribtuion to be considered for splitting (MAXSTAT splitrule only)." << std::endl;
   std::cout << "    " << "--caseweights FILE            Filename of case weights file." << std::endl;
   std::cout << "    " << "--splitweights FILE           Filename of split select weights file." << std::endl;
   std::cout << "    " << "--alwayssplitvars V1,V2,..    Comma separated list of variable names to be always considered for splitting." << std::endl;

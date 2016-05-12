@@ -21,9 +21,9 @@ test_that("regression result is of class ranger with 14 elements", {
   expect_that(length(rg.reg), equals(14))
 })
 
-test_that("survival result is of class ranger with 15 elements", {
+test_that("survival result is of class ranger with 16 elements", {
   expect_that(rg.surv, is_a("ranger"))
-  expect_that(length(rg.surv), equals(15))
+  expect_that(length(rg.surv), equals(16))
 })
 
 #TODO: This would require the GenABEL package in suggests
@@ -572,4 +572,16 @@ test_that("If respect.unordered.factors=FALSE, regard characters as ordered", {
   rf.fac <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, respect.unordered.factors = FALSE)
   
   expect_that(rf.char$prediction.error, equals(rf.fac$prediction.error))
+})
+
+test_that("maxstat splitting works for survival", {
+  rf <- ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat")
+  expect_that(rf, is_a("ranger"))
+})
+
+test_that("maxstat splitting, alpha out of range throws error", {
+  expect_that(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", alpha = -1), 
+              throws_error())
+  expect_that(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", alpha = 2), 
+              throws_error())
 })

@@ -69,9 +69,11 @@ public:
   std::string predict;
   std::string splitweights;
   uint nthreads;
+  bool predall;
 
   // All command line arguments as member: Small letters
-  bool predall;
+  double alpha;
+  double minprop;
   std::vector<std::string> catvars;
   std::string file;
   ImportanceMode impmeasure;

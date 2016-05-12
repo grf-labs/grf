@@ -56,18 +56,19 @@ public:
       std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-      std::string case_weights_file, bool predict_all, double sample_fraction);
+      std::string case_weights_file, bool predict_all, double sample_fraction, double alpha, double minprop);
   void initR(std::string dependent_variable_name, Data* input_data, uint mtry, uint num_trees,
       std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode, uint min_node_size,
       std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-      std::vector<double>& case_weights, bool predict_all, bool keep_inbag, double sample_fraction);
+      std::vector<double>& case_weights, bool predict_all, bool keep_inbag, double sample_fraction, double alpha,
+      double minprop);
   void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
       std::string output_prefix, uint num_trees, uint seed, uint num_threads, ImportanceMode importance_mode,
       uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-      bool predict_all, double sample_fraction);
+      bool predict_all, double sample_fraction, double alpha, double minprop);
   virtual void initInternal(std::string status_variable_name) = 0;
 
   // Grow or predict
@@ -197,6 +198,10 @@ protected:
   bool predict_all;
   bool keep_inbag;
   double sample_fraction;
+
+  // MAXSTAT splitrule
+  double alpha;
+  double minprop;
 
   // For each varID true if ordered
   std::vector<bool> is_ordered_variable;
