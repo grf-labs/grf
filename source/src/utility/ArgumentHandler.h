@@ -61,12 +61,15 @@ public:
 
   // All command line arguments as member: Capital letters
   std::vector<std::string> alwayssplitvars;
+  std::string caseweights;
   std::string depvarname;
+  double fraction;
   MemoryMode memmode;
   bool savemem;
   std::string predict;
   std::string splitweights;
   uint nthreads;
+  bool predall;
 
   // All command line arguments as member: Small letters
   double alpha;

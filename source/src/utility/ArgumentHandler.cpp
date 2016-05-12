@@ -35,10 +35,12 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
-    depvarname(""), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(DEFAULT_NUM_THREADS), alpha(
-        DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""), impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(
-        0), outprefix("ranger_out"), probability(false), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(
-        DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
+
+    caseweights(""), depvarname(""), fraction(1), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(
+        DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""), impmeasure(
+        DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false), splitrule(
+        DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(
+        TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -49,18 +51,21 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:D:M:NP:S:U:Za:b:c:f:hil::m:o:pr:s:t:uvwy:z:";
+  char const *short_options = "A:C:D:F:M:NP:S:U:XZa:b:c:f:hil::m:o:pr:s:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
 
       { "alwayssplitvars",      required_argument,  0, 'A'},
+      { "caseweights",          required_argument,  0, 'C'},
       { "depvarname",           required_argument,  0, 'D'},
+      { "fraction",             required_argument,  0, 'F'},
       { "memmode",              required_argument,  0, 'M'},
       { "savemem",              no_argument,        0, 'N'},
       { "predict",              required_argument,  0, 'P'},
       { "splitweights",         required_argument,  0, 'S'},
       { "nthreads",             required_argument,  0, 'U'},
+      { "predall",              no_argument,        0, 'X'},
       { "version",              no_argument,        0, 'Z'},
 
       { "alpha",                required_argument,  0, 'a'},
@@ -73,7 +78,7 @@ int ArgumentHandler::processArguments() {
       { "mtry",                 required_argument,  0, 'm'},
       { "outprefix",            required_argument,  0, 'o'},
       { "probability",          no_argument,        0, 'p'},
-      { "splitrule",            required_argument,  0, 'r' },
+      { "splitrule",            required_argument,  0, 'r'},
       { "statusvarname",        required_argument,  0, 's'},
       { "ntree",                required_argument,  0, 't'},
       { "noreplace",            no_argument,        0, 'u'},
@@ -101,8 +106,24 @@ int ArgumentHandler::processArguments() {
       splitString(alwayssplitvars, optarg, ',');
       break;
 
+    case 'C':
+      caseweights = optarg;
+      break;
+
     case 'D':
       depvarname = optarg;
+      break;
+
+    case 'F':
+      try {
+        fraction = std::stod(optarg);
+        if (fraction > 1 || fraction <= 0) {
+          throw std::runtime_error("");
+        }
+      } catch (...) {
+        throw std::runtime_error(
+            "Illegal argument for option 'fraction'. Please give a value in (0,1]. See '--help' for details.");
+      }
       break;
 
     case 'M':
@@ -141,6 +162,10 @@ int ArgumentHandler::processArguments() {
         throw std::runtime_error(
             "Illegal argument for option 'nthreads'. Please give a positive integer. See '--help' for details.");
       }
+      break;
+
+    case 'X':
+      predall = true;
       break;
 
     case 'Z':
@@ -387,6 +412,15 @@ void ArgumentHandler::checkArguments() {
     infile.close();
   }
 
+  // Option predall only for classification and regression
+  if (predall && treetype != TREE_CLASSIFICATION && treetype != TREE_REGRESSION) {
+    throw std::runtime_error("Option '--predall' only available for classification and regression.");
+  }
+
+  if (predict.empty() && predall) {
+    throw std::runtime_error("Option '--predall' only available in prediction mode.");
+  }
+
   if (!alwayssplitvars.empty() && !splitweights.empty()) {
     throw std::runtime_error("Please use only one option of splitweights and alwayssplitvars.");
   }
@@ -411,7 +445,7 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--help                        Print this help." << std::endl;
   std::cout << "    " << "--version                     Print version and citation information." << std::endl;
   std::cout << "    " << "--verbose                     Turn on verbose mode." << std::endl;
-  std::cout << "    " << "--file FILE                   Filename of input data." << std::endl;
+  std::cout << "    " << "--file FILE                   Filename of input data. Only numerical values are supported." << std::endl;
   std::cout << "    " << "--treetype TYPE               Set tree type to:" << std::endl;
   std::cout << "    " << "                              TYPE = 1: Classification." << std::endl;
   std::cout << "    " << "                              TYPE = 3: Regression." << std::endl;
@@ -436,6 +470,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              Categorical variables must contain only positive integer values." << std::endl;
   std::cout << "    " << "--write                       Save forest to file <outprefix>.forest." << std::endl;
   std::cout << "    " << "--predict FILE                Load forest from FILE and predict with new data." << std::endl;
+  std::cout << "    " << "--predall                     Return a matrix with individual predictions for each tree instead of aggregated " << std::endl;
+  std::cout << "    " << "                              predictions for all trees (classification and regression only)." << std::endl;
   std::cout << "    " << "--impmeasure TYPE             Set importance mode to:" << std::endl;
   std::cout << "    " << "                              TYPE = 0: none." << std::endl;
   std::cout << "    " << "                              TYPE = 1: Node impurity: Gini for Classification, variance for Regression." << std::endl;
@@ -443,14 +479,20 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              TYPE = 3: Permutation importance, no scaling." << std::endl;
   std::cout << "    " << "                              (Default: 0)" << std::endl;
   std::cout << "    " << "--noreplace                   Sample without replacement." << std::endl;
+  std::cout << "    " << "--fraction X                  Fraction of observations to sample. Default is 1 for sampling with replacement " << std::endl;
+  std::cout << "    " << "                              and 0.632 for sampling without replacement." << std::endl;
   std::cout << "    " << "--splitrule RULE              Splitting rule:" << std::endl;
   std::cout << "    " << "                              RULE = 1: Gini for Classification, variance for Regression, logrank for Survival." << std::endl;
   std::cout << "    " << "                              RULE = 2: AUC for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              RULE = 3: AUC (ignore ties) for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              RULE = 4: MAXSTAT for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
+<<<<<<< HEAD
   std::cout << "    " << "--alpha VAL                   Significance threshold to allow splitting (MAXSTAT splitrule only)." << std::endl;
   std::cout << "    " << "--minprop VAL                 Lower quantile of covariate distribtuion to be considered for splitting (MAXSTAT splitrule only)." << std::endl;
+=======
+  std::cout << "    " << "--caseweights FILE            Filename of case weights file." << std::endl;
+>>>>>>> master
   std::cout << "    " << "--splitweights FILE           Filename of split select weights file." << std::endl;
   std::cout << "    " << "--alwayssplitvars V1,V2,..    Comma separated list of variable names to be always considered for splitting." << std::endl;
   std::cout << "    " << "--nthreads N                  Set number of parallel threads to N." << std::endl;
@@ -474,13 +516,13 @@ void ArgumentHandler::displayVersion() {
   std::cout << "Ranger version: " << RANGER_VERSION << std::endl;
   std::cout << std::endl;
   std::cout << "Please cite Ranger: " << std::endl;
-  std::cout << "Marvin N. Wright and .. (2014). Ranger. Journal." << std::endl;
+  std::cout << "Wright, M. N. & Ziegler, A. (2016). ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R. Journal of Statistical Software, in press." << std::endl;
   std::cout << std::endl;
   std::cout << "BibTeX:" << std::endl;
   std::cout << "@Article{," << std::endl;
-  std::cout << "    title = {Ranger}" << std::endl;
-  std::cout << "    author = {Marvin N. Wright and ..}," << std::endl;
-  std::cout << "    journal = {Journal}," << std::endl;
-  std::cout << "    year = {2014}," << std::endl;
+  std::cout << "    title = {ranger: {{A}} fast implementation of random forests for high dimensional data in {{C}}++ and {{R}}}," << std::endl;
+  std::cout << "    author = {Wright, Marvin N. and Ziegler, Andreas}," << std::endl;
+  std::cout << "    journal = {Journal of Statistical Software}," << std::endl;
+  std::cout << "    year = {2016}," << std::endl;
   std::cout << "}" << std::endl;
 }

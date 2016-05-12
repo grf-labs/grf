@@ -33,7 +33,9 @@
 #include <iostream>
 #include <random>
 #include <ctime>
-#ifndef WIN_R_BUILD
+#ifndef OLD_WIN_R_BUILD
+#include <thread>
+#include <chrono>
 #include <mutex>
 #include <condition_variable>
 #endif
@@ -54,18 +56,19 @@ public:
       std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-      double alpha, double minprop);
+      std::string case_weights_file, bool predict_all, double sample_fraction, double alpha, double minprop);
   void initR(std::string dependent_variable_name, Data* input_data, uint mtry, uint num_trees,
       std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode, uint min_node_size,
-      std::vector<double>& split_select_weights, std::vector<std::string>& always_split_variable_names,
+      std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-      double alpha, double minprop);
+      std::vector<double>& case_weights, bool predict_all, bool keep_inbag, double sample_fraction, double alpha,
+      double minprop);
   void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
       std::string output_prefix, uint num_trees, uint seed, uint num_threads, ImportanceMode importance_mode,
       uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-      double alpha, double minprop);
+      bool predict_all, double sample_fraction, double alpha, double minprop);
   virtual void initInternal(std::string status_variable_name) = 0;
 
   // Grow or predict
@@ -135,6 +138,14 @@ public:
     return is_ordered_variable;
   }
 
+  std::vector<std::vector<size_t>> getInbagCounts() const {
+    std::vector<std::vector<size_t>> result;
+    for (auto& tree : trees) {
+      result.push_back(tree->getInbagCounts());
+    }
+    return result;
+  }
+
 protected:
   void grow();
   virtual void growInternal() = 0;
@@ -146,24 +157,23 @@ protected:
   void computePredictionError();
   virtual void computePredictionErrorInternal() = 0;
 
-  void computeGiniImportance();
   void computePermutationImportance();
 
   // Multithreading methods for growing/prediction/importance, called by each thread
-  void growTreesInThread(uint thread_idx);
+  void growTreesInThread(uint thread_idx, std::vector<double>* variable_importance);
   void predictTreesInThread(uint thread_idx, const Data* prediction_data, bool oob_prediction);
-  void computeTreePermutationImportanceInThread(uint thread_idx);
+  void computeTreePermutationImportanceInThread(uint thread_idx, std::vector<double>* importance, std::vector<double>* variance);
 
   // Load forest from file
   void loadFromFile(std::string filename);
   virtual void loadFromFileInternal(std::ifstream& infile) = 0;
 
   // Set split select weights and variables to be always considered for splitting
-  void setSplitWeightVector(std::vector<double>& split_select_weights);
+  void setSplitWeightVector(std::vector<std::vector<double>>& split_select_weights);
   void setAlwaysSplitVariables(std::vector<std::string>& always_split_variable_names);
 
   // Show progress every few seconds
-#ifdef WIN_R_BUILD
+#ifdef OLD_WIN_R_BUILD
   void showProgress(std::string operation, clock_t start_time, clock_t& lap_time);
 #else
   void showProgress(std::string operation);
@@ -185,6 +195,9 @@ protected:
   bool sample_with_replacement;
   bool memory_saving_splitting;
   SplitRule splitrule;
+  bool predict_all;
+  bool keep_inbag;
+  double sample_fraction;
 
   // MAXSTAT splitrule
   double alpha;
@@ -199,7 +212,7 @@ protected:
   // Multithreading
   uint num_threads;
   std::vector<uint> thread_ranges;
-#ifndef WIN_R_BUILD
+#ifndef OLD_WIN_R_BUILD
   std::mutex mutex;
   std::condition_variable condition_variable;
 #endif
@@ -214,7 +227,10 @@ protected:
   // Deterministic variables are always selected
   std::vector<size_t> deterministic_varIDs;
   std::vector<size_t> split_select_varIDs;
-  std::vector<double> split_select_weights;
+  std::vector<std::vector<double>> split_select_weights;
+
+  // Bootstrap weights
+  std::vector<double> case_weights;
 
   // Random number generator
   std::mt19937_64 random_number_generator;
@@ -227,6 +243,10 @@ protected:
 
   // Computation progress (finished trees)
   size_t progress;
+#ifdef R_BUILD
+  size_t aborted_threads;
+  bool aborted;
+#endif
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Forest);

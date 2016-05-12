@@ -81,7 +81,23 @@ bool TreeRegression::splitNodeInternal(size_t nodeID, std::vector<size_t>& possi
     return true;
   }
 
-// Find best split, stop if no decrease of impurity
+  // Check if node is pure and set split_value to estimate and stop if pure
+  bool pure = true;
+  double pure_value = 0;
+  for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
+    double value = data->get(sampleIDs[nodeID][i], dependent_varID);
+    if (i != 0 && value != pure_value) {
+      pure = false;
+      break;
+    }
+    pure_value = value;
+  }
+  if (pure) {
+    split_values[nodeID] = pure_value;
+    return true;
+  }
+
+  // Find best split, stop if no decrease of impurity
   bool stop = findBestSplit(nodeID, possible_split_varIDs);
   if (stop) {
     split_values[nodeID] = estimate(nodeID);
@@ -358,6 +374,6 @@ void TreeRegression::addImpurityImportance(size_t nodeID, size_t varID, double d
       --tempvarID;
     }
   }
-  variable_importance[tempvarID] += best_decrease;
+  (*variable_importance)[tempvarID] += best_decrease;
 }
 
