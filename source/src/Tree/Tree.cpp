@@ -87,11 +87,6 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   this->alpha = alpha;
   this->minprop = minprop;
 
-  // Initialize with variable importance with 0.
-  if (importance_mode == IMP_GINI) {
-    variable_importance.resize(data->getNumCols() - no_split_variables->size());
-  }
-
   initInternal();
 }
 

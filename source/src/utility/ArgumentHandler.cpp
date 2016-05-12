@@ -487,12 +487,9 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              RULE = 3: AUC (ignore ties) for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              RULE = 4: MAXSTAT for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
-<<<<<<< HEAD
   std::cout << "    " << "--alpha VAL                   Significance threshold to allow splitting (MAXSTAT splitrule only)." << std::endl;
   std::cout << "    " << "--minprop VAL                 Lower quantile of covariate distribtuion to be considered for splitting (MAXSTAT splitrule only)." << std::endl;
-=======
   std::cout << "    " << "--caseweights FILE            Filename of case weights file." << std::endl;
->>>>>>> master
   std::cout << "    " << "--splitweights FILE           Filename of split select weights file." << std::endl;
   std::cout << "    " << "--alwayssplitvars V1,V2,..    Comma separated list of variable names to be always considered for splitting." << std::endl;
   std::cout << "    " << "--nthreads N                  Set number of parallel threads to N." << std::endl;
