@@ -34,7 +34,7 @@
 ##' The tree type is determined by the type of the dependent variable.
 ##' For factors classification trees are grown, for numeric values regression trees and for survival objects survival trees.
 ##' The Gini index is used as splitting rule for classification and the estimated response variances for regression.
-##' For Survival the log-rank test, a C-index based splitting rule and maximally selected rank statistics are available.
+##' For Survival the log-rank test, a C-index based splitting rule (Schmid et al. 2015) and maximally selected rank statistics (Wright et al. 2016) are available.
 ##'
 ##' With the \code{probability} option and factor dependent variable a probability forest is grown.
 ##' Here, the estimated response variances are used for splitting, as in regression forests.
