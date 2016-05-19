@@ -218,11 +218,6 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     response <- data.selected[[1]]
   }
   
-  ## Probability estimation
-  if (probability & !is.factor(response)) {
-    stop("Error: Probability estimation is only applicable to categorical (factor) dependent variables.")
-  }
-  
   ## Treetype
   if (is.factor(response)) {
     if (probability) {
@@ -233,6 +228,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else if (is.numeric(response) & is.vector(response)) {
     if (!is.null(classification) && classification) {
       treetype <- 1
+    } else if (probability) {
+      treetype <- 9
     } else {
       treetype <- 3
     }
