@@ -137,14 +137,14 @@ test_that("Matrix interface prediction works for classification", {
 })
 
 test_that("Matrix interface works for Probability estimation", {
-  rf <- ranger(dependent.variable.name = "Species", data = data.matrix(iris), write.forest = TRUE, classification = TRUE, probability = TRUE)
+  rf <- ranger(dependent.variable.name = "Species", data = data.matrix(iris), write.forest = TRUE, probability = TRUE)
   expect_that(rf$treetype, equals("Probability estimation"))
   expect_that(rf$forest$independent.variable.names, equals(colnames(iris)[1:4]))
 })
 
 test_that("Matrix interface prediction works for Probability estimation", {
   dat <- data.matrix(iris)
-  rf <- ranger(dependent.variable.name = "Species", data = dat, write.forest = TRUE, classification = TRUE, probability = TRUE)
+  rf <- ranger(dependent.variable.name = "Species", data = dat, write.forest = TRUE, probability = TRUE)
   expect_that(predict(rf, dat), not(throws_error()))
 })
 
