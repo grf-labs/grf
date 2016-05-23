@@ -33,8 +33,8 @@
 ##'
 ##' The tree type is determined by the type of the dependent variable.
 ##' For factors classification trees are grown, for numeric values regression trees and for survival objects survival trees.
-##' The Gini index is used as splitting rule for classification, the estimated response variances for regression and the log-rank test for survival.
-##' For Survival the log-rank test or an AUC-based splitting rule are available.
+##' The Gini index is used as splitting rule for classification and the estimated response variances for regression.
+##' For Survival the log-rank test, a C-index based splitting rule (Schmid et al. 2015) and maximally selected rank statistics (Wright et al. 2016) are available.
 ##'
 ##' With the \code{probability} option and factor dependent variable a probability forest is grown.
 ##' Here, the estimated response variances are used for splitting, as in regression forests.
@@ -58,11 +58,12 @@
 ##' To use only the SNPs without sex or other covariates from the phenotype file, use \code{0} on the right hand side of the formula. 
 ##' Note that missing values are treated as an extra category while splitting.
 ##' 
-##' See \url{https://github.com/mnwright/ranger} for the development version.
+##' See \url{https://github.com/imbs-hl/ranger} for the development version.
 ##' 
-##' Notes:
+##' To use multithreading on Microsoft Windows platforms, there are currently two options:
 ##' \itemize{
-##'  \item Multithreading is currently not supported for Microsoft Windows platforms.
+##'  \item Use R-devel with the new toolchain
+##'  \item Install a binary version of ranger, download: \url{https://github.com/imbs-hl/ranger/releases}
 ##' }
 ##' 
 ##' @title Ranger
@@ -76,8 +77,10 @@
 ##' @param min.node.size Minimal node size. Default 1 for classification, 5 for regression, 3 for survival, and 10 for probability.
 ##' @param replace Sample with replacement. 
 ##' @param sample.fraction Fraction of observations to sample. Default is 1 for sampling with replacement and 0.632 for sampling without replacement. 
-##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "C" with default "logrank". 
 ##' @param case.weights Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.
+##' @param splitrule Splitting rule, survival only. The splitting rule can be chosen of "logrank", "C" and "maxstat" with default "logrank". 
+##' @param alpha For "maxstat" splitrule: Significance threshold to allow splitting.
+##' @param minprop For "maxstat" splitrule: Lower quantile of covariate distribtuion to be considered for splitting.
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting. Alternatively, a list of size num.trees, containing split select weight vectors for each tree can be used.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
@@ -150,11 +153,15 @@
 ##'
 ##' @author Marvin N. Wright
 ##' @references
-##'   Wright, M. N., & Ziegler, A. (2015). ranger: A fast implementation of random forests for high dimensional data in C++ and R. arXiv preprint \url{http://arxiv.org/abs/1508.04409}.
+##' \itemize{
+##'   \item Wright, M. N. & Ziegler, A. (2016). ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R. Journal of Statistical Software, in press. \url{http://arxiv.org/abs/1508.04409}.
+##'   \item Schmid, M., Wright, M. N. & Ziegler, A. (2015). On the Use of Harrell's C for Node Splitting in Random Survival Forests. Technical Report. \url{http://arxiv.org/abs/1507.03092}. 
+##'   \item Wright, M. N., Dankowski, T. & Ziegler, A. (2016). Random forests for survival analysis using maximally selected rank statistics. Technical Report. \url{http://arxiv.org/abs/1605.03391}.
 ##' 
-##'   Breiman, L. (2001). Random forests. Mach Learn, 45(1), 5-32. \cr
-##'   Ishwaran, H., Kogalur, U. B., Blackstone, E. H., & Lauer, M. S. (2008). Random survival forests. Ann Appl Stat, 841-860. \cr
-##'   Malley, J. D., Kruppa, J., Dasgupta, A., Malley, K. G., & Ziegler, A. (2012). Probability machines: consistent probability estimation using nonparametric learning machines. Methods Inf Med, 51(1), 74.
+##'   \item Breiman, L. (2001). Random forests. Mach Learn, 45(1), 5-32. 
+##'   \item Ishwaran, H., Kogalur, U. B., Blackstone, E. H., & Lauer, M. S. (2008). Random survival forests. Ann Appl Stat, 841-860. 
+##'   \item Malley, J. D., Kruppa, J., Dasgupta, A., Malley, K. G., & Ziegler, A. (2012). Probability machines: consistent probability estimation using nonparametric learning machines. Methods Inf Med, 51(1), 74.
+##'   }
 ##' @seealso \code{\link{predict.ranger}}
 ##' @useDynLib ranger
 ##' @importFrom Rcpp evalCpp
@@ -165,7 +172,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    importance = "none", write.forest = FALSE, probability = FALSE,
                    min.node.size = NULL, replace = TRUE, 
                    sample.fraction = ifelse(replace, 1, 0.632), 
-                   splitrule = NULL, case.weights = NULL, 
+                   case.weights = NULL, 
+                   splitrule = NULL, alpha = 0.5, minprop = 0.1,
                    split.select.weights = NULL, always.split.variables = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
@@ -211,11 +219,6 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     response <- data.selected[[1]]
   }
   
-  ## Probability estimation
-  if (probability & !is.factor(response)) {
-    stop("Error: Probability estimation is only applicable to categorical (factor) dependent variables.")
-  }
-  
   ## Treetype
   if (is.factor(response)) {
     if (probability) {
@@ -226,6 +229,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else if (is.numeric(response) & is.vector(response)) {
     if (!is.null(classification) && classification) {
       treetype <- 1
+    } else if (probability) {
+      treetype <- 9
     } else {
       treetype <- 3
     }
@@ -393,15 +398,26 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   
   ## Splitting rule
   if (is.null(splitrule)) {
-    splitrule <- 1
+    splitrule <- "logrank"
+    splitrule.num <- 1
   } else if (treetype == 5 & splitrule == "logrank") {
-    splitrule <- 1
+    splitrule.num <- 1
   } else if (treetype == 5 & (splitrule == "auc" | splitrule == "C")) {
-    splitrule <- 2
+    splitrule.num <- 2
   } else if (treetype == 5 & (splitrule == "auc_ignore_ties" | splitrule == "C_ignore_ties")) {
-    splitrule <- 3
+    splitrule.num <- 3
+  } else if (treetype == 5 & splitrule == "maxstat") {
+    splitrule.num <- 4
   } else {
     stop("Error: Unknown splitrule.")
+  }
+  
+  ## Maxstat splitting
+  if (alpha < 0 | alpha > 1) {
+    stop("Error: Invalid value for alpha, please give a value between 0 and 1.")
+  }
+  if (minprop < 0 | minprop > 0.5) {
+    stop("Error: Invalid value for minprop, please give a value between 0 and 0.5.")
   }
 
   ## Unordered factors  
@@ -447,8 +463,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       always.split.variables, use.always.split.variables,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
-                      save.memory, splitrule, case.weights, use.case.weights, predict.all, 
-                      keep.inbag, sample.fraction, holdout)
+                      save.memory, splitrule.num, case.weights, use.case.weights, predict.all, 
+                      keep.inbag, sample.fraction, alpha, minprop, holdout)
   
   if (length(result) == 0) {
     stop("User interrupt or internal error.")
@@ -469,6 +485,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$chf <- result$predictions
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
+    result$splitrule <- splitrule
   } else if (treetype == 9 & !is.matrix(data)) {
     colnames(result$predictions) <- levels(response)
   }

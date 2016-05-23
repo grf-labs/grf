@@ -58,7 +58,7 @@ getTerminalNodeIDs <- function(rf, dat) {
       while (1) {
         
         ## Break if terminal node
-        if (length(child.nodeIDs[[nodeID]]) < 1) {
+        if (child.nodeIDs[[1]][nodeID] == 0 & child.nodeIDs[[2]][nodeID] == 0) {
           break
         }
         
@@ -67,10 +67,10 @@ getTerminalNodeIDs <- function(rf, dat) {
         value <- obs[split.varID]
         if (value <= split.values[[nodeID]]) {
           ## Move to left child
-          nodeID <- child.nodeIDs[[nodeID]][1] + 1
+          nodeID <- child.nodeIDs[[1]][nodeID] + 1
         } else {
           ## Move to right child
-          nodeID <- child.nodeIDs[[nodeID]][2] + 1
+          nodeID <- child.nodeIDs[[2]][nodeID] + 1
         }
       }
       

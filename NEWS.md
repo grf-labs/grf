@@ -1,8 +1,24 @@
-##### Version 0.3.9
+##### Version 0.4.4
 * Add p-values for variable importance.
 
+##### Version 0.4.3
+* Add splitting by maximally selected rank statistics for survival forests
+* Bug fixes
+
+##### Version 0.4.2
+* Add Windows multithreading support for new toolchain
+
+##### Version 0.4.1
+* Runtime improvement for regression forests on classification data
+
+##### Version 0.4.0
+* New CRAN version. New CRAN versions will be 0.x.0, development versions 0.x.y
+
+##### Version 0.3.9
+* Reduce memory usage of savest forest objects (changed child.nodeIDs interface)
+
 ##### Version 0.3.8
-* Remove tuning functions, please use mlr or caret.
+* Remove tuning functions, please use mlr or caret
 
 ##### Version 0.3.7
 * Fix bug with alternative interface and prediction

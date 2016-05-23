@@ -7,13 +7,13 @@
 ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   importance = "none", write.forest = FALSE, probability = FALSE,
   min.node.size = NULL, replace = TRUE, sample.fraction = ifelse(replace,
-  1, 0.632), splitrule = NULL, case.weights = NULL,
-  split.select.weights = NULL, always.split.variables = NULL,
-  respect.unordered.factors = FALSE, scale.permutation.importance = FALSE,
-  keep.inbag = FALSE, holdout = FALSE, num.threads = NULL,
-  save.memory = FALSE, verbose = TRUE, seed = NULL,
-  dependent.variable.name = NULL, status.variable.name = NULL,
-  classification = NULL)
+  1, 0.632), case.weights = NULL, splitrule = NULL, alpha = 0.5,
+  minprop = 0.1, split.select.weights = NULL,
+  always.split.variables = NULL, respect.unordered.factors = FALSE,
+  scale.permutation.importance = FALSE, keep.inbag = FALSE,
+  holdout = FALSE, num.threads = NULL, save.memory = FALSE,
+  verbose = TRUE, seed = NULL, dependent.variable.name = NULL,
+  status.variable.name = NULL, classification = NULL)
 }
 \arguments{
 \item{formula}{Object of class \code{formula} or \code{character} describing the model to fit.}
@@ -36,9 +36,13 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 
 \item{sample.fraction}{Fraction of observations to sample. Default is 1 for sampling with replacement and 0.632 for sampling without replacement.}
 
-\item{splitrule}{Splitting rule, survival only. The splitting rule can be chosen of "logrank" and "C" with default "logrank".}
-
 \item{case.weights}{Weights for sampling of training observations. Observations with larger weights will be selected with higher probability in the bootstrap (or subsampled) samples for the trees.}
+
+\item{splitrule}{Splitting rule, survival only. The splitting rule can be chosen of "logrank", "C" and "maxstat" with default "logrank".}
+
+\item{alpha}{For "maxstat" splitrule: Significance threshold to allow splitting.}
+
+\item{minprop}{For "maxstat" splitrule: Lower quantile of covariate distribtuion to be considered for splitting.}
 
 \item{split.select.weights}{Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting. Alternatively, a list of size num.trees, containing split select weight vectors for each tree can be used.}
 
@@ -97,8 +101,8 @@ Classification and regression forests are implemented as in the original Random 
 \details{
 The tree type is determined by the type of the dependent variable.
 For factors classification trees are grown, for numeric values regression trees and for survival objects survival trees.
-The Gini index is used as splitting rule for classification, the estimated response variances for regression and the log-rank test for survival.
-For Survival the log-rank test or an AUC-based splitting rule are available.
+The Gini index is used as splitting rule for classification and the estimated response variances for regression.
+For Survival the log-rank test, a C-index based splitting rule (Schmid et al. 2015) and maximally selected rank statistics (Wright et al. 2016) are available.
 
 With the \code{probability} option and factor dependent variable a probability forest is grown.
 Here, the estimated response variances are used for splitting, as in regression forests.
@@ -122,11 +126,12 @@ All SNPs in the \code{GenABEL} object will be used for splitting.
 To use only the SNPs without sex or other covariates from the phenotype file, use \code{0} on the right hand side of the formula. 
 Note that missing values are treated as an extra category while splitting.
 
-See \url{https://github.com/mnwright/ranger} for the development version.
+See \url{https://github.com/imbs-hl/ranger} for the development version.
 
-Notes:
+To use multithreading on Microsoft Windows platforms, there are currently two options:
 \itemize{
- \item Multithreading is currently not supported for Microsoft Windows platforms.
+ \item Use R-devel with the new toolchain
+ \item Install a binary version of ranger, download: \url{https://github.com/imbs-hl/ranger/releases}
 }
 }
 \examples{
@@ -170,11 +175,15 @@ ranger(trait ~ ., data = dat.gwaa)
 Marvin N. Wright
 }
 \references{
-Wright, M. N., & Ziegler, A. (2015). ranger: A fast implementation of random forests for high dimensional data in C++ and R. arXiv preprint \url{http://arxiv.org/abs/1508.04409}.
+\itemize{
+  \item Wright, M. N. & Ziegler, A. (2016). ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R. Journal of Statistical Software, in press. \url{http://arxiv.org/abs/1508.04409}.
+  \item Schmid, M., Wright, M. N. & Ziegler, A. (2015). On the Use of Harrell's C for Node Splitting in Random Survival Forests. Technical Report. \url{http://arxiv.org/abs/1507.03092}. 
+  \item Wright, M. N., Dankowski, T. & Ziegler, A. (2016). Random forests for survival analysis using maximally selected rank statistics. Technical Report. \url{http://arxiv.org/abs/1605.03391}.
 
-  Breiman, L. (2001). Random forests. Mach Learn, 45(1), 5-32. \cr
-  Ishwaran, H., Kogalur, U. B., Blackstone, E. H., & Lauer, M. S. (2008). Random survival forests. Ann Appl Stat, 841-860. \cr
-  Malley, J. D., Kruppa, J., Dasgupta, A., Malley, K. G., & Ziegler, A. (2012). Probability machines: consistent probability estimation using nonparametric learning machines. Methods Inf Med, 51(1), 74.
+  \item Breiman, L. (2001). Random forests. Mach Learn, 45(1), 5-32. 
+  \item Ishwaran, H., Kogalur, U. B., Blackstone, E. H., & Lauer, M. S. (2008). Random survival forests. Ann Appl Stat, 841-860. 
+  \item Malley, J. D., Kruppa, J., Dasgupta, A., Malley, K. G., & Ziegler, A. (2012). Probability machines: consistent probability estimation using nonparametric learning machines. Methods Inf Med, 51(1), 74.
+  }
 }
 \seealso{
 \code{\link{predict.ranger}}

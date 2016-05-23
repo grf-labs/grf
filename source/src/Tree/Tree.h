@@ -51,7 +51,8 @@ public:
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
       bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag,
-      double sample_fraction, bool holdout);
+      double sample_fraction, double alpha, double minprop, bool holdout);
+
   virtual void initInternal() = 0;
 
   void grow(std::vector<double>* variable_importance);
@@ -140,7 +141,7 @@ protected:
   // For terminal nodes the prediction value is saved here
   std::vector<double> split_values;
 
-  // For each node a vector with child node IDs, for binary trees second dim = 2
+  // Vector of left and right child node IDs, 0 for no child
   std::vector<std::vector<size_t>> child_nodeIDs;
 
   // For each node a vector with IDs of samples in node
@@ -175,6 +176,8 @@ protected:
 
   bool memory_saving_splitting;
   SplitRule splitrule;
+  double alpha;
+  double minprop;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Tree);
