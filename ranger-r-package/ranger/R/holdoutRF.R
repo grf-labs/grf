@@ -43,7 +43,11 @@
 ##' @export 
 holdoutRF <- function(formula, data, ...) {
   ## Split data
-  n <- nrow(data)
+  if ("gwaa.data" %in% class(data)) {
+    n <- nrow(data@phdata) 
+  } else {
+    n <- nrow(data)
+  }
   weights <- rbinom(n, 1, 0.5)
   
   ## Grow RFs
