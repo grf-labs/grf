@@ -11,9 +11,9 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   minprop = 0.1, split.select.weights = NULL,
   always.split.variables = NULL, respect.unordered.factors = FALSE,
   scale.permutation.importance = FALSE, keep.inbag = FALSE,
-  num.threads = NULL, save.memory = FALSE, verbose = TRUE, seed = NULL,
-  dependent.variable.name = NULL, status.variable.name = NULL,
-  classification = NULL)
+  holdout = FALSE, num.threads = NULL, save.memory = FALSE,
+  verbose = TRUE, seed = NULL, dependent.variable.name = NULL,
+  status.variable.name = NULL, classification = NULL)
 }
 \arguments{
 \item{formula}{Object of class \code{formula} or \code{character} describing the model to fit.}
@@ -53,6 +53,8 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 \item{scale.permutation.importance}{Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.}
 
 \item{keep.inbag}{Save how often observations are in-bag in each tree.}
+
+\item{holdout}{Hold-out mode. Hold-out all samples with case weight 0 and use these for variable importance and prediction error.}
 
 \item{num.threads}{Number of threads. Default is number of CPUs available.}
 

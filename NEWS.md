@@ -1,3 +1,6 @@
+##### Version 0.4.4
+* Add p-values for variable importance.
+
 ##### Version 0.4.3
 * Add splitting by maximally selected rank statistics for survival forests
 * Bug fixes

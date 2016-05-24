@@ -35,9 +35,8 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
-
-    caseweights(""), depvarname(""), fraction(1), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(""), nthreads(
-        DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""), impmeasure(
+    caseweights(""), depvarname(""), fraction(1), holdout(false), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(
+        ""), nthreads(DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""), impmeasure(
         DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false), splitrule(
         DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(
         TREE_CLASSIFICATION), seed(0) {
@@ -51,7 +50,7 @@ ArgumentHandler::~ArgumentHandler() {
 int ArgumentHandler::processArguments() {
 
   // short options
-  char const *short_options = "A:C:D:F:M:NP:S:U:XZa:b:c:f:hil::m:o:pr:s:t:uvwy:z:";
+  char const *short_options = "A:C:D:F:HM:NP:S:U:XZa:b:c:f:hil::m:o:pr:s:t:uvwy:z:";
 
   // long options: longname, no/optional/required argument?, flag(not used!), shortname
     const struct option long_options[] = {
@@ -60,6 +59,7 @@ int ArgumentHandler::processArguments() {
       { "caseweights",          required_argument,  0, 'C'},
       { "depvarname",           required_argument,  0, 'D'},
       { "fraction",             required_argument,  0, 'F'},
+      { "holdout",              no_argument,        0, 'H'},
       { "memmode",              required_argument,  0, 'M'},
       { "savemem",              no_argument,        0, 'N'},
       { "predict",              required_argument,  0, 'P'},
@@ -124,6 +124,10 @@ int ArgumentHandler::processArguments() {
         throw std::runtime_error(
             "Illegal argument for option 'fraction'. Please give a value in (0,1]. See '--help' for details.");
       }
+      break;
+
+    case 'H':
+      holdout = true;
       break;
 
     case 'M':
@@ -430,6 +434,11 @@ void ArgumentHandler::checkArguments() {
     throw std::runtime_error("Illegal splitrule selected. See '--help' for details.");
   }
 
+  // Check holdout mode
+  if (holdout && caseweights.empty()) {
+    throw std::runtime_error("Case weights required to use holdout mode.");
+  }
+
   // Unordered survival splitting only available for logrank splitrule
   if (treetype == TREE_SURVIVAL && !catvars.empty() && splitrule != LOGRANK) {
     throw std::runtime_error("Unordered splitting in survival trees only available for LOGRANK splitrule.");
@@ -490,6 +499,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--alpha VAL                   Significance threshold to allow splitting (MAXSTAT splitrule only)." << std::endl;
   std::cout << "    " << "--minprop VAL                 Lower quantile of covariate distribtuion to be considered for splitting (MAXSTAT splitrule only)." << std::endl;
   std::cout << "    " << "--caseweights FILE            Filename of case weights file." << std::endl;
+  std::cout << "    " << "--holdout                     Hold-out mode. Hold-out all samples with case weight 0 and use these for variable " << std::endl;
+  std::cout << "    " << "                              importance and prediction error." << std::endl;
   std::cout << "    " << "--splitweights FILE           Filename of split select weights file." << std::endl;
   std::cout << "    " << "--alwayssplitvars V1,V2,..    Comma separated list of variable names to be always considered for splitting." << std::endl;
   std::cout << "    " << "--nthreads N                  Set number of parallel threads to N." << std::endl;

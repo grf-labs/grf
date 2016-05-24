@@ -47,7 +47,7 @@ Forest::Forest() :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), num_variables(0), num_independent_variables(
         0), seed(0), dependent_varID(0), num_samples(0), prediction_mode(false), memory_mode(MEM_DOUBLE), sample_with_replacement(
         true), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE), predict_all(false), keep_inbag(false), sample_fraction(
-        1), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), num_threads(DEFAULT_NUM_THREADS), data(0), overall_prediction_error(
+        1), holdout(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), num_threads(DEFAULT_NUM_THREADS), data(0), overall_prediction_error(
         0), importance_mode(DEFAULT_IMPORTANCE_MODE), progress(0) {
 }
 
@@ -63,7 +63,7 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
     std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
     std::string status_variable_name, bool sample_with_replacement, std::vector<std::string>& unordered_variable_names,
     bool memory_saving_splitting, SplitRule splitrule, std::string case_weights_file, bool predict_all,
-    double sample_fraction, double alpha, double minprop) {
+    double sample_fraction, double alpha, double minprop, bool holdout) {
 
   this->verbose_out = verbose_out;
 
@@ -97,7 +97,7 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
   // Call other init function
   init(dependent_variable_name, memory_mode, data, mtry, output_prefix, num_trees, seed, num_threads, importance_mode,
       min_node_size, status_variable_name, prediction_mode, sample_with_replacement, unordered_variable_names,
-      memory_saving_splitting, splitrule, predict_all, sample_fraction, alpha, minprop);
+      memory_saving_splitting, splitrule, predict_all, sample_fraction, alpha, minprop, holdout);
 
   if (prediction_mode) {
     loadFromFile(load_forest_filename);
@@ -127,6 +127,17 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
     }
   }
 
+  // Sample from non-zero weights in holdout mode
+  if (holdout && !case_weights.empty()) {
+    size_t nonzero_weights = 0;
+    for (auto& weight : case_weights) {
+      if (weight > 0) {
+        ++nonzero_weights;
+      }
+    }
+    this->sample_fraction = this->sample_fraction * ((double) nonzero_weights / (double) num_samples);
+  }
+
   // Check if all catvars are coded in integers starting at 1
   if (!unordered_variable_names.empty()) {
     std::string error_message = checkUnorderedVariables(data, unordered_variable_names);
@@ -142,14 +153,14 @@ void Forest::initR(std::string dependent_variable_name, Data* input_data, uint m
     std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
     std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
     std::vector<double>& case_weights, bool predict_all, bool keep_inbag, double sample_fraction, double alpha,
-    double minprop) {
+    double minprop, bool holdout) {
 
   this->verbose_out = verbose_out;
 
   // Call other init function
   init(dependent_variable_name, MEM_DOUBLE, input_data, mtry, "", num_trees, seed, num_threads, importance_mode,
       min_node_size, status_variable_name, prediction_mode, sample_with_replacement, unordered_variable_names,
-      memory_saving_splitting, splitrule, predict_all, sample_fraction, alpha, minprop);
+      memory_saving_splitting, splitrule, predict_all, sample_fraction, alpha, minprop, holdout);
 
   // Set variables to be always considered for splitting
   if (!always_split_variable_names.empty()) {
@@ -177,7 +188,7 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
     std::string output_prefix, uint num_trees, uint seed, uint num_threads, ImportanceMode importance_mode,
     uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
     std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting, SplitRule splitrule,
-    bool predict_all, double sample_fraction, double alpha, double minprop) {
+    bool predict_all, double sample_fraction, double alpha, double minprop, bool holdout) {
 
   // Initialize data with memmode
   this->data = input_data;
@@ -215,6 +226,7 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
   this->splitrule = splitrule;
   this->predict_all = predict_all;
   this->sample_fraction = sample_fraction;
+  this->holdout = holdout;
   this->alpha = alpha;
   this->minprop = minprop;
 
@@ -410,7 +422,7 @@ void Forest::grow() {
     trees[i]->init(data, mtry, dependent_varID, num_samples, tree_seed, &deterministic_varIDs, &split_select_varIDs,
         tree_split_select_weights, importance_mode, min_node_size, &no_split_variables, sample_with_replacement,
         &is_ordered_variable, memory_saving_splitting, splitrule, &case_weights, keep_inbag, sample_fraction, alpha,
-        minprop);
+        minprop, holdout);
   }
 
 // Init variable importance

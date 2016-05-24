@@ -86,6 +86,7 @@
 ##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param keep.inbag Save how often observations are in-bag in each tree. 
+##' @param holdout Hold-out mode. Hold-out all samples with case weight 0 and use these for variable importance and prediction error.
 ##' @param num.threads Number of threads. Default is number of CPUs available.
 ##' @param save.memory Use memory saving (but slower) splitting mode. No effect for GWAS data.
 ##' @param verbose Verbose output on or off.
@@ -176,7 +177,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    split.select.weights = NULL, always.split.variables = NULL,
                    respect.unordered.factors = FALSE,
                    scale.permutation.importance = FALSE,
-                   keep.inbag = FALSE,
+                   keep.inbag = FALSE, holdout = FALSE,
                    num.threads = NULL, save.memory = FALSE,
                    verbose = TRUE, seed = NULL, 
                    dependent.variable.name = NULL, status.variable.name = NULL, 
@@ -348,8 +349,20 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   if (is.null(case.weights)) {
     case.weights <- c(0,0)
     use.case.weights <- FALSE
+    if (holdout) {
+      stop("Error: Case weights required to use holdout mode.")
+    }
   } else {
     use.case.weights <- TRUE
+    
+    ## Sample from non-zero weights in holdout mode
+    if (holdout) {
+      sample.fraction <- sample.fraction * mean(case.weights > 0)
+    }
+    
+    if (!replace && sum(case.weights > 0) < sample.fraction * nrow(data.final)) {
+      stop("Error: Fewer non-zero case weights than observations to sample.")
+    }
   }
   
   ## Split select weights: NULL for no weights
@@ -451,7 +464,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
                       save.memory, splitrule.num, case.weights, use.case.weights, predict.all, 
-                      keep.inbag, sample.fraction, alpha, minprop)
+                      keep.inbag, sample.fraction, alpha, minprop, holdout)
   
   if (length(result) == 0) {
     stop("User interrupt or internal error.")

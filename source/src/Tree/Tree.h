@@ -51,7 +51,7 @@ public:
       std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
       bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag,
-      double sample_fraction, double alpha, double minprop);
+      double sample_fraction, double alpha, double minprop, bool holdout);
 
   virtual void initInternal() = 0;
 
@@ -149,6 +149,9 @@ protected:
 
   // IDs of OOB individuals, sorted
   std::vector<size_t> oob_sampleIDs;
+
+  // Holdout mode
+  bool holdout;
 
   // Inbag counts
   bool keep_inbag;

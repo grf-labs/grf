@@ -3,12 +3,12 @@
 \name{importance.ranger}
 \alias{importance}
 \alias{importance.ranger}
-\title{Ranger variable importance}
+\title{ranger variable importance}
 \usage{
 \method{importance}{ranger}(x, ...)
 }
 \arguments{
-\item{x}{Ranger object.}
+\item{x}{ranger object.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
@@ -16,7 +16,7 @@
 Variable importance measures.
 }
 \description{
-Extract variable importance of Ranger object.
+Extract variable importance of ranger object.
 }
 \author{
 Marvin N. Wright
