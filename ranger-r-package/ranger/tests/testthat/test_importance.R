@@ -2,6 +2,9 @@ library(ranger)
 
 context("importance")
 
+## GenABEL data
+dat_gwaa <- readRDS("../test_gwaa.Rds")
+
 ## 0 noise variables
 rf_p0 <- ranger(Species ~., iris, num.trees = 100, 
                 importance = "permutation", write.forest = TRUE)
@@ -17,7 +20,6 @@ dat_n100 <- cbind(iris, noise)
 rf_p100 <- ranger(Species ~., dat_n100, num.trees = 100,
                   importance = "permutation", write.forest = TRUE)
 holdout_p100 <- holdoutRF(Species ~., dat_n100, num.trees = 100)
-
 
 ## Janitza
 test_that("Importance p-values Janitza: warning if few negative importance values", {
@@ -81,6 +83,11 @@ test_that("Importance p-values Altmann: not working for holdoutRF", {
 
 ## Hold-out RF
 test_that("HoldoutRF working", {
+  expect_that(holdout_p0, is_a("holdoutRF"))
+})
+
+test_that("HoldoutRF working with GenABEL data", {
+  holdout_gwaa <- holdoutRF(CHD ~., dat_gwaa, num.trees = 10)
   expect_that(holdout_p0, is_a("holdoutRF"))
 })
 
