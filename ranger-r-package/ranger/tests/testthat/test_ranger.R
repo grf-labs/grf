@@ -632,5 +632,8 @@ test_that("holdout mode: no OOB prediction if no 0 weights", {
   expect_that(all(is.na(rf$predictions)), is_true())
 })
 
-
+test_that("Probability estimation works for empty classes", {
+  expect_that(rf <- ranger(Species ~., iris[1:100,],  num.trees = 5, probability = TRUE), 
+              not(throws_error()))
+})
 
