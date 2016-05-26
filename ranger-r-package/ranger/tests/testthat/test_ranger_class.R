@@ -56,7 +56,7 @@ test_that("Majority vote of predict.all for classification is equal to forest pr
   pred_trees <- predict(rf, iris, predict.all = TRUE)
   ## Majority vote
   pred_num <- apply(pred_trees$predictions, 1, function(x) {
-    which(tabulate(x) == max(tabulate(x)))
+    which(tabulate(x) == max(tabulate(x)))[1]
   })
   pred <- factor(pred_num, levels = 1:length(rf$forest$levels),
                  labels = rf$forest$levels)
