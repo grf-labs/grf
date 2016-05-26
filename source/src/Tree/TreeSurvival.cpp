@@ -81,6 +81,19 @@ void TreeSurvival::createEmptyNodeInternal() {
   chf.push_back(std::vector<double>());
 }
 
+void TreeSurvival::computeSurvival(size_t nodeID) {
+  std::vector<double> chf_temp;
+  chf_temp.reserve(num_timepoints);
+  double chf_value = 0;
+  for (size_t i = 0; i < num_timepoints; ++i) {
+    if (num_samples_at_risk[i] != 0) {
+      chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
+    }
+    chf_temp.push_back(chf_value);
+  }
+  chf[nodeID] = chf_temp;
+}
+
 double TreeSurvival::computePredictionAccuracyInternal() {
 
   // Compute summed chf for samples
@@ -96,7 +109,11 @@ double TreeSurvival::computePredictionAccuracyInternal() {
 
 bool TreeSurvival::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
-  return findBestSplit(nodeID, possible_split_varIDs);
+  if (splitrule == MAXSTAT) {
+    return findBestSplitMaxstat(nodeID, possible_split_varIDs);
+  } else {
+    return findBestSplit(nodeID, possible_split_varIDs);
+  }
 }
 
 bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
@@ -116,45 +133,129 @@ bool TreeSurvival::findBestSplit(size_t nodeID, std::vector<size_t>& possible_sp
 
       // Find best split value, if ordered consider all values as split values, else all 2-partitions
       if ((*is_ordered_variable)[varID]) {
-
         if (splitrule == LOGRANK) {
           findBestSplitValueLogRank(nodeID, varID, best_value, best_varID, best_decrease);
         } else if (splitrule == AUC || splitrule == AUC_IGNORE_TIES) {
           findBestSplitValueAUC(nodeID, varID, best_value, best_varID, best_decrease);
         }
       } else {
-        if (splitrule == LOGRANK) {
-          findBestSplitValueLogRankUnordered(nodeID, varID, best_value, best_varID, best_decrease);
-        } else if (splitrule == AUC || splitrule == AUC_IGNORE_TIES) {
-          // TODO: Implement unordered AUC splitting
-          findBestSplitValueAUC(nodeID, varID, best_value, best_varID, best_decrease);
-        }
+        findBestSplitValueLogRankUnordered(nodeID, varID, best_value, best_varID, best_decrease);
       }
 
     }
   }
 
-  bool result = false;
-
   // Stop and save CHF if no good split found (this is terminal node).
   if (best_decrease < 0) {
-    std::vector<double> chf_temp;
-    double chf_value = 0;
-    for (size_t i = 0; i < num_timepoints; ++i) {
-      if (num_samples_at_risk[i] != 0) {
-        chf_value += (double) num_deaths[i] / (double) num_samples_at_risk[i];
-      }
-      chf_temp.push_back(chf_value);
-    }
-    chf[nodeID] = chf_temp;
-    result = true;
+    computeSurvival(nodeID);
+    return true;
   } else {
     // If not terminal node save best values
     split_varIDs[nodeID] = best_varID;
     split_values[nodeID] = best_value;
+    return false;
+  }
+}
+
+bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
+
+  size_t num_samples_node = sampleIDs[nodeID].size();
+
+  // Check node size, stop if maximum reached
+  if (num_samples_node <= min_node_size) {
+    computeDeathCounts(nodeID);
+    computeSurvival(nodeID);
+    return true;
   }
 
-  return result;
+  // Compute scores
+  std::vector<double> time;
+  time.reserve(num_samples_node);
+  std::vector<double> status;
+  status.reserve(num_samples_node);
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    time.push_back(data->get(sampleID, dependent_varID));
+    status.push_back(data->get(sampleID, status_varID));
+  }
+  std::vector<double> scores = logrankScores(time, status);
+  //std::vector<double> scores = logrankScoresData(data, dependent_varID, status_varID, sampleIDs[nodeID]);
+
+  // Save split stats
+  std::vector<double> pvalues;
+  pvalues.reserve(possible_split_varIDs.size());
+  std::vector<double> values;
+  values.reserve(possible_split_varIDs.size());
+  std::vector<double> candidate_varIDs;
+  candidate_varIDs.reserve(possible_split_varIDs.size());
+
+  // Compute p-values
+  for (auto& varID : possible_split_varIDs) {
+
+    // Get all observations
+    std::vector<double> x;
+    x.reserve(num_samples_node);
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      x.push_back(data->get(sampleID, varID));
+    }
+
+    // Order by x
+    std::vector<size_t> indices = order(x, false);
+    //std::vector<size_t> indices = orderInData(data, sampleIDs[nodeID], varID, false);
+
+    // Compute maximally selected rank statistics
+    double best_maxstat;
+    double best_split_value;
+    maxstat(scores, x, indices, best_maxstat, best_split_value, minprop, 1 - minprop);
+    //maxstatInData(scores, data, sampleIDs[nodeID], varID, indices, best_maxstat, best_split_value, minprop, 1 - minprop);
+
+    if (best_maxstat > -1) {
+      // Compute number of samples left of cutpoints
+      std::vector<size_t> num_samples_left = numSamplesLeftOfCutpoint(x, indices);
+      //std::vector<size_t> num_samples_left = numSamplesLeftOfCutpointInData(data, sampleIDs[nodeID], varID, indices);
+
+      // Compute p-values
+      double pvalue_lau92 = maxstatPValueLau92(best_maxstat, minprop, 1 - minprop);
+      double pvalue_lau94 = maxstatPValueLau94(best_maxstat, minprop, 1 - minprop, num_samples_node, num_samples_left);
+
+      // Use minimum of Lau92 and Lau94
+      double pvalue = std::min(pvalue_lau92, pvalue_lau94);
+
+      // Save split stats
+      pvalues.push_back(pvalue);
+      values.push_back(best_split_value);
+      candidate_varIDs.push_back(varID);
+    }
+  }
+
+  double min_pvalue = 2;
+  size_t best_varID = 0;
+  double best_value = 0;
+
+  if (pvalues.size() > 0) {
+    // Adjust p-values with Benjamini/Hochberg
+    std::vector<double> adjusted_pvalues = adjustPvalues(pvalues);
+
+    // Use smallest p-value
+    for (size_t i = 0; i < adjusted_pvalues.size(); ++i) {
+      if (adjusted_pvalues[i] < min_pvalue) {
+        min_pvalue = adjusted_pvalues[i];
+        best_varID = candidate_varIDs[i];
+        best_value = values[i];
+      }
+    }
+  }
+
+  // Stop and save CHF if no good split found (this is terminal node).
+  if (min_pvalue > alpha) {
+    computeDeathCounts(nodeID);
+    computeSurvival(nodeID);
+    return true;
+  } else {
+    // If not terminal node save best values
+    split_varIDs[nodeID] = best_varID;
+    split_values[nodeID] = best_value;
+    return false;
+  }
 }
 
 void TreeSurvival::computeDeathCounts(size_t nodeID) {

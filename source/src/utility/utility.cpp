@@ -394,3 +394,299 @@ bool checkPositiveIntegers(std::vector<double>& all_values) {
   return true;
 }
 
+double maxstatPValueLau92(double b, double minprop, double maxprop) {
+
+  if (b < 1) {
+    return 1.0;
+  }
+
+  // Compute only once (minprop/maxprop don't change during runtime)
+  static double logprop = log((maxprop * (1 - minprop)) / ((1 - maxprop) * minprop));
+
+  double db = dstdnorm(b);
+  double p = 4 * db / b + db * (b - 1 / b) * logprop;
+
+  if (p > 0) {
+    return p;
+  } else {
+    return 0;
+  }
+}
+
+double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, std::vector<size_t>& m) {
+
+  double D = 0;
+  for (size_t i = 0; i < m.size() - 1; ++i) {
+    double m1 = m[i];
+    double m2 = m[i + 1];
+
+    double t = sqrt(1.0 - m1 * (N - m2) / ((N - m1) * m2));
+    D += 1 / M_PI * exp(-b * b / 2) * (t - (b * b / 4 - 1) * (t * t * t) / 6);
+  }
+
+  return 2 * (1 - pstdnorm(b)) + D;
+}
+
+double dstdnorm(double x) {
+  return exp(-0.5 * x * x) / sqrt(2 * M_PI);
+}
+
+double pstdnorm(double x) {
+  return 0.5 * (1 + erf(x / sqrt(2.0)));
+}
+
+std::vector<double> adjustPvalues(std::vector<double>& unadjusted_pvalues) {
+  size_t num_pvalues = unadjusted_pvalues.size();
+  std::vector<double> adjusted_pvalues(num_pvalues, 0);
+
+  // Get order of p-values
+  std::vector<size_t> indices = order(unadjusted_pvalues, true);
+
+  // Compute adjusted p-values
+  adjusted_pvalues[indices[0]] = unadjusted_pvalues[indices[0]];
+  for (size_t i = 1; i < indices.size(); ++i) {
+    size_t idx = indices[i];
+    size_t idx_last = indices[i - 1];
+
+    adjusted_pvalues[idx] = std::min(adjusted_pvalues[idx_last],
+        (double) num_pvalues / (double) (num_pvalues - i) * unadjusted_pvalues[idx]);
+  }
+  return adjusted_pvalues;
+}
+
+std::vector<size_t> orderInData(Data* data, std::vector<size_t>& sampleIDs, size_t varID, bool decreasing) {
+  // Create index vector
+  std::vector<size_t> indices(sampleIDs.size());
+  std::iota(indices.begin(), indices.end(), 0);
+
+  // Sort index vector based on value vector
+  if (decreasing) {
+    std::sort(std::begin(indices), std::end(indices),
+        [&](size_t i1, size_t i2) {return data->get(sampleIDs[i1], varID) > data->get(sampleIDs[i2], varID);});
+  } else {
+    std::sort(std::begin(indices), std::end(indices),
+        [&](size_t i1, size_t i2) {return data->get(sampleIDs[i1], varID) < data->get(sampleIDs[i2], varID);});
+  }
+  return indices;
+}
+
+std::vector<double> logrankScores(std::vector<double>& time, std::vector<double>& status) {
+  size_t n = time.size();
+  std::vector<double> scores(n);
+
+  // Get order of timepoints
+  std::vector<size_t> indices = order(time, false);
+
+  // Compute scores
+  double cumsum = 0;
+  size_t last_unique = -1;
+  for (size_t i = 0; i < n; ++i) {
+
+    // Continue if next value is the same
+    if (i < n - 1 && time[indices[i]] == time[indices[i + 1]]) {
+      continue;
+    }
+
+    // Compute sum and scores for all non-unique values in a row
+    for (size_t j = last_unique + 1; j <= i; ++j) {
+      cumsum += status[indices[j]] / (n - i);
+    }
+    for (size_t j = last_unique + 1; j <= i; ++j) {
+      scores[indices[j]] = status[indices[j]] - cumsum;
+    }
+
+    // Save last computed value
+    last_unique = i;
+  }
+
+  return scores;
+}
+
+std::vector<double> logrankScoresData(Data* data, size_t time_varID, size_t status_varID,
+    std::vector<size_t> sampleIDs) {
+
+  size_t n = sampleIDs.size();
+  std::vector<double> scores(n);
+
+  // Get order of timepoints
+  std::vector<size_t> indices(n);
+  std::iota(indices.begin(), indices.end(), 0);
+  std::sort(std::begin(indices), std::end(indices),
+      [&](size_t i1, size_t i2) {return data->get(sampleIDs[i1], time_varID) < data->get(sampleIDs[i2], time_varID);});
+
+  // Compute scores
+  double cumsum = 0;
+  size_t last_unique = -1;
+  for (size_t i = 0; i < n; ++i) {
+
+    // Continue if next value is the same
+    if (i < n - 1 && data->get(sampleIDs[indices[i]], time_varID) == data->get(sampleIDs[indices[i + 1]], time_varID)) {
+      continue;
+    }
+
+    // Compute sum and scores for all non-unique values in a row
+    for (size_t j = last_unique + 1; j <= i; ++j) {
+      cumsum += data->get(sampleIDs[indices[j]], status_varID) / (n - i);
+    }
+    for (size_t j = last_unique + 1; j <= i; ++j) {
+      scores[indices[j]] = data->get(sampleIDs[indices[j]], status_varID) - cumsum;
+    }
+
+    // Save last computed value
+    last_unique = i;
+  }
+
+  return scores;
+}
+
+void maxstat(std::vector<double>& scores, std::vector<double>& x, std::vector<size_t>& indices, double& best_maxstat,
+    double& best_split_value, double minprop, double maxprop) {
+  size_t n = x.size();
+
+  double sum_all_scores = 0;
+  for (size_t i = 0; i < n; ++i) {
+    sum_all_scores += scores[indices[i]];
+  }
+
+  // Compute sum of differences from mean for variance
+  double mean_scores = sum_all_scores / n;
+  double sum_mean_diff = 0;
+  for (size_t i = 0; i < n; ++i) {
+    sum_mean_diff += (scores[i] - mean_scores) * (scores[i] - mean_scores);
+  }
+
+  // Get smallest and largest split to consider, -1 for compatibility with R maxstat
+  size_t minsplit = n * minprop - 1;
+  size_t maxsplit = n * (1 - minprop) - 1;
+
+  // For all unique x-values
+  best_maxstat = -1;
+  best_split_value = -1;
+  double sum_scores = 0;
+  size_t n_left = 0;
+  for (size_t i = 0; i <= maxsplit; ++i) {
+
+    sum_scores += scores[indices[i]];
+    n_left++;
+
+    // Dont consider splits smaller than minsplit for splitting (but count)
+    if (i < minsplit) {
+      continue;
+    }
+
+    // Consider only unique values
+    if (i < n - 1 && x[indices[i]] == x[indices[i + 1]]) {
+      continue;
+    }
+
+    // If value is largest possible value, stop
+    if (x[indices[i]] == x[indices[n - 1]]) {
+      break;
+    }
+
+    double S = sum_scores;
+    double E = (double) n_left / (double) n * sum_all_scores;
+    double V = (double) n_left * (double) (n - n_left) / (double) (n * (n - 1)) * sum_mean_diff;
+    double T = fabs((S - E) / sqrt(V));
+
+    if (T > best_maxstat) {
+      best_maxstat = T;
+      best_split_value = x[indices[i]];
+    }
+  }
+}
+
+void maxstatInData(std::vector<double>& scores, Data* data, std::vector<size_t>& sampleIDs, size_t varID,
+    std::vector<size_t>& indices, double& best_maxstat, double& best_split_value, double minprop, double maxprop) {
+  size_t n = sampleIDs.size();
+
+  double sum_all_scores = 0;
+  for (size_t i = 0; i < n; ++i) {
+    sum_all_scores += scores[indices[i]];
+  }
+
+  // Compute sum of differences from mean for variance
+  double mean_scores = sum_all_scores / n;
+  double sum_mean_diff = 0;
+  for (size_t i = 0; i < n; ++i) {
+    sum_mean_diff += (scores[i] - mean_scores) * (scores[i] - mean_scores);
+  }
+
+  // Get smallest and largest split to consider, -1 for compatibility with R maxstat
+  size_t minsplit = n * minprop - 1;
+  size_t maxsplit = n * (1 - minprop) - 1;
+
+  // For all unique x-values
+  best_maxstat = -1;
+  best_split_value = -1;
+  double sum_scores = 0;
+  size_t n_left = 0;
+  for (size_t i = 0; i <= maxsplit; ++i) {
+
+    sum_scores += scores[indices[i]];
+    n_left++;
+
+    // Dont consider splits smaller than minsplit for splitting (but count)
+    if (i < minsplit) {
+      continue;
+    }
+
+    // Consider only unique values
+    double xi = data->get(sampleIDs[indices[i]], varID);
+    if (i < n - 1 && xi == data->get(sampleIDs[indices[i + 1]], varID)) {
+      continue;
+    }
+
+    // If value is largest possible value, stop
+    if (xi == data->get(sampleIDs[indices[n - 1]], varID)) {
+      break;
+    }
+
+    double S = sum_scores;
+    double E = (double) n_left / (double) n * sum_all_scores;
+    double V = (double) n_left * (double) (n - n_left) / (double) (n * (n - 1)) * sum_mean_diff;
+    double T = fabs((S - E) / sqrt(V));
+
+    if (T > best_maxstat) {
+      best_maxstat = T;
+      best_split_value = xi;
+    }
+  }
+}
+
+std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, std::vector<size_t>& indices) {
+  std::vector<size_t> num_samples_left;
+  num_samples_left.reserve(x.size());
+
+  for (size_t i = 0; i < x.size(); ++i) {
+    if (i == 0) {
+      num_samples_left.push_back(1);
+    } else if (x[indices[i]] == x[indices[i - 1]]) {
+      ++num_samples_left[num_samples_left.size() - 1];
+    } else {
+      num_samples_left.push_back(num_samples_left[num_samples_left.size() - 1] + 1);
+    }
+  }
+
+  return num_samples_left;
+}
+
+std::vector<size_t> numSamplesLeftOfCutpointInData(Data* data, std::vector<size_t>& sampleIDs, size_t varID,
+    std::vector<size_t>& indices) {
+  size_t n = indices.size();
+
+  std::vector<size_t> num_samples_left;
+  num_samples_left.reserve(n);
+
+  for (size_t i = 0; i < n; ++i) {
+    if (i == 0) {
+      num_samples_left.push_back(1);
+    } else if (data->get(sampleIDs[indices[i]], varID) == data->get(sampleIDs[indices[i - 1]], varID)) {
+      ++num_samples_left[num_samples_left.size() - 1];
+    } else {
+      num_samples_left.push_back(num_samples_left[num_samples_left.size() - 1] + 1);
+    }
+  }
+
+  return num_samples_left;
+}

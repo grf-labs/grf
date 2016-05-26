@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
 This file is part of Ranger.
-    
+
 Ranger is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -14,13 +14,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Ranger. If not, see <http://www.gnu.org/licenses/>.
 
-Written by: 
+Written by:
 
 Marvin N. Wright
 Institut für Medizinische Biometrie und Statistik
 Universität zu Lübeck
 Ratzeburger Allee 160
-23562 Lübeck 
+23562 Lübeck
 
 http://www.imbs-luebeck.de
 wright@imbs.uni-luebeck.de
@@ -32,6 +32,15 @@ wright@imbs.uni-luebeck.de
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
     TypeName(const TypeName&);             \
     void operator=(const TypeName&)
+
+// Old/new Win build
+#ifdef WIN_R_BUILD
+  #if __cplusplus < 201103L
+    #define OLD_WIN_R_BUILD
+  #else
+    #define NEW_WIN_R_BUILD
+  #endif
+#endif
 
 typedef unsigned int uint;
 
@@ -69,7 +78,8 @@ const uint MAX_IMP_MODE = 4;
 enum SplitRule {
   LOGRANK = 1,
   AUC = 2,
-  AUC_IGNORE_TIES = 3
+  AUC_IGNORE_TIES = 3,
+  MAXSTAT = 4
 };
 
 // Default values
@@ -83,6 +93,8 @@ const uint DEFAULT_MIN_NODE_SIZE_SURVIVAL = 3;
 const uint DEFAULT_MIN_NODE_SIZE_PROBABILITY = 10;
 
 const SplitRule DEFAULT_SPLITRULE = LOGRANK;
+const double DEFAULT_ALPHA = 0.5;
+const double DEFAULT_MINPROP = 0.1;
 
 // Interval to print progress in seconds
 const double STATUS_INTERVAL = 30.0;
