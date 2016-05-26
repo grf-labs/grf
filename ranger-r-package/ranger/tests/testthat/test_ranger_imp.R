@@ -1,11 +1,9 @@
-##This skript provides the tests for importance measures
+## Tests for importance measures
 
 library(ranger)
-library(survival)
-context("ranger")
+context("ranger_imp")
 
-##Initialize the random forests
-
+## Initialize the random forests
 rg.imp <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE,
                  importance = "impurity")
 rg.perm <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE,
@@ -13,7 +11,7 @@ rg.perm <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE
 rg.scale.perm <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE,
                  importance = "permutation", scale.permutation.importance = TRUE)
 
-##Tests
+## Tests
 test_that("importance measures work", {
   expect_that(rg.imp$variable.importance, is_a("numeric"))
   expect_that(rg.perm$variable.importance, is_a("numeric"))

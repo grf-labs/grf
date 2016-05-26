@@ -2,7 +2,6 @@ library(ranger)
 library(survival)
 context("ranger")
 
-
 ## GenABEL
 if (!requireNamespace("GenABEL", quietly = TRUE)) {
   stop("Package GenABEL is required for testing ranger completely. Please install it.", call. = FALSE)
@@ -10,7 +9,6 @@ if (!requireNamespace("GenABEL", quietly = TRUE)) {
   dat.gwaa <- readRDS("../test_gwaa.Rds")
   rg.gwaa <- ranger(CHD ~ ., data = dat.gwaa, verbose = FALSE, write.forest = TRUE)
 }
-
 
 test_that("classification gwaa rf is of class ranger with 14 elements", {
   expect_that(rg.gwaa, is_a("ranger"))

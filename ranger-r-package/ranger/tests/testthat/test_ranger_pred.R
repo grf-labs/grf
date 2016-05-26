@@ -1,10 +1,9 @@
-##This skript provides the tests for predictions
+## Tests for predictions
 
 library(ranger)
-library(survival)
-context("ranger")
+context("ranger_pred")
 
-
+## Tests
 test_that("predict returns good prediction", {
   rf <- ranger(Species ~ ., iris, write.forest = TRUE)
   pred <- predict(rf, iris)

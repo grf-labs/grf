@@ -1,10 +1,9 @@
-##This skript provides the tests for random forests for probability estimation
+## Tests for random forests for probability estimation
 
 library(ranger)
-library(survival)
-context("ranger")
+context("ranger_prob")
 
-##Initialize random forest
+## Initialize random forest
 train.idx <- sample(nrow(iris), 2/3 * nrow(iris))
 iris.train <- iris[train.idx, ]
 iris.test <- iris[-train.idx, ]
@@ -12,7 +11,7 @@ iris.test <- iris[-train.idx, ]
 rg.prob <- ranger(Species ~ ., data = iris.train, write.forest = TRUE, probability = TRUE)
 prob <- predict(rg.prob, iris.test)
 
-##Tests
+## Tests
 test_that("probability estimations are a matrix with correct size", {
   expect_that(prob$predictions, is_a("matrix"))
   expect_that(nrow(prob$predictions), equals(nrow(iris.test)))

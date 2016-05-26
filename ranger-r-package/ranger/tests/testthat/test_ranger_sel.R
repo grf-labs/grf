@@ -1,10 +1,9 @@
-##This skript provides the tests for select weights
+## Tests for split select weights
 
 library(ranger)
-library(survival)
-context("ranger")
+context("ranger_splitweights")
 
-##Tests
+## Tests
 test_that("split select weights work", {
   expect_that(ranger(Species ~ ., iris, num.trees = 5, split.select.weights = c(0.1, 0.2, 0.3, 0.4)), 
               not(throws_error()))

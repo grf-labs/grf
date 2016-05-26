@@ -1,13 +1,13 @@
-##This skript provides the tests for random forests for survival analysis
+## Tests for random forests for survival analysis
 
 library(ranger)
 library(survival)
-context("ranger")
+context("ranger_surv")
 
-##Initialize the random forest for survival analysis
+## Initialize the random forest for survival analysis
 rg.surv <- ranger(Surv(time, status) ~ ., data = veteran, verbose = FALSE, write.forest = TRUE)
 
-##Basic tests (for all random forests equal)
+## Basic tests (for all random forests equal)
 test_that("survival result is of class ranger with 16 elements", {
   expect_that(rg.surv, is_a("ranger"))
   expect_that(length(rg.surv), equals(16))
@@ -44,7 +44,7 @@ test_that("predict works for single observations, survival", {
   expect_that(length(pred$survival), equals(length(rf$unique.death.times)))
 })
 
-##Special tests for random forests for survival analysis
+## Special tests for random forests for survival analysis
 test_that("unique death times in survival result is right", {
   expect_that(rg.surv$unique.death.times, equals(sort(unique(veteran$time))))
 })

@@ -1,14 +1,13 @@
-##This skript provides the tests for character vector in data
+## Tests for character data
 
 library(ranger)
-library(survival)
-context("ranger")
+context("ranger_char")
 
-##Initialize random forests
+## Initialize random forests
 dat <- iris
 dat$Test <- paste0("AA",as.character(1:nrow(dat)))
 
-##Tests
+## Tests
 test_that("no warning if character vector in data", {
   expect_that(ranger(Species ~ ., data = dat, verbose = FALSE), 
               not(gives_warning()))

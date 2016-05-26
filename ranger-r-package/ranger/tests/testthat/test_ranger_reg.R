@@ -1,13 +1,12 @@
-##This skript provides the tests for random forests for regression
+## Tests for random forests for regression
 
 library(ranger)
-library(survival)
-context("ranger")
+context("ranger_reg")
 
-##Initialize the random forest for regression
+## Initialize the random forest for regression
 rg.reg <- ranger(Sepal.Length ~ ., data = iris, verbose = FALSE, write.forest = TRUE)
 
-##Basic tests (for all random forests equal)
+## Basic tests (for all random forests equal)
 test_that("regression result is of class ranger with 14 elements", {
   expect_that(rg.reg, is_a("ranger"))
   expect_that(length(rg.reg), equals(14))
@@ -108,4 +107,4 @@ test_that("Alternative interface regression prediction: Results not all the same
   expect_that(diff(range(predict(rf, dt2[, 2, drop = FALSE])$predictions)), is_more_than(0))
 })
 
-##Special tests for random forests for regression
+## Special tests for random forests for regression

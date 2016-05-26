@@ -1,16 +1,15 @@
-##This skript provides the tests for random forests for classification
+## Tests for random forests for classification
 
 library(ranger)
-library(survival)
-context("ranger")
+context("ranger_class")
 
-##Initialize the random forest for classification
+## Initialize the random forest for classification
 dat <- data.matrix(iris)
 
 rg.class <- ranger(Species ~ ., data = iris, verbose = FALSE, write.forest = TRUE)
 rg.mat   <- ranger(dependent.variable.name = "Species", data = dat, write.forest = TRUE, classification = TRUE)
 
-##Basic tests (for all random forests equal)
+## Basic tests (for all random forests equal)
 test_that("classification result is of class ranger with 14 elements", {
   expect_that(rg.class, is_a("ranger"))
   expect_that(length(rg.class), equals(14))
@@ -100,7 +99,7 @@ test_that("Alternative interface classification prediction works if only indepen
               not(throws_error()))
 })
 
-##Special tests for random forests for classification
+## Special tests for random forests for classification
 test_that("predict works for single observations, classification", {
   pred <- predict(rg.class, head(iris, 1))
   expect_that(pred$predictions, equals(iris[1,"Species"]))

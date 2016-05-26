@@ -1,10 +1,9 @@
-##This skript provides the tests for inbag functions
+## Tests for inbag functions
 
 library(ranger)
-library(survival)
-context("ranger")
+context("ranger_inbag")
 
-##Tests
+## Tests
 test_that("Inbag count matrix if of right size, with replacement", {
   rf <- ranger(Species ~ ., iris, num.trees = 5, keep.inbag = TRUE)
   expect_that(dim(data.frame(rf$inbag.counts)), 
