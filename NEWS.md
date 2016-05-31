@@ -1,3 +1,6 @@
+##### Version 0.4.5
+* Use faster method for unordered factor splitting
+
 ##### Version 0.4.4
 * Add p-values for variable importance
 * Bug fixes

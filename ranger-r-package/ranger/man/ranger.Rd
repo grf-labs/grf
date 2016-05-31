@@ -9,7 +9,7 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   min.node.size = NULL, replace = TRUE, sample.fraction = ifelse(replace,
   1, 0.632), case.weights = NULL, splitrule = NULL, alpha = 0.5,
   minprop = 0.1, split.select.weights = NULL,
-  always.split.variables = NULL, respect.unordered.factors = FALSE,
+  always.split.variables = NULL, unordered.factors = "order",
   scale.permutation.importance = FALSE, keep.inbag = FALSE,
   holdout = FALSE, num.threads = NULL, save.memory = FALSE,
   verbose = TRUE, seed = NULL, dependent.variable.name = NULL,
@@ -48,7 +48,7 @@ ranger(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
 
 \item{always.split.variables}{Character vector with variable names to be always tried for splitting.}
 
-\item{respect.unordered.factors}{Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered.}
+\item{unordered.factors}{Handling of unordered factor covariates, one of 'order', 'partition' and 'ignore' with default 'order'. See below for details.}
 
 \item{scale.permutation.importance}{Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.}
 
@@ -115,6 +115,10 @@ Variables selected with \code{always.split.variables} are tried additionaly to t
 In \code{split.select.weights} variables weighted with 0 are never selected and variables with 1 are always selected. 
 Weights do not need to sum up to 1, they will be normalized later. 
 The usage of \code{split.select.weights} can increase the computation times for large forests.
+
+Unordered factor covariates can be handled in 3 different ways by using \code{always.split.variables}: 
+For 'ignore' all factors are regarded ordered, for 'partition' all possible 2-partitions are considered for splitting and for 'order' the factor levels are ordered by their mean response, as described in Hastie et al. (2009), chapter 9.2.4.
+The default 'order' is generally recommended, as it computationally fast and can handle an unlimited number of factor levels.
 
 For a large number of variables and data frame as input data the formula interface can be slow or impossible to use.
 Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
@@ -183,6 +187,7 @@ Marvin N. Wright
   \item Breiman, L. (2001). Random forests. Mach Learn, 45(1), 5-32. 
   \item Ishwaran, H., Kogalur, U. B., Blackstone, E. H., & Lauer, M. S. (2008). Random survival forests. Ann Appl Stat, 841-860. 
   \item Malley, J. D., Kruppa, J., Dasgupta, A., Malley, K. G., & Ziegler, A. (2012). Probability machines: consistent probability estimation using nonparametric learning machines. Methods Inf Med, 51(1), 74.
+  \item Hastie, T., Tibshirani, R., Friedman, J. (2009). The elements of statistical learning. Springer, New York. 2nd edition.
   }
 }
 \seealso{

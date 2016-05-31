@@ -48,6 +48,10 @@
 ##' Weights do not need to sum up to 1, they will be normalized later. 
 ##' The usage of \code{split.select.weights} can increase the computation times for large forests.
 ##'
+##' Unordered factor covariates can be handled in 3 different ways by using \code{always.split.variables}: 
+##' For 'ignore' all factors are regarded ordered, for 'partition' all possible 2-partitions are considered for splitting and for 'order' the factor levels are ordered by their mean response, as described in Hastie et al. (2009), chapter 9.2.4.
+##' The default 'order' is generally recommended, as it computationally fast and can handle an unlimited number of factor levels.
+##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow or impossible to use.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
 ##' Consider setting \code{save.memory = TRUE} if you encounter memory problems for very large datasets. 
@@ -83,7 +87,7 @@
 ##' @param minprop For "maxstat" splitrule: Lower quantile of covariate distribtuion to be considered for splitting.
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting. Alternatively, a list of size num.trees, containing split select weight vectors for each tree can be used.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
-##' @param respect.unordered.factors Regard unordered factor covariates as unordered categorical variables. If \code{FALSE}, all factors are regarded ordered. 
+##' @param unordered.factors Handling of unordered factor covariates, one of 'order', 'partition' and 'ignore' with default 'order'. See below for details. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param keep.inbag Save how often observations are in-bag in each tree. 
 ##' @param holdout Hold-out mode. Hold-out all samples with case weight 0 and use these for variable importance and prediction error.
@@ -161,6 +165,7 @@
 ##'   \item Breiman, L. (2001). Random forests. Mach Learn, 45(1), 5-32. 
 ##'   \item Ishwaran, H., Kogalur, U. B., Blackstone, E. H., & Lauer, M. S. (2008). Random survival forests. Ann Appl Stat, 841-860. 
 ##'   \item Malley, J. D., Kruppa, J., Dasgupta, A., Malley, K. G., & Ziegler, A. (2012). Probability machines: consistent probability estimation using nonparametric learning machines. Methods Inf Med, 51(1), 74.
+##'   \item Hastie, T., Tibshirani, R., Friedman, J. (2009). The elements of statistical learning. Springer, New York. 2nd edition.
 ##'   }
 ##' @seealso \code{\link{predict.ranger}}
 ##' @useDynLib ranger
@@ -175,7 +180,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    case.weights = NULL, 
                    splitrule = NULL, alpha = 0.5, minprop = 0.1,
                    split.select.weights = NULL, always.split.variables = NULL,
-                   respect.unordered.factors = FALSE,
+                   unordered.factors = "order",
                    scale.permutation.importance = FALSE,
                    keep.inbag = FALSE, holdout = FALSE,
                    num.threads = NULL, save.memory = FALSE,
@@ -421,7 +426,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   }
 
   ## Unordered factors  
-  if (respect.unordered.factors) {
+  if (unordered.factors == "partition") {
     names.selected <- names(data.selected)
     ordered.idx <- sapply(data.selected, is.ordered)
     factor.idx <- sapply(data.selected, is.factor)
@@ -441,9 +446,17 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       unordered.factor.variables <- c("0", "0")
       use.unordered.factor.variables <- FALSE
     } 
-  } else {
+  } else if (unordered.factors == "order") {
+    ## TODO: re-order factor levels
+    ## TODO: save factor levels in forest
+    
     unordered.factor.variables <- c("0", "0")
     use.unordered.factor.variables <- FALSE
+  } else if (unordered.factors == "ignore") {
+    unordered.factor.variables <- c("0", "0")
+    use.unordered.factor.variables <- FALSE
+  } else {
+    stop("Error: Invalid value for unordered.factors, please use 'order', 'partition' or 'ignore'.")
   }
   
   ## Prediction mode always false. Use predict.ranger() method.
