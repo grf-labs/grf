@@ -449,6 +449,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else if (unordered.factors == "order") {
     ## TODO: re-order factor levels
     ## TODO: save factor levels in forest
+    ## TOOD: or do it in C++?
     
     unordered.factor.variables <- c("0", "0")
     use.unordered.factor.variables <- FALSE
