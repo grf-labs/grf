@@ -116,7 +116,7 @@ In \code{split.select.weights} variables weighted with 0 are never selected and 
 Weights do not need to sum up to 1, they will be normalized later. 
 The usage of \code{split.select.weights} can increase the computation times for large forests.
 
-Unordered factor covariates can be handled in 3 different ways by using \code{always.split.variables}: 
+Unordered factor covariates can be handled in 3 different ways by using \code{unordered.factors}: 
 For 'ignore' all factors are regarded ordered, for 'partition' all possible 2-partitions are considered for splitting and for 'order' the factor levels are ordered by their mean response, as described in Hastie et al. (2009), chapter 9.2.4.
 The default 'order' is generally recommended, as it computationally fast and can handle an unlimited number of factor levels.
 
@@ -187,7 +187,7 @@ Marvin N. Wright
   \item Breiman, L. (2001). Random forests. Mach Learn, 45(1), 5-32. 
   \item Ishwaran, H., Kogalur, U. B., Blackstone, E. H., & Lauer, M. S. (2008). Random survival forests. Ann Appl Stat, 841-860. 
   \item Malley, J. D., Kruppa, J., Dasgupta, A., Malley, K. G., & Ziegler, A. (2012). Probability machines: consistent probability estimation using nonparametric learning machines. Methods Inf Med, 51(1), 74.
-  \item Hastie, T., Tibshirani, R., Friedman, J. (2009). The elements of statistical learning. Springer, New York. 2nd edition.
+  \item Hastie, T., Tibshirani, R., Friedman, J. (2009). The Elements of Statistical Learning. Springer, New York. 2nd edition.
   }
 }
 \seealso{
