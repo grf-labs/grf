@@ -274,8 +274,15 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
         names.selected != paste0("Surv(", dependent.variable.name, ", ", status.variable.name, ")")
       recode.idx <- independent.idx & (character.idx | (factor.idx & !ordered.idx))
 
-      ## Recode
-      data.selected[recode.idx] <- recode.factors(data.selected[recode.idx], response)
+      ## Recode each column
+      data.selected[recode.idx] <- lapply(data.selected[recode.idx], function(x) {
+        ## Order factor levels
+        means <- aggregate(response~x, FUN=mean)
+        levels.ordered <- means$x[order(means$response)]
+        
+        ## Return reordered factor
+        factor(x, levels = levels.ordered)
+      })
       
       ## Save levels
       covariate.levels <- lapply(data.selected[independent.idx], levels)
