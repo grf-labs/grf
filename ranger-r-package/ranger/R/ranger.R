@@ -260,10 +260,47 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                                                           colnames(data.selected) != status.variable.name]
   }
   
-  ## Recode characters as factors
+  ## Recode characters as factors and recode factors if 'order' mode
   if (!is.matrix(data.selected)) {
-    char.columns <- sapply(data.selected, is.character)
-    data.selected[char.columns] <- lapply(data.selected[char.columns], factor)
+    character.idx <- sapply(data.selected, is.character)
+    
+    if (unordered.factors == "order") {
+      ## Recode characters and unordered factors
+      names.selected <- names(data.selected)
+      ordered.idx <- sapply(data.selected, is.ordered)
+      factor.idx <- sapply(data.selected, is.factor)
+      independent.idx <- names.selected != dependent.variable.name & names.selected != status.variable.name
+      recode.idx <- independent.idx & (character.idx | (factor.idx & !ordered.idx))
+
+      ## Recode
+      data.selected[recode.idx] <- lapply(data.selected[recode.idx], function(x) {
+        if (is.factor(x)) {
+          levels <- levels(x)
+        } else {
+          levels <- unique(x)
+        }
+        
+        ## Order factor levels
+        levels.ordered <- names(sort(sapply(levels, function(y) {
+          if (treetype == 1 | treetype == 9) {
+            mean(as.numeric(response[x == y]))
+          } else if (treetype == 3) {
+            mean(response[x == y])
+          } else if (treetype == 5) {
+            mean(response[x == y, 1])
+          } 
+        })))
+        
+        ## Return reordered factor
+        factor(x, levels = levels.ordered)
+      })
+      
+      ## Save levels
+      covariate.levels <- lapply(data.selected[independent.idx], levels)
+    } else {
+      ## Recode characters only
+      data.selected[character.idx] <- lapply(data.selected[character.idx], factor)
+    }
   }
   
   ## Input data and variable names
@@ -446,14 +483,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       unordered.factor.variables <- c("0", "0")
       use.unordered.factor.variables <- FALSE
     } 
-  } else if (unordered.factors == "order") {
-    ## TODO: re-order factor levels
-    ## TODO: save factor levels in forest
-    ## TOOD: or do it in C++?
-    
-    unordered.factor.variables <- c("0", "0")
-    use.unordered.factor.variables <- FALSE
-  } else if (unordered.factors == "ignore") {
+  } else if (unordered.factors == "ignore" | unordered.factors == "order") {
+    ## Ordering for "order" is handled above
     unordered.factor.variables <- c("0", "0")
     use.unordered.factor.variables <- FALSE
   } else {
@@ -527,6 +558,11 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$forest$independent.variable.names <- independent.variable.names
     result$forest$treetype <- result$treetype
     class(result$forest) <- "ranger.forest"
+    
+    ## In 'ordered' mode, save covariate levels
+    if (unordered.factors == "order" & !is.matrix(data)) {
+      result$forest$covariate.levels <- covariate.levels
+    }
   }
   
   class(result) <- "ranger"
