@@ -19,4 +19,4 @@ expect_that(print(predict(rf, iris)), prints_text("Ranger prediction"))
 expect_that(str(rf), prints_text("List of 13"))
 
 ## Test str forest function
-expect_that(str(rf$forest), prints_text("List of 10"))
+expect_that(str(rf$forest), prints_text("List of 11"))
