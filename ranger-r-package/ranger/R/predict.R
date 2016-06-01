@@ -85,40 +85,95 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
     stop("Error: Invalid forest object.")
   }
   
-  ## If alternative interface used, don't subset data
+ ## TODO: Cleanup, reduce redudance, check if tested.
   if (forest$treetype == "Survival") {
     if (forest$dependent.varID > 0 & forest$status.varID > 1) {
+      ## If alternative interface used, don't subset data
       if (!is.matrix(data)) {
         ## Recode characters
         char.columns <- sapply(data, is.character)
         data[char.columns] <- lapply(data[char.columns], factor)
       }
+      
+      ## Recode factors if forest grown 'order' mode
+      if (!is.null(forest$covariate.levels) && !all(sapply(forest$covariate.levels, is.null))) {
+        idx <- c(-forest$dependent.varID, -forest$status.varID > 1)
+        data[, idx] <- mapply(function(x, y) {
+          if(is.null(y)) {
+            x
+          } else {
+            factor(x, levels = y)
+          }
+        }, data[, idx], forest$covariate.levels, SIMPLIFY = FALSE)
+      }
+      
       data.final <- data.matrix(data)
     } else {
+      ## If formula interface used, subset data
       data.selected <- subset(data, select = forest$independent.variable.names)
       if (!is.matrix(data.selected)) {
         ## Recode characters
         char.columns <- sapply(data.selected, is.character)
         data.selected[char.columns] <- lapply(data.selected[char.columns], factor)
       }
+      
+      ## Recode factors if forest grown 'order' mode
+      if (!is.null(forest$covariate.levels) && !all(sapply(forest$covariate.levels, is.null))) {
+        data.selected <- data.frame(mapply(function(x, y) {
+          if(is.null(y)) {
+            x
+          } else {
+            factor(x, levels = y)
+          }
+        }, data.selected, forest$covariate.levels, SIMPLIFY = FALSE))
+      }
+      
       data.final <- data.matrix(cbind(0, 0, data.selected))
       variable.names <- c("time", "status", forest$independent.variable.names)
     }
   } else {
+    ## No survival
     if (ncol(data) == length(forest$independent.variable.names)+1 & forest$dependent.varID > 0) {
+      ## If alternative interface used, don't subset data
       if (!is.matrix(data)) {
         ## Recode characters
         char.columns <- sapply(data, is.character)
         data[char.columns] <- lapply(data[char.columns], factor)
       }
+      
+      ## Recode factors if forest grown 'order' mode
+      if (!is.null(forest$covariate.levels) && !all(sapply(forest$covariate.levels, is.null))) {
+        idx <- -forest$dependent.varID
+        data[, idx] <- mapply(function(x, y) {
+          if(is.null(y)) {
+            x
+          } else {
+            factor(x, levels = y)
+          }
+        }, data[, idx], forest$covariate.levels, SIMPLIFY = FALSE)
+      }
+      
       data.final <- data.matrix(data)
     } else {
+      ## If formula interface used, subset data
       data.selected <- subset(data, select = forest$independent.variable.names)
       if (!is.matrix(data.selected)) {
         ## Recode characters
         char.columns <- sapply(data.selected, is.character)
         data.selected[char.columns] <- lapply(data.selected[char.columns], factor)
       }
+      
+      ## Recode factors if forest grown 'order' mode
+      if (!is.null(forest$covariate.levels) && !all(sapply(forest$covariate.levels, is.null))) {
+        data.selected <- data.frame(mapply(function(x, y) {
+          if(is.null(y)) {
+            x
+          } else {
+            factor(x, levels = y)
+          }
+        }, data.selected, forest$covariate.levels, SIMPLIFY = FALSE))
+      }
+      
       ## Arange data as in original data
       if (forest$dependent.varID == 0) {
         data.final <- data.matrix(cbind(0, data.selected))
@@ -137,7 +192,6 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
     }
   }
 
-  
   ## If gwa mode, add snp variable names
   if (gwa.mode) {
     variable.names <- c(variable.names, snp.names)
