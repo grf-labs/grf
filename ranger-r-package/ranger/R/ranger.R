@@ -274,11 +274,20 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
         names.selected != paste0("Surv(", dependent.variable.name, ", ", status.variable.name, ")")
       recode.idx <- independent.idx & (character.idx | (factor.idx & !ordered.idx))
 
+      ## Numeric response
+      if (is.factor(response)) {
+        num.response <- as.numeric(response)
+      } else if (!is.null(dim(response))) {
+        num.response <- response[, 1]
+      } else {
+        num.response <- response
+      }
+
       ## Recode each column
       data.selected[recode.idx] <- lapply(data.selected[recode.idx], function(x) {
         ## Order factor levels
-        means <- aggregate(response~x, FUN=mean)
-        levels.ordered <- means$x[order(means$response)]
+        means <- aggregate(num.response~x, FUN=mean)
+        levels.ordered <- means$x[order(means$num.response)]
         
         ## Return reordered factor
         factor(x, levels = levels.ordered)
