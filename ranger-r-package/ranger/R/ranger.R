@@ -275,27 +275,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       recode.idx <- independent.idx & (character.idx | (factor.idx & !ordered.idx))
 
       ## Recode
-      data.selected[recode.idx] <- lapply(data.selected[recode.idx], function(x) {
-        if (is.factor(x)) {
-          levels <- levels(x)
-        } else {
-          levels <- unique(x)
-        }
-        
-        ## Order factor levels
-        levels.ordered <- names(sort(sapply(levels, function(y) {
-          if (treetype == 1 | treetype == 9) {
-            mean(as.numeric(response[x == y]))
-          } else if (treetype == 3) {
-            mean(response[x == y])
-          } else if (treetype == 5) {
-            mean(response[x == y, 1])
-          } 
-        })))
-        
-        ## Return reordered factor
-        factor(x, levels = levels.ordered)
-      })
+      data.selected[recode.idx] <- recode.factors(data.selected[recode.idx], response)
       
       ## Save levels
       covariate.levels <- lapply(data.selected[independent.idx], levels)
