@@ -20,4 +20,10 @@ test_that("case weights work", {
   expect_that(all(pred == "setosa"), is_true())
 })
 
+test_that("Prediction works correctly if dependent variable is not first or last", {
+  dat <- iris[, c(1:2, 5, 3:4)]
+  rf <- ranger(Species ~ ., dat, num.trees = 5, write.forest = TRUE)
+  expect_gte(mean(predictions(predict(rf, dat)) == dat$Species), 0.9)
+})
+
 
