@@ -48,7 +48,7 @@
 ##' Weights do not need to sum up to 1, they will be normalized later. 
 ##' The usage of \code{split.select.weights} can increase the computation times for large forests.
 ##'
-##' Unordered factor covariates can be handled in 3 different ways by using \code{unordered.factors}: 
+##' Unordered factor covariates can be handled in 3 different ways by using \code{respect.unordered.factors}: 
 ##' For 'ignore' all factors are regarded ordered, for 'partition' all possible 2-partitions are considered for splitting and for 'order' the factor levels are ordered by their mean response, as described in Hastie et al. (2009), chapter 9.2.4.
 ##' The default 'order' is generally recommended, as it computationally fast and can handle an unlimited number of factor levels. 
 ##' Note that the factors are only reordered once and not again in each split. 
@@ -88,7 +88,7 @@
 ##' @param minprop For "maxstat" splitrule: Lower quantile of covariate distribtuion to be considered for splitting.
 ##' @param split.select.weights Numeric vector with weights between 0 and 1, representing the probability to select variables for splitting. Alternatively, a list of size num.trees, containing split select weight vectors for each tree can be used.  
 ##' @param always.split.variables Character vector with variable names to be always tried for splitting.
-##' @param unordered.factors Handling of unordered factor covariates, one of 'order', 'partition' and 'ignore' with default 'order'. See below for details. 
+##' @param respect.unordered.factors Handling of unordered factor covariates, one of 'order', 'partition' and 'ignore' with default 'order'. See below for details. 
 ##' @param scale.permutation.importance Scale permutation importance by standard error as in (Breiman 2001). Only applicable if permutation variable importance mode selected.
 ##' @param keep.inbag Save how often observations are in-bag in each tree. 
 ##' @param holdout Hold-out mode. Hold-out all samples with case weight 0 and use these for variable importance and prediction error.
@@ -181,7 +181,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    case.weights = NULL, 
                    splitrule = NULL, alpha = 0.5, minprop = 0.1,
                    split.select.weights = NULL, always.split.variables = NULL,
-                   unordered.factors = "order",
+                   respect.unordered.factors = "order",
                    scale.permutation.importance = FALSE,
                    keep.inbag = FALSE, holdout = FALSE,
                    num.threads = NULL, save.memory = FALSE,
@@ -261,11 +261,18 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                                                           colnames(data.selected) != status.variable.name]
   }
   
+  ## Old version of if respect.unordered.factors
+  if (respect.unordered.factors == TRUE) {
+    respect.unordered.factors <- "order"
+  } else if (respect.unordered.factors == FALSE) {
+    respect.unordered.factors <- "ignore"
+  }
+  
   ## Recode characters as factors and recode factors if 'order' mode
   if (!is.matrix(data.selected)) {
     character.idx <- sapply(data.selected, is.character)
     
-    if (unordered.factors == "order") {
+    if (respect.unordered.factors == "order") {
       ## Recode characters and unordered factors
       names.selected <- names(data.selected)
       ordered.idx <- sapply(data.selected, is.ordered)
@@ -460,7 +467,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   }
 
   ## Unordered factors  
-  if (unordered.factors == "partition") {
+  if (respect.unordered.factors == "partition") {
     names.selected <- names(data.selected)
     ordered.idx <- sapply(data.selected, is.ordered)
     factor.idx <- sapply(data.selected, is.factor)
@@ -480,12 +487,12 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       unordered.factor.variables <- c("0", "0")
       use.unordered.factor.variables <- FALSE
     } 
-  } else if (unordered.factors == "ignore" | unordered.factors == "order") {
+  } else if (respect.unordered.factors == "ignore" | respect.unordered.factors == "order") {
     ## Ordering for "order" is handled above
     unordered.factor.variables <- c("0", "0")
     use.unordered.factor.variables <- FALSE
   } else {
-    stop("Error: Invalid value for unordered.factors, please use 'order', 'partition' or 'ignore'.")
+    stop("Error: Invalid value for respect.unordered.factors, please use 'order', 'partition' or 'ignore'.")
   }
   
   ## Prediction mode always false. Use predict.ranger() method.
@@ -557,7 +564,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     class(result$forest) <- "ranger.forest"
     
     ## In 'ordered' mode, save covariate levels
-    if (unordered.factors == "order" & !is.matrix(data)) {
+    if (respect.unordered.factors == "order" & !is.matrix(data)) {
       result$forest$covariate.levels <- covariate.levels
     }
   }
