@@ -9,11 +9,11 @@ test_that("If unordered.factors='partition', regard characters as unordered", {
                    stringsAsFactors = FALSE)
   
   set.seed(2)
-  rf.char <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, unordered.factors='partition')
+  rf.char <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, unordered.factors = 'partition')
   
   dt$x <- factor(dt$x, ordered = FALSE)
   set.seed(2)
-  rf.fac <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, unordered.factors='partition')
+  rf.fac <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, unordered.factors = 'partition')
   
   expect_that(rf.char$prediction.error, equals(rf.fac$prediction.error))
 })
@@ -25,11 +25,48 @@ test_that("If unordered.factors='ignore', regard characters as ordered", {
                    stringsAsFactors = FALSE)
   
   set.seed(2)
-  rf.char <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, unordered.factors='ignore')
+  rf.char <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, unordered.factors = 'ignore')
   
   dt$x <- factor(dt$x, ordered = FALSE)
   set.seed(2)
-  rf.fac <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, unordered.factors='ignore')
+  rf.fac <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, unordered.factors = 'ignore')
   
   expect_that(rf.char$prediction.error, equals(rf.fac$prediction.error))
+})
+
+test_that("Error if other value for unordered.factors", {
+  expect_that(ranger(y ~ ., iris, num.trees = 5, unordered.factors = NULL), 
+              throws_error())
+})
+
+test_that("Same results if no unordered factors", {
+  set.seed(100)
+  rf1 <- ranger(Species ~ ., iris, num.trees = 5, unordered.factors = 'ignore')
+  set.seed(100)
+  rf2 <- ranger(Species ~ ., iris, num.trees = 5, unordered.factors = 'order')
+  set.seed(100)
+  rf3 <- ranger(Species ~ ., iris, num.trees = 5, unordered.factors = 'partition')
+  
+  expect_equal(rf1$confusion.matrix, 
+               rf2$confusion.matrix)
+  expect_equal(rf1$confusion.matrix, 
+               rf3$confusion.matrix)
+})
+
+test_that("Error if too many factors in 'partition' mode", {
+  n <- 100
+  dt <- data.frame(x = factor(1:100, ordered = FALSE),  
+                   y = rbinom(n, 1, 0.5))
+  
+  expect_error(ranger(y ~ ., data = dt, num.trees = 5, unordered.factors = 'partition'))
+})
+
+test_that("Survival forest with 'order' mode works", {
+  rf <- ranger(Surv(time, status) ~ ., veteran, num.trees = 5, 
+               write.forest = TRUE, unordered.factors = 'order')
+  expect_equal(sort(rf$forest$covariate.levels$celltype), 
+               sort(levels(veteran$celltype)))
+    
+  pred <- predict(rf, veteran)
+  expect_is(pred, "ranger.prediction")
 })
