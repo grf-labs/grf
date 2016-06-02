@@ -302,18 +302,16 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     }
   }
   
-  ## Input data and variable names
+  ## Input data and variable names, create final data matrix
   if (!is.null(formula) & treetype == 5) {
-    data.final <- cbind(response[, 1], response[, 2],
-                        data.selected[-1])
+    data.final <- data.matrix(cbind(response[, 1], response[, 2],
+                              data.selected[-1]))
     colnames(data.final) <- c(dependent.variable.name, status.variable.name,
                               independent.variable.names)
-  } else {
+  } else if (is.matrix(data.selected)) {
     data.final <- data.selected
-  }
-  if (!is.matrix(data.selected)) {
-    ## Create matrix
-    data.final <- data.matrix(data.final)
+  } else {
+    data.final <- data.matrix(data.selected)
   }
   variable.names <- colnames(data.final)
   
