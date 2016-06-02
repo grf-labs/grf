@@ -13,8 +13,9 @@ test_that("Old parameters still work", {
   rf.true <- ranger(y ~ ., data = dt, num.trees = 5, write.forest = TRUE, 
                     respect.unordered.factors = TRUE)
   
-  test_that(rf.false$forest$covariate.levels, equals(NULL))
-  test_that(length(rf.true$forest$covariate.levels), equals(1))
+  expect_null(rf.false$forest$covariate.levels)
+  expect_that(length(rf.true$forest$covariate.levels), 
+              equals(1))
 })
 
 test_that("If respect.unordered.factors='partition', regard characters as unordered", {
