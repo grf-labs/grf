@@ -50,7 +50,8 @@
 ##'
 ##' Unordered factor covariates can be handled in 3 different ways by using \code{unordered.factors}: 
 ##' For 'ignore' all factors are regarded ordered, for 'partition' all possible 2-partitions are considered for splitting and for 'order' the factor levels are ordered by their mean response, as described in Hastie et al. (2009), chapter 9.2.4.
-##' The default 'order' is generally recommended, as it computationally fast and can handle an unlimited number of factor levels.
+##' The default 'order' is generally recommended, as it computationally fast and can handle an unlimited number of factor levels. 
+##' Note that the factors are only reordered once and not again in each split. 
 ##'
 ##' For a large number of variables and data frame as input data the formula interface can be slow or impossible to use.
 ##' Alternatively dependent.variable.name (and status.variable.name for survival) can be used.
