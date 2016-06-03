@@ -20,9 +20,9 @@ pred3 = predict(mod3, data = iris[!ind, ])
 
 ## Tests
 test_that("same result with same seed", {
-  expect_that(pred1$predictions, equals(pred2$predictions))
+  expect_equal(pred1$predictions, pred2$predictions)
 })
 
 test_that("same result with same seed, different interface", {
-  expect_that(pred1$predictions, equals(pred3$predictions))
+  expect_equal(pred1$predictions, pred3$predictions)
 })
