@@ -14,8 +14,7 @@ test_that("Old parameters still work", {
                     respect.unordered.factors = TRUE)
   
   expect_null(rf.false$forest$covariate.levels)
-  expect_that(length(rf.true$forest$covariate.levels), 
-              equals(1))
+  expect_equal(length(rf.true$forest$covariate.levels), 1)
 })
 
 test_that("If respect.unordered.factors='partition', regard characters as unordered", {
@@ -31,7 +30,7 @@ test_that("If respect.unordered.factors='partition', regard characters as unorde
   set.seed(2)
   rf.fac <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, respect.unordered.factors = 'partition')
   
-  expect_that(rf.char$prediction.error, equals(rf.fac$prediction.error))
+  expect_equal(rf.char$prediction.error, rf.fac$prediction.error)
 })
 
 test_that("If respect.unordered.factors='ignore', regard characters as ordered", {
@@ -47,12 +46,11 @@ test_that("If respect.unordered.factors='ignore', regard characters as ordered",
   set.seed(2)
   rf.fac <- ranger(y ~ ., data = dt, num.trees = 5, min.node.size = n/2, respect.unordered.factors = 'ignore')
   
-  expect_that(rf.char$prediction.error, equals(rf.fac$prediction.error))
+  expect_equal(rf.char$prediction.error, rf.fac$prediction.error)
 })
 
 test_that("Error if other value for respect.unordered.factors", {
-  expect_that(ranger(y ~ ., iris, num.trees = 5, respect.unordered.factors = NULL), 
-              throws_error())
+  expect_error(ranger(y ~ ., iris, num.trees = 5, respect.unordered.factors = NULL))
 })
 
 test_that("Same results if no unordered factors", {

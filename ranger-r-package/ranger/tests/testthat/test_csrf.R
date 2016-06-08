@@ -12,8 +12,8 @@ test_that("csrf classification returns predictions", {
                params1 = list(num.trees = 10), 
                params2 = list(num.trees = 3))
   
-  expect_that(pred, is_a("factor"))
-  expect_that(length(pred), equals(nrow(iris)/3))
+  expect_is(pred, "factor")
+  expect_equal(length(pred), nrow(iris)/3)
 })
 
 test_that("csrf regression returns predictions", {
@@ -25,6 +25,6 @@ test_that("csrf regression returns predictions", {
                params1 = list(num.trees = 10), 
                params2 = list(num.trees = 3))
   
-  expect_that(pred, is_a("numeric"))
-  expect_that(length(pred), equals(nrow(iris)/3))
+  expect_is(pred, "numeric")
+  expect_equal(length(pred), nrow(iris)/3)
 })

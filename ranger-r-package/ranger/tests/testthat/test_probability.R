@@ -13,23 +13,23 @@ prob <- predict(rg.prob, iris.test)
 
 ## Tests
 test_that("probability estimations are a matrix with correct size", {
-  expect_that(prob$predictions, is_a("matrix"))
-  expect_that(nrow(prob$predictions), equals(nrow(iris.test)))
-  expect_that(ncol(prob$predictions), equals(length(rg.prob$forest$levels)))
+  expect_is(prob$predictions, "matrix")
+  expect_equal(nrow(prob$predictions), nrow(iris.test))
+  expect_equal(ncol(prob$predictions), length(rg.prob$forest$levels))
 })
 
 test_that("probability estimations are between 0 and 1 and sum to 1", {
-  expect_that(all(prob$predictions > -1e-5 & prob$predictions <= 1 + 1e-5), is_true())
-  expect_that(rowSums(prob$predictions), equals(rep(1, nrow(prob$predictions))))
+  expect_true(all(prob$predictions > -1e-5 & prob$predictions <= 1 + 1e-5))
+  expect_equal(rowSums(prob$predictions), rep(1, nrow(prob$predictions)))
 })
 
 test_that("save.memory option works for probability", {
   rf <- ranger(Species ~ ., data = iris, probability = TRUE, save.memory = TRUE)
-  expect_that(rf$treetype, equals("Probability estimation"))
+  expect_equal(rf$treetype, "Probability estimation")
 })
 
 test_that("predict works for single observations, probability prediction", {
   rf <- ranger(Species ~ ., iris, write.forest = TRUE, probability = TRUE)
   pred <- predict(rf, head(iris, 1))
-  expect_that(names(which.max(pred$predictions)), equals(as.character(iris[1,"Species"])))
+  expect_equal(names(which.max(pred$predictions)), as.character(iris[1,"Species"]))
 })
