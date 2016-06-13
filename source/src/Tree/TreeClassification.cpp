@@ -198,7 +198,7 @@ void TreeClassification::findBestSplitValueSmallQ(size_t nodeID, size_t varID, s
   std::vector<double> possible_split_values;
   data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
 
-  //Try next variable if all equal for this
+  // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {
     return;
   }
@@ -341,7 +341,7 @@ void TreeClassification::findBestSplitValueUnordered(size_t nodeID, size_t varID
   std::vector<double> factor_levels;
   data->getAllValues(factor_levels, sampleIDs[nodeID], varID);
 
-  //Try next variable if all equal for this
+  // Try next variable if all equal for this
   if (factor_levels.size() < 2) {
     return;
   }

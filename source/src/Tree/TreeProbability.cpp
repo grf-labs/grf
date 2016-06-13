@@ -31,14 +31,14 @@
 #include "Data.h"
 
 TreeProbability::TreeProbability(std::vector<double>* class_values, std::vector<uint>* response_classIDs) :
-    class_values(class_values), response_classIDs(response_classIDs), counter(0), sums(0) {
+    class_values(class_values), response_classIDs(response_classIDs), counter(0), counter_per_class(0) {
 }
 
 TreeProbability::TreeProbability(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
     std::vector<double>& split_values, std::vector<double>* class_values, std::vector<uint>* response_classIDs,
     std::vector<std::vector<double>>& terminal_class_counts, std::vector<bool>* is_ordered_variable) :
     Tree(child_nodeIDs, split_varIDs, split_values, is_ordered_variable), class_values(class_values), response_classIDs(
-        response_classIDs), terminal_class_counts(terminal_class_counts), counter(0), sums(0) {
+        response_classIDs), terminal_class_counts(terminal_class_counts), counter(0), counter_per_class(0) {
 }
 
 TreeProbability::~TreeProbability() {
@@ -48,9 +48,10 @@ TreeProbability::~TreeProbability() {
 void TreeProbability::initInternal() {
   // Init counters if not in memory efficient mode
   if (!memory_saving_splitting) {
+    size_t num_classes = class_values->size();
     size_t max_num_unique_values = data->getMaxNumUniqueValues();
     counter = new size_t[max_num_unique_values];
-    sums = new double[max_num_unique_values];
+    counter_per_class = new size_t[num_classes * max_num_unique_values];
   }
 }
 
@@ -143,38 +144,46 @@ double TreeProbability::computePredictionAccuracyInternal() {
 bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   size_t num_samples_node = sampleIDs[nodeID].size();
+  size_t num_classes = class_values->size();
   double best_decrease = -1;
   size_t best_varID = 0;
   double best_value = 0;
 
-  // Compute sum of responses in node
-  double sum_node = 0;
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    sum_node += data->get(sampleID, dependent_varID);
+  size_t* class_counts = new size_t[num_classes]();
+  // Compute overall class counts
+  for (size_t i = 0; i < num_samples_node; ++i) {
+    size_t sampleID = sampleIDs[nodeID][i];
+    uint sample_classID = (*response_classIDs)[sampleID];
+    ++class_counts[sample_classID];
   }
 
   // For all possible split variables
   for (auto& varID : possible_split_varIDs) {
-
     // Find best split value, if ordered consider all values as split values, else all 2-partitions
     if ((*is_ordered_variable)[varID]) {
 
       // Use memory saving method if option set
       if (memory_saving_splitting) {
-        findBestSplitValueSmallQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+        findBestSplitValueSmallQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
+            best_decrease);
       } else {
         // Use faster method for both cases
         double q = (double) num_samples_node / (double) data->getNumUniqueDataValues(varID);
         if (q < Q_THRESHOLD) {
-          findBestSplitValueSmallQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+          findBestSplitValueSmallQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
+              best_decrease);
         } else {
-          findBestSplitValueLargeQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+          findBestSplitValueLargeQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
+              best_decrease);
         }
       }
     } else {
-      findBestSplitValueUnordered(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+      findBestSplitValueUnordered(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
+          best_decrease);
     }
   }
+  
+  delete[] class_counts;
 
   // Stop if no good split found
   if (best_decrease < 0) {
@@ -192,8 +201,8 @@ bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible
   return false;
 }
 
-void TreeProbability::findBestSplitValueSmallQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-    double& best_value, size_t& best_varID, double& best_decrease) {
+void TreeProbability::findBestSplitValueSmallQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+    size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 
   // Create possible split values
   std::vector<double> possible_split_values;
@@ -207,30 +216,30 @@ void TreeProbability::findBestSplitValueSmallQ(size_t nodeID, size_t varID, doub
   // Remove largest value because no split possible
   possible_split_values.pop_back();
 
-  // Initialize with 0m if not in memory efficient mode, use pre-allocated space
+  // Initialize with 0, if not in memory efficient mode, use pre-allocated space
   size_t num_splits = possible_split_values.size();
-  double* sums_right;
+  size_t* class_counts_right;
   size_t* n_right;
   if (memory_saving_splitting) {
-    sums_right = new double[num_splits]();
+    class_counts_right = new size_t[num_splits * num_classes]();
     n_right = new size_t[num_splits]();
   } else {
-    sums_right = sums;
+    class_counts_right = counter_per_class;
     n_right = counter;
-    std::fill(sums_right, sums_right + num_splits, 0);
+    std::fill(class_counts_right, class_counts_right + num_splits * num_classes, 0);
     std::fill(n_right, n_right + num_splits, 0);
   }
 
-  // Sum in right child and possbile split
+  // Count samples in right child per class and possbile split
   for (auto& sampleID : sampleIDs[nodeID]) {
     double value = data->get(sampleID, varID);
-    double response = data->get(sampleID, dependent_varID);
+    uint sample_classID = (*response_classIDs)[sampleID];
 
     // Count samples until split_value reached
     for (size_t i = 0; i < num_splits; ++i) {
       if (value > possible_split_values[i]) {
         ++n_right[i];
-        sums_right[i] += response;
+        ++class_counts_right[i * num_classes + sample_classID];
       } else {
         break;
       }
@@ -246,9 +255,19 @@ void TreeProbability::findBestSplitValueSmallQ(size_t nodeID, size_t varID, doub
       continue;
     }
 
-    double sum_right = sums_right[i];
-    double sum_left = sum_node - sum_right;
-    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right[i];
+    // Sum of squares
+    double sum_left = 0;
+    double sum_right = 0;
+    for (size_t j = 0; j < num_classes; ++j) {
+      size_t class_count_right = class_counts_right[i * num_classes + j];
+      size_t class_count_left = class_counts[j] - class_count_right;
+
+      sum_right += class_count_right * class_count_right;
+      sum_left += class_count_left * class_count_left;
+    }
+
+    // Decrease of impurity
+    double decrease = sum_left / (double) n_left + sum_right / (double) n_right[i];
 
     // If better than before, use this
     if (decrease > best_decrease) {
@@ -259,28 +278,30 @@ void TreeProbability::findBestSplitValueSmallQ(size_t nodeID, size_t varID, doub
   }
 
   if (memory_saving_splitting) {
-    delete[] sums_right;
+    delete[] class_counts_right;
     delete[] n_right;
   }
 }
 
-void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-    double& best_value, size_t& best_varID, double& best_decrease) {
+void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+    size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 
   // Set counters to 0
   size_t num_unique = data->getNumUniqueDataValues(varID);
+  std::fill(counter_per_class, counter_per_class + num_unique * num_classes, 0);
   std::fill(counter, counter + num_unique, 0);
-  std::fill(sums, sums + num_unique, 0);
 
+  // Count values
   for (auto& sampleID : sampleIDs[nodeID]) {
     size_t index = data->getIndex(sampleID, varID);
+    size_t classID = (*response_classIDs)[sampleID];
 
-    sums[index] += data->get(sampleID, dependent_varID);
     ++counter[index];
+    ++counter_per_class[index * num_classes + classID];
   }
 
   size_t n_left = 0;
-  double sum_left = 0;
+  size_t* class_counts_left = new size_t[num_classes]();
 
   // Compute decrease of impurity for each split
   for (size_t i = 0; i < num_unique - 1; ++i) {
@@ -291,7 +312,6 @@ void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, doub
     }
 
     n_left += counter[i];
-    sum_left += sums[i];
 
     // Stop if right child empty
     size_t n_right = num_samples_node - n_left;
@@ -299,8 +319,19 @@ void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, doub
       break;
     }
 
-    double sum_right = sum_node - sum_left;
-    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
+    // Sum of squares
+    double sum_left = 0;
+    double sum_right = 0;
+    for (size_t j = 0; j < num_classes; ++j) {
+      class_counts_left[j] += counter_per_class[i * num_classes + j];
+      size_t class_count_right = class_counts[j] - class_counts_left[j];
+
+      sum_left += class_counts_left[j] * class_counts_left[j];
+      sum_right += class_count_right * class_count_right;
+    }
+
+    // Decrease of impurity
+    double decrease = sum_right / (double) n_right + sum_left / (double) n_left;
 
     // If better than before, use this
     if (decrease > best_decrease) {
@@ -311,8 +342,8 @@ void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, doub
   }
 }
 
-void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-    double& best_value, size_t& best_varID, double& best_decrease) {
+void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+    size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 
   // Create possible split values
   std::vector<double> factor_levels;
@@ -342,12 +373,12 @@ void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, d
     }
 
     // Initialize
-    double sum_right = 0;
+    size_t* class_counts_right = new size_t[num_classes]();
     size_t n_right = 0;
 
-    // Sum in right child
+    // Count classes in left and right child
     for (auto& sampleID : sampleIDs[nodeID]) {
-      double response = data->get(sampleID, dependent_varID);
+      uint sample_classID = (*response_classIDs)[sampleID];
       double value = data->get(sampleID, varID);
       size_t factorID = floor(value) - 1;
 
@@ -355,14 +386,24 @@ void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, d
       // In right child, if bitwise splitID at position factorID is 1
       if ((splitID & (1 << factorID))) {
         ++n_right;
-        sum_right += response;
+        ++class_counts_right[sample_classID];
       }
     }
     size_t n_left = num_samples_node - n_right;
 
     // Sum of squares
-    double sum_left = sum_node - sum_right;
-    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
+    double sum_left = 0;
+    double sum_right = 0;
+    for (size_t j = 0; j < num_classes; ++j) {
+      size_t class_count_right = class_counts_right[j];
+      size_t class_count_left = class_counts[j] - class_count_right;
+
+      sum_right += class_count_right * class_count_right;
+      sum_left += class_count_left * class_count_left;
+    }
+
+    // Decrease of impurity
+    double decrease = sum_left / (double) n_left + sum_right / (double) n_right;
 
     // If better than before, use this
     if (decrease > best_decrease) {
@@ -375,19 +416,26 @@ void TreeProbability::findBestSplitValueUnordered(size_t nodeID, size_t varID, d
 
 void TreeProbability::addImpurityImportance(size_t nodeID, size_t varID, double decrease) {
 
-  double sum_node = 0;
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    sum_node += data->get(sampleID, dependent_varID);
-  }
-  double best_decrease = decrease - sum_node * sum_node / (double) sampleIDs[nodeID].size();
+   std::vector<size_t> class_counts;
+  class_counts.resize(class_values->size(), 0);
 
-  // No variable importance for no split variables
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    uint sample_classID = (*response_classIDs)[sampleID];
+    class_counts[sample_classID]++;
+  }
+  double sum_node = 0;
+  for (auto& class_count : class_counts) {
+    sum_node += class_count * class_count;
+  }
+  double best_gini = decrease - sum_node / (double) sampleIDs[nodeID].size();
+
+// No variable importance for no split variables
   size_t tempvarID = varID;
   for (auto& skip : *no_split_variables) {
     if (varID >= skip) {
       --tempvarID;
     }
   }
-  (*variable_importance)[tempvarID] += best_decrease;
+  (*variable_importance)[tempvarID] += best_gini;
 }
 

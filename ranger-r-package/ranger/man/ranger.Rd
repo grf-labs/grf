@@ -105,8 +105,9 @@ The Gini index is used as splitting rule for classification and the estimated re
 For Survival the log-rank test, a C-index based splitting rule (Schmid et al. 2015) and maximally selected rank statistics (Wright et al. 2016) are available.
 
 With the \code{probability} option and factor dependent variable a probability forest is grown.
-Here, the estimated response variances are used for splitting, as in regression forests.
+Here, the node impurity is used for splitting, as in classification forests.
 Predictions are class probabilities for each sample.
+In contrast to other implementations, each tree returns a probability estimate and these estimates are averaged for the forest probability estimate.
 For details see Malley et al. (2012).
 
 Note that for classification and regression nodes with size smaller than min.node.size can occur, like in original Random Forest.
