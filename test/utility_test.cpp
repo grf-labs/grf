@@ -813,6 +813,64 @@ TEST(order, test1) {
   }
 }
 
+TEST(rank, test1) {
+
+  std::vector<double> x = std::vector<double>( { 1, 3, 2 });
+
+  const std::vector<double> expect = std::vector<double>( { 1, 3, 2 });
+
+  // Order
+  std::vector<double> ranks = rank(x);
+
+  // Compare with expectation
+  for (size_t i = 0; i < x.size(); ++i) {
+    EXPECT_EQ(ranks[i], expect[i]);
+  }
+}
+
+TEST(rank, test2) {
+
+  std::vector<double> x = std::vector<double>( { 1.5, 3.2, 1.1, 2.2 });
+
+  const std::vector<double> expect = std::vector<double>( { 2, 4, 1, 3 });
+
+  // Order
+  std::vector<double> ranks = rank(x);
+
+  // Compare with expectation
+  for (size_t i = 0; i < x.size(); ++i) {
+    EXPECT_EQ(ranks[i], expect[i]);
+  }
+}
+
+TEST(rank, test3) {
+
+  // From R call:
+  //  set.seed(123)
+  //  x <- round(runif(50, 1, 10))
+  //  dput(x)
+  //  dput(rank(x), control = NULL)
+
+  std::vector<double> x = std::vector<double>( { 4, 8, 5, 9, 9, 1, 6, 9, 6, 5, 10, 5, 7, 6, 2, 9, 3, 1, 4, 10,
+    9, 7, 7, 10, 7, 7, 6, 6, 4, 2, 10, 9, 7, 8, 1, 5, 8, 3, 4, 3,
+    2, 5, 5, 4, 2, 2, 3, 5, 3, 9 });
+
+  const std::vector<double> expect = std::vector<double>( { 16, 38, 22, 43, 43, 2, 28, 43, 28, 22, 48.5, 22, 33.5, 28,
+    6, 43, 11, 2, 16, 48.5, 43, 33.5, 33.5, 48.5, 33.5, 33.5, 28,
+    28, 16, 6, 48.5, 43, 33.5, 38, 2, 22, 38, 11, 16, 11, 6, 22,
+    22, 16, 6, 6, 11, 22, 11, 43 });
+
+  // Order
+  std::vector<double> ranks = rank(x);
+
+  // Compare with expectation
+  for (size_t i = 0; i < x.size(); ++i) {
+    EXPECT_EQ(ranks[i], expect[i]);
+  }
+}
+
+
+
 TEST(logrankScores, test1) {
 
   // From R call:
@@ -1167,6 +1225,62 @@ TEST(maxstat, prior) {
 
   // Scores
   std::vector<double> scores = logrankScores(time, status);
+
+  double best_maxstat;
+  double best_split_value;
+  maxstat(scores, x, indices, best_maxstat, best_split_value, 0.1, 0.9);
+
+  // Compare with expectation
+  EXPECT_NEAR(best_maxstat, expect_maxstat, fabs(best_maxstat * 0.05));
+  EXPECT_NEAR(best_split_value, expect_split, fabs(best_split_value * 0.05));
+}
+
+TEST(maxstat, regression) {
+
+  // From R call:
+  //  library(maxstat)
+  //  y <- iris$Sepal.Length
+  //  x <- iris$Sepal.Width
+  //  m <- maxstat(y, x, pmethod = "Lau92", smethod = "LogRank")
+  //  dput(y, control = NULL)
+  //  dput(x, control = NULL)
+  //  dput(m$statistic, control = NULL)
+  //  dput(m$estimate, control = NULL)
+
+  std::vector<double> y = std::vector<double>( { 5.1, 4.9, 4.7, 4.6, 5, 5.4, 4.6, 5, 4.4, 4.9, 5.4, 4.8, 4.8,
+    4.3, 5.8, 5.7, 5.4, 5.1, 5.7, 5.1, 5.4, 5.1, 4.6, 5.1, 4.8, 5,
+    5, 5.2, 5.2, 4.7, 4.8, 5.4, 5.2, 5.5, 4.9, 5, 5.5, 4.9, 4.4,
+    5.1, 5, 4.5, 4.4, 5, 5.1, 4.8, 5.1, 4.6, 5.3, 5, 7, 6.4, 6.9,
+    5.5, 6.5, 5.7, 6.3, 4.9, 6.6, 5.2, 5, 5.9, 6, 6.1, 5.6, 6.7,
+    5.6, 5.8, 6.2, 5.6, 5.9, 6.1, 6.3, 6.1, 6.4, 6.6, 6.8, 6.7, 6,
+    5.7, 5.5, 5.5, 5.8, 6, 5.4, 6, 6.7, 6.3, 5.6, 5.5, 5.5, 6.1,
+    5.8, 5, 5.6, 5.7, 5.7, 6.2, 5.1, 5.7, 6.3, 5.8, 7.1, 6.3, 6.5,
+    7.6, 4.9, 7.3, 6.7, 7.2, 6.5, 6.4, 6.8, 5.7, 5.8, 6.4, 6.5, 7.7,
+    7.7, 6, 6.9, 5.6, 7.7, 6.3, 6.7, 7.2, 6.2, 6.1, 6.4, 7.2, 7.4,
+    7.9, 6.4, 6.3, 6.1, 7.7, 6.3, 6.4, 6, 6.9, 6.7, 6.9, 5.8, 6.8,
+    6.7, 6.7, 6.3, 6.5, 6.2, 5.9 });
+
+  std::vector<double> x = std::vector<double>( { 3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3.7, 3.4, 3,
+    3, 4, 4.4, 3.9, 3.5, 3.8, 3.8, 3.4, 3.7, 3.6, 3.3, 3.4, 3, 3.4,
+    3.5, 3.4, 3.2, 3.1, 3.4, 4.1, 4.2, 3.1, 3.2, 3.5, 3.6, 3, 3.4,
+    3.5, 2.3, 3.2, 3.5, 3.8, 3, 3.8, 3.2, 3.7, 3.3, 3.2, 3.2, 3.1,
+    2.3, 2.8, 2.8, 3.3, 2.4, 2.9, 2.7, 2, 3, 2.2, 2.9, 2.9, 3.1,
+    3, 2.7, 2.2, 2.5, 3.2, 2.8, 2.5, 2.8, 2.9, 3, 2.8, 3, 2.9, 2.6,
+    2.4, 2.4, 2.7, 2.7, 3, 3.4, 3.1, 2.3, 3, 2.5, 2.6, 3, 2.6, 2.3,
+    2.7, 3, 2.9, 2.9, 2.5, 2.8, 3.3, 2.7, 3, 2.9, 3, 3, 2.5, 2.9,
+    2.5, 3.6, 3.2, 2.7, 3, 2.5, 2.8, 3.2, 3, 3.8, 2.6, 2.2, 3.2,
+    2.8, 2.8, 2.7, 3.3, 3.2, 2.8, 3, 2.8, 3, 2.8, 3.8, 2.8, 2.8,
+    2.6, 3, 3.4, 3.1, 3, 3.1, 3.1, 3.1, 2.7, 3.2, 3.3, 3, 2.5, 3,
+    3.4, 3 });
+
+  const double expect_maxstat = 3.73535181856697;
+  const double expect_split = 3.3;
+
+  // Order x
+  std::vector<size_t> indices = order(x, false);
+
+  // Rank scores
+  std::vector<double> scores = rank(y);
 
   double best_maxstat;
   double best_split_value;

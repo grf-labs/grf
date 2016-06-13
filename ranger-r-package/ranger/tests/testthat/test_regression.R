@@ -9,7 +9,7 @@ rg.reg <- ranger(Sepal.Length ~ ., data = iris, verbose = FALSE, write.forest = 
 ## Basic tests (for all random forests equal)
 test_that("regression result is of class ranger with 14 elements", {
   expect_is(rg.reg, "ranger")
-  expect_equal(length(rg.reg), 14)
+  expect_equal(length(rg.reg), 15)
 })
 
 test_that("results have 500 trees", {

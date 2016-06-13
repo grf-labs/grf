@@ -398,6 +398,37 @@ std::vector<size_t> order(std::vector<T>& values, bool decreasing) {
 std::vector<size_t> orderInData(Data* data, std::vector<size_t>& sampleIDs, size_t varID, bool decreasing);
 
 /**
+ * Sample ranks starting from 1. Ties are given the average rank.
+ * @param values Values to rank
+ * @return Ranks of input values
+ */
+template<typename T>
+std::vector<double> rank(std::vector<T>& values) {
+  size_t num_values = values.size();
+
+  // Order
+  std::vector<size_t> indices = order(values, false);
+
+  // Compute ranks, start at 1
+  std::vector<double> ranks(num_values);
+  size_t reps = 1;
+  for (size_t i = 0; i < num_values; i += reps) {
+
+    // Find number of replications
+    reps = 1;
+    while (i + reps < num_values && values[indices[i]] == values[indices[i + reps]]) {
+      ++reps;
+    }
+
+    // Assign rank to all replications
+    for (size_t j = 0; j < reps; ++j)
+      ranks[indices[i + j]] = (2 * (double) i + (double) reps - 1) / 2 + 1;
+  }
+
+  return ranks;
+}
+
+/**
  * Compute Logrank scores for survival times
  * @param time Survival time
  * @param status Censoring indicator
