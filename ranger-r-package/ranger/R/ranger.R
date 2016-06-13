@@ -448,13 +448,23 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   
   ## Splitting rule
   if (is.null(splitrule)) {
-    splitrule <- "logrank"
+    if (treetype == 5) {
+      splitrule <- "logrank"
+    } else if (treetype == 3) {
+      splitrule <- "variance"
+    }
     splitrule.num <- 1
   } else if (splitrule == "logrank") {
     if (treetype == 5) {
       splitrule.num <- 1
     } else {
       stop("Error: logrank splitrule applicable to survival data only.")
+    }
+  } else if (splitrule == "variance") {
+    if (treetype == 3) {
+      splitrule.num <- 2
+    } else {
+      stop("Error: variance splitrule applicable to regression data only.")
     }
   } else if (splitrule == "auc" | splitrule == "C") {
     if (treetype == 5) {
@@ -554,9 +564,13 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$chf <- result$predictions
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
-    result$splitrule <- splitrule
   } else if (treetype == 9 & !is.matrix(data)) {
     colnames(result$predictions) <- levels(droplevels(response))
+  }
+  
+  ## Splitrule
+  if (treetype == 3 | treetype == 5) {
+    result$splitrule <- splitrule
   }
   
   ## Set treetype
