@@ -370,8 +370,6 @@ bool TreeRegression::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& po
 
   size_t num_samples_node = sampleIDs[nodeID].size();
 
-  // TODO: Compare runtime
-  // TODO: Try in-data
   // Compute ranks
   std::vector<double> response;
   response.reserve(num_samples_node);
@@ -388,7 +386,6 @@ bool TreeRegression::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& po
   std::vector<double> candidate_varIDs;
   candidate_varIDs.reserve(possible_split_varIDs.size());
 
-  // TODO: Try in-data
   // Compute p-values
   for (auto& varID : possible_split_varIDs) {
 
