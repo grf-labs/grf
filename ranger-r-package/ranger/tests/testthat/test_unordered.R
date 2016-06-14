@@ -57,7 +57,7 @@ test_that("Same results if no unordered factors", {
   set.seed(100)
   rf1 <- ranger(Species ~ ., iris, num.trees = 5, respect.unordered.factors = 'ignore')
   set.seed(100)
-  rf2 <- ranger(Species ~ ., iris, num.trees = 5, respect.unordered.factors = 'order')
+  expect_warning(rf2 <- ranger(Species ~ ., iris, num.trees = 5, respect.unordered.factors = 'order'))
   set.seed(100)
   rf3 <- ranger(Species ~ ., iris, num.trees = 5, respect.unordered.factors = 'partition')
   
@@ -76,8 +76,8 @@ test_that("Error if too many factors in 'partition' mode", {
 })
 
 test_that("Survival forest with 'order' mode works", {
-  rf <- ranger(Surv(time, status) ~ ., veteran, num.trees = 5, 
-               write.forest = TRUE, respect.unordered.factors = 'order')
+  expect_warning(rf <- ranger(Surv(time, status) ~ ., veteran, num.trees = 5, 
+                              write.forest = TRUE, respect.unordered.factors = 'order'))
   expect_equal(sort(rf$forest$covariate.levels$celltype), 
                sort(levels(veteran$celltype)))
     
@@ -92,4 +92,15 @@ test_that("maxstat splitting not working with unordered factors", {
 
 test_that("C splitting not working with unordered factors", {
   expect_error(ranger(Surv(time, status) ~ ., veteran, splitrule = "C", respect.unordered.factors = "partition"))
+})
+
+test_that("Warning for survival, multiclass classification/probability and maxstat with 'order' mode", {
+  expect_warning(ranger(Surv(time, status) ~ ., veteran, num.trees = 5, 
+                        respect.unordered.factors = 'order'))
+  expect_warning(ranger(Species ~ ., iris, num.trees = 5, 
+                        respect.unordered.factors = 'order'))
+  expect_warning(ranger(Species ~ ., iris, num.trees = 5, probability = TRUE,
+                        respect.unordered.factors = 'order'))
+  expect_warning(ranger(Sepal.Length ~ ., iris, num.trees = 5, splitrule = "maxstat",
+                        respect.unordered.factors = 'order'))
 })
