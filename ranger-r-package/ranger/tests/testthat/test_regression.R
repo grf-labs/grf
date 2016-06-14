@@ -100,3 +100,6 @@ test_that("Alternative interface regression prediction: Results not all the same
 })
 
 ## Special tests for random forests for regression
+test_that("Variance splitting not working on classification data", {
+  expect_error(ranger(Species ~ ., iris, splitrule = "variance"))
+})

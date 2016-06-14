@@ -14,7 +14,13 @@ test_that("maxstat splitting works for regression", {
   expect_gt(rf$r.squared, 0.5)
 })
 
-test_that("maxstat splitting, alpha out of range throws error", {
+test_that("maxstat splitting, alpha or minprop out of range throws error", {
   expect_error(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", alpha = -1))
   expect_error(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", alpha = 2))
+  expect_error(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", minprop = -1))
+  expect_error(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", minprop = 1))
+})
+
+test_that("maxstat splitting not working for classification", {
+  expect_error(ranger(Species ~ ., iris, splitrule = "maxstat"))
 })
