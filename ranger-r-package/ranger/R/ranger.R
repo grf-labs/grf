@@ -533,6 +533,19 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       stop("Error: Unordered factor splitting not implemented for 'C' splitting rule.")
     }
   }
+  
+  ## Warning for experimental 'order' splitting 
+  if (respect.unordered.factors == "order") {
+    if (treetype == 5) {
+      warning("Warning: The 'order' mode for unordered factor handling for survival outcomes is experimental.")
+    } else if (treetype == 1 | treetype == 9) {
+      if (nlevels(response) > 2) {
+        warning("Warning: The 'order' mode for unordered factor handling for multiclass classification is experimental.")
+      }
+    } else if (treetype == 3 & splitrule == "maxstat") {
+      warning("Warning: The 'order' mode for unordered factor handling with the 'maxstat' splitrule is experimental.")
+    }
+  }
 
   ## Prediction mode always false. Use predict.ranger() method.
   prediction.mode <- FALSE
