@@ -524,7 +524,16 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else {
     stop("Error: Invalid value for respect.unordered.factors, please use 'order', 'partition' or 'ignore'.")
   }
-  
+
+  ## Unordered maxstat splitting not possible
+  if (use.unordered.factor.variables & !is.null(splitrule)) {
+    if (splitrule == "maxstat") {
+      stop("Error: Unordered factor splitting not implemented for 'maxstat' splitting rule.")
+    } else if (splitrule %in% c("C", "auc", "C_ignore_ties", "auc_ignore_ties")) {
+      stop("Error: Unordered factor splitting not implemented for 'C' splitting rule.")
+    }
+  }
+
   ## Prediction mode always false. Use predict.ranger() method.
   prediction.mode <- FALSE
   predict.all <- FALSE
