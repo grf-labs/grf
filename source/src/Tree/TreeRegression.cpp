@@ -33,6 +33,7 @@
 
 #include <ctime>
 
+#include "utility.h"
 #include "TreeRegression.h"
 #include "Data.h"
 
@@ -98,7 +99,13 @@ bool TreeRegression::splitNodeInternal(size_t nodeID, std::vector<size_t>& possi
   }
 
   // Find best split, stop if no decrease of impurity
-  bool stop = findBestSplit(nodeID, possible_split_varIDs);
+  bool stop;
+  if (splitrule == MAXSTAT) {
+    stop = findBestSplitMaxstat(nodeID, possible_split_varIDs);
+  } else {
+    stop = findBestSplit(nodeID, possible_split_varIDs);
+  }
+
   if (stop) {
     split_values[nodeID] = estimate(nodeID);
     return true;
@@ -133,13 +140,13 @@ bool TreeRegression::findBestSplit(size_t nodeID, std::vector<size_t>& possible_
   size_t best_varID = 0;
   double best_value = 0;
 
-// Compute sum of responses in node
+  // Compute sum of responses in node
   double sum_node = 0;
   for (auto& sampleID : sampleIDs[nodeID]) {
     sum_node += data->get(sampleID, dependent_varID);
   }
 
-// For all possible split variables
+  // For all possible split variables
   for (auto& varID : possible_split_varIDs) {
 
     // Find best split value, if ordered consider all values as split values, else all 2-partitions
@@ -356,6 +363,94 @@ void TreeRegression::findBestSplitValueUnordered(size_t nodeID, size_t varID, do
       best_varID = varID;
       best_decrease = decrease;
     }
+  }
+}
+
+bool TreeRegression::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
+
+  size_t num_samples_node = sampleIDs[nodeID].size();
+
+  // Compute ranks
+  std::vector<double> response;
+  response.reserve(num_samples_node);
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    response.push_back(data->get(sampleID, dependent_varID));
+  }
+  std::vector<double> ranks = rank(response);
+
+  // Save split stats
+  std::vector<double> pvalues;
+  pvalues.reserve(possible_split_varIDs.size());
+  std::vector<double> values;
+  values.reserve(possible_split_varIDs.size());
+  std::vector<double> candidate_varIDs;
+  candidate_varIDs.reserve(possible_split_varIDs.size());
+
+  // Compute p-values
+  for (auto& varID : possible_split_varIDs) {
+
+    // Get all observations
+    std::vector<double> x;
+    x.reserve(num_samples_node);
+    for (auto& sampleID : sampleIDs[nodeID]) {
+      x.push_back(data->get(sampleID, varID));
+    }
+
+    // Order by x
+    std::vector<size_t> indices = order(x, false);
+    //std::vector<size_t> indices = orderInData(data, sampleIDs[nodeID], varID, false);
+
+    // Compute maximally selected rank statistics
+    double best_maxstat;
+    double best_split_value;
+    maxstat(ranks, x, indices, best_maxstat, best_split_value, minprop, 1 - minprop);
+    //maxstatInData(scores, data, sampleIDs[nodeID], varID, indices, best_maxstat, best_split_value, minprop, 1 - minprop);
+
+    if (best_maxstat > -1) {
+      // Compute number of samples left of cutpoints
+      std::vector<size_t> num_samples_left = numSamplesLeftOfCutpoint(x, indices);
+      //std::vector<size_t> num_samples_left = numSamplesLeftOfCutpointInData(data, sampleIDs[nodeID], varID, indices);
+
+      // Compute p-values
+      double pvalue_lau92 = maxstatPValueLau92(best_maxstat, minprop, 1 - minprop);
+      double pvalue_lau94 = maxstatPValueLau94(best_maxstat, minprop, 1 - minprop, num_samples_node, num_samples_left);
+
+      // Use minimum of Lau92 and Lau94
+      double pvalue = std::min(pvalue_lau92, pvalue_lau94);
+
+      // Save split stats
+      pvalues.push_back(pvalue);
+      values.push_back(best_split_value);
+      candidate_varIDs.push_back(varID);
+    }
+  }
+
+  double min_pvalue = 2;
+  size_t best_varID = 0;
+  double best_value = 0;
+
+  if (pvalues.size() > 0) {
+    // Adjust p-values with Benjamini/Hochberg
+    std::vector<double> adjusted_pvalues = adjustPvalues(pvalues);
+
+    // Use smallest p-value
+    for (size_t i = 0; i < adjusted_pvalues.size(); ++i) {
+      if (adjusted_pvalues[i] < min_pvalue) {
+        min_pvalue = adjusted_pvalues[i];
+        best_varID = candidate_varIDs[i];
+        best_value = values[i];
+      }
+    }
+  }
+
+  // Stop if no good split found (this is terminal node).
+  if (min_pvalue > alpha) {
+    return true;
+  } else {
+    // If not terminal node save best values
+    split_varIDs[nodeID] = best_varID;
+    split_values[nodeID] = best_value;
+    return false;
   }
 }
 

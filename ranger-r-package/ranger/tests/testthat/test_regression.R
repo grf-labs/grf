@@ -9,7 +9,7 @@ rg.reg <- ranger(Sepal.Length ~ ., data = iris, verbose = FALSE, write.forest = 
 ## Basic tests (for all random forests equal)
 test_that("regression result is of class ranger with 14 elements", {
   expect_is(rg.reg, "ranger")
-  expect_equal(length(rg.reg), 14)
+  expect_equal(length(rg.reg), 15)
 })
 
 test_that("results have 500 trees", {
@@ -100,3 +100,6 @@ test_that("Alternative interface regression prediction: Results not all the same
 })
 
 ## Special tests for random forests for regression
+test_that("Variance splitting not working on classification data", {
+  expect_error(ranger(Species ~ ., iris, splitrule = "variance"))
+})

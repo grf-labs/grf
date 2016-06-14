@@ -84,3 +84,12 @@ test_that("Survival forest with 'order' mode works", {
   pred <- predict(rf, veteran)
   expect_is(pred, "ranger.prediction")
 })
+
+test_that("maxstat splitting not working with unordered factors", {
+  expect_error(ranger(Sepal.Length ~ ., iris, splitrule = "maxstat", respect.unordered.factors = "partition"))
+  expect_error(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", respect.unordered.factors = "partition"))
+})
+
+test_that("C splitting not working with unordered factors", {
+  expect_error(ranger(Surv(time, status) ~ ., veteran, splitrule = "C", respect.unordered.factors = "partition"))
+})

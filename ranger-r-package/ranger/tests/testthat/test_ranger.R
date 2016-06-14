@@ -44,16 +44,6 @@ test_that("as.factor() in formula works", {
   expect_silent(ranger(as.factor(y) ~ ., data = dt, num.trees = 5, write.forest = TRUE))
 })
 
-test_that("maxstat splitting works for survival", {
-  rf <- ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat")
-  expect_is(rf, "ranger")
-})
-
-test_that("maxstat splitting, alpha out of range throws error", {
-  expect_error(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", alpha = -1))
-  expect_error(ranger(Surv(time, status) ~ ., veteran, splitrule = "maxstat", alpha = 2))
-})
-
 test_that("holdout mode holding out data with 0 weight", {
   weights <- rbinom(nrow(iris), 1, 0.5)
   rf <- ranger(Species ~ ., iris, num.trees = 5, importance = "permutation",  

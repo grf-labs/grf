@@ -430,7 +430,8 @@ void ArgumentHandler::checkArguments() {
   }
 
   // Check splitrule
-  if ((splitrule == AUC || splitrule == AUC_IGNORE_TIES || splitrule == MAXSTAT) && treetype != TREE_SURVIVAL) {
+  if (((splitrule == AUC || splitrule == AUC_IGNORE_TIES) && treetype != TREE_SURVIVAL)
+      || (splitrule == MAXSTAT && (treetype != TREE_SURVIVAL && treetype != TREE_REGRESSION))) {
     throw std::runtime_error("Illegal splitrule selected. See '--help' for details.");
   }
 
@@ -494,7 +495,7 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              RULE = 1: Gini for Classification, variance for Regression, logrank for Survival." << std::endl;
   std::cout << "    " << "                              RULE = 2: AUC for Survival, not available for Classification and Regression." << std::endl;
   std::cout << "    " << "                              RULE = 3: AUC (ignore ties) for Survival, not available for Classification and Regression." << std::endl;
-  std::cout << "    " << "                              RULE = 4: MAXSTAT for Survival, not available for Classification and Regression." << std::endl;
+  std::cout << "    " << "                              RULE = 4: MAXSTAT for Survival and Regression, not available for Classification." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
   std::cout << "    " << "--alpha VAL                   Significance threshold to allow splitting (MAXSTAT splitrule only)." << std::endl;
   std::cout << "    " << "--minprop VAL                 Lower quantile of covariate distribtuion to be considered for splitting (MAXSTAT splitrule only)." << std::endl;
