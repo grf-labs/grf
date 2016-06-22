@@ -227,7 +227,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     }
   }
 
-  double min_pvalue = 2;
+  double min_pvalue = std::numeric_limits<double>::max();
   size_t best_varID = 0;
   double best_value = 0;
 

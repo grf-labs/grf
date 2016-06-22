@@ -425,7 +425,7 @@ bool TreeRegression::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& po
     }
   }
 
-  double min_pvalue = 2;
+  double min_pvalue = std::numeric_limits<double>::max();
   size_t best_varID = 0;
   double best_value = 0;
 

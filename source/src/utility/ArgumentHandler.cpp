@@ -181,14 +181,14 @@ int ArgumentHandler::processArguments() {
     case 'a':
       try {
         double temp = std::stod(optarg);
-        if (temp < 0 || temp > 1) {
+        if (temp < 0) {
           throw std::runtime_error("");
         } else {
           alpha = temp;
         }
       } catch (...) {
         throw std::runtime_error(
-            "Illegal argument for option 'alpha'. Please give a value between 0 and 1. See '--help' for details.");
+            "Illegal argument for option 'alpha'. Please give a positive value. See '--help' for details.");
       }
       break;
 

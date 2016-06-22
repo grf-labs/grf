@@ -489,8 +489,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   }
   
   ## Maxstat splitting
-  if (alpha < 0 | alpha > 1) {
-    stop("Error: Invalid value for alpha, please give a value between 0 and 1.")
+  if (alpha < 0) {
+    stop("Error: Invalid value for alpha, please give a positive value.")
   }
   if (minprop < 0 | minprop > 0.5) {
     stop("Error: Invalid value for minprop, please give a value between 0 and 0.5.")
