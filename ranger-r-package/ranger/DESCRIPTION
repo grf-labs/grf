@@ -1,8 +1,8 @@
 Package: ranger
 Type: Package
 Title: A Fast Implementation of Random Forests
-Version: 0.4.7
-Date: 2016-06-22
+Version: 0.5.0
+Date: 2016-06-23
 Author: Marvin N. Wright
 Maintainer: Marvin N. Wright <wright@imbs.uni-luebeck.de>
 Description: A fast implementation of Random Forests, particularly suited for high dimensional data. Ensembles of
