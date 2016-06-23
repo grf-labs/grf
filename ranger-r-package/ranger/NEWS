@@ -1,22 +1,10 @@
-##### Version 0.4.6
-* Bug fixes
-
-##### Version 0.4.5
-* Use faster method for unordered factor splitting
-
-##### Version 0.4.4
-* Add p-values for variable importance
-* Bug fixes
-
-##### Version 0.4.3
-* Add splitting by maximally selected rank statistics for survival forests
-* Bug fixes
-
-##### Version 0.4.2
+##### Version 0.5.0
 * Add Windows multithreading support for new toolchain
-
-##### Version 0.4.1
+* Add splitting by maximally selected rank statistics for survival and regression forests
+* Faster method for unordered factor splitting
+* Add p-values for variable importance
 * Runtime improvement for regression forests on classification data
+* Bug fixes
 
 ##### Version 0.4.0
 * Reduce memory usage of savest forest objects (changed child.nodeIDs interface)

@@ -1,3 +1,9 @@
+##### Version 0.5.0
+* New CRAN version.
+
+##### Version 0.4.7
+* Add splitting by maximally selected rank statistics for regression forests
+
 ##### Version 0.4.6
 * Bug fixes
 

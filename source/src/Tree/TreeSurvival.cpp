@@ -227,7 +227,7 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     }
   }
 
-  double min_pvalue = 2;
+  double adjusted_best_pvalue = std::numeric_limits<double>::max();
   size_t best_varID = 0;
   double best_value = 0;
 
@@ -235,18 +235,19 @@ bool TreeSurvival::findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& poss
     // Adjust p-values with Benjamini/Hochberg
     std::vector<double> adjusted_pvalues = adjustPvalues(pvalues);
 
-    // Use smallest p-value
-    for (size_t i = 0; i < adjusted_pvalues.size(); ++i) {
-      if (adjusted_pvalues[i] < min_pvalue) {
-        min_pvalue = adjusted_pvalues[i];
+    double min_pvalue = std::numeric_limits<double>::max();
+    for (size_t i = 0; i < pvalues.size(); ++i) {
+      if (pvalues[i] < min_pvalue) {
+        min_pvalue = pvalues[i];
         best_varID = candidate_varIDs[i];
         best_value = values[i];
+        adjusted_best_pvalue = adjusted_pvalues[i];
       }
     }
   }
 
   // Stop and save CHF if no good split found (this is terminal node).
-  if (min_pvalue > alpha) {
+  if (adjusted_best_pvalue > alpha) {
     computeDeathCounts(nodeID);
     computeSurvival(nodeID);
     return true;

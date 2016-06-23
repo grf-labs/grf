@@ -33,6 +33,11 @@ wright@imbs.uni-luebeck.de
     TypeName(const TypeName&);             \
     void operator=(const TypeName&)
 
+// Pi
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 // Old/new Win build
 #ifdef WIN_R_BUILD
   #if __cplusplus < 201103L
