@@ -257,9 +257,9 @@ void ForestProbability::loadFromFileInternal(std::ifstream& infile) {
 
     // Convert Terminal node class counts to vector with empty elemtents for non-terminal nodes
     std::vector<std::vector<double>> terminal_class_counts;
-    terminal_class_counts.resize(child_nodeIDs.size(), std::vector<double>());
-    for (size_t i = 0; i < terminal_nodes.size(); ++i) {
-      terminal_class_counts[terminal_nodes[i]] = terminal_class_counts_vector[i];
+    terminal_class_counts.resize(child_nodeIDs[0].size(), std::vector<double>());
+    for (size_t j = 0; j < terminal_nodes.size(); ++j) {
+      terminal_class_counts[terminal_nodes[j]] = terminal_class_counts_vector[j];
     }
 
     // If dependent variable not in test data, change variable IDs accordingly

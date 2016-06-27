@@ -289,12 +289,12 @@ void ForestSurvival::loadFromFileInternal(std::ifstream& infile) {
 
     // Convert chf to vector with empty elements for non-terminal nodes
     std::vector<std::vector<double>> chf;
-    chf.resize(child_nodeIDs.size(), std::vector<double>());
+    chf.resize(child_nodeIDs[0].size(), std::vector<double>());
 //    for (size_t i = 0; i < child_nodeIDs.size(); ++i) {
 //      chf.push_back(std::vector<double>());
 //    }
-    for (size_t i = 0; i < terminal_nodes.size(); ++i) {
-      chf[terminal_nodes[i]] = chf_vector[i];
+    for (size_t j = 0; j < terminal_nodes.size(); ++j) {
+      chf[terminal_nodes[j]] = chf_vector[j];
     }
 
     // If dependent variable not in test data, change variable IDs accordingly
