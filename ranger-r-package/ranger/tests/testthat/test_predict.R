@@ -23,6 +23,17 @@ test_that("Prediction works correctly if dependent variable is not first or last
   dat <- iris[, c(1:2, 5, 3:4)]
   rf <- ranger(Species ~ ., dat, num.trees = 5, write.forest = TRUE)
   expect_gte(mean(predictions(predict(rf, dat)) == dat$Species), 0.9)
+  
+  ## No response column
+  expect_gte(mean(predictions(predict(rf, dat[, -3])) == dat$Species), 0.9)
 })
 
+test_that("Prediction works correctly if dependent variable is not first or last, alternative interface", {
+  dat <- iris[, c(1:2, 5, 3:4)]
+  rf <- ranger(dependent.variable.name = "Species", data = dat, num.trees = 5, write.forest = TRUE)
+  expect_gte(mean(predictions(predict(rf, dat)) == dat$Species), 0.9)
+  
+  ## No response column
+  expect_gte(mean(predictions(predict(rf, dat[, -3])) == dat$Species), 0.9)
+})
 

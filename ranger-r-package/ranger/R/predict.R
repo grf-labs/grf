@@ -121,7 +121,7 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
       } else {
         data.used <- cbind(data.selected[, 1:forest$dependent.varID], 
                            0, 
-                           data.selected[, (forest$dependent.varID+2):ncol(data.selected)])
+                           data.selected[, (forest$dependent.varID+1):ncol(data.selected)])
         variable.names <- c(forest$independent.variable.names[1:forest$dependent.varID], 
                             "dependent", 
                             forest$independent.variable.names[(forest$dependent.varID+1):length(forest$independent.variable.names)])
