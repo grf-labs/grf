@@ -1,3 +1,6 @@
+##### Version 0.5.1
+* Bug fixes
+
 ##### Version 0.5.0
 * Add Windows multithreading support for new toolchain
 * Add splitting by maximally selected rank statistics for survival and regression forests
