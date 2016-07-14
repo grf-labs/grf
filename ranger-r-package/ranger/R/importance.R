@@ -114,7 +114,7 @@ importance_pvalues <- function(x, method = c("janitza", "altmann"), conf.level =
       dat <- data
       dat[, dependent.variable.name] <- sample(dat[, dependent.variable.name])
       ranger(formula, dat, num.trees = x$num.trees, mtry = x$mtry, min.node.size = x$min.node.size, 
-             importance = x$importance.mode)$variable.importance
+             importance = x$importance.mode, ...)$variable.importance
     })
   } else {
     stop("Unknown p-value method. Available methods are: 'janitza' and 'altmann'.")
