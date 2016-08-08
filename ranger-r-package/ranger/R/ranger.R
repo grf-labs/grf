@@ -587,7 +587,9 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$predictions <- NULL
     result$survival <- exp(-result$chf)
   } else if (treetype == 9 & !is.matrix(data)) {
-    colnames(result$predictions) <- levels(droplevels(response))
+    ## Set colnames and sort by levels
+    colnames(result$predictions) <- unique(response)
+    result$predictions <- result$predictions[, levels(droplevels(response))]
   }
   
   ## Splitrule
