@@ -33,3 +33,39 @@ test_that("predict works for single observations, probability prediction", {
   pred <- predict(rf, head(iris, 1))
   expect_equal(names(which.max(pred$predictions)), as.character(iris[1,"Species"]))
 })
+
+test_that("Probability estimation works correctly if labels are reversed", {
+  ## Simulate data
+  n <- 50
+  a1 <- c(rnorm(n, 3, sd = 2), rnorm(n, 8, sd = 2))
+  a2 <- c(rnorm(n, 8, sd = 2), rnorm(n, 3, sd = 2))
+  
+  ## create labels for data
+  labels <- as.factor(c(rep("0", n), rep("1", n)))
+  dat <- data.frame(label = labels, a1, a2)
+  
+  labels.rev <- as.factor(c(rep("1", n), rep("0", n))) 
+  dat.rev <- data.frame(label = labels.rev, a1, a2)
+  
+  ## Train
+  rf <- ranger(dependent.variable.name = "label", data = dat, probability = TRUE, 
+               write.forest = TRUE, num.trees = 5)
+  rf.rev <- ranger(dependent.variable.name = "label", data = dat.rev, probability = TRUE, 
+                   write.forest = TRUE, num.trees = 5)
+  
+  ## Check OOB predictions
+  expect_gte(mean(rf$predictions[1:n, "0"]), 0.5)
+  expect_gte(mean(rf$predictions[(n+1):(2*n), "1"]), 0.5)
+  
+  expect_gte(mean(rf.rev$predictions[1:n, "1"]), 0.5)
+  expect_gte(mean(rf.rev$predictions[(n+1):(2*n), "0"]), 0.5)
+  
+  ## Check predict() predictions
+  pred <- predict(rf, dat)
+  expect_gte(mean(pred$predictions[1:n, "0"]), 0.5)
+  expect_gte(mean(pred$predictions[(n+1):(2*n), "1"]), 0.5)
+  
+  pred.rev <- predict(rf.rev, dat.rev)
+  expect_gte(mean(pred.rev$predictions[1:n, "1"]), 0.5)
+  expect_gte(mean(pred.rev$predictions[(n+1):(2*n), "0"]), 0.5)
+})
