@@ -28,14 +28,10 @@
 
 #include <algorithm>
 #include <iostream>
-#include <iterator>
 #include <vector>
-
-#include <ctime>
 
 #include "utility.h"
 #include "TreeRegression.h"
-#include "Data.h"
 
 TreeRegression::TreeRegression() :
     counter(0), sums(0) {

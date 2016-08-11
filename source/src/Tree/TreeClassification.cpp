@@ -28,14 +28,10 @@
 
 #include <unordered_map>
 #include <random>
-#include <algorithm>
 #include <iostream>
-#include <iterator>
-#include <vector>
 
 #include "TreeClassification.h"
 #include "utility.h"
-#include "Data.h"
 
 TreeClassification::TreeClassification(std::vector<double>* class_values, std::vector<uint>* response_classIDs) :
     class_values(class_values), response_classIDs(response_classIDs), counter(0), counter_per_class(0) {

@@ -29,13 +29,11 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include <iterator>
 #include <numeric>
 #include <vector>
 
 #include "utility.h"
 #include "TreeSurvival.h"
-#include "Data.h"
 
 TreeSurvival::TreeSurvival(std::vector<double>* unique_timepoints, size_t status_varID,
     std::vector<size_t>* response_timepointIDs) :

@@ -28,7 +28,6 @@
 
 #include "TreeProbability.h"
 #include "utility.h"
-#include "Data.h"
 
 TreeProbability::TreeProbability(std::vector<double>* class_values, std::vector<uint>* response_classIDs) :
     class_values(class_values), response_classIDs(response_classIDs), counter(0), counter_per_class(0) {
