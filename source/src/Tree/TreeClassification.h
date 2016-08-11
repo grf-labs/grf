@@ -46,7 +46,6 @@ public:
   void initInternal();
 
   double estimate(size_t nodeID);
-  void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
   void appendToFileInternal(std::ofstream& file);
 
   double getPrediction(size_t sampleID) const {

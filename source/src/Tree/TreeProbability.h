@@ -48,7 +48,6 @@ public:
   void initInternal();
 
   void addToTerminalNodes(size_t nodeID);
-  void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
   void appendToFileInternal(std::ofstream& file);
 
   const std::vector<double>& getPrediction(size_t sampleID) const {

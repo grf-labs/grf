@@ -46,7 +46,6 @@ public:
   void initInternal();
 
   void appendToFileInternal(std::ofstream& file);
-  void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
 
   const std::vector<std::vector<double> >& getChf() const {
     return chf;
@@ -68,10 +67,6 @@ private:
   bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
   bool findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
 
-  void findBestSplitValueLogRank(size_t nodeID, size_t varID, std::vector<double>& possible_split_values,
-      double& best_value, size_t& best_varID, double& best_logrank);
-  void findBestSplitValueLogRankUnordered(size_t nodeID, size_t varID, std::vector<double>& factor_levels,
-      double& best_value, size_t& best_varID, double& best_logrank);
   void findBestSplitValueAUC(size_t nodeID, size_t varID,
       double& best_value, size_t& best_varID, double& best_auc);
 

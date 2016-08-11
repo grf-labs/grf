@@ -45,7 +45,6 @@ public:
   void initInternal();
 
   double estimate(size_t nodeID);
-  void computePermutationImportanceInternal(std::vector<std::vector<size_t>>* permutations);
   void appendToFileInternal(std::ofstream& file);
 
   double getPrediction(size_t sampleID) const {
@@ -70,8 +69,6 @@ private:
   bool findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
 
   void addImpurityImportance(size_t nodeID, size_t varID, double decrease);
-
-  double computePredictionMSE();
 
   void cleanUpInternal() {
     if (counter != 0) {
