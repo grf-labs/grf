@@ -433,6 +433,20 @@ std::vector<size_t> TreeClassification::getSplitVarIDs() {
   return split_varIDs;
 }
 
+void TreeClassification::setSplitVarIDs(std::vector<size_t>& split_varIDs) {
+  this->split_varIDs = split_varIDs;
+}
+
+std::vector<double> TreeClassification::getSplitValues() {
+  return split_values;
+}
+
+void TreeClassification::setSplitValues(std::vector<double>& split_values) {
+  this->split_values = split_values;
+}
+
 void TreeClassification::setSampleIDs(std::vector<std::vector<size_t>>& sampleIDs) {
   this->sampleIDs = sampleIDs;
 }
+
+

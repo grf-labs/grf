@@ -3,7 +3,8 @@
 #include "TreeQuantile.h"
 
 
-TreeQuantile::TreeQuantile(std::vector<double>* quantiles) : quantiles(quantiles) {}
+TreeQuantile::TreeQuantile(std::vector<double>* quantiles) :
+    quantiles(quantiles), udist(std::uniform_int_distribution<uint>()) {}
 
 bool TreeQuantile::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   // Check node size, stop if maximum reached
@@ -39,6 +40,7 @@ bool TreeQuantile::splitNodeInternal(size_t nodeID, std::vector<size_t>& possibl
                                                                     relabeled_responses);
   bool stop = classificationTree->findBestSplit(nodeID, possible_split_varIDs);
   split_varIDs = classificationTree->getSplitVarIDs();
+  split_values = classificationTree->getSplitValues();
 
   if (stop) {
     split_values[nodeID] = estimate(nodeID);
@@ -85,7 +87,6 @@ TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& 
 
   // Create a dummy vector of class values. TreeClassification only uses the size of
   // this vector, so it is fine that the values are fake.
-  // TODO(jtibs): Refactor TreeClassification to avoid this hack.
   std::vector<double>* class_values = new std::vector<double>(num_classes, 1.0);
 
   std::vector<uint>* response_classIDs = new std::vector<uint>(num_samples);
@@ -96,12 +97,16 @@ TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& 
 
   TreeClassification* tree = new TreeClassification(class_values, response_classIDs);
 
-  uint tree_seed = 42;
+  uint tree_seed = udist(random_number_generator);
+  std::cout << "tree_seed " << tree_seed << std::endl;
+
   tree->init(data, mtry, dependent_varID, num_samples, tree_seed, deterministic_varIDs, split_select_varIDs,
              split_select_weights, importance_mode, min_node_size, no_split_variables, sample_with_replacement,
              is_ordered_variable, memory_saving_splitting, splitrule, case_weights, keep_inbag, sample_fraction,
              alpha, minprop, holdout);
   tree->setSampleIDs(sampleIDs);
+  tree->setSplitVarIDs(split_varIDs);
+  tree->setSplitValues(split_values);
   return tree;
 }
 

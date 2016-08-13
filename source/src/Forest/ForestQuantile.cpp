@@ -65,6 +65,8 @@ std::unordered_map<size_t, double> ForestQuantile::calculateSampleWeights(size_t
 
     std::vector<size_t> sampleIDs = tree->get_neighboring_samples(sample_idx);
     double sample_weight = 1.0 / sampleIDs.size();
+
+    std::cout << "sample_weight " << sample_weight << std::endl;
     for (auto& sampleID : sampleIDs) {
       weights_by_sampleID[sampleID] += sample_weight;
       total_weight += sample_weight;
@@ -97,12 +99,13 @@ std::vector<double> ForestQuantile::calculateQuantileCutoffs(std::unordered_map<
   auto quantile_it = quantiles->begin();
   double cumulative_weight = 0.0;
 
-  for (auto it = sampleIDs_and_values.begin(); it != sampleIDs_and_values.end(); ++it) {
+  for (auto it = sampleIDs_and_values.begin(); it != sampleIDs_and_values.end()
+                                               && quantile_it != quantiles->end(); ++it) {
     size_t sampleID = it->first;
     double value = it->second;
 
     cumulative_weight += weights_by_sampleID[sampleID];
-    if (cumulative_weight > *quantile_it) {
+    if (cumulative_weight >= *quantile_it) {
       quantile_cutoffs.push_back(value);
       ++quantile_it;
     }
@@ -111,38 +114,19 @@ std::vector<double> ForestQuantile::calculateQuantileCutoffs(std::unordered_map<
 }
 
 void ForestQuantile::computePredictionErrorInternal() {
-
-// For each sample sum over trees where sample is OOB
-  std::vector<size_t> samples_oob_count;
-  predictions.reserve(num_samples);
-  samples_oob_count.resize(num_samples, 0);
-  for (size_t i = 0; i < num_samples; ++i) {
-    std::vector<double> temp { 0 };
-    predictions.push_back(temp);
+  for (int sample_idx : {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}) {
+    std::unordered_map<size_t, double> weights_by_sampleID = calculateSampleWeights(sample_idx);
+    std::vector<double> quantile_cutoffs = calculateQuantileCutoffs(weights_by_sampleID);
+    quantile_predictions.push_back(quantile_cutoffs);
   }
-  for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-    for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
-      size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
-      double value = ((TreeQuantile*) trees[tree_idx])->getPrediction(sample_idx);
 
-      predictions[sampleID][0] += value;
-      ++samples_oob_count[sampleID];
+  std::cout << "quantile predictions!!!" << std::endl;
+  for (auto &quantile_prediction : quantile_predictions) {
+    for (auto it = quantile_prediction.begin(); it != quantile_prediction.end(); ++it) {
+      std::cout << *it << " ";
     }
+    std::cout << std::endl;
   }
-
-// MSE with predictions and true data
-//oob_anytree_sampleIDs.reserve(predictions.size());
-  for (size_t i = 0; i < predictions.size(); ++i) {
-    if (samples_oob_count[i] > 0) {
-      //oob_anytree_sampleIDs.push_back(i);
-      predictions[i][0] /= (double) samples_oob_count[i];
-      double predicted_value = predictions[i][0];
-      double real_value = data->get(i, dependent_varID);
-      overall_prediction_error += (predicted_value - real_value) * (predicted_value - real_value);
-    }
-  }
-
-  overall_prediction_error /= (double) predictions.size();
 }
 
 void ForestQuantile::writeOutputInternal() {
@@ -158,9 +142,6 @@ void ForestQuantile::writeConfusionFile() {
   if (!outfile.good()) {
     throw std::runtime_error("Could not write to confusion file: " + filename + ".");
   }
-
-// Write confusion to file
-  outfile << "Overall OOB prediction error (MSE): " << overall_prediction_error << std::endl;
 
   outfile.close();
   *verbose_out << "Saved prediction error to file " << filename << "." << std::endl;

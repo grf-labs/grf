@@ -125,7 +125,7 @@ void Tree::grow(std::vector<double>* variable_importance) {
   }
 
 // Delete sampleID vector to save memory
-  sampleIDs.clear();
+  //sampleIDs.clear();
   cleanUpInternal();
 }
 

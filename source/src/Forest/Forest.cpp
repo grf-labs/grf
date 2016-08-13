@@ -545,7 +545,7 @@ void Forest::computePredictionError() {
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
   for (uint i = 0; i < num_threads; ++i) {
-    threads.push_back(std::thread(&Forest::predictTreesInThread, this, i, data, true));
+    threads.push_back(std::thread(&Forest::predictTreesInThread, this, i, data, false));
   }
   showProgress("Computing prediction error..");
   for (auto &thread : threads) {
