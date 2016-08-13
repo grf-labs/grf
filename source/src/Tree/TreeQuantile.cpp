@@ -28,13 +28,17 @@ bool TreeQuantile::splitNodeInternal(size_t nodeID, std::vector<size_t>& possibl
     return true;
   }
 
-  std::vector<double> responses(sampleIDs[nodeID].size());
-  data->getAllValues(responses, sampleIDs[nodeID], dependent_varID);
+  std::vector<double> responses;
+  for (auto& sampleID : sampleIDs[nodeID]) {
+    responses.push_back(data->get(sampleID, dependent_varID));
+  }
+
   std::vector<uint>* relabeled_responses = relabelResponses(&responses);
 
   TreeClassification* classificationTree = createClassificationTree(sampleIDs[nodeID],
                                                                     relabeled_responses);
   bool stop = classificationTree->findBestSplit(nodeID, possible_split_varIDs);
+  split_varIDs = classificationTree->getSplitVarIDs();
 
   if (stop) {
     split_values[nodeID] = estimate(nodeID);
@@ -53,12 +57,13 @@ std::vector<uint>* TreeQuantile::relabelResponses(std::vector<double>* responses
 
   // Calculate the response value cutoffs for each quantile.
   for (auto& quantile : *quantiles) {
-    size_t response_index = (size_t) floor(num_samples * quantile);
-    quantile_cutoffs.push_back(responses->at(response_index));
+    size_t response_index = (size_t) ceil(num_samples * quantile) - 1;
+    quantile_cutoffs.push_back(sorted_responses[response_index]);
   }
 
   // Remove duplicate cutoffs.
-  quantile_cutoffs.erase(std::unique(quantile_cutoffs.begin(), quantile_cutoffs.end()));
+  quantile_cutoffs.erase(std::unique(quantile_cutoffs.begin(), quantile_cutoffs.end()),
+                         quantile_cutoffs.end());
 
   // Assign a class to each response based on what quantile it belongs to.
   std::vector<uint>* relabeled_responses = new std::vector<uint>();
@@ -72,7 +77,7 @@ std::vector<uint>* TreeQuantile::relabelResponses(std::vector<double>* responses
   return relabeled_responses;
 }
 
-TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& sampleIDs,
+TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& nodeSampleIDs,
                                                            std::vector<uint>* relabeledResponses) {
   std::set<uint>* unique_classIDs = new std::set<uint>(relabeledResponses->begin(),
                                                        relabeledResponses->end());
@@ -84,8 +89,8 @@ TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& 
   std::vector<double>* class_values = new std::vector<double>(num_classes, 1.0);
 
   std::vector<uint>* response_classIDs = new std::vector<uint>(num_samples);
-  for (size_t i = 0; i < sampleIDs.size(); ++i) {
-    size_t sampleID = sampleIDs[i];
+  for (size_t i = 0; i < nodeSampleIDs.size(); ++i) {
+    size_t sampleID = nodeSampleIDs[i];
     (*response_classIDs)[sampleID] = (*relabeledResponses)[i];
   }
 
@@ -96,5 +101,11 @@ TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& 
              split_select_weights, importance_mode, min_node_size, no_split_variables, sample_with_replacement,
              is_ordered_variable, memory_saving_splitting, splitrule, case_weights, keep_inbag, sample_fraction,
              alpha, minprop, holdout);
+  tree->setSampleIDs(sampleIDs);
   return tree;
+}
+
+std::vector<size_t> TreeQuantile::get_neighboring_samples(size_t sampleID) {
+  size_t nodeID = prediction_terminal_nodeIDs[sampleID];
+  return sampleIDs[nodeID];
 }

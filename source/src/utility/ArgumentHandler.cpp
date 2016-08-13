@@ -35,11 +35,11 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
-    caseweights(""), depvarname(""), fraction(1), holdout(false), memmode(MEM_DOUBLE), savemem(false), predict(""), splitweights(
-        ""), nthreads(DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""), impmeasure(
-        DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false), splitrule(
-        DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(
-        TREE_CLASSIFICATION), seed(0) {
+    caseweights(""), depvarname(""), fraction(1), holdout(false), memmode(MEM_DOUBLE), savemem(false), predict(""),
+    splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""),
+    impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false),
+    quantiles(new std::vector<double>()), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE),
+    replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -268,18 +268,19 @@ int ArgumentHandler::processArguments() {
       probability = true;
       break;
 
-    case 'q':
+    case 'q': {
       std::vector<std::string> split_args;
       splitString(split_args, optarg, ',');
 
-        for (auto& arg : split_args) {
-          double quantile = std::stod(arg);
-          if (quantile >= 1 || quantile < 0) {
-            throw std::runtime_error("All quantiles must lie in the range [0, 1).");
-          }
-          quantiles.push_back(quantile);
+      for (auto &arg : split_args) {
+        double quantile = std::stod(arg);
+        if (quantile >= 1 || quantile <= 0) {
+          throw std::runtime_error("All quantiles must lie in the range (0, 1).");
         }
+        quantiles->push_back(quantile);
+      }
       break;
+    }
 
     case 'r':
       try {
@@ -346,6 +347,9 @@ int ArgumentHandler::processArguments() {
           break;
         case 5:
           treetype = TREE_SURVIVAL;
+          break;
+        case 11:
+          treetype = TREE_QUANTILE;
           break;
         default:
           throw std::runtime_error("");
@@ -478,7 +482,7 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--probability                 Grow a Classification forest with probability estimation for the classes." << std::endl;
   std::cout << "    " << "                              Use in combination with --treetype 1." << std::endl;
   std::cout << "    " << "--quantiles                   The quantiles to predict when running a quantile forest (--treetype 11)." << std::endl;
-  std::cout << "    " << "                              Note that all quantiles must lie in the range [0, 1)." << std::endl;
+  std::cout << "    " << "                              Note that all quantiles must lie in the range (0, 1)." << std::endl;
   std::cout << "    " << "--depvarname NAME             Name of dependent variable. For survival trees this is the time variable." << std::endl;
   std::cout << "    " << "--statusvarname NAME          Name of status variable, only applicable for survival trees." << std::endl;
   std::cout << "    " << "                              Coding is 1 for event and 0 for censored." << std::endl;

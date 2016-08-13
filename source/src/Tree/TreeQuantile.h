@@ -8,10 +8,11 @@ class TreeQuantile: public TreeRegression {
 public:
   TreeQuantile(std::vector<double>* quantiles);
   bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
+  std::vector<size_t> get_neighboring_samples(size_t sampleID);
 
 private:
   std::vector<uint>* relabelResponses(std::vector<double>* responses);
-  TreeClassification* createClassificationTree(std::vector<size_t>& sampleIDs,
+  TreeClassification* createClassificationTree(std::vector<size_t>& nodeSampleIDs,
                                                std::vector<uint>* relabeledResponses);
 
   std::vector<double>* quantiles;

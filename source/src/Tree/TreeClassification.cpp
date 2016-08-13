@@ -429,3 +429,10 @@ void TreeClassification::addGiniImportance(size_t nodeID, size_t varID, double d
   (*variable_importance)[tempvarID] += best_gini;
 }
 
+std::vector<size_t> TreeClassification::getSplitVarIDs() {
+  return split_varIDs;
+}
+
+void TreeClassification::setSampleIDs(std::vector<std::vector<size_t>>& sampleIDs) {
+  this->sampleIDs = sampleIDs;
+}

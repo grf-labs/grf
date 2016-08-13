@@ -5,9 +5,9 @@
 #include "utility.h"
 #include "ForestQuantile.h"
 #include "TreeQuantile.h"
-#include "Data.h"
 
-ForestQuantile::ForestQuantile(std::vector<double>* quantiles): quantiles(quantiles) {}
+ForestQuantile::ForestQuantile(std::vector<double>* quantiles):
+    quantiles(quantiles), quantile_predictions(0) {}
 
 ForestQuantile::~ForestQuantile() {}
 
@@ -40,7 +40,7 @@ void ForestQuantile::growInternal() {
 void ForestQuantile::predictInternal() {
 
   size_t num_prediction_samples = data->getNumRows();
-  predictions.reserve(num_prediction_samples);
+  quantile_predictions.reserve(num_prediction_samples);
 
   // For all samples get tree predictions
   for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
@@ -48,14 +48,66 @@ void ForestQuantile::predictInternal() {
       throw std::runtime_error("Quantile forests do not support 'predict_all'.");
     }
 
-    double prediction_sum = 0;
-    for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      prediction_sum += ((TreeQuantile*) trees[tree_idx])->getPrediction(sample_idx);
-    }
-    std::vector<double> temp;
-    temp.push_back(prediction_sum / num_trees);
-    predictions.push_back(temp);
+    std::unordered_map<size_t, double> weights_by_sampleID = calculateSampleWeights(sample_idx);
+    std::vector<double> quantile_cutoffs = calculateQuantileCutoffs(weights_by_sampleID);
+    quantile_predictions.push_back(quantile_cutoffs);
   }
+}
+
+std::unordered_map<size_t, double> ForestQuantile::calculateSampleWeights(size_t sample_idx) {
+  std::unordered_map<size_t, double> weights_by_sampleID;
+
+  // Weight each training sample by how often it appears in the same terminal
+  // node as the test sample.
+  double total_weight = 0.0;
+  for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+    TreeQuantile* tree = (TreeQuantile*) trees[tree_idx];
+
+    std::vector<size_t> sampleIDs = tree->get_neighboring_samples(sample_idx);
+    double sample_weight = 1.0 / sampleIDs.size();
+    for (auto& sampleID : sampleIDs) {
+      weights_by_sampleID[sampleID] += sample_weight;
+      total_weight += sample_weight;
+    }
+  }
+
+  // Normalize the weights so that they sum to one.
+  for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
+    it->second /= total_weight;
+  }
+
+  return weights_by_sampleID;
+}
+
+std::vector<double> ForestQuantile::calculateQuantileCutoffs(std::unordered_map<size_t, double> &weights_by_sampleID) {
+  std::vector<std::pair<size_t, double>> sampleIDs_and_values;
+  for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
+    size_t sampleID = it->first;
+    sampleIDs_and_values.push_back(std::pair<size_t, double>(
+        sampleID, data->get(sampleID, dependent_varID)));
+  }
+
+  std::sort(sampleIDs_and_values.begin(),
+            sampleIDs_and_values.end(),
+            [](std::pair<size_t, double> first_pair, std::pair<size_t, double> second_pair) {
+              return first_pair.second < second_pair.second;
+            });
+
+  std::vector<double> quantile_cutoffs;
+  auto quantile_it = quantiles->begin();
+  double cumulative_weight = 0.0;
+
+  for (auto it = sampleIDs_and_values.begin(); it != sampleIDs_and_values.end(); ++it) {
+    size_t sampleID = it->first;
+    double value = it->second;
+
+    cumulative_weight += weights_by_sampleID[sampleID];
+    if (cumulative_weight > *quantile_it) {
+      quantile_cutoffs.push_back(value);
+      ++quantile_it;
+    }
+  }
+  return quantile_cutoffs;
 }
 
 void ForestQuantile::computePredictionErrorInternal() {
@@ -137,49 +189,9 @@ void ForestQuantile::writePredictionFile() {
 }
 
 void ForestQuantile::saveToFileInternal(std::ofstream& outfile) {
-
-// Write num_variables
-  outfile.write((char*) &num_variables, sizeof(num_variables));
-
-// Write treetype
-  TreeType treetype = TREE_REGRESSION;
-  outfile.write((char*) &treetype, sizeof(treetype));
+  throw std::runtime_error("Saving and loading quantile forests is not yet implemented.");
 }
 
 void ForestQuantile::loadFromFileInternal(std::ifstream& infile) {
-
-// Read number of variables
-  size_t num_variables_saved;
-  infile.read((char*) &num_variables_saved, sizeof(num_variables_saved));
-
-// Read treetype
-  TreeType treetype;
-  infile.read((char*) &treetype, sizeof(treetype));
-  if (treetype != TREE_REGRESSION) {
-    throw std::runtime_error("Wrong treetype. Loaded file is not a regression forest.");
-  }
-
-  for (size_t i = 0; i < num_trees; ++i) {
-
-    // Read data
-    std::vector<std::vector<size_t>> child_nodeIDs;
-    readVector2D(child_nodeIDs, infile);
-    std::vector<size_t> split_varIDs;
-    readVector1D(split_varIDs, infile);
-    std::vector<double> split_values;
-    readVector1D(split_values, infile);
-
-    // If dependent variable not in test data, change variable IDs accordingly
-    if (num_variables_saved > num_variables) {
-      for (auto& varID : split_varIDs) {
-        if (varID >= dependent_varID) {
-          --varID;
-        }
-      }
-    }
-
-    // Create tree
-    Tree* tree = new TreeQuantile(child_nodeIDs, split_varIDs, split_values, &is_ordered_variable);
-    trees.push_back(tree);
-  }
+  throw std::runtime_error("Saving and loading quantile forests is not yet implemented.");
 }

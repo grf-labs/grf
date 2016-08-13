@@ -70,11 +70,11 @@ int main(int argc, char **argv) {
       forest = new ForestProbability;
       break;
     case TREE_QUANTILE:
-      std::vector<double> default_quantiles = {0.0, 0.15, 0.5, 0.85};
-      std::vector<double> quantiles = !arg_handler.quantiles.empty()
+      std::vector<double>* default_quantiles = new std::vector<double>({0.15, 0.5, 0.85});
+      std::vector<double>* quantiles = !arg_handler.quantiles->empty()
           ? arg_handler.quantiles
           : default_quantiles;
-      forest = new ForestQuantile(&quantiles);
+      forest = new ForestQuantile(quantiles);
       break;
     }
 

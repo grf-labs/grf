@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 
 #include "globals.h"
 #include "Forest.h"
@@ -23,7 +24,6 @@ public:
 private:
   void initInternal(std::string status_variable_name);
   void growInternal();
-  void predictInternal();
   void computePredictionErrorInternal();
   void writeOutputInternal();
   void writeConfusionFile();
@@ -31,7 +31,12 @@ private:
   void saveToFileInternal(std::ofstream& outfile);
   void loadFromFileInternal(std::ifstream& infile);
 
+  void predictInternal();
+  std::unordered_map<size_t, double> calculateSampleWeights(size_t sample_idx);
+  std::vector<double> calculateQuantileCutoffs(std::unordered_map<size_t, double> &weights_by_sampleID);
+
   std::vector<double>* quantiles;
+  std::vector<std::vector<double>> quantile_predictions;
 
   DISALLOW_COPY_AND_ASSIGN(ForestQuantile);
 };
