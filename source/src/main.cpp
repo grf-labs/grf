@@ -30,6 +30,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
+#include <Forest/ForestQuantile.h>
 
 #include "globals.h"
 #include "ArgumentHandler.h"
@@ -67,6 +68,13 @@ int main(int argc, char **argv) {
       break;
     case TREE_PROBABILITY:
       forest = new ForestProbability;
+      break;
+    case TREE_QUANTILE:
+      std::vector<double> default_quantiles = {0.0, 0.15, 0.5, 0.85};
+      std::vector<double> quantiles = !arg_handler.quantiles.empty()
+          ? arg_handler.quantiles
+          : default_quantiles;
+      forest = new ForestQuantile(&quantiles);
       break;
     }
 

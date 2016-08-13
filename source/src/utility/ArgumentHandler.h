@@ -82,6 +82,7 @@ public:
   uint mtry;
   std::string outprefix;
   bool probability;
+  std::vector<double> quantiles;
   SplitRule splitrule;
   std::string statusvarname;
   uint ntree;

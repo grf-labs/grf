@@ -78,6 +78,7 @@ int ArgumentHandler::processArguments() {
       { "mtry",                 required_argument,  0, 'm'},
       { "outprefix",            required_argument,  0, 'o'},
       { "probability",          no_argument,        0, 'p'},
+      { "quantiles",            required_argument,  0, 'q'},
       { "splitrule",            required_argument,  0, 'r'},
       { "statusvarname",        required_argument,  0, 's'},
       { "ntree",                required_argument,  0, 't'},
@@ -265,6 +266,19 @@ int ArgumentHandler::processArguments() {
 
     case 'p':
       probability = true;
+      break;
+
+    case 'q':
+      std::vector<std::string> split_args;
+      splitString(split_args, optarg, ',');
+
+        for (auto& arg : split_args) {
+          double quantile = std::stod(arg);
+          if (quantile >= 1 || quantile < 0) {
+            throw std::runtime_error("All quantiles must lie in the range [0, 1).");
+          }
+          quantiles.push_back(quantile);
+        }
       break;
 
     case 'r':
@@ -463,6 +477,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              (Default: 1)" << std::endl;
   std::cout << "    " << "--probability                 Grow a Classification forest with probability estimation for the classes." << std::endl;
   std::cout << "    " << "                              Use in combination with --treetype 1." << std::endl;
+  std::cout << "    " << "--quantiles                   The quantiles to predict when running a quantile forest (--treetype 11)." << std::endl;
+  std::cout << "    " << "                              Note that all quantiles must lie in the range [0, 1)." << std::endl;
   std::cout << "    " << "--depvarname NAME             Name of dependent variable. For survival trees this is the time variable." << std::endl;
   std::cout << "    " << "--statusvarname NAME          Name of status variable, only applicable for survival trees." << std::endl;
   std::cout << "    " << "                              Coding is 1 for event and 0 for censored." << std::endl;
