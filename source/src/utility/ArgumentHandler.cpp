@@ -38,8 +38,8 @@ ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     caseweights(""), depvarname(""), fraction(1), holdout(false), memmode(MEM_DOUBLE), savemem(false), predict(""),
     splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""),
     impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false),
-    quantiles(new std::vector<double>()), splitrule(DEFAULT_SPLITRULE), statusvarname(""), ntree(DEFAULT_NUM_TREE),
-    replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
+    quantiles(new std::vector<double>()), splitrule(DEFAULT_SPLITRULE), statusvarname(""),
+    ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -351,6 +351,9 @@ int ArgumentHandler::processArguments() {
         case 11:
           treetype = TREE_QUANTILE;
           break;
+        case 13:
+          treetype = TREE_CAUSAL;
+          break;
         default:
           throw std::runtime_error("");
           break;
@@ -402,8 +405,15 @@ void ArgumentHandler::checkArguments() {
   if (treetype == TREE_SURVIVAL && statusvarname.empty()) {
     throw std::runtime_error("Please specify a status variable name with '--statusvarname'. See '--help' for details.");
   }
-  if (treetype != TREE_SURVIVAL && !statusvarname.empty()) {
-    throw std::runtime_error("Option '--statusvarname' only applicable for survival forest. See '--help' for details.");
+
+
+  if (treetype == TREE_CAUSAL && statusvarname.empty()) {
+    throw std::runtime_error("When using causal trees, the treatment variable must be specified through"
+                                 "--statusvarname. See '--help' for details.");
+  }
+
+  if (treetype != TREE_SURVIVAL && treetype != TREE_CAUSAL && !statusvarname.empty()) {
+    throw std::runtime_error("Option '--statusvarname' only applicable for survival and causal forests. See '--help' for details.");
   }
 
   if (treetype == TREE_SURVIVAL && impmeasure == IMP_GINI) {
@@ -414,6 +424,7 @@ void ArgumentHandler::checkArguments() {
   if (treetype != TREE_CLASSIFICATION && probability) {
     throw std::runtime_error("Probability estimation is only applicable to classification forests.");
   }
+
 
   // Get treetype for prediction
   if (!predict.empty()) {
@@ -478,6 +489,8 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              TYPE = 1: Classification." << std::endl;
   std::cout << "    " << "                              TYPE = 3: Regression." << std::endl;
   std::cout << "    " << "                              TYPE = 5: Survival." << std::endl;
+  std::cout << "    " << "                              TYPE = 11: Quantile." << std::endl;
+  std::cout << "    " << "                              TYPE = 13: Causal." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
   std::cout << "    " << "--probability                 Grow a Classification forest with probability estimation for the classes." << std::endl;
   std::cout << "    " << "                              Use in combination with --treetype 1." << std::endl;

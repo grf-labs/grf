@@ -31,6 +31,7 @@
 
 #include "globals.h"
 #include "Tree.h"
+#include <unordered_map>
 
 class TreeRegression: public Tree {
 public:
@@ -44,32 +45,41 @@ public:
 
   void initInternal();
 
-  bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
+  virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
   // Called by splitNodeInternal(). Sets split_varIDs and split_values.
-  bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
+  bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs,
+                     std::unordered_map<size_t, double>& responses_by_sampleID);
+  virtual void findBestSplitValueSmallQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
+                                double& best_value, size_t& best_varID, double& best_decrease, std::unordered_map<size_t, double>& responses_by_sampleID);
+  virtual void findBestSplitValueLargeQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
+                                double& best_value, size_t& best_varID, double& best_decrease, std::unordered_map<size_t, double>& responses_by_sampleID);
   double estimate(size_t nodeID);
 
   void appendToFileInternal(std::ofstream& file);
 
   double getPrediction(size_t sampleID) const {
     size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
+
+    std::cout << "sampleID: " << sampleID << " terminal nodeID: " << terminal_nodeID << " prediction: "
+      << split_values[terminal_nodeID] << std::endl;
     return (split_values[terminal_nodeID]);
   }
+
+  size_t* counter;
+  double* sums;
 
 private:
   void createEmptyNodeInternal();
 
   double computePredictionAccuracyInternal();
 
-  void findBestSplitValueSmallQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-      double& best_value, size_t& best_varID, double& best_decrease);
-  void findBestSplitValueLargeQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-      double& best_value, size_t& best_varID, double& best_decrease);
   void findBestSplitValueUnordered(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-      double& best_value, size_t& best_varID, double& best_decrease);
-  bool findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
+      double& best_value, size_t& best_varID, double& best_decrease, std::unordered_map<size_t, double>& responses_by_sampleID);
+  bool findBestSplitMaxstat(size_t nodeID, std::vector<size_t>& possible_split_varIDs,
+                            std::unordered_map<size_t, double>& responses_by_sampleID);
 
-  void addImpurityImportance(size_t nodeID, size_t varID, double decrease);
+  void addImpurityImportance(size_t nodeID, size_t varID, double decrease,
+                             std::unordered_map<size_t, double>& responses_by_sampleID);
 
   void cleanUpInternal() {
     if (counter != 0) {
@@ -79,9 +89,6 @@ private:
       delete[] sums;
     }
   }
-
-  size_t* counter;
-  double* sums;
 
   DISALLOW_COPY_AND_ASSIGN(TreeRegression);
 };

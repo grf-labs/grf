@@ -1,0 +1,144 @@
+#include <algorithm>
+#include <stdexcept>
+#include <string>
+#include <Tree/TreeCausal.h>
+
+#include "utility.h"
+#include "ForestCausal.h"
+
+ForestCausal::ForestCausal(): treatment_varID(0), quantile_predictions(0) {}
+
+ForestCausal::~ForestCausal() {}
+
+void ForestCausal::initInternal(std::string status_variable_name) {
+  treatment_varID = data->getVariableID(status_variable_name);
+
+  // If mtry not set, use number of independent variables / 3.
+  if (mtry == 0) {
+    unsigned long temp = sqrt((double) (num_variables - 1));
+    mtry = std::max((unsigned long) 1, temp);
+  }
+
+  // Set minimal node size
+  if (min_node_size == 0) {
+    min_node_size = DEFAULT_MIN_NODE_SIZE_REGRESSION;
+  }
+
+  // Sort data if memory saving mode
+  if (!memory_saving_splitting) {
+    data->sort();
+  }
+}
+
+void ForestCausal::growInternal() {
+  trees.reserve(num_trees);
+  for (size_t i = 0; i < num_trees; ++i) {
+    trees.push_back(new TreeCausal(treatment_varID));
+  }
+}
+
+void ForestCausal::predictInternal() {
+  size_t num_prediction_samples = data->getNumRows();
+  predictions.reserve(num_prediction_samples);
+
+  // For all samples get tree predictions
+  for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
+
+    if (predict_all) {
+      throw std::runtime_error("Causal forests do not support predict_all.");
+    } else {
+      // Mean over trees
+      double prediction_sum = 0;
+      for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+        prediction_sum += ((TreeCausal*) trees[tree_idx])->getPrediction(sample_idx);
+      }
+      std::vector<double> temp;
+      temp.push_back(prediction_sum / num_trees);
+      predictions.push_back(temp);
+    }
+  }
+}
+
+void ForestCausal::computePredictionErrorInternal() {
+
+// For each sample sum over trees where sample is OOB
+  std::vector<size_t> samples_oob_count;
+  predictions.reserve(num_samples);
+  samples_oob_count.resize(num_samples, 0);
+  for (size_t i = 0; i < num_samples; ++i) {
+    std::vector<double> temp { 0 };
+    predictions.push_back(temp);
+  }
+  for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+    for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
+      size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
+      double value = ((TreeCausal*) trees[tree_idx])->getPrediction(sampleID);
+
+      predictions[sampleID][0] += value;
+      ++samples_oob_count[sampleID];
+    }
+  }
+
+  for (size_t i = 0; i < predictions.size(); ++i) {
+    if (samples_oob_count[i] > 0) {
+      predictions[i][0] /= (double) samples_oob_count[i];
+    }
+  }
+}
+
+void ForestCausal::writeOutputInternal() {
+  *verbose_out << "Tree type:                         " << "Regression" << std::endl;
+}
+
+void ForestCausal::writeConfusionFile() {
+
+// Open confusion file for writing
+  std::string filename = output_prefix + ".confusion";
+  std::ofstream outfile;
+  outfile.open(filename, std::ios::out);
+  if (!outfile.good()) {
+    throw std::runtime_error("Could not write to confusion file: " + filename + ".");
+  }
+
+  // Write
+  outfile << "Prediction X1" << std::endl;
+  for (size_t i = 0; i < predictions.size(); ++i) {
+    for (size_t j = 0; j < predictions[i].size(); ++j) {
+      outfile << predictions[i][j] << " " << data->get(i, 0) << " ";
+    }
+    outfile << std::endl;
+  }
+
+  outfile.close();
+  *verbose_out << "Saved prediction error to file " << filename << "." << std::endl;
+}
+
+void ForestCausal::writePredictionFile() {
+
+// Open prediction file for writing
+  std::string filename = output_prefix + ".prediction";
+  std::ofstream outfile;
+  outfile.open(filename, std::ios::out);
+  if (!outfile.good()) {
+    throw std::runtime_error("Could not write to prediction file: " + filename + ".");
+  }
+
+  // Write
+  outfile << "Prediction X1" << std::endl;
+  for (size_t i = 0; i < predictions.size(); ++i) {
+    for (size_t j = 0; j < predictions[i].size(); ++j) {
+      outfile << predictions[i][j] << " " << data->get(i, 0) << " ";
+    }
+    outfile << std::endl;
+  }
+
+  *verbose_out << "Saved predictions to file " << filename << "." << std::endl;
+}
+
+void ForestCausal::saveToFileInternal(std::ofstream& outfile) {
+  throw std::runtime_error("Saving and loading causal forests is not yet implemented.");
+}
+
+void ForestCausal::loadFromFileInternal(std::ifstream& infile) {
+  throw std::runtime_error("Saving and loading causal forests is not yet implemented.");
+}
