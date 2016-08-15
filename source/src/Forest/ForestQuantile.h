@@ -32,7 +32,10 @@ private:
   void loadFromFileInternal(std::ifstream& infile);
 
   void predictInternal();
-  std::unordered_map<size_t, double> calculateSampleWeights(size_t sample_idx);
+  void addSampleWeights(size_t test_sampleID,
+                        size_t tree_idx,
+                        std::unordered_map<size_t, double> &weights_by_sampleID);
+  void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
   std::vector<double> calculateQuantileCutoffs(std::unordered_map<size_t, double> &weights_by_sampleID);
 
   std::vector<double>* quantiles;

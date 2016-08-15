@@ -38,47 +38,47 @@ void ForestQuantile::growInternal() {
 }
 
 void ForestQuantile::predictInternal() {
-
   size_t num_prediction_samples = data->getNumRows();
   quantile_predictions.reserve(num_prediction_samples);
 
   // For all samples get tree predictions
-  for (size_t sample_idx = 0; sample_idx < num_prediction_samples; ++sample_idx) {
+  for (size_t sampleID = 0; sampleID < num_prediction_samples; ++sampleID) {
     if (predict_all) {
       throw std::runtime_error("Quantile forests do not support 'predict_all'.");
     }
 
-    std::unordered_map<size_t, double> weights_by_sampleID = calculateSampleWeights(sample_idx);
+    std::unordered_map<size_t, double> weights_by_sampleID;
+    for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
+      addSampleWeights(sampleID, tree_idx, weights_by_sampleID);
+    }
+    normalizeSampleWeights(weights_by_sampleID);
+
     std::vector<double> quantile_cutoffs = calculateQuantileCutoffs(weights_by_sampleID);
     quantile_predictions.push_back(quantile_cutoffs);
   }
 }
 
-std::unordered_map<size_t, double> ForestQuantile::calculateSampleWeights(size_t sample_idx) {
-  std::unordered_map<size_t, double> weights_by_sampleID;
+void ForestQuantile::addSampleWeights(size_t test_sampleID,
+                                      size_t tree_idx,
+                                      std::unordered_map<size_t, double> &weights_by_sampleID) {
+  TreeQuantile *tree = (TreeQuantile *) trees[tree_idx];
+  std::vector<size_t> sampleIDs = tree->get_neighboring_samples(test_sampleID);
+  double sample_weight = 1.0 / sampleIDs.size();
 
-  // Weight each training sample by how often it appears in the same terminal
-  // node as the test sample.
+  for (auto &sampleID : sampleIDs) {
+    weights_by_sampleID[sampleID] += sample_weight;
+  }
+}
+
+void ForestQuantile::normalizeSampleWeights(std::unordered_map<size_t, double>& weights_by_sampleID) {
   double total_weight = 0.0;
-  for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-    TreeQuantile* tree = (TreeQuantile*) trees[tree_idx];
-
-    std::vector<size_t> sampleIDs = tree->get_neighboring_samples(sample_idx);
-    double sample_weight = 1.0 / sampleIDs.size();
-
-    std::cout << "sample_weight " << sample_weight << std::endl;
-    for (auto& sampleID : sampleIDs) {
-      weights_by_sampleID[sampleID] += sample_weight;
-      total_weight += sample_weight;
-    }
+  for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
+    total_weight += it->second;
   }
 
-  // Normalize the weights so that they sum to one.
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     it->second /= total_weight;
   }
-
-  return weights_by_sampleID;
 }
 
 std::vector<double> ForestQuantile::calculateQuantileCutoffs(std::unordered_map<size_t, double> &weights_by_sampleID) {
@@ -114,23 +114,33 @@ std::vector<double> ForestQuantile::calculateQuantileCutoffs(std::unordered_map<
 }
 
 void ForestQuantile::computePredictionErrorInternal() {
-  for (int sample_idx : {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}) {
-    std::unordered_map<size_t, double> weights_by_sampleID = calculateSampleWeights(sample_idx);
-    std::vector<double> quantile_cutoffs = calculateQuantileCutoffs(weights_by_sampleID);
-    quantile_predictions.push_back(quantile_cutoffs);
+  if (predict_all) {
+    throw std::runtime_error("Quantile forests do not support 'predict_all'.");
   }
 
-  std::cout << "quantile predictions!!!" << std::endl;
-  for (auto &quantile_prediction : quantile_predictions) {
-    for (auto it = quantile_prediction.begin(); it != quantile_prediction.end(); ++it) {
-      std::cout << *it << " ";
+  std::unordered_multimap<size_t, size_t> trees_by_oob_samples;
+  for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+    for (size_t sampleID : trees[tree_idx]->getOobSampleIDs()) {
+      trees_by_oob_samples.insert(std::pair<size_t, size_t>(sampleID, tree_idx));
     }
-    std::cout << std::endl;
+  }
+
+  for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
+    std::unordered_map<size_t, double> weights_by_sampleID;
+
+    auto tree_range = trees_by_oob_samples.equal_range(sampleID);
+    for (auto it = tree_range.first; it != tree_range.second; ++it) {
+      addSampleWeights(sampleID, it->second, weights_by_sampleID);
+    }
+    normalizeSampleWeights(weights_by_sampleID);
+
+    std::vector<double> quantile_cutoffs = calculateQuantileCutoffs(weights_by_sampleID);
+    quantile_predictions.push_back(quantile_cutoffs);
   }
 }
 
 void ForestQuantile::writeOutputInternal() {
-  *verbose_out << "Tree type:                         " << "Regression" << std::endl;
+  *verbose_out << "Tree type:                         " << "Quantile" << std::endl;
 }
 
 void ForestQuantile::writeConfusionFile() {
@@ -141,6 +151,14 @@ void ForestQuantile::writeConfusionFile() {
   outfile.open(filename, std::ios::out);
   if (!outfile.good()) {
     throw std::runtime_error("Could not write to confusion file: " + filename + ".");
+  }
+
+  *verbose_out << "writing quantile predictions!!!" << std::endl;
+  for (auto &quantile_prediction : quantile_predictions) {
+    for (auto it = quantile_prediction.begin(); it != quantile_prediction.end(); ++it) {
+      outfile << *it << " ";
+    }
+    outfile << std::endl;
   }
 
   outfile.close();
