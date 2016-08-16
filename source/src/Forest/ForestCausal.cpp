@@ -72,7 +72,7 @@ void ForestCausal::computePredictionErrorInternal() {
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
       size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
-      double value = ((TreeCausal*) trees[tree_idx])->getPrediction(sampleID);
+      double value = ((TreeCausal*) trees[tree_idx])->getPrediction(sample_idx);
 
       predictions[sampleID][0] += value;
       ++samples_oob_count[sampleID];
