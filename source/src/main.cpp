@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
       break;
     }
     case TREE_CAUSAL:
-      forest = new ForestCausal();
+      forest = new ForestCausal;
       break;
     }
 

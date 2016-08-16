@@ -32,7 +32,9 @@
 
 #include "globals.h"
 #include "Forest.h"
+#include "ForestCausal.h"
 #include "ForestClassification.h"
+#include "ForestQuantile.h"
 #include "ForestRegression.h"
 #include "ForestSurvival.h"
 #include "ForestProbability.h"
@@ -51,7 +53,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     bool sample_with_replacement, bool probability, std::vector<std::string>& unordered_variable_names,
     bool use_unordered_variable_names, bool save_memory, uint splitrule_r, 
     std::vector<double>& case_weights, bool use_case_weights, bool predict_all, 
-    bool keep_inbag, double sample_fraction, double alpha, double minprop, bool holdout) {
+    bool keep_inbag, double sample_fraction, double alpha, double minprop, bool holdout, std::vector<double>& quantiles) {
 
   Rcpp::List result;
   Forest* forest = 0;
@@ -107,6 +109,17 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     case TREE_PROBABILITY:
       forest = new ForestProbability;
       break;
+    case TREE_QUANTILE: {
+      std::cout << "making a quantile tree!" << std::endl;
+      std::vector<double>* initialized_quantiles = !quantiles.empty()
+        ? new std::vector<double>(quantiles)
+        : new std::vector<double>({0.15, 0.5, 0.85});
+      forest = new ForestQuantile(initialized_quantiles);
+      break;
+    }
+    case TREE_CAUSAL:
+      forest = new ForestCausal;
+      break;
     }
 
     ImportanceMode importance_mode = (ImportanceMode) importance_mode_r;
@@ -115,7 +128,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     // Init Ranger
     forest->initR(dependent_variable_name, data, mtry, num_trees, verbose_out, seed, num_threads,
         importance_mode, min_node_size, split_select_weights, always_split_variable_names, status_variable_name,
-        prediction_mode, sample_with_replacement, unordered_variable_names, save_memory, splitrule, case_weights, 
+        prediction_mode, sample_with_replacement, unordered_variable_names, save_memory, splitrule, case_weights,
         predict_all, keep_inbag, sample_fraction, alpha, minprop, holdout);
 
     // Load forest object if in prediction mode
@@ -149,6 +162,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
       }
     }
 
+  std::cout << "running ranger..." << std::endl;
     // Run Ranger
     forest->run(false);
 
@@ -177,7 +191,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
       result.push_back(forest->getVariableImportance(), "variable.importance");
       result.push_back(forest->getOverallPredictionError(), "prediction.error");
     }
-    
+
     if (keep_inbag) {
       result.push_back(forest->getInbagCounts(), "inbag.counts");
     }
@@ -210,6 +224,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
 
     delete forest;
     delete data;
+
   } catch (std::exception& e) {
     if (strcmp(e.what(), "User interrupt.") != 0) {
       Rcpp::Rcerr << "Error: " << e.what() << " Ranger will EXIT now." << std::endl;

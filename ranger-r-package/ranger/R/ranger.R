@@ -191,7 +191,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    num.threads = NULL, save.memory = FALSE,
                    verbose = TRUE, seed = NULL, 
                    dependent.variable.name = NULL, status.variable.name = NULL, 
-                   classification = NULL) {
+                   classification = NULL, causal = FALSE, quantile = FALSE, quantiles = double()) {
   
   ## GenABEL GWA data
   if ("gwaa.data" %in% class(data)) {
@@ -241,6 +241,10 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       treetype <- 1
     } else if (probability) {
       treetype <- 9
+    } else if (causal) {
+      treetype <- 13
+    } else if (quantile) {
+      treetype <- 11
     } else {
       treetype <- 3
     }
@@ -257,7 +261,9 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       status.variable.name <- dimnames(response)[[2]][2]
     } else {
       dependent.variable.name <- names(data.selected)[1]
-      status.variable.name <- "none"
+      if (treetype != 13) {
+        status.variable.name <- "none"
+      }
     }
     independent.variable.names <- names(data.selected)[-1]
   } else {
@@ -565,7 +571,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       status.variable.name, prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
                       save.memory, splitrule.num, case.weights, use.case.weights, predict.all, 
-                      keep.inbag, sample.fraction, alpha, minprop, holdout)
+                      keep.inbag, sample.fraction, alpha, minprop, holdout, quantiles)
   
   if (length(result) == 0) {
     stop("User interrupt or internal error.")
@@ -606,7 +612,12 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$treetype <- "Survival"
   } else if (treetype == 9) {
     result$treetype <- "Probability estimation"
+  } else if (treetype == 11) {
+    result$treetype <- "Quantile"
+  } else if (treetype == 13) {
+    result$treetype <- "Causal"
   }
+  
   if (treetype == 3) {
     result$r.squared <- 1 - result$prediction.error / var(response)
   }

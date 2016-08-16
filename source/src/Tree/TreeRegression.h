@@ -59,9 +59,6 @@ public:
 
   double getPrediction(size_t sampleID) const {
     size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
-
-    std::cout << "sampleID: " << sampleID << " terminal nodeID: " << terminal_nodeID << " prediction: "
-      << split_values[terminal_nodeID] << std::endl;
     return (split_values[terminal_nodeID]);
   }
 

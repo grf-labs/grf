@@ -61,8 +61,16 @@ void ForestQuantile::predictInternal() {
 void ForestQuantile::addSampleWeights(size_t test_sampleID,
                                       size_t tree_idx,
                                       std::unordered_map<size_t, double> &weights_by_sampleID) {
-  TreeQuantile *tree = (TreeQuantile *) trees[tree_idx];
-  std::vector<size_t> sampleIDs = tree->get_neighboring_samples(test_sampleID);
+  std::cout << "in compute prediction error internal!" << std::endl;
+
+  TreeQuantile* tree = (TreeQuantile *) trees[tree_idx];
+
+  std::vector<size_t> oob_sampleIDs = tree->getOobSampleIDs();
+
+  // hackhackhack
+  size_t sample_idx = (size_t) (std::find(oob_sampleIDs.begin(), oob_sampleIDs.end(), test_sampleID) - oob_sampleIDs.begin());
+
+  std::vector<size_t> sampleIDs = tree->get_neighboring_samples(sample_idx);
   double sample_weight = 1.0 / sampleIDs.size();
 
   for (auto &sampleID : sampleIDs) {
@@ -132,6 +140,7 @@ void ForestQuantile::computePredictionErrorInternal() {
     for (auto it = tree_range.first; it != tree_range.second; ++it) {
       addSampleWeights(sampleID, it->second, weights_by_sampleID);
     }
+
     normalizeSampleWeights(weights_by_sampleID);
 
     std::vector<double> quantile_cutoffs = calculateQuantileCutoffs(weights_by_sampleID);

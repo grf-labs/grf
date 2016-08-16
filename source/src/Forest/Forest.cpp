@@ -283,18 +283,22 @@ void Forest::run(bool verbose) {
       *verbose_out << "Growing trees .." << std::endl;
     }
 
+    std::cout << "growing treeees" << std::endl;
     grow();
 
     if (verbose) {
       *verbose_out << "Computing prediction error .." << std::endl;
     }
+
+    std::cout << "Computing prediction error .." << std::endl;
+
     computePredictionError();
 
     if (importance_mode > IMP_GINI) {
       if (verbose) {
         *verbose_out << "Computing permutation variable importance .." << std::endl;
       }
-      computePermutationImportance();
+      //computePermutationImportance();
     }
   }
 }

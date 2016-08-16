@@ -9,7 +9,6 @@ TreeCausal::TreeCausal(size_t treatment_varID) : treatment_varID(treatment_varID
 bool TreeCausal::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {
-    std::cout << "NODE ID" << nodeID << std::endl;
     split_values[nodeID] = getTerminalNodePrediction(sampleIDs[nodeID]);
     return true;
   }
@@ -37,9 +36,6 @@ bool TreeCausal::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_
     split_values[nodeID] = getTerminalNodePrediction(sampleIDs[nodeID]);
     return true;
   }
-
-//  std::cout << "split for node " << nodeID << ": variable " << split_varIDs[nodeID]
-//            << ", value " << split_values[nodeID] << std::endl;
 
   return false;
 }
@@ -73,19 +69,7 @@ std::unordered_map<size_t, double> TreeCausal::relabelResponses(std::vector<size
 }
 
 double TreeCausal::getTerminalNodePrediction(std::vector<size_t>& node_sampleIDs) {
-  std::cout << "terminal node: " << std::endl;
-  for (size_t sampleID : node_sampleIDs) {
-    for (int col_idx = 0; col_idx < data->getNumCols(); ++col_idx) {
-      std::cout << data->get(sampleID, col_idx) << " ";
-    }
-    std::cout << std::endl;
-  }
-
   std::unordered_map<bool, double> average_responses_by_treatment = calculateAverageResponses(node_sampleIDs);
-
-  std::cout << "average treated: " << average_responses_by_treatment[true] << std::endl;
-  std::cout << "average untreated: " << average_responses_by_treatment[false] << std::endl;
-
   return average_responses_by_treatment[true] - average_responses_by_treatment[false];
 }
 

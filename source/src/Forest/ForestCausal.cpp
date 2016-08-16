@@ -1,10 +1,10 @@
 #include <algorithm>
 #include <stdexcept>
 #include <string>
-#include <Tree/TreeCausal.h>
 
 #include "utility.h"
 #include "ForestCausal.h"
+#include "TreeCausal.h"
 
 ForestCausal::ForestCausal(): treatment_varID(0), quantile_predictions(0) {}
 
