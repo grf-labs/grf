@@ -57,13 +57,13 @@ public:
     return (split_values[terminal_nodeID]);
   }
 
-  void setSampleIDs(std::vector<std::vector<size_t>>& sampleIDs);
+  void set_sampleIDs(std::vector<std::vector<size_t>> &sampleIDs);
 
-  std::vector<size_t> getSplitVarIDs();
-  void setSplitVarIDs(std::vector<size_t>& split_varIDs);
+  std::vector<size_t> get_split_varIDs();
+  void set_split_varIDs(std::vector<size_t> &split_varIDs);
 
-  std::vector<double> getSplitValues();
-  void setSplitValues(std::vector<double>& split_values);
+  std::vector<double> get_split_values();
+  void set_split_values(std::vector<double> &split_values);
 
 private:
   void createEmptyNodeInternal();

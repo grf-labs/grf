@@ -7,6 +7,9 @@
 class TreeCausal: public TreeRegression {
 public:
   TreeCausal(size_t treatment_varID);
+  TreeCausal(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
+      std::vector<double>& split_values, std::vector<bool>* is_ordered_variable, size_t treatment_varID);
+
   bool splitNodeInternal(size_t nodeID, std::vector<size_t> &possible_split_varIDs);
 
   void findBestSplitValueSmallQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,

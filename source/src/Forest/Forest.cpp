@@ -277,6 +277,7 @@ void Forest::run(bool verbose) {
     if (verbose) {
       *verbose_out << "Predicting .." << std::endl;
     }
+
     predict();
   } else {
     if (verbose) {
@@ -511,6 +512,7 @@ void Forest::predict() {
 
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
+
   for (uint i = 0; i < num_threads; ++i) {
     threads.push_back(std::thread(&Forest::predictTreesInThread, this, i, data, false));
   }
@@ -527,6 +529,7 @@ void Forest::predict() {
 #endif
 
 // Call special functions for subclasses
+
   predictInternal();
 }
 
@@ -698,8 +701,7 @@ void Forest::predictTreesInThread(uint thread_idx, const Data* prediction_data, 
       ++progress;
       condition_variable.notify_one();
     }
-  }
-}
+  }}
 
 void Forest::computeTreePermutationImportanceInThread(uint thread_idx, std::vector<double>* importance,
     std::vector<double>* variance) {

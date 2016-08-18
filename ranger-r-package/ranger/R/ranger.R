@@ -241,10 +241,10 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       treetype <- 1
     } else if (probability) {
       treetype <- 9
-    } else if (causal) {
-      treetype <- 13
     } else if (quantile) {
       treetype <- 11
+    } else if (causal) {
+      treetype <- 13
     } else {
       treetype <- 3
     }
@@ -630,6 +630,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$forest$levels <- levels(response)
     result$forest$independent.variable.names <- independent.variable.names
     result$forest$treetype <- result$treetype
+    result$forest$quantiles <- result$quantiles
     class(result$forest) <- "ranger.forest"
     
     ## In 'ordered' mode, save covariate levels

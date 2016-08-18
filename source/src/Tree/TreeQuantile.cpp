@@ -1,10 +1,21 @@
 
 #include <set>
 #include "TreeQuantile.h"
+#include "utility.h"
 
 
 TreeQuantile::TreeQuantile(std::vector<double>* quantiles) :
     quantiles(quantiles), udist(std::uniform_int_distribution<uint>()) {}
+
+TreeQuantile::TreeQuantile(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
+                           std::vector<double> &split_values, std::vector<bool> *is_ordered_variable,
+                           std::vector<double> *quantiles,
+                           std::vector<std::vector<size_t>> sampleIDs) :
+    TreeRegression(child_nodeIDs, split_varIDs, split_values, is_ordered_variable),
+    quantiles(quantiles),
+    udist(std::uniform_int_distribution<uint>()) {
+  this->sampleIDs = sampleIDs;
+}
 
 bool TreeQuantile::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   // Check node size, stop if maximum reached
@@ -39,8 +50,8 @@ bool TreeQuantile::splitNodeInternal(size_t nodeID, std::vector<size_t>& possibl
   TreeClassification* classificationTree = createClassificationTree(sampleIDs[nodeID],
                                                                     relabeled_responses);
   bool stop = classificationTree->findBestSplit(nodeID, possible_split_varIDs);
-  split_varIDs = classificationTree->getSplitVarIDs();
-  split_values = classificationTree->getSplitValues();
+  split_varIDs = classificationTree->get_split_varIDs();
+  split_values = classificationTree->get_split_values();
 
   if (stop) {
     split_values[nodeID] = estimate(nodeID);
@@ -103,13 +114,18 @@ TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& 
              split_select_weights, importance_mode, min_node_size, no_split_variables, sample_with_replacement,
              is_ordered_variable, memory_saving_splitting, splitrule, case_weights, keep_inbag, sample_fraction,
              alpha, minprop, holdout);
-  tree->setSampleIDs(sampleIDs);
-  tree->setSplitVarIDs(split_varIDs);
-  tree->setSplitValues(split_values);
+  tree->set_sampleIDs(sampleIDs);
+  tree->set_split_varIDs(split_varIDs);
+  tree->set_split_values(split_values);
   return tree;
 }
 
 std::vector<size_t> TreeQuantile::get_neighboring_samples(size_t sampleID) {
   size_t nodeID = prediction_terminal_nodeIDs[sampleID];
   return sampleIDs[nodeID];
+}
+
+
+void TreeQuantile::appendToFileInternal(std::ofstream& file) {
+  saveVector2D(sampleIDs, file);
 }

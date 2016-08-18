@@ -67,9 +67,15 @@ public:
   const std::vector<std::vector<size_t> >& getChildNodeIDs() const {
     return child_nodeIDs;
   }
+
+  const std::vector<std::vector<size_t>>& get_sampleIDs() const {
+    return sampleIDs;
+  }
+
   const std::vector<double>& getSplitValues() const {
     return split_values;
   }
+
   const std::vector<size_t>& getSplitVarIDs() const {
     return split_varIDs;
   }

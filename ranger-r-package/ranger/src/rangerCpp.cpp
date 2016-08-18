@@ -110,7 +110,6 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
       forest = new ForestProbability;
       break;
     case TREE_QUANTILE: {
-      std::cout << "making a quantile tree!" << std::endl;
       std::vector<double>* initialized_quantiles = !quantiles.empty()
         ? new std::vector<double>(quantiles)
         : new std::vector<double>({0.15, 0.5, 0.85});
@@ -133,8 +132,8 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
 
     // Load forest object if in prediction mode
     if (prediction_mode) {
-      size_t dependent_varID = loaded_forest["dependent.varID"];
       //size_t num_trees = loaded_forest["num.trees"];
+      size_t dependent_varID = loaded_forest["dependent.varID"];
       std::vector<std::vector<std::vector<size_t>> > child_nodeIDs = loaded_forest["child.nodeIDs"];
       std::vector<std::vector<size_t>> split_varIDs = loaded_forest["split.varIDs"];
       std::vector<std::vector<double>> split_values = loaded_forest["split.values"];
@@ -159,6 +158,16 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
         loaded_forest["terminal.class.counts"];
         ((ForestProbability*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
             class_values, terminal_class_counts, is_ordered);
+      } else if (treetype == TREE_CAUSAL) {
+        ((ForestCausal*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
+                                                 is_ordered);
+      } else if (treetype == TREE_QUANTILE) {
+        std::vector<double> quantiles = loaded_forest["quantiles"];
+        std::vector<std::vector<std::vector<size_t>>> sampleIDs = loaded_forest["sampleIDs"];
+        std::vector<double> originalResponses = loaded_forest["originalResponses"];
+
+        ((ForestQuantile*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
+                                               is_ordered, &quantiles, sampleIDs, &originalResponses);
       }
     }
 
@@ -220,6 +229,11 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
         forest_object.push_back(temp->getStatusVarId(), "status.varID");
         forest_object.push_back(temp->getChf(), "chf");
         forest_object.push_back(temp->getUniqueTimepoints(), "unique.death.times");
+      } else if (treetype == TREE_QUANTILE) {
+        ForestQuantile* temp = (ForestQuantile*) forest;
+        forest_object.push_back(temp->get_sampleIDs(), "sampleIDs");
+        forest_object.push_back(temp->get_original_responses(), "originalResponses");
+
       }
       result.push_back(forest_object, "forest");
     }

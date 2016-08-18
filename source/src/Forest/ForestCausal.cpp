@@ -6,13 +6,36 @@
 #include "ForestCausal.h"
 #include "TreeCausal.h"
 
-ForestCausal::ForestCausal(): treatment_varID(0), quantile_predictions(0) {}
+ForestCausal::ForestCausal(): treatment_varID(0) {}
 
 ForestCausal::~ForestCausal() {}
 
+void ForestCausal::loadForest(size_t dependent_varID, size_t num_trees,
+                              std::vector<std::vector<std::vector<size_t>>> &forest_child_nodeIDs,
+                              std::vector<std::vector<size_t>> &forest_split_varIDs,
+                              std::vector<std::vector<double>> &forest_split_values,
+                              std::vector<bool> &is_ordered_variable) {
+
+  this->dependent_varID = dependent_varID;
+  this->num_trees = num_trees;
+  this->is_ordered_variable = is_ordered_variable;
+
+  // Create trees
+  trees.reserve(num_trees);
+  for (size_t i = 0; i < num_trees; ++i) {
+    Tree* tree = new TreeCausal(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
+                                    &this->is_ordered_variable, treatment_varID);
+    trees.push_back(tree);
+  }
+
+  // Create thread ranges
+  equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
+}
+
 void ForestCausal::initInternal(std::string status_variable_name) {
-  treatment_varID = data->getVariableID(status_variable_name);
-  std::cout << "initing causal foroest..." << std::endl;
+  if (!prediction_mode) {
+    treatment_varID = data->getVariableID(status_variable_name);
+  }
 
   // If mtry not set, use number of independent variables / 3.
   if (mtry == 0) {
@@ -137,9 +160,53 @@ void ForestCausal::writePredictionFile() {
 }
 
 void ForestCausal::saveToFileInternal(std::ofstream& outfile) {
-  throw std::runtime_error("Saving and loading causal forests is not yet implemented.");
+
+// Write num_variables
+  outfile.write((char*) &num_variables, sizeof(num_variables));
+
+// Write treetype
+  TreeType treetype = TREE_CAUSAL;
+  outfile.write((char*) &treetype, sizeof(treetype));
+
+  outfile.write((char*) &treatment_varID, sizeof(treatment_varID));
 }
 
 void ForestCausal::loadFromFileInternal(std::ifstream& infile) {
-  throw std::runtime_error("Saving and loading causal forests is not yet implemented.");
+
+// Read number of variables
+  size_t num_variables_saved;
+  infile.read((char*) &num_variables_saved, sizeof(num_variables_saved));
+
+// Read treetype
+  TreeType treetype;
+  infile.read((char*) &treetype, sizeof(treetype));
+  if (treetype != TREE_CAUSAL) {
+    throw std::runtime_error("Wrong treetype. Loaded file is not a causal forest.");
+  }
+
+  infile.read((char*) &treatment_varID, sizeof(treatment_varID));
+
+  for (size_t i = 0; i < num_trees; ++i) {
+
+    // Read data
+    std::vector<std::vector<size_t>> child_nodeIDs;
+    readVector2D(child_nodeIDs, infile);
+    std::vector<size_t> split_varIDs;
+    readVector1D(split_varIDs, infile);
+    std::vector<double> split_values;
+    readVector1D(split_values, infile);
+
+    // If dependent variable not in test data, change variable IDs accordingly
+    if (num_variables_saved > num_variables) {
+      for (auto& varID : split_varIDs) {
+        if (varID >= dependent_varID) {
+          --varID;
+        }
+      }
+    }
+
+    // Create tree
+    Tree* tree = new TreeCausal(child_nodeIDs, split_varIDs, split_values, &is_ordered_variable, treatment_varID);
+    trees.push_back(tree);
+  }
 }

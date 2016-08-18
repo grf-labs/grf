@@ -85,6 +85,13 @@ public:
   void saveToFile();
   virtual void saveToFileInternal(std::ofstream& outfile) = 0;
 
+  std::vector<std::vector<std::vector<size_t>>> get_sampleIDs() {
+    std::vector<std::vector<std::vector<size_t>>> result;
+    for (auto& tree : trees) {
+      result.push_back(tree->get_sampleIDs());
+    }
+    return result;
+  }
   std::vector<std::vector<std::vector<size_t>>>getChildNodeIDs() {
     std::vector<std::vector<std::vector<size_t>>> result;
     for (auto& tree : trees) {
