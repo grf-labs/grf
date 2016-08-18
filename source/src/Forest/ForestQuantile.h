@@ -39,7 +39,6 @@ private:
   std::vector<double> calculateQuantileCutoffs(std::unordered_map<size_t, double> &weights_by_sampleID);
 
   std::vector<double>* quantiles;
-  std::vector<std::vector<double>> quantile_predictions;
 
   DISALLOW_COPY_AND_ASSIGN(ForestQuantile);
 };

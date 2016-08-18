@@ -84,7 +84,7 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
                                          is.null(forest$chf) | is.null(forest$unique.death.times))) {
     stop("Error: Invalid forest object.")
   }
-  
+
   ## Create final data
   if (forest$treetype == "Survival") {
     if (forest$dependent.varID > 0 & forest$status.varID > 1) {
@@ -186,8 +186,17 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
     treetype <- 5
   } else if (forest$treetype == "Probability estimation") {
     treetype <- 9
+  } else if (forest$treetype == "Quantile") {
+    treetype <- 11
+  } else if (forest$treetype == "Causal") {
+    treetype <- 13
   } else {
     stop("Error: Unknown tree type.")
+  }
+  
+  quantiles <- double()
+  if (forest$treetype == "Quantile") {
+    quantiles <- forest$quantiles
   }
 
   ## Defaults for variables not needed
@@ -224,7 +233,7 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
                       status.variable.name, prediction.mode, forest, sparse.data, replace, probability,
                       unordered.factor.variables, use.unordered.factor.variables, save.memory, splitrule, 
                       case.weights, use.case.weights, predict.all, keep.inbag, sample.fraction, 
-                      alpha, minprop, holdout)
+                      alpha, minprop, holdout, quantiles)
 
   if (length(result) == 0) {
     stop("User interrupt or internal error.")

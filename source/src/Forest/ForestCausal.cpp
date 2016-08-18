@@ -12,6 +12,7 @@ ForestCausal::~ForestCausal() {}
 
 void ForestCausal::initInternal(std::string status_variable_name) {
   treatment_varID = data->getVariableID(status_variable_name);
+  std::cout << "initing causal foroest..." << std::endl;
 
   // If mtry not set, use number of independent variables / 3.
   if (mtry == 0) {

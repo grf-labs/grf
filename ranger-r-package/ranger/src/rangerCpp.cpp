@@ -162,7 +162,6 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
       }
     }
 
-  std::cout << "running ranger..." << std::endl;
     // Run Ranger
     forest->run(false);
 
@@ -179,6 +178,9 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     if (treetype == TREE_SURVIVAL) {
       ForestSurvival* temp = (ForestSurvival*) forest;
       result.push_back(temp->getUniqueTimepoints(), "unique.death.times");
+    }
+    if (treetype == TREE_QUANTILE) {
+      result.push_back(quantiles, "quantiles");
     }
     if (!verbose) {
       std::stringstream temp;
