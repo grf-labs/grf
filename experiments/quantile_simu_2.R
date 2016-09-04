@@ -5,6 +5,7 @@ library(ranger)
 
 p = 40
 n = 1000
+JMP = 0.8
 
 ticks = 1001
 X.test = matrix(0, ticks, p)
@@ -12,7 +13,7 @@ X.test[,1] = seq(-1, 1, length.out = ticks)
 X.test.df = data.frame(X=X.test)
 
 X = matrix(2 * runif(n * p) - 1, n, p)
-Y = rnorm(n) * (1 + (X[,1] > 0))
+Y = rnorm(n) + JMP * (X[,1] > 0)
 D = data.frame(X=X, Y=Y)
 
 qrf.meinshausen = quantregForest(X, Y)
@@ -21,9 +22,9 @@ preds.meinshausen = predict(qrf.meinshausen, X.test, quantiles = c(0.1, 0.5, 0.9
 qrf.splitrelabel = ranger(Y ~ ., D, quantile = TRUE, num.trees = 1000, min.node.size = 10, mtry = p, write.forest = TRUE, quantiles = c(0.1, 0.5, 0.9))
 preds.splitrelabel = predict(qrf.splitrelabel, X.test.df)$predictions
 
-preds.truth = cbind(-qnorm(0.9) * (1 + (X.test[,1] > 0)),
-                    0,
-                    qnorm(0.9) * (1 + (X.test[,1] > 0))) 
+preds.truth = cbind(-qnorm(0.9) + JMP * (X.test[,1] > 0),
+                    JMP * (X.test[,1] > 0),
+                    qnorm(0.9) + JMP * (X.test[,1] > 0)) 
 
 plot(NA, NA, xlim = c(-1, 1), ylim = range(preds.meinshausen, preds.splitrelabel, preds.truth), xlab = "X", ylab = "Y")
 
