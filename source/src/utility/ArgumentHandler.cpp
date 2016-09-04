@@ -38,7 +38,7 @@ ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     caseweights(""), depvarname(""), fraction(1), holdout(false), memmode(MEM_DOUBLE), savemem(false), predict(""),
     splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""),
     impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false),
-    quantiles(new std::vector<double>()), splitrule(DEFAULT_SPLITRULE), statusvarname(""),
+    quantiles(new std::vector<double>()), splitrule(DEFAULT_SPLITRULE), statusvarname(""), instrumentvarname(""),
     ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
@@ -81,6 +81,7 @@ int ArgumentHandler::processArguments() {
       { "quantiles",            required_argument,  0, 'q'},
       { "splitrule",            required_argument,  0, 'r'},
       { "statusvarname",        required_argument,  0, 's'},
+      { "instrumentvarname",    required_argument,  0, 'ss'},
       { "ntree",                required_argument,  0, 't'},
       { "noreplace",            no_argument,        0, 'u'},
       { "verbose",              no_argument,        0, 'v'},
@@ -310,6 +311,10 @@ int ArgumentHandler::processArguments() {
       statusvarname = optarg;
       break;
 
+    case 'ss':
+      instrumentvarname = optarg;
+      break;
+
     case 't':
       try {
         int temp = std::stoi(optarg);
@@ -353,6 +358,9 @@ int ArgumentHandler::processArguments() {
           break;
         case 13:
           treetype = TREE_CAUSAL;
+          break;
+        case 15:
+          treetype = TREE_INSTRUMENTAL;
           break;
         default:
           throw std::runtime_error("");
@@ -412,7 +420,21 @@ void ArgumentHandler::checkArguments() {
                                  "--statusvarname. See '--help' for details.");
   }
 
-  if (treetype != TREE_SURVIVAL && treetype != TREE_CAUSAL && !statusvarname.empty()) {
+  if (treetype == TREE_INSTRUMENTAL && instrumentvarname.empty()) {
+    throw std::runtime_error("When using instrumental trees, the instrument variable must be specified through"
+                                 "--instrumentvarname. See '--help' for details.");
+  }
+
+  if (treetype == TREE_INSTRUMENTAL && statusvarname.empty()) {
+    throw std::runtime_error("When using instrumental trees, the treatment variable must be specified through"
+                                 "--statusvarname. See '--help' for details.");
+  }
+
+  if (treetype == TREE_INSTRUMENTAL && instrumentvarname.empty()) {
+    throw std::runtime_error("Option '--instrumentvarname' only applicable for instrumental forests. See '--help' for details.");
+  }
+
+  if (treetype != TREE_SURVIVAL && treetype != TREE_CAUSAL && treetype != TREE_INSTRUMENTAL && !statusvarname.empty()) {
     throw std::runtime_error("Option '--statusvarname' only applicable for survival and causal forests. See '--help' for details.");
   }
 
@@ -497,8 +519,9 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--quantiles                   The quantiles to predict when running a quantile forest (--treetype 11)." << std::endl;
   std::cout << "    " << "                              Note that all quantiles must lie in the range (0, 1)." << std::endl;
   std::cout << "    " << "--depvarname NAME             Name of dependent variable. For survival trees this is the time variable." << std::endl;
-  std::cout << "    " << "--statusvarname NAME          Name of status variable, only applicable for survival trees." << std::endl;
+  std::cout << "    " << "--statusvarname NAME          Name of status variable, only applicable for survival, causal, and instrumental trees." << std::endl;
   std::cout << "    " << "                              Coding is 1 for event and 0 for censored." << std::endl;
+  std::cout << "    " << "--instrumentvarname NAME      Name of instrument variable, only applicable for instrumental trees." << std::endl;
   std::cout << "    " << "--ntree N                     Set number of trees to N." << std::endl;
   std::cout << "    " << "                              (Default: 500)" << std::endl;
   std::cout << "    " << "--mtry N                      Number of variables to possibly split at in each node." << std::endl;

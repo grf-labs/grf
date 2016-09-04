@@ -125,7 +125,6 @@ std::vector<size_t> TreeQuantile::get_neighboring_samples(size_t sampleID) {
   return sampleIDs[nodeID];
 }
 
-
 void TreeQuantile::appendToFileInternal(std::ofstream& file) {
   saveVector2D(sampleIDs, file);
 }

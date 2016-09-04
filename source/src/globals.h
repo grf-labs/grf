@@ -57,6 +57,7 @@ enum TreeType {
   TREE_PROBABILITY = 9,
   TREE_QUANTILE = 11,
   TREE_CAUSAL = 13,
+  TREE_INSTRUMENTAL = 15,
 };
 
 // Memory modes

@@ -32,6 +32,7 @@
 #include <string>
 #include <Forest/ForestQuantile.h>
 #include <Forest/ForestCausal.h>
+#include <Forest/ForestInstrumental.h>
 
 #include "globals.h"
 #include "ArgumentHandler.h"
@@ -81,6 +82,8 @@ int main(int argc, char **argv) {
     case TREE_CAUSAL:
       forest = new ForestCausal;
       break;
+    case TREE_INSTRUMENTAL:
+      forest = new ForestInstrumental(arg_handler.instrumentvarname);
     }
 
     // Verbose output to logfile if non-verbose mode

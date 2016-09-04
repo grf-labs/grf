@@ -85,6 +85,7 @@ public:
   std::vector<double>* quantiles;
   SplitRule splitrule;
   std::string statusvarname;
+  std::string instrumentvarname;
   uint ntree;
   bool replace;
   bool verbose;
