@@ -30,9 +30,6 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
-#include <Forest/ForestQuantile.h>
-#include <Forest/ForestCausal.h>
-#include <Forest/ForestInstrumental.h>
 
 #include "globals.h"
 #include "ArgumentHandler.h"
@@ -40,6 +37,9 @@
 #include "ForestRegression.h"
 #include "ForestSurvival.h"
 #include "ForestProbability.h"
+#include "ForestQuantile.h"
+#include "ForestCausal.h"
+#include "ForestInstrumental.h"
 
 int main(int argc, char **argv) {
 

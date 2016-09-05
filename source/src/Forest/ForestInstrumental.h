@@ -12,10 +12,10 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-#include <Tree/TreeInstrumental.h>
 
 #include "globals.h"
 #include "Forest.h"
+#include "TreeInstrumental.h"
 
 class ForestInstrumental: public Forest {
 public:
@@ -25,11 +25,11 @@ public:
   void loadForest(size_t dependent_varID, size_t num_trees,
                   std::vector<std::vector<std::vector<size_t>> >& forest_child_nodeIDs,
                   std::vector<std::vector<size_t>>& forest_split_varIDs, std::vector<std::vector<double>>& forest_split_values,
-                  std::vector<bool>& is_ordered_variable,
-                  std::vector<double>* original_responses);
+                  std::vector<bool>& is_ordered_variable, std::vector<std::vector<std::vector<size_t>>> sampleIDs,
+                  std::unordered_map<size_t, std::vector<double>>* original_responses);
 
-  std::vector<double> get_original_responses() {
-    return std::vector<double>(*original_responses);
+  std::unordered_map<size_t, std::vector<double>> get_original_responses() {
+    return std::unordered_map<size_t, std::vector<double>>(*original_responses);
   }
 
 private:
@@ -51,7 +51,7 @@ private:
   size_t treatment_varID;
   size_t instrument_varID;
   std::string instrument_variable_name;
-  std::vector<double>* original_responses;
+  std::unordered_map<size_t, std::vector<double>>* original_responses;
 
   DISALLOW_COPY_AND_ASSIGN(ForestInstrumental);
 };

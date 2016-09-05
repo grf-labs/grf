@@ -9,10 +9,17 @@ TreeCausal::TreeCausal(size_t treatment_varID) : treatment_varID(treatment_varID
 
 TreeCausal::TreeCausal(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
                        std::vector<double> &split_values, std::vector<bool> *is_ordered_variable,
-                       size_t treatment_varID) :
+                       std::vector<std::vector<size_t>> sampleIDs, size_t treatment_varID) :
     TreeRegression(child_nodeIDs, split_varIDs, split_values, is_ordered_variable),
     treatment_varID(treatment_varID),
-    udist(std::uniform_int_distribution<uint>()) {}
+    udist(std::uniform_int_distribution<uint>()) {
+  this->sampleIDs = sampleIDs;
+}
+
+std::vector<size_t> TreeCausal::get_neighboring_samples(size_t sampleID) {
+  size_t nodeID = prediction_terminal_nodeIDs[sampleID];
+  return sampleIDs[nodeID];
+}
 
 bool TreeCausal::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   // Check node size, stop if maximum reached

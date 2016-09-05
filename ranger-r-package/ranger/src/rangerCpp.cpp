@@ -34,6 +34,7 @@
 #include "Forest.h"
 #include "ForestCausal.h"
 #include "ForestClassification.h"
+#include "ForestInstrumental.h"
 #include "ForestQuantile.h"
 #include "ForestRegression.h"
 #include "ForestSurvival.h"
@@ -47,16 +48,18 @@
 Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     Rcpp::NumericMatrix input_data, std::vector<std::string> variable_names, uint mtry, uint num_trees, bool verbose,
     uint seed, uint num_threads, bool write_forest, uint importance_mode_r, uint min_node_size,
-    std::vector<std::vector<double>>& split_select_weights, bool use_split_select_weights,
-    std::vector<std::string>& always_split_variable_names, bool use_always_split_variable_names,
-    std::string status_variable_name, bool prediction_mode, Rcpp::List loaded_forest, Rcpp::RawMatrix sparse_data,
-    bool sample_with_replacement, bool probability, std::vector<std::string>& unordered_variable_names,
-    bool use_unordered_variable_names, bool save_memory, uint splitrule_r, 
-    std::vector<double>& case_weights, bool use_case_weights, bool predict_all, 
-    bool keep_inbag, double sample_fraction, double alpha, double minprop, bool holdout, std::vector<double>& quantiles) {
+                     std::vector<std::vector<double>> &split_select_weights, bool use_split_select_weights,
+                     std::vector<std::string> &always_split_variable_names, bool use_always_split_variable_names,
+                     std::string status_variable_name, std::string instrument_variable_name, bool prediction_mode,
+                     Rcpp::List loaded_forest, Rcpp::RawMatrix sparse_data,
+                     bool sample_with_replacement, bool probability, std::vector<std::string> &unordered_variable_names,
+                     bool use_unordered_variable_names, bool save_memory, uint splitrule_r,
+                     std::vector<double> &case_weights, bool use_case_weights, bool predict_all,
+                     bool keep_inbag, double sample_fraction, double alpha, double minprop, bool holdout,
+                     std::vector<double> &quantiles) {
 
   Rcpp::List result;
-  Forest* forest = 0;
+  Forest *forest = 0;
   Data* data = 0;
   try {
 
@@ -74,7 +77,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
       case_weights.clear();
     }
 
-    std::ostream* verbose_out;
+    std::ostream *verbose_out;
     if (verbose) {
       verbose_out = &Rcpp::Rcout;
     } else {
@@ -93,32 +96,36 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     }
 
     switch (treetype) {
-    case TREE_CLASSIFICATION:
-      if (probability) {
+      case TREE_CLASSIFICATION:
+        if (probability) {
+          forest = new ForestProbability;
+        } else {
+          forest = new ForestClassification;
+        }
+        break;
+      case TREE_REGRESSION:
+        forest = new ForestRegression;
+        break;
+      case TREE_SURVIVAL:
+        forest = new ForestSurvival;
+        break;
+      case TREE_PROBABILITY:
         forest = new ForestProbability;
-      } else {
-        forest = new ForestClassification;
+        break;
+      case TREE_QUANTILE: {
+        std::vector<double> *initialized_quantiles = !quantiles.empty()
+                                                     ? new std::vector<double>(quantiles)
+                                                     : new std::vector<double>({0.15, 0.5, 0.85});
+        forest = new ForestQuantile(initialized_quantiles);
+        break;
       }
-      break;
-    case TREE_REGRESSION:
-      forest = new ForestRegression;
-      break;
-    case TREE_SURVIVAL:
-      forest = new ForestSurvival;
-      break;
-    case TREE_PROBABILITY:
-      forest = new ForestProbability;
-      break;
-    case TREE_QUANTILE: {
-      std::vector<double>* initialized_quantiles = !quantiles.empty()
-        ? new std::vector<double>(quantiles)
-        : new std::vector<double>({0.15, 0.5, 0.85});
-      forest = new ForestQuantile(initialized_quantiles);
-      break;
-    }
-    case TREE_CAUSAL:
-      forest = new ForestCausal;
-      break;
+      case TREE_CAUSAL:
+        forest = new ForestCausal;
+        break;
+      case TREE_INSTRUMENTAL:
+        // hackhackhack
+        forest = new ForestInstrumental(instrument_variable_name);
+        break;
     }
 
     ImportanceMode importance_mode = (ImportanceMode) importance_mode_r;
@@ -126,48 +133,65 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
 
     // Init Ranger
     forest->initR(dependent_variable_name, data, mtry, num_trees, verbose_out, seed, num_threads,
-        importance_mode, min_node_size, split_select_weights, always_split_variable_names, status_variable_name,
-        prediction_mode, sample_with_replacement, unordered_variable_names, save_memory, splitrule, case_weights,
-        predict_all, keep_inbag, sample_fraction, alpha, minprop, holdout);
+                  importance_mode, min_node_size, split_select_weights, always_split_variable_names,
+                  status_variable_name,
+                  prediction_mode, sample_with_replacement, unordered_variable_names, save_memory, splitrule,
+                  case_weights,
+                  predict_all, keep_inbag, sample_fraction, alpha, minprop, holdout);
 
     // Load forest object if in prediction mode
     if (prediction_mode) {
       //size_t num_trees = loaded_forest["num.trees"];
       size_t dependent_varID = loaded_forest["dependent.varID"];
-      std::vector<std::vector<std::vector<size_t>> > child_nodeIDs = loaded_forest["child.nodeIDs"];
+      std::vector<std::vector<std::vector<size_t>>> child_nodeIDs = loaded_forest["child.nodeIDs"];
       std::vector<std::vector<size_t>> split_varIDs = loaded_forest["split.varIDs"];
       std::vector<std::vector<double>> split_values = loaded_forest["split.values"];
       std::vector<bool> is_ordered = loaded_forest["is.ordered"];
 
       if (treetype == TREE_CLASSIFICATION) {
         std::vector<double> class_values = loaded_forest["class.values"];
-        ((ForestClassification*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs,
-            split_values, class_values, is_ordered);
+        ((ForestClassification *) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs,
+                                                      split_values, class_values, is_ordered);
       } else if (treetype == TREE_REGRESSION) {
-        ((ForestRegression*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
-            is_ordered);
+        ((ForestRegression *) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
+                                                  is_ordered);
       } else if (treetype == TREE_SURVIVAL) {
         size_t status_varID = loaded_forest["status.varID"];
-        std::vector<std::vector<std::vector<double>> > chf = loaded_forest["chf"];
+        std::vector<std::vector<std::vector<double>>> chf = loaded_forest["chf"];
         std::vector<double> unique_timepoints = loaded_forest["unique.death.times"];
-        ((ForestSurvival*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
-            status_varID, chf, unique_timepoints, is_ordered);
+        ((ForestSurvival *) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
+                                                status_varID, chf, unique_timepoints, is_ordered);
       } else if (treetype == TREE_PROBABILITY) {
         std::vector<double> class_values = loaded_forest["class.values"];
-        std::vector<std::vector<std::vector<double>>>terminal_class_counts =
-        loaded_forest["terminal.class.counts"];
-        ((ForestProbability*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
-            class_values, terminal_class_counts, is_ordered);
+        std::vector<std::vector<std::vector<double>>> terminal_class_counts =
+            loaded_forest["terminal.class.counts"];
+        ((ForestProbability *) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs,
+                                                   split_values,
+                                                   class_values, terminal_class_counts, is_ordered);
       } else if (treetype == TREE_CAUSAL) {
-        ((ForestCausal*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
-                                                 is_ordered);
+        ((ForestCausal *) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
+                                              is_ordered);
       } else if (treetype == TREE_QUANTILE) {
         std::vector<double> quantiles = loaded_forest["quantiles"];
         std::vector<std::vector<std::vector<size_t>>> sampleIDs = loaded_forest["sampleIDs"];
         std::vector<double> originalResponses = loaded_forest["originalResponses"];
 
-        ((ForestQuantile*) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
-                                               is_ordered, &quantiles, sampleIDs, &originalResponses);
+        ((ForestQuantile *) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs, split_values,
+                                                is_ordered, &quantiles, sampleIDs, &originalResponses);
+      } else if (treetype == TREE_INSTRUMENTAL) {
+        std::vector<std::vector<std::vector<size_t>>> sampleIDs = loaded_forest["sampleIDs"];
+        std::vector<double> originalResponses = loaded_forest["originalResponses"];
+        std::vector<double> originalTreatments = loaded_forest["originalTreatments"];
+        std::vector<double> originalInstruments = loaded_forest["originalInstruments"];
+
+        // hackhackhack
+        std::unordered_map<size_t, std::vector<double>> special_variables{
+            {dependent_varID,     originalResponses},
+            {dependent_varID + 1, originalTreatments},
+            {dependent_varID + 2, originalInstruments}};
+
+        ((ForestInstrumental *) forest)->loadForest(dependent_varID, num_trees, child_nodeIDs, split_varIDs,
+                                                    split_values, is_ordered, sampleIDs, &special_variables);
       }
     }
 
@@ -196,6 +220,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
       temp << verbose_out->rdbuf();
       result.push_back(temp.str(), "log");
     }
+
     if (!prediction_mode) {
       result.push_back(forest->getMtry(), "mtry");
       result.push_back(forest->getMinNodeSize(), "min.node.size");
@@ -232,9 +257,25 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
       } else if (treetype == TREE_QUANTILE) {
         ForestQuantile* temp = (ForestQuantile*) forest;
         forest_object.push_back(temp->get_sampleIDs(), "sampleIDs");
-        forest_object.push_back(temp->get_original_responses(), "originalResponses");
 
+        size_t dependent_varID = temp->getDependentVarId();
+        forest_object.push_back(temp->get_original_responses()[dependent_varID], "originalResponses");
+      } else if (treetype == TREE_INSTRUMENTAL) {
+        ForestInstrumental* temp = (ForestInstrumental*) forest;
+        forest_object.push_back(temp->get_sampleIDs(), "sampleIDs");
+
+        size_t dependent_varID = temp->getDependentVarId();
+        forest_object.push_back(temp->get_original_responses()[dependent_varID], "originalResponses");
+
+        // hackhackhack
+        size_t treatment_varID = dependent_varID + 1;
+        forest_object.push_back(temp->get_original_responses()[treatment_varID], "originalTreatments");
+
+        // hackhackhack
+        size_t instrument_varID = dependent_varID + 2;
+        forest_object.push_back(temp->get_original_responses()[instrument_varID], "originalInstruments");
       }
+
       result.push_back(forest_object, "forest");
     }
 

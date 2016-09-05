@@ -191,7 +191,9 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                    num.threads = NULL, save.memory = FALSE,
                    verbose = TRUE, seed = NULL, 
                    dependent.variable.name = NULL, status.variable.name = NULL, 
-                   classification = NULL, causal = FALSE, quantile = FALSE, quantiles = double()) {
+                   instrument.variable.name = NULL, 
+                   classification = NULL, causal = FALSE, instrumental = FALSE,
+                   quantile = FALSE, quantiles = double()) {
   
   ## GenABEL GWA data
   if ("gwaa.data" %in% class(data)) {
@@ -206,6 +208,10 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
   } else {
     sparse.data <- as.matrix(0)
     gwa.mode <- FALSE
+  }
+  
+  if (is.null(instrument.variable.name)) {
+    instrument.variable.name <- "none"
   }
   
   ## Formula interface. Use whole data frame is no formula provided and depvarname given
@@ -245,6 +251,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       treetype <- 11
     } else if (causal) {
       treetype <- 13
+    } else if (instrumental) {
+      treetype <- 15
     } else {
       treetype <- 3
     }
@@ -261,7 +269,7 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
       status.variable.name <- dimnames(response)[[2]][2]
     } else {
       dependent.variable.name <- names(data.selected)[1]
-      if (treetype != 13) {
+      if (treetype != 13 && treetype != 15) {
         status.variable.name <- "none"
       }
     }
@@ -568,7 +576,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
                       num.trees, verbose, seed, num.threads, write.forest, importance.mode,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
-                      status.variable.name, prediction.mode, loaded.forest, sparse.data,
+                      status.variable.name, instrument.variable.name,
+                      prediction.mode, loaded.forest, sparse.data,
                       replace, probability, unordered.factor.variables, use.unordered.factor.variables, 
                       save.memory, splitrule.num, case.weights, use.case.weights, predict.all, 
                       keep.inbag, sample.fraction, alpha, minprop, holdout, quantiles)
@@ -616,6 +625,8 @@ ranger <- function(formula = NULL, data = NULL, num.trees = 500, mtry = NULL,
     result$treetype <- "Quantile"
   } else if (treetype == 13) {
     result$treetype <- "Causal"
+  } else if (treetype == 15) {
+    result$treetype <- "Instrumental"
   }
   
   if (treetype == 3) {

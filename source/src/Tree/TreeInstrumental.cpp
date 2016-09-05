@@ -1,6 +1,7 @@
 
 #include <set>
 #include <unordered_map>
+#include "utility.h"
 #include "TreeInstrumental.h"
 
 TreeInstrumental::TreeInstrumental(size_t treatment_varID, size_t instrument_varID) :
@@ -9,12 +10,15 @@ TreeInstrumental::TreeInstrumental(size_t treatment_varID, size_t instrument_var
     udist(std::uniform_int_distribution<uint>()) {}
 
 TreeInstrumental::TreeInstrumental(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
-                       std::vector<double> &split_values, std::vector<bool> *is_ordered_variable,
-                       size_t treatment_varID, size_t instrument_varID) :
+                                   std::vector<double> &split_values, std::vector<bool> *is_ordered_variable,
+                                   std::vector<std::vector<size_t>> sampleIDs,
+                                   size_t treatment_varID, size_t instrument_varID) :
     TreeRegression(child_nodeIDs, split_varIDs, split_values, is_ordered_variable),
     treatment_varID(treatment_varID),
     instrument_varID(instrument_varID),
-    udist(std::uniform_int_distribution<uint>()) {}
+    udist(std::uniform_int_distribution<uint>()) {
+  this->sampleIDs = sampleIDs;
+}
 
 bool TreeInstrumental::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   // Check node size, stop if maximum reached
@@ -108,4 +112,8 @@ std::unordered_map<size_t, double> TreeInstrumental::relabelResponses(std::vecto
 
 bool TreeInstrumental::equalDoubles(double first, double second) {
   return std::abs(first - second) < std::numeric_limits<double>::epsilon();
+}
+
+void TreeInstrumental::appendToFileInternal(std::ofstream& file) {
+  saveVector2D(sampleIDs, file);
 }

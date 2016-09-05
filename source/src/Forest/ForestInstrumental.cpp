@@ -4,6 +4,7 @@
 
 #include "utility.h"
 #include "ForestInstrumental.h"
+#include "TreeInstrumental.h"
 
 ForestInstrumental::ForestInstrumental(std::string instrument_variable_name) :
     treatment_varID(0),
@@ -18,17 +19,22 @@ void ForestInstrumental::loadForest(size_t dependent_varID, size_t num_trees,
                                     std::vector<std::vector<size_t>> &forest_split_varIDs,
                                     std::vector<std::vector<double>> &forest_split_values,
                                     std::vector<bool> &is_ordered_variable,
-                                    std::vector<double> *original_responses) {
+                                    std::vector<std::vector<std::vector<size_t>>> sampleIDs,
+                                    std::unordered_map<size_t, std::vector<double>> *original_responses) {
   this->dependent_varID = dependent_varID;
   this->num_trees = num_trees;
   this->is_ordered_variable = is_ordered_variable;
-  this->original_responses = new std::vector<double>(*original_responses);
+  this->original_responses = new std::unordered_map<size_t, std::vector<double>>(*original_responses);
+
+  // hackhackhack
+  this->treatment_varID = dependent_varID + 1;
+  this->instrument_varID = dependent_varID + 2;
 
   // Create trees
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree *tree = new TreeInstrumental(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-                                      &this->is_ordered_variable, treatment_varID, instrument_varID);
+                                      &this->is_ordered_variable, sampleIDs[i], treatment_varID, instrument_varID);
     trees.push_back(tree);
   }
 
@@ -57,6 +63,22 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
   if (!memory_saving_splitting) {
     data->sort();
   }
+
+  if (!prediction_mode) {
+    original_responses = new std::unordered_map<size_t, std::vector<double>>;
+
+    for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
+      (*original_responses)[dependent_varID].push_back(data->get(sampleID, dependent_varID));
+    }
+
+    for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
+      (*original_responses)[dependent_varID + 1].push_back(data->get(sampleID, treatment_varID));
+    }
+
+    for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
+      (*original_responses)[dependent_varID + 2].push_back(data->get(sampleID, instrument_varID));
+    }
+  }
 }
 
 void ForestInstrumental::growInternal() {
@@ -70,32 +92,54 @@ void ForestInstrumental::predictInternal() {
   if (predict_all) {
     throw std::runtime_error("Instrumental forests do not support 'predict_all'.");
   }
+  predictions.reserve(num_samples);
 
-//  for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
-//    std::unordered_map<size_t, double> weights_by_sampleID;
-//    for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
-//      TreeInstrumental* tree = (TreeInstrumental *) trees[tree_idx];
-//      addSampleWeights(sampleID, tree, weights_by_sampleID);
-//    }
-//
-//    normalizeSampleWeights(weights_by_sampleID);
-//
-//    double average_instrument = 0.0;
-//    double average_treatment = 0.0;
-//    double average_response = 0.0;
-//
-//    std::vector<std::pair<size_t, double>> sampleIDs_and_values;
-//    for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
-//      size_t sampleID = it->first;
-//      sampleIDs_and_values.push_back(std::pair<size_t, double>(
-//          sampleID, original_responses->at(sampleID)));
-//    }
-//  }
+  for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
+    std::unordered_map<size_t, double> weights_by_sampleID;
+    for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
+      TreeInstrumental* tree = (TreeInstrumental *) trees[tree_idx];
+      addSampleWeights(sampleID, tree, weights_by_sampleID);
+    }
+
+    normalizeSampleWeights(weights_by_sampleID);
+
+    // Compute the relevant averages.
+    double average_instrument = 0.0;
+    double average_treatment = 0.0;
+    double average_response = 0.0;
+
+    for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
+      size_t neighborID = it->first;
+      double weight = it->second;
+
+      average_instrument += weight * original_responses->at(instrument_varID)[neighborID];
+      average_treatment += weight * original_responses->at(treatment_varID)[neighborID];
+      average_response += weight * original_responses->at(dependent_varID)[neighborID];
+    }
+
+    // Finally, calculate the prediction.
+    double numerator = 0.0;
+    double denominator = 0.0;
+    for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
+      size_t neighborID = it->first;
+      double weight = it->second;
+
+      double instrument = original_responses->at(instrument_varID)[neighborID];
+      double treatment = original_responses->at(treatment_varID)[neighborID];
+      double response = original_responses->at(dependent_varID)[neighborID];
+
+      numerator += weight * (instrument - average_instrument) * (response - average_response);
+      denominator += weight * (instrument - average_instrument) * (treatment - average_treatment);
+    }
+
+    std::vector<double> temp { numerator / denominator };
+    predictions.push_back(temp);
+  }
 }
 
 void ForestInstrumental::addSampleWeights(size_t test_sample_idx,
-                                      TreeInstrumental* tree,
-                                      std::unordered_map<size_t, double> &weights_by_sampleID) {
+                                          TreeInstrumental *tree,
+                                          std::unordered_map<size_t, double> &weights_by_sampleID) {
   std::vector<size_t> sampleIDs = tree->get_neighboring_samples(test_sample_idx);
   double sample_weight = 1.0 / sampleIDs.size();
 
@@ -175,7 +219,7 @@ void ForestInstrumental::computePredictionErrorInternal() {
 
       double instrument = data->get(neighborID, instrument_varID);
       double treatment = data->get(neighborID, treatment_varID);
-      double response = weight * data->get(neighborID, dependent_varID);
+      double response = data->get(neighborID, dependent_varID);
 
       numerator += weight * (instrument - average_instrument) * (response - average_response);
       denominator += weight * (instrument - average_instrument) * (treatment - average_treatment);
@@ -241,10 +285,11 @@ void ForestInstrumental::saveToFileInternal(std::ofstream& outfile) {
   outfile.write((char*) &num_variables, sizeof(num_variables));
 
 // Write treetype
-  TreeType treetype = TREE_CAUSAL;
+  TreeType treetype = TREE_INSTRUMENTAL;
   outfile.write((char*) &treetype, sizeof(treetype));
 
   outfile.write((char*) &treatment_varID, sizeof(treatment_varID));
+  outfile.write((char*) &instrument_varID, sizeof(instrument_varID));
 }
 
 void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
@@ -282,9 +327,12 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
       }
     }
 
+    std::vector<std::vector<size_t>> sampleIDs;
+    readVector2D(sampleIDs, infile);
+
     // Create tree
     Tree *tree = new TreeInstrumental(child_nodeIDs, split_varIDs, split_values,
-                                      &is_ordered_variable, treatment_varID, instrument_varID);
+                                &is_ordered_variable, sampleIDs, treatment_varID, instrument_varID);
     trees.push_back(tree);
   }
 }

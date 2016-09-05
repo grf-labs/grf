@@ -190,6 +190,8 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
     treetype <- 11
   } else if (forest$treetype == "Causal") {
     treetype <- 13
+  } else if (forest$treetype == "Instrumental") {
+    treetype <- 15
   } else {
     stop("Error: Unknown tree type.")
   }
@@ -209,6 +211,7 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
   always.split.variables <- c("0", "0")
   use.always.split.variables <- FALSE
   status.variable.name <- "status"
+  instrument.variable.name <- "instrument"
   prediction.mode <- TRUE
   write.forest <- FALSE
   replace <- TRUE
@@ -230,7 +233,8 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
                       forest$num.trees, verbose, seed, num.threads, write.forest, importance,
                       min.node.size, split.select.weights, use.split.select.weights,
                       always.split.variables, use.always.split.variables,
-                      status.variable.name, prediction.mode, forest, sparse.data, replace, probability,
+                      status.variable.name, instrument.variable.name, prediction.mode, forest,
+                      sparse.data, replace, probability,
                       unordered.factor.variables, use.unordered.factor.variables, save.memory, splitrule, 
                       case.weights, use.case.weights, predict.all, keep.inbag, sample.fraction, 
                       alpha, minprop, holdout, quantiles)
@@ -263,7 +267,6 @@ predict.ranger.forest <- function(object, data, predict.all = FALSE,
       names(result$predictions) <- forest$levels[forest$class.values]
       result$predictions <- result$predictions[forest$levels]
     }
-    
   }
 
   class(result) <- "ranger.prediction"
