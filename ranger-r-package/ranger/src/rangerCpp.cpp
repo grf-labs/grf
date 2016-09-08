@@ -259,7 +259,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
         forest_object.push_back(temp->get_sampleIDs(), "sampleIDs");
 
         size_t dependent_varID = temp->getDependentVarId();
-        forest_object.push_back(temp->get_original_responses()[dependent_varID], "originalResponses");
+        forest_object.push_back(temp->get_original_responses(), "originalResponses");
       } else if (treetype == TREE_INSTRUMENTAL) {
         ForestInstrumental* temp = (ForestInstrumental*) forest;
         forest_object.push_back(temp->get_sampleIDs(), "sampleIDs");
