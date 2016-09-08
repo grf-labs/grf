@@ -34,7 +34,8 @@ void ForestInstrumental::loadForest(size_t dependent_varID, size_t num_trees,
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree *tree = new TreeInstrumental(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-                                      &this->is_ordered_variable, sampleIDs[i], treatment_varID, instrument_varID);
+                                      &this->is_ordered_variable, sampleIDs[i], treatment_varID, instrument_varID,
+                                      instrument_variable_name);
     trees.push_back(tree);
   }
 
@@ -84,7 +85,7 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
 void ForestInstrumental::growInternal() {
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new TreeInstrumental(treatment_varID, instrument_varID));
+    trees.push_back(new TreeInstrumental(treatment_varID, instrument_varID, instrument_variable_name));
   }
 }
 
@@ -332,7 +333,7 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
 
     // Create tree
     Tree *tree = new TreeInstrumental(child_nodeIDs, split_varIDs, split_values,
-                                &is_ordered_variable, sampleIDs, treatment_varID, instrument_varID);
+                                &is_ordered_variable, sampleIDs, treatment_varID, instrument_varID, "DUMMY_NAME");
     trees.push_back(tree);
   }
 }
