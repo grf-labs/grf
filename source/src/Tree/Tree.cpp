@@ -119,6 +119,7 @@ void Tree::grow(std::vector<double>* variable_importance) {
     if (is_terminal_node) {
       --num_open_nodes;
     } else {
+      sampleIDs[i].clear();
       ++num_open_nodes;
     }
     ++i;
