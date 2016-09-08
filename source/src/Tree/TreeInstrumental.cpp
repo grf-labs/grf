@@ -46,7 +46,16 @@ bool TreeInstrumental::splitNodeInternal(size_t nodeID, std::vector<size_t>& pos
   }
 
   std::unordered_map<size_t, double> responses_by_sampleIDs = relabelResponses(sampleIDs[nodeID]);
-  bool stop = responses_by_sampleIDs.empty() || findBestSplit(nodeID, possible_split_varIDs, responses_by_sampleIDs);
+
+  // This is an ugly hack. Should not allow splits on treatment var, etc.
+  std::vector<size_t> actually_possible_split_varIDs;
+  for (size_t candidate_varID : possible_split_varIDs) {
+    if (candidate_varID != instrument_varID && candidate_varID != treatment_varID && candidate_varID != dependent_varID && candidate_varID != 0) {
+      actually_possible_split_varIDs.push_back(candidate_varID);
+    }
+  }
+
+  bool stop = responses_by_sampleIDs.empty() || findBestSplit(nodeID, actually_possible_split_varIDs, responses_by_sampleIDs);
 
   if (stop) {
     split_values[nodeID] = estimate(nodeID);
@@ -81,6 +90,7 @@ std::unordered_map<size_t, double> TreeInstrumental::relabelResponses(std::vecto
   // Calculate the treatment effect.
   double numerator = 0.0;
   double denominator = 0.0;
+  double regularizer = 0.0;
   for (size_t sampleID : node_sampleIDs) {
     double treatment = data->get(sampleID, treatment_varID);
     double instrument = data->get(sampleID, instrument_varID);
@@ -88,13 +98,15 @@ std::unordered_map<size_t, double> TreeInstrumental::relabelResponses(std::vecto
 
     numerator += (instrument - average_instrument) * (response - average_response);
     denominator += (instrument - average_instrument) * (treatment - average_treatment);
+    regularizer += (instrument - average_instrument) * (instrument - average_instrument);
   }
 
   if (equalDoubles(denominator, 0.0)) {
     return std::unordered_map<size_t, double>(); // Signals that we should not perform a split.
   }
 
-  double local_average_treatment_effect = numerator / denominator;
+  // 50 is a hack
+  double local_average_treatment_effect = numerator / (denominator + 50 / node_sampleIDs.size() * regularizer * sgn(denominator));
 
   // Create the new responses;
   std::unordered_map<size_t, double> new_responses_by_sampleID;
@@ -116,4 +128,8 @@ bool TreeInstrumental::equalDoubles(double first, double second) {
 
 void TreeInstrumental::appendToFileInternal(std::ofstream& file) {
   saveVector2D(sampleIDs, file);
+}
+
+int TreeInstrumental::sgn(double val) {
+    return (0 < val) - (val < 0);
 }

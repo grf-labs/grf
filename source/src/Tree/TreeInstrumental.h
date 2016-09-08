@@ -19,6 +19,7 @@ public:
 private:
   std::unordered_map<size_t, double> relabelResponses(std::vector<size_t>& nodeSampleIDs);
   bool equalDoubles(double first, double second);
+  int sgn(double val);
 
   void appendToFileInternal(std::ofstream& file);
 
