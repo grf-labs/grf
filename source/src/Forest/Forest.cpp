@@ -288,9 +288,10 @@ void Forest::run(bool verbose) {
 
     if (verbose) {
       *verbose_out << "Computing prediction error .." << std::endl;
+      *verbose_out << "OOB PREDICTION OFF!!" << std::endl;
     }
 
-    computePredictionError();
+    // computePredictionError();
 
     if (importance_mode > IMP_GINI) {
       if (verbose) {
