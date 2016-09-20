@@ -1,6 +1,7 @@
 rm(list = ls())
 
 library(ranger)
+library(RColorBrewer)
 
 setwd("~/git/split-relabel/experiments/familysize/")
 
@@ -18,7 +19,7 @@ names(FEATURES)=1:ncol(FEATURES)
 #labor income: twoa.incomem, worked for pay: twoa.workedm
 DF.all=data.frame(
 			  X=FEATURES,
-			  Y=as.numeric(twoa.workedm),
+			  Y=twoa.incomem,
 			  W=twoa.kidcount,
 			  I=as.numeric(twoa.samesex))
 
@@ -31,7 +32,7 @@ DF=DF.all[is.ok,]
 
 forest.iv = ranger(Y ~ ., DF, instrumental = TRUE, num.trees = 5000, min.node.size = 2000, mtry = 4, write.forest = TRUE, status.variable.name="W", instrument.variable.name="I", replace=FALSE, sample.fraction=0.05)
 
-save(forest.iv, file="forest.raw")
+save(forest.iv, file="forest_income.raw")
 
 agefstm.vals= c(16, 18, 19, 20,  21, 22, 24, 26)
 educm.vals= c(7, 9, 10, 11, 12, 13, 14, 15, 16, 17)
@@ -51,7 +52,7 @@ names(X.test)=1:ncol(X.test)
 preds.iv = predict(forest.iv, data.frame(X=X.test, W=-1, I=-1))$predictions
 
 output = data.frame(dummy, TAU=preds.iv)
-write.table(output, file="forest.out")
+write.table(output, file="forest_income.out")
 
 preds.mat.age = matrix(preds.iv[1:(8*20)], nrow=8, ncol=20)
 image(agefstm.vals, log(10000 + incomed.vals), preds.mat.age)
@@ -62,7 +63,7 @@ image(educm.vals, log(10000 + incomed.vals), preds.mat.educ)
 cols=brewer.pal(4, "Dark2")
 idx.toplot = c(2, 4, 6, 7)
 
-pdf("prob_working_vs_mother_age_at_birth_and_father_income.pdf")
+pdf("mother_income_vs_mother_age_at_birth_and_father_income.pdf")
 pardef = par(mar = c(5, 4, 4, 2) + 0.5, cex.lab = 1.5, cex.axis = 1.5, cex.sub = 1.5)
 plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(-preds.mat.age[idx.toplot,]), ylab="CATE", xlab="Father's Income [$1k/year]")
 for(iter in 1:4) {
@@ -80,7 +81,7 @@ preds.Y = predict(forest.Y, data.frame(X=X.test))$predictions
 preds.mat.age.Y = matrix(preds.Y[1:(8*20)], nrow=8, ncol=20)
 
 
-pdf("prob_working_baseline_vs_mother_age_at_birth_and_father_income.pdf")
+pdf("mother_income_baseline_vs_mother_age_at_birth_and_father_income.pdf")
 pardef = par(mar = c(5, 4, 4, 2) + 0.5, cex.lab = 1.5, cex.axis = 1.5, cex.sub = 1.5)
 plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(preds.mat.age.Y[idx.toplot,]), ylab="Baseline Prob. Working", xlab="Father's Income [$1k/year]")
 for(iter in 1:4) {
@@ -92,16 +93,21 @@ par=pardef
 dev.off()
 
 
-#cols=brewer.pal(3, "Dark2")
-#idx.toplot = c(3, 5, 9)
-#plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(-preds.mat.educ[idx.toplot,]), ylab="CATE", xlab="Father's Income [$1k/year]")
-#for(iter in 1:length(idx.toplot)) {
-#	lines(incomed.vals[-1]/1000, -preds.mat.educ[idx.toplot[iter],-1], lwd = 2, col = cols[iter])
-#}
-
-
 run.iv = function(idx) {
 	slope.2 = coef(lm(Y ~ I, data = DF[idx,]))[2]
 	slope.1 = coef(lm(W ~ I, data = DF[idx,]))[2]
 	slope.2/slope.1
 }
+
+DF3 = DF[,-9]
+forest.YI = ranger(Y ~ ., DF3, num.trees = 500, mtry = 2, write.forest = TRUE, replace=FALSE, sample.fraction=0.01, min.node.size=1000, causal=TRUE, status.variable.name="I")
+
+preds.YI = predict(forest.YI, data.frame(X=X.test, I=-1))$predictions
+preds.mat.age.YI = matrix(preds.YI[1:(8*20)], nrow=8, ncol=20)
+
+plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(preds.mat.age.YI[idx.toplot,]), ylab="Baseline Prob. Working", xlab="Father's Income [$1k/year]")
+for(iter in 1:4) {
+	lines(incomed.vals[-1]/1000, preds.mat.age.YI[idx.toplot[iter],-1], lwd = 2, col = cols[iter])
+}
+legend("topright", sapply(c(18, 20, 22, 24), function(xx) paste(xx, "years")), lwd=2, col=cols, cex=1.5)
+abline(h=0, lwd=1, lty = 2)
