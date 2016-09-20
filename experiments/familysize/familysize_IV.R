@@ -1,6 +1,7 @@
 rm(list = ls())
 
 library(ranger)
+library(RColorBrewer)
 
 setwd("~/git/split-relabel/experiments/familysize/")
 
@@ -29,42 +30,34 @@ DF.all=data.frame(
 is.ok = !is.na(twoa.incomed) & (twoa.marital==0)
 DF=DF.all[is.ok,]
 
-forest.iv = ranger(Y ~ ., DF, instrumental = TRUE, num.trees = 5000, min.node.size = 2000, mtry = 4, write.forest = TRUE, status.variable.name="W", instrument.variable.name="I", replace=FALSE, sample.fraction=0.05)
+forest.iv = ranger(Y ~ ., DF, instrumental = TRUE, num.trees = 10000, min.node.size = 1000, mtry = 4, write.forest = TRUE, status.variable.name="W", instrument.variable.name="I", replace=FALSE, sample.fraction=0.01)
 
-save(forest.iv, file="forest.raw")
-
-agefstm.vals= c(16, 18, 19, 20,  21, 22, 24, 26)
-educm.vals= c(7, 9, 10, 11, 12, 13, 14, 15, 16, 17)
+agefstm.vals= c(18, 20, 22, 24)
 incomed.vals = quantile(twoa.incomed, na.rm=TRUE, seq(0.025, 0.975, by = 0.05))
 
-dummy = rbind(expand.grid(AGEFSTM=agefstm.vals,EDUCM=12, INCOMED=incomed.vals),
-              expand.grid(AGEFSTM=20,EDUCM=educm.vals, INCOMED=incomed.vals))
+dummy = expand.grid(AGEFSTM=agefstm.vals, INCOMED=incomed.vals)
 
 X.test = data.frame(
 	median(twoa.agem, na.rm=TRUE),
 	dummy[,1],
-	dummy[,2],
+	12,
 	0, 0, 1,
-	dummy[,3])
+	dummy[,2])
 names(X.test)=1:ncol(X.test)
 
 preds.iv = predict(forest.iv, data.frame(X=X.test, W=-1, I=-1))$predictions
 
+preds.mat.age = matrix(preds.iv, 4, 20)
+
 output = data.frame(dummy, TAU=preds.iv)
 write.table(output, file="forest.out")
 
-preds.mat.age = matrix(preds.iv[1:(8*20)], nrow=8, ncol=20)
-image(agefstm.vals, log(10000 + incomed.vals), preds.mat.age)
-
-preds.mat.educ = matrix(preds.iv[((8*20) + 1):(18*20)], nrow=10, ncol=20)
-image(educm.vals, log(10000 + incomed.vals), preds.mat.educ)
-
 cols=brewer.pal(4, "Dark2")
-idx.toplot = c(2, 4, 6, 7)
+idx.toplot = 1:4
 
 pdf("prob_working_vs_mother_age_at_birth_and_father_income.pdf")
 pardef = par(mar = c(5, 4, 4, 2) + 0.5, cex.lab = 1.5, cex.axis = 1.5, cex.sub = 1.5)
-plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(-preds.mat.age[idx.toplot,]), ylab="CATE", xlab="Father's Income [$1k/year]")
+plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(-c(0, preds.mat.age[idx.toplot,])), ylab="CATE", xlab="Father's Income [$1k/year]")
 for(iter in 1:4) {
 	lines(incomed.vals[-1]/1000, -preds.mat.age[idx.toplot[iter],-1], lwd = 2, col = cols[iter])
 }
@@ -77,7 +70,7 @@ DF2 = DF[,1:8]
 forest.Y = ranger(Y ~ ., DF2, num.trees = 500, mtry = 4, write.forest = TRUE, replace=FALSE, sample.fraction=0.05, min.node.size=100)
 
 preds.Y = predict(forest.Y, data.frame(X=X.test))$predictions
-preds.mat.age.Y = matrix(preds.Y[1:(8*20)], nrow=8, ncol=20)
+preds.mat.age.Y = matrix(preds.Y[1:(4*20)], nrow=4, ncol=20)
 
 
 pdf("prob_working_baseline_vs_mother_age_at_birth_and_father_income.pdf")
