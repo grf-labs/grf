@@ -84,6 +84,19 @@ abline(h=0, lwd=1, lty = 2)
 par=pardef
 dev.off()
 
+preds.ratio = preds.mat.age / preds.mat.age.Y
+
+pdf("prob_working_relative_decay_vs_mother_age_at_birth_and_father_income.pdf")
+pardef = par(mar = c(5, 4, 4, 2) + 0.5, cex.lab = 1.5, cex.axis = 1.5, cex.sub = 1.5)
+plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(c(0, -preds.ratio[idx.toplot,])), ylab="CATE / (Probability of Working)", xlab="Father's Income [$1k/year]")
+for(iter in 1:4) {
+	lines(incomed.vals[-1]/1000, -preds.ratio[idx.toplot[iter],-1], lwd = 2, col = cols[iter])
+}
+legend("topright", sapply(c(18, 20, 22, 24), function(xx) paste(xx, "years")), lwd=2, col=cols, cex=1.5)
+abline(h=0, lwd=1, lty = 2)
+par=pardef
+dev.off()
+
 
 #cols=brewer.pal(3, "Dark2")
 #idx.toplot = c(3, 5, 9)

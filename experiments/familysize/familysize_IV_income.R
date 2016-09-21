@@ -59,7 +59,7 @@ idx.toplot = 1:4
 
 pdf("mother_income_vs_mother_age_at_birth_and_father_income.pdf")
 pardef = par(mar = c(5, 4, 4, 2) + 0.5, cex.lab = 1.5, cex.axis = 1.5, cex.sub = 1.5)
-plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(-preds.mat.age[idx.toplot,]), ylab="CATE", xlab="Father's Income [$1k/year]")
+plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(-preds.mat.age[idx.toplot,]), ylab="CATE [$1/year]", xlab="Father's Income [$1,000/year]")
 for(iter in 1:4) {
 	lines(incomed.vals[-1]/1000, -preds.mat.age[idx.toplot[iter],-1], lwd = 2, col = cols[iter])
 }
@@ -77,9 +77,9 @@ preds.mat.age.Y = matrix(preds.Y[1:(4*20)], nrow=4, ncol=20)
 
 pdf("mother_income_baseline_vs_mother_age_at_birth_and_father_income.pdf")
 pardef = par(mar = c(5, 4, 4, 2) + 0.5, cex.lab = 1.5, cex.axis = 1.5, cex.sub = 1.5)
-plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(preds.mat.age.Y[idx.toplot,]), ylab="Baseline Prob. Working", xlab="Father's Income [$1k/year]")
+plot(NA, NA, xlim=range(incomed.vals[-1]/1000), ylim=range(preds.mat.age.Y[idx.toplot,]/1000), ylab="Mother's Baseline Income [$1,000/year]", xlab="Father's Income [$1,000/year]")
 for(iter in 1:4) {
-	lines(incomed.vals[-1]/1000, preds.mat.age.Y[idx.toplot[iter],-1], lwd = 2, col = cols[iter])
+	lines(incomed.vals[-1]/1000, preds.mat.age.Y[idx.toplot[iter],-1]/1000, lwd = 2, col = cols[iter])
 }
 legend("topright", sapply(c(18, 20, 22, 24), function(xx) paste(xx, "years")), lwd=2, col=cols, cex=1.5)
 abline(h=0, lwd=1, lty = 2)
