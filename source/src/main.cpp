@@ -35,7 +35,6 @@
 #include "ArgumentHandler.h"
 #include "ForestClassification.h"
 #include "ForestRegression.h"
-#include "ForestSurvival.h"
 #include "ForestProbability.h"
 #include "ForestQuantile.h"
 #include "ForestCausal.h"
@@ -64,9 +63,6 @@ int main(int argc, char **argv) {
       break;
     case TREE_REGRESSION:
       forest = new ForestRegression;
-      break;
-    case TREE_SURVIVAL:
-      forest = new ForestSurvival;
       break;
     case TREE_PROBABILITY:
       forest = new ForestProbability;

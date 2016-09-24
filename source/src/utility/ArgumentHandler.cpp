@@ -350,9 +350,6 @@ int ArgumentHandler::processArguments() {
         case 3:
           treetype = TREE_REGRESSION;
           break;
-        case 5:
-          treetype = TREE_SURVIVAL;
-          break;
         case 11:
           treetype = TREE_QUANTILE;
           break;
@@ -410,11 +407,6 @@ void ArgumentHandler::checkArguments() {
     throw std::runtime_error("Please specify a dependent variable name with '--depvarname'. See '--help' for details.");
   }
 
-  if (treetype == TREE_SURVIVAL && statusvarname.empty()) {
-    throw std::runtime_error("Please specify a status variable name with '--statusvarname'. See '--help' for details.");
-  }
-
-
   if (treetype == TREE_CAUSAL && statusvarname.empty()) {
     throw std::runtime_error("When using causal trees, the treatment variable must be specified through"
                                  "--statusvarname. See '--help' for details.");
@@ -432,15 +424,6 @@ void ArgumentHandler::checkArguments() {
 
   if (treetype == TREE_INSTRUMENTAL && instrumentvarname.empty()) {
     throw std::runtime_error("Option '--instrumentvarname' only applicable for instrumental forests. See '--help' for details.");
-  }
-
-  if (treetype != TREE_SURVIVAL && treetype != TREE_CAUSAL && treetype != TREE_INSTRUMENTAL && !statusvarname.empty()) {
-    throw std::runtime_error("Option '--statusvarname' only applicable for survival and causal forests. See '--help' for details.");
-  }
-
-  if (treetype == TREE_SURVIVAL && impmeasure == IMP_GINI) {
-    throw std::runtime_error(
-        "Node impurity variable importance not supported for survival forests. See '--help' for details.");
   }
 
   if (treetype != TREE_CLASSIFICATION && probability) {
@@ -480,20 +463,9 @@ void ArgumentHandler::checkArguments() {
     throw std::runtime_error("Please use only one option of splitweights and alwayssplitvars.");
   }
 
-  // Check splitrule
-  if (((splitrule == AUC || splitrule == AUC_IGNORE_TIES) && treetype != TREE_SURVIVAL)
-      || (splitrule == MAXSTAT && (treetype != TREE_SURVIVAL && treetype != TREE_REGRESSION))) {
-    throw std::runtime_error("Illegal splitrule selected. See '--help' for details.");
-  }
-
   // Check holdout mode
   if (holdout && caseweights.empty()) {
     throw std::runtime_error("Case weights required to use holdout mode.");
-  }
-
-  // Unordered survival splitting only available for logrank splitrule
-  if (treetype == TREE_SURVIVAL && !catvars.empty() && splitrule != LOGRANK) {
-    throw std::runtime_error("Unordered splitting in survival trees only available for LOGRANK splitrule.");
   }
 }
 
@@ -510,7 +482,6 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--treetype TYPE               Set tree type to:" << std::endl;
   std::cout << "    " << "                              TYPE = 1: Classification." << std::endl;
   std::cout << "    " << "                              TYPE = 3: Regression." << std::endl;
-  std::cout << "    " << "                              TYPE = 5: Survival." << std::endl;
   std::cout << "    " << "                              TYPE = 11: Quantile." << std::endl;
   std::cout << "    " << "                              TYPE = 13: Causal." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
