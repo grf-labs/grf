@@ -35,8 +35,7 @@ Tree::Tree() :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), is_ordered_variable(0), no_split_variables(0), min_node_size(
         0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), oob_sampleIDs(0), holdout(
         false), keep_inbag(false), data(0), variable_importance(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(
-        true), sample_fraction(1), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE), alpha(DEFAULT_ALPHA), minprop(
-        DEFAULT_MINPROP) {
+        true), sample_fraction(1), memory_saving_splitting(false) {
 }
 
 Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
@@ -45,8 +44,7 @@ Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>&
         0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), split_varIDs(
         split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), holdout(false), keep_inbag(
         false), data(0), variable_importance(0), importance_mode(DEFAULT_IMPORTANCE_MODE), sample_with_replacement(
-        true), sample_fraction(1), memory_saving_splitting(false), splitrule(DEFAULT_SPLITRULE), alpha(DEFAULT_ALPHA), minprop(
-        DEFAULT_MINPROP) {
+        true), sample_fraction(1), memory_saving_splitting(false) {
 }
 
 Tree::~Tree() {
@@ -56,8 +54,8 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
     std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
     std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
     std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
-    bool memory_saving_splitting, SplitRule splitrule, std::vector<double>* case_weights, bool keep_inbag,
-    double sample_fraction, double alpha, double minprop, bool holdout) {
+    bool memory_saving_splitting, std::vector<double>* case_weights, bool keep_inbag,
+    double sample_fraction, bool holdout) {
 
   this->data = data;
   this->mtry = mtry;
@@ -81,13 +79,10 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   this->no_split_variables = no_split_variables;
   this->is_ordered_variable = is_unordered;
   this->sample_with_replacement = sample_with_replacement;
-  this->splitrule = splitrule;
   this->case_weights = case_weights;
   this->keep_inbag = keep_inbag;
   this->sample_fraction = sample_fraction;
   this->holdout = holdout;
-  this->alpha = alpha;
-  this->minprop = minprop;
 
   initInternal();
 }

@@ -36,9 +36,9 @@ wright@imbs.uni-luebeck.de
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     caseweights(""), depvarname(""), fraction(1), holdout(false), memmode(MEM_DOUBLE), savemem(false), predict(""),
-    splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), alpha(DEFAULT_ALPHA), minprop(DEFAULT_MINPROP), file(""),
+    splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), file(""),
     impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false),
-    quantiles(new std::vector<double>()), splitrule(DEFAULT_SPLITRULE), statusvarname(""), instrumentvarname(""),
+    quantiles(new std::vector<double>()), statusvarname(""), instrumentvarname(""),
     ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
   this->argv = argv;
@@ -178,36 +178,6 @@ int ArgumentHandler::processArguments() {
       displayVersion();
       return -1;
       break;
-
-      // lower case options
-    case 'a':
-      try {
-        double temp = std::stod(optarg);
-        if (temp < 0 || temp > 1) {
-          throw std::runtime_error("");
-        } else {
-          alpha = temp;
-        }
-      } catch (...) {
-        throw std::runtime_error(
-            "Illegal argument for option 'alpha'. Please give a value between 0 and 1. See '--help' for details.");
-      }
-      break;
-
-    case 'b':
-      try {
-        double temp = std::stod(optarg);
-        if (temp < 0 || temp > 0.5) {
-          throw std::runtime_error("");
-        } else {
-          minprop = temp;
-        }
-      } catch (...) {
-        throw std::runtime_error(
-            "Illegal argument for option 'minprop'. Please give a value between 0 and 0.5. See '--help' for details.");
-      }
-      break;
-
     case 'c':
       splitString(catvars, optarg, ',');
       break;
@@ -282,31 +252,6 @@ int ArgumentHandler::processArguments() {
       }
       break;
     }
-
-    case 'r':
-      try {
-        switch (std::stoi(optarg)) {
-        case 1:
-          splitrule = LOGRANK;
-          break;
-        case 2:
-          splitrule = AUC;
-          break;
-        case 3:
-          splitrule = AUC_IGNORE_TIES;
-          break;
-        case 4:
-          splitrule = MAXSTAT;
-          break;
-        default:
-          throw std::runtime_error("");
-          break;
-        }
-      } catch (...) {
-        throw std::runtime_error("Illegal splitrule selected. See '--help' for details.");
-      }
-      break;
-
     case 's':
       statusvarname = optarg;
       break;
@@ -518,14 +463,6 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--noreplace                   Sample without replacement." << std::endl;
   std::cout << "    " << "--fraction X                  Fraction of observations to sample. Default is 1 for sampling with replacement " << std::endl;
   std::cout << "    " << "                              and 0.632 for sampling without replacement." << std::endl;
-  std::cout << "    " << "--splitrule RULE              Splitting rule:" << std::endl;
-  std::cout << "    " << "                              RULE = 1: Gini for Classification, variance for Regression, logrank for Survival." << std::endl;
-  std::cout << "    " << "                              RULE = 2: AUC for Survival, not available for Classification and Regression." << std::endl;
-  std::cout << "    " << "                              RULE = 3: AUC (ignore ties) for Survival, not available for Classification and Regression." << std::endl;
-  std::cout << "    " << "                              RULE = 4: MAXSTAT for Survival and Regression, not available for Classification." << std::endl;
-  std::cout << "    " << "                              (Default: 1)" << std::endl;
-  std::cout << "    " << "--alpha VAL                   Significance threshold to allow splitting (MAXSTAT splitrule only)." << std::endl;
-  std::cout << "    " << "--minprop VAL                 Lower quantile of covariate distribtuion to be considered for splitting (MAXSTAT splitrule only)." << std::endl;
   std::cout << "    " << "--caseweights FILE            Filename of case weights file." << std::endl;
   std::cout << "    " << "--holdout                     Hold-out mode. Hold-out all samples with case weight 0 and use these for variable " << std::endl;
   std::cout << "    " << "                              importance and prediction error." << std::endl;

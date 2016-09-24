@@ -73,8 +73,6 @@ public:
   bool predall;
 
   // All command line arguments as member: Small letters
-  double alpha;
-  double minprop;
   std::vector<std::string> catvars;
   std::string file;
   ImportanceMode impmeasure;
@@ -83,7 +81,6 @@ public:
   std::string outprefix;
   bool probability;
   std::vector<double>* quantiles;
-  SplitRule splitrule;
   std::string statusvarname;
   std::string instrumentvarname;
   uint ntree;
