@@ -2,7 +2,6 @@
 #define RANGER_TreeInstrumental_H
 
 #include "TreeRegression.h"
-#include "TreeClassification.h"
 
 class TreeInstrumental: public TreeRegression {
 public:

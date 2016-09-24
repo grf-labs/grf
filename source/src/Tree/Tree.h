@@ -97,7 +97,7 @@ protected:
 
   void createEmptyNode();
   virtual void createEmptyNodeInternal() = 0;
-  
+
   virtual double computePredictionAccuracyInternal() = 0;
 
   void bootstrap();

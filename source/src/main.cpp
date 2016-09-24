@@ -33,7 +33,6 @@
 
 #include "globals.h"
 #include "ArgumentHandler.h"
-#include "ForestClassification.h"
 #include "ForestRegression.h"
 #include "ForestProbability.h"
 #include "ForestQuantile.h"
@@ -54,13 +53,6 @@ int main(int argc, char **argv) {
 
     // Create forest object
     switch (arg_handler.treetype) {
-    case TREE_CLASSIFICATION:
-      if (arg_handler.probability) {
-        forest = new ForestProbability;
-      } else {
-        forest = new ForestClassification;
-      }
-      break;
     case TREE_REGRESSION:
       forest = new ForestRegression;
       break;

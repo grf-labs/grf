@@ -47,6 +47,9 @@ public:
 
   void initInternal();
 
+  // Called by splitNodeInternal(). Sets split_varIDs and split_values.
+  bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
+
   void addToTerminalNodes(size_t nodeID);
   void appendToFileInternal(std::ofstream& file);
 
@@ -59,16 +62,34 @@ public:
     return terminal_class_counts;
   }
 
+  std::vector<size_t> get_split_varIDs() {
+    return split_varIDs;
+  }
+
+  void set_split_varIDs(std::vector<size_t> &split_varIDs) {
+    this->split_varIDs = split_varIDs;
+  }
+
+  std::vector<double> get_split_values() {
+    return split_values;
+  }
+
+  void set_split_values(std::vector<double> &split_values) {
+    this->split_values = split_values;
+  }
+
+  void set_sampleIDs(std::vector<std::vector<size_t>> &sampleIDs) {
+     this->sampleIDs = sampleIDs;
+  }
+
 private:
   bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
   void createEmptyNodeInternal();
 
   double computePredictionAccuracyInternal();
 
-  // Called by splitNodeInternal(). Sets split_varIDs and split_values.
-  bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
   void findBestSplitValueSmallQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts, size_t num_samples_node,
-      double& best_value, size_t& best_varID, double& best_decrease);
+                                double& best_value, size_t& best_varID, double& best_decrease);
   void findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts, size_t num_samples_node,
       double& best_value, size_t& best_varID, double& best_decrease);
 

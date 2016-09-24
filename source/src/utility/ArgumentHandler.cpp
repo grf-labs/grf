@@ -37,9 +37,9 @@ wright@imbs.uni-luebeck.de
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     caseweights(""), depvarname(""), fraction(1), memmode(MEM_DOUBLE), savemem(false), predict(""),
     splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), file(""),
-    targetpartitionsize(0), mtry(0), probability(false),
+    targetpartitionsize(0), mtry(0),
     quantiles(new std::vector<double>()), statusvarname(""), instrumentvarname(""),
-    ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
+    ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_PROBABILITY), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -71,7 +71,6 @@ int ArgumentHandler::processArguments() {
       { "help",                 no_argument,        0, 'h'},
       { "targetpartitionsize",  required_argument,  0, 'l'},
       { "mtry",                 required_argument,  0, 'm'},
-      { "probability",          no_argument,        0, 'p'},
       { "quantiles",            required_argument,  0, 'q'},
       { "splitrule",            required_argument,  0, 'r'},
       { "statusvarname",        required_argument,  0, 's'},
@@ -206,10 +205,6 @@ int ArgumentHandler::processArguments() {
       }
       break;
 
-    case 'p':
-      probability = true;
-      break;
-
     case 'q': {
       std::vector<std::string> split_args;
       splitString(split_args, optarg, ',');
@@ -260,9 +255,6 @@ int ArgumentHandler::processArguments() {
     case 'y':
       try {
         switch (std::stoi(optarg)) {
-        case 1:
-          treetype = TREE_CLASSIFICATION;
-          break;
         case 3:
           treetype = TREE_REGRESSION;
           break;
@@ -342,11 +334,6 @@ void ArgumentHandler::checkArguments() {
     throw std::runtime_error("Option '--instrumentvarname' only applicable for instrumental forests. See '--help' for details.");
   }
 
-  if (treetype != TREE_CLASSIFICATION && probability) {
-    throw std::runtime_error("Probability estimation is only applicable to classification forests.");
-  }
-
-
   // Get treetype for prediction
   if (!predict.empty()) {
     std::ifstream infile;
@@ -366,9 +353,8 @@ void ArgumentHandler::checkArguments() {
     infile.close();
   }
 
-  // Option predall only for classification and regression
-  if (predall && treetype != TREE_CLASSIFICATION && treetype != TREE_REGRESSION) {
-    throw std::runtime_error("Option '--predall' only available for classification and regression.");
+  if (predall && treetype != TREE_REGRESSION) {
+    throw std::runtime_error("Option '--predall' only available for regression.");
   }
 
   if (predict.empty() && predall) {
@@ -396,8 +382,6 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              TYPE = 11: Quantile." << std::endl;
   std::cout << "    " << "                              TYPE = 13: Causal." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
-  std::cout << "    " << "--probability                 Grow a Classification forest with probability estimation for the classes." << std::endl;
-  std::cout << "    " << "                              Use in combination with --treetype 1." << std::endl;
   std::cout << "    " << "--quantiles                   The quantiles to predict when running a quantile forest (--treetype 11)." << std::endl;
   std::cout << "    " << "                              Note that all quantiles must lie in the range (0, 1)." << std::endl;
   std::cout << "    " << "--depvarname NAME             Name of dependent variable. For survival trees this is the time variable." << std::endl;

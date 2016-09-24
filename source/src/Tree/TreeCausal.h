@@ -2,7 +2,6 @@
 #define RANGER_TREECAUSAL_H
 
 #include "TreeRegression.h"
-#include "TreeClassification.h"
 
 class TreeCausal: public TreeRegression {
 public:

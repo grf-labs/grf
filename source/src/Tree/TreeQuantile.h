@@ -2,7 +2,7 @@
 #define RANGER_TREEQUANTILE_H
 
 #include "TreeRegression.h"
-#include "TreeClassification.h"
+#include "TreeProbability.h"
 
 class TreeQuantile : public TreeRegression {
 public:
@@ -18,7 +18,7 @@ public:
 
 private:
   std::vector<uint>* relabelResponses(std::vector<double>* responses);
-  TreeClassification* createClassificationTree(std::vector<size_t>& nodeSampleIDs,
+  TreeProbability* createClassificationTree(std::vector<size_t>& nodeSampleIDs,
                                                std::vector<uint>* relabeledResponses);
 
   void appendToFileInternal(std::ofstream& file);

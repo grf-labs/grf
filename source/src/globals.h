@@ -49,9 +49,7 @@ wright@imbs.uni-luebeck.de
 
 typedef unsigned int uint;
 
-// Tree types, probability is not selected by ID
 enum TreeType {
-  TREE_CLASSIFICATION = 1,
   TREE_REGRESSION = 3,
   TREE_PROBABILITY = 9,
   TREE_QUANTILE = 11,

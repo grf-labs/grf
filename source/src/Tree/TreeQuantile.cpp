@@ -47,7 +47,7 @@ bool TreeQuantile::splitNodeInternal(size_t nodeID, std::vector<size_t>& possibl
 
   std::vector<uint>* relabeled_responses = relabelResponses(&responses);
 
-  TreeClassification* classificationTree = createClassificationTree(sampleIDs[nodeID],
+  TreeProbability* classificationTree = createClassificationTree(sampleIDs[nodeID],
                                                                     relabeled_responses);
   bool stop = classificationTree->findBestSplit(nodeID, possible_split_varIDs);
   split_varIDs = classificationTree->get_split_varIDs();
@@ -90,7 +90,7 @@ std::vector<uint>* TreeQuantile::relabelResponses(std::vector<double>* responses
   return relabeled_responses;
 }
 
-TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& nodeSampleIDs,
+TreeProbability* TreeQuantile::createClassificationTree(std::vector<size_t>& nodeSampleIDs,
                                                            std::vector<uint>* relabeledResponses) {
   std::set<uint>* unique_classIDs = new std::set<uint>(relabeledResponses->begin(),
                                                        relabeledResponses->end());
@@ -106,7 +106,7 @@ TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& 
     (*response_classIDs)[sampleID] = (*relabeledResponses)[i];
   }
 
-  TreeClassification* tree = new TreeClassification(class_values, response_classIDs);
+  TreeProbability* tree = new TreeProbability(class_values, response_classIDs);
 
   uint tree_seed = udist(random_number_generator);
 
