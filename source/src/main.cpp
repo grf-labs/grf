@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
       verbose_out = &std::cout;
     } else {
       std::ofstream* logfile = new std::ofstream();
-      logfile->open(arg_handler.outprefix + ".log");
+      logfile->open("ranger.log");
       if (!logfile->good()) {
         throw std::runtime_error("Could not write to logfile.");
       }
@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
     // Call Ranger
     *verbose_out << "Starting Ranger." << std::endl;
     forest->initCpp(arg_handler.depvarname, arg_handler.memmode, arg_handler.file, arg_handler.mtry,
-        arg_handler.outprefix, arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
+        arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
         arg_handler.predict, arg_handler.targetpartitionsize, arg_handler.splitweights,
         arg_handler.alwayssplitvars, arg_handler.statusvarname, arg_handler.replace,
         arg_handler.savemem,  arg_handler.caseweights, arg_handler.predall, arg_handler.fraction);

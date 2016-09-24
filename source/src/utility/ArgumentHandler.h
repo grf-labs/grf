@@ -76,7 +76,6 @@ public:
   std::string file;
   uint targetpartitionsize;
   uint mtry;
-  std::string outprefix;
   bool probability;
   std::vector<double>* quantiles;
   std::string statusvarname;

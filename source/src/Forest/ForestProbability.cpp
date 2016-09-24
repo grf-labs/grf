@@ -168,7 +168,7 @@ void ForestProbability::writeOutputInternal() {
 void ForestProbability::writeConfusionFile() {
 
   // Open confusion file for writing
-  std::string filename = output_prefix + ".confusion";
+  std::string filename = "ranger.confusion";
   std::ofstream outfile;
   outfile.open(filename, std::ios::out);
   if (!outfile.good()) {
@@ -185,7 +185,7 @@ void ForestProbability::writeConfusionFile() {
 void ForestProbability::writePredictionFile() {
 
   // Open prediction file for writing
-  std::string filename = output_prefix + ".prediction";
+  std::string filename = "ranger.prediction";
   std::ofstream outfile;
   outfile.open(filename, std::ios::out);
   if (!outfile.good()) {

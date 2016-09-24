@@ -58,7 +58,7 @@ Forest::~Forest() {
 }
 
 void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode, std::string input_file, uint mtry,
-    std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
+    uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
     std::string load_forest_filename, uint min_node_size,
     std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
     std::string status_variable_name, bool sample_with_replacement, bool memory_saving_splitting,
@@ -95,7 +95,7 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
   }
 
   // Call other init function
-  init(dependent_variable_name, memory_mode, data, mtry, output_prefix, num_trees, seed, num_threads,
+  init(dependent_variable_name, memory_mode, data, mtry, num_trees, seed, num_threads,
       min_node_size, status_variable_name, prediction_mode, sample_with_replacement,
       memory_saving_splitting, predict_all, sample_fraction);
 
@@ -137,7 +137,7 @@ void Forest::initR(std::string dependent_variable_name, Data* input_data, uint m
   this->verbose_out = verbose_out;
 
   // Call other init function
-  init(dependent_variable_name, MEM_DOUBLE, input_data, mtry, "", num_trees, seed, num_threads,
+  init(dependent_variable_name, MEM_DOUBLE, input_data, mtry, num_trees, seed, num_threads,
       min_node_size, status_variable_name, prediction_mode, sample_with_replacement,
       memory_saving_splitting, predict_all, sample_fraction);
 
@@ -164,7 +164,7 @@ void Forest::initR(std::string dependent_variable_name, Data* input_data, uint m
 }
 
 void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
-    std::string output_prefix, uint num_trees, uint seed, uint num_threads,
+    uint num_trees, uint seed, uint num_threads,
     uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
     bool memory_saving_splitting, bool predict_all,
     double sample_fraction) {
@@ -195,7 +195,6 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
   this->num_trees = num_trees;
   this->mtry = mtry;
   this->seed = seed;
-  this->output_prefix = output_prefix;
   this->min_node_size = min_node_size;
   this->memory_mode = memory_mode;
   this->prediction_mode = prediction_mode;
@@ -295,7 +294,7 @@ void Forest::writeOutput() {
 void Forest::saveToFile() {
 
   // Open file for writing
-  std::string filename = output_prefix + ".forest";
+  std::string filename = "ranger.forest";
   std::ofstream outfile;
   outfile.open(filename, std::ios::binary);
   if (!outfile.good()) {

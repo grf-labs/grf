@@ -37,7 +37,7 @@ wright@imbs.uni-luebeck.de
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     caseweights(""), depvarname(""), fraction(1), memmode(MEM_DOUBLE), savemem(false), predict(""),
     splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), file(""),
-    targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false),
+    targetpartitionsize(0), mtry(0), probability(false),
     quantiles(new std::vector<double>()), statusvarname(""), instrumentvarname(""),
     ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
@@ -71,7 +71,6 @@ int ArgumentHandler::processArguments() {
       { "help",                 no_argument,        0, 'h'},
       { "targetpartitionsize",  required_argument,  0, 'l'},
       { "mtry",                 required_argument,  0, 'm'},
-      { "outprefix",            required_argument,  0, 'o'},
       { "probability",          no_argument,        0, 'p'},
       { "quantiles",            required_argument,  0, 'q'},
       { "splitrule",            required_argument,  0, 'r'},
@@ -205,10 +204,6 @@ int ArgumentHandler::processArguments() {
         throw std::runtime_error(
             "Illegal argument for option 'mtry'. Please give a positive integer. See '--help' for details.");
       }
-      break;
-
-    case 'o':
-      outprefix = optarg;
       break;
 
     case 'p':
@@ -421,7 +416,7 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              (Default: 1 for Classification, 5 for Regression, and 3 for Survival)" << std::endl;
   std::cout << "    " << "--catvars V1,V2,..            Comma separated list of names of (unordered) categorical variables. " << std::endl;
   std::cout << "    " << "                              Categorical variables must contain only positive integer values." << std::endl;
-  std::cout << "    " << "--write                       Save forest to file <outprefix>.forest." << std::endl;
+  std::cout << "    " << "--write                       Save forest to file." << std::endl;
   std::cout << "    " << "--predict FILE                Load forest from FILE and predict with new data." << std::endl;
   std::cout << "    " << "--predall                     Return a matrix with individual predictions for each tree instead of aggregated " << std::endl;
   std::cout << "    " << "                              predictions for all trees (classification and regression only)." << std::endl;
@@ -441,7 +436,6 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              (Default: Number of CPUs available)" << std::endl;
   std::cout << "    " << "--seed SEED                   Set random seed to SEED." << std::endl;
   std::cout << "    " << "                              (Default: No seed)" << std::endl;
-  std::cout << "    " << "--outprefix PREFIX            Prefix for output files." << std::endl;
   std::cout << "    " << "--memmode MODE                Set memory mode to:" << std::endl;
   std::cout << "    " << "                              MODE = 0: double." << std::endl;
   std::cout << "    " << "                              MODE = 1: float." << std::endl;
