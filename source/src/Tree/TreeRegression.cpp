@@ -179,11 +179,6 @@ bool TreeRegression::findBestSplit(size_t nodeID,
 // Save best values
   split_varIDs[nodeID] = best_varID;
   split_values[nodeID] = best_value;
-
-// Compute decrease of impurity for this node and add to variable importance if needed
-  if (importance_mode == IMP_GINI) {
-    addImpurityImportance(nodeID, best_varID, best_decrease, responses_by_sampleID);
-  }
   return false;
 }
 
@@ -367,25 +362,3 @@ void TreeRegression::findBestSplitValueUnordered(size_t nodeID, size_t varID, do
     }
   }
 }
-
-void TreeRegression::addImpurityImportance(size_t nodeID,
-                                           size_t varID,
-                                           double decrease,
-                                           std::unordered_map<size_t, double>& responses_by_sampleID) {
-
-  double sum_node = 0;
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    sum_node += responses_by_sampleID[sampleID];
-  }
-  double best_decrease = decrease - sum_node * sum_node / (double) sampleIDs[nodeID].size();
-
-// No variable importance for no split variables
-  size_t tempvarID = varID;
-  for (auto& skip : *no_split_variables) {
-    if (varID >= skip) {
-      --tempvarID;
-    }
-  }
-  (*variable_importance)[tempvarID] += best_decrease;
-}
-

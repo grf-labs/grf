@@ -37,7 +37,7 @@ wright@imbs.uni-luebeck.de
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     caseweights(""), depvarname(""), fraction(1), holdout(false), memmode(MEM_DOUBLE), savemem(false), predict(""),
     splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), file(""),
-    impmeasure(DEFAULT_IMPORTANCE_MODE), targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false),
+    targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false),
     quantiles(new std::vector<double>()), statusvarname(""), instrumentvarname(""),
     ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_CLASSIFICATION), seed(0) {
   this->argc = argc;
@@ -68,12 +68,9 @@ int ArgumentHandler::processArguments() {
       { "predall",              no_argument,        0, 'X'},
       { "version",              no_argument,        0, 'Z'},
 
-      { "alpha",                required_argument,  0, 'a'},
-      { "minprop",              required_argument,  0, 'b'},
       { "catvars",              required_argument,  0, 'c'},
       { "file",                 required_argument,  0, 'f'},
       { "help",                 no_argument,        0, 'h'},
-      { "impmeasure",           required_argument,  0, 'i'},
       { "targetpartitionsize",  required_argument,  0, 'l'},
       { "mtry",                 required_argument,  0, 'm'},
       { "outprefix",            required_argument,  0, 'o'},
@@ -189,18 +186,6 @@ int ArgumentHandler::processArguments() {
     case 'h':
       displayHelp();
       return -1;
-      break;
-
-    case 'i':
-      try {
-        impmeasure = (ImportanceMode) std::stoi(optarg);
-        if (impmeasure > MAX_IMP_MODE) {
-          throw std::runtime_error("");
-        }
-      } catch (...) {
-        throw std::runtime_error(
-            "Illegal argument for option 'impmeasure'. Please give a positive integer. See '--help' for details.");
-      }
       break;
 
     case 'l':

@@ -111,7 +111,7 @@ TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& 
   uint tree_seed = udist(random_number_generator);
 
   tree->init(data, mtry, dependent_varID, num_samples, tree_seed, deterministic_varIDs, split_select_varIDs,
-             split_select_weights, importance_mode, min_node_size, no_split_variables, sample_with_replacement,
+             split_select_weights, min_node_size, no_split_variables, sample_with_replacement,
              is_ordered_variable, memory_saving_splitting, case_weights, keep_inbag, sample_fraction, holdout);
   tree->set_sampleIDs(sampleIDs);
   tree->set_split_varIDs(split_varIDs);

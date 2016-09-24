@@ -71,20 +71,10 @@ const uint MAX_MEM_MODE = 2;
 static const int mask[4] = {192,48,12,3};
 static const int offset[4] = {6,4,2,0};
 
-// Variable importance
-enum ImportanceMode {
-  IMP_NONE = 0,
-  IMP_GINI = 1,
-  IMP_PERM_BREIMAN = 2,
-  IMP_PERM_LIAW = 4,
-  IMP_PERM_RAW = 3
-};
-const uint MAX_IMP_MODE = 4;
 
 // Default values
 const uint DEFAULT_NUM_TREE = 500;
 const uint DEFAULT_NUM_THREADS = 0;
-const ImportanceMode DEFAULT_IMPORTANCE_MODE = IMP_NONE;
 
 const uint DEFAULT_MIN_NODE_SIZE_CLASSIFICATION = 1;
 const uint DEFAULT_MIN_NODE_SIZE_REGRESSION = 5;

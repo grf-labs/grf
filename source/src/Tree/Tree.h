@@ -48,18 +48,16 @@ public:
 
   void init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
-      std::vector<double>* split_select_weights, ImportanceMode importance_mode, uint min_node_size,
+      std::vector<double>* split_select_weights, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
       bool memory_saving_splitting, std::vector<double>* case_weights, bool keep_inbag,
       double sample_fraction, bool holdout);
 
   virtual void initInternal() = 0;
 
-  void grow(std::vector<double>* variable_importance);
+  void grow();
 
   void predict(const Data* prediction_data, bool oob_prediction);
-
-  void computePermutationImportance(std::vector<double>* forest_importance, std::vector<double>* forest_variance);
 
   void appendToFile(std::ofstream& file);
   virtual void appendToFileInternal(std::ofstream& file) = 0;
@@ -99,9 +97,6 @@ protected:
 
   void createEmptyNode();
   virtual void createEmptyNodeInternal() = 0;
-
-  size_t dropDownSamplePermuted(size_t permuted_varID, size_t sampleID, size_t permuted_sampleID);
-  void permuteAndPredictOobSamples(size_t permuted_varID, std::vector<size_t>& permutations);
 
   virtual double computePredictionAccuracyInternal() = 0;
 
@@ -168,10 +163,6 @@ protected:
 
   // Pointer to original data
   Data* data;
-
-  // Variable importance for all variables
-  std::vector<double>* variable_importance;
-  ImportanceMode importance_mode;
 
   // When growing here the OOB set is used
   // Terminal nodeIDs for prediction samples

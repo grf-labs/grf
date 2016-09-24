@@ -73,9 +73,6 @@ private:
   void findBestSplitValueUnordered(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
       double& best_value, size_t& best_varID, double& best_decrease, std::unordered_map<size_t, double>& responses_by_sampleID);
 
-  void addImpurityImportance(size_t nodeID, size_t varID, double decrease,
-                             std::unordered_map<size_t, double>& responses_by_sampleID);
-
   void cleanUpInternal() {
     if (counter != 0) {
       delete[] counter;

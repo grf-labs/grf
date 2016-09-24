@@ -52,19 +52,19 @@ public:
   // Init from c++ main or Rcpp from R
   void initCpp(std::string dependent_variable_name, MemoryMode memory_mode, std::string input_file, uint mtry,
       std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
-      std::string load_forest_filename, ImportanceMode importance_mode, uint min_node_size,
+      std::string load_forest_filename, uint min_node_size,
       std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting,
       std::string case_weights_file, bool predict_all, double sample_fraction, bool holdout);
   void initR(std::string dependent_variable_name, Data* input_data, uint mtry, uint num_trees,
-      std::ostream* verbose_out, uint seed, uint num_threads, ImportanceMode importance_mode, uint min_node_size,
+      std::ostream* verbose_out, uint seed, uint num_threads, uint min_node_size,
       std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting,
       std::vector<double>& case_weights, bool predict_all, bool keep_inbag, double sample_fraction, bool holdout);
   void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
-      std::string output_prefix, uint num_trees, uint seed, uint num_threads, ImportanceMode importance_mode,
+      std::string output_prefix, uint num_trees, uint seed, uint num_threads,
       uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
       std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting,
       bool predict_all, double sample_fraction, bool holdout);
@@ -78,7 +78,6 @@ public:
   virtual void writeOutputInternal() = 0;
   virtual void writeConfusionFile() = 0;
   virtual void writePredictionFile() = 0;
-  void writeImportanceFile();
 
   // Save forest to file
   void saveToFile();
@@ -111,9 +110,6 @@ public:
       result.push_back(tree->getSplitValues());
     }
     return result;
-  }
-  const std::vector<double>& getVariableImportance() const {
-    return variable_importance;
   }
   double getOverallPredictionError() const {
     return overall_prediction_error;
@@ -163,12 +159,8 @@ protected:
   void computePredictionError();
   virtual void computePredictionErrorInternal() = 0;
 
-  void computePermutationImportance();
-
-  // Multithreading methods for growing/prediction/importance, called by each thread
-  void growTreesInThread(uint thread_idx, std::vector<double>* variable_importance);
+  void growTreesInThread(uint thread_idx);
   void predictTreesInThread(uint thread_idx, const Data* prediction_data, bool oob_prediction);
-  void computeTreePermutationImportanceInThread(uint thread_idx, std::vector<double>* importance, std::vector<double>* variance);
 
   // Load forest from file
   void loadFromFile(std::string filename);
@@ -238,10 +230,6 @@ protected:
   std::mt19937_64 random_number_generator;
 
   std::string output_prefix;
-  ImportanceMode importance_mode;
-
-  // Variable importance for all variables in forest
-  std::vector<double> variable_importance;
 
   // Computation progress (finished trees)
   size_t progress;

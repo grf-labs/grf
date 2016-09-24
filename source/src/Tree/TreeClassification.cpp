@@ -179,11 +179,6 @@ bool TreeClassification::findBestSplit(size_t nodeID, std::vector<size_t>& possi
   // Save best values
   split_varIDs[nodeID] = best_varID;
   split_values[nodeID] = best_value;
-
-  // Compute gini index for this node and to variable importance if needed
-  if (importance_mode == IMP_GINI) {
-    addGiniImportance(nodeID, best_varID, best_decrease);
-  }
   return false;
 }
 
@@ -402,31 +397,6 @@ void TreeClassification::findBestSplitValueUnordered(size_t nodeID, size_t varID
 
     delete[] class_counts_right;
   }
-}
-
-void TreeClassification::addGiniImportance(size_t nodeID, size_t varID, double decrease) {
-
-  std::vector<size_t> class_counts;
-  class_counts.resize(class_values->size(), 0);
-
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    uint sample_classID = (*response_classIDs)[sampleID];
-    class_counts[sample_classID]++;
-  }
-  double sum_node = 0;
-  for (auto& class_count : class_counts) {
-    sum_node += class_count * class_count;
-  }
-  double best_gini = decrease - sum_node / (double) sampleIDs[nodeID].size();
-
-// No variable importance for no split variables
-  size_t tempvarID = varID;
-  for (auto& skip : *no_split_variables) {
-    if (varID >= skip) {
-      --tempvarID;
-    }
-  }
-  (*variable_importance)[tempvarID] += best_gini;
 }
 
 std::vector<size_t> TreeClassification::get_split_varIDs() {
