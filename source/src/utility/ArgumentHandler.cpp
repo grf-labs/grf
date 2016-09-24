@@ -35,7 +35,7 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
-    caseweights(""), depvarname(""), fraction(1), holdout(false), memmode(MEM_DOUBLE), savemem(false), predict(""),
+    caseweights(""), depvarname(""), fraction(1), memmode(MEM_DOUBLE), savemem(false), predict(""),
     splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), file(""),
     targetpartitionsize(0), mtry(0), outprefix("ranger_out"), probability(false),
     quantiles(new std::vector<double>()), statusvarname(""), instrumentvarname(""),
@@ -59,7 +59,6 @@ int ArgumentHandler::processArguments() {
       { "caseweights",          required_argument,  0, 'C'},
       { "depvarname",           required_argument,  0, 'D'},
       { "fraction",             required_argument,  0, 'F'},
-      { "holdout",              no_argument,        0, 'H'},
       { "memmode",              required_argument,  0, 'M'},
       { "savemem",              no_argument,        0, 'N'},
       { "predict",              required_argument,  0, 'P'},
@@ -123,10 +122,6 @@ int ArgumentHandler::processArguments() {
         throw std::runtime_error(
             "Illegal argument for option 'fraction'. Please give a value in (0,1]. See '--help' for details.");
       }
-      break;
-
-    case 'H':
-      holdout = true;
       break;
 
     case 'M':
@@ -392,11 +387,6 @@ void ArgumentHandler::checkArguments() {
   if (!alwayssplitvars.empty() && !splitweights.empty()) {
     throw std::runtime_error("Please use only one option of splitweights and alwayssplitvars.");
   }
-
-  // Check holdout mode
-  if (holdout && caseweights.empty()) {
-    throw std::runtime_error("Case weights required to use holdout mode.");
-  }
 }
 
 void ArgumentHandler::displayHelp() {
@@ -449,8 +439,6 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "--fraction X                  Fraction of observations to sample. Default is 1 for sampling with replacement " << std::endl;
   std::cout << "    " << "                              and 0.632 for sampling without replacement." << std::endl;
   std::cout << "    " << "--caseweights FILE            Filename of case weights file." << std::endl;
-  std::cout << "    " << "--holdout                     Hold-out mode. Hold-out all samples with case weight 0 and use these for variable " << std::endl;
-  std::cout << "    " << "                              importance and prediction error." << std::endl;
   std::cout << "    " << "--splitweights FILE           Filename of split select weights file." << std::endl;
   std::cout << "    " << "--alwayssplitvars V1,V2,..    Comma separated list of variable names to be always considered for splitting." << std::endl;
   std::cout << "    " << "--nthreads N                  Set number of parallel threads to N." << std::endl;
