@@ -18,12 +18,10 @@ void ForestInstrumental::loadForest(size_t dependent_varID, size_t num_trees,
                                     std::vector<std::vector<std::vector<size_t>>> &forest_child_nodeIDs,
                                     std::vector<std::vector<size_t>> &forest_split_varIDs,
                                     std::vector<std::vector<double>> &forest_split_values,
-                                    std::vector<bool> &is_ordered_variable,
                                     std::vector<std::vector<std::vector<size_t>>> sampleIDs,
                                     std::unordered_map<size_t, std::vector<double>> *original_responses) {
   this->dependent_varID = dependent_varID;
   this->num_trees = num_trees;
-  this->is_ordered_variable = is_ordered_variable;
   this->original_responses = new std::unordered_map<size_t, std::vector<double>>(*original_responses);
 
   // hackhackhack
@@ -34,8 +32,7 @@ void ForestInstrumental::loadForest(size_t dependent_varID, size_t num_trees,
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree *tree = new TreeInstrumental(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-                                      &this->is_ordered_variable, sampleIDs[i], treatment_varID, instrument_varID,
-                                      instrument_variable_name);
+                                      sampleIDs[i], treatment_varID, instrument_varID, instrument_variable_name);
     trees.push_back(tree);
   }
 
@@ -333,7 +330,7 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
 
     // Create tree
     Tree *tree = new TreeInstrumental(child_nodeIDs, split_varIDs, split_values,
-                                &is_ordered_variable, sampleIDs, treatment_varID, instrument_varID, "DUMMY_NAME");
+                                      sampleIDs, treatment_varID, instrument_varID, "DUMMY_NAME");
     trees.push_back(tree);
   }
 }

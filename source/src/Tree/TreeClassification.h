@@ -38,8 +38,7 @@ public:
 
   // Create from loaded forest
   TreeClassification(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values, std::vector<double>* class_values, std::vector<uint>* response_classIDs,
-      std::vector<bool>* is_ordered_variable);
+      std::vector<double>& split_values, std::vector<double>* class_values, std::vector<uint>* response_classIDs);
 
   virtual ~TreeClassification();
 
@@ -73,8 +72,6 @@ private:
   void findBestSplitValueSmallQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
       size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
   void findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
-      size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
-  void findBestSplitValueUnordered(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
       size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease);
 
   void cleanUpInternal() {

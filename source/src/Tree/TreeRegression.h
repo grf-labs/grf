@@ -39,7 +39,7 @@ public:
 
   // Create from loaded forest
   TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values, std::vector<bool>* is_ordered_variable);
+      std::vector<double>& split_values);
 
   virtual ~TreeRegression();
 
@@ -69,9 +69,6 @@ private:
   void createEmptyNodeInternal();
 
   double computePredictionAccuracyInternal();
-
-  void findBestSplitValueUnordered(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-      double& best_value, size_t& best_varID, double& best_decrease, std::unordered_map<size_t, double>& responses_by_sampleID);
 
   void cleanUpInternal() {
     if (counter != 0) {

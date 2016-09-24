@@ -8,9 +8,9 @@ TreeCausal::TreeCausal(size_t treatment_varID) : treatment_varID(treatment_varID
 
 
 TreeCausal::TreeCausal(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
-                       std::vector<double> &split_values, std::vector<bool> *is_ordered_variable,
-                       std::vector<std::vector<size_t>> sampleIDs, size_t treatment_varID) :
-    TreeRegression(child_nodeIDs, split_varIDs, split_values, is_ordered_variable),
+                       std::vector<double> &split_values, std::vector<std::vector<size_t>> sampleIDs,
+                       size_t treatment_varID) :
+    TreeRegression(child_nodeIDs, split_varIDs, split_values),
     treatment_varID(treatment_varID),
     udist(std::uniform_int_distribution<uint>()) {
   this->sampleIDs = sampleIDs;

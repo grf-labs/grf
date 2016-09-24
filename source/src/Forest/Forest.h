@@ -55,18 +55,18 @@ public:
       std::string load_forest_filename, uint min_node_size,
       std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool sample_with_replacement,
-      std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting,
+      bool memory_saving_splitting,
       std::string case_weights_file, bool predict_all, double sample_fraction);
   void initR(std::string dependent_variable_name, Data* input_data, uint mtry, uint num_trees,
       std::ostream* verbose_out, uint seed, uint num_threads, uint min_node_size,
       std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
-      std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting,
-      std::vector<double>& case_weights, bool predict_all, bool keep_inbag, double sample_fraction);
+      bool memory_saving_splitting, std::vector<double>& case_weights, bool predict_all,
+      bool keep_inbag, double sample_fraction);
   void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
       std::string output_prefix, uint num_trees, uint seed, uint num_threads,
       uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
-      std::vector<std::string>& unordered_variable_names, bool memory_saving_splitting,
+      bool memory_saving_splitting,
       bool predict_all, double sample_fraction);
   virtual void initInternal(std::string status_variable_name) = 0;
 
@@ -135,10 +135,6 @@ public:
   {
     return num_independent_variables;
   }
-  const std::vector<bool>& getIsOrderedVariable() const
-  {
-    return is_ordered_variable;
-  }
 
   std::vector<std::vector<size_t>> getInbagCounts() const {
     std::vector<std::vector<size_t>> result;
@@ -195,9 +191,6 @@ protected:
   bool predict_all;
   bool keep_inbag;
   double sample_fraction;
-
-  // For each varID true if ordered
-  std::vector<bool> is_ordered_variable;
 
   // Variable to not split at (only dependent_varID for non-survival forests)
   std::vector<size_t> no_split_variables;

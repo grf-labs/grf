@@ -13,18 +13,16 @@ ForestCausal::~ForestCausal() {}
 void ForestCausal::loadForest(size_t dependent_varID, size_t num_trees,
                               std::vector<std::vector<std::vector<size_t>>> &forest_child_nodeIDs,
                               std::vector<std::vector<size_t>> &forest_split_varIDs,
-                              std::vector<std::vector<double>> &forest_split_values,
-                              std::vector<bool> &is_ordered_variable) {
+                              std::vector<std::vector<double>> &forest_split_values) {
 
   this->dependent_varID = dependent_varID;
   this->num_trees = num_trees;
-  this->is_ordered_variable = is_ordered_variable;
 
   // Create trees
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     Tree* tree = new TreeCausal(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-                                    &this->is_ordered_variable, std::vector<std::vector<size_t>>(), treatment_varID);
+                                std::vector<std::vector<size_t>>(), treatment_varID);
     trees.push_back(tree);
   }
 
@@ -206,7 +204,7 @@ void ForestCausal::loadFromFileInternal(std::ifstream& infile) {
     }
 
     // Create tree
-    Tree* tree = new TreeCausal(child_nodeIDs, split_varIDs, split_values, &is_ordered_variable,
+    Tree* tree = new TreeCausal(child_nodeIDs, split_varIDs, split_values,
     std::vector<std::vector<size_t>>(), treatment_varID);
     trees.push_back(tree);
   }

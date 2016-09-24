@@ -8,10 +8,10 @@ TreeQuantile::TreeQuantile(std::vector<double>* quantiles) :
     quantiles(quantiles), udist(std::uniform_int_distribution<uint>()) {}
 
 TreeQuantile::TreeQuantile(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
-                           std::vector<double> &split_values, std::vector<bool> *is_ordered_variable,
+                           std::vector<double> &split_values,
                            std::vector<double> *quantiles,
                            std::vector<std::vector<size_t>> sampleIDs) :
-    TreeRegression(child_nodeIDs, split_varIDs, split_values, is_ordered_variable),
+    TreeRegression(child_nodeIDs, split_varIDs, split_values),
     quantiles(quantiles),
     udist(std::uniform_int_distribution<uint>()) {
   this->sampleIDs = sampleIDs;
@@ -112,7 +112,7 @@ TreeClassification* TreeQuantile::createClassificationTree(std::vector<size_t>& 
 
   tree->init(data, mtry, dependent_varID, num_samples, tree_seed, deterministic_varIDs, split_select_varIDs,
              split_select_weights, min_node_size, no_split_variables, sample_with_replacement,
-             is_ordered_variable, memory_saving_splitting, case_weights, keep_inbag, sample_fraction);
+             memory_saving_splitting, case_weights, keep_inbag, sample_fraction);
   tree->set_sampleIDs(sampleIDs);
   tree->set_split_varIDs(split_varIDs);
   tree->set_split_values(split_values);

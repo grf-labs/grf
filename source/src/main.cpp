@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
     forest->initCpp(arg_handler.depvarname, arg_handler.memmode, arg_handler.file, arg_handler.mtry,
         arg_handler.outprefix, arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
         arg_handler.predict, arg_handler.targetpartitionsize, arg_handler.splitweights,
-        arg_handler.alwayssplitvars, arg_handler.statusvarname, arg_handler.replace, arg_handler.catvars,
+        arg_handler.alwayssplitvars, arg_handler.statusvarname, arg_handler.replace,
         arg_handler.savemem,  arg_handler.caseweights, arg_handler.predall, arg_handler.fraction);
 
     forest->run(true);

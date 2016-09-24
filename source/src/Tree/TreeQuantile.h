@@ -9,7 +9,7 @@ public:
   TreeQuantile(std::vector<double> *quantiles);
 
   TreeQuantile(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
-               std::vector<double> &split_values, std::vector<bool> *is_ordered_variable,
+               std::vector<double> &split_values,
                std::vector<double> *quantiles,
                std::vector<std::vector<size_t>> sampleIDs);
 

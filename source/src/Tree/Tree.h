@@ -42,14 +42,14 @@ public:
 
   // Create from loaded forest
   Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values, std::vector<bool>* is_ordered_variable);
+      std::vector<double>& split_values);
 
   virtual ~Tree();
 
   void init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, uint min_node_size,
-      std::vector<size_t>* no_split_variables, bool sample_with_replacement, std::vector<bool>* is_unordered,
+      std::vector<size_t>* no_split_variables, bool sample_with_replacement,
       bool memory_saving_splitting, std::vector<double>* case_weights, bool keep_inbag,
       double sample_fraction);
 
@@ -97,7 +97,7 @@ protected:
 
   void createEmptyNode();
   virtual void createEmptyNodeInternal() = 0;
-
+  
   virtual double computePredictionAccuracyInternal() = 0;
 
   void bootstrap();
@@ -116,9 +116,6 @@ protected:
 
   // Number of OOB samples
   size_t num_samples_oob;
-
-  // For each varID true if unordered
-  std::vector<bool>* is_ordered_variable;
 
   // Variable to not split at (only dependent_varID for non-survival trees)
   std::vector<size_t>* no_split_variables;

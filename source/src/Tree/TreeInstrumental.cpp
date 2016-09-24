@@ -11,11 +11,11 @@ TreeInstrumental::TreeInstrumental(size_t treatment_varID, size_t instrument_var
     udist(std::uniform_int_distribution<uint>()) {}
 
 TreeInstrumental::TreeInstrumental(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
-                                   std::vector<double> &split_values, std::vector<bool> *is_ordered_variable,
+                                   std::vector<double> &split_values,
                                    std::vector<std::vector<size_t>> sampleIDs,
                                    size_t treatment_varID, size_t instrument_varID,
                                    std::string instrument_var_name) :
-    TreeRegression(child_nodeIDs, split_varIDs, split_values, is_ordered_variable),
+    TreeRegression(child_nodeIDs, split_varIDs, split_values),
     treatment_varID(treatment_varID),
     instrument_varID(instrument_varID),
     instrument_var_name(instrument_var_name),

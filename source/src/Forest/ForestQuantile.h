@@ -25,7 +25,7 @@ public:
   void loadForest(size_t dependent_varID, size_t num_trees,
                   std::vector<std::vector<std::vector<size_t>> >& forest_child_nodeIDs,
                   std::vector<std::vector<size_t>>& forest_split_varIDs, std::vector<std::vector<double>>& forest_split_values,
-                  std::vector<bool>& is_ordered_variable, std::vector<double>* quantiles,
+                  std::vector<double>* quantiles,
                   std::vector<std::vector<std::vector<size_t>>> sampleIDs,
                   std::vector<double>* originalResponses);
 

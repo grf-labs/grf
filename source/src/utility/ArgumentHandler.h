@@ -73,7 +73,6 @@ public:
   bool predall;
 
   // All command line arguments as member: Small letters
-  std::vector<std::string> catvars;
   std::string file;
   uint targetpartitionsize;
   uint mtry;

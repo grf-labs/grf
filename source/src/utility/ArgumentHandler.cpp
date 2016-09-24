@@ -67,7 +67,6 @@ int ArgumentHandler::processArguments() {
       { "predall",              no_argument,        0, 'X'},
       { "version",              no_argument,        0, 'Z'},
 
-      { "catvars",              required_argument,  0, 'c'},
       { "file",                 required_argument,  0, 'f'},
       { "help",                 no_argument,        0, 'h'},
       { "targetpartitionsize",  required_argument,  0, 'l'},
@@ -169,9 +168,6 @@ int ArgumentHandler::processArguments() {
     case 'Z':
       displayVersion();
       return -1;
-      break;
-    case 'c':
-      splitString(catvars, optarg, ',');
       break;
 
     case 'f':
