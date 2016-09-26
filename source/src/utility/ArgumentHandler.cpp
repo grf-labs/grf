@@ -261,9 +261,6 @@ int ArgumentHandler::processArguments() {
         case 11:
           treetype = TREE_QUANTILE;
           break;
-        case 13:
-          treetype = TREE_CAUSAL;
-          break;
         case 15:
           treetype = TREE_INSTRUMENTAL;
           break;
@@ -313,11 +310,6 @@ void ArgumentHandler::checkArguments() {
   }
   if (predict.empty() && depvarname.empty()) {
     throw std::runtime_error("Please specify a dependent variable name with '--depvarname'. See '--help' for details.");
-  }
-
-  if (treetype == TREE_CAUSAL && statusvarname.empty()) {
-    throw std::runtime_error("When using causal trees, the treatment variable must be specified through"
-                                 "--statusvarname. See '--help' for details.");
   }
 
   if (treetype == TREE_INSTRUMENTAL && instrumentvarname.empty()) {
@@ -380,12 +372,12 @@ void ArgumentHandler::displayHelp() {
   std::cout << "    " << "                              TYPE = 1: Classification." << std::endl;
   std::cout << "    " << "                              TYPE = 3: Regression." << std::endl;
   std::cout << "    " << "                              TYPE = 11: Quantile." << std::endl;
-  std::cout << "    " << "                              TYPE = 13: Causal." << std::endl;
+  std::cout << "    " << "                              TYPE = 15: Instrumental." << std::endl;
   std::cout << "    " << "                              (Default: 1)" << std::endl;
   std::cout << "    " << "--quantiles                   The quantiles to predict when running a quantile forest (--treetype 11)." << std::endl;
   std::cout << "    " << "                              Note that all quantiles must lie in the range (0, 1)." << std::endl;
   std::cout << "    " << "--depvarname NAME             Name of dependent variable. For survival trees this is the time variable." << std::endl;
-  std::cout << "    " << "--statusvarname NAME          Name of status variable, only applicable for survival, causal, and instrumental trees." << std::endl;
+  std::cout << "    " << "--statusvarname NAME          Name of status variable, only applicable for survival and instrumental trees." << std::endl;
   std::cout << "    " << "                              Coding is 1 for event and 0 for censored." << std::endl;
   std::cout << "    " << "--instrumentvarname NAME      Name of instrument variable, only applicable for instrumental trees." << std::endl;
   std::cout << "    " << "--ntree N                     Set number of trees to N." << std::endl;

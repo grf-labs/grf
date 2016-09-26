@@ -36,7 +36,6 @@
 #include "ForestRegression.h"
 #include "ForestProbability.h"
 #include "ForestQuantile.h"
-#include "ForestCausal.h"
 #include "ForestInstrumental.h"
 
 int main(int argc, char **argv) {
@@ -67,9 +66,6 @@ int main(int argc, char **argv) {
       forest = new ForestQuantile(quantiles);
       break;
     }
-    case TREE_CAUSAL:
-      forest = new ForestCausal;
-      break;
     case TREE_INSTRUMENTAL:
       forest = new ForestInstrumental(arg_handler.instrumentvarname);
     }
