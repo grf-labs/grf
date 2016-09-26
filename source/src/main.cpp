@@ -34,7 +34,6 @@
 #include "globals.h"
 #include "ArgumentHandler.h"
 #include "ForestRegression.h"
-#include "ForestProbability.h"
 #include "ForestQuantile.h"
 #include "ForestInstrumental.h"
 
@@ -54,9 +53,6 @@ int main(int argc, char **argv) {
     switch (arg_handler.treetype) {
     case TREE_REGRESSION:
       forest = new ForestRegression;
-      break;
-    case TREE_PROBABILITY:
-      forest = new ForestProbability;
       break;
     case TREE_QUANTILE: {
       std::vector<double> *default_quantiles = new std::vector<double>({0.15, 0.5, 0.85});

@@ -6,7 +6,7 @@
 #include "ForestQuantile.h"
 
 ForestQuantile::ForestQuantile(std::vector<double>* quantiles):
-    quantiles(quantiles), original_responses(0) {}
+    quantiles(quantiles), original_responses(new std::vector<double>()) {}
 
 ForestQuantile::~ForestQuantile() {}
 
@@ -250,6 +250,7 @@ void ForestQuantile::saveToFileInternal(std::ofstream& outfile) {
   TreeType treetype = TREE_QUANTILE;
   outfile.write((char*) &treetype, sizeof(treetype));
   saveVector1D(*quantiles, outfile);
+  saveVector1D(*original_responses, outfile);
 }
 
 void ForestQuantile::loadFromFileInternal(std::ifstream& infile) {
@@ -266,6 +267,7 @@ void ForestQuantile::loadFromFileInternal(std::ifstream& infile) {
   }
 
   readVector1D(*quantiles, infile);
+  readVector1D(*original_responses, infile);
 
   for (size_t i = 0; i < num_trees; ++i) {
 

@@ -51,7 +51,6 @@ typedef unsigned int uint;
 
 enum TreeType {
   TREE_REGRESSION = 3,
-  TREE_PROBABILITY = 9,
   TREE_QUANTILE = 11,
   TREE_INSTRUMENTAL = 15,
 };

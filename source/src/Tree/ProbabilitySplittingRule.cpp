@@ -1,115 +1,26 @@
-/*-------------------------------------------------------------------------------
- This file is part of Ranger.
+#include "ProbabilitySplittingRule.h"
 
- Ranger is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+ProbabilitySplittingRule::ProbabilitySplittingRule(size_t num_classes,
+                                                   std::vector<uint>* response_classIDs,
+                                                   Data* data,
+                                                   std::vector<std::vector<size_t>> &sampleIDs,
+                                                   std::vector<size_t> &split_varIDs,
+                                                   std::vector<double> &split_values) :
+    num_classes(num_classes), response_classIDs(response_classIDs), counter(0), counter_per_class(0),
+    split_varIDs(split_varIDs), split_values(split_values), sampleIDs(sampleIDs) {
+  this->data = data;
+  this->memory_saving_splitting = memory_saving_splitting;
+  this->split_varIDs = split_varIDs;
+  this->split_values = split_values;
+  this->sampleIDs = sampleIDs;
 
- Ranger is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Ranger. If not, see <http://www.gnu.org/licenses/>.
-
- Written by:
-
- Marvin N. Wright
- Institut für Medizinische Biometrie und Statistik
- Universität zu Lübeck
- Ratzeburger Allee 160
- 23562 Lübeck
-
- http://www.imbs-luebeck.de
- wright@imbs.uni-luebeck.de
- #-------------------------------------------------------------------------------*/
-
-#include "TreeProbability.h"
-#include "utility.h"
-
-TreeProbability::TreeProbability(std::vector<double>* class_values, std::vector<uint>* response_classIDs) :
-    class_values(class_values), response_classIDs(response_classIDs), counter(0), counter_per_class(0) {
+  size_t max_num_unique_values = data->getMaxNumUniqueValues();
+  counter = new size_t[max_num_unique_values];
+  counter_per_class = new size_t[num_classes * max_num_unique_values];
 }
 
-TreeProbability::TreeProbability(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-    std::vector<double>& split_values, std::vector<double>* class_values, std::vector<uint>* response_classIDs,
-    std::vector<std::vector<double>>& terminal_class_counts) :
-    Tree(child_nodeIDs, split_varIDs, split_values), class_values(class_values), response_classIDs(
-        response_classIDs), terminal_class_counts(terminal_class_counts), counter(0), counter_per_class(0) {
-}
-
-TreeProbability::~TreeProbability() {
-  // Empty on purpose
-}
-
-void TreeProbability::initInternal() {
-  // Init counters if not in memory efficient mode
-  if (!memory_saving_splitting) {
-    size_t num_classes = class_values->size();
-    size_t max_num_unique_values = data->getMaxNumUniqueValues();
-    counter = new size_t[max_num_unique_values];
-    counter_per_class = new size_t[num_classes * max_num_unique_values];
-  }
-}
-
-void TreeProbability::addToTerminalNodes(size_t nodeID) {
-
-  size_t num_samples_in_node = sampleIDs[nodeID].size();
-  terminal_class_counts[nodeID].resize(class_values->size(), 0);
-
-  // Compute counts
-  for (size_t i = 0; i < num_samples_in_node; ++i) {
-    size_t node_sampleID = sampleIDs[nodeID][i];
-    size_t classID = (*response_classIDs)[node_sampleID];
-    ++terminal_class_counts[nodeID][classID];
-  }
-
-  // Compute fractions
-  for (size_t i = 0; i < terminal_class_counts[nodeID].size(); ++i) {
-    terminal_class_counts[nodeID][i] /= num_samples_in_node;
-  }
-}
-
-bool TreeProbability::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
-
-  // Check node size, stop if maximum reached
-  if (sampleIDs[nodeID].size() <= min_node_size) {
-    addToTerminalNodes(nodeID);
-    return true;
-  }
-
-  // Check if node is pure and set split_value to estimate and stop if pure
-  bool pure = true;
-  double pure_value = 0;
-  for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
-    double value = data->get(sampleIDs[nodeID][i], dependent_varID);
-    if (i != 0 && value != pure_value) {
-      pure = false;
-      break;
-    }
-    pure_value = value;
-  }
-  if (pure) {
-    addToTerminalNodes(nodeID);
-    return true;
-  }
-
-  // Find best split, stop if no decrease of impurity
-  bool stop = findBestSplit(nodeID, possible_split_varIDs);
-  if (stop) {
-    addToTerminalNodes(nodeID);
-    return true;
-  }
-
-  return false;
-}
-
-bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
-
+bool ProbabilitySplittingRule::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   size_t num_samples_node = sampleIDs[nodeID].size();
-  size_t num_classes = class_values->size();
   double best_decrease = -1;
   size_t best_varID = 0;
   double best_value = 0;
@@ -140,7 +51,7 @@ bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible
       }
     }
   }
-  
+
   delete[] class_counts;
 
   // Stop if no good split found
@@ -154,8 +65,8 @@ bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible
   return false;
 }
 
-void TreeProbability::findBestSplitValueSmallQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
-    size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
+void ProbabilitySplittingRule::findBestSplitValueSmallQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+                                               size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
 
   // Create possible split values
   std::vector<double> possible_split_values;
@@ -236,9 +147,10 @@ void TreeProbability::findBestSplitValueSmallQ(size_t nodeID, size_t varID, size
   }
 }
 
-void TreeProbability::findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
-    size_t num_samples_node, double& best_value, size_t& best_varID, double& best_decrease) {
-
+void ProbabilitySplittingRule::findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes,
+                                                        size_t *class_counts,
+                                                        size_t num_samples_node, double &best_value, size_t &best_varID,
+                                                        double &best_decrease) {
   // Set counters to 0
   size_t num_unique = data->getNumUniqueDataValues(varID);
   std::fill(counter_per_class, counter_per_class + num_unique * num_classes, 0);

@@ -39,7 +39,7 @@ ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), file(""),
     targetpartitionsize(0), mtry(0),
     quantiles(new std::vector<double>()), statusvarname(""), instrumentvarname(""),
-    ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_PROBABILITY), seed(0) {
+    ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_REGRESSION), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }

@@ -2,6 +2,7 @@
 #include <set>
 #include "TreeQuantile.h"
 #include "utility.h"
+#include "ProbabilitySplittingRule.h"
 
 
 TreeQuantile::TreeQuantile(std::vector<double>* quantiles) :
@@ -47,11 +48,8 @@ bool TreeQuantile::splitNodeInternal(size_t nodeID, std::vector<size_t>& possibl
 
   std::vector<uint>* relabeled_responses = relabelResponses(&responses);
 
-  TreeProbability* classificationTree = createClassificationTree(sampleIDs[nodeID],
-                                                                    relabeled_responses);
-  bool stop = classificationTree->findBestSplit(nodeID, possible_split_varIDs);
-  split_varIDs = classificationTree->get_split_varIDs();
-  split_values = classificationTree->get_split_values();
+  ProbabilitySplittingRule* splittingRule = createSplittingRule(sampleIDs[nodeID], relabeled_responses);
+  bool stop = splittingRule->findBestSplit(nodeID, possible_split_varIDs);
 
   if (stop) {
     split_values[nodeID] = estimate(nodeID);
@@ -90,15 +88,11 @@ std::vector<uint>* TreeQuantile::relabelResponses(std::vector<double>* responses
   return relabeled_responses;
 }
 
-TreeProbability* TreeQuantile::createClassificationTree(std::vector<size_t>& nodeSampleIDs,
-                                                           std::vector<uint>* relabeledResponses) {
+ProbabilitySplittingRule* TreeQuantile::createSplittingRule(std::vector<size_t> &nodeSampleIDs,
+                                                            std::vector<uint> *relabeledResponses) {
   std::set<uint>* unique_classIDs = new std::set<uint>(relabeledResponses->begin(),
                                                        relabeledResponses->end());
   size_t num_classes = unique_classIDs->size();
-
-  // Create a dummy vector of class values. TreeClassification only uses the size of
-  // this vector, so it is fine that the values are fake.
-  std::vector<double>* class_values = new std::vector<double>(num_classes, 1.0);
 
   std::vector<uint>* response_classIDs = new std::vector<uint>(num_samples);
   for (size_t i = 0; i < nodeSampleIDs.size(); ++i) {
@@ -106,17 +100,9 @@ TreeProbability* TreeQuantile::createClassificationTree(std::vector<size_t>& nod
     (*response_classIDs)[sampleID] = (*relabeledResponses)[i];
   }
 
-  TreeProbability* tree = new TreeProbability(class_values, response_classIDs);
-
-  uint tree_seed = udist(random_number_generator);
-
-  tree->init(data, mtry, dependent_varID, num_samples, tree_seed, deterministic_varIDs, split_select_varIDs,
-             split_select_weights, min_node_size, no_split_variables, sample_with_replacement,
-             memory_saving_splitting, case_weights, keep_inbag, sample_fraction);
-  tree->set_sampleIDs(sampleIDs);
-  tree->set_split_varIDs(split_varIDs);
-  tree->set_split_values(split_values);
-  return tree;
+  ProbabilitySplittingRule* splittingRule = new ProbabilitySplittingRule(num_classes, response_classIDs,
+      data, sampleIDs, split_varIDs, split_values);
+  return splittingRule;
 }
 
 std::vector<size_t> TreeQuantile::get_neighboring_samples(size_t sampleID) {
