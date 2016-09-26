@@ -21,8 +21,6 @@ private:
   TreeProbability* createClassificationTree(std::vector<size_t>& nodeSampleIDs,
                                                std::vector<uint>* relabeledResponses);
 
-  void appendToFileInternal(std::ofstream& file);
-
   std::vector<double>* quantiles;
   std::uniform_int_distribution<uint> udist;
 

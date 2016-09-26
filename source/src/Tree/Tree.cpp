@@ -169,8 +169,7 @@ void Tree::appendToFile(std::ofstream& file) {
   saveVector1D(split_varIDs, file);
   saveVector1D(split_values, file);
 
-// Call special functions for subclasses to save special fields.
-  appendToFileInternal(file);
+  saveVector2D(sampleIDs, file);
 }
 
 void Tree::createPossibleSplitVarSubset(std::vector<size_t>& result) {

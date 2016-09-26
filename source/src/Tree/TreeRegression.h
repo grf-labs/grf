@@ -55,8 +55,6 @@ public:
                                 double& best_value, size_t& best_varID, double& best_decrease, std::unordered_map<size_t, double>& responses_by_sampleID);
   double estimate(size_t nodeID);
 
-  void appendToFileInternal(std::ofstream& file);
-
   double getPrediction(size_t sampleID) const {
     size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
     return (split_values[terminal_nodeID]);

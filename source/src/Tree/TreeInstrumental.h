@@ -21,8 +21,6 @@ private:
   bool equalDoubles(double first, double second);
   int sgn(double val);
 
-  void appendToFileInternal(std::ofstream& file);
-
   size_t treatment_varID;
   size_t instrument_varID;
   std::string instrument_var_name;

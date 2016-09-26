@@ -72,22 +72,6 @@ void TreeProbability::addToTerminalNodes(size_t nodeID) {
   }
 }
 
-void TreeProbability::appendToFileInternal(std::ofstream& file) {
-
-  // Add Terminal node class counts
-  // Convert to vector without empty elements and save
-  std::vector<size_t> terminal_nodes;
-  std::vector<std::vector<double>> terminal_class_counts_vector;
-  for (size_t i = 0; i < terminal_class_counts.size(); ++i) {
-    if (!terminal_class_counts[i].empty()) {
-      terminal_nodes.push_back(i);
-      terminal_class_counts_vector.push_back(terminal_class_counts[i]);
-    }
-  }
-  saveVector1D(terminal_nodes, file);
-  saveVector2D(terminal_class_counts_vector, file);
-}
-
 bool TreeProbability::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   // Check node size, stop if maximum reached

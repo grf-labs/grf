@@ -51,7 +51,6 @@ public:
   bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
 
   void addToTerminalNodes(size_t nodeID);
-  void appendToFileInternal(std::ofstream& file);
 
   const std::vector<double>& getPrediction(size_t sampleID) const {
     size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];

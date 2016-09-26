@@ -130,10 +130,6 @@ bool TreeInstrumental::equalDoubles(double first, double second) {
   return std::abs(first - second) < std::numeric_limits<double>::epsilon();
 }
 
-void TreeInstrumental::appendToFileInternal(std::ofstream& file) {
-  saveVector2D(sampleIDs, file);
-}
-
 int TreeInstrumental::sgn(double val) {
     return (0 < val) - (val < 0);
 }

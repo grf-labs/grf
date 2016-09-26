@@ -60,7 +60,6 @@ public:
   void predict(const Data* prediction_data, bool oob_prediction);
 
   void appendToFile(std::ofstream& file);
-  virtual void appendToFileInternal(std::ofstream& file) = 0;
 
   const std::vector<std::vector<size_t> >& getChildNodeIDs() const {
     return child_nodeIDs;

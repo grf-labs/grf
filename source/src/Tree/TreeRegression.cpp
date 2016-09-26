@@ -66,10 +66,6 @@ double TreeRegression::estimate(size_t nodeID) {
   return (sum_responses_in_node / (double) num_samples_in_node);
 }
 
-void TreeRegression::appendToFileInternal(std::ofstream& file) {
-// Empty on purpose
-}
-
 bool TreeRegression::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
 // Check node size, stop if maximum reached
