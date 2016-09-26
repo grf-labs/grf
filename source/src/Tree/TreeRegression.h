@@ -66,8 +66,6 @@ public:
 private:
   void createEmptyNodeInternal();
 
-  double computePredictionAccuracyInternal();
-
   void cleanUpInternal() {
     if (counter != 0) {
       delete[] counter;

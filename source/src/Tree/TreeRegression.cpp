@@ -110,21 +110,6 @@ void TreeRegression::createEmptyNodeInternal() {
 // Empty on purpose
 }
 
-double TreeRegression::computePredictionAccuracyInternal() {
-
-  size_t num_predictions = prediction_terminal_nodeIDs.size();
-  double sum_of_squares = 0;
-  for (size_t i = 0; i < num_predictions; ++i) {
-    size_t terminal_nodeID = prediction_terminal_nodeIDs[i];
-    double predicted_value = split_values[terminal_nodeID];
-    double real_value = data->get(oob_sampleIDs[i], dependent_varID);
-    if (predicted_value != real_value) {
-      sum_of_squares += (predicted_value - real_value) * (predicted_value - real_value);
-    }
-  }
-  return (1.0 - sum_of_squares / (double) num_predictions);
-}
-
 bool TreeRegression::findBestSplit(size_t nodeID,
                                    std::vector<size_t>& possible_split_varIDs,
                                    std::unordered_map<size_t, double>& responses_by_sampleID) {
