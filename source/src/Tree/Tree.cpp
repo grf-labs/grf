@@ -232,8 +232,6 @@ void Tree::createEmptyNode() {
   child_nodeIDs[0].push_back(0);
   child_nodeIDs[1].push_back(0);
   sampleIDs.push_back(std::vector<size_t>());
-
-  createEmptyNodeInternal();
 }
 
 void Tree::bootstrap() {

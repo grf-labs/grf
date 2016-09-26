@@ -95,7 +95,6 @@ protected:
   virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) = 0;
 
   void createEmptyNode();
-  virtual void createEmptyNodeInternal() = 0;
 
   void bootstrap();
   void bootstrapWithoutReplacement();

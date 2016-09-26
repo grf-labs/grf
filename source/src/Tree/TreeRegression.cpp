@@ -106,10 +106,6 @@ bool TreeRegression::splitNodeInternal(size_t nodeID, std::vector<size_t>& possi
   return false;
 }
 
-void TreeRegression::createEmptyNodeInternal() {
-// Empty on purpose
-}
-
 bool TreeRegression::findBestSplit(size_t nodeID,
                                    std::vector<size_t>& possible_split_varIDs,
                                    std::unordered_map<size_t, double>& responses_by_sampleID) {

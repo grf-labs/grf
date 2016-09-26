@@ -64,8 +64,6 @@ public:
   double* sums;
 
 private:
-  void createEmptyNodeInternal();
-
   void cleanUpInternal() {
     if (counter != 0) {
       delete[] counter;

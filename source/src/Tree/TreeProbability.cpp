@@ -106,10 +106,6 @@ bool TreeProbability::splitNodeInternal(size_t nodeID, std::vector<size_t>& poss
   return false;
 }
 
-void TreeProbability::createEmptyNodeInternal() {
-  terminal_class_counts.push_back(std::vector<double>());
-}
-
 bool TreeProbability::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
   size_t num_samples_node = sampleIDs[nodeID].size();
