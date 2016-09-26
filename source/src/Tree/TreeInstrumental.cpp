@@ -74,9 +74,6 @@ std::vector<size_t> TreeInstrumental::get_neighboring_samples(size_t sampleID) {
 }
 
 std::unordered_map<size_t, double> TreeInstrumental::relabelResponses(std::vector<size_t>& node_sampleIDs) {
-
-  bool do_a_causal_split = instrument_var_name.compare("QUASI_I") == 0;
-
   // Calculate the relevant averages;
   size_t num_samples = node_sampleIDs.size();
 
@@ -86,7 +83,7 @@ std::unordered_map<size_t, double> TreeInstrumental::relabelResponses(std::vecto
 
   for (size_t sampleID : node_sampleIDs) {
     total_treatment += data->get(sampleID, treatment_varID);
-    total_instrument += do_a_causal_split ? data->get(sampleID, treatment_varID) :  data->get(sampleID, instrument_varID);
+    total_instrument += data->get(sampleID, instrument_varID);
     total_response += data->get(sampleID, dependent_varID);
   }
 
@@ -100,7 +97,7 @@ std::unordered_map<size_t, double> TreeInstrumental::relabelResponses(std::vecto
   double regularizer = 0.0;
   for (size_t sampleID : node_sampleIDs) {
     double treatment = data->get(sampleID, treatment_varID);
-    double instrument = do_a_causal_split ? data->get(sampleID, treatment_varID) :  data->get(sampleID, instrument_varID);
+    double instrument = data->get(sampleID, instrument_varID);
     double response = data->get(sampleID, dependent_varID);
 
     numerator += (instrument - average_instrument) * (response - average_response);
@@ -120,7 +117,7 @@ std::unordered_map<size_t, double> TreeInstrumental::relabelResponses(std::vecto
 
   for (size_t sampleID : node_sampleIDs) {
     double treatment = data->get(sampleID, treatment_varID);
-    double instrument = do_a_causal_split ? data->get(sampleID, treatment_varID) :  data->get(sampleID, instrument_varID);
+    double instrument = data->get(sampleID, instrument_varID);
     double response = data->get(sampleID, dependent_varID);
 
     double residual = (response - average_response) - local_average_treatment_effect * (treatment - average_treatment);
