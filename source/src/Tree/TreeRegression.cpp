@@ -43,7 +43,12 @@ TreeRegression::TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, 
 }
 
 TreeRegression::~TreeRegression() {
-  // Empty on purpose
+  if (counter != 0) {
+    delete[] counter;
+  }
+  if (sums != 0) {
+    delete[] sums;
+  }
 }
 
 void TreeRegression::initInternal() {

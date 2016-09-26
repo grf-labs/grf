@@ -116,7 +116,6 @@ void Tree::grow() {
 
 // Delete sampleID vector to save memory
   //sampleIDs.clear();
-  cleanUpInternal();
 }
 
 void Tree::predict(const Data* prediction_data, bool oob_prediction) {

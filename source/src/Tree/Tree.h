@@ -102,8 +102,6 @@ protected:
   void bootstrapWeighted();
   void bootstrapWithoutReplacementWeighted();
 
-  virtual void cleanUpInternal() = 0;
-
   size_t dependent_varID;
   uint mtry;
 

@@ -89,15 +89,6 @@ private:
   void findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts, size_t num_samples_node,
       double& best_value, size_t& best_varID, double& best_decrease);
 
-  void cleanUpInternal() {
-    if (counter != 0) {
-      delete[] counter;
-    }
-    if (counter_per_class != 0) {
-      delete[] counter_per_class;
-    }
-  }
-
   // Classes of the dependent variable and classIDs for responses
   std::vector<double>* class_values;
   std::vector<uint>* response_classIDs;

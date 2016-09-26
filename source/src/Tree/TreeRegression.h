@@ -64,15 +64,6 @@ public:
   double* sums;
 
 private:
-  void cleanUpInternal() {
-    if (counter != 0) {
-      delete[] counter;
-    }
-    if (sums != 0) {
-      delete[] sums;
-    }
-  }
-
   DISALLOW_COPY_AND_ASSIGN(TreeRegression);
 };
 
