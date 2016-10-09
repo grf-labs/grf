@@ -35,7 +35,7 @@ TreeFactory::TreeFactory() :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), no_split_variables(0), min_node_size(
         0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), oob_sampleIDs(0),
         keep_inbag(false), data(0), sample_with_replacement(
-        true), sample_fraction(1), memory_saving_splitting(false) {
+        true), sample_fraction(1) {
 }
 
 TreeFactory::TreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
@@ -44,7 +44,7 @@ TreeFactory::TreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs, std::v
         0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), split_varIDs(
         split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs), oob_sampleIDs(0), keep_inbag(
         false), data(0), sample_with_replacement(
-        true), sample_fraction(1), memory_saving_splitting(false) {
+        true), sample_fraction(1) {
 }
 
 TreeFactory::~TreeFactory() {
@@ -54,14 +54,13 @@ void TreeFactory::init(Data* data, uint mtry, size_t dependent_varID, size_t num
     std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
     std::vector<double>* split_select_weights, uint min_node_size,
     std::vector<size_t>* no_split_variables, bool sample_with_replacement,
-    bool memory_saving_splitting, std::vector<double>* case_weights, bool keep_inbag,
+    std::vector<double>* case_weights, bool keep_inbag,
     double sample_fraction) {
 
   this->data = data;
   this->mtry = mtry;
   this->dependent_varID = dependent_varID;
   this->num_samples = num_samples;
-  this->memory_saving_splitting = memory_saving_splitting;
 
   // Create root node, assign bootstrap sample and oob samples
   child_nodeIDs.push_back(std::vector<size_t>());

@@ -50,7 +50,7 @@ public:
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
       std::vector<double>* split_select_weights, uint min_node_size,
       std::vector<size_t>* no_split_variables, bool sample_with_replacement,
-      bool memory_saving_splitting, std::vector<double>* case_weights, bool keep_inbag,
+      std::vector<double>* case_weights, bool keep_inbag,
       double sample_fraction);
 
   void grow();
@@ -156,8 +156,6 @@ protected:
 
   bool sample_with_replacement;
   double sample_fraction;
-
-  bool memory_saving_splitting;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(TreeFactory);
