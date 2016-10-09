@@ -32,7 +32,7 @@
 
 #include "utility.h"
 #include "ForestRegression.h"
-#include "TreeRegression.h"
+#include "RegressionTreeFactory.h"
 #include "Data.h"
 
 ForestRegression::ForestRegression() {
@@ -51,7 +51,7 @@ void ForestRegression::loadForest(size_t dependent_varID, size_t num_trees,
   // Create trees
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    Tree* tree = new TreeRegression(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i]);
+    TreeFactory* tree = new RegressionTreeFactory(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i]);
     trees.push_back(tree);
   }
 
@@ -81,7 +81,7 @@ void ForestRegression::initInternal(std::string status_variable_name) {
 void ForestRegression::growInternal() {
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new TreeRegression());
+    trees.push_back(new RegressionTreeFactory());
   }
 }
 
@@ -98,7 +98,7 @@ void ForestRegression::predictInternal() {
       std::vector<double> sample_predictions;
       sample_predictions.reserve(num_trees);
       for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-        double value = ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
+        double value = ((RegressionTreeFactory*) trees[tree_idx])->getPrediction(sample_idx);
         sample_predictions.push_back(value);
       }
       predictions.push_back(sample_predictions);
@@ -106,7 +106,7 @@ void ForestRegression::predictInternal() {
       // Mean over trees
       double prediction_sum = 0;
       for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-        prediction_sum += ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
+        prediction_sum += ((RegressionTreeFactory*) trees[tree_idx])->getPrediction(sample_idx);
       }
       std::vector<double> temp;
       temp.push_back(prediction_sum / num_trees);
@@ -128,7 +128,7 @@ void ForestRegression::computePredictionErrorInternal() {
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sample_idx = 0; sample_idx < trees[tree_idx]->getNumSamplesOob(); ++sample_idx) {
       size_t sampleID = trees[tree_idx]->getOobSampleIDs()[sample_idx];
-      double value = ((TreeRegression*) trees[tree_idx])->getPrediction(sample_idx);
+      double value = ((RegressionTreeFactory*) trees[tree_idx])->getPrediction(sample_idx);
 
       predictions[sampleID][0] += value;
       ++samples_oob_count[sampleID];
@@ -236,7 +236,7 @@ void ForestRegression::loadFromFileInternal(std::ifstream& infile) {
     }
 
     // Create tree
-    Tree* tree = new TreeRegression(child_nodeIDs, split_varIDs, split_values);
+    TreeFactory* tree = new RegressionTreeFactory(child_nodeIDs, split_varIDs, split_values);
     trees.push_back(tree);
   }
 }

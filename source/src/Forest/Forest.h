@@ -41,7 +41,7 @@
 #endif
 
 #include "globals.h"
-#include "Tree.h"
+#include "TreeFactory.h"
 #include "Data.h"
 
 class Forest {
@@ -203,7 +203,7 @@ protected:
   std::condition_variable condition_variable;
 #endif
 
-  std::vector<Tree*> trees;
+  std::vector<TreeFactory*> trees;
   Data* data;
 
   std::vector<std::vector<double>> predictions;

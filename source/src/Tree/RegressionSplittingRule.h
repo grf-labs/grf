@@ -1,7 +1,7 @@
 #ifndef RANGER_REGRESSIONSPLITTINGRULE_H
 #define RANGER_REGRESSIONSPLITTINGRULE_H
 
-#include "Tree.h"
+#include "TreeFactory.h"
 #include <unordered_map>
 
 class RegressionSplittingRule {

@@ -25,7 +25,7 @@ void ForestQuantile::loadForest(size_t dependent_varID, size_t num_trees,
   // Create trees
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    Tree* tree = new TreeQuantile(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
+    TreeFactory* tree = new QuantileTreeFactory(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
                                   quantiles, sampleIDs[i]);
     trees.push_back(tree);
   }
@@ -63,7 +63,7 @@ void ForestQuantile::initInternal(std::string status_variable_name) {
 void ForestQuantile::growInternal() {
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new TreeQuantile(quantiles));
+    trees.push_back(new QuantileTreeFactory(quantiles));
   }
 }
 
@@ -75,7 +75,7 @@ void ForestQuantile::predictInternal() {
   for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
     for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
-      TreeQuantile* tree = (TreeQuantile *) trees[tree_idx];
+      QuantileTreeFactory* tree = (QuantileTreeFactory *) trees[tree_idx];
       addSampleWeights(sampleID, tree, weights_by_sampleID);
     }
 
@@ -96,7 +96,7 @@ void ForestQuantile::predictInternal() {
 }
 
 void ForestQuantile::addSampleWeights(size_t test_sample_idx,
-                                      TreeQuantile* tree,
+                                      QuantileTreeFactory* tree,
                                       std::unordered_map<size_t, double> &weights_by_sampleID) {
   std::vector<size_t> sampleIDs = tree->get_neighboring_samples(test_sample_idx);
   double sample_weight = 1.0 / sampleIDs.size();
@@ -170,7 +170,7 @@ void ForestQuantile::computePredictionErrorInternal() {
     }
 
     for (auto it = tree_range.first; it != tree_range.second; ++it) {
-      TreeQuantile* tree = (TreeQuantile*) trees[it->second];
+      QuantileTreeFactory* tree = (QuantileTreeFactory*) trees[it->second];
 
       // hackhackhack
       std::vector<size_t> oob_sampleIDs = tree->getOobSampleIDs();
@@ -292,7 +292,7 @@ void ForestQuantile::loadFromFileInternal(std::ifstream& infile) {
     readVector2D(sampleIDs, infile);
 
     // Create tree
-    Tree *tree = new TreeQuantile(child_nodeIDs, split_varIDs, split_values, quantiles, sampleIDs);
+    TreeFactory *tree = new QuantileTreeFactory(child_nodeIDs, split_varIDs, split_values, quantiles, sampleIDs);
     trees.push_back(tree);
   }
 }

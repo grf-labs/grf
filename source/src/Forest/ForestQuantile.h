@@ -15,7 +15,7 @@
 
 #include "globals.h"
 #include "Forest.h"
-#include "TreeQuantile.h"
+#include "QuantileTreeFactory.h"
 
 class ForestQuantile: public Forest {
 public:
@@ -45,7 +45,7 @@ private:
 
   void predictInternal();
   void addSampleWeights(size_t test_sample_idx,
-                        TreeQuantile* tree,
+                        QuantileTreeFactory* tree,
                         std::unordered_map<size_t, double> &weights_by_sampleID);
   void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
   std::vector<double> calculateQuantileCutoffs(std::unordered_map<size_t, double> &weights_by_sampleID,

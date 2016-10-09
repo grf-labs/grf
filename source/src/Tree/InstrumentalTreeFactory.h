@@ -1,13 +1,13 @@
 #ifndef RANGER_TreeInstrumental_H
 #define RANGER_TreeInstrumental_H
 
-#include "TreeRegression.h"
+#include "RegressionTreeFactory.h"
 
-class TreeInstrumental: public TreeRegression {
+class InstrumentalTreeFactory: public RegressionTreeFactory {
 public:
-  TreeInstrumental(size_t treatment_varID, size_t instrument_varID, std::string instrument_var_name);
+  InstrumentalTreeFactory(size_t treatment_varID, size_t instrument_varID, std::string instrument_var_name);
 
-  TreeInstrumental(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
+  InstrumentalTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
                    std::vector<double> &split_values,
                    std::vector<std::vector<size_t>> sampleIDs,
                    size_t treatment_varID, size_t instrument_varID,
@@ -22,6 +22,6 @@ private:
   std::string instrument_var_name;
   std::uniform_int_distribution<uint> udist;
 
-  DISALLOW_COPY_AND_ASSIGN(TreeInstrumental);
+  DISALLOW_COPY_AND_ASSIGN(InstrumentalTreeFactory);
 };
 #endif //RANGER_TreeInstrumental_H

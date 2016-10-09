@@ -1,25 +1,25 @@
 
 #include <set>
-#include "TreeQuantile.h"
+#include "QuantileTreeFactory.h"
 #include "utility.h"
 #include "ProbabilitySplittingRule.h"
 #include "QuantileRelabelingStrategy.h"
 
 
-TreeQuantile::TreeQuantile(std::vector<double>* quantiles) :
+QuantileTreeFactory::QuantileTreeFactory(std::vector<double>* quantiles) :
     quantiles(quantiles), udist(std::uniform_int_distribution<uint>()) {}
 
-TreeQuantile::TreeQuantile(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
+QuantileTreeFactory::QuantileTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
                            std::vector<double> &split_values,
                            std::vector<double> *quantiles,
                            std::vector<std::vector<size_t>> sampleIDs) :
-    TreeRegression(child_nodeIDs, split_varIDs, split_values),
+    RegressionTreeFactory(child_nodeIDs, split_varIDs, split_values),
     quantiles(quantiles),
     udist(std::uniform_int_distribution<uint>()) {
   this->sampleIDs = sampleIDs;
 }
 
-bool TreeQuantile::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
+bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {
     split_values[nodeID] = estimate(nodeID);
@@ -61,7 +61,7 @@ bool TreeQuantile::splitNodeInternal(size_t nodeID, std::vector<size_t>& possibl
   return false;
 }
 
-ProbabilitySplittingRule* TreeQuantile::createSplittingRule(std::vector<size_t> &nodeSampleIDs,
+ProbabilitySplittingRule* QuantileTreeFactory::createSplittingRule(std::vector<size_t> &nodeSampleIDs,
                                                             std::vector<uint> *relabeledResponses) {
   std::set<uint>* unique_classIDs = new std::set<uint>(relabeledResponses->begin(),
                                                        relabeledResponses->end());
@@ -77,7 +77,7 @@ ProbabilitySplittingRule* TreeQuantile::createSplittingRule(std::vector<size_t> 
       data, sampleIDs, split_varIDs, split_values);
 }
 
-std::vector<size_t> TreeQuantile::get_neighboring_samples(size_t sampleID) {
+std::vector<size_t> QuantileTreeFactory::get_neighboring_samples(size_t sampleID) {
   size_t nodeID = prediction_terminal_nodeIDs[sampleID];
   return sampleIDs[nodeID];
 }

@@ -1,14 +1,14 @@
 #ifndef RANGER_TREEQUANTILE_H
 #define RANGER_TREEQUANTILE_H
 
-#include "TreeRegression.h"
+#include "RegressionTreeFactory.h"
 #include "ProbabilitySplittingRule.h"
 
-class TreeQuantile : public TreeRegression {
+class QuantileTreeFactory : public RegressionTreeFactory {
 public:
-  TreeQuantile(std::vector<double> *quantiles);
+  QuantileTreeFactory(std::vector<double> *quantiles);
 
-  TreeQuantile(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
+  QuantileTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
                std::vector<double> &split_values,
                std::vector<double> *quantiles,
                std::vector<std::vector<size_t>> sampleIDs);
@@ -23,6 +23,6 @@ private:
   std::vector<double>* quantiles;
   std::uniform_int_distribution<uint> udist;
 
-  DISALLOW_COPY_AND_ASSIGN(TreeQuantile);
+  DISALLOW_COPY_AND_ASSIGN(QuantileTreeFactory);
 };
 #endif //RANGER_TREEQUANTILE_H

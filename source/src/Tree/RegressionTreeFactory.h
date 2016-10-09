@@ -30,16 +30,16 @@
 #define TREEREGRESSION_H_
 
 #include "globals.h"
-#include "Tree.h"
+#include "TreeFactory.h"
 #include "RegressionSplittingRule.h"
 #include <unordered_map>
 
-class TreeRegression: public Tree {
+class RegressionTreeFactory: public TreeFactory {
 public:
-  TreeRegression();
+  RegressionTreeFactory();
 
   // Create from loaded forest
-  TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
+  RegressionTreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
       std::vector<double>& split_values);
 
   virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
@@ -52,7 +52,7 @@ public:
   }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(TreeRegression);
+  DISALLOW_COPY_AND_ASSIGN(RegressionTreeFactory);
 };
 
 #endif /* TREEREGRESSION_H_ */

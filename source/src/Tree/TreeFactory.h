@@ -36,15 +36,15 @@
 #include "globals.h"
 #include "Data.h"
 
-class Tree {
+class TreeFactory {
 public:
-  Tree();
+  TreeFactory();
 
   // Create from loaded forest
-  Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
+  TreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
       std::vector<double>& split_values);
 
-  virtual ~Tree();
+  virtual ~TreeFactory();
 
   void init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
       std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
@@ -160,7 +160,7 @@ protected:
   bool memory_saving_splitting;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Tree);
+  DISALLOW_COPY_AND_ASSIGN(TreeFactory);
 };
 
 #endif /* TREE_H_ */

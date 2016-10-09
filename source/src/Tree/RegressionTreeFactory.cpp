@@ -32,16 +32,16 @@
 #include <set>
 
 #include "utility.h"
-#include "TreeRegression.h"
+#include "RegressionTreeFactory.h"
 
-TreeRegression::TreeRegression() {}
+RegressionTreeFactory::RegressionTreeFactory() {}
 
-TreeRegression::TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
+RegressionTreeFactory::RegressionTreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
     std::vector<double>& split_values) :
-    Tree(child_nodeIDs, split_varIDs, split_values) {
+    TreeFactory(child_nodeIDs, split_varIDs, split_values) {
 }
 
-double TreeRegression::estimate(size_t nodeID) {
+double RegressionTreeFactory::estimate(size_t nodeID) {
   double sum_responses_in_node = 0;
   size_t num_samples_in_node = sampleIDs[nodeID].size();
   for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
@@ -50,7 +50,7 @@ double TreeRegression::estimate(size_t nodeID) {
   return (sum_responses_in_node / (double) num_samples_in_node);
 }
 
-bool TreeRegression::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
+bool RegressionTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
 
 // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {

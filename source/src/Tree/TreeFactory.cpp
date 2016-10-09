@@ -28,17 +28,17 @@
 
 #include <iterator>
 
-#include "Tree.h"
+#include "TreeFactory.h"
 #include "utility.h"
 
-Tree::Tree() :
+TreeFactory::TreeFactory() :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), no_split_variables(0), min_node_size(
         0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), oob_sampleIDs(0),
         keep_inbag(false), data(0), sample_with_replacement(
         true), sample_fraction(1), memory_saving_splitting(false) {
 }
 
-Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
+TreeFactory::TreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
     std::vector<double>& split_values) :
     dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), no_split_variables(
         0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0), split_varIDs(
@@ -47,10 +47,10 @@ Tree::Tree(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>&
         true), sample_fraction(1), memory_saving_splitting(false) {
 }
 
-Tree::~Tree() {
+TreeFactory::~TreeFactory() {
 }
 
-void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
+void TreeFactory::init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
     std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
     std::vector<double>* split_select_weights, uint min_node_size,
     std::vector<size_t>* no_split_variables, bool sample_with_replacement,
@@ -82,7 +82,7 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   this->sample_fraction = sample_fraction;
 }
 
-void Tree::grow() {
+void TreeFactory::grow() {
 // Bootstrap, dependent if weighted or not and with or without replacement
   if (case_weights->empty()) {
     if (sample_with_replacement) {
@@ -116,7 +116,7 @@ void Tree::grow() {
   //sampleIDs.clear();
 }
 
-void Tree::predict(const Data* prediction_data, bool oob_prediction) {
+void TreeFactory::predict(const Data* prediction_data, bool oob_prediction) {
 
   size_t num_samples_predict;
   if (oob_prediction) {
@@ -159,7 +159,7 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
   }
 }
 
-void Tree::appendToFile(std::ofstream& file) {
+void TreeFactory::appendToFile(std::ofstream& file) {
 
 // Save general fields
   saveVector2D(child_nodeIDs, file);
@@ -169,7 +169,7 @@ void Tree::appendToFile(std::ofstream& file) {
   saveVector2D(sampleIDs, file);
 }
 
-void Tree::createPossibleSplitVarSubset(std::vector<size_t>& result) {
+void TreeFactory::createPossibleSplitVarSubset(std::vector<size_t>& result) {
 
 // Always use deterministic variables
   std::copy(deterministic_varIDs->begin(), deterministic_varIDs->end(), std::inserter(result, result.end()));
@@ -184,7 +184,7 @@ void Tree::createPossibleSplitVarSubset(std::vector<size_t>& result) {
   }
 }
 
-bool Tree::splitNode(size_t nodeID) {
+bool TreeFactory::splitNode(size_t nodeID) {
 
 // Select random subset of variables to possibly split at
   std::vector<size_t> possible_split_varIDs;
@@ -223,7 +223,7 @@ bool Tree::splitNode(size_t nodeID) {
   return false;
 }
 
-void Tree::createEmptyNode() {
+void TreeFactory::createEmptyNode() {
   split_varIDs.push_back(0);
   split_values.push_back(0);
   child_nodeIDs[0].push_back(0);
@@ -231,7 +231,7 @@ void Tree::createEmptyNode() {
   sampleIDs.push_back(std::vector<size_t>());
 }
 
-void Tree::bootstrap() {
+void TreeFactory::bootstrap() {
 
 // Use fraction (default 63.21%) of the samples
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
@@ -265,7 +265,7 @@ void Tree::bootstrap() {
   }
 }
 
-void Tree::bootstrapWeighted() {
+void TreeFactory::bootstrapWeighted() {
 
 // Use fraction (default 63.21%) of the samples
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
@@ -298,7 +298,7 @@ void Tree::bootstrapWeighted() {
   }
 }
 
-void Tree::bootstrapWithoutReplacement() {
+void TreeFactory::bootstrapWithoutReplacement() {
 
 // Use fraction (default 63.21%) of the samples
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
@@ -314,7 +314,7 @@ void Tree::bootstrapWithoutReplacement() {
   }
 }
 
-void Tree::bootstrapWithoutReplacementWeighted() {
+void TreeFactory::bootstrapWithoutReplacementWeighted() {
 
 // Use fraction (default 63.21%) of the samples
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;

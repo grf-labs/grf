@@ -5,7 +5,7 @@
 #ifndef RANGER_QUANTILERELABELINGSTRATEGY_H
 #define RANGER_QUANTILERELABELINGSTRATEGY_H
 
-#include "Tree.h"
+#include "TreeFactory.h"
 
 class QuantileRelabelingStrategy {
 public:

@@ -4,7 +4,7 @@
 
 #include "utility.h"
 #include "ForestInstrumental.h"
-#include "TreeInstrumental.h"
+#include "InstrumentalTreeFactory.h"
 
 ForestInstrumental::ForestInstrumental(std::string instrument_variable_name) :
     treatment_varID(0),
@@ -31,7 +31,7 @@ void ForestInstrumental::loadForest(size_t dependent_varID, size_t num_trees,
   // Create trees
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    Tree *tree = new TreeInstrumental(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
+    TreeFactory *tree = new InstrumentalTreeFactory(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
                                       sampleIDs[i], treatment_varID, instrument_varID, instrument_variable_name);
     trees.push_back(tree);
   }
@@ -82,7 +82,7 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
 void ForestInstrumental::growInternal() {
   trees.reserve(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new TreeInstrumental(treatment_varID, instrument_varID, instrument_variable_name));
+    trees.push_back(new InstrumentalTreeFactory(treatment_varID, instrument_varID, instrument_variable_name));
   }
 }
 
@@ -95,7 +95,7 @@ void ForestInstrumental::predictInternal() {
   for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
     for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
-      TreeInstrumental* tree = (TreeInstrumental *) trees[tree_idx];
+      InstrumentalTreeFactory* tree = (InstrumentalTreeFactory *) trees[tree_idx];
       addSampleWeights(sampleID, tree, weights_by_sampleID);
     }
 
@@ -136,7 +136,7 @@ void ForestInstrumental::predictInternal() {
 }
 
 void ForestInstrumental::addSampleWeights(size_t test_sample_idx,
-                                          TreeInstrumental *tree,
+                                          InstrumentalTreeFactory *tree,
                                           std::unordered_map<size_t, double> &weights_by_sampleID) {
   std::vector<size_t> sampleIDs = tree->get_neighboring_samples(test_sample_idx);
   double sample_weight = 1.0 / sampleIDs.size();
@@ -183,7 +183,7 @@ void ForestInstrumental::computePredictionErrorInternal() {
 
     // Calculate the weights of neighboring samples.
     for (auto it = tree_range.first; it != tree_range.second; ++it) {
-      TreeInstrumental* tree = (TreeInstrumental*) trees[it->second];
+      InstrumentalTreeFactory* tree = (InstrumentalTreeFactory*) trees[it->second];
 
       // hackhackhack
       std::vector<size_t> oob_sampleIDs = tree->getOobSampleIDs();
@@ -329,7 +329,7 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
     readVector2D(sampleIDs, infile);
 
     // Create tree
-    Tree *tree = new TreeInstrumental(child_nodeIDs, split_varIDs, split_values,
+    TreeFactory *tree = new InstrumentalTreeFactory(child_nodeIDs, split_varIDs, split_values,
                                       sampleIDs, treatment_varID, instrument_varID, "DUMMY_NAME");
     trees.push_back(tree);
   }
