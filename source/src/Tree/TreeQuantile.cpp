@@ -100,9 +100,8 @@ ProbabilitySplittingRule* TreeQuantile::createSplittingRule(std::vector<size_t> 
     (*response_classIDs)[sampleID] = (*relabeledResponses)[i];
   }
 
-  ProbabilitySplittingRule* splittingRule = new ProbabilitySplittingRule(num_classes, response_classIDs,
+  return new ProbabilitySplittingRule(num_classes, response_classIDs,
       data, sampleIDs, split_varIDs, split_values);
-  return splittingRule;
 }
 
 std::vector<size_t> TreeQuantile::get_neighboring_samples(size_t sampleID) {

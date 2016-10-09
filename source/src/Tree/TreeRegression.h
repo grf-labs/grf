@@ -31,6 +31,7 @@
 
 #include "globals.h"
 #include "Tree.h"
+#include "RegressionSplittingRule.h"
 #include <unordered_map>
 
 class TreeRegression: public Tree {
@@ -41,27 +42,14 @@ public:
   TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
       std::vector<double>& split_values);
 
-  virtual ~TreeRegression();
-
-  void initInternal();
-
   virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
-  // Called by splitNodeInternal(). Sets split_varIDs and split_values.
-  bool findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs,
-                     std::unordered_map<size_t, double>& responses_by_sampleID);
-  virtual void findBestSplitValueSmallQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-                                double& best_value, size_t& best_varID, double& best_decrease, std::unordered_map<size_t, double>& responses_by_sampleID);
-  virtual void findBestSplitValueLargeQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-                                double& best_value, size_t& best_varID, double& best_decrease, std::unordered_map<size_t, double>& responses_by_sampleID);
+
   double estimate(size_t nodeID);
 
   double getPrediction(size_t sampleID) const {
     size_t terminal_nodeID = prediction_terminal_nodeIDs[sampleID];
     return (split_values[terminal_nodeID]);
   }
-
-  size_t* counter;
-  double* sums;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(TreeRegression);

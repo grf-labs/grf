@@ -80,8 +80,6 @@ void Tree::init(Data* data, uint mtry, size_t dependent_varID, size_t num_sample
   this->case_weights = case_weights;
   this->keep_inbag = keep_inbag;
   this->sample_fraction = sample_fraction;
-
-  initInternal();
 }
 
 void Tree::grow() {

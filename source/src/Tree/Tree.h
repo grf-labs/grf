@@ -53,8 +53,6 @@ public:
       bool memory_saving_splitting, std::vector<double>* case_weights, bool keep_inbag,
       double sample_fraction);
 
-  virtual void initInternal() = 0;
-
   void grow();
 
   void predict(const Data* prediction_data, bool oob_prediction);

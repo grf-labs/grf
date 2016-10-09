@@ -59,7 +59,9 @@ bool TreeInstrumental::splitNodeInternal(size_t nodeID, std::vector<size_t>& pos
     }
   }
 
-  bool stop = responses_by_sampleIDs.empty() || findBestSplit(nodeID, actually_possible_split_varIDs, responses_by_sampleIDs);
+  RegressionSplittingRule* splittingRule = new RegressionSplittingRule(responses_by_sampleIDs, data,
+    sampleIDs, split_varIDs, split_values);
+  bool stop = responses_by_sampleIDs.empty() || splittingRule->findBestSplit(nodeID, actually_possible_split_varIDs);
 
   if (stop) {
     split_values[nodeID] = estimate(nodeID);
