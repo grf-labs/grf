@@ -17,7 +17,6 @@ public:
   std::vector<size_t> get_neighboring_samples(size_t sampleID);
 
 private:
-  std::vector<uint>* relabelResponses(std::vector<double> *responses);
   ProbabilitySplittingRule* createSplittingRule(std::vector<size_t> &nodeSampleIDs,
                                                 std::vector<uint> *relabeledResponses);
 

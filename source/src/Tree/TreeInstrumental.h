@@ -17,10 +17,6 @@ public:
   bool splitNodeInternal(size_t nodeID, std::vector<size_t> &possible_split_varIDs);
 
 private:
-  std::unordered_map<size_t, double> relabelResponses(std::vector<size_t>& nodeSampleIDs);
-  bool equalDoubles(double first, double second);
-  int sgn(double val);
-
   size_t treatment_varID;
   size_t instrument_varID;
   std::string instrument_var_name;
