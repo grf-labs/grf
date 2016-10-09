@@ -3,7 +3,7 @@
 
 #include "RegressionTreeFactory.h"
 
-class InstrumentalTreeFactory: public RegressionTreeFactory {
+class InstrumentalTreeFactory: public TreeFactory {
 public:
   InstrumentalTreeFactory(size_t treatment_varID, size_t instrument_varID, std::string instrument_var_name);
 

@@ -13,7 +13,7 @@ QuantileTreeFactory::QuantileTreeFactory(std::vector<std::vector<size_t>> &child
                            std::vector<double> &split_values,
                            std::vector<double> *quantiles,
                            std::vector<std::vector<size_t>> sampleIDs) :
-    RegressionTreeFactory(child_nodeIDs, split_varIDs, split_values),
+    TreeFactory(child_nodeIDs, split_varIDs, split_values),
     quantiles(quantiles),
     udist(std::uniform_int_distribution<uint>()) {
   this->sampleIDs = sampleIDs;
@@ -22,7 +22,7 @@ QuantileTreeFactory::QuantileTreeFactory(std::vector<std::vector<size_t>> &child
 bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {
-    split_values[nodeID] = estimate(nodeID);
+    split_values[nodeID] = -1.0;
     return true;
   }
 
@@ -38,7 +38,7 @@ bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& 
     pure_value = value;
   }
   if (pure) {
-    split_values[nodeID] = pure_value;
+    split_values[nodeID] = -1.0;
     return true;
   }
 
@@ -54,7 +54,7 @@ bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& 
   bool stop = splittingRule->findBestSplit(nodeID, possible_split_varIDs);
 
   if (stop) {
-    split_values[nodeID] = estimate(nodeID);
+    split_values[nodeID] = -1.0;
     return true;
   }
 

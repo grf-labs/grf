@@ -4,7 +4,7 @@
 #include "RegressionTreeFactory.h"
 #include "ProbabilitySplittingRule.h"
 
-class QuantileTreeFactory : public RegressionTreeFactory {
+class QuantileTreeFactory : public TreeFactory {
 public:
   QuantileTreeFactory(std::vector<double> *quantiles);
 

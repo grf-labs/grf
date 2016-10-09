@@ -42,7 +42,7 @@ public:
   RegressionTreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
       std::vector<double>& split_values);
 
-  virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
+  bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs);
 
   double estimate(size_t nodeID);
 

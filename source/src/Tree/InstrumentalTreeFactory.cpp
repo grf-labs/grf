@@ -16,7 +16,7 @@ InstrumentalTreeFactory::InstrumentalTreeFactory(std::vector<std::vector<size_t>
                                    std::vector<std::vector<size_t>> sampleIDs,
                                    size_t treatment_varID, size_t instrument_varID,
                                    std::string instrument_var_name) :
-    RegressionTreeFactory(child_nodeIDs, split_varIDs, split_values),
+    TreeFactory(child_nodeIDs, split_varIDs, split_values),
     treatment_varID(treatment_varID),
     instrument_varID(instrument_varID),
     instrument_var_name(instrument_var_name),
@@ -28,7 +28,7 @@ bool InstrumentalTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_
 
   // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {
-    split_values[nodeID] = estimate(nodeID);
+    split_values[nodeID] = -1.0;
     return true;
   }
 
@@ -46,7 +46,7 @@ bool InstrumentalTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_
   }
 
   if (pure) {
-    split_values[nodeID] = estimate(nodeID);
+    split_values[nodeID] = -1.0;
     return true;
   }
 
@@ -70,7 +70,7 @@ bool InstrumentalTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_
   bool stop = responses_by_sampleIDs.empty() || splittingRule->findBestSplit(nodeID, actually_possible_split_varIDs);
 
   if (stop) {
-    split_values[nodeID] = estimate(nodeID);
+    split_values[nodeID] = -1.0;
     return true;
   }
   return false;
