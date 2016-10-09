@@ -28,8 +28,6 @@ private:
   size_t* counter;
   size_t* counter_per_class;
 
-  bool memory_saving_splitting;
-
   Data* data;
   std::vector<size_t>& split_varIDs;
 
@@ -39,6 +37,8 @@ private:
 
   // For each node a vector with IDs of samples in node
   std::vector<std::vector<size_t>>& sampleIDs;
+
+  DISALLOW_COPY_AND_ASSIGN(ProbabilitySplittingRule);
 };
 
 #endif //RANGER_PROBABILITYSPLITTINGRULE_H

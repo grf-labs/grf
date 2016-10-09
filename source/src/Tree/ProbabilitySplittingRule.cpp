@@ -6,17 +6,13 @@ ProbabilitySplittingRule::ProbabilitySplittingRule(size_t num_classes,
                                                    std::vector<std::vector<size_t>> &sampleIDs,
                                                    std::vector<size_t> &split_varIDs,
                                                    std::vector<double> &split_values) :
-    num_classes(num_classes), response_classIDs(response_classIDs), counter(0), counter_per_class(0),
-    split_varIDs(split_varIDs), split_values(split_values), sampleIDs(sampleIDs) {
+    num_classes(num_classes), response_classIDs(response_classIDs), split_varIDs(split_varIDs),
+    split_values(split_values), sampleIDs(sampleIDs) {
   this->data = data;
-  this->memory_saving_splitting = memory_saving_splitting;
-  this->split_varIDs = split_varIDs;
-  this->split_values = split_values;
-  this->sampleIDs = sampleIDs;
 
   size_t max_num_unique_values = data->getMaxNumUniqueValues();
-  counter = new size_t[max_num_unique_values];
-  counter_per_class = new size_t[num_classes * max_num_unique_values];
+  this->counter = new size_t[max_num_unique_values];
+  this->counter_per_class = new size_t[num_classes * max_num_unique_values];
 }
 
 bool ProbabilitySplittingRule::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
@@ -34,21 +30,15 @@ bool ProbabilitySplittingRule::findBestSplit(size_t nodeID, std::vector<size_t>&
   }
 
   // For all possible split variables
-  for (auto& varID : possible_split_varIDs) {
-    // Use memory saving method if option set
-    if (memory_saving_splitting) {
+  for (auto &varID : possible_split_varIDs) {
+    // Use faster method for both cases
+    double q = (double) num_samples_node / (double) data->getNumUniqueDataValues(varID);
+    if (q < Q_THRESHOLD) {
       findBestSplitValueSmallQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
                                best_decrease);
     } else {
-      // Use faster method for both cases
-      double q = (double) num_samples_node / (double) data->getNumUniqueDataValues(varID);
-      if (q < Q_THRESHOLD) {
-        findBestSplitValueSmallQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
-                                 best_decrease);
-      } else {
-        findBestSplitValueLargeQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
-                                 best_decrease);
-      }
+      findBestSplitValueLargeQ(nodeID, varID, num_classes, class_counts, num_samples_node, best_value, best_varID,
+                               best_decrease);
     }
   }
 
@@ -82,17 +72,11 @@ void ProbabilitySplittingRule::findBestSplitValueSmallQ(size_t nodeID, size_t va
 
   // Initialize with 0, if not in memory efficient mode, use pre-allocated space
   size_t num_splits = possible_split_values.size();
-  size_t* class_counts_right;
-  size_t* n_right;
-  if (memory_saving_splitting) {
-    class_counts_right = new size_t[num_splits * num_classes]();
-    n_right = new size_t[num_splits]();
-  } else {
-    class_counts_right = counter_per_class;
-    n_right = counter;
-    std::fill(class_counts_right, class_counts_right + num_splits * num_classes, 0);
-    std::fill(n_right, n_right + num_splits, 0);
-  }
+  size_t *class_counts_right = counter_per_class;
+  size_t *n_right = counter;
+
+  std::fill(class_counts_right, class_counts_right + num_splits * num_classes, 0);
+  std::fill(n_right, n_right + num_splits, 0);
 
   // Count samples in right child per class and possbile split
   for (auto& sampleID : sampleIDs[nodeID]) {
@@ -139,11 +123,6 @@ void ProbabilitySplittingRule::findBestSplitValueSmallQ(size_t nodeID, size_t va
       best_varID = varID;
       best_decrease = decrease;
     }
-  }
-
-  if (memory_saving_splitting) {
-    delete[] class_counts_right;
-    delete[] n_right;
   }
 }
 
