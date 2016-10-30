@@ -6,16 +6,14 @@
 #include "QuantileRelabelingStrategy.h"
 
 
-QuantileTreeFactory::QuantileTreeFactory(std::vector<double>* quantiles) :
-    quantiles(quantiles), udist(std::uniform_int_distribution<uint>()) {}
+QuantileTreeFactory::QuantileTreeFactory(std::vector<double>* quantiles) : quantiles(quantiles) {}
 
 QuantileTreeFactory::QuantileTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
                            std::vector<double> &split_values,
                            std::vector<double> *quantiles,
                            std::vector<std::vector<size_t>> sampleIDs) :
     TreeFactory(child_nodeIDs, split_varIDs, split_values),
-    quantiles(quantiles),
-    udist(std::uniform_int_distribution<uint>()) {
+    quantiles(quantiles) {
   this->sampleIDs = sampleIDs;
 }
 

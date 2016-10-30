@@ -100,62 +100,39 @@ protected:
   void bootstrapWeighted();
   void bootstrapWithoutReplacementWeighted();
 
+  Data* data;
   size_t dependent_varID;
-  uint mtry;
-
-  // Number of samples (all samples, not only inbag for this tree)
   size_t num_samples;
 
-  // Number of OOB samples
-  size_t num_samples_oob;
-
-  // Variable to not split at (only dependent_varID for non-survival trees)
-  std::vector<size_t>* no_split_variables;
-
-  // Minimum node size to split, like in original RF nodes of smaller size can be produced
   uint min_node_size;
 
-  // Weight vector for selecting possible split variables, one weight between 0 (never select) and 1 (always select) for each variable
-  // Deterministic variables are always selected
-  std::vector<size_t>* deterministic_varIDs;
-  std::vector<size_t>* split_select_varIDs;
-  std::vector<double>* split_select_weights;
-
-  // Bootstrap weights
-  std::vector<double>* case_weights;
-
-  // Splitting variable for each node
   std::vector<size_t> split_varIDs;
-
-  // Value to split at for each node, for now only binary split
-  // For terminal nodes the prediction value is saved here
   std::vector<double> split_values;
-
-  // Vector of left and right child node IDs, 0 for no child
   std::vector<std::vector<size_t>> child_nodeIDs;
-
-  // For each node a vector with IDs of samples in node
   std::vector<std::vector<size_t>> sampleIDs;
-
-  // IDs of OOB individuals, sorted
-  std::vector<size_t> oob_sampleIDs;
-
-  // Inbag counts
-  bool keep_inbag;
-  std::vector<size_t> inbag_counts;
-
-  // Random number generator
-  std::mt19937_64 random_number_generator;
-
-  // Pointer to original data
-  Data* data;
 
   // When growing here the OOB set is used
   // Terminal nodeIDs for prediction samples
   std::vector<size_t> prediction_terminal_nodeIDs;
 
+  // Variables related to bootstrapping
   bool sample_with_replacement;
   double sample_fraction;
+  bool keep_inbag;
+  std::vector<size_t> inbag_counts;
+  std::vector<double>* case_weights;
+  std::vector<size_t> oob_sampleIDs;
+  size_t num_samples_oob;
+  std::mt19937_64 random_number_generator;
+
+  // Variables related to variable selection
+  std::vector<size_t>* deterministic_varIDs;
+  std::vector<size_t>* split_select_varIDs;
+  std::vector<double>* split_select_weights;
+  std::vector<size_t>* no_split_variables;
+  std::uniform_int_distribution<uint> udist;
+
+  uint mtry;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(TreeFactory);

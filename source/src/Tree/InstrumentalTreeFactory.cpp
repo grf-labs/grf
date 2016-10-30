@@ -8,8 +8,7 @@
 InstrumentalTreeFactory::InstrumentalTreeFactory(size_t treatment_varID, size_t instrument_varID, std::string instrument_var_name) :
     treatment_varID(treatment_varID),
     instrument_varID(instrument_varID),
-    instrument_var_name(instrument_var_name),
-    udist(std::uniform_int_distribution<uint>()) {}
+    instrument_var_name(instrument_var_name) {}
 
 InstrumentalTreeFactory::InstrumentalTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
                                    std::vector<double> &split_values,
@@ -19,8 +18,7 @@ InstrumentalTreeFactory::InstrumentalTreeFactory(std::vector<std::vector<size_t>
     TreeFactory(child_nodeIDs, split_varIDs, split_values),
     treatment_varID(treatment_varID),
     instrument_varID(instrument_varID),
-    instrument_var_name(instrument_var_name),
-    udist(std::uniform_int_distribution<uint>()) {
+    instrument_var_name(instrument_var_name) {
   this->sampleIDs = sampleIDs;
 }
 

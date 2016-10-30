@@ -21,7 +21,6 @@ private:
                                                 std::vector<uint> *relabeledResponses);
 
   std::vector<double>* quantiles;
-  std::uniform_int_distribution<uint> udist;
 
   DISALLOW_COPY_AND_ASSIGN(QuantileTreeFactory);
 };

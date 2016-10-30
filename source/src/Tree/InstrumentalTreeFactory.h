@@ -20,7 +20,6 @@ private:
   size_t treatment_varID;
   size_t instrument_varID;
   std::string instrument_var_name;
-  std::uniform_int_distribution<uint> udist;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalTreeFactory);
 };
