@@ -2,7 +2,6 @@
 #include <set>
 #include "QuantileTreeFactory.h"
 #include "utility.h"
-#include "ProbabilitySplittingRule.h"
 #include "QuantileRelabelingStrategy.h"
 
 
@@ -41,7 +40,7 @@ bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& 
   }
 
   QuantileRelabelingStrategy* relabelingStrategy = new QuantileRelabelingStrategy(quantiles, dependent_varID);
-  std::vector<uint>* relabeled_responses = relabelingStrategy->relabelResponses(data, sampleIDs[nodeID]);
+  std::unordered_map<size_t, double> relabeled_responses = relabelingStrategy->relabelResponses(data, sampleIDs[nodeID]);
 
   ProbabilitySplittingRule* splittingRule = createSplittingRule(sampleIDs[nodeID], relabeled_responses);
   bool stop = splittingRule->findBestSplit(nodeID, possible_split_varIDs);
@@ -55,18 +54,18 @@ bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& 
 }
 
 ProbabilitySplittingRule* QuantileTreeFactory::createSplittingRule(std::vector<size_t> &nodeSampleIDs,
-                                                            std::vector<uint> *relabeledResponses) {
-  std::set<uint>* unique_classIDs = new std::set<uint>(relabeledResponses->begin(),
-                                                       relabeledResponses->end());
-  size_t num_classes = unique_classIDs->size();
+                                                                   std::unordered_map<size_t, double>& relabeledResponses) {
+  std::unordered_map<size_t, uint> relabeled_classIDs;
+  std::set<uint> unique_classIDs;
+  for (auto& entry : relabeledResponses) {
+    uint classID = (uint) round(entry.second);
 
-  std::vector<uint>* response_classIDs = new std::vector<uint>(num_samples);
-  for (size_t i = 0; i < nodeSampleIDs.size(); ++i) {
-    size_t sampleID = nodeSampleIDs[i];
-    (*response_classIDs)[sampleID] = (*relabeledResponses)[i];
+    relabeled_classIDs[entry.first] = classID;
+    unique_classIDs.insert(classID);
   }
+  size_t num_classes = unique_classIDs.size();
 
-  return new ProbabilitySplittingRule(num_classes, response_classIDs,
+  return new ProbabilitySplittingRule(num_classes, relabeled_classIDs,
       data, sampleIDs, split_varIDs, split_values);
 }
 

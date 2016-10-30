@@ -18,7 +18,7 @@ public:
 
 private:
   ProbabilitySplittingRule* createSplittingRule(std::vector<size_t> &nodeSampleIDs,
-                                                std::vector<uint> *relabeledResponses);
+                                                std::unordered_map<size_t, double>& relabeledResponses);
 
   std::vector<double>* quantiles;
 

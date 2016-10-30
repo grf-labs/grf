@@ -1,7 +1,8 @@
+#include <unordered_map>
 #include "ProbabilitySplittingRule.h"
 
 ProbabilitySplittingRule::ProbabilitySplittingRule(size_t num_classes,
-                                                   std::vector<uint>* response_classIDs,
+                                                   std::unordered_map<size_t, uint> response_classIDs,
                                                    Data* data,
                                                    std::vector<std::vector<size_t>> &sampleIDs,
                                                    std::vector<size_t> &split_varIDs,
@@ -25,7 +26,7 @@ bool ProbabilitySplittingRule::findBestSplit(size_t nodeID, std::vector<size_t>&
   // Compute overall class counts
   for (size_t i = 0; i < num_samples_node; ++i) {
     size_t sampleID = sampleIDs[nodeID][i];
-    uint sample_classID = (*response_classIDs)[sampleID];
+    uint sample_classID = response_classIDs[sampleID];
     ++class_counts[sample_classID];
   }
 
@@ -81,7 +82,7 @@ void ProbabilitySplittingRule::findBestSplitValueSmallQ(size_t nodeID, size_t va
   // Count samples in right child per class and possbile split
   for (auto& sampleID : sampleIDs[nodeID]) {
     double value = data->get(sampleID, varID);
-    uint sample_classID = (*response_classIDs)[sampleID];
+    uint sample_classID = response_classIDs[sampleID];
 
     // Count samples until split_value reached
     for (size_t i = 0; i < num_splits; ++i) {
@@ -138,7 +139,7 @@ void ProbabilitySplittingRule::findBestSplitValueLargeQ(size_t nodeID, size_t va
   // Count values
   for (auto& sampleID : sampleIDs[nodeID]) {
     size_t index = data->getIndex(sampleID, varID);
-    size_t classID = (*response_classIDs)[sampleID];
+    size_t classID = response_classIDs[sampleID];
 
     ++counter[index];
     ++counter_per_class[index * num_classes + classID];

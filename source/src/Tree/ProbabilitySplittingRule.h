@@ -9,7 +9,7 @@
 class ProbabilitySplittingRule {
 public:
   ProbabilitySplittingRule(size_t num_classes,
-                           std::vector<uint>* response_classIDs,
+                           std::unordered_map<size_t, uint> response_classIDs,
                            Data* data,
                            std::vector<std::vector<size_t>> &sampleIDs,
                            std::vector<size_t> &split_varIDs,
@@ -23,7 +23,7 @@ public:
 
 private:
   size_t num_classes;
-  std::vector<uint>* response_classIDs;
+  std::unordered_map<size_t, uint> response_classIDs;
 
   size_t* counter;
   size_t* counter_per_class;
