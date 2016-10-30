@@ -131,7 +131,6 @@ protected:
   std::vector<size_t>* split_select_varIDs;
   std::vector<double>* split_select_weights;
   std::vector<size_t>* no_split_variables;
-  std::uniform_int_distribution<uint> udist;
 
   uint mtry;
 

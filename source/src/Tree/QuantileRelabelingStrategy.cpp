@@ -1,13 +1,20 @@
 #include "QuantileRelabelingStrategy.h"
 
-QuantileRelabelingStrategy::QuantileRelabelingStrategy(std::vector<double>* quantiles) :
-    quantiles(quantiles) {}
+QuantileRelabelingStrategy::QuantileRelabelingStrategy(std::vector<double>* quantiles, size_t dependent_varID) :
+    quantiles(quantiles), dependent_varID(dependent_varID) {}
 
-std::vector<uint>* QuantileRelabelingStrategy::relabelResponses(std::vector<double>* responses) {
-  std::vector<double> sorted_responses(*responses);
+std::vector<uint>* QuantileRelabelingStrategy::relabelResponses(Data* data,
+                                                                std::vector<size_t>& nodeSampleIDs) {
+
+  std::vector<double> responses;
+  for (auto& sampleID : nodeSampleIDs) {
+    responses.push_back(data->get(sampleID, dependent_varID));
+  }
+
+  std::vector<double> sorted_responses(responses);
   std::sort(sorted_responses.begin(), sorted_responses.end());
 
-  size_t num_samples = responses->size();
+  size_t num_samples = responses.size();
   std::vector<double> quantile_cutoffs;
 
   // Calculate the response value cutoffs for each quantile.
@@ -22,7 +29,7 @@ std::vector<uint>* QuantileRelabelingStrategy::relabelResponses(std::vector<doub
 
   // Assign a class to each response based on what quantile it belongs to.
   std::vector<uint>* relabeled_responses = new std::vector<uint>();
-  for (auto& response : *responses) {
+  for (auto& response : responses) {
     auto quantile = std::lower_bound(quantile_cutoffs.begin(),
                                      quantile_cutoffs.end(),
                                      response);

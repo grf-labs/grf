@@ -48,9 +48,10 @@ bool InstrumentalTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_
     return true;
   }
 
-  InstrumentalRelabelingStrategy* relabelingStrategy = new InstrumentalRelabelingStrategy(data,
-        dependent_varID, treatment_varID, instrument_varID);
-  std::unordered_map<size_t, double> responses_by_sampleIDs = relabelingStrategy->relabelResponses(sampleIDs[nodeID]);
+  InstrumentalRelabelingStrategy* relabelingStrategy = new InstrumentalRelabelingStrategy(
+      dependent_varID, treatment_varID, instrument_varID);
+  std::unordered_map<size_t, double> responses_by_sampleIDs = relabelingStrategy->relabelResponses(
+      data, sampleIDs[nodeID]);
 
   // This is an ugly hack. Should not allow splits on treatment var, etc.
   std::vector<size_t> actually_possible_split_varIDs;

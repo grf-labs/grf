@@ -40,13 +40,8 @@ bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& 
     return true;
   }
 
-  std::vector<double> responses;
-  for (auto& sampleID : sampleIDs[nodeID]) {
-    responses.push_back(data->get(sampleID, dependent_varID));
-  }
-
-  QuantileRelabelingStrategy* relabelingStrategy = new QuantileRelabelingStrategy(quantiles);
-  std::vector<uint>* relabeled_responses = relabelingStrategy->relabelResponses(&responses);
+  QuantileRelabelingStrategy* relabelingStrategy = new QuantileRelabelingStrategy(quantiles, dependent_varID);
+  std::vector<uint>* relabeled_responses = relabelingStrategy->relabelResponses(data, sampleIDs[nodeID]);
 
   ProbabilitySplittingRule* splittingRule = createSplittingRule(sampleIDs[nodeID], relabeled_responses);
   bool stop = splittingRule->findBestSplit(nodeID, possible_split_varIDs);

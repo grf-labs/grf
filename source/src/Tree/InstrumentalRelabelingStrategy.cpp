@@ -1,13 +1,12 @@
 #include "InstrumentalRelabelingStrategy.h"
 
-InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(Data *data,
-                                                               size_t dependent_varID,
+InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(size_t dependent_varID,
                                                                size_t treatment_varID,
                                                                size_t instrument_varID) :
-    data(data), dependent_varID(dependent_varID), treatment_varID(treatment_varID),
-    instrument_varID(instrument_varID) {}
+     dependent_varID(dependent_varID), treatment_varID(treatment_varID), instrument_varID(instrument_varID) {}
 
-std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabelResponses(std::vector<size_t>& node_sampleIDs) {
+std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabelResponses(Data* data,
+                                                                                    std::vector<size_t>& node_sampleIDs) {
   // Calculate the relevant averages;
   size_t num_samples = node_sampleIDs.size();
 

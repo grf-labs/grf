@@ -9,11 +9,13 @@
 
 class QuantileRelabelingStrategy {
 public:
-  QuantileRelabelingStrategy(std::vector<double>* quantiles);
-  std::vector<uint>* relabelResponses(std::vector<double> *responses);
+  QuantileRelabelingStrategy(std::vector<double>* quantiles, size_t dependent_varID);
+  std::vector<uint>* relabelResponses(Data* data,
+                                      std::vector<size_t>& nodeSampleIDs);
 
 private:
   std::vector<double>* quantiles;
+  size_t dependent_varID;
 };
 
 
