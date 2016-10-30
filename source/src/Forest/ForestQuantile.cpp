@@ -10,30 +10,6 @@ ForestQuantile::ForestQuantile(std::vector<double>* quantiles):
 
 ForestQuantile::~ForestQuantile() {}
 
-void ForestQuantile::loadForest(size_t dependent_varID, size_t num_trees,
-                                std::vector<std::vector<std::vector<size_t>>> &forest_child_nodeIDs,
-                                std::vector<std::vector<size_t>> &forest_split_varIDs,
-                                std::vector<std::vector<double>> &forest_split_values,
-                                std::vector<double>* quantiles,
-                                std::vector<std::vector<std::vector<size_t>>> sampleIDs,
-                                std::vector<double>* originalResponses) {
-
-  this->dependent_varID = dependent_varID;
-  this->num_trees = num_trees;
-  this->original_responses = new std::vector<double>(*originalResponses);
-
-  // Create trees
-  trees.reserve(num_trees);
-  for (size_t i = 0; i < num_trees; ++i) {
-    TreeFactory* tree = new QuantileTreeFactory(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-                                  quantiles, sampleIDs[i]);
-    trees.push_back(tree);
-  }
-
-  // Create thread ranges
-  equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
-}
-
 void ForestQuantile::initInternal(std::string status_variable_name) {
 
   // If mtry not set, use number of independent variables / 3.

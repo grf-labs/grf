@@ -101,6 +101,7 @@ protected:
   void bootstrapWithoutReplacementWeighted();
 
   Data* data;
+  Data* observables;
   size_t dependent_varID;
   size_t num_samples;
 

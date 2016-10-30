@@ -6,7 +6,6 @@
 
 class InstrumentalRelabelingStrategy {
 public:
-
   InstrumentalRelabelingStrategy(Data* data,
                                  size_t dependent_varID,
                                  size_t treatment_varID,

@@ -22,17 +22,6 @@ public:
   ForestQuantile(std::vector<double>* quantiles);
   virtual ~ForestQuantile();
 
-  void loadForest(size_t dependent_varID, size_t num_trees,
-                  std::vector<std::vector<std::vector<size_t>> >& forest_child_nodeIDs,
-                  std::vector<std::vector<size_t>>& forest_split_varIDs, std::vector<std::vector<double>>& forest_split_values,
-                  std::vector<double>* quantiles,
-                  std::vector<std::vector<std::vector<size_t>>> sampleIDs,
-                  std::vector<double>* originalResponses);
-
-  std::vector<double> get_original_responses() {
-    return std::vector<double>(*original_responses);
-  }
-
 private:
   void initInternal(std::string status_variable_name);
   void growInternal();

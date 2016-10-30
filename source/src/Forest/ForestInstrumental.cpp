@@ -14,32 +14,6 @@ ForestInstrumental::ForestInstrumental(std::string instrument_variable_name) :
 
 ForestInstrumental::~ForestInstrumental() {}
 
-void ForestInstrumental::loadForest(size_t dependent_varID, size_t num_trees,
-                                    std::vector<std::vector<std::vector<size_t>>> &forest_child_nodeIDs,
-                                    std::vector<std::vector<size_t>> &forest_split_varIDs,
-                                    std::vector<std::vector<double>> &forest_split_values,
-                                    std::vector<std::vector<std::vector<size_t>>> sampleIDs,
-                                    std::unordered_map<size_t, std::vector<double>> *original_responses) {
-  this->dependent_varID = dependent_varID;
-  this->num_trees = num_trees;
-  this->original_responses = new std::unordered_map<size_t, std::vector<double>>(*original_responses);
-
-  // hackhackhack
-  this->treatment_varID = dependent_varID + 1;
-  this->instrument_varID = dependent_varID + 2;
-
-  // Create trees
-  trees.reserve(num_trees);
-  for (size_t i = 0; i < num_trees; ++i) {
-    TreeFactory *tree = new InstrumentalTreeFactory(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i],
-                                      sampleIDs[i], treatment_varID, instrument_varID, instrument_variable_name);
-    trees.push_back(tree);
-  }
-
-  // Create thread ranges
-  equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
-}
-
 void ForestInstrumental::initInternal(std::string status_variable_name) {
   if (!prediction_mode) {
     treatment_varID = data->getVariableID(status_variable_name);

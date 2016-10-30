@@ -41,24 +41,6 @@ ForestRegression::ForestRegression() {
 ForestRegression::~ForestRegression() {
 }
 
-void ForestRegression::loadForest(size_t dependent_varID, size_t num_trees,
-    std::vector<std::vector<std::vector<size_t>> >& forest_child_nodeIDs,
-    std::vector<std::vector<size_t>>& forest_split_varIDs, std::vector<std::vector<double>>& forest_split_values) {
-
-  this->dependent_varID = dependent_varID;
-  this->num_trees = num_trees;
-
-  // Create trees
-  trees.reserve(num_trees);
-  for (size_t i = 0; i < num_trees; ++i) {
-    TreeFactory* tree = new RegressionTreeFactory(forest_child_nodeIDs[i], forest_split_varIDs[i], forest_split_values[i]);
-    trees.push_back(tree);
-  }
-
-  // Create thread ranges
-  equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
-}
-
 void ForestRegression::initInternal(std::string status_variable_name) {
 
   // If mtry not set, use number of independent variables / 3.

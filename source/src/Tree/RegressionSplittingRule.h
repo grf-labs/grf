@@ -17,6 +17,7 @@ public:
   bool findBestSplit(size_t nodeID,
                      std::vector<size_t>& possible_split_varIDs);
 
+private:
   virtual void findBestSplitValueSmallQ(size_t nodeID,
                                         size_t varID,
                                         double sum_node,
@@ -32,7 +33,6 @@ public:
                                         size_t& best_varID,
                                         double& best_decrease);
 
-private:
   std::unordered_map<size_t, double> responses_by_sampleID;
   Data* data;
 
