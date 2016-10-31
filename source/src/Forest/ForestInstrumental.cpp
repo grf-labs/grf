@@ -18,6 +18,9 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
   if (!prediction_mode) {
     treatment_varID = data->getVariableID(status_variable_name);
     instrument_varID = data->getVariableID(instrument_variable_name);
+
+    no_split_variables.push_back(treatment_varID);
+    no_split_variables.push_back(instrument_varID);
   }
 
   // If mtry not set, use number of independent variables / 3.

@@ -3,8 +3,9 @@
 
 #include <unordered_map>
 #include "TreeFactory.h"
+#include "RelabelingStrategy.h"
 
-class InstrumentalRelabelingStrategy {
+class InstrumentalRelabelingStrategy: public RelabelingStrategy {
 public:
   InstrumentalRelabelingStrategy(size_t dependent_varID,
                                  size_t treatment_varID,

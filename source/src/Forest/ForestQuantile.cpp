@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <string>
+#include <Tree/QuantileRelabelingStrategy.h>
 
 #include "utility.h"
 #include "ForestQuantile.h"
@@ -38,8 +39,12 @@ void ForestQuantile::initInternal(std::string status_variable_name) {
 
 void ForestQuantile::growInternal() {
   trees.reserve(num_trees);
+  RelabelingStrategy* relabeling_strategy = new QuantileRelabelingStrategy(
+      quantiles,
+      dependent_varID);
+
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new QuantileTreeFactory(quantiles));
+    trees.push_back(new QuantileTreeFactory(relabeling_strategy));
   }
 }
 
@@ -268,7 +273,10 @@ void ForestQuantile::loadFromFileInternal(std::ifstream& infile) {
     readVector2D(sampleIDs, infile);
 
     // Create tree
-    TreeFactory *tree = new QuantileTreeFactory(child_nodeIDs, split_varIDs, split_values, quantiles, sampleIDs);
+    RelabelingStrategy* relabeling_strategy = new QuantileRelabelingStrategy(
+        quantiles,
+        dependent_varID);
+    TreeFactory *tree = new QuantileTreeFactory(child_nodeIDs, split_varIDs, split_values, relabeling_strategy, sampleIDs);
     trees.push_back(tree);
   }
 }

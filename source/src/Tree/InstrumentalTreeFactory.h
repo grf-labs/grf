@@ -2,25 +2,23 @@
 #define RANGER_TreeInstrumental_H
 
 #include "RegressionTreeFactory.h"
+#include "RelabelingStrategy.h"
 
 class InstrumentalTreeFactory: public TreeFactory {
 public:
-  InstrumentalTreeFactory(size_t treatment_varID, size_t instrument_varID, std::string instrument_var_name);
+  InstrumentalTreeFactory(RelabelingStrategy* relabeling_strategy);
 
   InstrumentalTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
-                   std::vector<double> &split_values,
-                   std::vector<std::vector<size_t>> sampleIDs,
-                   size_t treatment_varID, size_t instrument_varID,
-                   std::string instrument_var_name);
+                          std::vector<double> &split_values,
+                          std::vector<std::vector<size_t>> sampleIDs,
+                          RelabelingStrategy *relabeling_strategy);
+
   std::vector<size_t> get_neighboring_samples(size_t sampleID);
 
   bool splitNodeInternal(size_t nodeID, std::vector<size_t> &possible_split_varIDs);
 
 private:
-  size_t treatment_varID;
-  size_t instrument_varID;
-  std::string instrument_var_name;
-
+  RelabelingStrategy* relabeling_strategy;
   DISALLOW_COPY_AND_ASSIGN(InstrumentalTreeFactory);
 };
 #endif //RANGER_TreeInstrumental_H

@@ -2,17 +2,16 @@
 #include <set>
 #include "QuantileTreeFactory.h"
 #include "utility.h"
-#include "QuantileRelabelingStrategy.h"
 
+QuantileTreeFactory::QuantileTreeFactory(RelabelingStrategy* relabeling_strategy) : relabeling_strategy(relabeling_strategy) {}
 
-QuantileTreeFactory::QuantileTreeFactory(std::vector<double>* quantiles) : quantiles(quantiles) {}
-
-QuantileTreeFactory::QuantileTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs, std::vector<size_t> &split_varIDs,
-                           std::vector<double> &split_values,
-                           std::vector<double> *quantiles,
-                           std::vector<std::vector<size_t>> sampleIDs) :
+QuantileTreeFactory::QuantileTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs,
+                                         std::vector<size_t> &split_varIDs,
+                                         std::vector<double> &split_values,
+                                         RelabelingStrategy *relabeling_strategy,
+                                         std::vector<std::vector<size_t>> sampleIDs) :
     TreeFactory(child_nodeIDs, split_varIDs, split_values),
-    quantiles(quantiles) {
+    relabeling_strategy(relabeling_strategy) {
   this->sampleIDs = sampleIDs;
 }
 
@@ -39,8 +38,7 @@ bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& 
     return true;
   }
 
-  QuantileRelabelingStrategy* relabelingStrategy = new QuantileRelabelingStrategy(quantiles, dependent_varID);
-  std::unordered_map<size_t, double> relabeled_responses = relabelingStrategy->relabelResponses(data, sampleIDs[nodeID]);
+  std::unordered_map<size_t, double> relabeled_responses = relabeling_strategy->relabelResponses(data, sampleIDs[nodeID]);
 
   ProbabilitySplittingRule* splittingRule = createSplittingRule(sampleIDs[nodeID], relabeled_responses);
   bool stop = splittingRule->findBestSplit(nodeID, possible_split_varIDs);
