@@ -23,9 +23,9 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
     no_split_variables.push_back(instrument_varID);
   }
 
-  // If mtry not set, use number of independent variables / 3.
+  // If mtry not set, use the square root of the number of possible split variables.
   if (mtry == 0) {
-    unsigned long temp = sqrt((double) (num_variables - 1));
+    unsigned long temp = sqrt((double) (num_variables - no_split_variables.size()));
     mtry = std::max((unsigned long) 1, temp);
   }
 
