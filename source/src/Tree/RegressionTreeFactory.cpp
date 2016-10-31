@@ -80,9 +80,13 @@ bool RegressionTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>
   }
 
   // Find best split, stop if no decrease of impurity
-  RegressionSplittingRule* splittingRule = new RegressionSplittingRule(responses_by_sampleID, data, sampleIDs,
-                                                                       split_varIDs, split_values);
-  bool stop = splittingRule->findBestSplit(nodeID, possible_split_varIDs);
+  RegressionSplittingRule *splittingRule = new RegressionSplittingRule(data);
+  bool stop = splittingRule->findBestSplit(nodeID,
+                                           possible_split_varIDs,
+                                           responses_by_sampleID,
+                                           sampleIDs,
+                                           split_varIDs,
+                                           split_values);
 
   if (stop) {
     split_values[nodeID] = estimate(nodeID);

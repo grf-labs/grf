@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <string>
+#include <Tree/InstrumentalRelabelingStrategy.h>
 
 #include "utility.h"
 #include "ForestInstrumental.h"
@@ -58,8 +59,13 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
 
 void ForestInstrumental::growInternal() {
   trees.reserve(num_trees);
+
+  RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy(
+      dependent_varID, treatment_varID, instrument_varID);
+  SplittingRule* splitting_rule = new RegressionSplittingRule(data);
+
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new InstrumentalTreeFactory(treatment_varID, instrument_varID, instrument_variable_name));
+    trees.push_back(new InstrumentalTreeFactory(relabeling_strategy, splitting_rule));
   }
 }
 
@@ -306,8 +312,12 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
     readVector2D(sampleIDs, infile);
 
     // Create tree
+
+    RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy(
+        dependent_varID, treatment_varID, instrument_varID);
+    SplittingRule* splitting_rule = new RegressionSplittingRule(data);
     TreeFactory *tree = new InstrumentalTreeFactory(child_nodeIDs, split_varIDs, split_values,
-                                      sampleIDs, treatment_varID, instrument_varID, "DUMMY_NAME");
+                                      sampleIDs, relabeling_strategy, splitting_rule);
     trees.push_back(tree);
   }
 }

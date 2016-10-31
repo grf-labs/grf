@@ -5,16 +5,18 @@
 #include "InstrumentalTreeFactory.h"
 #include "InstrumentalRelabelingStrategy.h"
 
-InstrumentalTreeFactory::InstrumentalTreeFactory(RelabelingStrategy* relabeling_strategy) :
-    relabeling_strategy(relabeling_strategy) {}
+InstrumentalTreeFactory::InstrumentalTreeFactory(RelabelingStrategy* relabeling_strategy,
+                                                 SplittingRule* splitting_rule) :
+    relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule) {}
 
 InstrumentalTreeFactory::InstrumentalTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs,
                                                  std::vector<size_t> &split_varIDs,
                                                  std::vector<double> &split_values,
                                                  std::vector<std::vector<size_t>> sampleIDs,
-                                                 RelabelingStrategy *relabeling_strategy) :
+                                                 RelabelingStrategy *relabeling_strategy,
+                                                 SplittingRule* splitting_rule) :
     TreeFactory(child_nodeIDs, split_varIDs, split_values),
-    relabeling_strategy(relabeling_strategy) {
+    relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule) {
   this->sampleIDs = sampleIDs;
 }
 
@@ -42,12 +44,16 @@ bool InstrumentalTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_
     return true;
   }
 
-  std::unordered_map<size_t, double> responses_by_sampleIDs = relabeling_strategy->relabelResponses(
+  std::unordered_map<size_t, double> responses_by_sampleID = relabeling_strategy->relabelResponses(
       data, sampleIDs[nodeID]);
 
-  RegressionSplittingRule* splittingRule = new RegressionSplittingRule(responses_by_sampleIDs, data,
-    sampleIDs, split_varIDs, split_values);
-  bool stop = responses_by_sampleIDs.empty() || splittingRule->findBestSplit(nodeID, possible_split_varIDs);
+  bool stop = responses_by_sampleID.empty() ||
+      splitting_rule->findBestSplit(nodeID,
+                                    possible_split_varIDs,
+                                    responses_by_sampleID,
+                                    sampleIDs,
+                                    split_varIDs,
+                                    split_values);
 
   if (stop) {
     split_values[nodeID] = -1.0;

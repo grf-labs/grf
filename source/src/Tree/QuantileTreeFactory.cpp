@@ -3,15 +3,18 @@
 #include "QuantileTreeFactory.h"
 #include "utility.h"
 
-QuantileTreeFactory::QuantileTreeFactory(RelabelingStrategy* relabeling_strategy) : relabeling_strategy(relabeling_strategy) {}
+QuantileTreeFactory::QuantileTreeFactory(RelabelingStrategy* relabeling_strategy,
+                                         SplittingRule* splitting_rule) :
+    relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule) {}
 
 QuantileTreeFactory::QuantileTreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs,
                                          std::vector<size_t> &split_varIDs,
                                          std::vector<double> &split_values,
-                                         RelabelingStrategy *relabeling_strategy,
+                                         RelabelingStrategy* relabeling_strategy,
+                                         SplittingRule* splitting_rule,
                                          std::vector<std::vector<size_t>> sampleIDs) :
     TreeFactory(child_nodeIDs, split_varIDs, split_values),
-    relabeling_strategy(relabeling_strategy) {
+    relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule) {
   this->sampleIDs = sampleIDs;
 }
 
@@ -42,8 +45,11 @@ bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& 
   std::unordered_map<size_t, double> relabeled_responses = relabeling_strategy->relabelResponses(
       data, sampleIDs[nodeID]);
 
-  ProbabilitySplittingRule* splittingRule = createSplittingRule(sampleIDs[nodeID], relabeled_responses);
-  bool stop = splittingRule->findBestSplit(nodeID, possible_split_varIDs);
+  bool stop = splitting_rule->findBestSplit(nodeID,
+                                            possible_split_varIDs,
+                                            relabeled_responses,
+                                            sampleIDs, split_varIDs,
+                                            split_values);
 
   if (stop) {
     split_values[nodeID] = -1.0;
@@ -51,22 +57,6 @@ bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& 
   }
 
   return false;
-}
-
-ProbabilitySplittingRule* QuantileTreeFactory::createSplittingRule(std::vector<size_t> &nodeSampleIDs,
-                                                                   std::unordered_map<size_t, double>& relabeledResponses) {
-  std::unordered_map<size_t, uint> relabeled_classIDs;
-  std::set<uint> unique_classIDs;
-  for (auto& entry : relabeledResponses) {
-    uint classID = (uint) round(entry.second);
-
-    relabeled_classIDs[entry.first] = classID;
-    unique_classIDs.insert(classID);
-  }
-  size_t num_classes = unique_classIDs.size();
-
-  return new ProbabilitySplittingRule(num_classes, relabeled_classIDs,
-      data, sampleIDs, split_varIDs, split_values);
 }
 
 std::vector<size_t> QuantileTreeFactory::get_neighboring_samples(size_t sampleID) {

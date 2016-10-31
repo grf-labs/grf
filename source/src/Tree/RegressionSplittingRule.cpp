@@ -1,11 +1,6 @@
 #include "RegressionSplittingRule.h"
 
-RegressionSplittingRule::RegressionSplittingRule(std::unordered_map<size_t, double> responses_by_sampleID,
-                                                 Data *data, std::vector<std::vector<size_t>> &sampleIDs,
-                                                 std::vector<size_t> &split_varIDs,
-                                                 std::vector<double> &split_values) :
-    split_varIDs(split_varIDs), split_values(split_values), sampleIDs(sampleIDs) {
-  this->responses_by_sampleID = responses_by_sampleID;
+RegressionSplittingRule::RegressionSplittingRule(Data* data) {
   this->data = data;
 
   size_t max_num_unique_values = data->getMaxNumUniqueValues();
@@ -21,7 +16,12 @@ RegressionSplittingRule::~RegressionSplittingRule() {
   }
 }
 
-bool RegressionSplittingRule::findBestSplit(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
+bool RegressionSplittingRule::findBestSplit(size_t nodeID,
+                                            std::vector<size_t>& possible_split_varIDs,
+                                            std::unordered_map<size_t, double> responses_by_sampleID,
+                                            std::vector<std::vector<size_t>> &sampleIDs,
+                                            std::vector<size_t> &split_varIDs,
+                                            std::vector<double> &split_values) {
 
   size_t num_samples_node = sampleIDs[nodeID].size();
   double best_decrease = -1;
@@ -35,13 +35,15 @@ bool RegressionSplittingRule::findBestSplit(size_t nodeID, std::vector<size_t>& 
   }
 
   // For all possible split variables
-  for (auto& varID : possible_split_varIDs) {
-      // Use faster method for both cases
+  for (auto &varID : possible_split_varIDs) {
+    // Use faster method for both cases
     double q = (double) num_samples_node / (double) data->getNumUniqueDataValues(varID);
     if (q < Q_THRESHOLD) {
-      findBestSplitValueSmallQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+      findBestSplitValueSmallQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease,
+                               responses_by_sampleID, sampleIDs);
     } else {
-      findBestSplitValueLargeQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
+      findBestSplitValueLargeQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease,
+                               responses_by_sampleID, sampleIDs);
     }
   }
 
@@ -56,10 +58,11 @@ bool RegressionSplittingRule::findBestSplit(size_t nodeID, std::vector<size_t>& 
   return false;
 }
 
-void RegressionSplittingRule::findBestSplitValueSmallQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-                                                       double &best_value, size_t &best_varID, double &best_decrease) {
-
-  // Create possible split values
+void RegressionSplittingRule::findBestSplitValueSmallQ(size_t nodeID, size_t varID, double sum_node,
+                                                       size_t num_samples_node,
+                                                       double &best_value, size_t &best_varID, double &best_decrease,
+                                                       std::unordered_map<size_t, double> responses_by_sampleID,
+                                                       std::vector<std::vector<size_t>> &sampleIDs) {
   std::vector<double> possible_split_values;
   data->getAllValues(possible_split_values, sampleIDs[nodeID], varID);
 
@@ -119,7 +122,9 @@ void RegressionSplittingRule::findBestSplitValueSmallQ(size_t nodeID, size_t var
 }
 
 void RegressionSplittingRule::findBestSplitValueLargeQ(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
-                                                       double &best_value, size_t &best_varID, double &best_decrease) {
+                                                       double &best_value, size_t &best_varID, double &best_decrease,
+                                                       std::unordered_map<size_t, double> responses_by_sampleID,
+                                                       std::vector<std::vector<size_t>> &sampleIDs) {
 
   // Set counters to 0
   size_t num_unique = data->getNumUniqueDataValues(varID);
