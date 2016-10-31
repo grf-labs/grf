@@ -19,7 +19,6 @@ InstrumentalTreeFactory::InstrumentalTreeFactory(std::vector<std::vector<size_t>
 }
 
 bool InstrumentalTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
-
   // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= min_node_size) {
     split_values[nodeID] = -1.0;
@@ -29,7 +28,6 @@ bool InstrumentalTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_
   // Check if node is pure and set split_value to estimate and stop if pure
   bool pure = true;
   double pure_value = 0;
-
   for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
     double value = data->get(sampleIDs[nodeID][i], dependent_varID);
     if (i != 0 && value != pure_value) {

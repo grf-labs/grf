@@ -33,12 +33,14 @@ bool QuantileTreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& 
     }
     pure_value = value;
   }
+
   if (pure) {
     split_values[nodeID] = -1.0;
     return true;
   }
 
-  std::unordered_map<size_t, double> relabeled_responses = relabeling_strategy->relabelResponses(data, sampleIDs[nodeID]);
+  std::unordered_map<size_t, double> relabeled_responses = relabeling_strategy->relabelResponses(
+      data, sampleIDs[nodeID]);
 
   ProbabilitySplittingRule* splittingRule = createSplittingRule(sampleIDs[nodeID], relabeled_responses);
   bool stop = splittingRule->findBestSplit(nodeID, possible_split_varIDs);
