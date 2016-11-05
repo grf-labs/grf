@@ -1,8 +1,9 @@
 #ifndef RANGER_TreeInstrumental_H
 #define RANGER_TreeInstrumental_H
 
-#include "RegressionTreeFactory.h"
 #include "RelabelingStrategy.h"
+#include "TreeFactory.h"
+#include "SplittingRule.h"
 
 class InstrumentalTreeFactory: public TreeFactory {
 public:

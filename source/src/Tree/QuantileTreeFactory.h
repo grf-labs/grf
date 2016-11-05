@@ -1,9 +1,9 @@
 #ifndef RANGER_TREEQUANTILE_H
 #define RANGER_TREEQUANTILE_H
 
-#include "RegressionTreeFactory.h"
 #include "ProbabilitySplittingRule.h"
 #include "RelabelingStrategy.h"
+#include "TreeFactory.h"
 
 class QuantileTreeFactory : public TreeFactory {
 public:

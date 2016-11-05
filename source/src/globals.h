@@ -50,7 +50,6 @@ wright@imbs.uni-luebeck.de
 typedef unsigned int uint;
 
 enum TreeType {
-  TREE_REGRESSION = 3,
   TREE_QUANTILE = 11,
   TREE_INSTRUMENTAL = 15,
 };

@@ -39,7 +39,7 @@ ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), file(""),
     targetpartitionsize(0), mtry(0),
     quantiles(new std::vector<double>()), statusvarname(""), instrumentvarname(""),
-    ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_REGRESSION), seed(0) {
+    ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_QUANTILE), seed(0) {
   this->argc = argc;
   this->argv = argv;
 }
@@ -255,9 +255,6 @@ int ArgumentHandler::processArguments() {
     case 'y':
       try {
         switch (std::stoi(optarg)) {
-        case 3:
-          treetype = TREE_REGRESSION;
-          break;
         case 11:
           treetype = TREE_QUANTILE;
           break;
@@ -340,14 +337,6 @@ void ArgumentHandler::checkArguments() {
     // Get treetype
     infile.read((char*) &treetype, sizeof(treetype));
     infile.close();
-  }
-
-  if (predall && treetype != TREE_REGRESSION) {
-    throw std::runtime_error("Option '--predall' only available for regression.");
-  }
-
-  if (predict.empty() && predall) {
-    throw std::runtime_error("Option '--predall' only available in prediction mode.");
   }
 
   if (!alwayssplitvars.empty() && !splitweights.empty()) {

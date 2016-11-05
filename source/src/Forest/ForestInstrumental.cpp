@@ -1,11 +1,11 @@
 #include <algorithm>
 #include <stdexcept>
 #include <string>
-#include <Tree/InstrumentalRelabelingStrategy.h>
 
 #include "utility.h"
 #include "ForestInstrumental.h"
-#include "InstrumentalTreeFactory.h"
+#include "InstrumentalRelabelingStrategy.h"
+#include "RegressionSplittingRule.h"
 
 ForestInstrumental::ForestInstrumental(std::string instrument_variable_name) :
     treatment_varID(0),
