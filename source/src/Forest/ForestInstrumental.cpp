@@ -65,7 +65,7 @@ void ForestInstrumental::growInternal() {
   SplittingRule* splitting_rule = new RegressionSplittingRule(data);
 
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new InstrumentalTreeFactory(relabeling_strategy, splitting_rule));
+    trees.push_back(new TreeFactory(relabeling_strategy, splitting_rule));
   }
 }
 
@@ -78,7 +78,7 @@ void ForestInstrumental::predictInternal() {
   for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
     for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
-      InstrumentalTreeFactory* tree = (InstrumentalTreeFactory *) trees[tree_idx];
+      TreeFactory* tree = trees[tree_idx];
       addSampleWeights(sampleID, tree, weights_by_sampleID);
     }
 
@@ -119,7 +119,7 @@ void ForestInstrumental::predictInternal() {
 }
 
 void ForestInstrumental::addSampleWeights(size_t test_sample_idx,
-                                          InstrumentalTreeFactory *tree,
+                                          TreeFactory *tree,
                                           std::unordered_map<size_t, double> &weights_by_sampleID) {
   std::vector<size_t> sampleIDs = tree->get_neighboring_samples(test_sample_idx);
   double sample_weight = 1.0 / sampleIDs.size();
@@ -166,7 +166,7 @@ void ForestInstrumental::computePredictionErrorInternal() {
 
     // Calculate the weights of neighboring samples.
     for (auto it = tree_range.first; it != tree_range.second; ++it) {
-      InstrumentalTreeFactory* tree = (InstrumentalTreeFactory*) trees[it->second];
+      TreeFactory* tree = trees[it->second];
 
       // hackhackhack
       std::vector<size_t> oob_sampleIDs = tree->getOobSampleIDs();
@@ -316,7 +316,7 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
     RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy(
         dependent_varID, treatment_varID, instrument_varID);
     SplittingRule* splitting_rule = new RegressionSplittingRule(data);
-    TreeFactory *tree = new InstrumentalTreeFactory(child_nodeIDs, split_varIDs, split_values,
+    TreeFactory *tree = new TreeFactory(child_nodeIDs, split_varIDs, split_values,
                                       sampleIDs, relabeling_strategy, splitting_rule);
     trees.push_back(tree);
   }

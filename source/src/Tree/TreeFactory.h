@@ -35,14 +35,21 @@
 
 #include "globals.h"
 #include "Data.h"
+#include "SplittingRule.h"
+#include "RelabelingStrategy.h"
 
 class TreeFactory {
 public:
-  TreeFactory();
+  TreeFactory(RelabelingStrategy* relabeling_strategy,
+              SplittingRule* splitting_rule);
 
   // Create from loaded forest
-  TreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
-      std::vector<double>& split_values);
+  TreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs,
+              std::vector<size_t>& split_varIDs,
+              std::vector<double>& split_values,
+              std::vector<std::vector<size_t>> sampleIDs,
+              RelabelingStrategy* relabeling_strategy,
+              SplittingRule* splitting_rule);
 
   virtual ~TreeFactory();
 
@@ -86,11 +93,13 @@ public:
     return inbag_counts;
   }
 
+  std::vector<size_t> get_neighboring_samples(size_t sampleID);
+
 protected:
   void createPossibleSplitVarSubset(std::vector<size_t>& result);
 
   bool splitNode(size_t nodeID);
-  virtual bool splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) = 0;
+  bool splitNodeInternal(size_t nodeID, std::vector<size_t> &possible_split_varIDs);
 
   void createEmptyNode();
 
@@ -100,8 +109,10 @@ protected:
   void bootstrapWeighted();
   void bootstrapWithoutReplacementWeighted();
 
+  RelabelingStrategy* relabeling_strategy;
+  SplittingRule* splitting_rule;
+
   Data* data;
-  Data* observables;
   size_t dependent_varID;
   size_t num_samples;
 

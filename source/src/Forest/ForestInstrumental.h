@@ -15,7 +15,7 @@
 
 #include "globals.h"
 #include "Forest.h"
-#include "InstrumentalTreeFactory.h"
+#include "TreeFactory.h"
 
 class ForestInstrumental: public Forest {
 public:
@@ -33,7 +33,7 @@ private:
   void loadFromFileInternal(std::ifstream& infile);
 
   void addSampleWeights(size_t test_sample_idx,
-                        InstrumentalTreeFactory* tree,
+                        TreeFactory* tree,
                         std::unordered_map<size_t, double> &weights_by_sampleID);
   void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
   void predictInternal();

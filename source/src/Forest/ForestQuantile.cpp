@@ -3,6 +3,7 @@
 #include <string>
 #include <Tree/QuantileRelabelingStrategy.h>
 #include <set>
+#include <Tree/ProbabilitySplittingRule.h>
 
 #include "utility.h"
 #include "ForestQuantile.h"
@@ -46,7 +47,7 @@ void ForestQuantile::growInternal() {
   SplittingRule* splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
 
   for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new QuantileTreeFactory(relabeling_strategy, splitting_rule));
+    trees.push_back(new TreeFactory(relabeling_strategy, splitting_rule));
   }
 }
 
@@ -58,7 +59,7 @@ void ForestQuantile::predictInternal() {
   for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
     for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
-      QuantileTreeFactory* tree = (QuantileTreeFactory *) trees[tree_idx];
+      TreeFactory* tree = trees[tree_idx];
       addSampleWeights(sampleID, tree, weights_by_sampleID);
     }
 
@@ -79,7 +80,7 @@ void ForestQuantile::predictInternal() {
 }
 
 void ForestQuantile::addSampleWeights(size_t test_sample_idx,
-                                      QuantileTreeFactory* tree,
+                                      TreeFactory* tree,
                                       std::unordered_map<size_t, double> &weights_by_sampleID) {
   std::vector<size_t> sampleIDs = tree->get_neighboring_samples(test_sample_idx);
   double sample_weight = 1.0 / sampleIDs.size();
@@ -153,7 +154,7 @@ void ForestQuantile::computePredictionErrorInternal() {
     }
 
     for (auto it = tree_range.first; it != tree_range.second; ++it) {
-      QuantileTreeFactory* tree = (QuantileTreeFactory*) trees[it->second];
+      TreeFactory* tree = trees[it->second];
 
       // hackhackhack
       std::vector<size_t> oob_sampleIDs = tree->getOobSampleIDs();
@@ -278,10 +279,10 @@ void ForestQuantile::loadFromFileInternal(std::ifstream& infile) {
     RelabelingStrategy* relabeling_strategy = new QuantileRelabelingStrategy(
         quantiles,
         dependent_varID);
-    SplittingRule* splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
+    SplittingRule *splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
 
-    TreeFactory *tree = new QuantileTreeFactory(child_nodeIDs, split_varIDs, split_values,
-                                                relabeling_strategy, splitting_rule, sampleIDs);
+    TreeFactory *tree = new TreeFactory(child_nodeIDs, split_varIDs, split_values,
+                                        sampleIDs, relabeling_strategy, splitting_rule);
     trees.push_back(tree);
   }
 }
