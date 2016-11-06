@@ -27,16 +27,16 @@
  #-------------------------------------------------------------------------------*/
 
 #include <iterator>
+#include <Forest/BootstrapSampler.h>
 
 #include "TreeFactory.h"
 #include "utility.h"
 
 TreeFactory::TreeFactory(RelabelingStrategy* relabeling_strategy,
                          SplittingRule* splitting_rule) :
-        relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), dependent_varID(0),
-        mtry(0), num_samples(0), num_samples_oob(0), no_split_variables(0), min_node_size(0),
-        deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0),
-        oob_sampleIDs(0), keep_inbag(false), data(0), sample_with_replacement(true), sample_fraction(1) {}
+        relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule),
+        dependent_varID(0), mtry(0), no_split_variables(0), min_node_size(0),
+        deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), data(0) {}
 
 TreeFactory::TreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs,
                          std::vector<size_t> &split_varIDs,
@@ -44,11 +44,10 @@ TreeFactory::TreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs,
                          std::vector<std::vector<size_t>> sampleIDs,
                          RelabelingStrategy *relabeling_strategy,
                          SplittingRule *splitting_rule) :
-    dependent_varID(0), mtry(0), num_samples(0), num_samples_oob(0), no_split_variables(
-    0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0), case_weights(0),
+    dependent_varID(0), mtry(0), no_split_variables(
+    0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0),
     split_varIDs(split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs),
-    relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), oob_sampleIDs(0),
-    keep_inbag(false), data(0), sample_with_replacement(true), sample_fraction(1) {}
+    relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), data(0) {}
 
 TreeFactory::~TreeFactory() {}
 
@@ -62,44 +61,31 @@ void TreeFactory::init(Data* data, uint mtry, size_t dependent_varID, size_t num
   this->data = data;
   this->mtry = mtry;
   this->dependent_varID = dependent_varID;
-  this->num_samples = num_samples;
 
   // Create root node, assign bootstrap sample and oob samples
   child_nodeIDs.push_back(std::vector<size_t>());
   child_nodeIDs.push_back(std::vector<size_t>());
   createEmptyNode();
 
-  // Initialize random number generator and set seed
-  random_number_generator.seed(seed);
-
   this->deterministic_varIDs = deterministic_varIDs;
   this->split_select_varIDs = split_select_varIDs;
   this->split_select_weights = split_select_weights;
   this->min_node_size = min_node_size;
   this->no_split_variables = no_split_variables;
-  this->sample_with_replacement = sample_with_replacement;
-  this->case_weights = case_weights;
-  this->keep_inbag = keep_inbag;
-  this->sample_fraction = sample_fraction;
+
+  this->bootstrap_sampler = new BootstrapSampler(num_samples,
+      sampleIDs,
+      seed,
+      sample_with_replacement,
+      sample_fraction,
+      keep_inbag,
+      case_weights);
 }
 
 void TreeFactory::grow() {
-// Bootstrap, dependent if weighted or not and with or without replacement
-  if (case_weights->empty()) {
-    if (sample_with_replacement) {
-      bootstrap();
-    } else {
-      bootstrapWithoutReplacement();
-    }
-  } else {
-    if (sample_with_replacement) {
-      bootstrapWeighted();
-    } else {
-      bootstrapWithoutReplacementWeighted();
-    }
-  }
+  bootstrap_sampler->sample();
 
-// While not all nodes terminal, split next node
+  // While not all nodes terminal, split next node
   size_t num_open_nodes = 1;
   size_t i = 0;
   while (num_open_nodes > 0) {
@@ -121,7 +107,7 @@ void TreeFactory::predict(const Data* prediction_data, bool oob_prediction) {
 
   size_t num_samples_predict;
   if (oob_prediction) {
-    num_samples_predict = num_samples_oob;
+    num_samples_predict = bootstrap_sampler->getNumSamplesOob();
   } else {
     num_samples_predict = prediction_data->getNumRows();
   }
@@ -132,7 +118,7 @@ void TreeFactory::predict(const Data* prediction_data, bool oob_prediction) {
   for (size_t i = 0; i < num_samples_predict; ++i) {
     size_t sample_idx;
     if (oob_prediction) {
-      sample_idx = oob_sampleIDs[i];
+      sample_idx = bootstrap_sampler->getOobSampleIDs()[i];
     } else {
       sample_idx = i;
     }
@@ -177,10 +163,10 @@ void TreeFactory::createPossibleSplitVarSubset(std::vector<size_t>& result) {
 
 // Randomly add non-deterministic variables (according to weights if needed)
   if (split_select_weights->empty()) {
-    drawWithoutReplacementSkip(result, random_number_generator, data->getNumCols(), *no_split_variables, mtry);
+    bootstrap_sampler->drawWithoutReplacementSkip(result, data->getNumCols(), *no_split_variables, mtry);
   } else {
     size_t num_draws = mtry - result.size();
-    drawWithoutReplacementWeighted(result, random_number_generator, *split_select_varIDs, num_draws,
+    bootstrap_sampler->drawWithoutReplacementWeighted(result, *split_select_varIDs, num_draws,
         *split_select_weights);
   }
 }
@@ -232,113 +218,7 @@ void TreeFactory::createEmptyNode() {
   sampleIDs.push_back(std::vector<size_t>());
 }
 
-void TreeFactory::bootstrap() {
 
-// Use fraction (default 63.21%) of the samples
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-
-// Reserve space, reserve a little more to be save)
-  sampleIDs[0].reserve(num_samples_inbag);
-  oob_sampleIDs.reserve(num_samples * (exp(-sample_fraction) + 0.1));
-
-  std::uniform_int_distribution<size_t> unif_dist(0, num_samples - 1);
-
-// Start with all samples OOB
-  inbag_counts.resize(num_samples, 0);
-
-// Draw num_samples samples with replacement (num_samples_inbag out of n) as inbag and mark as not OOB
-  for (size_t s = 0; s < num_samples_inbag; ++s) {
-    size_t draw = unif_dist(random_number_generator);
-    sampleIDs[0].push_back(draw);
-    ++inbag_counts[draw];
-  }
-
-// Save OOB samples
-  for (size_t s = 0; s < inbag_counts.size(); ++s) {
-    if (inbag_counts[s] == 0) {
-      oob_sampleIDs.push_back(s);
-    }
-  }
-  num_samples_oob = oob_sampleIDs.size();
-
-  if (!keep_inbag) {
-    inbag_counts.clear();
-  }
-}
-
-void TreeFactory::bootstrapWeighted() {
-
-// Use fraction (default 63.21%) of the samples
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-
-// Reserve space, reserve a little more to be save)
-  sampleIDs[0].reserve(num_samples_inbag);
-  oob_sampleIDs.reserve(num_samples * (exp(-sample_fraction) + 0.1));
-
-  std::discrete_distribution<> weighted_dist(case_weights->begin(), case_weights->end());
-
-// Start with all samples OOB
-  inbag_counts.resize(num_samples, 0);
-
-// Draw num_samples samples with replacement (n out of n) as inbag and mark as not OOB
-  for (size_t s = 0; s < num_samples_inbag; ++s) {
-    size_t draw = weighted_dist(random_number_generator);
-    sampleIDs[0].push_back(draw);
-    ++inbag_counts[draw];
-  }
-
-  for (size_t s = 0; s < inbag_counts.size(); ++s) {
-    if (inbag_counts[s] == 0) {
-      oob_sampleIDs.push_back(s);
-    }
-  }
-  num_samples_oob = oob_sampleIDs.size();
-
-  if (!keep_inbag) {
-    inbag_counts.clear();
-  }
-}
-
-void TreeFactory::bootstrapWithoutReplacement() {
-
-// Use fraction (default 63.21%) of the samples
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-  shuffleAndSplit(sampleIDs[0], oob_sampleIDs, num_samples, num_samples_inbag, random_number_generator);
-  num_samples_oob = oob_sampleIDs.size();
-
-  if (keep_inbag) {
-    // All observation are 0 or 1 times inbag
-    inbag_counts.resize(num_samples, 1);
-    for (size_t i = 0; i < oob_sampleIDs.size(); i++) {
-      inbag_counts[oob_sampleIDs[i]] = 0;
-    }
-  }
-}
-
-void TreeFactory::bootstrapWithoutReplacementWeighted() {
-
-// Use fraction (default 63.21%) of the samples
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-  drawWithoutReplacementWeighted(sampleIDs[0], random_number_generator, num_samples - 1, num_samples_inbag,
-      *case_weights);
-
-// All observation are 0 or 1 times inbag
-  inbag_counts.resize(num_samples, 0);
-  for (auto& sampleID : sampleIDs[0]) {
-    inbag_counts[sampleID] = 1;
-  }
-
-  for (size_t s = 0; s < inbag_counts.size(); ++s) {
-    if (inbag_counts[s] == 0) {
-      oob_sampleIDs.push_back(s);
-    }
-  }
-  num_samples_oob = oob_sampleIDs.size();
-
-  if (!keep_inbag) {
-    inbag_counts.clear();
-  }
-}
 
 bool TreeFactory::splitNodeInternal(size_t nodeID, std::vector<size_t>& possible_split_varIDs) {
   // Check node size, stop if maximum reached

@@ -35,6 +35,7 @@
 
 #include "globals.h"
 #include "Data.h"
+#include "BootstrapSampler.h"
 #include "SplittingRule.h"
 #include "RelabelingStrategy.h"
 
@@ -83,19 +84,16 @@ public:
   }
 
   const std::vector<size_t>& getOobSampleIDs() const {
-    return oob_sampleIDs;
-  }
-  size_t getNumSamplesOob() const {
-    return num_samples_oob;
+    return bootstrap_sampler->getOobSampleIDs();
   }
 
   const std::vector<size_t>& getInbagCounts() const {
-    return inbag_counts;
+    return bootstrap_sampler->getInbagCounts();
   }
 
   std::vector<size_t> get_neighboring_samples(size_t sampleID);
 
-protected:
+private:
   void createPossibleSplitVarSubset(std::vector<size_t>& result);
 
   bool splitNode(size_t nodeID);
@@ -103,19 +101,12 @@ protected:
 
   void createEmptyNode();
 
-  void bootstrap();
-  void bootstrapWithoutReplacement();
-
-  void bootstrapWeighted();
-  void bootstrapWithoutReplacementWeighted();
-
   RelabelingStrategy* relabeling_strategy;
   SplittingRule* splitting_rule;
+  BootstrapSampler* bootstrap_sampler;
 
   Data* data;
   size_t dependent_varID;
-  size_t num_samples;
-
   uint min_node_size;
 
   std::vector<size_t> split_varIDs;
@@ -126,16 +117,6 @@ protected:
   // When growing here the OOB set is used
   // Terminal nodeIDs for prediction samples
   std::vector<size_t> prediction_terminal_nodeIDs;
-
-  // Variables related to bootstrapping
-  bool sample_with_replacement;
-  double sample_fraction;
-  bool keep_inbag;
-  std::vector<size_t> inbag_counts;
-  std::vector<double>* case_weights;
-  std::vector<size_t> oob_sampleIDs;
-  size_t num_samples_oob;
-  std::mt19937_64 random_number_generator;
 
   // Variables related to variable selection
   std::vector<size_t>* deterministic_varIDs;

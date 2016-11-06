@@ -96,111 +96,6 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
   }
 }
 
-void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
-    std::vector<size_t>& skip, size_t num_samples) {
-  if (num_samples < max / 2) {
-    drawWithoutReplacementSimple(result, random_number_generator, max, skip, num_samples);
-  } else {
-    drawWithoutReplacementKnuth(result, random_number_generator, max, skip, num_samples);
-  }
-}
-
-void drawWithoutReplacementSimple(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
-    std::vector<size_t>& skip, size_t num_samples) {
-
-  result.reserve(num_samples);
-
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(max, false);
-
-  std::uniform_int_distribution<size_t> unif_dist(0, max - 1 - skip.size());
-  for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
-    do {
-      draw = unif_dist(random_number_generator);
-      for (auto& skip_value : skip) {
-        if (draw >= skip_value) {
-          ++draw;
-        }
-      }
-    } while (temp[draw]);
-    temp[draw] = true;
-    result.push_back(draw);
-  }
-}
-
-void drawWithoutReplacementKnuth(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
-    std::vector<size_t>& skip, size_t num_samples) {
-
-  size_t size_no_skip = max - skip.size();
-  result.resize(num_samples);
-  double u;
-  size_t final_value;
-
-  std::uniform_real_distribution<double> distribution(0.0, 1.0);
-
-  size_t i = 0;
-  size_t j = 0;
-  while (i < num_samples) {
-    u = distribution(random_number_generator);
-
-    if ((size_no_skip - j) * u >= num_samples - i) {
-      j++;
-    } else {
-      final_value = j;
-      for (auto& skip_value : skip) {
-        if (final_value >= skip_value) {
-          ++final_value;
-        }
-      }
-      result[i] = final_value;
-      j++;
-      i++;
-    }
-  }
-}
-
-void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
-    std::vector<size_t>& indices, size_t num_samples, std::vector<double>& weights) {
-
-  result.reserve(num_samples);
-
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(indices.size(), false);
-
-  std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
-  for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
-    do {
-      draw = weighted_dist(random_number_generator);
-    } while (temp[draw]);
-    temp[draw] = true;
-    result.push_back(indices[draw]);
-  }
-}
-
-void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
-    size_t max_index, size_t num_samples, std::vector<double>& weights) {
-
-  result.reserve(num_samples);
-
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(max_index + 1, false);
-
-  std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
-  for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
-    do {
-      draw = weighted_dist(random_number_generator);
-    } while (temp[draw]);
-    temp[draw] = true;
-    result.push_back(draw);
-  }
-}
-
 double mostFrequentValue(std::unordered_map<double, size_t>& class_count, std::mt19937_64 random_number_generator) {
   std::vector<double> major_classes;
 
@@ -339,24 +234,6 @@ void splitString(std::vector<std::string>& result, std::string input, char split
   while (std::getline(ss, token, split_char)) {
     result.push_back(token);
   }
-}
-
-void shuffleAndSplit(std::vector<size_t>& first_part, std::vector<size_t>& second_part, size_t n_all, size_t n_first,
-    std::mt19937_64 random_number_generator) {
-
-  // Reserve space
-  first_part.resize(n_all);
-
-  // Fill with 0..n_all-1 and shuffle
-  std::iota(first_part.begin(), first_part.end(), 0);
-  std::shuffle(first_part.begin(), first_part.end(), random_number_generator);
-
-  // Copy to second part
-  second_part.resize(n_all - n_first);
-  std::copy(first_part.begin() + n_first, first_part.end(), second_part.begin());
-
-  // Resize first part
-  first_part.resize(n_first);
 }
 
 std::string checkUnorderedVariables(Data* data, std::vector<std::string> unordered_variable_names) {

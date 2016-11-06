@@ -158,116 +158,6 @@ inline void readVector2D(std::vector<std::vector<T>>& result, std::ifstream& fil
 void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename);
 
 /**
- * Draw random numbers in a range without replacement and skip values.
- * @param result Vector to add results to. Will not be cleaned before filling.
- * @param random_number_generator Random number generator
- * @param range_length Length of range. Interval to draw from: 0..max-1
- * @param skip Values to skip
- * @param num_samples Number of samples to draw
- */
-void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
-    size_t range_length, std::vector<size_t>& skip, size_t num_samples);
-
-/**
- * Simple algorithm for sampling without replacement, faster for smaller num_samples
- * @param result Vector to add results to. Will not be cleaned before filling.
- * @param random_number_generator Random number generator
- * @param range_length Length of range. Interval to draw from: 0..max-1
- * @param skip Values to skip
- * @param num_samples Number of samples to draw
- */
-void drawWithoutReplacementSimple(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
-    std::vector<size_t>& skip, size_t num_samples);
-
-/**
- * Knuth's algorithm for sampling without replacement, faster for larger num_samples
- * Idea from Knuth 1985, The Art of Computer Programming, Vol. 2, Sec. 3.4.2 Algorithm S
- * @param result Vector to add results to. Will not be cleaned before filling.
- * @param random_number_generator Random number generator
- * @param range_length Length of range. Interval to draw from: 0..max-1
- * @param skip Values to skip
- * @param num_samples Number of samples to draw
- */
-void drawWithoutReplacementKnuth(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
-    std::vector<size_t>& skip, size_t num_samples);
-
-/**
- * Draw random numers without replacement and with weighted probabilites from vector of indices.
- * @param result Vector to add results to. Will not be cleaned before filling.
- * @param random_number_generator Random number generator
- * @param indices Vector with numbers to draw
- * @param num_samples Number of samples to draw
- * @param weights A weight for each element of indices
- */
-void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
-    std::vector<size_t>& indices, size_t num_samples, std::vector<double>& weights);
-
-/**
- * Draw random numers without replacement and with weighted probabilites from 0..n-1.
- * @param result Vector to add results to. Will not be cleaned before filling.
- * @param random_number_generator Random number generator
- * @param max_index Maximum index to draw
- * @param num_samples Number of samples to draw
- * @param weights A weight for each element of indices
- */
-void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
-    size_t max_index, size_t num_samples, std::vector<double>& weights);
-
-/**
- * Returns the most frequent class index of a vector with counts for the classes. Returns a random class if counts are equal.
- * @param class_count Vector with class counts
- * @param random_number_generator Random number generator
- * @return Most frequent class index. Out of range index if all 0.
- */
-template<typename T>
-size_t mostFrequentClass(std::vector<T>& class_count, std::mt19937_64 random_number_generator) {
-  std::vector<size_t> major_classes;
-
-  // Find maximum count
-  T max_count = 0;
-  for (size_t i = 0; i < class_count.size(); ++i) {
-    T count = class_count[i];
-    if (count > max_count) {
-      max_count = count;
-      major_classes.clear();
-      major_classes.push_back(i);
-    } else if (count == max_count) {
-      major_classes.push_back(i);
-    }
-  }
-
-  if (max_count == 0) {
-    return class_count.size();
-  } else if (major_classes.size() == 1) {
-    return major_classes[0];
-  } else {
-    // Choose randomly
-    std::uniform_int_distribution<size_t> unif_dist(0, major_classes.size() - 1);
-    return major_classes[unif_dist(random_number_generator)];
-  }
-}
-
-/**
- * Returns the most frequent value of a map with counts for the values. Returns a random class if counts are equal.
- * @param class_count Map with classes and counts
- * @param random_number_generator Random number generator
- * @return Most frequent value
- */
-double mostFrequentValue(std::unordered_map<double, size_t>& class_count, std::mt19937_64 random_number_generator);
-
-/**
- * Compute concordance index for given data and summed cumulative hazard function/estimate
- * @param data Pointer to Data object
- * @param sum_chf Summed chf over timepoints for each sample
- * @param dependent_varID ID of dependent variable
- * @param status_varID ID of status variable
- * @param sample_IDs IDs of samples, for example OOB samples
- * @return concordance index
- */
-double computeConcordanceIndex(Data* data, std::vector<double>& sum_chf, size_t dependent_varID, size_t status_varID,
-    std::vector<size_t>& sample_IDs);
-
-/**
  * Convert a unsigned integer to string
  * @param number Number to convert
  * @return Converted number as string
@@ -297,24 +187,6 @@ size_t roundToNextMultiple(size_t value, uint multiple);
  */
 void splitString(std::vector<std::string>& result, std::string input, char split_char);
 
-/**
- * Create numbers from 0 to n_all-1, shuffle and split in two parts.
- * @param first_part First part
- * @param second_part Second part
- * @param n_all Number elements
- * @param n_first Number of elements of first part
- * @param random_number_generator Random number generator
- */
-void shuffleAndSplit(std::vector<size_t>& first_part, std::vector<size_t>& second_part, size_t n_all, size_t n_first,
-    std::mt19937_64 random_number_generator);
-
-/**
- * Check if not too many factor levels and all values in unordered categorical variables are positive integers.
- * @param data Pointer to data object
- * @param unordered_variable_names Names of unordered variables
- * @return Error message, empty if no problem occured
- */
-std::string checkUnorderedVariables(Data* data, std::vector<std::string> unordered_variable_names);
 
 /**
  * Check if all values in double vector are positive integers.
@@ -322,27 +194,6 @@ std::string checkUnorderedVariables(Data* data, std::vector<std::string> unorder
  * @return True if all values are positive integers
  */
 bool checkPositiveIntegers(std::vector<double>& all_values);
-
-/**
- * Get indices of sorted values
- * @param values Values to sort
- * @param decreasing Order decreasing
- * @return Indices of sorted values
- */
-template<typename T>
-std::vector<size_t> order(std::vector<T>& values, bool decreasing) {
-  // Create index vector
-  std::vector<size_t> indices(values.size());
-  std::iota(indices.begin(), indices.end(), 0);
-
-  // Sort index vector based on value vector
-  if (decreasing) {
-    std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] > values[i2];});
-  } else {
-    std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] < values[i2];});
-  }
-  return indices;
-}
 
 // User interrupt from R
 #ifdef R_BUILD
