@@ -8,8 +8,12 @@
 #include "utility.h"
 #include "ForestQuantile.h"
 
-ForestQuantile::ForestQuantile(std::vector<double>* quantiles):
-    quantiles(quantiles), original_responses(new std::vector<double>()) {}
+ForestQuantile::ForestQuantile(std::vector<double>* quantiles,
+                               RelabelingStrategy *relabeling_strategy,
+                               SplittingRule *splitting_rule):
+    Forest(relabeling_strategy, splitting_rule),
+    quantiles(quantiles),
+    original_responses(new std::vector<double>()) {}
 
 ForestQuantile::~ForestQuantile() {}
 
@@ -36,18 +40,6 @@ void ForestQuantile::initInternal(std::string status_variable_name) {
     for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
       original_responses->push_back(data->get(sampleID, dependent_varID));
     }
-  }
-}
-
-void ForestQuantile::growInternal() {
-  trees.reserve(num_trees);
-  RelabelingStrategy* relabeling_strategy = new QuantileRelabelingStrategy(
-      quantiles,
-      dependent_varID);
-  SplittingRule* splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
-
-  for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new TreeFactory(relabeling_strategy, splitting_rule));
   }
 }
 

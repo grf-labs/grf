@@ -46,7 +46,8 @@
 
 class Forest {
 public:
-  Forest();
+  Forest(RelabelingStrategy* relabeling_strategy,
+         SplittingRule* splitting_rule);
   virtual ~Forest();
 
   // Init from c++ main or Rcpp from R
@@ -57,12 +58,6 @@ public:
       std::string status_variable_name, bool sample_with_replacement,
       bool memory_saving_splitting,
       std::string case_weights_file, bool predict_all, double sample_fraction);
-  void initR(std::string dependent_variable_name, Data* input_data, uint mtry, uint num_trees,
-      std::ostream* verbose_out, uint seed, uint num_threads, uint min_node_size,
-      std::vector<std::vector<double>>& split_select_weights, std::vector<std::string>& always_split_variable_names,
-      std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
-      bool memory_saving_splitting, std::vector<double>& case_weights, bool predict_all,
-      bool keep_inbag, double sample_fraction);
   void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
       uint num_trees, uint seed, uint num_threads,
       uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
@@ -83,70 +78,9 @@ public:
   void saveToFile();
   virtual void saveToFileInternal(std::ofstream& outfile) = 0;
 
-  std::vector<std::vector<std::vector<size_t>>> get_sampleIDs() {
-    std::vector<std::vector<std::vector<size_t>>> result;
-    for (auto& tree : trees) {
-      result.push_back(tree->get_sampleIDs());
-    }
-    return result;
-  }
-  std::vector<std::vector<std::vector<size_t>>>getChildNodeIDs() {
-    std::vector<std::vector<std::vector<size_t>>> result;
-    for (auto& tree : trees) {
-      result.push_back(tree->getChildNodeIDs());
-    }
-    return result;
-  }
-  std::vector<std::vector<size_t>> getSplitVarIDs() {
-    std::vector<std::vector<size_t>> result;
-    for (auto& tree : trees) {
-      result.push_back(tree->getSplitVarIDs());
-    }
-    return result;
-  }
-  std::vector<std::vector<double>> getSplitValues() {
-    std::vector<std::vector<double>> result;
-    for (auto& tree : trees) {
-      result.push_back(tree->getSplitValues());
-    }
-    return result;
-  }
-  double getOverallPredictionError() const {
-    return overall_prediction_error;
-  }
-  const std::vector<std::vector<double> >& getPredictions() const {
-    return predictions;
-  }
-  size_t getDependentVarId() const {
-    return dependent_varID;
-  }
-  size_t getNumTrees() const {
-    return num_trees;
-  }
-  uint getMtry() const
-  {
-    return mtry;
-  }
-  uint getMinNodeSize() const
-  {
-    return min_node_size;
-  }
-  size_t getNumIndependentVariables() const
-  {
-    return num_independent_variables;
-  }
-
-  std::vector<std::vector<size_t>> getInbagCounts() const {
-    std::vector<std::vector<size_t>> result;
-    for (auto& tree : trees) {
-      result.push_back(tree->getInbagCounts());
-    }
-    return result;
-  }
-
 protected:
   void grow();
-  virtual void growInternal() = 0;
+  void growInternal();
 
   // Predict using existing tree from file and data as prediction data
   void predict();
@@ -223,6 +157,10 @@ protected:
 
   // Computation progress (finished trees)
   size_t progress;
+
+  RelabelingStrategy* relabeling_strategy;
+  SplittingRule* splitting_rule;
+
 #ifdef R_BUILD
   size_t aborted_threads;
   bool aborted;

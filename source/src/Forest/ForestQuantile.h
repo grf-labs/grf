@@ -17,14 +17,16 @@
 #include "Forest.h"
 #include "TreeFactory.h"
 
-class ForestQuantile: public Forest {
+class ForestQuantile : public Forest {
 public:
-  ForestQuantile(std::vector<double>* quantiles);
+  ForestQuantile(std::vector<double> *quantiles,
+                 RelabelingStrategy *relabeling_strategy,
+                 SplittingRule *splitting_rule);
+
   virtual ~ForestQuantile();
 
 private:
   void initInternal(std::string status_variable_name);
-  void growInternal();
   void computePredictionErrorInternal();
   void writeOutputInternal();
   void writeConfusionFile();

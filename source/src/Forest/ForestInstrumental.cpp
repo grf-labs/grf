@@ -7,7 +7,10 @@
 #include "InstrumentalRelabelingStrategy.h"
 #include "RegressionSplittingRule.h"
 
-ForestInstrumental::ForestInstrumental(std::string instrument_variable_name) :
+ForestInstrumental::ForestInstrumental(RelabelingStrategy* relabeling_strategy,
+                                       SplittingRule* splitting_rule,
+                                       std::string instrument_variable_name) :
+    Forest(relabeling_strategy, splitting_rule),
     treatment_varID(0),
     instrument_varID(0),
     instrument_variable_name(instrument_variable_name),
@@ -54,18 +57,6 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
     for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
       (*original_responses)[dependent_varID + 2].push_back(data->get(sampleID, instrument_varID));
     }
-  }
-}
-
-void ForestInstrumental::growInternal() {
-  trees.reserve(num_trees);
-
-  RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy(
-      dependent_varID, treatment_varID, instrument_varID);
-  SplittingRule* splitting_rule = new RegressionSplittingRule(data);
-
-  for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new TreeFactory(relabeling_strategy, splitting_rule));
   }
 }
 

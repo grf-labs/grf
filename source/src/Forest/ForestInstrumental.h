@@ -19,12 +19,13 @@
 
 class ForestInstrumental: public Forest {
 public:
-  ForestInstrumental(std::string instrument_variable_name);
+  ForestInstrumental(RelabelingStrategy* relabeling_strategy,
+                     SplittingRule* splitting_rule,
+                     std::string instrument_variable_name);
   virtual ~ForestInstrumental();
 
 private:
   void initInternal(std::string status_variable_name);
-  void growInternal();
   void computePredictionErrorInternal();
   void writeOutputInternal();
   void writeConfusionFile();
