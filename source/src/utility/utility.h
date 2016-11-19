@@ -37,10 +37,6 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#ifdef R_BUILD
-#include <Rinternals.h>
-#endif
-
 #include "globals.h"
 #include "Data.h"
 
@@ -194,16 +190,5 @@ void splitString(std::vector<std::string>& result, std::string input, char split
  * @return True if all values are positive integers
  */
 bool checkPositiveIntegers(std::vector<double>& all_values);
-
-// User interrupt from R
-#ifdef R_BUILD
-static void chkIntFn(void *dummy) {
-  R_CheckUserInterrupt();
-}
-
-inline bool checkInterrupt() {
-  return (R_ToplevelExec(chkIntFn, NULL) == FALSE);
-}
-#endif
 
 #endif /* UTILITY_H_ */

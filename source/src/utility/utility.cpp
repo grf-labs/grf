@@ -170,13 +170,7 @@ double computeConcordanceIndex(Data* data, std::vector<double>& sum_chf, size_t 
 }
 
 std::string uintToString(uint number) {
-#if WIN_R_BUILD == 1
-  std::stringstream temp;
-  temp << number;
-  return temp.str();
-#else
   return std::to_string(number);
-#endif
 }
 
 std::string beautifyTime(uint seconds) {

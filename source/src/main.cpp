@@ -104,7 +104,6 @@ int main(int argc, char **argv) {
               dependent_varID,
               treatment_varID,
               instrument_varID);
-      // dependent_varID, treatment_varID, instrument_varID);
       SplittingRule *splitting_rule = new RegressionSplittingRule(data);
       forest = new ForestInstrumental(relabeling_strategy,
                                       splitting_rule,

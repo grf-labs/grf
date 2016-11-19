@@ -29,17 +29,6 @@
 #ifndef FOREST_H_
 #define FOREST_H_
 
-#include <vector>
-#include <iostream>
-#include <random>
-#include <ctime>
-#ifndef OLD_WIN_R_BUILD
-#include <thread>
-#include <chrono>
-#include <mutex>
-#include <condition_variable>
-#endif
-
 #include "globals.h"
 #include "TreeFactory.h"
 #include "Data.h"
@@ -101,11 +90,7 @@ protected:
   void setAlwaysSplitVariables(std::vector<std::string>& always_split_variable_names);
 
   // Show progress every few seconds
-#ifdef OLD_WIN_R_BUILD
-  void showProgress(std::string operation, clock_t start_time, clock_t& lap_time);
-#else
   void showProgress(std::string operation);
-#endif
 
   // Verbose output stream, cout if verbose==true, logfile if not
   std::ostream* verbose_out;
@@ -132,10 +117,6 @@ protected:
   // Multithreading
   uint num_threads;
   std::vector<uint> thread_ranges;
-#ifndef OLD_WIN_R_BUILD
-  std::mutex mutex;
-  std::condition_variable condition_variable;
-#endif
 
   std::vector<TreeFactory*> trees;
   Data* data;
@@ -160,11 +141,6 @@ protected:
 
   RelabelingStrategy* relabeling_strategy;
   SplittingRule* splitting_rule;
-
-#ifdef R_BUILD
-  size_t aborted_threads;
-  bool aborted;
-#endif
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Forest);

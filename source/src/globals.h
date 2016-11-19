@@ -38,15 +38,6 @@ wright@imbs.uni-luebeck.de
 #define M_PI 3.14159265358979323846
 #endif
 
-// Old/new Win build
-#ifdef WIN_R_BUILD
-  #if __cplusplus < 201103L
-    #define OLD_WIN_R_BUILD
-  #else
-    #define NEW_WIN_R_BUILD
-  #endif
-#endif
-
 typedef unsigned int uint;
 
 enum TreeType {

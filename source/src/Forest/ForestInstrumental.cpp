@@ -302,8 +302,6 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
     std::vector<std::vector<size_t>> sampleIDs;
     readVector2D(sampleIDs, infile);
 
-    // Create tree
-
     RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy(
         dependent_varID, treatment_varID, instrument_varID);
     SplittingRule* splitting_rule = new RegressionSplittingRule(data);

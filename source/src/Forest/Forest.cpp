@@ -31,12 +31,8 @@
 #include <stdexcept>
 #include <string>
 #include <ctime>
-#include <math.h>
-#ifndef OLD_WIN_R_BUILD
 #include <thread>
 #include <chrono>
-#endif
-
 #include "utility.h"
 #include "Forest.h"
 #include "DataChar.h"
@@ -126,11 +122,7 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
 
   // Set number of threads
   if (num_threads == DEFAULT_NUM_THREADS) {
-#ifdef OLD_WIN_R_BUILD
-    this->num_threads = 1;
-#else
     this->num_threads = std::thread::hardware_concurrency();
-#endif
   } else {
     this->num_threads = num_threads;
   }
@@ -294,22 +286,7 @@ void Forest::grow() {
         &case_weights, keep_inbag, sample_fraction);
   }
 
-// Grow trees in multiple threads
-#ifdef OLD_WIN_R_BUILD
   progress = 0;
-  clock_t start_time = clock();
-  clock_t lap_time = clock();
-  for (size_t i = 0; i < num_trees; ++i) {
-    trees[i]->grow();
-    progress++;
-    showProgress("Growing trees..", start_time, lap_time);
-  }
-#else
-  progress = 0;
-#ifdef R_BUILD
-  aborted = false;
-  aborted_threads = 0;
-#endif
 
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
@@ -321,13 +298,6 @@ void Forest::grow() {
   for (auto &thread : threads) {
     thread.join();
   }
-
-#ifdef R_BUILD
-  if (aborted_threads > 0) {
-    throw std::runtime_error("User interrupt.");
-  }
-#endif
-#endif
 }
 
 void Forest::growInternal() {
@@ -340,22 +310,7 @@ void Forest::growInternal() {
 void Forest::predict() {
 
 // Predict trees in multiple threads and join the threads with the main thread
-#ifdef OLD_WIN_R_BUILD
   progress = 0;
-  clock_t start_time = clock();
-  clock_t lap_time = clock();
-  for (size_t i = 0; i < num_trees; ++i) {
-    trees[i]->predict(data, false);
-    progress++;
-    showProgress("Predicting..", start_time, lap_time);
-  }
-#else
-  progress = 0;
-#ifdef R_BUILD
-  aborted = false;
-  aborted_threads = 0;
-#endif
-
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
@@ -367,13 +322,6 @@ void Forest::predict() {
     thread.join();
   }
 
-#ifdef R_BUILD
-  if (aborted_threads > 0) {
-    throw std::runtime_error("User interrupt.");
-  }
-#endif
-#endif
-
 // Call special functions for subclasses
 
   predictInternal();
@@ -382,16 +330,6 @@ void Forest::predict() {
 void Forest::computePredictionError() {
 
 // Predict trees in multiple threads
-#ifdef OLD_WIN_R_BUILD
-  progress = 0;
-  clock_t start_time = clock();
-  clock_t lap_time = clock();
-  for (size_t i = 0; i < num_trees; ++i) {
-    trees[i]->predict(data, true);
-    progress++;
-    showProgress("Predicting..", start_time, lap_time);
-  }
-#else
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
   for (uint i = 0; i < num_threads; ++i) {
@@ -401,33 +339,16 @@ void Forest::computePredictionError() {
   for (auto &thread : threads) {
     thread.join();
   }
-
-#ifdef R_BUILD
-  if (aborted_threads > 0) {
-    throw std::runtime_error("User interrupt.");
-  }
-#endif
-#endif
-
   // Call special function for subclasses
   computePredictionErrorInternal();
 }
 
-#ifndef OLD_WIN_R_BUILD
 void Forest::growTreesInThread(uint thread_idx) {
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       trees[i]->grow();
 
       // Check for user interrupt
-#ifdef R_BUILD
-      if (aborted) {
-        std::unique_lock<std::mutex> lock(mutex);
-        ++aborted_threads;
-        condition_variable.notify_one();
-        return;
-      }
-#endif
 
       // Increase progress by 1 tree
       std::unique_lock<std::mutex> lock(mutex);
@@ -442,22 +363,13 @@ void Forest::predictTreesInThread(uint thread_idx, const Data* prediction_data, 
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       trees[i]->predict(prediction_data, oob_prediction);
 
-      // Check for user interrupt
-#ifdef R_BUILD
-      if (aborted) {
-        std::unique_lock<std::mutex> lock(mutex);
-        ++aborted_threads;
-        condition_variable.notify_one();
-        return;
-      }
-#endif
       // Increase progress by 1 tree
       std::unique_lock<std::mutex> lock(mutex);
       ++progress;
       condition_variable.notify_one();
     }
-  }}
-#endif
+  }
+}
 
 void Forest::loadFromFile(std::string filename) {
   *verbose_out << "Loading forest from file " << filename << "." << std::endl;
@@ -560,25 +472,6 @@ void Forest::setAlwaysSplitVariables(std::vector<std::string>& always_split_vari
   }
 }
 
-#ifdef OLD_WIN_R_BUILD
-void Forest::showProgress(std::string operation, clock_t start_time, clock_t& lap_time) {
-
-// Check for user interrupt
-  if (checkInterrupt()) {
-    throw std::runtime_error("User interrupt.");
-  }
-
-  double elapsed_time = (clock() - lap_time) / CLOCKS_PER_SEC;
-  if (elapsed_time > STATUS_INTERVAL) {
-    double relative_progress = (double) progress / (double) num_trees;
-    double time_from_start = (clock() - start_time) / CLOCKS_PER_SEC;
-    uint remaining_time = (1 / relative_progress - 1) * time_from_start;
-    *verbose_out << operation << " Progress: " << round(100 * relative_progress) << "%. Estimated remaining time: "
-    << beautifyTime(remaining_time) << "." << std::endl;
-    lap_time = clock();
-  }
-}
-#else
 void Forest::showProgress(std::string operation) {
   using std::chrono::steady_clock;
   using std::chrono::duration_cast;
@@ -594,15 +487,6 @@ void Forest::showProgress(std::string operation) {
     seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
 
     // Check for user interrupt
-#ifdef R_BUILD
-    if (!aborted && checkInterrupt()) {
-      aborted = true;
-    }
-    if (aborted && aborted_threads >= num_threads) {
-      return;
-    }
-#endif
-
     if (progress > 0 && elapsed_time.count() > STATUS_INTERVAL) {
       double relative_progress = (double) progress / (double) num_trees;
       seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
@@ -613,4 +497,3 @@ void Forest::showProgress(std::string operation) {
     }
   }
 }
-#endif
