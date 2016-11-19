@@ -117,6 +117,8 @@ protected:
   // Multithreading
   uint num_threads;
   std::vector<uint> thread_ranges;
+  std::mutex mutex;
+  std::condition_variable condition_variable;
 
   std::vector<TreeFactory*> trees;
   Data* data;
