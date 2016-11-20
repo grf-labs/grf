@@ -60,7 +60,7 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
     std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
     std::string status_variable_name, bool sample_with_replacement, bool memory_saving_splitting,
     std::string case_weights_file, bool predict_all,
-    double sample_fraction) {
+    double sample_fraction, Data* data) {
 
   this->verbose_out = verbose_out;
 

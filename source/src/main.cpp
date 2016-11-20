@@ -43,12 +43,6 @@
 Data* initializeData(ArgumentHandler& arg_handler) {
   Data* data = NULL;
 
-  bool rounding_error = data->loadFromFile(arg_handler.file);
-  if (rounding_error) {
-    std::cerr << "Warning: Rounding or Integer overflow occurred."
-        "Use FLOAT or DOUBLE precision to avoid this." << std::endl;
-  }
-
   // Initialize data with memmode
   switch (arg_handler.memmode) {
     case MEM_DOUBLE:
@@ -60,6 +54,12 @@ Data* initializeData(ArgumentHandler& arg_handler) {
     case MEM_CHAR:
       data = new DataChar();
       break;
+  }
+
+  bool rounding_error = data->loadFromFile(arg_handler.file);
+  if (rounding_error) {
+    std::cerr << "Warning: Rounding or Integer overflow occurred."
+        "Use FLOAT or DOUBLE precision to avoid this." << std::endl;
   }
 
   return data;
@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
         arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
         arg_handler.predict, arg_handler.targetpartitionsize, arg_handler.splitweights,
         arg_handler.alwayssplitvars, arg_handler.statusvarname, arg_handler.replace,
-        arg_handler.savemem,  arg_handler.caseweights, arg_handler.predall, arg_handler.fraction);
+        arg_handler.savemem,  arg_handler.caseweights, arg_handler.predall, arg_handler.fraction, data);
 
     forest->run(true);
     if (arg_handler.write) {
