@@ -46,8 +46,8 @@ TreeFactory::TreeFactory(std::vector<std::vector<size_t>> &child_nodeIDs,
                          SplittingRule *splitting_rule) :
     dependent_varID(0), mtry(0), no_split_variables(
     0), min_node_size(0), deterministic_varIDs(0), split_select_varIDs(0), split_select_weights(0),
-    split_varIDs(split_varIDs), split_values(split_values), child_nodeIDs(child_nodeIDs),
-    relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), data(0) {}
+    child_nodeIDs(child_nodeIDs), split_varIDs(split_varIDs), split_values(split_values),
+    sampleIDs(sampleIDs), relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), data(0) {}
 
 TreeFactory::~TreeFactory() {}
 
