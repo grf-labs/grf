@@ -2,13 +2,12 @@
 #include "BootstrapSampler.h"
 
 BootstrapSampler::BootstrapSampler(size_t num_samples,
-                                   std::vector<std::vector<size_t>> sampleIDs,
                                    uint seed,
                                    bool sample_with_replacement,
                                    double sample_fraction,
                                    bool keep_inbag,
                                    std::vector<double> *case_weights):
-    num_samples(num_samples), sampleIDs(sampleIDs) {
+    num_samples(num_samples) {
 
   random_number_generator.seed(seed);
 
@@ -18,23 +17,23 @@ BootstrapSampler::BootstrapSampler(size_t num_samples,
   this->sample_fraction = sample_fraction;
 }
 
-void BootstrapSampler::sample() {
+void BootstrapSampler::sample(std::vector<std::vector<size_t>>& sampleIDs) {
   if (case_weights->empty()) {
     if (sample_with_replacement) {
-      bootstrap();
+      bootstrap(sampleIDs);
     } else {
-      bootstrapWithoutReplacement();
+      bootstrapWithoutReplacement(sampleIDs);
     }
   } else {
     if (sample_with_replacement) {
-      bootstrapWeighted();
+      bootstrapWeighted(sampleIDs);
     } else {
-      bootstrapWithoutReplacementWeighted();
+      bootstrapWithoutReplacementWeighted(sampleIDs);
     }
   }
 }
 
-void BootstrapSampler::bootstrap() {
+void BootstrapSampler::bootstrap(std::vector<std::vector<size_t>>& sampleIDs) {
 
 // Use fraction (default 63.21%) of the samples
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
@@ -68,7 +67,7 @@ void BootstrapSampler::bootstrap() {
   }
 }
 
-void BootstrapSampler::bootstrapWeighted() {
+void BootstrapSampler::bootstrapWeighted(std::vector<std::vector<size_t>>& sampleIDs) {
 
 // Use fraction (default 63.21%) of the samples
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
@@ -101,7 +100,7 @@ void BootstrapSampler::bootstrapWeighted() {
   }
 }
 
-void BootstrapSampler::bootstrapWithoutReplacement() {
+void BootstrapSampler::bootstrapWithoutReplacement(std::vector<std::vector<size_t>>& sampleIDs) {
 
 // Use fraction (default 63.21%) of the samples
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
@@ -117,7 +116,7 @@ void BootstrapSampler::bootstrapWithoutReplacement() {
   }
 }
 
-void BootstrapSampler::bootstrapWithoutReplacementWeighted() {
+void BootstrapSampler::bootstrapWithoutReplacementWeighted(std::vector<std::vector<size_t>>& sampleIDs) {
 
 // Use fraction (default 63.21%) of the samples
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;

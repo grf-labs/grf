@@ -74,7 +74,6 @@ void TreeFactory::init(Data* data, uint mtry, size_t dependent_varID, size_t num
   this->no_split_variables = no_split_variables;
 
   this->bootstrap_sampler = new BootstrapSampler(num_samples,
-      sampleIDs,
       seed,
       sample_with_replacement,
       sample_fraction,
@@ -83,7 +82,7 @@ void TreeFactory::init(Data* data, uint mtry, size_t dependent_varID, size_t num
 }
 
 void TreeFactory::grow() {
-  bootstrap_sampler->sample();
+  bootstrap_sampler->sample(sampleIDs);
 
   // While not all nodes terminal, split next node
   size_t num_open_nodes = 1;

@@ -10,14 +10,13 @@
 class BootstrapSampler {
 public:
   BootstrapSampler(size_t num_samples,
-                   std::vector<std::vector<size_t>> sampleIDs,
                    uint seed,
                    bool sample_with_replacement,
                    double sample_fraction,
                    bool keep_inbag,
                    std::vector<double> *case_weights);
 
-  void sample();
+  void sample(std::vector<std::vector<size_t>>& sampleIDs);
 
   const std::vector<size_t>& getOobSampleIDs() const {
     return oob_sampleIDs;
@@ -69,10 +68,10 @@ public:
                                       std::vector<double> &weights);
 
 private:
-  void bootstrap();
-  void bootstrapWithoutReplacement();
-  void bootstrapWeighted();
-  void bootstrapWithoutReplacementWeighted();
+  void bootstrap(std::vector<std::vector<size_t>>& sampleIDs);
+  void bootstrapWithoutReplacement(std::vector<std::vector<size_t>>& sampleIDs);
+  void bootstrapWeighted(std::vector<std::vector<size_t>>& sampleIDs);
+  void bootstrapWithoutReplacementWeighted(std::vector<std::vector<size_t>>& sampleIDs);
 
   /**
    * Create numbers from 0 to n_all-1, shuffle and split in two parts.
@@ -121,8 +120,6 @@ private:
   std::mt19937_64 random_number_generator;
 
   size_t num_samples;
-  std::vector<std::vector<size_t>> sampleIDs;
-
 };
 
 

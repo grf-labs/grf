@@ -38,11 +38,6 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
     min_node_size = DEFAULT_MIN_NODE_SIZE_REGRESSION;
   }
 
-  // Sort data if memory saving mode
-  if (!memory_saving_splitting) {
-    data->sort();
-  }
-
   if (!prediction_mode) {
     original_responses = new std::unordered_map<size_t, std::vector<double>>;
 

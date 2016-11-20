@@ -61,6 +61,7 @@ Data* initializeData(ArgumentHandler& arg_handler) {
     std::cerr << "Warning: Rounding or Integer overflow occurred."
         "Use FLOAT or DOUBLE precision to avoid this." << std::endl;
   }
+  data->sort();
 
   return data;
 }
