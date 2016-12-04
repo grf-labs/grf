@@ -41,10 +41,6 @@ void ForestQuantile::initInternal(std::string status_variable_name) {
 }
 
 void ForestQuantile::predictInternal() {
-  if (predict_all) {
-    throw std::runtime_error("Quantile forests do not support 'predict_all'.");
-  }
-
   PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles, original_responses);
   
   for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
@@ -84,10 +80,6 @@ void ForestQuantile::normalizeSampleWeights(std::unordered_map<size_t, double>& 
 }
 
 void ForestQuantile::computePredictionErrorInternal() {
-  if (predict_all) {
-    throw std::runtime_error("Quantile forests do not support 'predict_all'.");
-  }
-
   PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles, original_responses);
 
   std::unordered_multimap<size_t, size_t> trees_by_oob_samples;

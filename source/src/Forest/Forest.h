@@ -46,12 +46,12 @@ public:
       std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
       std::string status_variable_name, bool sample_with_replacement,
       bool memory_saving_splitting,
-      std::string case_weights_file, bool predict_all, double sample_fraction, Data* input_data);
+      std::string case_weights_file, double sample_fraction, Data* input_data);
   void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
       uint num_trees, uint seed, uint num_threads,
       uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
       bool memory_saving_splitting,
-      bool predict_all, double sample_fraction);
+      double sample_fraction);
   virtual void initInternal(std::string status_variable_name) = 0;
 
   // Grow or predict
@@ -107,7 +107,6 @@ protected:
   MemoryMode memory_mode;
   bool sample_with_replacement;
   bool memory_saving_splitting;
-  bool predict_all;
   bool keep_inbag;
   double sample_fraction;
 

@@ -36,7 +36,7 @@ wright@imbs.uni-luebeck.de
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
     caseweights(""), depvarname(""), fraction(1), memmode(MEM_DOUBLE), savemem(false), predict(""),
-    splitweights(""), nthreads(DEFAULT_NUM_THREADS), predall(false), file(""),
+    splitweights(""), nthreads(DEFAULT_NUM_THREADS), file(""),
     targetpartitionsize(0), mtry(0),
     quantiles(new std::vector<double>()), statusvarname(""), instrumentvarname(""),
     ntree(DEFAULT_NUM_TREE), replace(true), verbose(false), write(false), treetype(TREE_QUANTILE), seed(0) {
@@ -157,10 +157,6 @@ int ArgumentHandler::processArguments() {
         throw std::runtime_error(
             "Illegal argument for option 'nthreads'. Please give a positive integer. See '--help' for details.");
       }
-      break;
-
-    case 'X':
-      predall = true;
       break;
 
     case 'Z':

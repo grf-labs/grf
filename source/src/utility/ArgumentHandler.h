@@ -69,7 +69,6 @@ public:
   std::string predict;
   std::string splitweights;
   uint nthreads;
-  bool predall;
 
   // All command line arguments as member: Small letters
   std::string file;

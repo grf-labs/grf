@@ -58,10 +58,6 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
 }
 
 void ForestInstrumental::predictInternal() {
-  if (predict_all) {
-    throw std::runtime_error("Instrumental forests do not support 'predict_all'.");
-  }
-
   PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy(instrument_varID,
                                                                               treatment_varID,
                                                                               dependent_varID,
@@ -106,10 +102,6 @@ void ForestInstrumental::normalizeSampleWeights(std::unordered_map<size_t, doubl
 }
 
 void ForestInstrumental::computePredictionErrorInternal() {
-  if (predict_all) {
-    throw std::runtime_error("Instrumental forests do not support 'predict_all'.");
-  }
-
   PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy(instrument_varID,
                                                                               treatment_varID,
                                                                               dependent_varID,
