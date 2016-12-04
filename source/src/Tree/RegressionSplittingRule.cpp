@@ -5,6 +5,7 @@ RegressionSplittingRule::RegressionSplittingRule(Data* data) {
 
   size_t max_num_unique_values = data->getMaxNumUniqueValues();
   this->counter = new size_t[max_num_unique_values];
+  this->sums = new double[max_num_unique_values];
 }
 
 RegressionSplittingRule::~RegressionSplittingRule() {

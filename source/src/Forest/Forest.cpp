@@ -351,7 +351,6 @@ void Forest::growTreesInThread(uint thread_idx) {
       // Check for user interrupt
 
       // Increase progress by 1 tree
-      std::unique_lock<std::mutex> lock(mutex);
       ++progress;
       condition_variable.notify_one();
     }
