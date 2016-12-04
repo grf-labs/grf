@@ -54,7 +54,7 @@ Forest::~Forest() {
   }
 }
 
-void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode, std::string input_file, uint mtry,
+void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode, uint mtry,
     uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
     std::string load_forest_filename, uint min_node_size,
     std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,

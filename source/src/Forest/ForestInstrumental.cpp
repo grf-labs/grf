@@ -257,6 +257,10 @@ void ForestInstrumental::saveToFileInternal(std::ofstream& outfile) {
 
   outfile.write((char*) &treatment_varID, sizeof(treatment_varID));
   outfile.write((char*) &instrument_varID, sizeof(instrument_varID));
+
+  saveVector1D((*original_responses)[dependent_varID], outfile);
+  saveVector1D((*original_responses)[treatment_varID], outfile);
+  saveVector1D((*original_responses)[instrument_varID], outfile);
 }
 
 void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
@@ -274,6 +278,11 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
 
   infile.read((char*) &treatment_varID, sizeof(treatment_varID));
   infile.read((char*) &instrument_varID, sizeof(instrument_varID));
+
+  original_responses = new std::unordered_map<size_t, std::vector<double>>();
+  readVector1D((*original_responses)[dependent_varID], infile);
+  readVector1D((*original_responses)[treatment_varID], infile);
+  readVector1D((*original_responses)[instrument_varID], infile);
 
   for (size_t i = 0; i < num_trees; ++i) {
 
