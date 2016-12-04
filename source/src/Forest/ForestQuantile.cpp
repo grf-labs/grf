@@ -15,7 +15,7 @@ ForestQuantile::ForestQuantile(std::vector<double>* quantiles,
                                SplittingRule *splitting_rule):
     Forest(relabeling_strategy, splitting_rule),
     quantiles(quantiles),
-    original_responses(new std::vector<double>()) {}
+    responses(new std::vector<double>()) {}
 
 ForestQuantile::~ForestQuantile() {}
 
@@ -33,15 +33,15 @@ void ForestQuantile::initInternal(std::string status_variable_name) {
   }
 
   if (!prediction_mode) {
-    original_responses = new std::vector<double>();
+    responses = new std::vector<double>();
     for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
-      original_responses->push_back(data->get(sampleID, dependent_varID));
+      responses->push_back(data->get(sampleID, dependent_varID));
     }
   }
 }
 
 void ForestQuantile::predictInternal() {
-  PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles, original_responses);
+  PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles, responses);
   
   for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
@@ -80,7 +80,7 @@ void ForestQuantile::normalizeSampleWeights(std::unordered_map<size_t, double>& 
 }
 
 void ForestQuantile::computePredictionErrorInternal() {
-  PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles, original_responses);
+  PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles, responses);
 
   std::unordered_multimap<size_t, size_t> trees_by_oob_samples;
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
@@ -178,7 +178,7 @@ void ForestQuantile::saveToFileInternal(std::ofstream& outfile) {
   TreeType treetype = TREE_QUANTILE;
   outfile.write((char*) &treetype, sizeof(treetype));
   saveVector1D(*quantiles, outfile);
-  saveVector1D(*original_responses, outfile);
+  saveVector1D(*responses, outfile);
 }
 
 void ForestQuantile::loadFromFileInternal(std::ifstream& infile) {
@@ -195,7 +195,7 @@ void ForestQuantile::loadFromFileInternal(std::ifstream& infile) {
   }
 
   readVector1D(*quantiles, infile);
-  readVector1D(*original_responses, infile);
+  readVector1D(*responses, infile);
 
   for (size_t i = 0; i < num_trees; ++i) {
 

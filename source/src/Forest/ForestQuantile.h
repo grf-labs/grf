@@ -41,7 +41,7 @@ private:
   void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
 
   std::vector<double>* quantiles;
-  std::vector<double>* original_responses;
+  std::vector<double>* responses;
 
   DISALLOW_COPY_AND_ASSIGN(ForestQuantile);
 };

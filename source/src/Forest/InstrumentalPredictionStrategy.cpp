@@ -4,11 +4,11 @@
 InstrumentalPredictionStrategy::InstrumentalPredictionStrategy(size_t instrument_varID,
                                                                size_t treatment_varID,
                                                                size_t dependent_varID,
-                                                               std::unordered_map<size_t, std::vector<double>>* original_responses):
+                                                               std::unordered_map<size_t, std::vector<double>>* responses):
    instrument_varID(instrument_varID),
    treatment_varID(treatment_varID),
    dependent_varID(dependent_varID),
-   original_responses(original_responses) {}
+   responses(responses) {}
 
 std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<size_t, double>& weights_by_sampleID) {
   // Compute the relevant averages.
@@ -20,9 +20,9 @@ std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<s
     size_t neighborID = it->first;
     double weight = it->second;
 
-    average_instrument += weight * original_responses->at(instrument_varID)[neighborID];
-    average_treatment += weight * original_responses->at(treatment_varID)[neighborID];
-    average_response += weight * original_responses->at(dependent_varID)[neighborID];
+    average_instrument += weight * responses->at(instrument_varID)[neighborID];
+    average_treatment += weight * responses->at(treatment_varID)[neighborID];
+    average_response += weight * responses->at(dependent_varID)[neighborID];
   }
 
   // Finally, calculate the prediction.
@@ -32,9 +32,9 @@ std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<s
     size_t neighborID = it->first;
     double weight = it->second;
 
-    double instrument = original_responses->at(instrument_varID)[neighborID];
-    double treatment = original_responses->at(treatment_varID)[neighborID];
-    double response = original_responses->at(dependent_varID)[neighborID];
+    double instrument = responses->at(instrument_varID)[neighborID];
+    double treatment = responses->at(treatment_varID)[neighborID];
+    double response = responses->at(dependent_varID)[neighborID];
 
     numerator += weight * (instrument - average_instrument) * (response - average_response);
     denominator += weight * (instrument - average_instrument) * (treatment - average_treatment);

@@ -2,15 +2,15 @@
 #include "QuantilePredictionStrategy.h"
 
 QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double>* quantiles,
-                                                       std::vector<double>* original_responses):
-    quantiles(quantiles), original_responses(original_responses) {}
+                                                       std::vector<double>* responses):
+    quantiles(quantiles), responses(responses) {}
 
 std::vector<double> QuantilePredictionStrategy::predict(std::unordered_map<size_t, double>& weights_by_sampleID) {
   std::vector<std::pair<size_t, double>> sampleIDs_and_values;
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     size_t sampleID = it->first;
     sampleIDs_and_values.push_back(std::pair<size_t, double>(
-        sampleID, original_responses->at(sampleID)));
+        sampleID, responses->at(sampleID)));
   }
 
   return calculateQuantileCutoffs(weights_by_sampleID, sampleIDs_and_values);

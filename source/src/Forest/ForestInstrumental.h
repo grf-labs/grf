@@ -42,7 +42,7 @@ private:
   size_t treatment_varID;
   size_t instrument_varID;
   std::string instrument_variable_name;
-  std::unordered_map<size_t, std::vector<double>>* original_responses;
+  std::unordered_map<size_t, std::vector<double>>* responses;
 
   DISALLOW_COPY_AND_ASSIGN(ForestInstrumental);
 };

@@ -16,7 +16,7 @@ ForestInstrumental::ForestInstrumental(RelabelingStrategy* relabeling_strategy,
     treatment_varID(0),
     instrument_varID(0),
     instrument_variable_name(instrument_variable_name),
-    original_responses(0) {}
+    responses(0) {}
 
 ForestInstrumental::~ForestInstrumental() {}
 
@@ -41,18 +41,18 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
   }
 
   if (!prediction_mode) {
-    original_responses = new std::unordered_map<size_t, std::vector<double>>;
+    responses = new std::unordered_map<size_t, std::vector<double>>;
 
     for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
-      (*original_responses)[dependent_varID].push_back(data->get(sampleID, dependent_varID));
+      (*responses)[dependent_varID].push_back(data->get(sampleID, dependent_varID));
     }
 
     for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
-      (*original_responses)[dependent_varID + 1].push_back(data->get(sampleID, treatment_varID));
+      (*responses)[dependent_varID + 1].push_back(data->get(sampleID, treatment_varID));
     }
 
     for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
-      (*original_responses)[dependent_varID + 2].push_back(data->get(sampleID, instrument_varID));
+      (*responses)[dependent_varID + 2].push_back(data->get(sampleID, instrument_varID));
     }
   }
 }
@@ -61,7 +61,7 @@ void ForestInstrumental::predictInternal() {
   PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy(instrument_varID,
                                                                               treatment_varID,
                                                                               dependent_varID,
-                                                                              original_responses);
+                                                                              responses);
 
   predictions.reserve(num_samples);
 
@@ -105,7 +105,7 @@ void ForestInstrumental::computePredictionErrorInternal() {
   PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy(instrument_varID,
                                                                               treatment_varID,
                                                                               dependent_varID,
-                                                                              original_responses);
+                                                                              responses);
   predictions.reserve(num_samples);
 
   std::unordered_multimap<size_t, size_t> trees_by_oob_samples;
@@ -204,9 +204,9 @@ void ForestInstrumental::saveToFileInternal(std::ofstream& outfile) {
   outfile.write((char*) &treatment_varID, sizeof(treatment_varID));
   outfile.write((char*) &instrument_varID, sizeof(instrument_varID));
 
-  saveVector1D((*original_responses)[dependent_varID], outfile);
-  saveVector1D((*original_responses)[treatment_varID], outfile);
-  saveVector1D((*original_responses)[instrument_varID], outfile);
+  saveVector1D((*responses)[dependent_varID], outfile);
+  saveVector1D((*responses)[treatment_varID], outfile);
+  saveVector1D((*responses)[instrument_varID], outfile);
 }
 
 void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
@@ -225,10 +225,10 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
   infile.read((char*) &treatment_varID, sizeof(treatment_varID));
   infile.read((char*) &instrument_varID, sizeof(instrument_varID));
 
-  original_responses = new std::unordered_map<size_t, std::vector<double>>();
-  readVector1D((*original_responses)[dependent_varID], infile);
-  readVector1D((*original_responses)[treatment_varID], infile);
-  readVector1D((*original_responses)[instrument_varID], infile);
+  responses = new std::unordered_map<size_t, std::vector<double>>();
+  readVector1D((*responses)[dependent_varID], infile);
+  readVector1D((*responses)[treatment_varID], infile);
+  readVector1D((*responses)[instrument_varID], infile);
 
   for (size_t i = 0; i < num_trees; ++i) {
 
