@@ -39,8 +39,6 @@ private:
                         TreeFactory* tree,
                         std::unordered_map<size_t, double> &weights_by_sampleID);
   void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
-  std::vector<double> calculateQuantileCutoffs(std::unordered_map<size_t, double> &weights_by_sampleID,
-                                               std::vector<std::pair<size_t, double>> sampleIDs_and_values);
 
   std::vector<double>* quantiles;
   std::vector<double>* original_responses;

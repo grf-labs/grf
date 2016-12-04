@@ -6,6 +6,8 @@
 #include "ForestInstrumental.h"
 #include "InstrumentalRelabelingStrategy.h"
 #include "RegressionSplittingRule.h"
+#include "PredictionStrategy.h"
+#include "InstrumentalPredictionStrategy.h"
 
 ForestInstrumental::ForestInstrumental(RelabelingStrategy* relabeling_strategy,
                                        SplittingRule* splitting_rule,
@@ -59,6 +61,12 @@ void ForestInstrumental::predictInternal() {
   if (predict_all) {
     throw std::runtime_error("Instrumental forests do not support 'predict_all'.");
   }
+
+  PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy(instrument_varID,
+                                                                              treatment_varID,
+                                                                              dependent_varID,
+                                                                              original_responses);
+
   predictions.reserve(num_samples);
 
   for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
@@ -70,37 +78,8 @@ void ForestInstrumental::predictInternal() {
 
     normalizeSampleWeights(weights_by_sampleID);
 
-    // Compute the relevant averages.
-    double average_instrument = 0.0;
-    double average_treatment = 0.0;
-    double average_response = 0.0;
-
-    for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
-      size_t neighborID = it->first;
-      double weight = it->second;
-
-      average_instrument += weight * original_responses->at(instrument_varID)[neighborID];
-      average_treatment += weight * original_responses->at(treatment_varID)[neighborID];
-      average_response += weight * original_responses->at(dependent_varID)[neighborID];
-    }
-
-    // Finally, calculate the prediction.
-    double numerator = 0.0;
-    double denominator = 0.0;
-    for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
-      size_t neighborID = it->first;
-      double weight = it->second;
-
-      double instrument = original_responses->at(instrument_varID)[neighborID];
-      double treatment = original_responses->at(treatment_varID)[neighborID];
-      double response = original_responses->at(dependent_varID)[neighborID];
-
-      numerator += weight * (instrument - average_instrument) * (response - average_response);
-      denominator += weight * (instrument - average_instrument) * (treatment - average_treatment);
-    }
-
-    std::vector<double> temp { numerator / denominator };
-    predictions.push_back(temp);
+    std::vector<double> prediction = predictionStrategy->predict(weights_by_sampleID);
+    predictions.push_back(prediction);
   }
 }
 
@@ -131,6 +110,10 @@ void ForestInstrumental::computePredictionErrorInternal() {
     throw std::runtime_error("Instrumental forests do not support 'predict_all'.");
   }
 
+  PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy(instrument_varID,
+                                                                              treatment_varID,
+                                                                              dependent_varID,
+                                                                              original_responses);
   predictions.reserve(num_samples);
 
   std::unordered_multimap<size_t, size_t> trees_by_oob_samples;
@@ -163,37 +146,8 @@ void ForestInstrumental::computePredictionErrorInternal() {
 
     normalizeSampleWeights(weights_by_sampleID);
 
-    // Compute the relevant averages.
-    double average_instrument = 0.0;
-    double average_treatment = 0.0;
-    double average_response = 0.0;
-
-    for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
-      size_t neighborID = it->first;
-      double weight = it->second;
-
-      average_instrument += weight * data->get(neighborID, instrument_varID);
-      average_treatment += weight * data->get(neighborID, treatment_varID);
-      average_response += weight * data->get(neighborID, dependent_varID);
-    }
-
-    // Finally, calculate the prediction.
-    double numerator = 0.0;
-    double denominator = 0.0;
-    for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
-      size_t neighborID = it->first;
-      double weight = it->second;
-
-      double instrument = data->get(neighborID, instrument_varID);
-      double treatment = data->get(neighborID, treatment_varID);
-      double response = data->get(neighborID, dependent_varID);
-
-      numerator += weight * (instrument - average_instrument) * (response - average_response);
-      denominator += weight * (instrument - average_instrument) * (treatment - average_treatment);
-    }
-
-    std::vector<double> temp { numerator / denominator };
-    predictions.push_back(temp);
+    std::vector<double> prediction = predictionStrategy->predict(weights_by_sampleID);
+    predictions.push_back(prediction);
   }
 }
 
