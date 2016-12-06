@@ -11,11 +11,11 @@
 #include "QuantilePredictionStrategy.h"
 
 ForestQuantile::ForestQuantile(std::vector<double>* quantiles,
+                               std::unordered_map<std::string, size_t> observables,
                                RelabelingStrategy *relabeling_strategy,
                                SplittingRule *splitting_rule):
-    Forest(relabeling_strategy, splitting_rule),
-    quantiles(quantiles),
-    responses(new std::vector<double>()) {}
+    Forest(observables, relabeling_strategy, splitting_rule),
+    quantiles(quantiles) {}
 
 ForestQuantile::~ForestQuantile() {}
 
@@ -31,17 +31,10 @@ void ForestQuantile::initInternal(std::string status_variable_name) {
   if (min_node_size == 0) {
     min_node_size = DEFAULT_MIN_NODE_SIZE_REGRESSION;
   }
-
-  if (!prediction_mode) {
-    responses = new std::vector<double>();
-    for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
-      responses->push_back(data->get(sampleID, dependent_varID));
-    }
-  }
 }
 
 void ForestQuantile::predictInternal() {
-  PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles, responses);
+  PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles);
   
   for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
@@ -52,7 +45,7 @@ void ForestQuantile::predictInternal() {
 
     normalizeSampleWeights(weights_by_sampleID);
 
-    std::vector<double> quantile_cutoffs = predictionStrategy->predict(weights_by_sampleID);
+    std::vector<double> quantile_cutoffs = predictionStrategy->predict(weights_by_sampleID, original_observations);
     predictions.push_back(quantile_cutoffs);
   }
 }
@@ -80,7 +73,7 @@ void ForestQuantile::normalizeSampleWeights(std::unordered_map<size_t, double>& 
 }
 
 void ForestQuantile::computePredictionErrorInternal() {
-  PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles, responses);
+  PredictionStrategy* predictionStrategy = new QuantilePredictionStrategy(quantiles);
 
   std::unordered_multimap<size_t, size_t> trees_by_oob_samples;
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
@@ -117,7 +110,7 @@ void ForestQuantile::computePredictionErrorInternal() {
           sampleID, data->get(sampleID, dependent_varID)));
     }
 
-    std::vector<double> quantile_cutoffs = predictionStrategy->predict(weights_by_sampleID);
+    std::vector<double> quantile_cutoffs = predictionStrategy->predict(weights_by_sampleID, original_observations);
     predictions.push_back(quantile_cutoffs);
   }
 }
@@ -170,32 +163,15 @@ void ForestQuantile::writePredictionFile() {
 }
 
 void ForestQuantile::saveToFileInternal(std::ofstream& outfile) {
-
-// Write num_variables
   outfile.write((char*) &num_variables, sizeof(num_variables));
-
-// Write treetype
-  TreeType treetype = TREE_QUANTILE;
-  outfile.write((char*) &treetype, sizeof(treetype));
-  saveVector1D(*quantiles, outfile);
-  saveVector1D(*responses, outfile);
 }
 
 void ForestQuantile::loadFromFileInternal(std::ifstream& infile) {
 
-// Read number of variables
   size_t num_variables_saved;
   infile.read((char *) &num_variables_saved, sizeof(num_variables_saved));
 
-// Read treetype
-  TreeType treetype;
-  infile.read((char *) &treetype, sizeof(treetype));
-  if (treetype != TREE_QUANTILE) {
-    throw std::runtime_error("Wrong treetype. Loaded file is not a regression forest.");
-  }
-
   readVector1D(*quantiles, infile);
-  readVector1D(*responses, infile);
 
   for (size_t i = 0; i < num_trees; ++i) {
 

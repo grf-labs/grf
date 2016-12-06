@@ -7,9 +7,7 @@
 
 class InstrumentalRelabelingStrategy: public RelabelingStrategy {
 public:
-  InstrumentalRelabelingStrategy(size_t dependent_varID,
-                                 size_t treatment_varID,
-                                 size_t instrument_varID);
+  InstrumentalRelabelingStrategy(std::unordered_map<std::string, size_t> observables);
   std::unordered_map<size_t, double> relabelResponses(Data* data,
                                                       std::vector<size_t>& nodeSampleIDs);
 

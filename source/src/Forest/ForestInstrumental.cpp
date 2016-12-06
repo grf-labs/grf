@@ -9,26 +9,14 @@
 #include "PredictionStrategy.h"
 #include "InstrumentalPredictionStrategy.h"
 
-ForestInstrumental::ForestInstrumental(RelabelingStrategy* relabeling_strategy,
-                                       SplittingRule* splitting_rule,
-                                       std::string instrument_variable_name) :
-    Forest(relabeling_strategy, splitting_rule),
-    treatment_varID(0),
-    instrument_varID(0),
-    instrument_variable_name(instrument_variable_name),
-    responses(0) {}
+ForestInstrumental::ForestInstrumental(std::unordered_map<std::string, size_t> observables,
+                                       RelabelingStrategy *relabeling_strategy,
+                                       SplittingRule *splitting_rule) :
+    Forest(observables, relabeling_strategy, splitting_rule) {}
 
 ForestInstrumental::~ForestInstrumental() {}
 
 void ForestInstrumental::initInternal(std::string status_variable_name) {
-  if (!prediction_mode) {
-    treatment_varID = data->getVariableID(status_variable_name);
-    instrument_varID = data->getVariableID(instrument_variable_name);
-
-    no_split_variables.push_back(treatment_varID);
-    no_split_variables.push_back(instrument_varID);
-  }
-
   // If mtry not set, use the square root of the number of possible split variables.
   if (mtry == 0) {
     unsigned long temp = sqrt((double) (num_variables - no_split_variables.size()));
@@ -39,29 +27,10 @@ void ForestInstrumental::initInternal(std::string status_variable_name) {
   if (min_node_size == 0) {
     min_node_size = DEFAULT_MIN_NODE_SIZE_REGRESSION;
   }
-
-  if (!prediction_mode) {
-    responses = new std::unordered_map<size_t, std::vector<double>>;
-
-    for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
-      (*responses)[dependent_varID].push_back(data->get(sampleID, dependent_varID));
-    }
-
-    for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
-      (*responses)[dependent_varID + 1].push_back(data->get(sampleID, treatment_varID));
-    }
-
-    for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
-      (*responses)[dependent_varID + 2].push_back(data->get(sampleID, instrument_varID));
-    }
-  }
 }
 
 void ForestInstrumental::predictInternal() {
-  PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy(instrument_varID,
-                                                                              treatment_varID,
-                                                                              dependent_varID,
-                                                                              responses);
+  PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy();
 
   predictions.reserve(num_samples);
 
@@ -74,7 +43,7 @@ void ForestInstrumental::predictInternal() {
 
     normalizeSampleWeights(weights_by_sampleID);
 
-    std::vector<double> prediction = predictionStrategy->predict(weights_by_sampleID);
+    std::vector<double> prediction = predictionStrategy->predict(weights_by_sampleID, original_observations);
     predictions.push_back(prediction);
   }
 }
@@ -102,10 +71,7 @@ void ForestInstrumental::normalizeSampleWeights(std::unordered_map<size_t, doubl
 }
 
 void ForestInstrumental::computePredictionErrorInternal() {
-  PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy(instrument_varID,
-                                                                              treatment_varID,
-                                                                              dependent_varID,
-                                                                              responses);
+  PredictionStrategy* predictionStrategy = new InstrumentalPredictionStrategy();
   predictions.reserve(num_samples);
 
   std::unordered_multimap<size_t, size_t> trees_by_oob_samples;
@@ -138,7 +104,7 @@ void ForestInstrumental::computePredictionErrorInternal() {
 
     normalizeSampleWeights(weights_by_sampleID);
 
-    std::vector<double> prediction = predictionStrategy->predict(weights_by_sampleID);
+    std::vector<double> prediction = predictionStrategy->predict(weights_by_sampleID, original_observations);
     predictions.push_back(prediction);
   }
 }
@@ -193,42 +159,13 @@ void ForestInstrumental::writePredictionFile() {
 }
 
 void ForestInstrumental::saveToFileInternal(std::ofstream& outfile) {
-
-// Write num_variables
   outfile.write((char*) &num_variables, sizeof(num_variables));
-
-// Write treetype
-  TreeType treetype = TREE_INSTRUMENTAL;
-  outfile.write((char*) &treetype, sizeof(treetype));
-
-  outfile.write((char*) &treatment_varID, sizeof(treatment_varID));
-  outfile.write((char*) &instrument_varID, sizeof(instrument_varID));
-
-  saveVector1D((*responses)[dependent_varID], outfile);
-  saveVector1D((*responses)[treatment_varID], outfile);
-  saveVector1D((*responses)[instrument_varID], outfile);
 }
 
 void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
 
-// Read number of variables
   size_t num_variables_saved;
   infile.read((char*) &num_variables_saved, sizeof(num_variables_saved));
-
-// Read treetype
-  TreeType treetype;
-  infile.read((char*) &treetype, sizeof(treetype));
-  if (treetype != TREE_INSTRUMENTAL) {
-    throw std::runtime_error("Wrong treetype. Loaded file is not a instrumental forest.");
-  }
-
-  infile.read((char*) &treatment_varID, sizeof(treatment_varID));
-  infile.read((char*) &instrument_varID, sizeof(instrument_varID));
-
-  responses = new std::unordered_map<size_t, std::vector<double>>();
-  readVector1D((*responses)[dependent_varID], infile);
-  readVector1D((*responses)[treatment_varID], infile);
-  readVector1D((*responses)[instrument_varID], infile);
 
   for (size_t i = 0; i < num_trees; ++i) {
 
@@ -252,8 +189,7 @@ void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
     std::vector<std::vector<size_t>> sampleIDs;
     readVector2D(sampleIDs, infile);
 
-    RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy(
-        dependent_varID, treatment_varID, instrument_varID);
+    RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy(observables);
     SplittingRule* splitting_rule = new RegressionSplittingRule(data);
     TreeFactory *tree = new TreeFactory(child_nodeIDs, split_varIDs, split_values,
                                       sampleIDs, relabeling_strategy, splitting_rule);

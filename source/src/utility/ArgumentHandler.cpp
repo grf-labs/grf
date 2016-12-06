@@ -319,22 +319,6 @@ void ArgumentHandler::checkArguments() {
     throw std::runtime_error("Option '--instrumentvarname' only applicable for instrumental forests. See '--help' for details.");
   }
 
-  // Get treetype for prediction
-  if (!predict.empty()) {
-    std::ifstream infile;
-    infile.open(predict, std::ios::binary);
-    if (!infile.good()) {
-      throw std::runtime_error("Could not read from input file: " + predict + ".");
-    }
-
-    // Do not read dependent_varID, num_variables, and num_trees
-    infile.seekg(3 * sizeof(char*));
-
-    // Get treetype
-    infile.read((char*) &treetype, sizeof(treetype));
-    infile.close();
-  }
-
   if (!alwayssplitvars.empty() && !splitweights.empty()) {
     throw std::runtime_error("Please use only one option of splitweights and alwayssplitvars.");
   }

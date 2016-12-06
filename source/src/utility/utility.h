@@ -81,6 +81,18 @@ inline void saveVector1D(std::vector<bool>& vector, std::ofstream& file) {
   }
 }
 
+template<typename T, typename U>
+inline void saveMap(std::unordered_map<T, U>& map, std::ofstream& file) {
+  // Save length
+  size_t length = map.size();
+  file.write((char*) &length, sizeof(length));
+
+  for (auto it = map.begin(); it != map.end(); it++) {
+    file.write((char*) &it->first, sizeof(T));
+    file.write((char*) &it->second, sizeof(U));
+  }
+}
+
 /**
  * Read a 1d vector written by saveVector1D() from filestream.
  * @param result Result vector with elements of type T.
@@ -106,6 +118,23 @@ inline void readVector1D(std::vector<bool>& result, std::ifstream& file) {
     bool temp;
     file.read((char*) &temp, sizeof(temp));
     result.push_back(temp);
+  }
+}
+
+template<typename T, typename U>
+inline void readMap(std::unordered_map<T, U>& result, std::ifstream& file) {
+  size_t length;
+  file.read((char*) &length, sizeof(length));
+
+  for (size_t i = 0; i < length; ++i) {
+    T key;
+    U value;
+
+    file.read((char*) &key, sizeof(T));
+    file.read((char*) &value, sizeof(U));
+
+    std::cout << "key: " << key << ", sizeof(U): " << sizeof(U) << std::endl;
+    result[key] = value;
   }
 }
 

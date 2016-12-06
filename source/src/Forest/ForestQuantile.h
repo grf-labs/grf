@@ -20,6 +20,7 @@
 class ForestQuantile : public Forest {
 public:
   ForestQuantile(std::vector<double> *quantiles,
+                 std::unordered_map<std::string, size_t> observables,
                  RelabelingStrategy *relabeling_strategy,
                  SplittingRule *splitting_rule);
 
@@ -41,7 +42,6 @@ private:
   void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
 
   std::vector<double>* quantiles;
-  std::vector<double>* responses;
 
   DISALLOW_COPY_AND_ASSIGN(ForestQuantile);
 };

@@ -1,9 +1,10 @@
 #include "InstrumentalRelabelingStrategy.h"
 
-InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(size_t dependent_varID,
-                                                               size_t treatment_varID,
-                                                               size_t instrument_varID) :
-     dependent_varID(dependent_varID), treatment_varID(treatment_varID), instrument_varID(instrument_varID) {}
+InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(std::unordered_map<std::string, size_t> observables) {
+  this->treatment_varID = observables["treatment"];
+  this->instrument_varID = observables["instrument"];
+  this->dependent_varID = observables["outcome"];
+}
 
 std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabelResponses(Data* data,
                                                                                     std::vector<size_t>& node_sampleIDs) {

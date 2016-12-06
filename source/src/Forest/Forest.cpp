@@ -32,20 +32,18 @@
 #include <string>
 #include <ctime>
 #include <thread>
-#include <chrono>
 #include "utility.h"
 #include "Forest.h"
-#include "DataChar.h"
-#include "DataDouble.h"
-#include "DataFloat.h"
 
-Forest::Forest(RelabelingStrategy* relabeling_strategy,
+Forest::Forest(std::unordered_map<std::string, size_t> observables,
+               RelabelingStrategy* relabeling_strategy,
                SplittingRule* splitting_rule) :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), num_variables(0), num_independent_variables(
         0), seed(0), dependent_varID(0), num_samples(0), prediction_mode(false), memory_mode(MEM_DOUBLE), sample_with_replacement(
         true), memory_saving_splitting(false), keep_inbag(false), sample_fraction(
         1), num_threads(DEFAULT_NUM_THREADS), data(0), overall_prediction_error(
-        0), progress(0), relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule) {
+        0), progress(0), observables(observables),
+        relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule) {
 }
 
 Forest::~Forest() {
@@ -111,6 +109,16 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
     double sample_fraction) {
 
   this->data = input_data;
+  if (!prediction_mode) {
+    for (auto it : observables) {
+      std::string name = it.first;
+      size_t index = it.second;
+
+      for (int row = 0; row < data->getNumRows(); row++) {
+        original_observations[name].push_back(data->get(row, index));
+      }
+    }
+  }
 
   // Initialize random number generator and set seed
   if (seed == 0) {
@@ -147,7 +155,9 @@ void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, D
     dependent_varID = data->getVariableID(dependent_variable_name);
   }
 
-  no_split_variables.push_back(dependent_varID);
+  for (auto it : observables) {
+    no_split_variables.push_back(it.second);
+  }
 
   initInternal(status_variable_name);
 
@@ -236,10 +246,14 @@ void Forest::saveToFile() {
     throw std::runtime_error("Could not write to output file: " + filename + ".");
   }
 
-  // Write dependent_varID
-  outfile.write((char*) &dependent_varID, sizeof(dependent_varID));
+  saveMap(observables, outfile);
 
-  // Write num_trees
+  for (auto it : original_observations) {
+    std::string name = it.first;
+    outfile.write((char*) &name, sizeof(name));
+    saveVector1D(it.second, outfile);
+  }
+
   outfile.write((char*) &num_trees, sizeof(num_trees));
 
   saveToFileInternal(outfile);
@@ -379,8 +393,17 @@ void Forest::loadFromFile(std::string filename) {
     throw std::runtime_error("Could not read from input file: " + filename + ".");
   }
 
-// Read dependent_varID and num_trees
-  infile.read((char*) &dependent_varID, sizeof(dependent_varID));
+  readMap(observables, infile);
+
+  for (int i = 0; i < observables.size(); i++) {
+    std::string name;
+    infile.read((char*) &name, sizeof(std::string));
+
+    std::vector<double> observations;
+    readVector1D(observations, infile);
+    original_observations[name] = observations;
+  }
+
   infile.read((char*) &num_trees, sizeof(num_trees));
 
 // Read tree data. This is different for tree types -> virtual function

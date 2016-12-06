@@ -35,7 +35,8 @@
 
 class Forest {
 public:
-  Forest(RelabelingStrategy* relabeling_strategy,
+  Forest(std::unordered_map<std::string, size_t> observables,
+         RelabelingStrategy* relabeling_strategy,
          SplittingRule* splitting_rule);
   virtual ~Forest();
 
@@ -121,6 +122,7 @@ protected:
 
   std::vector<TreeFactory*> trees;
   Data* data;
+  std::unordered_map<std::string, std::vector<double>> original_observations;
 
   std::vector<std::vector<double>> predictions;
   double overall_prediction_error;
@@ -140,6 +142,7 @@ protected:
   // Computation progress (finished trees)
   size_t progress;
 
+  std::unordered_map<std::string, size_t> observables;
   RelabelingStrategy* relabeling_strategy;
   SplittingRule* splitting_rule;
 

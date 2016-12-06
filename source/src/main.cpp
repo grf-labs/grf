@@ -88,9 +88,11 @@ int main(int argc, char **argv) {
                                        ? arg_handler.quantiles
                                        : default_quantiles;
 
+      std::unordered_map<std::string, size_t> observables = {{"outcome", dependent_varID}};
       RelabelingStrategy* relabeling_strategy = new QuantileRelabelingStrategy(quantiles, dependent_varID);
       SplittingRule* splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
-      forest = new ForestQuantile(quantiles, relabeling_strategy, splitting_rule);
+
+      forest = new ForestQuantile(quantiles, observables, relabeling_strategy, splitting_rule);
       break;
     }
     case TREE_INSTRUMENTAL: {
@@ -101,14 +103,16 @@ int main(int argc, char **argv) {
         instrument_varID = data->getVariableID(arg_handler.instrumentvarname);
       }
 
-      RelabelingStrategy *relabeling_strategy = new InstrumentalRelabelingStrategy(
-              dependent_varID,
-              treatment_varID,
-              instrument_varID);
+      std::unordered_map<std::string, size_t> observables = {
+          {"outcome", dependent_varID},
+          {"treatment", treatment_varID},
+          {"instrument", instrument_varID}};
+
+      RelabelingStrategy *relabeling_strategy = new InstrumentalRelabelingStrategy(observables);
       SplittingRule *splitting_rule = new RegressionSplittingRule(data);
-      forest = new ForestInstrumental(relabeling_strategy,
-                                      splitting_rule,
-                                      arg_handler.instrumentvarname);
+      forest = new ForestInstrumental(observables,
+                                      relabeling_strategy,
+                                      splitting_rule);
       break;
     }}
 
@@ -131,7 +135,7 @@ int main(int argc, char **argv) {
         arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
         arg_handler.predict, arg_handler.targetpartitionsize, arg_handler.splitweights,
         arg_handler.alwayssplitvars, arg_handler.statusvarname, arg_handler.replace,
-        arg_handler.savemem,  arg_handler.caseweights, arg_handler.fraction, data);
+        arg_handler.savemem, arg_handler.caseweights, arg_handler.fraction, data);
 
     forest->run(true);
     if (arg_handler.write) {
