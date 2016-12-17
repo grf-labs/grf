@@ -7,7 +7,6 @@
 TreeModel::TreeModel(RelabelingStrategy *relabeling_strategy,
                      SplittingRule *splitting_rule,
                      PredictionStrategy *prediction_strategy,
-                     Data* data,
                      size_t dependent_varID,
                      uint mtry,
                      uint min_node_size,
@@ -17,7 +16,6 @@ TreeModel::TreeModel(RelabelingStrategy *relabeling_strategy,
     relabeling_strategy(relabeling_strategy),
     splitting_rule(splitting_rule),
     prediction_strategy(prediction_strategy),
-    data(data),
     dependent_varID(dependent_varID),
     mtry(mtry),
     min_node_size(min_node_size),
@@ -44,7 +42,7 @@ Tree* TreeModel::train(Data* data,
   size_t num_open_nodes = 1;
   size_t i = 0;
   while (num_open_nodes > 0) {
-    bool is_terminal_node = splitNode(i, child_nodeIDs,
+    bool is_terminal_node = splitNode(i, data, child_nodeIDs,
                                       sampleIDs,
                                       split_varIDs,
                                       split_values,
@@ -69,7 +67,8 @@ Tree* TreeModel::train(Data* data,
                   bootstrap_sampler);
 }
 
-void TreeModel::createPossibleSplitVarSubset(std::vector<size_t>& result,
+void TreeModel::createPossibleSplitVarSubset(std::vector<size_t> &result,
+                                             Data* data,
                                              std::vector<double>* split_select_weights) {
 
 // Always use deterministic variables
@@ -88,6 +87,7 @@ void TreeModel::createPossibleSplitVarSubset(std::vector<size_t>& result,
 }
 
 bool TreeModel::splitNode(size_t nodeID,
+                          Data* data,
                           std::vector<std::vector<size_t>>& child_nodeIDs,
                           std::vector<std::vector<size_t>>& sampleIDs,
                           std::vector<size_t>& split_varIDs,
@@ -96,10 +96,11 @@ bool TreeModel::splitNode(size_t nodeID,
 
 // Select random subset of variables to possibly split at
   std::vector<size_t> possible_split_varIDs;
-  createPossibleSplitVarSubset(possible_split_varIDs, split_select_weights);
+  createPossibleSplitVarSubset(possible_split_varIDs, data, split_select_weights);
 
 // Call subclass method, sets split_varIDs and split_values
   bool stop = splitNodeInternal(nodeID,
+                                data,
                                 possible_split_varIDs,
                                 sampleIDs,
                                 split_varIDs,
@@ -136,6 +137,7 @@ bool TreeModel::splitNode(size_t nodeID,
 }
 
 bool TreeModel::splitNodeInternal(size_t nodeID,
+                                  Data* data,
                                   std::vector<size_t>& possible_split_varIDs,
                                   std::vector<std::vector<size_t>>& sampleIDs,
                                   std::vector<size_t>& split_varIDs,

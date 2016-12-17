@@ -18,7 +18,6 @@ public:
   TreeModel(RelabelingStrategy *relabeling_strategy,
             SplittingRule *splitting_rule,
             PredictionStrategy *prediction_strategy,
-            Data *data,
             size_t dependent_varID,
             uint mtry,
             uint min_node_size,
@@ -37,9 +36,11 @@ private:
                        std::vector<double> &split_values);
 
   void createPossibleSplitVarSubset(std::vector <size_t> &result,
+                                    Data* data,
                                     std::vector<double> *split_select_weights);
 
   bool splitNode(size_t nodeID,
+                 Data* data,
                  std::vector <std::vector<size_t>> &child_nodeIDs,
                  std::vector <std::vector<size_t>> &sampleIDs,
                  std::vector <size_t> &split_varIDs,
@@ -47,6 +48,7 @@ private:
                  std::vector<double> *split_select_weights);
 
   bool splitNodeInternal(size_t nodeID,
+                         Data* data,
                          std::vector <size_t> &possible_split_varIDs,
                          std::vector <std::vector<size_t>> &sampleIDs,
                          std::vector <size_t> &split_varIDs,
@@ -57,7 +59,6 @@ private:
   PredictionStrategy *prediction_strategy;
   BootstrapSampler *bootstrap_sampler;
 
-  Data *data;
   size_t dependent_varID;
 
   uint mtry;

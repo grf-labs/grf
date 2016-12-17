@@ -33,14 +33,13 @@
 #include <utility/DataFloat.h>
 
 #include "ArgumentHandler.h"
-#include "ForestQuantile.h"
-#include "ForestInstrumental.h"
 #include "QuantileRelabelingStrategy.h"
 #include "InstrumentalRelabelingStrategy.h"
 #include "QuantilePredictionStrategy.h"
 #include "InstrumentalPredictionStrategy.h"
 #include "RegressionSplittingRule.h"
 #include "ProbabilitySplittingRule.h"
+#include "ForestModel.h"
 
 Data* initializeData(ArgumentHandler& arg_handler) {
   Data* data = NULL;
@@ -71,7 +70,7 @@ Data* initializeData(ArgumentHandler& arg_handler) {
 int main(int argc, char **argv) {
 
   ArgumentHandler arg_handler(argc, argv);
-  Forest* forest = 0;
+  ForestModel* forest_model = 0;
   try {
 
     // Handle command line arguments
@@ -95,10 +94,10 @@ int main(int argc, char **argv) {
       SplittingRule* splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
       PredictionStrategy* prediction_strategy = new QuantilePredictionStrategy(quantiles);
 
-      forest = new ForestQuantile(observables,
-                                  relabeling_strategy,
-                                  splitting_rule,
-                                  prediction_strategy);
+      forest_model = new ForestModel(observables,
+                                     relabeling_strategy,
+                                     splitting_rule,
+                                     prediction_strategy);
       break;
     }
     case TREE_INSTRUMENTAL: {
@@ -118,12 +117,16 @@ int main(int argc, char **argv) {
       SplittingRule *splitting_rule = new RegressionSplittingRule(data);
       PredictionStrategy* prediction_strategy = new InstrumentalPredictionStrategy();
 
-      forest = new ForestInstrumental(observables,
-                                      relabeling_strategy,
-                                      splitting_rule,
-                                      prediction_strategy);
+      forest_model = new ForestModel(observables,
+                                     relabeling_strategy,
+                                     splitting_rule,
+                                     prediction_strategy);
       break;
-    }}
+    }
+      default:
+        throw std::runtime_error("Unrecognized tree type.");
+    }
+
 
     // Verbose output to logfile if non-verbose mode
     std::ostream* verbose_out;
@@ -140,20 +143,21 @@ int main(int argc, char **argv) {
 
     // Call Ranger
     *verbose_out << "Starting Ranger." << std::endl;
-    forest->initCpp(arg_handler.depvarname, arg_handler.memmode, arg_handler.mtry,
+    forest_model->initCpp(arg_handler.depvarname, arg_handler.memmode, arg_handler.mtry,
         arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
         arg_handler.predict, arg_handler.targetpartitionsize, arg_handler.splitweights,
         arg_handler.alwayssplitvars, arg_handler.statusvarname, arg_handler.replace,
         arg_handler.savemem, arg_handler.caseweights, arg_handler.fraction, data);
 
-    forest->run(true);
-    forest->writeOutput();
+    Forest* forest = forest_model->train(data);
+    std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
+    forest_model->writeOutput(data, predictions);
     *verbose_out << "Finished Ranger." << std::endl;
 
-    delete forest;
+    delete forest_model;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << " Ranger will EXIT now." << std::endl;
-    delete forest;
+    delete forest_model;
     return -1;
   }
 
