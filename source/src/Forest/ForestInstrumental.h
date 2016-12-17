@@ -15,13 +15,14 @@
 
 #include "globals.h"
 #include "Forest.h"
-#include "TreeFactory.h"
+#include "Tree.h"
 
 class ForestInstrumental: public Forest {
 public:
   ForestInstrumental(std::unordered_map<std::string, size_t> observables,
                      RelabelingStrategy* relabeling_strategy,
-                     SplittingRule* splitting_rule);
+                     SplittingRule* splitting_rule,
+                     PredictionStrategy* prediction_strategy);
   virtual ~ForestInstrumental();
 
 private:
@@ -30,11 +31,9 @@ private:
   void writeOutputInternal();
   void writeConfusionFile();
   void writePredictionFile();
-  void saveToFileInternal(std::ofstream& outfile);
-  void loadFromFileInternal(std::ifstream& infile);
 
   void addSampleWeights(size_t test_sample_idx,
-                        TreeFactory* tree,
+                        Tree* tree,
                         std::unordered_map<size_t, double> &weights_by_sampleID);
   void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
   void predictInternal();

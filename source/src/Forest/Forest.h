@@ -29,15 +29,18 @@
 #ifndef FOREST_H_
 #define FOREST_H_
 
+#include "../Tree/TreeModel.h"
 #include "globals.h"
-#include "TreeFactory.h"
+#include "Tree.h"
 #include "Data.h"
+#include "PredictionStrategy.h"
 
 class Forest {
 public:
   Forest(std::unordered_map<std::string, size_t> observables,
          RelabelingStrategy* relabeling_strategy,
-         SplittingRule* splitting_rule);
+         SplittingRule* splitting_rule,
+         PredictionStrategy* prediction_strategy);
   virtual ~Forest();
 
   // Init from c++ main or Rcpp from R
@@ -64,13 +67,8 @@ public:
   virtual void writeConfusionFile() = 0;
   virtual void writePredictionFile() = 0;
 
-  // Save forest to file
-  void saveToFile();
-  virtual void saveToFileInternal(std::ofstream& outfile) = 0;
-
 protected:
   void grow();
-  void growInternal();
 
   // Predict using existing tree from file and data as prediction data
   void predict();
@@ -81,10 +79,6 @@ protected:
 
   void growTreesInThread(uint thread_idx);
   void predictTreesInThread(uint thread_idx, const Data* prediction_data, bool oob_prediction);
-
-  // Load forest from file
-  void loadFromFile(std::string filename);
-  virtual void loadFromFileInternal(std::ifstream& infile) = 0;
 
   // Set split select weights and variables to be always considered for splitting
   void setSplitWeightVector(std::vector<std::vector<double>>& split_select_weights);
@@ -120,7 +114,9 @@ protected:
   std::mutex mutex;
   std::condition_variable condition_variable;
 
-  std::vector<TreeFactory*> trees;
+  TreeModel* tree_model;
+  std::vector<Tree*> trees;
+
   Data* data;
   std::unordered_map<std::string, std::vector<double>> original_observations;
 
@@ -145,6 +141,7 @@ protected:
   std::unordered_map<std::string, size_t> observables;
   RelabelingStrategy* relabeling_strategy;
   SplittingRule* splitting_rule;
+  PredictionStrategy* prediction_strategy;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Forest);

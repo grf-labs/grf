@@ -28,10 +28,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <Tree/QuantileRelabelingStrategy.h>
-#include <Tree/ProbabilitySplittingRule.h>
-#include <Tree/InstrumentalRelabelingStrategy.h>
-#include <Tree/RegressionSplittingRule.h>
 #include <utility/DataDouble.h>
 #include <utility/DataChar.h>
 #include <utility/DataFloat.h>
@@ -39,6 +35,12 @@
 #include "ArgumentHandler.h"
 #include "ForestQuantile.h"
 #include "ForestInstrumental.h"
+#include "QuantileRelabelingStrategy.h"
+#include "InstrumentalRelabelingStrategy.h"
+#include "QuantilePredictionStrategy.h"
+#include "InstrumentalPredictionStrategy.h"
+#include "RegressionSplittingRule.h"
+#include "ProbabilitySplittingRule.h"
 
 Data* initializeData(ArgumentHandler& arg_handler) {
   Data* data = NULL;
@@ -91,8 +93,12 @@ int main(int argc, char **argv) {
       std::unordered_map<std::string, size_t> observables = {{"outcome", dependent_varID}};
       RelabelingStrategy* relabeling_strategy = new QuantileRelabelingStrategy(quantiles, dependent_varID);
       SplittingRule* splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
+      PredictionStrategy* prediction_strategy = new QuantilePredictionStrategy(quantiles);
 
-      forest = new ForestQuantile(quantiles, observables, relabeling_strategy, splitting_rule);
+      forest = new ForestQuantile(observables,
+                                  relabeling_strategy,
+                                  splitting_rule,
+                                  prediction_strategy);
       break;
     }
     case TREE_INSTRUMENTAL: {
@@ -110,9 +116,12 @@ int main(int argc, char **argv) {
 
       RelabelingStrategy *relabeling_strategy = new InstrumentalRelabelingStrategy(observables);
       SplittingRule *splitting_rule = new RegressionSplittingRule(data);
+      PredictionStrategy* prediction_strategy = new InstrumentalPredictionStrategy();
+
       forest = new ForestInstrumental(observables,
                                       relabeling_strategy,
-                                      splitting_rule);
+                                      splitting_rule,
+                                      prediction_strategy);
       break;
     }}
 
@@ -138,9 +147,6 @@ int main(int argc, char **argv) {
         arg_handler.savemem, arg_handler.caseweights, arg_handler.fraction, data);
 
     forest->run(true);
-    if (arg_handler.write) {
-      forest->saveToFile();
-    }
     forest->writeOutput();
     *verbose_out << "Finished Ranger." << std::endl;
 

@@ -55,5 +55,5 @@ ADD_CUSTOM_TARGET(release
 ## ======================================================================================##
 ## Executable
 ## ======================================================================================##
-add_executable(ranger ${SOURCES} src/Forest/BootstrapSampler.cpp src/Forest/BootstrapSampler.h src/Forest/BootstrapSampler.cpp src/Forest/BootstrapSampler.h)
+add_executable(ranger ${SOURCES})
 

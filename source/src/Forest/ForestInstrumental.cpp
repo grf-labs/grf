@@ -11,8 +11,9 @@
 
 ForestInstrumental::ForestInstrumental(std::unordered_map<std::string, size_t> observables,
                                        RelabelingStrategy *relabeling_strategy,
-                                       SplittingRule *splitting_rule) :
-    Forest(observables, relabeling_strategy, splitting_rule) {}
+                                       SplittingRule *splitting_rule,
+                                       PredictionStrategy* prediction_strategy):
+    Forest(observables, relabeling_strategy, splitting_rule, prediction_strategy) {}
 
 ForestInstrumental::~ForestInstrumental() {}
 
@@ -37,7 +38,7 @@ void ForestInstrumental::predictInternal() {
   for (size_t sampleID = 0; sampleID < data->getNumRows(); ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
     for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
-      TreeFactory* tree = trees[tree_idx];
+      Tree* tree = trees[tree_idx];
       addSampleWeights(sampleID, tree, weights_by_sampleID);
     }
 
@@ -49,7 +50,7 @@ void ForestInstrumental::predictInternal() {
 }
 
 void ForestInstrumental::addSampleWeights(size_t test_sample_idx,
-                                          TreeFactory *tree,
+                                          Tree *tree,
                                           std::unordered_map<size_t, double> &weights_by_sampleID) {
   std::vector<size_t> sampleIDs = tree->get_neighboring_samples(test_sample_idx);
   double sample_weight = 1.0 / sampleIDs.size();
@@ -93,7 +94,7 @@ void ForestInstrumental::computePredictionErrorInternal() {
 
     // Calculate the weights of neighboring samples.
     for (auto it = tree_range.first; it != tree_range.second; ++it) {
-      TreeFactory* tree = trees[it->second];
+      Tree* tree = trees[it->second];
 
       // hackhackhack
       std::vector<size_t> oob_sampleIDs = tree->getOobSampleIDs();
@@ -156,43 +157,4 @@ void ForestInstrumental::writePredictionFile() {
   }
 
   *verbose_out << "Saved predictions to file " << filename << "." << std::endl;
-}
-
-void ForestInstrumental::saveToFileInternal(std::ofstream& outfile) {
-  outfile.write((char*) &num_variables, sizeof(num_variables));
-}
-
-void ForestInstrumental::loadFromFileInternal(std::ifstream& infile) {
-
-  size_t num_variables_saved;
-  infile.read((char*) &num_variables_saved, sizeof(num_variables_saved));
-
-  for (size_t i = 0; i < num_trees; ++i) {
-
-    // Read data
-    std::vector<std::vector<size_t>> child_nodeIDs;
-    readVector2D(child_nodeIDs, infile);
-    std::vector<size_t> split_varIDs;
-    readVector1D(split_varIDs, infile);
-    std::vector<double> split_values;
-    readVector1D(split_values, infile);
-
-    // If dependent variable not in test data, change variable IDs accordingly
-    if (num_variables_saved > num_variables) {
-      for (auto& varID : split_varIDs) {
-        if (varID >= dependent_varID) {
-          --varID;
-        }
-      }
-    }
-
-    std::vector<std::vector<size_t>> sampleIDs;
-    readVector2D(sampleIDs, infile);
-
-    RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy(observables);
-    SplittingRule* splitting_rule = new RegressionSplittingRule(data);
-    TreeFactory *tree = new TreeFactory(child_nodeIDs, split_varIDs, split_values,
-                                      sampleIDs, relabeling_strategy, splitting_rule);
-    trees.push_back(tree);
-  }
 }

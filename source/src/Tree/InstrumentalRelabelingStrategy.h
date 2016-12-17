@@ -2,7 +2,7 @@
 #define RANGER_INSTRUMENTALRELABELINGSTRATEGY_H
 
 #include <unordered_map>
-#include "TreeFactory.h"
+#include "Tree.h"
 #include "RelabelingStrategy.h"
 
 class InstrumentalRelabelingStrategy: public RelabelingStrategy {

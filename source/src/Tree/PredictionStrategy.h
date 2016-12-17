@@ -1,6 +1,8 @@
 #ifndef RANGER_PREDICTIONSTRATEGY_H
 #define RANGER_PREDICTIONSTRATEGY_H
 
+#include <unordered_map>
+#include <vector>
 
 class PredictionStrategy {
 public:

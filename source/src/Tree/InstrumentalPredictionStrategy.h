@@ -1,5 +1,5 @@
-#ifndef RANGER_QUANTILEPREDICTIONSTRATEGY_H
-#define RANGER_QUANTILEPREDICTIONSTRATEGY_H
+#ifndef RANGER_INSTRUMENTALPREDICTIONSTRATEGY_H
+#define RANGER_INSTRUMENTALPREDICTIONSTRATEGY_H
 
 
 #include <cstddef>
@@ -13,4 +13,4 @@ public:
                               std::unordered_map<std::string, std::vector<double>> original_observations);
 };
 
-#endif //RANGER_QUANTILEPREDICTIONSTRATEGY_H
+#endif //RANGER_INSTRUMENTALPREDICTIONSTRATEGY_H

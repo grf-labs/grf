@@ -39,33 +39,18 @@
 #include "SplittingRule.h"
 #include "RelabelingStrategy.h"
 
-class TreeFactory {
+class Tree {
 public:
-  TreeFactory(RelabelingStrategy* relabeling_strategy,
-              SplittingRule* splitting_rule);
+  Tree(std::vector<std::vector<size_t>>& child_nodeIDs,
+       std::vector<std::vector<size_t>> sampleIDs,
+       std::vector<size_t>& split_varIDs,
+       std::vector<double>& split_values,
+       Data* data,
+       BootstrapSampler* bootstrap_sampler);
 
-  // Create from loaded forest
-  TreeFactory(std::vector<std::vector<size_t>>& child_nodeIDs,
-              std::vector<size_t>& split_varIDs,
-              std::vector<double>& split_values,
-              std::vector<std::vector<size_t>> sampleIDs,
-              RelabelingStrategy* relabeling_strategy,
-              SplittingRule* splitting_rule);
-
-  virtual ~TreeFactory();
-
-  void init(Data* data, uint mtry, size_t dependent_varID, size_t num_samples, uint seed,
-      std::vector<size_t>* deterministic_varIDs, std::vector<size_t>* split_select_varIDs,
-      std::vector<double>* split_select_weights, uint min_node_size,
-      std::vector<size_t>* no_split_variables, bool sample_with_replacement,
-      std::vector<double>* case_weights, bool keep_inbag,
-      double sample_fraction);
-
-  void grow();
+  ~Tree();
 
   void predict(const Data* prediction_data, bool oob_prediction);
-
-  void appendToFile(std::ofstream& file);
 
   const std::vector<std::vector<size_t> >& getChildNodeIDs() const {
     return child_nodeIDs;
@@ -94,40 +79,21 @@ public:
   std::vector<size_t> get_neighboring_samples(size_t sampleID);
 
 private:
-  void createPossibleSplitVarSubset(std::vector<size_t>& result);
-
-  bool splitNode(size_t nodeID);
-  bool splitNodeInternal(size_t nodeID, std::vector<size_t> &possible_split_varIDs);
-
-  void createEmptyNode();
-
-  RelabelingStrategy* relabeling_strategy;
-  SplittingRule* splitting_rule;
-  BootstrapSampler* bootstrap_sampler;
-
-  Data* data;
-  size_t dependent_varID;
-  uint min_node_size;
-
-  std::vector<size_t> split_varIDs;
-  std::vector<double> split_values;
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> sampleIDs;
+  std::vector<size_t> split_varIDs;
+  std::vector<double> split_values;
+
+  Data* data;
+
+  BootstrapSampler* bootstrap_sampler;
 
   // When growing here the OOB set is used
   // Terminal nodeIDs for prediction samples
   std::vector<size_t> prediction_terminal_nodeIDs;
 
-  // Variables related to variable selection
-  std::vector<size_t>* deterministic_varIDs;
-  std::vector<size_t>* split_select_varIDs;
-  std::vector<double>* split_select_weights;
-  std::vector<size_t>* no_split_variables;
-
-  uint mtry;
-
 private:
-  DISALLOW_COPY_AND_ASSIGN(TreeFactory);
+  DISALLOW_COPY_AND_ASSIGN(Tree);
 };
 
 #endif /* TREE_H_ */

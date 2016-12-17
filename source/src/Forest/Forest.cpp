@@ -37,13 +37,14 @@
 
 Forest::Forest(std::unordered_map<std::string, size_t> observables,
                RelabelingStrategy* relabeling_strategy,
-               SplittingRule* splitting_rule) :
+               SplittingRule* splitting_rule,
+               PredictionStrategy* prediction_strategy) :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), num_variables(0), num_independent_variables(
         0), seed(0), dependent_varID(0), num_samples(0), prediction_mode(false), memory_mode(MEM_DOUBLE), sample_with_replacement(
         true), memory_saving_splitting(false), keep_inbag(false), sample_fraction(
         1), num_threads(DEFAULT_NUM_THREADS), data(0), overall_prediction_error(
         0), progress(0), observables(observables),
-        relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule) {
+        relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), prediction_strategy(prediction_strategy) {
 }
 
 Forest::~Forest() {
@@ -73,9 +74,6 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
       min_node_size, status_variable_name, prediction_mode, sample_with_replacement,
       memory_saving_splitting, sample_fraction);
 
-  if (prediction_mode) {
-    loadFromFile(load_forest_filename);
-  }
   // Set variables to be always considered for splitting
   if (!always_split_variable_names.empty()) {
     setAlwaysSplitVariables(always_split_variable_names);
@@ -100,6 +98,18 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
       throw std::runtime_error("Number of case weights is not equal to number of samples.");
     }
   }
+
+  tree_model = new TreeModel(relabeling_strategy,
+                             splitting_rule,
+                             prediction_strategy,
+                             data,
+                             dependent_varID,
+                             mtry,
+                             min_node_size,
+                             &deterministic_varIDs,
+                             &split_select_varIDs,
+                             &no_split_variables);
+
 }
 
 void Forest::init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
@@ -236,73 +246,15 @@ void Forest::writeOutput() {
   }
 }
 
-void Forest::saveToFile() {
-
-  // Open file for writing
-  std::string filename = "ranger.forest";
-  std::ofstream outfile;
-  outfile.open(filename, std::ios::binary);
-  if (!outfile.good()) {
-    throw std::runtime_error("Could not write to output file: " + filename + ".");
-  }
-
-  saveMap(observables, outfile);
-
-  for (auto it : original_observations) {
-    std::string name = it.first;
-    outfile.write((char*) &name, sizeof(name));
-    saveVector1D(it.second, outfile);
-  }
-
-  outfile.write((char*) &num_trees, sizeof(num_trees));
-
-  saveToFileInternal(outfile);
-
-  // Write tree data for each tree
-  for (auto& tree : trees) {
-    tree->appendToFile(outfile);
-  }
-
-  // Close file
-  outfile.close();
-  *verbose_out << "Saved forest to file " << filename << "." << std::endl;
-}
-
 void Forest::grow() {
-
   // Create thread ranges
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
-
-  // Call special grow functions of subclasses. There trees must be created.
-  growInternal();
-
-  // Init trees, create a seed for each tree, based on main seed
-  std::uniform_int_distribution<uint> udist;
-  for (size_t i = 0; i < num_trees; ++i) {
-    uint tree_seed;
-    if (seed == 0) {
-      tree_seed = udist(random_number_generator);
-    } else {
-      tree_seed = (i + 1) * seed;
-    }
-
-    // Get split select weights for tree
-    std::vector<double>* tree_split_select_weights;
-    if (split_select_weights.size() > 1) {
-      tree_split_select_weights = &split_select_weights[i];
-    } else {
-      tree_split_select_weights = &split_select_weights[0];
-    }
-
-    trees[i]->init(data, mtry, dependent_varID, num_samples, tree_seed, &deterministic_varIDs, &split_select_varIDs,
-        tree_split_select_weights, min_node_size, &no_split_variables, sample_with_replacement,
-        &case_weights, keep_inbag, sample_fraction);
-  }
 
   progress = 0;
 
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
+  trees.reserve(num_trees);
 
   for (uint i = 0; i < num_threads; ++i) {
     threads.push_back(std::thread(&Forest::growTreesInThread, this, i));
@@ -310,13 +262,6 @@ void Forest::grow() {
   showProgress("Growing trees..");
   for (auto &thread : threads) {
     thread.join();
-  }
-}
-
-void Forest::growInternal() {
-  trees.reserve(num_trees);
-  for (size_t i = 0; i < num_trees; ++i) {
-    trees.push_back(new TreeFactory(relabeling_strategy, splitting_rule));
   }
 }
 
@@ -357,11 +302,35 @@ void Forest::computePredictionError() {
 }
 
 void Forest::growTreesInThread(uint thread_idx) {
+  std::uniform_int_distribution<uint> udist;
+
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
-      trees[i]->grow();
+      uint tree_seed;
+      if (seed == 0) {
+        tree_seed = udist(random_number_generator);
+      } else {
+        tree_seed = (i + 1) * seed;
+      }
 
-      // Check for user interrupt
+      // Get split select weights for tree
+      std::vector<double>* tree_split_select_weights;
+      if (split_select_weights.size() > 1) {
+        tree_split_select_weights = &split_select_weights[i];
+      } else {
+        tree_split_select_weights = &split_select_weights[0];
+      }
+
+      BootstrapSampler* bootstrap_sampler = new BootstrapSampler(num_samples,
+        seed,
+        sample_with_replacement,
+        sample_fraction,
+        keep_inbag,
+        &case_weights);
+
+      trees.push_back(tree_model->train(data,
+                                        bootstrap_sampler,
+                                        tree_split_select_weights));
 
       // Increase progress by 1 tree
       ++progress;
@@ -381,38 +350,6 @@ void Forest::predictTreesInThread(uint thread_idx, const Data* prediction_data, 
       condition_variable.notify_one();
     }
   }
-}
-
-void Forest::loadFromFile(std::string filename) {
-  *verbose_out << "Loading forest from file " << filename << "." << std::endl;
-
-// Open file for reading
-  std::ifstream infile;
-  infile.open(filename, std::ios::binary);
-  if (!infile.good()) {
-    throw std::runtime_error("Could not read from input file: " + filename + ".");
-  }
-
-  readMap(observables, infile);
-
-  for (int i = 0; i < observables.size(); i++) {
-    std::string name;
-    infile.read((char*) &name, sizeof(std::string));
-
-    std::vector<double> observations;
-    readVector1D(observations, infile);
-    original_observations[name] = observations;
-  }
-
-  infile.read((char*) &num_trees, sizeof(num_trees));
-
-// Read tree data. This is different for tree types -> virtual function
-  loadFromFileInternal(infile);
-
-  infile.close();
-
-// Create thread ranges
-  equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
 }
 
 void Forest::setSplitWeightVector(std::vector<std::vector<double>>& split_select_weights) {
