@@ -63,7 +63,6 @@ Tree* TreeModel::train(Data* data,
                   sampleIDs,
                   split_varIDs,
                   split_values,
-                  data,
                   bootstrap_sampler);
 }
 

@@ -45,12 +45,11 @@ public:
        std::vector<std::vector<size_t>> sampleIDs,
        std::vector<size_t>& split_varIDs,
        std::vector<double>& split_values,
-       Data* data,
        BootstrapSampler* bootstrap_sampler);
 
   ~Tree();
 
-  void predict(const Data* prediction_data, bool oob_prediction);
+  std::vector<size_t> predict(const Data* prediction_data, bool oob_prediction);
 
   const std::vector<std::vector<size_t> >& getChildNodeIDs() const {
     return child_nodeIDs;
@@ -76,21 +75,13 @@ public:
     return bootstrap_sampler->getInbagCounts();
   }
 
-  std::vector<size_t> get_neighboring_samples(size_t sampleID);
-
 private:
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> sampleIDs;
   std::vector<size_t> split_varIDs;
   std::vector<double> split_values;
 
-  Data* data;
-
   BootstrapSampler* bootstrap_sampler;
-
-  // When growing here the OOB set is used
-  // Terminal nodeIDs for prediction samples
-  std::vector<size_t> prediction_terminal_nodeIDs;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Tree);

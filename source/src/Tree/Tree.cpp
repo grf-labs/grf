@@ -36,18 +36,16 @@ Tree::Tree(std::vector<std::vector<size_t>> &child_nodeIDs,
            std::vector<std::vector<size_t>> sampleIDs,
            std::vector<size_t> &split_varIDs,
            std::vector<double> &split_values,
-           Data *data,
            BootstrapSampler* bootstrap_sampler) :
     child_nodeIDs(child_nodeIDs),
     sampleIDs(sampleIDs),
     split_varIDs(split_varIDs),
     split_values(split_values),
-    data(0),
     bootstrap_sampler(bootstrap_sampler) {}
 
 Tree::~Tree() {}
 
-void Tree::predict(const Data* prediction_data, bool oob_prediction) {
+std::vector<size_t> Tree::predict(const Data* prediction_data, bool oob_prediction) {
 
   size_t num_samples_predict;
   if (oob_prediction) {
@@ -56,6 +54,7 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
     num_samples_predict = prediction_data->getNumRows();
   }
 
+  std::vector<size_t> prediction_terminal_nodeIDs;
   prediction_terminal_nodeIDs.resize(num_samples_predict, 0);
 
 // For each sample start in root, drop down the tree and return final value
@@ -90,8 +89,4 @@ void Tree::predict(const Data* prediction_data, bool oob_prediction) {
   }
 }
 
-std::vector<size_t> Tree::get_neighboring_samples(size_t sampleID) {
-  size_t nodeID = prediction_terminal_nodeIDs[sampleID];
-  return sampleIDs[nodeID];
-}
 

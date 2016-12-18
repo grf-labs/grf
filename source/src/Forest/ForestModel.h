@@ -13,6 +13,9 @@
 #include "TreeModel.h"
 #include "Forest.h"
 
+#include <thread>
+#include <future>
+
 class ForestModel {
 public:
   ForestModel(std::unordered_map<std::string, size_t> observables,
@@ -24,39 +27,49 @@ public:
   std::vector<std::vector<double>> predict(Forest* forest, Data* prediction_data);
 
   // Init from c++ main or Rcpp from R
-  void initCpp(std::string dependent_variable_name, MemoryMode memory_mode, uint mtry,
+  void initCpp(MemoryMode memory_mode, uint mtry,
                uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
                std::string load_forest_filename, uint min_node_size,
                std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
-               std::string status_variable_name, bool sample_with_replacement,
+               bool sample_with_replacement,
                bool memory_saving_splitting,
-               std::string case_weights_file, double sample_fraction, Data* input_data);
-  void init(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry,
-            uint num_trees, uint seed, uint num_threads,
-            uint min_node_size, std::string status_variable_name, bool prediction_mode, bool sample_with_replacement,
-            bool memory_saving_splitting,
-            double sample_fraction);
+               std::string case_weights_file, double sample_fraction);
 
   // Write results to output files
   void writeOutput(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
 
-protected:
-  void computePredictionError(Forest* forest, Data* prediction_data);
-  void computePredictionErrorInternal(Forest* forest, Data* prediction_data);
+private:
+  void init(MemoryMode memory_mode, uint mtry,
+            uint num_trees, uint seed, uint num_threads,
+            uint min_node_size, bool prediction_mode, bool sample_with_replacement,
+            bool memory_saving_splitting,
+            double sample_fraction);
 
-  void growTreesInThread(uint thread_idx, Data* data, std::vector<Tree*> trees);
+  void computePredictionError(Forest* forest, Data* prediction_data);
+  void computePredictionErrorInternal(Forest* forest,
+                                      Data* prediction_data,
+                                      std::unordered_map<Tree *, std::vector<size_t>> terminal_node_IDs_by_tree);
+
+  void growTreesInThread(uint thread_idx,
+                         Data *data,
+                         std::promise<std::vector<Tree*>> promise);
+
   void predictTreesInThread(uint thread_idx,
-                            Forest* forest,
-                            const Data* prediction_data,
-                            bool oob_prediction);
+                            Forest *forest,
+                            const Data *prediction_data,
+                            bool oob_prediction,
+                            std::promise<std::unordered_map<Tree*, std::vector<size_t>>> promise);
 
   void addSampleWeights(size_t test_sample_idx,
                         Tree* tree,
-                        std::unordered_map<size_t, double> &weights_by_sampleID);
+                        std::unordered_map<size_t, double> &weights_by_sampleID,
+                        std::vector<size_t> terminal_node_IDs);
   void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
-  std::vector<std::vector<double>> predictInternal(Forest* forest, Data* prediction_data);
+  std::vector<std::vector<double>> predictInternal(Forest* forest,
+                                                   Data* prediction_data,
+                                                   std::unordered_map<Tree*, std::vector<size_t>> terminal_node_IDs_by_tree);
 
   // Set split select weights and variables to be always considered for splitting
   void setSplitWeightVector(std::vector<std::vector<double>>& split_select_weights,
@@ -118,7 +131,6 @@ protected:
   std::string split_select_weights_file;
   std::string case_weights_file;
 
-private:
   DISALLOW_COPY_AND_ASSIGN(ForestModel);
 };
 

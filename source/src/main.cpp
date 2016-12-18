@@ -143,11 +143,11 @@ int main(int argc, char **argv) {
 
     // Call Ranger
     *verbose_out << "Starting Ranger." << std::endl;
-    forest_model->initCpp(arg_handler.depvarname, arg_handler.memmode, arg_handler.mtry,
+    forest_model->initCpp(arg_handler.memmode, arg_handler.mtry,
         arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
         arg_handler.predict, arg_handler.targetpartitionsize, arg_handler.splitweights,
-        arg_handler.alwayssplitvars, arg_handler.statusvarname, arg_handler.replace,
-        arg_handler.savemem, arg_handler.caseweights, arg_handler.fraction, data);
+        arg_handler.alwayssplitvars, arg_handler.replace,
+        arg_handler.savemem, arg_handler.caseweights, arg_handler.fraction);
 
     Forest* forest = forest_model->train(data);
     std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
@@ -155,6 +155,7 @@ int main(int argc, char **argv) {
     *verbose_out << "Finished Ranger." << std::endl;
 
     delete forest_model;
+    delete forest;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << " Ranger will EXIT now." << std::endl;
     delete forest_model;
