@@ -87,6 +87,7 @@ std::vector<size_t> Tree::predict(const Data* prediction_data, bool oob_predicti
 
     prediction_terminal_nodeIDs[i] = nodeID;
   }
+  return prediction_terminal_nodeIDs;
 }
 
 

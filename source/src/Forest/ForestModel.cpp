@@ -204,7 +204,7 @@ Forest* ForestModel::train(Data* data) {
   for (auto &future : futures) {
     future.wait();
     std::vector<Tree*> thread_trees;
-    trees.insert(thread_trees.end(), thread_trees.begin(), thread_trees.end());
+    trees.insert(trees.end(), thread_trees.begin(), thread_trees.end());
   }
 
   return new Forest(trees, data, observables);
