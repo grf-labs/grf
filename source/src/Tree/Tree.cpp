@@ -27,7 +27,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include <iterator>
-#include <Forest/BootstrapSampler.h>
+#include <sampling/BootstrapSampler.h>
 
 #include "Tree.h"
 #include "utility.h"

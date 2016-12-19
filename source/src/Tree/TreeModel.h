@@ -10,7 +10,7 @@
 #include "SplittingRule.h"
 #include "../utility/Data.h"
 #include "Tree.h"
-#include "../Forest/BootstrapSampler.h"
+#include "sampling/BootstrapSampler.h"
 
 class TreeModel {
 public:
