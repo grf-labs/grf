@@ -177,6 +177,17 @@ Forest* ForestModel::train(Data* data) {
     throw std::runtime_error("mtry can not be larger than number of variables in data.");
   }
 
+  auto observations = new std::unordered_map<std::string, std::vector<double>>();
+  for (auto it : observables) {
+    std::string name = it.first;
+    size_t index = it.second;
+
+    for (int row = 0; row < data->getNumRows(); row++) {
+      (*observations)[name].push_back(data->get(row, index));
+    }
+  }
+
+
   // Create thread ranges
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
 
@@ -197,6 +208,7 @@ Forest* ForestModel::train(Data* data) {
                                   this,
                                   i,
                                   data,
+                                  observations,
                                   std::move(promise)));
     futures.push_back(promise.get_future());
   }
@@ -274,7 +286,8 @@ void ForestModel::computePredictionError(Forest* forest,
 
 void ForestModel::growTreesInThread(uint thread_idx,
                                     Data* data,
-                                    std::promise<std::vector<Tree*>> promise) {
+                                    std::unordered_map<std::string, std::vector<double>>* observations,
+                                    std::promise<std::vector<Tree *>> promise) {
   std::uniform_int_distribution<uint> udist;
   std::vector<Tree*> trees;
   if (thread_ranges.size() > thread_idx + 1) {
@@ -300,8 +313,8 @@ void ForestModel::growTreesInThread(uint thread_idx,
                                                                  sample_fraction,
                                                                  keep_inbag,
                                                                  &case_weights);
-
       trees.push_back(tree_model->train(data,
+                                        observations,
                                         bootstrap_sampler,
                                         tree_split_select_weights));
 

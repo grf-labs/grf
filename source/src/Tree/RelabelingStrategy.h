@@ -8,10 +8,13 @@
 
 #include <utility/Data.h>
 #include <unordered_map>
+#include <vector>
 
 class RelabelingStrategy {
 public:
-  virtual std::unordered_map<size_t, double> relabelResponses(Data *data, std::vector<size_t> &nodeSampleIDs) = 0;
+  virtual std::unordered_map<size_t, double> relabelObservations(
+      std::unordered_map<std::string, std::vector<double>> *observations,
+      std::vector<size_t> &nodeSampleIDs) = 0;
 };
 
 

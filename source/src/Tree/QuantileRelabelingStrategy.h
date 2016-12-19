@@ -10,12 +10,12 @@
 
 class QuantileRelabelingStrategy: public RelabelingStrategy {
 public:
-  QuantileRelabelingStrategy(std::vector<double> *quantiles, size_t dependent_varID);
-  std::unordered_map<size_t, double> relabelResponses(Data *data, std::vector<size_t> &nodeSampleIDs);
-
+  QuantileRelabelingStrategy(std::vector<double>* quantiles);
+  std::unordered_map<size_t, double> relabelObservations(
+      std::unordered_map<std::string, std::vector<double>> *observations,
+      std::vector<size_t> &node_sampleIDs);
 private:
   std::vector<double>* quantiles;
-  size_t dependent_varID;
 };
 
 

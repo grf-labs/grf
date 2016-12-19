@@ -54,7 +54,7 @@ protected:
   std::vector<Tree*> trees;
 
   Data* data;
-  std::unordered_map<std::string, size_t> observables;
+  std::unordered_map<std::string, size_t> observables_by_ID;
   std::unordered_map<std::string, std::vector<double>> original_observations;
 
 private:

@@ -24,7 +24,8 @@ public:
             std::vector <size_t> *split_select_varIDs,
             std::vector <size_t> *no_split_variables);
 
-  Tree *train(Data *data,
+  Tree* train(Data *data,
+              std::unordered_map<std::string, std::vector<double>>* observations,
               BootstrapSampler *bootstrap_sampler,
               std::vector<double> *split_select_weights);
 
@@ -40,6 +41,7 @@ private:
 
   bool splitNode(size_t nodeID,
                  Data* data,
+                 std::unordered_map<std::string, std::vector<double>>* observations,
                  std::vector <std::vector<size_t>> &child_nodeIDs,
                  std::vector <std::vector<size_t>> &sampleIDs,
                  std::vector <size_t> &split_varIDs,
@@ -48,6 +50,7 @@ private:
 
   bool splitNodeInternal(size_t nodeID,
                          Data* data,
+                         std::unordered_map<std::string, std::vector<double>>* observations,
                          std::vector <size_t> &possible_split_varIDs,
                          std::vector <std::vector<size_t>> &sampleIDs,
                          std::vector <size_t> &split_varIDs,

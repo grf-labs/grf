@@ -9,7 +9,7 @@ size_t absoluteDifference(size_t first, size_t second) {
   return first >= second ? first - second : second - first;
 }
 
-TEST_CASE("Draw without replacement 1", "[BootstrapSampler::drawWithoutReplacementSkip]") {
+TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
@@ -40,7 +40,7 @@ TEST_CASE("Draw without replacement 1", "[BootstrapSampler::drawWithoutReplaceme
   REQUIRE(0 == counts[skip[0]]);
 }
 
-TEST_CASE("Draw without replacement 2", "[BootstrapSampler::drawWithoutReplacementSkip]") {
+TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
@@ -70,7 +70,7 @@ TEST_CASE("Draw without replacement 2", "[BootstrapSampler::drawWithoutReplaceme
   REQUIRE(0 == counts[skip[0]]);
 }
 
-TEST_CASE("Draw without replacement 3", "[BootstrapSampler::drawWithoutReplacementSkip]") {
+TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
@@ -100,7 +100,7 @@ TEST_CASE("Draw without replacement 3", "[BootstrapSampler::drawWithoutReplaceme
   REQUIRE(0 == counts[skip[0]]);
 }
 
-TEST_CASE("Draw without replacement 4", "[BootstrapSampler::drawWithoutReplacementSkip]") {
+TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;
@@ -130,7 +130,7 @@ TEST_CASE("Draw without replacement 4", "[BootstrapSampler::drawWithoutReplaceme
   REQUIRE(0 == counts[skip[0]]);
 }
 
-TEST_CASE("Draw without replacement 5", "[BootstrapSampler::drawWithoutReplacementSkip]") {
+TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
   std::mt19937_64 random_number_generator;
   std::random_device random_device;

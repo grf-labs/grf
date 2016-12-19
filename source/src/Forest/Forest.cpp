@@ -33,7 +33,7 @@ Forest::Forest(std::vector<Tree *> trees,
                std::unordered_map<std::string, size_t> observables) :
     trees(trees),
     data(data),
-    observables(observables) {
+    observables_by_ID(observables) {
   for (auto it : observables) {
     std::string name = it.first;
     size_t index = it.second;

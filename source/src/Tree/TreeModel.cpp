@@ -25,6 +25,7 @@ TreeModel::TreeModel(RelabelingStrategy *relabeling_strategy,
 
 
 Tree* TreeModel::train(Data* data,
+                       std::unordered_map<std::string, std::vector<double>>* observations,
                        BootstrapSampler* bootstrap_sampler,
                        std::vector<double>* split_select_weights) {
   std::vector<std::vector<size_t>> child_nodeIDs;
@@ -42,7 +43,7 @@ Tree* TreeModel::train(Data* data,
   size_t num_open_nodes = 1;
   size_t i = 0;
   while (num_open_nodes > 0) {
-    bool is_terminal_node = splitNode(i, data, child_nodeIDs,
+    bool is_terminal_node = splitNode(i, data, observations, child_nodeIDs,
                                       sampleIDs,
                                       split_varIDs,
                                       split_values,
@@ -91,6 +92,7 @@ void TreeModel::createPossibleSplitVarSubset(std::vector<size_t> &result,
 
 bool TreeModel::splitNode(size_t nodeID,
                           Data* data,
+                          std::unordered_map<std::string, std::vector<double>>* observations,
                           std::vector<std::vector<size_t>>& child_nodeIDs,
                           std::vector<std::vector<size_t>>& sampleIDs,
                           std::vector<size_t>& split_varIDs,
@@ -104,6 +106,7 @@ bool TreeModel::splitNode(size_t nodeID,
 // Call subclass method, sets split_varIDs and split_values
   bool stop = splitNodeInternal(nodeID,
                                 data,
+                                observations,
                                 possible_split_varIDs,
                                 sampleIDs,
                                 split_varIDs,
@@ -141,6 +144,7 @@ bool TreeModel::splitNode(size_t nodeID,
 
 bool TreeModel::splitNodeInternal(size_t nodeID,
                                   Data* data,
+                                  std::unordered_map<std::string, std::vector<double>>* observations,
                                   std::vector<size_t>& possible_split_varIDs,
                                   std::vector<std::vector<size_t>>& sampleIDs,
                                   std::vector<size_t>& split_varIDs,
@@ -168,8 +172,8 @@ bool TreeModel::splitNodeInternal(size_t nodeID,
     return true;
   }
 
-  std::unordered_map<size_t, double> responses_by_sampleID = relabeling_strategy->relabelResponses(
-      data, sampleIDs[nodeID]);
+  std::unordered_map<size_t, double> responses_by_sampleID = relabeling_strategy->relabelObservations(
+      observations, sampleIDs[nodeID]);
 
   bool stop = responses_by_sampleID.empty() ||
               splitting_rule->findBestSplit(nodeID,

@@ -2,22 +2,19 @@
 #define RANGER_INSTRUMENTALRELABELINGSTRATEGY_H
 
 #include <unordered_map>
+#include <vector>
 #include "Tree.h"
 #include "RelabelingStrategy.h"
 
 class InstrumentalRelabelingStrategy: public RelabelingStrategy {
 public:
-  InstrumentalRelabelingStrategy(std::unordered_map<std::string, size_t> observables);
-  std::unordered_map<size_t, double> relabelResponses(Data* data,
-                                                      std::vector<size_t>& nodeSampleIDs);
+  std::unordered_map<size_t, double> relabelObservations(
+      std::unordered_map<std::string, std::vector<double>> *observations,
+      std::vector<size_t> &node_sampleIDs);
 
 private:
   bool equalDoubles(double first, double second);
   int sgn(double val);
-
-  size_t dependent_varID;
-  size_t treatment_varID;
-  size_t instrument_varID;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalRelabelingStrategy);
 
