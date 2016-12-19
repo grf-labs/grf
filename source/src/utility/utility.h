@@ -212,12 +212,6 @@ size_t roundToNextMultiple(size_t value, uint multiple);
  */
 void splitString(std::vector<std::string>& result, std::string input, char split_char);
 
-
-/**
- * Check if all values in double vector are positive integers.
- * @param all_values Double vector to check
- * @return True if all values are positive integers
- */
-bool checkPositiveIntegers(std::vector<double>& all_values);
+bool equalDoubles(double first, double second, double epsilon);
 
 #endif /* UTILITY_H_ */

@@ -13,10 +13,6 @@ public:
       std::unordered_map<std::string, std::vector<double>> *observations,
       std::vector<size_t> &node_sampleIDs);
 
-private:
-  bool equalDoubles(double first, double second);
-  int sgn(double val);
-
   DISALLOW_COPY_AND_ASSIGN(InstrumentalRelabelingStrategy);
 
 };

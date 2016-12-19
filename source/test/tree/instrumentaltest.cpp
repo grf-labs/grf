@@ -1,6 +1,7 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
+#include <utility/utility.h>
 
 #include "catch.hpp"
 #include "../../src/Tree/RelabelingStrategy.h"
@@ -34,21 +35,21 @@ TEST_CASE("flipping signs of treatment flips relabeled outcomes", "[instrumental
 
   std::unordered_map<std::string, std::vector<double>> observations = {
     {"outcome", original_outcomes}, {"treatment", treatment}, {"instrument", instrument}};
-  std::vector<double> outcomes = get_relabeled_outcomes(&observations);
+  std::vector<double> first_outcomes = get_relabeled_outcomes(&observations);
 
   std::unordered_map<std::string, std::vector<double>> flipped_observations = {
       {"outcome", original_outcomes}, {"treatment", flipped_treatment}, {"instrument", instrument}};
-  std::vector<double> flipped_outcomes = get_relabeled_outcomes(&flipped_observations);
+  std::vector<double> second_outcomes = get_relabeled_outcomes(&flipped_observations);
 
-  for (int i = 0; i < outcomes.size(); i++) {
-    double outcome = outcomes[i];
-    double flipped_outcome = flipped_outcomes[i];
+  for (int i = 0; i < first_outcomes.size(); i++) {
+    double first_outcome = first_outcomes[i];
+    double second_outcome = second_outcomes[i];
 
-    REQUIRE(outcome + flipped_outcome == 0);
+    REQUIRE(equalDoubles(first_outcome, second_outcome, 1.0e-10));
   }
 }
 
-TEST_CASE("scaling instrument does not affect relabeled outcomes", "[instrumental, relabeling]") {
+TEST_CASE("scaling instrument scales relabeled outcomes", "[instrumental, relabeling]") {
   std::vector<double> original_outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                            -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
   std::vector<double> treatment = {1, 0, 0, 0, 1, 0, 1, 0, 0, 0};
@@ -57,16 +58,54 @@ TEST_CASE("scaling instrument does not affect relabeled outcomes", "[instrumenta
 
   std::unordered_map<std::string, std::vector<double>> observations = {
       {"outcome", original_outcomes}, {"treatment", treatment}, {"instrument", instrument}};
-  std::vector<double> outcomes = get_relabeled_outcomes(&observations);
+  std::vector<double> first_outcomes = get_relabeled_outcomes(&observations);
 
   std::unordered_map<std::string, std::vector<double>> scaled_observations = {
       {"outcome", original_outcomes}, {"treatment", treatment}, {"instrument", scaled_instrument}};
   std::vector<double> scaled_outcomes = get_relabeled_outcomes(&scaled_observations);
 
-  for (int i = 0; i < outcomes.size(); i++) {
-    double outcome = outcomes[i];
-    double scaled_outcome = scaled_outcomes[i];
+  for (int i = 0; i < first_outcomes.size(); i++) {
+    double first_outcome = first_outcomes[i];
+    double second_outcome = scaled_outcomes[i];
 
-    REQUIRE(outcome == scaled_outcome);
+    REQUIRE(equalDoubles(3 * first_outcome, second_outcome, 1.0e-10));
   }
+}
+
+TEST_CASE("constant treatment leads to no splitting", "[instrumental, relabeling]") {
+  std::vector<double> original_outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
+                                           -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
+  std::vector<double> treatment = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  std::vector<double> instrument = {0, 0, 1, 1, 1, 0, 1, 0, 1, 0};
+  std::unordered_map<std::string, std::vector<double>> observations = {
+      {"outcome", original_outcomes}, {"treatment", treatment}, {"instrument", instrument}};
+
+  std::vector<size_t> sampleIDs;
+  for (int i = 0; i < original_outcomes.size(); i++) {
+    sampleIDs.push_back(i);
+  }
+
+  RelabelingStrategy* relabelingStrategy = new InstrumentalRelabelingStrategy();
+  auto relabeled_observations = relabelingStrategy->relabelObservations(&observations, sampleIDs);
+
+  REQUIRE(relabeled_observations.empty()); // An empty map signals that no splitting should be performed.
+}
+
+TEST_CASE("constant instrument leads to no splitting", "[instrumental, relabeling]") {
+  std::vector<double> original_outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
+                                           -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
+  std::vector<double> treatment = {0, 0, 1, 1, 0, 0, 1, 0, 1, 0};
+  std::vector<double> instrument = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  std::unordered_map<std::string, std::vector<double>> observations = {
+      {"outcome", original_outcomes}, {"treatment", treatment}, {"instrument", instrument}};
+
+  std::vector<size_t> sampleIDs;
+  for (int i = 0; i < original_outcomes.size(); i++) {
+    sampleIDs.push_back(i);
+  }
+
+  RelabelingStrategy* relabelingStrategy = new InstrumentalRelabelingStrategy();
+  auto relabeled_observations = relabelingStrategy->relabelObservations(&observations, sampleIDs);
+
+  REQUIRE(relabeled_observations.empty()); // An empty map signals that no splitting should be performed.
 }

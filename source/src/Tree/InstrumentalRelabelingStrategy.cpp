@@ -1,3 +1,4 @@
+#include <utility/utility.h>
 #include "InstrumentalRelabelingStrategy.h"
 
 InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy() {}
@@ -26,7 +27,7 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabelObserv
   // Calculate the treatment effect.
   double numerator = 0.0;
   double denominator = 0.0;
-  double regularizer = 0.0;
+  //double regularizer = 0.0;
   for (size_t sampleID : node_sampleIDs) {
     double treatment = (*observations)["treatment"][sampleID];
     double instrument = (*observations)["instrument"][sampleID];
@@ -34,16 +35,14 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabelObserv
 
     numerator += (instrument - average_instrument) * (response - average_response);
     denominator += (instrument - average_instrument) * (treatment - average_treatment);
-    regularizer += (instrument - average_instrument) * (instrument - average_instrument);
+    //regularizer += (instrument - average_instrument) * (instrument - average_instrument);
   }
 
-  if (equalDoubles(denominator, 0.0)) {
+  if (equalDoubles(denominator, 0.0, 1.0e-10)) {
     return std::unordered_map<size_t, double>(); // Signals that we should not perform a split.
   }
 
-  // 50 is a hack
-  double local_average_treatment_effect = numerator /
-      (denominator + 50 / node_sampleIDs.size() * regularizer * sgn(denominator));
+  double local_average_treatment_effect = numerator / denominator;
 
   // Create the new responses;
   std::unordered_map<size_t, double> relabeled_observations;
@@ -57,12 +56,4 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabelObserv
     relabeled_observations[sampleID] = (instrument - average_instrument) * residual;
   }
   return relabeled_observations;
-}
-
-bool InstrumentalRelabelingStrategy::equalDoubles(double first, double second) {
-  return std::abs(first - second) < std::numeric_limits<double>::epsilon();
-}
-
-int InstrumentalRelabelingStrategy::sgn(double val) {
-  return (0 < val) - (val < 0);
 }

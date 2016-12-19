@@ -156,3 +156,7 @@ void splitString(std::vector<std::string>& result, std::string input, char split
     result.push_back(token);
   }
 }
+
+bool equalDoubles(double first, double second, double epsilon) {
+  return std::abs(first - second) < epsilon;
+}
