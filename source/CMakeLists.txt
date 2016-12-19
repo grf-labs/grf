@@ -32,7 +32,7 @@ endif()
 ## ======================================================================================##
 ## Subdirectories and source files
 ## ======================================================================================##
-include_directories(src src/utility src/Forest src/Tree test test/utility test/tree)
+include_directories(src src/utility src/forest src/tree test test/utility test/tree)
 file(GLOB_RECURSE SOURCES src/*.cpp test/*.cpp)
 
 ## ======================================================================================##
