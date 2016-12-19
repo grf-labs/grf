@@ -33,7 +33,7 @@
 #include "globals.h"
 #include "Tree.h"
 #include "Data.h"
-#include "PredictionStrategy.h"
+#include "prediction/PredictionStrategy.h"
 
 class Forest {
 public:

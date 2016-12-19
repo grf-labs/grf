@@ -4,8 +4,8 @@
 #include <utility/utility.h>
 
 #include "catch.hpp"
-#include "../../src/Tree/RelabelingStrategy.h"
-#include "../../src/Tree/InstrumentalRelabelingStrategy.h"
+#include "relabeling/RelabelingStrategy.h"
+#include "relabeling/InstrumentalRelabelingStrategy.h"
 
 std::vector<double> get_relabeled_outcomes(std::unordered_map<std::string, std::vector<double>>* observations) {
   std::vector<size_t> sampleIDs;
@@ -26,7 +26,7 @@ std::vector<double> get_relabeled_outcomes(std::unordered_map<std::string, std::
   return relabeled_outcomes;
 }
 
-TEST_CASE("flipping signs of treatment flips relabeled outcomes", "[instrumental, relabeling]") {
+TEST_CASE("flipping signs of treatment does not affect relabeled outcomes", "[instrumental, relabeling]") {
   std::vector<double> original_outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                            -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
   std::vector<double> treatment = {1, 0, 0, 0, 1, 0, 1, 0, 0, 0};
@@ -41,6 +41,7 @@ TEST_CASE("flipping signs of treatment flips relabeled outcomes", "[instrumental
       {"outcome", original_outcomes}, {"treatment", flipped_treatment}, {"instrument", instrument}};
   std::vector<double> second_outcomes = get_relabeled_outcomes(&flipped_observations);
 
+  REQUIRE(first_outcomes.size() == second_outcomes.size());
   for (int i = 0; i < first_outcomes.size(); i++) {
     double first_outcome = first_outcomes[i];
     double second_outcome = second_outcomes[i];
@@ -62,11 +63,12 @@ TEST_CASE("scaling instrument scales relabeled outcomes", "[instrumental, relabe
 
   std::unordered_map<std::string, std::vector<double>> scaled_observations = {
       {"outcome", original_outcomes}, {"treatment", treatment}, {"instrument", scaled_instrument}};
-  std::vector<double> scaled_outcomes = get_relabeled_outcomes(&scaled_observations);
+  std::vector<double> second_outcomes = get_relabeled_outcomes(&scaled_observations);
 
+  REQUIRE(first_outcomes.size() == second_outcomes.size());
   for (int i = 0; i < first_outcomes.size(); i++) {
     double first_outcome = first_outcomes[i];
-    double second_outcome = scaled_outcomes[i];
+    double second_outcome = second_outcomes[i];
 
     REQUIRE(equalDoubles(3 * first_outcome, second_outcome, 1.0e-10));
   }

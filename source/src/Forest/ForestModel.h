@@ -5,9 +5,9 @@
 #ifndef RANGER_FORESTMODEL_H
 #define RANGER_FORESTMODEL_H
 
-#include "RelabelingStrategy.h"
+#include "relabeling/RelabelingStrategy.h"
 #include "SplittingRule.h"
-#include "PredictionStrategy.h"
+#include "prediction/PredictionStrategy.h"
 
 #include "Tree.h"
 #include "TreeModel.h"

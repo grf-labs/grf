@@ -5,8 +5,8 @@
 #ifndef RANGER_TREEMODEL_H
 #define RANGER_TREEMODEL_H
 
-#include "PredictionStrategy.h"
-#include "RelabelingStrategy.h"
+#include "prediction/PredictionStrategy.h"
+#include "relabeling/RelabelingStrategy.h"
 #include "SplittingRule.h"
 #include "../utility/Data.h"
 #include "Tree.h"

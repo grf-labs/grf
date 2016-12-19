@@ -33,10 +33,10 @@
 #include <utility/DataFloat.h>
 
 #include "ArgumentHandler.h"
-#include "QuantileRelabelingStrategy.h"
-#include "InstrumentalRelabelingStrategy.h"
-#include "QuantilePredictionStrategy.h"
-#include "InstrumentalPredictionStrategy.h"
+#include "relabeling/QuantileRelabelingStrategy.h"
+#include "relabeling/InstrumentalRelabelingStrategy.h"
+#include "prediction/QuantilePredictionStrategy.h"
+#include "prediction/InstrumentalPredictionStrategy.h"
 #include "RegressionSplittingRule.h"
 #include "ProbabilitySplittingRule.h"
 #include "ForestModel.h"

@@ -37,7 +37,7 @@
 #include "Data.h"
 #include "BootstrapSampler.h"
 #include "SplittingRule.h"
-#include "RelabelingStrategy.h"
+#include "relabeling/RelabelingStrategy.h"
 
 class Tree {
 public:
