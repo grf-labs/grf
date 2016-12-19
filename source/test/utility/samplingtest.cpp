@@ -3,7 +3,7 @@
 #include <fstream>
 
 #include "catch.hpp"
-#include "../../src/Forest/BootstrapSampler.h"
+#include "Forest/BootstrapSampler.h"
 
 size_t absoluteDifference(size_t first, size_t second) {
   return first >= second ? first - second : second - first;
