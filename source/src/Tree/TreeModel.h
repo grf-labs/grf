@@ -7,7 +7,7 @@
 
 #include "prediction/PredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
-#include "SplittingRule.h"
+#include "splitting/SplittingRule.h"
 #include "../utility/Data.h"
 #include "Tree.h"
 #include "sampling/BootstrapSampler.h"

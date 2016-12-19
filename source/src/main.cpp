@@ -37,8 +37,8 @@
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "prediction/QuantilePredictionStrategy.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
-#include "RegressionSplittingRule.h"
-#include "ProbabilitySplittingRule.h"
+#include "splitting/RegressionSplittingRule.h"
+#include "splitting/ProbabilitySplittingRule.h"
 #include "ForestModel.h"
 
 Data* initializeData(ArgumentHandler& arg_handler) {
