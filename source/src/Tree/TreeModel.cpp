@@ -73,15 +73,19 @@ void TreeModel::createPossibleSplitVarSubset(std::vector<size_t> &result,
 // Always use deterministic variables
   std::copy(deterministic_varIDs->begin(), deterministic_varIDs->end(), std::inserter(result, result.end()));
 
+  std::mt19937_64 random_number_generator;
 // Randomly add non-deterministic variables (according to weights if needed)
   if (split_select_weights->empty()) {
-    bootstrap_sampler->drawWithoutReplacementSkip(result, data->getNumCols(), *no_split_variables, mtry);
+    BootstrapSampler::drawWithoutReplacementSkip(result,
+                                                 random_number_generator,
+                                                 data->getNumCols(), *no_split_variables, mtry);
   } else {
     size_t num_draws = mtry - result.size();
-    bootstrap_sampler->drawWithoutReplacementWeighted(result,
-                                                      *split_select_varIDs,
-                                                      num_draws,
-                                                      *split_select_weights);
+    BootstrapSampler::drawWithoutReplacementWeighted(result,
+                                                     random_number_generator,
+                                                     *split_select_varIDs,
+                                                     num_draws,
+                                                     *split_select_weights);
   }
 }
 

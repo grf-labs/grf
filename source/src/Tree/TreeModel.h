@@ -14,7 +14,6 @@
 
 class TreeModel {
 public:
-
   TreeModel(RelabelingStrategy *relabeling_strategy,
             SplittingRule *splitting_rule,
             PredictionStrategy *prediction_strategy,
@@ -57,7 +56,6 @@ private:
   RelabelingStrategy *relabeling_strategy;
   SplittingRule *splitting_rule;
   PredictionStrategy *prediction_strategy;
-  BootstrapSampler *bootstrap_sampler;
 
   size_t dependent_varID;
 

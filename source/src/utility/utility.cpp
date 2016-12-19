@@ -96,79 +96,6 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
   }
 }
 
-double mostFrequentValue(std::unordered_map<double, size_t>& class_count, std::mt19937_64 random_number_generator) {
-  std::vector<double> major_classes;
-
-  // Find maximum count
-  size_t max_count = 0;
-  for (auto& class_value : class_count) {
-    if (class_value.second > max_count) {
-      max_count = class_value.second;
-      major_classes.clear();
-      major_classes.push_back(class_value.first);
-    } else if (class_value.second == max_count) {
-      major_classes.push_back(class_value.first);
-    }
-  }
-
-  if (major_classes.size() == 1) {
-    return major_classes[0];
-  } else {
-    // Choose randomly
-    std::uniform_int_distribution<size_t> unif_dist(0, major_classes.size() - 1);
-    return major_classes[unif_dist(random_number_generator)];
-  }
-}
-
-double computeConcordanceIndex(Data* data, std::vector<double>& sum_chf, size_t dependent_varID, size_t status_varID,
-    std::vector<size_t>& sample_IDs) {
-
-  // Compute concordance index
-  double concordance = 0;
-  double permissible = 0;
-  for (size_t i = 0; i < sum_chf.size(); ++i) {
-    size_t sample_i = i;
-    if (!sample_IDs.empty()) {
-      sample_i = sample_IDs[i];
-    }
-    double time_i = data->get(sample_i, dependent_varID);
-    double status_i = data->get(sample_i, status_varID);
-
-    for (size_t j = i + 1; j < sum_chf.size(); ++j) {
-      size_t sample_j = j;
-      if (!sample_IDs.empty()) {
-        sample_j = sample_IDs[j];
-      }
-      double time_j = data->get(sample_j, dependent_varID);
-      double status_j = data->get(sample_j, status_varID);
-
-      if (time_i < time_j && status_i == 0) {
-        continue;
-      }
-      if (time_j < time_i && status_j == 0) {
-        continue;
-      }
-      if (time_i == time_j && status_i == status_j) {
-        continue;
-      }
-
-      permissible += 1;
-
-      if (time_i < time_j && sum_chf[i] > sum_chf[j]) {
-        concordance += 1;
-      } else if (time_j < time_i && sum_chf[j] > sum_chf[i]) {
-        concordance += 1;
-      } else if (sum_chf[i] == sum_chf[j]) {
-        concordance += 0.5;
-      }
-
-    }
-  }
-
-  return (concordance / permissible);
-
-}
-
 std::string uintToString(uint number) {
   return std::to_string(number);
 }
@@ -228,39 +155,4 @@ void splitString(std::vector<std::string>& result, std::string input, char split
   while (std::getline(ss, token, split_char)) {
     result.push_back(token);
   }
-}
-
-std::string checkUnorderedVariables(Data* data, std::vector<std::string> unordered_variable_names) {
-  size_t num_rows = data->getNumRows();
-  std::vector<size_t> sampleIDs(num_rows);
-  std::iota(sampleIDs.begin(), sampleIDs.end(), 0);
-
-  // Check for all unordered variables
-  for (auto& variable_name : unordered_variable_names) {
-    size_t varID = data->getVariableID(variable_name);
-    std::vector<double> all_values;
-    data->getAllValues(all_values, sampleIDs, varID);
-
-    // Check level count
-    size_t max_level_count = 8 * sizeof(size_t) - 1;
-    if (all_values.size() > max_level_count) {
-      return "Too many levels in unordered categorical variable " + variable_name + ". Only "
-          + uintToString(max_level_count) + " levels allowed on this system.";
-    }
-
-    // Check positive integers
-    if (!checkPositiveIntegers(all_values)) {
-      return "Not all values in unordered categorical variable " + variable_name + " are positive integers.";
-    }
-  }
-  return "";
-}
-
-bool checkPositiveIntegers(std::vector<double>& all_values) {
-  for (auto& value : all_values) {
-    if (value < 1 || !(floor(value) == value)) {
-      return false;
-    }
-  }
-  return true;
 }
