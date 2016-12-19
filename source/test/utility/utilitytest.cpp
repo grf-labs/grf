@@ -90,6 +90,8 @@ TEST_CASE("Read and write a 1D vector", "[fileIO]") {
   readVector1D(test, infile);
   infile.close();
 
+  std::remove("testfile1d");
+
   REQUIRE(expect == test);
 }
 
@@ -111,6 +113,8 @@ TEST_CASE("Read and write a 1D vector of doubles", "[fileIO]") {
   std::vector<double> test;
   readVector1D(test, infile);
   infile.close();
+
+  std::remove("testfile1d");
 
   REQUIRE(expect == test);
 }
@@ -141,6 +145,8 @@ TEST_CASE("Read and write a 2D vector of integers", "[fileIO]") {
   readVector2D(test, infile);
   infile.close();
 
+  std::remove("testfile2d");
+
   REQUIRE(expect == test);
 }
 
@@ -169,6 +175,8 @@ TEST_CASE("Read and write a 2D vector of doubles", "[fileIO]") {
   std::vector<std::vector<double>> test;
   readVector2D<double>(test, infile);
   infile.close();
+
+  std::remove("testfile2d");
 
   REQUIRE(expect == test);
 }
