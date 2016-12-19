@@ -74,7 +74,7 @@ int ArgumentHandler::processArguments() {
       { "quantiles",            required_argument,  0, 'q'},
       { "splitrule",            required_argument,  0, 'r'},
       { "statusvarname",        required_argument,  0, 's'},
-      { "instrumentvarname",    required_argument,  0, 'ss'},
+      { "instrumentvarname",    required_argument,  0, 'i'},
       { "ntree",                required_argument,  0, 't'},
       { "noreplace",            no_argument,        0, 'u'},
       { "verbose",              no_argument,        0, 'v'},
@@ -218,7 +218,7 @@ int ArgumentHandler::processArguments() {
       statusvarname = optarg;
       break;
 
-    case 'ss':
+    case 'i':
       instrumentvarname = optarg;
       break;
 
