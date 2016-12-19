@@ -27,7 +27,7 @@ public:
   std::vector<std::vector<double>> predict(Forest* forest, Data* prediction_data);
 
   // Init from c++ main or Rcpp from R
-  void initCpp(MemoryMode memory_mode, uint mtry,
+  void initCpp(uint mtry,
                uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
                std::string load_forest_filename, uint min_node_size,
                std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
@@ -41,7 +41,7 @@ public:
   void writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
 
 private:
-  void init(MemoryMode memory_mode, uint mtry,
+  void init(uint mtry,
             uint num_trees, uint seed, uint num_threads,
             uint min_node_size, bool prediction_mode, bool sample_with_replacement,
             bool memory_saving_splitting,
@@ -91,7 +91,6 @@ private:
   uint seed;
   size_t dependent_varID;
   bool prediction_mode;
-  MemoryMode memory_mode;
   bool sample_with_replacement;
   bool memory_saving_splitting;
   bool keep_inbag;

@@ -35,7 +35,7 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
-    caseweights(""), depvarname(""), fraction(1), memmode(MEM_DOUBLE), savemem(false), predict(""),
+    caseweights(""), depvarname(""), fraction(1), savemem(false), predict(""),
     splitweights(""), nthreads(DEFAULT_NUM_THREADS), file(""),
     targetpartitionsize(0), mtry(0),
     quantiles(new std::vector<double>()), statusvarname(""), instrumentvarname(""),
@@ -59,7 +59,6 @@ int ArgumentHandler::processArguments() {
       { "caseweights",          required_argument,  0, 'C'},
       { "depvarname",           required_argument,  0, 'D'},
       { "fraction",             required_argument,  0, 'F'},
-      { "memmode",              required_argument,  0, 'M'},
       { "savemem",              no_argument,        0, 'N'},
       { "predict",              required_argument,  0, 'P'},
       { "splitweights",         required_argument,  0, 'S'},
@@ -118,18 +117,6 @@ int ArgumentHandler::processArguments() {
       } catch (...) {
         throw std::runtime_error(
             "Illegal argument for option 'fraction'. Please give a value in (0,1]. See '--help' for details.");
-      }
-      break;
-
-    case 'M':
-      try {
-        memmode = (MemoryMode) std::stoi(optarg);
-        if (memmode > MAX_MEM_MODE) {
-          throw std::runtime_error("");
-        }
-      } catch (...) {
-        throw std::runtime_error(
-            "Illegal argument for option 'memmode'. Please give a positive integer. See '--help' for details.");
       }
       break;
 

@@ -7,7 +7,7 @@
 
 #include "catch.hpp"
 
-TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, relabeling]") {
+TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, prediction]") {
   std::unordered_map<size_t, double> weights_by_sampleID = {
       {0, 0.0}, {1, 0.1}, {2, 0.2}, {3, 0.1}, {4, 0.1},
       {5, 0.1}, {6, 0.2}, {7, 0.1}, {8, 0.0}, {9, 0.1}};
@@ -33,7 +33,7 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, relab
   REQUIRE(equalDoubles(first_predictions[0], -second_predictions[0], 1.0e-10));
 }
 
-TEST_CASE("scaling instrument does not affect prediction", "[instrumental, relabeling]") {
+TEST_CASE("scaling instrument does not affect prediction", "[instrumental, prediction]") {
   std::unordered_map<size_t, double> weights_by_sampleID = {
       {0, 0.0}, {1, 0.1}, {2, 0.2}, {3, 0.1}, {4, 0.1},
       {5, 0.1}, {6, 0.2}, {7, 0.1}, {8, 0.0}, {9, 0.1}};

@@ -28,9 +28,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <utility/Data.h>
 #include <utility/DataDouble.h>
-#include <utility/DataChar.h>
-#include <utility/DataFloat.h>
 
 #include "ArgumentHandler.h"
 #include "relabeling/QuantileRelabelingStrategy.h"
@@ -42,20 +41,7 @@
 #include "ForestModel.h"
 
 Data* initializeData(ArgumentHandler& arg_handler) {
-  Data* data = NULL;
-
-  // Initialize data with memmode
-  switch (arg_handler.memmode) {
-    case MEM_DOUBLE:
-      data = new DataDouble();
-      break;
-    case MEM_FLOAT:
-      data = new DataFloat();
-      break;
-    case MEM_CHAR:
-      data = new DataChar();
-      break;
-  }
+  Data* data = new DataDouble();
 
   bool rounding_error = data->loadFromFile(arg_handler.file);
   if (rounding_error) {
@@ -143,7 +129,7 @@ Data* initializeData(ArgumentHandler& arg_handler) {
 //
 //    // Call Ranger
 //    *verbose_out << "Starting Ranger." << std::endl;
-//    forest_model->initCpp(arg_handler.memmode, arg_handler.mtry,
+//    forest_model->initCpp(arg_handler.mtry,
 //        arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
 //        arg_handler.predict, arg_handler.targetpartitionsize, arg_handler.splitweights,
 //        arg_handler.alwayssplitvars, arg_handler.replace,

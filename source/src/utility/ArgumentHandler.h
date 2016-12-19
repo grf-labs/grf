@@ -64,7 +64,6 @@ public:
   std::string caseweights;
   std::string depvarname;
   double fraction;
-  MemoryMode memmode;
   bool savemem;
   std::string predict;
   std::string splitweights;

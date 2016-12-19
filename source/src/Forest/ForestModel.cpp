@@ -13,13 +13,13 @@ ForestModel::ForestModel(std::unordered_map<std::string, size_t> observables,
                          SplittingRule *splitting_rule,
                          PredictionStrategy *prediction_strategy) :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0), dependent_varID(0),
-    prediction_mode(false), memory_mode(MEM_DOUBLE), sample_with_replacement(
+    prediction_mode(false), sample_with_replacement(
     true), memory_saving_splitting(false), keep_inbag(false), sample_fraction(
     1), num_threads(DEFAULT_NUM_THREADS), progress(0), observables(observables),
     relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), prediction_strategy(prediction_strategy) {
 }
 
-void ForestModel::initCpp(MemoryMode memory_mode, uint mtry,
+void ForestModel::initCpp(uint mtry,
                      uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
                      std::string load_forest_filename, uint min_node_size,
                      std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
@@ -39,7 +39,7 @@ void ForestModel::initCpp(MemoryMode memory_mode, uint mtry,
   }
 
   // Call other init function
-  init(memory_mode, mtry, num_trees, seed, num_threads,
+  init(mtry, num_trees, seed, num_threads,
        min_node_size, prediction_mode, sample_with_replacement,
        memory_saving_splitting, sample_fraction);
 
@@ -59,7 +59,7 @@ void ForestModel::initCpp(MemoryMode memory_mode, uint mtry,
 
 }
 
-void ForestModel::init(MemoryMode memory_mode, uint mtry,
+void ForestModel::init(uint mtry,
                        uint num_trees, uint seed, uint num_threads,
                        uint min_node_size,
                        bool prediction_mode, bool sample_with_replacement,
@@ -85,7 +85,6 @@ void ForestModel::init(MemoryMode memory_mode, uint mtry,
   this->mtry = mtry;
   this->seed = seed;
   this->min_node_size = min_node_size;
-  this->memory_mode = memory_mode;
   this->prediction_mode = prediction_mode;
   this->sample_with_replacement = sample_with_replacement;
   this->memory_saving_splitting = memory_saving_splitting;
@@ -111,7 +110,6 @@ void ForestModel::writeOutput(Data* prediction_data, std::vector<std::vector<dou
   *verbose_out << "Number of trees:                   " << num_trees << std::endl;
   *verbose_out << "Mtry:                              " << mtry << std::endl;
   *verbose_out << "Target node size:                  " << min_node_size << std::endl;
-  *verbose_out << "Memory mode:                       " << memory_mode << std::endl;
   *verbose_out << "Seed:                              " << seed << std::endl;
   *verbose_out << "Number of threads:                 " << num_threads << std::endl;
   *verbose_out << std::endl;
