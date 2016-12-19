@@ -37,7 +37,7 @@
 
 class Forest {
 public:
-  Forest(std::vector<Tree*> trees,
+  Forest(std::vector<Tree*>* trees,
          Data* data,
          std::unordered_map<std::string, size_t> observables);
   virtual ~Forest();
@@ -46,12 +46,12 @@ public:
     return original_observations;
   };
 
-  const std::vector<Tree*> get_trees() {
+  const std::vector<Tree*>* get_trees() const {
     return trees;
   }
 
 protected:
-  std::vector<Tree*> trees;
+  std::vector<Tree*>* trees;
 
   Data* data;
   std::unordered_map<std::string, size_t> observables_by_ID;

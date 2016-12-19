@@ -45,8 +45,7 @@ Data* initializeData(ArgumentHandler& arg_handler) {
 
   bool rounding_error = data->loadFromFile(arg_handler.file);
   if (rounding_error) {
-    std::cerr << "Warning: Rounding or Integer overflow occurred."
-        "Use FLOAT or DOUBLE precision to avoid this." << std::endl;
+    std::cerr << "A rounding error occurred while loading data from file." << std::endl;
   }
   data->sort();
 

@@ -214,4 +214,6 @@ void splitString(std::vector<std::string>& result, std::string input, char split
 
 bool equalDoubles(double first, double second, double epsilon);
 
+Data* loadDataFromFile(std::string file_name);
+
 #endif /* UTILITY_H_ */

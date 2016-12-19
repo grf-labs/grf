@@ -41,6 +41,7 @@
 #include "utility.h"
 #include "globals.h"
 #include "Data.h"
+#include "DataDouble.h"
 
 void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts) {
 
@@ -159,4 +160,16 @@ void splitString(std::vector<std::string>& result, std::string input, char split
 
 bool equalDoubles(double first, double second, double epsilon) {
   return std::abs(first - second) < epsilon;
+}
+
+Data* loadDataFromFile(std::string file_name) {
+  Data* data = new DataDouble();
+
+  bool rounding_error = data->loadFromFile(file_name);
+  if (rounding_error) {
+    std::cerr << "A rounding error occurred while loading data from file." << std::endl;
+  }
+
+  data->sort();
+  return data;
 }

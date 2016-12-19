@@ -26,9 +26,10 @@
  wright@imbs.uni-luebeck.de
  #-------------------------------------------------------------------------------*/
 
+#include <utility/Data.h>
 #include "Forest.h"
 
-Forest::Forest(std::vector<Tree *> trees,
+Forest::Forest(std::vector<Tree *>* trees,
                Data *data,
                std::unordered_map<std::string, size_t> observables) :
     trees(trees),
@@ -45,7 +46,7 @@ Forest::Forest(std::vector<Tree *> trees,
 }
 
 Forest::~Forest() {
-  for (auto& tree : trees) {
+  for (auto& tree : *trees) {
     delete tree;
   }
 }
