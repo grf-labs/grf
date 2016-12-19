@@ -1,3 +1,4 @@
+
 #include <unordered_map>
 #include "QuantileRelabelingStrategy.h"
 
@@ -30,13 +31,13 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabelObservatio
                          quantile_cutoffs.end());
 
   // Assign a class to each response based on what quantile it belongs to.
-  std::unordered_map<size_t, double> relabeled_responses;
+  std::unordered_map<size_t, double> relabeled_observations;
   for (size_t sampleID : node_sampleIDs) {
     auto quantile = std::lower_bound(quantile_cutoffs.begin(),
                                      quantile_cutoffs.end(),
                                      (*observations)["outcome"][sampleID]);
     long quantile_index = quantile - quantile_cutoffs.begin();
-    relabeled_responses[sampleID] = ((uint) quantile_index);
+    relabeled_observations[sampleID] = ((uint) quantile_index);
   }
-  return relabeled_responses;
+  return relabeled_observations;
 }
