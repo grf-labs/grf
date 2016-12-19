@@ -8,6 +8,7 @@
 
 class InstrumentalRelabelingStrategy: public RelabelingStrategy {
 public:
+  InstrumentalRelabelingStrategy();
   std::unordered_map<size_t, double> relabelObservations(
       std::unordered_map<std::string, std::vector<double>> *observations,
       std::vector<size_t> &node_sampleIDs);

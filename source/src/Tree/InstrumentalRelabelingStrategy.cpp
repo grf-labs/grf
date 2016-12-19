@@ -1,5 +1,7 @@
 #include "InstrumentalRelabelingStrategy.h"
 
+InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy() {}
+
 std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabelObservations(
     std::unordered_map<std::string, std::vector<double>> *observations,
     std::vector<size_t> &node_sampleIDs) {
@@ -40,10 +42,11 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabelObserv
   }
 
   // 50 is a hack
-  double local_average_treatment_effect = numerator / (denominator + 50 / node_sampleIDs.size() * regularizer * sgn(denominator));
+  double local_average_treatment_effect = numerator /
+      (denominator + 50 / node_sampleIDs.size() * regularizer * sgn(denominator));
 
   // Create the new responses;
-  std::unordered_map<size_t, double> new_responses_by_sampleID;
+  std::unordered_map<size_t, double> relabeled_observations;
 
   for (size_t sampleID : node_sampleIDs) {
     double treatment = (*observations)["treatment"][sampleID];
@@ -51,9 +54,9 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabelObserv
     double response = (*observations)["outcome"][sampleID];
 
     double residual = (response - average_response) - local_average_treatment_effect * (treatment - average_treatment);
-    new_responses_by_sampleID[sampleID] = (instrument - average_instrument) * residual;
+    relabeled_observations[sampleID] = (instrument - average_instrument) * residual;
   }
-  return new_responses_by_sampleID;
+  return relabeled_observations;
 }
 
 bool InstrumentalRelabelingStrategy::equalDoubles(double first, double second) {
