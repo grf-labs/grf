@@ -159,6 +159,9 @@ void splitString(std::vector<std::string>& result, std::string input, char split
 }
 
 bool equalDoubles(double first, double second, double epsilon) {
+  if (std::isnan(first)) {
+    return std::isnan(second);
+  }
   return std::abs(first - second) < epsilon;
 }
 

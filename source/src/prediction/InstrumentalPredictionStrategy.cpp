@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <utility/utility.h>
 #include "InstrumentalPredictionStrategy.h"
 
 std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<size_t, double>& weights_by_sampleID,

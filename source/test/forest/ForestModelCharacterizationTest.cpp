@@ -5,10 +5,12 @@
 #include <prediction/QuantilePredictionStrategy.h>
 #include <splitting/RegressionSplittingRule.h>
 #include <splitting/ProbabilitySplittingRule.h>
+#include <relabeling/InstrumentalRelabelingStrategy.h>
+#include <prediction/InstrumentalPredictionStrategy.h>
 
 #include "catch.hpp"
 
-
+// TODO(jtibs): Clean up these helper methods.
 void initializeForestModel(ForestModel* forest_model) {
   uint mtry = 3;
   uint num_trees = 4;
@@ -78,13 +80,41 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
   Forest* forest = forest_model->train(data);
   std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
 
-  REQUIRE(predictions.size() == data->getNumRows());
-
   std::vector<std::vector<double>> expected_predictions = loadPredictionsFile(
       "test/forest/resources/quantile_test_predictions.csv");
   REQUIRE(predictions == expected_predictions);
 }
 
-TEST_CASE("instrumental forest predictions have not changed", "[instrumental, characterization]") {
+TEST_CASE("causal forest predictions have not changed", "[causal, characterization]") {
+  std::unordered_map<std::string, size_t> observables = {
+      {"outcome", 10}, {"treatment", 11}, {"instrument", 11}};
+  Data* data = loadDataFromFile("test/forest/resources/causal_test_data.csv");
 
+  RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy();
+  SplittingRule* splitting_rule = new RegressionSplittingRule(data);
+  PredictionStrategy* prediction_strategy = new InstrumentalPredictionStrategy();
+
+  ForestModel* forest_model = new ForestModel(observables,
+                                              relabeling_strategy,
+                                              splitting_rule,
+                                              prediction_strategy);
+  initializeForestModel(forest_model);
+
+  Forest* forest = forest_model->train(data);
+  std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
+
+  std::vector<std::vector<double>> expected_predictions = loadPredictionsFile(
+      "test/forest/resources/causal_test_predictions.csv");
+
+  REQUIRE(predictions.size() == expected_predictions.size());
+
+  for (int i = 0; i < predictions.size(); i++) {
+    std::vector<double> prediction = predictions[i];
+    std::vector<double> expected_prediction = expected_predictions[i];
+
+    REQUIRE(prediction.size() == 1);
+    REQUIRE(expected_prediction.size() == 1);
+
+    REQUIRE(equalDoubles(prediction[0], expected_prediction[0], 1e-2));
+  }
 }
