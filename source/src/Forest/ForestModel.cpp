@@ -254,7 +254,6 @@ std::vector<std::vector<double>> ForestModel::predict(Forest* forest, Data* pred
     thread.join();
   }
 
-
   return predictInternal(forest, prediction_data, terminal_node_IDs_by_tree);
 }
 
