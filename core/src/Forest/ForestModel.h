@@ -1,9 +1,5 @@
-//
-// Created by Julie Noelle Tibshirani on 12/17/16.
-//
-
-#ifndef RANGER_FORESTMODEL_H
-#define RANGER_FORESTMODEL_H
+#ifndef GRADIENTFOREST_FORESTMODEL_H
+#define GRADIENTFOREST_FORESTMODEL_H
 
 #include "relabeling/RelabelingStrategy.h"
 #include "splitting/SplittingRule.h"
@@ -131,4 +127,4 @@ private:
 
 
 
-#endif //RANGER_FORESTMODEL_H
+#endif //GRADIENTFOREST_FORESTMODEL_H

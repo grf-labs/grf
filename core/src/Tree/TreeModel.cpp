@@ -1,6 +1,3 @@
-//
-// Created by Julie Noelle Tibshirani on 12/17/16.
-//
 
 #include <utility/Data.h>
 #include "TreeModel.h"

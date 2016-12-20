@@ -1,30 +1,3 @@
-/*-------------------------------------------------------------------------------
- This file is part of Ranger.
-
- Ranger is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Ranger is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Ranger. If not, see <http://www.gnu.org/licenses/>.
-
- Written by:
-
- Marvin N. Wright
- Institut für Medizinische Biometrie und Statistik
- Universität zu Lübeck
- Ratzeburger Allee 160
- 23562 Lübeck
-
- http://www.imbs-luebeck.de
- wright@imbs.uni-luebeck.de
- #-------------------------------------------------------------------------------*/
 
 #include <iostream>
 #include <fstream>
@@ -119,15 +92,14 @@ Data* initializeData(ArgumentHandler& arg_handler) {
 //      verbose_out = &std::cout;
 //    } else {
 //      std::ofstream* logfile = new std::ofstream();
-//      logfile->open("ranger.log");
+//      logfile->open("gradientforest.log");
 //      if (!logfile->good()) {
 //        throw std::runtime_error("Could not write to logfile.");
 //      }
 //      verbose_out = logfile;
 //    }
 //
-//    // Call Ranger
-//    *verbose_out << "Starting Ranger." << std::endl;
+//    *verbose_out << "Starting gradient forest." << std::endl;
 //    forest_model->initCpp(arg_handler.mtry,
 //        arg_handler.ntree, verbose_out, arg_handler.seed, arg_handler.nthreads,
 //        arg_handler.predict, arg_handler.targetpartitionsize, arg_handler.splitweights,
@@ -137,12 +109,12 @@ Data* initializeData(ArgumentHandler& arg_handler) {
 //    Forest* forest = forest_model->train(data);
 //    std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
 //    forest_model->writeOutput(data, predictions);
-//    *verbose_out << "Finished Ranger." << std::endl;
+//    *verbose_out << "Finished gradient forest." << std::endl;
 //
 //    delete forest_model;
 //    delete forest;
 //  } catch (std::exception& e) {
-//    std::cerr << "Error: " << e.what() << " Ranger will EXIT now." << std::endl;
+//    std::cerr << "Error: " << e.what() << " Exiting now." << std::endl;
 //    delete forest_model;
 //    return -1;
 //  }

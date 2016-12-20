@@ -1,9 +1,5 @@
-//
-// Created by Julie Noelle Tibshirani on 12/17/16.
-//
-
-#ifndef RANGER_TREEMODEL_H
-#define RANGER_TREEMODEL_H
+#ifndef GRADIENTFOREST_TREEMODEL_H
+#define GRADIENTFOREST_TREEMODEL_H
 
 #include "prediction/PredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
@@ -72,4 +68,4 @@ private:
   std::vector <size_t> *no_split_variables;
 };
 
-#endif //RANGER_TREEMODEL_H
+#endif //GRADIENTFOREST_TREEMODEL_H

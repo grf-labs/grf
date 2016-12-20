@@ -525,7 +525,7 @@ void ForestModel::computePredictionErrorInternal(Forest* forest,
 void ForestModel::writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions) {
 
 // Open confusion file for writing
-  std::string filename = "ranger.confusion";
+  std::string filename = "gradientforest.confusion";
   std::ofstream outfile;
   outfile.open(filename, std::ios::out);
   if (!outfile.good()) {
@@ -546,7 +546,7 @@ void ForestModel::writeConfusionFile(Data* prediction_data, std::vector<std::vec
 }
 
 void ForestModel::writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions) {
-  std::string filename = "ranger.prediction";
+  std::string filename = "gradientforest.prediction";
   std::ofstream outfile;
   outfile.open(filename, std::ios::out);
   if (!outfile.good()) {

@@ -1,6 +1,5 @@
-
-#ifndef RANGER_SPLITTINGRULE_H
-#define RANGER_SPLITTINGRULE_H
+#ifndef GRADIENTFOREST_SPLITTINGRULE_H
+#define GRADIENTFOREST_SPLITTINGRULE_H
 
 #include <unordered_map>
 
@@ -14,6 +13,6 @@ public:
                              std::vector<double> &split_values) = 0;
 };
 
-#endif //RANGER_SPLITTINGRULE_H
+#endif //GRADIENTFOREST_SPLITTINGRULE_H
 
 

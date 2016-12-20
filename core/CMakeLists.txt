@@ -1,4 +1,4 @@
-project(ranger)
+project(gradientforest)
 cmake_minimum_required(VERSION 2.0)
 
 ## ======================================================================================##
@@ -55,5 +55,5 @@ ADD_CUSTOM_TARGET(release
 ## ======================================================================================##
 ## Executable
 ## ======================================================================================##
-add_executable(ranger ${SOURCES})
+add_executable(gradientforest ${SOURCES})
 

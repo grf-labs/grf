@@ -1,37 +1,8 @@
-/*-------------------------------------------------------------------------------
-This file is part of Ranger.
-
-Ranger is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Ranger is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Ranger. If not, see <http://www.gnu.org/licenses/>.
-
-Written by:
-
-Marvin N. Wright
-Institut für Medizinische Biometrie und Statistik
-Universität zu Lübeck
-Ratzeburger Allee 160
-23562 Lübeck
-
-http://www.imbs-luebeck.de
-wright@imbs.uni-luebeck.de
-#-------------------------------------------------------------------------------*/
-
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 
 #include "ArgumentHandler.h"
-#include "version.h"
 #include "utility.h"
 
 ArgumentHandler::ArgumentHandler(int argc, char **argv) :
@@ -144,11 +115,6 @@ int ArgumentHandler::processArguments() {
         throw std::runtime_error(
             "Illegal argument for option 'nthreads'. Please give a positive integer. See '--help' for details.");
       }
-      break;
-
-    case 'Z':
-      displayVersion();
-      return -1;
       break;
 
     case 'f':
@@ -374,20 +340,4 @@ void ArgumentHandler::displayHelp() {
   std::cout << std::endl;
 
   std::cout << "See README file for details and examples." << std::endl;
-}
-
-// TODO: Change citation info
-void ArgumentHandler::displayVersion() {
-  std::cout << "Ranger version: " << RANGER_VERSION << std::endl;
-  std::cout << std::endl;
-  std::cout << "Please cite Ranger: " << std::endl;
-  std::cout << "Wright, M. N. & Ziegler, A. (2016). ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R. Journal of Statistical Software, in press." << std::endl;
-  std::cout << std::endl;
-  std::cout << "BibTeX:" << std::endl;
-  std::cout << "@Article{," << std::endl;
-  std::cout << "    title = {ranger: {{A}} fast implementation of random forests for high dimensional data in {{C}}++ and {{R}}}," << std::endl;
-  std::cout << "    author = {Wright, Marvin N. and Ziegler, Andreas}," << std::endl;
-  std::cout << "    journal = {Journal of Statistical Software}," << std::endl;
-  std::cout << "    year = {2016}," << std::endl;
-  std::cout << "}" << std::endl;
 }

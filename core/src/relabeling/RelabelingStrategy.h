@@ -1,9 +1,8 @@
 //
 // Created by Julie Noelle Tibshirani on 10/30/16.
 //
-
-#ifndef RANGER_RELABELINGSTRATEGY_H
-#define RANGER_RELABELINGSTRATEGY_H
+#ifndef GRADIENTFOREST_RELABELINGSTRATEGY_H
+#define GRADIENTFOREST_RELABELINGSTRATEGY_H
 
 
 #include <utility/Data.h>
@@ -18,4 +17,4 @@ public:
 };
 
 
-#endif //RANGER_RELABELINGSTRATEGY_H
+#endif //GRADIENTFOREST_RELABELINGSTRATEGY_H
