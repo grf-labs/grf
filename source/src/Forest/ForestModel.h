@@ -50,7 +50,7 @@ private:
   void computePredictionError(Forest* forest, Data* prediction_data);
   void computePredictionErrorInternal(Forest* forest,
                                       Data* prediction_data,
-                                      std::unordered_map<Tree *, std::vector<size_t>> terminal_node_IDs_by_tree);
+                                      std::unordered_map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree);
 
   void growTreesInThread(uint thread_idx,
                          Data *data,
@@ -61,7 +61,7 @@ private:
                             Forest *forest,
                             const Data *prediction_data,
                             bool oob_prediction,
-                            std::promise<std::unordered_map<Tree*, std::vector<size_t>>> promise);
+                            std::promise<std::unordered_map<size_t, std::vector<size_t>>> promise);
 
   void addSampleWeights(size_t test_sample_idx,
                         Tree* tree,
@@ -70,7 +70,7 @@ private:
   void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
   std::vector<std::vector<double>> predictInternal(Forest* forest,
                                                    Data* prediction_data,
-                                                   std::unordered_map<Tree*, std::vector<size_t>> terminal_node_IDs_by_tree);
+                                                   std::unordered_map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree);
 
   // Set split select weights and variables to be always considered for splitting
   void setSplitWeightVector(std::vector<std::vector<double>>& split_select_weights,

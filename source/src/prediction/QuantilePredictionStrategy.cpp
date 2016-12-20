@@ -44,7 +44,7 @@ std::vector<double> QuantilePredictionStrategy::calculateQuantileCutoffs(
     }
   }
 
-  double last_value = sampleIDs_and_values.back().first;
+  double last_value = sampleIDs_and_values.back().second;
   for (; quantile_it != quantiles->end(); ++quantile_it) {
     quantile_cutoffs.push_back(last_value);
   }

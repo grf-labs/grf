@@ -26,8 +26,8 @@ TreeModel::TreeModel(RelabelingStrategy *relabeling_strategy,
 
 
 Tree* TreeModel::train(Data* data,
-                       std::unordered_map<std::string, std::vector<double>>* observations,
                        BootstrapSampler* bootstrap_sampler,
+                       std::unordered_map<std::string, std::vector<double>>* observations,
                        std::vector<double>* split_select_weights) {
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> sampleIDs;
@@ -44,7 +44,8 @@ Tree* TreeModel::train(Data* data,
   size_t num_open_nodes = 1;
   size_t i = 0;
   while (num_open_nodes > 0) {
-    bool is_terminal_node = splitNode(i, data, observations, child_nodeIDs,
+    bool is_terminal_node = splitNode(i, bootstrap_sampler,
+                                      data, observations, child_nodeIDs,
                                       sampleIDs,
                                       split_varIDs,
                                       split_values,
@@ -69,22 +70,20 @@ Tree* TreeModel::train(Data* data,
 }
 
 void TreeModel::createPossibleSplitVarSubset(std::vector<size_t> &result,
+                                             BootstrapSampler* bootstrap_sampler,
                                              Data* data,
                                              std::vector<double>* split_select_weights) {
 
 // Always use deterministic variables
   std::copy(deterministic_varIDs->begin(), deterministic_varIDs->end(), std::inserter(result, result.end()));
 
-  std::mt19937_64 random_number_generator;
 // Randomly add non-deterministic variables (according to weights if needed)
   if (split_select_weights->empty()) {
-    BootstrapSampler::drawWithoutReplacementSkip(result,
-                                                 random_number_generator,
+    bootstrap_sampler->drawWithoutReplacementSkip(result,
                                                  data->getNumCols(), *no_split_variables, mtry);
   } else {
     size_t num_draws = mtry - result.size();
-    BootstrapSampler::drawWithoutReplacementWeighted(result,
-                                                     random_number_generator,
+    bootstrap_sampler->drawWithoutReplacementWeighted(result,
                                                      *split_select_varIDs,
                                                      num_draws,
                                                      *split_select_weights);
@@ -92,6 +91,7 @@ void TreeModel::createPossibleSplitVarSubset(std::vector<size_t> &result,
 }
 
 bool TreeModel::splitNode(size_t nodeID,
+                          BootstrapSampler* bootstrap_sampler,
                           Data* data,
                           std::unordered_map<std::string, std::vector<double>>* observations,
                           std::vector<std::vector<size_t>>& child_nodeIDs,
@@ -102,7 +102,7 @@ bool TreeModel::splitNode(size_t nodeID,
 
 // Select random subset of variables to possibly split at
   std::vector<size_t> possible_split_varIDs;
-  createPossibleSplitVarSubset(possible_split_varIDs, data, split_select_weights);
+  createPossibleSplitVarSubset(possible_split_varIDs, bootstrap_sampler, data, split_select_weights);
 
 // Call subclass method, sets split_varIDs and split_values
   bool stop = splitNodeInternal(nodeID,

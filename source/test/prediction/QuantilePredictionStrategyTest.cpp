@@ -22,3 +22,23 @@ TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
   std::vector<double> expected_predictions = {-7.36924, -0.826997, 5.11211};
   REQUIRE(predictions == expected_predictions);
 }
+
+TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
+  std::unordered_map<size_t, double> weights_by_sampleID = {
+      {0, 0.0}, {1, 0.1}, {2, 0.2}, {3, 0.1}, {4, 0.1},
+      {5, 0.1}, {6, 0.2}, {7, 0.1}, {8, 0.0}, {9, 0.1}};
+
+  std::vector<double> original_outcomes = {-1.99984, -0.36924, 0.11211, -1.826997, 1.655345,
+                                           -1.62082, -0.05911, 0.57729, 0.58593, 1.69386};
+  std::unordered_map<std::string, std::vector<double>> observations = {{"outcome", original_outcomes}};
+
+  std::vector<double> *quantiles = new std::vector<double>({0.5, 0.75, 0.80, 0.90});
+  PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);
+  std::vector<double> predictions = prediction_strategy->predict(weights_by_sampleID, observations);
+
+  // Check that all predictions fall within a reasonable range.
+  for (auto &prediction : predictions) {
+    REQUIRE(-2.0 < prediction);
+    REQUIRE(prediction < 2.0);
+  }
+}

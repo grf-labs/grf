@@ -11,10 +11,11 @@ size_t absoluteDifference(size_t first, size_t second) {
 
 TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
-  std::mt19937_64 random_number_generator;
   std::random_device random_device;
-  random_number_generator.seed(random_device());
   std::map<size_t, uint> counts;
+
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
+      1, random_device(), true, 1, true, new std::vector<double>());
 
   size_t max = 9;
   std::vector<size_t> skip = std::vector<size_t>({7});
@@ -23,10 +24,9 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
 
   size_t expected_count = num_samples * num_replicates / max;
 
-
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    BootstrapSampler::drawWithoutReplacementSkip(result, random_number_generator, max + 1, skip, num_samples);
+    bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
     for (auto &idx : result) {
       ++counts[idx];
     }
@@ -42,10 +42,11 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
 
 TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
-  std::mt19937_64 random_number_generator;
   std::random_device random_device;
-  random_number_generator.seed(random_device());
   std::map<size_t, uint> counts;
+
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
+      1, random_device(), true, 1, true, new std::vector<double>());
 
   size_t max = 9;
   std::vector<size_t> skip = std::vector<size_t>({0});
@@ -56,7 +57,7 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
 
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    BootstrapSampler::drawWithoutReplacementSkip(result, random_number_generator, max + 1, skip, num_samples);
+    bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
     for (auto &idx : result) {
       ++counts[idx];
     }
@@ -72,10 +73,11 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
 
 TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
-  std::mt19937_64 random_number_generator;
   std::random_device random_device;
-  random_number_generator.seed(random_device());
   std::map<size_t, uint> counts;
+
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
+      1, random_device(), true, 1, true, new std::vector<double>());
 
   size_t max = 9;
   std::vector<size_t> skip = std::vector<size_t>({9});
@@ -86,7 +88,7 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
 
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    BootstrapSampler::drawWithoutReplacementSkip(result, random_number_generator, max + 1, skip, num_samples);
+    bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
     for (auto &idx : result) {
       ++counts[idx];
     }
@@ -102,11 +104,12 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
 
 TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
-  std::mt19937_64 random_number_generator;
   std::random_device random_device;
-  random_number_generator.seed(random_device());
   std::map<size_t, uint> counts;
 
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
+      1, random_device(), true, 1, true, new std::vector<double>());
+  
   size_t max = 1000;
   std::vector<size_t> skip = std::vector<size_t>({7});
   size_t num_samples = 50;
@@ -116,7 +119,7 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
 
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    BootstrapSampler::drawWithoutReplacementSkip(result, random_number_generator, max + 1, skip, num_samples);
+    bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
     for (auto &idx : result) {
       ++counts[idx];
     }
@@ -132,10 +135,11 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
 
 TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   std::vector<size_t> result;
-  std::mt19937_64 random_number_generator;
   std::random_device random_device;
-  random_number_generator.seed(random_device());
   std::map<size_t, uint> counts;
+
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
+      1, random_device(), true, 1, true, new std::vector<double>());
 
   size_t max = 1000;
   std::vector<size_t> skip = std::vector<size_t>({7});
@@ -146,7 +150,7 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
 
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    BootstrapSampler::drawWithoutReplacementSkip(result, random_number_generator, max + 1, skip, num_samples);
+    bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
     for (auto &idx : result) {
       ++counts[idx];
     }
@@ -162,56 +166,68 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
 
 
 TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
-  std::mt19937_64 random_number_generator;
+  std::vector<size_t> result;
   std::random_device random_device;
-  random_number_generator.seed(random_device());
+  std::map<size_t, uint> counts;
+
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
+      1, random_device(), true, 1, true, new std::vector<double>());
 
   std::vector<size_t> first_part;
   std::vector<size_t> second_part;
 
-  BootstrapSampler::shuffleAndSplit(first_part, random_number_generator, second_part, 10, 3);
+  bootstrap_sampler->shuffleAndSplit(first_part, second_part, 10, 3);
 
   REQUIRE(3 == first_part.size());
   REQUIRE(7 == second_part.size());
 }
 
 TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
-  std::mt19937_64 random_number_generator;
+  std::vector<size_t> result;
   std::random_device random_device;
-  random_number_generator.seed(random_device());
+  std::map<size_t, uint> counts;
+
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
+      1, random_device(), true, 1, true, new std::vector<double>());
 
   std::vector<size_t> first_part;
   std::vector<size_t> second_part;
 
-  BootstrapSampler::shuffleAndSplit(first_part, random_number_generator, second_part, 100, 63);
+  bootstrap_sampler->shuffleAndSplit(first_part, second_part, 100, 63);
 
   REQUIRE(63 == first_part.size());
   REQUIRE(37 == second_part.size());
 }
 
 TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
-  std::mt19937_64 random_number_generator;
+  std::vector<size_t> result;
   std::random_device random_device;
-  random_number_generator.seed(random_device());
+  std::map<size_t, uint> counts;
+
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
+      1, random_device(), true, 1, true, new std::vector<double>());
 
   std::vector<size_t> first_part;
   std::vector<size_t> second_part;
 
-  BootstrapSampler::shuffleAndSplit(first_part, random_number_generator, second_part, 1, 1);
+  bootstrap_sampler->shuffleAndSplit(first_part, second_part, 1, 1);
 
   REQUIRE(1 == first_part.size());
   REQUIRE(0 == second_part.size());
 }
 
 TEST_CASE("Shuffle and split 4", "[shuffleAndSplit]") {
-  std::mt19937_64 random_number_generator;
+  std::vector<size_t> result;
   std::random_device random_device;
-  random_number_generator.seed(random_device());
+  std::map<size_t, uint> counts;
 
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
+      1, random_device(), true, 1, true, new std::vector<double>());
+  
   std::vector<size_t> first_part;
   std::vector<size_t> second_part;
 
-  BootstrapSampler::shuffleAndSplit(first_part, random_number_generator, second_part, 3, 0);
+  bootstrap_sampler->shuffleAndSplit(first_part, second_part, 3, 0);
 
   REQUIRE(0 == first_part.size());
   REQUIRE(3 == second_part.size());

@@ -25,8 +25,8 @@ public:
             std::vector <size_t> *no_split_variables);
 
   Tree* train(Data *data,
-              std::unordered_map<std::string, std::vector<double>>* observations,
               BootstrapSampler *bootstrap_sampler,
+              std::unordered_map<std::string, std::vector<double>>* observations,
               std::vector<double> *split_select_weights);
 
 private:
@@ -36,10 +36,12 @@ private:
                        std::vector<double> &split_values);
 
   void createPossibleSplitVarSubset(std::vector <size_t> &result,
+                                    BootstrapSampler *bootstrap_sampler,
                                     Data* data,
                                     std::vector<double> *split_select_weights);
 
   bool splitNode(size_t nodeID,
+                 BootstrapSampler* bootstrap_sampler,
                  Data* data,
                  std::unordered_map<std::string, std::vector<double>>* observations,
                  std::vector <std::vector<size_t>> &child_nodeIDs,
