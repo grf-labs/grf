@@ -207,7 +207,7 @@ Forest* ForestModel::train(Data* data) {
                                   std::move(promise)));
     futures.push_back(std::move(future));
   }
-  //showProgress("Growing trees..");
+
   for (auto &future : futures) {
     future.wait();
     std::vector<Tree*> thread_trees = future.get();
@@ -244,7 +244,6 @@ std::vector<std::vector<double>> ForestModel::predict(Forest* forest, Data* pred
     futures.push_back(std::move(future));
   }
 
-  //showProgress("Predicting..");
   for (auto &future : futures) {
     future.wait();
     std::unordered_map<size_t, std::vector<size_t>> terminal_nodeIDs = future.get();
@@ -281,7 +280,6 @@ void ForestModel::computePredictionError(Forest* forest,
     futures.push_back(std::move(future));
   }
 
-  showProgress("Computing prediction error..");
   for (auto &future : futures) {
     future.wait();
     std::unordered_map<size_t, std::vector<size_t>> terminal_nodeIDs = future.get();
@@ -433,32 +431,6 @@ void ForestModel::setAlwaysSplitVariables(Data* data,
   if (deterministic_varIDs.size() + this->mtry > num_independent_variables) {
     throw std::runtime_error(
         "Number of variables to be always considered for splitting plus mtry cannot be larger than number of independent variables.");
-  }
-}
-
-void ForestModel::showProgress(std::string operation) {
-  using std::chrono::steady_clock;
-  using std::chrono::duration_cast;
-  using std::chrono::seconds;
-
-  steady_clock::time_point start_time = steady_clock::now();
-  steady_clock::time_point last_time = steady_clock::now();
-  std::unique_lock<std::mutex> lock(mutex);
-
-// Wait for message from threads and show output if enough time elapsed
-  while (progress < num_trees) {
-    condition_variable.wait(lock);
-    seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
-
-    // Check for user interrupt
-    if (progress > 0 && elapsed_time.count() > STATUS_INTERVAL) {
-      double relative_progress = (double) progress / (double) num_trees;
-      seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
-      uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
-      *verbose_out << operation << " Progress: " << round(100 * relative_progress) << "%. Estimated remaining time: "
-                   << beautifyTime(remaining_time) << "." << std::endl;
-      last_time = steady_clock::now();
-    }
   }
 }
 

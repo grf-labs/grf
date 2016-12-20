@@ -79,9 +79,6 @@ private:
                                std::vector<std::string>& always_split_variable_names,
                                size_t num_independent_variables);
 
-  // Show progress every few seconds
-  void showProgress(std::string operation);
-
   // Verbose output stream, cout if verbose==true, logfile if not
   std::ostream* verbose_out;
 
@@ -102,8 +99,6 @@ private:
   // Multithreading
   uint num_threads;
   std::vector<uint> thread_ranges;
-  std::mutex mutex;
-  std::condition_variable condition_variable;
 
   TreeModel* tree_model;
 
