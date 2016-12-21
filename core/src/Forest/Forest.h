@@ -22,6 +22,14 @@ public:
     return trees;
   }
 
+  const std::vector<std::vector<size_t>> get_inbag_counts() const {
+    std::vector<std::vector<size_t>> result;
+    for (auto& tree : *trees) {
+      result.push_back(tree->getInbagCounts());
+    }
+    return result;
+  }
+
 protected:
   std::vector<Tree*>* trees;
 
