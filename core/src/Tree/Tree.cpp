@@ -1,6 +1,6 @@
 
 #include <iterator>
-#include <sampling/BootstrapSampler.h>
+#include "BootstrapSampler.h"
 
 #include "Tree.h"
 #include "utility.h"

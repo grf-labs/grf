@@ -1,12 +1,12 @@
-#include <prediction/PredictionStrategy.h>
-#include <utility/utility.h>
-#include <forest/ForestModel.h>
-#include <relabeling/QuantileRelabelingStrategy.h>
-#include <prediction/QuantilePredictionStrategy.h>
-#include <splitting/RegressionSplittingRule.h>
-#include <splitting/ProbabilitySplittingRule.h>
-#include <relabeling/InstrumentalRelabelingStrategy.h>
-#include <prediction/InstrumentalPredictionStrategy.h>
+#include "PredictionStrategy.h"
+#include "utility.h"
+#include "ForestModel.h"
+#include "QuantileRelabelingStrategy.h"
+#include "QuantilePredictionStrategy.h"
+#include "RegressionSplittingRule.h"
+#include "ProbabilitySplittingRule.h"
+#include "InstrumentalRelabelingStrategy.h"
+#include "InstrumentalPredictionStrategy.h"
 
 #include "catch.hpp"
 

@@ -4,7 +4,7 @@
 #include "Tree.h"
 #include "SplittingRule.h"
 #include <unordered_map>
-#include <utility/Data.h>
+#include "Data.h"
 
 class RegressionSplittingRule: public SplittingRule {
 public:

@@ -5,7 +5,7 @@
 #include "globals.h"
 #include "Tree.h"
 #include "Data.h"
-#include "prediction/PredictionStrategy.h"
+#include "PredictionStrategy.h"
 
 class Forest {
 public:

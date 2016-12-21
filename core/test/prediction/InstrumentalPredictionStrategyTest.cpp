@@ -1,9 +1,9 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
-#include <utility/utility.h>
-#include <prediction/PredictionStrategy.h>
-#include <prediction/InstrumentalPredictionStrategy.h>
+#include "utility.h"
+#include "PredictionStrategy.h"
+#include "InstrumentalPredictionStrategy.h"
 
 #include "catch.hpp"
 

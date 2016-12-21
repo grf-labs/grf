@@ -1,11 +1,11 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
-#include <utility/utility.h>
+#include "utility.h"
 
 #include "catch.hpp"
-#include "relabeling/RelabelingStrategy.h"
-#include "relabeling/InstrumentalRelabelingStrategy.h"
+#include "RelabelingStrategy.h"
+#include "InstrumentalRelabelingStrategy.h"
 
 std::vector<double> get_relabeled_outcomes(std::unordered_map<std::string, std::vector<double>>* observations) {
   std::vector<size_t> sampleIDs;

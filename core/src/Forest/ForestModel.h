@@ -1,9 +1,9 @@
 #ifndef GRADIENTFOREST_FORESTMODEL_H
 #define GRADIENTFOREST_FORESTMODEL_H
 
-#include "relabeling/RelabelingStrategy.h"
-#include "splitting/SplittingRule.h"
-#include "prediction/PredictionStrategy.h"
+#include "RelabelingStrategy.h"
+#include "SplittingRule.h"
+#include "PredictionStrategy.h"
 
 #include "Tree.h"
 #include "TreeModel.h"

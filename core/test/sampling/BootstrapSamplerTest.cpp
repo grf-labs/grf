@@ -1,9 +1,10 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
+#include <random>
 
 #include "catch.hpp"
-#include "sampling/BootstrapSampler.h"
+#include "BootstrapSampler.h"
 
 size_t absoluteDifference(size_t first, size_t second) {
   return first >= second ? first - second : second - first;

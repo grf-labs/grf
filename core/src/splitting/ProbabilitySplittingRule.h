@@ -1,9 +1,9 @@
 #ifndef GRADIENTFOREST_PROBABILITYSPLITTINGRULE_H
 #define GRADIENTFOREST_PROBABILITYSPLITTINGRULE_H
 
-#include <globals.h>
+#include "globals.h"
 #include <vector>
-#include <utility/Data.h>
+#include "Data.h"
 #include "SplittingRule.h"
 
 class ProbabilitySplittingRule: public SplittingRule {

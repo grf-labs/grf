@@ -1,16 +1,16 @@
 
 #include <iostream>
 #include <fstream>
-#include <utility/Data.h>
-#include <utility/DataDouble.h>
+#include "Data.h"
+#include "DataDouble.h"
 
 #include "ArgumentHandler.h"
-#include "relabeling/QuantileRelabelingStrategy.h"
-#include "relabeling/InstrumentalRelabelingStrategy.h"
-#include "prediction/QuantilePredictionStrategy.h"
-#include "prediction/InstrumentalPredictionStrategy.h"
-#include "splitting/RegressionSplittingRule.h"
-#include "splitting/ProbabilitySplittingRule.h"
+#include "QuantileRelabelingStrategy.h"
+#include "InstrumentalRelabelingStrategy.h"
+#include "QuantilePredictionStrategy.h"
+#include "InstrumentalPredictionStrategy.h"
+#include "RegressionSplittingRule.h"
+#include "ProbabilitySplittingRule.h"
 #include "ForestModel.h"
 
 Data* initializeData(ArgumentHandler& arg_handler) {

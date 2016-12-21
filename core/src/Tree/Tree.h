@@ -7,9 +7,9 @@
 
 #include "globals.h"
 #include "Data.h"
-#include "sampling/BootstrapSampler.h"
-#include "splitting/SplittingRule.h"
-#include "relabeling/RelabelingStrategy.h"
+#include "BootstrapSampler.h"
+#include "SplittingRule.h"
+#include "RelabelingStrategy.h"
 
 class Tree {
 public:

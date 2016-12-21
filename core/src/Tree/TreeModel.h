@@ -1,12 +1,12 @@
 #ifndef GRADIENTFOREST_TREEMODEL_H
 #define GRADIENTFOREST_TREEMODEL_H
 
-#include "prediction/PredictionStrategy.h"
-#include "relabeling/RelabelingStrategy.h"
-#include "splitting/SplittingRule.h"
-#include "../utility/Data.h"
+#include "PredictionStrategy.h"
+#include "RelabelingStrategy.h"
+#include "SplittingRule.h"
+#include "Data.h"
 #include "Tree.h"
-#include "sampling/BootstrapSampler.h"
+#include "BootstrapSampler.h"
 
 class TreeModel {
 public:

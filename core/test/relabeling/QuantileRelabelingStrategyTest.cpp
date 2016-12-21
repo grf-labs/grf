@@ -3,8 +3,8 @@
 #include <fstream>
 
 #include "catch.hpp"
-#include "relabeling/RelabelingStrategy.h"
-#include "relabeling/QuantileRelabelingStrategy.h"
+#include "RelabelingStrategy.h"
+#include "QuantileRelabelingStrategy.h"
 
 TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
   std::vector<double> outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,

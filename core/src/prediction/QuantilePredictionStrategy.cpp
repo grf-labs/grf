@@ -1,6 +1,6 @@
 #include <vector>
 #include <string>
-#include <utility/Data.h>
+#include "Data.h"
 #include "QuantilePredictionStrategy.h"
 
 QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double>* quantiles):

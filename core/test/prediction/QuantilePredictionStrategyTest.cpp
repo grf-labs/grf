@@ -1,8 +1,8 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
-#include <prediction/PredictionStrategy.h>
-#include <prediction/QuantilePredictionStrategy.h>
+#include "PredictionStrategy.h"
+#include "QuantilePredictionStrategy.h"
 
 #include "catch.hpp"
 
