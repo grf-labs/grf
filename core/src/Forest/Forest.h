@@ -1,7 +1,7 @@
 #ifndef GRADIENTFOREST_FOREST_H_
 #define GRADIENTFOREST_FOREST_H_
 
-#include "../Tree/TreeModel.h"
+#include "TreeModel.h"
 #include "globals.h"
 #include "Tree.h"
 #include "Data.h"

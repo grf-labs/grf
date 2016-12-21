@@ -1,15 +1,15 @@
 #include <Rcpp.h>
 #include <vector>
 #include <sstream>
-#include <utility/DataDouble.h>
-#include <relabeling/QuantileRelabelingStrategy.h>
-#include <splitting/ProbabilitySplittingRule.h>
-#include <prediction/QuantilePredictionStrategy.h>
-#include <forest/ForestModel.h>
 #include <map>
 
 #include "globals.h"
+#include "DataDouble.h"
+#include "QuantileRelabelingStrategy.h"
+#include "ProbabilitySplittingRule.h"
+#include "QuantilePredictionStrategy.h"
 #include "Forest.h"
+#include "ForestModel.h"
 
 void initializeForestModel(ForestModel *forest_model,
                            uint mtry,
@@ -30,7 +30,7 @@ void initializeForestModel(ForestModel *forest_model,
                         memory_saving_splitting, case_weights_file, sample_fraction);
 }
 
-[[Rcpp::export]]
+// [[Rcpp::export]]
 Rcpp::List train(std::vector<double> &quantiles,
                  Rcpp::NumericMatrix input_data,
                  Rcpp::RawMatrix sparse_data,

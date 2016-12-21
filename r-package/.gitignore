@@ -1,0 +1,19 @@
+# emacs files
+*~
+
+# R session files
+.Rproj.user
+.Rhistory
+.RData
+
+# compiled object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# package artifacts
+*.tar.gz
+
+# clion files
+.idea/
