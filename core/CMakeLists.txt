@@ -35,7 +35,7 @@ endif()
 include_directories(src src/forest src/prediction src/relabeling
         src/sampling src/splitting  src/tree src/commons
         test test/forest test/prediction test/relabeling
-        test/sampling test/commons)
+        test/sampling test/commons test/utilities)
 file(GLOB_RECURSE SOURCES src/*.cpp test/*.cpp)
 
 ## ======================================================================================##

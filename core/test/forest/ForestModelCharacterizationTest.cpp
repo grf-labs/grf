@@ -7,6 +7,7 @@
 #include "ProbabilitySplittingRule.h"
 #include "InstrumentalRelabelingStrategy.h"
 #include "InstrumentalPredictionStrategy.h"
+#include "FileUtilities.h"
 
 #include "catch.hpp"
 
@@ -31,37 +32,6 @@ void initializeForestModel(ForestModel* forest_model) {
                         memory_saving_splitting, case_weights_file, sample_fraction);
 }
 
-std::vector<std::vector<double>> loadPredictionsFile(std::string file_name) {
-  std::ifstream predictions_file = std::ifstream();
-  predictions_file.open(file_name, std::ios::binary);
-
-  std::string delimiter = " ";
-  std::vector<std::vector<double>> predictions;
-  std::string line;
-
-  while (std::getline(predictions_file, line)) {
-    size_t position = 0;
-    std::string token;
-
-    std::vector<double> prediction;
-    while ((position = line.find(delimiter)) != std::string::npos) {
-      token = line.substr(0, position);
-      prediction.push_back(std::stod(token));
-      line.erase(0, position + delimiter.length());
-    }
-
-    if (position != line.length()) {
-      token = line.substr(0, line.length());
-      prediction.push_back(std::stod(token));
-    }
-
-    predictions.push_back(prediction);
-  }
-
-  predictions_file.close();
-  return predictions;
-}
-
 TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {
   std::vector<double>* quantiles = new std::vector<double>({0.25, 0.5, 0.75});
   std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, 10}};
@@ -80,7 +50,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
   Forest* forest = forest_model->train(data);
   std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
 
-  std::vector<std::vector<double>> expected_predictions = loadPredictionsFile(
+  std::vector<std::vector<double>> expected_predictions = FileUtilities::readCsvFile(
       "test/forest/resources/quantile_test_predictions.csv");
   REQUIRE(predictions == expected_predictions);
 }
@@ -105,7 +75,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
   Forest* forest = forest_model->train(data);
   std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
 
-  std::vector<std::vector<double>> expected_predictions = loadPredictionsFile(
+  std::vector<std::vector<double>> expected_predictions = FileUtilities::readCsvFile(
       "test/forest/resources/causal_test_predictions.csv");
 
   REQUIRE(predictions.size() == expected_predictions.size());
