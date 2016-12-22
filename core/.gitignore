@@ -1,4 +1,8 @@
-build/*
+# emacs files
+*~
+
+# clion files
+.idea/
 .settings/*
 .project
 .cproject

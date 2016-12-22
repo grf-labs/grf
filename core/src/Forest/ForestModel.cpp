@@ -19,13 +19,13 @@ ForestModel::ForestModel(std::unordered_map<std::string, size_t> observables,
     relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), prediction_strategy(prediction_strategy) {
 }
 
-void ForestModel::initCpp(uint mtry,
-                     uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
-                     std::string load_forest_filename, uint min_node_size,
-                     std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
-                     bool sample_with_replacement, bool memory_saving_splitting,
-                     std::string case_weights_file,
-                     double sample_fraction) {
+void ForestModel::init(uint mtry,
+                       uint num_trees, std::ostream *verbose_out, uint seed, uint num_threads,
+                       std::string load_forest_filename, uint min_node_size,
+                       std::string split_select_weights_file, std::vector<std::string> &always_split_variable_names,
+                       bool sample_with_replacement, bool memory_saving_splitting,
+                       std::string case_weights_file,
+                       double sample_fraction) {
 
   this->verbose_out = verbose_out;
   this->always_split_variable_names = always_split_variable_names;
@@ -38,29 +38,6 @@ void ForestModel::initCpp(uint mtry,
     prediction_mode = true;
   }
 
-  // Call other init function
-  init(mtry, num_trees, seed, num_threads,
-       min_node_size, prediction_mode, sample_with_replacement,
-       memory_saving_splitting, sample_fraction);
-
-  tree_model = new TreeModel(relabeling_strategy,
-                             splitting_rule,
-                             prediction_strategy,
-                             dependent_varID,
-                             mtry,
-                             min_node_size,
-                             &deterministic_varIDs,
-                             &split_select_varIDs,
-                             &no_split_variables);
-
-}
-
-void ForestModel::init(uint mtry,
-                       uint num_trees, uint seed, uint num_threads,
-                       uint min_node_size,
-                       bool prediction_mode, bool sample_with_replacement,
-                       bool memory_saving_splitting,
-                       double sample_fraction) {
   // Initialize random number generator and set seed
   if (seed == 0) {
     std::random_device random_device;
@@ -96,8 +73,18 @@ void ForestModel::init(uint mtry,
 
   // Init split select weights
   split_select_weights.push_back(std::vector<double>());
-}
 
+  tree_model = new TreeModel(relabeling_strategy,
+                             splitting_rule,
+                             prediction_strategy,
+                             dependent_varID,
+                             mtry,
+                             min_node_size,
+                             &deterministic_varIDs,
+                             &split_select_varIDs,
+                             &no_split_variables);
+
+}
 
 void ForestModel::writeOutput(Data* prediction_data, std::vector<std::vector<double>> predictions) {
   *verbose_out << std::endl;

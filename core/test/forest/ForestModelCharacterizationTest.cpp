@@ -27,9 +27,9 @@ void initializeForestModel(ForestModel* forest_model) {
   std::string case_weights_file = "";
   double sample_fraction = 1;
 
-  forest_model->initCpp(mtry, num_trees, verbose_out, seed, num_threads, load_forest_filename,
-                        min_node_size, split_select_weights_file, always_split_variable_names, sample_with_replacement,
-                        memory_saving_splitting, case_weights_file, sample_fraction);
+  forest_model->init(mtry, num_trees, verbose_out, seed, num_threads, load_forest_filename,
+                     min_node_size, split_select_weights_file, always_split_variable_names, sample_with_replacement,
+                     memory_saving_splitting, case_weights_file, sample_fraction);
 }
 
 TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {

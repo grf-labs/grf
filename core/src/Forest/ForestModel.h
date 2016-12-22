@@ -22,25 +22,19 @@ public:
   Forest* train(Data* data);
   std::vector<std::vector<double>> predict(Forest* forest, Data* prediction_data);
 
-  void initCpp(uint mtry,
-               uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
-               std::string load_forest_filename, uint min_node_size,
-               std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
-               bool sample_with_replacement,
-               bool memory_saving_splitting,
-               std::string case_weights_file, double sample_fraction);
+  void init(uint mtry,
+            uint num_trees, std::ostream *verbose_out, uint seed, uint num_threads,
+            std::string load_forest_filename, uint min_node_size,
+            std::string split_select_weights_file, std::vector<std::string> &always_split_variable_names,
+            bool sample_with_replacement,
+            bool memory_saving_splitting,
+            std::string case_weights_file, double sample_fraction);
 
   void writeOutput(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
 
 private:
-  void init(uint mtry,
-            uint num_trees, uint seed, uint num_threads,
-            uint min_node_size, bool prediction_mode, bool sample_with_replacement,
-            bool memory_saving_splitting,
-            double sample_fraction);
-
   void computePredictionError(Forest* forest, Data* prediction_data);
   void computePredictionErrorInternal(Forest* forest,
                                       Data* prediction_data,
