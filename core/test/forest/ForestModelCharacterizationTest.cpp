@@ -7,7 +7,7 @@
 #include "ProbabilitySplittingRule.h"
 #include "InstrumentalRelabelingStrategy.h"
 #include "InstrumentalPredictionStrategy.h"
-#include "FileUtilities.h"
+#include "FileTestUtilities.h"
 
 #include "catch.hpp"
 
@@ -50,7 +50,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
   Forest* forest = forest_model->train(data);
   std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
 
-  std::vector<std::vector<double>> expected_predictions = FileUtilities::readCsvFile(
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
       "test/forest/resources/quantile_test_predictions.csv");
   REQUIRE(predictions == expected_predictions);
 }
@@ -75,7 +75,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
   Forest* forest = forest_model->train(data);
   std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
 
-  std::vector<std::vector<double>> expected_predictions = FileUtilities::readCsvFile(
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
       "test/forest/resources/causal_test_predictions.csv");
 
   REQUIRE(predictions.size() == expected_predictions.size());
