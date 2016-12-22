@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include "Data.h"
-#include "DataDouble.h"
 
 #include "ArgumentHandler.h"
 #include "QuantileRelabelingStrategy.h"
@@ -14,8 +13,7 @@
 #include "ForestModel.h"
 
 Data* initializeData(ArgumentHandler& arg_handler) {
-  Data* data = new DataDouble();
-
+  Data* data = new Data();
   bool rounding_error = data->loadFromFile(arg_handler.file);
   if (rounding_error) {
     std::cerr << "A rounding error occurred while loading data from file." << std::endl;
