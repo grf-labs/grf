@@ -10,7 +10,7 @@
 class InstrumentalPredictionStrategy: public PredictionStrategy {
 public:
   std::vector<double> predict(std::unordered_map<size_t, double> &weights_by_sampleID,
-                              std::unordered_map<std::string, std::vector<double>> original_observations);
+                              Observations observations);
 };
 
 #endif //GRADIENTFOREST_INSTRUMENTALPREDICTIONSTRATEGY_H

@@ -4,13 +4,14 @@
 
 #include <cstddef>
 #include <unordered_map>
+#include "Observations.h"
 #include "PredictionStrategy.h"
 
 class QuantilePredictionStrategy: public PredictionStrategy {
 public:
   QuantilePredictionStrategy(std::vector<double>* quantiles);
   std::vector<double> predict(std::unordered_map<size_t, double>& weights_by_sampleID,
-                              std::unordered_map<std::string, std::vector<double>> original_observations);
+                              Observations observations);
 
 private:
   std::vector<double> calculateQuantileCutoffs(std::unordered_map<size_t,double> &weights_by_sampleID,

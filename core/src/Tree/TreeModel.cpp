@@ -170,7 +170,7 @@ bool TreeModel::splitNodeInternal(size_t nodeID,
     return true;
   }
 
-  std::unordered_map<size_t, double> responses_by_sampleID = relabeling_strategy->relabelObservations(
+  std::unordered_map<size_t, double> responses_by_sampleID = relabeling_strategy->relabel_outcomes(
       observations, sampleIDs[nodeID]);
 
   bool stop = responses_by_sampleID.empty() ||

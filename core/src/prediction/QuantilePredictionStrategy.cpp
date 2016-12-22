@@ -8,12 +8,12 @@ QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double>* quan
 };
 
 std::vector<double> QuantilePredictionStrategy::predict(std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                        std::unordered_map<std::string, std::vector<double>> original_observations) {
+                                                        Observations observations) {
   std::vector<std::pair<size_t, double>> sampleIDs_and_values;
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     size_t sampleID = it->first;
     sampleIDs_and_values.push_back(std::pair<size_t, double>(
-        sampleID, original_observations["outcome"][sampleID]));
+        sampleID, observations.get(Observations::OUTCOME)[sampleID]));
   }
 
   return calculateQuantileCutoffs(weights_by_sampleID, sampleIDs_and_values);

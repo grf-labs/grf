@@ -6,10 +6,16 @@
 #include "RelabelingStrategy.h"
 #include "QuantileRelabelingStrategy.h"
 
+Observations create_observations(std::vector<double> outcome) {
+  std::unordered_map<std::string, std::vector<double>> observationsByType = {
+      {Observations::OUTCOME, outcome}};
+  return Observations(observationsByType, outcome.size());
+}
+
 TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
   std::vector<double> outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                   -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
-  std::unordered_map<std::string, std::vector<double>> observations = {{"outcome", outcomes}};
+  Observations observations = create_observations(outcomes);
 
   std::vector<size_t> sampleIDs;
   for (int i = 0; i < outcomes.size(); i++) {
@@ -18,7 +24,7 @@ TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
 
   std::vector<double>* quantiles = new std::vector<double>({0.25, 0.5, 0.75});
   RelabelingStrategy* relabelingStrategy = new QuantileRelabelingStrategy(quantiles);
-  auto relabeled_observations = relabelingStrategy->relabelObservations(&observations, sampleIDs);
+  auto relabeled_observations = relabelingStrategy->relabel_outcomes(&observations, sampleIDs);
 
   std::vector<double> relabeled_outcomes;
   for (int i = 0; i < sampleIDs.size(); i++) {
@@ -35,13 +41,13 @@ TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
 TEST_CASE("quantile relabeling subset of observations", "[quantile, relabeling]") {
   std::vector<double> outcomes = {-2.32996, 0.388327, 6.61931, -9.30856, -8.93077,
                                   0.594004, 3.42299, -9.84604, -2.33169, -8.66316};
-  std::unordered_map<std::string, std::vector<double>> observations = {{"outcome", outcomes}};
+  Observations observations = create_observations(outcomes);
 
   std::vector<size_t> sampleIDs = {1, 3, 5, 7, 9};
 
   std::vector<double>* quantiles = new std::vector<double>({0.5, 0.75});
   RelabelingStrategy* relabelingStrategy = new QuantileRelabelingStrategy(quantiles);
-  auto relabeled_observations = relabelingStrategy->relabelObservations(&observations, sampleIDs);
+  auto relabeled_observations = relabelingStrategy->relabel_outcomes(&observations, sampleIDs);
 
   std::vector<double> relabeled_outcomes;
   for (int i = 0; i < sampleIDs.size(); i++) {

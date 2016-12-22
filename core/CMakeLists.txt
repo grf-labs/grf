@@ -33,9 +33,9 @@ endif()
 ## Subdirectories and source files
 ## ======================================================================================##
 include_directories(src src/forest src/prediction src/relabeling
-        src/sampling src/splitting  src/tree src/utility
+        src/sampling src/splitting  src/tree src/commons
         test test/forest test/prediction test/relabeling
-        test/sampling test/utility)
+        test/sampling test/commons)
 file(GLOB_RECURSE SOURCES src/*.cpp test/*.cpp)
 
 ## ======================================================================================##

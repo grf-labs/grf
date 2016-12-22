@@ -1,22 +1,23 @@
 #include <vector>
 #include <string>
+#include "Observations.h"
 #include "utility.h"
 #include "InstrumentalPredictionStrategy.h"
 
 std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                            std::unordered_map<std::string, std::vector<double>> original_observations) {
-  // Compute the relevant averages.
+                                                            Observations observations) {
+  // Compute the relevant averages.e
   double average_instrument = 0.0;
   double average_treatment = 0.0;
-  double average_response = 0.0;
+  double average_outcome = 0.0;
 
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     size_t neighborID = it->first;
     double weight = it->second;
 
-    average_instrument += weight * original_observations["instrument"][neighborID];
-    average_treatment += weight * original_observations["treatment"][neighborID];
-    average_response += weight * original_observations["outcome"][neighborID];
+    average_outcome += weight * observations.get(Observations::OUTCOME)[neighborID];
+    average_treatment += weight * observations.get(Observations::TREATMENT)[neighborID];
+    average_instrument += weight * observations.get(Observations::INSTRUMENT)[neighborID];
   }
 
   // Finally, calculate the prediction.
@@ -26,11 +27,11 @@ std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<s
     size_t neighborID = it->first;
     double weight = it->second;
 
-    double instrument = original_observations["instrument"][neighborID];
-    double treatment = original_observations["treatment"][neighborID];
-    double response = original_observations["outcome"][neighborID];
+    double response = observations.get(Observations::OUTCOME)[neighborID];
+    double treatment = observations.get(Observations::TREATMENT)[neighborID];
+    double instrument = observations.get(Observations::INSTRUMENT)[neighborID];
 
-    numerator += weight * (instrument - average_instrument) * (response - average_response);
+    numerator += weight * (instrument - average_instrument) * (response - average_outcome);
     denominator += weight * (instrument - average_instrument) * (treatment - average_treatment);
   }
 

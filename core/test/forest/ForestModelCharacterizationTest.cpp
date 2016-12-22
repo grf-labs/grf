@@ -64,7 +64,7 @@ std::vector<std::vector<double>> loadPredictionsFile(std::string file_name) {
 
 TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {
   std::vector<double>* quantiles = new std::vector<double>({0.25, 0.5, 0.75});
-  std::unordered_map<std::string, size_t> observables = {{"outcome", 10}};
+  std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, 10}};
   Data* data = loadDataFromFile("test/forest/resources/quantile_test_data.csv");
 
   RelabelingStrategy* relabeling_strategy = new QuantileRelabelingStrategy(quantiles);
@@ -87,7 +87,9 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
 
 TEST_CASE("causal forest predictions have not changed", "[causal, characterization]") {
   std::unordered_map<std::string, size_t> observables = {
-      {"outcome", 10}, {"treatment", 11}, {"instrument", 11}};
+      {Observations::OUTCOME, 10},
+      {Observations::TREATMENT, 11},
+      {Observations::INSTRUMENT, 11}};
   Data* data = loadDataFromFile("test/forest/resources/causal_test_data.csv");
 
   RelabelingStrategy* relabeling_strategy = new InstrumentalRelabelingStrategy();

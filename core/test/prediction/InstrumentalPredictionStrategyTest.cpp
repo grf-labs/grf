@@ -1,11 +1,22 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
+#include "Observations.h"
 #include "utility.h"
 #include "PredictionStrategy.h"
 #include "InstrumentalPredictionStrategy.h"
 
 #include "catch.hpp"
+
+Observations create_observations(std::vector<double> outcome,
+                                 std::vector<double> treatment,
+                                 std::vector<double> instrument) {
+  std::unordered_map<std::string, std::vector<double>> observationsByType = {
+      {Observations::OUTCOME, outcome},
+      {Observations::TREATMENT, treatment},
+      {Observations::INSTRUMENT, instrument}};
+  return Observations(observationsByType, outcome.size());
+}
 
 TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, prediction]") {
   std::unordered_map<size_t, double> weights_by_sampleID = {
@@ -18,10 +29,8 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
   std::vector<double> flipped_treatment = {0, 1, 1, 1, 0, 1, 0, 1, 1, 1};
   std::vector<double> instrument = {0, 0, 1, 1, 1, 0, 1, 0, 1, 0};
 
-  std::unordered_map<std::string, std::vector<double>> observations = {
-      {"outcome", original_outcomes}, {"treatment", treatment}, {"instrument", instrument}};
-  std::unordered_map<std::string, std::vector<double>> flipped_observations = {
-      {"outcome", original_outcomes}, {"treatment", flipped_treatment}, {"instrument", instrument}};
+  Observations observations = create_observations(original_outcomes, treatment, instrument);
+  Observations flipped_observations = create_observations(original_outcomes, flipped_treatment, instrument);
 
   PredictionStrategy* prediction_strategy = new InstrumentalPredictionStrategy();
 
@@ -44,10 +53,8 @@ TEST_CASE("scaling instrument does not affect prediction", "[instrumental, predi
   std::vector<double> instrument = {0, 0, 1, 1, 1, 0, 1, 0, 1, 0};
   std::vector<double> scaled_instrument = {0, 0, 3, 3, 3, 0, 3, 0, 3, 0};
 
-  std::unordered_map<std::string, std::vector<double>> observations = {
-      {"outcome", original_outcomes}, {"treatment", treatment}, {"instrument", instrument}};
-  std::unordered_map<std::string, std::vector<double>> scaled_observations = {
-      {"outcome", original_outcomes}, {"treatment", treatment}, {"instrument", scaled_instrument}};
+  Observations observations = create_observations(original_outcomes, treatment, instrument);
+  Observations scaled_observations = create_observations(original_outcomes, treatment, scaled_instrument);
 
   PredictionStrategy* prediction_strategy = new InstrumentalPredictionStrategy();
 

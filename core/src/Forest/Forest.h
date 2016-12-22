@@ -6,6 +6,7 @@
 #include "Tree.h"
 #include "Data.h"
 #include "PredictionStrategy.h"
+#include "Observations.h"
 
 class Forest {
 public:
@@ -14,8 +15,8 @@ public:
          std::unordered_map<std::string, size_t> observables);
   virtual ~Forest();
 
-  const std::unordered_map<std::string, std::vector<double>> get_original_observations() const {
-    return original_observations;
+  const Observations get_observations() const {
+    return observations;
   };
 
   const std::vector<Tree*>* get_trees() const {
@@ -34,8 +35,7 @@ protected:
   std::vector<Tree*>* trees;
 
   Data* data;
-  std::unordered_map<std::string, size_t> observables_by_ID;
-  std::unordered_map<std::string, std::vector<double>> original_observations;
+  Observations observations;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Forest);

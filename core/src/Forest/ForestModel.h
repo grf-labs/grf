@@ -22,7 +22,6 @@ public:
   Forest* train(Data* data);
   std::vector<std::vector<double>> predict(Forest* forest, Data* prediction_data);
 
-  // Init from c++ main or Rcpp from R
   void initCpp(uint mtry,
                uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
                std::string load_forest_filename, uint min_node_size,
@@ -31,7 +30,6 @@ public:
                bool memory_saving_splitting,
                std::string case_weights_file, double sample_fraction);
 
-  // Write results to output files
   void writeOutput(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
@@ -68,14 +66,12 @@ private:
                                                    Data* prediction_data,
                                                    std::unordered_map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree);
 
-  // Set split select weights and variables to be always considered for splitting
   void setSplitWeightVector(std::vector<std::vector<double>>& split_select_weights,
                             size_t num_independent_variables);
   void setAlwaysSplitVariables(Data* data,
                                std::vector<std::string>& always_split_variable_names,
                                size_t num_independent_variables);
 
-  // Verbose output stream, cout if verbose==true, logfile if not
   std::ostream* verbose_out;
 
   size_t num_trees;
