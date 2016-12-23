@@ -158,16 +158,16 @@ Forest* ForestModel::train(Data* data) {
     throw std::runtime_error("mtry can not be larger than number of variables in data.");
   }
 
-  auto observations = new std::unordered_map<std::string, std::vector<double>>();
+  auto observationsByType = new std::unordered_map<std::string, std::vector<double>>();
   for (auto it : observables) {
     std::string name = it.first;
     size_t index = it.second;
 
     for (int row = 0; row < data->getNumRows(); row++) {
-      (*observations)[name].push_back(data->get(row, index));
+      (*observationsByType)[name].push_back(data->get(row, index));
     }
   }
-
+  Observations* observations = new Observations(*observationsByType, data->getNumRows());
 
   // Create thread ranges
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
@@ -281,7 +281,7 @@ void ForestModel::computePredictionError(Forest* forest,
 
 void ForestModel::growTreesInThread(uint thread_idx,
                                     Data* data,
-                                    std::unordered_map<std::string, std::vector<double>>* observations,
+                                    Observations* observations,
                                     std::promise<std::vector<Tree *>> promise) {
   std::uniform_int_distribution<uint> udist;
   std::vector<Tree*> trees;
@@ -437,7 +437,7 @@ std::vector<std::vector<double>> ForestModel::predictInternal(Forest* forest,
     normalizeSampleWeights(weights_by_sampleID);
 
     std::vector<double> prediction = prediction_strategy->predict(weights_by_sampleID,
-                                                                  forest->get_original_observations());
+                                                                  forest->get_observations());
     predictions.push_back(prediction);
   }
   return predictions;
@@ -504,7 +504,8 @@ void ForestModel::computePredictionErrorInternal(Forest* forest,
 
     normalizeSampleWeights(weights_by_sampleID);
 
-    std::vector<double> prediction = prediction_strategy->predict(weights_by_sampleID, forest->get_original_observations());
+    std::vector<double> prediction = prediction_strategy->predict(weights_by_sampleID,
+                                                                  forest->get_observations());
     predictions.push_back(prediction);
   }
 }

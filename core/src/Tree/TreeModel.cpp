@@ -24,7 +24,7 @@ TreeModel::TreeModel(RelabelingStrategy *relabeling_strategy,
 
 Tree* TreeModel::train(Data* data,
                        BootstrapSampler* bootstrap_sampler,
-                       std::unordered_map<std::string, std::vector<double>>* observations,
+                       Observations* observations,
                        std::vector<double>* split_select_weights) {
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> sampleIDs;
@@ -90,7 +90,7 @@ void TreeModel::createPossibleSplitVarSubset(std::vector<size_t> &result,
 bool TreeModel::splitNode(size_t nodeID,
                           BootstrapSampler* bootstrap_sampler,
                           Data* data,
-                          std::unordered_map<std::string, std::vector<double>>* observations,
+                          Observations* observations,
                           std::vector<std::vector<size_t>>& child_nodeIDs,
                           std::vector<std::vector<size_t>>& sampleIDs,
                           std::vector<size_t>& split_varIDs,
@@ -142,7 +142,7 @@ bool TreeModel::splitNode(size_t nodeID,
 
 bool TreeModel::splitNodeInternal(size_t nodeID,
                                   Data* data,
-                                  std::unordered_map<std::string, std::vector<double>>* observations,
+                                  Observations* observations,
                                   std::vector<size_t>& possible_split_varIDs,
                                   std::vector<std::vector<size_t>>& sampleIDs,
                                   std::vector<size_t>& split_varIDs,

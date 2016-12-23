@@ -42,7 +42,7 @@ private:
 
   void growTreesInThread(uint thread_idx,
                          Data *data,
-                         std::unordered_map<std::string, std::vector<double>>* observations,
+                         Observations* observations,
                          std::promise<std::vector<Tree*>> promise);
 
   void predictTreesInThread(uint thread_idx,

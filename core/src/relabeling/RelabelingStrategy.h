@@ -3,6 +3,7 @@
 
 
 #include "Data.h"
+#include "Observations.h"
 #include <unordered_map>
 #include <vector>
 

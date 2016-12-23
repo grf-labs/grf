@@ -16,9 +16,9 @@ public:
     return num_samples;
   }
 
-  static const std::string OUTCOME = "outcome";
-  static const std::string TREATMENT = "treatment";
-  static const std::string INSTRUMENT = "instrument";
+  static const std::string OUTCOME;
+  static const std::string TREATMENT;
+  static const std::string INSTRUMENT;
 
 private:
   std::unordered_map<std::string, std::vector<double>> observationsByType;

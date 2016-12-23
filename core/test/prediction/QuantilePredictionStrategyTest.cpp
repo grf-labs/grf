@@ -3,14 +3,9 @@
 #include <fstream>
 #include "PredictionStrategy.h"
 #include "QuantilePredictionStrategy.h"
+#include "TestUtilities.h"
 
 #include "catch.hpp"
-
-Observations create_observations(std::vector<double> outcome) {
-  std::unordered_map<std::string, std::vector<double>> observationsByType = {
-      {Observations::OUTCOME, outcome}};
-  return Observations(observationsByType, outcome.size());
-}
 
 TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
   std::unordered_map<size_t, double> weights_by_sampleID = {
@@ -19,7 +14,7 @@ TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
 
   std::vector<double> original_outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                            -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
-  Observations observations = create_observations(original_outcomes);
+  Observations* observations = TestUtilities::create_observations(original_outcomes);
 
   std::vector<double>* quantiles = new std::vector<double>({0.25, 0.5, 0.75});
   PredictionStrategy* prediction_strategy = new QuantilePredictionStrategy(quantiles);
@@ -36,7 +31,7 @@ TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
 
   std::vector<double> original_outcomes = {-1.99984, -0.36924, 0.11211, -1.826997, 1.655345,
                                            -1.62082, -0.05911, 0.57729, 0.58593, 1.69386};
-  Observations observations = create_observations(original_outcomes);
+  Observations* observations = TestUtilities::create_observations(original_outcomes);
 
   std::vector<double> *quantiles = new std::vector<double>({0.5, 0.75, 0.80, 0.90});
   PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);

@@ -15,7 +15,7 @@ public:
          std::unordered_map<std::string, size_t> observables);
   virtual ~Forest();
 
-  const Observations get_observations() const {
+  Observations* get_observations() const {
     return observations;
   };
 
@@ -35,7 +35,7 @@ protected:
   std::vector<Tree*>* trees;
 
   Data* data;
-  Observations observations;
+  Observations* observations;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Forest);

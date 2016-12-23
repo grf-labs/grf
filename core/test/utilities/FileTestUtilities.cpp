@@ -1,7 +1,7 @@
 #include <fstream>
 #include "FileTestUtilities.h"
 
-static std::vector<std::vector<double>> FileTestUtilities::readCsvFile(std::string file_name) {
+std::vector<std::vector<double>> FileTestUtilities::readCsvFile(std::string file_name) {
   std::ifstream file = std::ifstream();
   file.open(file_name, std::ios::binary);
 
@@ -32,7 +32,7 @@ static std::vector<std::vector<double>> FileTestUtilities::readCsvFile(std::stri
   return result;
 }
 
-static void writeCsvFile(std::string file_name, std::vector<std::vector<double>> contents) {
+void FileTestUtilities::writeCsvFile(std::string file_name, std::vector<std::vector<double>> contents) {
   std::ofstream file;
   file.open(file_name, std::ios::binary);
 
