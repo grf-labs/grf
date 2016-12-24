@@ -17,7 +17,7 @@ double SamplingOptions::get_sample_fraction() const {
   return sample_fraction;
 }
 
-const std::vector<double>* SamplingOptions::get_case_weights() const {
+std::vector<double>* SamplingOptions::get_case_weights() const {
   return case_weights;
 }
 

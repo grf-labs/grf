@@ -5,15 +5,13 @@
 #include <vector>
 #include <random>
 #include "globals.h"
+#include "SamplingOptions.h"
 
 class BootstrapSampler {
 public:
   BootstrapSampler(size_t num_samples,
                    uint seed,
-                   bool sample_with_replacement,
-                   double sample_fraction,
-                   bool keep_inbag,
-                   std::vector<double> *case_weights);
+                   SamplingOptions* options);
 
   void sample(std::vector<std::vector<size_t>>& sampleIDs);
 
@@ -109,11 +107,8 @@ private:
                                    std::vector<size_t> &skip,
                                    size_t num_samples);
 
-  bool sample_with_replacement;
-  double sample_fraction;
-  bool keep_inbag;
+  SamplingOptions* options;
   std::vector<size_t> inbag_counts;
-  std::vector<double>* case_weights;
   std::vector<size_t> oob_sampleIDs;
   size_t num_samples_oob;
   std::mt19937_64 random_number_generator;

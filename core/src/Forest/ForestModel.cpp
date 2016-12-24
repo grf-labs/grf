@@ -302,13 +302,13 @@ void ForestModel::growTreesInThread(uint thread_idx,
         tree_split_select_weights = &split_select_weights[0];
       }
 
-
+      SamplingOptions* sampling_options = new SamplingOptions(sample_with_replacement,
+                                                              sample_fraction,
+                                                              &case_weights,
+                                                              keep_inbag);
       BootstrapSampler* bootstrap_sampler = new BootstrapSampler(data->getNumRows(),
                                                                  tree_seed,
-                                                                 sample_with_replacement,
-                                                                 sample_fraction,
-                                                                 keep_inbag,
-                                                                 &case_weights);
+                                                                 sampling_options);
 
       trees.push_back(tree_model->train(data,
                                         bootstrap_sampler,
