@@ -4,7 +4,6 @@
 #include <map>
 
 #include "globals.h"
-#include "DataDouble.h"
 #include "QuantileRelabelingStrategy.h"
 #include "ProbabilitySplittingRule.h"
 #include "QuantilePredictionStrategy.h"
@@ -24,7 +23,7 @@ void initializeForestModel(ForestModel *forest_model,
   bool memory_saving_splitting = false;
   std::string case_weights_file = "";
 
-  forest_model->initCpp(mtry, num_trees, &std::cout, 0, num_threads, load_forest_filename,
+  forest_model->init(mtry, num_trees, &std::cout, 0, num_threads, load_forest_filename,
                         min_node_size, split_select_weights_file, always_split_variable_names,
                         sample_with_replacement,
                         memory_saving_splitting, case_weights_file, sample_fraction);
@@ -50,7 +49,7 @@ Rcpp::List train(std::vector<double> &quantiles,
   size_t num_rows = input_data.nrow();
   size_t num_cols = input_data.ncol();
 
-  Data *data = new DataDouble(input_data.begin(), variable_names, num_rows, num_cols);
+  Data *data = new Data(input_data.begin(), variable_names, num_rows, num_cols);
 
   if (sparse_data.nrow() > 1) {
     data->addSparseData(sparse_data.begin(), sparse_data.ncol());
@@ -71,7 +70,6 @@ Rcpp::List train(std::vector<double> &quantiles,
 
   initializeForestModel(forest_model, mtry, num_trees, num_threads,
       min_node_size, sample_with_replacement, sample_fraction);
-
 
   Forest *forest = forest_model->train(data);
 

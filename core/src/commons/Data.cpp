@@ -9,14 +9,22 @@
 #include "utility.h"
 
 Data::Data() :
-    num_rows(0),
+  Data(NULL, std::vector<std::string>(), 0, 0) {}
+
+Data::Data(double* data,
+           std::vector<std::string> variable_names,
+           size_t num_rows,
+           size_t num_cols):
+    variable_names(variable_names),
+    num_rows(num_rows),
     num_rows_rounded(0),
-    num_cols(0),
+    num_cols(num_cols),
     sparse_data(0),
     num_cols_no_sparse(0),
     externalData(true),
     index_data(0),
-    max_num_unique_values(0) {}
+    max_num_unique_values(0),
+    data(data) {}
 
 Data::~Data() {
   if (index_data != 0) {

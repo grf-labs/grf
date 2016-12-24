@@ -110,5 +110,4 @@ private:
 };
 
 
-
 #endif //GRADIENTFOREST_FORESTMODEL_H
