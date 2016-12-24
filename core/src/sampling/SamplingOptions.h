@@ -15,7 +15,7 @@ public:
   bool get_sample_with_replacement() const;
   double get_sample_fraction() const;
   const std::vector<double>* get_case_weights() const;
-  bool SamplingOptions::get_keep_in_bag() const;
+  bool get_keep_in_bag() const;
 
 private:
   bool sample_with_replacement;
