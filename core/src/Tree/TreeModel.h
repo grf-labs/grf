@@ -14,7 +14,6 @@ public:
   TreeModel(RelabelingStrategy *relabeling_strategy,
             SplittingRule *splitting_rule,
             PredictionStrategy *prediction_strategy,
-            size_t dependent_varID,
             TreeOptions* options);
 
   Tree* train(Data *data,
@@ -43,7 +42,6 @@ private:
                  std::vector<double> *split_select_weights);
 
   bool splitNodeInternal(size_t nodeID,
-                         Data* data,
                          Observations* observations,
                          std::vector <size_t> &possible_split_varIDs,
                          std::vector <std::vector<size_t>> &sampleIDs,
@@ -53,7 +51,6 @@ private:
   RelabelingStrategy *relabeling_strategy;
   SplittingRule *splitting_rule;
   PredictionStrategy *prediction_strategy;
-  size_t dependent_varID;
   TreeOptions* options;
 };
 

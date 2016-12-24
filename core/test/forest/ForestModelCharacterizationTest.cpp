@@ -11,7 +11,6 @@
 
 #include "catch.hpp"
 
-// TODO(jtibs): Clean up these helper methods.
 void initializeForestModel(ForestModel* forest_model) {
   uint mtry = 3;
   uint num_trees = 4;
@@ -49,7 +48,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
 
   Forest* forest = forest_model->train(data);
   std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
-
+  
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
       "test/forest/resources/quantile_test_predictions.csv");
   REQUIRE(predictions == expected_predictions);

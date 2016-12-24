@@ -71,14 +71,12 @@ private:
   uint mtry;
   uint min_node_size;
   uint seed;
-  size_t dependent_varID;
   bool prediction_mode;
   bool sample_with_replacement;
   bool memory_saving_splitting;
   bool keep_inbag;
   double sample_fraction;
 
-  // Variable to not split at (only dependent_varID for non-survival forests)
   std::vector<size_t> no_split_variables;
 
   // Multithreading

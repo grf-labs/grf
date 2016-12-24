@@ -5,12 +5,10 @@
 TreeModel::TreeModel(RelabelingStrategy *relabeling_strategy,
                      SplittingRule *splitting_rule,
                      PredictionStrategy *prediction_strategy,
-                     size_t dependent_varID,
                      TreeOptions* options):
     relabeling_strategy(relabeling_strategy),
     splitting_rule(splitting_rule),
     prediction_strategy(prediction_strategy),
-    dependent_varID(dependent_varID),
     options(options) {}
 
 Tree* TreeModel::train(Data* data,
@@ -97,7 +95,6 @@ bool TreeModel::splitNode(size_t nodeID,
 
 // Call subclass method, sets split_varIDs and split_values
   bool stop = splitNodeInternal(nodeID,
-                                data,
                                 observations,
                                 possible_split_varIDs,
                                 sampleIDs,
@@ -135,7 +132,6 @@ bool TreeModel::splitNode(size_t nodeID,
 }
 
 bool TreeModel::splitNodeInternal(size_t nodeID,
-                                  Data* data,
                                   Observations* observations,
                                   std::vector<size_t>& possible_split_varIDs,
                                   std::vector<std::vector<size_t>>& sampleIDs,
@@ -151,7 +147,8 @@ bool TreeModel::splitNodeInternal(size_t nodeID,
   bool pure = true;
   double pure_value = 0;
   for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
-    double value = data->get(sampleIDs[nodeID][i], dependent_varID);
+    size_t sampleID = sampleIDs[nodeID][i];
+    double value = observations->get(Observations::OUTCOME)[sampleID];
     if (i != 0 && value != pure_value) {
       pure = false;
       break;

@@ -12,7 +12,7 @@ ForestModel::ForestModel(std::unordered_map<std::string, size_t> observables,
                          RelabelingStrategy *relabeling_strategy,
                          SplittingRule *splitting_rule,
                          PredictionStrategy *prediction_strategy) :
-    verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0), dependent_varID(0),
+    verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
     prediction_mode(false), sample_with_replacement(
     true), memory_saving_splitting(false), keep_inbag(false), sample_fraction(
     1), num_threads(DEFAULT_NUM_THREADS), progress(0), observables(observables),
@@ -81,7 +81,6 @@ void ForestModel::init(uint mtry,
   tree_model = new TreeModel(relabeling_strategy,
                              splitting_rule,
                              prediction_strategy,
-                             dependent_varID,
                              tree_options);
 
 }
