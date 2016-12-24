@@ -15,7 +15,7 @@ ForestModel::ForestModel(std::unordered_map<std::string, size_t> observables,
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
     prediction_mode(false), sample_with_replacement(
     true), memory_saving_splitting(false), keep_inbag(false), sample_fraction(
-    1), num_threads(DEFAULT_NUM_THREADS), progress(0), observables(observables),
+    1), num_threads(DEFAULT_NUM_THREADS), observables(observables),
     relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), prediction_strategy(prediction_strategy) {
 }
 
@@ -147,8 +147,6 @@ Forest* ForestModel::train(Data* data) {
   // Create thread ranges
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
 
-  progress = 0;
-
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
@@ -186,7 +184,6 @@ Forest* ForestModel::train(Data* data) {
 std::vector<std::vector<double>> ForestModel::predict(Forest* forest, Data* prediction_data) {
   std::unordered_map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree;
 
-  progress = 0;
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
@@ -281,8 +278,6 @@ void ForestModel::growTreesInThread(uint thread_idx,
                                         bootstrap_sampler,
                                         observations));
 
-      // Increase progress by 1 tree
-      ++progress;
     }
   }
   promise.set_value(trees);

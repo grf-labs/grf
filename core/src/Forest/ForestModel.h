@@ -98,9 +98,6 @@ private:
   // Random number generator
   std::mt19937_64 random_number_generator;
 
-  // Computation progress (finished trees)
-  size_t progress;
-
   std::unordered_map<std::string, size_t> observables;
   RelabelingStrategy* relabeling_strategy;
   SplittingRule* splitting_rule;
