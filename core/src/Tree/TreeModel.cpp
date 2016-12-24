@@ -6,26 +6,16 @@ TreeModel::TreeModel(RelabelingStrategy *relabeling_strategy,
                      SplittingRule *splitting_rule,
                      PredictionStrategy *prediction_strategy,
                      size_t dependent_varID,
-                     uint mtry,
-                     uint min_node_size,
-                     std::vector<size_t>* deterministic_varIDs,
-                     std::vector<size_t>* split_select_varIDs,
-                     std::vector<size_t>* no_split_variables):
+                     TreeOptions* options):
     relabeling_strategy(relabeling_strategy),
     splitting_rule(splitting_rule),
     prediction_strategy(prediction_strategy),
     dependent_varID(dependent_varID),
-    mtry(mtry),
-    min_node_size(min_node_size),
-    deterministic_varIDs(deterministic_varIDs),
-    split_select_varIDs(split_select_varIDs),
-    no_split_variables(no_split_variables) {}
-
+    options(options) {}
 
 Tree* TreeModel::train(Data* data,
                        BootstrapSampler* bootstrap_sampler,
-                       Observations* observations,
-                       std::vector<double>* split_select_weights) {
+                       Observations* observations) {
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> sampleIDs;
   std::vector<size_t> split_varIDs;
@@ -46,7 +36,7 @@ Tree* TreeModel::train(Data* data,
                                       sampleIDs,
                                       split_varIDs,
                                       split_values,
-                                      split_select_weights);
+                                      options->get_split_select_weights());
     if (is_terminal_node) {
       --num_open_nodes;
     } else {
@@ -71,17 +61,21 @@ void TreeModel::createPossibleSplitVarSubset(std::vector<size_t> &result,
                                              Data* data,
                                              std::vector<double>* split_select_weights) {
 
-// Always use deterministic variables
+  // Always use deterministic variables
+  std::vector<size_t>* deterministic_varIDs = options->get_deterministic_varIDs();
   std::copy(deterministic_varIDs->begin(), deterministic_varIDs->end(), std::inserter(result, result.end()));
 
-// Randomly add non-deterministic variables (according to weights if needed)
+  // Randomly add non-deterministic variables (according to weights if needed)
+  uint mtry = options->get_mtry();
   if (split_select_weights->empty()) {
     bootstrap_sampler->drawWithoutReplacementSkip(result,
-                                                 data->getNumCols(), *no_split_variables, mtry);
+                                                  data->getNumCols(),
+                                                  *options->get_no_split_variables(),
+                                                  mtry);
   } else {
     size_t num_draws = mtry - result.size();
     bootstrap_sampler->drawWithoutReplacementWeighted(result,
-                                                     *split_select_varIDs,
+                                                     *options->get_split_select_varIDs(),
                                                      num_draws,
                                                      *split_select_weights);
   }
@@ -148,7 +142,7 @@ bool TreeModel::splitNodeInternal(size_t nodeID,
                                   std::vector<size_t>& split_varIDs,
                                   std::vector<double>& split_values) {
   // Check node size, stop if maximum reached
-  if (sampleIDs[nodeID].size() <= min_node_size) {
+  if (sampleIDs[nodeID].size() <= options->get_min_node_size()) {
     split_values[nodeID] = -1.0;
     return true;
   }

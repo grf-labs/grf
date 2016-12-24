@@ -3,12 +3,15 @@
 
 TreeOptions::TreeOptions(uint mtry,
                          uint min_node_size,
-                         std::string split_select_weights_file,
-                         std::vector<std::string> &always_split_variable_names):
+                         std::vector<double>* split_select_weights,
+                         std::vector<size_t>* split_select_varIDs,
+                         std::vector<size_t>* deterministic_varIDs,
+                         std::vector<size_t>* no_split_variables):
   mtry(mtry),
   min_node_size(min_node_size),
-  split_select_weights_file(split_select_weights_file),
-  always_split_variable_names(always_split_variable_names) {}
+  split_select_weights(split_select_weights),
+  deterministic_varIDs(deterministic_varIDs),
+  no_split_variables(no_split_variables) {}
 
 const uint TreeOptions::get_mtry() const {
   return mtry;
@@ -18,10 +21,18 @@ const uint TreeOptions::get_min_node_size() const {
   return min_node_size;
 }
 
-const std::string TreeOptions::get_split_select_weights_file() const {
-  return split_select_weights_file;
+std::vector<double>* TreeOptions::get_split_select_weights() const {
+  return split_select_weights;
 }
 
-const std::vector<std::string> TreeOptions::get_always_split_variable_names() const {
-  return always_split_variable_names;
+std::vector<size_t>* TreeOptions::get_split_select_varIDs() const {
+  return split_select_varIDs;
+}
+
+std::vector<size_t>* TreeOptions::get_deterministic_varIDs() const {
+  return deterministic_varIDs;
+}
+
+std::vector<size_t>* TreeOptions::get_no_split_variables() const {
+  return no_split_variables;
 }

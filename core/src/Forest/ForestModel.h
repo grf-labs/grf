@@ -30,7 +30,6 @@ public:
             bool memory_saving_splitting,
             std::string case_weights_file, double sample_fraction);
 
-  void writeOutput(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
 
@@ -60,7 +59,7 @@ private:
                                                    Data* prediction_data,
                                                    std::unordered_map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree);
 
-  void setSplitWeightVector(std::vector<std::vector<double>>& split_select_weights,
+  void setSplitWeightVector(std::vector<double>& split_select_weights,
                             size_t num_independent_variables);
   void setAlwaysSplitVariables(Data* data,
                                std::vector<std::string>& always_split_variable_names,
@@ -93,7 +92,7 @@ private:
   std::vector<std::string> always_split_variable_names;
   std::vector<size_t> deterministic_varIDs;
   std::vector<size_t> split_select_varIDs;
-  std::vector<std::vector<double>> split_select_weights;
+  std::vector<double> split_select_weights;
 
   // Bootstrap weights
   std::vector<double> case_weights;

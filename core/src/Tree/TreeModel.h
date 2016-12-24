@@ -6,6 +6,7 @@
 #include "SplittingRule.h"
 #include "Data.h"
 #include "Tree.h"
+#include "TreeOptions.h"
 #include "BootstrapSampler.h"
 
 class TreeModel {
@@ -14,16 +15,11 @@ public:
             SplittingRule *splitting_rule,
             PredictionStrategy *prediction_strategy,
             size_t dependent_varID,
-            uint mtry,
-            uint min_node_size,
-            std::vector <size_t> *deterministic_varIDs,
-            std::vector <size_t> *split_select_varIDs,
-            std::vector <size_t> *no_split_variables);
+            TreeOptions* options);
 
   Tree* train(Data *data,
               BootstrapSampler *bootstrap_sampler,
-              Observations* observations,
-              std::vector<double> *split_select_weights);
+              Observations* observations);
 
 private:
   void createEmptyNode(std::vector <std::vector<size_t>> &child_nodeIDs,
@@ -57,15 +53,8 @@ private:
   RelabelingStrategy *relabeling_strategy;
   SplittingRule *splitting_rule;
   PredictionStrategy *prediction_strategy;
-
   size_t dependent_varID;
-
-  uint mtry;
-  uint min_node_size;
-
-  std::vector <size_t> *deterministic_varIDs;
-  std::vector <size_t> *split_select_varIDs;
-  std::vector <size_t> *no_split_variables;
+  TreeOptions* options;
 };
 
 #endif //GRADIENTFOREST_TREEMODEL_H
