@@ -51,7 +51,8 @@ Tree* TreeModel::train(Data* data,
                   sampleIDs,
                   split_varIDs,
                   split_values,
-                  bootstrap_sampler);
+                  bootstrap_sampler->getOobSampleIDs(),
+                  bootstrap_sampler->getInbagCounts());
 }
 
 void TreeModel::createPossibleSplitVarSubset(std::vector<size_t> &result,

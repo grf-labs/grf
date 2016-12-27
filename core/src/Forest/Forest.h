@@ -13,6 +13,9 @@ public:
   Forest(std::vector<Tree*>* trees,
          Data* data,
          std::unordered_map<std::string, size_t> observables);
+  Forest(std::vector<Tree*>* trees,
+         Observations* observations);
+
   virtual ~Forest();
 
   Observations* get_observations() const {
@@ -26,15 +29,13 @@ public:
   const std::vector<std::vector<size_t>> get_inbag_counts() const {
     std::vector<std::vector<size_t>> result;
     for (auto& tree : *trees) {
-      result.push_back(tree->getInbagCounts());
+      result.push_back(tree->get_inbag_counts());
     }
     return result;
   }
 
 protected:
   std::vector<Tree*>* trees;
-
-  Data* data;
   Observations* observations;
 
 private:

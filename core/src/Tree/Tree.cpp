@@ -5,16 +5,18 @@
 #include "Tree.h"
 #include "utility.h"
 
-Tree::Tree(std::vector<std::vector<size_t>> &child_nodeIDs,
-           std::vector<std::vector<size_t>> sampleIDs,
-           std::vector<size_t> &split_varIDs,
-           std::vector<double> &split_values,
-           BootstrapSampler* bootstrap_sampler) :
+Tree::Tree(const std::vector<std::vector<size_t>> &child_nodeIDs,
+           const std::vector<std::vector<size_t>> sampleIDs,
+           const std::vector<size_t> &split_varIDs,
+           const std::vector<double> &split_values,
+           const std::vector<size_t> oob_sampleIDs,
+           const std::vector<size_t> inbag_counts) :
     child_nodeIDs(child_nodeIDs),
     sampleIDs(sampleIDs),
     split_varIDs(split_varIDs),
     split_values(split_values),
-    bootstrap_sampler(bootstrap_sampler) {}
+    oob_sampleIDs(oob_sampleIDs),
+    inbag_counts(inbag_counts) {}
 
 Tree::~Tree() {}
 
@@ -22,7 +24,7 @@ std::vector<size_t> Tree::predict(const Data* prediction_data, bool oob_predicti
 
   size_t num_samples_predict;
   if (oob_prediction) {
-    num_samples_predict = bootstrap_sampler->getNumSamplesOob();
+    num_samples_predict = oob_sampleIDs.size();
   } else {
     num_samples_predict = prediction_data->getNumRows();
   }
@@ -34,7 +36,7 @@ std::vector<size_t> Tree::predict(const Data* prediction_data, bool oob_predicti
   for (size_t i = 0; i < num_samples_predict; ++i) {
     size_t sample_idx;
     if (oob_prediction) {
-      sample_idx = bootstrap_sampler->getOobSampleIDs()[i];
+      sample_idx = oob_sampleIDs[i];
     } else {
       sample_idx = i;
     }

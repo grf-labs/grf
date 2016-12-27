@@ -13,38 +13,39 @@
 
 class Tree {
 public:
-  Tree(std::vector<std::vector<size_t>>& child_nodeIDs,
-       std::vector<std::vector<size_t>> sampleIDs,
-       std::vector<size_t>& split_varIDs,
-       std::vector<double>& split_values,
-       BootstrapSampler* bootstrap_sampler);
+  Tree(const std::vector<std::vector<size_t>>& child_nodeIDs,
+       const std::vector<std::vector<size_t>> sampleIDs,
+       const std::vector<size_t>& split_varIDs,
+       const std::vector<double>& split_values,
+       const std::vector<size_t> oob_sampleIDs,
+       const std::vector<size_t> inbag_counts);
 
   ~Tree();
 
   std::vector<size_t> predict(const Data* prediction_data, bool oob_prediction);
 
-  const std::vector<std::vector<size_t> >& getChildNodeIDs() const {
+  std::vector<std::vector<size_t> >& getChildNodeIDs() {
     return child_nodeIDs;
   }
 
-  const std::vector<std::vector<size_t>>& get_sampleIDs() const {
+  std::vector<std::vector<size_t>>& get_sampleIDs() {
     return sampleIDs;
   }
 
-  const std::vector<double>& getSplitValues() const {
+  std::vector<double>& getSplitValues() {
     return split_values;
   }
 
-  const std::vector<size_t>& getSplitVarIDs() const {
+  std::vector<size_t>& getSplitVarIDs() {
     return split_varIDs;
   }
 
-  const std::vector<size_t>& getOobSampleIDs() const {
-    return bootstrap_sampler->getOobSampleIDs();
+  std::vector<size_t>& getOobSampleIDs() {
+    return oob_sampleIDs;
   }
 
-  const std::vector<size_t>& getInbagCounts() const {
-    return bootstrap_sampler->getInbagCounts();
+  std::vector<size_t>& get_inbag_counts() {
+    return inbag_counts;
   }
 
 private:
@@ -53,7 +54,8 @@ private:
   std::vector<size_t> split_varIDs;
   std::vector<double> split_values;
 
-  BootstrapSampler* bootstrap_sampler;
+  std::vector<size_t> oob_sampleIDs;
+  std::vector<size_t> inbag_counts;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Tree);

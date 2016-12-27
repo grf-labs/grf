@@ -15,15 +15,15 @@ public:
 
   void sample(std::vector<std::vector<size_t>>& sampleIDs);
 
-  const std::vector<size_t>& getOobSampleIDs() const {
+  std::vector<size_t>& getOobSampleIDs() {
     return oob_sampleIDs;
   }
 
-  const size_t getNumSamplesOob() const {
+  const size_t getNumSamplesOob() {
     return num_samples_oob;
   };
 
-  const std::vector<size_t>& getInbagCounts() const {
+  std::vector<size_t>& getInbagCounts() {
     return inbag_counts;
   }
 

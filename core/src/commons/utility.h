@@ -33,7 +33,7 @@ void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts)
  * @param file ofstream object to write to.
  */
 template<typename T>
-inline void saveVector1D(std::vector<T>& vector, std::ofstream& file) {
+inline void saveVector1D(std::vector<T>& vector, std::ostream& file) {
   // Save length
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
@@ -41,7 +41,7 @@ inline void saveVector1D(std::vector<T>& vector, std::ofstream& file) {
 }
 
 template<>
-inline void saveVector1D(std::vector<bool>& vector, std::ofstream& file) {
+inline void saveVector1D(std::vector<bool>& vector, std::ostream& file) {
   // Save length
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
@@ -53,25 +53,13 @@ inline void saveVector1D(std::vector<bool>& vector, std::ofstream& file) {
   }
 }
 
-template<typename T, typename U>
-inline void saveMap(std::unordered_map<T, U>& map, std::ofstream& file) {
-  // Save length
-  size_t length = map.size();
-  file.write((char*) &length, sizeof(length));
-
-  for (auto it = map.begin(); it != map.end(); it++) {
-    file.write((char*) &it->first, sizeof(T));
-    file.write((char*) &it->second, sizeof(U));
-  }
-}
-
 /**
  * Read a 1d vector written by saveVector1D() from filestream.
  * @param result Result vector with elements of type T.
  * @param file ifstream object to read from.
  */
 template<typename T>
-inline void readVector1D(std::vector<T>& result, std::ifstream& file) {
+inline void readVector1D(std::vector<T>& result, std::istream& file) {
   // Read length
   size_t length;
   file.read((char*) &length, sizeof(length));
@@ -80,7 +68,7 @@ inline void readVector1D(std::vector<T>& result, std::ifstream& file) {
 }
 
 template<>
-inline void readVector1D(std::vector<bool>& result, std::ifstream& file) {
+inline void readVector1D(std::vector<bool>& result, std::istream& file) {
   // Read length
   size_t length;
   file.read((char*) &length, sizeof(length));
@@ -93,30 +81,13 @@ inline void readVector1D(std::vector<bool>& result, std::ifstream& file) {
   }
 }
 
-template<typename T, typename U>
-inline void readMap(std::unordered_map<T, U>& result, std::ifstream& file) {
-  size_t length;
-  file.read((char*) &length, sizeof(length));
-
-  for (size_t i = 0; i < length; ++i) {
-    T key;
-    U value;
-
-    file.read((char*) &key, sizeof(T));
-    file.read((char*) &value, sizeof(U));
-
-    std::cout << "key: " << key << ", sizeof(U): " << sizeof(U) << std::endl;
-    result[key] = value;
-  }
-}
-
 /**
  * Write a 2d vector to filestream. First the size of the first dim is written as size_t, then for all inner vectors the size and elements.
  * @param vector Vector of vectors of type T to write to file.
  * @param file ofstream object to write to.
  */
 template<typename T>
-inline void saveVector2D(std::vector<std::vector<T>>& vector, std::ofstream& file) {
+inline void saveVector2D(std::vector<std::vector<T>>& vector, std::ostream& file) {
   // Save length of first dim
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
@@ -134,7 +105,7 @@ inline void saveVector2D(std::vector<std::vector<T>>& vector, std::ofstream& fil
  * @param file ifstream object to read from.
  */
 template<typename T>
-inline void readVector2D(std::vector<std::vector<T>>& result, std::ifstream& file) {
+inline void readVector2D(std::vector<std::vector<T>>& result, std::istream& file) {
   // Read length of first dim
   size_t length;
   file.read((char*) &length, sizeof(length));
