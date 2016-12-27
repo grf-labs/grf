@@ -2,9 +2,9 @@
 #include <unordered_set>
 #include <fstream>
 #include <random>
-#include <serialization/ForestSerializer.h>
 
 #include "catch.hpp"
+#include "ForestSerializer.h"
 #include "TestUtilities.h"
 
 TEST_CASE("observations serialize and deserialize correctly", "[observationsSerialization]") {
@@ -53,7 +53,7 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
   REQUIRE(tree->getOobSampleIDs().size() == original_tree->getOobSampleIDs().size());
 }
 
-TEST_CASE("forests serialize and deserialize correctly", "[treeSerialization]") {
+TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]") {
   auto trees = new std::vector<Tree*>();
   trees->push_back(new Tree({{0}}, {{0}}, {0}, {0}, {0}, {0}));
   trees->push_back(new Tree({{1}}, {{1}}, {1}, {1}, {1}, {1}));
@@ -71,5 +71,4 @@ TEST_CASE("forests serialize and deserialize correctly", "[treeSerialization]") 
 
   REQUIRE(forest->get_trees()->size() == original_forest->get_trees()->size());
   REQUIRE(forest->get_observations()->get_num_samples() == original_forest->get_observations()->get_num_samples());
-
 }

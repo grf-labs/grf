@@ -2,9 +2,10 @@
 #define GRADIENTFOREST_TREEOPTIONS_H
 
 
-#include <globals.h>
 #include <string>
 #include <vector>
+
+#include "globals.h"
 
 class TreeOptions {
 public:

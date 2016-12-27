@@ -107,13 +107,12 @@ private:
                                    std::vector<size_t> &skip,
                                    size_t num_samples);
 
+  size_t num_samples;
   SamplingOptions* options;
   std::vector<size_t> inbag_counts;
   std::vector<size_t> oob_sampleIDs;
   size_t num_samples_oob;
   std::mt19937_64 random_number_generator;
-
-  size_t num_samples;
 };
 
 

@@ -2,7 +2,7 @@
 #define GRADIENTFOREST_FORESTOPTIONS_H
 
 
-#include <globals.h>
+#include "globals.h"
 
 class ForestOptions {
 public:

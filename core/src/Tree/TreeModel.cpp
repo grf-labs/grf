@@ -14,6 +14,7 @@ TreeModel::TreeModel(RelabelingStrategy *relabeling_strategy,
 Tree* TreeModel::train(Data* data,
                        BootstrapSampler* bootstrap_sampler,
                        Observations* observations) {
+
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> sampleIDs;
   std::vector<size_t> split_varIDs;
