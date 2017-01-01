@@ -5,7 +5,7 @@ train_test <- function(quantiles, input_data, outcome_index) {
     .Call('gradient_forest_train_test', PACKAGE = 'gradient.forest', quantiles, input_data, outcome_index)
 }
 
-predict_test <- function(forest, quantiles, input_data, outcome_index) {
-    .Call('gradient_forest_predict_test', PACKAGE = 'gradient.forest', forest, quantiles, input_data, outcome_index)
+predict_test <- function(forest, quantiles, input_data) {
+    .Call('gradient_forest_predict_test', PACKAGE = 'gradient.forest', forest, quantiles, input_data)
 }
 

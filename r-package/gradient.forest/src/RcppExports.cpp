@@ -19,16 +19,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // predict_test
-Rcpp::NumericMatrix predict_test(Rcpp::List forest, std::vector<double>& quantiles, Rcpp::NumericMatrix input_data, uint outcome_index);
-RcppExport SEXP gradient_forest_predict_test(SEXP forestSEXP, SEXP quantilesSEXP, SEXP input_dataSEXP, SEXP outcome_indexSEXP) {
+Rcpp::NumericMatrix predict_test(Rcpp::List forest, std::vector<double>& quantiles, Rcpp::NumericMatrix input_data);
+RcppExport SEXP gradient_forest_predict_test(SEXP forestSEXP, SEXP quantilesSEXP, SEXP input_dataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type forest(forestSEXP);
     Rcpp::traits::input_parameter< std::vector<double>& >::type quantiles(quantilesSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type input_data(input_dataSEXP);
-    Rcpp::traits::input_parameter< uint >::type outcome_index(outcome_indexSEXP);
-    rcpp_result_gen = Rcpp::wrap(predict_test(forest, quantiles, input_data, outcome_index));
+    rcpp_result_gen = Rcpp::wrap(predict_test(forest, quantiles, input_data));
     return rcpp_result_gen;
 END_RCPP
 }
