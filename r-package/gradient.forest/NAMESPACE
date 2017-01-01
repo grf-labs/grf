@@ -1,5 +1,5 @@
-export(train_test)
-export(predict_test)
+export(quantile_train)
+export(quantile_predict)
 
 useDynLib(gradient.forest)
 

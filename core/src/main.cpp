@@ -26,7 +26,7 @@ Data* initializeData(ArgumentHandler& arg_handler) {
 //int main(int argc, char **argv) {
 //
 //  ArgumentHandler arg_handler(argc, argv);
-//  ForestModel* forest_model = 0;
+//  ForestTrainer* forest_model = 0;
 //  try {
 //
 //    // Handle command line arguments
@@ -50,7 +50,7 @@ Data* initializeData(ArgumentHandler& arg_handler) {
 //      SplittingRule* splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
 //      PredictionStrategy* prediction_strategy = new QuantilePredictionStrategy(quantiles);
 //
-//      forest_model = new ForestModel(observables,
+//      forest_model = new ForestTrainer(observables,
 //                                     relabeling_strategy,
 //                                     splitting_rule,
 //                                     prediction_strategy);
@@ -73,7 +73,7 @@ Data* initializeData(ArgumentHandler& arg_handler) {
 //      SplittingRule *splitting_rule = new RegressionSplittingRule(data);
 //      PredictionStrategy* prediction_strategy = new InstrumentalPredictionStrategy();
 //
-//      forest_model = new ForestModel(observables,
+//      forest_model = new ForestTrainer(observables,
 //                                     relabeling_strategy,
 //                                     splitting_rule,
 //                                     prediction_strategy);

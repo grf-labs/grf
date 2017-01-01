@@ -11,7 +11,10 @@
 
 #include "catch.hpp"
 
-void initializeForestModel(ForestModel* forest_model) {
+ForestModel* createForestModel(std::unordered_map<std::string, size_t> observables,
+                               RelabelingStrategy *relabeling_strategy,
+                               SplittingRule *splitting_rule,
+                               PredictionStrategy *prediction_strategy) {
   uint mtry = 3;
   uint num_trees = 4;
   std::ostream* verbose_out = &std::cout;
@@ -26,9 +29,15 @@ void initializeForestModel(ForestModel* forest_model) {
   std::string case_weights_file = "";
   double sample_fraction = 1;
 
-  forest_model->init(mtry, num_trees, verbose_out, seed, num_threads, load_forest_filename,
-                     min_node_size, split_select_weights_file, always_split_variable_names, sample_with_replacement,
-                     memory_saving_splitting, case_weights_file, sample_fraction);
+  ForestTrainer *trainer = new ForestTrainer(observables,
+      relabeling_strategy, splitting_rule, prediction_strategy);
+  trainer->init(mtry, num_trees, verbose_out, seed, num_threads, load_forest_filename,
+                min_node_size, split_select_weights_file, always_split_variable_names, sample_with_replacement,
+                memory_saving_splitting, case_weights_file, sample_fraction);
+
+  ForestPredictor* predictor = new ForestPredictor(prediction_strategy);
+  predictor->init(load_forest_filename, num_threads, verbose_out);
+  return new ForestModel(trainer, predictor);
 }
 
 TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {
@@ -40,11 +49,8 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
   SplittingRule* splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
   PredictionStrategy* prediction_strategy = new QuantilePredictionStrategy(quantiles);
 
-  ForestModel* forest_model = new ForestModel(observables,
-      relabeling_strategy,
-      splitting_rule,
-      prediction_strategy);
-  initializeForestModel(forest_model);
+  ForestModel* forest_model = createForestModel(observables,
+      relabeling_strategy, splitting_rule, prediction_strategy);
 
   Forest* forest = forest_model->train(data);
   std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
@@ -65,11 +71,8 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
   SplittingRule* splitting_rule = new RegressionSplittingRule(data);
   PredictionStrategy* prediction_strategy = new InstrumentalPredictionStrategy();
 
-  ForestModel* forest_model = new ForestModel(observables,
-                                              relabeling_strategy,
-                                              splitting_rule,
-                                              prediction_strategy);
-  initializeForestModel(forest_model);
+  ForestModel* forest_model = createForestModel(observables,
+                                                relabeling_strategy, splitting_rule, prediction_strategy);
 
   Forest* forest = forest_model->train(data);
   std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);

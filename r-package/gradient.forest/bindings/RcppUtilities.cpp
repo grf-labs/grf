@@ -6,23 +6,23 @@
 
 const std::string RcppUtilities::SERIALIZED_FOREST_KEY = "serialized.forest";
 
-void RcppUtilities::initializeForestModel(ForestModel *forest_model,
-                                          uint mtry,
-                                          uint num_trees,
-                                          uint num_threads,
-                                          uint min_node_size,
-                                          bool sample_with_replacement,
-                                          double sample_fraction) {
+void RcppUtilities::initialize_forest_trainer(ForestTrainer *forest_trainer,
+                                              uint mtry,
+                                              uint num_trees,
+                                              uint num_threads,
+                                              uint min_node_size,
+                                              bool sample_with_replacement,
+                                              double sample_fraction) {
   std::string load_forest_filename = "";
   std::string split_select_weights_file = "";
   std::vector<std::string> always_split_variable_names;
   bool memory_saving_splitting = false;
   std::string case_weights_file = "";
 
-  forest_model->init(mtry, num_trees, &std::cout, 0, num_threads, load_forest_filename,
-                     min_node_size, split_select_weights_file, always_split_variable_names,
-                     sample_with_replacement,
-                     memory_saving_splitting, case_weights_file, sample_fraction);
+  forest_trainer->init(mtry, num_trees, &std::cout, 0, num_threads, load_forest_filename,
+                       min_node_size, split_select_weights_file, always_split_variable_names,
+                       sample_with_replacement,
+                       memory_saving_splitting, case_weights_file, sample_fraction);
 }
 
 Rcpp::RawVector RcppUtilities::serialize_forest(Forest* forest) {
