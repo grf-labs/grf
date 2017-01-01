@@ -6,7 +6,9 @@
 #include "RegressionSplittingRule.h"
 #include "ProbabilitySplittingRule.h"
 #include "InstrumentalRelabelingStrategy.h"
+#include "NoopRelabelingStrategy.h"
 #include "InstrumentalPredictionStrategy.h"
+#include "RegressionPredictionStrategy.h"
 #include "FileTestUtilities.h"
 
 #include "catch.hpp"
@@ -79,6 +81,36 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
       "test/forest/resources/causal_test_predictions.csv");
+
+  REQUIRE(predictions.size() == expected_predictions.size());
+
+  for (int i = 0; i < predictions.size(); i++) {
+    std::vector<double> prediction = predictions[i];
+    std::vector<double> expected_prediction = expected_predictions[i];
+
+    REQUIRE(prediction.size() == 1);
+    REQUIRE(expected_prediction.size() == 1);
+
+    REQUIRE(equalDoubles(prediction[0], expected_prediction[0], 1e-2));
+  }
+}
+
+TEST_CASE("regression forest predictions have not changed", "[regression, characterization]") {
+  std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, 10}};
+  Data* data = loadDataFromFile("test/forest/resources/regression_test_data.csv");
+
+  RelabelingStrategy* relabeling_strategy = new NoopRelabelingStrategy();
+  SplittingRule* splitting_rule = new RegressionSplittingRule(data);
+  PredictionStrategy* prediction_strategy = new RegressionPredictionStrategy();
+
+  ForestModel* forest_model = createForestModel(observables,
+      relabeling_strategy, splitting_rule, prediction_strategy);
+
+  Forest* forest = forest_model->train(data);
+  std::vector<std::vector<double>> predictions = forest_model->predict(forest, data);
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
+      "test/forest/resources/regression_test_predictions.csv");
 
   REQUIRE(predictions.size() == expected_predictions.size());
 
