@@ -164,9 +164,6 @@ Rcpp::NumericMatrix predict(std::vector<double> &quantiles,
               result.begin() + i * num_quantiles);
   }
 
-
-  // TODO: copy predictions
-
   delete forest_model;
   delete deserialized_forest;
   delete data;
