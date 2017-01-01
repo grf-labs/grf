@@ -39,9 +39,8 @@ Rcpp::List quantile_train(std::vector<double> &quantiles,
 
   Forest *forest = forest_trainer->train(data);
 
-  Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
-
   Rcpp::List result;
+  Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
   result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
   result.push_back(forest->get_trees()->size(), "num.trees");
 
@@ -62,7 +61,6 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest,
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
   PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(&quantiles);
-
   ForestPredictor* forest_predictor = new ForestPredictor(prediction_strategy);
   forest_predictor->init("", num_threads, &std::cout);
 
