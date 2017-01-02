@@ -73,9 +73,10 @@ Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(std::vector<std::vec
       throw std::runtime_error("Prediction " + std::to_string(i) + " did not have the expected length.");
     }
 
-    std::copy(prediction.begin(),
-              prediction.end(),
-              result.begin() + i * prediction_length);
+    for (int j = 0; j < prediction.size(); j++) {
+      double value = prediction[j];
+      result(i, j) = value;
+    }
   }
   return result;
 }
