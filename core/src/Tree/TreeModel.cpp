@@ -57,27 +57,27 @@ Tree* TreeModel::train(Data* data,
 }
 
 void TreeModel::createPossibleSplitVarSubset(std::vector<size_t> &result,
-                                             BootstrapSampler* bootstrap_sampler,
-                                             Data* data,
-                                             std::vector<double>* split_select_weights) {
+                                             BootstrapSampler *bootstrap_sampler,
+                                             Data *data,
+                                             const std::vector<double> &split_select_weights) {
 
   // Always use deterministic variables
-  std::vector<size_t>* deterministic_varIDs = options->get_deterministic_varIDs();
-  std::copy(deterministic_varIDs->begin(), deterministic_varIDs->end(), std::inserter(result, result.end()));
+  std::vector<size_t> deterministic_varIDs = options->get_deterministic_varIDs();
+  std::copy(deterministic_varIDs.begin(), deterministic_varIDs.end(), std::inserter(result, result.end()));
 
   // Randomly add non-deterministic variables (according to weights if needed)
   uint mtry = options->get_mtry();
-  if (split_select_weights->empty()) {
+  if (split_select_weights.empty()) {
     bootstrap_sampler->drawWithoutReplacementSkip(result,
                                                   data->getNumCols(),
-                                                  *options->get_no_split_variables(),
+                                                  options->get_no_split_variables(),
                                                   mtry);
   } else {
     size_t num_draws = mtry - result.size();
     bootstrap_sampler->drawWithoutReplacementWeighted(result,
-                                                     *options->get_split_select_varIDs(),
-                                                     num_draws,
-                                                     *split_select_weights);
+                                                      options->get_split_select_varIDs(),
+                                                      num_draws,
+                                                      split_select_weights);
   }
 }
 
@@ -89,7 +89,7 @@ bool TreeModel::splitNode(size_t nodeID,
                           std::vector<std::vector<size_t>>& sampleIDs,
                           std::vector<size_t>& split_varIDs,
                           std::vector<double>& split_values,
-                          std::vector<double>* split_select_weights) {
+                          const std::vector<double>& split_select_weights) {
 
 // Select random subset of variables to possibly split at
   std::vector<size_t> possible_split_varIDs;
@@ -135,7 +135,7 @@ bool TreeModel::splitNode(size_t nodeID,
 
 bool TreeModel::splitNodeInternal(size_t nodeID,
                                   Observations* observations,
-                                  std::vector<size_t>& possible_split_varIDs,
+                                  const std::vector<size_t>& possible_split_varIDs,
                                   std::vector<std::vector<size_t>>& sampleIDs,
                                   std::vector<size_t>& split_varIDs,
                                   std::vector<double>& split_values) {

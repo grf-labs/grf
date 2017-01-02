@@ -17,16 +17,14 @@
 
 class ForestModel {
 public:
-  ForestModel(ForestTrainer* trainer, ForestPredictor* predictor);
+  ForestModel(ForestTrainer &trainer, ForestPredictor &predictor);
 
   Forest* train(Data* data);
   std::vector<std::vector<double>> predict(Forest* forest, Data* prediction_data);
 
 private:
-  ForestTrainer* trainer;
-  ForestPredictor* predictor;
-
-  DISALLOW_COPY_AND_ASSIGN(ForestModel);
+  ForestTrainer trainer;
+  ForestPredictor predictor;
 };
 
 

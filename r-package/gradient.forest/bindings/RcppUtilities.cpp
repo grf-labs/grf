@@ -6,7 +6,7 @@
 
 const std::string RcppUtilities::SERIALIZED_FOREST_KEY = "serialized.forest";
 
-void RcppUtilities::initialize_forest_trainer(ForestTrainer *forest_trainer,
+void RcppUtilities::initialize_forest_trainer(ForestTrainer &forest_trainer,
                                               uint mtry,
                                               uint num_trees,
                                               uint num_threads,
@@ -21,7 +21,7 @@ void RcppUtilities::initialize_forest_trainer(ForestTrainer *forest_trainer,
   bool memory_saving_splitting = false;
   std::string case_weights_file = "";
 
-  forest_trainer->init(mtry, num_trees, &std::cout, seed, num_threads, load_forest_filename,
+  forest_trainer.init(mtry, num_trees, &std::cout, seed, num_threads, load_forest_filename,
                        min_node_size, no_split_variables, split_select_weights_file,
                        always_split_variable_names, sample_with_replacement,
                        memory_saving_splitting, case_weights_file, sample_fraction);

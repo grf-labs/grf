@@ -36,7 +36,7 @@ public:
    */
   void drawWithoutReplacementSkip(std::vector<size_t> &result,
                                   size_t range_length,
-                                  std::vector<size_t> &skip,
+                                  const std::vector<size_t> &skip,
                                   size_t num_samples);
 
   /**
@@ -47,9 +47,9 @@ public:
    * @param weights A weight for each element of indices
    */
   void drawWithoutReplacementWeighted(std::vector<size_t> &result,
-                                      std::vector<size_t> &indices,
+                                      const std::vector<size_t> &indices,
                                       size_t num_samples,
-                                      std::vector<double> &weights);
+                                      const std::vector<double> &weights);
 
   /**
    * Draw random numers without replacement and with weighted probabilites from vector of indices.
@@ -62,7 +62,7 @@ public:
   void drawWithoutReplacementWeighted(std::vector<size_t> &result,
                                       size_t max_index,
                                       size_t num_samples,
-                                      std::vector<double> &weights);
+                                      const std::vector<double> &weights);
 
   /**
    * Create numbers from 0 to n_all-1, shuffle and split in two parts.
@@ -91,7 +91,7 @@ private:
    */
   void drawWithoutReplacementSimple(std::vector<size_t> &result,
                                     size_t max,
-                                    std::vector<size_t> &skip,
+                                    const std::vector<size_t> &skip,
                                     size_t num_samples);
 
   /**
@@ -104,7 +104,7 @@ private:
    */
   void drawWithoutReplacementKnuth(std::vector<size_t> &result,
                                    size_t max,
-                                   std::vector<size_t> &skip,
+                                   const std::vector<size_t> &skip,
                                    size_t num_samples);
 
   size_t num_samples;

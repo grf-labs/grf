@@ -84,8 +84,6 @@ private:
 
   std::string split_select_weights_file;
   std::string case_weights_file;
-
-  DISALLOW_COPY_AND_ASSIGN(ForestTrainer);
 };
 
 

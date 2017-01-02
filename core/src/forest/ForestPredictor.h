@@ -56,8 +56,6 @@ private:
   std::vector<uint> thread_ranges;
 
   PredictionStrategy* prediction_strategy;
-
-  DISALLOW_COPY_AND_ASSIGN(ForestPredictor);
 };
 
 

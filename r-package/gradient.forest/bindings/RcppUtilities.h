@@ -8,7 +8,7 @@ class RcppUtilities {
 public:
   static const std::string SERIALIZED_FOREST_KEY;
 
-  static void initialize_forest_trainer(ForestTrainer *forest_trainer,
+  static void initialize_forest_trainer(ForestTrainer &forest_trainer,
                                         uint mtry,
                                         uint num_trees,
                                         uint num_threads,

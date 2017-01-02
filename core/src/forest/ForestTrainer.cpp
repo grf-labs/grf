@@ -20,13 +20,19 @@ ForestTrainer::ForestTrainer(std::unordered_map<std::string, size_t> observables
 }
 
 void ForestTrainer::init(uint mtry,
-                       uint num_trees, std::ostream *verbose_out, uint seed, uint num_threads,
-                       std::string load_forest_filename, uint min_node_size,
-                       std::vector<size_t> no_split_variables,
-                       std::string split_select_weights_file, std::vector<std::string> &always_split_variable_names,
-                       bool sample_with_replacement, bool memory_saving_splitting,
-                       std::string case_weights_file,
-                       double sample_fraction) {
+                         uint num_trees,
+                         std::ostream *verbose_out,
+                         uint seed,
+                         uint num_threads,
+                         std::string load_forest_filename,
+                         uint min_node_size,
+                         std::vector<size_t> no_split_variables,
+                         std::string split_select_weights_file,
+                         std::vector<std::string> &always_split_variable_names,
+                         bool sample_with_replacement,
+                         bool memory_saving_splitting,
+                         std::string case_weights_file,
+                         double sample_fraction) {
 
   this->verbose_out = verbose_out;
   this->always_split_variable_names = always_split_variable_names;
@@ -75,10 +81,10 @@ void ForestTrainer::init(uint mtry,
   TreeOptions* tree_options = new TreeOptions(
       mtry,
       min_node_size,
-      &split_select_weights,
-      &split_select_varIDs,
-      &deterministic_varIDs,
-      &this->no_split_variables);
+      split_select_weights,
+      split_select_varIDs,
+      deterministic_varIDs,
+      this->no_split_variables);
   tree_model = new TreeModel(relabeling_strategy,
                              splitting_rule,
                              prediction_strategy,
@@ -254,8 +260,8 @@ void ForestTrainer::setSplitWeightVector(std::vector<double> &split_select_weigh
 }
 
 void ForestTrainer::setAlwaysSplitVariables(Data* data,
-                                          std::vector<std::string>& always_split_variable_names,
-                                          size_t num_independent_variables) {
+                                            std::vector<std::string> &always_split_variable_names,
+                                            size_t num_independent_variables) {
   deterministic_varIDs.clear();
   deterministic_varIDs.reserve(num_independent_variables);
 
