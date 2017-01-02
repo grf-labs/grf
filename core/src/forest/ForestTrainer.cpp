@@ -22,6 +22,7 @@ ForestTrainer::ForestTrainer(std::unordered_map<std::string, size_t> observables
 void ForestTrainer::init(uint mtry,
                        uint num_trees, std::ostream *verbose_out, uint seed, uint num_threads,
                        std::string load_forest_filename, uint min_node_size,
+                       std::vector<size_t> no_split_variables,
                        std::string split_select_weights_file, std::vector<std::string> &always_split_variable_names,
                        bool sample_with_replacement, bool memory_saving_splitting,
                        std::string case_weights_file,
@@ -63,9 +64,9 @@ void ForestTrainer::init(uint mtry,
   this->memory_saving_splitting = memory_saving_splitting;
   this->sample_fraction = sample_fraction;
 
-
+  this->no_split_variables = no_split_variables;
   for (auto it : observables) {
-    no_split_variables.push_back(it.second);
+    this->no_split_variables.push_back(it.second);
   }
 
   // Sort no split variables in ascending order
@@ -77,12 +78,11 @@ void ForestTrainer::init(uint mtry,
       &split_select_weights,
       &split_select_varIDs,
       &deterministic_varIDs,
-      &no_split_variables);
+      &this->no_split_variables);
   tree_model = new TreeModel(relabeling_strategy,
                              splitting_rule,
                              prediction_strategy,
                              tree_options);
-
 }
 
 Forest* ForestTrainer::train(Data* data) {

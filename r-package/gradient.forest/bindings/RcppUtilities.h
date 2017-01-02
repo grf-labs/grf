@@ -14,7 +14,9 @@ public:
                                         uint num_threads,
                                         uint min_node_size,
                                         bool sample_with_replacement,
-                                        double sample_fraction);
+                                        double sample_fraction,
+                                        std::vector<size_t> no_split_variables,
+                                        uint seed);
 
   static Rcpp::RawVector serialize_forest(Forest *forest);
 

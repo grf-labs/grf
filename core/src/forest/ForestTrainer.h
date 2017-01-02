@@ -24,6 +24,7 @@ public:
   void init(uint mtry,
             uint num_trees, std::ostream *verbose_out, uint seed, uint num_threads,
             std::string load_forest_filename, uint min_node_size,
+            std::vector<size_t> no_split_variables,
             std::string split_select_weights_file, std::vector<std::string> &always_split_variable_names,
             bool sample_with_replacement,
             bool memory_saving_splitting,

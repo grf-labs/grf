@@ -21,7 +21,9 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             uint min_node_size,
                             bool sample_with_replacement,
                             bool keep_inbag,
-                            double sample_fraction) {
+                            double sample_fraction,
+                            std::vector<size_t> no_split_variables,
+                            uint seed) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
   std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, outcome_index}};
@@ -34,7 +36,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                                                     splitting_rule,
                                                     prediction_strategy);
   RcppUtilities::initialize_forest_trainer(forest_trainer, mtry, num_trees, num_threads,
-      min_node_size, sample_with_replacement, sample_fraction);
+      min_node_size, sample_with_replacement, sample_fraction, no_split_variables, seed);
 
   Forest *forest = forest_trainer->train(data);
 

@@ -12,16 +12,18 @@ void RcppUtilities::initialize_forest_trainer(ForestTrainer *forest_trainer,
                                               uint num_threads,
                                               uint min_node_size,
                                               bool sample_with_replacement,
-                                              double sample_fraction) {
+                                              double sample_fraction,
+                                              std::vector<size_t> no_split_variables,
+                                              uint seed) {
   std::string load_forest_filename = "";
   std::string split_select_weights_file = "";
   std::vector<std::string> always_split_variable_names;
   bool memory_saving_splitting = false;
   std::string case_weights_file = "";
 
-  forest_trainer->init(mtry, num_trees, &std::cout, 0, num_threads, load_forest_filename,
-                       min_node_size, split_select_weights_file, always_split_variable_names,
-                       sample_with_replacement,
+  forest_trainer->init(mtry, num_trees, &std::cout, seed, num_threads, load_forest_filename,
+                       min_node_size, no_split_variables, split_select_weights_file,
+                       always_split_variable_names, sample_with_replacement,
                        memory_saving_splitting, case_weights_file, sample_fraction);
 }
 

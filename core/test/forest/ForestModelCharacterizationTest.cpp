@@ -24,6 +24,7 @@ ForestModel* createForestModel(std::unordered_map<std::string, size_t> observabl
   uint num_threads = 1;
   std::string load_forest_filename = "";
   uint min_node_size = DEFAULT_MIN_NODE_SIZE_REGRESSION;
+  std::vector<size_t> no_split_variables;
   std::string split_select_weights_file = "";
   std::vector<std::string> always_split_variable_names;
   bool sample_with_replacement = true;
@@ -34,8 +35,8 @@ ForestModel* createForestModel(std::unordered_map<std::string, size_t> observabl
   ForestTrainer *trainer = new ForestTrainer(observables,
       relabeling_strategy, splitting_rule, prediction_strategy);
   trainer->init(mtry, num_trees, verbose_out, seed, num_threads, load_forest_filename,
-                min_node_size, split_select_weights_file, always_split_variable_names, sample_with_replacement,
-                memory_saving_splitting, case_weights_file, sample_fraction);
+                min_node_size, no_split_variables, split_select_weights_file, always_split_variable_names,
+                sample_with_replacement, memory_saving_splitting, case_weights_file, sample_fraction);
 
   ForestPredictor* predictor = new ForestPredictor(prediction_strategy);
   predictor->init(load_forest_filename, num_threads, verbose_out);
