@@ -32,13 +32,12 @@ std::vector<double> QuantilePredictionStrategy::calculateQuantileCutoffs(
   auto quantile_it = quantiles->begin();
   double cumulative_weight = 0.0;
 
-  for (auto it = sampleIDs_and_values.begin(); it != sampleIDs_and_values.end()
-                                               && quantile_it != quantiles->end(); ++it) {
+  for (auto it = sampleIDs_and_values.begin(); it != sampleIDs_and_values.end(); ++it) {
     size_t sampleID = it->first;
     double value = it->second;
 
     cumulative_weight += weights_by_sampleID[sampleID];
-    if (cumulative_weight >= *quantile_it) {
+    while (cumulative_weight >= *quantile_it && quantile_it != quantiles->end()) {
       quantile_cutoffs.push_back(value);
       ++quantile_it;
     }

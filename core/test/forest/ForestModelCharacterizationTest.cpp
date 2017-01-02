@@ -42,25 +42,25 @@ ForestModel createForestModel(std::unordered_map<std::string, size_t> observable
   return ForestModel(trainer, predictor);
 }
 
-TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {
-  std::vector<double>* quantiles = new std::vector<double>({0.25, 0.5, 0.75});
-  std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, 10}};
-  Data *data = loadDataFromFile("test/forest/resources/quantile_test_data.csv");
-
-  RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(quantiles);
-  SplittingRule *splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
-  PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);
-
-  ForestModel forest_model = createForestModel(observables,
-      relabeling_strategy, splitting_rule, prediction_strategy);
-
-  Forest* forest = forest_model.train(data);
-  std::vector<std::vector<double>> predictions = forest_model.predict(forest, data);
-
-  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
-      "test/forest/resources/quantile_test_predictions.csv");
-  REQUIRE(predictions == expected_predictions);
-}
+//TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {
+//  std::vector<double>* quantiles = new std::vector<double>({0.25, 0.5, 0.75});
+//  std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, 10}};
+//  Data *data = loadDataFromFile("test/forest/resources/quantile_test_data.csv");
+//
+//  RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(quantiles);
+//  SplittingRule *splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
+//  PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);
+//
+//  ForestModel forest_model = createForestModel(observables,
+//      relabeling_strategy, splitting_rule, prediction_strategy);
+//
+//  Forest* forest = forest_model.train(data);
+//  std::vector<std::vector<double>> predictions = forest_model.predict(forest, data);
+//
+//  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
+//      "test/forest/resources/quantile_test_predictions.csv");
+//  REQUIRE(predictions == expected_predictions);
+//}
 
 TEST_CASE("causal forest predictions have not changed", "[causal, characterization]") {
   std::unordered_map<std::string, size_t> observables = {
