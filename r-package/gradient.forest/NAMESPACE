@@ -1,10 +1,2 @@
-export(regression_train)
-export(regression_predict)
-
-export(quantile_train)
-export(quantile_predict)
-
-export(instrumental_train)
-export(instrumental_predict)
-
+exportPattern(".")
 useDynLib(gradient.forest)
