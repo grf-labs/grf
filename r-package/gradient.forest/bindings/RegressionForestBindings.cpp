@@ -36,7 +36,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
       min_node_size, sample_with_replacement, sample_fraction, no_split_variables, seed);
 
   Forest *forest = forest_trainer.train(data);
-  
+
   Rcpp::List result;
   Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
   result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
