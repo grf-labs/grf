@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("~/git/split-relabel/experiments/quantile_simple")
+setwd("~/git/split-relabel/experiments/quantile_examples")
 
 library(Rcpp) #TODO: remover this dependency
 
@@ -24,7 +24,7 @@ preds.meinshausen = predict(qrf.meinshausen, X.test, quantiles = c(0.1, 0.5, 0.9
 
 # TODO should be min.size = 10, samp.frac = 10
 qrf.grad = quantile.forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 5, sample.fraction=0.1)
-preds.grad = predict(qrf.grad, X.test.df)
+preds.grad = predict(qrf.grad, X.test.df, quantiles = c(0.1, 0.5, 0.9))
 
 preds.truth = cbind(-qnorm(0.9) * (1 + (X.test[,1] > 0)),
                     0,
