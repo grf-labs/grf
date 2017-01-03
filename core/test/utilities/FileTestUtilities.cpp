@@ -5,7 +5,7 @@ std::vector<std::vector<double>> FileTestUtilities::readCsvFile(std::string file
   std::ifstream file = std::ifstream();
   file.open(file_name, std::ios::binary);
 
-  std::string delimiter = " ";
+  std::string delimiter = ",";
   std::vector<std::vector<double>> result;
   std::string line;
 
