@@ -66,7 +66,7 @@ regression.forest <- function(X, Y,
 						seed)
 						
 						
-	class(forest) <- "quantile.forest"
+	class(forest) <- "regression.forest"
 	forest
 }
 
