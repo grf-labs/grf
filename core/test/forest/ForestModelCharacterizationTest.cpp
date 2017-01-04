@@ -32,7 +32,7 @@ ForestModel createForestModel(std::unordered_map<std::string, size_t> observable
   std::string case_weights_file = "";
   double sample_fraction = 1;
 
-  ForestTrainer trainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
+  ForestTrainer trainer(observables, relabeling_strategy, splitting_rule_factory);
   trainer.init(mtry, num_trees, verbose_out, seed, num_threads, load_forest_filename,
                 min_node_size, no_split_variables, split_select_weights_file, always_split_variable_names,
                 sample_with_replacement, memory_saving_splitting, case_weights_file, sample_fraction);

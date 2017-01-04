@@ -13,7 +13,6 @@ class TreeTrainer {
 public:
   TreeTrainer(RelabelingStrategy *relabeling_strategy,
               SplittingRuleFactory *splitting_rule_factory,
-              PredictionStrategy *prediction_strategy,
               TreeOptions *options);
 
   Tree* train(Data *data,
@@ -52,7 +51,6 @@ private:
 
   RelabelingStrategy *relabeling_strategy;
   SplittingRuleFactory *splitting_rule_factory;
-  PredictionStrategy *prediction_strategy;
   TreeOptions* options;
 };
 
