@@ -47,7 +47,7 @@ Data* initializeData(ArgumentHandler& arg_handler) {
 //
 //      std::unordered_map<std::string, size_t> observables = {{"outcome", dependent_varID}};
 //      RelabelingStrategy* relabeling_strategy = new QuantileRelabelingStrategy(quantiles, dependent_varID);
-//      SplittingRule* splitting_rule = new ProbabilitySplittingRule(data, quantiles->size());
+//      SplittingRule* splitting_rule = new ProbabilitySplittingRuleFactory(data, quantiles->size());
 //      PredictionStrategy* prediction_strategy = new QuantilePredictionStrategy(quantiles);
 //
 //      forest_model = new ForestTrainer(observables,

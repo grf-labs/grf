@@ -7,16 +7,19 @@
 #include <future>
 #include "utility.h"
 #include "ForestTrainer.h"
+#include "SplittingRuleFactory.h"
 
 ForestTrainer::ForestTrainer(std::unordered_map<std::string, size_t> observables,
                          RelabelingStrategy *relabeling_strategy,
-                         SplittingRule *splitting_rule,
+                         SplittingRuleFactory *splitting_rule_factory,
                          PredictionStrategy *prediction_strategy) :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
     prediction_mode(false), sample_with_replacement(
     true), memory_saving_splitting(false), keep_inbag(false), sample_fraction(
     1), num_threads(DEFAULT_NUM_THREADS), observables(observables),
-    relabeling_strategy(relabeling_strategy), splitting_rule(splitting_rule), prediction_strategy(prediction_strategy) {
+    relabeling_strategy(relabeling_strategy),
+    splitting_rule_factory(splitting_rule_factory),
+    prediction_strategy(prediction_strategy) {
 }
 
 void ForestTrainer::init(uint mtry,
@@ -86,7 +89,7 @@ void ForestTrainer::init(uint mtry,
       deterministic_varIDs,
       this->no_split_variables);
   tree_trainer = new TreeTrainer(relabeling_strategy,
-                                 splitting_rule,
+                                 splitting_rule_factory,
                                  prediction_strategy,
                                  tree_options);
 }

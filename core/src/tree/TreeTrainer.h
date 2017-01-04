@@ -3,7 +3,7 @@
 
 #include "PredictionStrategy.h"
 #include "RelabelingStrategy.h"
-#include "SplittingRule.h"
+#include "SplittingRuleFactory.h"
 #include "Data.h"
 #include "Tree.h"
 #include "TreeOptions.h"
@@ -12,7 +12,7 @@
 class TreeTrainer {
 public:
   TreeTrainer(RelabelingStrategy *relabeling_strategy,
-              SplittingRule *splitting_rule,
+              SplittingRuleFactory *splitting_rule_factory,
               PredictionStrategy *prediction_strategy,
               TreeOptions *options);
 
@@ -32,6 +32,7 @@ private:
                                     const std::vector<double> &split_select_weights);
 
   bool splitNode(size_t nodeID,
+                 SplittingRule *splitting_rule,
                  BootstrapSampler *bootstrap_sampler,
                  Data *data,
                  Observations *observations,
@@ -42,6 +43,7 @@ private:
                  const std::vector<double> &split_select_weights);
 
   bool splitNodeInternal(size_t nodeID,
+                         SplittingRule *splitting_rule,
                          Observations* observations,
                          const std::vector <size_t> &possible_split_varIDs,
                          std::vector <std::vector<size_t>> &sampleIDs,
@@ -49,7 +51,7 @@ private:
                          std::vector<double> &split_values);
 
   RelabelingStrategy *relabeling_strategy;
-  SplittingRule *splitting_rule;
+  SplittingRuleFactory *splitting_rule_factory;
   PredictionStrategy *prediction_strategy;
   TreeOptions* options;
 };

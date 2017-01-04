@@ -3,11 +3,11 @@
 #include "TreeTrainer.h"
 
 TreeTrainer::TreeTrainer(RelabelingStrategy *relabeling_strategy,
-                     SplittingRule *splitting_rule,
+                     SplittingRuleFactory *splitting_rule_factory,
                      PredictionStrategy *prediction_strategy,
                      TreeOptions* options):
     relabeling_strategy(relabeling_strategy),
-    splitting_rule(splitting_rule),
+    splitting_rule_factory(splitting_rule_factory),
     prediction_strategy(prediction_strategy),
     options(options) {}
 
@@ -24,13 +24,17 @@ Tree* TreeTrainer::train(Data* data,
   child_nodeIDs.push_back(std::vector<size_t>());
   createEmptyNode(child_nodeIDs, sampleIDs, split_varIDs, split_values);
 
+  SplittingRule *splitting_rule = splitting_rule_factory->create();
+
   bootstrap_sampler->sample(sampleIDs);
 
   // While not all nodes terminal, split next node
   size_t num_open_nodes = 1;
   size_t i = 0;
   while (num_open_nodes > 0) {
-    bool is_terminal_node = splitNode(i, bootstrap_sampler,
+    bool is_terminal_node = splitNode(i,
+                                      splitting_rule,
+                                      bootstrap_sampler,
                                       data, observations, child_nodeIDs,
                                       sampleIDs,
                                       split_varIDs,
@@ -82,14 +86,15 @@ void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t> &result,
 }
 
 bool TreeTrainer::splitNode(size_t nodeID,
-                          BootstrapSampler* bootstrap_sampler,
-                          Data* data,
-                          Observations* observations,
-                          std::vector<std::vector<size_t>>& child_nodeIDs,
-                          std::vector<std::vector<size_t>>& sampleIDs,
-                          std::vector<size_t>& split_varIDs,
-                          std::vector<double>& split_values,
-                          const std::vector<double>& split_select_weights) {
+                            SplittingRule *splitting_rule,
+                            BootstrapSampler *bootstrap_sampler,
+                            Data *data,
+                            Observations *observations,
+                            std::vector<std::vector<size_t>> &child_nodeIDs,
+                            std::vector<std::vector<size_t>> &sampleIDs,
+                            std::vector<size_t> &split_varIDs,
+                            std::vector<double> &split_values,
+                            const std::vector<double> &split_select_weights) {
 
 // Select random subset of variables to possibly split at
   std::vector<size_t> possible_split_varIDs;
@@ -97,6 +102,7 @@ bool TreeTrainer::splitNode(size_t nodeID,
 
 // Call subclass method, sets split_varIDs and split_values
   bool stop = splitNodeInternal(nodeID,
+                                splitting_rule,
                                 observations,
                                 possible_split_varIDs,
                                 sampleIDs,
@@ -134,11 +140,12 @@ bool TreeTrainer::splitNode(size_t nodeID,
 }
 
 bool TreeTrainer::splitNodeInternal(size_t nodeID,
-                                  Observations* observations,
-                                  const std::vector<size_t>& possible_split_varIDs,
-                                  std::vector<std::vector<size_t>>& sampleIDs,
-                                  std::vector<size_t>& split_varIDs,
-                                  std::vector<double>& split_values) {
+                                    SplittingRule *splitting_rule,
+                                    Observations *observations,
+                                    const std::vector<size_t> &possible_split_varIDs,
+                                    std::vector<std::vector<size_t>> &sampleIDs,
+                                    std::vector<size_t> &split_varIDs,
+                                    std::vector<double> &split_values) {
   // Check node size, stop if maximum reached
   if (sampleIDs[nodeID].size() <= options->get_min_node_size()) {
     split_values[nodeID] = -1.0;

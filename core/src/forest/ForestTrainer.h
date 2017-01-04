@@ -11,12 +11,13 @@
 
 #include <thread>
 #include <future>
+#include <splitting/factory/SplittingRuleFactory.h>
 
 class ForestTrainer {
 public:
   ForestTrainer(std::unordered_map<std::string, size_t> observables,
                 RelabelingStrategy *relabeling_strategy,
-                SplittingRule *splitting_rule,
+                SplittingRuleFactory *splitting_rule_factory,
                 PredictionStrategy *prediction_strategy);
 
   Forest *train(Data *data);
@@ -79,7 +80,7 @@ private:
 
   std::unordered_map<std::string, size_t> observables;
   RelabelingStrategy* relabeling_strategy;
-  SplittingRule* splitting_rule;
+  SplittingRuleFactory* splitting_rule_factory;
   PredictionStrategy* prediction_strategy;
 
   std::string split_select_weights_file;
