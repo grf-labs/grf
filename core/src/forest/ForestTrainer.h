@@ -2,7 +2,7 @@
 #define GRADIENTFOREST_FORESTTRAINER_H
 
 #include "RelabelingStrategy.h"
-#include "SplittingRule.h"
+#include "SplittingRuleFactory.h"
 #include "PredictionStrategy.h"
 
 #include "Tree.h"
@@ -11,7 +11,6 @@
 
 #include <thread>
 #include <future>
-#include <splitting/factory/SplittingRuleFactory.h>
 
 class ForestTrainer {
 public:

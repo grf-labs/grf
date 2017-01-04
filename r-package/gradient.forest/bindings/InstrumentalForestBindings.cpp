@@ -7,7 +7,7 @@
 #include "RcppUtilities.h"
 #include "InstrumentalRelabelingStrategy.h"
 #include "InstrumentalPredictionStrategy.h"
-#include "RegressionSplittingRule.h"
+#include "RegressionSplittingRuleFactory.h"
 
 // [[Rcpp::export]]
 Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
@@ -34,10 +34,9 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
       {Observations::INSTRUMENT, instrument_index}};
 
   RelabelingStrategy *relabeling_strategy = new InstrumentalRelabelingStrategy();
-  SplittingRule *splitting_rule = new RegressionSplittingRule(data);
-  PredictionStrategy *prediction_strategy = new InstrumentalPredictionStrategy();
+  SplittingRuleFactory *splitting_rule_factory = new RegressionSplittingRuleFactory(data);
 
-  ForestTrainer forest_trainer(observables, relabeling_strategy, splitting_rule, prediction_strategy);
+  ForestTrainer forest_trainer(observables, relabeling_strategy, splitting_rule_factory);
   RcppUtilities::initialize_forest_trainer(forest_trainer, mtry, num_trees, num_threads,
       min_node_size, sample_with_replacement, sample_fraction, no_split_variables, seed);
 

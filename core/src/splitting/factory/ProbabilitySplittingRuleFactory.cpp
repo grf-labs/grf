@@ -1,5 +1,5 @@
 #include <unordered_map>
-#include <splitting/SplittingRule.h>
+#include "SplittingRule.h"
 #include "ProbabilitySplittingRuleFactory.h"
 #include "ProbabilitySplittingRule.h"
 

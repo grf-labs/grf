@@ -6,7 +6,7 @@
 #include "globals.h"
 #include "RcppUtilities.h"
 #include "QuantileRelabelingStrategy.h"
-#include "ProbabilitySplittingRule.h"
+#include "ProbabilitySplittingRuleFactory.h"
 #include "QuantilePredictionStrategy.h"
 
 // [[Rcpp::export]]
@@ -29,10 +29,9 @@ Rcpp::List quantile_train(std::vector<double> &quantiles,
 
   std::unordered_map<std::string, size_t> observables = {{"outcome", outcome_index}};
   RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(&quantiles);
-  SplittingRule *splitting_rule = new ProbabilitySplittingRule(data, quantiles.size());
-  PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(&quantiles);
+  SplittingRuleFactory *splitting_rule_factory = new ProbabilitySplittingRuleFactory(data, quantiles.size());
 
-  ForestTrainer forest_trainer(observables, relabeling_strategy, splitting_rule, prediction_strategy);
+  ForestTrainer forest_trainer(observables, relabeling_strategy, splitting_rule_factory);
   RcppUtilities::initialize_forest_trainer(forest_trainer, mtry, num_trees, num_threads,
       min_node_size, sample_with_replacement, sample_fraction, no_split_variables, seed);
 
