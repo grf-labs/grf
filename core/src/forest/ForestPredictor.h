@@ -7,7 +7,7 @@
 #include "PredictionStrategy.h"
 
 #include "Tree.h"
-#include "TreeModel.h"
+#include "TreeTrainer.h"
 #include "Forest.h"
 
 #include <thread>

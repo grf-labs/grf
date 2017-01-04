@@ -85,10 +85,10 @@ void ForestTrainer::init(uint mtry,
       split_select_varIDs,
       deterministic_varIDs,
       this->no_split_variables);
-  tree_model = new TreeModel(relabeling_strategy,
-                             splitting_rule,
-                             prediction_strategy,
-                             tree_options);
+  tree_trainer = new TreeTrainer(relabeling_strategy,
+                                 splitting_rule,
+                                 prediction_strategy,
+                                 tree_options);
 }
 
 Forest* ForestTrainer::train(Data* data) {
@@ -210,7 +210,7 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
                                                                  tree_seed,
                                                                  sampling_options);
 
-      trees.push_back(tree_model->train(data,
+      trees.push_back(tree_trainer->train(data,
                                         bootstrap_sampler,
                                         observations));
     }
