@@ -12,7 +12,7 @@ ProbabilitySplittingRule::ProbabilitySplittingRule(Data* data, size_t num_classe
 
 bool ProbabilitySplittingRule::findBestSplit(size_t nodeID,
                                              const std::vector<size_t>& possible_split_varIDs,
-                                             std::unordered_map<size_t, double> responses_by_sampleID,
+                                             const std::unordered_map<size_t, double>& responses_by_sampleID,
                                              std::vector<std::vector<size_t>> &sampleIDs,
                                              std::vector<size_t> &split_varIDs,
                                              std::vector<double> &split_values) {
@@ -25,7 +25,7 @@ bool ProbabilitySplittingRule::findBestSplit(size_t nodeID,
   // Compute overall class counts
   for (size_t i = 0; i < num_samples_node; ++i) {
     size_t sampleID = sampleIDs[nodeID][i];
-    uint sample_classID = (uint) round(responses_by_sampleID[sampleID]);
+    uint sample_classID = (uint) round(responses_by_sampleID.at(sampleID));
     ++class_counts[sample_classID];
   }
 

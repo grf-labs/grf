@@ -19,7 +19,7 @@ RegressionSplittingRule::~RegressionSplittingRule() {
 
 bool RegressionSplittingRule::findBestSplit(size_t nodeID,
                                             const std::vector<size_t>& possible_split_varIDs,
-                                            std::unordered_map<size_t, double> responses_by_sampleID,
+                                            const std::unordered_map<size_t, double>& responses_by_sampleID,
                                             std::vector<std::vector<size_t>> &sampleIDs,
                                             std::vector<size_t> &split_varIDs,
                                             std::vector<double> &split_values) {
@@ -32,7 +32,7 @@ bool RegressionSplittingRule::findBestSplit(size_t nodeID,
   // Compute sum of responses in node
   double sum_node = 0;
   for (auto& sampleID : sampleIDs[nodeID]) {
-    sum_node += responses_by_sampleID[sampleID];
+    sum_node += responses_by_sampleID.at(sampleID);
   }
 
   // For all possible split variables
