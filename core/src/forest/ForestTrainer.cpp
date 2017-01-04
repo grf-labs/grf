@@ -115,8 +115,7 @@ Forest* ForestTrainer::train(Data* data) {
   }
 
   if (mtry == 0) {
-    unsigned long temp = sqrt((double) (num_variables - no_split_variables.size()));
-    mtry = std::max((unsigned long) 1, temp);
+    mtry = ceil((num_variables - no_split_variables.size()) / 3.0);
   }
 
   // Set minimal node size
