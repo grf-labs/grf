@@ -18,10 +18,10 @@ X = matrix(2 * runif(n * p) - 1, n, p)
 Y = rnorm(n) + JMP * (X[,1] > 0)
 D = data.frame(X=X, Y=Y)
 
-qrf.meinshausen = quantregForest(X, Y, mtry=p, nodesize=10)
+qrf.meinshausen = quantregForest(X, Y, mtry=p, nodesize=10, replace=FALSE)
 preds.meinshausen = predict(qrf.meinshausen, X.test, quantiles = c(0.1, 0.5, 0.9))
 
-qrf.grad = quantile.forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.5, num.trees=1000)
+qrf.grad = quantile.forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632, num.trees=500)
 preds.grad = predict(qrf.grad, X.test.df, quantiles = c(0.1, 0.5, 0.9))
 
 preds.truth = cbind(-qnorm(0.9) + JMP * (X.test[,1] > 0),

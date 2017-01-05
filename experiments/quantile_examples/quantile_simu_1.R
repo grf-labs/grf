@@ -5,7 +5,7 @@ setwd("~/git/split-relabel/experiments/quantile_examples")
 library(quantregForest)
 library(gradient.forest)
 
-p = 2 #40 #TODO
+p = 40
 n = 2000
 
 ticks = 1001
@@ -17,12 +17,11 @@ X = matrix(2 * runif(n * p) - 1, n, p)
 Y = rnorm(n) * (1 + (X[,1] > 0))
 D = data.frame(X=X, Y=Y)
 
-qrf.meinshausen = quantregForest(X, Y, mtry=p, nodesize=10)
-preds.meinshausen = predict(qrf.meinshausen, X.test, quantiles = c(0.1, 0.5, 0.9))
-
-# TODO should be min.size = 10, samp.frac = 10
-qrf.grad = quantile.forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 5, sample.fraction=0.1)
+qrf.grad = quantile.forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632)
 preds.grad = predict(qrf.grad, X.test.df, quantiles = c(0.1, 0.5, 0.9))
+
+qrf.meinshausen = quantregForest(X, Y, mtry=p, nodesize=10, replace = FALSE)
+preds.meinshausen = predict(qrf.meinshausen, X.test, quantiles = c(0.1, 0.5, 0.9))
 
 preds.truth = cbind(-qnorm(0.9) * (1 + (X.test[,1] > 0)),
                     0,
