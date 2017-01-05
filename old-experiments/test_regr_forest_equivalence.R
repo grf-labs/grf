@@ -2,7 +2,6 @@ rm(list = ls())
 
 library(randomForest)
 library(gradient.forest)
-library(Rcpp)
 
 p = 20
 n = 1000

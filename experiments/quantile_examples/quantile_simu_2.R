@@ -2,8 +2,6 @@ rm(list = ls())
 
 setwd("~/git/split-relabel/experiments/quantile_examples")
 
-library(Rcpp) #TODO: remover this dependency
-
 library(quantregForest)
 library(gradient.forest)
 

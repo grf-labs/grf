@@ -1,2 +1,5 @@
-exportPattern(".")
 useDynLib(gradient.forest)
+
+import(Rcpp)
+
+exportPattern(".")
