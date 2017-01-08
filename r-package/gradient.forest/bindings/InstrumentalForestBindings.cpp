@@ -36,7 +36,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
       {Observations::INSTRUMENT, instrument_index}};
 
   RelabelingStrategy *relabeling_strategy = new InstrumentalRelabelingStrategy();
-  SplittingRuleFactory *splitting_rule_factory = new RegressionSplittingRuleFactory(data);
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
 
   ForestTrainer forest_trainer(observables, relabeling_strategy, splitting_rule_factory);
   RcppUtilities::initialize_forest_trainer(forest_trainer, mtry, num_trees, num_threads,

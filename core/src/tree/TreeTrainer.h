@@ -12,7 +12,7 @@
 class TreeTrainer {
 public:
   TreeTrainer(RelabelingStrategy *relabeling_strategy,
-              SplittingRuleFactory *splitting_rule_factory,
+              std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
               TreeOptions options);
 
   Tree* train(Data *data,
@@ -50,7 +50,7 @@ private:
                          std::vector<double> &split_values);
 
   RelabelingStrategy *relabeling_strategy;
-  SplittingRuleFactory *splitting_rule_factory;
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
   TreeOptions options;
 };
 

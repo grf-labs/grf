@@ -30,7 +30,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
 
   std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, outcome_index}};
   RelabelingStrategy *relabeling_strategy = new NoopRelabelingStrategy();
-  SplittingRuleFactory *splitting_rule_factory = new RegressionSplittingRuleFactory(data);
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
 
   ForestTrainer forest_trainer(observables, relabeling_strategy, splitting_rule_factory);
   RcppUtilities::initialize_forest_trainer(forest_trainer, mtry, num_trees, num_threads,

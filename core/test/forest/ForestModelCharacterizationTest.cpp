@@ -16,7 +16,7 @@
 
 ForestTrainer create_forest_trainer(std::unordered_map<std::string, size_t> observables,
                                     RelabelingStrategy *relabeling_strategy,
-                                    SplittingRuleFactory *splitting_rule_factory) {
+                                    std::shared_ptr<SplittingRuleFactory> splitting_rule_factory) {
   uint mtry = 3;
   uint num_trees = 4;
   std::ostream* verbose_out = &std::cout;
@@ -50,8 +50,8 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
   Data *data = loadDataFromFile("test/forest/resources/quantile_test_data.csv");
 
   RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(quantiles);
-  SplittingRuleFactory *splitting_rule_factory = new ProbabilitySplittingRuleFactory(data,
-      quantiles.size() + 1);
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(
+      new ProbabilitySplittingRuleFactory(data, quantiles.size() + 1));
   std::shared_ptr<PredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
 
   ForestTrainer forest_trainer = create_forest_trainer(observables, relabeling_strategy,
@@ -74,7 +74,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
   Data* data = loadDataFromFile("test/forest/resources/causal_test_data.csv");
 
   RelabelingStrategy *relabeling_strategy = new InstrumentalRelabelingStrategy();
-  SplittingRuleFactory *splitting_rule_factory = new RegressionSplittingRuleFactory(data);
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
   std::shared_ptr<PredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
 
   ForestTrainer forest_trainer = create_forest_trainer(observables, relabeling_strategy,
@@ -105,7 +105,7 @@ TEST_CASE("regression forest predictions have not changed", "[regression, charac
   Data* data = loadDataFromFile("test/forest/resources/regression_test_data.csv");
 
   RelabelingStrategy *relabeling_strategy = new NoopRelabelingStrategy();
-  SplittingRuleFactory *splitting_rule_factory = new RegressionSplittingRuleFactory(data);
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
   std::shared_ptr<PredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
 
   ForestTrainer forest_trainer = create_forest_trainer(observables, relabeling_strategy,

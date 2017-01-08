@@ -3,7 +3,7 @@
 #include "TreeTrainer.h"
 
 TreeTrainer::TreeTrainer(RelabelingStrategy *relabeling_strategy,
-                         SplittingRuleFactory *splitting_rule_factory,
+                         std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                          TreeOptions options) :
     relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
