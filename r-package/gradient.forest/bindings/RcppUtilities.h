@@ -1,7 +1,7 @@
 #ifndef GRADIENTFOREST_RCPPUTILITIES_H
 #define GRADIENTFOREST_RCPPUTILITIES_H
 
-#include "ForestModel.h"
+#include "ForestTrainer.h"
 #include "globals.h"
 
 class RcppUtilities {

@@ -10,7 +10,7 @@
 #include "ForestPredictor.h"
 
 ForestPredictor::ForestPredictor(uint num_threads,
-                                 PredictionStrategy *prediction_strategy) :
+                                 std::shared_ptr<PredictionStrategy> prediction_strategy) :
     prediction_strategy(prediction_strategy) {
   if (num_threads == DEFAULT_NUM_THREADS) {
     this->num_threads = std::thread::hardware_concurrency();

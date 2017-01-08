@@ -16,7 +16,7 @@
 class ForestPredictor {
 public:
   ForestPredictor(uint num_threads,
-                  PredictionStrategy *prediction_strategy);
+                  std::shared_ptr<PredictionStrategy> prediction_strategy);
 
   std::vector<std::vector<double>> predict(Forest* forest, Data* prediction_data);
 
@@ -47,7 +47,7 @@ private:
   uint num_threads;
   std::vector<uint> thread_ranges;
 
-  PredictionStrategy* prediction_strategy;
+  std::shared_ptr<PredictionStrategy> prediction_strategy;
 };
 
 

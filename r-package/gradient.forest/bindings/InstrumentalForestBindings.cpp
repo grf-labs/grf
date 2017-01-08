@@ -8,6 +8,8 @@
 #include "InstrumentalRelabelingStrategy.h"
 #include "InstrumentalPredictionStrategy.h"
 #include "RegressionSplittingRuleFactory.h"
+#include "ForestPredictor.h"
+#include "ForestTrainer.h"
 
 // [[Rcpp::export]]
 Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
@@ -61,7 +63,7 @@ Rcpp::NumericMatrix instrumental_predict(Rcpp::List forest,
                                          uint num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
-  PredictionStrategy *prediction_strategy = new InstrumentalPredictionStrategy();
+  std::shared_ptr<PredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
   ForestPredictor forest_predictor(num_threads, prediction_strategy);
 
   Forest* deserialized_forest = RcppUtilities::deserialize_forest(

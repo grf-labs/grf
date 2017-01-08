@@ -10,7 +10,6 @@
 #include "InstrumentalPredictionStrategy.h"
 #include "RegressionSplittingRule.h"
 #include "ProbabilitySplittingRule.h"
-#include "ForestModel.h"
 
 Data* initializeData(ArgumentHandler& arg_handler) {
   Data* data = new Data();

@@ -8,6 +8,8 @@
 #include "QuantileRelabelingStrategy.h"
 #include "ProbabilitySplittingRuleFactory.h"
 #include "QuantilePredictionStrategy.h"
+#include "ForestPredictor.h"
+#include "ForestTrainer.h"
 
 // [[Rcpp::export]]
 Rcpp::List quantile_train(std::vector<double> quantiles,
@@ -58,7 +60,7 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest,
                                      uint num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
-  PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);
+  std::shared_ptr<PredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
   ForestPredictor forest_predictor(num_threads, prediction_strategy);
 
   Forest* deserialized_forest = RcppUtilities::deserialize_forest(
