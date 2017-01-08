@@ -59,8 +59,7 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest,
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
   PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);
-  ForestPredictor forest_predictor(prediction_strategy);
-  forest_predictor.init(num_threads);
+  ForestPredictor forest_predictor(num_threads, prediction_strategy);
 
   Forest* deserialized_forest = RcppUtilities::deserialize_forest(
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);

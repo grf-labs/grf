@@ -37,8 +37,7 @@ ForestModel createForestModel(std::unordered_map<std::string, size_t> observable
                 min_node_size, no_split_variables, split_select_weights_file, always_split_variable_names,
                 sample_with_replacement, memory_saving_splitting, case_weights_file, sample_fraction);
 
-  ForestPredictor predictor(prediction_strategy);
-  predictor.init(num_threads);
+  ForestPredictor predictor(num_threads, prediction_strategy);
   return ForestModel(trainer, predictor);
 }
 

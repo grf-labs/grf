@@ -15,11 +15,10 @@
 
 class ForestPredictor {
 public:
-  ForestPredictor(PredictionStrategy *prediction_strategy);
+  ForestPredictor(uint num_threads,
+                  PredictionStrategy *prediction_strategy);
 
   std::vector<std::vector<double>> predict(Forest* forest, Data* prediction_data);
-
-  void init(uint num_threads);
 
   void writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);

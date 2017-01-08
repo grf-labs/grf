@@ -9,11 +9,9 @@
 #include "utility.h"
 #include "ForestPredictor.h"
 
-ForestPredictor::ForestPredictor(PredictionStrategy *prediction_strategy) :
+ForestPredictor::ForestPredictor(uint num_threads,
+                                 PredictionStrategy *prediction_strategy) :
     prediction_strategy(prediction_strategy) {
-}
-
-void ForestPredictor::init(uint num_threads) {
   if (num_threads == DEFAULT_NUM_THREADS) {
     this->num_threads = std::thread::hardware_concurrency();
   } else {
