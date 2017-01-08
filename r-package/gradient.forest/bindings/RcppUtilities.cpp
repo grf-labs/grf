@@ -27,7 +27,7 @@ void RcppUtilities::initialize_forest_trainer(ForestTrainer &forest_trainer,
                        memory_saving_splitting, case_weights_file, sample_fraction);
 }
 
-Rcpp::RawVector RcppUtilities::serialize_forest(Forest* forest) {
+Rcpp::RawVector RcppUtilities::serialize_forest(Forest forest) {
   ForestSerializer forest_serializer;
   std::stringstream stream;
   forest_serializer.serialize(stream, forest);
@@ -39,7 +39,7 @@ Rcpp::RawVector RcppUtilities::serialize_forest(Forest* forest) {
   return result;
 }
 
-Forest* RcppUtilities::deserialize_forest(Rcpp::RawVector input) {
+Forest RcppUtilities::deserialize_forest(Rcpp::RawVector input) {
   ForestSerializer forest_serializer;
 
   std::string contents(input.begin(), input.end());

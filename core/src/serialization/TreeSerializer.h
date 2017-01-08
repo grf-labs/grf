@@ -4,8 +4,8 @@
 
 class TreeSerializer {
 public:
-  void serialize(std::ostream& stream, Tree* tree);
-  Tree* deserialize(std::istream& stream);
+  void serialize(std::ostream& stream, std::shared_ptr<Tree> tree);
+  std::shared_ptr<Tree> deserialize(std::istream& stream);
 };
 
 

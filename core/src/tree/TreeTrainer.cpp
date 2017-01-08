@@ -9,9 +9,9 @@ TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy
     splitting_rule_factory(splitting_rule_factory),
     options(options) {}
 
-Tree* TreeTrainer::train(Data* data,
-                         BootstrapSampler *bootstrap_sampler,
-                         const Observations& observations) {
+std::shared_ptr<Tree> TreeTrainer::train(Data* data,
+                                         BootstrapSampler *bootstrap_sampler,
+                                         const Observations& observations) {
 
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> sampleIDs;
@@ -51,12 +51,13 @@ Tree* TreeTrainer::train(Data* data,
 
 // Delete sampleID vector to save memory
   //sampleIDs.clear();
-  return new Tree(child_nodeIDs,
-                  sampleIDs,
-                  split_varIDs,
-                  split_values,
-                  bootstrap_sampler->getOobSampleIDs(),
-                  bootstrap_sampler->getInbagCounts());
+  return std::shared_ptr<Tree>(
+      new Tree(child_nodeIDs,
+               sampleIDs,
+               split_varIDs,
+               split_values,
+               bootstrap_sampler->getOobSampleIDs(),
+               bootstrap_sampler->getInbagCounts()));
 }
 
 void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t> &result,

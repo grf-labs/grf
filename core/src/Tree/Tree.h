@@ -56,9 +56,6 @@ private:
 
   std::vector<size_t> oob_sampleIDs;
   std::vector<size_t> inbag_counts;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Tree);
 };
 
 #endif /* GRADIENTFOREST_TREE_H_ */

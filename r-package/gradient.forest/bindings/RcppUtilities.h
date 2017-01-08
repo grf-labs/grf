@@ -18,9 +18,9 @@ public:
                                         std::vector<size_t> no_split_variables,
                                         uint seed);
 
-  static Rcpp::RawVector serialize_forest(Forest *forest);
+  static Rcpp::RawVector serialize_forest(Forest forest);
 
-  static Forest* deserialize_forest(Rcpp::RawVector input);
+  static Forest deserialize_forest(Rcpp::RawVector input);
 
   static Data* convert_data(Rcpp::NumericMatrix input_data,
                             Rcpp::RawMatrix sparse_data,

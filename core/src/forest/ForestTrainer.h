@@ -18,7 +18,7 @@ public:
                 std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                 std::shared_ptr<SplittingRuleFactory> splitting_rule_factory);
 
-  Forest *train(Data *data);
+  Forest train(Data *data);
 
   void init(uint mtry,
             uint num_trees, std::ostream *verbose_out, uint seed, uint num_threads,
@@ -35,7 +35,7 @@ private:
   void growTreesInThread(uint thread_idx,
                          Data *data,
                          const Observations& observations,
-                         std::promise<std::vector<Tree*>> promise);
+                         std::promise<std::vector<std::shared_ptr<Tree>>> promise);
 
   void setSplitWeightVector(std::vector<double>& split_select_weights,
                             size_t num_independent_variables);

@@ -33,17 +33,18 @@ TEST_CASE("observations serialize and deserialize correctly", "[observationsSeri
 }
 
 TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
-  Tree* original_tree = new Tree({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
-                                 {{0, 1}, {5, 1}, {4, 6, 9}},
-                                 {10, 20, 30, 40},
-                                 {0.5, 0.75, 0.9, 1.1, 1.2},
-                                 {3, 4, 5, 9, 10, 11},
-                                 {0, 0});
+  std::shared_ptr<Tree> original_tree(new Tree(
+      {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
+      {{0, 1}, {5, 1}, {4, 6, 9}},
+      {10, 20, 30, 40},
+      {0.5, 0.75, 0.9, 1.1, 1.2},
+      {3, 4, 5, 9, 10, 11},
+      {0, 0}));
 
   TreeSerializer tree_serializer;
   std::stringstream stream;
   tree_serializer.serialize(stream, original_tree);
-  Tree* tree = tree_serializer.deserialize(stream);
+  std::shared_ptr<Tree> tree = tree_serializer.deserialize(stream);
 
   REQUIRE(tree->get_sampleIDs().size() == original_tree->get_sampleIDs().size());
   REQUIRE(tree->getChildNodeIDs().size() == original_tree->getChildNodeIDs().size());
@@ -54,9 +55,9 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
 }
 
 TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]") {
-  std::vector<Tree*> trees;
-  trees.push_back(new Tree({{0}}, {{0}}, {0}, {0}, {0}, {0}));
-  trees.push_back(new Tree({{1}}, {{1}}, {1}, {1}, {1}, {1}));
+  std::vector<std::shared_ptr<Tree>> trees;
+  trees.push_back(std::shared_ptr<Tree>(new Tree({{0}}, {{0}}, {0}, {0}, {0}, {0})));
+  trees.push_back(std::shared_ptr<Tree>(new Tree({{1}}, {{1}}, {1}, {1}, {1}, {1})));
 
   std::vector<double> outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                   -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
@@ -64,11 +65,11 @@ TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]"
 
   ForestSerializer forest_serializer;
   std::stringstream stream;
-  Forest* original_forest = new Forest(trees, observations);
+  Forest original_forest(trees, observations);
 
   forest_serializer.serialize(stream, original_forest);
-  Forest* forest = forest_serializer.deserialize(stream);
+  Forest forest = forest_serializer.deserialize(stream);
 
-  REQUIRE(forest->get_trees().size() == original_forest->get_trees().size());
-  REQUIRE(forest->get_observations().get_num_samples() == original_forest->get_observations().get_num_samples());
+  REQUIRE(forest.get_trees().size() == original_forest.get_trees().size());
+  REQUIRE(forest.get_observations().get_num_samples() == original_forest.get_observations().get_num_samples());
 }

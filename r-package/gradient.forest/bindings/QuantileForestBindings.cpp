@@ -38,14 +38,13 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
   RcppUtilities::initialize_forest_trainer(forest_trainer, mtry, num_trees, num_threads,
       min_node_size, sample_with_replacement, sample_fraction, no_split_variables, seed);
 
-  Forest *forest = forest_trainer.train(data);
+  Forest forest = forest_trainer.train(data);
 
   Rcpp::List result;
   Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
   result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
-  result.push_back(forest->get_trees().size(), "num.trees");
+  result.push_back(forest.get_trees().size(), "num.trees");
 
-  delete forest;
   delete data;
 
   return result;
@@ -63,13 +62,12 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest,
   std::shared_ptr<PredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
   ForestPredictor forest_predictor(num_threads, prediction_strategy);
 
-  Forest* deserialized_forest = RcppUtilities::deserialize_forest(
+  Forest deserialized_forest = RcppUtilities::deserialize_forest(
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   std::vector<std::vector<double>> predictions = forest_predictor.predict(deserialized_forest, data);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions, quantiles.size());
 
-  delete deserialized_forest;
   delete data;
 
   return result;

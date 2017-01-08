@@ -18,31 +18,32 @@ public:
   ForestPredictor(uint num_threads,
                   std::shared_ptr<PredictionStrategy> prediction_strategy);
 
-  std::vector<std::vector<double>> predict(Forest* forest, Data* prediction_data);
+  std::vector<std::vector<double>> predict(const Forest& forest, Data* prediction_data);
 
   void writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
 
 private:
-  void computePredictionError(Forest* forest, Data* prediction_data);
-  void computePredictionErrorInternal(Forest* forest,
+  void computePredictionError(const Forest& forest, Data* prediction_data);
+  void computePredictionErrorInternal(const Forest& forest,
                                       Data* prediction_data,
-                                      std::unordered_map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree);
+                                      const std::unordered_map<size_t, std::vector<size_t>>& terminal_node_IDs_by_tree);
 
   void predictTreesInThread(uint thread_idx,
-                            Forest *forest,
+                            const Forest& forest,
                             const Data *prediction_data,
                             bool oob_prediction,
                             std::promise<std::unordered_map<size_t, std::vector<size_t>>> promise);
 
   void addSampleWeights(size_t test_sample_idx,
-                        Tree* tree,
+                        std::shared_ptr<Tree> tree,
                         std::unordered_map<size_t, double> &weights_by_sampleID,
                         std::vector<size_t> terminal_node_IDs);
   void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
-  std::vector<std::vector<double>> predictInternal(Forest* forest,
+
+  std::vector<std::vector<double>> predictInternal(const Forest& forest,
                                                    Data* prediction_data,
-                                                   std::unordered_map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree);
+                                                   const std::unordered_map<size_t, std::vector<size_t>>& terminal_node_IDs_by_tree);
 
   uint num_threads;
   std::vector<uint> thread_ranges;

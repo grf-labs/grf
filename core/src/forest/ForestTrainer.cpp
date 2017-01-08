@@ -89,7 +89,7 @@ void ForestTrainer::init(uint mtry,
                                  tree_options);
 }
 
-Forest* ForestTrainer::train(Data* data) {
+Forest ForestTrainer::train(Data* data) {
   size_t num_samples = data->getNumRows();
   size_t num_variables = data->getNumCols();
   size_t num_independent_variables = num_variables - no_split_variables.size();
@@ -153,15 +153,15 @@ Forest* ForestTrainer::train(Data* data) {
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
-  std::vector<std::future<std::vector<Tree*>>> futures;
+  std::vector<std::future<std::vector<std::shared_ptr<Tree>>>> futures;
   futures.reserve(num_threads);
 
-  std::vector<Tree*> trees;
+  std::vector<std::shared_ptr<Tree>> trees;
   trees.reserve(num_trees);
 
   for (uint i = 0; i < num_threads; ++i) {
-    std::promise<std::vector<Tree*>> promise;
-    std::future<std::vector<Tree*>> future = promise.get_future();
+    std::promise<std::vector<std::shared_ptr<Tree>>> promise;
+    std::future<std::vector<std::shared_ptr<Tree>>> future = promise.get_future();
     threads.push_back(std::thread(&ForestTrainer::growTreesInThread,
                                   this,
                                   i,
@@ -173,7 +173,7 @@ Forest* ForestTrainer::train(Data* data) {
 
   for (auto &future : futures) {
     future.wait();
-    std::vector<Tree*> thread_trees = future.get();
+    std::vector<std::shared_ptr<Tree>> thread_trees = future.get();
     trees.insert(trees.end(), thread_trees.begin(), thread_trees.end());
   }
 
@@ -187,9 +187,9 @@ Forest* ForestTrainer::train(Data* data) {
 void ForestTrainer::growTreesInThread(uint thread_idx,
                                       Data* data,
                                       const Observations& observations,
-                                      std::promise<std::vector<Tree *>> promise) {
+                                      std::promise<std::vector<std::shared_ptr<Tree>>> promise) {
   std::uniform_int_distribution<uint> udist;
-  std::vector<Tree*> trees;
+  std::vector<std::shared_ptr<Tree>> trees;
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       uint tree_seed;

@@ -56,7 +56,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
 
   ForestTrainer forest_trainer = create_forest_trainer(observables, relabeling_strategy,
       splitting_rule_factory);
-  Forest* forest = forest_trainer.train(data);
+  Forest forest = forest_trainer.train(data);
 
   ForestPredictor forest_predictor = create_forest_predictor(prediction_strategy);
   std::vector<std::vector<double>> predictions = forest_predictor.predict(forest, data);
@@ -79,7 +79,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
 
   ForestTrainer forest_trainer = create_forest_trainer(observables, relabeling_strategy,
       splitting_rule_factory);
-  Forest* forest = forest_trainer.train(data);
+  Forest forest = forest_trainer.train(data);
 
   ForestPredictor forest_predictor = create_forest_predictor(prediction_strategy);
   std::vector<std::vector<double>> predictions = forest_predictor.predict(forest, data);
@@ -110,7 +110,7 @@ TEST_CASE("regression forest predictions have not changed", "[regression, charac
 
   ForestTrainer forest_trainer = create_forest_trainer(observables, relabeling_strategy,
                                                        splitting_rule_factory);
-  Forest* forest = forest_trainer.train(data);
+  Forest forest = forest_trainer.train(data);
 
   ForestPredictor forest_predictor = create_forest_predictor(prediction_strategy);
   std::vector<std::vector<double>> predictions = forest_predictor.predict(forest, data);

@@ -8,8 +8,8 @@
 
 class ForestSerializer {
 public:
-  void serialize(std::ostream& stream, Forest* forest);
-  Forest* deserialize(std::istream& stream);
+  void serialize(std::ostream& stream, Forest forest);
+  Forest deserialize(std::istream& stream);
 
 private:
   ObservationsSerializer observation_serializer;

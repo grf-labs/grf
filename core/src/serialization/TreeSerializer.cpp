@@ -2,7 +2,7 @@
 #include "TreeSerializer.h"
 #include "utility.h"
 
-void TreeSerializer::serialize(std::ostream& stream, Tree* tree) {
+void TreeSerializer::serialize(std::ostream& stream, std::shared_ptr<Tree> tree) {
   saveVector2D(tree->getChildNodeIDs(), stream);
   saveVector2D(tree->get_sampleIDs(), stream);
   saveVector1D(tree->getSplitVarIDs(), stream);
@@ -11,7 +11,7 @@ void TreeSerializer::serialize(std::ostream& stream, Tree* tree) {
   saveVector1D(tree->get_inbag_counts(), stream);
 }
 
-Tree* TreeSerializer::deserialize(std::istream& stream) {
+std::shared_ptr<Tree> TreeSerializer::deserialize(std::istream& stream) {
   std::vector<std::vector<size_t>> child_nodeIDs;
   readVector2D(child_nodeIDs, stream);
 
@@ -30,10 +30,11 @@ Tree* TreeSerializer::deserialize(std::istream& stream) {
   std::vector<size_t> inbag_counts;
   readVector1D(inbag_counts, stream);
 
-  return new Tree(child_nodeIDs,
-                  sampleIDs,
-                  split_varIDs,
-                  split_values,
-                  oob_sampleIDs,
-                  inbag_counts);
+  return std::shared_ptr<Tree>(
+      new Tree(child_nodeIDs,
+               sampleIDs,
+               split_varIDs,
+               split_values,
+               oob_sampleIDs,
+               inbag_counts));
 }

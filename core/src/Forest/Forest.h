@@ -10,19 +10,17 @@
 
 class Forest {
 public:
-  static Forest* create(std::vector<Tree*> trees,
-                        Data* data,
-                        std::unordered_map<std::string, size_t> observables);
-  Forest(std::vector<Tree*> trees,
+  static Forest create(std::vector<std::shared_ptr<Tree>> trees,
+                       Data* data,
+                       std::unordered_map<std::string, size_t> observables);
+  Forest(std::vector<std::shared_ptr<Tree>> trees,
          Observations observations);
-
-  virtual ~Forest();
 
   const Observations get_observations() const {
     return observations;
   };
 
-  const std::vector<Tree*> get_trees() const {
+  const std::vector<std::shared_ptr<Tree>> get_trees() const {
     return trees;
   }
 
@@ -35,11 +33,8 @@ public:
   }
 
 protected:
-  std::vector<Tree*> trees;
+  std::vector<std::shared_ptr<Tree>> trees;
   Observations observations;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Forest);
 };
 
 #endif /* GRADIENTFOREST_FOREST_H_ */
