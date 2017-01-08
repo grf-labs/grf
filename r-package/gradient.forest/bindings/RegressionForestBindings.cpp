@@ -53,7 +53,7 @@ Rcpp::NumericMatrix regression_predict(Rcpp::List forest,
 
   ForestPredictor predictor = ForestPredictors::regression_predictor(4);
   std::vector<std::vector<double>> predictions = predictor.predict(deserialized_forest, data);
-  
+
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions, 1);
 
   delete data;
