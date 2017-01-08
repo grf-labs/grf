@@ -78,8 +78,7 @@ void ForestTrainer::init(uint mtry,
   // Sort no split variables in ascending order
   std::sort(no_split_variables.begin(), no_split_variables.end());
 
-  TreeOptions* tree_options = new TreeOptions(
-      mtry,
+  TreeOptions tree_options(mtry,
       min_node_size,
       split_select_weights,
       split_select_varIDs,

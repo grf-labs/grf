@@ -4,7 +4,7 @@
 
 TreeTrainer::TreeTrainer(RelabelingStrategy *relabeling_strategy,
                          SplittingRuleFactory *splitting_rule_factory,
-                         TreeOptions *options) :
+                         TreeOptions options) :
     relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
     options(options) {}
@@ -39,7 +39,7 @@ Tree* TreeTrainer::train(Data* data,
                                       sampleIDs,
                                       split_varIDs,
                                       split_values,
-                                      options->get_split_select_weights());
+                                      options.get_split_select_weights());
     if (is_terminal_node) {
       --num_open_nodes;
     } else {
@@ -66,20 +66,20 @@ void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t> &result,
                                              const std::vector<double> &split_select_weights) {
 
   // Always use deterministic variables
-  std::vector<size_t> deterministic_varIDs = options->get_deterministic_varIDs();
+  std::vector<size_t> deterministic_varIDs = options.get_deterministic_varIDs();
   std::copy(deterministic_varIDs.begin(), deterministic_varIDs.end(), std::inserter(result, result.end()));
 
   // Randomly add non-deterministic variables (according to weights if needed)
-  uint mtry = options->get_mtry();
+  uint mtry = options.get_mtry();
   if (split_select_weights.empty()) {
     bootstrap_sampler->drawWithoutReplacementSkip(result,
                                                   data->getNumCols(),
-                                                  options->get_no_split_variables(),
+                                                  options.get_no_split_variables(),
                                                   mtry);
   } else {
     size_t num_draws = mtry - result.size();
     bootstrap_sampler->drawWithoutReplacementWeighted(result,
-                                                      options->get_split_select_varIDs(),
+                                                      options.get_split_select_varIDs(),
                                                       num_draws,
                                                       split_select_weights);
   }
@@ -147,7 +147,7 @@ bool TreeTrainer::splitNodeInternal(size_t nodeID,
                                     std::vector<size_t> &split_varIDs,
                                     std::vector<double> &split_values) {
   // Check node size, stop if maximum reached
-  if (sampleIDs[nodeID].size() <= options->get_min_node_size()) {
+  if (sampleIDs[nodeID].size() <= options.get_min_node_size()) {
     split_values[nodeID] = -1.0;
     return true;
   }

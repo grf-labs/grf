@@ -13,7 +13,7 @@ class TreeTrainer {
 public:
   TreeTrainer(RelabelingStrategy *relabeling_strategy,
               SplittingRuleFactory *splitting_rule_factory,
-              TreeOptions *options);
+              TreeOptions options);
 
   Tree* train(Data *data,
               BootstrapSampler *bootstrap_sampler,
@@ -51,7 +51,7 @@ private:
 
   RelabelingStrategy *relabeling_strategy;
   SplittingRuleFactory *splitting_rule_factory;
-  TreeOptions* options;
+  TreeOptions options;
 };
 
 #endif //GRADIENTFOREST_TREETRAINER_H
