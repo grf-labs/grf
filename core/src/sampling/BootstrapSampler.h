@@ -11,7 +11,7 @@ class BootstrapSampler {
 public:
   BootstrapSampler(size_t num_samples,
                    uint seed,
-                   SamplingOptions* options);
+                   SamplingOptions options);
 
   void sample(std::vector<std::vector<size_t>>& sampleIDs);
 
@@ -108,7 +108,7 @@ private:
                                    size_t num_samples);
 
   size_t num_samples;
-  SamplingOptions* options;
+  SamplingOptions options;
   std::vector<size_t> inbag_counts;
   std::vector<size_t> oob_sampleIDs;
   size_t num_samples_oob;

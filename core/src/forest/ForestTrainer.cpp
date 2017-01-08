@@ -200,10 +200,10 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
         tree_seed = (i + 1) * seed;
       }
 
-      SamplingOptions* sampling_options = new SamplingOptions(sample_with_replacement,
-                                                              sample_fraction,
-                                                              &case_weights,
-                                                              keep_inbag);
+      SamplingOptions sampling_options(sample_with_replacement,
+                                       sample_fraction,
+                                       &case_weights,
+                                       keep_inbag);
       BootstrapSampler* bootstrap_sampler = new BootstrapSampler(data->getNumRows(),
                                                                  tree_seed,
                                                                  sampling_options);

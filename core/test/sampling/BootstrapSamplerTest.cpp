@@ -15,8 +15,7 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions* sampling_options = new SamplingOptions(
-      true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
       1, random_device(), sampling_options);
 
@@ -48,8 +47,7 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions* sampling_options = new SamplingOptions(
-      true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
       1, random_device(), sampling_options);
 
@@ -81,8 +79,7 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions* sampling_options = new SamplingOptions(
-      true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
       1, random_device(), sampling_options);
 
@@ -114,8 +111,7 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions* sampling_options = new SamplingOptions(
-      true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
       1, random_device(), sampling_options);
   
@@ -147,8 +143,7 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions* sampling_options = new SamplingOptions(
-      true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
       1, random_device(), sampling_options);
 
@@ -181,8 +176,7 @@ TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions* sampling_options = new SamplingOptions(
-      true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
       1, random_device(), sampling_options);
 
@@ -200,8 +194,7 @@ TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions* sampling_options = new SamplingOptions(
-      true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
       1, random_device(), sampling_options);
 
@@ -219,8 +212,7 @@ TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions* sampling_options = new SamplingOptions(
-      true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
       1, random_device(), sampling_options);
 
@@ -238,8 +230,7 @@ TEST_CASE("Shuffle and split 4", "[shuffleAndSplit]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions* sampling_options = new SamplingOptions(
-      true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
       1, random_device(), sampling_options);
   
