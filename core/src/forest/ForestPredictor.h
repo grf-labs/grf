@@ -19,9 +19,7 @@ public:
 
   std::vector<std::vector<double>> predict(Forest* forest, Data* prediction_data);
 
-  void init(std::string load_forest_filename,
-            uint num_threads,
-            std::ostream *verbose_out);
+  void init(uint num_threads);
 
   void writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
   void writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
@@ -47,11 +45,6 @@ private:
                                                    Data* prediction_data,
                                                    std::unordered_map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree);
 
-  std::ostream* verbose_out;
-
-  bool prediction_mode;
-
-  // Multithreading
   uint num_threads;
   std::vector<uint> thread_ranges;
 

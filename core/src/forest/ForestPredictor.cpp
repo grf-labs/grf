@@ -10,27 +10,15 @@
 #include "ForestPredictor.h"
 
 ForestPredictor::ForestPredictor(PredictionStrategy *prediction_strategy) :
-    verbose_out(0), prediction_strategy(prediction_strategy) {
+    prediction_strategy(prediction_strategy) {
 }
 
-void ForestPredictor::init(std::string load_forest_filename,
-                           uint num_threads,
-                           std::ostream *verbose_out) {
-  this->verbose_out = verbose_out;
-
-  // Set prediction mode
-  bool prediction_mode = false;
-  if (!load_forest_filename.empty()) {
-    prediction_mode = true;
-  }
-
+void ForestPredictor::init(uint num_threads) {
   if (num_threads == DEFAULT_NUM_THREADS) {
     this->num_threads = std::thread::hardware_concurrency();
   } else {
     this->num_threads = num_threads;
   }
-
-  this->prediction_mode = prediction_mode;
 }
 
 std::vector<std::vector<double>> ForestPredictor::predict(Forest* forest, Data* prediction_data) {
@@ -232,9 +220,7 @@ void ForestPredictor::writeConfusionFile(Data* prediction_data, std::vector<std:
     }
     outfile << std::endl;
   }
-
   outfile.close();
-  *verbose_out << "Saved prediction error to file " << filename << "." << std::endl;
 }
 
 void ForestPredictor::writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions) {
@@ -253,6 +239,4 @@ void ForestPredictor::writePredictionFile(Data* prediction_data, std::vector<std
     }
     outfile << std::endl;
   }
-
-  *verbose_out << "Saved predictions to file " << filename << "." << std::endl;
 }

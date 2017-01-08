@@ -63,7 +63,7 @@ Rcpp::NumericMatrix instrumental_predict(Rcpp::List forest,
 
   PredictionStrategy *prediction_strategy = new InstrumentalPredictionStrategy();
   ForestPredictor forest_predictor(prediction_strategy);
-  forest_predictor.init("", num_threads, &std::cout);
+  forest_predictor.init(num_threads);
 
   Forest* deserialized_forest = RcppUtilities::deserialize_forest(
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
