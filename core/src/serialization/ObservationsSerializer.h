@@ -8,8 +8,8 @@
 
 class ObservationsSerializer {
 public:
-  void serialize(std::ostream& stream, Observations* observations);
-  Observations* deserialize(std::istream& stream);
+  void serialize(std::ostream& stream, const Observations& observations);
+  Observations deserialize(std::istream& stream);
 };
 
 

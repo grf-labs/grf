@@ -1,11 +1,10 @@
 #include "Data.h"
 #include "Forest.h"
 
-Forest::Forest(std::vector<Tree *>* trees,
-               Data *data,
-               std::unordered_map<std::string, size_t> observables):
-  trees(trees) {
-  std::unordered_map<std::string, std::vector<double>> observations_by_type;
+Forest* Forest::create(std::vector<Tree *>* trees,
+                       Data* data,
+                        std::unordered_map<std::string, size_t> observables) {
+  std::map<std::string, std::vector<double>> observations_by_type;
   size_t num_samples = data->getNumRows();
   for (auto it : observables) {
     std::string type = it.first;
@@ -14,10 +13,12 @@ Forest::Forest(std::vector<Tree *>* trees,
       observations_by_type[type].push_back(data->get(row, index));
     }
   }
-  this->observations = new Observations(observations_by_type, num_samples);
+
+  Observations observations(observations_by_type, num_samples);
+  return new Forest(trees, observations);
 }
 
-Forest::Forest(std::vector<Tree*>* trees, Observations* observations):
+Forest::Forest(std::vector<Tree*>* trees, Observations observations):
   trees(trees), observations(observations) {}
 
 Forest::~Forest() {

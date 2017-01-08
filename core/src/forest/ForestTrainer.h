@@ -34,7 +34,7 @@ public:
 private:
   void growTreesInThread(uint thread_idx,
                          Data *data,
-                         Observations* observations,
+                         const Observations& observations,
                          std::promise<std::vector<Tree*>> promise);
 
   void setSplitWeightVector(std::vector<double>& split_select_weights,

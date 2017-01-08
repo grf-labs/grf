@@ -17,7 +17,7 @@ public:
 
   Tree* train(Data *data,
               BootstrapSampler *bootstrap_sampler,
-              Observations* observations);
+              const Observations& observations);
 
 private:
   void createEmptyNode(std::vector <std::vector<size_t>> &child_nodeIDs,
@@ -34,7 +34,7 @@ private:
                  SplittingRule *splitting_rule,
                  BootstrapSampler *bootstrap_sampler,
                  Data *data,
-                 Observations *observations,
+                 const Observations& observations,
                  std::vector <std::vector<size_t>> &child_nodeIDs,
                  std::vector <std::vector<size_t>> &sampleIDs,
                  std::vector <size_t> &split_varIDs,
@@ -43,7 +43,7 @@ private:
 
   bool splitNodeInternal(size_t nodeID,
                          SplittingRule *splitting_rule,
-                         Observations* observations,
+                         const Observations& observations,
                          const std::vector <size_t> &possible_split_varIDs,
                          std::vector <std::vector<size_t>> &sampleIDs,
                          std::vector <size_t> &split_varIDs,

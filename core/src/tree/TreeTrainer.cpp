@@ -10,8 +10,8 @@ TreeTrainer::TreeTrainer(RelabelingStrategy *relabeling_strategy,
     options(options) {}
 
 Tree* TreeTrainer::train(Data* data,
-                       BootstrapSampler* bootstrap_sampler,
-                       Observations* observations) {
+                         BootstrapSampler *bootstrap_sampler,
+                         const Observations& observations) {
 
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> sampleIDs;
@@ -33,7 +33,9 @@ Tree* TreeTrainer::train(Data* data,
     bool is_terminal_node = splitNode(i,
                                       splitting_rule,
                                       bootstrap_sampler,
-                                      data, observations, child_nodeIDs,
+                                      data,
+                                      observations,
+                                      child_nodeIDs,
                                       sampleIDs,
                                       split_varIDs,
                                       split_values,
@@ -87,7 +89,7 @@ bool TreeTrainer::splitNode(size_t nodeID,
                             SplittingRule *splitting_rule,
                             BootstrapSampler *bootstrap_sampler,
                             Data *data,
-                            Observations *observations,
+                            const Observations& observations,
                             std::vector<std::vector<size_t>> &child_nodeIDs,
                             std::vector<std::vector<size_t>> &sampleIDs,
                             std::vector<size_t> &split_varIDs,
@@ -139,7 +141,7 @@ bool TreeTrainer::splitNode(size_t nodeID,
 
 bool TreeTrainer::splitNodeInternal(size_t nodeID,
                                     SplittingRule *splitting_rule,
-                                    Observations *observations,
+                                    const Observations& observations,
                                     const std::vector<size_t> &possible_split_varIDs,
                                     std::vector<std::vector<size_t>> &sampleIDs,
                                     std::vector<size_t> &split_varIDs,
@@ -155,7 +157,7 @@ bool TreeTrainer::splitNodeInternal(size_t nodeID,
   double pure_value = 0;
   for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
     size_t sampleID = sampleIDs[nodeID][i];
-    double value = observations->get(Observations::OUTCOME)[sampleID];
+    double value = observations.get(Observations::OUTCOME)[sampleID];
     if (i != 0 && value != pure_value) {
       pure = false;
       break;

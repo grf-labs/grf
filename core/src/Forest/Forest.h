@@ -10,15 +10,15 @@
 
 class Forest {
 public:
+  static Forest* create(std::vector<Tree*>* trees,
+                        Data* data,
+                        std::unordered_map<std::string, size_t> observables);
   Forest(std::vector<Tree*>* trees,
-         Data* data,
-         std::unordered_map<std::string, size_t> observables);
-  Forest(std::vector<Tree*>* trees,
-         Observations* observations);
+         Observations observations);
 
   virtual ~Forest();
 
-  Observations* get_observations() const {
+  const Observations get_observations() const {
     return observations;
   };
 
@@ -36,7 +36,7 @@ public:
 
 protected:
   std::vector<Tree*>* trees;
-  Observations* observations;
+  Observations observations;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Forest);

@@ -5,7 +5,7 @@
 #include "InstrumentalPredictionStrategy.h"
 
 std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                            Observations* observations) {
+                                                            Observations observations) {
   // Compute the relevant averages.e
   double average_instrument = 0.0;
   double average_treatment = 0.0;
@@ -15,9 +15,9 @@ std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<s
     size_t neighborID = it->first;
     double weight = it->second;
 
-    average_outcome += weight * observations->get(Observations::OUTCOME)[neighborID];
-    average_treatment += weight * observations->get(Observations::TREATMENT)[neighborID];
-    average_instrument += weight * observations->get(Observations::INSTRUMENT)[neighborID];
+    average_outcome += weight * observations.get(Observations::OUTCOME)[neighborID];
+    average_treatment += weight * observations.get(Observations::TREATMENT)[neighborID];
+    average_instrument += weight * observations.get(Observations::INSTRUMENT)[neighborID];
   }
 
   // Finally, calculate the prediction.
@@ -27,9 +27,9 @@ std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<s
     size_t neighborID = it->first;
     double weight = it->second;
 
-    double response = observations->get(Observations::OUTCOME)[neighborID];
-    double treatment = observations->get(Observations::TREATMENT)[neighborID];
-    double instrument = observations->get(Observations::INSTRUMENT)[neighborID];
+    double response = observations.get(Observations::OUTCOME)[neighborID];
+    double treatment = observations.get(Observations::TREATMENT)[neighborID];
+    double instrument = observations.get(Observations::INSTRUMENT)[neighborID];
 
     numerator += weight * (instrument - average_instrument) * (response - average_outcome);
     denominator += weight * (instrument - average_instrument) * (treatment - average_treatment);

@@ -20,8 +20,8 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
   std::vector<double> flipped_treatment = {0, 1, 1, 1, 0, 1, 0, 1, 1, 1};
   std::vector<double> instrument = {0, 0, 1, 1, 1, 0, 1, 0, 1, 0};
 
-  Observations* observations = TestUtilities::create_observations(original_outcomes, treatment, instrument);
-  Observations* flipped_observations = TestUtilities::create_observations(original_outcomes,
+  Observations observations = TestUtilities::create_observations(original_outcomes, treatment, instrument);
+  Observations flipped_observations = TestUtilities::create_observations(original_outcomes,
       flipped_treatment, instrument);
 
   PredictionStrategy* prediction_strategy = new InstrumentalPredictionStrategy();
@@ -45,8 +45,8 @@ TEST_CASE("scaling instrument does not affect prediction", "[instrumental, predi
   std::vector<double> instrument = {0, 0, 1, 1, 1, 0, 1, 0, 1, 0};
   std::vector<double> scaled_instrument = {0, 0, 3, 3, 3, 0, 3, 0, 3, 0};
 
-  Observations* observations = TestUtilities::create_observations(original_outcomes, treatment, instrument);
-  Observations* scaled_observations = TestUtilities::create_observations(original_outcomes,
+  Observations observations = TestUtilities::create_observations(original_outcomes, treatment, instrument);
+  Observations scaled_observations = TestUtilities::create_observations(original_outcomes,
       treatment, scaled_instrument);
 
   PredictionStrategy* prediction_strategy = new InstrumentalPredictionStrategy();

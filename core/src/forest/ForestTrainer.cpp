@@ -137,7 +137,7 @@ Forest* ForestTrainer::train(Data* data) {
     throw std::runtime_error("mtry can not be larger than number of variables in data.");
   }
 
-  auto observations_by_type = new std::unordered_map<std::string, std::vector<double>>();
+  auto observations_by_type = new std::map<std::string, std::vector<double>>();
   for (auto it : observables) {
     std::string name = it.first;
     size_t index = it.second;
@@ -146,7 +146,7 @@ Forest* ForestTrainer::train(Data* data) {
       (*observations_by_type)[name].push_back(data->get(row, index));
     }
   }
-  Observations* observations = new Observations(*observations_by_type, data->getNumRows());
+  Observations observations(*observations_by_type, data->getNumRows());
 
   // Create thread ranges
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
@@ -182,13 +182,13 @@ Forest* ForestTrainer::train(Data* data) {
     thread.join();
   }
 
-  return new Forest(trees, data, observables);
+  return Forest::create(trees, data, observables);
 }
 
 void ForestTrainer::growTreesInThread(uint thread_idx,
-                                    Data* data,
-                                    Observations* observations,
-                                    std::promise<std::vector<Tree *>> promise) {
+                                      Data* data,
+                                      const Observations& observations,
+                                      std::promise<std::vector<Tree *>> promise) {
   std::uniform_int_distribution<uint> udist;
   std::vector<Tree*> trees;
   if (thread_ranges.size() > thread_idx + 1) {
@@ -209,8 +209,8 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
                                                                  sampling_options);
 
       trees.push_back(tree_trainer->train(data,
-                                        bootstrap_sampler,
-                                        observations));
+                                          bootstrap_sampler,
+                                          observations));
     }
   }
   promise.set_value(trees);

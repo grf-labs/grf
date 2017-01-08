@@ -23,7 +23,7 @@ Forest *ForestSerializer::deserialize(std::istream& stream) {
     trees->push_back(tree);
   }
 
-  Observations* observations = observation_serializer.deserialize(stream);
+  Observations observations = observation_serializer.deserialize(stream);
   return new Forest(trees, observations);
 }
 
