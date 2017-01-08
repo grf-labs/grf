@@ -35,7 +35,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
       {Observations::TREATMENT, treatment_index},
       {Observations::INSTRUMENT, instrument_index}};
 
-  RelabelingStrategy *relabeling_strategy = new InstrumentalRelabelingStrategy();
+  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
 
   ForestTrainer forest_trainer(observables, relabeling_strategy, splitting_rule_factory);

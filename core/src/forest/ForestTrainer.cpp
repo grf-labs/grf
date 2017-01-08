@@ -10,7 +10,7 @@
 #include "SplittingRuleFactory.h"
 
 ForestTrainer::ForestTrainer(std::unordered_map<std::string, size_t> observables,
-                             RelabelingStrategy *relabeling_strategy,
+                             std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                              std::shared_ptr<SplittingRuleFactory> splitting_rule_factory) :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
     prediction_mode(false), sample_with_replacement(

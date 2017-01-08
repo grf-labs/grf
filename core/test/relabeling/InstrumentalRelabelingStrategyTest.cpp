@@ -15,8 +15,8 @@ std::vector<double> get_relabeled_outcomes(Observations observations) {
     sampleIDs.push_back(i);
   }
 
-  RelabelingStrategy* relabelingStrategy = new InstrumentalRelabelingStrategy();
-  auto relabeled_observations = relabelingStrategy->relabel_outcomes(observations, sampleIDs);
+  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
+  auto relabeled_observations = relabeling_strategy->relabel_outcomes(observations, sampleIDs);
 
   std::vector<double> relabeled_outcomes;
   for (int i = 0; i < sampleIDs.size(); i++) {
@@ -86,8 +86,8 @@ TEST_CASE("constant treatment leads to no splitting", "[instrumental, relabeling
     sampleIDs.push_back(i);
   }
 
-  RelabelingStrategy* relabelingStrategy = new InstrumentalRelabelingStrategy();
-  auto relabeled_observations = relabelingStrategy->relabel_outcomes(observations, sampleIDs);
+  InstrumentalRelabelingStrategy relabelingStrategy;
+  auto relabeled_observations = relabelingStrategy.relabel_outcomes(observations, sampleIDs);
 
   REQUIRE(relabeled_observations.empty()); // An empty map signals that no splitting should be performed.
 }
@@ -104,8 +104,8 @@ TEST_CASE("constant instrument leads to no splitting", "[instrumental, relabelin
     sampleIDs.push_back(i);
   }
 
-  RelabelingStrategy* relabelingStrategy = new InstrumentalRelabelingStrategy();
-  auto relabeled_observations = relabelingStrategy->relabel_outcomes(observations, sampleIDs);
+  InstrumentalRelabelingStrategy relabelingStrategy;
+  auto relabeled_observations = relabelingStrategy.relabel_outcomes(observations, sampleIDs);
 
   REQUIRE(relabeled_observations.empty()); // An empty map signals that no splitting should be performed.
 }

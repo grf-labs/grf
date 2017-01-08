@@ -15,7 +15,7 @@
 class ForestTrainer {
 public:
   ForestTrainer(std::unordered_map<std::string, size_t> observables,
-                RelabelingStrategy *relabeling_strategy,
+                std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                 std::shared_ptr<SplittingRuleFactory> splitting_rule_factory);
 
   Forest *train(Data *data);
@@ -77,7 +77,7 @@ private:
   std::mt19937_64 random_number_generator;
 
   std::unordered_map<std::string, size_t> observables;
-  RelabelingStrategy* relabeling_strategy;
+  std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
 
   std::string split_select_weights_file;

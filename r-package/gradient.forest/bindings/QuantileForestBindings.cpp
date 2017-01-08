@@ -30,7 +30,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
   std::unordered_map<std::string, size_t> observables = {{"outcome", outcome_index}};
-  RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(quantiles);
+  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new QuantileRelabelingStrategy(quantiles));
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(
       new ProbabilitySplittingRuleFactory(data, quantiles.size() + 1));
 

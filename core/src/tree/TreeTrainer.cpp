@@ -2,7 +2,7 @@
 #include "Data.h"
 #include "TreeTrainer.h"
 
-TreeTrainer::TreeTrainer(RelabelingStrategy *relabeling_strategy,
+TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                          std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                          TreeOptions options) :
     relabeling_strategy(relabeling_strategy),
