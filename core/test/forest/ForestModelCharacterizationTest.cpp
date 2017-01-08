@@ -48,7 +48,8 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
   Data *data = loadDataFromFile("test/forest/resources/quantile_test_data.csv");
 
   RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(quantiles);
-  SplittingRuleFactory *splitting_rule_factory = new ProbabilitySplittingRuleFactory(data, quantiles->size());
+  SplittingRuleFactory *splitting_rule_factory = new ProbabilitySplittingRuleFactory(data,
+      quantiles->size() + 1);
   PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);
 
   ForestModel forest_model = createForestModel(observables,

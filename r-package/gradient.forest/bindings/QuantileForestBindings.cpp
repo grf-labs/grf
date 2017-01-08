@@ -29,7 +29,8 @@ Rcpp::List quantile_train(std::vector<double> &quantiles,
 
   std::unordered_map<std::string, size_t> observables = {{"outcome", outcome_index}};
   RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(&quantiles);
-  SplittingRuleFactory *splitting_rule_factory = new ProbabilitySplittingRuleFactory(data, quantiles.size());
+  SplittingRuleFactory *splitting_rule_factory = new ProbabilitySplittingRuleFactory(data,
+      quantiles.size() + 1);
 
   ForestTrainer forest_trainer(observables, relabeling_strategy, splitting_rule_factory);
   RcppUtilities::initialize_forest_trainer(forest_trainer, mtry, num_trees, num_threads,
