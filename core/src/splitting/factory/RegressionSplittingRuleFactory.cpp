@@ -4,6 +4,6 @@
 RegressionSplittingRuleFactory::RegressionSplittingRuleFactory(Data *data):
     data(data) {}
 
-SplittingRule *RegressionSplittingRuleFactory::create() {
-  return new RegressionSplittingRule(data);
+std::shared_ptr<SplittingRule> RegressionSplittingRuleFactory::create() {
+  return std::shared_ptr<SplittingRule>(new RegressionSplittingRule(data));
 }

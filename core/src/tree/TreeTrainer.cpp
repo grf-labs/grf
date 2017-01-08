@@ -22,7 +22,7 @@ Tree* TreeTrainer::train(Data* data,
   child_nodeIDs.push_back(std::vector<size_t>());
   createEmptyNode(child_nodeIDs, sampleIDs, split_varIDs, split_values);
 
-  SplittingRule *splitting_rule = splitting_rule_factory->create();
+  std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create();
 
   bootstrap_sampler->sample(sampleIDs);
 
@@ -51,7 +51,6 @@ Tree* TreeTrainer::train(Data* data,
 
 // Delete sampleID vector to save memory
   //sampleIDs.clear();
-  delete splitting_rule;
   return new Tree(child_nodeIDs,
                   sampleIDs,
                   split_varIDs,
@@ -86,7 +85,7 @@ void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t> &result,
 }
 
 bool TreeTrainer::splitNode(size_t nodeID,
-                            SplittingRule *splitting_rule,
+                            std::shared_ptr<SplittingRule> splitting_rule,
                             BootstrapSampler *bootstrap_sampler,
                             Data *data,
                             const Observations& observations,
@@ -140,7 +139,7 @@ bool TreeTrainer::splitNode(size_t nodeID,
 }
 
 bool TreeTrainer::splitNodeInternal(size_t nodeID,
-                                    SplittingRule *splitting_rule,
+                                    std::shared_ptr<SplittingRule> splitting_rule,
                                     const Observations& observations,
                                     const std::vector<size_t> &possible_split_varIDs,
                                     std::vector<std::vector<size_t>> &sampleIDs,

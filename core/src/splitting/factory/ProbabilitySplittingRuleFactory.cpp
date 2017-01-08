@@ -7,6 +7,6 @@
 ProbabilitySplittingRuleFactory::ProbabilitySplittingRuleFactory(Data *data, size_t num_classes):
     data(data), num_classes(num_classes) {}
 
-SplittingRule *ProbabilitySplittingRuleFactory::create() {
-  return new ProbabilitySplittingRule(data, num_classes);
+std::shared_ptr<SplittingRule> ProbabilitySplittingRuleFactory::create() {
+  return std::shared_ptr<SplittingRule>(new ProbabilitySplittingRule(data, num_classes));
 }

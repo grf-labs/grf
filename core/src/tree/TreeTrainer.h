@@ -31,7 +31,7 @@ private:
                                     const std::vector<double> &split_select_weights);
 
   bool splitNode(size_t nodeID,
-                 SplittingRule *splitting_rule,
+                 std::shared_ptr<SplittingRule> splitting_rule,
                  BootstrapSampler *bootstrap_sampler,
                  Data *data,
                  const Observations& observations,
@@ -42,7 +42,7 @@ private:
                  const std::vector<double> &split_select_weights);
 
   bool splitNodeInternal(size_t nodeID,
-                         SplittingRule *splitting_rule,
+                         std::shared_ptr<SplittingRule> splitting_rule,
                          const Observations& observations,
                          const std::vector <size_t> &possible_split_varIDs,
                          std::vector <std::vector<size_t>> &sampleIDs,

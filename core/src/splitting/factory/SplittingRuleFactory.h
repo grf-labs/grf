@@ -6,7 +6,7 @@
 
 class SplittingRuleFactory {
 public:
-  virtual SplittingRule *create() = 0;
+  virtual std::shared_ptr<SplittingRule> create() = 0;
 };
 
 #endif //GRADIENTFOREST_SPLITTINGRULEFACTORY_H

@@ -10,7 +10,7 @@
 class ProbabilitySplittingRuleFactory: public SplittingRuleFactory {
 public:
   ProbabilitySplittingRuleFactory(Data* data, size_t num_classes);
-  SplittingRule *create();
+  std::shared_ptr<SplittingRule> create();
 
 private:
   Data *data;

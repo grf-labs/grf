@@ -7,7 +7,7 @@
 class RegressionSplittingRuleFactory: public SplittingRuleFactory {
 public:
   RegressionSplittingRuleFactory(Data* data);
-  SplittingRule *create();
+  std::shared_ptr<SplittingRule> create();
 
 private:
   Data *data;
