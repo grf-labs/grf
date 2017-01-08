@@ -47,12 +47,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // quantile_train
-Rcpp::List quantile_train(std::vector<double>& quantiles, Rcpp::NumericMatrix input_data, uint outcome_index, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, uint mtry, uint num_trees, bool verbose, uint num_threads, uint min_node_size, bool sample_with_replacement, bool keep_inbag, double sample_fraction, std::vector<size_t> no_split_variables, uint seed);
+Rcpp::List quantile_train(std::vector<double> quantiles, Rcpp::NumericMatrix input_data, uint outcome_index, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, uint mtry, uint num_trees, bool verbose, uint num_threads, uint min_node_size, bool sample_with_replacement, bool keep_inbag, double sample_fraction, std::vector<size_t> no_split_variables, uint seed);
 RcppExport SEXP gradient_forest_quantile_train(SEXP quantilesSEXP, SEXP input_dataSEXP, SEXP outcome_indexSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP verboseSEXP, SEXP num_threadsSEXP, SEXP min_node_sizeSEXP, SEXP sample_with_replacementSEXP, SEXP keep_inbagSEXP, SEXP sample_fractionSEXP, SEXP no_split_variablesSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<double>& >::type quantiles(quantilesSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type quantiles(quantilesSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type input_data(input_dataSEXP);
     Rcpp::traits::input_parameter< uint >::type outcome_index(outcome_indexSEXP);
     Rcpp::traits::input_parameter< Rcpp::RawMatrix >::type sparse_data(sparse_dataSEXP);
@@ -72,13 +72,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // quantile_predict
-Rcpp::NumericMatrix quantile_predict(Rcpp::List forest, std::vector<double>& quantiles, Rcpp::NumericMatrix input_data, Rcpp::RawMatrix sparse_data, std::vector <std::string> variable_names, uint num_threads);
+Rcpp::NumericMatrix quantile_predict(Rcpp::List forest, std::vector<double> quantiles, Rcpp::NumericMatrix input_data, Rcpp::RawMatrix sparse_data, std::vector <std::string> variable_names, uint num_threads);
 RcppExport SEXP gradient_forest_quantile_predict(SEXP forestSEXP, SEXP quantilesSEXP, SEXP input_dataSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP num_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type forest(forestSEXP);
-    Rcpp::traits::input_parameter< std::vector<double>& >::type quantiles(quantilesSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type quantiles(quantilesSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type input_data(input_dataSEXP);
     Rcpp::traits::input_parameter< Rcpp::RawMatrix >::type sparse_data(sparse_dataSEXP);
     Rcpp::traits::input_parameter< std::vector <std::string> >::type variable_names(variable_namesSEXP);

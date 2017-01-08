@@ -39,7 +39,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
   Rcpp::List result;
   Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
   result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
-  result.push_back(forest->get_trees()->size(), "num.trees");
+  result.push_back(forest->get_trees().size(), "num.trees");
 
   delete forest;
   delete data;

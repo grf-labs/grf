@@ -10,7 +10,7 @@
 #include "QuantilePredictionStrategy.h"
 
 // [[Rcpp::export]]
-Rcpp::List quantile_train(std::vector<double> &quantiles,
+Rcpp::List quantile_train(std::vector<double> quantiles,
                           Rcpp::NumericMatrix input_data,
                           uint outcome_index,
                           Rcpp::RawMatrix sparse_data,
@@ -28,7 +28,7 @@ Rcpp::List quantile_train(std::vector<double> &quantiles,
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
   std::unordered_map<std::string, size_t> observables = {{"outcome", outcome_index}};
-  RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(&quantiles);
+  RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(quantiles);
   SplittingRuleFactory *splitting_rule_factory = new ProbabilitySplittingRuleFactory(data,
       quantiles.size() + 1);
 
@@ -41,7 +41,7 @@ Rcpp::List quantile_train(std::vector<double> &quantiles,
   Rcpp::List result;
   Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
   result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
-  result.push_back(forest->get_trees()->size(), "num.trees");
+  result.push_back(forest->get_trees().size(), "num.trees");
 
   delete forest;
   delete data;
@@ -51,14 +51,14 @@ Rcpp::List quantile_train(std::vector<double> &quantiles,
 
 // [[Rcpp::export]]
 Rcpp::NumericMatrix quantile_predict(Rcpp::List forest,
-                                     std::vector<double> &quantiles,
+                                     std::vector<double> quantiles,
                                      Rcpp::NumericMatrix input_data,
                                      Rcpp::RawMatrix sparse_data,
                                      std::vector <std::string> variable_names,
                                      uint num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
-  PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(&quantiles);
+  PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);
   ForestPredictor forest_predictor(prediction_strategy);
   forest_predictor.init("", num_threads, &std::cout);
 
