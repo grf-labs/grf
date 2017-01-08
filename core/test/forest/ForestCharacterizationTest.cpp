@@ -2,16 +2,10 @@
 #include "utility.h"
 #include "ForestPredictor.h"
 #include "ForestTrainer.h"
-#include "QuantileRelabelingStrategy.h"
-#include "QuantilePredictionStrategy.h"
-#include "RegressionSplittingRuleFactory.h"
-#include "ProbabilitySplittingRuleFactory.h"
-#include "InstrumentalRelabelingStrategy.h"
-#include "NoopRelabelingStrategy.h"
-#include "InstrumentalPredictionStrategy.h"
-#include "RegressionPredictionStrategy.h"
 #include "FileTestUtilities.h"
+
 #include "ForestTrainers.h"
+#include "ForestPredictors.h"
 
 #include "catch.hpp"
 
@@ -36,23 +30,16 @@ void init_trainer(ForestTrainer& trainer) {
                 sample_with_replacement, memory_saving_splitting, case_weights_file, sample_fraction);
 }
 
-ForestPredictor create_forest_predictor(std::shared_ptr<PredictionStrategy> prediction_strategy) {
-  uint num_threads = 4;
-  return ForestPredictor(num_threads, prediction_strategy);
-}
-
 TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {
   std::vector<double> quantiles({0.25, 0.5, 0.75});
   Data *data = loadDataFromFile("test/forest/resources/quantile_test_data.csv");
 
   ForestTrainer trainer = ForestTrainers::quantile_trainer(data, 10, quantiles);
   init_trainer(trainer);
-
   Forest forest = trainer.train(data);
 
-  std::shared_ptr<PredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
-  ForestPredictor forest_predictor = create_forest_predictor(prediction_strategy);
-  std::vector<std::vector<double>> predictions = forest_predictor.predict(forest, data);
+  ForestPredictor predictor = ForestPredictors::quantile_predictor(4, quantiles);
+  std::vector<std::vector<double>> predictions = predictor.predict(forest, data);
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
       "test/forest/resources/quantile_test_predictions.csv");
@@ -67,9 +54,8 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
 
   Forest forest = trainer.train(data);
 
-  std::shared_ptr<PredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
-  ForestPredictor forest_predictor = create_forest_predictor(prediction_strategy);
-  std::vector<std::vector<double>> predictions = forest_predictor.predict(forest, data);
+  ForestPredictor predictor = ForestPredictors::instrumental_predictor(4);
+  std::vector<std::vector<double>> predictions = predictor.predict(forest, data);
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
       "test/forest/resources/causal_test_predictions.csv");
@@ -95,9 +81,8 @@ TEST_CASE("regression forest predictions have not changed", "[regression, charac
 
   Forest forest = trainer.train(data);
 
-  std::shared_ptr<PredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
-  ForestPredictor forest_predictor = create_forest_predictor(prediction_strategy);
-  std::vector<std::vector<double>> predictions = forest_predictor.predict(forest, data);
+  ForestPredictor predictor = ForestPredictors::regression_predictor(4);
+  std::vector<std::vector<double>> predictions = predictor.predict(forest, data);
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
   "test/forest/resources/regression_test_predictions.csv");

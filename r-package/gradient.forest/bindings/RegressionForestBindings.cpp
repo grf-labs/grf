@@ -5,12 +5,8 @@
 
 #include "globals.h"
 #include "RcppUtilities.h"
-#include "NoopRelabelingStrategy.h"
-#include "RegressionPredictionStrategy.h"
-#include "RegressionSplittingRuleFactory.h"
-#include "ForestPredictor.h"
-#include "ForestTrainer.h"
 #include "ForestTrainers.h"
+#include "ForestPredictors.h"
 
 // [[Rcpp::export]]
 Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
@@ -52,14 +48,12 @@ Rcpp::NumericMatrix regression_predict(Rcpp::List forest,
                                        std::vector<std::string> variable_names,
                                        uint num_threads) {
   Data *data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
-
-  std::shared_ptr<PredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
-  ForestPredictor forest_predictor(num_threads, prediction_strategy);
-
   Forest deserialized_forest = RcppUtilities::deserialize_forest(
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  std::vector<std::vector<double>> predictions = forest_predictor.predict(deserialized_forest, data);
+  ForestPredictor predictor = ForestPredictors::regression_predictor(4);
+  std::vector<std::vector<double>> predictions = predictor.predict(deserialized_forest, data);
+  
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions, 1);
 
   delete data;
