@@ -1,7 +1,7 @@
 #include "RegressionPredictionStrategy.h"
 
-std::vector<double> RegressionPredictionStrategy::predict(std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                          Observations observations) {
+std::vector<double> RegressionPredictionStrategy::predict(const std::unordered_map<size_t, double>& weights_by_sampleID,
+                                                          const Observations& observations) {
   double average = 0.0;
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     size_t sampleID = it->first;

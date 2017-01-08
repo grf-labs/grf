@@ -10,12 +10,12 @@
 class QuantilePredictionStrategy: public PredictionStrategy {
 public:
   QuantilePredictionStrategy(std::vector<double> quantiles);
-  std::vector<double> predict(std::unordered_map<size_t, double>& weights_by_sampleID,
-                              Observations observations);
+  std::vector<double> predict(const std::unordered_map<size_t, double>& weights_by_sampleID,
+                              const Observations& observations);
 
 private:
-  std::vector<double> calculateQuantileCutoffs(std::unordered_map<size_t,double> &weights_by_sampleID,
-                                               std::vector<std::pair<size_t, double>> sampleIDs_and_values);
+  std::vector<double> calculateQuantileCutoffs(const std::unordered_map<size_t,double>& weights_by_sampleID,
+                                               std::vector<std::pair<size_t, double>>& sampleIDs_and_values);
 
   std::vector<double> quantiles;
 };

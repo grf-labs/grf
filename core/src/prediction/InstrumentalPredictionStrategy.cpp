@@ -4,8 +4,8 @@
 #include "utility.h"
 #include "InstrumentalPredictionStrategy.h"
 
-std::vector<double> InstrumentalPredictionStrategy::predict(std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                            Observations observations) {
+std::vector<double> InstrumentalPredictionStrategy::predict(const std::unordered_map<size_t, double>& weights_by_sampleID,
+                                                            const Observations& observations) {
   // Compute the relevant averages.e
   double average_instrument = 0.0;
   double average_treatment = 0.0;

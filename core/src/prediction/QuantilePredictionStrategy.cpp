@@ -7,8 +7,8 @@ QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double> quant
     quantiles(quantiles) {
 };
 
-std::vector<double> QuantilePredictionStrategy::predict(std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                        Observations observations) {
+std::vector<double> QuantilePredictionStrategy::predict(const std::unordered_map<size_t, double>& weights_by_sampleID,
+                                                        const Observations& observations) {
   std::vector<std::pair<size_t, double>> sampleIDs_and_values;
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     size_t sampleID = it->first;
@@ -20,8 +20,8 @@ std::vector<double> QuantilePredictionStrategy::predict(std::unordered_map<size_
 }
 
 std::vector<double> QuantilePredictionStrategy::calculateQuantileCutoffs(
-    std::unordered_map<size_t,double> &weights_by_sampleID,
-    std::vector<std::pair<size_t, double>> sampleIDs_and_values) {
+    const std::unordered_map<size_t,double>& weights_by_sampleID,
+    std::vector<std::pair<size_t, double>>& sampleIDs_and_values) {
   std::sort(sampleIDs_and_values.begin(),
             sampleIDs_and_values.end(),
             [](std::pair<size_t, double> first_pair, std::pair<size_t, double> second_pair) {
@@ -36,7 +36,7 @@ std::vector<double> QuantilePredictionStrategy::calculateQuantileCutoffs(
     size_t sampleID = it->first;
     double value = it->second;
 
-    cumulative_weight += weights_by_sampleID[sampleID];
+    cumulative_weight += weights_by_sampleID.at(sampleID);
     while (cumulative_weight >= *quantile_it && quantile_it != quantiles.end()) {
       quantile_cutoffs.push_back(value);
       ++quantile_it;
