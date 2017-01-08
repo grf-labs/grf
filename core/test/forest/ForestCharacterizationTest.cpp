@@ -11,12 +11,11 @@
 #include "InstrumentalPredictionStrategy.h"
 #include "RegressionPredictionStrategy.h"
 #include "FileTestUtilities.h"
+#include "ForestTrainers.h"
 
 #include "catch.hpp"
 
-ForestTrainer create_forest_trainer(std::unordered_map<std::string, size_t> observables,
-                                    std::shared_ptr<RelabelingStrategy> relabeling_strategy,
-                                    std::shared_ptr<SplittingRuleFactory> splitting_rule_factory) {
+void init_trainer(ForestTrainer& trainer) {
   uint mtry = 3;
   uint num_trees = 4;
   std::ostream* verbose_out = &std::cout;
@@ -32,11 +31,9 @@ ForestTrainer create_forest_trainer(std::unordered_map<std::string, size_t> obse
   std::string case_weights_file = "";
   double sample_fraction = 1;
 
-  ForestTrainer trainer(observables, relabeling_strategy, splitting_rule_factory);
   trainer.init(mtry, num_trees, verbose_out, seed, num_threads, load_forest_filename,
                 min_node_size, no_split_variables, split_select_weights_file, always_split_variable_names,
                 sample_with_replacement, memory_saving_splitting, case_weights_file, sample_fraction);
-  return trainer;
 }
 
 ForestPredictor create_forest_predictor(std::shared_ptr<PredictionStrategy> prediction_strategy) {
@@ -46,18 +43,14 @@ ForestPredictor create_forest_predictor(std::shared_ptr<PredictionStrategy> pred
 
 TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {
   std::vector<double> quantiles({0.25, 0.5, 0.75});
-  std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, 10}};
   Data *data = loadDataFromFile("test/forest/resources/quantile_test_data.csv");
 
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new QuantileRelabelingStrategy(quantiles));
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(
-      new ProbabilitySplittingRuleFactory(data, quantiles.size() + 1));
+  ForestTrainer trainer = ForestTrainers::quantile_trainer(data, 10, quantiles);
+  init_trainer(trainer);
+
+  Forest forest = trainer.train(data);
+
   std::shared_ptr<PredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
-
-  ForestTrainer forest_trainer = create_forest_trainer(observables, relabeling_strategy,
-      splitting_rule_factory);
-  Forest forest = forest_trainer.train(data);
-
   ForestPredictor forest_predictor = create_forest_predictor(prediction_strategy);
   std::vector<std::vector<double>> predictions = forest_predictor.predict(forest, data);
 
@@ -67,20 +60,14 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
 }
 
 TEST_CASE("causal forest predictions have not changed", "[causal, characterization]") {
-  std::unordered_map<std::string, size_t> observables = {
-      {Observations::OUTCOME, 10},
-      {Observations::TREATMENT, 11},
-      {Observations::INSTRUMENT, 11}};
   Data* data = loadDataFromFile("test/forest/resources/causal_test_data.csv");
 
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
+  ForestTrainer trainer = ForestTrainers::instrumental_trainer(data, 10, 11, 11);
+  init_trainer(trainer);
+
+  Forest forest = trainer.train(data);
+
   std::shared_ptr<PredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
-
-  ForestTrainer forest_trainer = create_forest_trainer(observables, relabeling_strategy,
-      splitting_rule_factory);
-  Forest forest = forest_trainer.train(data);
-
   ForestPredictor forest_predictor = create_forest_predictor(prediction_strategy);
   std::vector<std::vector<double>> predictions = forest_predictor.predict(forest, data);
 
@@ -101,17 +88,14 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
 }
 
 TEST_CASE("regression forest predictions have not changed", "[regression, characterization]") {
-  std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, 10}};
   Data* data = loadDataFromFile("test/forest/resources/regression_test_data.csv");
 
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
+  ForestTrainer trainer = ForestTrainers::regression_trainer(data, 10);
+  init_trainer(trainer);
+
+  Forest forest = trainer.train(data);
+
   std::shared_ptr<PredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
-
-  ForestTrainer forest_trainer = create_forest_trainer(observables, relabeling_strategy,
-                                                       splitting_rule_factory);
-  Forest forest = forest_trainer.train(data);
-
   ForestPredictor forest_predictor = create_forest_predictor(prediction_strategy);
   std::vector<std::vector<double>> predictions = forest_predictor.predict(forest, data);
 

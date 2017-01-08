@@ -8,15 +8,15 @@ class RcppUtilities {
 public:
   static const std::string SERIALIZED_FOREST_KEY;
 
-  static void initialize_forest_trainer(ForestTrainer &forest_trainer,
-                                        uint mtry,
-                                        uint num_trees,
-                                        uint num_threads,
-                                        uint min_node_size,
-                                        bool sample_with_replacement,
-                                        double sample_fraction,
-                                        std::vector<size_t> no_split_variables,
-                                        uint seed);
+  static void initialize_trainer(ForestTrainer &forest_trainer,
+                                 uint mtry,
+                                 uint num_trees,
+                                 uint num_threads,
+                                 uint min_node_size,
+                                 bool sample_with_replacement,
+                                 double sample_fraction,
+                                 std::vector<size_t> no_split_variables,
+                                 uint seed);
 
   static Rcpp::RawVector serialize_forest(Forest forest);
 

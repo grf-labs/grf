@@ -10,10 +10,11 @@
 #include "RegressionSplittingRuleFactory.h"
 #include "ForestPredictor.h"
 #include "ForestTrainer.h"
+#include "ForestTrainers.h"
 
 // [[Rcpp::export]]
 Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
-                            uint outcome_index,
+                            size_t outcome_index,
                             Rcpp::RawMatrix sparse_data,
                             std::vector <std::string> variable_names,
                             uint mtry,
@@ -28,15 +29,11 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             uint seed) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
-  std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, outcome_index}};
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
-
-  ForestTrainer forest_trainer(observables, relabeling_strategy, splitting_rule_factory);
-  RcppUtilities::initialize_forest_trainer(forest_trainer, mtry, num_trees, num_threads,
+  ForestTrainer trainer = ForestTrainers::regression_trainer(data, outcome_index);
+  RcppUtilities::initialize_trainer(trainer, mtry, num_trees, num_threads,
       min_node_size, sample_with_replacement, sample_fraction, no_split_variables, seed);
 
-  Forest forest = forest_trainer.train(data);
+  Forest forest = trainer.train(data);
 
   Rcpp::List result;
   Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
