@@ -6,6 +6,7 @@
 
 class SplittingRule {
 public:
+  virtual ~SplittingRule() {}
   virtual bool findBestSplit(size_t nodeID,
                              const std::vector<size_t> &possible_split_varIDs,
                              const std::unordered_map<size_t, double> &responses_by_sampleID,

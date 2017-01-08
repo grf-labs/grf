@@ -49,7 +49,7 @@ Tree* TreeTrainer::train(Data* data,
 
 // Delete sampleID vector to save memory
   //sampleIDs.clear();
-
+  delete splitting_rule;
   return new Tree(child_nodeIDs,
                   sampleIDs,
                   split_varIDs,

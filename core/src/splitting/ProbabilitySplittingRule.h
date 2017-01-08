@@ -9,6 +9,7 @@
 class ProbabilitySplittingRule: public SplittingRule {
 public:
   ProbabilitySplittingRule(Data* data, size_t num_classes);
+  ~ProbabilitySplittingRule();
 
   bool findBestSplit(size_t nodeID,
                      const std::vector<size_t> &possible_split_varIDs,

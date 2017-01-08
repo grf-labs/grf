@@ -10,6 +10,15 @@ ProbabilitySplittingRule::ProbabilitySplittingRule(Data* data, size_t num_classe
   this->counter_per_class = new size_t[num_classes * max_num_unique_values];
 }
 
+ProbabilitySplittingRule::~ProbabilitySplittingRule() {
+  if (counter != 0) {
+    delete[] counter;
+  }
+  if (counter_per_class != 0) {
+    delete[] counter_per_class;
+  }
+}
+
 bool ProbabilitySplittingRule::findBestSplit(size_t nodeID,
                                              const std::vector<size_t> &possible_split_varIDs,
                                              const std::unordered_map<size_t, double> &responses_by_sampleID,
