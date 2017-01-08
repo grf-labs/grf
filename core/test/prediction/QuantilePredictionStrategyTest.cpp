@@ -16,7 +16,7 @@ TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
                                            -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
-  std::vector<double>* quantiles = new std::vector<double>({0.25, 0.5, 0.75});
+  std::vector<double> quantiles({0.25, 0.5, 0.75});
   PredictionStrategy* prediction_strategy = new QuantilePredictionStrategy(quantiles);
   std::vector<double> predictions = prediction_strategy->predict(weights_by_sampleID, observations);
 
@@ -33,7 +33,7 @@ TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
                                            -1.62082, -0.05911, 0.57729, 0.58593, 1.69386};
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
-  std::vector<double> *quantiles = new std::vector<double>({0.5, 0.75, 0.80, 0.90});
+  std::vector<double> quantiles({0.5, 0.75, 0.80, 0.90});
   PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);
   std::vector<double> predictions = prediction_strategy->predict(weights_by_sampleID, observations);
 
@@ -53,15 +53,15 @@ TEST_CASE("prediction with repeated quantiles", "[quantile, prediction]") {
                                            -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
-  std::vector<double> predictions_1 = QuantilePredictionStrategy(new std::vector<double>({0.25, 0.5, 0.75}))
+  std::vector<double> first_predictions = QuantilePredictionStrategy({0.5})
+          .predict(weights_by_sampleID, observations);
+  std::vector<double> second_predictions = QuantilePredictionStrategy({0.25, 0.5, 0.75})
       .predict(weights_by_sampleID, observations);
-  std::vector<double> predictions_2 = QuantilePredictionStrategy(new std::vector<double>({0.5}))
-      .predict(weights_by_sampleID, observations);
-  std::vector<double> predictions_3 = QuantilePredictionStrategy(new std::vector<double>({0.5, 0.5, 0.5}))
+  std::vector<double> third_predictions = QuantilePredictionStrategy({0.5, 0.5, 0.5})
       .predict(weights_by_sampleID, observations);
 
-  REQUIRE(predictions_1[1] == predictions_2[0]);
-  REQUIRE(predictions_1[1] == predictions_3[0]);
-  REQUIRE(predictions_1[1] == predictions_3[1]);
-  REQUIRE(predictions_1[1] == predictions_3[2]);
+  REQUIRE(first_predictions[0] == second_predictions[1]);
+  for (auto prediction : third_predictions) {
+    REQUIRE(prediction == first_predictions[0]);
+  }
 }

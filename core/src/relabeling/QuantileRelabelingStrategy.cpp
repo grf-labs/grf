@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include "QuantileRelabelingStrategy.h"
 
-QuantileRelabelingStrategy::QuantileRelabelingStrategy(std::vector<double>* quantiles) :
+QuantileRelabelingStrategy::QuantileRelabelingStrategy(std::vector<double> quantiles) :
     quantiles(quantiles) {}
 
 std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel_outcomes(
@@ -22,7 +22,7 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel_outcomes(
   std::vector<double> quantile_cutoffs;
 
   // Calculate the response value cutoffs for each quantile.
-  for (auto& quantile : *quantiles) {
+  for (auto& quantile : quantiles) {
     size_t response_index = (size_t) ceil(num_samples * quantile) - 1;
     quantile_cutoffs.push_back(sorted_responses[response_index]);
   }

@@ -3,7 +3,7 @@
 #include "Data.h"
 #include "QuantilePredictionStrategy.h"
 
-QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double>* quantiles):
+QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double> quantiles):
     quantiles(quantiles) {
 };
 
@@ -29,7 +29,7 @@ std::vector<double> QuantilePredictionStrategy::calculateQuantileCutoffs(
             });
 
   std::vector<double> quantile_cutoffs;
-  auto quantile_it = quantiles->begin();
+  auto quantile_it = quantiles.begin();
   double cumulative_weight = 0.0;
 
   for (auto it = sampleIDs_and_values.begin(); it != sampleIDs_and_values.end(); ++it) {
@@ -37,14 +37,14 @@ std::vector<double> QuantilePredictionStrategy::calculateQuantileCutoffs(
     double value = it->second;
 
     cumulative_weight += weights_by_sampleID[sampleID];
-    while (cumulative_weight >= *quantile_it && quantile_it != quantiles->end()) {
+    while (cumulative_weight >= *quantile_it && quantile_it != quantiles.end()) {
       quantile_cutoffs.push_back(value);
       ++quantile_it;
     }
   }
 
   double last_value = sampleIDs_and_values.back().second;
-  for (; quantile_it != quantiles->end(); ++quantile_it) {
+  for (; quantile_it != quantiles.end(); ++quantile_it) {
     quantile_cutoffs.push_back(last_value);
   }
   return quantile_cutoffs;

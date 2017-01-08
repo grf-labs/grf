@@ -43,13 +43,13 @@ ForestModel createForestModel(std::unordered_map<std::string, size_t> observable
 }
 
 TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {
-  std::vector<double>* quantiles = new std::vector<double>({0.25, 0.5, 0.75});
+  std::vector<double> quantiles({0.25, 0.5, 0.75});
   std::unordered_map<std::string, size_t> observables = {{Observations::OUTCOME, 10}};
   Data *data = loadDataFromFile("test/forest/resources/quantile_test_data.csv");
 
   RelabelingStrategy *relabeling_strategy = new QuantileRelabelingStrategy(quantiles);
   SplittingRuleFactory *splitting_rule_factory = new ProbabilitySplittingRuleFactory(data,
-      quantiles->size() + 1);
+      quantiles.size() + 1);
   PredictionStrategy *prediction_strategy = new QuantilePredictionStrategy(quantiles);
 
   ForestModel forest_model = createForestModel(observables,
