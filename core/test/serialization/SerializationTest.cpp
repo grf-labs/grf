@@ -54,9 +54,9 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
 }
 
 TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]") {
-  auto trees = new std::vector<Tree*>();
-  trees->push_back(new Tree({{0}}, {{0}}, {0}, {0}, {0}, {0}));
-  trees->push_back(new Tree({{1}}, {{1}}, {1}, {1}, {1}, {1}));
+  std::vector<Tree*> trees;
+  trees.push_back(new Tree({{0}}, {{0}}, {0}, {0}, {0}, {0}));
+  trees.push_back(new Tree({{1}}, {{1}}, {1}, {1}, {1}, {1}));
 
   std::vector<double> outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                   -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
@@ -69,6 +69,6 @@ TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]"
   forest_serializer.serialize(stream, original_forest);
   Forest* forest = forest_serializer.deserialize(stream);
 
-  REQUIRE(forest->get_trees()->size() == original_forest->get_trees()->size());
+  REQUIRE(forest->get_trees().size() == original_forest->get_trees().size());
   REQUIRE(forest->get_observations().get_num_samples() == original_forest->get_observations().get_num_samples());
 }

@@ -157,8 +157,8 @@ Forest* ForestTrainer::train(Data* data) {
   std::vector<std::future<std::vector<Tree*>>> futures;
   futures.reserve(num_threads);
 
-  std::vector<Tree*>* trees = new std::vector<Tree*>();
-  trees->reserve(num_trees);
+  std::vector<Tree*> trees;
+  trees.reserve(num_trees);
 
   for (uint i = 0; i < num_threads; ++i) {
     std::promise<std::vector<Tree*>> promise;
@@ -175,7 +175,7 @@ Forest* ForestTrainer::train(Data* data) {
   for (auto &future : futures) {
     future.wait();
     std::vector<Tree*> thread_trees = future.get();
-    trees->insert(trees->end(), thread_trees.begin(), thread_trees.end());
+    trees.insert(trees.end(), thread_trees.begin(), thread_trees.end());
   }
 
   for (auto& thread : threads) {

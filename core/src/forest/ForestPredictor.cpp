@@ -36,7 +36,7 @@ void ForestPredictor::init(std::string load_forest_filename,
 std::vector<std::vector<double>> ForestPredictor::predict(Forest* forest, Data* prediction_data) {
   std::unordered_map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree;
 
-  size_t num_trees = forest->get_trees()->size();
+  size_t num_trees = forest->get_trees().size();
   equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
 
   std::vector<std::thread> threads;
@@ -115,7 +115,7 @@ void ForestPredictor::predictTreesInThread(uint thread_idx,
 
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
-      Tree *tree = (*forest->get_trees())[i];
+      Tree *tree = forest->get_trees()[i];
       std::vector<size_t> terminal_nodeIDs = tree->predict(prediction_data, oob_prediction);
       terminal_nodeIDs_by_tree[i] = terminal_nodeIDs;
     }
@@ -131,8 +131,8 @@ std::vector<std::vector<double>> ForestPredictor::predictInternal(Forest* forest
 
   for (size_t sampleID = 0; sampleID < prediction_data->getNumRows(); ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
-    for (size_t tree_idx = 0; tree_idx < forest->get_trees()->size(); ++tree_idx) {
-      Tree* tree = (*forest->get_trees())[tree_idx];
+    for (size_t tree_idx = 0; tree_idx < forest->get_trees().size(); ++tree_idx) {
+      Tree* tree = forest->get_trees()[tree_idx];
       std::vector<size_t> terminal_node_IDs = terminal_node_IDs_by_tree[tree_idx];
       addSampleWeights(sampleID, tree, weights_by_sampleID, terminal_node_IDs);
     }
@@ -176,10 +176,10 @@ void ForestPredictor::computePredictionErrorInternal(Forest* forest,
   std::vector<std::vector<double>> predictions;
   predictions.reserve(prediction_data->getNumRows());
 
-  size_t num_trees = forest->get_trees()->size();
+  size_t num_trees = forest->get_trees().size();
   std::unordered_multimap<size_t, size_t> trees_by_oob_samples;
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-    for (size_t sampleID : (*forest->get_trees())[tree_idx]->getOobSampleIDs()) {
+    for (size_t sampleID : forest->get_trees()[tree_idx]->getOobSampleIDs()) {
       trees_by_oob_samples.insert(std::pair<size_t, size_t>(sampleID, tree_idx));
     }
   }
@@ -196,7 +196,7 @@ void ForestPredictor::computePredictionErrorInternal(Forest* forest,
 
     // Calculate the weights of neighboring samples.
     for (auto it = tree_range.first; it != tree_range.second; ++it) {
-      Tree *tree = (*forest->get_trees())[it->second];
+      Tree *tree = forest->get_trees()[it->second];
 
       // hackhackhack
       std::vector<size_t> oob_sampleIDs = tree->getOobSampleIDs();

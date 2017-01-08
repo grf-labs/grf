@@ -1,9 +1,9 @@
 #include "Data.h"
 #include "Forest.h"
 
-Forest* Forest::create(std::vector<Tree *>* trees,
+Forest* Forest::create(std::vector<Tree *> trees,
                        Data* data,
-                        std::unordered_map<std::string, size_t> observables) {
+                       std::unordered_map<std::string, size_t> observables) {
   std::map<std::string, std::vector<double>> observations_by_type;
   size_t num_samples = data->getNumRows();
   for (auto it : observables) {
@@ -18,11 +18,11 @@ Forest* Forest::create(std::vector<Tree *>* trees,
   return new Forest(trees, observations);
 }
 
-Forest::Forest(std::vector<Tree*>* trees, Observations observations):
+Forest::Forest(std::vector<Tree*> trees, Observations observations):
   trees(trees), observations(observations) {}
 
 Forest::~Forest() {
-  for (auto& tree : *trees) {
+  for (auto& tree : trees) {
     delete tree;
   }
 }
