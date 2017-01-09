@@ -22,7 +22,8 @@ public:
 
   ~Tree();
 
-  std::vector<size_t> predict(const Data* prediction_data, bool oob_prediction);
+  std::vector<size_t> get_terminal_nodeIDs(const Data* prediction_data,
+                                           bool oob_prediction);
 
   std::vector<std::vector<size_t> >& getChildNodeIDs() {
     return child_nodeIDs;

@@ -9,6 +9,10 @@ instrumental_predict <- function(forest, input_data, sparse_data, variable_names
     .Call('gradient_forest_instrumental_predict', PACKAGE = 'gradient.forest', forest, input_data, sparse_data, variable_names, num_threads)
 }
 
+instrumental_predict_oob <- function(forest, input_data, sparse_data, variable_names, num_threads) {
+    .Call('gradient_forest_instrumental_predict_oob', PACKAGE = 'gradient.forest', forest, input_data, sparse_data, variable_names, num_threads)
+}
+
 quantile_train <- function(quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed) {
     .Call('gradient_forest_quantile_train', PACKAGE = 'gradient.forest', quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed)
 }
@@ -17,11 +21,19 @@ quantile_predict <- function(forest, quantiles, input_data, sparse_data, variabl
     .Call('gradient_forest_quantile_predict', PACKAGE = 'gradient.forest', forest, quantiles, input_data, sparse_data, variable_names, num_threads)
 }
 
+quantile_predict_oob <- function(forest, quantiles, input_data, sparse_data, variable_names, num_threads) {
+    .Call('gradient_forest_quantile_predict_oob', PACKAGE = 'gradient.forest', forest, quantiles, input_data, sparse_data, variable_names, num_threads)
+}
+
 regression_train <- function(input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed) {
     .Call('gradient_forest_regression_train', PACKAGE = 'gradient.forest', input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed)
 }
 
 regression_predict <- function(forest, input_data, sparse_data, variable_names, num_threads) {
     .Call('gradient_forest_regression_predict', PACKAGE = 'gradient.forest', forest, input_data, sparse_data, variable_names, num_threads)
+}
+
+regression_predict_oob <- function(forest, input_data, sparse_data, variable_names, num_threads) {
+    .Call('gradient_forest_regression_predict_oob', PACKAGE = 'gradient.forest', forest, input_data, sparse_data, variable_names, num_threads)
 }
 

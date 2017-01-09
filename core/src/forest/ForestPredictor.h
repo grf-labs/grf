@@ -19,31 +19,25 @@ public:
                   std::shared_ptr<PredictionStrategy> prediction_strategy);
 
   std::vector<std::vector<double>> predict(const Forest& forest, Data* prediction_data);
-
-  void writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
-  void writePredictionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
+  std::vector<std::vector<double>> predict_oob(const Forest& forest, Data* original_data);
 
 private:
-  void computePredictionError(const Forest& forest, Data* prediction_data);
-  void computePredictionErrorInternal(const Forest& forest,
-                                      Data* prediction_data,
-                                      const std::unordered_map<size_t, std::vector<size_t>>& terminal_node_IDs_by_tree);
+  std::map<size_t, std::vector<size_t>> determine_terminal_node_IDs(
+      const Forest& forest,
+      Data* data,
+      bool oob_prediction);
 
   void predictTreesInThread(uint thread_idx,
                             const Forest& forest,
                             const Data *prediction_data,
                             bool oob_prediction,
-                            std::promise<std::unordered_map<size_t, std::vector<size_t>>> promise);
+                            std::promise<std::map<size_t, std::vector<size_t>>> promise);
 
-  void addSampleWeights(size_t test_sample_idx,
-                        std::shared_ptr<Tree> tree,
-                        std::unordered_map<size_t, double> &weights_by_sampleID,
-                        std::vector<size_t> terminal_node_IDs);
-  void normalizeSampleWeights(std::unordered_map<size_t, double> &weights_by_sampleID);
-
-  std::vector<std::vector<double>> predictInternal(const Forest& forest,
-                                                   Data* prediction_data,
-                                                   const std::unordered_map<size_t, std::vector<size_t>>& terminal_node_IDs_by_tree);
+  void add_sample_weights(size_t test_sample_idx,
+                          std::shared_ptr<Tree> tree,
+                          std::unordered_map<size_t, double> &weights_by_sampleID,
+                          std::vector<size_t> terminal_nodeIDs);
+  void normalize_sample_weights(std::unordered_map<size_t, double> &weights_by_sampleID);
 
   uint num_threads;
   std::vector<uint> thread_ranges;

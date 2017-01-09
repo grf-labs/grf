@@ -4,6 +4,10 @@
 #include "utility.h"
 #include "InstrumentalPredictionStrategy.h"
 
+size_t InstrumentalPredictionStrategy::prediction_length() {
+    return 1;
+}
+
 std::vector<double> InstrumentalPredictionStrategy::predict(const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                             const Observations& observations) {
   // Compute the relevant averages.e

@@ -7,6 +7,10 @@ QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double> quant
     quantiles(quantiles) {
 };
 
+size_t QuantilePredictionStrategy::prediction_length() {
+    return quantiles.size();
+}
+
 std::vector<double> QuantilePredictionStrategy::predict(const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                         const Observations& observations) {
   std::vector<std::pair<size_t, double>> sampleIDs_and_values;

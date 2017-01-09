@@ -64,9 +64,14 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
   return data;
 }
 
-Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(std::vector<std::vector<double>> predictions,
-                                                            size_t prediction_length) {
+Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(std::vector<std::vector<double>> predictions) {
+  if (predictions.empty()) {
+    return Rcpp::NumericMatrix(0);
+  }
+
+  size_t prediction_length = predictions.at(0).size();
   Rcpp::NumericMatrix result(predictions.size(), prediction_length);
+
   for (int i = 0; i < predictions.size(); i++) {
     std::vector<double> prediction = predictions[i];
     if (prediction.size() != prediction_length) {

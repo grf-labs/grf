@@ -53,10 +53,26 @@ Rcpp::NumericMatrix regression_predict(Rcpp::List forest,
 
   ForestPredictor predictor = ForestPredictors::regression_predictor(4);
   std::vector<std::vector<double>> predictions = predictor.predict(deserialized_forest, data);
-
-  Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions, 1);
+  Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   delete data;
+  return result;
+}
 
+// [[Rcpp::export]]
+Rcpp::NumericMatrix regression_predict_oob(Rcpp::List forest,
+                                           Rcpp::NumericMatrix input_data,
+                                           Rcpp::RawMatrix sparse_data,
+                                           std::vector<std::string> variable_names,
+                                           uint num_threads) {
+  Data *data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
+  Forest deserialized_forest = RcppUtilities::deserialize_forest(
+      forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
+
+  ForestPredictor predictor = ForestPredictors::regression_predictor(4);
+  std::vector<std::vector<double>> predictions = predictor.predict_oob(deserialized_forest, data);
+  Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
+
+  delete data;
   return result;
 }

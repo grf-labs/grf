@@ -10,6 +10,8 @@
 class QuantilePredictionStrategy: public PredictionStrategy {
 public:
   QuantilePredictionStrategy(std::vector<double> quantiles);
+
+  size_t prediction_length();
   std::vector<double> predict(const std::unordered_map<size_t, double>& weights_by_sampleID,
                               const Observations& observations);
 

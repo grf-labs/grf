@@ -9,6 +9,7 @@
 
 class InstrumentalPredictionStrategy: public PredictionStrategy {
 public:
+  size_t prediction_length();
   std::vector<double> predict(const std::unordered_map<size_t, double> &weights_by_sampleID,
                               const Observations& observations);
 };
