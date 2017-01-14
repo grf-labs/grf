@@ -13,15 +13,13 @@ public:
                    uint seed,
                    SamplingOptions options);
 
-  void sample(std::vector<std::vector<size_t>>& sampleIDs);
+  void sample(std::vector<size_t>& sampleIDs);
+  void sample_and_split(std::vector<size_t>& first_sampleIDs,
+                        std::vector<size_t>& second_sampleIDs);
 
   std::vector<size_t>& getOobSampleIDs() {
     return oob_sampleIDs;
   }
-
-  const size_t getNumSamplesOob() {
-    return num_samples_oob;
-  };
 
   std::vector<size_t>& getInbagCounts() {
     return inbag_counts;
@@ -77,10 +75,10 @@ public:
                        size_t n_first);
 
 private:
-  void bootstrap(std::vector<std::vector<size_t>>& sampleIDs);
-  void bootstrapWithoutReplacement(std::vector<std::vector<size_t>>& sampleIDs);
-  void bootstrapWeighted(std::vector<std::vector<size_t>>& sampleIDs);
-  void bootstrapWithoutReplacementWeighted(std::vector<std::vector<size_t>>& sampleIDs);
+  void bootstrap(std::vector<size_t>& sampleIDs);
+  void bootstrapWithoutReplacement(std::vector<size_t>& sampleIDs);
+  void bootstrapWeighted(std::vector<size_t>& sampleIDs);
+  void bootstrapWithoutReplacementWeighted(std::vector<size_t>& sampleIDs);
 
   /**
    * Simple algorithm for sampling without replacement, faster for smaller num_samples
@@ -111,7 +109,6 @@ private:
   SamplingOptions options;
   std::vector<size_t> inbag_counts;
   std::vector<size_t> oob_sampleIDs;
-  size_t num_samples_oob;
   std::mt19937_64 random_number_generator;
 };
 

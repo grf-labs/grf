@@ -24,11 +24,12 @@ void init_trainer(ForestTrainer& trainer) {
   bool sample_with_replacement = true;
   bool memory_saving_splitting = false;
   std::string case_weights_file = "";
-  double sample_fraction = 1;
+  double sample_fraction = 0.7;
+  bool honesty = false;
 
   trainer.init(mtry, num_trees, verbose_out, seed, num_threads, load_forest_filename,
                 min_node_size, no_split_variables, split_select_weights_file, always_split_variable_names,
-                sample_with_replacement, memory_saving_splitting, case_weights_file, sample_fraction);
+                sample_with_replacement, memory_saving_splitting, case_weights_file, sample_fraction, honesty);
 }
 
 bool equal_predictions(std::vector<std::vector<double>> predictions,

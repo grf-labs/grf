@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // instrumental_train
-Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data, size_t outcome_index, size_t treatment_index, size_t instrument_index, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, uint mtry, uint num_trees, bool verbose, uint num_threads, uint min_node_size, bool sample_with_replacement, bool keep_inbag, double sample_fraction, std::vector<size_t> no_split_variables, uint seed);
-RcppExport SEXP gradient_forest_instrumental_train(SEXP input_dataSEXP, SEXP outcome_indexSEXP, SEXP treatment_indexSEXP, SEXP instrument_indexSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP verboseSEXP, SEXP num_threadsSEXP, SEXP min_node_sizeSEXP, SEXP sample_with_replacementSEXP, SEXP keep_inbagSEXP, SEXP sample_fractionSEXP, SEXP no_split_variablesSEXP, SEXP seedSEXP) {
+Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data, size_t outcome_index, size_t treatment_index, size_t instrument_index, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, uint mtry, uint num_trees, bool verbose, uint num_threads, uint min_node_size, bool sample_with_replacement, bool keep_inbag, double sample_fraction, std::vector<size_t> no_split_variables, uint seed, bool honesty);
+RcppExport SEXP gradient_forest_instrumental_train(SEXP input_dataSEXP, SEXP outcome_indexSEXP, SEXP treatment_indexSEXP, SEXP instrument_indexSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP verboseSEXP, SEXP num_threadsSEXP, SEXP min_node_sizeSEXP, SEXP sample_with_replacementSEXP, SEXP keep_inbagSEXP, SEXP sample_fractionSEXP, SEXP no_split_variablesSEXP, SEXP seedSEXP, SEXP honestySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,7 +27,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sample_fraction(sample_fractionSEXP);
     Rcpp::traits::input_parameter< std::vector<size_t> >::type no_split_variables(no_split_variablesSEXP);
     Rcpp::traits::input_parameter< uint >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(instrumental_train(input_data, outcome_index, treatment_index, instrument_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed));
+    Rcpp::traits::input_parameter< bool >::type honesty(honestySEXP);
+    rcpp_result_gen = Rcpp::wrap(instrumental_train(input_data, outcome_index, treatment_index, instrument_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -62,8 +63,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // quantile_train
-Rcpp::List quantile_train(std::vector<double> quantiles, Rcpp::NumericMatrix input_data, size_t outcome_index, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, uint mtry, uint num_trees, bool verbose, uint num_threads, uint min_node_size, bool sample_with_replacement, bool keep_inbag, double sample_fraction, std::vector<size_t> no_split_variables, uint seed);
-RcppExport SEXP gradient_forest_quantile_train(SEXP quantilesSEXP, SEXP input_dataSEXP, SEXP outcome_indexSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP verboseSEXP, SEXP num_threadsSEXP, SEXP min_node_sizeSEXP, SEXP sample_with_replacementSEXP, SEXP keep_inbagSEXP, SEXP sample_fractionSEXP, SEXP no_split_variablesSEXP, SEXP seedSEXP) {
+Rcpp::List quantile_train(std::vector<double> quantiles, Rcpp::NumericMatrix input_data, size_t outcome_index, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, uint mtry, uint num_trees, bool verbose, uint num_threads, uint min_node_size, bool sample_with_replacement, bool keep_inbag, double sample_fraction, std::vector<size_t> no_split_variables, uint seed, bool honesty);
+RcppExport SEXP gradient_forest_quantile_train(SEXP quantilesSEXP, SEXP input_dataSEXP, SEXP outcome_indexSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP verboseSEXP, SEXP num_threadsSEXP, SEXP min_node_sizeSEXP, SEXP sample_with_replacementSEXP, SEXP keep_inbagSEXP, SEXP sample_fractionSEXP, SEXP no_split_variablesSEXP, SEXP seedSEXP, SEXP honestySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -82,7 +83,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sample_fraction(sample_fractionSEXP);
     Rcpp::traits::input_parameter< std::vector<size_t> >::type no_split_variables(no_split_variablesSEXP);
     Rcpp::traits::input_parameter< uint >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(quantile_train(quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed));
+    Rcpp::traits::input_parameter< bool >::type honesty(honestySEXP);
+    rcpp_result_gen = Rcpp::wrap(quantile_train(quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -119,8 +121,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // regression_train
-Rcpp::List regression_train(Rcpp::NumericMatrix input_data, size_t outcome_index, Rcpp::RawMatrix sparse_data, std::vector <std::string> variable_names, uint mtry, uint num_trees, bool verbose, uint num_threads, uint min_node_size, bool sample_with_replacement, bool keep_inbag, double sample_fraction, std::vector<size_t> no_split_variables, uint seed);
-RcppExport SEXP gradient_forest_regression_train(SEXP input_dataSEXP, SEXP outcome_indexSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP verboseSEXP, SEXP num_threadsSEXP, SEXP min_node_sizeSEXP, SEXP sample_with_replacementSEXP, SEXP keep_inbagSEXP, SEXP sample_fractionSEXP, SEXP no_split_variablesSEXP, SEXP seedSEXP) {
+Rcpp::List regression_train(Rcpp::NumericMatrix input_data, size_t outcome_index, Rcpp::RawMatrix sparse_data, std::vector <std::string> variable_names, uint mtry, uint num_trees, bool verbose, uint num_threads, uint min_node_size, bool sample_with_replacement, bool keep_inbag, double sample_fraction, std::vector<size_t> no_split_variables, uint seed, bool honesty);
+RcppExport SEXP gradient_forest_regression_train(SEXP input_dataSEXP, SEXP outcome_indexSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP verboseSEXP, SEXP num_threadsSEXP, SEXP min_node_sizeSEXP, SEXP sample_with_replacementSEXP, SEXP keep_inbagSEXP, SEXP sample_fractionSEXP, SEXP no_split_variablesSEXP, SEXP seedSEXP, SEXP honestySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -138,7 +140,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sample_fraction(sample_fractionSEXP);
     Rcpp::traits::input_parameter< std::vector<size_t> >::type no_split_variables(no_split_variablesSEXP);
     Rcpp::traits::input_parameter< uint >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(regression_train(input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed));
+    Rcpp::traits::input_parameter< bool >::type honesty(honestySEXP);
+    rcpp_result_gen = Rcpp::wrap(regression_train(input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty));
     return rcpp_result_gen;
 END_RCPP
 }

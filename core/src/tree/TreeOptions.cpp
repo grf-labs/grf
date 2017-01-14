@@ -6,13 +6,15 @@ TreeOptions::TreeOptions(uint mtry,
                          std::vector<double> split_select_weights,
                          std::vector<size_t> split_select_varIDs,
                          std::vector<size_t> deterministic_varIDs,
-                         std::vector<size_t> no_split_variables):
+                         std::vector<size_t> no_split_variables,
+                         bool honesty):
   mtry(mtry),
   min_node_size(min_node_size),
   split_select_weights(split_select_weights),
   split_select_varIDs(split_select_varIDs),
   deterministic_varIDs(deterministic_varIDs),
-  no_split_variables(no_split_variables) {}
+  no_split_variables(no_split_variables),
+  honesty(honesty) {}
 
 const uint TreeOptions::get_mtry() const {
   return mtry;
@@ -36,4 +38,8 @@ std::vector<size_t> TreeOptions::get_deterministic_varIDs() const {
 
 std::vector<size_t> TreeOptions::get_no_split_variables() const {
   return no_split_variables;
+}
+
+bool TreeOptions::get_honesty() const {
+  return honesty;
 }

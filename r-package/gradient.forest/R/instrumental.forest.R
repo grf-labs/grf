@@ -5,7 +5,8 @@ instrumental.forest <- function(X, Y, W, Z,
 	num.threads=NULL,
 	min.node.size=NULL,
 	keep.inbag = FALSE,
-	seed=NULL) {
+	seed=NULL,
+	honesty=TRUE) {
 
 	sparse.data <- as.matrix(0)
 
@@ -67,7 +68,8 @@ instrumental.forest <- function(X, Y, W, Z,
 						keep.inbag,
 						sample.fraction,
 						no.split.variables,
-						seed)
+						seed,
+						honesty)
 						
 						
 	class(forest) <- "instrumental.forest"

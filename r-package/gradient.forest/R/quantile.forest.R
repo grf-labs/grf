@@ -6,7 +6,8 @@ quantile.forest <- function(X, Y,
 	num.threads=NULL,
 	min.node.size=NULL,
 	keep.inbag = FALSE,
-	seed=NULL) {
+	seed=NULL,
+	honesty=TRUE) {
 
 	if (!is.numeric(quantiles) | length(quantiles) < 1) {
 		stop("Error: Must provide numeric quantiles")
@@ -71,7 +72,8 @@ quantile.forest <- function(X, Y,
 						keep.inbag,
 						sample.fraction,
 						no.split.variables,
-						seed)
+						seed,
+						honesty)
 						
 						
 	class(forest) <- "quantile.forest"

@@ -22,13 +22,13 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             bool keep_inbag,
                             double sample_fraction,
                             std::vector<size_t> no_split_variables,
-                            uint seed) {
+                            uint seed,
+                            bool honesty) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(data, outcome_index);
-  RcppUtilities::initialize_trainer(trainer, mtry, num_trees, num_threads,
-      min_node_size, sample_with_replacement, sample_fraction, no_split_variables, seed);
-
+  RcppUtilities::initialize_trainer(trainer, mtry, num_trees, num_threads, min_node_size,
+      sample_with_replacement, sample_fraction, no_split_variables, seed, honesty);
   Forest forest = trainer.train(data);
 
   Rcpp::List result;

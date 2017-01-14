@@ -1,7 +1,7 @@
 
 #include "Data.h"
 #include "TreeTrainer.h"
-#include "ProbabilitySplittingRule.h"
+#include "TreePredictor.h"
 
 TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                          std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
@@ -15,17 +15,26 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
                                          const Observations& observations) {
 
   std::vector<std::vector<size_t>> child_nodeIDs;
-  std::vector<std::vector<size_t>> sampleIDs;
+  std::vector<std::vector<size_t>> nodes;
   std::vector<size_t> split_varIDs;
   std::vector<double> split_values;
 
   child_nodeIDs.push_back(std::vector<size_t>());
   child_nodeIDs.push_back(std::vector<size_t>());
-  createEmptyNode(child_nodeIDs, sampleIDs, split_varIDs, split_values);
+  createEmptyNode(child_nodeIDs, nodes, split_varIDs, split_values);
 
   std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create();
 
-  bootstrap_sampler->sample(sampleIDs);
+  std::vector<size_t> splitting_sampleIDs;
+  std::vector<size_t> leaf_sampleIDs;
+
+  if (options.get_honesty()) {
+    bootstrap_sampler->sample_and_split(splitting_sampleIDs, leaf_sampleIDs);
+  } else {
+    bootstrap_sampler->sample(splitting_sampleIDs);
+  }
+
+  nodes[0] = splitting_sampleIDs;
 
   // While not all nodes terminal, split next node
   size_t num_open_nodes = 1;
@@ -37,28 +46,48 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
                                       data,
                                       observations,
                                       child_nodeIDs,
-                                      sampleIDs,
+                                      nodes,
                                       split_varIDs,
                                       split_values,
                                       options.get_split_select_weights());
     if (is_terminal_node) {
       --num_open_nodes;
     } else {
-      sampleIDs[i].clear();
+      nodes[i].clear();
       ++num_open_nodes;
     }
     ++i;
   }
+  
+  auto tree = std::shared_ptr<Tree>(new Tree(child_nodeIDs,
+      nodes,
+      split_varIDs,
+      split_values,
+      bootstrap_sampler->getOobSampleIDs(),
+      bootstrap_sampler->getInbagCounts()));
 
-// Delete sampleID vector to save memory
-  //sampleIDs.clear();
-  return std::shared_ptr<Tree>(
-      new Tree(child_nodeIDs,
-               sampleIDs,
-               split_varIDs,
-               split_values,
-               bootstrap_sampler->getOobSampleIDs(),
-               bootstrap_sampler->getInbagCounts()));
+  if (!leaf_sampleIDs.empty()) {
+    repopulate_terminal_nodeIDs(tree, data, leaf_sampleIDs);
+  }
+
+  return tree;
+}
+
+void TreeTrainer::repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
+                                              Data* data,
+                                              std::vector<size_t> leaf_sampleIDs) {
+  size_t num_nodes = tree->get_terminal_nodeIDs().size();
+  std::vector<std::vector<size_t>> new_terminal_nodeIDs(num_nodes);
+
+  TreePredictor tree_predictor;
+  std::vector<size_t> terminal_nodeIDs = tree_predictor.get_terminal_nodeIDs(
+      tree, data, leaf_sampleIDs);
+
+  for (auto& sampleID : leaf_sampleIDs) {
+    size_t terminal_nodeID = terminal_nodeIDs.at(sampleID);
+    new_terminal_nodeIDs.at(terminal_nodeID).push_back(sampleID);
+  }
+  tree->set_terminal_nodeIDs(new_terminal_nodeIDs);
 }
 
 void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t> &result,

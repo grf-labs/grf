@@ -46,12 +46,12 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
   tree_serializer.serialize(stream, original_tree);
   std::shared_ptr<Tree> tree = tree_serializer.deserialize(stream);
 
-  REQUIRE(tree->get_sampleIDs().size() == original_tree->get_sampleIDs().size());
-  REQUIRE(tree->getChildNodeIDs().size() == original_tree->getChildNodeIDs().size());
-  REQUIRE(tree->getSplitVarIDs().size() == original_tree->getSplitVarIDs().size());
-  REQUIRE(tree->getSplitValues().size() == original_tree->getSplitValues().size());
+  REQUIRE(tree->get_terminal_nodeIDs().size() == original_tree->get_terminal_nodeIDs().size());
+  REQUIRE(tree->get_child_nodeIDs().size() == original_tree->get_child_nodeIDs().size());
+  REQUIRE(tree->get_split_varIDs().size() == original_tree->get_split_varIDs().size());
+  REQUIRE(tree->get_split_values().size() == original_tree->get_split_values().size());
   REQUIRE(tree->get_inbag_counts().size() == original_tree->get_inbag_counts().size());
-  REQUIRE(tree->getOobSampleIDs().size() == original_tree->getOobSampleIDs().size());
+  REQUIRE(tree->get_oob_sampleIDs().size() == original_tree->get_oob_sampleIDs().size());
 }
 
 TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]") {

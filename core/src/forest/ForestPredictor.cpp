@@ -1,4 +1,5 @@
 #include "ForestPredictor.h"
+#include "TreePredictor.h"
 #include "utility.h"
 
 ForestPredictor::ForestPredictor(uint num_threads,
@@ -92,7 +93,7 @@ std::vector<std::vector<double>> ForestPredictor::predict_oob(const Forest& fore
   size_t num_trees = forest.get_trees().size();
   std::unordered_multimap<size_t, size_t> trees_by_oob_samples;
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-    for (size_t sampleID : forest.get_trees()[tree_idx]->getOobSampleIDs()) {
+    for (size_t sampleID : forest.get_trees()[tree_idx]->get_oob_sampleIDs()) {
       trees_by_oob_samples.insert(std::pair<size_t, size_t>(sampleID, tree_idx));
     }
   }
@@ -115,6 +116,15 @@ std::vector<std::vector<double>> ForestPredictor::predict_oob(const Forest& fore
       std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
       add_sample_weights(sampleID, tree, weights_by_sampleID, terminal_node_IDs_by_tree.at(tree_index));
     }
+
+    // If this sample has no neighbors, then return placeholder predictions. Note
+    // that this can only occur when honesty is enabled, and is expected to be rare.
+    if (weights_by_sampleID.empty()) {
+      std::vector<double> temp(prediction_length, NAN);
+      predictions.push_back(temp);
+      continue;
+    }
+
     normalize_sample_weights(weights_by_sampleID);
 
     std::vector<double> prediction = prediction_strategy->predict(weights_by_sampleID,
@@ -135,11 +145,20 @@ void ForestPredictor::predictTreesInThread(uint thread_idx,
                                            bool oob_prediction,
                                            std::promise<std::map<size_t, std::vector<size_t>>> promise) {
   std::map<size_t, std::vector<size_t>> terminal_nodeIDs_by_tree;
+  TreePredictor tree_predictor;
 
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       std::shared_ptr<Tree> tree = forest.get_trees()[i];
-      std::vector<size_t> terminal_nodeIDs = tree->get_terminal_nodeIDs(prediction_data, oob_prediction);
+
+      std::vector<size_t> sampleIDs;
+      if (oob_prediction) {
+        sampleIDs = tree->get_oob_sampleIDs();
+      }
+
+      std::vector<size_t> terminal_nodeIDs = tree_predictor.get_terminal_nodeIDs(tree,
+          prediction_data,
+          sampleIDs);
       terminal_nodeIDs_by_tree[i] = terminal_nodeIDs;
     }
   }
@@ -151,7 +170,7 @@ void ForestPredictor::add_sample_weights(size_t test_sampleID,
                                          std::unordered_map<size_t, double> &weights_by_sampleID,
                                          std::vector<size_t> terminal_node_IDs) {
   size_t nodeID = terminal_node_IDs[test_sampleID];
-  std::vector<size_t> sampleIDs = tree->get_sampleIDs()[nodeID];
+  std::vector<size_t> sampleIDs = tree->get_terminal_nodeIDs()[nodeID];
   double sample_weight = 1.0 / sampleIDs.size();
 
   for (auto &sampleID : sampleIDs) {

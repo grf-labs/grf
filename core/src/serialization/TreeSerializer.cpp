@@ -3,11 +3,11 @@
 #include "utility.h"
 
 void TreeSerializer::serialize(std::ostream& stream, std::shared_ptr<Tree> tree) {
-  saveVector2D(tree->getChildNodeIDs(), stream);
-  saveVector2D(tree->get_sampleIDs(), stream);
-  saveVector1D(tree->getSplitVarIDs(), stream);
-  saveVector1D(tree->getSplitValues(), stream);
-  saveVector1D(tree->getOobSampleIDs(), stream);
+  saveVector2D(tree->get_child_nodeIDs(), stream);
+  saveVector2D(tree->get_terminal_nodeIDs(), stream);
+  saveVector1D(tree->get_split_varIDs(), stream);
+  saveVector1D(tree->get_split_values(), stream);
+  saveVector1D(tree->get_oob_sampleIDs(), stream);
   saveVector1D(tree->get_inbag_counts(), stream);
 }
 

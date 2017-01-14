@@ -25,6 +25,10 @@ private:
                        std::vector <size_t> &split_varIDs,
                        std::vector<double> &split_values);
 
+  void repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
+                                   Data* data,
+                                   std::vector<size_t> leaf_sampleIDs);
+
   void createPossibleSplitVarSubset(std::vector<size_t> &result,
                                     BootstrapSampler *bootstrap_sampler,
                                     Data *data,

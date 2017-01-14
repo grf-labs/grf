@@ -32,7 +32,8 @@ void ForestTrainer::init(uint mtry,
                          bool sample_with_replacement,
                          bool memory_saving_splitting,
                          std::string case_weights_file,
-                         double sample_fraction) {
+                         double sample_fraction,
+                         bool honesty) {
 
   this->verbose_out = verbose_out;
   this->always_split_variable_names = always_split_variable_names;
@@ -81,7 +82,8 @@ void ForestTrainer::init(uint mtry,
       split_select_weights,
       split_select_varIDs,
       deterministic_varIDs,
-      this->no_split_variables);
+      this->no_split_variables,
+      honesty);
   tree_trainer = new TreeTrainer(relabeling_strategy,
                                  splitting_rule_factory,
                                  tree_options);

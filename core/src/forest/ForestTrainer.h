@@ -27,7 +27,9 @@ public:
             std::string split_select_weights_file, std::vector<std::string> &always_split_variable_names,
             bool sample_with_replacement,
             bool memory_saving_splitting,
-            std::string case_weights_file, double sample_fraction);
+            std::string case_weights_file,
+            double sample_fraction,
+            bool honesty);
 
 private:
   void growTreesInThread(uint thread_idx,
