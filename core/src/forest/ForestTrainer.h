@@ -29,8 +29,6 @@ public:
             bool memory_saving_splitting,
             std::string case_weights_file, double sample_fraction);
 
-  void writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions);
-
 private:
   void growTreesInThread(uint thread_idx,
                          Data *data,
@@ -72,9 +70,6 @@ private:
 
   // Bootstrap weights
   std::vector<double> case_weights;
-
-  // Random number generator
-  std::mt19937_64 random_number_generator;
 
   std::unordered_map<std::string, size_t> observables;
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;

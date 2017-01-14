@@ -45,14 +45,6 @@ void ForestTrainer::init(uint mtry,
     prediction_mode = true;
   }
 
-  // Initialize random number generator and set seed
-  if (seed == 0) {
-    std::random_device random_device;
-    random_number_generator.seed(random_device());
-  } else {
-    random_number_generator.seed(seed);
-  }
-
   // Set number of threads
   if (num_threads == DEFAULT_NUM_THREADS) {
     this->num_threads = std::thread::hardware_concurrency();
@@ -63,7 +55,6 @@ void ForestTrainer::init(uint mtry,
   // Set member variables
   this->num_trees = num_trees;
   this->mtry = mtry;
-  this->seed = seed;
   this->min_node_size = min_node_size;
   this->prediction_mode = prediction_mode;
   this->sample_with_replacement = sample_with_replacement;
@@ -73,6 +64,13 @@ void ForestTrainer::init(uint mtry,
   this->no_split_variables = no_split_variables;
   for (auto it : observables) {
     this->no_split_variables.push_back(it.second);
+  }
+
+  if (seed != 0) {
+    this->seed = seed;
+  } else {
+    std::random_device random_device;
+    this->seed = random_device();
   }
 
   // Sort no split variables in ascending order
@@ -188,17 +186,12 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
                                       Data* data,
                                       const Observations& observations,
                                       std::promise<std::vector<std::shared_ptr<Tree>>> promise) {
+  std::mt19937_64 random_number_generator(seed + thread_idx);
   std::uniform_int_distribution<uint> udist;
   std::vector<std::shared_ptr<Tree>> trees;
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
-      uint tree_seed;
-      if (seed == 0) {
-        tree_seed = udist(random_number_generator);
-      } else {
-        tree_seed = (i + 1) * seed;
-      }
-
+      uint tree_seed = udist(random_number_generator);
       SamplingOptions sampling_options(sample_with_replacement,
                                        sample_fraction,
                                        &case_weights,
@@ -271,27 +264,4 @@ void ForestTrainer::setAlwaysSplitVariables(Data* data,
     throw std::runtime_error(
         "Number of variables to be always considered for splitting plus mtry cannot be larger than number of independent variables.");
   }
-}
-
-void ForestTrainer::writeConfusionFile(Data* prediction_data, std::vector<std::vector<double>> predictions) {
-
-// Open confusion file for writing
-  std::string filename = "gradientforest.confusion";
-  std::ofstream outfile;
-  outfile.open(filename, std::ios::out);
-  if (!outfile.good()) {
-    throw std::runtime_error("Could not write to confusion file: " + filename + ".");
-  }
-
-  // Write
-  outfile << "Prediction X1" << std::endl;
-  for (size_t i = 0; i < predictions.size(); ++i) {
-    for (size_t j = 0; j < predictions[i].size(); ++j) {
-      outfile << predictions[i][j] << " " << prediction_data->get(i, 0) << " ";
-    }
-    outfile << std::endl;
-  }
-
-  outfile.close();
-  *verbose_out << "Saved prediction error to file " << filename << "." << std::endl;
 }
