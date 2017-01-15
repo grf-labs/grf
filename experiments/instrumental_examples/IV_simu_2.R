@@ -22,10 +22,10 @@ Y = 2 * (X[,1] <= 0) * A + (X[,1] > 0) * W + (1 + (sqrt(3) - 1) * (X[,1] > 0)) *
 # Thought... can we add a flag to forest_instrumental that uses causal splitting?
 # I can imagine situations where we think W is "almost" unconfounded, and so we use
 # causal splitting for more power, but then use IV prediction to be safe.
-forest.causal = instrumental.forest(X, Y, W, W, min.node.size = 200)
+forest.causal = instrumental.forest(X, Y, W, W, min.node.size = 100)
 preds.causal = predict(forest.causal, X.test)
 
-forest.iv = instrumental.forest(X, Y, W, Z, min.node.size = 200)
+forest.iv = instrumental.forest(X, Y, W, Z, min.node.size = 100)
 preds.iv = predict(forest.iv, X.test)
 
 pdf("IV_forest_causal_splitting.pdf")
