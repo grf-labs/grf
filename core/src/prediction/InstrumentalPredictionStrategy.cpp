@@ -8,7 +8,8 @@ size_t InstrumentalPredictionStrategy::prediction_length() {
     return 1;
 }
 
-std::vector<double> InstrumentalPredictionStrategy::predict(const std::unordered_map<size_t, double>& weights_by_sampleID,
+std::vector<double> InstrumentalPredictionStrategy::predict(const std::map<std::string, double>& average_prediction_values,
+                                                            const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                             const Observations& observations) {
   // Compute the relevant averages.e
   double average_instrument = 0.0;
@@ -40,4 +41,14 @@ std::vector<double> InstrumentalPredictionStrategy::predict(const std::unordered
   }
 
   return { numerator / denominator };
+}
+
+bool InstrumentalPredictionStrategy::requires_leaf_sampleIDs() {
+  return true;
+}
+
+PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
+    const std::vector<std::vector<size_t>> &leaf_sampleIDs,
+    const Observations &observations) {
+  return PredictionValues();
 }

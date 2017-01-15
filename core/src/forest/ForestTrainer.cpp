@@ -11,13 +11,15 @@
 
 ForestTrainer::ForestTrainer(std::unordered_map<std::string, size_t> observables,
                              std::shared_ptr<RelabelingStrategy> relabeling_strategy,
-                             std::shared_ptr<SplittingRuleFactory> splitting_rule_factory) :
+                             std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
+                             std::shared_ptr<PredictionStrategy> prediction_strategy) :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
     prediction_mode(false), sample_with_replacement(
     true), memory_saving_splitting(false), keep_inbag(false), sample_fraction(
     1), num_threads(DEFAULT_NUM_THREADS), observables(observables),
     relabeling_strategy(relabeling_strategy),
-    splitting_rule_factory(splitting_rule_factory) {}
+    splitting_rule_factory(splitting_rule_factory),
+    prediction_strategy(prediction_strategy) {}
 
 void ForestTrainer::init(uint mtry,
                          uint num_trees,
@@ -86,6 +88,7 @@ void ForestTrainer::init(uint mtry,
       honesty);
   tree_trainer = new TreeTrainer(relabeling_strategy,
                                  splitting_rule_factory,
+                                 prediction_strategy,
                                  tree_options);
 }
 

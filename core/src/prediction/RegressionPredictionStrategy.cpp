@@ -1,19 +1,38 @@
+#include <string>
 #include "RegressionPredictionStrategy.h"
+
 
 size_t RegressionPredictionStrategy::prediction_length() {
     return 1;
 }
 
-std::vector<double> RegressionPredictionStrategy::predict(const std::unordered_map<size_t, double>& weights_by_sampleID,
+std::vector<double> RegressionPredictionStrategy::predict(const std::map<std::string, double>& average_prediction_values,
+                                                          const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                           const Observations& observations) {
-  double average = 0.0;
-  for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
-    size_t sampleID = it->first;
-    double weight = it->second;
+  return { average_prediction_values.at(PredictionValues::AVERAGE) };
+}
 
-    double outcome = observations.get(Observations::OUTCOME)[sampleID];
-    average += outcome * weight;
+bool RegressionPredictionStrategy::requires_leaf_sampleIDs() {
+  return false;
+}
+
+PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
+    const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+    const Observations& observations) {
+
+  std::vector<double> averages;
+  for (auto& leaf_node : leaf_sampleIDs) {
+    if (leaf_node.empty()) {
+      averages.push_back(0.0);
+      continue;
+    }
+
+    double average = 0.0;
+    for (auto& sampleID : leaf_node) {
+      average += observations.get(Observations::OUTCOME).at(sampleID);
+    }
+    averages.push_back(average / leaf_node.size());
   }
 
-  return { average };
+  return PredictionValues({{PredictionValues::AVERAGE, averages}}, leaf_sampleIDs.size());
 }

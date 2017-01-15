@@ -8,8 +8,8 @@
 #include "globals.h"
 #include "Data.h"
 #include "BootstrapSampler.h"
+#include "PredictionValues.h"
 #include "SplittingRule.h"
-#include "RelabelingStrategy.h"
 
 class Tree {
 public:
@@ -18,7 +18,8 @@ public:
        const std::vector<size_t>& split_varIDs,
        const std::vector<double>& split_values,
        const std::vector<size_t>& oob_sampleIDs,
-       const std::vector<size_t>& inbag_counts);
+       const std::vector<size_t>& inbag_counts,
+       const PredictionValues& prediction_values);
 
   ~Tree();
 
@@ -26,8 +27,8 @@ public:
     return child_nodeIDs;
   }
 
-  std::vector<std::vector<size_t>>& get_terminal_nodeIDs() {
-    return terminal_nodeIDs;
+  std::vector<std::vector<size_t>>& get_leaf_nodeIDs() {
+    return leaf_nodeIDs;
   }
 
   std::vector<double>& get_split_values() {
@@ -46,18 +47,28 @@ public:
     return inbag_counts;
   }
 
-  void set_terminal_nodeIDs(const std::vector<std::vector<size_t>>& terminal_nodeIDs) {
-    this->terminal_nodeIDs = terminal_nodeIDs;
+  PredictionValues get_prediction_values() {
+    return prediction_values;
+  }
+
+  void set_leaf_nodeIDs(const std::vector<std::vector<size_t>>& leaf_nodeIDs) {
+    this->leaf_nodeIDs = leaf_nodeIDs;
+  }
+
+  void set_prediction_values(const PredictionValues& prediction_values) {
+    this->prediction_values = prediction_values;
   }
 
 private:
   std::vector<std::vector<size_t>> child_nodeIDs;
-  std::vector<std::vector<size_t>> terminal_nodeIDs;
+  std::vector<std::vector<size_t>> leaf_nodeIDs;
   std::vector<size_t> split_varIDs;
   std::vector<double> split_values;
 
   std::vector<size_t> oob_sampleIDs;
   std::vector<size_t> inbag_counts;
+
+  PredictionValues prediction_values;
 };
 
 #endif /* GRADIENTFOREST_TREE_H_ */

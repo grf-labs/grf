@@ -13,6 +13,7 @@ class TreeTrainer {
 public:
   TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
               std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
+              std::shared_ptr<PredictionStrategy> prediction_strategy,
               TreeOptions options);
 
   std::shared_ptr<Tree> train(Data *data,
@@ -27,7 +28,7 @@ private:
 
   void repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
                                    Data* data,
-                                   std::vector<size_t> leaf_sampleIDs);
+                                   const std::vector<size_t>& leaf_sampleIDs);
 
   void createPossibleSplitVarSubset(std::vector<size_t> &result,
                                     BootstrapSampler *bootstrap_sampler,
@@ -55,6 +56,8 @@ private:
 
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
+  std::shared_ptr<PredictionStrategy> prediction_strategy;
+
   TreeOptions options;
 };
 

@@ -16,7 +16,8 @@ class ForestTrainer {
 public:
   ForestTrainer(std::unordered_map<std::string, size_t> observables,
                 std::shared_ptr<RelabelingStrategy> relabeling_strategy,
-                std::shared_ptr<SplittingRuleFactory> splitting_rule_factory);
+                std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
+                std::shared_ptr<PredictionStrategy> prediction_strategy);
 
   Forest train(Data *data);
 
@@ -76,6 +77,7 @@ private:
   std::unordered_map<std::string, size_t> observables;
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
+  std::shared_ptr<PredictionStrategy> prediction_strategy;
 
   std::string split_select_weights_file;
   std::string case_weights_file;

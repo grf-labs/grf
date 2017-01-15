@@ -1,8 +1,11 @@
 #include "ForestTrainers.h"
 #include "InstrumentalRelabelingStrategy.h"
+#include "InstrumentalPredictionStrategy.h"
 #include "RegressionSplittingRuleFactory.h"
+#include "RegressionPredictionStrategy.h"
 #include "ProbabilitySplittingRuleFactory.h"
 #include "QuantileRelabelingStrategy.h"
+#include "QuantilePredictionStrategy.h"
 #include "NoopRelabelingStrategy.h"
 
 ForestTrainer ForestTrainers::instrumental_trainer(Data* data,
@@ -16,8 +19,9 @@ ForestTrainer ForestTrainers::instrumental_trainer(Data* data,
 
   std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
+  std::shared_ptr<PredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
 
-  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory);
+  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
 }
 
 ForestTrainer ForestTrainers::quantile_trainer(Data* data,
@@ -28,8 +32,9 @@ ForestTrainer ForestTrainers::quantile_trainer(Data* data,
   std::shared_ptr<RelabelingStrategy> relabeling_strategy(new QuantileRelabelingStrategy(quantiles));
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(
       new ProbabilitySplittingRuleFactory(data, quantiles.size() + 1));
+  std::shared_ptr<PredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
 
-  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory);
+  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
 }
 
 ForestTrainer ForestTrainers::regression_trainer(Data* data,
@@ -38,6 +43,7 @@ ForestTrainer ForestTrainers::regression_trainer(Data* data,
 
   std::shared_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
+  std::shared_ptr<PredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
 
-  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory);
+  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
 }
