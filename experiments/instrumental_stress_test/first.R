@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("~/git_local/split-relabel/experiments/instrumental_stress_test")
+setwd("~/git/split-relabel/experiments/instrumental_stress_test")
 
 library(gradient.forest)
 source("../baselines.R")

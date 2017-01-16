@@ -1,5 +1,9 @@
+# For series
 library(AER)
 library(splines)
+
+# For KNN
+library(FNN)
 
 iv.series = function(X, Y, W, Z, X.test, df = 3, interact = FALSE) {
 	
@@ -12,22 +16,22 @@ iv.series = function(X, Y, W, Z, X.test, df = 3, interact = FALSE) {
 		X.reg = X.spl
 	}
 
-	series = ivreg(Y ~ X.reg[1:n,] * W | X.reg[1:n,] * Z)
+	if(ncol(X.reg) >= length(Y)) return(rep(NA, nrow(X.test)))
+
+	series = ivreg(Y ~ X.reg[1:length(Y),] * W | X.reg[1:length(Y),] * Z)
 	beta = coef(series)
 	
-	tau.hat = beta[ncol(X.reg) + 2] + X.reg[n + 1:nrow(X.test),] %*% beta[ncol(X.reg) + 2 + 1:ncol(X.reg)]
+	tau.hat = beta[ncol(X.reg) + 2] + X.reg[length(Y) + 1:nrow(X.test),] %*% beta[ncol(X.reg) + 2 + 1:ncol(X.reg)]
 	
 	tau.hat
 	
 }
 
-library(FNN)
-
 iv.knn = function(X, Y, W, Z, X.test, k = 100) {
 
 	neighbors = get.knnx(X, X.test, k)$nn.index
 	
-	apply(neighbors, 2, function(nn) {
+	apply(neighbors, 1, function(nn) {
 		y.hat = mean(Y[nn])
 		w.hat = mean(W[nn])
 		z.hat = mean(Z[nn])
