@@ -6,7 +6,8 @@ instrumental.forest <- function(X, Y, W, Z,
 	min.node.size=NULL,
 	keep.inbag = FALSE,
 	seed=NULL,
-	honesty=TRUE) {
+	honesty=TRUE,
+        split.regularization=0) {
 
 	sparse.data <- as.matrix(0)
 
@@ -45,6 +46,11 @@ instrumental.forest <- function(X, Y, W, Z,
         seed <- runif(1, 0, .Machine$integer.max)
      }
 
+     if (!is.numeric(split.regularization) | split.regularization < 0 | 
+        split.regularization > 1) {
+        stop("Error: Invalid value for split.regularization. Please give a value in [0,1].")
+     }
+
 	input.data <- as.matrix(cbind(X, Y, W, Z))	
 	variable.names <- c(colnames(X), "outcome", "treatment", "instrument")
 	outcome.index.zeroindexed <- ncol(X)
@@ -69,7 +75,8 @@ instrumental.forest <- function(X, Y, W, Z,
 						sample.fraction,
 						no.split.variables,
 						seed,
-						honesty)
+						honesty,
+						split.regularization)
 						
 						
 	class(forest) <- "instrumental.forest"

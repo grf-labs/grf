@@ -1,7 +1,11 @@
 #include "utility.h"
 #include "InstrumentalRelabelingStrategy.h"
 
-InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy() {}
+InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy():
+  split_regularization(0) {}
+
+InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(double split_regularization):
+  split_regularization(split_regularization) {}
 
 std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel_outcomes(
      const Observations& observations,
@@ -23,6 +27,8 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel_outco
   double average_outcome = total_outcome / num_samples;
   double average_treatment = total_treatment / num_samples;
   double average_instrument = total_instrument / num_samples;
+  double average_regularized_instrument = (1 - split_regularization) * average_instrument
+    + split_regularization * average_treatment;
 
   // Calculate the treatment effect.
   double numerator = 0.0;
@@ -32,9 +38,10 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel_outco
     double outcome = observations.get(Observations::OUTCOME)[sampleID];
     double treatment = observations.get(Observations::TREATMENT)[sampleID];
     double instrument = observations.get(Observations::INSTRUMENT)[sampleID];
+    double regularized_instrument = (1 - split_regularization) * instrument + split_regularization * treatment;
 
-    numerator += (instrument - average_instrument) * (outcome - average_outcome);
-    denominator += (instrument - average_instrument) * (treatment - average_treatment);
+    numerator += (regularized_instrument - average_regularized_instrument) * (outcome - average_outcome);
+    denominator += (regularized_instrument - average_regularized_instrument) * (treatment - average_treatment);
   }
 
   if (equalDoubles(denominator, 0.0, 1.0e-10)) {
@@ -50,9 +57,10 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel_outco
     double response = observations.get(Observations::OUTCOME)[sampleID];
     double treatment = observations.get(Observations::TREATMENT)[sampleID];
     double instrument = observations.get(Observations::INSTRUMENT)[sampleID];
+    double regularized_instrument = (1 - split_regularization) * instrument + split_regularization * treatment;
 
     double residual = (response - average_outcome) - local_average_treatment_effect * (treatment - average_treatment);
-    relabeled_observations[sampleID] = (instrument - average_instrument) * residual;
+    relabeled_observations[sampleID] = (regularized_instrument - average_regularized_instrument) * residual;
   }
   return relabeled_observations;
 }

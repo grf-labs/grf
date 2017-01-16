@@ -77,7 +77,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
 TEST_CASE("causal forest predictions have not changed", "[causal, characterization]") {
   Data* data = loadDataFromFile("test/forest/resources/causal_data.csv");
 
-  ForestTrainer trainer = ForestTrainers::instrumental_trainer(data, 10, 11, 11);
+  ForestTrainer trainer = ForestTrainers::instrumental_trainer(data, 10, 11, 11, 0);
   init_trainer(trainer);
 
   Forest forest = trainer.train(data);

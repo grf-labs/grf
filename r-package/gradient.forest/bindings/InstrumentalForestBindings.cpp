@@ -26,11 +26,12 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               double sample_fraction,
                               std::vector<size_t> no_split_variables,
                               uint seed,
-                              bool honesty) {
+                              bool honesty,
+                              double split_regularization) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(data, outcome_index,
-      treatment_index, instrument_index);
+      treatment_index, instrument_index, split_regularization);
   RcppUtilities::initialize_trainer(trainer, mtry, num_trees, num_threads, min_node_size,
       sample_with_replacement, sample_fraction, no_split_variables, seed, honesty);
 
