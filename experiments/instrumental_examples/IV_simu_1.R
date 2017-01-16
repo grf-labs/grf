@@ -6,7 +6,7 @@ setwd("~/git/split-relabel/experiments/instrumental_examples")
 
 library(gradient.forest)
 p = 20
-n = 10000 # need to ++perf!
+n = 10000
 
 tau = function(x) (2 * as.numeric(x > -1/3))
 

@@ -6,7 +6,7 @@ setwd("~/git/split-relabel/experiments/instrumental_examples")
 
 library(gradient.forest)
 p = 20
-n = 5000
+n = 10000
 
 ticks = 1001
 X.test = matrix(0, ticks, p)
