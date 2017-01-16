@@ -5,6 +5,7 @@ regression.forest <- function(X, Y,
 	num.threads=NULL,
 	min.node.size=NULL,
 	keep.inbag = FALSE,
+	honesty=TRUE,
 	seed=NULL) {
 
 	sparse.data <- as.matrix(0)
@@ -63,29 +64,40 @@ regression.forest <- function(X, Y,
 						keep.inbag,
 						sample.fraction,
 						no.split.variables,
-						seed)
+						seed,
+						honesty)
 						
-						
+	forest[["original.data"]] <- input.data
 	class(forest) <- "regression.forest"
 	forest
 }
 
-predict.regression.forest <- function(forest, newdata, num.threads = NULL) {
+predict.regression.forest <- function(forest, newdata = NULL, num.threads = NULL) {
 
 	if (is.null(num.threads)) {
-        num.threads <- 0
-     } else if (!is.numeric(num.threads) | num.threads < 0) {
-        stop("Error: Invalid value for num.threads")
-     }
+    	num.threads <- 0
+    } else if (!is.numeric(num.threads) | num.threads < 0) {
+    	stop("Error: Invalid value for num.threads")
+    }
      
-	 sparse.data <- as.matrix(0)
-	 variable.names <- character(0)
+	sparse.data <- as.matrix(0)
+	variable.names <- character(0)
 	
-	 input.data <- as.matrix(cbind(newdata, NA))	
+	forest.short <- forest[-which(names(forest) == "original.data")]
 	
-     regression_predict(forest,
-     				  input.data,
-     				  sparse.data,
-     				  variable.names,
-     				  num.threads)    				 
+	if (!is.null(newdata)) {
+		input.data <- as.matrix(cbind(newdata, NA))
+		regression_predict(forest.short,
+	    				   input.data,
+	     				   sparse.data,
+	     				   variable.names,
+	     				   num.threads)
+	 } else {
+	 	input.data <- forest[["original.data"]]
+		regression_predict_oob(forest.short,
+	     				       input.data,
+	     				       sparse.data,
+	     				       variable.names,
+	     				       num.threads)
+	 }
 } 

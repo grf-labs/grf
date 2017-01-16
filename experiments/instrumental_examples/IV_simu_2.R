@@ -1,3 +1,5 @@
+set.seed(1234)
+
 rm(list = ls())
 
 setwd("~/git/split-relabel/experiments/instrumental_examples")
@@ -24,7 +26,7 @@ preds.causal.split = predict(forest.causal.split, X.test)
 forest.iv = instrumental.forest(X, Y, W, Z, min.node.size = 100, split.regularization = 0)
 preds.iv = predict(forest.iv, X.test)
 
-#pdf("IV_forest_causal_splitting.pdf")
+pdf("IV_forest_causal_splitting.pdf")
 pardef = par(mar = c(5, 4, 4, 2) + 0.5, cex.lab = 1.5, cex.axis = 1.5, cex.sub = 1.5)
 plot(NA, NA, xlim=range(xvals), ylim=range(truth,preds.causal.split,preds.iv, 1.5), xlab="X", ylab="tau")
 lines(xvals, truth, lwd = 2, col = 1)
@@ -32,4 +34,4 @@ lines(xvals, preds.causal.split, lwd = 2, col = 4)
 lines(xvals, preds.iv, lwd = 2, col = 2)
 legend("topleft", c("True Treatment Effect", "IV Forest with Causal Split", "IV Forest with IV Split"), lty=c(1, 1, 1), col=c(1, 4, 2), lwd=2, cex=1.5)
 par = pardef
-#dev.off()
+dev.off()

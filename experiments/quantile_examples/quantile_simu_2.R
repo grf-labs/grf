@@ -1,3 +1,5 @@
+set.seed(1234)
+
 rm(list = ls())
 
 setwd("~/git/split-relabel/experiments/quantile_examples")
