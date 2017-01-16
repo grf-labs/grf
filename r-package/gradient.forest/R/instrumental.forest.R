@@ -5,9 +5,10 @@ instrumental.forest <- function(X, Y, W, Z,
 	num.threads=NULL,
 	min.node.size=NULL,
 	keep.inbag = FALSE,
-	seed=NULL,
 	honesty=TRUE,
-        split.regularization=0) {
+	precompute.nuisance=TRUE,
+	split.regularization=0,
+	seed=NULL) {
 
 	sparse.data <- as.matrix(0)
 
@@ -50,8 +51,51 @@ instrumental.forest <- function(X, Y, W, Z,
         split.regularization > 1) {
         stop("Error: Invalid value for split.regularization. Please give a value in [0,1].")
      }
+     
+     if (!precompute.nuisance) {
+     	
+     	input.data <- as.matrix(cbind(X, Y, W, Z))	
+     	
+     } else {
+     	
+     	forest.Y <- regression.forest(X, Y,
+			sample.fraction=sample.fraction,
+			mtry=mtry,
+			num.trees=min(500, num.trees),
+			num.threads=num.threads,
+			min.node.size=NULL,
+			keep.inbag = FALSE,
+			honesty=TRUE,
+			seed=seed)
+		Y.hat = predict(forest.Y)
+		
+		forest.W <- regression.forest(X, W,
+			sample.fraction=sample.fraction,
+			mtry=mtry,
+			num.trees=min(500, num.trees),
+			num.threads=num.threads,
+			min.node.size=NULL,
+			keep.inbag = FALSE,
+			honesty=TRUE,
+			seed=seed)
+		W.hat = predict(forest.W)
+		
+		forest.Z <- regression.forest(X, Z,
+			sample.fraction=sample.fraction,
+			mtry=mtry,
+			num.trees=min(500, num.trees),
+			num.threads=num.threads,
+			min.node.size=NULL,
+			keep.inbag = FALSE,
+			honesty=TRUE,
+			seed=seed)
+		Z.hat = predict(forest.Z)
+		
+		input.data <- as.matrix(cbind(X, Y - Y.hat, W - W.hat, Z - Z.hat))
 
-	input.data <- as.matrix(cbind(X, Y, W, Z))	
+     }
+
+	
 	variable.names <- c(colnames(X), "outcome", "treatment", "instrument")
 	outcome.index.zeroindexed <- ncol(X)
 	treatment.index.zeroindexed <- ncol(X) + 1
