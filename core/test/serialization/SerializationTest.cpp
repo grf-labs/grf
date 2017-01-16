@@ -39,7 +39,6 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
       {10, 20, 30, 40},
       {0.5, 0.75, 0.9, 1.1, 1.2},
       {3, 4, 5, 9, 10, 11},
-      {0, 0},
       PredictionValues({{"average", {0, 0, 1}}}, 3)));
 
   TreeSerializer tree_serializer;
@@ -51,14 +50,13 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
   REQUIRE(tree->get_child_nodeIDs().size() == original_tree->get_child_nodeIDs().size());
   REQUIRE(tree->get_split_varIDs().size() == original_tree->get_split_varIDs().size());
   REQUIRE(tree->get_split_values().size() == original_tree->get_split_values().size());
-  REQUIRE(tree->get_inbag_counts().size() == original_tree->get_inbag_counts().size());
   REQUIRE(tree->get_oob_sampleIDs().size() == original_tree->get_oob_sampleIDs().size());
 }
 
 TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]") {
   std::vector<std::shared_ptr<Tree>> trees;
-  trees.push_back(std::shared_ptr<Tree>(new Tree({{0}}, {{0}}, {0}, {0}, {0}, {0}, PredictionValues())));
-  trees.push_back(std::shared_ptr<Tree>(new Tree({{1}}, {{1}}, {1}, {1}, {1}, {1}, PredictionValues())));
+  trees.push_back(std::shared_ptr<Tree>(new Tree({{0}}, {{0}}, {0}, {0}, {0}, PredictionValues())));
+  trees.push_back(std::shared_ptr<Tree>(new Tree({{1}}, {{1}}, {1}, {1}, {1}, PredictionValues())));
 
   std::vector<double> outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                   -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};

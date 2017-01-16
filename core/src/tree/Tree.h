@@ -18,7 +18,6 @@ public:
        const std::vector<size_t>& split_varIDs,
        const std::vector<double>& split_values,
        const std::vector<size_t>& oob_sampleIDs,
-       const std::vector<size_t>& inbag_counts,
        const PredictionValues& prediction_values);
 
   ~Tree();
@@ -43,10 +42,6 @@ public:
     return oob_sampleIDs;
   }
 
-  std::vector<size_t>& get_inbag_counts() {
-    return inbag_counts;
-  }
-
   PredictionValues get_prediction_values() {
     return prediction_values;
   }
@@ -66,7 +61,6 @@ private:
   std::vector<double> split_values;
 
   std::vector<size_t> oob_sampleIDs;
-  std::vector<size_t> inbag_counts;
 
   PredictionValues prediction_values;
 };

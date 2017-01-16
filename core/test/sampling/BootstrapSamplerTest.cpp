@@ -15,9 +15,9 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
+  SamplingOptions sampling_options(1, true, 1, new std::vector<double>());
   BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
-      1, random_device(), sampling_options);
+      random_device(), sampling_options);
 
   size_t max = 9;
   std::vector<size_t> skip = std::vector<size_t>({7});
@@ -47,9 +47,8 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
-  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
-      1, random_device(), sampling_options);
+  SamplingOptions sampling_options(1, true, 1, new std::vector<double>());
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(random_device(), sampling_options);
 
   size_t max = 9;
   std::vector<size_t> skip = std::vector<size_t>({0});
@@ -79,9 +78,8 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
-  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
-      1, random_device(), sampling_options);
+  SamplingOptions sampling_options(1, true, 1, new std::vector<double>());
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(random_device(), sampling_options);
 
   size_t max = 9;
   std::vector<size_t> skip = std::vector<size_t>({9});
@@ -111,9 +109,8 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
-  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
-      1, random_device(), sampling_options);
+  SamplingOptions sampling_options(1, true, 1, new std::vector<double>());
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(random_device(), sampling_options);
   
   size_t max = 1000;
   std::vector<size_t> skip = std::vector<size_t>({7});
@@ -143,9 +140,8 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
-  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
-      1, random_device(), sampling_options);
+  SamplingOptions sampling_options(1, true, 1, new std::vector<double>());
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(random_device(), sampling_options);
 
   size_t max = 1000;
   std::vector<size_t> skip = std::vector<size_t>({7});
@@ -172,13 +168,10 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
 
 
 TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
-  std::vector<size_t> result;
   std::random_device random_device;
-  std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
-  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
-      1, random_device(), sampling_options);
+  SamplingOptions sampling_options(1, true, 1, new std::vector<double>());
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(random_device(), sampling_options);
 
   std::vector<size_t> first_part;
   std::vector<size_t> second_part;
@@ -190,13 +183,10 @@ TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
 }
 
 TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
-  std::vector<size_t> result;
   std::random_device random_device;
-  std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
-  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
-      1, random_device(), sampling_options);
+  SamplingOptions sampling_options(1, true, 1, new std::vector<double>());
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(random_device(), sampling_options);
 
   std::vector<size_t> first_part;
   std::vector<size_t> second_part;
@@ -208,13 +198,10 @@ TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
 }
 
 TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
-  std::vector<size_t> result;
   std::random_device random_device;
-  std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
-  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
-      1, random_device(), sampling_options);
+  SamplingOptions sampling_options(1, true, 1, new std::vector<double>());
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(random_device(), sampling_options);
 
   std::vector<size_t> first_part;
   std::vector<size_t> second_part;
@@ -226,13 +213,10 @@ TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
 }
 
 TEST_CASE("Shuffle and split 4", "[shuffleAndSplit]") {
-  std::vector<size_t> result;
   std::random_device random_device;
-  std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, 1, new std::vector<double>(), true);
-  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(
-      1, random_device(), sampling_options);
+  SamplingOptions sampling_options(1, true, 1, new std::vector<double>());
+  BootstrapSampler* bootstrap_sampler = new BootstrapSampler(random_device(), sampling_options);
   
   std::vector<size_t> first_part;
   std::vector<size_t> second_part;

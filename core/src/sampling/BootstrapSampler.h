@@ -9,21 +9,14 @@
 
 class BootstrapSampler {
 public:
-  BootstrapSampler(size_t num_samples,
-                   uint seed,
+  BootstrapSampler(uint seed,
                    SamplingOptions options);
 
-  void sample(std::vector<size_t>& sampleIDs);
+  void sample(std::vector<size_t>& sampleIDs,
+              std::vector<size_t>& oob_sampleIDs);
   void sample_and_split(std::vector<size_t>& first_sampleIDs,
-                        std::vector<size_t>& second_sampleIDs);
-
-  std::vector<size_t>& getOobSampleIDs() {
-    return oob_sampleIDs;
-  }
-
-  std::vector<size_t>& getInbagCounts() {
-    return inbag_counts;
-  }
+                        std::vector<size_t>& second_sampleIDs,
+                        std::vector<size_t>& oob_sampleIDs);
 
   /**
    * Draw random numbers in a range without replacement and skip values.
@@ -75,10 +68,17 @@ public:
                        size_t n_first);
 
 private:
-  void bootstrap(std::vector<size_t>& sampleIDs);
-  void bootstrapWithoutReplacement(std::vector<size_t>& sampleIDs);
-  void bootstrapWeighted(std::vector<size_t>& sampleIDs);
-  void bootstrapWithoutReplacementWeighted(std::vector<size_t>& sampleIDs);
+  void bootstrap(std::vector<size_t>& sampleIDs,
+                 std::vector<size_t>& oob_sampleIDs);
+
+  void bootstrapWithoutReplacement(std::vector<size_t>& sampleIDs,
+                                   std::vector<size_t>& oob_sampleIDs);
+
+  void bootstrapWeighted(std::vector<size_t>& sampleIDs,
+                         std::vector<size_t>& oob_sampleIDs);
+
+  void bootstrapWithoutReplacementWeighted(std::vector<size_t>& sampleIDs,
+                                           std::vector<size_t>& oob_sampleIDs);
 
   /**
    * Simple algorithm for sampling without replacement, faster for smaller num_samples
@@ -105,10 +105,7 @@ private:
                                    const std::vector<size_t> &skip,
                                    size_t num_samples);
 
-  size_t num_samples;
   SamplingOptions options;
-  std::vector<size_t> inbag_counts;
-  std::vector<size_t> oob_sampleIDs;
   std::mt19937_64 random_number_generator;
 };
 

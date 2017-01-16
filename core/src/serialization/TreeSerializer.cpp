@@ -9,7 +9,6 @@ void TreeSerializer::serialize(std::ostream& stream, std::shared_ptr<Tree> tree)
   saveVector1D(tree->get_split_varIDs(), stream);
   saveVector1D(tree->get_split_values(), stream);
   saveVector1D(tree->get_oob_sampleIDs(), stream);
-  saveVector1D(tree->get_inbag_counts(), stream);
 
   PredictionValuesSerializer prediction_values_serializer;
   prediction_values_serializer.serialize(stream, tree->get_prediction_values());
@@ -31,9 +30,6 @@ std::shared_ptr<Tree> TreeSerializer::deserialize(std::istream& stream) {
   std::vector<size_t> oob_sampleIDs;
   readVector1D(oob_sampleIDs, stream);
 
-  std::vector<size_t> inbag_counts;
-  readVector1D(inbag_counts, stream);
-
   PredictionValuesSerializer prediction_values_serializer;
   PredictionValues prediction_values = prediction_values_serializer.deserialize(stream);
 
@@ -43,6 +39,5 @@ std::shared_ptr<Tree> TreeSerializer::deserialize(std::istream& stream) {
                split_varIDs,
                split_values,
                oob_sampleIDs,
-               inbag_counts,
                prediction_values));
 }

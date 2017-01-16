@@ -30,7 +30,8 @@ public:
             bool memory_saving_splitting,
             std::string case_weights_file,
             double sample_fraction,
-            bool honesty);
+            bool honesty,
+            uint ci_bag_size);
 
 private:
   void growTreesInThread(uint thread_idx,
@@ -53,7 +54,6 @@ private:
   bool prediction_mode;
   bool sample_with_replacement;
   bool memory_saving_splitting;
-  bool keep_inbag;
   double sample_fraction;
 
   std::vector<size_t> no_split_variables;
@@ -81,6 +81,8 @@ private:
 
   std::string split_select_weights_file;
   std::string case_weights_file;
+
+  uint ci_bag_size;
 };
 
 

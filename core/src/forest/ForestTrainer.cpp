@@ -15,7 +15,7 @@ ForestTrainer::ForestTrainer(std::unordered_map<std::string, size_t> observables
                              std::shared_ptr<PredictionStrategy> prediction_strategy) :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
     prediction_mode(false), sample_with_replacement(
-    true), memory_saving_splitting(false), keep_inbag(false), sample_fraction(
+    true), memory_saving_splitting(false), sample_fraction(
     1), num_threads(DEFAULT_NUM_THREADS), observables(observables),
     relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
@@ -35,7 +35,8 @@ void ForestTrainer::init(uint mtry,
                          bool memory_saving_splitting,
                          std::string case_weights_file,
                          double sample_fraction,
-                         bool honesty) {
+                         bool honesty,
+                         uint ci_bag_size) {
 
   this->verbose_out = verbose_out;
   this->always_split_variable_names = always_split_variable_names;
@@ -75,6 +76,8 @@ void ForestTrainer::init(uint mtry,
     std::random_device random_device;
     this->seed = random_device();
   }
+
+  this->ci_bag_size = ci_bag_size;
 
   // Sort no split variables in ascending order
   std::sort(no_split_variables.begin(), no_split_variables.end());
@@ -197,12 +200,11 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       uint tree_seed = udist(random_number_generator);
-      SamplingOptions sampling_options(sample_with_replacement,
+      SamplingOptions sampling_options(data->getNumRows(),
+                                       sample_with_replacement,
                                        sample_fraction,
-                                       &case_weights,
-                                       keep_inbag);
-      BootstrapSampler* bootstrap_sampler = new BootstrapSampler(data->getNumRows(),
-                                                                 tree_seed,
+                                       &case_weights);
+      BootstrapSampler* bootstrap_sampler = new BootstrapSampler(tree_seed,
                                                                  sampling_options);
 
       trees.push_back(tree_trainer->train(data,

@@ -29,11 +29,13 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
 
   std::vector<size_t> splitting_sampleIDs;
   std::vector<size_t> leaf_sampleIDs;
+  std::vector<size_t> oob_sampleIDs;
 
   if (options.get_honesty()) {
-    bootstrap_sampler->sample_and_split(splitting_sampleIDs, leaf_sampleIDs);
+    bootstrap_sampler->sample_and_split(splitting_sampleIDs,
+        leaf_sampleIDs, oob_sampleIDs);
   } else {
-    bootstrap_sampler->sample(splitting_sampleIDs);
+    bootstrap_sampler->sample(splitting_sampleIDs, oob_sampleIDs);
   }
 
   nodes[0] = splitting_sampleIDs;
@@ -65,8 +67,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
       nodes,
       split_varIDs,
       split_values,
-      bootstrap_sampler->getOobSampleIDs(),
-      bootstrap_sampler->getInbagCounts(),
+      oob_sampleIDs,
       PredictionValues()));
 
   if (!leaf_sampleIDs.empty()) {
