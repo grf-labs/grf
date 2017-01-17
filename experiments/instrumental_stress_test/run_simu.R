@@ -14,7 +14,7 @@ source("../baselines.R")
 alpha.tau = 1
 alpha.mu.vals = c(0, 3)
 sigma = 1
-confounding.vals = c(0, 1, 2)
+confounding.vals = c(0, 1)
 axis.aligned.vals = c(TRUE, FALSE)
 
 k.tau.vals = c(2, 4)
