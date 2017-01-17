@@ -36,7 +36,7 @@ void ForestTrainer::init(uint mtry,
                          std::string case_weights_file,
                          double sample_fraction,
                          bool honesty,
-                         uint ci_bag_size) {
+                         uint ci_group_size) {
 
   this->verbose_out = verbose_out;
   this->always_split_variable_names = always_split_variable_names;
@@ -56,13 +56,20 @@ void ForestTrainer::init(uint mtry,
     this->num_threads = num_threads;
   }
 
-  // Set member variables
-  this->num_trees = num_trees;
+  // If necessary, round the number of trees up to a multiple of
+  // the confidence interval group size.
+  this->num_trees = num_trees + (num_trees % ci_group_size);
+
   this->mtry = mtry;
   this->min_node_size = min_node_size;
   this->prediction_mode = prediction_mode;
   this->sample_with_replacement = sample_with_replacement;
   this->memory_saving_splitting = memory_saving_splitting;
+
+  if (ci_group_size > 1 && sample_fraction > 0.5) {
+    throw std::runtime_error("When confidence intervals are enabled, the"
+        " sampling fraction must be less than 0.5.");
+  }
   this->sample_fraction = sample_fraction;
 
   this->no_split_variables = no_split_variables;
@@ -77,7 +84,7 @@ void ForestTrainer::init(uint mtry,
     this->seed = random_device();
   }
 
-  this->ci_bag_size = ci_bag_size;
+  this->ci_group_size = ci_group_size;
 
   // Sort no split variables in ascending order
   std::sort(no_split_variables.begin(), no_split_variables.end());
@@ -153,8 +160,8 @@ Forest ForestTrainer::train(Data* data) {
   }
   Observations observations(*observations_by_type, data->getNumRows());
 
-  // Create thread ranges
-  equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
+  uint num_groups = (uint) num_trees / ci_group_size;
+  equalSplit(thread_ranges, 0, num_groups - 1, num_threads);
 
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
@@ -200,19 +207,51 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       uint tree_seed = udist(random_number_generator);
-      SamplingOptions sampling_options(data->getNumRows(),
-                                       sample_with_replacement,
-                                       sample_fraction,
-                                       &case_weights);
-      BootstrapSampler* bootstrap_sampler = new BootstrapSampler(tree_seed,
-                                                                 sampling_options);
+      SamplingOptions sampling_options(sample_with_replacement, &case_weights);
+      BootstrapSampler* bootstrap_sampler = new BootstrapSampler(tree_seed, sampling_options);
 
-      trees.push_back(tree_trainer->train(data,
-                                          bootstrap_sampler,
-                                          observations));
+      if (ci_group_size == 1) {
+        std::vector<size_t> sampleIDs;
+        std::vector<size_t> oob_sampleIDs;
+        bootstrap_sampler->sample(data->getNumRows(), sample_fraction, sampleIDs, oob_sampleIDs);
+
+        std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
+            bootstrap_sampler, sampleIDs);
+        tree->set_oob_sampleIDs(oob_sampleIDs);
+        trees.push_back(tree);
+      } else {
+        std::vector<std::shared_ptr<Tree>> group = train_ci_group(data,
+            observations, bootstrap_sampler, sample_fraction);
+        trees.insert(trees.end(), group.begin(), group.end());
+      }
     }
   }
   promise.set_value(trees);
+}
+
+std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
+                                                                 const Observations& observations,
+                                                                 BootstrapSampler* bootstrap_sampler,
+                                                                 double sample_fraction) {
+  std::vector<std::shared_ptr<Tree>> trees;
+
+  std::vector<size_t> sampleIDs;
+  std::vector<size_t> oob_sampleIDs;
+  bootstrap_sampler->sample(data->getNumRows(), 0.5, sampleIDs, oob_sampleIDs);
+
+  for (int i = 0; i < ci_group_size; i++) {
+    std::vector<size_t> subsampleIDs;
+    std::vector<size_t> oob_subsampleIDs;
+    bootstrap_sampler->subsample(sampleIDs, sample_fraction * 2, subsampleIDs, oob_subsampleIDs);
+    oob_subsampleIDs.insert(oob_subsampleIDs.end(), oob_sampleIDs.begin(), oob_sampleIDs.end());
+
+    std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
+        bootstrap_sampler, subsampleIDs);
+    tree->set_oob_sampleIDs(oob_subsampleIDs);
+    trees.push_back(tree);
+  }
+
+  return trees;
 }
 
 void ForestTrainer::setSplitWeightVector(std::vector<double> &split_select_weights,

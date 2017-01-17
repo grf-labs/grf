@@ -7,6 +7,7 @@ quantile.forest <- function(X, Y,
 	min.node.size=NULL,
 	keep.inbag = FALSE,
 	seed=NULL,
+	ci.group.size=2,
 	honesty=TRUE) {
 
 	if (!is.numeric(quantiles) | length(quantiles) < 1) {
@@ -73,8 +74,9 @@ quantile.forest <- function(X, Y,
 						sample.fraction,
 						no.split.variables,
 						seed,
-						honesty)
-						
+						honesty,
+						ci.group.size)
+					
 						
 	class(forest) <- "quantile.forest"
 	forest

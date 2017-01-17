@@ -26,7 +26,7 @@ void init_trainer(ForestTrainer& trainer) {
   std::string case_weights_file = "";
   double sample_fraction = 0.7;
   bool honesty = false;
-  uint ci_bag_size = 2;
+  uint ci_bag_size = 1;
 
   trainer.init(mtry, num_trees, verbose_out, seed, num_threads, load_forest_filename,
                min_node_size, no_split_variables, split_select_weights_file, always_split_variable_names,

@@ -17,7 +17,8 @@ public:
                                  double sample_fraction,
                                  std::vector<size_t> no_split_variables,
                                  uint seed,
-                                 bool honesty);
+                                 bool honesty,
+                                 uint ci_group_size);
 
   static Rcpp::RawVector serialize_forest(Forest forest);
 

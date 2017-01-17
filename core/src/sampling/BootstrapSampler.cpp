@@ -7,43 +7,45 @@ BootstrapSampler::BootstrapSampler(uint seed,
   random_number_generator.seed(seed);
 }
 
-void BootstrapSampler::sample(std::vector<size_t>& sampleIDs,
+void BootstrapSampler::sample(size_t num_samples,
+                              double sample_fraction,
+                              std::vector<size_t>& sampleIDs,
                               std::vector<size_t>& oob_sampleIDs) {
   bool sample_with_replacement = options.get_sample_with_replacement();
   if (options.get_case_weights()->empty()) {
     if (sample_with_replacement) {
-      bootstrap(sampleIDs, oob_sampleIDs);
+      bootstrap(num_samples, sample_fraction, sampleIDs, oob_sampleIDs);
     } else {
-      bootstrapWithoutReplacement(sampleIDs, oob_sampleIDs);
+      bootstrapWithoutReplacement(num_samples, sample_fraction, sampleIDs, oob_sampleIDs);
     }
   } else {
     if (sample_with_replacement) {
-      bootstrapWeighted(sampleIDs, oob_sampleIDs);
+      bootstrapWeighted(num_samples, sample_fraction, sampleIDs, oob_sampleIDs);
     } else {
-      bootstrapWithoutReplacementWeighted(sampleIDs, oob_sampleIDs);
+      bootstrapWithoutReplacementWeighted(num_samples, sample_fraction, sampleIDs, oob_sampleIDs);
     }
   }
 }
 
-void BootstrapSampler::sample_and_split(std::vector<size_t>& first_sampleIDs,
-                                        std::vector<size_t>& second_sampleIDs,
-                                        std::vector<size_t>& oob_sampleIDs) {
-  std::vector<size_t> sampleIDs;
-  sample(sampleIDs, oob_sampleIDs);
-  std::shuffle(sampleIDs.begin(), sampleIDs.end(), random_number_generator);
+void BootstrapSampler::subsample(const std::vector<size_t> &sampleIDs,
+                                 double sample_fraction,
+                                 std::vector<size_t> &subsampleIDs,
+                                 std::vector<size_t> &oob_sampleIDs) {
+  std::vector<size_t> shuffled_sampleIDs(sampleIDs);
+  std::shuffle(shuffled_sampleIDs.begin(), shuffled_sampleIDs.end(), random_number_generator);
 
-  first_sampleIDs.resize(sampleIDs.size() / 2);
-  second_sampleIDs.resize(sampleIDs.size() - first_sampleIDs.size());
+  uint subsample_size = (uint) std::ceil(sampleIDs.size() * sample_fraction);
+  subsampleIDs.resize(subsample_size);
+  oob_sampleIDs.resize(sampleIDs.size() - subsample_size);
 
-  std::copy(sampleIDs.begin(), sampleIDs.begin() + first_sampleIDs.size(), first_sampleIDs.begin());
-  std::copy(sampleIDs.begin() + first_sampleIDs.size(), sampleIDs.end(), second_sampleIDs.begin());
+  std::copy(sampleIDs.begin(), sampleIDs.begin() + subsampleIDs.size(), subsampleIDs.begin());
+  std::copy(sampleIDs.begin() + subsampleIDs.size(), sampleIDs.end(), oob_sampleIDs.begin());
 }
 
-void BootstrapSampler::bootstrap(std::vector<size_t>& sampleIDs,
+void BootstrapSampler::bootstrap(size_t num_samples,
+                                 double sample_fraction,
+                                 std::vector<size_t>& sampleIDs,
                                  std::vector<size_t>& oob_sampleIDs) {
-  size_t num_samples = options.get_num_samples();
-  double sample_fraction = options.get_sample_fraction();
-
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
 
 // Reserve space, reserve a little more to be save)
@@ -71,11 +73,10 @@ void BootstrapSampler::bootstrap(std::vector<size_t>& sampleIDs,
   }
 }
 
-void BootstrapSampler::bootstrapWeighted(std::vector<size_t>& sampleIDs,
+void BootstrapSampler::bootstrapWeighted(size_t num_samples,
+                                         double sample_fraction,
+                                         std::vector<size_t>& sampleIDs,
                                          std::vector<size_t>& oob_sampleIDs) {
-  size_t num_samples = options.get_num_samples();
-  double sample_fraction = options.get_sample_fraction();
-
   std::vector<double>* case_weights = options.get_case_weights();
 
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
@@ -104,17 +105,19 @@ void BootstrapSampler::bootstrapWeighted(std::vector<size_t>& sampleIDs,
   }
 }
 
-void BootstrapSampler::bootstrapWithoutReplacement(std::vector<size_t> &sampleIDs,
+void BootstrapSampler::bootstrapWithoutReplacement(size_t num_samples,
+                                                   double sample_fraction,
+                                                   std::vector<size_t> &sampleIDs,
                                                    std::vector<size_t>& oob_sampleIDs) {
-  size_t num_samples = options.get_num_samples();
-  size_t num_samples_inbag = (size_t) num_samples * options.get_sample_fraction();
+  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
   shuffleAndSplit(sampleIDs, oob_sampleIDs, num_samples, num_samples_inbag);
 }
 
-void BootstrapSampler::bootstrapWithoutReplacementWeighted(std::vector<size_t> &sampleIDs,
+void BootstrapSampler::bootstrapWithoutReplacementWeighted(size_t num_samples,
+                                                           double sample_fraction,
+                                                           std::vector<size_t> &sampleIDs,
                                                            std::vector<size_t>& oob_sampleIDs) {
-  size_t num_samples = options.get_num_samples();
-  size_t num_samples_inbag = (size_t) num_samples * options.get_sample_fraction();
+  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
 
   drawWithoutReplacementWeighted(sampleIDs,
                                  num_samples - 1,

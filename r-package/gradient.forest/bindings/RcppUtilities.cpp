@@ -15,7 +15,8 @@ void RcppUtilities::initialize_trainer(ForestTrainer &forest_trainer,
                                        double sample_fraction,
                                        std::vector<size_t> no_split_variables,
                                        uint seed,
-                                       bool honesty) {
+                                       bool honesty,
+                                       uint ci_group_size) {
   std::string load_forest_filename = "";
   std::string split_select_weights_file = "";
   std::vector<std::string> always_split_variable_names;
@@ -23,9 +24,9 @@ void RcppUtilities::initialize_trainer(ForestTrainer &forest_trainer,
   std::string case_weights_file = "";
 
   forest_trainer.init(mtry, num_trees, &std::cout, seed, num_threads, load_forest_filename,
-                       min_node_size, no_split_variables, split_select_weights_file,
-                       always_split_variable_names, sample_with_replacement,
-                       memory_saving_splitting, case_weights_file, sample_fraction, honesty);
+                      min_node_size, no_split_variables, split_select_weights_file,
+                      always_split_variable_names, sample_with_replacement, memory_saving_splitting,
+                      case_weights_file, sample_fraction, honesty, ci_group_size);
 }
 
 Rcpp::RawVector RcppUtilities::serialize_forest(Forest forest) {

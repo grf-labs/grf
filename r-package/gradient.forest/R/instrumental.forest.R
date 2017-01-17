@@ -6,6 +6,7 @@ instrumental.forest <- function(X, Y, W, Z,
 	min.node.size=NULL,
 	keep.inbag = FALSE,
 	honesty=TRUE,
+	ci.group.size=2,
 	precompute.nuisance=TRUE,
 	split.regularization=0,
 	seed=NULL) {
@@ -120,6 +121,7 @@ instrumental.forest <- function(X, Y, W, Z,
 						no.split.variables,
 						seed,
 						honesty,
+						ci.group.size,
 						split.regularization)
 						
 						

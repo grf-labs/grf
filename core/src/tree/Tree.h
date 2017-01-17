@@ -50,6 +50,10 @@ public:
     this->leaf_nodeIDs = leaf_nodeIDs;
   }
 
+  void set_oob_sampleIDs(std::vector<size_t>& oob_sampleIDs) {
+    this->oob_sampleIDs = oob_sampleIDs;
+  }
+
   void set_prediction_values(const PredictionValues& prediction_values) {
     this->prediction_values = prediction_values;
   }
