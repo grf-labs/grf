@@ -2,11 +2,11 @@ rm(list = ls())
 
 library(xtable)
 
-setwd("~/git_local/split-relabel/experiments/instrumental_stress_test")
+setwd("~/git/split-relabel/experiments/instrumental_stress_test")
 
 filenames = list.files("output", pattern="*", full.names=TRUE)
 
-res.names = c("cent. forest", "plain forest", "kNN", "series")
+res.names = c("cent. forest", "plain forest", "series", "kNN")
 param.names = c("nuisance", "confounding", "additive", "sparsity", "$p$", "$n$")
 
 raw = data.frame(t(sapply(filenames, function(fnm) {
@@ -33,3 +33,13 @@ raw = data.frame(t(sapply(filenames, function(fnm) {
 
 names(raw) = c(param.names, res.names)
 rownames(raw) = 1:nrow(raw)
+
+raw = raw[order(raw[,3], decreasing=TRUE),]
+raw = raw[order(raw[,1], decreasing=FALSE),]
+
+raw = raw[,c(1, 3, 2, 4:10)]
+
+collapsed = cbind(raw[1:32, 2:10], raw[33:64, 7:10])
+
+xtab = xtable(collapsed, align=c("r", "|", "|", rep("c", 2), "|", rep("r", 3), "|", "|", rep("c", 4), "|", rep("c", 4), "|", "|"))
+print(xtab, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, hline.after = c(-1, -1, 0, 0, 4, 8, 12, 16, 16, 20, 24, 28, 32, 32), file = "simulation_results.tex")
