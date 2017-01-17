@@ -13,9 +13,9 @@ TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy
     options(options) {}
 
 std::shared_ptr<Tree> TreeTrainer::train(Data* data,
-                                         BootstrapSampler *bootstrap_sampler,
-                                         const Observations& observations) {
-
+                                         const Observations& observations,
+                                         BootstrapSampler* bootstrap_sampler,
+                                         const std::vector<size_t>& sampleIDs) {
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> nodes;
   std::vector<size_t> split_varIDs;
@@ -25,22 +25,16 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
   child_nodeIDs.push_back(std::vector<size_t>());
   createEmptyNode(child_nodeIDs, nodes, split_varIDs, split_values);
 
-  std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create();
-
-  std::vector<size_t> splitting_sampleIDs;
   std::vector<size_t> leaf_sampleIDs;
-  std::vector<size_t> oob_sampleIDs;
 
   if (options.get_honesty()) {
-    bootstrap_sampler->sample_and_split(splitting_sampleIDs,
-        leaf_sampleIDs, oob_sampleIDs);
+    bootstrap_sampler->subsample(sampleIDs, 0.5, nodes[0], leaf_sampleIDs);
   } else {
-    bootstrap_sampler->sample(splitting_sampleIDs, oob_sampleIDs);
+    nodes[0] = sampleIDs;
   }
 
-  nodes[0] = splitting_sampleIDs;
+  std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create();
 
-  // While not all nodes terminal, split next node
   size_t num_open_nodes = 1;
   size_t i = 0;
   while (num_open_nodes > 0) {
@@ -67,7 +61,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
       nodes,
       split_varIDs,
       split_values,
-      oob_sampleIDs,
+      {},
       PredictionValues()));
 
   if (!leaf_sampleIDs.empty()) {
@@ -125,7 +119,7 @@ void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t> &result,
 
 bool TreeTrainer::splitNode(size_t nodeID,
                             std::shared_ptr<SplittingRule> splitting_rule,
-                            BootstrapSampler *bootstrap_sampler,
+                            BootstrapSampler* bootstrap_sampler,
                             Data *data,
                             const Observations& observations,
                             std::vector<std::vector<size_t>> &child_nodeIDs,

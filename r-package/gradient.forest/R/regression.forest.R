@@ -6,6 +6,7 @@ regression.forest <- function(X, Y,
 	min.node.size=NULL,
 	keep.inbag = FALSE,
 	honesty=TRUE,
+	ci.group.size=2,
 	seed=NULL) {
 
 	sparse.data <- as.matrix(0)
@@ -65,7 +66,8 @@ regression.forest <- function(X, Y,
 						sample.fraction,
 						no.split.variables,
 						seed,
-						honesty)
+						honesty,
+						ci.group.size)
 						
 	forest[["original.data"]] <- input.data
 	class(forest) <- "regression.forest"

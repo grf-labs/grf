@@ -12,11 +12,15 @@ public:
   BootstrapSampler(uint seed,
                    SamplingOptions options);
 
-  void sample(std::vector<size_t>& sampleIDs,
+  void sample(size_t num_samples,
+              double sample_fraction,
+              std::vector<size_t>& sampleIDs,
               std::vector<size_t>& oob_sampleIDs);
-  void sample_and_split(std::vector<size_t>& first_sampleIDs,
-                        std::vector<size_t>& second_sampleIDs,
-                        std::vector<size_t>& oob_sampleIDs);
+
+  void subsample(const std::vector<size_t> &sampleIDs,
+                 double sample_fraction,
+                 std::vector<size_t> &subsampleIDs,
+                 std::vector<size_t> &oob_sampleIDs);
 
   /**
    * Draw random numbers in a range without replacement and skip values.
@@ -68,16 +72,24 @@ public:
                        size_t n_first);
 
 private:
-  void bootstrap(std::vector<size_t>& sampleIDs,
+  void bootstrap(size_t num_samples,
+                 double sample_fraction,
+                 std::vector<size_t>& sampleIDs,
                  std::vector<size_t>& oob_sampleIDs);
 
-  void bootstrapWithoutReplacement(std::vector<size_t>& sampleIDs,
+  void bootstrapWithoutReplacement(size_t num_samples,
+                                   double sample_fraction,
+                                   std::vector<size_t>& sampleIDs,
                                    std::vector<size_t>& oob_sampleIDs);
 
-  void bootstrapWeighted(std::vector<size_t>& sampleIDs,
+  void bootstrapWeighted(size_t num_samples,
+                         double sample_fraction,
+                         std::vector<size_t>& sampleIDs,
                          std::vector<size_t>& oob_sampleIDs);
 
-  void bootstrapWithoutReplacementWeighted(std::vector<size_t>& sampleIDs,
+  void bootstrapWithoutReplacementWeighted(size_t num_samples,
+                                           double sample_fraction,
+                                           std::vector<size_t>& sampleIDs,
                                            std::vector<size_t>& oob_sampleIDs);
 
   /**

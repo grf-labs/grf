@@ -16,9 +16,10 @@ public:
               std::shared_ptr<PredictionStrategy> prediction_strategy,
               TreeOptions options);
 
-  std::shared_ptr<Tree> train(Data *data,
-                              BootstrapSampler *bootstrap_sampler,
-                              const Observations& observations);
+  std::shared_ptr<Tree> train(Data* data,
+                              const Observations& observations,
+                              BootstrapSampler* bootstrap_sampler,
+                              const std::vector<size_t>& sampleIDs);
 
 private:
   void createEmptyNode(std::vector <std::vector<size_t>> &child_nodeIDs,
