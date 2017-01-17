@@ -11,9 +11,9 @@ size_t QuantilePredictionStrategy::prediction_length() {
     return quantiles.size();
 }
 
-std::vector<double> QuantilePredictionStrategy::predict(const std::map<std::string, double>& average_prediction_values,
-                                                        const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                        const Observations& observations) {
+Prediction QuantilePredictionStrategy::predict(const std::map<std::string, double>& average_prediction_values,
+                                               const std::unordered_map<size_t, double>& weights_by_sampleID,
+                                               const Observations& observations) {
   std::vector<std::pair<size_t, double>> sampleIDs_and_values;
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     size_t sampleID = it->first;
@@ -21,12 +21,13 @@ std::vector<double> QuantilePredictionStrategy::predict(const std::map<std::stri
         sampleID, observations.get(Observations::OUTCOME)[sampleID]));
   }
 
-  return calculateQuantileCutoffs(weights_by_sampleID, sampleIDs_and_values);
+  std::vector<double> quantile_cutoffs = compute_quantile_cutoffs(weights_by_sampleID, sampleIDs_and_values);
+  return Prediction(quantile_cutoffs);
 }
 
-std::vector<double> QuantilePredictionStrategy::calculateQuantileCutoffs(
-    const std::unordered_map<size_t,double>& weights_by_sampleID,
-    std::vector<std::pair<size_t, double>>& sampleIDs_and_values) {
+std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
+    const std::unordered_map<size_t, double> &weights_by_sampleID,
+    std::vector<std::pair<size_t, double>> &sampleIDs_and_values) {
   std::sort(sampleIDs_and_values.begin(),
             sampleIDs_and_values.end(),
             [](std::pair<size_t, double> first_pair, std::pair<size_t, double> second_pair) {
@@ -53,6 +54,13 @@ std::vector<double> QuantilePredictionStrategy::calculateQuantileCutoffs(
     quantile_cutoffs.push_back(last_value);
   }
   return quantile_cutoffs;
+}
+
+Prediction QuantilePredictionStrategy::predict_with_variance(
+    const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+    const Observations& observations,
+    uint ci_group_size) {
+  throw std::runtime_error("Variance estimates are not yet implemented.");
 }
 
 bool QuantilePredictionStrategy::requires_leaf_sampleIDs() {

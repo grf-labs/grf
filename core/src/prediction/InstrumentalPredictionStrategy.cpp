@@ -8,10 +8,10 @@ size_t InstrumentalPredictionStrategy::prediction_length() {
     return 1;
 }
 
-std::vector<double> InstrumentalPredictionStrategy::predict(const std::map<std::string, double>& average_prediction_values,
-                                                            const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                            const Observations& observations) {
-  // Compute the relevant averages.e
+Prediction InstrumentalPredictionStrategy::predict(const std::map<std::string, double>& average_prediction_values,
+                                                   const std::unordered_map<size_t, double>& weights_by_sampleID,
+                                                   const Observations& observations) {
+  // Compute the relevant averages.
   double average_instrument = 0.0;
   double average_treatment = 0.0;
   double average_outcome = 0.0;
@@ -26,8 +26,8 @@ std::vector<double> InstrumentalPredictionStrategy::predict(const std::map<std::
   }
 
   // Finally, calculate the prediction.
-  double numerator = 0.0;
-  double denominator = 0.0;
+  double instrument_effect = 0.0;
+  double first_stage_effect = 0.0;
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     size_t neighborID = it->first;
     double weight = it->second;
@@ -36,11 +36,18 @@ std::vector<double> InstrumentalPredictionStrategy::predict(const std::map<std::
     double treatment = observations.get(Observations::TREATMENT)[neighborID];
     double instrument = observations.get(Observations::INSTRUMENT)[neighborID];
 
-    numerator += weight * (instrument - average_instrument) * (response - average_outcome);
-    denominator += weight * (instrument - average_instrument) * (treatment - average_treatment);
+    instrument_effect += weight * (instrument - average_instrument) * (response - average_outcome);
+    first_stage_effect += weight * (instrument - average_instrument) * (treatment - average_treatment);
   }
 
-  return { numerator / denominator };
+  return Prediction({ instrument_effect / first_stage_effect });
+}
+
+Prediction InstrumentalPredictionStrategy::predict_with_variance(
+    const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+    const Observations& observations,
+    uint ci_group_size) {
+
 }
 
 bool InstrumentalPredictionStrategy::requires_leaf_sampleIDs() {

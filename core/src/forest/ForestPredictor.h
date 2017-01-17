@@ -4,6 +4,7 @@
 
 #include "RelabelingStrategy.h"
 #include "SplittingRule.h"
+#include "Prediction.h"
 #include "PredictionStrategy.h"
 
 #include "Tree.h"
@@ -16,10 +17,11 @@
 class ForestPredictor {
 public:
   ForestPredictor(uint num_threads,
+                  uint ci_group_size,
                   std::shared_ptr<PredictionStrategy> prediction_strategy);
 
-  std::vector<std::vector<double>> predict(const Forest& forest, Data* prediction_data);
-  std::vector<std::vector<double>> predict_oob(const Forest& forest, Data* original_data);
+  std::vector<Prediction> predict(const Forest& forest, Data* prediction_data);
+  std::vector<Prediction> predict_oob(const Forest& forest, Data* original_data);
 
 private:
   std::map<size_t, std::vector<size_t>> determine_terminal_node_IDs(
@@ -45,6 +47,7 @@ private:
   void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sampleID);
 
   uint num_threads;
+  uint ci_group_size;
   std::vector<uint> thread_ranges;
 
   std::shared_ptr<PredictionStrategy> prediction_strategy;

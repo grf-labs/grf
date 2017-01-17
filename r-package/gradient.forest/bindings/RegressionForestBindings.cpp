@@ -53,7 +53,7 @@ Rcpp::NumericMatrix regression_predict(Rcpp::List forest,
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::regression_predictor(4);
-  std::vector<std::vector<double>> predictions = predictor.predict(deserialized_forest, data);
+  std::vector<Prediction> predictions = predictor.predict(deserialized_forest, data);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   delete data;
@@ -71,7 +71,7 @@ Rcpp::NumericMatrix regression_predict_oob(Rcpp::List forest,
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::regression_predictor(4);
-  std::vector<std::vector<double>> predictions = predictor.predict_oob(deserialized_forest, data);
+  std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   delete data;

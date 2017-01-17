@@ -5,7 +5,8 @@
 
 class ForestPredictors {
 public:
-  static ForestPredictor instrumental_predictor(uint num_threads);
+  static ForestPredictor instrumental_predictor(uint num_threads,
+                                                uint ci_group_size);
 
   static ForestPredictor quantile_predictor(uint num_threads,
                                             const std::vector<double>& quantiles);

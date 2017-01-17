@@ -25,8 +25,11 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
       flipped_treatment, instrument);
 
   InstrumentalPredictionStrategy prediction_strategy;
-  std::vector<double> first_predictions = prediction_strategy.predict({}, weights_by_sampleID, observations);
-  std::vector<double> second_predictions = prediction_strategy.predict({}, weights_by_sampleID, flipped_observations);
+  Prediction first_prediction = prediction_strategy.predict({}, weights_by_sampleID, observations);
+  std::vector<double> first_predictions = first_prediction.get_predictions();
+
+  Prediction second_prediction = prediction_strategy.predict({}, weights_by_sampleID, flipped_observations);
+  std::vector<double> second_predictions = second_prediction.get_predictions();
 
   REQUIRE(first_predictions.size() == 1);
   REQUIRE(second_predictions.size() == 1);
@@ -49,8 +52,11 @@ TEST_CASE("scaling instrument does not affect prediction", "[instrumental, predi
       treatment, scaled_instrument);
 
   InstrumentalPredictionStrategy prediction_strategy;
-  std::vector<double> first_predictions = prediction_strategy.predict({}, weights_by_sampleID, observations);
-  std::vector<double> second_predictions = prediction_strategy.predict({}, weights_by_sampleID, scaled_observations);
+  Prediction first_prediction = prediction_strategy.predict({}, weights_by_sampleID, observations);
+  std::vector<double> first_predictions = first_prediction.get_predictions();
+
+  Prediction second_prediction = prediction_strategy.predict({}, weights_by_sampleID, scaled_observations);
+  std::vector<double> second_predictions = second_prediction.get_predictions();
 
   REQUIRE(first_predictions.size() == 1);
   REQUIRE(second_predictions.size() == 1);

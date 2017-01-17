@@ -17,10 +17,10 @@ TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
   QuantilePredictionStrategy prediction_strategy({0.25, 0.5, 0.75});
-  std::vector<double> predictions = prediction_strategy.predict({}, weights_by_sampleID, observations);
+  Prediction prediction = prediction_strategy.predict({}, weights_by_sampleID, observations);
 
   std::vector<double> expected_predictions = {-7.36924, -0.826997, 5.11211};
-  REQUIRE(predictions == expected_predictions);
+  REQUIRE(prediction.get_predictions() == expected_predictions);
 }
 
 TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
@@ -33,10 +33,10 @@ TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
   QuantilePredictionStrategy prediction_strategy({0.5, 0.75, 0.80, 0.90});
-  std::vector<double> predictions = prediction_strategy.predict({}, weights_by_sampleID, observations);
+  Prediction predictions = prediction_strategy.predict({}, weights_by_sampleID, observations);
 
   // Check that all predictions fall within a reasonable range.
-  for (auto &prediction : predictions) {
+  for (auto &prediction : predictions.get_predictions()) {
     REQUIRE(-2.0 < prediction);
     REQUIRE(prediction < 2.0);
   }
@@ -52,11 +52,14 @@ TEST_CASE("prediction with repeated quantiles", "[quantile, prediction]") {
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
   std::vector<double> first_predictions = QuantilePredictionStrategy({0.5})
-          .predict({}, weights_by_sampleID, observations);
+          .predict({}, weights_by_sampleID, observations)
+          .get_predictions();
   std::vector<double> second_predictions = QuantilePredictionStrategy({0.25, 0.5, 0.75})
-      .predict({}, weights_by_sampleID, observations);
+      .predict({}, weights_by_sampleID, observations)
+      .get_predictions();
   std::vector<double> third_predictions = QuantilePredictionStrategy({0.5, 0.5, 0.5})
-      .predict({}, weights_by_sampleID, observations);
+      .predict({}, weights_by_sampleID, observations)
+      .get_predictions();
 
   REQUIRE(first_predictions[0] == second_predictions[1]);
   for (auto prediction : third_predictions) {

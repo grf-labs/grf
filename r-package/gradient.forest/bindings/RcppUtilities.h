@@ -28,7 +28,10 @@ public:
                             Rcpp::RawMatrix sparse_data,
                             std::vector<std::string> variable_names);
 
-  static Rcpp::NumericMatrix create_prediction_matrix(std::vector<std::vector<double>> predictions);
+  static Rcpp::NumericMatrix create_prediction_matrix(std::vector<Prediction> predictions);
+
+  static Rcpp::NumericMatrix create_variance_matrix(std::vector<Prediction> predictions);
+
 };
 
 

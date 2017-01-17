@@ -1,10 +1,12 @@
 #include "ForestPredictor.h"
+#include "Prediction.h"
 #include "TreePredictor.h"
 #include "utility.h"
 
 ForestPredictor::ForestPredictor(uint num_threads,
+                                 uint ci_group_size,
                                  std::shared_ptr<PredictionStrategy> prediction_strategy) :
-    prediction_strategy(prediction_strategy) {
+    ci_group_size(ci_group_size), prediction_strategy(prediction_strategy) {
   if (num_threads == DEFAULT_NUM_THREADS) {
     this->num_threads = std::thread::hardware_concurrency();
   } else {
@@ -52,17 +54,18 @@ std::map<size_t, std::vector<size_t>> ForestPredictor::determine_terminal_node_I
   return terminal_node_IDs_by_tree;
 };
 
-std::vector<std::vector<double>> ForestPredictor::predict(const Forest& forest, Data* prediction_data) {
+std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* prediction_data) {
   std::map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree =
       determine_terminal_node_IDs(forest, prediction_data, false);
 
-  std::vector<std::vector<double>> predictions;
+  std::vector<Prediction> predictions;
   predictions.reserve(prediction_data->getNumRows());
 
   size_t prediction_length = prediction_strategy->prediction_length();
   for (size_t sampleID = 0; sampleID < prediction_data->getNumRows(); ++sampleID) {
     std::map<std::string, double> average_prediction_values;
     std::unordered_map<size_t, double> weights_by_sampleID;
+    std::vector<std::vector<size_t>> leaf_sampleIDs;
 
     // Average the precomputed prediction values across the leaf nodes this sample falls
     // in, and create a list of weighted neighbors if the prediction strategy requires it.
@@ -75,29 +78,36 @@ std::vector<std::vector<double>> ForestPredictor::predict(const Forest& forest, 
       if (prediction_strategy->requires_leaf_sampleIDs()) {
         add_sample_weights(nodeID, tree, weights_by_sampleID);
       }
+
+      // hackhackhack
+      if (ci_group_size > 1) {
+        leaf_sampleIDs.push_back(terminal_node_IDs);
+      }
     }
 
     normalize_prediction_values(forest.get_trees().size(), average_prediction_values);
     normalize_sample_weights(weights_by_sampleID);
 
-    std::vector<double> prediction = prediction_strategy->predict(average_prediction_values,
-        weights_by_sampleID, forest.get_observations());
+    Prediction prediction = ci_group_size == 1 ?
+        prediction_strategy->predict(average_prediction_values, weights_by_sampleID, forest.get_observations()) :
+        prediction_strategy->predict_with_variance(leaf_sampleIDs, forest.get_observations(), ci_group_size);
 
     if (prediction.size() != prediction_length) {
       throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
                                " did not have the expected length.");
     }
+
     predictions.push_back(prediction);
   }
 
   return predictions;
 }
 
-std::vector<std::vector<double>> ForestPredictor::predict_oob(const Forest& forest, Data* original_data) {
+std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data* original_data) {
   std::map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree =
       determine_terminal_node_IDs(forest, original_data, true);
 
-  std::vector<std::vector<double>> predictions;
+  std::vector<Prediction> predictions;
   predictions.reserve(original_data->getNumRows());
 
   size_t num_trees = forest.get_trees().size();
@@ -147,7 +157,7 @@ std::vector<std::vector<double>> ForestPredictor::predict_oob(const Forest& fore
       continue;
     }
 
-    std::vector<double> prediction = prediction_strategy->predict(average_prediction_values,
+    Prediction prediction = prediction_strategy->predict(average_prediction_values,
         weights_by_sampleID, forest.get_observations());
 
     if (prediction.size() != prediction_length) {
