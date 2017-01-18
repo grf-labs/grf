@@ -29,8 +29,8 @@ void BootstrapSampler::sample(size_t num_samples,
 
 void BootstrapSampler::subsample(const std::vector<size_t> &sampleIDs,
                                  double sample_fraction,
-                                 std::vector<size_t> &subsampleIDs,
-                                 std::vector<size_t> &oob_sampleIDs) {
+                                 std::vector<size_t>& subsampleIDs,
+                                 std::vector<size_t>& oob_sampleIDs) {
   std::vector<size_t> shuffled_sampleIDs(sampleIDs);
   std::shuffle(shuffled_sampleIDs.begin(), shuffled_sampleIDs.end(), random_number_generator);
 
@@ -38,8 +38,12 @@ void BootstrapSampler::subsample(const std::vector<size_t> &sampleIDs,
   subsampleIDs.resize(subsample_size);
   oob_sampleIDs.resize(sampleIDs.size() - subsample_size);
 
-  std::copy(sampleIDs.begin(), sampleIDs.begin() + subsampleIDs.size(), subsampleIDs.begin());
-  std::copy(sampleIDs.begin() + subsampleIDs.size(), sampleIDs.end(), oob_sampleIDs.begin());
+  std::copy(shuffled_sampleIDs.begin(),
+            shuffled_sampleIDs.begin() + subsampleIDs.size(),
+            subsampleIDs.begin());
+  std::copy(shuffled_sampleIDs.begin() + subsampleIDs.size(),
+            shuffled_sampleIDs.end(),
+            oob_sampleIDs.begin());
 }
 
 void BootstrapSampler::bootstrap(size_t num_samples,
