@@ -76,10 +76,6 @@ Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(std::vector<Predicti
 
   for (int i = 0; i < predictions.size(); i++) {
     std::vector<double> prediction = predictions[i].get_predictions();
-    if (prediction.size() != prediction_length) {
-      throw std::runtime_error("Prediction " + std::to_string(i) + " did not have the expected length.");
-    }
-
     for (int j = 0; j < prediction.size(); j++) {
       double value = prediction[j];
       result(i, j) = value;
@@ -93,14 +89,16 @@ Rcpp::NumericMatrix RcppUtilities::create_variance_matrix(std::vector<Prediction
     return Rcpp::NumericMatrix(0);
   }
 
-  size_t prediction_length = predictions.at(0).size();
+  Prediction first_prediction = predictions.at(0);
+  if (!first_prediction.contains_variance_estimates()) {
+    return Rcpp::NumericMatrix(0);
+  }
+
+  size_t prediction_length = first_prediction.size();
   Rcpp::NumericMatrix result(predictions.size(), prediction_length);
 
   for (int i = 0; i < predictions.size(); i++) {
     std::vector<double> variance_estimate = predictions[i].get_variance_estimates();
-    if (variance_estimate.size() != prediction_length) {
-      throw std::runtime_error("Prediction " + std::to_string(i) + " did not have the expected length.");
-    }
 
     for (int j = 0; j < variance_estimate.size(); j++) {
       double value = variance_estimate[j];

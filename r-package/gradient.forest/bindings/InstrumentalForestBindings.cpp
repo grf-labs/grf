@@ -70,18 +70,21 @@ Rcpp::List instrumental_predict(Rcpp::List forest,
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix instrumental_predict_oob(Rcpp::List forest,
-                                             Rcpp::NumericMatrix input_data,
-                                             Rcpp::RawMatrix sparse_data,
-                                             std::vector <std::string> variable_names,
-                                             uint num_threads) {
+Rcpp::List instrumental_predict_oob(Rcpp::List forest,
+                                    Rcpp::NumericMatrix input_data,
+                                    Rcpp::RawMatrix sparse_data,
+                                    std::vector <std::string> variable_names,
+                                    uint num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
   Forest deserialized_forest = RcppUtilities::deserialize_forest(
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads, 1);
   std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data);
-  Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
+
+  Rcpp::List result;
+  result.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
+  result.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");
 
   delete data;
   return result;

@@ -51,7 +51,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // instrumental_predict_oob
-Rcpp::NumericMatrix instrumental_predict_oob(Rcpp::List forest, Rcpp::NumericMatrix input_data, Rcpp::RawMatrix sparse_data, std::vector <std::string> variable_names, uint num_threads);
+Rcpp::List instrumental_predict_oob(Rcpp::List forest, Rcpp::NumericMatrix input_data, Rcpp::RawMatrix sparse_data, std::vector <std::string> variable_names, uint num_threads);
 RcppExport SEXP gradient_forest_instrumental_predict_oob(SEXP forestSEXP, SEXP input_dataSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP num_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
