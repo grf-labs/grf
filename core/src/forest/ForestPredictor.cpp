@@ -81,7 +81,8 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
 
       // hackhackhack
       if (ci_group_size > 1) {
-        leaf_sampleIDs.push_back(terminal_node_IDs);
+        std::vector<size_t> sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
+        leaf_sampleIDs.push_back(sampleIDs);
       }
     }
 

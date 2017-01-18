@@ -124,12 +124,12 @@ instrumental.forest <- function(X, Y, W, Z,
 						ci.group.size,
 						split.regularization)
 						
-						
+	forest <- c(forest, "ci.group.size"=ci.group.size)					
 	class(forest) <- "instrumental.forest"
 	forest
 }
 
-predict.instrumental.forest <- function(forest, newdata, num.threads = NULL) {
+predict.instrumental.forest <- function(forest, newdata, num.threads = NULL, estimate.variance=FALSE) {
 
 	if (is.null(num.threads)) {
         num.threads <- 0
@@ -139,6 +139,13 @@ predict.instrumental.forest <- function(forest, newdata, num.threads = NULL) {
      
 	 sparse.data <- as.matrix(0)
 	 variable.names <- character(0)
+
+     # hackhack don't ask....
+	 if (estimate.variance) {
+	 	ci.group.size = forest$ci.group.size
+	 } else {
+	 	ci.group.size = 1
+	 }
 	
 	 input.data <- as.matrix(cbind(newdata, NA))	
 	
@@ -146,5 +153,6 @@ predict.instrumental.forest <- function(forest, newdata, num.threads = NULL) {
      				  input.data,
      				  sparse.data,
      				  variable.names,
-     				  num.threads)    				 
+     				  num.threads,
+     				  ci.group.size)    				 
 } 

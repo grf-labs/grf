@@ -3,7 +3,6 @@ library(gradient.forest)
 set.seed(1234)
 
 test_that("instrumental variance estimates are reasonable", {
-	
 	p = 20
 	n = 1000
 
@@ -20,5 +19,5 @@ test_that("instrumental variance estimates are reasonable", {
 	Y = 2 * (X[,1] <= 0) * A + (X[,1] > 0) * W + (1 + (sqrt(3) - 1) * (X[,1] > 0)) * rnorm(n)
 
 	forest.iv = instrumental.forest(X, Y, W, Z, min.node.size = 5, split.regularization = 0)
-	preds.iv = predict(forest.iv, X.test)
+	preds.iv = predict(forest.iv, X.test, estimate.variance=TRUE)
 })
