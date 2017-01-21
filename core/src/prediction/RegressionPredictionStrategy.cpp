@@ -30,7 +30,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
   std::vector<double> averages;
   for (auto& leaf_node : leaf_sampleIDs) {
     if (leaf_node.empty()) {
-      averages.push_back(0.0);
+      averages.push_back(NAN);
       continue;
     }
 

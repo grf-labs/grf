@@ -39,11 +39,10 @@ private:
                              const PredictionValues& prediction_values,
                              std::map<std::string, double>& average_prediction_values);
 
-  void add_sample_weights(size_t nodeID,
-                          std::shared_ptr<Tree> tree,
+  void add_sample_weights(const std::vector<size_t>& sampleIDs,
                           std::unordered_map<size_t, double>& weights_by_sampleID);
 
-  void normalize_prediction_values(size_t num_trees,
+  void normalize_prediction_values(size_t num_leaf_nodes,
                                    std::map<std::string, double>& average_prediction_values);
 
   void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sampleID);
