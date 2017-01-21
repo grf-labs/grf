@@ -18,6 +18,6 @@ Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
   return Forest(trees, observations);
 }
 
-Forest::Forest(std::vector<std::shared_ptr<Tree>> trees,
-               Observations observations):
+Forest::Forest(const std::vector<std::shared_ptr<Tree>>& trees,
+               const Observations& observations):
   trees(trees), observations(observations) {}

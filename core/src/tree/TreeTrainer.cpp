@@ -86,7 +86,7 @@ void TreeTrainer::repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
       tree, data, leaf_sampleIDs);
 
   for (auto& sampleID : leaf_sampleIDs) {
-    size_t terminal_nodeID = terminal_nodeIDs.at(sampleID);
+    size_t terminal_nodeID = terminal_nodeIDs[sampleID];
     new_terminal_nodeIDs.at(terminal_nodeID).push_back(sampleID);
   }
   tree->set_leaf_nodeIDs(new_terminal_nodeIDs);

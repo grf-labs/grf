@@ -36,7 +36,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
 
     double average = 0.0;
     for (auto& sampleID : leaf_node) {
-      average += observations.get(Observations::OUTCOME).at(sampleID);
+      average += observations.get(Observations::OUTCOME)[sampleID];
     }
     averages.push_back(average / leaf_node.size());
   }

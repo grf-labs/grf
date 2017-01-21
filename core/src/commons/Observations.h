@@ -13,8 +13,13 @@ public:
 
   const std::vector<double>& get(std::string type) const;
 
-  size_t get_num_samples() const;
-  const std::map<std::string, std::vector<double>>& get_observations_by_type() const;
+  const std::map<std::string, std::vector<double>>& get_observations_by_type() const {
+    return observations_by_type;
+  }
+
+  size_t get_num_samples() const {
+    return num_samples;
+  }
 
   static const std::string OUTCOME;
   static const std::string TREATMENT;

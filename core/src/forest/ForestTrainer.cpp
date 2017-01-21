@@ -220,8 +220,8 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
         tree->set_oob_sampleIDs(oob_sampleIDs);
         trees.push_back(tree);
       } else {
-        std::vector<std::shared_ptr<Tree>> group = train_ci_group(data,
-            observations, bootstrap_sampler, sample_fraction);
+        std::vector<std::shared_ptr<Tree>> group = train_ci_group(
+            data, observations, bootstrap_sampler, sample_fraction);
         trees.insert(trees.end(), group.begin(), group.end());
       }
     }
@@ -254,8 +254,8 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
   return trees;
 }
 
-void ForestTrainer::setSplitWeightVector(std::vector<double> &split_select_weights,
-                                       size_t num_independent_variables) {
+void ForestTrainer::setSplitWeightVector(std::vector<double>& split_select_weights,
+                                         size_t num_independent_variables) {
 // Reserve space
   this->split_select_weights.resize(num_independent_variables);
   this->split_select_varIDs.resize(num_independent_variables);

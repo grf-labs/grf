@@ -13,14 +13,14 @@ public:
   static Forest create(std::vector<std::shared_ptr<Tree>> trees,
                        Data* data,
                        std::unordered_map<std::string, size_t> observables);
-  Forest(std::vector<std::shared_ptr<Tree>> trees,
-         Observations observations);
+  Forest(const std::vector<std::shared_ptr<Tree>>& trees,
+         const Observations& observations);
 
-  const Observations get_observations() const {
+  const Observations& get_observations() const {
     return observations;
   };
 
-  const std::vector<std::shared_ptr<Tree>> get_trees() const {
+  const std::vector<std::shared_ptr<Tree>>& get_trees() const {
     return trees;
   }
 

@@ -6,7 +6,7 @@ std::unordered_map<size_t, double> NoopRelabelingStrategy::relabel_outcomes(
 
   std::unordered_map<size_t, double> relabeled_observations;
   for (size_t sampleID : node_sampleIDs) {
-    double outcome = observations.get(Observations::OUTCOME).at(sampleID);
+    double outcome = observations.get(Observations::OUTCOME)[sampleID];
     relabeled_observations[sampleID] = outcome;
   }
   return relabeled_observations;

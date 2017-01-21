@@ -69,15 +69,12 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     size_t leaf_size = leaf_sampleIDs[i].size();
 
     if (leaf_size == 0) {
-
       leaf_Y[i] = NAN;
       leaf_W[i] = NAN;
       leaf_Z[i] = NAN;
       leaf_YZ[i] = NAN;
       leaf_WZ[i] = NAN;
-
       continue;
-
     }
 
     double sum_Y = 0;
@@ -107,7 +104,6 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     total_WZ += sum_WZ / leaf_size;
 
     non_empty_leaves++;
-
   }
 
   double avg_Y = total_Y / non_empty_leaves;

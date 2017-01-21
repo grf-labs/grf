@@ -17,12 +17,4 @@ const std::vector<double>& Observations::get(std::string type) const {
   return observations_by_type.at(type);
 }
 
-size_t Observations::get_num_samples() const {
-  return num_samples;
-}
-
-const std::map<std::string, std::vector<double>>& Observations::get_observations_by_type() const {
-  return observations_by_type;
-}
-
 
