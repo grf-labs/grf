@@ -103,7 +103,7 @@ TEST_CASE("constant instrument leads to no splitting", "[instrumental, relabelin
   for (int i = 0; i < original_outcomes.size(); i++) {
     sampleIDs.push_back(i);
   }
-
+  
   InstrumentalRelabelingStrategy relabelingStrategy;
   auto relabeled_observations = relabelingStrategy.relabel_outcomes(observations, sampleIDs);
 

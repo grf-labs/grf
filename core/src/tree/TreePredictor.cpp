@@ -11,20 +11,11 @@ std::vector<size_t> TreePredictor::get_terminal_nodeIDs(std::shared_ptr<Tree> tr
   std::vector<size_t> prediction_terminal_nodeIDs;
   prediction_terminal_nodeIDs.resize(prediction_data->getNumRows());
 
-  size_t num_samples_predict;
-  if (use_subsample) {
-    num_samples_predict = sampleIDs.size();
-  } else {
-    num_samples_predict = prediction_data->getNumRows();
-  }
+  size_t num_samples_predict = use_subsample ? sampleIDs.size() : prediction_data->getNumRows();
 
   for (size_t i = 0; i < num_samples_predict; ++i) {
-    size_t sampleID;
-    if (use_subsample) {
-      sampleID = sampleIDs[i];
-    } else {
-      sampleID = i;
-    }
+    size_t sampleID = use_subsample ? sampleIDs[i] : i;
+
     size_t nodeID = 0;
     while (1) {
 

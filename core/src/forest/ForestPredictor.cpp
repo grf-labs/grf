@@ -74,14 +74,14 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
       std::vector<size_t> terminal_node_IDs = terminal_node_IDs_by_tree.at(tree_index);
       size_t nodeID = terminal_node_IDs.at(sampleID);
 
-      add_prediction_values(nodeID, tree->get_prediction_values(), average_prediction_values);
-      if (prediction_strategy->requires_leaf_sampleIDs()) {
-        add_sample_weights(nodeID, tree, weights_by_sampleID);
-      }
-
       // hackhackhack
-      if (ci_group_size > 1) {
-        std::vector<size_t> sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
+      if (ci_group_size == 1) {
+        add_prediction_values(nodeID, tree->get_prediction_values(), average_prediction_values);
+        if (prediction_strategy->requires_leaf_sampleIDs()) {
+          add_sample_weights(nodeID, tree, weights_by_sampleID);
+        }
+      } else {
+        const std::vector<size_t> &sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
         leaf_sampleIDs.push_back(sampleIDs);
       }
     }
@@ -183,10 +183,7 @@ void ForestPredictor::predictTreesInThread(uint thread_idx,
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       std::shared_ptr<Tree> tree = forest.get_trees()[i];
 
-      std::vector<size_t> sampleIDs;
-      if (oob_prediction) {
-        sampleIDs = tree->get_oob_sampleIDs();
-      }
+      const std::vector<size_t>& sampleIDs = oob_prediction ? tree->get_oob_sampleIDs() : std::vector<size_t>();
 
       std::vector<size_t> terminal_nodeIDs = tree_predictor.get_terminal_nodeIDs(tree,
           prediction_data,
@@ -210,7 +207,7 @@ void ForestPredictor::add_prediction_values(size_t nodeID,
 void ForestPredictor::add_sample_weights(size_t nodeID,
                                          std::shared_ptr<Tree> tree,
                                          std::unordered_map<size_t, double>& weights_by_sampleID) {
-  std::vector<size_t> sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
+  const std::vector<size_t>& sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
   double sample_weight = 1.0 / sampleIDs.size();
 
   for (auto &sampleID : sampleIDs) {
