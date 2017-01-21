@@ -14,7 +14,7 @@ public:
   TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
               std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
               std::shared_ptr<PredictionStrategy> prediction_strategy,
-              TreeOptions options);
+              const TreeOptions& options);
 
   std::shared_ptr<Tree> train(Data* data,
                               const Observations& observations,
@@ -22,38 +22,38 @@ public:
                               const std::vector<size_t>& sampleIDs);
 
 private:
-  void createEmptyNode(std::vector <std::vector<size_t>> &child_nodeIDs,
-                       std::vector <std::vector<size_t>> &sampleIDs,
-                       std::vector <size_t> &split_varIDs,
-                       std::vector<double> &split_values);
+  void createEmptyNode(std::vector <std::vector<size_t>>& child_nodeIDs,
+                       std::vector <std::vector<size_t>>& sampleIDs,
+                       std::vector <size_t>& split_varIDs,
+                       std::vector<double>& split_values);
 
   void repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
                                    Data* data,
                                    const std::vector<size_t>& leaf_sampleIDs);
 
-  void createPossibleSplitVarSubset(std::vector<size_t> &result,
-                                    BootstrapSampler *bootstrap_sampler,
-                                    Data *data,
-                                    const std::vector<double> &split_select_weights);
+  void createPossibleSplitVarSubset(std::vector<size_t>& result,
+                                    BootstrapSampler* bootstrap_sampler,
+                                    Data* data,
+                                    const std::vector<double>& split_select_weights);
 
   bool splitNode(size_t nodeID,
                  std::shared_ptr<SplittingRule> splitting_rule,
-                 BootstrapSampler *bootstrap_sampler,
-                 Data *data,
+                 BootstrapSampler* bootstrap_sampler,
+                 Data* data,
                  const Observations& observations,
-                 std::vector <std::vector<size_t>> &child_nodeIDs,
-                 std::vector <std::vector<size_t>> &sampleIDs,
-                 std::vector <size_t> &split_varIDs,
-                 std::vector<double> &split_values,
-                 const std::vector<double> &split_select_weights);
+                 std::vector <std::vector<size_t>>& child_nodeIDs,
+                 std::vector <std::vector<size_t>>& sampleIDs,
+                 std::vector <size_t>& split_varIDs,
+                 std::vector<double>& split_values,
+                 const std::vector<double>& split_select_weights);
 
   bool splitNodeInternal(size_t nodeID,
                          std::shared_ptr<SplittingRule> splitting_rule,
                          const Observations& observations,
-                         const std::vector <size_t> &possible_split_varIDs,
-                         std::vector <std::vector<size_t>> &sampleIDs,
-                         std::vector <size_t> &split_varIDs,
-                         std::vector<double> &split_values);
+                         const std::vector <size_t>& possible_split_varIDs,
+                         std::vector <std::vector<size_t>>& sampleIDs,
+                         std::vector <size_t>& split_varIDs,
+                         std::vector<double>& split_values);
 
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;

@@ -22,27 +22,27 @@ public:
 
   ~Tree();
 
-  std::vector<std::vector<size_t> >& get_child_nodeIDs() {
+  const std::vector<std::vector<size_t> >& get_child_nodeIDs() {
     return child_nodeIDs;
   }
 
-  std::vector<std::vector<size_t>>& get_leaf_nodeIDs() {
+  const std::vector<std::vector<size_t>>& get_leaf_nodeIDs() {
     return leaf_nodeIDs;
   }
 
-  std::vector<double>& get_split_values() {
+  const std::vector<double>& get_split_values() {
     return split_values;
   }
 
-  std::vector<size_t>& get_split_varIDs() {
+  const std::vector<size_t>& get_split_varIDs() {
     return split_varIDs;
   }
 
-  std::vector<size_t>& get_oob_sampleIDs() {
+  const std::vector<size_t>& get_oob_sampleIDs() {
     return oob_sampleIDs;
   }
 
-  PredictionValues get_prediction_values() {
+  const PredictionValues& get_prediction_values() {
     return prediction_values;
   }
 

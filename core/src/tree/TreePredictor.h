@@ -7,8 +7,8 @@
 class TreePredictor {
 public:
   std::vector<size_t> get_terminal_nodeIDs(std::shared_ptr<Tree>,
-                                           const Data* prediction_data,
-                                           std::vector<size_t> sampleIDs);
+                                           Data* prediction_data,
+                                           const std::vector<size_t>& sampleIDs);
 };
 
 

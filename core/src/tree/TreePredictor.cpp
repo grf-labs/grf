@@ -1,12 +1,12 @@
 #include "TreePredictor.h"
 
 std::vector<size_t> TreePredictor::get_terminal_nodeIDs(std::shared_ptr<Tree> tree,
-                                                        const Data *prediction_data,
-                                                        std::vector<size_t> sampleIDs) {
+                                                        Data *prediction_data,
+                                                        const std::vector<size_t>& sampleIDs) {
   bool use_subsample = !sampleIDs.empty();
-  std::vector<std::vector<size_t>>& child_nodeIDs = tree->get_child_nodeIDs();
-  std::vector<double>& split_values = tree->get_split_values();
-  std::vector<size_t>& split_varIDs = tree->get_split_varIDs();
+  const std::vector<std::vector<size_t>>& child_nodeIDs = tree->get_child_nodeIDs();
+  const std::vector<double>& split_values = tree->get_split_values();
+  const std::vector<size_t>& split_varIDs = tree->get_split_varIDs();
 
   std::vector<size_t> prediction_terminal_nodeIDs;
   prediction_terminal_nodeIDs.resize(prediction_data->getNumRows());

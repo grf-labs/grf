@@ -33,7 +33,7 @@ void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts)
  * @param file ofstream object to write to.
  */
 template<typename T>
-inline void saveVector1D(std::vector<T>& vector, std::ostream& file) {
+inline void saveVector1D(const std::vector<T>& vector, std::ostream& file) {
   // Save length
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
@@ -41,7 +41,7 @@ inline void saveVector1D(std::vector<T>& vector, std::ostream& file) {
 }
 
 template<>
-inline void saveVector1D(std::vector<bool>& vector, std::ostream& file) {
+inline void saveVector1D(const std::vector<bool>& vector, std::ostream& file) {
   // Save length
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
@@ -87,7 +87,7 @@ inline void readVector1D(std::vector<bool>& result, std::istream& file) {
  * @param file ofstream object to write to.
  */
 template<typename T>
-inline void saveVector2D(std::vector<std::vector<T>>& vector, std::ostream& file) {
+inline void saveVector2D(const std::vector<std::vector<T>>& vector, std::ostream& file) {
   // Save length of first dim
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));

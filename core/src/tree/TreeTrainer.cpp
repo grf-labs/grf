@@ -6,7 +6,7 @@
 TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                          std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                          std::shared_ptr<PredictionStrategy> prediction_strategy,
-                         TreeOptions options) :
+                         const TreeOptions& options) :
     relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
     prediction_strategy(prediction_strategy),

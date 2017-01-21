@@ -31,7 +31,7 @@ private:
 
   void predictTreesInThread(uint thread_idx,
                             const Forest& forest,
-                            const Data* prediction_data,
+                            Data* prediction_data,
                             bool oob_prediction,
                             std::promise<std::map<size_t, std::vector<size_t>>> promise);
 
