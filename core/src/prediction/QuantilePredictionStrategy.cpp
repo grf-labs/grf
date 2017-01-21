@@ -18,7 +18,7 @@ Prediction QuantilePredictionStrategy::predict(const std::map<std::string, doubl
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     size_t sampleID = it->first;
     sampleIDs_and_values.push_back(std::pair<size_t, double>(
-        sampleID, observations.get(Observations::OUTCOME)[sampleID]));
+        sampleID, observations.get(Observations::OUTCOME).at(sampleID)));
   }
 
   std::vector<double> quantile_cutoffs = compute_quantile_cutoffs(weights_by_sampleID, sampleIDs_and_values);
