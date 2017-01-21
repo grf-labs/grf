@@ -10,16 +10,16 @@ class PredictionValues {
 public:
   PredictionValues();
 
-  PredictionValues(std::map<std::string, std::vector<double>> values_by_type,
+  PredictionValues(const std::map<std::string, std::vector<double>>& values_by_type,
                    size_t num_nodes);
 
-  const std::vector<double> get(std::string type) const;
+  const std::vector<double>& get(std::string type) const;
 
   const size_t get_num_nodes() const {
     return num_nodes;
   }
 
-  const std::map<std::string, std::vector<double>> get_values_by_type() const {
+  const std::map<std::string, std::vector<double>>& get_values_by_type() const {
     return values_by_type;
   }
 

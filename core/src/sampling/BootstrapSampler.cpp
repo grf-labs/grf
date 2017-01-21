@@ -12,7 +12,7 @@ void BootstrapSampler::sample(size_t num_samples,
                               std::vector<size_t>& sampleIDs,
                               std::vector<size_t>& oob_sampleIDs) {
   bool sample_with_replacement = options.get_sample_with_replacement();
-  if (options.get_case_weights()->empty()) {
+  if (options.get_case_weights().empty()) {
     if (sample_with_replacement) {
       bootstrap(num_samples, sample_fraction, sampleIDs, oob_sampleIDs);
     } else {
@@ -81,7 +81,7 @@ void BootstrapSampler::bootstrapWeighted(size_t num_samples,
                                          double sample_fraction,
                                          std::vector<size_t>& sampleIDs,
                                          std::vector<size_t>& oob_sampleIDs) {
-  std::vector<double>* case_weights = options.get_case_weights();
+  const std::vector<double>& case_weights = options.get_case_weights();
 
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
 
@@ -89,7 +89,7 @@ void BootstrapSampler::bootstrapWeighted(size_t num_samples,
   sampleIDs.reserve(num_samples_inbag);
   oob_sampleIDs.reserve(num_samples * (exp(-sample_fraction) + 0.1));
 
-  std::discrete_distribution<> weighted_dist(case_weights->begin(), case_weights->end());
+  std::discrete_distribution<> weighted_dist(case_weights.begin(), case_weights.end());
 
 // Start with all samples OOB
   std::vector<size_t> inbag_counts;
@@ -126,7 +126,7 @@ void BootstrapSampler::bootstrapWithoutReplacementWeighted(size_t num_samples,
   drawWithoutReplacementWeighted(sampleIDs,
                                  num_samples - 1,
                                  num_samples_inbag,
-                                 *options.get_case_weights());
+                                 options.get_case_weights());
 
   std::vector<size_t> inbag_counts;
   inbag_counts.resize(num_samples, 0);
@@ -253,7 +253,7 @@ void BootstrapSampler::drawWithoutReplacementWeighted(std::vector<size_t> &resul
 void BootstrapSampler::drawWithoutReplacementWeighted(std::vector<size_t> &result,
                                                       size_t max_index,
                                                       size_t num_samples,
-                                                      const std::vector<double> &weights) {
+                                                      const std::vector<double>& weights) {
   result.reserve(num_samples);
 
   // Set all to not selected

@@ -12,9 +12,9 @@ public:
   ~ProbabilitySplittingRule();
 
   bool findBestSplit(size_t nodeID,
-                     const std::vector<size_t> &possible_split_varIDs,
-                     const std::unordered_map<size_t, double> &responses_by_sampleID,
-                     std::vector<std::vector<size_t>> &sampleIDs,
+                     const std::vector<size_t>& possible_split_varIDs,
+                     const std::unordered_map<size_t, double>& labels_by_sampleID,
+                     const std::vector<std::vector<size_t>>& sampleIDs,
                      std::vector<size_t> &split_varIDs,
                      std::vector<double> &split_values);
 
@@ -22,14 +22,14 @@ private:
   void findBestSplitValueSmallQ(size_t nodeID, size_t varID, size_t num_classes, size_t *class_counts,
                                 size_t num_samples_node,
                                 double &best_value, size_t &best_varID, double &best_decrease,
-                                std::unordered_map<size_t, double> response_classIDs,
-                                std::vector<std::vector<size_t>> &sampleIDs);
+                                const std::unordered_map<size_t, double>& labels_by_sampleID,
+                                const std::vector<std::vector<size_t>>& sampleIDs);
 
   void findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t *class_counts,
                                 size_t num_samples_node,
                                 double &best_value, size_t &best_varID, double &best_decrease,
-                                std::unordered_map<size_t, double> responses_by_sampleID,
-                                std::vector<std::vector<size_t>> &sampleIDs);
+                                const std::unordered_map<size_t, double>& labels_by_sampleID,
+                                const std::vector<std::vector<size_t>>& sampleIDs);
 
   Data *data;
   size_t num_classes;

@@ -30,7 +30,7 @@ public:
   bool loadFromFileWhitespace(std::ifstream& input_file, std::string header_line);
   bool loadFromFileOther(std::ifstream& input_file, std::string header_line, char seperator);
 
-  void getAllValues(std::vector<double>& all_values, std::vector<size_t>& sampleIDs, size_t varID);
+  void getAllValues(std::vector<double>& all_values, const std::vector<size_t>& sampleIDs, size_t varID);
 
   size_t getIndex(size_t row, size_t col) const {
     if (col < num_cols_no_sparse) {

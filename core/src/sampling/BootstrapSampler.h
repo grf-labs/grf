@@ -29,7 +29,7 @@ public:
    * @param skip Values to skip
    * @param num_samples Number of samples to draw
    */
-  void drawWithoutReplacementSkip(std::vector<size_t> &result,
+  void drawWithoutReplacementSkip(std::vector<size_t>& result,
                                   size_t range_length,
                                   const std::vector<size_t> &skip,
                                   size_t num_samples);
@@ -41,10 +41,10 @@ public:
    * @param num_samples Number of samples to draw
    * @param weights A weight for each element of indices
    */
-  void drawWithoutReplacementWeighted(std::vector<size_t> &result,
+  void drawWithoutReplacementWeighted(std::vector<size_t>& result,
                                       const std::vector<size_t> &indices,
                                       size_t num_samples,
-                                      const std::vector<double> &weights);
+                                      const std::vector<double>& weights);
 
   /**
    * Draw random numers without replacement and with weighted probabilites from vector of indices.
@@ -54,10 +54,10 @@ public:
    * @param num_samples Number of samples to draw
    * @param weights A weight for each element of indices
    */
-  void drawWithoutReplacementWeighted(std::vector<size_t> &result,
+  void drawWithoutReplacementWeighted(std::vector<size_t>& result,
                                       size_t max_index,
                                       size_t num_samples,
-                                      const std::vector<double> &weights);
+                                      const std::vector<double>& weights);
 
   /**
    * Create numbers from 0 to n_all-1, shuffle and split in two parts.
@@ -99,7 +99,7 @@ private:
    * @param skip Values to skip
    * @param num_samples Number of samples to draw
    */
-  void drawWithoutReplacementSimple(std::vector<size_t> &result,
+  void drawWithoutReplacementSimple(std::vector<size_t>& result,
                                     size_t max,
                                     const std::vector<size_t> &skip,
                                     size_t num_samples);
@@ -112,7 +112,7 @@ private:
    * @param skip Values to skip
    * @param num_samples Number of samples to draw
    */
-  void drawWithoutReplacementKnuth(std::vector<size_t> &result,
+  void drawWithoutReplacementKnuth(std::vector<size_t>& result,
                                    size_t max,
                                    const std::vector<size_t> &skip,
                                    size_t num_samples);

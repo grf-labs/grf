@@ -86,7 +86,7 @@ void TreeTrainer::repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
       tree, data, leaf_sampleIDs);
 
   for (auto& sampleID : leaf_sampleIDs) {
-    size_t terminal_nodeID = terminal_nodeIDs[sampleID];
+    size_t terminal_nodeID = terminal_nodeIDs.at(sampleID);
     new_terminal_nodeIDs.at(terminal_nodeID).push_back(sampleID);
   }
   tree->set_leaf_nodeIDs(new_terminal_nodeIDs);
@@ -189,7 +189,7 @@ bool TreeTrainer::splitNodeInternal(size_t nodeID,
   double pure_value = 0;
   for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
     size_t sampleID = sampleIDs[nodeID][i];
-    double value = observations.get(Observations::OUTCOME)[sampleID];
+    double value = observations.get(Observations::OUTCOME).at(sampleID);
     if (i != 0 && value != pure_value) {
       pure = false;
       break;

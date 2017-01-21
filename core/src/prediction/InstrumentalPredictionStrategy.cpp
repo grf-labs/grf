@@ -84,11 +84,11 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     double sum_WZ = 0;
 
     for (auto sampleID :leaf_sampleIDs[i]) {
-      sum_Y += observations.get(Observations::OUTCOME)[sampleID];
-      sum_W += observations.get(Observations::TREATMENT)[sampleID];
-      sum_Z += observations.get(Observations::INSTRUMENT)[sampleID];
-      sum_YZ += observations.get(Observations::OUTCOME)[sampleID] * observations.get(Observations::INSTRUMENT)[sampleID];
-      sum_WZ += observations.get(Observations::TREATMENT)[sampleID] * observations.get(Observations::INSTRUMENT)[sampleID];
+      sum_Y += observations.get(Observations::OUTCOME).at(sampleID);
+      sum_W += observations.get(Observations::TREATMENT).at(sampleID);
+      sum_Z += observations.get(Observations::INSTRUMENT).at(sampleID);
+      sum_YZ += observations.get(Observations::OUTCOME).at(sampleID) * observations.get(Observations::INSTRUMENT).at(sampleID);
+      sum_WZ += observations.get(Observations::TREATMENT).at(sampleID) * observations.get(Observations::INSTRUMENT).at(sampleID);
     }
 
     leaf_Y[i] = sum_Y / leaf_size;

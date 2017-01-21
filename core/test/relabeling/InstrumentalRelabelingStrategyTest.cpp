@@ -23,7 +23,7 @@ std::vector<double> get_relabeled_outcomes(Observations observations) {
     size_t sampleID = sampleIDs[i];
 
     REQUIRE(relabeled_observations.count(sampleID));
-    relabeled_outcomes.push_back(relabeled_observations[sampleID]);
+    relabeled_outcomes.push_back(relabeled_observations.at(sampleID));
   }
   return relabeled_outcomes;
 }

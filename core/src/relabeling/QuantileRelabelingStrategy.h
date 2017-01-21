@@ -10,7 +10,7 @@ public:
   QuantileRelabelingStrategy(std::vector<double> quantiles);
   std::unordered_map<size_t, double> relabel_outcomes(
       const Observations& observations,
-      std::vector<size_t> &node_sampleIDs);
+      const std::vector<size_t>& node_sampleIDs);
 private:
   std::vector<double> quantiles;
 };

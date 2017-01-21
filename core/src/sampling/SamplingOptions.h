@@ -8,14 +8,19 @@
 class SamplingOptions {
 public:
   SamplingOptions(bool sample_with_replacement,
-                  std::vector<double>* case_weights);
+                  const std::vector<double>& case_weights);
 
-  bool get_sample_with_replacement() const;
-  std::vector<double>* get_case_weights() const;
+  bool get_sample_with_replacement() {
+    return sample_with_replacement;
+  }
+
+  const std::vector<double>& get_case_weights() {
+    return case_weights;
+  }
 
 private:
   bool sample_with_replacement;
-  std::vector<double>* case_weights;
+  std::vector<double> case_weights;
 };
 
 #endif //GRADIENTFOREST_SAMPLINGOPTIONS_H

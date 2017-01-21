@@ -25,7 +25,7 @@ TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
     size_t sampleID = sampleIDs[i];
 
     REQUIRE(relabeled_observations.count(sampleID));
-    relabeled_outcomes.push_back(relabeled_observations[sampleID]);
+    relabeled_outcomes.push_back(relabeled_observations.at(sampleID));
   }
 
   std::vector<double> expected_outcomes = {0, 0, 3, 1, 2, 1, 0, 2, 2, 3};
@@ -47,7 +47,7 @@ TEST_CASE("quantile relabeling subset of observations", "[quantile, relabeling]"
     size_t sampleID = sampleIDs[i];
 
     REQUIRE(relabeled_observations.count(sampleID));
-    relabeled_outcomes.push_back(relabeled_observations[sampleID]);
+    relabeled_outcomes.push_back(relabeled_observations.at(sampleID));
   }
 
   std::vector<double> expected_outcomes = {1, 0, 2, 0, 0};

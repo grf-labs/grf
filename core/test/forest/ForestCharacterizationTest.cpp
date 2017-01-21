@@ -34,8 +34,8 @@ void init_trainer(ForestTrainer& trainer) {
                honesty, ci_bag_size);
 }
 
-bool equal_predictions(std::vector<Prediction> actual_predictions,
-                       std::vector<std::vector<double>> expected_predictions) {
+bool equal_predictions(const std::vector<Prediction>& actual_predictions,
+                       const std::vector<std::vector<double>>& expected_predictions) {
   if (actual_predictions.size() != expected_predictions.size()) {
     return false;
   }

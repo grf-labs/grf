@@ -10,11 +10,11 @@ public:
   Prediction(const std::vector<double>& predictions,
              const std::vector<double>& variance_estimates);
 
-  std::vector<double> get_predictions() {
+  const std::vector<double>& get_predictions() {
     return predictions;
   }
 
-  std::vector<double> get_variance_estimates() {
+  const std::vector<double>& get_variance_estimates() {
     return variance_estimates;
   }
 

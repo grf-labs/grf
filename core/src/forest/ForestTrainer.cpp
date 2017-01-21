@@ -207,7 +207,7 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
   if (thread_ranges.size() > thread_idx + 1) {
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       uint tree_seed = udist(random_number_generator);
-      SamplingOptions sampling_options(sample_with_replacement, &case_weights);
+      SamplingOptions sampling_options(sample_with_replacement, case_weights);
       BootstrapSampler* bootstrap_sampler = new BootstrapSampler(tree_seed, sampling_options);
 
       if (ci_group_size == 1) {
