@@ -77,30 +77,31 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
       size_t nodeID = terminal_node_IDs.at(sampleID);
       const std::vector<size_t>& sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
 
+      if (!sampleIDs.empty()) {
+        num_nonempty_leaves++;
+      }
+
       // hackhackhack
       if (ci_group_size == 1) {
-        if (sampleIDs.empty()) {
-          continue;
-        }
-
-        num_nonempty_leaves++;
-        add_prediction_values(nodeID, tree->get_prediction_values(), average_prediction_values);
-        if (prediction_strategy->requires_leaf_sampleIDs()) {
-          add_sample_weights(sampleIDs, weights_by_sampleID);
+        if (!sampleIDs.empty()) {
+          add_prediction_values(nodeID, tree->get_prediction_values(), average_prediction_values);
+          if (prediction_strategy->requires_leaf_sampleIDs()) {
+            add_sample_weights(sampleIDs, weights_by_sampleID);
+          }
         }
       } else {
         leaf_sampleIDs.push_back(sampleIDs);
       }
     }
 
-    if (ci_group_size == 1) {
-      if (num_nonempty_leaves == 0) {
-        // If this sample has no neighbors, then return placeholder predictions. Note
-        // that this can only occur when honesty is enabled, and is expected to be rare.
-        std::vector<double> temp(prediction_length, NAN);
-        predictions.push_back(temp);
-        continue;
-      } else {
+    if (num_nonempty_leaves == 0) {
+      // If this sample has no neighbors, then return placeholder predictions. Note
+      // that this can only occur when honesty is enabled, and is expected to be rare.
+      std::vector<double> temp(prediction_length, NAN);
+      predictions.push_back(temp);
+      continue;
+    } else {
+      if (ci_group_size == 1) {
         normalize_prediction_values(num_nonempty_leaves, average_prediction_values);
         normalize_sample_weights(weights_by_sampleID);
       }
@@ -112,7 +113,7 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
 
     if (prediction.size() != prediction_length) {
       throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
-                               " did not have the expected length.");
+          " did not have the expected length.");
     }
 
     predictions.push_back(prediction);
@@ -129,10 +130,10 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
   predictions.reserve(original_data->getNumRows());
 
   size_t num_trees = forest.get_trees().size();
-  std::unordered_multimap<size_t, size_t> trees_by_oob_samples;
+  bool trees_by_oob_samples[original_data->getNumRows()][num_trees];
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sampleID : forest.get_trees()[tree_idx]->get_oob_sampleIDs()) {
-      trees_by_oob_samples.insert(std::pair<size_t, size_t>(sampleID, tree_idx));
+      trees_by_oob_samples[sampleID][tree_idx] = true;
     }
   }
 
@@ -141,51 +142,41 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
     std::map<std::string, double> average_prediction_values;
     std::unordered_map<size_t, double> weights_by_sampleID;
 
-    // If this sample was never out-of-bag, then return placeholder predictions.
-    auto tree_range = trees_by_oob_samples.equal_range(sampleID);
-    if (tree_range.first == tree_range.second) {
-      std::vector<double> temp(prediction_length, NAN);
-      predictions.push_back(temp);
-      continue;
-    }
-
     // Average the precomputed prediction values across the leaf nodes this sample falls
     // in, and create a list of weighted neighbors if the prediction strategy requires it.
     uint num_nonempty_leaves = 0;
-    for (auto it = tree_range.first; it != tree_range.second; ++it) {
-      size_t tree_index = it->second;
-      std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
+    for (int t = 0; t < num_trees; t++) {
+      if (!trees_by_oob_samples[sampleID][t]) {
+        continue;
+      }
 
-      std::vector<size_t> terminal_node_IDs = terminal_node_IDs_by_tree.at(tree_index);
+      std::shared_ptr<Tree> tree = forest.get_trees()[t];
+      std::vector<size_t> terminal_node_IDs = terminal_node_IDs_by_tree.at(t);
       size_t nodeID = terminal_node_IDs.at(sampleID);
       const std::vector<size_t>& sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
 
-      if (sampleIDs.empty()) {
-        continue;
-      }
-
-      num_nonempty_leaves++;
-      add_prediction_values(nodeID, tree->get_prediction_values(), average_prediction_values);
-      if (prediction_strategy->requires_leaf_sampleIDs()) {
-        add_sample_weights(sampleIDs, weights_by_sampleID);
+      if (!sampleIDs.empty()) {
+        num_nonempty_leaves++;
+        add_prediction_values(nodeID, tree->get_prediction_values(), average_prediction_values);
+        if (prediction_strategy->requires_leaf_sampleIDs()) {
+          add_sample_weights(sampleIDs, weights_by_sampleID);
+        }
       }
     }
 
-    if (ci_group_size == 1) {
-      if (num_nonempty_leaves == 0) {
-        // If this sample has no neighbors, then return placeholder predictions. Note
-        // that this can only occur when honesty is enabled, and is expected to be rare.
-        std::vector<double> temp(prediction_length, NAN);
-        predictions.push_back(temp);
-        continue;
-      } else {
-        normalize_prediction_values(num_nonempty_leaves, average_prediction_values);
-        normalize_sample_weights(weights_by_sampleID);
-      }
+    if (num_nonempty_leaves == 0) {
+      // If this sample has no neighbors, then return placeholder predictions. This could
+      // occur because the sample is never OOB, or in rare cases when honesty is enabled.
+      std::vector<double> temp(prediction_length, NAN);
+      predictions.push_back(temp);
+      continue;
+    } else {
+      normalize_prediction_values(num_nonempty_leaves, average_prediction_values);
+      normalize_sample_weights(weights_by_sampleID);
     }
 
     Prediction prediction = prediction_strategy->predict(average_prediction_values,
-        weights_by_sampleID, forest.get_observations());
+                                                         weights_by_sampleID, forest.get_observations());
 
     if (prediction.size() != prediction_length) {
       throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
@@ -212,8 +203,8 @@ void ForestPredictor::predictTreesInThread(uint thread_idx,
       const std::vector<size_t>& sampleIDs = oob_prediction ? tree->get_oob_sampleIDs() : std::vector<size_t>();
 
       std::vector<size_t> terminal_nodeIDs = tree_predictor.get_terminal_nodeIDs(tree,
-          prediction_data,
-          sampleIDs);
+                                                                                 prediction_data,
+                                                                                 sampleIDs);
       terminal_nodeIDs_by_tree[i] = terminal_nodeIDs;
     }
   }
