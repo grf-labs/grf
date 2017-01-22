@@ -1,6 +1,8 @@
 #ifndef GRADIENTFOREST_FOREST_H_
 #define GRADIENTFOREST_FOREST_H_
 
+#include <memory>
+
 #include "TreeTrainer.h"
 #include "globals.h"
 #include "Tree.h"

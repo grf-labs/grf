@@ -118,6 +118,20 @@ inline void readVector2D(std::vector<std::vector<T>>& result, std::istream& file
   }
 }
 
+inline void saveString(std::string input, std::ostream& file) {
+  size_t size = input.size();
+  file.write((char*) &size, sizeof(size));
+  file.write(input.c_str(), size);
+}
+
+
+inline void readString(std::string& output, std::istream& file) {
+  size_t size;
+  file.read((char*) &size, sizeof(size));
+  output.resize(size);
+  file.read((char*) output.c_str(), size);
+}
+
 /**
  * Read a double vector from text file. Reads only the first line.
  * @param result Result vector of doubles with contents

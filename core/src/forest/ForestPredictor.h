@@ -11,6 +11,7 @@
 #include "TreeTrainer.h"
 #include "Forest.h"
 
+#include <memory>
 #include <thread>
 #include <future>
 
@@ -29,11 +30,11 @@ private:
       Data* data,
       bool oob_prediction);
 
-  void predictTreesInThread(uint thread_idx,
-                            const Forest& forest,
-                            Data* prediction_data,
-                            bool oob_prediction,
-                            std::promise<std::map<size_t, std::vector<size_t>>> promise);
+  std::map<size_t, std::vector<size_t>> predictTreesInThread(
+      uint thread_idx,
+      const Forest& forest,
+      Data* prediction_data,
+      bool oob_prediction);
 
   void add_prediction_values(size_t nodeID,
                              const PredictionValues& prediction_values,

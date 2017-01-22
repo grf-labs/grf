@@ -1,3 +1,4 @@
+#include <memory>
 
 #include "Data.h"
 #include "TreeTrainer.h"
@@ -14,7 +15,7 @@ TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy
 
 std::shared_ptr<Tree> TreeTrainer::train(Data* data,
                                          const Observations& observations,
-                                         BootstrapSampler* bootstrap_sampler,
+                                         BootstrapSampler& bootstrap_sampler,
                                          const std::vector<size_t>& sampleIDs) {
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> nodes;
@@ -28,7 +29,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
   std::vector<size_t> leaf_sampleIDs;
 
   if (options.get_honesty()) {
-    bootstrap_sampler->subsample(sampleIDs, 0.5, nodes[0], leaf_sampleIDs);
+    bootstrap_sampler.subsample(sampleIDs, 0.5, nodes[0], leaf_sampleIDs);
   } else {
     nodes[0] = sampleIDs;
   }
@@ -61,7 +62,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
       nodes,
       split_varIDs,
       split_values,
-      {},
+      std::vector<size_t>(),
       PredictionValues()));
 
   if (!leaf_sampleIDs.empty()) {
@@ -93,7 +94,7 @@ void TreeTrainer::repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
 }
 
 void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t> &result,
-                                             BootstrapSampler *bootstrap_sampler,
+                                             BootstrapSampler& bootstrap_sampler,
                                              Data *data,
                                              const std::vector<double> &split_select_weights) {
 
@@ -104,13 +105,13 @@ void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t> &result,
   // Randomly add non-deterministic variables (according to weights if needed)
   uint mtry = options.get_mtry();
   if (split_select_weights.empty()) {
-    bootstrap_sampler->drawWithoutReplacementSkip(result,
+    bootstrap_sampler.drawWithoutReplacementSkip(result,
                                                   data->getNumCols(),
                                                   options.get_no_split_variables(),
                                                   mtry);
   } else {
     size_t num_draws = mtry - result.size();
-    bootstrap_sampler->drawWithoutReplacementWeighted(result,
+    bootstrap_sampler.drawWithoutReplacementWeighted(result,
                                                       options.get_split_select_varIDs(),
                                                       num_draws,
                                                       split_select_weights);
@@ -119,7 +120,7 @@ void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t> &result,
 
 bool TreeTrainer::splitNode(size_t nodeID,
                             std::shared_ptr<SplittingRule> splitting_rule,
-                            BootstrapSampler* bootstrap_sampler,
+                            BootstrapSampler& bootstrap_sampler,
                             Data *data,
                             const Observations& observations,
                             std::vector<std::vector<size_t>> &child_nodeIDs,
@@ -159,7 +160,7 @@ bool TreeTrainer::splitNode(size_t nodeID,
 
 // For each sample in node, assign to left or right child
   // Ordered: left is <= splitval and right is > splitval
-  for (auto &sampleID : sampleIDs[nodeID]) {
+  for (auto& sampleID : sampleIDs[nodeID]) {
     if (data->get(sampleID, split_varID) <= split_value) {
       sampleIDs[left_child_nodeID].push_back(sampleID);
     } else {

@@ -1,6 +1,6 @@
+#include <cmath>
 #include <string>
 #include "RegressionPredictionStrategy.h"
-
 
 size_t RegressionPredictionStrategy::prediction_length() {
     return 1;
@@ -9,7 +9,8 @@ size_t RegressionPredictionStrategy::prediction_length() {
 Prediction RegressionPredictionStrategy::predict(const std::map<std::string, double>& average_prediction_values,
                                                  const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                  const Observations& observations) {
-  return Prediction({ average_prediction_values.at(PredictionValues::AVERAGE) });
+  std::vector<double> predictions = { average_prediction_values.at(PredictionValues::AVERAGE) };
+  return Prediction(predictions);
 }
 
 Prediction RegressionPredictionStrategy::predict_with_variance(
@@ -27,7 +28,9 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_sampleIDs,
     const Observations& observations) {
 
-  std::vector<double> averages;
+  std::map<std::string, std::vector<double>> values;
+  std::vector<double>& averages = values[PredictionValues::AVERAGE];
+
   for (auto& leaf_node : leaf_sampleIDs) {
     if (leaf_node.empty()) {
       averages.push_back(NAN);
@@ -41,5 +44,5 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     averages.push_back(average / leaf_node.size());
   }
 
-  return PredictionValues({{PredictionValues::AVERAGE, averages}}, leaf_sampleIDs.size());
+  return PredictionValues(values, leaf_sampleIDs.size());
 }

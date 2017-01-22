@@ -2,7 +2,7 @@
 #include "FileTestUtilities.h"
 
 std::vector<std::vector<double>> FileTestUtilities::readCsvFile(std::string file_name) {
-  std::ifstream file = std::ifstream();
+  std::ifstream file;
   file.open(file_name, std::ios::binary);
 
   std::string delimiter = ",";
@@ -37,7 +37,7 @@ void FileTestUtilities::writeCsvFile(std::string file_name, std::vector<std::vec
   file.open(file_name, std::ios::binary);
 
   for (auto &line : contents) {
-    for (int i = 0; i <line.size(); i++) {
+    for (size_t i = 0; i < line.size(); i++) {
       if (i > 0) {
         file << ", ";
       }
@@ -45,5 +45,6 @@ void FileTestUtilities::writeCsvFile(std::string file_name, std::vector<std::vec
     }
     file << std::endl;
   }
+  file.close();
 }
 

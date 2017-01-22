@@ -1,9 +1,9 @@
-
-
+#include <algorithm>
 #include <unordered_map>
+
 #include "QuantileRelabelingStrategy.h"
 
-QuantileRelabelingStrategy::QuantileRelabelingStrategy(std::vector<double> quantiles) :
+QuantileRelabelingStrategy::QuantileRelabelingStrategy(const std::vector<double>& quantiles) :
     quantiles(quantiles) {}
 
 std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel_outcomes(
@@ -24,7 +24,7 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel_outcomes(
   // Calculate the response value cutoffs for each quantile.
   for (auto& quantile : quantiles) {
     size_t response_index = (size_t) ceil(num_samples * quantile) - 1;
-    quantile_cutoffs.push_back(sorted_responses[response_index]);
+    quantile_cutoffs.push_back(sorted_responses.at(response_index));
   }
 
   // Remove duplicate cutoffs.
@@ -39,7 +39,7 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel_outcomes(
                                      quantile_cutoffs.end(),
                                      outcome);
     long quantile_index = quantile - quantile_cutoffs.begin();
-    relabeled_observations[sampleID] = ((uint) quantile_index);
+    relabeled_observations[sampleID] = (uint) quantile_index;
   }
   return relabeled_observations;
 }

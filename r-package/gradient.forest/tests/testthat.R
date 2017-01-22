@@ -1,4 +1,4 @@
 library(testthat)
 library(gradient.forest)
 
-test_check("ranger")
+test_check("gradient.forest")

@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <vector>
 #include <string>
+
 #include "Data.h"
 #include "QuantilePredictionStrategy.h"
 

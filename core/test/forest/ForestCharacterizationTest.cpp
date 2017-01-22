@@ -15,14 +15,14 @@ bool equal_predictions(const std::vector<Prediction>& actual_predictions,
   if (actual_predictions.size() != expected_predictions.size()) {
     return false;
   }
-  for (int i = 0; i < actual_predictions.size(); i++) {
+  for (size_t i = 0; i < actual_predictions.size(); i++) {
     Prediction prediction = actual_predictions[i];
     std::vector<double> expected_prediction = expected_predictions[i];
     if (prediction.size() != expected_prediction.size()) {
       return false;
     }
 
-    for (int j = 0; j < prediction.size(); j++) {
+    for (size_t j = 0; j < prediction.size(); j++) {
       double value = prediction.get_predictions()[j];
       if (!equalDoubles(value, expected_prediction[j], 1e-2)) {
         return false;
@@ -59,6 +59,8 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile, characteri
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
       "test/forest/resources/quantile_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
+
+  delete data;
 }
 
 TEST_CASE("causal forest predictions have not changed", "[causal, characterization]") {
@@ -80,6 +82,8 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
       "test/forest/resources/causal_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
+
+  delete data;
 }
 
 TEST_CASE("regression forest predictions have not changed", "[regression, characterization]") {
@@ -101,4 +105,6 @@ TEST_CASE("regression forest predictions have not changed", "[regression, charac
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
   "test/forest/resources/regression_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
+
+  delete data;
 }

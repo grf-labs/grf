@@ -2,7 +2,7 @@
 #include "utility.h"
 
 
-void ForestSerializer::serialize(std::ostream& stream, Forest forest) {
+void ForestSerializer::serialize(std::ostream& stream, const Forest& forest) {
   size_t num_trees = forest.get_trees().size();
   stream.write((char*) &num_trees, sizeof(num_trees));
 
@@ -18,7 +18,7 @@ Forest ForestSerializer::deserialize(std::istream& stream) {
   stream.read((char*) &num_trees, sizeof(num_trees));
   std::vector<std::shared_ptr<Tree>> trees;
 
-  for (int i = 0; i < num_trees; i++) {
+  for (size_t i = 0; i < num_trees; i++) {
     std::shared_ptr<Tree> tree = tree_serializer.deserialize(stream);
     trees.push_back(tree);
   }

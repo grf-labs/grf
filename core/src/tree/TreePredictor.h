@@ -1,6 +1,8 @@
 #ifndef GRADIENTFOREST_TREEPREDICTOR_H
 #define GRADIENTFOREST_TREEPREDICTOR_H
 
+#include <memory>
+
 #include "Data.h"
 #include "Tree.h"
 

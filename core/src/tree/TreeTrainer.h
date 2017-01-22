@@ -1,6 +1,8 @@
 #ifndef GRADIENTFOREST_TREETRAINER_H
 #define GRADIENTFOREST_TREETRAINER_H
 
+#include <memory>
+
 #include "PredictionStrategy.h"
 #include "RelabelingStrategy.h"
 #include "SplittingRuleFactory.h"
@@ -18,7 +20,7 @@ public:
 
   std::shared_ptr<Tree> train(Data* data,
                               const Observations& observations,
-                              BootstrapSampler* bootstrap_sampler,
+                              BootstrapSampler& bootstrap_sampler,
                               const std::vector<size_t>& sampleIDs);
 
 private:
@@ -32,13 +34,13 @@ private:
                                    const std::vector<size_t>& leaf_sampleIDs);
 
   void createPossibleSplitVarSubset(std::vector<size_t>& result,
-                                    BootstrapSampler* bootstrap_sampler,
+                                    BootstrapSampler& bootstrap_sampler,
                                     Data* data,
                                     const std::vector<double>& split_select_weights);
 
   bool splitNode(size_t nodeID,
                  std::shared_ptr<SplittingRule> splitting_rule,
-                 BootstrapSampler* bootstrap_sampler,
+                 BootstrapSampler& bootstrap_sampler,
                  Data* data,
                  const Observations& observations,
                  std::vector <std::vector<size_t>>& child_nodeIDs,

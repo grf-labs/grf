@@ -42,7 +42,8 @@ Prediction InstrumentalPredictionStrategy::predict(const std::map<std::string, d
     first_stage_effect += weight * (instrument - average_instrument) * (treatment - average_treatment);
   }
 
-  return Prediction({ instrument_effect / first_stage_effect });
+  std::vector<double> prediction = { instrument_effect / first_stage_effect };
+  return Prediction(prediction);
 }
 
 Prediction InstrumentalPredictionStrategy::predict_with_variance(
@@ -66,7 +67,7 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
 
   double non_empty_leaves = 0;
 
-  for (int i = 0; i < leaf_sampleIDs.size(); ++i) {
+  for (size_t i = 0; i < leaf_sampleIDs.size(); ++i) {
 
     size_t leaf_size = leaf_sampleIDs[i].size();
 
@@ -85,7 +86,7 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     double sum_YZ = 0;
     double sum_WZ = 0;
 
-    for (auto sampleID :leaf_sampleIDs[i]) {
+    for (auto& sampleID : leaf_sampleIDs[i]) {
       sum_Y += observations.get(Observations::OUTCOME).at(sampleID);
       sum_W += observations.get(Observations::TREATMENT).at(sampleID);
       sum_Z += observations.get(Observations::INSTRUMENT).at(sampleID);
@@ -124,10 +125,10 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
   std::vector<std::vector<double>> psi_squared = {{0, 0}, {0, 0}};
   std::vector<std::vector<double>> psi_grouped_squared = {{0, 0}, {0, 0}};
 
-  for (int group = 0; group < leaf_sampleIDs.size() / ci_group_size; ++group) {
+  for (size_t group = 0; group < leaf_sampleIDs.size() / ci_group_size; ++group) {
 
     bool good_group = true;
-    for (int j = 0; j < ci_group_size; ++j) {
+    for (size_t j = 0; j < ci_group_size; ++j) {
       if (leaf_sampleIDs[group * ci_group_size + j].size() == 0) {
         good_group = false;
       }
@@ -139,9 +140,9 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     double group_psi_1 = 0;
     double group_psi_2 = 0;
 
-    for (int j = 0; j < ci_group_size; ++j) {
+    for (size_t j = 0; j < ci_group_size; ++j) {
 
-      int i = group * ci_group_size + j;
+      size_t i = group * ci_group_size + j;
       double psi_1 = leaf_YZ[i] - leaf_WZ[i] * treatment_estimate - leaf_Z[i] * main_effect;
       double psi_2 = leaf_Y[i] - leaf_W[i] * treatment_estimate - main_effect;
 
@@ -166,9 +167,9 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     psi_grouped_squared[1][1] += group_psi_2 * group_psi_2;
   }
 
-  for (int i = 0; i < 2; i++) {
+  for (size_t i = 0; i < 2; i++) {
     psi_mean[i] /= num_good_groups;
-    for (int j = 0; j < 2; j++) {
+    for (size_t j = 0; j < 2; j++) {
       psi_squared[i][j] /= (num_good_groups * ci_group_size);
       psi_grouped_squared[i][j] /= num_good_groups;
     }
@@ -221,8 +222,10 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     var_debiased = std::min(var_debiased, within_noise / 10);
   }
 
+  std::vector<double> predictions = { treatment_estimate };
   double variance_estimate = var_debiased / (first_stage * first_stage);
-  return Prediction({ treatment_estimate }, { variance_estimate });
+  std::vector<double> variance_estimates = { variance_estimate };
+  return Prediction(predictions, variance_estimates);
 }
 
 bool InstrumentalPredictionStrategy::requires_leaf_sampleIDs() {

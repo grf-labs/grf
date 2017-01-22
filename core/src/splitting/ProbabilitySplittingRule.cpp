@@ -1,4 +1,6 @@
+#include <cmath>
 #include <unordered_map>
+
 #include "ProbabilitySplittingRule.h"
 
 ProbabilitySplittingRule::ProbabilitySplittingRule(Data* data, size_t num_classes) {
@@ -34,12 +36,12 @@ bool ProbabilitySplittingRule::findBestSplit(size_t nodeID,
   // Compute overall class counts
   for (size_t i = 0; i < num_samples_node; ++i) {
     size_t sampleID = sampleIDs[nodeID][i];
-    uint sample_classID = (uint) round(responses_by_sampleID.at(sampleID));
+    uint sample_classID = (uint) std::round(responses_by_sampleID.at(sampleID));
     ++class_counts[sample_classID];
   }
 
   // For all possible split variables
-  for (auto &varID : possible_split_varIDs) {
+  for (auto& varID : possible_split_varIDs) {
     // Use faster method for both cases
     double q = (double) num_samples_node / (double) data->getNumUniqueDataValues(varID);
     if (q < Q_THRESHOLD) {

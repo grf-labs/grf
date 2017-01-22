@@ -9,6 +9,7 @@
 #include "TreeTrainer.h"
 #include "Forest.h"
 
+#include <memory>
 #include <thread>
 #include <future>
 
@@ -23,7 +24,7 @@ public:
 
   std::vector<std::shared_ptr<Tree>> train_ci_group(Data* data,
                                                     const Observations& observations,
-                                                    BootstrapSampler* bootstrap_sampler,
+                                                    BootstrapSampler& bootstrap_sampler,
                                                     double sample_fraction);
 
   void init(uint mtry,
@@ -39,10 +40,10 @@ public:
             uint ci_group_size);
 
 private:
-  void growTreesInThread(uint thread_idx,
-                         Data *data,
-                         const Observations& observations,
-                         std::promise<std::vector<std::shared_ptr<Tree>>> promise);
+  std::vector<std::shared_ptr<Tree>> growTreesInThread(
+      uint thread_idx,
+      Data *data,
+      const Observations& observations);
 
   void setSplitWeightVector(std::vector<double>& split_select_weights,
                             size_t num_independent_variables);
