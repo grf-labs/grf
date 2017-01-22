@@ -93,16 +93,18 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
       }
     }
 
-    // If this sample has no neighbors, then return placeholder predictions. Note
-    // that this can only occur when honesty is enabled, and is expected to be rare.
-    if (average_prediction_values.empty() && weights_by_sampleID.empty()) {
-      std::vector<double> temp(prediction_length, NAN);
-      predictions.push_back(temp);
-      continue;
+    if (ci_group_size == 1) {
+      if (num_nonempty_leaves == 0) {
+        // If this sample has no neighbors, then return placeholder predictions. Note
+        // that this can only occur when honesty is enabled, and is expected to be rare.
+        std::vector<double> temp(prediction_length, NAN);
+        predictions.push_back(temp);
+        continue;
+      } else {
+        normalize_prediction_values(num_nonempty_leaves, average_prediction_values);
+        normalize_sample_weights(weights_by_sampleID);
+      }
     }
-
-    normalize_prediction_values(num_nonempty_leaves, average_prediction_values);
-    normalize_sample_weights(weights_by_sampleID);
 
     Prediction prediction = ci_group_size == 1 ?
         prediction_strategy->predict(average_prediction_values, weights_by_sampleID, forest.get_observations()) :
@@ -169,16 +171,18 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
       }
     }
 
-    // If this sample has no neighbors, then return placeholder predictions. Note
-    // that this can only occur when honesty is enabled, and is expected to be rare.
-    if (average_prediction_values.empty() && weights_by_sampleID.empty()) {
-      std::vector<double> temp(prediction_length, NAN);
-      predictions.push_back(temp);
-      continue;
+    if (ci_group_size == 1) {
+      if (num_nonempty_leaves == 0) {
+        // If this sample has no neighbors, then return placeholder predictions. Note
+        // that this can only occur when honesty is enabled, and is expected to be rare.
+        std::vector<double> temp(prediction_length, NAN);
+        predictions.push_back(temp);
+        continue;
+      } else {
+        normalize_prediction_values(num_nonempty_leaves, average_prediction_values);
+        normalize_sample_weights(weights_by_sampleID);
+      }
     }
-
-    normalize_prediction_values(num_nonempty_leaves, average_prediction_values);
-    normalize_sample_weights(weights_by_sampleID);
 
     Prediction prediction = prediction_strategy->predict(average_prediction_values,
         weights_by_sampleID, forest.get_observations());
