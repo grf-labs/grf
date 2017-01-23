@@ -1,5 +1,7 @@
 #include <vector>
 #include <string>
+#include <cmath>
+#include <iostream>
 #include "Observations.h"
 #include "utility.h"
 #include "InstrumentalPredictionStrategy.h"
@@ -172,22 +174,54 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     }
   }
 
-  std::vector<std::vector<double>> psi_half_sample_variance = {{0, 0}, {0, 0}};
+  double var_between = psi_grouped_squared[0][0]
+	  - psi_grouped_squared[0][1] * avg_W
+	  - psi_grouped_squared[1][0] * avg_W
+	  + psi_grouped_squared[1][1] * avg_W * avg_W;
 
-  for (int i = 0; i < 2; i++) {
-    for (int j = 0; j < 2; j++) {
-      psi_half_sample_variance[i][j] = psi_grouped_squared[i][j]
-          - (psi_squared[i][j] - psi_grouped_squared[i][j]) / (ci_group_size - 1)
-          - psi_mean[i] * psi_mean[j];
+  double var_total = psi_squared[0][0]
+	  - psi_squared[0][1] * avg_W
+	  - psi_squared[1][0] * avg_W
+	  + psi_squared[1][1] * avg_W * avg_W;
+
+  double within_noise = (var_total - var_between) / (ci_group_size - 1);
+
+  // A simple variance correction, but this can lead to negative variance estimates...
+  double var_debiased = var_between - within_noise;
+  
+  // If simple variance correction is small, do an objective Bayes bias correction instead
+  if (var_debiased < within_noise / 10 && num_good_groups >= 10) {
+
+    // start by computing chi-squared log-density, taking within_noise as fixed
+    double lx[100];
+    double x[100];
+    for (size_t iter = 0; iter < 100; iter++) {
+      x[iter] = iter * within_noise / 400.0;
+      lx[iter] = std::log(x[iter] + within_noise ) * (1.0 - num_good_groups / 2.0)
+            - (num_good_groups * var_between) / (2 * (x[iter] + within_noise));
     }
+
+    // compute maximal log-density, to stabilize call to exp() below
+    double maxlx = lx[1];
+    for (size_t iter = 0; iter < 100; iter++) {
+      maxlx = std::max(maxlx, lx[iter]);
+    }
+
+    // now do Bayes rule
+    double numerator = 0;
+    double denominator = 0;
+    for (size_t iter = 0; iter < 100; iter++) {
+      double fx = std::exp(lx[iter] - maxlx);
+      numerator += x[iter] * fx;
+      denominator += fx;
+    }
+    var_debiased = numerator / denominator;
+    
+    // avoid jumpy behavior at the threshold
+    var_debiased = std::min(var_debiased, within_noise / 10);
   }
 
-  double matrix_product = psi_half_sample_variance[0][0]
-                              - psi_half_sample_variance[0][1] * avg_W
-                              - psi_half_sample_variance[1][0] * avg_W
-                              + psi_half_sample_variance[1][1] * avg_W * avg_W;
-  double variance_estimate = matrix_product / (first_stage * first_stage);
-
+  double variance_estimate = var_debiased / (first_stage * first_stage);
   return Prediction({ treatment_estimate }, { variance_estimate });
 }
 
