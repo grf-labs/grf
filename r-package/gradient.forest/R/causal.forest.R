@@ -6,7 +6,7 @@ causal.forest <- function(X, Y, W,
 	min.node.size=NULL,
 	keep.inbag = FALSE,
 	honesty=TRUE,
-	ci.group.size=2,
+	ci.group.size=4,
 	precompute.nuisance=TRUE,
 	seed=NULL) {
 
@@ -107,29 +107,13 @@ causal.forest <- function(X, Y, W,
 						seed,
 						honesty,
 						ci.group.size,
-						split.regularization)
-						
-						
+						split.regularization)			
+
+	forest <- c(forest, "ci.group.size"=ci.group.size)
 	class(forest) <- "causal.forest"
 	forest
 }
 
-predict.causal.forest <- function(forest, newdata, num.threads = NULL) {
-
-	if (is.null(num.threads)) {
-        num.threads <- 0
-     } else if (!is.numeric(num.threads) | num.threads < 0) {
-        stop("Error: Invalid value for num.threads")
-     }
-     
-	 sparse.data <- as.matrix(0)
-	 variable.names <- character(0)
-	
-	 input.data <- as.matrix(cbind(newdata, NA))	
-	
-     instrumental_predict(forest,
-     				  input.data,
-     				  sparse.data,
-     				  variable.names,
-     				  num.threads)    				 
+predict.causal.forest <- function(forest, newdata, num.threads = NULL, estimate.variance=FALSE) {
+	predict.instrumental.forest(forest, newdata, num.threads, estimate.variance)
 } 
