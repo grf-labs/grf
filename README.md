@@ -43,3 +43,5 @@ lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
 ```
 
 More usage examples, including examples around instrumental variables, can be found in the `experiments` directory.
+
+Note that this package first started as a fork of the [ranger](https://github.com/imbs-hl/ranger) repository -- we owe a great deal of thanks to the ranger authors for their useful and free package.
