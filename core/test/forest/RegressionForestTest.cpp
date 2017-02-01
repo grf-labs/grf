@@ -50,6 +50,6 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
   }
 
   REQUIRE(equalDoubles(delta / predictions.size(), 1, 1e-1));
-  
+
   delete data;
 }

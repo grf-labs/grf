@@ -2,9 +2,11 @@
 
 ![Alt text](documentation/under_construction.jpg?raw=true)
 
-This repository is under active development. To build the R package, go to the `r-package` directory and run the script `build_package.R`. We currently only support Mac OS X (clang 3.3 or higher); linux support is under development.
+This repository is in an 'alpha' state, and is actively under development. We expect to make continual improvements to performance and usability.
 
-The software can then be called as follows:
+To build the R package, go to the `r-package` directory and run the script `build_package.R`. We currently only support Mac OS X and Linux. Note that a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher).
+
+Example usage:
 ```R
 library(gradient.forest)
 
