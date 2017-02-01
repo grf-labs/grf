@@ -4,7 +4,9 @@ Version: 0.0.0.1
 Authors@R: c(
     person("Julie", "Tibshirani", email = "jtibs@cs.stanford.edu", role = c("aut", "cre")),
     person("Susan", "Athey", email = "athey@stanford.edu", role = c("aut")),
-    person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut")))
+    person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut")),
+    person("Marvin", "Wright", email = "wright@imbs.uni-luebeck.de", role = c("ctb"),
+       comment = "wrote the ranger package on top of which gradient-forest is built"))
 Description: ...
 Depends: R (>= 3.3.1)
 License: GPL-3
