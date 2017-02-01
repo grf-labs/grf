@@ -13,8 +13,6 @@
 
   You should have received a copy of the GNU General Public License
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
-
-  Author: Julie Tibshirani (jtibs@cs.stanford.edu)
  #-------------------------------------------------------------------------------*/
 
 #ifndef GRADIENTFOREST_REGRESSIONPREDICTIONSTRATEGY_H

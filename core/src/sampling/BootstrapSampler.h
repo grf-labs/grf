@@ -13,9 +13,6 @@
 
   You should have received a copy of the GNU General Public License
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
-
-  Authorship: Marvin Wright (wright@imbs.uni-luebeck.de), refactored by
-  Julie Tibshirani (jtibs@cs.stanford.edu)
  #-------------------------------------------------------------------------------*/
 
 #ifndef GRADIENTFOREST_BOOTSTRAPSAMPLER_H

@@ -13,9 +13,6 @@
 
   You should have received a copy of the GNU General Public License
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
-
-  Authorship: Julie Tibshirani (jtibs@cs.stanford.edu), loosely based on code
-  by Marvin Wright (wright@imbs.uni-luebeck.de)
  #-------------------------------------------------------------------------------*/
 
 #ifndef GRADIENTFOREST_FORESTTRAINER_H
