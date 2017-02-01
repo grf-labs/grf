@@ -1,6 +1,7 @@
 #ifndef GRADIENTFOREST_FORESTSERIALIZER_H
 #define GRADIENTFOREST_FORESTSERIALIZER_H
 
+#include <memory>
 
 #include "Forest.h"
 #include "ObservationsSerializer.h"
@@ -8,7 +9,7 @@
 
 class ForestSerializer {
 public:
-  void serialize(std::ostream& stream, Forest forest);
+  void serialize(std::ostream& stream, const Forest& forest);
   Forest deserialize(std::istream& stream);
 
 private:

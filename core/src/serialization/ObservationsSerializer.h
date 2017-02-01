@@ -10,6 +10,7 @@ class ObservationsSerializer {
 public:
   void serialize(std::ostream& stream, const Observations& observations);
   Observations deserialize(std::istream& stream);
+  void deserialize2(std::istream& stream);
 };
 
 

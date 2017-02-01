@@ -25,7 +25,7 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
 
   // Shift each outcome by 1, and re-run the forest.
   bool error;
-  for (int r = 0; r < data->getNumRows(); r++) {
+  for (size_t r = 0; r < data->getNumRows(); r++) {
     double outcome = data->get(r, outcome_index);
     data->set(outcome_index, r, outcome + 1, error);
   }
@@ -39,7 +39,7 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
 
   REQUIRE(predictions.size() == shifted_predictions.size());
   double delta = 0.0;
-  for (int i = 0; i < predictions.size(); i++) {
+  for (size_t i = 0; i < predictions.size(); i++) {
     Prediction prediction = predictions[i];
     Prediction shifted_prediction = shifted_predictions[i];
 
@@ -50,4 +50,6 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
   }
 
   REQUIRE(equalDoubles(delta / predictions.size(), 1, 1e-1));
+  
+  delete data;
 }

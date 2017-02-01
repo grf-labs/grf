@@ -10,11 +10,11 @@ public:
   SamplingOptions(bool sample_with_replacement,
                   const std::vector<double>& case_weights);
 
-  bool get_sample_with_replacement() {
+  bool get_sample_with_replacement() const {
     return sample_with_replacement;
   }
 
-  const std::vector<double>& get_case_weights() {
+  const std::vector<double>& get_case_weights() const {
     return case_weights;
   }
 

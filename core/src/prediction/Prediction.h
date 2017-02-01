@@ -1,7 +1,7 @@
 #ifndef GRADIENTFOREST_PREDICTIONRESULTS_H
 #define GRADIENTFOREST_PREDICTIONRESULTS_H
 
-
+#include <cstddef>
 #include <vector>
 
 class Prediction {

@@ -1,6 +1,8 @@
 #ifndef GRADIENTFOREST_SPLITTINGRULEFACTORY_H
 #define GRADIENTFOREST_SPLITTINGRULEFACTORY_H
 
+#include <memory>
+
 #include "Data.h"
 #include "SplittingRule.h"
 

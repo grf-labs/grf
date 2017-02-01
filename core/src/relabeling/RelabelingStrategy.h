@@ -11,7 +11,7 @@ class RelabelingStrategy {
 public:
   virtual std::unordered_map<size_t, double> relabel_outcomes(
       const Observations& observations,
-      const std::vector<size_t>& nodeSampleIDs) = 0;
+      const std::vector<size_t>& node_sampleIDs) = 0;
 };
 
 

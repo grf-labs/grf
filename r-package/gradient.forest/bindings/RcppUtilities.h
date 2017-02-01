@@ -20,7 +20,7 @@ public:
                                  bool honesty,
                                  uint ci_group_size);
 
-  static Rcpp::RawVector serialize_forest(Forest forest);
+  static Rcpp::RawVector serialize_forest(const Forest& forest);
 
   static Forest deserialize_forest(Rcpp::RawVector input);
 

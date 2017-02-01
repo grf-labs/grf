@@ -13,7 +13,7 @@ TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
   Observations observations = TestUtilities::create_observations(outcomes);
 
   std::vector<size_t> sampleIDs;
-  for (int i = 0; i < outcomes.size(); i++) {
+  for (size_t i = 0; i < outcomes.size(); i++) {
     sampleIDs.push_back(i);
   }
 
@@ -21,9 +21,7 @@ TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
   auto relabeled_observations = relabelingStrategy.relabel_outcomes(observations, sampleIDs);
 
   std::vector<double> relabeled_outcomes;
-  for (int i = 0; i < sampleIDs.size(); i++) {
-    size_t sampleID = sampleIDs[i];
-
+  for (auto& sampleID : sampleIDs) {
     REQUIRE(relabeled_observations.count(sampleID));
     relabeled_outcomes.push_back(relabeled_observations.at(sampleID));
   }
@@ -43,9 +41,7 @@ TEST_CASE("quantile relabeling subset of observations", "[quantile, relabeling]"
   auto relabeled_observations = relabelingStrategy.relabel_outcomes(observations, sampleIDs);
 
   std::vector<double> relabeled_outcomes;
-  for (int i = 0; i < sampleIDs.size(); i++) {
-    size_t sampleID = sampleIDs[i];
-
+  for (auto& sampleID : sampleIDs) {
     REQUIRE(relabeled_observations.count(sampleID));
     relabeled_outcomes.push_back(relabeled_observations.at(sampleID));
   }

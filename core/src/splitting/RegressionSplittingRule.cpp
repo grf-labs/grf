@@ -36,7 +36,7 @@ bool RegressionSplittingRule::findBestSplit(size_t nodeID,
   }
 
   // For all possible split variables
-  for (auto &varID : possible_split_varIDs) {
+  for (auto& varID : possible_split_varIDs) {
     // Use faster method for both cases
     double q = (double) num_samples_node / (double) data->getNumUniqueDataValues(varID);
     if (q < Q_THRESHOLD) {

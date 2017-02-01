@@ -9,7 +9,7 @@ Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
   for (auto it : observables) {
     std::string type = it.first;
     size_t index = it.second;
-    for (int row = 0; row < num_samples; row++) {
+    for (size_t row = 0; row < num_samples; row++) {
       observations_by_type[type].push_back(data->get(row, index));
     }
   }

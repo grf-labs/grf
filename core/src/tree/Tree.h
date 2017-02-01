@@ -14,7 +14,7 @@
 class Tree {
 public:
   Tree(const std::vector<std::vector<size_t>>& child_nodeIDs,
-       const std::vector<std::vector<size_t>>& terminal_nodeIDs,
+       const std::vector<std::vector<size_t>>& leaf_nodeIDs,
        const std::vector<size_t>& split_varIDs,
        const std::vector<double>& split_values,
        const std::vector<size_t>& oob_sampleIDs,

@@ -67,6 +67,7 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
   while (line_stream >> token) {
     result.push_back(token);
   }
+  input_file.close();
 }
 
 std::string uintToString(uint number) {

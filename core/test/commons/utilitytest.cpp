@@ -72,7 +72,7 @@ TEST_CASE("Split 0..2 in 3 parts", "[equalParts]") {
 }
 
 TEST_CASE("Read and write a 1D vector", "[fileIO]") {
-  std::ofstream outfile = std::ofstream();
+  std::ofstream outfile;
   outfile.open("testfile1d", std::ios::binary);
   if (!outfile.good()) {
     throw std::runtime_error("Could not write to output file: ");
@@ -81,7 +81,7 @@ TEST_CASE("Read and write a 1D vector", "[fileIO]") {
   saveVector1D(expect, outfile);
   outfile.close();
 
-  std::ifstream infile = std::ifstream();
+  std::ifstream infile;
   infile.open("testfile1d", std::ios::binary);
   if (!infile.good()) {
     throw std::runtime_error("Could not read from input file: ");
@@ -96,7 +96,7 @@ TEST_CASE("Read and write a 1D vector", "[fileIO]") {
 }
 
 TEST_CASE("Read and write a 1D vector of doubles", "[fileIO]") {
-  std::ofstream outfile = std::ofstream();
+  std::ofstream outfile;
   outfile.open("testfile1d", std::ios::binary);
   if (!outfile.good()) {
     throw std::runtime_error("Could not write to output file: ");
@@ -105,7 +105,7 @@ TEST_CASE("Read and write a 1D vector of doubles", "[fileIO]") {
   saveVector1D(expect, outfile);
   outfile.close();
 
-  std::ifstream infile = std::ifstream();
+  std::ifstream infile;
   infile.open("testfile1d", std::ios::binary);
   if (!infile.good()) {
     throw std::runtime_error("Could not read from input file: ");
@@ -120,7 +120,7 @@ TEST_CASE("Read and write a 1D vector of doubles", "[fileIO]") {
 }
 
 TEST_CASE("Read and write a 2D vector of integers", "[fileIO]") {
-  std::ofstream outfile = std::ofstream();
+  std::ofstream outfile;
   outfile.open("testfile2d", std::ios::binary);
   if (!outfile.good()) {
     throw std::runtime_error("Could not write to output file: ");
@@ -136,7 +136,7 @@ TEST_CASE("Read and write a 2D vector of integers", "[fileIO]") {
   saveVector2D(expect, outfile);
   outfile.close();
 
-  std::ifstream infile = std::ifstream();
+  std::ifstream infile;
   infile.open("testfile2d", std::ios::binary);
   if (!infile.good()) {
     throw std::runtime_error("Could not read from input file: ");
@@ -151,7 +151,7 @@ TEST_CASE("Read and write a 2D vector of integers", "[fileIO]") {
 }
 
 TEST_CASE("Read and write a 2D vector of doubles", "[fileIO]") {
-  std::ofstream outfile = std::ofstream();
+  std::ofstream outfile;
   outfile.open("testfile2d", std::ios::binary);
   if (!outfile.good()) {
     throw std::runtime_error("Could not write to output file: ");
@@ -167,7 +167,7 @@ TEST_CASE("Read and write a 2D vector of doubles", "[fileIO]") {
   saveVector2D(expect, outfile);
   outfile.close();
 
-  std::ifstream infile = std::ifstream();
+  std::ifstream infile;
   infile.open("testfile2d", std::ios::binary);
   if (!infile.good()) {
     throw std::runtime_error("Could not read from input file: ");

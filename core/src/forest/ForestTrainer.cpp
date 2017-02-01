@@ -149,22 +149,19 @@ Forest ForestTrainer::train(Data* data) {
     throw std::runtime_error("mtry can not be larger than number of variables in data.");
   }
 
-  auto observations_by_type = new std::map<std::string, std::vector<double>>();
+  std::map<std::string, std::vector<double>> observations_by_type;
   for (auto it : observables) {
     std::string name = it.first;
     size_t index = it.second;
 
-    for (int row = 0; row < data->getNumRows(); row++) {
-      (*observations_by_type)[name].push_back(data->get(row, index));
+    for (size_t row = 0; row < data->getNumRows(); row++) {
+      observations_by_type[name].push_back(data->get(row, index));
     }
   }
-  Observations observations(*observations_by_type, data->getNumRows());
+  Observations observations(observations_by_type, data->getNumRows());
 
   uint num_groups = (uint) num_trees / ci_group_size;
   equalSplit(thread_ranges, 0, num_groups - 1, num_threads);
-
-  std::vector<std::thread> threads;
-  threads.reserve(num_threads);
 
   std::vector<std::future<std::vector<std::shared_ptr<Tree>>>> futures;
   futures.reserve(num_threads);
@@ -173,34 +170,26 @@ Forest ForestTrainer::train(Data* data) {
   trees.reserve(num_trees);
 
   for (uint i = 0; i < num_threads; ++i) {
-    std::promise<std::vector<std::shared_ptr<Tree>>> promise;
-    std::future<std::vector<std::shared_ptr<Tree>>> future = promise.get_future();
-    threads.push_back(std::thread(&ForestTrainer::growTreesInThread,
-                                  this,
-                                  i,
-                                  data,
-                                  observations,
-                                  std::move(promise)));
-    futures.push_back(std::move(future));
+    futures.push_back(std::async(std::launch::async,
+                                 &ForestTrainer::growTreesInThread,
+                                 this,
+                                 i,
+                                 data,
+                                 observations));
   }
 
-  for (auto &future : futures) {
-    future.wait();
+  for (auto& future : futures) {
     std::vector<std::shared_ptr<Tree>> thread_trees = future.get();
     trees.insert(trees.end(), thread_trees.begin(), thread_trees.end());
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
   }
 
   return Forest::create(trees, data, observables);
 }
 
-void ForestTrainer::growTreesInThread(uint thread_idx,
-                                      Data* data,
-                                      const Observations& observations,
-                                      std::promise<std::vector<std::shared_ptr<Tree>>> promise) {
+std::vector<std::shared_ptr<Tree>> ForestTrainer::growTreesInThread(
+    uint thread_idx,
+    Data* data,
+    const Observations& observations) {
   std::mt19937_64 random_number_generator(seed + thread_idx);
   std::uniform_int_distribution<uint> udist;
   std::vector<std::shared_ptr<Tree>> trees;
@@ -208,12 +197,12 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
     for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
       uint tree_seed = udist(random_number_generator);
       SamplingOptions sampling_options(sample_with_replacement, case_weights);
-      BootstrapSampler* bootstrap_sampler = new BootstrapSampler(tree_seed, sampling_options);
+      BootstrapSampler bootstrap_sampler(tree_seed, sampling_options);
 
       if (ci_group_size == 1) {
         std::vector<size_t> sampleIDs;
         std::vector<size_t> oob_sampleIDs;
-        bootstrap_sampler->sample(data->getNumRows(), sample_fraction, sampleIDs, oob_sampleIDs);
+        bootstrap_sampler.sample(data->getNumRows(), sample_fraction, sampleIDs, oob_sampleIDs);
 
         std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
             bootstrap_sampler, sampleIDs);
@@ -226,23 +215,23 @@ void ForestTrainer::growTreesInThread(uint thread_idx,
       }
     }
   }
-  promise.set_value(trees);
+  return trees;
 }
 
 std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
                                                                  const Observations& observations,
-                                                                 BootstrapSampler* bootstrap_sampler,
+                                                                 BootstrapSampler& bootstrap_sampler,
                                                                  double sample_fraction) {
   std::vector<std::shared_ptr<Tree>> trees;
 
   std::vector<size_t> sampleIDs;
   std::vector<size_t> oob_sampleIDs;
-  bootstrap_sampler->sample(data->getNumRows(), 0.5, sampleIDs, oob_sampleIDs);
+  bootstrap_sampler.sample(data->getNumRows(), 0.5, sampleIDs, oob_sampleIDs);
 
-  for (int i = 0; i < ci_group_size; i++) {
+  for (size_t i = 0; i < ci_group_size; i++) {
     std::vector<size_t> subsampleIDs;
     std::vector<size_t> oob_subsampleIDs;
-    bootstrap_sampler->subsample(sampleIDs, sample_fraction * 2, subsampleIDs, oob_subsampleIDs);
+    bootstrap_sampler.subsample(sampleIDs, sample_fraction * 2, subsampleIDs, oob_subsampleIDs);
     oob_subsampleIDs.insert(oob_subsampleIDs.end(), oob_sampleIDs.begin(), oob_sampleIDs.end());
 
     std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
@@ -271,7 +260,7 @@ void ForestTrainer::setSplitWeightVector(std::vector<double>& split_select_weigh
     double weight = split_select_weights[j];
 
     size_t varID = j;
-    for (auto &skip : no_split_variables) {
+    for (auto& skip : no_split_variables) {
       if (varID >= skip) {
         ++varID;
       }

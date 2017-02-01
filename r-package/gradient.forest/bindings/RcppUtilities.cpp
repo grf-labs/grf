@@ -29,7 +29,7 @@ void RcppUtilities::initialize_trainer(ForestTrainer &forest_trainer,
                       case_weights_file, sample_fraction, honesty, ci_group_size);
 }
 
-Rcpp::RawVector RcppUtilities::serialize_forest(Forest forest) {
+Rcpp::RawVector RcppUtilities::serialize_forest(const Forest& forest) {
   ForestSerializer forest_serializer;
   std::stringstream stream;
   forest_serializer.serialize(stream, forest);
@@ -74,9 +74,9 @@ Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(std::vector<Predicti
   size_t prediction_length = predictions.at(0).size();
   Rcpp::NumericMatrix result(predictions.size(), prediction_length);
 
-  for (int i = 0; i < predictions.size(); i++) {
+  for (size_t i = 0; i < predictions.size(); i++) {
     std::vector<double> prediction = predictions[i].get_predictions();
-    for (int j = 0; j < prediction.size(); j++) {
+    for (size_t j = 0; j < prediction.size(); j++) {
       double value = prediction[j];
       result(i, j) = value;
     }
@@ -97,10 +97,10 @@ Rcpp::NumericMatrix RcppUtilities::create_variance_matrix(std::vector<Prediction
   size_t prediction_length = first_prediction.size();
   Rcpp::NumericMatrix result(predictions.size(), prediction_length);
 
-  for (int i = 0; i < predictions.size(); i++) {
+  for (size_t i = 0; i < predictions.size(); i++) {
     std::vector<double> variance_estimate = predictions[i].get_variance_estimates();
 
-    for (int j = 0; j < variance_estimate.size(); j++) {
+    for (size_t j = 0; j < variance_estimate.size(); j++) {
       double value = variance_estimate[j];
       result(i, j) = value;
     }

@@ -3,7 +3,7 @@
 #include "utility.h"
 #include "PredictionValuesSerializer.h"
 
-void TreeSerializer::serialize(std::ostream& stream, std::shared_ptr<Tree> tree) {
+void TreeSerializer::serialize(std::ostream& stream, const std::shared_ptr<Tree>& tree) {
   saveVector2D(tree->get_child_nodeIDs(), stream);
   saveVector2D(tree->get_leaf_nodeIDs(), stream);
   saveVector1D(tree->get_split_varIDs(), stream);
