@@ -6,6 +6,12 @@ This repository is in an 'alpha' state, and is actively under development. We ex
 
 To build the R package, go to the `r-package` directory and run the script `build_package.R`. We currently only support Mac OS X and Linux. Note that a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher).
 
+### Authors
+
+This package is written and maintained by Julie Tibshirani (jtibs@cs.stanford.edu), Susan Athey, and Stefan Wager.
+
+The repository first started as a fork of the [ranger](https://github.com/imbs-hl/ranger) repository -- we owe a great deal of thanks to the ranger authors for their useful and free package.
+
 ### Usage Examples
 
 ```R
@@ -44,12 +50,6 @@ lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
 ```
 
 More usage examples, including examples around instrumental variables, can be found in the `experiments` directory.
-
-### Authors
-
-This package is written and maintained by Julie Tibshirani, Susan Athey, and Stefan Wager.
-
-The repository first started as a fork of the [ranger](https://github.com/imbs-hl/ranger) repository -- we owe a great deal of thanks to the ranger authors for their useful and free package.
 
 ###References
 
