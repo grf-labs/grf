@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/swager/gradient-forest.svg?branch=master)](https://travis-ci.org/swager/gradient-forest)
 # gradient-forest
 
 ![Alt text](documentation/under_construction.jpg?raw=true)
