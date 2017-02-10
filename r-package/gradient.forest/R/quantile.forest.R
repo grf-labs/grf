@@ -77,12 +77,12 @@ quantile.forest <- function(X, Y,
 						honesty,
 						ci.group.size)
 					
-						
+	forest[["original.data"]] <- input.data					
 	class(forest) <- "quantile.forest"
 	forest
 }
 
-predict.quantile.forest <- function(forest, newdata, quantiles=c(0.1, 0.5, 0.9), num.threads = NULL) {
+predict.quantile.forest <- function(forest, newdata = NULL, quantiles=c(0.1, 0.5, 0.9), num.threads = NULL) {
 	
 	if (!is.numeric(quantiles) | length(quantiles) < 1) {
 		stop("Error: Must provide numeric quantiles")
@@ -98,13 +98,24 @@ predict.quantile.forest <- function(forest, newdata, quantiles=c(0.1, 0.5, 0.9),
      
 	 sparse.data <- as.matrix(0)
 	 variable.names <- character(0)
+
+	forest.short <- forest[-which(names(forest) == "original.data")]
 	
-	 input.data <- as.matrix(cbind(newdata, NA))	
-	
-     quantile_predict(forest,
-     				  quantiles,
-     				  input.data,
-     				  sparse.data,
-     				  variable.names,
-     				  num.threads)    				 
+	if (!is.null(newdata)) {
+		input.data <- as.matrix(cbind(newdata, NA))
+	    quantile_predict(forest,
+	     				  quantiles,
+	     				  input.data,
+	     				  sparse.data,
+	     				  variable.names,
+	     				  num.threads)
+	} else {
+		input.data <- forest[["original.data"]]
+	    quantile_predict_oob(forest,
+	     				  quantiles,
+	     				  input.data,
+	     				  sparse.data,
+	     				  variable.names,
+	     				  num.threads)
+	}				 
 } 
