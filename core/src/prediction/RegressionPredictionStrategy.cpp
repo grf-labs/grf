@@ -19,14 +19,16 @@
 #include <string>
 #include "RegressionPredictionStrategy.h"
 
+const std::string RegressionPredictionStrategy::OUTCOME = "outcome";
+
 size_t RegressionPredictionStrategy::prediction_length() {
     return 1;
 }
 
-Prediction RegressionPredictionStrategy::predict(const std::map<std::string, double>& average_prediction_values,
+Prediction RegressionPredictionStrategy::predict(const std::map<std::string, double>& averages,
                                                  const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                  const Observations& observations) {
-  std::vector<double> predictions = { average_prediction_values.at(PredictionValues::AVERAGE) };
+  std::vector<double> predictions = { averages.at(OUTCOME) };
   return Prediction(predictions);
 }
 
@@ -46,7 +48,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     const Observations& observations) {
 
   std::map<std::string, std::vector<double>> values;
-  std::vector<double>& averages = values[PredictionValues::AVERAGE];
+  std::vector<double>& averages = values[OUTCOME];
 
   for (auto& leaf_node : leaf_sampleIDs) {
     if (leaf_node.empty()) {
@@ -63,3 +65,4 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
 
   return PredictionValues(values, leaf_sampleIDs.size());
 }
+

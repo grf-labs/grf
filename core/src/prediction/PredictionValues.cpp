@@ -17,8 +17,6 @@
 
 #include "PredictionValues.h"
 
-const std::string PredictionValues::AVERAGE = "average";
-
 PredictionValues::PredictionValues() {}
 
 PredictionValues::PredictionValues(const std::map<std::string, std::vector<double>>& values_by_type,

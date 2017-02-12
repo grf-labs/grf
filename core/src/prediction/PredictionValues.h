@@ -44,8 +44,6 @@ public:
     return num_nodes == 0;
   }
 
-  static const std::string AVERAGE;
-
 private:
   std::map<std::string, std::vector<double>> values_by_type;
   size_t num_nodes;

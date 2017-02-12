@@ -32,6 +32,7 @@ bool equal_predictions(const std::vector<Prediction>& actual_predictions,
   if (actual_predictions.size() != expected_predictions.size()) {
     return false;
   }
+
   for (size_t i = 0; i < actual_predictions.size(); i++) {
     Prediction prediction = actual_predictions[i];
     std::vector<double> expected_prediction = expected_predictions[i];
@@ -46,6 +47,7 @@ bool equal_predictions(const std::vector<Prediction>& actual_predictions,
       }
     }
   }
+
   return true;
 }
 
@@ -91,7 +93,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   ForestPredictor predictor = ForestPredictors::instrumental_predictor(4, 1);
 
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
-  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::readCsvFile(
+    std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::readCsvFile(
       "test/forest/resources/causal_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
