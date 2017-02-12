@@ -38,7 +38,7 @@ std::map<size_t, std::vector<size_t>> ForestPredictor::determine_terminal_node_I
   std::map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree;
 
   size_t num_trees = forest.get_trees().size();
-  equalSplit(thread_ranges, 0, num_trees - 1, num_threads);
+  split_sequence(thread_ranges, 0, num_trees - 1, num_threads);
 
   std::vector<std::future<
       std::map<size_t, std::vector<size_t>>>> futures;
@@ -46,7 +46,7 @@ std::map<size_t, std::vector<size_t>> ForestPredictor::determine_terminal_node_I
 
   for (uint i = 0; i < num_threads; ++i) {
     futures.push_back(std::async(std::launch::async,
-                                 &ForestPredictor::predictTreesInThread,
+                                & ForestPredictor::predict_batch,
                                  this,
                                  i,
                                  forest,
@@ -67,10 +67,10 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
       determine_terminal_node_IDs(forest, prediction_data, false);
 
   std::vector<Prediction> predictions;
-  predictions.reserve(prediction_data->getNumRows());
+  predictions.reserve(prediction_data->get_num_rows());
 
   size_t prediction_length = prediction_strategy->prediction_length();
-  for (size_t sampleID = 0; sampleID < prediction_data->getNumRows(); ++sampleID) {
+  for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); ++sampleID) {
     std::map<std::string, double> average_prediction_values;
     std::unordered_map<size_t, double> weights_by_sampleID;
     std::vector<std::vector<size_t>> leaf_sampleIDs;
@@ -135,10 +135,10 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
       determine_terminal_node_IDs(forest, original_data, true);
 
   std::vector<Prediction> predictions;
-  predictions.reserve(original_data->getNumRows());
+  predictions.reserve(original_data->get_num_rows());
 
   size_t num_trees = forest.get_trees().size();
-  bool trees_by_oob_samples[original_data->getNumRows()][num_trees];
+  bool trees_by_oob_samples[original_data->get_num_rows()][num_trees];
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
     for (size_t sampleID : forest.get_trees()[tree_idx]->get_oob_sampleIDs()) {
       trees_by_oob_samples[sampleID][tree_idx] = true;
@@ -146,7 +146,7 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
   }
 
   size_t prediction_length = prediction_strategy->prediction_length();
-  for (size_t sampleID = 0; sampleID < original_data->getNumRows(); ++sampleID) {
+  for (size_t sampleID = 0; sampleID < original_data->get_num_rows(); ++sampleID) {
     std::map<std::string, double> average_prediction_values;
     std::unordered_map<size_t, double> weights_by_sampleID;
 
@@ -196,7 +196,7 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
   return predictions;
 }
 
-std::map<size_t, std::vector<size_t>> ForestPredictor::predictTreesInThread(
+std::map<size_t, std::vector<size_t>> ForestPredictor::predict_batch(
     uint thread_idx,
     const Forest& forest,
     Data* prediction_data,
@@ -222,7 +222,7 @@ std::map<size_t, std::vector<size_t>> ForestPredictor::predictTreesInThread(
 }
 
 void ForestPredictor::add_prediction_values(size_t nodeID,
-                                            const PredictionValues &prediction_values,
+                                            const PredictionValues& prediction_values,
                                             std::map<std::string, double>& average_prediction_values) {
   auto& values_by_type = prediction_values.get_values_by_type();
   for (auto it = values_by_type.begin(); it != values_by_type.end(); it++) {

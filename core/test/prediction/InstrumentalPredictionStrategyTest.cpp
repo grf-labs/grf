@@ -59,5 +59,5 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
 
   REQUIRE(first_predictions.size() == 1);
   REQUIRE(second_predictions.size() == 1);
-  REQUIRE(equalDoubles(first_predictions[0], -second_predictions[0], 1.0e-10));
+  REQUIRE(equal_doubles(first_predictions[0], -second_predictions[0], 1.0e-10));
 }

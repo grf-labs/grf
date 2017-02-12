@@ -46,13 +46,13 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
     bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
-    for (auto &idx : result) {
+    for (auto& idx : result) {
       ++counts[idx];
     }
   }
 
   // Check if counts are expected +- 5%
-  for (auto &c : counts) {
+  for (auto& c : counts) {
     size_t difference = absoluteDifference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.05);
   }
@@ -77,13 +77,13 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
     bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
-    for (auto &idx : result) {
+    for (auto& idx : result) {
       ++counts[idx];
     }
   }
 
   // Check if counts are expected +- 5%
-  for (auto &c : counts) {
+  for (auto& c : counts) {
     size_t difference = absoluteDifference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.05);
   }
@@ -108,13 +108,13 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
     bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
-    for (auto &idx : result) {
+    for (auto& idx : result) {
       ++counts[idx];
     }
   }
 
   // Check if counts are expected +- 5%
-  for (auto &c : counts) {
+  for (auto& c : counts) {
     size_t difference = absoluteDifference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.05);
   }
@@ -139,13 +139,13 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
     bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
-    for (auto &idx : result) {
+    for (auto& idx : result) {
       ++counts[idx];
     }
   }
 
   // Check if counts are expected +- 10%
-  for (auto &c : counts) {
+  for (auto& c : counts) {
     size_t difference = absoluteDifference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.10);
   }
@@ -170,13 +170,13 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
     bootstrap_sampler->drawWithoutReplacementSkip(result, max + 1, skip, num_samples);
-    for (auto &idx : result) {
+    for (auto& idx : result) {
       ++counts[idx];
     }
   }
 
   // Check if counts are expected +- 5%
-  for (auto &c : counts) {
+  for (auto& c : counts) {
     size_t difference = absoluteDifference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.05);
   }

@@ -25,36 +25,36 @@
 
 class RegressionSplittingRule: public SplittingRule {
 public:
-  RegressionSplittingRule(Data *data);
+  RegressionSplittingRule(Data* data);
 
   ~RegressionSplittingRule();
 
-  bool findBestSplit(size_t nodeID,
-                     const std::vector<size_t>& possible_split_varIDs,
-                     const std::unordered_map<size_t, double>& labels_by_sampleID,
-                     const std::vector<std::vector<size_t>>& sampleIDs,
-                     std::vector<size_t>& split_varIDs,
-                     std::vector<double>& split_values);
+  bool find_best_split(size_t nodeID,
+                       const std::vector<size_t>& possible_split_varIDs,
+                       const std::unordered_map<size_t, double>& labels_by_sampleID,
+                       const std::vector<std::vector<size_t>>& sampleIDs,
+                       std::vector<size_t>& split_varIDs,
+                       std::vector<double>& split_values);
 
 private:
-  virtual void findBestSplitValueSmallQ(size_t nodeID,
-                                        size_t varID,
-                                        double sum_node,
-                                        size_t num_samples_node,
-                                        double& best_value,
-                                        size_t& best_varID,
-                                        double& best_decrease,
-                                        const std::unordered_map<size_t, double>& responses_by_sampleID,
-                                        const std::vector<std::vector<size_t>>& sampleIDs);
-  virtual void findBestSplitValueLargeQ(size_t nodeID,
-                                        size_t varID,
-                                        double sum_node,
-                                        size_t num_samples_node,
-                                        double& best_value,
-                                        size_t& best_varID,
-                                        double& best_decrease,
-                                        const std::unordered_map<size_t, double>& responses_by_sampleID,
-                                        const std::vector<std::vector<size_t>>& sampleIDs);
+  virtual void find_best_split_value_small_q(size_t nodeID,
+                                             size_t varID,
+                                             double sum_node,
+                                             size_t num_samples_node,
+                                             double& best_value,
+                                             size_t& best_varID,
+                                             double& best_decrease,
+                                             const std::unordered_map<size_t, double>& responses_by_sampleID,
+                                             const std::vector<std::vector<size_t>>& sampleIDs);
+  virtual void find_best_split_value_large_q(size_t nodeID,
+                                             size_t varID,
+                                             double sum_node,
+                                             size_t num_samples_node,
+                                             double& best_value,
+                                             size_t& best_varID,
+                                             double& best_decrease,
+                                             const std::unordered_map<size_t, double>& responses_by_sampleID,
+                                             const std::vector<std::vector<size_t>>& sampleIDs);
 
   Data* data;
   size_t* counter;

@@ -21,11 +21,11 @@
 #include "PredictionValuesSerializer.h"
 
 void TreeSerializer::serialize(std::ostream& stream, const std::shared_ptr<Tree>& tree) {
-  saveVector2D(tree->get_child_nodeIDs(), stream);
-  saveVector2D(tree->get_leaf_nodeIDs(), stream);
-  saveVector1D(tree->get_split_varIDs(), stream);
-  saveVector1D(tree->get_split_values(), stream);
-  saveVector1D(tree->get_oob_sampleIDs(), stream);
+  write_matrix(tree->get_child_nodeIDs(), stream);
+  write_matrix(tree->get_leaf_nodeIDs(), stream);
+  write_vector(tree->get_split_varIDs(), stream);
+  write_vector(tree->get_split_values(), stream);
+  write_vector(tree->get_oob_sampleIDs(), stream);
 
   PredictionValuesSerializer prediction_values_serializer;
   prediction_values_serializer.serialize(stream, tree->get_prediction_values());
@@ -33,19 +33,19 @@ void TreeSerializer::serialize(std::ostream& stream, const std::shared_ptr<Tree>
 
 std::shared_ptr<Tree> TreeSerializer::deserialize(std::istream& stream) {
   std::vector<std::vector<size_t>> child_nodeIDs;
-  readVector2D(child_nodeIDs, stream);
+  read_matrix(child_nodeIDs, stream);
 
   std::vector<std::vector<size_t>> sampleIDs;
-  readVector2D(sampleIDs, stream);
+  read_matrix(sampleIDs, stream);
 
   std::vector<size_t> split_varIDs;
-  readVector1D(split_varIDs, stream);
+  read_vector(split_varIDs, stream);
 
   std::vector<double> split_values;
-  readVector1D(split_values, stream);
+  read_vector(split_values, stream);
 
   std::vector<size_t> oob_sampleIDs;
-  readVector1D(oob_sampleIDs, stream);
+  read_vector(oob_sampleIDs, stream);
 
   PredictionValuesSerializer prediction_values_serializer;
   PredictionValues prediction_values = prediction_values_serializer.deserialize(stream);

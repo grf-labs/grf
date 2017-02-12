@@ -47,7 +47,7 @@ void ForestTrainer::init(uint mtry,
                          uint min_node_size,
                          std::vector<size_t> no_split_variables,
                          std::string split_select_weights_file,
-                         std::vector<std::string> &always_split_variable_names,
+                         std::vector<std::string>& always_split_variable_names,
                          bool sample_with_replacement,
                          bool memory_saving_splitting,
                          std::string case_weights_file,
@@ -120,23 +120,23 @@ void ForestTrainer::init(uint mtry,
 }
 
 Forest ForestTrainer::train(Data* data) {
-  size_t num_samples = data->getNumRows();
-  size_t num_variables = data->getNumCols();
+  size_t num_samples = data->get_num_rows();
+  size_t num_variables = data->get_num_cols();
   size_t num_independent_variables = num_variables - no_split_variables.size();
 
   if (!split_select_weights_file.empty()) {
     std::vector<double> split_select_weights;
     split_select_weights.resize(1);
-    loadDoubleVectorFromFile(split_select_weights, split_select_weights_file);
+    read_vector_from_file(split_select_weights, split_select_weights_file);
     if (split_select_weights.size() != num_variables - 1) {
       throw std::runtime_error("Number of split select weights is not equal to number of independent variables.");
     }
-    setSplitWeightVector(split_select_weights, num_independent_variables);
+    set_split_select_weights(split_select_weights, num_independent_variables);
   }
 
   // Load case weights from file
   if (!case_weights_file.empty()) {
-    loadDoubleVectorFromFile(case_weights, case_weights_file);
+    read_vector_from_file(case_weights, case_weights_file);
     if (case_weights.size() != num_samples - 1) {
       throw std::runtime_error("Number of case weights is not equal to number of samples.");
     }
@@ -153,7 +153,7 @@ Forest ForestTrainer::train(Data* data) {
 
   // Set variables to be always considered for splitting
   if (!always_split_variable_names.empty()) {
-    setAlwaysSplitVariables(data, always_split_variable_names, num_independent_variables);
+    set_always_split_variables(data, always_split_variable_names, num_independent_variables);
   }
 
   // Check if any observations samples
@@ -171,14 +171,14 @@ Forest ForestTrainer::train(Data* data) {
     std::string name = it.first;
     size_t index = it.second;
 
-    for (size_t row = 0; row < data->getNumRows(); row++) {
+    for (size_t row = 0; row < data->get_num_rows(); row++) {
       observations_by_type[name].push_back(data->get(row, index));
     }
   }
-  Observations observations(observations_by_type, data->getNumRows());
+  Observations observations(observations_by_type, data->get_num_rows());
 
   uint num_groups = (uint) num_trees / ci_group_size;
-  equalSplit(thread_ranges, 0, num_groups - 1, num_threads);
+  split_sequence(thread_ranges, 0, num_groups - 1, num_threads);
 
   std::vector<std::future<std::vector<std::shared_ptr<Tree>>>> futures;
   futures.reserve(num_threads);
@@ -188,7 +188,7 @@ Forest ForestTrainer::train(Data* data) {
 
   for (uint i = 0; i < num_threads; ++i) {
     futures.push_back(std::async(std::launch::async,
-                                 &ForestTrainer::growTreesInThread,
+                                & ForestTrainer::train_batch,
                                  this,
                                  i,
                                  data,
@@ -203,7 +203,7 @@ Forest ForestTrainer::train(Data* data) {
   return Forest::create(trees, data, observables);
 }
 
-std::vector<std::shared_ptr<Tree>> ForestTrainer::growTreesInThread(
+std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
     uint thread_idx,
     Data* data,
     const Observations& observations) {
@@ -219,7 +219,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::growTreesInThread(
       if (ci_group_size == 1) {
         std::vector<size_t> sampleIDs;
         std::vector<size_t> oob_sampleIDs;
-        bootstrap_sampler.sample(data->getNumRows(), sample_fraction, sampleIDs, oob_sampleIDs);
+        bootstrap_sampler.sample(data->get_num_rows(), sample_fraction, sampleIDs, oob_sampleIDs);
 
         std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
             bootstrap_sampler, sampleIDs);
@@ -243,7 +243,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
 
   std::vector<size_t> sampleIDs;
   std::vector<size_t> oob_sampleIDs;
-  bootstrap_sampler.sample(data->getNumRows(), 0.5, sampleIDs, oob_sampleIDs);
+  bootstrap_sampler.sample(data->get_num_rows(), 0.5, sampleIDs, oob_sampleIDs);
 
   for (size_t i = 0; i < ci_group_size; i++) {
     std::vector<size_t> subsampleIDs;
@@ -260,8 +260,8 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
   return trees;
 }
 
-void ForestTrainer::setSplitWeightVector(std::vector<double>& split_select_weights,
-                                         size_t num_independent_variables) {
+void ForestTrainer::set_split_select_weights(std::vector<double>& split_select_weights,
+                                             size_t num_independent_variables) {
 // Reserve space
   this->split_select_weights.resize(num_independent_variables);
   this->split_select_varIDs.resize(num_independent_variables);
@@ -301,14 +301,14 @@ void ForestTrainer::setSplitWeightVector(std::vector<double>& split_select_weigh
   }
 }
 
-void ForestTrainer::setAlwaysSplitVariables(Data* data,
-                                            std::vector<std::string> &always_split_variable_names,
-                                            size_t num_independent_variables) {
+void ForestTrainer::set_always_split_variables(Data* data,
+                                               std::vector<std::string>& always_split_variable_names,
+                                               size_t num_independent_variables) {
   deterministic_varIDs.clear();
   deterministic_varIDs.reserve(num_independent_variables);
 
   for (auto& variable_name : always_split_variable_names) {
-    size_t varID = data->getVariableID(variable_name);
+    size_t varID = data->get_variable_id(variable_name);
     deterministic_varIDs.push_back(varID);
   }
 

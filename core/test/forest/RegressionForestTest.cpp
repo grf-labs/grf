@@ -30,7 +30,7 @@
 
 TEST_CASE("honest regression forests are shift invariant", "[regression, forest]") {
   // Run the original forest.
-  Data* data = loadDataFromFile("test/forest/resources/gaussian_data.csv");
+  Data* data = load_data("test/forest/resources/gaussian_data.csv");
   uint outcome_index = 10;
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(data, outcome_index);
@@ -42,7 +42,7 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
 
   // Shift each outcome by 1, and re-run the forest.
   bool error;
-  for (size_t r = 0; r < data->getNumRows(); r++) {
+  for (size_t r = 0; r < data->get_num_rows(); r++) {
     double outcome = data->get(r, outcome_index);
     data->set(outcome_index, r, outcome + 1, error);
   }
@@ -66,7 +66,7 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
     delta += shifted_value - value;
   }
 
-  REQUIRE(equalDoubles(delta / predictions.size(), 1, 1e-1));
+  REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
 
   delete data;
 }

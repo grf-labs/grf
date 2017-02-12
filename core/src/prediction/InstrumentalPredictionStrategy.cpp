@@ -230,8 +230,8 @@ bool InstrumentalPredictionStrategy::requires_leaf_sampleIDs() {
 }
 
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
-    const std::vector<std::vector<size_t>> &leaf_sampleIDs,
-    const Observations &observations) {
+    const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+    const Observations& observations) {
   size_t num_trees = leaf_sampleIDs.size();
 
   std::map<std::string, std::vector<double>> values;

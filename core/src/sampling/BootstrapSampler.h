@@ -34,10 +34,10 @@ public:
               std::vector<size_t>& sampleIDs,
               std::vector<size_t>& oob_sampleIDs);
 
-  void subsample(const std::vector<size_t> &sampleIDs,
+  void subsample(const std::vector<size_t>& sampleIDs,
                  double sample_fraction,
-                 std::vector<size_t> &subsampleIDs,
-                 std::vector<size_t> &oob_sampleIDs);
+                 std::vector<size_t>& subsampleIDs,
+                 std::vector<size_t>& oob_sampleIDs);
 
   /**
    * Draw random numbers in a range without replacement and skip values.
@@ -48,7 +48,7 @@ public:
    */
   void drawWithoutReplacementSkip(std::vector<size_t>& result,
                                   size_t range_length,
-                                  const std::vector<size_t> &skip,
+                                  const std::vector<size_t>& skip,
                                   size_t num_samples);
 
   /**
@@ -59,7 +59,7 @@ public:
    * @param weights A weight for each element of indices
    */
   void drawWithoutReplacementWeighted(std::vector<size_t>& result,
-                                      const std::vector<size_t> &indices,
+                                      const std::vector<size_t>& indices,
                                       size_t num_samples,
                                       const std::vector<double>& weights);
 
@@ -83,8 +83,8 @@ public:
    * @param n_all Number elements
    * @param n_first Number of elements of first part
    */
-  void shuffleAndSplit(std::vector<size_t> &first_part,
-                       std::vector<size_t> &second_part,
+  void shuffleAndSplit(std::vector<size_t>& first_part,
+                       std::vector<size_t>& second_part,
                        size_t n_all,
                        size_t n_first);
 
@@ -94,20 +94,20 @@ private:
                  std::vector<size_t>& sampleIDs,
                  std::vector<size_t>& oob_sampleIDs);
 
-  void bootstrapWithoutReplacement(size_t num_samples,
-                                   double sample_fraction,
-                                   std::vector<size_t>& sampleIDs,
-                                   std::vector<size_t>& oob_sampleIDs);
+  void bootstrap_without_replacement(size_t num_samples,
+                                     double sample_fraction,
+                                     std::vector<size_t>& sampleIDs,
+                                     std::vector<size_t>& oob_sampleIDs);
 
-  void bootstrapWeighted(size_t num_samples,
-                         double sample_fraction,
-                         std::vector<size_t>& sampleIDs,
-                         std::vector<size_t>& oob_sampleIDs);
+  void bootstrap_weighted(size_t num_samples,
+                          double sample_fraction,
+                          std::vector<size_t>& sampleIDs,
+                          std::vector<size_t>& oob_sampleIDs);
 
-  void bootstrapWithoutReplacementWeighted(size_t num_samples,
-                                           double sample_fraction,
-                                           std::vector<size_t>& sampleIDs,
-                                           std::vector<size_t>& oob_sampleIDs);
+  void bootstrap_without_replacement_weighted(size_t num_samples,
+                                              double sample_fraction,
+                                              std::vector<size_t>& sampleIDs,
+                                              std::vector<size_t>& oob_sampleIDs);
 
   /**
    * Simple algorithm for sampling without replacement, faster for smaller num_samples
@@ -116,10 +116,10 @@ private:
    * @param skip Values to skip
    * @param num_samples Number of samples to draw
    */
-  void drawWithoutReplacementSimple(std::vector<size_t>& result,
-                                    size_t max,
-                                    const std::vector<size_t> &skip,
-                                    size_t num_samples);
+  void draw_without_replacement(std::vector<size_t>& result,
+                                size_t max,
+                                const std::vector<size_t>& skip,
+                                size_t num_samples);
 
   /**
    * Knuth's algorithm for sampling without replacement, faster for larger num_samples
@@ -129,10 +129,10 @@ private:
    * @param skip Values to skip
    * @param num_samples Number of samples to draw
    */
-  void drawWithoutReplacementKnuth(std::vector<size_t>& result,
-                                   size_t max,
-                                   const std::vector<size_t> &skip,
-                                   size_t num_samples);
+  void draw_without_replacement_knuth(std::vector<size_t>& result,
+                                      size_t max,
+                                      const std::vector<size_t>& skip,
+                                      size_t num_samples);
 
   SamplingOptions options;
   std::mt19937_64 random_number_generator;

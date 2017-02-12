@@ -22,14 +22,14 @@ void ForestTestUtilities::init_trainer(ForestTrainer& trainer) {
   init_trainer(trainer, false);
 }
 
-void ForestTestUtilities::init_honest_trainer(ForestTrainer &trainer) {
+void ForestTestUtilities::init_honest_trainer(ForestTrainer& trainer) {
   init_trainer(trainer, true);
 }
 
 void ForestTestUtilities::init_trainer(ForestTrainer& trainer, bool honesty) {
   uint mtry = 3;
   uint num_trees = 20;
-  std::ostream* verbose_out = &std::cout;
+  std::ostream* verbose_out =& std::cout;
   uint seed = 42;
   uint num_threads = 4;
   std::string load_forest_filename = "";

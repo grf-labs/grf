@@ -60,7 +60,7 @@ TEST_CASE("flipping signs of treatment does not affect relabeled outcomes", "[in
     double first_outcome = first_outcomes[i];
     double second_outcome = second_outcomes[i];
 
-    REQUIRE(equalDoubles(first_outcome, second_outcome, 1.0e-10));
+    REQUIRE(equal_doubles(first_outcome, second_outcome, 1.0e-10));
   }
 }
 
@@ -84,7 +84,7 @@ TEST_CASE("scaling instrument scales relabeled outcomes", "[instrumental, relabe
     double first_outcome = first_outcomes[i];
     double second_outcome = second_outcomes[i];
 
-    REQUIRE(equalDoubles(3 * first_outcome, second_outcome, 1.0e-10));
+    REQUIRE(equal_doubles(3 * first_outcome, second_outcome, 1.0e-10));
   }
 }
 
@@ -100,8 +100,8 @@ TEST_CASE("constant treatment leads to no splitting", "[instrumental, relabeling
     sampleIDs.push_back(i);
   }
 
-  InstrumentalRelabelingStrategy relabelingStrategy;
-  auto relabeled_observations = relabelingStrategy.relabel_outcomes(observations, sampleIDs);
+  InstrumentalRelabelingStrategy relabeling_strategy;
+  auto relabeled_observations = relabeling_strategy.relabel_outcomes(observations, sampleIDs);
 
   REQUIRE(relabeled_observations.empty()); // An empty map signals that no splitting should be performed.
 }
@@ -118,8 +118,8 @@ TEST_CASE("constant instrument leads to no splitting", "[instrumental, relabelin
     sampleIDs.push_back(i);
   }
   
-  InstrumentalRelabelingStrategy relabelingStrategy;
-  auto relabeled_observations = relabelingStrategy.relabel_outcomes(observations, sampleIDs);
+  InstrumentalRelabelingStrategy relabeling_strategy;
+  auto relabeled_observations = relabeling_strategy.relabel_outcomes(observations, sampleIDs);
 
   REQUIRE(relabeled_observations.empty()); // An empty map signals that no splitting should be performed.
 }

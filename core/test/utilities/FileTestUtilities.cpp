@@ -53,7 +53,7 @@ void FileTestUtilities::writeCsvFile(std::string file_name, std::vector<std::vec
   std::ofstream file;
   file.open(file_name, std::ios::binary);
 
-  for (auto &line : contents) {
+  for (auto& line : contents) {
     for (size_t i = 0; i < line.size(); i++) {
       if (i > 0) {
         file << ", ";

@@ -36,26 +36,26 @@ public:
 
   double get(size_t row, size_t col) const;
 
-  size_t getVariableID(std::string variable_name);
+  size_t get_variable_id(std::string variable_name);
 
-  void reserveMemory();
+  void reserve_memory();
   void set(size_t col, size_t row, double value, bool& error);
 
-  void addSparseData(unsigned char* sparse_data, size_t num_cols_sparse);
+  void add_sparse_data(unsigned char *sparse_data, size_t num_cols_sparse);
 
-  bool loadFromFile(std::string filename);
-  bool loadFromFileWhitespace(std::ifstream& input_file, std::string header_line);
-  bool loadFromFileOther(std::ifstream& input_file, std::string header_line, char seperator);
+  bool load_from_file(std::string filename);
+  bool load_from_whitespace_file(std::ifstream& input_file, std::string header_line);
+  bool load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator);
 
-  void getAllValues(std::vector<double>& all_values, const std::vector<size_t>& sampleIDs, size_t varID);
+  void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& sampleIDs, size_t varID);
 
-  size_t getIndex(size_t row, size_t col) const {
+  size_t get_index(size_t row, size_t col) const {
     if (col < num_cols_no_sparse) {
       return index_data[col * num_rows + row];
     } else {
       // Get data out of sparse storage. -1 because of GenABEL coding.
       size_t idx = (col - num_cols_no_sparse) * num_rows_rounded + row;
-      size_t result = (((sparse_data[idx / 4] & mask[idx % 4]) >> offset[idx % 4]) - 1);
+      size_t result = (((sparse_data[idx / 4]&  mask[idx % 4]) >> offset[idx % 4]) - 1);
 
       // TODO: Better way to treat missing values?
       if (result > 2) {
@@ -66,7 +66,7 @@ public:
     }
   }
 
-  double getUniqueDataValue(size_t varID, size_t index) const {
+  double get_unique_data_value(size_t varID, size_t index) const {
     if (varID < num_cols_no_sparse) {
       return unique_data_values[varID][index];
     } else {
@@ -75,7 +75,7 @@ public:
     }
   }
 
-  size_t getNumUniqueDataValues(size_t varID) const {
+  size_t get_num_unique_data_values(size_t varID) const {
     if (varID < num_cols_no_sparse) {
       return unique_data_values[varID].size();
     } else {
@@ -86,17 +86,17 @@ public:
 
   void sort();
 
-  const std::vector<std::string>& getVariableNames() const {
+  const std::vector<std::string>& get_variable_names() const {
     return variable_names;
   }
-  size_t getNumCols() const {
+  size_t get_num_cols() const {
     return num_cols;
   }
-  size_t getNumRows() const {
+  size_t get_num_rows() const {
     return num_rows;
   }
 
-  size_t getMaxNumUniqueValues() const {
+  size_t get_max_num_unique_values() const {
     if (sparse_data == 0 || max_num_unique_values > 3) {
       // If no sparse data or one variable with more than 3 unique values, return that value
       return max_num_unique_values;

@@ -61,7 +61,7 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel_outco
     denominator += (regularized_instrument - average_regularized_instrument) * (treatment - average_treatment);
   }
 
-  if (equalDoubles(denominator, 0.0, 1.0e-10)) {
+  if (equal_doubles(denominator, 0.0, 1.0e-10)) {
     return std::unordered_map<size_t, double>(); // Signals that we should not perform a split.
   }
 

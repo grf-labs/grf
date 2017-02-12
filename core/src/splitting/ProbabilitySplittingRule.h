@@ -28,30 +28,30 @@ public:
   ProbabilitySplittingRule(Data* data, size_t num_classes);
   ~ProbabilitySplittingRule();
 
-  bool findBestSplit(size_t nodeID,
-                     const std::vector<size_t>& possible_split_varIDs,
-                     const std::unordered_map<size_t, double>& labels_by_sampleID,
-                     const std::vector<std::vector<size_t>>& sampleIDs,
-                     std::vector<size_t> &split_varIDs,
-                     std::vector<double> &split_values);
+  bool find_best_split(size_t nodeID,
+                       const std::vector<size_t>& possible_split_varIDs,
+                       const std::unordered_map<size_t, double>& labels_by_sampleID,
+                       const std::vector<std::vector<size_t>>& sampleIDs,
+                       std::vector<size_t>& split_varIDs,
+                       std::vector<double>& split_values);
 
 private:
-  void findBestSplitValueSmallQ(size_t nodeID, size_t varID, size_t num_classes, size_t *class_counts,
-                                size_t num_samples_node,
-                                double &best_value, size_t &best_varID, double &best_decrease,
-                                const std::unordered_map<size_t, double>& labels_by_sampleID,
-                                const std::vector<std::vector<size_t>>& sampleIDs);
+  void find_best_split_value_small_q(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+                                     size_t num_samples_node,
+                                     double& best_value, size_t& best_varID, double& best_decrease,
+                                     const std::unordered_map<size_t, double>& labels_by_sampleID,
+                                     const std::vector<std::vector<size_t>>& sampleIDs);
 
-  void findBestSplitValueLargeQ(size_t nodeID, size_t varID, size_t num_classes, size_t *class_counts,
-                                size_t num_samples_node,
-                                double &best_value, size_t &best_varID, double &best_decrease,
-                                const std::unordered_map<size_t, double>& labels_by_sampleID,
-                                const std::vector<std::vector<size_t>>& sampleIDs);
+  void find_best_split_value_large_q(size_t nodeID, size_t varID, size_t num_classes, size_t* class_counts,
+                                     size_t num_samples_node,
+                                     double& best_value, size_t& best_varID, double& best_decrease,
+                                     const std::unordered_map<size_t, double>& labels_by_sampleID,
+                                     const std::vector<std::vector<size_t>>& sampleIDs);
 
-  Data *data;
+  Data* data;
   size_t num_classes;
 
-  size_t *counter;
+  size_t* counter;
   size_t* counter_per_class;
 
   DISALLOW_COPY_AND_ASSIGN(ProbabilitySplittingRule);

@@ -21,7 +21,7 @@
 #include "ProbabilitySplittingRule.h"
 
 
-ProbabilitySplittingRuleFactory::ProbabilitySplittingRuleFactory(Data *data, size_t num_classes):
+ProbabilitySplittingRuleFactory::ProbabilitySplittingRuleFactory(Data* data, size_t num_classes):
     data(data), num_classes(num_classes) {}
 
 std::shared_ptr<SplittingRule> ProbabilitySplittingRuleFactory::create() {

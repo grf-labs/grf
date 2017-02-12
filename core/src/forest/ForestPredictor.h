@@ -46,7 +46,7 @@ private:
       Data* data,
       bool oob_prediction);
 
-  std::map<size_t, std::vector<size_t>> predictTreesInThread(
+  std::map<size_t, std::vector<size_t>> predict_batch(
       uint thread_idx,
       const Forest& forest,
       Data* prediction_data,

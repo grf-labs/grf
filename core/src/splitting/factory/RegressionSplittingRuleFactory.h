@@ -27,7 +27,7 @@ public:
   std::shared_ptr<SplittingRule> create();
 
 private:
-  Data *data;
+  Data* data;
 };
 
 

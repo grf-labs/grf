@@ -44,8 +44,8 @@ public:
       const Observations& observations);
 
 private:
-  std::vector<double> compute_quantile_cutoffs(const std::unordered_map<size_t, double> &weights_by_sampleID,
-                                               std::vector<std::pair<size_t, double>> &sampleIDs_and_values);
+  std::vector<double> compute_quantile_cutoffs(const std::unordered_map<size_t, double>& weights_by_sampleID,
+                                               std::vector<std::pair<size_t, double>>& sampleIDs_and_values);
 
   std::vector<double> quantiles;
 };

@@ -28,8 +28,8 @@ void PredictionValuesSerializer::serialize(std::ostream& stream, const Predictio
 
   for (auto it = values_by_type.begin(); it != values_by_type.end(); it++) {
     std::string type = it->first;
-    saveString(type, stream);
-    saveVector1D(it->second, stream);
+    write_string(type, stream);
+    write_vector(it->second, stream);
   }
 }
 
@@ -43,8 +43,8 @@ PredictionValues PredictionValuesSerializer::deserialize(std::istream& stream) {
   std::map<std::string, std::vector<double>> values_by_type;
   for (size_t i = 0; i < num_types; i++) {
     std::string type;
-    readString(type, stream);
-    readVector1D(values_by_type[type], stream);
+    read_string(type, stream);
+    read_vector(values_by_type[type], stream);
   }
 
   return PredictionValues(values_by_type, num_nodes);

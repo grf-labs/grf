@@ -53,7 +53,7 @@ TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
   Prediction predictions = prediction_strategy.predict({}, weights_by_sampleID, observations);
 
   // Check that all predictions fall within a reasonable range.
-  for (auto &prediction : predictions.get_predictions()) {
+  for (auto& prediction : predictions.get_predictions()) {
     REQUIRE(-2.0 < prediction);
     REQUIRE(prediction < 2.0);
   }
