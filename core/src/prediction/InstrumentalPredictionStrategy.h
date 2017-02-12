@@ -28,8 +28,14 @@
 
 class InstrumentalPredictionStrategy: public PredictionStrategy {
 public:
+  static const std::string OUTCOME;
+  static const std::string TREATMENT;
+  static const std::string INSTRUMENT;
+  static const std::string OUTCOME_INSTRUMENT;
+  static const std::string TREATMENT_INSTRUMENT;
+
   size_t prediction_length();
-  Prediction predict(const std::map<std::string, double>& average_prediction_values,
+  Prediction predict(const std::map<std::string, double>& averages,
                      const std::unordered_map<size_t, double>& weights_by_sampleID,
                      const Observations& observations);
 

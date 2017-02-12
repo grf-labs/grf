@@ -25,6 +25,8 @@
 
 class Observations {
 public:
+  Observations();
+
   Observations(const std::map<std::string, std::vector<double>>& observations_by_type,
                size_t num_samples);
 

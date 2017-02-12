@@ -21,6 +21,10 @@ const std::string Observations::OUTCOME = "outcome";
 const std::string Observations::TREATMENT = "treatment";
 const std::string Observations::INSTRUMENT = "instrument";
 
+Observations::Observations():
+  observations_by_type(std::map<std::string, std::vector<double>>()),
+  num_samples(0) {}
+
 Observations::Observations(const std::map<std::string, std::vector<double>>& observations_by_type,
                            size_t num_samples):
   observations_by_type(observations_by_type),
