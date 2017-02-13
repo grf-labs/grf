@@ -21,7 +21,7 @@
 Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
                       Data* data,
                       std::unordered_map<std::string, size_t> observables) {
-  std::map<std::string, std::vector<double>> observations_by_type;
+  std::unordered_map<std::string, std::vector<double>> observations_by_type;
   size_t num_samples = data->get_num_rows();
   for (auto it : observables) {
     std::string type = it.first;

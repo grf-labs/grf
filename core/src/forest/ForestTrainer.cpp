@@ -166,7 +166,7 @@ Forest ForestTrainer::train(Data* data) {
     throw std::runtime_error("mtry can not be larger than number of variables in data.");
   }
 
-  std::map<std::string, std::vector<double>> observations_by_type;
+  std::unordered_map<std::string, std::vector<double>> observations_by_type;
   for (auto it : observables) {
     std::string name = it.first;
     size_t index = it.second;

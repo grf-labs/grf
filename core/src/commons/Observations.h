@@ -21,18 +21,18 @@
 
 #include <vector>
 #include <string>
-#include <map>
+#include <unordered_map>
 
 class Observations {
 public:
   Observations();
 
-  Observations(const std::map<std::string, std::vector<double>>& observations_by_type,
+  Observations(const std::unordered_map<std::string, std::vector<double>>& observations_by_type,
                size_t num_samples);
 
   const std::vector<double>& get(std::string type) const;
 
-  const std::map<std::string, std::vector<double>>& get_observations_by_type() const {
+  const std::unordered_map<std::string, std::vector<double>>& get_observations_by_type() const {
     return observations_by_type;
   }
 
@@ -45,7 +45,7 @@ public:
   static const std::string INSTRUMENT;
 
 private:
-  std::map<std::string, std::vector<double>> observations_by_type;
+  std::unordered_map<std::string, std::vector<double>> observations_by_type;
   size_t num_samples;
 };
 
