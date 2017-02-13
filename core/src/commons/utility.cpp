@@ -31,7 +31,7 @@
 #include "globals.h"
 #include "Data.h"
 
-void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts) {
+void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_parts) {
 
   result.reserve(num_parts + 1);
 
@@ -66,7 +66,7 @@ void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts)
   }
 }
 
-void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename) {
+void read_vector_from_file(std::vector<double>& result, std::string filename) {
 
   // Open input file
   std::ifstream input_file;
@@ -86,23 +86,19 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
   input_file.close();
 }
 
-std::string uintToString(uint number) {
-  return std::to_string(number);
-}
-
-std::string beautifyTime(uint seconds) {
+std::string beautify_time(uint seconds) {
   std::string result;
 
   // Add seconds, minutes, hours, days if larger than zero
   uint out_seconds = (uint) seconds % 60;
-  result = uintToString(out_seconds) + " seconds";
+  result = std::to_string(out_seconds) + " seconds";
   uint out_minutes = (seconds / 60) % 60;
   if (seconds / 60 == 0) {
     return result;
   } else if (out_minutes == 1) {
     result = "1 minute, " + result;
   } else {
-    result = uintToString(out_minutes) + " minutes, " + result;
+    result = std::to_string(out_minutes) + " minutes, " + result;
   }
   uint out_hours = (seconds / 3600) % 24;
   if (seconds / 3600 == 0) {
@@ -110,7 +106,7 @@ std::string beautifyTime(uint seconds) {
   } else if (out_hours == 1) {
     result = "1 hour, " + result;
   } else {
-    result = uintToString(out_hours) + " hours, " + result;
+    result = std::to_string(out_hours) + " hours, " + result;
   }
   uint out_days = (seconds / 86400);
   if (out_days == 0) {
@@ -118,12 +114,12 @@ std::string beautifyTime(uint seconds) {
   } else if (out_days == 1) {
     result = "1 day, " + result;
   } else {
-    result = uintToString(out_days) + " days, " + result;
+    result = std::to_string(out_days) + " days, " + result;
   }
   return result;
 }
 
-size_t roundToNextMultiple(size_t value, uint multiple) {
+size_t round_to_next_multiple(size_t value, uint multiple) {
 
   if (multiple == 0) {
     return value;
@@ -137,7 +133,7 @@ size_t roundToNextMultiple(size_t value, uint multiple) {
   return value + multiple - remainder;
 }
 
-void splitString(std::vector<std::string>& result, std::string input, char split_char) {
+void split_string(std::vector<std::string>& result, std::string input, char split_char) {
 
   std::istringstream ss(input);
   std::string token;
@@ -147,17 +143,17 @@ void splitString(std::vector<std::string>& result, std::string input, char split
   }
 }
 
-bool equalDoubles(double first, double second, double epsilon) {
+bool equal_doubles(double first, double second, double epsilon) {
   if (std::isnan(first)) {
     return std::isnan(second);
   }
   return std::abs(first - second) < epsilon;
 }
 
-Data* loadDataFromFile(std::string file_name) {
+Data* load_data(std::string file_name) {
   Data* data = new Data();
 
-  bool rounding_error = data->loadFromFile(file_name);
+  bool rounding_error = data->load_from_file(file_name);
   if (rounding_error) {
     std::cerr << "A rounding error occurred while loading data from file." << std::endl;
   }

@@ -45,8 +45,8 @@ Prediction QuantilePredictionStrategy::predict(const std::map<std::string, doubl
 }
 
 std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
-    const std::unordered_map<size_t, double> &weights_by_sampleID,
-    std::vector<std::pair<size_t, double>> &sampleIDs_and_values) {
+    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    std::vector<std::pair<size_t, double>>& sampleIDs_and_values) {
   std::sort(sampleIDs_and_values.begin(),
             sampleIDs_and_values.end(),
             [](std::pair<size_t, double> first_pair, std::pair<size_t, double> second_pair) {
@@ -87,7 +87,7 @@ bool QuantilePredictionStrategy::requires_leaf_sampleIDs() {
 }
 
 PredictionValues QuantilePredictionStrategy::precompute_prediction_values(
-    const std::vector<std::vector<size_t>> &leaf_sampleIDs,
-    const Observations &observations) {
+    const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+    const Observations& observations) {
   return PredictionValues();
 }

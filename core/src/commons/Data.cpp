@@ -51,7 +51,7 @@ Data::~Data() {
   }
 }
 
-size_t Data::getVariableID(std::string variable_name) {
+size_t Data::get_variable_id(std::string variable_name) {
   std::vector<std::string>::iterator it = std::find(variable_names.begin(), variable_names.end(), variable_name);
   if (it == variable_names.end()) {
     throw std::runtime_error("Variable " + variable_name + " not found.");
@@ -59,13 +59,13 @@ size_t Data::getVariableID(std::string variable_name) {
   return (std::distance(variable_names.begin(), it));
 }
 
-void Data::addSparseData(unsigned char* sparse_data, size_t num_cols_sparse) {
+void Data::add_sparse_data(unsigned char *sparse_data, size_t num_cols_sparse) {
   num_cols = num_cols_no_sparse + num_cols_sparse;
-  num_rows_rounded = roundToNextMultiple(num_rows, 4);
+  num_rows_rounded = round_to_next_multiple(num_rows, 4);
   this->sparse_data = sparse_data;
 }
 
-bool Data::loadFromFile(std::string filename) {
+bool Data::load_from_file(std::string filename) {
 
   bool result;
 
@@ -92,11 +92,11 @@ bool Data::loadFromFile(std::string filename) {
 
   // Find out if comma, semicolon or whitespace seperated and call appropriate method
   if (header_line.find(",") != std::string::npos) {
-    result = loadFromFileOther(input_file, header_line, ',');
+    result = load_from_other_file(input_file, header_line, ',');
   } else if (header_line.find(";") != std::string::npos) {
-    result = loadFromFileOther(input_file, header_line, ';');
+    result = load_from_other_file(input_file, header_line, ';');
   } else {
-    result = loadFromFileWhitespace(input_file, header_line);
+    result = load_from_whitespace_file(input_file, header_line);
   }
 
   externalData = false;
@@ -104,7 +104,7 @@ bool Data::loadFromFile(std::string filename) {
   return result;
 }
 
-bool Data::loadFromFileWhitespace(std::ifstream& input_file, std::string header_line) {
+bool Data::load_from_whitespace_file(std::ifstream& input_file, std::string header_line) {
 
   // Read header
   std::string header_token;
@@ -116,7 +116,7 @@ bool Data::loadFromFileWhitespace(std::ifstream& input_file, std::string header_
   num_cols_no_sparse = num_cols;
 
   // Read body
-  reserveMemory();
+  reserve_memory();
   bool error = false;
   std::string line;
   size_t row = 0;
@@ -139,7 +139,7 @@ bool Data::loadFromFileWhitespace(std::ifstream& input_file, std::string header_
   return error;
 }
 
-bool Data::loadFromFileOther(std::ifstream& input_file, std::string header_line, char seperator) {
+bool Data::load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator) {
 
   // Read header
   std::string header_token;
@@ -151,7 +151,7 @@ bool Data::loadFromFileOther(std::ifstream& input_file, std::string header_line,
   num_cols_no_sparse = num_cols;
 
   // Read body
-  reserveMemory();
+  reserve_memory();
   bool error = false;
   std::string line;
   size_t row = 0;
@@ -172,7 +172,7 @@ bool Data::loadFromFileOther(std::ifstream& input_file, std::string header_line,
   return error;
 }
 
-void Data::getAllValues(std::vector<double>& all_values, const std::vector<size_t>& sampleIDs, size_t varID) {
+void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& sampleIDs, size_t varID) {
 
   // All values for varID (no duplicates) for given sampleIDs
   if (varID < num_cols_no_sparse) {
@@ -196,7 +196,7 @@ double Data::get(size_t row, size_t col) const {
   } else {
     // Get data out of sparse storage. -1 because of GenABEL coding.
     size_t idx = (col - num_cols_no_sparse) * num_rows_rounded + row;
-    double result = (((sparse_data[idx / 4] & mask[idx % 4]) >> offset[idx % 4]) - 1);
+    double result = (((sparse_data[idx / 4]&  mask[idx % 4]) >> offset[idx % 4]) - 1);
     return result;
   }
 }
@@ -231,7 +231,7 @@ void Data::sort() {
   }
 }
 
-void Data::reserveMemory() {
+void Data::reserve_memory() {
   data = new double[num_cols * num_rows];
 }
 

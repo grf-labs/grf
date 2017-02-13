@@ -30,7 +30,7 @@ public:
   std::shared_ptr<SplittingRule> create();
 
 private:
-  Data *data;
+  Data* data;
   size_t num_classes;
 
   DISALLOW_COPY_AND_ASSIGN(ProbabilitySplittingRuleFactory);

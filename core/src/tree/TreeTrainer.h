@@ -41,10 +41,10 @@ public:
                               const std::vector<size_t>& sampleIDs);
 
 private:
-  void createEmptyNode(std::vector <std::vector<size_t>>& child_nodeIDs,
-                       std::vector <std::vector<size_t>>& sampleIDs,
-                       std::vector <size_t>& split_varIDs,
-                       std::vector<double>& split_values);
+  void create_empty_node(std::vector<std::vector<size_t>>& child_nodeIDs,
+                         std::vector<std::vector<size_t>>& sampleIDs,
+                         std::vector<size_t>& split_varIDs,
+                         std::vector<double>& split_values);
 
   void repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
                                    Data* data,
@@ -55,24 +55,24 @@ private:
                                     Data* data,
                                     const std::vector<double>& split_select_weights);
 
-  bool splitNode(size_t nodeID,
-                 std::shared_ptr<SplittingRule> splitting_rule,
-                 BootstrapSampler& bootstrap_sampler,
-                 Data* data,
-                 const Observations& observations,
-                 std::vector <std::vector<size_t>>& child_nodeIDs,
-                 std::vector <std::vector<size_t>>& sampleIDs,
-                 std::vector <size_t>& split_varIDs,
-                 std::vector<double>& split_values,
-                 const std::vector<double>& split_select_weights);
+  bool split_node(size_t nodeID,
+                  std::shared_ptr<SplittingRule> splitting_rule,
+                  BootstrapSampler& bootstrap_sampler,
+                  Data* data,
+                  const Observations& observations,
+                  std::vector<std::vector<size_t>>& child_nodeIDs,
+                  std::vector<std::vector<size_t>>& sampleIDs,
+                  std::vector<size_t>& split_varIDs,
+                  std::vector<double>& split_values,
+                  const std::vector<double>& split_select_weights);
 
-  bool splitNodeInternal(size_t nodeID,
-                         std::shared_ptr<SplittingRule> splitting_rule,
-                         const Observations& observations,
-                         const std::vector <size_t>& possible_split_varIDs,
-                         std::vector <std::vector<size_t>>& sampleIDs,
-                         std::vector <size_t>& split_varIDs,
-                         std::vector<double>& split_values);
+  bool split_node_internal(size_t nodeID,
+                           std::shared_ptr<SplittingRule> splitting_rule,
+                           const Observations& observations,
+                           const std::vector<size_t>& possible_split_varIDs,
+                           std::vector<std::vector<size_t>>& sampleIDs,
+                           std::vector<size_t>& split_varIDs,
+                           std::vector<double>& split_values);
 
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;

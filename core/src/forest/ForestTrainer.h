@@ -37,7 +37,7 @@ public:
                 std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                 std::shared_ptr<PredictionStrategy> prediction_strategy);
 
-  Forest train(Data *data);
+  Forest train(Data* data);
 
   std::vector<std::shared_ptr<Tree>> train_ci_group(Data* data,
                                                     const Observations& observations,
@@ -48,7 +48,7 @@ public:
             uint num_trees, std::ostream *verbose_out, uint seed, uint num_threads,
             std::string load_forest_filename, uint min_node_size,
             std::vector<size_t> no_split_variables,
-            std::string split_select_weights_file, std::vector<std::string> &always_split_variable_names,
+            std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
             bool sample_with_replacement,
             bool memory_saving_splitting,
             std::string case_weights_file,
@@ -57,16 +57,16 @@ public:
             uint ci_group_size);
 
 private:
-  std::vector<std::shared_ptr<Tree>> growTreesInThread(
+  std::vector<std::shared_ptr<Tree>> train_batch(
       uint thread_idx,
-      Data *data,
+      Data* data,
       const Observations& observations);
 
-  void setSplitWeightVector(std::vector<double>& split_select_weights,
-                            size_t num_independent_variables);
-  void setAlwaysSplitVariables(Data* data,
-                               std::vector<std::string>& always_split_variable_names,
-                               size_t num_independent_variables);
+  void set_split_select_weights(std::vector<double>& split_select_weights,
+                                size_t num_independent_variables);
+  void set_always_split_variables(Data* data,
+                                  std::vector<std::string>& always_split_variable_names,
+                                  size_t num_independent_variables);
 
   std::ostream* verbose_out;
 

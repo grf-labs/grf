@@ -21,7 +21,7 @@
 #include "Tree.h"
 #include "utility.h"
 
-Tree::Tree(const std::vector<std::vector<size_t>> &child_nodeIDs,
+Tree::Tree(const std::vector<std::vector<size_t>>& child_nodeIDs,
            const std::vector<std::vector<size_t>>& leaf_nodeIDs,
            const std::vector<size_t>& split_varIDs,
            const std::vector<double>& split_values,

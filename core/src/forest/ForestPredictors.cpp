@@ -27,7 +27,7 @@ ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads,
 }
 
 ForestPredictor ForestPredictors::quantile_predictor(uint num_threads,
-                                                     const std::vector<double> &quantiles) {
+                                                     const std::vector<double>& quantiles) {
   std::shared_ptr<PredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
   return ForestPredictor(num_threads, 1, prediction_strategy);
 }

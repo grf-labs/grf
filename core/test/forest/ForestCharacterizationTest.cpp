@@ -42,7 +42,7 @@ bool equal_predictions(const std::vector<Prediction>& actual_predictions,
 
     for (size_t j = 0; j < prediction.size(); j++) {
       double value = prediction.get_predictions()[j];
-      if (!equalDoubles(value, expected_prediction[j], 1e-2)) {
+      if (!equal_doubles(value, expected_prediction[j], 1e-2)) {
         return false;
       }
     }
@@ -61,7 +61,7 @@ void update_predictions_file(const std::string file_name, std::vector<Prediction
 
 TEST_CASE("quantile forest predictions have not changed", "[quantile], [characterization]") {
   std::vector<double> quantiles({0.25, 0.5, 0.75});
-  Data *data = loadDataFromFile("test/forest/resources/quantile_data.csv");
+  Data* data = load_data("test/forest/resources/quantile_data.csv");
 
   ForestTrainer trainer = ForestTrainers::quantile_trainer(data, 10, quantiles);
   ForestTestUtilities::init_trainer(trainer);
@@ -83,7 +83,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
 }
 
 TEST_CASE("causal forest predictions have not changed", "[causal], [characterization]") {
-  Data* data = loadDataFromFile("test/forest/resources/causal_data.csv");
+  Data* data = load_data("test/forest/resources/causal_data.csv");
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(data, 10, 11, 11, 0);
   ForestTestUtilities::init_trainer(trainer);
@@ -106,7 +106,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
 }
 
 TEST_CASE("regression forest predictions have not changed", "[regression], [characterization]") {
-  Data* data = loadDataFromFile("test/forest/resources/regression_data.csv");
+  Data* data = load_data("test/forest/resources/regression_data.csv");
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(data, 10);
   ForestTestUtilities::init_trainer(trainer);

@@ -36,10 +36,10 @@
  * @param end maximum value
  * @param num_parts number of parts
  */
-void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts);
+void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_parts);
 
 /**
- * Write a 1d vector to filestream. First the size is written as size_t, then all vector elements.
+ * Write a 1D vector to filestream. First the size is written as size_t, then all vector elements.
  * @param vector Vector with elements of type T to write to file.
  * @param file ofstream object to write to.
  */
@@ -50,7 +50,7 @@ void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts)
  * @param file ofstream object to write to.
  */
 template<typename T>
-inline void saveVector1D(const std::vector<T>& vector, std::ostream& file) {
+inline void write_vector(const std::vector<T>& vector, std::ostream& file) {
   // Save length
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
@@ -58,7 +58,7 @@ inline void saveVector1D(const std::vector<T>& vector, std::ostream& file) {
 }
 
 template<>
-inline void saveVector1D(const std::vector<bool>& vector, std::ostream& file) {
+inline void write_vector(const std::vector<bool>& vector, std::ostream& file) {
   // Save length
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
@@ -71,12 +71,12 @@ inline void saveVector1D(const std::vector<bool>& vector, std::ostream& file) {
 }
 
 /**
- * Read a 1d vector written by saveVector1D() from filestream.
+ * Read a 1D vector written by saveVector1D() from filestream.
  * @param result Result vector with elements of type T.
  * @param file ifstream object to read from.
  */
 template<typename T>
-inline void readVector1D(std::vector<T>& result, std::istream& file) {
+inline void read_vector(std::vector<T>& result, std::istream& file) {
   // Read length
   size_t length;
   file.read((char*) &length, sizeof(length));
@@ -85,7 +85,7 @@ inline void readVector1D(std::vector<T>& result, std::istream& file) {
 }
 
 template<>
-inline void readVector1D(std::vector<bool>& result, std::istream& file) {
+inline void read_vector(std::vector<bool>& result, std::istream& file) {
   // Read length
   size_t length;
   file.read((char*) &length, sizeof(length));
@@ -99,12 +99,13 @@ inline void readVector1D(std::vector<bool>& result, std::istream& file) {
 }
 
 /**
- * Write a 2d vector to filestream. First the size of the first dim is written as size_t, then for all inner vectors the size and elements.
+ * Write a 2D vector to filestream. First the size of the first dim is written as
+ * size_t, then for all inner vectors the size and elements.
  * @param vector Vector of vectors of type T to write to file.
  * @param file ofstream object to write to.
  */
 template<typename T>
-inline void saveVector2D(const std::vector<std::vector<T>>& vector, std::ostream& file) {
+inline void write_matrix(const std::vector<std::vector<T>>& vector, std::ostream& file) {
   // Save length of first dim
   size_t length = vector.size();
   file.write((char*) &length, sizeof(length));
@@ -112,17 +113,17 @@ inline void saveVector2D(const std::vector<std::vector<T>>& vector, std::ostream
   // Save outer vector
   for (auto& inner_vector : vector) {
     // Save inner vector
-    saveVector1D(inner_vector, file);
+    write_vector(inner_vector, file);
   }
 }
 
 /**
- * Read a 2d vector written by saveVector2D() from filestream.
+ * Read a 2D vector written by saveVector2D() from filestream.
  * @param result Result vector of vectors with elements of type T.
  * @param file ifstream object to read from.
  */
 template<typename T>
-inline void readVector2D(std::vector<std::vector<T>>& result, std::istream& file) {
+inline void read_matrix(std::vector<std::vector<T>>& result, std::istream& file) {
   // Read length of first dim
   size_t length;
   file.read((char*) &length, sizeof(length));
@@ -131,18 +132,17 @@ inline void readVector2D(std::vector<std::vector<T>>& result, std::istream& file
   // Read outer vector
   for (size_t i = 0; i < length; ++i) {
     // Read inner vector
-    readVector1D(result[i], file);
+    read_vector(result[i], file);
   }
 }
 
-inline void saveString(std::string input, std::ostream& file) {
+inline void write_string(std::string input, std::ostream& file) {
   size_t size = input.size();
   file.write((char*) &size, sizeof(size));
   file.write(input.c_str(), size);
 }
 
-
-inline void readString(std::string& output, std::istream& file) {
+inline void read_string(std::string& output, std::istream& file) {
   size_t size;
   file.read((char*) &size, sizeof(size));
   output.resize(size);
@@ -154,21 +154,14 @@ inline void readString(std::string& output, std::istream& file) {
  * @param result Result vector of doubles with contents
  * @param filename filename of input file
  */
-void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename);
-
-/**
- * Convert a unsigned integer to string
- * @param number Number to convert
- * @return Converted number as string
- */
-std::string uintToString(uint number);
+void read_vector_from_file(std::vector<double>& result, std::string filename);
 
 /**
  * Beautify output of time.
  * @param seconds Time in seconds
  * @return Time in days, hours, minutes and seconds as string
  */
-std::string beautifyTime(uint seconds);
+std::string beautify_time(uint seconds);
 
 /**
  * Round up to next multiple of a number.
@@ -176,7 +169,7 @@ std::string beautifyTime(uint seconds);
  * @param multiple Number to multiply.
  * @return Rounded number
  */
-size_t roundToNextMultiple(size_t value, uint multiple);
+size_t round_to_next_multiple(size_t value, uint multiple);
 
 /**
  * Split string in parts separated by character.
@@ -184,10 +177,10 @@ size_t roundToNextMultiple(size_t value, uint multiple);
  * @param input String to be splitted
  * @param split_char Char to separate parts
  */
-void splitString(std::vector<std::string>& result, std::string input, char split_char);
+void split_string(std::vector<std::string>& result, std::string input, char split_char);
 
-bool equalDoubles(double first, double second, double epsilon);
+bool equal_doubles(double first, double second, double epsilon);
 
-Data* loadDataFromFile(std::string file_name);
+Data* load_data(std::string file_name);
 
 #endif /* GRADIENTFOREST_UTILITY_H_ */

@@ -28,8 +28,8 @@ void ObservationsSerializer::serialize(std::ostream& stream, const Observations&
 
   for (auto it = observations_by_type.begin(); it != observations_by_type.end(); it++) {
     std::string type = it->first;
-    saveString(type, stream);
-    saveVector1D(it->second, stream);
+    write_string(type, stream);
+    write_vector(it->second, stream);
   }
 }
 
@@ -43,8 +43,8 @@ Observations ObservationsSerializer::deserialize(std::istream& stream) {
   std::map<std::string, std::vector<double>> observations_by_type;
   for (size_t i = 0; i < num_types; i++) {
     std::string type;
-    readString(type, stream);
-    readVector1D(observations_by_type[type], stream);
+    read_string(type, stream);
+    read_vector(observations_by_type[type], stream);
   }
 
   return Observations(observations_by_type, num_samples);
