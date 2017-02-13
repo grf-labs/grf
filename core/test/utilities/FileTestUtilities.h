@@ -24,9 +24,9 @@
 
 class FileTestUtilities {
 public:
-  static std::vector<std::vector<double>> readCsvFile(std::string file_name);
-  static void writeCsvFile(std::string file_name,
-                           std::vector<std::vector<double>> contents);
+  static std::vector<std::vector<double>> read_csv_file(std::string file_name);
+  static void write_csv_file(std::string file_name,
+                             std::vector<std::vector<double>> contents);
 };
 
 

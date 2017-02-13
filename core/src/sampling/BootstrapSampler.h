@@ -46,35 +46,35 @@ public:
    * @param skip Values to skip
    * @param num_samples Number of samples to draw
    */
-  void drawWithoutReplacementSkip(std::vector<size_t>& result,
-                                  size_t range_length,
-                                  const std::vector<size_t>& skip,
-                                  size_t num_samples);
+  void draw_without_replacement_skip(std::vector<size_t>& result,
+                                     size_t range_length,
+                                     const std::vector<size_t>& skip,
+                                     size_t num_samples);
 
   /**
-   * Draw random numers without replacement and with weighted probabilites from vector of indices.
+   * Draw random numebrs without replacement and with weighted probabilites from vector of indices.
    * @param result Vector to add results to. Will not be cleaned before filling.
    * @param indices Vector with numbers to draw
    * @param num_samples Number of samples to draw
    * @param weights A weight for each element of indices
    */
-  void drawWithoutReplacementWeighted(std::vector<size_t>& result,
-                                      const std::vector<size_t>& indices,
-                                      size_t num_samples,
-                                      const std::vector<double>& weights);
+  void draw_without_replacement_weighted(std::vector<size_t>& result,
+                                         const std::vector<size_t>& indices,
+                                         size_t num_samples,
+                                         const std::vector<double>& weights);
 
   /**
-   * Draw random numers without replacement and with weighted probabilites from vector of indices.
+   * Draw random numbers without replacement and with weighted probabilites from vector of indices.
    * @param result Vector to add results to. Will not be cleaned before filling.
    * @param random_number_generator Random number generator
    * @param indices Vector with numbers to draw
    * @param num_samples Number of samples to draw
    * @param weights A weight for each element of indices
    */
-  void drawWithoutReplacementWeighted(std::vector<size_t>& result,
-                                      size_t max_index,
-                                      size_t num_samples,
-                                      const std::vector<double>& weights);
+  void draw_without_replacement_weighted(std::vector<size_t>& result,
+                                         size_t max_index,
+                                         size_t num_samples,
+                                         const std::vector<double>& weights);
 
   /**
    * Create numbers from 0 to n_all-1, shuffle and split in two parts.
@@ -83,10 +83,10 @@ public:
    * @param n_all Number elements
    * @param n_first Number of elements of first part
    */
-  void shuffleAndSplit(std::vector<size_t>& first_part,
-                       std::vector<size_t>& second_part,
-                       size_t n_all,
-                       size_t n_first);
+  void shuffle_and_split(std::vector<size_t>& first_part,
+                         std::vector<size_t>& second_part,
+                         size_t n_all,
+                         size_t n_first);
 
 private:
   void bootstrap(size_t num_samples,

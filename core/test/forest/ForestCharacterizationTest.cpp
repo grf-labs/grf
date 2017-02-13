@@ -15,6 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
+#include <utilities/FileTestUtilities.h>
 #include "PredictionStrategy.h"
 #include "utility.h"
 #include "ForestPredictor.h"
@@ -56,7 +57,7 @@ void update_predictions_file(const std::string file_name, std::vector<Prediction
   for (auto& prediction : predictions) {
     values.push_back(prediction.get_predictions());
   }
-  FileTestUtilities::writeCsvFile(file_name, values);
+  FileTestUtilities::write_csv_file(file_name, values);
 }
 
 TEST_CASE("quantile forest predictions have not changed", "[quantile], [characterization]") {
@@ -70,12 +71,12 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   ForestPredictor predictor = ForestPredictors::quantile_predictor(4, quantiles);
 
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
-  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::readCsvFile(
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/quantile_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<Prediction> predictions = predictor.predict(forest, data);
-  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/quantile_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 
@@ -93,12 +94,12 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   ForestPredictor predictor = ForestPredictors::instrumental_predictor(4, 1);
 
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
-    std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::readCsvFile(
+    std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/causal_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<Prediction> predictions = predictor.predict(forest, data);
-  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/causal_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 
@@ -116,12 +117,12 @@ TEST_CASE("regression forest predictions have not changed", "[regression], [char
   ForestPredictor predictor = ForestPredictors::regression_predictor(4);
 
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
-  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::readCsvFile(
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/regression_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<Prediction> predictions = predictor.predict(forest, data);
-  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::readCsvFile(
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
   "test/forest/resources/regression_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 
