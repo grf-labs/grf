@@ -46,13 +46,17 @@ bool RegressionPredictionStrategy::requires_leaf_sampleIDs() {
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_sampleIDs,
     const Observations& observations) {
+  size_t num_leaves = leaf_sampleIDs.size();
 
   std::map<std::string, std::vector<double>> values;
   std::vector<double>& averages = values[OUTCOME];
+  averages.resize(num_leaves);
 
-  for (auto& leaf_node : leaf_sampleIDs) {
+  for (int i = 0; i < num_leaves; i++) {
+    const std::vector<size_t>& leaf_node = leaf_sampleIDs.at(i);
+
     if (leaf_node.empty()) {
-      averages.push_back(NAN);
+      averages[i] = NAN;
       continue;
     }
 
@@ -60,9 +64,9 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     for (auto& sampleID : leaf_node) {
       average += observations.get(Observations::OUTCOME).at(sampleID);
     }
-    averages.push_back(average / leaf_node.size());
+    averages[i] = average / leaf_node.size();
   }
 
-  return PredictionValues(values, leaf_sampleIDs.size());
+  return PredictionValues(values, num_leaves);
 }
 

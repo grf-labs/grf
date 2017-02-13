@@ -70,17 +70,17 @@ void BootstrapSampler::bootstrap(size_t num_samples,
                                  std::vector<size_t>& oob_sampleIDs) {
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
 
-// Reserve space, reserve a little more to be save)
+  // Reserve space, reserve a little more to be safe
   sampleIDs.reserve(num_samples_inbag);
   oob_sampleIDs.reserve(num_samples * (exp(-sample_fraction) + 0.1));
 
   std::uniform_int_distribution<size_t> unif_dist(0, num_samples - 1);
 
-// Start with all samples OOB
+  // Start with all samples OOB
   std::vector<size_t> inbag_counts;
   inbag_counts.resize(num_samples, 0);
 
-// Draw num_samples samples with replacement (num_samples_inbag out of n) as inbag and mark as not OOB
+  // Draw num_samples samples with replacement (num_samples_inbag out of n) as inbag and mark as not OOB
   for (size_t s = 0; s < num_samples_inbag; ++s) {
     size_t draw = unif_dist(random_number_generator);
     sampleIDs.push_back(draw);

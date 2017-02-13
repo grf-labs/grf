@@ -50,9 +50,9 @@ private:
                                    Data* data,
                                    const std::vector<size_t>& leaf_sampleIDs);
 
-  void createPossibleSplitVarSubset(std::vector<size_t>& result,
-                                    BootstrapSampler& bootstrap_sampler,
-                                    Data* data,
+  void create_split_variable_subset(std::vector<size_t>& result,
+                                    BootstrapSampler &bootstrap_sampler,
+                                    Data *data,
                                     const std::vector<double>& split_select_weights);
 
   bool split_node(size_t nodeID,

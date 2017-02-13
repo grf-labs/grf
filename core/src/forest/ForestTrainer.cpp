@@ -171,8 +171,9 @@ Forest ForestTrainer::train(Data* data) {
     std::string name = it.first;
     size_t index = it.second;
 
+    observations_by_type[name].resize(num_samples);
     for (size_t row = 0; row < data->get_num_rows(); row++) {
-      observations_by_type[name].push_back(data->get(row, index));
+      observations_by_type[name][row] = data->get(row, index);
     }
   }
   Observations observations(observations_by_type, data->get_num_rows());
@@ -188,7 +189,7 @@ Forest ForestTrainer::train(Data* data) {
 
   for (uint i = 0; i < num_threads; ++i) {
     futures.push_back(std::async(std::launch::async,
-                                & ForestTrainer::train_batch,
+                                 &ForestTrainer::train_batch,
                                  this,
                                  i,
                                  data,
@@ -210,8 +211,17 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
   std::mt19937_64 random_number_generator(seed + thread_idx);
   std::uniform_int_distribution<uint> udist;
   std::vector<std::shared_ptr<Tree>> trees;
+
   if (thread_ranges.size() > thread_idx + 1) {
-    for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
+    size_t start = thread_ranges[thread_idx];
+    size_t end = thread_ranges[thread_idx + 1];
+    if (ci_group_size == 1) {
+      trees.reserve(end - start);
+    } else {
+      trees.reserve((end - start) * ci_group_size);
+    }
+
+    for (size_t i = start; i < end; ++i) {
       uint tree_seed = udist(random_number_generator);
       SamplingOptions sampling_options(sample_with_replacement, case_weights);
       BootstrapSampler bootstrap_sampler(tree_seed, sampling_options);

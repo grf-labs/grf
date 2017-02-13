@@ -46,7 +46,7 @@ std::map<size_t, std::vector<size_t>> ForestPredictor::determine_terminal_node_I
 
   for (uint i = 0; i < num_threads; ++i) {
     futures.push_back(std::async(std::launch::async,
-                                & ForestPredictor::predict_batch,
+                                 &ForestPredictor::predict_batch,
                                  this,
                                  i,
                                  forest,
@@ -63,6 +63,8 @@ std::map<size_t, std::vector<size_t>> ForestPredictor::determine_terminal_node_I
 };
 
 std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* prediction_data) {
+  size_t num_trees = forest.get_trees().size();
+
   std::map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree =
       determine_terminal_node_IDs(forest, prediction_data, false);
 
@@ -73,12 +75,16 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
   for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); ++sampleID) {
     std::map<std::string, double> average_prediction_values;
     std::unordered_map<size_t, double> weights_by_sampleID;
+
     std::vector<std::vector<size_t>> leaf_sampleIDs;
+    if (ci_group_size > 1) {
+      leaf_sampleIDs.reserve(num_trees);
+    }
 
     // Average the precomputed prediction values across the leaf nodes this sample falls
     // in, and create a list of weighted neighbors if the prediction strategy requires it.
     uint num_nonempty_leaves = 0;
-    for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
+    for (size_t tree_index = 0; tree_index < num_trees; ++tree_index) {
       std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
 
       std::vector<size_t> terminal_node_IDs = terminal_node_IDs_by_tree.at(tree_index);
@@ -213,8 +219,7 @@ std::map<size_t, std::vector<size_t>> ForestPredictor::predict_batch(
       std::vector<size_t> terminal_nodeIDs = tree_predictor.get_terminal_nodeIDs(tree,
                                                                                  prediction_data,
                                                                                  sampleIDs);
-      for (auto& terminal_nodeID : terminal_nodeIDs)
-        terminal_nodeIDs_by_tree[i].push_back(terminal_nodeID);
+      terminal_nodeIDs_by_tree[i] = terminal_nodeIDs;
     }
   }
 
