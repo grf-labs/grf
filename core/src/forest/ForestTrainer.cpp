@@ -26,7 +26,7 @@
 #include "ForestTrainer.h"
 #include "SplittingRuleFactory.h"
 
-ForestTrainer::ForestTrainer(std::unordered_map<std::string, size_t> observables,
+ForestTrainer::ForestTrainer(std::unordered_map<size_t, size_t> observables,
                              std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                              std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                              std::shared_ptr<PredictionStrategy> prediction_strategy) :
@@ -166,14 +166,15 @@ Forest ForestTrainer::train(Data* data) {
     throw std::runtime_error("mtry can not be larger than number of variables in data.");
   }
 
-  std::map<std::string, std::vector<double>> observations_by_type;
+  size_t num_types = observables.size();
+  std::vector<std::vector<double>> observations_by_type(num_types);
   for (auto it : observables) {
-    std::string name = it.first;
+    size_t type = it.first;
     size_t index = it.second;
 
-    observations_by_type[name].resize(num_samples);
+    observations_by_type[type].resize(num_samples);
     for (size_t row = 0; row < data->get_num_rows(); row++) {
-      observations_by_type[name][row] = data->get(row, index);
+      observations_by_type[type][row] = data->get(row, index);
     }
   }
   Observations observations(observations_by_type, data->get_num_rows());

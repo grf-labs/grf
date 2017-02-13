@@ -31,7 +31,7 @@ class Forest {
 public:
   static Forest create(std::vector<std::shared_ptr<Tree>> trees,
                        Data* data,
-                       std::unordered_map<std::string, size_t> observables);
+                       std::unordered_map<size_t, size_t> observables);
   Forest(const std::vector<std::shared_ptr<Tree>>& trees,
          const Observations& observations);
 

@@ -29,7 +29,7 @@
 class PredictionStrategy {
 public:
   virtual size_t prediction_length() = 0;
-  virtual Prediction predict(const std::map<std::string, double>& average_prediction_values,
+  virtual Prediction predict(const std::vector<double>& average_prediction_values,
                              const std::unordered_map<size_t, double>& weights_by_sampleID,
                              const Observations& observations) = 0;
 
@@ -38,6 +38,7 @@ public:
                                            uint ci_group_size) = 0;
 
   virtual bool requires_leaf_sampleIDs() = 0;
+  virtual size_t prediction_values_length() = 0;
   virtual PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_sampleIDs,
       const Observations& observations) = 0;

@@ -19,13 +19,13 @@
 #include <string>
 #include "RegressionPredictionStrategy.h"
 
-const std::string RegressionPredictionStrategy::OUTCOME = "outcome";
+const size_t RegressionPredictionStrategy::OUTCOME = 0;
 
 size_t RegressionPredictionStrategy::prediction_length() {
     return 1;
 }
 
-Prediction RegressionPredictionStrategy::predict(const std::map<std::string, double>& averages,
+Prediction RegressionPredictionStrategy::predict(const std::vector<double>& averages,
                                                  const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                  const Observations& observations) {
   std::vector<double> predictions = { averages.at(OUTCOME) };
@@ -43,16 +43,20 @@ bool RegressionPredictionStrategy::requires_leaf_sampleIDs() {
   return false;
 }
 
+size_t RegressionPredictionStrategy::prediction_values_length() {
+  return 1;
+}
+
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_sampleIDs,
     const Observations& observations) {
   size_t num_leaves = leaf_sampleIDs.size();
 
-  std::map<std::string, std::vector<double>> values;
+  std::vector<std::vector<double>> values(prediction_values_length());
   std::vector<double>& averages = values[OUTCOME];
   averages.resize(num_leaves);
 
-  for (int i = 0; i < num_leaves; i++) {
+  for (size_t i = 0; i < num_leaves; i++) {
     const std::vector<size_t>& leaf_node = leaf_sampleIDs.at(i);
 
     if (leaf_node.empty()) {
@@ -62,7 +66,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
 
     double average = 0.0;
     for (auto& sampleID : leaf_node) {
-      average += observations.get(Observations::OUTCOME).at(sampleID);
+      average += observations.get(Observations::OUTCOME, sampleID);
     }
     averages[i] = average / leaf_node.size();
   }

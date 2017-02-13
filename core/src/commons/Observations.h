@@ -21,18 +21,17 @@
 
 #include <vector>
 #include <string>
-#include <map>
 
 class Observations {
 public:
   Observations();
 
-  Observations(const std::map<std::string, std::vector<double>>& observations_by_type,
+  Observations(const std::vector<std::vector<double>>& observations_by_type,
                size_t num_samples);
 
-  const std::vector<double>& get(std::string type) const;
+  double get(std::size_t type, size_t sampleID) const;
 
-  const std::map<std::string, std::vector<double>>& get_observations_by_type() const {
+  const std::vector<std::vector<double>>& get_observations_by_type() const {
     return observations_by_type;
   }
 
@@ -40,12 +39,12 @@ public:
     return num_samples;
   }
 
-  static const std::string OUTCOME;
-  static const std::string TREATMENT;
-  static const std::string INSTRUMENT;
+  static const std::size_t OUTCOME;
+  static const std::size_t TREATMENT;
+  static const std::size_t INSTRUMENT;
 
 private:
-  std::map<std::string, std::vector<double>> observations_by_type;
+  std::vector<std::vector<double>> observations_by_type;
   size_t num_samples;
 };
 

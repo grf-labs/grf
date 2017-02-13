@@ -32,19 +32,8 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
 //  treatment: {1, 0, 0, 0, 1, 0, 1, 0, 0, 0}
 //  instrument: {0, 0, 1, 1, 1, 0, 1, 0, 1, 0}
 
-  std::map<std::string, double> averages = {
-      {InstrumentalPredictionStrategy::OUTCOME, -1.1251472},
-      {InstrumentalPredictionStrategy::TREATMENT, 0.3},
-      {InstrumentalPredictionStrategy::INSTRUMENT, 0.5},
-      {InstrumentalPredictionStrategy::OUTCOME_INSTRUMENT, -0.1065444},
-      {InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT, 0.2}};
-
-  std::map<std::string, double> flipped_averages = {
-      {InstrumentalPredictionStrategy::OUTCOME, -1.1251472},
-      {InstrumentalPredictionStrategy::TREATMENT, 0.7},
-      {InstrumentalPredictionStrategy::INSTRUMENT, 0.5},
-      {InstrumentalPredictionStrategy::OUTCOME_INSTRUMENT, -0.1065444},
-      {InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT, 0.3}};
+  std::vector<double> averages = {-1.1251472, 0.3, 0.5, -0.1065444, 0.2};
+  std::vector<double> flipped_averages = {-1.1251472, 0.7, 0.5, -0.1065444, 0.3};
 
   // These values are not required, since we predict using precomputed averages.
   std::unordered_map<size_t, double> weights_by_sampleID;

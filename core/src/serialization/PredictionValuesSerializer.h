@@ -22,7 +22,7 @@
 
 class PredictionValuesSerializer {
 public:
-  void serialize(std::ostream& stream, const PredictionValues& observations);
+  void serialize(std::ostream& stream, const PredictionValues& prediction_values);
   PredictionValues deserialize(std::istream& stream);
 };
 

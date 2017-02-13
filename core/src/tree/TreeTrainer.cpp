@@ -207,7 +207,7 @@ bool TreeTrainer::split_node_internal(size_t nodeID,
   double pure_value = 0;
   for (size_t i = 0; i < sampleIDs[nodeID].size(); ++i) {
     size_t sampleID = sampleIDs[nodeID][i];
-    double value = observations.get(Observations::OUTCOME).at(sampleID);
+    double value = observations.get(Observations::OUTCOME, sampleID);
     if (i != 0 && value != pure_value) {
       pure = false;
       break;

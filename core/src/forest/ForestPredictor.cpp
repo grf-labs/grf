@@ -72,8 +72,10 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
   predictions.reserve(prediction_data->get_num_rows());
 
   size_t prediction_length = prediction_strategy->prediction_length();
+  size_t prediction_values_length = prediction_strategy->prediction_values_length();
+
   for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); ++sampleID) {
-    std::map<std::string, double> average_prediction_values;
+    std::vector<double> average_prediction_values(prediction_values_length);
     std::unordered_map<size_t, double> weights_by_sampleID;
 
     std::vector<std::vector<size_t>> leaf_sampleIDs;
@@ -152,8 +154,10 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
   }
 
   size_t prediction_length = prediction_strategy->prediction_length();
+  size_t prediction_values_length = prediction_strategy->prediction_values_length();
+
   for (size_t sampleID = 0; sampleID < original_data->get_num_rows(); ++sampleID) {
-    std::map<std::string, double> average_prediction_values;
+    std::vector<double> average_prediction_values(prediction_values_length);
     std::unordered_map<size_t, double> weights_by_sampleID;
 
     // Average the precomputed prediction values across the leaf nodes this sample falls
@@ -228,11 +232,11 @@ std::map<size_t, std::vector<size_t>> ForestPredictor::predict_batch(
 
 void ForestPredictor::add_prediction_values(size_t nodeID,
                                             const PredictionValues& prediction_values,
-                                            std::map<std::string, double>& average_prediction_values) {
+                                            std::vector<double>& average_prediction_values) {
   auto& values_by_type = prediction_values.get_values_by_type();
-  for (auto it = values_by_type.begin(); it != values_by_type.end(); it++) {
-    std::string type = it->first;
-    average_prediction_values[type] += std::isnan(it->second[nodeID]) ? 0 : it->second[nodeID];
+  for (size_t type = 0; type < values_by_type.size(); type++) {
+    auto& values = values_by_type.at(type);
+    average_prediction_values[type] += std::isnan(values[nodeID]) ? 0 : values[nodeID];
   }
 }
 
@@ -246,9 +250,9 @@ void ForestPredictor::add_sample_weights(const std::vector<size_t>& sampleIDs,
 }
 
 void ForestPredictor::normalize_prediction_values(size_t num_leaf_nodes,
-                                                  std::map<std::string, double>& average_prediction_values) {
-  for (auto it = average_prediction_values.begin(); it != average_prediction_values.end(); ++it) {
-    it->second /= num_leaf_nodes;
+                                                  std::vector<double>& average_prediction_values) {
+  for (double& value : average_prediction_values) {
+    value /= num_leaf_nodes;
   }
 }
 

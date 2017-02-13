@@ -26,10 +26,8 @@ void ObservationsSerializer::serialize(std::ostream& stream, const Observations&
   size_t num_types = observations_by_type.size();
   stream.write((char*) &num_types, sizeof(num_types));
 
-  for (auto it = observations_by_type.begin(); it != observations_by_type.end(); it++) {
-    std::string type = it->first;
-    write_string(type, stream);
-    write_vector(it->second, stream);
+  for (auto& observations : observations_by_type) {
+    write_vector(observations, stream);
   }
 }
 
@@ -40,11 +38,9 @@ Observations ObservationsSerializer::deserialize(std::istream& stream) {
   size_t num_types;
   stream.read((char*) &num_types, sizeof(num_types));
 
-  std::map<std::string, std::vector<double>> observations_by_type;
+  std::vector<std::vector<double>> observations_by_type(num_types);
   for (size_t i = 0; i < num_types; i++) {
-    std::string type;
-    read_string(type, stream);
-    read_vector(observations_by_type[type], stream);
+    read_vector(observations_by_type[i], stream);
   }
 
   return Observations(observations_by_type, num_samples);
