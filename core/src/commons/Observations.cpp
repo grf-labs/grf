@@ -18,25 +18,21 @@
 #include <unordered_map>
 #include "Observations.h"
 
-const std::string Observations::OUTCOME = "outcome";
-const std::string Observations::TREATMENT = "treatment";
-const std::string Observations::INSTRUMENT = "instrument";
+const std::size_t Observations::OUTCOME = 0;
+const std::size_t Observations::TREATMENT = 1;
+const std::size_t Observations::INSTRUMENT = 2;
 
 Observations::Observations():
-  observations_by_type(std::unordered_map<std::string, std::vector<double>>()),
+  observations_by_type(std::vector<std::vector<double>>()),
   num_samples(0) {}
 
-Observations::Observations(const std::unordered_map<std::string, std::vector<double>>& observations_by_type,
+Observations::Observations(const std::vector<std::vector<double>>& observations_by_type,
                            size_t num_samples):
   observations_by_type(observations_by_type),
   num_samples(num_samples) {}
 
-const std::vector<double>& Observations::get(std::string type) const {
-//  if (observations_by_type.find(type) == observations_by_type.end()) {
-//    throw std::runtime_error(
-//        "No observations of type " + type + " could be found.");
-//  }
-  return observations_by_type.at(type);
+double Observations::get(std::size_t type, size_t sampleID) const {
+  return observations_by_type.at(type).at(sampleID);
 }
 
 

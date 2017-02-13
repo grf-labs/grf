@@ -18,17 +18,13 @@
 #include "TestUtilities.h"
 
 Observations TestUtilities::create_observations(std::vector<double> outcome) {
-  std::unordered_map<std::string, std::vector<double>> observations_by_type = {
-          {Observations::OUTCOME, outcome}};
+  std::vector<std::vector<double>> observations_by_type = {outcome};
   return Observations(observations_by_type, outcome.size());
 }
 
 Observations TestUtilities::create_observations(std::vector<double> outcome,
                                                 std::vector<double> treatment,
                                                 std::vector<double> instrument) {
-  std::unordered_map<std::string, std::vector<double>> observationsByType = {
-      {Observations::OUTCOME, outcome},
-      {Observations::TREATMENT, treatment},
-      {Observations::INSTRUMENT, instrument}};
-  return Observations(observationsByType, outcome.size());
+  std::vector<std::vector<double>> observations_by_type = {outcome, treatment, instrument};
+  return Observations(observations_by_type, outcome.size());
 }

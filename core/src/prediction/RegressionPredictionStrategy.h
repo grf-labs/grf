@@ -27,7 +27,7 @@ class RegressionPredictionStrategy: public PredictionStrategy {
 public:
   size_t prediction_length();
 
-  Prediction predict(const std::map<std::string, double>& averages,
+  Prediction predict(const std::vector<double>& averages,
                      const std::unordered_map<size_t, double>& weights_by_sampleID,
                      const Observations& observations);
 
@@ -37,11 +37,12 @@ public:
       uint ci_group_size);
 
   bool requires_leaf_sampleIDs();
+  size_t prediction_values_length();
   PredictionValues precompute_prediction_values(const std::vector<std::vector<size_t>>& leaf_sampleIDs,
                                                 const Observations& observations);
 
 private:
-  static const std::string OUTCOME;
+  static const std::size_t OUTCOME;
 };
 
 

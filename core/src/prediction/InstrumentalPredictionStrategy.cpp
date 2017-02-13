@@ -23,17 +23,17 @@
 #include "utility.h"
 #include "InstrumentalPredictionStrategy.h"
 
-const std::string InstrumentalPredictionStrategy::OUTCOME = "outcome";
-const std::string InstrumentalPredictionStrategy::TREATMENT = "treatment";
-const std::string InstrumentalPredictionStrategy::INSTRUMENT = "instrument";
-const std::string InstrumentalPredictionStrategy::OUTCOME_INSTRUMENT = "outcome_instrument";
-const std::string InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT = "treatment_instrument";
+const std::size_t InstrumentalPredictionStrategy::OUTCOME = 0;
+const std::size_t InstrumentalPredictionStrategy::TREATMENT = 1;
+const std::size_t InstrumentalPredictionStrategy::INSTRUMENT = 2;
+const std::size_t InstrumentalPredictionStrategy::OUTCOME_INSTRUMENT = 3;
+const std::size_t InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT = 4;
 
 size_t InstrumentalPredictionStrategy::prediction_length() {
     return 1;
 }
 
-Prediction InstrumentalPredictionStrategy::predict(const std::map<std::string, double>& averages,
+Prediction InstrumentalPredictionStrategy::predict(const std::vector<double>& averages,
                                                    const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                    const Observations& observations) {
   double instrument_effect = averages.at(OUTCOME_INSTRUMENT) - averages.at(OUTCOME) * averages.at(INSTRUMENT);
@@ -84,11 +84,11 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     double sum_WZ = 0;
 
     for (auto& sampleID : leaf_sampleIDs[i]) {
-      sum_Y += observations.get(Observations::OUTCOME).at(sampleID);
-      sum_W += observations.get(Observations::TREATMENT).at(sampleID);
-      sum_Z += observations.get(Observations::INSTRUMENT).at(sampleID);
-      sum_YZ += observations.get(Observations::OUTCOME).at(sampleID) * observations.get(Observations::INSTRUMENT).at(sampleID);
-      sum_WZ += observations.get(Observations::TREATMENT).at(sampleID) * observations.get(Observations::INSTRUMENT).at(sampleID);
+      sum_Y += observations.get(Observations::OUTCOME, sampleID);
+      sum_W += observations.get(Observations::TREATMENT, sampleID);
+      sum_Z += observations.get(Observations::INSTRUMENT, sampleID);
+      sum_YZ += observations.get(Observations::OUTCOME, sampleID) * observations.get(Observations::INSTRUMENT, sampleID);
+      sum_WZ += observations.get(Observations::TREATMENT, sampleID) * observations.get(Observations::INSTRUMENT, sampleID);
     }
 
     leaf_Y[i] = sum_Y / leaf_size;
@@ -229,12 +229,16 @@ bool InstrumentalPredictionStrategy::requires_leaf_sampleIDs() {
   return false;
 }
 
+size_t InstrumentalPredictionStrategy::prediction_values_length() {
+  return 5;
+}
+
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_sampleIDs,
     const Observations& observations) {
   size_t num_trees = leaf_sampleIDs.size();
 
-  std::map<std::string, std::vector<double>> values;
+  std::vector<std::vector<double>> values(prediction_values_length());
   
   values[OUTCOME].resize(num_trees);
   values[TREATMENT].resize(num_trees);
@@ -261,11 +265,11 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     double sum_WZ = 0;
 
     for (auto& sampleID : leaf_sampleIDs[i]) {
-      sum_Y += observations.get(Observations::OUTCOME).at(sampleID);
-      sum_W += observations.get(Observations::TREATMENT).at(sampleID);
-      sum_Z += observations.get(Observations::INSTRUMENT).at(sampleID);
-      sum_YZ += observations.get(Observations::OUTCOME).at(sampleID) * observations.get(Observations::INSTRUMENT).at(sampleID);
-      sum_WZ += observations.get(Observations::TREATMENT).at(sampleID) * observations.get(Observations::INSTRUMENT).at(sampleID);
+      sum_Y += observations.get(Observations::OUTCOME, sampleID);
+      sum_W += observations.get(Observations::TREATMENT, sampleID);
+      sum_Z += observations.get(Observations::INSTRUMENT, sampleID);
+      sum_YZ += observations.get(Observations::OUTCOME, sampleID) * observations.get(Observations::INSTRUMENT, sampleID);
+      sum_WZ += observations.get(Observations::TREATMENT, sampleID) * observations.get(Observations::INSTRUMENT, sampleID);
     }
 
     values[OUTCOME][i] = sum_Y / leaf_size;

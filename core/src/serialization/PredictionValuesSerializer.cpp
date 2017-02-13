@@ -18,18 +18,16 @@
 #include "PredictionValuesSerializer.h"
 #include "utility.h"
 
-void PredictionValuesSerializer::serialize(std::ostream& stream, const PredictionValues& values) {
-  size_t num_nodes = values.get_num_nodes();
+void PredictionValuesSerializer::serialize(std::ostream& stream, const PredictionValues& prediction_values) {
+  size_t num_nodes = prediction_values.get_num_nodes();
   stream.write((char*) &num_nodes, sizeof(num_nodes));
 
-  auto values_by_type = values.get_values_by_type();
+  auto values_by_type = prediction_values.get_values_by_type();
   size_t num_types = values_by_type.size();
   stream.write((char*) &num_types, sizeof(num_types));
 
-  for (auto it = values_by_type.begin(); it != values_by_type.end(); it++) {
-    std::string type = it->first;
-    write_string(type, stream);
-    write_vector(it->second, stream);
+  for (auto& values : values_by_type) {
+    write_vector(values, stream);
   }
 }
 
@@ -40,11 +38,9 @@ PredictionValues PredictionValuesSerializer::deserialize(std::istream& stream) {
   size_t num_types;
   stream.read((char*) &num_types, sizeof(num_types));
 
-  std::map<std::string, std::vector<double>> values_by_type;
+  std::vector<std::vector<double>> values_by_type(num_types);
   for (size_t i = 0; i < num_types; i++) {
-    std::string type;
-    read_string(type, stream);
-    read_vector(values_by_type[type], stream);
+    read_vector(values_by_type[i], stream);
   }
 
   return PredictionValues(values_by_type, num_nodes);

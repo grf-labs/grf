@@ -32,7 +32,7 @@
 
 class ForestTrainer {
 public:
-  ForestTrainer(std::unordered_map<std::string, size_t> observables,
+  ForestTrainer(std::unordered_map<size_t, size_t> observables,
                 std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                 std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                 std::shared_ptr<PredictionStrategy> prediction_strategy);
@@ -97,7 +97,7 @@ private:
   // Bootstrap weights
   std::vector<double> case_weights;
 
-  std::unordered_map<std::string, size_t> observables;
+  std::unordered_map<size_t, size_t> observables;
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
   std::shared_ptr<PredictionStrategy> prediction_strategy;

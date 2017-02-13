@@ -42,9 +42,8 @@ TEST_CASE("observations serialize and deserialize correctly", "[observationsSeri
   auto observations_by_type = observations.get_observations_by_type();
 
   REQUIRE(observations_by_type.size() == original_observations_by_type.size());
-  for (auto it = original_observations_by_type.begin(); it != original_observations_by_type.end(); it++) {
-    std::string type = it->first;
-    REQUIRE(observations_by_type.find(type) != observations_by_type.end());
+  for (int type = 0; type < original_observations_by_type.size(); type++) {
+    REQUIRE(type < observations_by_type.size());
     REQUIRE(observations_by_type[type].size() == original_observations_by_type[type].size());
   }
 }
@@ -56,7 +55,7 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
       {10, 20, 30, 40},
       {0.5, 0.75, 0.9, 1.1, 1.2},
       {3, 4, 5, 9, 10, 11},
-      PredictionValues({{"average", {0, 0, 1}}}, 3)));
+      PredictionValues({{0, 0, 1}}, 3)));
 
   TreeSerializer tree_serializer;
   std::stringstream stream;
