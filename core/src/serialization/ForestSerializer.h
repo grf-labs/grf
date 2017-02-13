@@ -30,7 +30,7 @@ public:
   Forest deserialize(std::istream& stream);
 
 private:
-  ObservationsSerializer observation_serializer;
+  ObservationsSerializer observations_serializer;
   TreeSerializer tree_serializer;
 };
 

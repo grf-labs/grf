@@ -6,7 +6,7 @@
 
 const std::string RcppUtilities::SERIALIZED_FOREST_KEY = "serialized.forest";
 
-void RcppUtilities::initialize_trainer(ForestTrainer &forest_trainer,
+void RcppUtilities::initialize_trainer(ForestTrainer& forest_trainer,
                                        uint mtry,
                                        uint num_trees,
                                        uint num_threads,
@@ -60,7 +60,7 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
   data->sort();
 
   if (sparse_data.nrow() > 1) {
-    data->addSparseData(sparse_data.begin(), sparse_data.ncol());
+    data->add_sparse_data(sparse_data.begin(), sparse_data.ncol());
   }
 
   return data;

@@ -27,7 +27,7 @@ void ForestSerializer::serialize(std::ostream& stream, const Forest& forest) {
     tree_serializer.serialize(stream, tree);
   }
 
-  observation_serializer.serialize(stream, forest.get_observations());
+  observations_serializer.serialize(stream, forest.get_observations());
 }
 
 Forest ForestSerializer::deserialize(std::istream& stream) {
@@ -40,7 +40,7 @@ Forest ForestSerializer::deserialize(std::istream& stream) {
     trees.push_back(tree);
   }
 
-  Observations observations = observation_serializer.deserialize(stream);
+  Observations observations = observations_serializer.deserialize(stream);
   return Forest(trees, observations);
 }
 
