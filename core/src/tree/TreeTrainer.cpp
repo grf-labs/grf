@@ -122,16 +122,16 @@ void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t>& result,
   // Randomly add non-deterministic variables (according to weights if needed)
   uint mtry = options.get_mtry();
   if (split_select_weights.empty()) {
-    bootstrap_sampler.drawWithoutReplacementSkip(result,
-                                                 data->get_num_cols(),
-                                                  options.get_no_split_variables(),
-                                                  mtry);
+    bootstrap_sampler.draw_without_replacement_skip(result,
+                                                    data->get_num_cols(),
+                                                    options.get_no_split_variables(),
+                                                    mtry);
   } else {
     size_t num_draws = mtry - result.size();
-    bootstrap_sampler.drawWithoutReplacementWeighted(result,
-                                                      options.get_split_select_varIDs(),
-                                                      num_draws,
-                                                      split_select_weights);
+    bootstrap_sampler.draw_without_replacement_weighted(result,
+                                                        options.get_split_select_varIDs(),
+                                                        num_draws,
+                                                        split_select_weights);
   }
 }
 
