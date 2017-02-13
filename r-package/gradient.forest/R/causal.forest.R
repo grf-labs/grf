@@ -73,7 +73,8 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(ncol(X)
         verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, 
         sample.fraction, no.split.variables, seed, honesty, ci.group.size, split.regularization)
     
-    forest <- c(forest, ci.group.size = ci.group.size, original.data = input.data)
+    forest[["ci.group.size"]] <- ci.group.size
+    forest[["original.data"]] <- input.data
     class(forest) <- "causal.forest"
     forest
 }

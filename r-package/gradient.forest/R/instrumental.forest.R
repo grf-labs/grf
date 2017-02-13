@@ -81,7 +81,8 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
         verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, 
         sample.fraction, no.split.variables, seed, honesty, ci.group.size, split.regularization)
     
-    forest <- c(forest, ci.group.size = ci.group.size, original.data = input.data)
+    forest[["ci.group.size"]] <- ci.group.size
+    forest[["original.data"]] <- input.data
     class(forest) <- "instrumental.forest"
     forest
 }
@@ -109,11 +110,11 @@ predict.instrumental.forest <- function(forest, newdata = NULL, num.threads = NU
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
-        instrumental_predict(forest, input.data, sparse.data, variable.names, num.threads, 
+        instrumental_predict(forest.short, input.data, sparse.data, variable.names, num.threads, 
             ci.group.size)
     } else {
         input.data <- forest[["original.data"]]
-        instrumental_predict_oob(forest, input.data, sparse.data, variable.names, 
-            num.threads, ci.group.size)
+        instrumental_predict_oob(forest.short, input.data, sparse.data, variable.names, 
+            num.threads)
     }
 }
