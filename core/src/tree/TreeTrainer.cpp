@@ -110,10 +110,10 @@ void TreeTrainer::repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
   tree->set_leaf_nodeIDs(new_terminal_nodeIDs);
 }
 
-void TreeTrainer::createPossibleSplitVarSubset(std::vector<size_t>& result,
-                                             BootstrapSampler& bootstrap_sampler,
-                                             Data* data,
-                                             const std::vector<double>& split_select_weights) {
+void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
+                                               BootstrapSampler &bootstrap_sampler,
+                                               Data *data,
+                                               const std::vector<double>& split_select_weights) {
 
   // Always use deterministic variables
   std::vector<size_t> deterministic_varIDs = options.get_deterministic_varIDs();
@@ -148,7 +148,7 @@ bool TreeTrainer::split_node(size_t nodeID,
 
 // Select random subset of variables to possibly split at
   std::vector<size_t> possible_split_varIDs;
-  createPossibleSplitVarSubset(possible_split_varIDs, bootstrap_sampler, data, split_select_weights);
+  create_split_variable_subset(possible_split_varIDs, bootstrap_sampler, data, split_select_weights);
 
 // Call subclass method, sets split_varIDs and split_values
   bool stop = split_node_internal(nodeID,
@@ -175,7 +175,7 @@ bool TreeTrainer::split_node(size_t nodeID,
   child_nodeIDs[1][nodeID] = right_child_nodeID;
   create_empty_node(child_nodeIDs, sampleIDs, split_varIDs, split_values);
 
-// For each sample in node, assign to left or right child
+  // For each sample in node, assign to left or right child
   // Ordered: left is <= splitval and right is > splitval
   for (auto& sampleID : sampleIDs[nodeID]) {
     if (data->get(sampleID, split_varID) <= split_value) {
@@ -185,7 +185,7 @@ bool TreeTrainer::split_node(size_t nodeID,
     }
   }
 
-// No terminal node
+  // No terminal node
   return false;
 }
 

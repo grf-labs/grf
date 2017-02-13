@@ -33,11 +33,10 @@ void ForestSerializer::serialize(std::ostream& stream, const Forest& forest) {
 Forest ForestSerializer::deserialize(std::istream& stream) {
   size_t num_trees;
   stream.read((char*) &num_trees, sizeof(num_trees));
-  std::vector<std::shared_ptr<Tree>> trees;
+  std::vector<std::shared_ptr<Tree>> trees(num_trees);
 
   for (size_t i = 0; i < num_trees; i++) {
-    std::shared_ptr<Tree> tree = tree_serializer.deserialize(stream);
-    trees.push_back(tree);
+    trees[i] = tree_serializer.deserialize(stream);
   }
 
   Observations observations = observations_serializer.deserialize(stream);

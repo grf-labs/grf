@@ -91,6 +91,7 @@ inline void read_vector(std::vector<bool>& result, std::istream& file) {
   file.read((char*) &length, sizeof(length));
 
   // Read vector.
+  result.reserve(length);
   for (size_t i = 0; i < length; ++i) {
     bool temp;
     file.read((char*) &temp, sizeof(temp));

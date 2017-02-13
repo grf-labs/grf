@@ -27,21 +27,19 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel_outcomes(
     const Observations& observations,
     const std::vector<size_t>& node_sampleIDs) {
 
-  std::vector<double> responses;
+  std::vector<double> sorted_outcomes;
   for (auto& sampleID : node_sampleIDs) {
-    responses.push_back(observations.get(Observations::OUTCOME).at(sampleID));
+    sorted_outcomes.push_back(observations.get(Observations::OUTCOME).at(sampleID));
   }
+  std::sort(sorted_outcomes.begin(), sorted_outcomes.end());
 
-  std::vector<double> sorted_responses(responses);
-  std::sort(sorted_responses.begin(), sorted_responses.end());
-
-  size_t num_samples = responses.size();
+  size_t num_samples = sorted_outcomes.size();
   std::vector<double> quantile_cutoffs;
 
-  // Calculate the response value cutoffs for each quantile.
+  // Calculate the outcome value cutoffs for each quantile.
   for (auto& quantile : quantiles) {
-    size_t response_index = (size_t) ceil(num_samples * quantile) - 1;
-    quantile_cutoffs.push_back(sorted_responses.at(response_index));
+    size_t outcome_index = (size_t) ceil(num_samples * quantile) - 1;
+    quantile_cutoffs.push_back(sorted_outcomes.at(outcome_index));
   }
 
   // Remove duplicate cutoffs.
