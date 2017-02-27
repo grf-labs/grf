@@ -89,7 +89,7 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
     for (size_t tree_index = 0; tree_index < num_trees; ++tree_index) {
       std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
 
-      std::vector<size_t> terminal_node_IDs = terminal_node_IDs_by_tree.at(tree_index);
+      const std::vector<size_t>& terminal_node_IDs = terminal_node_IDs_by_tree.at(tree_index);
       size_t nodeID = terminal_node_IDs.at(sampleID);
       const std::vector<size_t>& sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
 
@@ -169,7 +169,7 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
       }
 
       std::shared_ptr<Tree> tree = forest.get_trees()[t];
-      std::vector<size_t> terminal_node_IDs = terminal_node_IDs_by_tree.at(t);
+      const std::vector<size_t>& terminal_node_IDs = terminal_node_IDs_by_tree.at(t);
       size_t nodeID = terminal_node_IDs.at(sampleID);
       const std::vector<size_t>& sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
 
