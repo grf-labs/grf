@@ -30,6 +30,7 @@
 #include <memory>
 #include <thread>
 #include <future>
+#include <prediction/collector/PredictionCollector.h>
 
 class ForestPredictor {
 public:
@@ -41,36 +42,22 @@ public:
   std::vector<Prediction> predict_oob(const Forest& forest, Data* original_data);
 
 private:
-  std::vector<Prediction> standard_predict(const Forest& forest, Data* prediction_data);
-
-  std::vector<std::vector<size_t>> determine_terminal_node_IDs(
-      const Forest& forest,
-      Data* data,
+  std::vector<std::vector<size_t>> find_leaf_nodes(
+      const Forest &forest,
+      Data *data,
       bool oob_prediction);
 
-  std::vector<std::vector<size_t>> predict_batch(
+  std::vector<std::vector<size_t>> find_batch(
       size_t start,
       size_t num_trees,
-      const Forest& forest,
-      Data* prediction_data,
+      const Forest &forest,
+      Data *prediction_data,
       bool oob_prediction);
 
-  void add_prediction_values(size_t nodeID,
-                             const PredictionValues& prediction_values,
-                             std::vector<double>& average_prediction_values);
 
-  void add_sample_weights(const std::vector<size_t>& sampleIDs,
-                          std::unordered_map<size_t, double>& weights_by_sampleID);
-
-  void normalize_prediction_values(size_t num_leaf_nodes,
-                                   std::vector<double>& average_prediction_values);
-
-  void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sampleID);
-
+private:
   uint num_threads;
-  uint ci_group_size;
-
-  std::shared_ptr<PredictionStrategy> prediction_strategy;
+  std::shared_ptr<PredictionCollector> prediction_collector;
 };
 
 

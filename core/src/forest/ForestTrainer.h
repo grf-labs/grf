@@ -39,11 +39,6 @@ public:
 
   Forest train(Data* data);
 
-  std::vector<std::shared_ptr<Tree>> train_ci_group(Data* data,
-                                                    const Observations& observations,
-                                                    BootstrapSampler& bootstrap_sampler,
-                                                    double sample_fraction);
-
   void init(uint mtry,
             uint num_trees, std::ostream *verbose_out, uint seed, uint num_threads,
             std::string load_forest_filename, uint min_node_size,
@@ -57,6 +52,11 @@ public:
             uint ci_group_size);
 
 private:
+  std::vector<std::shared_ptr<Tree>> train_ci_group(Data* data,
+                                                    const Observations& observations,
+                                                    BootstrapSampler& bootstrap_sampler,
+                                                    double sample_fraction);
+
   std::vector<std::shared_ptr<Tree>> train_batch(
       uint thread_idx,
       Data* data,

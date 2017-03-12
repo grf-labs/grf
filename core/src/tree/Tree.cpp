@@ -34,13 +34,13 @@ Tree::Tree(const std::vector<std::vector<size_t>>& child_nodeIDs,
     oob_sampleIDs(oob_sampleIDs),
     prediction_values(prediction_values) {}
 
-std::vector<size_t> Tree::find_leaf_nodeIDs(Data *prediction_data,
+std::vector<size_t> Tree::find_leaf_nodeIDs(Data* prediction_data,
                                             const std::vector<size_t> &sampleIDs) {
   bool use_subsample = !sampleIDs.empty();
   const std::vector<std::vector<size_t>>& child_nodeIDs = get_child_nodeIDs();
 
-  std::vector<size_t> prediction_terminal_nodeIDs;
-  prediction_terminal_nodeIDs.resize(prediction_data->get_num_rows());
+  std::vector<size_t> prediction_leaf_nodeIDs;
+  prediction_leaf_nodeIDs.resize(prediction_data->get_num_rows());
 
   size_t num_samples_predict = use_subsample ? sampleIDs.size() : prediction_data->get_num_rows();
 
@@ -67,9 +67,9 @@ std::vector<size_t> Tree::find_leaf_nodeIDs(Data *prediction_data,
       }
     }
 
-    prediction_terminal_nodeIDs[sampleID] = nodeID;
+    prediction_leaf_nodeIDs[sampleID] = nodeID;
   }
-  return prediction_terminal_nodeIDs;
+  return prediction_leaf_nodeIDs;
 }
 
 Tree::~Tree() {}

@@ -55,7 +55,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
   size_t num_open_nodes = 1;
   size_t i = 0;
   while (num_open_nodes > 0) {
-    bool is_terminal_node = split_node(i,
+    bool is_leaf_node = split_node(i,
                                        splitting_rule,
                                        bootstrap_sampler,
                                        data,
@@ -65,7 +65,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
                                        split_varIDs,
                                        split_values,
                                        options.get_split_select_weights());
-    if (is_terminal_node) {
+    if (is_leaf_node) {
       --num_open_nodes;
     } else {
       nodes[i].clear();
@@ -82,7 +82,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
       PredictionValues()));
 
   if (!leaf_sampleIDs.empty()) {
-    repopulate_terminal_nodeIDs(tree, data, leaf_sampleIDs);
+    repopulate_leaf_nodeIDs(tree, data, leaf_sampleIDs);
   }
 
   PredictionValues prediction_values = prediction_strategy->precompute_prediction_values(
@@ -92,19 +92,19 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
   return tree;
 }
 
-void TreeTrainer::repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
+void TreeTrainer::repopulate_leaf_nodeIDs(std::shared_ptr<Tree> tree,
                                               Data* data,
                                               const std::vector<size_t>& leaf_sampleIDs) {
   size_t num_nodes = tree->get_leaf_nodeIDs().size();
-  std::vector<std::vector<size_t>> new_terminal_nodeIDs(num_nodes);
+  std::vector<std::vector<size_t>> new_leaf_nodeIDs(num_nodes);
 
-  std::vector<size_t> terminal_nodeIDs = tree->find_leaf_nodeIDs(data, leaf_sampleIDs);
+  std::vector<size_t> leaf_nodeIDs = tree->find_leaf_nodeIDs(data, leaf_sampleIDs);
 
   for (auto& sampleID : leaf_sampleIDs) {
-    size_t terminal_nodeID = terminal_nodeIDs.at(sampleID);
-    new_terminal_nodeIDs.at(terminal_nodeID).push_back(sampleID);
+    size_t leaf_nodeID = leaf_nodeIDs.at(sampleID);
+    new_leaf_nodeIDs.at(leaf_nodeID).push_back(sampleID);
   }
-  tree->set_leaf_nodeIDs(new_terminal_nodeIDs);
+  tree->set_leaf_nodeIDs(new_leaf_nodeIDs);
 }
 
 void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
