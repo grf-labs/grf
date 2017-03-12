@@ -39,7 +39,10 @@ public:
 
   ~Tree();
 
-  const std::vector<std::vector<size_t> >& get_child_nodeIDs() {
+  std::vector<size_t> find_leaf_nodeIDs(Data *prediction_data,
+                                        const std::vector<size_t> &sampleIDs);
+
+  const std::vector<std::vector<size_t>>& get_child_nodeIDs() {
     return child_nodeIDs;
   }
 

@@ -38,7 +38,6 @@ public:
                                            uint ci_group_size) = 0;
 
   virtual bool requires_leaf_sampleIDs() = 0;
-  virtual size_t prediction_values_length() = 0;
   virtual PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_sampleIDs,
       const Observations& observations) = 0;

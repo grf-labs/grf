@@ -15,20 +15,15 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRADIENTFOREST_TREEPREDICTOR_H
-#define GRADIENTFOREST_TREEPREDICTOR_H
+#ifndef GRADIENTFOREST_PREDICTIONCOLLECTOR_H
+#define GRADIENTFOREST_PREDICTIONCOLLECTOR_H
 
-#include <memory>
-
-#include "Data.h"
-#include "Tree.h"
-
-class TreePredictor {
+class PredictionCollector {
 public:
-  std::vector<size_t> get_terminal_nodeIDs(std::shared_ptr<Tree>,
-                                           Data* prediction_data,
-                                           const std::vector<size_t>& sampleIDs);
+  virtual std::vector<Prediction> collect_predictions(const Forest& forest,
+                                                      Data* prediction_data,
+                                                      std::vector <std::vector<size_t>> leaf_nodes_by_tree,
+                                                      bool oob_prediction) = 0;
 };
 
-
-#endif //GRADIENTFOREST_TREEPREDICTOR_H
+#endif //GRADIENTFOREST_PREDICTIONCOLLECTOR_H

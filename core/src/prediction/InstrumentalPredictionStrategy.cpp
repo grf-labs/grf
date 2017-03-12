@@ -29,6 +29,8 @@ const std::size_t InstrumentalPredictionStrategy::INSTRUMENT = 2;
 const std::size_t InstrumentalPredictionStrategy::OUTCOME_INSTRUMENT = 3;
 const std::size_t InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT = 4;
 
+const std::size_t NUM_TYPES = 5;
+
 size_t InstrumentalPredictionStrategy::prediction_length() {
     return 1;
 }
@@ -48,13 +50,13 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     const Observations& observations,
     uint ci_group_size) {
 
-  size_t num_trees = leaf_sampleIDs.size();
+  size_t num_leaves = leaf_sampleIDs.size();
 
-  std::vector<double> leaf_Y(num_trees);
-  std::vector<double> leaf_W(num_trees);
-  std::vector<double> leaf_Z(num_trees);
-  std::vector<double> leaf_YZ(num_trees);
-  std::vector<double> leaf_WZ(num_trees);
+  std::vector<double> leaf_Y(num_leaves);
+  std::vector<double> leaf_W(num_leaves);
+  std::vector<double> leaf_Z(num_leaves);
+  std::vector<double> leaf_YZ(num_leaves);
+  std::vector<double> leaf_WZ(num_leaves);
 
   double total_Y = 0;
   double total_W = 0;
@@ -229,34 +231,22 @@ bool InstrumentalPredictionStrategy::requires_leaf_sampleIDs() {
   return false;
 }
 
-size_t InstrumentalPredictionStrategy::prediction_values_length() {
-  return 5;
-}
 
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_sampleIDs,
     const Observations& observations) {
-  size_t num_trees = leaf_sampleIDs.size();
+  size_t num_leaves = leaf_sampleIDs.size();
 
-  std::vector<std::vector<double>> values(prediction_values_length());
-  
-  values[OUTCOME].resize(num_trees);
-  values[TREATMENT].resize(num_trees);
-  values[INSTRUMENT].resize(num_trees);
-  values[OUTCOME_INSTRUMENT].resize(num_trees);
-  values[TREATMENT_INSTRUMENT].resize(num_trees);
+  std::vector<std::vector<double>> values(num_leaves);
 
   for (size_t i = 0; i < leaf_sampleIDs.size(); ++i) {
     size_t leaf_size = leaf_sampleIDs[i].size();
-
     if (leaf_size == 0) {
-      values[OUTCOME][i] = NAN;
-      values[TREATMENT][i] = NAN;
-      values[INSTRUMENT][i] = NAN;;
-      values[OUTCOME_INSTRUMENT][i] = NAN;;
-      values[TREATMENT_INSTRUMENT][i] = NAN;;
       continue;
     }
+
+    std::vector<double>& value = values[i];
+    value.resize(NUM_TYPES);
 
     double sum_Y = 0;
     double sum_W = 0;
@@ -272,12 +262,12 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
       sum_WZ += observations.get(Observations::TREATMENT, sampleID) * observations.get(Observations::INSTRUMENT, sampleID);
     }
 
-    values[OUTCOME][i] = sum_Y / leaf_size;
-    values[TREATMENT][i] = sum_W / leaf_size;
-    values[INSTRUMENT][i] = sum_Z / leaf_size;
-    values[OUTCOME_INSTRUMENT][i] = sum_YZ / leaf_size;
-    values[TREATMENT_INSTRUMENT][i] = sum_WZ / leaf_size;
+    value[OUTCOME] = sum_Y / leaf_size;
+    value[TREATMENT] = sum_W / leaf_size;
+    value[INSTRUMENT] = sum_Z / leaf_size;
+    value[OUTCOME_INSTRUMENT] = sum_YZ / leaf_size;
+    value[TREATMENT_INSTRUMENT] = sum_WZ / leaf_size;
   }
   
-  return PredictionValues(values, num_trees);
+  return PredictionValues(values, num_leaves, NUM_TYPES);
 }

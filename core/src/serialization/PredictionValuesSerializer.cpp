@@ -22,12 +22,12 @@ void PredictionValuesSerializer::serialize(std::ostream& stream, const Predictio
   size_t num_nodes = prediction_values.get_num_nodes();
   stream.write((char*) &num_nodes, sizeof(num_nodes));
 
-  auto values_by_type = prediction_values.get_values_by_type();
-  size_t num_types = values_by_type.size();
+  size_t num_types = prediction_values.get_num_types();
   stream.write((char*) &num_types, sizeof(num_types));
 
-  for (auto& values : values_by_type) {
-    write_vector(values, stream);
+  auto values = prediction_values.get_values();
+  for (auto& value : values) {
+    write_vector(value, stream);
   }
 }
 
@@ -38,10 +38,9 @@ PredictionValues PredictionValuesSerializer::deserialize(std::istream& stream) {
   size_t num_types;
   stream.read((char*) &num_types, sizeof(num_types));
 
-  std::vector<std::vector<double>> values_by_type(num_types);
-  for (size_t i = 0; i < num_types; i++) {
-    read_vector(values_by_type[i], stream);
+  std::vector<std::vector<double>> values(num_nodes);
+  for (size_t i = 0; i < num_nodes; i++) {
+    read_vector(values[i], stream);
   }
-
-  return PredictionValues(values_by_type, num_nodes);
+  return PredictionValues(values, num_nodes, num_types);
 }

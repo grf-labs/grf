@@ -86,10 +86,6 @@ bool QuantilePredictionStrategy::requires_leaf_sampleIDs() {
   return true;
 }
 
-size_t QuantilePredictionStrategy::prediction_values_length() {
-  return 0;
-}
-
 PredictionValues QuantilePredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_sampleIDs,
     const Observations& observations) {
