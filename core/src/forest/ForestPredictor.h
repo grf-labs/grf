@@ -41,13 +41,14 @@ public:
   std::vector<Prediction> predict_oob(const Forest& forest, Data* original_data);
 
 private:
-  std::map<size_t, std::vector<size_t>> determine_terminal_node_IDs(
+  std::vector<std::vector<size_t>> determine_terminal_node_IDs(
       const Forest& forest,
       Data* data,
       bool oob_prediction);
 
-  std::map<size_t, std::vector<size_t>> predict_batch(
+  std::vector<std::vector<size_t>> predict_batch(
       uint thread_idx,
+      const std::vector<uint>& thread_ranges,
       const Forest& forest,
       Data* prediction_data,
       bool oob_prediction);
@@ -66,7 +67,6 @@ private:
 
   uint num_threads;
   uint ci_group_size;
-  std::vector<uint> thread_ranges;
 
   std::shared_ptr<PredictionStrategy> prediction_strategy;
 };
