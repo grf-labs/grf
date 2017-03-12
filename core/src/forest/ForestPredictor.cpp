@@ -16,8 +16,8 @@
  #-------------------------------------------------------------------------------*/
 
 #include "ForestPredictor.h"
-#include "prediction/collector/OptimizedPredictionCollector.h"
-#include "prediction/collector/DefaultPredictionCollector.h"
+#include "OptimizedPredictionCollector.h"
+#include "DefaultPredictionCollector.h"
 #include "utility.h"
 
 ForestPredictor::ForestPredictor(uint num_threads,

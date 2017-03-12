@@ -18,6 +18,8 @@
 #ifndef GRADIENTFOREST_PREDICTIONCOLLECTOR_H
 #define GRADIENTFOREST_PREDICTIONCOLLECTOR_H
 
+#include "Forest.h"
+
 class PredictionCollector {
 public:
   virtual std::vector<Prediction> collect_predictions(const Forest& forest,

@@ -21,6 +21,7 @@
 #include "RelabelingStrategy.h"
 #include "SplittingRule.h"
 #include "Prediction.h"
+#include "PredictionCollector.h"
 #include "PredictionStrategy.h"
 
 #include "Tree.h"
@@ -30,7 +31,6 @@
 #include <memory>
 #include <thread>
 #include <future>
-#include <prediction/collector/PredictionCollector.h>
 
 class ForestPredictor {
 public:
