@@ -47,8 +47,8 @@ private:
       bool oob_prediction);
 
   std::vector<std::vector<size_t>> predict_batch(
-      uint thread_idx,
-      const std::vector<uint>& thread_ranges,
+      size_t start,
+      size_t num_trees,
       const Forest& forest,
       Data* prediction_data,
       bool oob_prediction);

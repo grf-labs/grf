@@ -47,11 +47,13 @@ std::vector<std::vector<size_t>> ForestPredictor::determine_terminal_node_IDs(
   futures.reserve(num_threads);
 
   for (uint i = 0; i < num_threads; ++i) {
+    size_t start_index = thread_ranges[i];
+    size_t num_trees_batch = thread_ranges[i + 1] - start_index;
     futures.push_back(std::async(std::launch::async,
                                  &ForestPredictor::predict_batch,
                                  this,
-                                 i,
-                                 thread_ranges,
+                                 start_index,
+                                 num_trees_batch,
                                  forest,
                                  data,
                                  oob_prediction));
@@ -212,28 +214,22 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
 }
 
 std::vector<std::vector<size_t>> ForestPredictor::predict_batch(
-    uint thread_idx,
-    const std::vector<uint>& thread_ranges,
+    size_t start,
+    size_t num_trees,
     const Forest& forest,
     Data* prediction_data,
     bool oob_prediction) {
-  std::vector<std::vector<size_t>> all_terminal_node_IDs;
+  std::vector<std::vector<size_t>> all_terminal_node_IDs(num_trees);
   TreePredictor tree_predictor;
 
-  if (thread_ranges.size() > thread_idx + 1) {
-    size_t start = thread_ranges[thread_idx];
-    size_t num_trees = thread_ranges[thread_idx + 1] - start;
-    all_terminal_node_IDs.resize(num_trees);
+  for (size_t i = 0; i < num_trees; i++) {
+    std::shared_ptr<Tree> tree = forest.get_trees()[start + i];
 
-    for (size_t i = 0; i < num_trees; i++) {
-      std::shared_ptr<Tree> tree = forest.get_trees()[start + i];
-
-      const std::vector<size_t>& sampleIDs = oob_prediction ? tree->get_oob_sampleIDs() : std::vector<size_t>();
-      std::vector<size_t> terminal_node_IDs = tree_predictor.get_terminal_nodeIDs(tree,
-                                                                                  prediction_data,
-                                                                                  sampleIDs);
-      all_terminal_node_IDs[i] = terminal_node_IDs;
-    }
+    const std::vector<size_t> &sampleIDs = oob_prediction ? tree->get_oob_sampleIDs() : std::vector<size_t>();
+    std::vector<size_t> terminal_node_IDs = tree_predictor.get_terminal_nodeIDs(tree,
+                                                                                prediction_data,
+                                                                                sampleIDs);
+    all_terminal_node_IDs[i] = terminal_node_IDs;
   }
 
   return all_terminal_node_IDs;
