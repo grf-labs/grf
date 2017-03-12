@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include "ForestPredictor.h"
-#include "TreePredictor.h"
 #include "utility.h"
 
 ForestPredictor::ForestPredictor(uint num_threads,
@@ -220,15 +219,11 @@ std::vector<std::vector<size_t>> ForestPredictor::predict_batch(
     Data* prediction_data,
     bool oob_prediction) {
   std::vector<std::vector<size_t>> all_terminal_node_IDs(num_trees);
-  TreePredictor tree_predictor;
-
   for (size_t i = 0; i < num_trees; i++) {
     std::shared_ptr<Tree> tree = forest.get_trees()[start + i];
 
     const std::vector<size_t> &sampleIDs = oob_prediction ? tree->get_oob_sampleIDs() : std::vector<size_t>();
-    std::vector<size_t> terminal_node_IDs = tree_predictor.get_terminal_nodeIDs(tree,
-                                                                                prediction_data,
-                                                                                sampleIDs);
+    std::vector<size_t> terminal_node_IDs = tree->find_leaf_nodeIDs(prediction_data, sampleIDs);
     all_terminal_node_IDs[i] = terminal_node_IDs;
   }
 

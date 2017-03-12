@@ -19,7 +19,6 @@
 
 #include "Data.h"
 #include "TreeTrainer.h"
-#include "TreePredictor.h"
 
 TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                          std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
@@ -99,9 +98,7 @@ void TreeTrainer::repopulate_terminal_nodeIDs(std::shared_ptr<Tree> tree,
   size_t num_nodes = tree->get_leaf_nodeIDs().size();
   std::vector<std::vector<size_t>> new_terminal_nodeIDs(num_nodes);
 
-  TreePredictor tree_predictor;
-  std::vector<size_t> terminal_nodeIDs = tree_predictor.get_terminal_nodeIDs(
-      tree, data, leaf_sampleIDs);
+  std::vector<size_t> terminal_nodeIDs = tree->find_leaf_nodeIDs(data, leaf_sampleIDs);
 
   for (auto& sampleID : leaf_sampleIDs) {
     size_t terminal_nodeID = terminal_nodeIDs.at(sampleID);

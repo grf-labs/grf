@@ -34,6 +34,44 @@ Tree::Tree(const std::vector<std::vector<size_t>>& child_nodeIDs,
     oob_sampleIDs(oob_sampleIDs),
     prediction_values(prediction_values) {}
 
+std::vector<size_t> Tree::find_leaf_nodeIDs(Data *prediction_data,
+                                            const std::vector<size_t> &sampleIDs) {
+  bool use_subsample = !sampleIDs.empty();
+  const std::vector<std::vector<size_t>>& child_nodeIDs = get_child_nodeIDs();
+
+  std::vector<size_t> prediction_terminal_nodeIDs;
+  prediction_terminal_nodeIDs.resize(prediction_data->get_num_rows());
+
+  size_t num_samples_predict = use_subsample ? sampleIDs.size() : prediction_data->get_num_rows();
+
+  for (size_t i = 0; i < num_samples_predict; ++i) {
+    size_t sampleID = use_subsample ? sampleIDs[i] : i;
+
+    size_t nodeID = 0;
+    while (1) {
+
+      // Break if terminal node
+      if (child_nodeIDs[0][nodeID] == 0 && child_nodeIDs[1][nodeID] == 0) {
+        break;
+      }
+
+      // Move to child
+      size_t split_varID = get_split_varIDs()[nodeID];
+      double value = prediction_data->get(sampleID, split_varID);
+      if (value <= get_split_values()[nodeID]) {
+        // Move to left child
+        nodeID = child_nodeIDs[0][nodeID];
+      } else {
+        // Move to right child
+        nodeID = child_nodeIDs[1][nodeID];
+      }
+    }
+
+    prediction_terminal_nodeIDs[sampleID] = nodeID;
+  }
+  return prediction_terminal_nodeIDs;
+}
+
 Tree::~Tree() {}
 
 
