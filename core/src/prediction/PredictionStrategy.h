@@ -29,11 +29,13 @@
 class PredictionStrategy {
 public:
   virtual size_t prediction_length() = 0;
-  virtual Prediction predict(const std::vector<double>& average_prediction_values,
+  virtual Prediction predict(size_t sampleID,
+                             const std::vector<double>& average_prediction_values,
                              const std::unordered_map<size_t, double>& weights_by_sampleID,
                              const Observations& observations) = 0;
 
-  virtual Prediction predict_with_variance(const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+  virtual Prediction predict_with_variance(size_t sampleID,
+                                           const std::vector<std::vector<size_t>>& leaf_sampleIDs,
                                            const Observations& observations,
                                            uint ci_group_size) = 0;
 

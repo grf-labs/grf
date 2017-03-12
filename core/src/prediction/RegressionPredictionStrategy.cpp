@@ -25,7 +25,8 @@ size_t RegressionPredictionStrategy::prediction_length() {
     return 1;
 }
 
-Prediction RegressionPredictionStrategy::predict(const std::vector<double>& averages,
+Prediction RegressionPredictionStrategy::predict(size_t sampleID,
+                                                 const std::vector<double>& averages,
                                                  const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                  const Observations& observations) {
   std::vector<double> predictions = { averages.at(OUTCOME) };
@@ -33,6 +34,7 @@ Prediction RegressionPredictionStrategy::predict(const std::vector<double>& aver
 }
 
 Prediction RegressionPredictionStrategy::predict_with_variance(
+    size_t sampleID,
     const std::vector<std::vector<size_t>>& leaf_sampleIDs,
     const Observations& observations,
     uint ci_group_size) {

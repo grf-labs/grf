@@ -34,7 +34,7 @@ TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
   QuantilePredictionStrategy prediction_strategy({0.25, 0.5, 0.75});
-  Prediction prediction = prediction_strategy.predict({}, weights_by_sampleID, observations);
+  Prediction prediction = prediction_strategy.predict(0, {}, weights_by_sampleID, observations);
 
   std::vector<double> expected_predictions = {-7.36924, -0.826997, 5.11211};
   REQUIRE(prediction.get_predictions() == expected_predictions);
@@ -50,7 +50,7 @@ TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
   QuantilePredictionStrategy prediction_strategy({0.5, 0.75, 0.80, 0.90});
-  Prediction predictions = prediction_strategy.predict({}, weights_by_sampleID, observations);
+  Prediction predictions = prediction_strategy.predict(42, {}, weights_by_sampleID, observations);
 
   // Check that all predictions fall within a reasonable range.
   for (auto& prediction : predictions.get_predictions()) {
@@ -69,13 +69,13 @@ TEST_CASE("prediction with repeated quantiles", "[quantile, prediction]") {
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
   std::vector<double> first_predictions = QuantilePredictionStrategy({0.5})
-          .predict({}, weights_by_sampleID, observations)
+          .predict(42, {}, weights_by_sampleID, observations)
           .get_predictions();
   std::vector<double> second_predictions = QuantilePredictionStrategy({0.25, 0.5, 0.75})
-      .predict({}, weights_by_sampleID, observations)
+      .predict(42, {}, weights_by_sampleID, observations)
       .get_predictions();
   std::vector<double> third_predictions = QuantilePredictionStrategy({0.5, 0.5, 0.5})
-      .predict({}, weights_by_sampleID, observations)
+      .predict(42, {}, weights_by_sampleID, observations)
       .get_predictions();
 
   REQUIRE(first_predictions[0] == second_predictions[1]);

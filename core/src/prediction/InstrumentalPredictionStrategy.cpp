@@ -35,7 +35,8 @@ size_t InstrumentalPredictionStrategy::prediction_length() {
     return 1;
 }
 
-Prediction InstrumentalPredictionStrategy::predict(const std::vector<double>& averages,
+Prediction InstrumentalPredictionStrategy::predict(size_t sampleID,
+                                                   const std::vector<double>& averages,
                                                    const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                    const Observations& observations) {
   double instrument_effect = averages.at(OUTCOME_INSTRUMENT) - averages.at(OUTCOME) * averages.at(INSTRUMENT);
@@ -46,6 +47,7 @@ Prediction InstrumentalPredictionStrategy::predict(const std::vector<double>& av
 }
 
 Prediction InstrumentalPredictionStrategy::predict_with_variance(
+    size_t sampleID,
     const std::vector<std::vector<size_t>>& leaf_sampleIDs,
     const Observations& observations,
     uint ci_group_size) {

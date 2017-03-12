@@ -89,8 +89,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     }
 
     Prediction prediction = ci_group_size == 1 ?
-                            prediction_strategy->predict(std::vector<double>(), weights_by_sampleID, forest.get_observations()) :
-                            prediction_strategy->predict_with_variance(leaf_sampleIDs, forest.get_observations(), ci_group_size);
+      prediction_strategy->predict(sampleID, std::vector<double>(), weights_by_sampleID, forest.get_observations()) :
+      prediction_strategy->predict_with_variance(sampleID, leaf_sampleIDs, forest.get_observations(), ci_group_size);
 
     if (prediction.size() != prediction_length) {
       throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +

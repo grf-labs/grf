@@ -35,11 +35,13 @@ public:
   static const std::size_t TREATMENT_INSTRUMENT;
 
   size_t prediction_length();
-  Prediction predict(const std::vector<double>& averages,
+  Prediction predict(size_t sampleID,
+                     const std::vector<double>& averages,
                      const std::unordered_map<size_t, double>& weights_by_sampleID,
                      const Observations& observations);
 
-  Prediction predict_with_variance(const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+  Prediction predict_with_variance(size_t sampleID,
+                                   const std::vector<std::vector<size_t>>& leaf_sampleIDs,
                                    const Observations& observations,
                                    uint ci_group_size);
 
