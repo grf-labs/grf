@@ -78,10 +78,9 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
   predictions.reserve(prediction_data->get_num_rows());
 
   size_t prediction_length = prediction_strategy->prediction_length();
-  size_t prediction_values_length = prediction_strategy->prediction_values_length();
 
   for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); ++sampleID) {
-    std::vector<double> average_prediction_values(prediction_values_length);
+    std::vector<double> average_prediction_values;
     std::unordered_map<size_t, double> weights_by_sampleID;
 
     std::vector<std::vector<size_t>> leaf_sampleIDs;
@@ -160,10 +159,9 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
   }
 
   size_t prediction_length = prediction_strategy->prediction_length();
-  size_t prediction_values_length = prediction_strategy->prediction_values_length();
 
   for (size_t sampleID = 0; sampleID < original_data->get_num_rows(); ++sampleID) {
-    std::vector<double> average_prediction_values(prediction_values_length);
+    std::vector<double> average_prediction_values;
     std::unordered_map<size_t, double> weights_by_sampleID;
 
     // Average the precomputed prediction values across the leaf nodes this sample falls
@@ -233,10 +231,12 @@ std::vector<std::vector<size_t>> ForestPredictor::predict_batch(
 void ForestPredictor::add_prediction_values(size_t nodeID,
                                             const PredictionValues& prediction_values,
                                             std::vector<double>& average_prediction_values) {
-  auto& values_by_type = prediction_values.get_values_by_type();
-  for (size_t type = 0; type < values_by_type.size(); type++) {
-    auto& values = values_by_type.at(type);
-    average_prediction_values[type] += std::isnan(values[nodeID]) ? 0 : values[nodeID];
+  if (average_prediction_values.empty()) {
+    average_prediction_values.resize(prediction_values.get_num_types());
+  }
+
+  for (size_t type = 0; type < prediction_values.get_num_types(); type++) {
+    average_prediction_values[type] += prediction_values.get(nodeID, type);
   }
 }
 

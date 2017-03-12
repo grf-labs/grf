@@ -17,15 +17,23 @@
 
 #include "PredictionValues.h"
 
-PredictionValues::PredictionValues() {}
+PredictionValues::PredictionValues():
+  num_nodes(0),
+  num_types(0) {}
 
-PredictionValues::PredictionValues(const std::vector<std::vector<double>>& values_by_type,
-                                   size_t num_nodes):
-  values_by_type(values_by_type),
-  num_nodes(num_nodes) {}
+PredictionValues::PredictionValues(const std::vector<std::vector<double>>& values,
+                                   size_t num_nodes,
+                                   size_t num_types):
+  values(values),
+  num_nodes(num_nodes),
+  num_types(num_types) {}
 
-double PredictionValues::get(std::size_t type, size_t sampleID) const {
-  return values_by_type.at(type).at(sampleID);
+double PredictionValues::empty(std::size_t node) const {
+  return values.at(node).empty();
+}
+
+double PredictionValues::get(std::size_t node, size_t type) const {
+  return values.at(node).at(type);
 }
 
 

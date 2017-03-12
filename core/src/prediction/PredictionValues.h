@@ -27,26 +27,30 @@ class PredictionValues {
 public:
   PredictionValues();
 
-  PredictionValues(const std::vector<std::vector<double>>& values_by_type,
-                   size_t num_nodes);
+  PredictionValues(const std::vector<std::vector<double>>& values,
+                   size_t num_nodes,
+                   size_t num_types);
 
-  double get(size_t type, size_t sampleID) const;
+  double empty(size_t node) const;
+
+  double get(size_t node, size_t type) const;
 
   const size_t get_num_nodes() const {
     return num_nodes;
   }
 
-  const std::vector<std::vector<double>>& get_values_by_type() const {
-    return values_by_type;
+  const size_t get_num_types() const {
+    return num_types;
   }
 
-  const bool empty() const {
-    return num_nodes == 0;
+  const std::vector<std::vector<double>>& get_values() const {
+    return values;
   }
 
 private:
-  std::vector<std::vector<double>> values_by_type;
+  std::vector<std::vector<double>> values;
   size_t num_nodes;
+  size_t num_types;
 };
 
 
