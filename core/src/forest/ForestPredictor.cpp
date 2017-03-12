@@ -68,9 +68,60 @@ std::vector<std::vector<size_t>> ForestPredictor::determine_terminal_node_IDs(
   return all_terminal_node_IDs;
 };
 
-std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* prediction_data) {
+std::vector<Prediction> ForestPredictor::standard_predict(const Forest& forest, Data* prediction_data) {
   size_t num_trees = forest.get_trees().size();
+  size_t num_samples = prediction_data->get_num_rows();
 
+  std::vector<std::vector<size_t>> terminal_nodeIDs_by_tree =
+      determine_terminal_node_IDs(forest, prediction_data, false);
+
+  // Collect the average prediction values across trees.
+  std::vector<std::vector<double>> average_prediction_values(num_samples);
+  std::vector<size_t> num_nonempty_leaves(num_samples);
+
+  for (size_t tree_index = 0; tree_index < num_trees; ++tree_index) {
+    std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
+    const PredictionValues &prediction_values = tree->get_prediction_values();
+
+    const std::vector<size_t>& terminal_node_IDs = terminal_nodeIDs_by_tree.at(tree_index);
+
+    for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); sampleID++) {
+      size_t nodeID = terminal_node_IDs.at(sampleID);
+
+      if (!prediction_values.empty(nodeID)) {
+        add_prediction_values(nodeID, prediction_values, average_prediction_values[sampleID]);
+        num_nonempty_leaves[sampleID]++;
+      }
+    }
+  }
+
+  // Normalize the prediction values, and make a prediction for each sample.
+  std::vector<Prediction> predictions;
+  predictions.reserve(num_samples);
+  size_t prediction_length = prediction_strategy->prediction_length();
+
+  for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); sampleID++) {
+    size_t num_leaves = num_nonempty_leaves[sampleID];
+    if (num_leaves == 0) {
+      std::vector<double> temp(prediction_length, NAN);
+      predictions.push_back(Prediction(temp));
+    } else {
+      std::vector<double> &average_prediction_value = average_prediction_values[sampleID];
+      normalize_prediction_values(num_leaves, average_prediction_value);
+      predictions.push_back(prediction_strategy->predict(average_prediction_value,
+                                                         std::unordered_map<size_t, double>(),
+                                                         forest.get_observations()));
+    }
+  }
+  return predictions;
+}
+
+std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* prediction_data) {
+  if (!prediction_strategy->requires_leaf_sampleIDs() && ci_group_size == 1) {
+    return standard_predict(forest, prediction_data);
+  }
+
+  size_t num_trees = forest.get_trees().size();
   std::vector<std::vector<size_t>> all_terminal_node_IDs =
       determine_terminal_node_IDs(forest, prediction_data, false);
 
@@ -80,7 +131,6 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
   size_t prediction_length = prediction_strategy->prediction_length();
 
   for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); ++sampleID) {
-    std::vector<double> average_prediction_values;
     std::unordered_map<size_t, double> weights_by_sampleID;
 
     std::vector<std::vector<size_t>> leaf_sampleIDs;
@@ -105,10 +155,7 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
       // hackhackhack
       if (ci_group_size == 1) {
         if (!sampleIDs.empty()) {
-          add_prediction_values(nodeID, tree->get_prediction_values(), average_prediction_values);
-          if (prediction_strategy->requires_leaf_sampleIDs()) {
-            add_sample_weights(sampleIDs, weights_by_sampleID);
-          }
+          add_sample_weights(sampleIDs, weights_by_sampleID);
         }
       } else {
         leaf_sampleIDs.push_back(sampleIDs);
@@ -123,13 +170,12 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
       continue;
     } else {
       if (ci_group_size == 1) {
-        normalize_prediction_values(num_nonempty_leaves, average_prediction_values);
         normalize_sample_weights(weights_by_sampleID);
       }
     }
 
     Prediction prediction = ci_group_size == 1 ?
-        prediction_strategy->predict(average_prediction_values, weights_by_sampleID, forest.get_observations()) :
+        prediction_strategy->predict(std::vector<double>(), weights_by_sampleID, forest.get_observations()) :
         prediction_strategy->predict_with_variance(leaf_sampleIDs, forest.get_observations(), ci_group_size);
 
     if (prediction.size() != prediction_length) {

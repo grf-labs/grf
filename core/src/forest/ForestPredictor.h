@@ -41,6 +41,8 @@ public:
   std::vector<Prediction> predict_oob(const Forest& forest, Data* original_data);
 
 private:
+  std::vector<Prediction> standard_predict(const Forest& forest, Data* prediction_data);
+
   std::vector<std::vector<size_t>> determine_terminal_node_IDs(
       const Forest& forest,
       Data* data,
