@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include "ForestPredictor.h"
-#include "Prediction.h"
 #include "TreePredictor.h"
 #include "utility.h"
 
@@ -31,17 +30,20 @@ ForestPredictor::ForestPredictor(uint num_threads,
   }
 }
 
-std::map<size_t, std::vector<size_t>> ForestPredictor::determine_terminal_node_IDs(
+std::vector<std::vector<size_t>> ForestPredictor::determine_terminal_node_IDs(
     const Forest& forest,
     Data* data,
     bool oob_prediction) {
-  std::map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree;
-
   size_t num_trees = forest.get_trees().size();
+
+  std::vector<std::vector<size_t>> all_terminal_node_IDs;
+  all_terminal_node_IDs.reserve(num_trees);
+
+  std::vector<uint> thread_ranges;
   split_sequence(thread_ranges, 0, num_trees - 1, num_threads);
 
   std::vector<std::future<
-      std::map<size_t, std::vector<size_t>>>> futures;
+      std::vector<std::vector<size_t>>>> futures;
   futures.reserve(num_threads);
 
   for (uint i = 0; i < num_threads; ++i) {
@@ -49,23 +51,26 @@ std::map<size_t, std::vector<size_t>> ForestPredictor::determine_terminal_node_I
                                  &ForestPredictor::predict_batch,
                                  this,
                                  i,
+                                 thread_ranges,
                                  forest,
                                  data,
                                  oob_prediction));
   }
 
   for (auto& future : futures) {
-    std::map<size_t, std::vector<size_t>> terminal_nodeIDs = future.get();
-    terminal_node_IDs_by_tree.insert(terminal_nodeIDs.begin(), terminal_nodeIDs.end());
+    std::vector<std::vector<size_t>> terminal_node_IDs = future.get();
+    all_terminal_node_IDs.insert(all_terminal_node_IDs.end(),
+                                 terminal_node_IDs.begin(),
+                                 terminal_node_IDs.end());
   }
 
-  return terminal_node_IDs_by_tree;
+  return all_terminal_node_IDs;
 };
 
 std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* prediction_data) {
   size_t num_trees = forest.get_trees().size();
 
-  std::map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree =
+  std::vector<std::vector<size_t>> all_terminal_node_IDs =
       determine_terminal_node_IDs(forest, prediction_data, false);
 
   std::vector<Prediction> predictions;
@@ -89,7 +94,7 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
     for (size_t tree_index = 0; tree_index < num_trees; ++tree_index) {
       std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
 
-      const std::vector<size_t>& terminal_node_IDs = terminal_node_IDs_by_tree.at(tree_index);
+      const std::vector<size_t>& terminal_node_IDs = all_terminal_node_IDs.at(tree_index);
       size_t nodeID = terminal_node_IDs.at(sampleID);
       const std::vector<size_t>& sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
 
@@ -139,7 +144,7 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* pre
 }
 
 std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data* original_data) {
-  std::map<size_t, std::vector<size_t>> terminal_node_IDs_by_tree =
+  std::vector<std::vector<size_t>> terminal_node_IDs_by_tree =
       determine_terminal_node_IDs(forest, original_data, true);
 
   std::vector<Prediction> predictions;
@@ -206,28 +211,32 @@ std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data*
   return predictions;
 }
 
-std::map<size_t, std::vector<size_t>> ForestPredictor::predict_batch(
+std::vector<std::vector<size_t>> ForestPredictor::predict_batch(
     uint thread_idx,
+    const std::vector<uint>& thread_ranges,
     const Forest& forest,
     Data* prediction_data,
     bool oob_prediction) {
-  std::map<size_t, std::vector<size_t>> terminal_nodeIDs_by_tree;
+  std::vector<std::vector<size_t>> all_terminal_node_IDs;
   TreePredictor tree_predictor;
 
   if (thread_ranges.size() > thread_idx + 1) {
-    for (size_t i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
-      std::shared_ptr<Tree> tree = forest.get_trees()[i];
+    size_t start = thread_ranges[thread_idx];
+    size_t num_trees = thread_ranges[thread_idx + 1] - start;
+    all_terminal_node_IDs.resize(num_trees);
+
+    for (size_t i = 0; i < num_trees; i++) {
+      std::shared_ptr<Tree> tree = forest.get_trees()[start + i];
 
       const std::vector<size_t>& sampleIDs = oob_prediction ? tree->get_oob_sampleIDs() : std::vector<size_t>();
-
-      std::vector<size_t> terminal_nodeIDs = tree_predictor.get_terminal_nodeIDs(tree,
-                                                                                 prediction_data,
-                                                                                 sampleIDs);
-      terminal_nodeIDs_by_tree[i] = terminal_nodeIDs;
+      std::vector<size_t> terminal_node_IDs = tree_predictor.get_terminal_nodeIDs(tree,
+                                                                                  prediction_data,
+                                                                                  sampleIDs);
+      all_terminal_node_IDs[i] = terminal_node_IDs;
     }
   }
 
-  return terminal_nodeIDs_by_tree;
+  return all_terminal_node_IDs;
 }
 
 void ForestPredictor::add_prediction_values(size_t nodeID,
