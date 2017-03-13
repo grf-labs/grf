@@ -28,7 +28,7 @@
 
 std::vector<double> get_relabeled_outcomes(Observations observations) {
   std::vector<size_t> sampleIDs;
-  for (size_t i = 0; i < observations.get_num_samples(); i++) {
+  for (size_t i = 0; i < observations.get_num_samples(); ++i) {
     sampleIDs.push_back(i);
   }
 
@@ -56,7 +56,7 @@ TEST_CASE("flipping signs of treatment does not affect relabeled outcomes", "[in
   std::vector<double> second_outcomes = get_relabeled_outcomes(flipped_observations);
 
   REQUIRE(first_outcomes.size() == second_outcomes.size());
-  for (size_t i = 0; i < first_outcomes.size(); i++) {
+  for (size_t i = 0; i < first_outcomes.size(); ++i) {
     double first_outcome = first_outcomes[i];
     double second_outcome = second_outcomes[i];
 
@@ -80,7 +80,7 @@ TEST_CASE("scaling instrument scales relabeled outcomes", "[instrumental, relabe
   std::vector<double> second_outcomes = get_relabeled_outcomes(scaled_observations);
 
   REQUIRE(first_outcomes.size() == second_outcomes.size());
-  for (size_t i = 0; i < first_outcomes.size(); i++) {
+  for (size_t i = 0; i < first_outcomes.size(); ++i) {
     double first_outcome = first_outcomes[i];
     double second_outcome = second_outcomes[i];
 
@@ -96,7 +96,7 @@ TEST_CASE("constant treatment leads to no splitting", "[instrumental, relabeling
   Observations observations = TestUtilities::create_observations(original_outcomes, treatment, instrument);
 
   std::vector<size_t> sampleIDs;
-  for (size_t i = 0; i < original_outcomes.size(); i++) {
+  for (size_t i = 0; i < original_outcomes.size(); ++i) {
     sampleIDs.push_back(i);
   }
 
@@ -114,7 +114,7 @@ TEST_CASE("constant instrument leads to no splitting", "[instrumental, relabelin
   Observations observations = TestUtilities::create_observations(original_outcomes, treatment, instrument);
 
   std::vector<size_t> sampleIDs;
-  for (size_t i = 0; i < original_outcomes.size(); i++) {
+  for (size_t i = 0; i < original_outcomes.size(); ++i) {
     sampleIDs.push_back(i);
   }
   

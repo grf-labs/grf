@@ -30,7 +30,7 @@ TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
   Observations observations = TestUtilities::create_observations(outcomes);
 
   std::vector<size_t> sampleIDs;
-  for (size_t i = 0; i < outcomes.size(); i++) {
+  for (size_t i = 0; i < outcomes.size(); ++i) {
     sampleIDs.push_back(i);
   }
 

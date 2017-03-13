@@ -88,7 +88,7 @@ std::vector<std::vector<size_t>> ForestPredictor::find_batch(
     Data *prediction_data,
     bool oob_prediction) {
   std::vector<std::vector<size_t>> all_leaf_node_IDs(num_trees);
-  for (size_t i = 0; i < num_trees; i++) {
+  for (size_t i = 0; i < num_trees; ++i) {
     std::shared_ptr<Tree> tree = forest.get_trees()[start + i];
 
     const std::vector<size_t> &sampleIDs = oob_prediction ? tree->get_oob_sampleIDs() : std::vector<size_t>();

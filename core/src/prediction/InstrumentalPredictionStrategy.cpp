@@ -168,9 +168,9 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     psi_grouped_squared[1][1] += group_psi_2 * group_psi_2;
   }
 
-  for (size_t i = 0; i < 2; i++) {
+  for (size_t i = 0; i < 2; ++i) {
     psi_mean[i] /= num_good_groups;
-    for (size_t j = 0; j < 2; j++) {
+    for (size_t j = 0; j < 2; ++j) {
       psi_squared[i][j] /= (num_good_groups * ci_group_size);
       psi_grouped_squared[i][j] /= num_good_groups;
     }
@@ -197,7 +197,7 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     // start by computing chi-squared log-density, taking within_noise as fixed
     double lx[100];
     double x[100];
-    for (size_t iter = 0; iter < 100; iter++) {
+    for (size_t iter = 0; iter < 100; ++iter) {
       x[iter] = iter * within_noise / 400.0;
       lx[iter] = std::log(x[iter] + within_noise ) * (1.0 - num_good_groups / 2.0)
             - (num_good_groups * var_between) / (2 * (x[iter] + within_noise));
@@ -205,14 +205,14 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
 
     // compute maximal log-density, to stabilize call to exp() below
     double maxlx = lx[1];
-    for (size_t iter = 0; iter < 100; iter++) {
+    for (size_t iter = 0; iter < 100; ++iter) {
       maxlx = std::max(maxlx, lx[iter]);
     }
 
     // now do Bayes rule
     double numerator = 0;
     double denominator = 0;
-    for (size_t iter = 0; iter < 100; iter++) {
+    for (size_t iter = 0; iter < 100; ++iter) {
       double fx = std::exp(lx[iter] - maxlx);
       numerator += x[iter] * fx;
       denominator += fx;

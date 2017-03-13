@@ -39,7 +39,7 @@ Observations ObservationsSerializer::deserialize(std::istream& stream) {
   stream.read((char*) &num_types, sizeof(num_types));
 
   std::vector<std::vector<double>> observations_by_type(num_types);
-  for (size_t i = 0; i < num_types; i++) {
+  for (size_t i = 0; i < num_types; ++i) {
     read_vector(observations_by_type[i], stream);
   }
 

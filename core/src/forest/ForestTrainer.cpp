@@ -174,7 +174,7 @@ Forest ForestTrainer::train(Data* data) {
     size_t index = it.second;
 
     observations_by_type[type].resize(num_samples);
-    for (size_t row = 0; row < data->get_num_rows(); row++) {
+    for (size_t row = 0; row < data->get_num_rows(); ++row) {
       observations_by_type[type][row] = data->get(row, index);
     }
   }
@@ -257,7 +257,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
   std::vector<size_t> oob_sampleIDs;
   bootstrap_sampler.sample(data->get_num_rows(), 0.5, sampleIDs, oob_sampleIDs);
 
-  for (size_t i = 0; i < ci_group_size; i++) {
+  for (size_t i = 0; i < ci_group_size; ++i) {
     std::vector<size_t> subsampleIDs;
     std::vector<size_t> oob_subsampleIDs;
     bootstrap_sampler.subsample(sampleIDs, sample_fraction * 2, subsampleIDs, oob_subsampleIDs);
