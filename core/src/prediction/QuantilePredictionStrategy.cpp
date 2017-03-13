@@ -63,7 +63,7 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
     double value = it->second;
 
     cumulative_weight += weights_by_sampleID.at(sampleID);
-    while (cumulative_weight >= *quantile_it && quantile_it != quantiles.end()) {
+    while (quantile_it != quantiles.end() && cumulative_weight >= *quantile_it) {
       quantile_cutoffs.push_back(value);
       ++quantile_it;
     }
