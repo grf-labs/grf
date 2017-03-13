@@ -23,12 +23,15 @@ DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<Predictio
     ci_group_size(ci_group_size) {}
 
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
-    const Forest &forest,
-    Data *prediction_data,
+    const Forest& forest,
+    Data* prediction_data,
     std::vector<std::vector<size_t>> leaf_nodes_by_tree,
     bool oob_prediction) {
+
+  size_t num_samples = prediction_data->get_num_rows();
   size_t num_trees = forest.get_trees().size();
-  bool trees_by_samples[prediction_data->get_num_rows()][num_trees];
+
+  std::vector<std::vector<bool>> trees_by_samples(num_samples, std::vector<bool>(num_trees));
   if (oob_prediction) {
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
       for (size_t sampleID : forest.get_trees()[tree_idx]->get_oob_sampleIDs()) {
@@ -38,11 +41,10 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
   }
 
   std::vector<Prediction> predictions;
-  predictions.reserve(prediction_data->get_num_rows());
-
+  predictions.reserve(num_samples);
   size_t prediction_length = prediction_strategy->prediction_length();
 
-  for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); ++sampleID) {
+  for (size_t sampleID = 0; sampleID < num_samples; ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
 
     std::vector<std::vector<size_t>> leaf_sampleIDs;
