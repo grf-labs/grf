@@ -85,7 +85,7 @@ private:
   uint num_threads;
   std::vector<uint> thread_ranges;
 
-  TreeTrainer* tree_trainer;
+  std::shared_ptr<TreeTrainer> tree_trainer;
 
   // Weight vector for selecting possible split variables, one weight between 0 (never select) and 1 (always select) for each variable
   // Deterministic variables are always selected
