@@ -113,10 +113,11 @@ void ForestTrainer::init(uint mtry,
       deterministic_varIDs,
       this->no_split_variables,
       honesty);
-  tree_trainer = new TreeTrainer(relabeling_strategy,
-                                 splitting_rule_factory,
-                                 prediction_strategy,
-                                 tree_options);
+  tree_trainer = std::shared_ptr<TreeTrainer>(new TreeTrainer(
+      relabeling_strategy,
+      splitting_rule_factory,
+      prediction_strategy,
+      tree_options));
 }
 
 Forest ForestTrainer::train(Data* data) {
