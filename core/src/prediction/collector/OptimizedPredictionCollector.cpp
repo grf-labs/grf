@@ -64,7 +64,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     } else {
       std::vector<double> &average_prediction_value = average_prediction_values[sampleID];
       normalize_prediction_values(num_leaves, average_prediction_value);
-      predictions.push_back(prediction_strategy->predict(average_prediction_value,
+      predictions.push_back(prediction_strategy->predict(sampleID,
+                                                         average_prediction_value,
                                                          std::unordered_map<size_t, double>(),
                                                          forest.get_observations()));
     }

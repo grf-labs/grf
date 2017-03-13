@@ -40,10 +40,10 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
   Observations observations;
 
   InstrumentalPredictionStrategy prediction_strategy;
-  Prediction first_prediction = prediction_strategy.predict(averages, weights_by_sampleID, observations);
+  Prediction first_prediction = prediction_strategy.predict(42, averages, weights_by_sampleID, observations);
   std::vector<double> first_predictions = first_prediction.get_predictions();
 
-  Prediction second_prediction = prediction_strategy.predict(flipped_averages, weights_by_sampleID, observations);
+  Prediction second_prediction = prediction_strategy.predict(42, flipped_averages, weights_by_sampleID, observations);
   std::vector<double> second_predictions = second_prediction.get_predictions();
 
   REQUIRE(first_predictions.size() == 1);
