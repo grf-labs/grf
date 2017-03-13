@@ -33,14 +33,14 @@ bool equal_predictions(const std::vector<Prediction>& actual_predictions,
     return false;
   }
 
-  for (size_t i = 0; i < actual_predictions.size(); i++) {
+  for (size_t i = 0; i < actual_predictions.size(); ++i) {
     Prediction prediction = actual_predictions[i];
     std::vector<double> expected_prediction = expected_predictions[i];
     if (prediction.size() != expected_prediction.size()) {
       return false;
     }
 
-    for (size_t j = 0; j < prediction.size(); j++) {
+    for (size_t j = 0; j < prediction.size(); ++j) {
       double value = prediction.get_predictions()[j];
       if (!equal_doubles(value, expected_prediction[j], 1e-2)) {
         return false;

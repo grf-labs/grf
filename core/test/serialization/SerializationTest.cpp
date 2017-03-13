@@ -42,7 +42,7 @@ TEST_CASE("observations serialize and deserialize correctly", "[observationsSeri
   auto observations_by_type = observations.get_observations_by_type();
 
   REQUIRE(observations_by_type.size() == original_observations_by_type.size());
-  for (int type = 0; type < original_observations_by_type.size(); type++) {
+  for (size_t type = 0; type < original_observations_by_type.size(); ++type) {
     REQUIRE(type < observations_by_type.size());
     REQUIRE(observations_by_type[type].size() == original_observations_by_type[type].size());
   }

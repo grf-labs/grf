@@ -30,7 +30,7 @@ Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
     size_t index = it.second;
 
     observations_by_type[type].resize(num_samples);
-    for (size_t row = 0; row < num_samples; row++) {
+    for (size_t row = 0; row < num_samples; ++row) {
       observations_by_type[type][row] = data->get(row, index);
     }
   }

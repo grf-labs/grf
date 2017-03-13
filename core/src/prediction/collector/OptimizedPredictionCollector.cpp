@@ -37,7 +37,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
 
     size_t num_samples = oob_prediction ? tree->get_oob_sampleIDs().size() : num_predictions;
-    for (size_t i = 0; i < num_samples; i++) {
+    for (size_t i = 0; i < num_samples; ++i) {
       size_t sampleID = oob_prediction ? tree->get_oob_sampleIDs()[i] : i;
       size_t nodeID = leaf_nodes.at(sampleID);
 
@@ -53,7 +53,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
   predictions.reserve(num_predictions);
   size_t prediction_length = prediction_strategy->prediction_length();
 
-  for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); sampleID++) {
+  for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); ++sampleID) {
     size_t num_leaves = num_nonempty_leaves[sampleID];
 
     if (num_leaves == 0) {
@@ -80,7 +80,7 @@ void OptimizedPredictionCollector::add_prediction_values(size_t nodeID,
     average_prediction_values.resize(prediction_values.get_num_types());
   }
 
-  for (size_t type = 0; type < prediction_values.get_num_types(); type++) {
+  for (size_t type = 0; type < prediction_values.get_num_types(); ++type) {
     average_prediction_values[type] += prediction_values.get(nodeID, type);
   }
 }
