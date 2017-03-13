@@ -220,4 +220,5 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(size_t nodeID, size
       best_decrease = decrease;
     }
   }
+  delete[] class_counts_left;
 }

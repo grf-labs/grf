@@ -56,15 +56,15 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
   size_t i = 0;
   while (num_open_nodes > 0) {
     bool is_leaf_node = split_node(i,
-                                       splitting_rule,
-                                       bootstrap_sampler,
-                                       data,
-                                       observations,
-                                       child_nodeIDs,
-                                       nodes,
-                                       split_varIDs,
-                                       split_values,
-                                       options.get_split_select_weights());
+                                   splitting_rule,
+                                   bootstrap_sampler,
+                                   data,
+                                   observations,
+                                   child_nodeIDs,
+                                   nodes,
+                                   split_varIDs,
+                                   split_values,
+                                   options.get_split_select_weights());
     if (is_leaf_node) {
       --num_open_nodes;
     } else {
