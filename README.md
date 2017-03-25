@@ -51,7 +51,7 @@ lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
 
 More usage examples, including examples around instrumental variables, can be found in the `experiments` directory.
 
-###References
+### References
 
 Susan Athey, Julie Tibshirani and Stefan Wager.
 <b>Solving Heterogeneous Estimating Equations with Gradient Forests</b>, 2016.
