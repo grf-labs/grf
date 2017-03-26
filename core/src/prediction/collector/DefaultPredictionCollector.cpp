@@ -15,7 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "DefaultPredictionCollector.h"
+#include "prediction/collector/DefaultPredictionCollector.h"
 
 DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<PredictionStrategy> prediction_strategy,
                                                        uint ci_group_size):

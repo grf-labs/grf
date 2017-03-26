@@ -15,7 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "ForestOptions.h"
+#include "forest/ForestOptions.h"
 
 ForestOptions::ForestOptions(uint num_trees, uint num_threads, uint random_seed):
     num_trees(num_trees), num_threads(num_threads), random_seed(random_seed) {}

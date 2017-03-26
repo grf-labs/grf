@@ -15,15 +15,15 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "ForestTrainers.h"
-#include "InstrumentalRelabelingStrategy.h"
-#include "InstrumentalPredictionStrategy.h"
-#include "RegressionSplittingRuleFactory.h"
-#include "RegressionPredictionStrategy.h"
-#include "ProbabilitySplittingRuleFactory.h"
-#include "QuantileRelabelingStrategy.h"
-#include "QuantilePredictionStrategy.h"
-#include "NoopRelabelingStrategy.h"
+#include "forest/ForestTrainers.h"
+#include "relabeling/InstrumentalRelabelingStrategy.h"
+#include "prediction/InstrumentalPredictionStrategy.h"
+#include "splitting/factory/RegressionSplittingRuleFactory.h"
+#include "prediction/RegressionPredictionStrategy.h"
+#include "splitting/factory/ProbabilitySplittingRuleFactory.h"
+#include "relabeling/QuantileRelabelingStrategy.h"
+#include "prediction/QuantilePredictionStrategy.h"
+#include "relabeling/NoopRelabelingStrategy.h"
 
 ForestTrainer ForestTrainers::instrumental_trainer(Data* data,
                                                    size_t outcome_index,

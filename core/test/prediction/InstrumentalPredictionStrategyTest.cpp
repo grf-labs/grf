@@ -18,11 +18,11 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
-#include "Observations.h"
-#include "utility.h"
-#include "PredictionStrategy.h"
-#include "InstrumentalPredictionStrategy.h"
-#include "TestUtilities.h"
+#include "commons/Observations.h"
+#include "commons/utility.h"
+#include "prediction/PredictionStrategy.h"
+#include "prediction/InstrumentalPredictionStrategy.h"
+#include "utilities/TestUtilities.h"
 
 #include "catch.hpp"
 

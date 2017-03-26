@@ -18,7 +18,7 @@
 #ifndef GRADIENTFOREST_NOOPRELABELINGSTRATEGY_H
 #define GRADIENTFOREST_NOOPRELABELINGSTRATEGY_H
 
-#include "RelabelingStrategy.h"
+#include "relabeling/RelabelingStrategy.h"
 
 class NoopRelabelingStrategy: public RelabelingStrategy {
 public:

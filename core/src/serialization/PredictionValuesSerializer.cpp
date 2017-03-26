@@ -15,8 +15,8 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "PredictionValuesSerializer.h"
-#include "utility.h"
+#include "serialization/PredictionValuesSerializer.h"
+#include "commons/utility.h"
 
 void PredictionValuesSerializer::serialize(std::ostream& stream, const PredictionValues& prediction_values) {
   size_t num_nodes = prediction_values.get_num_nodes();

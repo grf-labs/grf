@@ -20,9 +20,9 @@
 
 #include <unordered_map>
 #include <vector>
-#include "Observations.h"
-#include "Tree.h"
-#include "RelabelingStrategy.h"
+#include "commons/Observations.h"
+#include "tree/Tree.h"
+#include "relabeling/RelabelingStrategy.h"
 
 class InstrumentalRelabelingStrategy: public RelabelingStrategy {
 public:

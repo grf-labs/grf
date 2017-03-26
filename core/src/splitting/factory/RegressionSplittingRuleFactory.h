@@ -19,7 +19,7 @@
 #define GRADIENTFOREST_REGRESSIONSPLITTINGRULEFACTORY_H
 
 
-#include "SplittingRuleFactory.h"
+#include "splitting/factory/SplittingRuleFactory.h"
 
 class RegressionSplittingRuleFactory: public SplittingRuleFactory {
 public:

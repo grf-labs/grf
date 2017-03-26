@@ -20,13 +20,13 @@
 
 #include <memory>
 
-#include "PredictionStrategy.h"
-#include "RelabelingStrategy.h"
-#include "SplittingRuleFactory.h"
-#include "Data.h"
-#include "Tree.h"
-#include "TreeOptions.h"
-#include "BootstrapSampler.h"
+#include "prediction/PredictionStrategy.h"
+#include "relabeling/RelabelingStrategy.h"
+#include "splitting/factory/SplittingRuleFactory.h"
+#include "commons/Data.h"
+#include "tree/Tree.h"
+#include "tree/TreeOptions.h"
+#include "sampling/BootstrapSampler.h"
 
 class TreeTrainer {
 public:

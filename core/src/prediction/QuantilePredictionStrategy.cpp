@@ -19,8 +19,8 @@
 #include <vector>
 #include <string>
 
-#include "Data.h"
-#include "QuantilePredictionStrategy.h"
+#include "commons/Data.h"
+#include "prediction/QuantilePredictionStrategy.h"
 
 QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double> quantiles):
     quantiles(quantiles) {

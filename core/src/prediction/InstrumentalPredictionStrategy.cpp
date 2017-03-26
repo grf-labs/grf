@@ -19,9 +19,9 @@
 #include <string>
 #include <cmath>
 #include <iostream>
-#include "Observations.h"
-#include "utility.h"
-#include "InstrumentalPredictionStrategy.h"
+#include "commons/Observations.h"
+#include "commons/utility.h"
+#include "prediction/InstrumentalPredictionStrategy.h"
 
 const std::size_t InstrumentalPredictionStrategy::OUTCOME = 0;
 const std::size_t InstrumentalPredictionStrategy::TREATMENT = 1;

@@ -21,8 +21,8 @@
 #include <random>
 
 #include "catch.hpp"
-#include "ForestSerializer.h"
-#include "TestUtilities.h"
+#include "serialization/ForestSerializer.h"
+#include "utilities/TestUtilities.h"
 
 TEST_CASE("observations serialize and deserialize correctly", "[observationsSerialization]") {
   std::vector<double> outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,

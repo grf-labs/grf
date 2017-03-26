@@ -17,8 +17,8 @@
 
 #include <memory>
 
-#include "Data.h"
-#include "TreeTrainer.h"
+#include "commons/Data.h"
+#include "tree/TreeTrainer.h"
 
 TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                          std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,

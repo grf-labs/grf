@@ -19,8 +19,8 @@
 #define GRADIENTFOREST_FULLPREDICTOR_H
 
 
-#include "Forest.h"
-#include "PredictionCollector.h"
+#include "forest/Forest.h"
+#include "prediction/collector/PredictionCollector.h"
 
 class DefaultPredictionCollector: public PredictionCollector {
 public:

@@ -1,8 +1,8 @@
 #include <Rcpp.h>
 #include <sstream>
 
-#include "ForestSerializer.h"
 #include "RcppUtilities.h"
+#include "serialization/ForestSerializer.h"
 
 const std::string RcppUtilities::SERIALIZED_FOREST_KEY = "serialized.forest";
 

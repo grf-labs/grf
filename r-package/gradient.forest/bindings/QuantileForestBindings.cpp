@@ -3,10 +3,10 @@
 #include <sstream>
 #include <map>
 
-#include "globals.h"
 #include "RcppUtilities.h"
-#include "ForestTrainers.h"
-#include "ForestPredictors.h"
+#include "commons/globals.h"
+#include "forest/ForestTrainers.h"
+#include "forest/ForestPredictors.h"
 
 // [[Rcpp::export]]
 Rcpp::List quantile_train(std::vector<double> quantiles,

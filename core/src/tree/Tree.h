@@ -22,11 +22,11 @@
 #include <random>
 #include <iostream>
 
-#include "globals.h"
-#include "Data.h"
-#include "BootstrapSampler.h"
-#include "PredictionValues.h"
-#include "SplittingRule.h"
+#include "commons/globals.h"
+#include "commons/Data.h"
+#include "sampling/BootstrapSampler.h"
+#include "prediction/PredictionValues.h"
+#include "splitting/SplittingRule.h"
 
 class Tree {
 public:

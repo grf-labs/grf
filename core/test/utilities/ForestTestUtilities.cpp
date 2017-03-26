@@ -15,8 +15,8 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "ForestTestUtilities.h"
-#include "ForestTrainer.h"
+#include "utilities/ForestTestUtilities.h"
+#include "forest/ForestTrainer.h"
 
 void ForestTestUtilities::init_trainer(ForestTrainer& trainer) {
   init_trainer(trainer, false);

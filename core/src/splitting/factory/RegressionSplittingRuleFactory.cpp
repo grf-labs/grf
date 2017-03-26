@@ -15,8 +15,8 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "RegressionSplittingRuleFactory.h"
-#include "RegressionSplittingRule.h"
+#include "splitting/factory/RegressionSplittingRuleFactory.h"
+#include "splitting/RegressionSplittingRule.h"
 
 RegressionSplittingRuleFactory::RegressionSplittingRuleFactory(Data* data):
     data(data) {}

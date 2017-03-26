@@ -16,9 +16,9 @@
  #-------------------------------------------------------------------------------*/
 
 #include <unordered_map>
-#include "SplittingRule.h"
-#include "ProbabilitySplittingRuleFactory.h"
-#include "ProbabilitySplittingRule.h"
+#include "splitting/SplittingRule.h"
+#include "splitting/factory/ProbabilitySplittingRuleFactory.h"
+#include "splitting/ProbabilitySplittingRule.h"
 
 
 ProbabilitySplittingRuleFactory::ProbabilitySplittingRuleFactory(Data* data, size_t num_classes):

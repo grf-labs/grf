@@ -18,9 +18,9 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
-#include "PredictionStrategy.h"
-#include "QuantilePredictionStrategy.h"
-#include "TestUtilities.h"
+#include "prediction/PredictionStrategy.h"
+#include "prediction/QuantilePredictionStrategy.h"
+#include "utilities/TestUtilities.h"
 
 #include "catch.hpp"
 

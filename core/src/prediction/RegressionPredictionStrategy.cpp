@@ -17,7 +17,7 @@
 
 #include <cmath>
 #include <string>
-#include "RegressionPredictionStrategy.h"
+#include "prediction/RegressionPredictionStrategy.h"
 
 const size_t RegressionPredictionStrategy::OUTCOME = 0;
 

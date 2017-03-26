@@ -18,9 +18,9 @@
 #ifndef GRADIENTFOREST_QUANTILERELABELINGSTRATEGY_H
 #define GRADIENTFOREST_QUANTILERELABELINGSTRATEGY_H
 
-#include "Observations.h"
-#include "Tree.h"
-#include "RelabelingStrategy.h"
+#include "commons/Observations.h"
+#include "tree/Tree.h"
+#include "relabeling/RelabelingStrategy.h"
 
 class QuantileRelabelingStrategy: public RelabelingStrategy {
 public:

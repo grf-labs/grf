@@ -18,8 +18,8 @@
 #ifndef GRADIENTFOREST_TESTUTILITIES_H
 #define GRADIENTFOREST_TESTUTILITIES_H
 
-#include "globals.h"
-#include "Observations.h"
+#include "commons/globals.h"
+#include "commons/Observations.h"
 
 class TestUtilities {
 public:

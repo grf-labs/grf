@@ -21,7 +21,7 @@
 
 #include <ostream>
 #include <istream>
-#include "Observations.h"
+#include "commons/Observations.h"
 
 class ObservationsSerializer {
 public:

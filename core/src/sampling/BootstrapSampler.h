@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <vector>
 #include <random>
-#include "globals.h"
+#include "commons/globals.h"
 #include "SamplingOptions.h"
 
 class BootstrapSampler {

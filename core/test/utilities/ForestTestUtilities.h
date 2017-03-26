@@ -18,7 +18,7 @@
 #ifndef GRADIENTFOREST_FORESTTESTUTILITIES_H
 #define GRADIENTFOREST_FORESTTESTUTILITIES_H
 
-#include "ForestTrainer.h"
+#include "forest/ForestTrainer.h"
 
 
 class ForestTestUtilities {

@@ -15,15 +15,15 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "PredictionStrategy.h"
-#include "utility.h"
-#include "ForestPredictor.h"
-#include "ForestTrainer.h"
-#include "FileTestUtilities.h"
-#include "ForestTestUtilities.h"
+#include "prediction/PredictionStrategy.h"
+#include "commons/utility.h"
+#include "forest/ForestPredictor.h"
+#include "forest/ForestTrainer.h"
+#include "utilities/FileTestUtilities.h"
+#include "utilities/ForestTestUtilities.h"
 
-#include "ForestTrainers.h"
-#include "ForestPredictors.h"
+#include "forest/ForestTrainers.h"
+#include "forest/ForestPredictors.h"
 
 #include "catch.hpp"
 

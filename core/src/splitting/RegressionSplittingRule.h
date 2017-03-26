@@ -18,10 +18,10 @@
 #ifndef GRADIENTFOREST_REGRESSIONSPLITTINGRULE_H
 #define GRADIENTFOREST_REGRESSIONSPLITTINGRULE_H
 
-#include "Tree.h"
-#include "SplittingRule.h"
+#include "tree/Tree.h"
+#include "splitting/SplittingRule.h"
 #include <unordered_map>
-#include "Data.h"
+#include "commons/Data.h"
 
 class RegressionSplittingRule: public SplittingRule {
 public:

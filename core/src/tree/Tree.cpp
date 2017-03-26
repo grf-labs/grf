@@ -16,10 +16,10 @@
  #-------------------------------------------------------------------------------*/
 
 #include <iterator>
-#include "BootstrapSampler.h"
+#include "sampling/BootstrapSampler.h"
 
-#include "Tree.h"
-#include "utility.h"
+#include "tree/Tree.h"
+#include "commons/utility.h"
 
 Tree::Tree(const std::vector<std::vector<size_t>>& child_nodeIDs,
            const std::vector<std::vector<size_t>>& leaf_nodeIDs,

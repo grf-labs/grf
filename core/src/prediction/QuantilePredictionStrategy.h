@@ -21,9 +21,9 @@
 
 #include <cstddef>
 #include <unordered_map>
-#include "Observations.h"
-#include "PredictionStrategy.h"
-#include "PredictionValues.h"
+#include "commons/Observations.h"
+#include "prediction/PredictionStrategy.h"
+#include "prediction/PredictionValues.h"
 
 class QuantilePredictionStrategy: public PredictionStrategy {
 public:

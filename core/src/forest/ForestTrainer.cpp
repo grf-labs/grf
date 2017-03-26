@@ -22,9 +22,9 @@
 #include <ctime>
 #include <thread>
 #include <future>
-#include "utility.h"
-#include "ForestTrainer.h"
-#include "SplittingRuleFactory.h"
+#include "commons/utility.h"
+#include "forest/ForestTrainer.h"
+#include "splitting/factory/SplittingRuleFactory.h"
 
 ForestTrainer::ForestTrainer(std::unordered_map<size_t, size_t> observables,
                              std::shared_ptr<RelabelingStrategy> relabeling_strategy,

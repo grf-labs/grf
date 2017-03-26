@@ -21,10 +21,10 @@
 #include <unordered_map>
 #include <vector>
 
-#include "globals.h"
-#include "Observations.h"
-#include "Prediction.h"
-#include "PredictionValues.h"
+#include "commons/globals.h"
+#include "commons/Observations.h"
+#include "prediction/Prediction.h"
+#include "prediction/PredictionValues.h"
 
 class PredictionStrategy {
 public:

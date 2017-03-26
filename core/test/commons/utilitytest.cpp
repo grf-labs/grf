@@ -20,7 +20,7 @@
 #include <fstream>
 
 #include "catch.hpp"
-#include "utility.h"
+#include "commons/utility.h"
 
 TEST_CASE("Split 0..9 in 1 part", "[equalSplit]") {
   std::vector<uint> test;

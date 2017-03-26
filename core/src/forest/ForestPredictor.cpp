@@ -15,10 +15,10 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "ForestPredictor.h"
-#include "OptimizedPredictionCollector.h"
-#include "DefaultPredictionCollector.h"
-#include "utility.h"
+#include "forest/ForestPredictor.h"
+#include "prediction/collector/OptimizedPredictionCollector.h"
+#include "prediction/collector/DefaultPredictionCollector.h"
+#include "commons/utility.h"
 
 ForestPredictor::ForestPredictor(uint num_threads,
                                  uint ci_group_size,

@@ -15,7 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "OptimizedPredictionCollector.h"
+#include "prediction/collector/OptimizedPredictionCollector.h"
 
 OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<PredictionStrategy> prediction_strategy):
     prediction_strategy(prediction_strategy) {}

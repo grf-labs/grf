@@ -1,1 +1,11 @@
-../bindings/Makevars
+## Use c++11
+CXX_STD = CXX11
+
+CC=/usr/local/bin/gcc-4.9
+CXX=/usr/local/bin/g++-4.9
+
+PKG_CXXFLAGS = -O3 -std=c++11 -Wall -I. -Isrc -Ithird_party
+
+SOURCES = $(wildcard *.cpp */*.cpp */*/*.cpp */*/*/*.cpp)
+OBJECTS = $(SOURCES:.cpp=.o)
+

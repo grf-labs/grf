@@ -18,7 +18,7 @@
 #ifndef GRADIENTFOREST_PREDICTIONCOLLECTOR_H
 #define GRADIENTFOREST_PREDICTIONCOLLECTOR_H
 
-#include "Forest.h"
+#include "forest/Forest.h"
 
 class PredictionCollector {
 public:

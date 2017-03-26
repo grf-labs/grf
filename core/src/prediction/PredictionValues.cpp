@@ -15,7 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "PredictionValues.h"
+#include "prediction/PredictionValues.h"
 
 PredictionValues::PredictionValues():
   num_nodes(0),

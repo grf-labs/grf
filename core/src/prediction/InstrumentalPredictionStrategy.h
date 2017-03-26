@@ -21,10 +21,10 @@
 
 #include <cstddef>
 #include <unordered_map>
-#include "Data.h"
-#include "Prediction.h"
-#include "PredictionStrategy.h"
-#include "PredictionValues.h"
+#include "commons/Data.h"
+#include "prediction/Prediction.h"
+#include "prediction/PredictionStrategy.h"
+#include "prediction/PredictionValues.h"
 
 class InstrumentalPredictionStrategy: public PredictionStrategy {
 public:
