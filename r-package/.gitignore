@@ -20,7 +20,3 @@
 
 # clion files
 .idea/
-
-# copied C++ files
-gradient.forest/src/*
-gradient.forest/src/!RcppExports.cpp
