@@ -1,0 +1,2 @@
+cp bindings/* src
+find ../../core/src/ \( -name ".h" -o -name ".cpp" \) -exec cp {} src \;
