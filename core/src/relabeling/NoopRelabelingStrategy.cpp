@@ -15,7 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "NoopRelabelingStrategy.h"
+#include "relabeling/NoopRelabelingStrategy.h"
 
 std::unordered_map<size_t, double> NoopRelabelingStrategy::relabel_outcomes(
     const Observations& observations,

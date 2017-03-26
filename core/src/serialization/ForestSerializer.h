@@ -20,9 +20,9 @@
 
 #include <memory>
 
-#include "Forest.h"
-#include "ObservationsSerializer.h"
-#include "TreeSerializer.h"
+#include "forest/Forest.h"
+#include "serialization/ObservationsSerializer.h"
+#include "serialization/TreeSerializer.h"
 
 class ForestSerializer {
 public:

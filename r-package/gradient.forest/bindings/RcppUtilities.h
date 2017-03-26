@@ -1,8 +1,8 @@
 #ifndef GRADIENTFOREST_RCPPUTILITIES_H
 #define GRADIENTFOREST_RCPPUTILITIES_H
 
-#include "ForestTrainer.h"
-#include "globals.h"
+#include "forest/ForestTrainer.h"
+#include "commons/globals.h"
 
 class RcppUtilities {
 public:

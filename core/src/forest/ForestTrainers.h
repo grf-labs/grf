@@ -18,7 +18,7 @@
 #ifndef GRADIENTFOREST_FORESTTRAINERS_H
 #define GRADIENTFOREST_FORESTTRAINERS_H
 
-#include "ForestTrainer.h"
+#include "forest/ForestTrainer.h"
 
 class ForestTrainers {
 public:

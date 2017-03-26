@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include "globals.h"
+#include "commons/globals.h"
 
 class TreeOptions {
 public:

@@ -18,7 +18,7 @@
 #ifndef GRADIENTFOREST_PREDICTIONVALUESSERIALIZER_H
 #define GRADIENTFOREST_PREDICTIONVALUESSERIALIZER_H
 
-#include "PredictionValues.h"
+#include "prediction/PredictionValues.h"
 
 class PredictionValuesSerializer {
 public:

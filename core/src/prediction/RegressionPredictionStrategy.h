@@ -18,10 +18,10 @@
 #ifndef GRADIENTFOREST_REGRESSIONPREDICTIONSTRATEGY_H
 #define GRADIENTFOREST_REGRESSIONPREDICTIONSTRATEGY_H
 
-#include "Data.h"
-#include "Observations.h"
-#include "PredictionStrategy.h"
-#include "PredictionValues.h"
+#include "commons/Data.h"
+#include "commons/Observations.h"
+#include "prediction/PredictionStrategy.h"
+#include "prediction/PredictionValues.h"
 
 class RegressionPredictionStrategy: public PredictionStrategy {
 public:

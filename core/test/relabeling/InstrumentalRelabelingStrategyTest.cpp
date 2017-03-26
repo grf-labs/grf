@@ -18,13 +18,12 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
-#include "utility.h"
+#include "commons/utility.h"
 
 #include "catch.hpp"
-#include "RelabelingStrategy.h"
-#include "InstrumentalRelabelingStrategy.h"
-#include "TestUtilities.h"
-
+#include "relabeling/RelabelingStrategy.h"
+#include "relabeling/InstrumentalRelabelingStrategy.h"
+#include "utilities/TestUtilities.h"
 
 std::vector<double> get_relabeled_outcomes(Observations observations) {
   std::vector<size_t> sampleIDs;

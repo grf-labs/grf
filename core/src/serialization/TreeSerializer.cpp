@@ -15,10 +15,10 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "Tree.h"
-#include "TreeSerializer.h"
-#include "utility.h"
-#include "PredictionValuesSerializer.h"
+#include "tree/Tree.h"
+#include "serialization/TreeSerializer.h"
+#include "commons/utility.h"
+#include "serialization/PredictionValuesSerializer.h"
 
 void TreeSerializer::serialize(std::ostream& stream, const std::shared_ptr<Tree>& tree) {
   write_matrix(tree->get_child_nodeIDs(), stream);

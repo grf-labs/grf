@@ -20,9 +20,9 @@
 
 #include <vector>
 
-#include "globals.h"
-#include "Data.h"
-#include "SplittingRuleFactory.h"
+#include "commons/globals.h"
+#include "commons/Data.h"
+#include "splitting/factory/SplittingRuleFactory.h"
 
 class ProbabilitySplittingRuleFactory: public SplittingRuleFactory {
 public:

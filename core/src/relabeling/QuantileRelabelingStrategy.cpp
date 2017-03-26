@@ -18,7 +18,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "QuantileRelabelingStrategy.h"
+#include "relabeling/QuantileRelabelingStrategy.h"
 
 QuantileRelabelingStrategy::QuantileRelabelingStrategy(const std::vector<double>& quantiles) :
     quantiles(quantiles) {}

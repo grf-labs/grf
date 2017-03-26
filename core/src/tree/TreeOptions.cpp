@@ -15,7 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "TreeOptions.h"
+#include "tree/TreeOptions.h"
 
 
 TreeOptions::TreeOptions(uint mtry,

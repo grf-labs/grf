@@ -20,12 +20,12 @@
 
 #include <memory>
 
-#include "TreeTrainer.h"
-#include "globals.h"
-#include "Tree.h"
-#include "Data.h"
-#include "PredictionStrategy.h"
-#include "Observations.h"
+#include "tree/TreeTrainer.h"
+#include "commons/globals.h"
+#include "tree/Tree.h"
+#include "commons/Data.h"
+#include "prediction/PredictionStrategy.h"
+#include "commons/Observations.h"
 
 class Forest {
 public:

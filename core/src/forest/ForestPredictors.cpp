@@ -15,10 +15,10 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "ForestPredictors.h"
-#include "InstrumentalPredictionStrategy.h"
-#include "QuantilePredictionStrategy.h"
-#include "RegressionPredictionStrategy.h"
+#include "forest/ForestPredictors.h"
+#include "prediction/InstrumentalPredictionStrategy.h"
+#include "prediction/QuantilePredictionStrategy.h"
+#include "prediction/RegressionPredictionStrategy.h"
 
 ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads,
                                                          uint ci_group_size) {

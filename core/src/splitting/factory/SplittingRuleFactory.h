@@ -20,8 +20,8 @@
 
 #include <memory>
 
-#include "Data.h"
-#include "SplittingRule.h"
+#include "commons/Data.h"
+#include "splitting/SplittingRule.h"
 
 class SplittingRuleFactory {
 public:

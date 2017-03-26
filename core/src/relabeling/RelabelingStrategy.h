@@ -19,8 +19,8 @@
 #define GRADIENTFOREST_RELABELINGSTRATEGY_H
 
 
-#include "Data.h"
-#include "Observations.h"
+#include "commons/Data.h"
+#include "commons/Observations.h"
 #include <unordered_map>
 #include <vector>
 

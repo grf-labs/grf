@@ -15,8 +15,8 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "utility.h"
-#include "InstrumentalRelabelingStrategy.h"
+#include "commons/utility.h"
+#include "relabeling/InstrumentalRelabelingStrategy.h"
 
 InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy():
   split_regularization(0) {}

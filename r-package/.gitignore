@@ -10,6 +10,7 @@
 .RData
 
 # compiled object files
+*.so
 *.slo
 *.lo
 *.o

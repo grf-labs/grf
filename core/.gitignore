@@ -1,6 +1,13 @@
 # emacs files
 *~
 
+# compiled object files
+*.so
+*.slo
+*.lo
+*.o
+*.obj
+
 # clion files
 .idea/
 .settings/*

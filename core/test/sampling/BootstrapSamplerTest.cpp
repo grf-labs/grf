@@ -21,7 +21,7 @@
 #include <random>
 
 #include "catch.hpp"
-#include "BootstrapSampler.h"
+#include "sampling/BootstrapSampler.h"
 
 size_t absolute_difference(size_t first, size_t second) {
   return first >= second ? first - second : second - first;

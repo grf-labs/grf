@@ -15,7 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "Prediction.h"
+#include "prediction/Prediction.h"
 
 Prediction::Prediction(const std::vector<double>& predictions):
   predictions(predictions), variance_estimates(0) {}

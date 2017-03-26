@@ -18,13 +18,13 @@
 #ifndef GRADIENTFOREST_FORESTTRAINER_H
 #define GRADIENTFOREST_FORESTTRAINER_H
 
-#include "RelabelingStrategy.h"
-#include "SplittingRuleFactory.h"
-#include "PredictionStrategy.h"
+#include "relabeling/RelabelingStrategy.h"
+#include "splitting/factory/SplittingRuleFactory.h"
+#include "prediction/PredictionStrategy.h"
 
-#include "Tree.h"
-#include "TreeTrainer.h"
-#include "Forest.h"
+#include "tree/Tree.h"
+#include "tree/TreeTrainer.h"
+#include "forest/Forest.h"
 
 #include <memory>
 #include <thread>

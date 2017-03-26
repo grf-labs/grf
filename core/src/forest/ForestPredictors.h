@@ -18,7 +18,7 @@
 #ifndef GRADIENTFOREST_FORESTPREDICTORS_H
 #define GRADIENTFOREST_FORESTPREDICTORS_H
 
-#include "ForestPredictor.h"
+#include "forest/ForestPredictor.h"
 
 class ForestPredictors {
 public:

@@ -15,8 +15,8 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "Data.h"
-#include "Forest.h"
+#include "commons/Data.h"
+#include "forest/Forest.h"
 
 Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
                       Data* data,

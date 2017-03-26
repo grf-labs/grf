@@ -15,8 +15,8 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "ObservationsSerializer.h"
-#include "utility.h"
+#include "serialization/ObservationsSerializer.h"
+#include "commons/utility.h"
 
 void ObservationsSerializer::serialize(std::ostream& stream, const Observations& observations) {
   size_t num_samples = observations.get_num_samples();

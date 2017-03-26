@@ -15,8 +15,8 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "ForestSerializer.h"
-#include "utility.h"
+#include "serialization/ForestSerializer.h"
+#include "commons/utility.h"
 
 
 void ForestSerializer::serialize(std::ostream& stream, const Forest& forest) {
