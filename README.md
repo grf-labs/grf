@@ -4,13 +4,21 @@
 
 This repository is in an 'alpha' state, and is actively under development. We expect to make continual improvements to performance and usability.
 
-To build the R package, go to the `r-package` directory and run the script `build_package.R`. We currently only support Mac OS X and Linux. Note that a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher).
-
 ### Authors
 
 This package is written and maintained by Julie Tibshirani (jtibs@cs.stanford.edu), Susan Athey, and Stefan Wager.
 
 The repository first started as a fork of the [ranger](https://github.com/imbs-hl/ranger) repository -- we owe a great deal of thanks to the ranger authors for their useful and free package.
+
+### Installation
+
+We recommend installing the package through `devtools`:
+
+```R
+devtools::install_github("swager/gradient-forest", subdir = "r-package/gradient.forest")
+```
+
+Currently only Mac OS X and Linux are supported. Note that a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher).
 
 ### Usage Examples
 
