@@ -1,3 +1,29 @@
+#' Regression forest
+#' 
+#' Trains a regression forest that can be used to estimate
+#' the conditional mean function mu(x) = E[Y | X = x]
+#'
+#' @param X The covariates used in the regression.
+#' @param Y The outcome.
+#' @param sample.fraction Fraction of the data used to build each tree.
+#'                        Note: If honesty is used, these subsamples will
+#'                        further be cut in half.
+#' @param mtry Number of variables tried for each split.
+#' @param num.trees Number of trees grown in the forest. Note: Getting accurate
+#'                  confidence intervals generally requires more trees than
+#'                  getting accurate predictions.
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#' @param min.node.size Minimum number of observations in each tree leaf.
+#' @param keep.inbag Currently not used.
+#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
+#' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
+#'                      In order to provide confidence intervals, ci.group.size must
+#'                      be at least 2.
+#' @param seed The seed of the c++ random number generator.
+#'
+#' @return A trained regression forest object.
+#' @export
 regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
     num.trees = 500, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
     honesty = TRUE, ci.group.size = 2, seed = NULL) {
@@ -53,6 +79,20 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X
     forest
 }
 
+#' Predict with a regression forest
+#' 
+#' Gets estimates of E[Y|X=x] using a trained regression forest.
+#'
+#' @param forest The trained forest.
+#' @param newdata Points at which predictions should be made. If NULL,
+#'                makes out-of-bag predictions on the training set instead
+#'                (i.e., provides predictions at Xi using only trees that did
+#'                not use the i-th training example).
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#'
+#' @return Vector of predictions.
+#' @export
 predict.regression.forest <- function(forest, newdata = NULL, num.threads = NULL) {
     
     if (is.null(num.threads)) {

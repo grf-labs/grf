@@ -1,3 +1,31 @@
+#' Quantile forest
+#' 
+#' Trains a regression forest that can be used to estimate
+#' quantiles of the conditional distribution of Y given X = x.
+#'
+#' @param X The covariates used in the quantile regression.
+#' @param Y The outcome.
+#' @param quantiles Vector of quantiles used to calibrate the forest.
+#' @param sample.fraction Fraction of the data used to build each tree.
+#'                        Note: If honesty is used, these subsamples will
+#'                        further be cut in half.
+#' @param mtry Number of variables tried for each split.
+#' @param num.trees Number of trees grown in the forest. Note: Getting accurate
+#'                  confidence intervals generally requires more trees than
+#'                  getting accurate predictions.
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#' @param min.node.size Minimum number of observations in each tree leaf.
+#' @param keep.inbag Currently not used.
+#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
+#' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
+#'                      In order to provide confidence intervals, ci.group.size must
+#'                      be at least 2. [Note: confidence intervals for quantile forests
+#'                      are not yet implemented.]
+#' @param seed The seed of the c++ random number generator.
+#'
+#' @return A trained quantile forest object.
+#' @export
 quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction = 0.5, 
     mtry = ceiling(ncol(X)/3), num.trees = 500, num.threads = NULL, min.node.size = NULL, 
     keep.inbag = FALSE, seed = NULL, ci.group.size = 2, honesty = TRUE) {
@@ -58,6 +86,22 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
     class(forest) <- "quantile.forest"
     forest
 }
+
+#' Predict with a quantile forest
+#' 
+#' Gets estimates of the conditional quantiles of Y given X using a trained forest.
+#'
+#' @param forest The trained forest.
+#' @param newdata Points at which predictions should be made. If NULL,
+#'                makes out-of-bag predictions on the training set instead
+#'                (i.e., provides predictions at Xi using only trees that did
+#'                not use the i-th training example).
+#' @param quantiles Vector of quantiles at which estimates are required.
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#'
+#' @return Predictions for each test point and each desired quantile.
+#' @export
 
 predict.quantile.forest <- function(forest, newdata = NULL, quantiles = c(0.1, 0.5, 
     0.9), num.threads = NULL) {
