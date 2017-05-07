@@ -1,3 +1,43 @@
+#' Intrumental forest
+#' 
+#' Trains an instrumental forest that can be used to estimate
+#' conditional local average treatment effects tau(X) identified
+#' using instruments. Formally, the forest estimates
+#' tau(X) = Cov[Y, Z | X = x] / Cov[W, Z | X = x].
+#' Note that when the instrument Z and treatment assignment W
+#' coincide, an instrumental forest is equivalent to a causal forest.
+#'
+#' @param X The covariates used in the instrumental regression.
+#' @param Y The outcome.
+#' @param W The treatment assignment (may be binary or real).
+#' @param Z The instrument (may be binary or real).
+#' @param sample.fraction Fraction of the data used to build each tree.
+#'                        Note: If honesty is used, these subsamples will
+#'                        further be cut in half.
+#' @param mtry Number of variables tried for each split.
+#' @param num.trees Number of trees grown in the forest. Note: Getting accurate
+#'                  confidence intervals generally requires more trees than
+#'                  getting accurate predictions.
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#' @param min.node.size Minimum number of observations in each tree leaf.
+#' @param keep.inbag Currently not used.
+#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
+#' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
+#'                      In order to provide confidence intervals, ci.group.size must
+#'                      be at least 2.
+#' @param precompute.nuisance Should we first run regression forests to estimate
+#'                            y(x) = E[Y|X=x], w(x) = E[W|X=x] and z(x) = E[Z|X=x],
+#'                            and then run an instrumental forest on the residuals?
+#'                            This approach is recommended, computational resources
+#'                            permitting.
+#' @param split.regularization Whether splits should be regularized towards a naive
+#'                             splitting criterion that ignores the instrument (and
+#'                             instead emulates a causal forest).
+#' @param seed The seed of the c++ random number generator.
+#'
+#' @return A trained instrumental forest object.
+#' @export
 instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
     num.trees = 500, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
     honesty = TRUE, ci.group.size = 4, precompute.nuisance = TRUE, split.regularization = 0, 
@@ -68,7 +108,6 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
         
     }
     
-    
     variable.names <- c(colnames(X), "outcome", "treatment", "instrument")
     outcome.index.zeroindexed <- ncol(X)
     treatment.index.zeroindexed <- ncol(X) + 1
@@ -87,6 +126,22 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
     forest
 }
 
+#' Predict with an instrumental forest
+#' 
+#' Gets estimates of tau(x) using a trained instrumental forest.
+#'
+#' @param forest The trained forest.
+#' @param newdata Points at which predictions should be made. If NULL,
+#'                makes out-of-bag predictions on the training set instead
+#'                (i.e., provides predictions at Xi using only trees that did
+#'                not use the i-th training example).
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
+#'                          (for confidence intervals).
+#'
+#' @return Vector of predictions, along with (optional) variance estimates.
+#' @export
 predict.instrumental.forest <- function(forest, newdata = NULL, num.threads = NULL, 
     estimate.variance = FALSE) {
     
