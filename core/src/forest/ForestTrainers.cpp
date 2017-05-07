@@ -16,14 +16,16 @@
  #-------------------------------------------------------------------------------*/
 
 #include "forest/ForestTrainers.h"
-#include "relabeling/InstrumentalRelabelingStrategy.h"
+#include "prediction/CustomPredictionStrategy.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
-#include "splitting/factory/RegressionSplittingRuleFactory.h"
-#include "prediction/RegressionPredictionStrategy.h"
-#include "splitting/factory/ProbabilitySplittingRuleFactory.h"
-#include "relabeling/QuantileRelabelingStrategy.h"
 #include "prediction/QuantilePredictionStrategy.h"
+#include "prediction/RegressionPredictionStrategy.h"
+#include "relabeling/CustomRelabelingStrategy.h"
+#include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "relabeling/NoopRelabelingStrategy.h"
+#include "relabeling/QuantileRelabelingStrategy.h"
+#include "splitting/factory/ProbabilitySplittingRuleFactory.h"
+#include "splitting/factory/RegressionSplittingRuleFactory.h"
 
 ForestTrainer ForestTrainers::instrumental_trainer(Data* data,
                                                    size_t outcome_index,
@@ -62,6 +64,17 @@ ForestTrainer ForestTrainers::regression_trainer(Data* data,
   std::shared_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
   std::shared_ptr<PredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
+
+  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
+}
+
+ForestTrainer ForestTrainers::custom_trainer(Data* data,
+                                             size_t outcome_index) {
+  std::unordered_map<size_t, size_t> observables = {{Observations::OUTCOME, outcome_index}};
+
+  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new CustomRelabelingStrategy());
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory(data));
+  std::shared_ptr<PredictionStrategy> prediction_strategy(new CustomPredictionStrategy());
 
   return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
 }

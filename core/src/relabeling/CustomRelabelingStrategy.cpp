@@ -15,23 +15,10 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRADIENTFOREST_FORESTPREDICTORS_H
-#define GRADIENTFOREST_FORESTPREDICTORS_H
+#include "CustomRelabelingStrategy.h"
 
-#include "forest/ForestPredictor.h"
-
-class ForestPredictors {
-public:
-  static ForestPredictor instrumental_predictor(uint num_threads,
-                                                uint ci_group_size);
-
-  static ForestPredictor quantile_predictor(uint num_threads,
-                                            const std::vector<double>& quantiles);
-
-  static ForestPredictor regression_predictor(uint num_threads);
-
-  static ForestPredictor custom_predictor(uint num_threads);
-};
-
-
-#endif //GRADIENTFOREST_FORESTPREDICTORS_H
+std::unordered_map<size_t, double> CustomRelabelingStrategy::relabel_outcomes(
+    const Observations& observations,
+    const std::vector<size_t>& node_sampleIDs) {
+  return std::unordered_map<size_t, double>();
+}
