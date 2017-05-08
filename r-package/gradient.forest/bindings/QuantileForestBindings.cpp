@@ -1,12 +1,12 @@
-#include <Rcpp.h>
-#include <vector>
-#include <sstream>
 #include <map>
+#include <Rcpp.h>
+#include <sstream>
+#include <vector>
 
-#include "RcppUtilities.h"
 #include "commons/globals.h"
-#include "forest/ForestTrainers.h"
 #include "forest/ForestPredictors.h"
+#include "forest/ForestTrainers.h"
+#include "RcppUtilities.h"
 
 // [[Rcpp::export]]
 Rcpp::List quantile_train(std::vector<double> quantiles,

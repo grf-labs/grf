@@ -1,12 +1,12 @@
-#include <Rcpp.h>
-#include <vector>
-#include <sstream>
 #include <map>
+#include <Rcpp.h>
+#include <sstream>
+#include <vector>
 
-#include "RcppUtilities.h"
 #include "commons/globals.h"
-#include "forest/ForestTrainers.h"
 #include "forest/ForestPredictors.h"
+#include "forest/ForestTrainers.h"
+#include "RcppUtilities.h"
 
 // [[Rcpp::export]]
 Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
@@ -48,7 +48,7 @@ Rcpp::NumericMatrix regression_predict(Rcpp::List forest,
                                        Rcpp::RawMatrix sparse_data,
                                        std::vector<std::string> variable_names,
                                        unsigned int num_threads) {
-  Data *data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
+  Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
   Forest deserialized_forest = RcppUtilities::deserialize_forest(
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
@@ -66,7 +66,7 @@ Rcpp::NumericMatrix regression_predict_oob(Rcpp::List forest,
                                            Rcpp::RawMatrix sparse_data,
                                            std::vector<std::string> variable_names,
                                            unsigned int num_threads) {
-  Data *data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
+  Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
   Forest deserialized_forest = RcppUtilities::deserialize_forest(
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
