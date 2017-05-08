@@ -15,10 +15,11 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <vector>
-#include <string>
 #include <cmath>
 #include <iostream>
+#include <string>
+#include <vector>
+
 #include "commons/Observations.h"
 #include "commons/utility.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
@@ -193,34 +194,7 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
   
   // If simple variance correction is small, do an objective Bayes bias correction instead
   if (var_debiased < within_noise / 10 && num_good_groups >= 10) {
-
-    // start by computing chi-squared log-density, taking within_noise as fixed
-    double lx[100];
-    double x[100];
-    for (size_t iter = 0; iter < 100; ++iter) {
-      x[iter] = iter * within_noise / 400.0;
-      lx[iter] = std::log(x[iter] + within_noise ) * (1.0 - num_good_groups / 2.0)
-            - (num_good_groups * var_between) / (2 * (x[iter] + within_noise));
-    }
-
-    // compute maximal log-density, to stabilize call to exp() below
-    double maxlx = lx[1];
-    for (size_t iter = 0; iter < 100; ++iter) {
-      maxlx = std::max(maxlx, lx[iter]);
-    }
-
-    // now do Bayes rule
-    double numerator = 0;
-    double denominator = 0;
-    for (size_t iter = 0; iter < 100; ++iter) {
-      double fx = std::exp(lx[iter] - maxlx);
-      numerator += x[iter] * fx;
-      denominator += fx;
-    }
-    var_debiased = numerator / denominator;
-    
-    // avoid jumpy behavior at the threshold
-    var_debiased = std::min(var_debiased, within_noise / 10);
+    var_debiased = bayes_debiaser.debias(within_noise, num_good_groups, var_between);
   }
 
   std::vector<double> predictions = { treatment_estimate };
