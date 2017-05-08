@@ -25,6 +25,7 @@
 #include "prediction/Prediction.h"
 #include "prediction/PredictionStrategy.h"
 #include "prediction/PredictionValues.h"
+#include "ObjectiveBayesDebiaser.h"
 
 class InstrumentalPredictionStrategy: public PredictionStrategy {
 public:
@@ -49,6 +50,9 @@ public:
   PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_sampleIDs,
       const Observations& observations);
+
+private:
+  ObjectiveBayesDebiaser bayes_debiaser;
 };
 
 #endif //GRADIENTFOREST_INSTRUMENTALPREDICTIONSTRATEGY_H
