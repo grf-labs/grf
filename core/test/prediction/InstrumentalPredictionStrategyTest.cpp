@@ -20,7 +20,7 @@
 #include <fstream>
 #include "commons/Observations.h"
 #include "commons/utility.h"
-#include "prediction/PredictionStrategy.h"
+#include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
 #include "utilities/TestUtilities.h"
 
@@ -35,15 +35,11 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
   std::vector<double> averages = {-1.1251472, 0.3, 0.5, -0.1065444, 0.2};
   std::vector<double> flipped_averages = {-1.1251472, 0.7, 0.5, -0.1065444, 0.3};
 
-  // These values are not required, since we predict using precomputed averages.
-  std::unordered_map<size_t, double> weights_by_sampleID;
-  Observations observations;
-
   InstrumentalPredictionStrategy prediction_strategy;
-  Prediction first_prediction = prediction_strategy.predict(42, averages, weights_by_sampleID, observations);
+  Prediction first_prediction = prediction_strategy.predict(averages);
   std::vector<double> first_predictions = first_prediction.get_predictions();
 
-  Prediction second_prediction = prediction_strategy.predict(42, flipped_averages, weights_by_sampleID, observations);
+  Prediction second_prediction = prediction_strategy.predict(flipped_averages);
   std::vector<double> second_predictions = second_prediction.get_predictions();
 
   REQUIRE(first_predictions.size() == 1);

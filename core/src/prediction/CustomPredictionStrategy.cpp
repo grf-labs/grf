@@ -24,27 +24,8 @@ size_t CustomPredictionStrategy::prediction_length() {
 }
 
 Prediction CustomPredictionStrategy::predict(size_t sampleID,
-                                             const std::vector<double>& averages,
                                              const std::unordered_map<size_t, double>& weights_by_sampleID,
                                              const Observations& observations) {
   std::vector<double> prediction = { 0.0 };
   return Prediction(prediction);
-}
-
-Prediction CustomPredictionStrategy::predict_with_variance(
-    size_t sampleID,
-    const std::vector<std::vector<size_t>>& leaf_sampleIDs,
-    const Observations& observations,
-    uint ci_group_size) {
-  throw std::runtime_error("Variance estimates are not yet implemented.");
-}
-
-bool CustomPredictionStrategy::requires_leaf_sampleIDs() {
-  return true;
-}
-
-PredictionValues CustomPredictionStrategy::precompute_prediction_values(
-    const std::vector<std::vector<size_t>>& leaf_sampleIDs,
-    const Observations& observations) {
-  return PredictionValues();
 }

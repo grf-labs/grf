@@ -17,10 +17,8 @@
 
 #include "prediction/collector/DefaultPredictionCollector.h"
 
-DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<PredictionStrategy> prediction_strategy,
-                                                       uint ci_group_size):
-    prediction_strategy(prediction_strategy),
-    ci_group_size(ci_group_size) {}
+DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> prediction_strategy):
+    prediction_strategy(prediction_strategy) {}
 
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
@@ -47,10 +45,6 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
   for (size_t sampleID = 0; sampleID < num_samples; ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
 
-    std::vector<std::vector<size_t>> leaf_sampleIDs;
-    if (ci_group_size > 1) {
-      leaf_sampleIDs.reserve(num_trees);
-    }
 
     // Create a list of weighted neighbors for this sample.
     uint num_nonempty_leaves = 0;
@@ -60,21 +54,13 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       }
 
       std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
-      const std::vector<size_t>& leaf_node_IDs = leaf_nodes_by_tree.at(tree_index);
+      const std::vector<size_t> &leaf_node_IDs = leaf_nodes_by_tree.at(tree_index);
 
       size_t nodeID = leaf_node_IDs.at(sampleID);
-      const std::vector<size_t>& sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
+      const std::vector<size_t> &sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
       if (!sampleIDs.empty()) {
         num_nonempty_leaves++;
-      }
-
-      // hackhackhack
-      if (ci_group_size == 1) {
-        if (!sampleIDs.empty()) {
-          add_sample_weights(sampleIDs, weights_by_sampleID);
-        }
-      } else {
-        leaf_sampleIDs.push_back(sampleIDs);
+        add_sample_weights(sampleIDs, weights_by_sampleID);
       }
     }
 
@@ -84,16 +70,12 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       std::vector<double> temp(prediction_length, NAN);
       predictions.push_back(temp);
       continue;
-    } else {
-      if (ci_group_size == 1) {
-        normalize_sample_weights(weights_by_sampleID);
-      }
     }
 
-    Prediction prediction = ci_group_size == 1 ?
-      prediction_strategy->predict(sampleID, std::vector<double>(), weights_by_sampleID, forest.get_observations()) :
-      prediction_strategy->predict_with_variance(sampleID, leaf_sampleIDs, forest.get_observations(), ci_group_size);
+    normalize_sample_weights(weights_by_sampleID);
 
+    Prediction prediction = prediction_strategy->predict(
+        sampleID, weights_by_sampleID, forest.get_observations());
     if (prediction.size() != prediction_length) {
       throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
                                " did not have the expected length.");

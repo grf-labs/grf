@@ -25,10 +25,7 @@ size_t RegressionPredictionStrategy::prediction_length() {
     return 1;
 }
 
-Prediction RegressionPredictionStrategy::predict(size_t sampleID,
-                                                 const std::vector<double>& averages,
-                                                 const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                 const Observations& observations) {
+Prediction RegressionPredictionStrategy::predict(const std::vector<double>& averages) {
   std::vector<double> predictions = { averages.at(OUTCOME) };
   return Prediction(predictions);
 }
@@ -39,10 +36,6 @@ Prediction RegressionPredictionStrategy::predict_with_variance(
     const Observations& observations,
     uint ci_group_size) {
   throw std::runtime_error("Variance estimates are not yet implemented.");
-}
-
-bool RegressionPredictionStrategy::requires_leaf_sampleIDs() {
-  return false;
 }
 
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(

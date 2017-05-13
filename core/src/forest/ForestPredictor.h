@@ -22,7 +22,8 @@
 #include "splitting/SplittingRule.h"
 #include "prediction/Prediction.h"
 #include "prediction/collector/PredictionCollector.h"
-#include "prediction/PredictionStrategy.h"
+#include "prediction/OptimizedPredictionStrategy.h"
+#include "prediction/DefaultPredictionStrategy.h"
 
 #include "tree/Tree.h"
 #include "tree/TreeTrainer.h"
@@ -35,8 +36,11 @@
 class ForestPredictor {
 public:
   ForestPredictor(uint num_threads,
+                  std::shared_ptr<DefaultPredictionStrategy> strategy);
+
+  ForestPredictor(uint num_threads,
                   uint ci_group_size,
-                  std::shared_ptr<PredictionStrategy> prediction_strategy);
+                  std::shared_ptr<OptimizedPredictionStrategy> strategy);
 
   std::vector<Prediction> predict(const Forest& forest, Data* prediction_data);
   std::vector<Prediction> predict_oob(const Forest& forest, Data* original_data);

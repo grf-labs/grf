@@ -23,11 +23,11 @@
 #include <unordered_map>
 #include "commons/Data.h"
 #include "prediction/Prediction.h"
-#include "prediction/PredictionStrategy.h"
+#include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
-class InstrumentalPredictionStrategy: public PredictionStrategy {
+class InstrumentalPredictionStrategy: public OptimizedPredictionStrategy {
 public:
   static const std::size_t OUTCOME;
   static const std::size_t TREATMENT;
@@ -36,17 +36,13 @@ public:
   static const std::size_t TREATMENT_INSTRUMENT;
 
   size_t prediction_length();
-  Prediction predict(size_t sampleID,
-                     const std::vector<double>& averages,
-                     const std::unordered_map<size_t, double>& weights_by_sampleID,
-                     const Observations& observations);
+  Prediction predict(const std::vector<double>& averages);
 
   Prediction predict_with_variance(size_t sampleID,
                                    const std::vector<std::vector<size_t>>& leaf_sampleIDs,
                                    const Observations& observations,
                                    uint ci_group_size);
 
-  bool requires_leaf_sampleIDs();
   PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_sampleIDs,
       const Observations& observations);

@@ -20,17 +20,14 @@
 
 #include "commons/Data.h"
 #include "commons/Observations.h"
-#include "prediction/PredictionStrategy.h"
+#include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
 
-class RegressionPredictionStrategy: public PredictionStrategy {
+class RegressionPredictionStrategy: public OptimizedPredictionStrategy {
 public:
   size_t prediction_length();
 
-  Prediction predict(size_t sampleID,
-                     const std::vector<double>& averages,
-                     const std::unordered_map<size_t, double>& weights_by_sampleID,
-                     const Observations& observations);
+  Prediction predict(const std::vector<double>& averages);
 
   Prediction predict_with_variance(
       size_t sampleID,
@@ -38,7 +35,6 @@ public:
       const Observations& observations,
       uint ci_group_size);
 
-  bool requires_leaf_sampleIDs();
   PredictionValues precompute_prediction_values(const std::vector<std::vector<size_t>>& leaf_sampleIDs,
                                                 const Observations& observations);
 

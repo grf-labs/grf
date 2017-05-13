@@ -15,36 +15,31 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRADIENTFOREST_FOREST_H_
-#define GRADIENTFOREST_FOREST_H_
+#ifndef GRADIENTFOREST_OPTIMIZEDPREDICTIONSTRATEGY_H
+#define GRADIENTFOREST_OPTIMIZEDPREDICTIONSTRATEGY_H
 
-#include <memory>
+#include <unordered_map>
+#include <vector>
 
-#include "tree/TreeTrainer.h"
 #include "commons/globals.h"
-#include "tree/Tree.h"
-#include "commons/Data.h"
 #include "commons/Observations.h"
+#include "prediction/Prediction.h"
+#include "prediction/PredictionValues.h"
 
-class Forest {
+class OptimizedPredictionStrategy {
 public:
-  static Forest create(std::vector<std::shared_ptr<Tree>> trees,
-                       Data* data,
-                       std::unordered_map<size_t, size_t> observables);
-  Forest(const std::vector<std::shared_ptr<Tree>>& trees,
-         const Observations& observations);
+  virtual size_t prediction_length() = 0;
+  virtual Prediction predict(const std::vector<double>& average_prediction_values) = 0;
 
-  const Observations& get_observations() const {
-    return observations;
-  };
+  virtual Prediction predict_with_variance(size_t sampleID,
+                                           const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+                                           const Observations& observations,
+                                           uint ci_group_size) = 0;
 
-  const std::vector<std::shared_ptr<Tree>>& get_trees() const {
-    return trees;
-  }
-
-protected:
-  std::vector<std::shared_ptr<Tree>> trees;
-  Observations observations;
+  virtual PredictionValues precompute_prediction_values(
+      const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+      const Observations& observations) = 0;
 };
 
-#endif /* GRADIENTFOREST_FOREST_H_ */
+
+#endif //GRADIENTFOREST_OPTIMIZEDPREDICTIONSTRATEGY_H

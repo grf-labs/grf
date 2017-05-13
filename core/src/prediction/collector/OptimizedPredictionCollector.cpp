@@ -17,7 +17,7 @@
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
 
-OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<PredictionStrategy> prediction_strategy):
+OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy):
     prediction_strategy(prediction_strategy) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest &forest,
@@ -64,10 +64,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     } else {
       std::vector<double> &average_prediction_value = average_prediction_values[sampleID];
       normalize_prediction_values(num_leaves, average_prediction_value);
-      predictions.push_back(prediction_strategy->predict(sampleID,
-                                                         average_prediction_value,
-                                                         std::unordered_map<size_t, double>(),
-                                                         forest.get_observations()));
+      predictions.push_back(prediction_strategy->predict(average_prediction_value));
     }
   }
   return predictions;

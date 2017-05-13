@@ -29,7 +29,7 @@
 ForestTrainer::ForestTrainer(std::unordered_map<size_t, size_t> observables,
                              std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                              std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
-                             std::shared_ptr<PredictionStrategy> prediction_strategy) :
+                             std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
     prediction_mode(false), sample_with_replacement(
     true), memory_saving_splitting(false), sample_fraction(

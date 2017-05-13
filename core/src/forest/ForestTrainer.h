@@ -18,9 +18,9 @@
 #ifndef GRADIENTFOREST_FORESTTRAINER_H
 #define GRADIENTFOREST_FORESTTRAINER_H
 
+#include "prediction/OptimizedPredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
 #include "splitting/factory/SplittingRuleFactory.h"
-#include "prediction/PredictionStrategy.h"
 
 #include "tree/Tree.h"
 #include "tree/TreeTrainer.h"
@@ -35,7 +35,7 @@ public:
   ForestTrainer(std::unordered_map<size_t, size_t> observables,
                 std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                 std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
-                std::shared_ptr<PredictionStrategy> prediction_strategy);
+                std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy);
 
   Forest train(Data* data);
 
@@ -100,7 +100,7 @@ private:
   std::unordered_map<size_t, size_t> observables;
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
-  std::shared_ptr<PredictionStrategy> prediction_strategy;
+  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
 
   std::string split_select_weights_file;
   std::string case_weights_file;
