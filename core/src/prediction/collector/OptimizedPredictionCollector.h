@@ -24,7 +24,7 @@
 
 class OptimizedPredictionCollector: public PredictionCollector {
 public:
-  OptimizedPredictionCollector(std::shared_ptr<PredictionStrategy> prediction_strategy);
+  OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy);
 
   std::vector<Prediction> collect_predictions(const Forest &forest,
                                               Data *prediction_data,
@@ -39,7 +39,7 @@ private:
   void normalize_prediction_values(size_t num_leaf_nodes,
                                    std::vector<double>& average_prediction_values);
 
-  std::shared_ptr<PredictionStrategy> prediction_strategy;
+  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
 };
 
 

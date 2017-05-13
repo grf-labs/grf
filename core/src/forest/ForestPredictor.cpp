@@ -21,15 +21,22 @@
 #include "commons/utility.h"
 
 ForestPredictor::ForestPredictor(uint num_threads,
-                                 uint ci_group_size,
-                                 std::shared_ptr<PredictionStrategy> prediction_strategy) {
-  this->prediction_collector = prediction_strategy->requires_leaf_sampleIDs()
-      ? std::shared_ptr<PredictionCollector>(new DefaultPredictionCollector(prediction_strategy, ci_group_size))
-      : std::shared_ptr<PredictionCollector>(new OptimizedPredictionCollector(prediction_strategy));
-
+                                 std::shared_ptr<DefaultPredictionStrategy> strategy) {
+  this->prediction_collector = std::shared_ptr<PredictionCollector>(
+        new DefaultPredictionCollector(strategy));
   this->num_threads = num_threads == DEFAULT_NUM_THREADS
       ? std::thread::hardware_concurrency()
       : num_threads;
+}
+
+ForestPredictor::ForestPredictor(uint num_threads,
+                                 uint ci_group_size,
+                                 std::shared_ptr<OptimizedPredictionStrategy> strategy) {
+  this->prediction_collector = std::shared_ptr<PredictionCollector>(
+      new OptimizedPredictionCollector(strategy));
+  this->num_threads = num_threads == DEFAULT_NUM_THREADS
+                      ? std::thread::hardware_concurrency()
+                      : num_threads;
 }
 
 std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* data) {

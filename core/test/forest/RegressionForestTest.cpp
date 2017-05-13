@@ -15,7 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "prediction/PredictionStrategy.h"
+#include "prediction/DefaultPredictionStrategy.h"
 #include "commons/utility.h"
 #include "forest/ForestPredictor.h"
 #include "forest/ForestTrainer.h"

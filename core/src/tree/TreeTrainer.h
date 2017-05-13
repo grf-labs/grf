@@ -20,19 +20,19 @@
 
 #include <memory>
 
-#include "prediction/PredictionStrategy.h"
-#include "relabeling/RelabelingStrategy.h"
-#include "splitting/factory/SplittingRuleFactory.h"
 #include "commons/Data.h"
+#include "prediction/OptimizedPredictionStrategy.h"
+#include "relabeling/RelabelingStrategy.h"
+#include "sampling/BootstrapSampler.h"
+#include "splitting/factory/SplittingRuleFactory.h"
 #include "tree/Tree.h"
 #include "tree/TreeOptions.h"
-#include "sampling/BootstrapSampler.h"
 
 class TreeTrainer {
 public:
   TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
               std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
-              std::shared_ptr<PredictionStrategy> prediction_strategy,
+              std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy,
               const TreeOptions& options);
 
   std::shared_ptr<Tree> train(Data* data,
@@ -76,7 +76,7 @@ private:
 
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
-  std::shared_ptr<PredictionStrategy> prediction_strategy;
+  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
 
   TreeOptions options;
 };

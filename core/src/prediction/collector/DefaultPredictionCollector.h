@@ -21,11 +21,11 @@
 
 #include "forest/Forest.h"
 #include "prediction/collector/PredictionCollector.h"
+#include "prediction/DefaultPredictionStrategy.h"
 
 class DefaultPredictionCollector: public PredictionCollector {
 public:
-  DefaultPredictionCollector(std::shared_ptr<PredictionStrategy> prediction_strategy,
-                             uint ci_group_size);
+  DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> prediction_strategy);
 
   std::vector<Prediction> collect_predictions(const Forest &forest,
                                               Data *prediction_data,
@@ -37,8 +37,7 @@ private:
 
   void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sampleID);
 
-  std::shared_ptr<PredictionStrategy> prediction_strategy;
-  uint ci_group_size;
+  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy;
 };
 
 

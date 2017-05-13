@@ -36,10 +36,7 @@ size_t InstrumentalPredictionStrategy::prediction_length() {
     return 1;
 }
 
-Prediction InstrumentalPredictionStrategy::predict(size_t sampleID,
-                                                   const std::vector<double>& averages,
-                                                   const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                   const Observations& observations) {
+Prediction InstrumentalPredictionStrategy::predict(const std::vector<double>& averages) {
   double instrument_effect = averages.at(OUTCOME_INSTRUMENT) - averages.at(OUTCOME) * averages.at(INSTRUMENT);
   double first_stage = averages.at(TREATMENT_INSTRUMENT) - averages.at(TREATMENT) * averages.at(INSTRUMENT);
 
@@ -202,11 +199,6 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
   std::vector<double> variance_estimates = { variance_estimate };
   return Prediction(predictions, variance_estimates);
 }
-
-bool InstrumentalPredictionStrategy::requires_leaf_sampleIDs() {
-  return false;
-}
-
 
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_sampleIDs,

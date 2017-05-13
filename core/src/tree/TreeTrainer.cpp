@@ -22,7 +22,7 @@
 
 TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                          std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
-                         std::shared_ptr<PredictionStrategy> prediction_strategy,
+                         std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy,
                          const TreeOptions& options) :
     relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
@@ -85,8 +85,11 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
     repopulate_leaf_nodeIDs(tree, data, leaf_sampleIDs);
   }
 
-  PredictionValues prediction_values = prediction_strategy->precompute_prediction_values(
-      tree->get_leaf_nodeIDs(), observations);
+  PredictionValues prediction_values;
+  if (prediction_strategy != NULL) {
+    prediction_values = prediction_strategy->precompute_prediction_values(
+        tree->get_leaf_nodeIDs(), observations);
+  }
   tree->set_prediction_values(prediction_values);
 
   return tree;
