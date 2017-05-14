@@ -24,8 +24,8 @@ class PredictionCollector {
 public:
   virtual std::vector<Prediction> collect_predictions(const Forest& forest,
                                                       Data* prediction_data,
-                                                      std::vector <std::vector<size_t>> leaf_nodes_by_tree,
-                                                      bool oob_prediction) = 0;
+                                                      std::vector<std::vector<size_t>> leaf_nodes_by_tree,
+                                                      std::vector<std::vector<bool>> trees_by_sample) = 0;
 };
 
 #endif //GRADIENTFOREST_PREDICTIONCOLLECTOR_H

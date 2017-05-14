@@ -35,16 +35,14 @@ public:
 
   double get(size_t node, size_t type) const;
 
+  const std::vector<double>& get_values(size_t nodeID) const;
+
   const size_t get_num_nodes() const {
     return num_nodes;
   }
 
   const size_t get_num_types() const {
     return num_types;
-  }
-
-  const std::vector<std::vector<double>>& get_values() const {
-    return values;
   }
 
 private:

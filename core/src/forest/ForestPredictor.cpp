@@ -33,20 +33,43 @@ ForestPredictor::ForestPredictor(uint num_threads,
                                  uint ci_group_size,
                                  std::shared_ptr<OptimizedPredictionStrategy> strategy) {
   this->prediction_collector = std::shared_ptr<PredictionCollector>(
-      new OptimizedPredictionCollector(strategy));
+      new OptimizedPredictionCollector(strategy, ci_group_size));
   this->num_threads = num_threads == DEFAULT_NUM_THREADS
                       ? std::thread::hardware_concurrency()
                       : num_threads;
 }
 
 std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* data) {
-  std::vector<std::vector<size_t>> leaf_nodes_by_tree = find_leaf_nodes(forest, data, false);
-  return prediction_collector->collect_predictions(forest, data, leaf_nodes_by_tree, false);
+  return predict(forest, data, false);
 }
 
 std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data* data) {
-  std::vector<std::vector<size_t>> leaf_nodes_by_tree = find_leaf_nodes(forest, data, true);
-  return prediction_collector->collect_predictions(forest, data, leaf_nodes_by_tree, true);
+  return predict(forest, data, true);
+}
+
+std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
+                                                 Data* data,
+                                                 bool oob_prediction) {
+  std::vector<std::vector<size_t>> leaf_nodes_by_tree = find_leaf_nodes(forest, data, oob_prediction);
+  std::vector<std::vector<bool>> trees_by_sample = oob_prediction
+          ? get_trees_by_sample(forest, data)
+          : std::vector<std::vector<bool>>();
+  return prediction_collector->collect_predictions(forest, data, leaf_nodes_by_tree, trees_by_sample);
+}
+
+std::vector<std::vector<bool>> ForestPredictor::get_trees_by_sample(const Forest &forest,
+                                                                    Data *data) {
+  size_t num_trees = forest.get_trees().size();
+  size_t num_samples = data->get_num_rows();
+
+  std::vector<std::vector<bool>> result(num_samples, std::vector<bool>(num_trees));
+
+  for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+    for (size_t sampleID : forest.get_trees()[tree_idx]->get_oob_sampleIDs()) {
+      result[sampleID][tree_idx] = true;
+    }
+  }
+  return result;
 }
 
 std::vector<std::vector<size_t>> ForestPredictor::find_leaf_nodes(

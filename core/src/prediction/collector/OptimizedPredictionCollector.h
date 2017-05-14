@@ -24,22 +24,26 @@
 
 class OptimizedPredictionCollector: public PredictionCollector {
 public:
-  OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy);
+  OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy,
+                               uint ci_group_size);
 
   std::vector<Prediction> collect_predictions(const Forest &forest,
                                               Data *prediction_data,
                                               std::vector<std::vector<size_t>> leaf_nodes_by_tree,
-                                              bool oob_prediction);
+                                              std::vector<std::vector<bool>> trees_by_sample);
 
 private:
   void add_prediction_values(size_t nodeID,
                              const PredictionValues& prediction_values,
-                             std::vector<double>& average_prediction_values);
+                             std::vector<double>& combined_average);
 
-  void normalize_prediction_values(size_t num_leaf_nodes,
-                                   std::vector<double>& average_prediction_values);
+  void normalize_prediction_values(size_t num_leaves,
+                                   std::vector<double>& combined_average);
 
-  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
+  void validate_prediction(size_t sampleID, Prediction prediction);
+
+  std::shared_ptr<OptimizedPredictionStrategy> strategy;
+  uint ci_group_size;
 };
 
 

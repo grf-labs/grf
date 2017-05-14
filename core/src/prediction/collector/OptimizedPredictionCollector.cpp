@@ -17,74 +17,96 @@
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
 
-OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy):
-    prediction_strategy(prediction_strategy) {}
+OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy,
+                                                           uint ci_group_size):
+    strategy(strategy),
+    ci_group_size(ci_group_size) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest &forest,
                                                                           Data *prediction_data,
                                                                           std::vector<std::vector<size_t>> leaf_nodes_by_tree,
-                                                                          bool oob_prediction) {
+                                                                          std::vector<std::vector<bool>> trees_by_sample) {
   size_t num_trees = forest.get_trees().size();
-  size_t num_predictions = prediction_data->get_num_rows();
+  size_t num_samples = prediction_data->get_num_rows();
 
-  // Collect the average prediction values across trees.
-  std::vector<std::vector<double>> average_prediction_values(num_predictions);
-  std::vector<size_t> num_nonempty_leaves(num_predictions);
+  std::vector<Prediction> predictions;
+  predictions.reserve(num_samples);
 
-  for (size_t tree_index = 0; tree_index < num_trees; ++tree_index) {
-    std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
-    const PredictionValues &prediction_values = tree->get_prediction_values();
-    const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
+  for (size_t sampleID = 0; sampleID < num_samples; ++sampleID) {
+    std::vector<double> average_value;
+    std::vector<std::vector<double>> leaf_values;
+    if (ci_group_size > 1) {
+      leaf_values.reserve(num_trees);
+    }
 
-    size_t num_samples = oob_prediction ? tree->get_oob_sampleIDs().size() : num_predictions;
-    for (size_t i = 0; i < num_samples; ++i) {
-      size_t sampleID = oob_prediction ? tree->get_oob_sampleIDs()[i] : i;
-      size_t nodeID = leaf_nodes.at(sampleID);
+    // Create a list of weighted neighbors for this sample.
+    uint num_leaves = 0;
+    for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
+      if (!trees_by_sample.empty() && !trees_by_sample[sampleID][tree_index]) {
+        continue;
+      }
+
+      const std::vector<size_t>& leaf_node_IDs = leaf_nodes_by_tree.at(tree_index);
+      size_t nodeID = leaf_node_IDs.at(sampleID);
+
+      std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
+      const PredictionValues& prediction_values = tree->get_prediction_values();
 
       if (!prediction_values.empty(nodeID)) {
-        add_prediction_values(nodeID, prediction_values, average_prediction_values[sampleID]);
-        num_nonempty_leaves[sampleID]++;
+        num_leaves++;
+        add_prediction_values(nodeID, prediction_values, average_value);
+        if (ci_group_size > 1) {
+          leaf_values.push_back(prediction_values.get_values(nodeID));
+        }
       }
     }
-  }
 
-  // Normalize the prediction values, and make a prediction for each sample.
-  std::vector<Prediction> predictions;
-  predictions.reserve(num_predictions);
-  size_t prediction_length = prediction_strategy->prediction_length();
-
-  for (size_t sampleID = 0; sampleID < prediction_data->get_num_rows(); ++sampleID) {
-    size_t num_leaves = num_nonempty_leaves[sampleID];
-
+    // If this sample has no neighbors, then return placeholder predictions. Note
+    // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
-      // If this sample has no neighbors, then return placeholder predictions. Note
-      // that this can only occur when honesty is enabled, and is expected to be rare.
-      std::vector<double> temp(prediction_length, NAN);
-      predictions.push_back(Prediction(temp));
-    } else {
-      std::vector<double> &average_prediction_value = average_prediction_values[sampleID];
-      normalize_prediction_values(num_leaves, average_prediction_value);
-      predictions.push_back(prediction_strategy->predict(average_prediction_value));
+      std::vector<double> temp(strategy->prediction_length(), NAN);
+      predictions.push_back(temp);
+      continue;
     }
+
+    normalize_prediction_values(num_leaves, average_value);
+
+    std::vector<double> point_prediction = strategy->predict(average_value);
+    std::vector<double> variance_estimate;
+    if (ci_group_size > 1) {
+      variance_estimate = strategy->compute_variance(average_value, leaf_values, ci_group_size);
+    }
+
+    Prediction prediction(point_prediction, variance_estimate);
+    validate_prediction(sampleID, prediction);
+    predictions.push_back(prediction);
   }
   return predictions;
 }
 
 void OptimizedPredictionCollector::add_prediction_values(size_t nodeID,
-                                              const PredictionValues& prediction_values,
-                                              std::vector<double>& average_prediction_values) {
-  if (average_prediction_values.empty()) {
-    average_prediction_values.resize(prediction_values.get_num_types());
+    const PredictionValues& prediction_values,
+    std::vector<double>& combined_average) {
+  if (combined_average.empty()) {
+    combined_average.resize(prediction_values.get_num_types());
   }
 
   for (size_t type = 0; type < prediction_values.get_num_types(); ++type) {
-    average_prediction_values[type] += prediction_values.get(nodeID, type);
+    combined_average[type] += prediction_values.get(nodeID, type);
   }
 }
 
-void OptimizedPredictionCollector::normalize_prediction_values(size_t num_leaf_nodes,
-                                                    std::vector<double>& average_prediction_values) {
-  for (double& value : average_prediction_values) {
-    value /= num_leaf_nodes;
+void OptimizedPredictionCollector::normalize_prediction_values(size_t num_leaves,
+    std::vector<double>& combined_average) {
+  for (double& value : combined_average) {
+    value /= num_leaves;
+  }
+}
+
+void OptimizedPredictionCollector::validate_prediction(size_t sampleID, Prediction prediction) {
+  size_t prediction_length = strategy->prediction_length();
+  if (prediction.size() != prediction_length) {
+    throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
+                             " did not have the expected length.");
   }
 }
