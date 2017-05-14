@@ -34,7 +34,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     std::unordered_map<size_t, double> weights_by_sampleID;
 
     // Create a list of weighted neighbors for this sample.
-    uint num_nonempty_leaves = 0;
+    uint num_leaves = 0;
     for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
       if (!trees_by_sample.empty() && !trees_by_sample[sampleID][tree_index]) {
         continue;
@@ -46,14 +46,14 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       size_t nodeID = leaf_node_IDs.at(sampleID);
       const std::vector<size_t> &sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
       if (!sampleIDs.empty()) {
-        num_nonempty_leaves++;
+        num_leaves++;
         add_sample_weights(sampleIDs, weights_by_sampleID);
       }
     }
 
     // If this sample has no neighbors, then return placeholder predictions. Note
     // that this can only occur when honesty is enabled, and is expected to be rare.
-    if (num_nonempty_leaves == 0) {
+    if (num_leaves == 0) {
       std::vector<double> temp(prediction_strategy->prediction_length(), NAN);
       predictions.push_back(temp);
       continue;
