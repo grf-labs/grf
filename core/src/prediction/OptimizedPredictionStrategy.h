@@ -31,10 +31,9 @@ public:
   virtual size_t prediction_length() = 0;
   virtual Prediction predict(const std::vector<double>& average_prediction_values) = 0;
 
-  virtual Prediction predict_with_variance(size_t sampleID,
-                                           const std::vector<std::vector<size_t>>& leaf_sampleIDs,
-                                           const Observations& observations,
-                                           uint ci_group_size) = 0;
+  virtual Prediction predict_with_variance(const std::vector<double>& average_prediction_values,
+      const std::vector<std::vector<double>>& leaf_prediction_values,
+      uint ci_group_size) = 0;
 
   virtual PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_sampleIDs,

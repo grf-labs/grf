@@ -36,11 +36,10 @@ public:
   static const std::size_t TREATMENT_INSTRUMENT;
 
   size_t prediction_length();
-  Prediction predict(const std::vector<double>& averages);
+  Prediction predict(const std::vector<double>& average);
 
-  Prediction predict_with_variance(size_t sampleID,
-                                   const std::vector<std::vector<size_t>>& leaf_sampleIDs,
-                                   const Observations& observations,
+  Prediction predict_with_variance(const std::vector<double>& average,
+                                   const std::vector<std::vector<double>>& leaf_values,
                                    uint ci_group_size);
 
   PredictionValues precompute_prediction_values(

@@ -33,11 +33,10 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
   predictions.reserve(num_samples);
 
   for (size_t sampleID = 0; sampleID < num_samples; ++sampleID) {
-    std::vector<double> combined_average;
-
-    std::vector<std::vector<double>> leaf_averages;
+    std::vector<double> average_value;
+    std::vector<std::vector<double>> leaf_values;
     if (ci_group_size > 1) {
-      leaf_averages.reserve(num_trees);
+      leaf_values.reserve(num_trees);
     }
 
     // Create a list of weighted neighbors for this sample.
@@ -55,9 +54,9 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
 
       if (!prediction_values.empty(nodeID)) {
         num_leaves++;
-        add_prediction_values(nodeID, prediction_values, combined_average);
+        add_prediction_values(nodeID, prediction_values, average_value);
         if (ci_group_size > 1) {
-          leaf_averages.push_back(prediction_values.get_values(nodeID));
+          leaf_values.push_back(prediction_values.get_values(nodeID));
         }
       }
     }
@@ -70,9 +69,11 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
       continue;
     }
 
-    normalize_prediction_values(num_leaves, combined_average);
+    normalize_prediction_values(num_leaves, average_value);
 
-    Prediction prediction = strategy->predict(combined_average);
+    Prediction prediction = ci_group_size == 1
+            ? strategy->predict(average_value)
+            : strategy->predict_with_variance(average_value, leaf_values, ci_group_size);
 
     validate_prediction(sampleID, prediction);
     predictions.push_back(prediction);
