@@ -23,10 +23,12 @@
 
 class ForestTestUtilities {
 public:
-  static void init_trainer(ForestTrainer& trainer);
+  static void init_default_trainer(ForestTrainer &trainer);
   static void init_honest_trainer(ForestTrainer& trainer);
-private:
-  static void init_trainer(ForestTrainer& trainer, bool honesty);
+
+  static void init_trainer(ForestTrainer& trainer,
+                           bool honesty,
+                           uint ci_group_size);
 };
 
 #endif //GRADIENTFOREST_FORESTTESTUTILITIES_H

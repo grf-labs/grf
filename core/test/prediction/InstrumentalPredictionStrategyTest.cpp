@@ -20,9 +20,7 @@
 #include <fstream>
 #include "commons/Observations.h"
 #include "commons/utility.h"
-#include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
-#include "utilities/TestUtilities.h"
 
 #include "catch.hpp"
 
@@ -36,13 +34,44 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
   std::vector<double> flipped_averages = {-1.1251472, 0.7, 0.5, -0.1065444, 0.3};
 
   InstrumentalPredictionStrategy prediction_strategy;
-  Prediction first_prediction = prediction_strategy.predict(averages);
-  std::vector<double> first_predictions = first_prediction.get_predictions();
+  std::vector<double> first_prediction = prediction_strategy.predict(averages);
 
-  Prediction second_prediction = prediction_strategy.predict(flipped_averages);
-  std::vector<double> second_predictions = second_prediction.get_predictions();
+  std::vector<double> second_prediction = prediction_strategy.predict(flipped_averages);
 
-  REQUIRE(first_predictions.size() == 1);
-  REQUIRE(second_predictions.size() == 1);
-  REQUIRE(equal_doubles(first_predictions[0], -second_predictions[0], 1.0e-10));
+  REQUIRE(first_prediction.size() == 1);
+  REQUIRE(second_prediction.size() == 1);
+  REQUIRE(equal_doubles(first_prediction[0], -second_prediction[0], 1.0e-10));
+}
+
+TEST_CASE("instrumental variance estimates are positive", "[regression, prediction]") {
+  std::vector<double> averages = {1, 0, 4.5, 2, 0.75};
+  std::vector<std::vector<double>> leaf_values =
+      {{1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {-2, -3, 5, -3, -1}, {1, 0, 1, 2, 1}};
+
+  InstrumentalPredictionStrategy prediction_strategy;
+  std::vector<double> variance = prediction_strategy.compute_variance(
+      averages, leaf_values, 2);
+
+  REQUIRE(variance.size() == 1);
+  REQUIRE(variance[0] > 0);
+}
+
+TEST_CASE("scaling outcome scales instrumental variance", "[instrumental, prediction]") {
+  std::vector<double> averages = {1, 0, 4.5, 2, 0.75};
+  std::vector<std::vector<double>> leaf_values =
+      {{1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {-2, -3, 5, -3, -1}, {1, 0, 1, 2, 1}};
+
+  std::vector<double> scaled_average = {2, 0, 4.5, 4, 0.75};
+  std::vector<std::vector<double>> scaled_leaf_values =
+      {{2, 1, 1, 2, 1}, {4, 2, 2, 4, 2}, {-4, -3, 5, -6, -1}, {2, 0, 1, 4, 1}};
+
+  InstrumentalPredictionStrategy prediction_strategy;
+  std::vector<double> first_variance = prediction_strategy.compute_variance(
+      averages, leaf_values, 2);
+  std::vector<double> second_variance = prediction_strategy.compute_variance(
+      scaled_average, scaled_leaf_values, 2);
+
+  REQUIRE(first_variance.size() == 1);
+  REQUIRE(second_variance.size() == 1);
+  REQUIRE(equal_doubles(first_variance[0], second_variance[0] / 4, 10e-10));
 }

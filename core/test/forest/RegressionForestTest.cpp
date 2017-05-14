@@ -47,7 +47,7 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
   }
 
   ForestTrainer shifted_trainer = ForestTrainers::regression_trainer(data, outcome_index);
-  ForestTestUtilities::init_trainer(shifted_trainer);
+  ForestTestUtilities::init_default_trainer(shifted_trainer);
 
   Forest shifted_forest = trainer.train(data);
   ForestPredictor shifted_predictor = ForestPredictors::regression_predictor(4, 1);
@@ -75,7 +75,7 @@ TEST_CASE("regression forests give reasonable variance estimates", "[regression,
   uint outcome_index = 10;
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(data, outcome_index);
-  ForestTestUtilities::init_trainer(trainer);
+  ForestTestUtilities::init_trainer(trainer, false, 2);
 
   Forest forest = trainer.train(data);
   ForestPredictor predictor = ForestPredictors::regression_predictor(4, 2);
@@ -86,7 +86,7 @@ TEST_CASE("regression forests give reasonable variance estimates", "[regression,
     REQUIRE(prediction.contains_variance_estimates());
 
     double variance_estimate = prediction.get_variance_estimates()[0];
-    REQUIRE((isnan(variance_estimate) || variance_estimate > 0));
+    REQUIRE(variance_estimate > 0);
   }
 
   delete data;

@@ -34,10 +34,10 @@ TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
   QuantilePredictionStrategy prediction_strategy({0.25, 0.5, 0.75});
-  Prediction prediction = prediction_strategy.predict(0, weights_by_sampleID, observations);
+  std::vector<double> predictions =  prediction_strategy.predict(0, weights_by_sampleID, observations);
 
   std::vector<double> expected_predictions = {-7.36924, -0.826997, 5.11211};
-  REQUIRE(prediction.get_predictions() == expected_predictions);
+  REQUIRE(predictions == expected_predictions);
 }
 
 TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
@@ -50,10 +50,10 @@ TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
   QuantilePredictionStrategy prediction_strategy({0.5, 0.75, 0.80, 0.90});
-  Prediction predictions = prediction_strategy.predict(42, weights_by_sampleID, observations);
+  std::vector<double> predictions = prediction_strategy.predict(42, weights_by_sampleID, observations);
 
   // Check that all predictions fall within a reasonable range.
-  for (auto& prediction : predictions.get_predictions()) {
+  for (auto& prediction : predictions) {
     REQUIRE(-2.0 < prediction);
     REQUIRE(prediction < 2.0);
   }

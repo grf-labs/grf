@@ -22,6 +22,10 @@
 double ObjectiveBayesDebiaser::debias(double within_noise,
                                       double num_good_groups,
                                       double var_between) {
+  if (num_good_groups <= 4) {
+    return within_noise;
+  }
+
   // Start by computing chi-squared log-density, taking within_noise as fixed.
   double lx[100];
   double x[100];

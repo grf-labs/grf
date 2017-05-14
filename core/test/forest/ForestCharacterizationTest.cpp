@@ -64,7 +64,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   Data* data = load_data("test/forest/resources/quantile_data.csv");
 
   ForestTrainer trainer = ForestTrainers::quantile_trainer(data, 10, quantiles);
-  ForestTestUtilities::init_trainer(trainer);
+  ForestTestUtilities::init_default_trainer(trainer);
   Forest forest = trainer.train(data);
 
   ForestPredictor predictor = ForestPredictors::quantile_predictor(4, quantiles);
@@ -86,7 +86,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   Data* data = load_data("test/forest/resources/causal_data.csv");
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(data, 10, 11, 11, 0);
-  ForestTestUtilities::init_trainer(trainer);
+  ForestTestUtilities::init_default_trainer(trainer);
 
   Forest forest = trainer.train(data);
 
@@ -109,7 +109,7 @@ TEST_CASE("regression forest predictions have not changed", "[regression], [char
   Data* data = load_data("test/forest/resources/regression_data.csv");
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(data, 10);
-  ForestTestUtilities::init_trainer(trainer);
+  ForestTestUtilities::init_default_trainer(trainer);
 
   Forest forest = trainer.train(data);
 
