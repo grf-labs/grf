@@ -69,3 +69,25 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
 
   delete data;
 }
+
+TEST_CASE("regression forests give reasonable variance estimates", "[regression, forest]") {
+  Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  uint outcome_index = 10;
+
+  ForestTrainer trainer = ForestTrainers::regression_trainer(data, outcome_index);
+  ForestTestUtilities::init_trainer(trainer);
+
+  Forest forest = trainer.train(data);
+  ForestPredictor predictor = ForestPredictors::regression_predictor(4, 2);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+
+  for (size_t i = 0; i < predictions.size(); i++) {
+    Prediction prediction = predictions[i];
+    REQUIRE(prediction.contains_variance_estimates());
+
+    double variance_estimate = prediction.get_variance_estimates()[0];
+    REQUIRE((isnan(variance_estimate) || variance_estimate > 0));
+  }
+
+  delete data;
+}

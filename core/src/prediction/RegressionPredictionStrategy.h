@@ -22,6 +22,7 @@
 #include "commons/Observations.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
+#include "ObjectiveBayesDebiaser.h"
 
 class RegressionPredictionStrategy: public OptimizedPredictionStrategy {
 public:
@@ -39,6 +40,7 @@ public:
 
 private:
   static const std::size_t OUTCOME;
+  ObjectiveBayesDebiaser bayes_debiaser;
 };
 
 

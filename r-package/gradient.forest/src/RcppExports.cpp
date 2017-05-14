@@ -208,8 +208,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // regression_predict
-Rcpp::NumericMatrix regression_predict(Rcpp::List forest, Rcpp::NumericMatrix input_data, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, unsigned int num_threads);
-RcppExport SEXP gradient_forest_regression_predict(SEXP forestSEXP, SEXP input_dataSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP num_threadsSEXP) {
+Rcpp::List regression_predict(Rcpp::List forest, Rcpp::NumericMatrix input_data, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, unsigned int num_threads, unsigned int ci_group_size);
+RcppExport SEXP gradient_forest_regression_predict(SEXP forestSEXP, SEXP input_dataSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP num_threadsSEXP, SEXP ci_group_sizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -218,13 +218,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::RawMatrix >::type sparse_data(sparse_dataSEXP);
     Rcpp::traits::input_parameter< std::vector<std::string> >::type variable_names(variable_namesSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(regression_predict(forest, input_data, sparse_data, variable_names, num_threads));
+    Rcpp::traits::input_parameter< unsigned int >::type ci_group_size(ci_group_sizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(regression_predict(forest, input_data, sparse_data, variable_names, num_threads, ci_group_size));
     return rcpp_result_gen;
 END_RCPP
 }
 // regression_predict_oob
-Rcpp::NumericMatrix regression_predict_oob(Rcpp::List forest, Rcpp::NumericMatrix input_data, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, unsigned int num_threads);
-RcppExport SEXP gradient_forest_regression_predict_oob(SEXP forestSEXP, SEXP input_dataSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP num_threadsSEXP) {
+Rcpp::List regression_predict_oob(Rcpp::List forest, Rcpp::NumericMatrix input_data, Rcpp::RawMatrix sparse_data, std::vector<std::string> variable_names, unsigned int num_threads, unsigned int ci_group_size);
+RcppExport SEXP gradient_forest_regression_predict_oob(SEXP forestSEXP, SEXP input_dataSEXP, SEXP sparse_dataSEXP, SEXP variable_namesSEXP, SEXP num_threadsSEXP, SEXP ci_group_sizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -233,7 +234,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::RawMatrix >::type sparse_data(sparse_dataSEXP);
     Rcpp::traits::input_parameter< std::vector<std::string> >::type variable_names(variable_namesSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(regression_predict_oob(forest, input_data, sparse_data, variable_names, num_threads));
+    Rcpp::traits::input_parameter< unsigned int >::type ci_group_size(ci_group_sizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(regression_predict_oob(forest, input_data, sparse_data, variable_names, num_threads, ci_group_size));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -74,6 +74,7 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement, 
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size)
     
+    forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data
     class(forest) <- "regression.forest"
     forest
@@ -90,10 +91,14 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X
 #'                not use the i-th training example).
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
+#' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
+#'                          (for confidence intervals).
 #'
 #' @return Vector of predictions.
 #' @export
-predict.regression.forest <- function(forest, newdata = NULL, num.threads = NULL) {
+predict.regression.forest <- function(forest, newdata = NULL,
+    num.threads = NULL,
+    estimate.variance = FALSE) {
     
     if (is.null(num.threads)) {
         num.threads <- 0
@@ -103,16 +108,23 @@ predict.regression.forest <- function(forest, newdata = NULL, num.threads = NULL
     
     sparse.data <- as.matrix(0)
     variable.names <- character(0)
+
+    # hackhack don't ask....
+    if (estimate.variance) {
+        ci.group.size = forest$ci.group.size
+    } else {
+        ci.group.size = 1
+    }
     
     forest.short <- forest[-which(names(forest) == "original.data")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         regression_predict(forest.short, input.data, sparse.data, variable.names, 
-            num.threads)
+            num.threads, ci.group.size)
     } else {
         input.data <- forest[["original.data"]]
         regression_predict_oob(forest.short, input.data, sparse.data, variable.names, 
-            num.threads)
+            num.threads, ci.group.size)
     }
 }
