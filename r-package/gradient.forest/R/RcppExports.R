@@ -41,11 +41,11 @@ regression_train <- function(input_data, outcome_index, sparse_data, variable_na
     .Call('gradient_forest_regression_train', PACKAGE = 'gradient.forest', input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size)
 }
 
-regression_predict <- function(forest, input_data, sparse_data, variable_names, num_threads) {
-    .Call('gradient_forest_regression_predict', PACKAGE = 'gradient.forest', forest, input_data, sparse_data, variable_names, num_threads)
+regression_predict <- function(forest, input_data, sparse_data, variable_names, num_threads, ci_group_size) {
+    .Call('gradient_forest_regression_predict', PACKAGE = 'gradient.forest', forest, input_data, sparse_data, variable_names, num_threads, ci_group_size)
 }
 
-regression_predict_oob <- function(forest, input_data, sparse_data, variable_names, num_threads) {
-    .Call('gradient_forest_regression_predict_oob', PACKAGE = 'gradient.forest', forest, input_data, sparse_data, variable_names, num_threads)
+regression_predict_oob <- function(forest, input_data, sparse_data, variable_names, num_threads, ci_group_size) {
+    .Call('gradient_forest_regression_predict_oob', PACKAGE = 'gradient.forest', forest, input_data, sparse_data, variable_names, num_threads, ci_group_size)
 }
 

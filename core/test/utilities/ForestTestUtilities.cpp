@@ -28,7 +28,7 @@ void ForestTestUtilities::init_honest_trainer(ForestTrainer& trainer) {
 
 void ForestTestUtilities::init_trainer(ForestTrainer& trainer, bool honesty) {
   uint mtry = 3;
-  uint num_trees = 20;
+  uint num_trees = 50;
   std::ostream* verbose_out =& std::cout;
   uint seed = 42;
   uint num_threads = 4;

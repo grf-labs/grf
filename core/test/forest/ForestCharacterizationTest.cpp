@@ -93,7 +93,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   ForestPredictor predictor = ForestPredictors::instrumental_predictor(4, 1);
 
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
-    std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/causal_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 

@@ -33,7 +33,53 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const std::vector<std::vector<double>>& leaf_values,
     uint ci_group_size) {
-  throw std::runtime_error("Variance estimates are not yet implemented.");
+
+  double average_outcome = average.at(OUTCOME);
+
+  double num_good_groups = 0;
+  double psi_squared = 0;
+  double psi_grouped_squared = 0;
+
+  for (size_t group = 0; group < leaf_values.size() / ci_group_size; ++group) {
+    bool good_group = true;
+    for (size_t j = 0; j < ci_group_size; ++j) {
+      if (leaf_values[group * ci_group_size + j].size() == 0) {
+        good_group = false;
+      }
+    }
+    if (!good_group) continue;
+
+    num_good_groups++;
+
+    double group_psi = 0;
+
+    for (size_t j = 0; j < ci_group_size; ++j) {
+      size_t i = group * ci_group_size + j;
+      double leaf_outcome = leaf_values.at(i).at(OUTCOME);
+      double psi_1 = leaf_outcome - average_outcome;
+
+      psi_squared += psi_1 * psi_1;
+      group_psi += psi_1;
+    }
+
+    group_psi /= ci_group_size;
+    psi_grouped_squared += group_psi * group_psi;
+  }
+
+  double var_between = psi_grouped_squared / num_good_groups;
+  double var_total = psi_squared / (num_good_groups * ci_group_size);
+
+  double within_noise = (var_total - var_between) / (ci_group_size - 1);
+
+  // A simple variance correction, but this can lead to negative variance estimates...
+  double var_debiased = var_between - within_noise;
+
+  // If simple variance correction is small, do an objective Bayes bias correction instead
+  if (var_debiased < within_noise / 10) {
+    var_debiased = bayes_debiaser.debias(within_noise, num_good_groups, var_between);
+  }
+
+  return { var_debiased };
 }
 
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(

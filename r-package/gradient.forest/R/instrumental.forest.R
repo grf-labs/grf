@@ -92,17 +92,17 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
         forest.Y <- regression.forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
             keep.inbag = FALSE, honesty = TRUE, seed = seed)
-        Y.hat = predict(forest.Y)
+        Y.hat = predict(forest.Y)$predictions
         
         forest.W <- regression.forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
             keep.inbag = FALSE, honesty = TRUE, seed = seed)
-        W.hat = predict(forest.W)
+        W.hat = predict(forest.W)$predictions
         
         forest.Z <- regression.forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
             keep.inbag = FALSE, honesty = TRUE, seed = seed)
-        Z.hat = predict(forest.Z)
+        Z.hat = predict(forest.Z)$predictions
         
         input.data <- as.matrix(cbind(X, Y - Y.hat, W - W.hat, Z - Z.hat))
         
@@ -142,7 +142,8 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
 #'
 #' @return Vector of predictions, along with (optional) variance estimates.
 #' @export
-predict.instrumental.forest <- function(forest, newdata = NULL, num.threads = NULL, 
+predict.instrumental.forest <- function(forest, newdata = NULL,
+    num.threads = NULL, 
     estimate.variance = FALSE) {
     
     if (is.null(num.threads)) {
