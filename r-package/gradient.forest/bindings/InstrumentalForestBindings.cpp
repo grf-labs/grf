@@ -74,12 +74,13 @@ Rcpp::List instrumental_predict_oob(Rcpp::List forest,
                                     Rcpp::NumericMatrix input_data,
                                     Rcpp::RawMatrix sparse_data,
                                     std::vector <std::string> variable_names,
-                                    unsigned int num_threads) {
+                                    unsigned int num_threads,
+                                    unsigned int ci_group_size) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
   Forest deserialized_forest = RcppUtilities::deserialize_forest(
       forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads, 1);
+  ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads, ci_group_size);
   std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data);
 
   Rcpp::List result;

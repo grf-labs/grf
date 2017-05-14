@@ -113,7 +113,7 @@ TEST_CASE("regression forest predictions have not changed", "[regression], [char
 
   Forest forest = trainer.train(data);
 
-  ForestPredictor predictor = ForestPredictors::regression_predictor(4);
+  ForestPredictor predictor = ForestPredictors::regression_predictor(4, 1);
 
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
