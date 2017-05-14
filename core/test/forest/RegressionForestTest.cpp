@@ -36,7 +36,7 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
   ForestTestUtilities::init_honest_trainer(trainer);
 
   Forest forest = trainer.train(data);
-  ForestPredictor predictor = ForestPredictors::regression_predictor(4);
+  ForestPredictor predictor = ForestPredictors::regression_predictor(4, 1);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
 
   // Shift each outcome by 1, and re-run the forest.
@@ -50,7 +50,7 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
   ForestTestUtilities::init_trainer(shifted_trainer);
 
   Forest shifted_forest = trainer.train(data);
-  ForestPredictor shifted_predictor = ForestPredictors::regression_predictor(4);
+  ForestPredictor shifted_predictor = ForestPredictors::regression_predictor(4, 1);
   std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
 
   REQUIRE(predictions.size() == shifted_predictions.size());

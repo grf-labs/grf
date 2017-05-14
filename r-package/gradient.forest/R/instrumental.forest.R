@@ -170,6 +170,6 @@ predict.instrumental.forest <- function(forest, newdata = NULL, num.threads = NU
     } else {
         input.data <- forest[["original.data"]]
         instrumental_predict_oob(forest.short, input.data, sparse.data, variable.names, 
-            num.threads)
+            num.threads, ci.group.size)
     }
 }
