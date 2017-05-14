@@ -29,7 +29,7 @@ public:
   std::vector<Prediction> collect_predictions(const Forest &forest,
                                               Data *prediction_data,
                                               std::vector<std::vector<size_t>> leaf_nodes_by_tree,
-                                              bool oob_prediction);
+                                              std::vector<std::vector<bool>> trees_by_sample);
 
 private:
   void add_prediction_values(size_t nodeID,

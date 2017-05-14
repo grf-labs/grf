@@ -24,32 +24,19 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
     Data* prediction_data,
     std::vector<std::vector<size_t>> leaf_nodes_by_tree,
-    bool oob_prediction) {
+    std::vector<std::vector<bool>> trees_by_sample) {
 
   size_t num_samples = prediction_data->get_num_rows();
-  size_t num_trees = forest.get_trees().size();
-
-  std::vector<std::vector<bool>> trees_by_samples(num_samples, std::vector<bool>(num_trees));
-  if (oob_prediction) {
-    for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      for (size_t sampleID : forest.get_trees()[tree_idx]->get_oob_sampleIDs()) {
-        trees_by_samples[sampleID][tree_idx] = true;
-      }
-    }
-  }
-
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
-  size_t prediction_length = prediction_strategy->prediction_length();
 
   for (size_t sampleID = 0; sampleID < num_samples; ++sampleID) {
     std::unordered_map<size_t, double> weights_by_sampleID;
 
-
     // Create a list of weighted neighbors for this sample.
     uint num_nonempty_leaves = 0;
-    for (size_t tree_index = 0; tree_index < num_trees; ++tree_index) {
-      if (oob_prediction && !trees_by_samples[sampleID][tree_index]) {
+    for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
+      if (!trees_by_sample.empty() && !trees_by_sample[sampleID][tree_index]) {
         continue;
       }
 
@@ -64,10 +51,10 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       }
     }
 
+    // If this sample has no neighbors, then return placeholder predictions. Note
+    // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_nonempty_leaves == 0) {
-      // If this sample has no neighbors, then return placeholder predictions. Note
-      // that this can only occur when honesty is enabled, and is expected to be rare.
-      std::vector<double> temp(prediction_length, NAN);
+      std::vector<double> temp(prediction_strategy->prediction_length(), NAN);
       predictions.push_back(temp);
       continue;
     }
@@ -76,10 +63,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
 
     Prediction prediction = prediction_strategy->predict(
         sampleID, weights_by_sampleID, forest.get_observations());
-    if (prediction.size() != prediction_length) {
-      throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
-                               " did not have the expected length.");
-    }
+
+    validate_prediction(sampleID, prediction);
     predictions.push_back(prediction);
   }
   return predictions;
@@ -102,5 +87,13 @@ void DefaultPredictionCollector::normalize_sample_weights(std::unordered_map<siz
 
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     it->second /= total_weight;
+  }
+}
+
+void DefaultPredictionCollector::validate_prediction(size_t sampleID, Prediction prediction) {
+  size_t prediction_length = prediction_strategy->prediction_length();
+  if (prediction.size() != prediction_length) {
+    throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
+                             " did not have the expected length.");
   }
 }

@@ -46,6 +46,13 @@ public:
   std::vector<Prediction> predict_oob(const Forest& forest, Data* original_data);
 
 private:
+  std::vector<Prediction> predict(const Forest& forest,
+                                  Data* prediction_data,
+                                  bool oob_prediction);
+
+  std::vector<std::vector<bool>> get_trees_by_sample(const Forest &forest,
+                                                     Data *data);
+
   std::vector<std::vector<size_t>> find_leaf_nodes(
       const Forest &forest,
       Data *data,

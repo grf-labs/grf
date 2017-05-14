@@ -23,9 +23,10 @@ OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<Optim
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest &forest,
                                                                           Data *prediction_data,
                                                                           std::vector<std::vector<size_t>> leaf_nodes_by_tree,
-                                                                          bool oob_prediction) {
+                                                                          std::vector<std::vector<bool>> trees_by_sample) {
   size_t num_trees = forest.get_trees().size();
   size_t num_predictions = prediction_data->get_num_rows();
+  bool oob_prediction = !trees_by_sample.empty();
 
   // Collect the average prediction values across trees.
   std::vector<std::vector<double>> average_prediction_values(num_predictions);
