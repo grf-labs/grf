@@ -25,7 +25,7 @@
 
 class DefaultPredictionCollector: public PredictionCollector {
 public:
-  DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> prediction_strategy);
+  DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy);
 
   std::vector<Prediction> collect_predictions(const Forest &forest,
                                               Data *prediction_data,
@@ -38,7 +38,7 @@ private:
   void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sampleID);
   void validate_prediction(size_t sampleID, Prediction prediction);
 
-  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy;
+  std::shared_ptr<DefaultPredictionStrategy> strategy;
 };
 
 

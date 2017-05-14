@@ -24,7 +24,8 @@
 
 class OptimizedPredictionCollector: public PredictionCollector {
 public:
-  OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy);
+  OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy,
+                               uint ci_group_size);
 
   std::vector<Prediction> collect_predictions(const Forest &forest,
                                               Data *prediction_data,
@@ -41,7 +42,8 @@ private:
 
   void validate_prediction(size_t sampleID, Prediction prediction);
 
-  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
+  std::shared_ptr<OptimizedPredictionStrategy> strategy;
+  uint ci_group_size;
 };
 
 

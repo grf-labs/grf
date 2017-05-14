@@ -36,4 +36,6 @@ double PredictionValues::get(std::size_t node, size_t type) const {
   return values.at(node).at(type);
 }
 
-
+const std::vector<double>& PredictionValues::get_values(std::size_t node) const {
+  return values.at(node);
+}

@@ -17,8 +17,8 @@
 
 #include "prediction/collector/DefaultPredictionCollector.h"
 
-DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> prediction_strategy):
-    prediction_strategy(prediction_strategy) {}
+DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy):
+    strategy(strategy) {}
 
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
@@ -54,14 +54,14 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     // If this sample has no neighbors, then return placeholder predictions. Note
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
-      std::vector<double> temp(prediction_strategy->prediction_length(), NAN);
+      std::vector<double> temp(strategy->prediction_length(), NAN);
       predictions.push_back(temp);
       continue;
     }
 
     normalize_sample_weights(weights_by_sampleID);
 
-    Prediction prediction = prediction_strategy->predict(
+    Prediction prediction = strategy->predict(
         sampleID, weights_by_sampleID, forest.get_observations());
 
     validate_prediction(sampleID, prediction);
@@ -91,7 +91,7 @@ void DefaultPredictionCollector::normalize_sample_weights(std::unordered_map<siz
 }
 
 void DefaultPredictionCollector::validate_prediction(size_t sampleID, Prediction prediction) {
-  size_t prediction_length = prediction_strategy->prediction_length();
+  size_t prediction_length = strategy->prediction_length();
   if (prediction.size() != prediction_length) {
     throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
                              " did not have the expected length.");

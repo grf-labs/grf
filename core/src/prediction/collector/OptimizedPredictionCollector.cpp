@@ -17,20 +17,28 @@
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
 
-OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy):
-    prediction_strategy(prediction_strategy) {}
+OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy,
+                                                           uint ci_group_size):
+    strategy(strategy),
+    ci_group_size(ci_group_size) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest &forest,
                                                                           Data *prediction_data,
                                                                           std::vector<std::vector<size_t>> leaf_nodes_by_tree,
                                                                           std::vector<std::vector<bool>> trees_by_sample) {
+  size_t num_trees = forest.get_trees().size();
   size_t num_samples = prediction_data->get_num_rows();
+
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
 
   for (size_t sampleID = 0; sampleID < num_samples; ++sampleID) {
     std::vector<double> combined_average;
+
     std::vector<std::vector<double>> leaf_averages;
+    if (ci_group_size > 1) {
+      leaf_averages.reserve(num_trees);
+    }
 
     // Create a list of weighted neighbors for this sample.
     uint num_leaves = 0;
@@ -48,20 +56,23 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
       if (!prediction_values.empty(nodeID)) {
         num_leaves++;
         add_prediction_values(nodeID, prediction_values, combined_average);
+        if (ci_group_size > 1) {
+          leaf_averages.push_back(prediction_values.get_values(nodeID));
+        }
       }
     }
 
     // If this sample has no neighbors, then return placeholder predictions. Note
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
-      std::vector<double> temp(prediction_strategy->prediction_length(), NAN);
+      std::vector<double> temp(strategy->prediction_length(), NAN);
       predictions.push_back(temp);
       continue;
     }
 
     normalize_prediction_values(num_leaves, combined_average);
 
-    Prediction prediction = prediction_strategy->predict(combined_average);
+    Prediction prediction = strategy->predict(combined_average);
 
     validate_prediction(sampleID, prediction);
     predictions.push_back(prediction);
@@ -89,7 +100,7 @@ void OptimizedPredictionCollector::normalize_prediction_values(size_t num_leaves
 }
 
 void OptimizedPredictionCollector::validate_prediction(size_t sampleID, Prediction prediction) {
-  size_t prediction_length = prediction_strategy->prediction_length();
+  size_t prediction_length = strategy->prediction_length();
   if (prediction.size() != prediction_length) {
     throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
                              " did not have the expected length.");

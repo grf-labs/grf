@@ -33,7 +33,7 @@ ForestPredictor::ForestPredictor(uint num_threads,
                                  uint ci_group_size,
                                  std::shared_ptr<OptimizedPredictionStrategy> strategy) {
   this->prediction_collector = std::shared_ptr<PredictionCollector>(
-      new OptimizedPredictionCollector(strategy));
+      new OptimizedPredictionCollector(strategy, ci_group_size));
   this->num_threads = num_threads == DEFAULT_NUM_THREADS
                       ? std::thread::hardware_concurrency()
                       : num_threads;

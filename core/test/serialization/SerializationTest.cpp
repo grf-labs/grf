@@ -55,7 +55,7 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
       {10, 20, 30, 40},
       {0.5, 0.75, 0.9, 1.1, 1.2},
       {3, 4, 5, 9, 10, 11},
-      PredictionValues({{0, 0, 1}}, 3, 1)));
+      PredictionValues({{0, 0, 1}}, 1, 3)));
 
   TreeSerializer tree_serializer;
   std::stringstream stream;
