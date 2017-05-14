@@ -65,7 +65,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
       std::vector<double> temp(strategy->prediction_length(), NAN);
-      predictions.push_back(temp);
+      predictions.push_back(Prediction(temp));
       continue;
     }
 

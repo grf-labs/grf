@@ -54,7 +54,6 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
   double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_estimate;
 
   double num_good_groups = 0;
-  std::vector<double> psi_mean = {0, 0}; // need to center this over good groups
   std::vector<std::vector<double>> psi_squared = {{0, 0}, {0, 0}};
   std::vector<std::vector<double>> psi_grouped_squared = {{0, 0}, {0, 0}};
 
@@ -96,9 +95,6 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     group_psi_1 /= ci_group_size;
     group_psi_2 /= ci_group_size;
 
-    psi_mean[0] += group_psi_1;
-    psi_mean[1] += group_psi_2;
-
     psi_grouped_squared[0][0] += group_psi_1 * group_psi_1;
     psi_grouped_squared[0][1] += group_psi_1 * group_psi_2;
     psi_grouped_squared[1][0] += group_psi_2 * group_psi_1;
@@ -106,7 +102,6 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
   }
 
   for (size_t i = 0; i < 2; ++i) {
-    psi_mean[i] /= num_good_groups;
     for (size_t j = 0; j < 2; ++j) {
       psi_squared[i][j] /= (num_good_groups * ci_group_size);
       psi_grouped_squared[i][j] /= num_good_groups;
@@ -130,7 +125,7 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
   double var_debiased = var_between - within_noise;
   
   // If simple variance correction is small, do an objective Bayes bias correction instead
-  if (var_debiased < within_noise / 10 && num_good_groups >= 10) {
+  if (var_debiased < within_noise / 10) {
     var_debiased = bayes_debiaser.debias(within_noise, num_good_groups, var_between);
   }
 
