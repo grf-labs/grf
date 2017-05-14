@@ -29,9 +29,9 @@
 class DefaultPredictionStrategy {
 public:
   virtual size_t prediction_length() = 0;
-  virtual Prediction predict(size_t sampleID,
-                             const std::unordered_map<size_t, double>& weights_by_sampleID,
-                             const Observations& observations) = 0;
+  virtual std::vector<double> predict(size_t sampleID,
+      const std::unordered_map<size_t, double>& weights_by_sampleID,
+      const Observations& observations) = 0;
 };
 
 

@@ -23,9 +23,8 @@ size_t CustomPredictionStrategy::prediction_length() {
   return 1;
 }
 
-Prediction CustomPredictionStrategy::predict(size_t sampleID,
-                                             const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                             const Observations& observations) {
-  std::vector<double> prediction = { 0.0 };
-  return Prediction(prediction);
+std::vector<double> CustomPredictionStrategy::predict(size_t sampleID,
+    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const Observations& observations) {
+  return { 0.0 };
 }

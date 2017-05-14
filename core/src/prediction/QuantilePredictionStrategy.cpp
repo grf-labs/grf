@@ -30,9 +30,9 @@ size_t QuantilePredictionStrategy::prediction_length() {
     return quantiles.size();
 }
 
-Prediction QuantilePredictionStrategy::predict(size_t sampleID,
-                                               const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                               const Observations& observations) {
+std::vector<double> QuantilePredictionStrategy::predict(size_t sampleID,
+    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const Observations& observations) {
   std::vector<std::pair<size_t, double>> sampleIDs_and_values;
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
     size_t sampleID = it->first;
@@ -40,8 +40,7 @@ Prediction QuantilePredictionStrategy::predict(size_t sampleID,
         sampleID, observations.get(Observations::OUTCOME, sampleID)));
   }
 
-  std::vector<double> quantile_cutoffs = compute_quantile_cutoffs(weights_by_sampleID, sampleIDs_and_values);
-  return Prediction(quantile_cutoffs);
+  return compute_quantile_cutoffs(weights_by_sampleID, sampleIDs_and_values);
 }
 
 std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(

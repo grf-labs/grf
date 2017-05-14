@@ -25,12 +25,11 @@ size_t RegressionPredictionStrategy::prediction_length() {
     return 1;
 }
 
-Prediction RegressionPredictionStrategy::predict(const std::vector<double>& average) {
-  std::vector<double> predictions = { average.at(OUTCOME) };
-  return Prediction(predictions);
+std::vector<double> RegressionPredictionStrategy::predict(const std::vector<double>& average) {
+  return { average.at(OUTCOME) };
 }
 
-Prediction RegressionPredictionStrategy::predict_with_variance(
+std::vector<double> RegressionPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const std::vector<std::vector<double>>& leaf_values,
     uint ci_group_size) {

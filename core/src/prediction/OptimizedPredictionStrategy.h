@@ -29,9 +29,9 @@
 class OptimizedPredictionStrategy {
 public:
   virtual size_t prediction_length() = 0;
-  virtual Prediction predict(const std::vector<double>& average_prediction_values) = 0;
+  virtual std::vector<double> predict(const std::vector<double>& average_prediction_values) = 0;
 
-  virtual Prediction predict_with_variance(const std::vector<double>& average_prediction_values,
+  virtual std::vector<double> compute_variance(const std::vector<double>& average_prediction_values,
       const std::vector<std::vector<double>>& leaf_prediction_values,
       uint ci_group_size) = 0;
 

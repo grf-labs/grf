@@ -36,15 +36,14 @@ size_t InstrumentalPredictionStrategy::prediction_length() {
     return 1;
 }
 
-Prediction InstrumentalPredictionStrategy::predict(const std::vector<double>& average) {
+std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<double>& average) {
   double instrument_effect = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
 
-  std::vector<double> prediction = { instrument_effect / first_stage };
-  return Prediction(prediction);
+  return { instrument_effect / first_stage };
 }
 
-Prediction InstrumentalPredictionStrategy::predict_with_variance(
+std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const std::vector<std::vector<double>>& leaf_values,
     uint ci_group_size) {
@@ -135,10 +134,8 @@ Prediction InstrumentalPredictionStrategy::predict_with_variance(
     var_debiased = bayes_debiaser.debias(within_noise, num_good_groups, var_between);
   }
 
-  std::vector<double> predictions = { treatment_estimate };
   double variance_estimate = var_debiased / (first_stage * first_stage);
-  std::vector<double> variance_estimates = { variance_estimate };
-  return Prediction(predictions, variance_estimates);
+  return { variance_estimate };
 }
 
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(

@@ -69,14 +69,11 @@ TEST_CASE("prediction with repeated quantiles", "[quantile, prediction]") {
   Observations observations = TestUtilities::create_observations(original_outcomes);
 
   std::vector<double> first_predictions = QuantilePredictionStrategy({0.5})
-          .predict(42, weights_by_sampleID, observations)
-          .get_predictions();
+          .predict(42, weights_by_sampleID, observations);
   std::vector<double> second_predictions = QuantilePredictionStrategy({0.25, 0.5, 0.75})
-      .predict(42, weights_by_sampleID, observations)
-      .get_predictions();
+      .predict(42, weights_by_sampleID, observations);
   std::vector<double> third_predictions = QuantilePredictionStrategy({0.5, 0.5, 0.5})
-      .predict(42, weights_by_sampleID, observations)
-      .get_predictions();
+      .predict(42, weights_by_sampleID, observations);
 
   REQUIRE(first_predictions[0] == second_predictions[1]);
   for (auto prediction : third_predictions) {

@@ -71,10 +71,13 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
 
     normalize_prediction_values(num_leaves, average_value);
 
-    Prediction prediction = ci_group_size == 1
-            ? strategy->predict(average_value)
-            : strategy->predict_with_variance(average_value, leaf_values, ci_group_size);
+    std::vector<double> point_prediction = strategy->predict(average_value);
+    std::vector<double> variance_estimate;
+    if (ci_group_size > 1) {
+      variance_estimate = strategy->compute_variance(average_value, leaf_values, ci_group_size);
+    }
 
+    Prediction prediction(point_prediction, variance_estimate);
     validate_prediction(sampleID, prediction);
     predictions.push_back(prediction);
   }
