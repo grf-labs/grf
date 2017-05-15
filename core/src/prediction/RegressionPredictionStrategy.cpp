@@ -69,15 +69,14 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
   double var_between = psi_grouped_squared / num_good_groups;
   double var_total = psi_squared / (num_good_groups * ci_group_size);
 
-  double within_noise = (var_total - var_between) / (ci_group_size - 1);
-
-  // A simple variance correction, but this can lead to negative variance estimates...
-  double var_debiased = var_between - within_noise;
-
-  // If simple variance correction is small, do an objective Bayes bias correction instead
-  if (var_debiased < within_noise / 10) {
-    var_debiased = bayes_debiaser.debias(within_noise, num_good_groups, var_between);
-  }
+  // This is the amount by which var_between is inflated due to using small groups
+  double group_noise = (var_total - var_between) / (ci_group_size - 1);
+  
+  // A simple variance correction, would be to use:
+  // var_debiased = var_between - group_noise.
+  // However, this may be biased in small samples; we do an objective
+  // Bayes analysis of variance instead to avoid negative values.
+  double var_debiased = bayes_debiaser.debias(var_between, group_noise, num_good_groups);
 
   return { var_debiased };
 }

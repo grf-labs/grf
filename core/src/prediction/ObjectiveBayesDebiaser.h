@@ -21,9 +21,12 @@
 
 class ObjectiveBayesDebiaser {
 public:
-  double debias(double within_noise,
-                double num_good_groups,
-                double var_between);
+  double debias(double var_between,
+                double group_noise,
+                double num_good_groups);
+private:
+  const double ONE_over_SQRT_TWO_PI = 0.3989422804;
+  const double ONE_over_SQRT_TWO = 0.70710678118;
 };
 
 #endif //GRADIENTFOREST_OBJECTBAYESDEBIASER_H

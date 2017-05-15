@@ -91,17 +91,17 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
         
         forest.Y <- regression.forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed)
+            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
         Y.hat = predict(forest.Y)$predictions
         
         forest.W <- regression.forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed)
+            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
         W.hat = predict(forest.W)$predictions
         
         forest.Z <- regression.forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed)
+            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
         Z.hat = predict(forest.Z)$predictions
         
         input.data <- as.matrix(cbind(X, Y - Y.hat, W - W.hat, Z - Z.hat))
