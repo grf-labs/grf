@@ -16,7 +16,7 @@ test_that("causal variance estimates are positive", {
 	W = rbinom(n, 1, 0.5)
 	Y = (X[,1] > 0) * (2 * W  - 1) + rnorm(n)
 
-	forest.causal = instrumental.forest(X, Y, W, W, sample.fraction = 0.5, num.trees = 10000, split.regularization = 0, ci.group.size = 4)
+	forest.causal = causal.forest(X, Y, W, num.trees = 1000, ci.group.size = 4)
 	preds.causal = predict(forest.causal, X.test, estimate.variance=TRUE)
 
 	expect_true(all(preds.causal$variance.estimate > 0))
