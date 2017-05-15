@@ -17,41 +17,30 @@
 
 #include "commons/utility.h"
 #include "ObjectiveBayesDebiaser.h"
+#include <math.h>
 
-
-double ObjectiveBayesDebiaser::debias(double within_noise,
-                                      double num_good_groups,
-                                      double var_between) {
-  if (num_good_groups <= 4) {
-    return within_noise;
-  }
-
-  // Start by computing chi-squared log-density, taking within_noise as fixed.
-  double lx[100];
-  double x[100];
-  for (size_t iter = 0; iter < 100; ++iter) {
-    x[iter] = iter * within_noise / 400.0;
-    lx[iter] = std::log(x[iter] + within_noise) * (1.0 - num_good_groups / 2.0)
-               - (num_good_groups * var_between) / (2 * (x[iter] + within_noise));
-  }
-
-  // Compute maximal log-density, to stabilize call to exp() below.
-  double maxlx = lx[1];
-  for (size_t iter = 0; iter < 100; ++iter) {
-    maxlx = std::max(maxlx, lx[iter]);
-  }
-
-  // Now do Bayes rule.
-  double numerator = 0;
-  double denominator = 0;
-  for (size_t iter = 0; iter < 100; ++iter) {
-    double fx = std::exp(lx[iter] - maxlx);
-    numerator += x[iter] * fx;
-    denominator += fx;
-  }
-
-  double result = numerator / denominator;
-
-  // Avoid jumpy behavior at the threshold.
-  return std::min(result, within_noise / 10);
+double ObjectiveBayesDebiaser::debias(double var_between,
+                                      double group_noise,
+                                      double num_good_groups) {
+  
+  // Let S denote the true between-groups variance, and assume that
+  // group_noise is measured exactly; our method-of-moments estimate is
+  // then \hat{S} = var_between - group_noise. Now, if we take
+  // num_good_groups * var_between to be chi-squared with scale
+  // S + group_noise and num_good_groups degrees of freedom, and assume
+  // that group_noise >> S, we find that var[initial_estimate] is roughly
+  // group_noise * sqrt(2 / num_good_groups); moreover, the distribution of
+  // \hat{S} - S is roughly Gaussian with this variance. Our estimation strategy
+  // relies on this fact, and puts a uniform prior on S for the interval [S, infty).
+  // This debiasing does nothing when \hat{S} >> group_noise * sqrt(2 / num_good_groups),
+  // but keeps \hat{S} from going negative.
+  
+  double initial_estimate = var_between - group_noise;
+  double initial_se = group_noise * std::sqrt(2 / num_good_groups);
+  
+  double ratio = initial_estimate / initial_se;
+  double part_1 = initial_se * std::exp(- ratio * ratio / 2) * ONE_over_SQRT_TWO_PI;
+  double part_2 = initial_estimate * 0.5 * erfc(-ratio * ONE_over_SQRT_TWO);
+  
+  return part_1 + part_2;
 }

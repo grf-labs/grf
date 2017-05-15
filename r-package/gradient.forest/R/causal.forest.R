@@ -85,13 +85,13 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(ncol(X)
         
         forest.Y <- regression.forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed)
-        Y.hat = predict(forest.Y)
+            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
+        Y.hat = predict(forest.Y)$predictions
         
         forest.W <- regression.forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed)
-        W.hat = predict(forest.W)
+            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
+        W.hat = predict(forest.W)$predictions
         
         input.data <- as.matrix(cbind(X, Y - Y.hat, W - W.hat))
         
