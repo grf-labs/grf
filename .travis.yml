@@ -24,9 +24,10 @@ matrix:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libopencv-dev
+  - sudo apt-get install -y libopencv-dev valgrind
 script:
   - cd core
   - mkdir build && cd build
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
   - cd .. && ./build/gradientforest exclude:[characterization]
+  - valgrind --leak-check=full --error-exitcode=1 ./build/gradientforest exclude:[characterization]
