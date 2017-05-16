@@ -15,12 +15,13 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <map>
-#include <unordered_set>
 #include <fstream>
-#include "commons/utility.h"
+#include <map>
+#include <memory>
+#include <unordered_set>
 
 #include "catch.hpp"
+#include "commons/utility.h"
 #include "relabeling/RelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "utilities/TestUtilities.h"
