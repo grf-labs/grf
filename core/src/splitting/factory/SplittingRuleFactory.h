@@ -23,6 +23,7 @@
 #include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 
+
 class SplittingRuleFactory {
 public:
   virtual std::shared_ptr<SplittingRule> create() = 0;
