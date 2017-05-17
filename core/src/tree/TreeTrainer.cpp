@@ -220,8 +220,8 @@ bool TreeTrainer::split_node_internal(size_t nodeID,
     return true;
   }
 
-  std::unordered_map<size_t, double> responses_by_sampleID = relabeling_strategy->relabel_outcomes(
-      observations, sampleIDs[nodeID]);
+  std::unordered_map<size_t, double> responses_by_sampleID = relabeling_strategy->relabel(
+      sampleIDs[nodeID], observations);
 
   bool stop = responses_by_sampleID.empty() ||
               splitting_rule->find_best_split(nodeID,

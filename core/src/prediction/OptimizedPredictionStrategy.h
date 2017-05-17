@@ -68,9 +68,8 @@ public:
   // This method is called during training on each tree to precompute
   // summary values to be used during prediction.
   //
-  // As an example, the regression prediction strategy computes the average
-  // outcome in each leaf so it does not need to recompute these values during
-  // every prediction.
+  // As an example, the regression prediction strategy computes the average outcome in
+  // each leaf so that it does not need to recompute these values during every prediction.
   virtual PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_sampleIDs,
       const Observations& observations) = 0;

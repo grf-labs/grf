@@ -17,8 +17,8 @@
 
 #include "CustomRelabelingStrategy.h"
 
-std::unordered_map<size_t, double> CustomRelabelingStrategy::relabel_outcomes(
-    const Observations& observations,
-    const std::vector<size_t>& node_sampleIDs) {
+std::unordered_map<size_t, double> CustomRelabelingStrategy::relabel(
+    const std::vector<size_t>& sampleIDs,
+    const Observations& observations) {
   return std::unordered_map<size_t, double>();
 }

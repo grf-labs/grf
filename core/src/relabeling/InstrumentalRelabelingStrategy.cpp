@@ -24,18 +24,18 @@ InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy():
 InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(double split_regularization):
   split_regularization(split_regularization) {}
 
-std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel_outcomes(
-    const Observations& observations,
-    const std::vector<size_t>& node_sampleIDs) {
+std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
+    const std::vector<size_t>& sampleIDs,
+    const Observations& observations) {
 
   // Prepare the relevant averages.
-  size_t num_samples = node_sampleIDs.size();
+  size_t num_samples = sampleIDs.size();
 
   double total_outcome = 0.0;
   double total_treatment = 0.0;
   double total_instrument = 0.0;
 
-  for (size_t sampleID : node_sampleIDs) {
+  for (size_t sampleID : sampleIDs) {
     total_outcome += observations.get(Observations::OUTCOME, sampleID);
     total_treatment += observations.get(Observations::TREATMENT, sampleID);
     total_instrument += observations.get(Observations::INSTRUMENT, sampleID);
@@ -51,7 +51,7 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel_outco
   double numerator = 0.0;
   double denominator = 0.0;
 
-  for (size_t sampleID : node_sampleIDs) {
+  for (size_t sampleID : sampleIDs) {
     double outcome = observations.get(Observations::OUTCOME, sampleID);
     double treatment = observations.get(Observations::TREATMENT, sampleID);
     double instrument = observations.get(Observations::INSTRUMENT, sampleID);
@@ -70,7 +70,7 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel_outco
   // Create the new outcomes.
   std::unordered_map<size_t, double> relabeled_outcomes;
 
-  for (size_t sampleID : node_sampleIDs) {
+  for (size_t sampleID : sampleIDs) {
     double response = observations.get(Observations::OUTCOME, sampleID);
     double treatment = observations.get(Observations::TREATMENT, sampleID);
     double instrument = observations.get(Observations::INSTRUMENT, sampleID);
