@@ -26,17 +26,19 @@
 
 class RegressionPredictionStrategy: public OptimizedPredictionStrategy {
 public:
+  size_t prediction_value_length();
+
+  PredictionValues precompute_prediction_values(const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+                                                const Observations& observations);
+
   size_t prediction_length();
 
   std::vector<double> predict(const std::vector<double>& average);
 
   std::vector<double> compute_variance(
       const std::vector<double>& average,
-      const std::vector<std::vector<double>>& leaf_values,
+      const PredictionValues& leaf_values,
       uint ci_group_size);
-
-  PredictionValues precompute_prediction_values(const std::vector<std::vector<size_t>>& leaf_sampleIDs,
-                                                const Observations& observations);
 
 private:
   static const std::size_t OUTCOME;

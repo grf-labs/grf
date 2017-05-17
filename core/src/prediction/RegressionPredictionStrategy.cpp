@@ -31,7 +31,7 @@ std::vector<double> RegressionPredictionStrategy::predict(const std::vector<doub
 
 std::vector<double> RegressionPredictionStrategy::compute_variance(
     const std::vector<double>& average,
-    const std::vector<std::vector<double>>& leaf_values,
+    const PredictionValues& leaf_values,
     uint ci_group_size) {
 
   double average_outcome = average.at(OUTCOME);
@@ -40,10 +40,10 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
   double psi_squared = 0;
   double psi_grouped_squared = 0;
 
-  for (size_t group = 0; group < leaf_values.size() / ci_group_size; ++group) {
+  for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
     for (size_t j = 0; j < ci_group_size; ++j) {
-      if (leaf_values[group * ci_group_size + j].size() == 0) {
+      if (leaf_values.get_values(group * ci_group_size + j).size() == 0) {
         good_group = false;
       }
     }
@@ -55,8 +55,7 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
 
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t i = group * ci_group_size + j;
-      double leaf_outcome = leaf_values.at(i).at(OUTCOME);
-      double psi_1 = leaf_outcome - average_outcome;
+      double psi_1 = leaf_values.get(i, OUTCOME) - average_outcome;
 
       psi_squared += psi_1 * psi_1;
       group_psi += psi_1;
@@ -79,6 +78,11 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
   double var_debiased = bayes_debiaser.debias(var_between, group_noise, num_good_groups);
 
   return { var_debiased };
+}
+
+
+size_t RegressionPredictionStrategy::prediction_value_length() {
+  return 1;
 }
 
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(

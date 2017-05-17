@@ -45,7 +45,7 @@ std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<do
 
 std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     const std::vector<double>& average,
-    const std::vector<std::vector<double>>& leaf_values,
+    const PredictionValues& leaf_values,
     uint ci_group_size) {
 
   double instrument_effect = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
@@ -57,10 +57,10 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
   std::vector<std::vector<double>> psi_squared = {{0, 0}, {0, 0}};
   std::vector<std::vector<double>> psi_grouped_squared = {{0, 0}, {0, 0}};
 
-  for (size_t group = 0; group < leaf_values.size() / ci_group_size; ++group) {
+  for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
     for (size_t j = 0; j < ci_group_size; ++j) {
-      if (leaf_values[group * ci_group_size + j].size() == 0) {
+      if (leaf_values.get_values(group * ci_group_size + j).size() == 0) {
         good_group = false;
       }
     }
@@ -74,7 +74,7 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     for (size_t j = 0; j < ci_group_size; ++j) {
 
       size_t i = group * ci_group_size + j;
-      const std::vector<double>& leaf_value = leaf_values.at(i);
+      const std::vector<double>& leaf_value = leaf_values.get_values(i);
 
       double psi_1 = leaf_value.at(OUTCOME_INSTRUMENT)
                      - leaf_value.at(TREATMENT_INSTRUMENT) * treatment_estimate
@@ -130,6 +130,10 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
 
   double variance_estimate = var_debiased / (first_stage * first_stage);
   return { variance_estimate };
+}
+
+size_t InstrumentalPredictionStrategy::prediction_value_length() {
+  return NUM_TYPES;
 }
 
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
