@@ -50,7 +50,7 @@ TEST_CASE("instrumental variance estimates are positive", "[regression, predicti
 
   InstrumentalPredictionStrategy prediction_strategy;
   std::vector<double> variance = prediction_strategy.compute_variance(
-      averages, leaf_values, 2);
+      averages, PredictionValues(leaf_values, 4, 5), 2);
 
   REQUIRE(variance.size() == 1);
   REQUIRE(variance[0] > 0);
@@ -67,9 +67,13 @@ TEST_CASE("scaling outcome scales instrumental variance", "[instrumental, predic
 
   InstrumentalPredictionStrategy prediction_strategy;
   std::vector<double> first_variance = prediction_strategy.compute_variance(
-      averages, leaf_values, 2);
+      averages,
+      PredictionValues(leaf_values, 4, 5),
+      2);
   std::vector<double> second_variance = prediction_strategy.compute_variance(
-      scaled_average, scaled_leaf_values, 2);
+      scaled_average,
+      PredictionValues(scaled_leaf_values, 4, 5),
+      2);
 
   REQUIRE(first_variance.size() == 1);
   REQUIRE(second_variance.size() == 1);

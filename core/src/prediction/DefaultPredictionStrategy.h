@@ -26,9 +26,25 @@
 #include "prediction/Prediction.h"
 #include "prediction/PredictionValues.h"
 
+// A prediction strategy defines how predictions are computed over test samples.
+//
+// This strategy is given a weighted list of training sample IDs that share a leaf
+// with the test sample. To create a more performant strategy, or one that can compute
+// variance estimates, please refer to OptimizedPredictionStrategy.
+//
 class DefaultPredictionStrategy {
 public:
+  // The number of values in a prediction, e.g. 1 for regression
+  // or the number of quantiles for quantile forests.
   virtual size_t prediction_length() = 0;
+
+  // Computes a prediction for a single test sample.
+  //
+  // sampleID: the ID of the test sample.
+  // weights_by_sampleID: a map from neighboring sample ID, to a weight specifying
+  //     how often the sample appeared in the same leaf as the test sample. Note that
+  //     these weights are normalized and will sum to 1.
+  // observations: a list of observations for all training samples.
   virtual std::vector<double> predict(size_t sampleID,
       const std::unordered_map<size_t, double>& weights_by_sampleID,
       const Observations& observations) = 0;
