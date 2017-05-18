@@ -59,6 +59,10 @@ lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
 
 More usage examples, including examples around instrumental variables, can be found in the `experiments` directory.
 
+### Developing
+
+In addition to providing out-of-the-box forests for quantile regression and instrumental variables, gradient-forest provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using gradient-forest, please consult the [developing page](DEVELOPING.md).
+
 ### References
 
 Susan Athey, Julie Tibshirani and Stefan Wager.
