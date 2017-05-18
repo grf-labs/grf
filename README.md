@@ -12,13 +12,13 @@ The repository first started as a fork of the [ranger](https://github.com/imbs-h
 
 ### Installation
 
-We recommend installing the package through `devtools`:
+The package can be installed from source as follows:
 
 ```R
-devtools::install_github("swager/gradient-forest", subdir = "r-package/gradient.forest")
+install.packages("https://raw.github.com/swager/gradient-forest/master/releases/gradient-forest-alpha.tar.gz", repos = NULL, type = "source")
 ```
 
-Currently only Mac OS X and Linux are supported. Note that a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher).
+Note that a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
 
 ### Usage Examples
 
