@@ -21,3 +21,6 @@
 
 # clion files
 .idea/
+
+# copied src files
+gradient.forest/src/*

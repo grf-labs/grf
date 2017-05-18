@@ -8,4 +8,3 @@ PKG_CXXFLAGS = -O3 -std=c++11 -Wall -I. -Isrc -Ithird_party
 
 SOURCES = $(wildcard *.cpp */*.cpp */*/*.cpp */*/*/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
-
