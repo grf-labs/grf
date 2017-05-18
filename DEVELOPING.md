@@ -1,10 +1,12 @@
 # Developing
 
-## Working with the code
+In addition to providing out-of-the-box forests for quantile regression and instrumental variables, gradient-forest provides a framework for creating forests tailored to new statistical tasks. Certain components around splitting and prediction can be swapped out, within the general infrastructure for growing and predicting on trees.
+
+### Working with the code
 
 The core forest implementation is written in C++, with an R interface powered by Rcpp. We recommend using a full-powered C++ IDE such as CLion, Xcode, or Visual Studio when working with the core code. To build the R package from source, cd into `r-package` and run the `build_package.R` script.
 
-## Code structure
+### Code structure
 
 The forest implementation is composed of two top-level components, [ForestTrainer](https://github.com/swager/gradient-forest/blob/master/core/src/forest/ForestTrainer.h) and [ForestPredictor](https://github.com/swager/gradient-forest/blob/master/core/src/forest/ForestPredictor.h).
 
@@ -20,7 +22,9 @@ Prediction strategies can also compute variance estimates for the predictions, g
 
 A particular type of forest is created by pulling together a set of pluggable components. As an example, a quantile forest is composed of a QuantileRelabelingStrategy, ProbabilitySplittingRule, and QuantilePredictionStrategy. The factory classes [ForestTrainers](https://github.com/swager/gradient-forest/blob/master/core/src/forest/ForestTrainers.h) and [ForestPredictors](https://github.com/swager/gradient-forest/blob/master/core/src/forest/ForestPredictors.h) define the common types of forests like regression, quantile, and causal forests.
 
-## Creating a custom forest
+### Creating a custom forest
 
-If no relabeling is needed (as in the case of a vanilla regression forest), the NoopRelabelingStrategy should be used.
+To avoid the overhead of setting up new classes and Rcpp bindings, we provide a template for a 'custom' forest. To get started, fill in the implementation for CustomRelabelingStrategy and CustomPredictionStrategy. By default, the custom forest uses the standard regression splitting rule -- if you'd like to change this, consult the ForestTrainers.custom_trainer method.
+
+This forest is made available in R as `custom.forest` (with `predict.custom.forest`). You can find a starter template for a test exercising the forest in `testthat/test_custom_forest.R`. Note that you'll need to re-run `build_package.R` after making changes to the C++ source.
 
