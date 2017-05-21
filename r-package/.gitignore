@@ -23,4 +23,4 @@
 .idea/
 
 # copied src files
-gradient.forest/src/*
+grf/src/*

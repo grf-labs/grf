@@ -4,7 +4,7 @@ rm(list = ls())
 
 setwd("~/git/split-relabel/experiments/instrumental_examples")
 
-library(gradient.forest)
+library(grf)
 p = 20
 n = 10000
 

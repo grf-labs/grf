@@ -2,20 +2,21 @@ library(Rcpp)
 library(devtools)
 library(testthat)
 
-package.name <- "gradient.forest"
-package.src <- "gradient.forest/src"
+package.name <- "grf"
+package.src <- file.path(package.name, "src")
+package.bindings <- file.path(package.name, "bindings")
 
 # Copy Rcpp bindings and C++ source into the package src directory.
 unlink(package.src, recursive = TRUE)
 dir.create(package.src)
 
-binding.files <- list.files("gradient.forest/bindings", full.names = TRUE)
+binding.files <- list.files(package.bindings, full.names = TRUE)
 file.copy(binding.files, package.src, recursive = FALSE)
 
 file.copy("../core/src", package.src, recursive = TRUE)
 file.copy("../core/third_party", package.src, recursive = TRUE)
 
-# Build the package.
+# Run Rcpp and build the package.
 compileAttributes(package.name)
 clean_dll(package.name)
 build(package.name)
