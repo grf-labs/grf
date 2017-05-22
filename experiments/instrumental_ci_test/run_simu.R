@@ -2,7 +2,7 @@ rm(list = ls())
 
 setwd("~/git/split-relabel/experiments/instrumental_ci_test")
 
-library(gradient.forest)
+library(grf)
 
 #
 #

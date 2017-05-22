@@ -1,5 +1,5 @@
-#ifndef GRADIENTFOREST_GLOBALS_H_
-#define GRADIENTFOREST_GLOBALS_H_
+#ifndef GRF_GLOBALS_H_
+#define GRF_GLOBALS_H_
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
     TypeName(const TypeName&);             \
@@ -36,4 +36,4 @@ const double STATUS_INTERVAL = 30.0;
 // Threshold for q value split method switch
 const double Q_THRESHOLD = 0.02;
 
-#endif /* GRADIENTFOREST_GLOBALS_H_ */
+#endif /* GRF_GLOBALS_H_ */

@@ -1,16 +1,15 @@
-Package: gradient.forest
+Package: grf
 Title: A pluggable package for forest-based statistical estimation
 Version: 0.0.0.1
 Authors@R: c(
     person("Julie", "Tibshirani", email = "jtibs@cs.stanford.edu", role = c("aut", "cre")),
     person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut")),
-    person("Susan", "Athey", email = "athey@stanford.edu", role = c("aut")),
-    person("Marvin", "Wright", email = "wright@imbs.uni-luebeck.de", role = c("ctb")))
+    person("Susan", "Athey", email = "athey@stanford.edu", role = c("aut")))
 Description: ...
 Depends: R (>= 3.3.1)
 License: GPL-3
 LinkingTo: Rcpp
 Imports: Rcpp (>= 0.11.2)
 RoxygenNote: 5.0.1.9000
-URL: https://github.com/swager/gradient-forest
-BugReports: https://github.com/swager/gradient-forest/issues
+URL: https://github.com/swager/grf
+BugReports: https://github.com/swager/grf/issues

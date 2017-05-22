@@ -1,22 +1,22 @@
 /*-------------------------------------------------------------------------------
-  This file is part of gradient-forest.
+  This file is part of generalized-random-forest (grf).
 
-  gradient-forest is free software: you can redistribute it and/or modify
+  generalized-random-forest is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  gradient-forest is distributed in the hope that it will be useful,
+  generalized-random-forest is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
+  along with generalized-random-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRADIENTFOREST_REGRESSIONSPLITTINGRULEFACTORY_H
-#define GRADIENTFOREST_REGRESSIONSPLITTINGRULEFACTORY_H
+#ifndef GRF_REGRESSIONSPLITTINGRULEFACTORY_H
+#define GRF_REGRESSIONSPLITTINGRULEFACTORY_H
 
 
 #include "splitting/factory/SplittingRuleFactory.h"
@@ -31,4 +31,4 @@ private:
 };
 
 
-#endif //GRADIENTFOREST_REGRESSIONSPLITTINGRULEFACTORY_H
+#endif //GRF_REGRESSIONSPLITTINGRULEFACTORY_H
