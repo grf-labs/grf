@@ -36,8 +36,8 @@
 #' @return A trained causal forest object.
 #' @export
 causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
-    num.trees = 500, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
-    honesty = TRUE, ci.group.size = 4, precompute.nuisance = TRUE, seed = NULL) {
+    num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
+    honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, seed = NULL) {
     
     sparse.data <- as.matrix(0)
     

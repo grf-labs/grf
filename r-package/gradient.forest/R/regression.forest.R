@@ -25,7 +25,7 @@
 #' @return A trained regression forest object.
 #' @export
 regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
-    num.trees = 500, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
+    num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
     honesty = TRUE, ci.group.size = 2, seed = NULL) {
     
     sparse.data <- as.matrix(0)
