@@ -39,8 +39,8 @@
 #' @return A trained instrumental forest object.
 #' @export
 instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
-    num.trees = 500, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
-    honesty = TRUE, ci.group.size = 4, precompute.nuisance = TRUE, split.regularization = 0, 
+    num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
+    honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, split.regularization = 0, 
     seed = NULL) {
     
     sparse.data <- as.matrix(0)
