@@ -74,7 +74,8 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
     ++i;
   }
 
-  auto tree = std::shared_ptr<Tree>(new Tree(child_nodeIDs,
+  auto tree = std::shared_ptr<Tree>(new Tree(0,
+      child_nodeIDs,
       nodes,
       split_varIDs,
       split_values,
@@ -96,18 +97,19 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
 }
 
 void TreeTrainer::repopulate_leaf_nodeIDs(std::shared_ptr<Tree> tree,
-                                              Data* data,
-                                              const std::vector<size_t>& leaf_sampleIDs) {
+                                          Data* data,
+                                          const std::vector<size_t>& leaf_samples) {
   size_t num_nodes = tree->get_leaf_nodeIDs().size();
-  std::vector<std::vector<size_t>> new_leaf_nodeIDs(num_nodes);
+  std::vector<std::vector<size_t>> new_leaf_nodes(num_nodes);
 
-  std::vector<size_t> leaf_nodeIDs = tree->find_leaf_nodeIDs(data, leaf_sampleIDs);
+  std::vector<size_t> leaf_nodes = tree->find_leaf_nodeIDs(data, leaf_samples);
 
-  for (auto& sampleID : leaf_sampleIDs) {
-    size_t leaf_nodeID = leaf_nodeIDs.at(sampleID);
-    new_leaf_nodeIDs.at(leaf_nodeID).push_back(sampleID);
+  for (auto& sampleID : leaf_samples) {
+    size_t leaf_nodeID = leaf_nodes.at(sampleID);
+    new_leaf_nodes.at(leaf_nodeID).push_back(sampleID);
   }
-  tree->set_leaf_nodeIDs(new_leaf_nodeIDs);
+  tree->set_leaf_nodes(new_leaf_nodes);
+  tree->prune_empty_leaves();
 }
 
 void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
@@ -242,9 +244,9 @@ void TreeTrainer::create_empty_node(std::vector<std::vector<size_t>>& child_node
                                     std::vector<std::vector<size_t>>& sampleIDs,
                                     std::vector<size_t>& split_varIDs,
                                     std::vector<double>& split_values) {
-  split_varIDs.push_back(0);
-  split_values.push_back(0);
   child_nodeIDs[0].push_back(0);
   child_nodeIDs[1].push_back(0);
   sampleIDs.push_back(std::vector<size_t>());
+  split_varIDs.push_back(0);
+  split_values.push_back(0);
 }
