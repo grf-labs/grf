@@ -48,7 +48,7 @@ private:
 
   void repopulate_leaf_nodeIDs(std::shared_ptr<Tree> tree,
                                Data* data,
-                               const std::vector<size_t>& leaf_sampleIDs);
+                               const std::vector<size_t>& leaf_samples);
 
   void create_split_variable_subset(std::vector<size_t>& result,
                                     BootstrapSampler &bootstrap_sampler,
