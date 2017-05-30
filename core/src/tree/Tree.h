@@ -30,17 +30,22 @@
 
 class Tree {
 public:
-  Tree(const std::vector<std::vector<size_t>>& child_nodeIDs,
+  Tree(size_t root_nodeID,
+       const std::vector<std::vector<size_t>>& child_nodeIDs,
        const std::vector<std::vector<size_t>>& leaf_nodeIDs,
        const std::vector<size_t>& split_varIDs,
        const std::vector<double>& split_values,
        const std::vector<size_t>& oob_sampleIDs,
        const PredictionValues& prediction_values);
 
-  ~Tree();
-
   std::vector<size_t> find_leaf_nodeIDs(Data *prediction_data,
                                         const std::vector<size_t> &sampleIDs);
+
+  void prune_empty_leaves();
+
+  size_t get_root_nodeID() {
+    return root_nodeID;
+  }
 
   const std::vector<std::vector<size_t>>& get_child_nodeIDs() {
     return child_nodeIDs;
@@ -66,7 +71,7 @@ public:
     return prediction_values;
   }
 
-  void set_leaf_nodeIDs(const std::vector<std::vector<size_t>>& leaf_nodeIDs) {
+  void set_leaf_nodes(const std::vector<std::vector<size_t>> &leaf_nodeIDs) {
     this->leaf_nodeIDs = leaf_nodeIDs;
   }
 
@@ -79,6 +84,12 @@ public:
   }
 
 private:
+  void prune_node(size_t& node);
+
+  bool is_leaf(size_t node);
+  bool is_empty_leaf(size_t node);
+
+  size_t root_nodeID;
   std::vector<std::vector<size_t>> child_nodeIDs;
   std::vector<std::vector<size_t>> leaf_nodeIDs;
   std::vector<size_t> split_varIDs;

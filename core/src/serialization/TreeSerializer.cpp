@@ -21,6 +21,9 @@
 #include "serialization/PredictionValuesSerializer.h"
 
 void TreeSerializer::serialize(std::ostream& stream, const std::shared_ptr<Tree>& tree) {
+  size_t root_nodeID = tree->get_root_nodeID();
+  stream.write((char*) &root_nodeID, sizeof(root_nodeID));
+
   write_matrix(tree->get_child_nodeIDs(), stream);
   write_matrix(tree->get_leaf_nodeIDs(), stream);
   write_vector(tree->get_split_varIDs(), stream);
@@ -32,6 +35,9 @@ void TreeSerializer::serialize(std::ostream& stream, const std::shared_ptr<Tree>
 }
 
 std::shared_ptr<Tree> TreeSerializer::deserialize(std::istream& stream) {
+  size_t root_nodeID;
+  stream.read((char*) &root_nodeID, sizeof(root_nodeID));
+
   std::vector<std::vector<size_t>> child_nodeIDs;
   read_matrix(child_nodeIDs, stream);
 
@@ -51,7 +57,8 @@ std::shared_ptr<Tree> TreeSerializer::deserialize(std::istream& stream) {
   PredictionValues prediction_values = prediction_values_serializer.deserialize(stream);
 
   return std::shared_ptr<Tree>(
-      new Tree(child_nodeIDs,
+      new Tree(root_nodeID,
+               child_nodeIDs,
                sampleIDs,
                split_varIDs,
                split_values,
