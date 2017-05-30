@@ -23,8 +23,8 @@ DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPr
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
     Data* prediction_data,
-    std::vector<std::vector<size_t>> leaf_nodes_by_tree,
-    std::vector<std::vector<bool>> trees_by_sample) {
+    const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+    const std::vector<std::vector<bool>>& trees_by_sample) {
 
   size_t num_samples = prediction_data->get_num_rows();
   std::vector<Prediction> predictions;

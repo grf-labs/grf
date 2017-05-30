@@ -49,7 +49,7 @@ TEST_CASE("observations serialize and deserialize correctly", "[observationsSeri
 }
 
 TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
-  std::shared_ptr<Tree> original_tree(new Tree(
+  std::shared_ptr<Tree> original_tree(new Tree(0,
       {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
       {{0, 1}, {5, 1}, {4, 6, 9}},
       {10, 20, 30, 40},
@@ -71,8 +71,8 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
 
 TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]") {
   std::vector<std::shared_ptr<Tree>> trees;
-  trees.push_back(std::shared_ptr<Tree>(new Tree({{0}}, {{0}}, {0}, {0}, {0}, PredictionValues())));
-  trees.push_back(std::shared_ptr<Tree>(new Tree({{1}}, {{1}}, {1}, {1}, {1}, PredictionValues())));
+  trees.push_back(std::shared_ptr<Tree>(new Tree(0, {{0}}, {{0}}, {0}, {0}, {0}, PredictionValues())));
+  trees.push_back(std::shared_ptr<Tree>(new Tree(0, {{1}}, {{1}}, {1}, {1}, {1}, PredictionValues())));
 
   std::vector<double> outcomes = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                   -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};

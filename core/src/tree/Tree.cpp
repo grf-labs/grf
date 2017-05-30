@@ -21,12 +21,14 @@
 #include "tree/Tree.h"
 #include "commons/utility.h"
 
-Tree::Tree(const std::vector<std::vector<size_t>>& child_nodeIDs,
+Tree::Tree(size_t root_nodeID,
+           const std::vector<std::vector<size_t>>& child_nodeIDs,
            const std::vector<std::vector<size_t>>& leaf_nodeIDs,
            const std::vector<size_t>& split_varIDs,
            const std::vector<double>& split_values,
            const std::vector<size_t>& oob_sampleIDs,
            const PredictionValues& prediction_values) :
+    root_nodeID(root_nodeID),
     child_nodeIDs(child_nodeIDs),
     leaf_nodeIDs(leaf_nodeIDs),
     split_varIDs(split_varIDs),
@@ -47,11 +49,10 @@ std::vector<size_t> Tree::find_leaf_nodeIDs(Data* prediction_data,
   for (size_t i = 0; i < num_samples_predict; ++i) {
     size_t sampleID = use_subsample ? sampleIDs[i] : i;
 
-    size_t nodeID = 0;
-    while (1) {
-
+    size_t nodeID = root_nodeID;
+    while (true) {
       // Break if terminal node
-      if (child_nodeIDs[0][nodeID] == 0 && child_nodeIDs[1][nodeID] == 0) {
+      if (is_leaf(nodeID)) {
         break;
       }
 
@@ -72,6 +73,51 @@ std::vector<size_t> Tree::find_leaf_nodeIDs(Data* prediction_data,
   return prediction_leaf_nodeIDs;
 }
 
-Tree::~Tree() {}
+void Tree::prune_empty_leaves() {
+  size_t num_nodes = leaf_nodeIDs.size();
+  for (size_t n = num_nodes; n > root_nodeID; n--) {
+    size_t node = n - 1;
+    if (is_leaf(node)) {
+      continue;
+    }
 
+    size_t& left_child = child_nodeIDs[0][node];
+    if (!is_leaf(left_child)) {
+      prune_node(left_child);
+    }
+
+    size_t& right_child = child_nodeIDs[1][node];
+    if (!is_leaf(right_child)) {
+      prune_node(right_child);
+    }
+  }
+  prune_node(root_nodeID);
+}
+
+void Tree::prune_node(size_t& node) {
+  size_t left_child = child_nodeIDs[0][node];
+  size_t right_child = child_nodeIDs[1][node];
+
+  // If either child is empty, prune this node.
+  if (is_empty_leaf(left_child) || is_empty_leaf(right_child)) {
+    // Empty out this node.
+    child_nodeIDs[0][node] = 0;
+    child_nodeIDs[1][node] = 0;
+
+    // If one of the children is not empty, promote it.
+    if (!is_empty_leaf(left_child)) {
+      node = left_child;
+    } else if (!is_empty_leaf(right_child)) {
+      node = right_child;
+    }
+  }
+}
+
+bool Tree::is_leaf(size_t node) {
+  return child_nodeIDs[0][node] == 0 && child_nodeIDs[1][node] == 0;
+}
+
+bool Tree::is_empty_leaf(size_t node) {
+  return is_leaf(node) && leaf_nodeIDs[node].empty();
+}
 

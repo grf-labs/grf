@@ -22,10 +22,10 @@ OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<Optim
     strategy(strategy),
     ci_group_size(ci_group_size) {}
 
-std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest &forest,
-                                                                          Data *prediction_data,
-                                                                          std::vector<std::vector<size_t>> leaf_nodes_by_tree,
-                                                                          std::vector<std::vector<bool>> trees_by_sample) {
+std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
+                                                                          Data* prediction_data,
+                                                                          const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                                          const std::vector<std::vector<bool>>& trees_by_sample) {
   size_t num_trees = forest.get_trees().size();
   size_t num_samples = prediction_data->get_num_rows();
 
