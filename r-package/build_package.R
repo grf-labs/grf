@@ -19,6 +19,7 @@ file.copy("../core/third_party", package.src, recursive = TRUE)
 # Run Rcpp and build the package.
 compileAttributes(package.name)
 clean_dll(package.name)
+document(package.name)
 build(package.name)
 
 # Test installation and run some smoke tests.

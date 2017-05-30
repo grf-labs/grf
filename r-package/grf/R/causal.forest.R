@@ -1,0 +1,137 @@
+#' Causal forest
+#' 
+#' Trains a causal forest that can be used to estimate
+#' conditional average treatment effects tau(X). When
+#' the treatment assignmnet W is binary and unconfounded,
+#' we have tau(X) = E[Y(1) - Y(0) | X = x], where Y(0) and
+#' Y(1) are potential outcomes corresponding to the two possible
+#' treatment states. When W is continuous, we effectively estimate
+#' an average partical effect Cov[Y, W | X = x] / Var[W | X = x],
+#' and interpret it as a treatment effect given unconfoundedness.
+#'
+#' @param X The covariates used in the causal regression.
+#' @param Y The outcome.
+#' @param W The treatment assignment (may be binary or real).
+#' @param sample.fraction Fraction of the data used to build each tree.
+#'                        Note: If honesty is used, these subsamples will
+#'                        further be cut in half.
+#' @param mtry Number of variables tried for each split.
+#' @param num.trees Number of trees grown in the forest. Note: Getting accurate
+#'                  confidence intervals generally requires more trees than
+#'                  getting accurate predictions.
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#' @param min.node.size Minimum number of observations in each tree leaf.
+#' @param keep.inbag Currently not used.
+#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
+#' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
+#'                      In order to provide confidence intervals, ci.group.size must
+#'                      be at least 2.
+#' @param precompute.nuisance Should we first run regression forests to estimate
+#'                            y(x) = E[Y|X=x] and w(x) = E[W|X=x], and then run a
+#'                            causal forest on the residuals? This approach is
+#'                            recommended, computational resources permitting.
+#' @param seed The seed of the c++ random number generator.
+#'
+#' @return A trained causal forest object.
+#' @export
+causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
+    num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
+    honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, seed = NULL) {
+    
+    sparse.data <- as.matrix(0)
+    
+    if (is.null(mtry)) {
+        mtry <- 0
+    } else if (!is.numeric(mtry) | mtry < 0) {
+        stop("Error: Invalid value for mtry")
+    }
+    
+    verbose <- FALSE
+    
+    if (is.null(num.threads)) {
+        num.threads <- 0
+    } else if (!is.numeric(num.threads) | num.threads < 0) {
+        stop("Error: Invalid value for num.threads")
+    }
+    
+    if (is.null(min.node.size)) {
+        min.node.size <- 0
+    } else if (!is.numeric(min.node.size) | min.node.size < 0) {
+        stop("Error: Invalid value for min.node.size")
+    }
+    
+    sample.with.replacement <- FALSE
+    
+    if (!is.logical(keep.inbag)) {
+        stop("Error: Invalid value for keep.inbag")
+    }
+    
+    if (!is.numeric(sample.fraction) | sample.fraction <= 0 | sample.fraction > 1) {
+        stop("Error: Invalid value for sample.fraction. Please give a value in (0,1].")
+    }
+    
+    if (is.null(seed)) {
+        seed <- runif(1, 0, .Machine$integer.max)
+    }
+    
+    split.regularization <- 0
+    
+    if (!precompute.nuisance) {
+        
+        input.data <- as.matrix(cbind(X, Y, W))
+        
+    } else {
+        
+        forest.Y <- regression.forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
+            num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
+            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
+        Y.hat = predict(forest.Y)$predictions
+        
+        forest.W <- regression.forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
+            num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
+            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
+        W.hat = predict(forest.W)$predictions
+        
+        input.data <- as.matrix(cbind(X, Y - Y.hat, W - W.hat))
+        
+    }
+    
+    
+    variable.names <- c(colnames(X), "outcome", "treatment")
+    outcome.index.zeroindexed <- ncol(X)
+    treatment.index.zeroindexed <- ncol(X) + 1
+    instrument.index.zeroindexed <- treatment.index.zeroindexed
+    
+    no.split.variables <- numeric(0)
+    
+    forest <- instrumental_train(input.data, outcome.index.zeroindexed, treatment.index.zeroindexed, 
+        instrument.index.zeroindexed, sparse.data, variable.names, mtry, num.trees, 
+        verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, 
+        sample.fraction, no.split.variables, seed, honesty, ci.group.size, split.regularization)
+    
+    forest[["ci.group.size"]] <- ci.group.size
+    forest[["original.data"]] <- input.data
+    class(forest) <- "causal.forest"
+    forest
+}
+
+#' Predict with a causal forest
+#' 
+#' Gets estimates of tau(x) using a trained causal forest.
+#'
+#' @param forest The trained forest.
+#' @param newdata Points at which predictions should be made. If NULL,
+#'                makes out-of-bag predictions on the training set instead
+#'                (i.e., provides predictions at Xi using only trees that did
+#'                not use the i-th training example).
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
+#'                          (for confidence intervals).
+#'
+#' @return Vector of predictions, along with (optional) variance estimates.
+#' @export
+predict.causal.forest <- function(forest, newdata = NULL, num.threads = NULL, estimate.variance = FALSE) {
+    predict.instrumental.forest(forest, newdata, num.threads, estimate.variance)
+}
