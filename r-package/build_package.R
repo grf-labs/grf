@@ -6,7 +6,9 @@ package.name <- "gradient.forest"
 package.src <- "gradient.forest/src"
 
 # Copy Rcpp bindings and C++ source into the package src directory.
-unlink(file.path(package.src, "*"), recursive = TRUE)
+unlink(package.src, recursive = TRUE)
+dir.create(package.src)
+
 binding.files <- list.files("gradient.forest/bindings", full.names = TRUE)
 file.copy(binding.files, package.src, recursive = FALSE)
 
