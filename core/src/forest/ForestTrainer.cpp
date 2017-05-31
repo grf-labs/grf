@@ -129,7 +129,7 @@ Forest ForestTrainer::train(Data* data) {
   }
 
   if (mtry == 0) {
-    mtry = ceil((num_variables - no_split_variables.size()) / 3.0);
+    mtry = ceil((num_independent_variables) / 3.0);
   }
 
   // Set minimal node size
@@ -148,7 +148,7 @@ Forest ForestTrainer::train(Data* data) {
   }
 
   // Check if mtry is in valid range
-  if (this->mtry > num_variables - 1) {
+  if (mtry > num_independent_variables) {
     throw std::runtime_error("mtry can not be larger than number of variables in data.");
   }
 
@@ -309,7 +309,7 @@ void ForestTrainer::set_always_split_variables(Data* data,
     deterministic_vars.push_back(var);
   }
 
-  if (deterministic_vars.size() + this->mtry > num_independent_variables) {
+  if (deterministic_vars.size() + mtry > num_independent_variables) {
     throw std::runtime_error(
         "Number of variables to be always considered for splitting plus mtry cannot be larger than number of independent variables.");
   }

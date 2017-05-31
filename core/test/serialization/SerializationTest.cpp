@@ -80,7 +80,7 @@ TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]"
 
   ForestSerializer forest_serializer;
   std::stringstream stream;
-  Forest original_forest(trees, observations);
+  Forest original_forest(trees, observations, 3);
 
   forest_serializer.serialize(stream, original_forest);
   Forest forest = forest_serializer.deserialize(stream);

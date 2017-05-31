@@ -49,13 +49,8 @@ Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
                                     sample_with_replacement, sample_fraction, no_split_variables, seed, honesty, ci_group_size);
   Forest forest = trainer.train(data);
 
-  Rcpp::List result;
-  Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
-  result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
-  result.push_back(forest.get_trees().size(), "num.trees");
-
+  Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
   delete data;
-
   return result;
 }
 

@@ -36,9 +36,12 @@ Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
   }
 
   Observations observations(observations_by_type, num_samples);
-  return Forest(trees, observations);
+  return Forest(trees, observations, data->get_num_cols());
 }
 
 Forest::Forest(const std::vector<std::shared_ptr<Tree>>& trees,
-               const Observations& observations):
-  trees(trees), observations(observations) {}
+               const Observations& observations,
+               size_t num_variables):
+  trees(trees),
+  observations(observations),
+  num_variables(num_variables) {}

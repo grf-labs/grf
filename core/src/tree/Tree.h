@@ -110,6 +110,8 @@ public:
     return prediction_values;
   }
 
+  bool is_leaf(size_t node);
+
   void set_leaf_nodes(const std::vector<std::vector<size_t>>& leaf_nodes) {
     this->leaf_samples = leaf_nodes;
   }
@@ -124,8 +126,6 @@ public:
 
 private:
   void prune_node(size_t& node);
-
-  bool is_leaf(size_t node);
   bool is_empty_leaf(size_t node);
 
   size_t root_node;

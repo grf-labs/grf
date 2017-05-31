@@ -32,13 +32,8 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
       sample_with_replacement, sample_fraction, no_split_variables, seed, honesty, ci_group_size);
   Forest forest = trainer.train(data);
 
-  Rcpp::List result;
-  Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
-  result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
-  result.push_back(forest.get_trees().size(), "num.trees");
-
+  Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
   delete data;
-
   return result;
 }
 
@@ -56,10 +51,7 @@ Rcpp::List regression_predict(Rcpp::List forest,
   ForestPredictor predictor = ForestPredictors::regression_predictor(num_threads, ci_group_size);
   std::vector<Prediction> predictions = predictor.predict(deserialized_forest, data);
 
-  Rcpp::List result;
-  result.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
-  result.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");
-
+  Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
   delete data;
   return result;
 }
@@ -78,10 +70,7 @@ Rcpp::List regression_predict_oob(Rcpp::List forest,
   ForestPredictor predictor = ForestPredictors::regression_predictor(num_threads, ci_group_size);
   std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data);
 
-  Rcpp::List result;
-  result.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
-  result.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");
-
+  Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
   delete data;
   return result;
 }

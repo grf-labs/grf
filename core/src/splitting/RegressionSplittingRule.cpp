@@ -97,12 +97,12 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
   size_t num_splits = possible_split_values.size();
   double* sums_right;
   size_t* n_right;
-    sums_right = sums;
-    n_right = counter;
-    std::fill(sums_right, sums_right + num_splits, 0);
-    std::fill(n_right, n_right + num_splits, 0);
+  sums_right = sums;
+  n_right = counter;
+  std::fill(sums_right, sums_right + num_splits, 0);
+  std::fill(n_right, n_right + num_splits, 0);
 
-  // Sum in right child and possbile split
+  // Sum in right child and possible split
   for (auto& sample : samples[node]) {
     double value = data->get(sample, var);
     double response = responses_by_sample.at(sample);

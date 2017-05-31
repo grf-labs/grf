@@ -16,7 +16,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include "catch.hpp"
-#include "serialization/ForestSerializer.h"
+#include "tree/Tree.h"
 
 TEST_CASE("pruning behaves as expected", "[tree, unit]") {
   /*
