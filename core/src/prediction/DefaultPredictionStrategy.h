@@ -44,14 +44,14 @@ public:
 /**
  * Computes a prediction for a single test sample.
  *
- * sampleID: the ID of the test sample.
- * weights_by_sampleID: a map from neighboring sample ID, to a weight specifying
+ * sample: the ID of the test sample.
+ * weights_by_sample: a map from neighboring sample ID, to a weight specifying
  *     how often the sample appeared in the same leaf as the test sample. Note that
  *     these weights are normalized and will sum to 1.
  * observations: the list of observations for all training samples.
  */
-virtual std::vector<double> predict(size_t sampleID,
-  const std::unordered_map<size_t, double>& weights_by_sampleID,
+virtual std::vector<double> predict(size_t sample,
+  const std::unordered_map<size_t, double>& weights_by_sample,
   const Observations& observations) = 0;
 };
 

@@ -33,14 +33,14 @@ public:
                                               const std::vector<std::vector<bool>>& trees_by_sample);
 
 private:
-  void add_prediction_values(size_t nodeID,
+  void add_prediction_values(size_t node,
                              const PredictionValues& prediction_values,
                              std::vector<double>& combined_average);
 
   void normalize_prediction_values(size_t num_leaves,
                                    std::vector<double>& combined_average);
 
-  void validate_prediction(size_t sampleID, Prediction prediction);
+  void validate_prediction(size_t sample, Prediction prediction);
 
   std::shared_ptr<OptimizedPredictionStrategy> strategy;
   uint ci_group_size;

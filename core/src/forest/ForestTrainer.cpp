@@ -109,8 +109,8 @@ void ForestTrainer::init(uint mtry,
   TreeOptions tree_options(mtry,
       min_node_size,
       split_select_weights,
-      split_select_varIDs,
-      deterministic_varIDs,
+      split_select_vars,
+      deterministic_vars,
       this->no_split_variables,
       honesty);
   tree_trainer = std::shared_ptr<TreeTrainer>(new TreeTrainer(
@@ -229,13 +229,13 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
       BootstrapSampler bootstrap_sampler(tree_seed, sampling_options);
 
       if (ci_group_size == 1) {
-        std::vector<size_t> sampleIDs;
-        std::vector<size_t> oob_sampleIDs;
-        bootstrap_sampler.sample(data->get_num_rows(), sample_fraction, sampleIDs, oob_sampleIDs);
+        std::vector<size_t> samples;
+        std::vector<size_t> oob_samples;
+        bootstrap_sampler.sample(data->get_num_rows(), sample_fraction, samples, oob_samples);
 
         std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
-            bootstrap_sampler, sampleIDs);
-        tree->set_oob_sampleIDs(oob_sampleIDs);
+            bootstrap_sampler, samples);
+        tree->set_oob_samples(oob_samples);
         trees.push_back(tree);
       } else {
         std::vector<std::shared_ptr<Tree>> group = train_ci_group(
@@ -253,19 +253,19 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
                                                                  double sample_fraction) {
   std::vector<std::shared_ptr<Tree>> trees;
 
-  std::vector<size_t> sampleIDs;
-  std::vector<size_t> oob_sampleIDs;
-  bootstrap_sampler.sample(data->get_num_rows(), 0.5, sampleIDs, oob_sampleIDs);
+  std::vector<size_t> sample;
+  std::vector<size_t> oob_sample;
+  bootstrap_sampler.sample(data->get_num_rows(), 0.5, sample, oob_sample);
 
   for (size_t i = 0; i < ci_group_size; ++i) {
-    std::vector<size_t> subsampleIDs;
-    std::vector<size_t> oob_subsampleIDs;
-    bootstrap_sampler.subsample(sampleIDs, sample_fraction * 2, subsampleIDs, oob_subsampleIDs);
-    oob_subsampleIDs.insert(oob_subsampleIDs.end(), oob_sampleIDs.begin(), oob_sampleIDs.end());
+    std::vector<size_t> subsample;
+    std::vector<size_t> oob_subsample;
+    bootstrap_sampler.subsample(sample, sample_fraction * 2, subsample, oob_subsample);
+    oob_subsample.insert(oob_subsample.end(), oob_sample.begin(), oob_sample.end());
 
     std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
-        bootstrap_sampler, subsampleIDs);
-    tree->set_oob_sampleIDs(oob_subsampleIDs);
+        bootstrap_sampler, subsample);
+    tree->set_oob_samples(oob_subsample);
     trees.push_back(tree);
   }
 
@@ -276,8 +276,8 @@ void ForestTrainer::set_split_select_weights(std::vector<double>& split_select_w
                                              size_t num_independent_variables) {
 // Reserve space
   this->split_select_weights.resize(num_independent_variables);
-  this->split_select_varIDs.resize(num_independent_variables);
-  deterministic_varIDs.reserve(num_independent_variables);
+  this->split_select_vars.resize(num_independent_variables);
+  deterministic_vars.reserve(num_independent_variables);
 
   // Split up in deterministic and weighted variables, ignore zero weights
   // Size should be 1 x num_independent_variables or num_trees x num_independent_variables
@@ -288,27 +288,27 @@ void ForestTrainer::set_split_select_weights(std::vector<double>& split_select_w
   for (size_t j = 0; j < split_select_weights.size(); ++j) {
     double weight = split_select_weights[j];
 
-    size_t varID = j;
+    size_t var = j;
     for (auto& skip : no_split_variables) {
-      if (varID >= skip) {
-        ++varID;
+      if (var >= skip) {
+        ++var;
       }
     }
 
     if (weight == 1) {
-      deterministic_varIDs.push_back(varID);
+      deterministic_vars.push_back(var);
     } else if (weight < 1 && weight > 0) {
-      this->split_select_varIDs[j] = varID;
+      this->split_select_vars[j] = var;
       this->split_select_weights[j] = weight;
     } else if (weight < 0 || weight > 1) {
       throw std::runtime_error("One or more split select weights not in range [0,1].");
     }
   }
 
-  if (deterministic_varIDs.size() > this->mtry) {
+  if (deterministic_vars.size() > this->mtry) {
     throw std::runtime_error("Number of ones in split select weights cannot be larger than mtry.");
   }
-  if (deterministic_varIDs.size() + split_select_varIDs.size() < mtry) {
+  if (deterministic_vars.size() + split_select_vars.size() < mtry) {
     throw std::runtime_error("Too many zeros in split select weights. Need at least mtry variables to split at.");
   }
 }
@@ -316,15 +316,15 @@ void ForestTrainer::set_split_select_weights(std::vector<double>& split_select_w
 void ForestTrainer::set_always_split_variables(Data* data,
                                                std::vector<std::string>& always_split_variable_names,
                                                size_t num_independent_variables) {
-  deterministic_varIDs.clear();
-  deterministic_varIDs.reserve(num_independent_variables);
+  deterministic_vars.clear();
+  deterministic_vars.reserve(num_independent_variables);
 
   for (auto& variable_name : always_split_variable_names) {
-    size_t varID = data->get_variable_id(variable_name);
-    deterministic_varIDs.push_back(varID);
+    size_t var = data->get_variable_id(variable_name);
+    deterministic_vars.push_back(var);
   }
 
-  if (deterministic_varIDs.size() + this->mtry > num_independent_variables) {
+  if (deterministic_vars.size() + this->mtry > num_independent_variables) {
     throw std::runtime_error(
         "Number of variables to be always considered for splitting plus mtry cannot be larger than number of independent variables.");
   }

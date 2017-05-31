@@ -28,7 +28,7 @@
  * Produces a relabelled set of outcomes for a set of training samples. These outcomes
  * will then be used in calculating a standard regression (or classification) split.
  *
- * sampleIDs: the subset of samples to relabel.
+ * samples: the subset of samples to relabel.
  * observations: the list of observations for all training samples.
  *
  * returns: a map from sample ID to a relabelled outcome.
@@ -36,7 +36,7 @@
 class RelabelingStrategy {
 public:
   virtual std::unordered_map<size_t, double> relabel(
-      const std::vector<size_t>& sampleIDs,
+      const std::vector<size_t>& samples,
       const Observations& observations) = 0;
 };
 

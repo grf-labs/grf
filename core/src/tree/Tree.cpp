@@ -21,88 +21,88 @@
 #include "tree/Tree.h"
 #include "commons/utility.h"
 
-Tree::Tree(size_t root_nodeID,
-           const std::vector<std::vector<size_t>>& child_nodeIDs,
-           const std::vector<std::vector<size_t>>& leaf_nodeIDs,
-           const std::vector<size_t>& split_varIDs,
+Tree::Tree(size_t root_node,
+           const std::vector<std::vector<size_t>>& child_nodes,
+           const std::vector<std::vector<size_t>>& leaf_samples,
+           const std::vector<size_t>& split_vars,
            const std::vector<double>& split_values,
-           const std::vector<size_t>& oob_sampleIDs,
+           const std::vector<size_t>& oob_samples,
            const PredictionValues& prediction_values) :
-    root_nodeID(root_nodeID),
-    child_nodeIDs(child_nodeIDs),
-    leaf_nodeIDs(leaf_nodeIDs),
-    split_varIDs(split_varIDs),
+    root_node(root_node),
+    child_nodes(child_nodes),
+    leaf_samples(leaf_samples),
+    split_vars(split_vars),
     split_values(split_values),
-    oob_sampleIDs(oob_sampleIDs),
+    oob_samples(oob_samples),
     prediction_values(prediction_values) {}
 
-std::vector<size_t> Tree::find_leaf_nodeIDs(Data* prediction_data,
-                                            const std::vector<size_t> &sampleIDs) {
-  bool use_subsample = !sampleIDs.empty();
-  const std::vector<std::vector<size_t>>& child_nodeIDs = get_child_nodeIDs();
+std::vector<size_t> Tree::find_leaf_nodes(Data *prediction_data,
+                                          const std::vector<size_t> &samples) {
+  bool use_subsample = !samples.empty();
+  const std::vector<std::vector<size_t>>& child_nodes = get_child_nodes();
 
-  std::vector<size_t> prediction_leaf_nodeIDs;
-  prediction_leaf_nodeIDs.resize(prediction_data->get_num_rows());
+  std::vector<size_t> prediction_leaf_nodes;
+  prediction_leaf_nodes.resize(prediction_data->get_num_rows());
 
-  size_t num_samples_predict = use_subsample ? sampleIDs.size() : prediction_data->get_num_rows();
+  size_t num_samples_predict = use_subsample ? samples.size() : prediction_data->get_num_rows();
 
   for (size_t i = 0; i < num_samples_predict; ++i) {
-    size_t sampleID = use_subsample ? sampleIDs[i] : i;
+    size_t sample = use_subsample ? samples[i] : i;
 
-    size_t nodeID = root_nodeID;
+    size_t node = root_node;
     while (true) {
       // Break if terminal node
-      if (is_leaf(nodeID)) {
+      if (is_leaf(node)) {
         break;
       }
 
       // Move to child
-      size_t split_varID = get_split_varIDs()[nodeID];
-      double value = prediction_data->get(sampleID, split_varID);
-      if (value <= get_split_values()[nodeID]) {
+      size_t split_var = get_split_vars()[node];
+      double value = prediction_data->get(sample, split_var);
+      if (value <= get_split_values()[node]) {
         // Move to left child
-        nodeID = child_nodeIDs[0][nodeID];
+        node = child_nodes[0][node];
       } else {
         // Move to right child
-        nodeID = child_nodeIDs[1][nodeID];
+        node = child_nodes[1][node];
       }
     }
 
-    prediction_leaf_nodeIDs[sampleID] = nodeID;
+    prediction_leaf_nodes[sample] = node;
   }
-  return prediction_leaf_nodeIDs;
+  return prediction_leaf_nodes;
 }
 
 void Tree::prune_empty_leaves() {
-  size_t num_nodes = leaf_nodeIDs.size();
-  for (size_t n = num_nodes; n > root_nodeID; n--) {
+  size_t num_nodes = leaf_samples.size();
+  for (size_t n = num_nodes; n > root_node; n--) {
     size_t node = n - 1;
     if (is_leaf(node)) {
       continue;
     }
 
-    size_t& left_child = child_nodeIDs[0][node];
+    size_t& left_child = child_nodes[0][node];
     if (!is_leaf(left_child)) {
       prune_node(left_child);
     }
 
-    size_t& right_child = child_nodeIDs[1][node];
+    size_t& right_child = child_nodes[1][node];
     if (!is_leaf(right_child)) {
       prune_node(right_child);
     }
   }
-  prune_node(root_nodeID);
+  prune_node(root_node);
 }
 
 void Tree::prune_node(size_t& node) {
-  size_t left_child = child_nodeIDs[0][node];
-  size_t right_child = child_nodeIDs[1][node];
+  size_t left_child = child_nodes[0][node];
+  size_t right_child = child_nodes[1][node];
 
   // If either child is empty, prune this node.
   if (is_empty_leaf(left_child) || is_empty_leaf(right_child)) {
     // Empty out this node.
-    child_nodeIDs[0][node] = 0;
-    child_nodeIDs[1][node] = 0;
+    child_nodes[0][node] = 0;
+    child_nodes[1][node] = 0;
 
     // If one of the children is not empty, promote it.
     if (!is_empty_leaf(left_child)) {
@@ -114,10 +114,10 @@ void Tree::prune_node(size_t& node) {
 }
 
 bool Tree::is_leaf(size_t node) {
-  return child_nodeIDs[0][node] == 0 && child_nodeIDs[1][node] == 0;
+  return child_nodes[0][node] == 0 && child_nodes[1][node] == 0;
 }
 
 bool Tree::is_empty_leaf(size_t node) {
-  return is_leaf(node) && leaf_nodeIDs[node].empty();
+  return is_leaf(node) && leaf_samples[node].empty();
 }
 

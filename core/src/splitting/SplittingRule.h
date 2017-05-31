@@ -24,11 +24,11 @@
 class SplittingRule {
 public:
   virtual ~SplittingRule() {}
-  virtual bool find_best_split(size_t nodeID,
-                               const std::vector<size_t>& possible_split_varIDs,
-                               const std::unordered_map<size_t, double>& responses_by_sampleID,
-                               const std::vector<std::vector<size_t>>& sampleIDs,
-                               std::vector<size_t>& split_varIDs,
+  virtual bool find_best_split(size_t node,
+                               const std::vector<size_t>& possible_split_vars,
+                               const std::unordered_map<size_t, double>& responses_by_sample,
+                               const std::vector<std::vector<size_t>>& samples,
+                               std::vector<size_t>& split_vars,
                                std::vector<double>& split_values) = 0;
 };
 

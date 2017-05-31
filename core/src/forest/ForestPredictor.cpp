@@ -65,8 +65,8 @@ std::vector<std::vector<bool>> ForestPredictor::get_trees_by_sample(const Forest
   std::vector<std::vector<bool>> result(num_samples, std::vector<bool>(num_trees));
 
   for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-    for (size_t sampleID : forest.get_trees()[tree_idx]->get_oob_sampleIDs()) {
-      result[sampleID][tree_idx] = true;
+    for (size_t sample : forest.get_trees()[tree_idx]->get_oob_samples()) {
+      result[sample][tree_idx] = true;
     }
   }
   return result;
@@ -117,14 +117,14 @@ std::vector<std::vector<size_t>> ForestPredictor::find_batch(
     const Forest &forest,
     Data *prediction_data,
     bool oob_prediction) {
-  std::vector<std::vector<size_t>> all_leaf_node_IDs(num_trees);
+  std::vector<std::vector<size_t>> all_leaf_nodes(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     std::shared_ptr<Tree> tree = forest.get_trees()[start + i];
 
-    const std::vector<size_t> &sampleIDs = oob_prediction ? tree->get_oob_sampleIDs() : std::vector<size_t>();
-    std::vector<size_t> leaf_node_IDs = tree->find_leaf_nodeIDs(prediction_data, sampleIDs);
-    all_leaf_node_IDs[i] = leaf_node_IDs;
+    const std::vector<size_t>& samples = oob_prediction ? tree->get_oob_samples() : std::vector<size_t>();
+    std::vector<size_t> leaf_nodes = tree->find_leaf_nodes(prediction_data, samples);
+    all_leaf_nodes[i] = leaf_nodes;
   }
 
-  return all_leaf_node_IDs;
+  return all_leaf_nodes;
 }

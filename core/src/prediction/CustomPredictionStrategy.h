@@ -27,8 +27,8 @@ public:
   static const std::size_t OUTCOME;
 
   size_t prediction_length();
-  std::vector<double> predict(size_t sampleID,
-    const std::unordered_map<size_t, double>& weights_by_sampleID,
+  std::vector<double> predict(size_t sample,
+    const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations);
 };
 

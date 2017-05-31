@@ -29,18 +29,18 @@ TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
                                   -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};
   Observations observations = TestUtilities::create_observations(outcomes);
 
-  std::vector<size_t> sampleIDs;
+  std::vector<size_t> samples;
   for (size_t i = 0; i < outcomes.size(); ++i) {
-    sampleIDs.push_back(i);
+    samples.push_back(i);
   }
 
   QuantileRelabelingStrategy relabeling_strategy({0.25, 0.5, 0.75});
-  auto relabeled_observations = relabeling_strategy.relabel(sampleIDs, observations);
+  auto relabeled_observations = relabeling_strategy.relabel(samples, observations);
 
   std::vector<double> relabeled_outcomes;
-  for (auto& sampleID : sampleIDs) {
-    REQUIRE(relabeled_observations.count(sampleID));
-    relabeled_outcomes.push_back(relabeled_observations.at(sampleID));
+  for (auto& sample : samples) {
+    REQUIRE(relabeled_observations.count(sample));
+    relabeled_outcomes.push_back(relabeled_observations.at(sample));
   }
 
   std::vector<double> expected_outcomes = {0, 0, 3, 1, 2, 1, 0, 2, 2, 3};
@@ -52,15 +52,15 @@ TEST_CASE("quantile relabeling subset of observations", "[quantile, relabeling]"
                                   0.594004, 3.42299, -9.84604, -2.33169, -8.66316};
   Observations observations = TestUtilities::create_observations(outcomes);
 
-  std::vector<size_t> sampleIDs = {1, 3, 5, 7, 9};
+  std::vector<size_t> samples = {1, 3, 5, 7, 9};
 
   QuantileRelabelingStrategy relabeling_strategy({0.5, 0.75});
-  auto relabeled_observations = relabeling_strategy.relabel(sampleIDs, observations);
+  auto relabeled_observations = relabeling_strategy.relabel(samples, observations);
 
   std::vector<double> relabeled_outcomes;
-  for (auto& sampleID : sampleIDs) {
-    REQUIRE(relabeled_observations.count(sampleID));
-    relabeled_outcomes.push_back(relabeled_observations.at(sampleID));
+  for (auto& sample : samples) {
+    REQUIRE(relabeled_observations.count(sample));
+    relabeled_outcomes.push_back(relabeled_observations.at(sample));
   }
 
   std::vector<double> expected_outcomes = {1, 0, 2, 0, 0};

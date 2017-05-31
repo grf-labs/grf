@@ -83,7 +83,7 @@ public:
   * each leaf so that it does not need to recompute these values during every prediction.
   */
   virtual PredictionValues precompute_prediction_values(
-      const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+      const std::vector<std::vector<size_t>>& leaf_samples,
       const Observations& observations) = 0;
 };
 

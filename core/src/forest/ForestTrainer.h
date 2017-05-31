@@ -90,8 +90,8 @@ private:
   // Weight vector for selecting possible split variables, one weight between 0 (never select) and 1 (always select) for each variable
   // Deterministic variables are always selected
   std::vector<std::string> always_split_variable_names;
-  std::vector<size_t> deterministic_varIDs;
-  std::vector<size_t> split_select_varIDs;
+  std::vector<size_t> deterministic_vars;
+  std::vector<size_t> split_select_vars;
   std::vector<double> split_select_weights;
 
   // Bootstrap weights

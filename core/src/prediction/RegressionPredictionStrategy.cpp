@@ -86,13 +86,13 @@ size_t RegressionPredictionStrategy::prediction_value_length() {
 }
 
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
-    const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+    const std::vector<std::vector<size_t>>& leaf_samples,
     const Observations& observations) {
-  size_t num_leaves = leaf_sampleIDs.size();
+  size_t num_leaves = leaf_samples.size();
   std::vector<std::vector<double>> values(num_leaves);
 
   for (size_t i = 0; i < num_leaves; i++) {
-    const std::vector<size_t>& leaf_node = leaf_sampleIDs.at(i);
+    const std::vector<size_t>& leaf_node = leaf_samples.at(i);
     if (leaf_node.empty()) {
       continue;
     }
@@ -101,8 +101,8 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     averages.resize(1);
 
     double average = 0.0;
-    for (auto& sampleID : leaf_node) {
-      average += observations.get(Observations::OUTCOME, sampleID);
+    for (auto& sample : leaf_node) {
+      average += observations.get(Observations::OUTCOME, sample);
     }
     averages[OUTCOME] = average / leaf_node.size();
   }

@@ -24,12 +24,12 @@ QuantileRelabelingStrategy::QuantileRelabelingStrategy(const std::vector<double>
     quantiles(quantiles) {}
 
 std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
-    const std::vector<size_t>& sampleIDs,
+    const std::vector<size_t>& samples,
     const Observations& observations) {
 
   std::vector<double> sorted_outcomes;
-  for (auto& sampleID : sampleIDs) {
-    sorted_outcomes.push_back(observations.get(Observations::OUTCOME, sampleID));
+  for (size_t sample : samples) {
+    sorted_outcomes.push_back(observations.get(Observations::OUTCOME, sample));
   }
   std::sort(sorted_outcomes.begin(), sorted_outcomes.end());
 
@@ -37,7 +37,7 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
   std::vector<double> quantile_cutoffs;
 
   // Calculate the outcome value cutoffs for each quantile.
-  for (auto& quantile : quantiles) {
+  for (double quantile : quantiles) {
     size_t outcome_index = (size_t) ceil(num_samples * quantile) - 1;
     quantile_cutoffs.push_back(sorted_outcomes.at(outcome_index));
   }
@@ -48,13 +48,13 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
 
   // Assign a class to each response based on what quantile it belongs to.
   std::unordered_map<size_t, double> relabeled_observations;
-  for (size_t sampleID : sampleIDs) {
-    double outcome = observations.get(Observations::OUTCOME, sampleID);
+  for (size_t sample : samples) {
+    double outcome = observations.get(Observations::OUTCOME, sample);
     auto quantile = std::lower_bound(quantile_cutoffs.begin(),
                                      quantile_cutoffs.end(),
                                      outcome);
     long quantile_index = quantile - quantile_cutoffs.begin();
-    relabeled_observations[sampleID] = (uint) quantile_index;
+    relabeled_observations[sample] = (uint) quantile_index;
   }
   return relabeled_observations;
 }

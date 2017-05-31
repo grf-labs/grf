@@ -30,13 +30,13 @@ public:
   QuantilePredictionStrategy(std::vector<double> quantiles);
 
   size_t prediction_length();
-  std::vector<double> predict(size_t sampleID,
-    const std::unordered_map<size_t, double>& weights_by_sampleID,
+  std::vector<double> predict(size_t prediction_sample,
+    const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations);
 
 private:
-  std::vector<double> compute_quantile_cutoffs(const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                               std::vector<std::pair<size_t, double>>& sampleIDs_and_values);
+  std::vector<double> compute_quantile_cutoffs(const std::unordered_map<size_t, double>& weights_by_sample,
+                                               std::vector<std::pair<size_t, double>>& samples_and_values);
 
   std::vector<double> quantiles;
 };

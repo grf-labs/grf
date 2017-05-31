@@ -29,32 +29,32 @@ public:
 
   ~RegressionSplittingRule();
 
-  bool find_best_split(size_t nodeID,
-                       const std::vector<size_t>& possible_split_varIDs,
-                       const std::unordered_map<size_t, double>& labels_by_sampleID,
-                       const std::vector<std::vector<size_t>>& sampleIDs,
-                       std::vector<size_t>& split_varIDs,
+  bool find_best_split(size_t node,
+                       const std::vector<size_t>& possible_split_vars,
+                       const std::unordered_map<size_t, double>& labels_by_sample,
+                       const std::vector<std::vector<size_t>>& samples,
+                       std::vector<size_t>& split_vars,
                        std::vector<double>& split_values);
 
 private:
-  virtual void find_best_split_value_small_q(size_t nodeID,
-                                             size_t varID,
+  virtual void find_best_split_value_small_q(size_t node,
+                                             size_t var,
                                              double sum_node,
                                              size_t num_samples_node,
                                              double& best_value,
-                                             size_t& best_varID,
+                                             size_t& best_var,
                                              double& best_decrease,
-                                             const std::unordered_map<size_t, double>& responses_by_sampleID,
-                                             const std::vector<std::vector<size_t>>& sampleIDs);
-  virtual void find_best_split_value_large_q(size_t nodeID,
-                                             size_t varID,
+                                             const std::unordered_map<size_t, double>& responses_by_sample,
+                                             const std::vector<std::vector<size_t>>& samples);
+  virtual void find_best_split_value_large_q(size_t node,
+                                             size_t var,
                                              double sum_node,
                                              size_t num_samples_node,
                                              double& best_value,
-                                             size_t& best_varID,
+                                             size_t& best_var,
                                              double& best_decrease,
-                                             const std::unordered_map<size_t, double>& responses_by_sampleID,
-                                             const std::vector<std::vector<size_t>>& sampleIDs);
+                                             const std::unordered_map<size_t, double>& responses_by_sample,
+                                             const std::vector<std::vector<size_t>>& samples);
 
   Data* data;
   size_t* counter;

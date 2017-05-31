@@ -47,7 +47,7 @@ public:
   bool load_from_whitespace_file(std::ifstream& input_file, std::string header_line);
   bool load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator);
 
-  void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& sampleIDs, size_t varID);
+  void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var);
 
   size_t get_index(size_t row, size_t col) const {
     if (col < num_cols_no_sparse) {
@@ -66,18 +66,18 @@ public:
     }
   }
 
-  double get_unique_data_value(size_t varID, size_t index) const {
-    if (varID < num_cols_no_sparse) {
-      return unique_data_values[varID][index];
+  double get_unique_data_value(size_t var, size_t index) const {
+    if (var < num_cols_no_sparse) {
+      return unique_data_values[var][index];
     } else {
       // For GWAS data the index is the value
       return (index);
     }
   }
 
-  size_t get_num_unique_data_values(size_t varID) const {
-    if (varID < num_cols_no_sparse) {
-      return unique_data_values[varID].size();
+  size_t get_num_unique_data_values(size_t var) const {
+    if (var < num_cols_no_sparse) {
+      return unique_data_values[var].size();
     } else {
       // For GWAS data 0,1,2
       return (3);

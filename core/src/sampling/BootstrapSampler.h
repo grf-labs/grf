@@ -31,13 +31,13 @@ public:
 
   void sample(size_t num_samples,
               double sample_fraction,
-              std::vector<size_t>& sampleIDs,
-              std::vector<size_t>& oob_sampleIDs);
+              std::vector<size_t>& samples,
+              std::vector<size_t>& oob_samples);
 
-  void subsample(const std::vector<size_t>& sampleIDs,
+  void subsample(const std::vector<size_t>& samples,
                  double sample_fraction,
-                 std::vector<size_t>& subsampleIDs,
-                 std::vector<size_t>& oob_sampleIDs);
+                 std::vector<size_t>& subsamples,
+                 std::vector<size_t>& oob_samples);
 
   /**
    * Draw random numbers in a range without replacement and skip values.
@@ -91,23 +91,23 @@ public:
 private:
   void bootstrap(size_t num_samples,
                  double sample_fraction,
-                 std::vector<size_t>& sampleIDs,
-                 std::vector<size_t>& oob_sampleIDs);
+                 std::vector<size_t>& samples,
+                 std::vector<size_t>& oob_sample);
 
   void bootstrap_without_replacement(size_t num_samples,
                                      double sample_fraction,
-                                     std::vector<size_t>& sampleIDs,
-                                     std::vector<size_t>& oob_sampleIDs);
+                                     std::vector<size_t>& samples,
+                                     std::vector<size_t>& oob_samples);
 
   void bootstrap_weighted(size_t num_samples,
                           double sample_fraction,
-                          std::vector<size_t>& sampleIDs,
-                          std::vector<size_t>& oob_sampleIDs);
+                          std::vector<size_t>& samples,
+                          std::vector<size_t>& oob_samples);
 
   void bootstrap_without_replacement_weighted(size_t num_samples,
                                               double sample_fraction,
-                                              std::vector<size_t>& sampleIDs,
-                                              std::vector<size_t>& oob_sampleIDs);
+                                              std::vector<size_t>& samples,
+                                              std::vector<size_t>& oob_samples);
 
   /**
    * Simple algorithm for sampling without replacement, faster for smaller num_samples

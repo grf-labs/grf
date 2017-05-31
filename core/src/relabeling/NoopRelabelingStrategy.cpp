@@ -18,13 +18,13 @@
 #include "relabeling/NoopRelabelingStrategy.h"
 
 std::unordered_map<size_t, double> NoopRelabelingStrategy::relabel(
-    const std::vector<size_t>& sampleIDs,
+    const std::vector<size_t>& samples,
     const Observations& observations) {
 
   std::unordered_map<size_t, double> relabeled_observations;
-  for (size_t sampleID : sampleIDs) {
-    double outcome = observations.get(Observations::OUTCOME, sampleID);
-    relabeled_observations[sampleID] = outcome;
+  for (size_t sample : samples) {
+    double outcome = observations.get(Observations::OUTCOME, sample);
+    relabeled_observations[sample] = outcome;
   }
   return relabeled_observations;
 }
