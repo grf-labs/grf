@@ -60,7 +60,7 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
   for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
     for (size_t j = 0; j < ci_group_size; ++j) {
-      if (leaf_values.get_values(group * ci_group_size + j).size() == 0) {
+      if (leaf_values.empty(group * ci_group_size + j)) {
         good_group = false;
       }
     }
