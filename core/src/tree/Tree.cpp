@@ -36,8 +36,8 @@ Tree::Tree(size_t root_node,
     oob_samples(oob_samples),
     prediction_values(prediction_values) {}
 
-std::vector<size_t> Tree::find_leaf_nodes(Data *prediction_data,
-                                          const std::vector<size_t> &samples) {
+std::vector<size_t> Tree::find_leaf_nodes(Data* prediction_data,
+                                          const std::vector<size_t>& samples) {
   bool use_subsample = !samples.empty();
   const std::vector<std::vector<size_t>>& child_nodes = get_child_nodes();
 
