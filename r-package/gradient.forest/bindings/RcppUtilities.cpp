@@ -17,20 +17,18 @@ void RcppUtilities::initialize_trainer(ForestTrainer& forest_trainer,
                                        uint seed,
                                        bool honesty,
                                        uint ci_group_size) {
-  std::string load_forest_filename = "";
   std::string split_select_weights_file = "";
   std::vector<std::string> always_split_variable_names;
-  bool memory_saving_splitting = false;
   std::string case_weights_file = "";
 
-  forest_trainer.init(mtry, num_trees, &std::cout, seed, num_threads, load_forest_filename,
-                      min_node_size, no_split_variables, split_select_weights_file,
-                      always_split_variable_names, sample_with_replacement, memory_saving_splitting,
+  forest_trainer.init(mtry, num_trees, seed, num_threads, min_node_size,
+                      no_split_variables, split_select_weights_file,
+                      always_split_variable_names, sample_with_replacement,
                       case_weights_file, sample_fraction, honesty, ci_group_size);
 }
 
-Rcpp:List create_forest_object(const Forest& forest,
-                               Data* data) {
+Rcpp::List RcppUtilities::create_forest_object(const Forest& forest,
+                                               Data* data) {
   Rcpp::List result;
   Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
   result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
@@ -76,7 +74,7 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
   return data;
 }
 
-Rcpp:List create_prediction_object(const std::vector<Prediction>& predictions) {
+Rcpp::List RcppUtilities::create_prediction_object(const std::vector<Prediction>& predictions) {
   Rcpp::List result;
   result.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
   result.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");

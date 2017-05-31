@@ -15,20 +15,29 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-// [[Rcpp::export]]
-Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest,
-                                              size_t max_depth) {
-  Forest deserialized_forest = RcppUtilities::deserialize_forest(
-      forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
+#include <Rcpp.h>
+#include <queue>
+#include <vector>
 
-  VariableImportanceComputer computer;
+#include "analysis/SplitFrequencyComputer.h"
+#include "commons/globals.h"
+#include "forest/Forest.h"
+#include "RcppUtilities.h"
+
+// [[Rcpp::export]]
+Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
+                                              size_t max_depth) {
+  Forest forest = RcppUtilities::deserialize_forest(
+      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+
+  SplitFrequencyComputer computer;
   std::vector<std::vector<size_t>> variable_frequencies = computer.compute(forest, max_depth);
 
-  size_t num_variables = forest->get_num_variables;
+  size_t num_variables = forest.get_num_variables();
   Rcpp::NumericMatrix result(num_variables, max_depth);
   for (size_t var = 0; var < num_variables; var++) {
-    const std::vector<double>& frequencies = variable_frequencies.at(var);
-    for (size_t depth = 0; j < frequencies.size(); depth++) {
+    const std::vector<size_t>& frequencies = variable_frequencies.at(var);
+    for (size_t depth = 0; depth < frequencies.size(); depth++) {
       double frequency = frequencies[depth];
       result(var, depth) = frequency;
     }
@@ -37,14 +46,14 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest,
 }
 
 // [[Rcpp::export]]
-Rcpp::List examine_tree(Rcpp::List forest,
+Rcpp::List examine_tree(Rcpp::List forest_object,
                         size_t tree_index) {
-  Forest deserialized_forest = RcppUtilities::deserialize_forest(
-      forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  Forest forest = RcppUtilities::deserialize_forest(
+      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  size_t num_trees = deserialized_forest.get_trees().size();
+  size_t num_trees = forest.get_trees().size();
   if (tree_index >= num_trees) {
-    throw std::runtime_error("The provided tree index " + tree_index + " is not valid.");
+    throw std::runtime_error("The provided tree index is not valid.");
   }
 
   std::shared_ptr<Tree> tree = forest.get_trees().at(tree_index);
@@ -54,30 +63,32 @@ Rcpp::List examine_tree(Rcpp::List forest,
   const std::vector<size_t>& split_vars = tree->get_split_vars();
   const std::vector<double>& split_values = tree->get_split_values();
 
-  std::queue<size_t> frontier = {tree->get_root_node()};
-  size_t num_nodes = 1;
+  std::queue<size_t> frontier;
+  frontier.push(tree->get_root_node());
+  size_t node_index = 2; // We start at 2 because R is 1-indexed.
 
   std::vector<Rcpp::List> node_objects;
   while (frontier.size() > 0) {
-      size_t node = frontier.pop();
-      Rcpp:List node_object;
+    size_t node = frontier.front();
+    Rcpp::List node_object;
 
-      if (tree->is_leaf(node)) {
-        node_object.push_back(true, "is_leaf");
-        node_object.push_back(leaf_samples.at(node), "samples");
-      } else {
-        node_object.push_back(false, "is_leaf");
-        node_object.push_back(split_vars.at(node), "split_variable");
-        node_object.push_back(split_values.at(node), "split_value");
+    if (tree->is_leaf(node)) {
+      node_object.push_back(true, "is_leaf");
+      node_object.push_back(leaf_samples.at(node), "samples");
+    } else {
+      node_object.push_back(false, "is_leaf");
+      node_object.push_back(split_vars.at(node), "split_variable");
+      node_object.push_back(split_values.at(node), "split_value");
 
-        node_object.push_back(num_nodes++, "left_child");
-        frontier.enqueue(child_nodes[0][node]);
+      node_object.push_back(node_index++, "left_child");
+      frontier.push(child_nodes[0][node]);
 
-        node_object.push_back(num_nodes++, "right_child");
-        frontier.enqueue(child_nodes[1][node]);
-      }
+      node_object.push_back(node_index++, "right_child");
+      frontier.push(child_nodes[1][node]);
+    }
 
-      node_objects.push_back(node_object);
+    frontier.pop();
+    node_objects.push_back(node_object);
   }
 
   Rcpp::List result;

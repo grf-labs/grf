@@ -20,8 +20,7 @@ public:
                                  bool honesty,
                                  uint ci_group_size);
 
-  static Rcpp:List create_forest_object(const Forest& forest, Data* data);
-
+  static Rcpp::List create_forest_object(const Forest& forest, Data* data);
   static Rcpp::RawVector serialize_forest(const Forest& forest);
   static Forest deserialize_forest(Rcpp::RawVector input);
 
@@ -29,9 +28,7 @@ public:
                             Rcpp::RawMatrix sparse_data,
                             const std::vector<std::string>& variable_names);
 
-  static Rcpp:List create_prediction_object(const std::vector<Prediction> predictions);
-
-private:
+  static Rcpp::List create_prediction_object(const std::vector<Prediction>& predictions);
   static Rcpp::NumericMatrix create_prediction_matrix(const std::vector<Prediction>& predictions);
   static Rcpp::NumericMatrix create_variance_matrix(const std::vector<Prediction>& predictions);
 
