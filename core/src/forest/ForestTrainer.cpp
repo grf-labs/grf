@@ -30,41 +30,28 @@ ForestTrainer::ForestTrainer(std::unordered_map<size_t, size_t> observables,
                              std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                              std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                              std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
-    verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
-    prediction_mode(false), sample_with_replacement(
-    true), memory_saving_splitting(false), sample_fraction(
-    1), num_threads(DEFAULT_NUM_THREADS), observables(observables),
-    relabeling_strategy(relabeling_strategy),
+    num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
+    sample_with_replacement(true), sample_fraction(1), num_threads(DEFAULT_NUM_THREADS),
+    observables(observables), relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
     prediction_strategy(prediction_strategy) {}
 
 void ForestTrainer::init(uint mtry,
                          uint num_trees,
-                         std::ostream *verbose_out,
                          uint seed,
                          uint num_threads,
-                         std::string load_forest_filename,
                          uint min_node_size,
                          std::vector<size_t> no_split_variables,
                          std::string split_select_weights_file,
                          std::vector<std::string>& always_split_variable_names,
                          bool sample_with_replacement,
-                         bool memory_saving_splitting,
-                         std::string case_weights_file,
+                         std::string sample_weights_file,
                          double sample_fraction,
                          bool honesty,
                          uint ci_group_size) {
-
-  this->verbose_out = verbose_out;
   this->always_split_variable_names = always_split_variable_names;
   this->split_select_weights_file = split_select_weights_file;
-  this->case_weights_file = case_weights_file;
-
-  // Set prediction mode
-  bool prediction_mode = false;
-  if (!load_forest_filename.empty()) {
-    prediction_mode = true;
-  }
+  this->sample_weights_file = sample_weights_file;
 
   // Set number of threads
   if (num_threads == DEFAULT_NUM_THREADS) {
@@ -79,9 +66,7 @@ void ForestTrainer::init(uint mtry,
 
   this->mtry = mtry;
   this->min_node_size = min_node_size;
-  this->prediction_mode = prediction_mode;
   this->sample_with_replacement = sample_with_replacement;
-  this->memory_saving_splitting = memory_saving_splitting;
 
   if (ci_group_size > 1 && sample_fraction > 0.5) {
     throw std::runtime_error("When confidence intervals are enabled, the"
@@ -136,9 +121,9 @@ Forest ForestTrainer::train(Data* data) {
   }
 
   // Load case weights from file
-  if (!case_weights_file.empty()) {
-    read_vector_from_file(case_weights, case_weights_file);
-    if (case_weights.size() != num_samples - 1) {
+  if (!sample_weights_file.empty()) {
+    read_vector_from_file(sample_weights, sample_weights_file);
+    if (sample_weights.size() != num_samples - 1) {
       throw std::runtime_error("Number of case weights is not equal to number of samples.");
     }
   }
@@ -225,7 +210,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
 
     for (size_t i = start; i < end; ++i) {
       uint tree_seed = udist(random_number_generator);
-      SamplingOptions sampling_options(sample_with_replacement, case_weights);
+      SamplingOptions sampling_options(sample_with_replacement, sample_weights);
       BootstrapSampler bootstrap_sampler(tree_seed, sampling_options);
 
       if (ci_group_size == 1) {
