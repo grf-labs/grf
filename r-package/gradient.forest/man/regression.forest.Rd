@@ -5,7 +5,7 @@
 \title{Regression forest}
 \usage{
 regression.forest(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3),
-  num.trees = 500, num.threads = NULL, min.node.size = NULL,
+  num.trees = 2000, num.threads = NULL, min.node.size = NULL,
   keep.inbag = FALSE, honesty = TRUE, ci.group.size = 2, seed = NULL)
 }
 \arguments{
@@ -45,3 +45,4 @@ A trained regression forest object.
 Trains a regression forest that can be used to estimate
 the conditional mean function mu(x) = E[Y | X = x]
 }
+

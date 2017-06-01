@@ -5,9 +5,9 @@
 \title{Intrumental forest}
 \usage{
 instrumental.forest(X, Y, W, Z, sample.fraction = 0.5,
-  mtry = ceiling(ncol(X)/3), num.trees = 500, num.threads = NULL,
+  mtry = ceiling(ncol(X)/3), num.trees = 2000, num.threads = NULL,
   min.node.size = NULL, keep.inbag = FALSE, honesty = TRUE,
-  ci.group.size = 4, precompute.nuisance = TRUE, split.regularization = 0,
+  ci.group.size = 2, precompute.nuisance = TRUE, split.regularization = 0,
   seed = NULL)
 }
 \arguments{
@@ -65,3 +65,4 @@ tau(X) = Cov[Y, Z | X = x] / Cov[W, Z | X = x].
 Note that when the instrument Z and treatment assignment W
 coincide, an instrumental forest is equivalent to a causal forest.
 }
+

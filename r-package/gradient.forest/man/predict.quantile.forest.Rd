@@ -26,3 +26,4 @@ Predictions for each test point and each desired quantile.
 \description{
 Gets estimates of the conditional quantiles of Y given X using a trained forest.
 }
+

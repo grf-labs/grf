@@ -5,7 +5,7 @@
 \title{Quantile forest}
 \usage{
 \method{quantile}{forest}(X, Y, quantiles = c(0.1, 0.5, 0.9),
-  sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), num.trees = 500,
+  sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), num.trees = 2000,
   num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE,
   seed = NULL, ci.group.size = 2, honesty = TRUE)
 }
@@ -49,3 +49,4 @@ A trained quantile forest object.
 Trains a regression forest that can be used to estimate
 quantiles of the conditional distribution of Y given X = x.
 }
+

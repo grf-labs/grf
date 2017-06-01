@@ -27,3 +27,4 @@ Vector of predictions, along with (optional) variance estimates.
 \description{
 Gets estimates of tau(x) using a trained causal forest.
 }
+

@@ -5,7 +5,7 @@
 \title{Predict with a regression forest}
 \usage{
 \method{predict}{regression.forest}(forest, newdata = NULL,
-  num.threads = NULL)
+  num.threads = NULL, estimate.variance = FALSE)
 }
 \arguments{
 \item{forest}{The trained forest.}
@@ -17,6 +17,9 @@ not use the i-th training example).}
 
 \item{num.threads}{Number of threads used in training. If set to NULL, the software
 automatically selects an appropriate amount.}
+
+\item{estimate.variance}{Whether variance estimates for hat{tau}(x) are desired
+(for confidence intervals).}
 }
 \value{
 Vector of predictions.
@@ -24,3 +27,4 @@ Vector of predictions.
 \description{
 Gets estimates of E[Y|X=x] using a trained regression forest.
 }
+
