@@ -24,3 +24,6 @@
 
 # copied src files
 gradient.forest/src/*
+
+# documentation by roxygen
+*.Rd
