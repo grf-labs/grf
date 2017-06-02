@@ -31,17 +31,17 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   SplitFrequencyComputer computer;
-  std::vector<std::vector<size_t>> variable_frequencies = computer.compute(forest, max_depth);
+  std::vector<std::vector<size_t>> split_frequencies = computer.compute(forest, max_depth);
 
   size_t num_variables = forest.get_num_variables();
-  Rcpp::NumericMatrix result(num_variables, max_depth);
-  for (size_t var = 0; var < num_variables; var++) {
-    const std::vector<size_t>& frequencies = variable_frequencies.at(var);
-    for (size_t depth = 0; depth < frequencies.size(); depth++) {
-      double frequency = frequencies[depth];
-      result(var, depth) = frequency;
+  Rcpp::NumericMatrix result(max_depth, num_variables);
+  for (size_t depth = 0; depth < split_frequencies.size(); depth++) {
+    const std::vector<size_t>& frequencies = split_frequencies.at(depth);
+    for (size_t var = 0; var < num_variables; var++) {
+      double frequency = frequencies[var];
+        result(depth, var) = frequency;
+      }
     }
-  }
   return result;
 }
 
@@ -65,9 +65,11 @@ Rcpp::List examine_tree(Rcpp::List forest_object,
 
   std::queue<size_t> frontier;
   frontier.push(tree->get_root_node());
-  size_t node_index = 2; // We start at 2 because R is 1-indexed.
+  size_t node_index = 1;
 
   std::vector<Rcpp::List> node_objects;
+
+  // Note that since R is 1-indexed, we add '1' below to array indices.
   while (frontier.size() > 0) {
     size_t node = frontier.front();
     Rcpp::List node_object;
@@ -77,14 +79,16 @@ Rcpp::List examine_tree(Rcpp::List forest_object,
       node_object.push_back(leaf_samples.at(node), "samples");
     } else {
       node_object.push_back(false, "is_leaf");
-      node_object.push_back(split_vars.at(node), "split_variable");
+      node_object.push_back(split_vars.at(node) + 1, "split_variable"); // R is 1-indexed.
       node_object.push_back(split_values.at(node), "split_value");
 
-      node_object.push_back(node_index++, "left_child");
+      node_object.push_back(node_index + 1, "left_child");
       frontier.push(child_nodes[0][node]);
+      node_index++;
 
-      node_object.push_back(node_index++, "right_child");
+      node_object.push_back(node_index + 1, "right_child");
       frontier.push(child_nodes[1][node]);
+      node_index++;
     }
 
     frontier.pop();

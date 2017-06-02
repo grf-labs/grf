@@ -22,7 +22,7 @@
 #include "forest/Forest.h"
 
 /**
- * Computes a matrix of variable ID by split depth, where each value is
+ * Computes a matrix of split depth by variable ID, where each value is
  * the number of times the variable was split on at that depth.
  *
  * forest: the forest for which split frequencies should be computed

@@ -22,7 +22,7 @@
 std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& forest,
                                                                  size_t max_depth) {
   size_t num_variables = forest.get_num_variables();
-  std::vector<std::vector<size_t>> result(num_variables, std::vector<size_t>(max_depth));
+  std::vector<std::vector<size_t>> result(max_depth, std::vector<size_t>(num_variables));
 
   for (std::shared_ptr<Tree> tree : forest.get_trees()) {
     const std::vector<std::vector<size_t>>& child_nodes = tree->get_child_nodes();
@@ -30,7 +30,7 @@ std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& f
     size_t depth = 0;
     std::vector<size_t> level = {tree->get_root_node()};
 
-    while (level.size() > 0) {
+    while (level.size() > 0 && depth < max_depth) {
       std::vector<size_t> next_level;
 
       for (size_t node : level) {
@@ -39,7 +39,7 @@ std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& f
         }
 
         size_t variable = tree->get_split_vars().at(node);
-        result[variable][depth]++;
+        result[depth][variable]++;
 
         next_level.push_back(child_nodes[0][node]);
         next_level.push_back(child_nodes[1][node]);

@@ -49,32 +49,56 @@ TEST_CASE("split frequency computation works as expected", "[analysis, unit]") {
       {{1, 3, 5, 0, 0, 0, 0}, {2, 4, 6, 0, 0, 0, 0}};
 
   std::vector<std::vector<size_t>> expected_variable_frequencies = {
-      {1, 0, 0}, // variable 0
-      {1, 0, 0}, // variable 1
-      {0, 0, 0}, // variable 2
-      {0, 2, 0}, // variable 3
-      {0, 1, 1}}; // variable 4
+      {1, 1, 0, 0, 0}, // depth 1
+      {0, 0, 0, 2, 1}, // depth 2
+      {0, 0, 0, 0, 1}}; // depth 3
 
   std::vector<std::shared_ptr<Tree>> trees;
   trees.push_back(std::shared_ptr<Tree>(new Tree(0, first_child_nodes,
       {{0}}, first_split_vars, {0}, {0}, PredictionValues())));
   trees.push_back(std::shared_ptr<Tree>(new Tree(0, second_child_nodes,
       {{1}}, second_split_vars, {1}, {1}, PredictionValues())));
-  Forest forest(trees, Observations(), 5);
+
+  size_t num_variables = 5;
+  Forest forest(trees, Observations(), num_variables);
 
   SplitFrequencyComputer computer;
   size_t max_depth = 3;
   std::vector<std::vector<size_t>> actual_variable_frequencies = computer.compute(forest, max_depth);
 
+  REQUIRE (actual_variable_frequencies.size() <= max_depth);
   REQUIRE(actual_variable_frequencies.size() == expected_variable_frequencies.size());
   for (size_t var = 0; var < actual_variable_frequencies.size(); var++) {
     const std::vector<size_t>& actual_frequencies = actual_variable_frequencies.at(var);
     const std::vector<size_t>& expected_frequencies = expected_variable_frequencies.at(var);
 
-    REQUIRE(actual_frequencies.size() <= max_depth);
+    REQUIRE(actual_frequencies.size() == num_variables);
     REQUIRE(actual_frequencies.size() == expected_frequencies.size());
     for (size_t depth = 0; depth < actual_frequencies.size(); depth++) {
       REQUIRE(actual_frequencies[depth] == expected_frequencies[depth]);
     }
   }
+}
+
+TEST_CASE("split frequency computation respects max depth", "[analysis, unit]") {
+  std::vector<size_t> split_vars = {1, 3, 0, 4, 0, 0, 0};
+  std::vector<std::vector<size_t>> child_nodes =
+      {{1, 3, 0, 5, 0, 0, 0}, {2, 4, 0, 6, 0, 0, 0}};
+
+  std::vector<std::vector<size_t>> expected_variable_frequencies = {
+      {1, 1, 0, 0, 0}, // depth 1
+      {0, 0, 0, 2, 1}}; // depth 2
+
+  std::vector<std::shared_ptr<Tree>> trees;
+  trees.push_back(std::shared_ptr<Tree>(new Tree(0, child_nodes,
+      {{0}}, split_vars, {0}, {0}, PredictionValues())));
+
+  size_t num_variables = 5;
+  Forest forest(trees, Observations(), num_variables);
+
+  SplitFrequencyComputer computer;
+  size_t max_depth = 2;
+  std::vector<std::vector<size_t>> actual_variable_frequencies = computer.compute(forest, max_depth);
+
+  REQUIRE (actual_variable_frequencies.size() <= max_depth);
 }
