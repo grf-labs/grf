@@ -40,12 +40,14 @@ public:
   Forest train(Data* data);
 
   void init(uint mtry,
-            uint num_trees, std::ostream *verbose_out, uint seed, uint num_threads,
-            std::string load_forest_filename, uint min_node_size,
+            uint num_trees,
+            uint seed,
+            uint num_threads,
+            uint min_node_size,
             std::vector<size_t> no_split_variables,
-            std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
+            std::string split_select_weights_file,
+            std::vector<std::string>& always_split_variable_names,
             bool sample_with_replacement,
-            bool memory_saving_splitting,
             std::string case_weights_file,
             double sample_fraction,
             bool honesty,
@@ -68,20 +70,15 @@ private:
                                   std::vector<std::string>& always_split_variable_names,
                                   size_t num_independent_variables);
 
-  std::ostream* verbose_out;
-
   size_t num_trees;
   uint mtry;
   uint min_node_size;
   uint seed;
-  bool prediction_mode;
   bool sample_with_replacement;
-  bool memory_saving_splitting;
   double sample_fraction;
 
   std::vector<size_t> no_split_variables;
 
-  // Multithreading
   uint num_threads;
   std::vector<uint> thread_ranges;
 
@@ -90,20 +87,19 @@ private:
   // Weight vector for selecting possible split variables, one weight between 0 (never select) and 1 (always select) for each variable
   // Deterministic variables are always selected
   std::vector<std::string> always_split_variable_names;
-  std::vector<size_t> deterministic_varIDs;
-  std::vector<size_t> split_select_varIDs;
+  std::vector<size_t> deterministic_vars;
+  std::vector<size_t> split_select_vars;
   std::vector<double> split_select_weights;
 
-  // Bootstrap weights
-  std::vector<double> case_weights;
 
   std::unordered_map<size_t, size_t> observables;
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
 
+  std::vector<double> sample_weights;
+  std::string sample_weights_file;
   std::string split_select_weights_file;
-  std::string case_weights_file;
 
   uint ci_group_size;
 };

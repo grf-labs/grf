@@ -31,8 +31,8 @@ Observations::Observations(const std::vector<std::vector<double>>& observations_
   observations_by_type(observations_by_type),
   num_samples(num_samples) {}
 
-double Observations::get(std::size_t type, size_t sampleID) const {
-  return observations_by_type.at(type).at(sampleID);
+double Observations::get(std::size_t type, size_t sample) const {
+  return observations_by_type.at(type).at(sample);
 }
 
 

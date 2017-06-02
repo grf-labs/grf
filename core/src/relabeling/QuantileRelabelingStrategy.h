@@ -26,7 +26,7 @@ class QuantileRelabelingStrategy: public RelabelingStrategy {
 public:
   QuantileRelabelingStrategy(const std::vector<double>& quantiles);
   std::unordered_map<size_t, double> relabel(
-      const std::vector<size_t>& sampleIDs,
+      const std::vector<size_t>& samples,
       const Observations& observations);
 private:
   std::vector<double> quantiles;

@@ -30,53 +30,94 @@
 
 class Tree {
 public:
-  Tree(size_t root_nodeID,
-       const std::vector<std::vector<size_t>>& child_nodeIDs,
-       const std::vector<std::vector<size_t>>& leaf_nodeIDs,
-       const std::vector<size_t>& split_varIDs,
+  Tree(size_t root_node,
+       const std::vector<std::vector<size_t>>& child_nodes,
+       const std::vector<std::vector<size_t>>& leaf_samples,
+       const std::vector<size_t>& split_vars,
        const std::vector<double>& split_values,
-       const std::vector<size_t>& oob_sampleIDs,
+       const std::vector<size_t>& oob_samples,
        const PredictionValues& prediction_values);
 
-  std::vector<size_t> find_leaf_nodeIDs(Data *prediction_data,
-                                        const std::vector<size_t> &sampleIDs);
+  /**
+   * Given test data and a list of sample IDs, recurses down the tree to find
+   * the leaf node IDs that those samples belong in.
+   */
+  std::vector<size_t> find_leaf_nodes(Data* prediction_data,
+                                      const std::vector<size_t>& samples);
 
+  /**
+   * Removes all empty leaf nodes.
+   *
+   * When re-populating the leaves of an honest tree, certain leaf nodes may become empty.
+   * This procedure prunes those nodes, so that each node is either a non-empty leaf, or
+   * has two non-empty subtrees for children.
+   */
   void prune_empty_leaves();
 
-  size_t get_root_nodeID() {
-    return root_nodeID;
+  /**
+   * The ID of the root node for this tree. Note that this is usually 0, but may not always
+   * be as the top of the tree can be pruned.
+   */
+  size_t get_root_node() {
+    return root_node;
   }
 
-  const std::vector<std::vector<size_t>>& get_child_nodeIDs() {
-    return child_nodeIDs;
+  /**
+   * A vector containing two vectors: the first gives the ID of the left child for every
+   * node, and the second gives the ID of the right child. If a node is a leaf, the entries
+   * for both the left and right children will be '0'.
+   */
+  const std::vector<std::vector<size_t>>& get_child_nodes() {
+    return child_nodes;
   }
 
-  const std::vector<std::vector<size_t>>& get_leaf_nodeIDs() {
-    return leaf_nodeIDs;
+  /**
+   * Specifies the samples that each node contains. Note that only leaf nodes will contain
+   * a non-empty vector of sample IDs.
+   */
+  const std::vector<std::vector<size_t>>& get_leaf_samples() {
+    return leaf_samples;
   }
 
+  /**
+   * For each split, the ID of the variable that was chosen to split on.
+   */
+  const std::vector<size_t>& get_split_vars() {
+    return split_vars;
+  }
+
+  /**
+   * For each split, the value of the variable that was chosen to split on.
+   */
   const std::vector<double>& get_split_values() {
     return split_values;
   }
 
-  const std::vector<size_t>& get_split_varIDs() {
-    return split_varIDs;
+  /**
+   * The sample IDs that were not drawn in creating this tree. For honest trees,
+   * this excludes both samples that went into growing the tree, as well as samples
+   * used to repopulate the leaves.
+   */
+  const std::vector<size_t>& get_oob_samples() {
+    return oob_samples;
   }
 
-  const std::vector<size_t>& get_oob_sampleIDs() {
-    return oob_sampleIDs;
-  }
-
+  /**
+   * Optional summary values about the samples in each leaf. Note that this will only
+   * be non-empty if the tree was trained with an 'optimized' prediction strategy.
+   */
   const PredictionValues& get_prediction_values() {
     return prediction_values;
   }
 
-  void set_leaf_nodes(const std::vector<std::vector<size_t>> &leaf_nodeIDs) {
-    this->leaf_nodeIDs = leaf_nodeIDs;
+  bool is_leaf(size_t node);
+
+  void set_leaf_nodes(const std::vector<std::vector<size_t>>& leaf_nodes) {
+    this->leaf_samples = leaf_nodes;
   }
 
-  void set_oob_sampleIDs(std::vector<size_t>& oob_sampleIDs) {
-    this->oob_sampleIDs = oob_sampleIDs;
+  void set_oob_samples(const std::vector<size_t> &oob_samples) {
+    this->oob_samples = oob_samples;
   }
 
   void set_prediction_values(const PredictionValues& prediction_values) {
@@ -85,17 +126,15 @@ public:
 
 private:
   void prune_node(size_t& node);
-
-  bool is_leaf(size_t node);
   bool is_empty_leaf(size_t node);
 
-  size_t root_nodeID;
-  std::vector<std::vector<size_t>> child_nodeIDs;
-  std::vector<std::vector<size_t>> leaf_nodeIDs;
-  std::vector<size_t> split_varIDs;
+  size_t root_node;
+  std::vector<std::vector<size_t>> child_nodes;
+  std::vector<std::vector<size_t>> leaf_samples;
+  std::vector<size_t> split_vars;
   std::vector<double> split_values;
 
-  std::vector<size_t> oob_sampleIDs;
+  std::vector<size_t> oob_samples;
 
   PredictionValues prediction_values;
 };

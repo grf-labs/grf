@@ -13,21 +13,29 @@ void RcppUtilities::initialize_trainer(ForestTrainer& forest_trainer,
                                        uint min_node_size,
                                        bool sample_with_replacement,
                                        double sample_fraction,
-                                       std::vector<size_t> no_split_variables,
+                                       const std::vector<size_t>& no_split_variables,
                                        uint seed,
                                        bool honesty,
                                        uint ci_group_size) {
-  std::string load_forest_filename = "";
   std::string split_select_weights_file = "";
   std::vector<std::string> always_split_variable_names;
-  bool memory_saving_splitting = false;
   std::string case_weights_file = "";
 
-  forest_trainer.init(mtry, num_trees, &std::cout, seed, num_threads, load_forest_filename,
-                      min_node_size, no_split_variables, split_select_weights_file,
-                      always_split_variable_names, sample_with_replacement, memory_saving_splitting,
+  forest_trainer.init(mtry, num_trees, seed, num_threads, min_node_size,
+                      no_split_variables, split_select_weights_file,
+                      always_split_variable_names, sample_with_replacement,
                       case_weights_file, sample_fraction, honesty, ci_group_size);
 }
+
+Rcpp::List RcppUtilities::create_forest_object(const Forest& forest,
+                                               Data* data) {
+  Rcpp::List result;
+  Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
+  result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
+  result.push_back(forest.get_trees().size(), "num.trees");
+  return result;
+};
+
 
 Rcpp::RawVector RcppUtilities::serialize_forest(const Forest& forest) {
   ForestSerializer forest_serializer;
@@ -52,7 +60,7 @@ Forest RcppUtilities::deserialize_forest(Rcpp::RawVector input) {
 
 Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
                                   Rcpp::RawMatrix sparse_data,
-                                  std::vector<std::string> variable_names) {
+                                  const std::vector<std::string>& variable_names) {
   size_t num_rows = input_data.nrow();
   size_t num_cols = input_data.ncol();
 
@@ -66,7 +74,14 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
   return data;
 }
 
-Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(std::vector<Prediction> predictions) {
+Rcpp::List RcppUtilities::create_prediction_object(const std::vector<Prediction>& predictions) {
+  Rcpp::List result;
+  result.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
+  result.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");
+  return result;
+};
+
+Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(const std::vector<Prediction>& predictions) {
   if (predictions.empty()) {
     return Rcpp::NumericMatrix(0);
   }
@@ -75,7 +90,7 @@ Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(std::vector<Predicti
   Rcpp::NumericMatrix result(predictions.size(), prediction_length);
 
   for (size_t i = 0; i < predictions.size(); i++) {
-    std::vector<double> prediction = predictions[i].get_predictions();
+    const std::vector<double>& prediction = predictions[i].get_predictions();
     for (size_t j = 0; j < prediction.size(); j++) {
       double value = prediction[j];
       result(i, j) = value;
@@ -84,7 +99,7 @@ Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(std::vector<Predicti
   return result;
 }
 
-Rcpp::NumericMatrix RcppUtilities::create_variance_matrix(std::vector<Prediction> predictions) {
+Rcpp::NumericMatrix RcppUtilities::create_variance_matrix(const std::vector<Prediction>& predictions) {
   if (predictions.empty()) {
     return Rcpp::NumericMatrix(0);
   }
@@ -98,7 +113,7 @@ Rcpp::NumericMatrix RcppUtilities::create_variance_matrix(std::vector<Prediction
   Rcpp::NumericMatrix result(predictions.size(), prediction_length);
 
   for (size_t i = 0; i < predictions.size(); i++) {
-    std::vector<double> variance_estimate = predictions[i].get_variance_estimates();
+    const std::vector<double>& variance_estimate = predictions[i].get_variance_estimates();
 
     for (size_t j = 0; j < variance_estimate.size(); j++) {
       double value = variance_estimate[j];

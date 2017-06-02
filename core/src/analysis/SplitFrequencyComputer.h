@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------------
-  This file is part of gradient-forest.
+  This file is part of generalized-random-forest.
 
   gradient-forest is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,22 +15,24 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRADIENTFOREST_CUSTOMPREDICTIONSTRATEGY_H
-#define GRADIENTFOREST_CUSTOMPREDICTIONSTRATEGY_H
+#ifndef GRADIENTFOREST_VARIABLEIMPORTANCECOMPUTER_H
+#define GRADIENTFOREST_VARIABLEIMPORTANCECOMPUTER_H
 
 
-#include "DefaultPredictionStrategy.h"
+#include "forest/Forest.h"
 
-class CustomPredictionStrategy: public DefaultPredictionStrategy {
+/**
+ * Computes a matrix of split depth by variable ID, where each value is
+ * the number of times the variable was split on at that depth.
+ *
+ * forest: the forest for which split frequencies should be computed
+ * max_depth: the maximum depth of splits to consider, exclusive
+ */
+class SplitFrequencyComputer {
 public:
-  // Add more observables here as needed.
-  static const std::size_t OUTCOME;
-
-  size_t prediction_length();
-  std::vector<double> predict(size_t sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
-    const Observations& observations);
+  std::vector<std::vector<size_t>> compute(const Forest& forest,
+                                           size_t max_depth);
 };
 
 
-#endif //GRADIENTFOREST_CUSTOMPREDICTIONSTRATEGY_H
+#endif //GRADIENTFOREST_VARIABLEIMPORTANCECOMPUTER_H

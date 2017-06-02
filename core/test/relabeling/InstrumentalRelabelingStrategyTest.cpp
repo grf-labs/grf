@@ -27,17 +27,17 @@
 #include "utilities/TestUtilities.h"
 
 std::vector<double> get_relabeled_outcomes(Observations observations) {
-  std::vector<size_t> sampleIDs;
+  std::vector<size_t> samples;
   for (size_t i = 0; i < observations.get_num_samples(); ++i) {
-    sampleIDs.push_back(i);
+    samples.push_back(i);
   }
 
   std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
-  auto relabeled_observations = relabeling_strategy->relabel(sampleIDs, observations);
+  auto relabeled_observations = relabeling_strategy->relabel(samples, observations);
 
   std::vector<double> relabeled_outcomes;
-  for (auto& sampleID : sampleIDs) {
-    relabeled_outcomes.push_back(relabeled_observations.at(sampleID));
+  for (auto& sample : samples) {
+    relabeled_outcomes.push_back(relabeled_observations.at(sample));
   }
   return relabeled_outcomes;
 }
@@ -95,13 +95,13 @@ TEST_CASE("constant treatment leads to no splitting", "[instrumental, relabeling
   std::vector<double> instrument = {0, 0, 1, 1, 1, 0, 1, 0, 1, 0};
   Observations observations = TestUtilities::create_observations(original_outcomes, treatment, instrument);
 
-  std::vector<size_t> sampleIDs;
+  std::vector<size_t> samples;
   for (size_t i = 0; i < original_outcomes.size(); ++i) {
-    sampleIDs.push_back(i);
+    samples.push_back(i);
   }
 
   InstrumentalRelabelingStrategy relabeling_strategy;
-  auto relabeled_observations = relabeling_strategy.relabel(sampleIDs, observations);
+  auto relabeled_observations = relabeling_strategy.relabel(samples, observations);
 
   REQUIRE(relabeled_observations.empty()); // An empty map signals that no splitting should be performed.
 }
@@ -113,13 +113,13 @@ TEST_CASE("constant instrument leads to no splitting", "[instrumental, relabelin
   std::vector<double> instrument = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
   Observations observations = TestUtilities::create_observations(original_outcomes, treatment, instrument);
 
-  std::vector<size_t> sampleIDs;
+  std::vector<size_t> samples;
   for (size_t i = 0; i < original_outcomes.size(); ++i) {
-    sampleIDs.push_back(i);
+    samples.push_back(i);
   }
   
   InstrumentalRelabelingStrategy relabeling_strategy;
-  auto relabeled_observations = relabeling_strategy.relabel(sampleIDs, observations);
+  auto relabeled_observations = relabeling_strategy.relabel(samples, observations);
 
   REQUIRE(relabeled_observations.empty()); // An empty map signals that no splitting should be performed.
 }

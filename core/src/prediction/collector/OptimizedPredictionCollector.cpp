@@ -32,7 +32,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
 
-  for (size_t sampleID = 0; sampleID < num_samples; ++sampleID) {
+  for (size_t sample = 0; sample < num_samples; ++sample) {
     std::vector<double> average_value;
     std::vector<std::vector<double>> leaf_values;
     if (ci_group_size > 1) {
@@ -42,21 +42,21 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     // Create a list of weighted neighbors for this sample.
     uint num_leaves = 0;
     for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
-      if (!trees_by_sample.empty() && !trees_by_sample[sampleID][tree_index]) {
+      if (!trees_by_sample.empty() && !trees_by_sample[sample][tree_index]) {
         continue;
       }
 
-      const std::vector<size_t>& leaf_node_IDs = leaf_nodes_by_tree.at(tree_index);
-      size_t nodeID = leaf_node_IDs.at(sampleID);
+      const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
+      size_t node = leaf_nodes.at(sample);
 
       std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
       const PredictionValues& prediction_values = tree->get_prediction_values();
 
-      if (!prediction_values.empty(nodeID)) {
+      if (!prediction_values.empty(node)) {
         num_leaves++;
-        add_prediction_values(nodeID, prediction_values, average_value);
+        add_prediction_values(node, prediction_values, average_value);
         if (ci_group_size > 1) {
-          leaf_values[tree_index] = prediction_values.get_values(nodeID);
+          leaf_values[tree_index] = prediction_values.get_values(node);
         }
       }
     }
@@ -79,13 +79,13 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     }
 
     Prediction prediction(point_prediction, variance_estimate);
-    validate_prediction(sampleID, prediction);
+    validate_prediction(sample, prediction);
     predictions.push_back(prediction);
   }
   return predictions;
 }
 
-void OptimizedPredictionCollector::add_prediction_values(size_t nodeID,
+void OptimizedPredictionCollector::add_prediction_values(size_t node,
     const PredictionValues& prediction_values,
     std::vector<double>& combined_average) {
   if (combined_average.empty()) {
@@ -93,7 +93,7 @@ void OptimizedPredictionCollector::add_prediction_values(size_t nodeID,
   }
 
   for (size_t type = 0; type < prediction_values.get_num_types(); ++type) {
-    combined_average[type] += prediction_values.get(nodeID, type);
+    combined_average[type] += prediction_values.get(node, type);
   }
 }
 
@@ -104,10 +104,10 @@ void OptimizedPredictionCollector::normalize_prediction_values(size_t num_leaves
   }
 }
 
-void OptimizedPredictionCollector::validate_prediction(size_t sampleID, Prediction prediction) {
+void OptimizedPredictionCollector::validate_prediction(size_t sample, Prediction prediction) {
   size_t prediction_length = strategy->prediction_length();
   if (prediction.size() != prediction_length) {
-    throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
+    throw std::runtime_error("Prediction for sample " + std::to_string(sample) +
                              " did not have the expected length.");
   }
 }

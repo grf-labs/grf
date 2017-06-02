@@ -31,7 +31,7 @@ public:
   InstrumentalRelabelingStrategy(double split_regularization);
 
   std::unordered_map<size_t, double> relabel(
-      const std::vector<size_t>& sampleIDs,
+      const std::vector<size_t>& samples,
       const Observations& observations);
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalRelabelingStrategy);

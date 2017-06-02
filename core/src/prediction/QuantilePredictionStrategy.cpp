@@ -30,24 +30,24 @@ size_t QuantilePredictionStrategy::prediction_length() {
     return quantiles.size();
 }
 
-std::vector<double> QuantilePredictionStrategy::predict(size_t sampleID,
-    const std::unordered_map<size_t, double>& weights_by_sampleID,
+std::vector<double> QuantilePredictionStrategy::predict(size_t prediction_sample,
+    const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations) {
-  std::vector<std::pair<size_t, double>> sampleIDs_and_values;
-  for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
-    size_t sampleID = it->first;
-    sampleIDs_and_values.push_back(std::pair<size_t, double>(
-        sampleID, observations.get(Observations::OUTCOME, sampleID)));
+  std::vector<std::pair<size_t, double>> samples_and_values;
+  for (auto it = weights_by_sample.begin(); it != weights_by_sample.end(); ++it) {
+    size_t sample = it->first;
+    samples_and_values.push_back(std::pair<size_t, double>(
+        sample, observations.get(Observations::OUTCOME, sample)));
   }
 
-  return compute_quantile_cutoffs(weights_by_sampleID, sampleIDs_and_values);
+  return compute_quantile_cutoffs(weights_by_sample, samples_and_values);
 }
 
 std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
-    const std::unordered_map<size_t, double>& weights_by_sampleID,
-    std::vector<std::pair<size_t, double>>& sampleIDs_and_values) {
-  std::sort(sampleIDs_and_values.begin(),
-            sampleIDs_and_values.end(),
+    const std::unordered_map<size_t, double>& weights_by_sample,
+    std::vector<std::pair<size_t, double>>& samples_and_values) {
+  std::sort(samples_and_values.begin(),
+            samples_and_values.end(),
             [](std::pair<size_t, double> first_pair, std::pair<size_t, double> second_pair) {
               return first_pair.second < second_pair.second;
             });
@@ -56,18 +56,18 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
   auto quantile_it = quantiles.begin();
   double cumulative_weight = 0.0;
 
-  for (auto it = sampleIDs_and_values.begin(); it != sampleIDs_and_values.end(); ++it) {
-    size_t sampleID = it->first;
+  for (auto it = samples_and_values.begin(); it != samples_and_values.end(); ++it) {
+    size_t sample = it->first;
     double value = it->second;
 
-    cumulative_weight += weights_by_sampleID.at(sampleID);
+    cumulative_weight += weights_by_sample.at(sample);
     while (quantile_it != quantiles.end() && cumulative_weight >= *quantile_it) {
       quantile_cutoffs.push_back(value);
       ++quantile_it;
     }
   }
 
-  double last_value = sampleIDs_and_values.back().second;
+  double last_value = samples_and_values.back().second;
   for (; quantile_it != quantiles.end(); ++quantile_it) {
     quantile_cutoffs.push_back(last_value);
   }

@@ -172,14 +172,14 @@ bool Data::load_from_other_file(std::ifstream& input_file, std::string header_li
   return error;
 }
 
-void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& sampleIDs, size_t varID) {
+void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) {
 
-  // All values for varID (no duplicates) for given sampleIDs
-  if (varID < num_cols_no_sparse) {
+  // All values for var (no duplicates) for given samples
+  if (var < num_cols_no_sparse) {
 
-    all_values.reserve(sampleIDs.size());
-    for (size_t i = 0; i < sampleIDs.size(); ++i) {
-      all_values.push_back(get(sampleIDs[i], varID));
+    all_values.reserve(samples.size());
+    for (size_t i = 0; i < samples.size(); ++i) {
+      all_values.push_back(get(samples[i], var));
     }
     std::sort(all_values.begin(), all_values.end());
     all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());

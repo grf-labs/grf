@@ -31,8 +31,10 @@ public:
   static Forest create(std::vector<std::shared_ptr<Tree>> trees,
                        Data* data,
                        std::unordered_map<size_t, size_t> observables);
+
   Forest(const std::vector<std::shared_ptr<Tree>>& trees,
-         const Observations& observations);
+         const Observations& observations,
+         size_t num_variables);
 
   const Observations& get_observations() const {
     return observations;
@@ -42,9 +44,14 @@ public:
     return trees;
   }
 
+  const size_t get_num_variables() const {
+    return num_variables;
+  }
+
 protected:
   std::vector<std::shared_ptr<Tree>> trees;
   Observations observations;
+  size_t num_variables;
 };
 
 #endif /* GRADIENTFOREST_FOREST_H_ */

@@ -32,11 +32,11 @@ public:
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                               const std::vector<std::vector<bool>>& trees_by_sample);
 private:
-  void add_sample_weights(const std::vector<size_t>& sampleIDs,
-                          std::unordered_map<size_t, double>& weights_by_sampleID);
+  void add_sample_weights(const std::vector<size_t>& samples,
+                          std::unordered_map<size_t, double>& weights_by_sample);
 
-  void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sampleID);
-  void validate_prediction(size_t sampleID, Prediction prediction);
+  void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sample);
+  void validate_prediction(size_t sample, Prediction prediction);
 
   std::shared_ptr<DefaultPredictionStrategy> strategy;
 };

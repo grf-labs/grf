@@ -37,7 +37,7 @@ public:
 
   size_t prediction_value_length();
   PredictionValues precompute_prediction_values(
-      const std::vector<std::vector<size_t>>& leaf_sampleIDs,
+      const std::vector<std::vector<size_t>>& leaf_samples,
       const Observations& observations);
 
   size_t prediction_length();

@@ -30,24 +30,24 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
 
-  for (size_t sampleID = 0; sampleID < num_samples; ++sampleID) {
-    std::unordered_map<size_t, double> weights_by_sampleID;
+  for (size_t sample = 0; sample < num_samples; ++sample) {
+    std::unordered_map<size_t, double> weights_by_sample;
 
     // Create a list of weighted neighbors for this sample.
     uint num_leaves = 0;
     for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
-      if (!trees_by_sample.empty() && !trees_by_sample[sampleID][tree_index]) {
+      if (!trees_by_sample.empty() && !trees_by_sample[sample][tree_index]) {
         continue;
       }
 
       std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
-      const std::vector<size_t> &leaf_node_IDs = leaf_nodes_by_tree.at(tree_index);
+      const std::vector<size_t> &leaf_nodes = leaf_nodes_by_tree.at(tree_index);
 
-      size_t nodeID = leaf_node_IDs.at(sampleID);
-      const std::vector<size_t> &sampleIDs = tree->get_leaf_nodeIDs()[nodeID];
-      if (!sampleIDs.empty()) {
+      size_t node = leaf_nodes.at(sample);
+      const std::vector<size_t>& samples = tree->get_leaf_samples()[node];
+      if (!samples.empty()) {
         num_leaves++;
-        add_sample_weights(sampleIDs, weights_by_sampleID);
+        add_sample_weights(samples, weights_by_sample);
       }
     }
 
@@ -59,41 +59,41 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       continue;
     }
 
-    normalize_sample_weights(weights_by_sampleID);
+    normalize_sample_weights(weights_by_sample);
 
     Prediction prediction = strategy->predict(
-        sampleID, weights_by_sampleID, forest.get_observations());
+        sample, weights_by_sample, forest.get_observations());
 
-    validate_prediction(sampleID, prediction);
+    validate_prediction(sample, prediction);
     predictions.push_back(prediction);
   }
   return predictions;
 }
 
-void DefaultPredictionCollector::add_sample_weights(const std::vector<size_t>& sampleIDs,
-                                          std::unordered_map<size_t, double>& weights_by_sampleID) {
-  double sample_weight = 1.0 / sampleIDs.size();
+void DefaultPredictionCollector::add_sample_weights(const std::vector<size_t>& samples,
+                                                    std::unordered_map<size_t, double>& weights_by_sample) {
+  double sample_weight = 1.0 / samples.size();
 
-  for (auto& sampleID : sampleIDs) {
-    weights_by_sampleID[sampleID] += sample_weight;
+  for (auto& sample : samples) {
+    weights_by_sample[sample] += sample_weight;
   }
 }
 
-void DefaultPredictionCollector::normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sampleID) {
+void DefaultPredictionCollector::normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sample) {
   double total_weight = 0.0;
-  for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
+  for (auto it = weights_by_sample.begin(); it != weights_by_sample.end(); ++it) {
     total_weight += it->second;
   }
 
-  for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it) {
+  for (auto it = weights_by_sample.begin(); it != weights_by_sample.end(); ++it) {
     it->second /= total_weight;
   }
 }
 
-void DefaultPredictionCollector::validate_prediction(size_t sampleID, Prediction prediction) {
+void DefaultPredictionCollector::validate_prediction(size_t sample, Prediction prediction) {
   size_t prediction_length = strategy->prediction_length();
   if (prediction.size() != prediction_length) {
-    throw std::runtime_error("Prediction for sample " + std::to_string(sampleID) +
+    throw std::runtime_error("Prediction for sample " + std::to_string(sample) +
                              " did not have the expected length.");
   }
 }

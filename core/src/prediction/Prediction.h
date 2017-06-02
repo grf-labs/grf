@@ -27,19 +27,19 @@ public:
   Prediction(const std::vector<double>& predictions,
              const std::vector<double>& variance_estimates);
 
-  const std::vector<double>& get_predictions() {
+  const std::vector<double>& get_predictions() const {
     return predictions;
   }
 
-  const std::vector<double>& get_variance_estimates() {
+  const std::vector<double>& get_variance_estimates() const {
     return variance_estimates;
   }
 
-  bool contains_variance_estimates() {
+  const bool contains_variance_estimates() const {
     return !variance_estimates.empty();
   }
 
-  size_t size() {
+  const size_t size() const {
     return predictions.size();
   }
 
