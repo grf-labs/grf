@@ -16,17 +16,29 @@ test_that("average effects are translation invariant", {
 	forest.causal.plus.1$Y.orig = forest.causal$Y.orig + 1
 	forest.causal.plus.1$Y.hat = forest.causal$Y.hat + 1
 	
-	cate = estimate.average.effect(forest.causal, target.sample = "all")
-	cate.plus.1 = estimate.average.effect(forest.causal.plus.1, target.sample = "all")
-	expect_equal(cate, cate.plus.1)
+	cate.aipw = estimate.average.effect(forest.causal, target.sample = "all", method = "AIPW")
+	cate.plus.1.aipw = estimate.average.effect(forest.causal.plus.1, target.sample = "all", method = "AIPW")
+	expect_equal(cate.aipw, cate.plus.1.aipw)
 	
-	catt = estimate.average.effect(forest.causal, target.sample = "treated")
-	catt.plus.1 = estimate.average.effect(forest.causal.plus.1, target.sample = "treated")
-	expect_equal(catt, catt.plus.1)
+	cate.tmle = estimate.average.effect(forest.causal, target.sample = "all", method = "TMLE")
+	cate.plus.1.tmle = estimate.average.effect(forest.causal.plus.1, target.sample = "all", method = "TMLE")
+	expect_equal(cate.tmle, cate.plus.1.tmle)
 	
-	catc = estimate.average.effect(forest.causal, target.sample = "control")
-	catc.plus.1 = estimate.average.effect(forest.causal.plus.1, target.sample = "control")
-	expect_equal(catc, catc.plus.1)
+	catt.aipw = estimate.average.effect(forest.causal, target.sample = "treated", method = "AIPW")
+	catt.plus.1.aipw = estimate.average.effect(forest.causal.plus.1, target.sample = "treated", method = "AIPW")
+	expect_equal(catt.aipw, catt.plus.1.aipw)
+	
+	catt.tmle = estimate.average.effect(forest.causal, target.sample = "treated", method = "TMLE")
+	catt.plus.1.tmle = estimate.average.effect(forest.causal.plus.1, target.sample = "treated", method = "TMLE")
+	expect_equal(catt.tmle, catt.plus.1.tmle)
+	
+	catc.aipw = estimate.average.effect(forest.causal, target.sample = "control", method = "AIPW")
+	catc.plus.1.aipw = estimate.average.effect(forest.causal.plus.1, target.sample = "control", method = "AIPW")
+	expect_equal(catc.aipw, catc.plus.1.aipw)
+	
+	catc.tmle = estimate.average.effect(forest.causal, target.sample = "control", method = "TMLE")
+	catc.plus.1.tmle = estimate.average.effect(forest.causal.plus.1, target.sample = "control", method = "TMLE")
+	expect_equal(catc.tmle, catc.plus.1.tmle)
 })
 
 test_that("average effect estimates are reasonable", {
@@ -40,17 +52,29 @@ test_that("average effect estimates are reasonable", {
   
   forest.causal = causal.forest(X, Y, W, num.trees = 500, ci.group.size = 1, precompute.nuisance = TRUE)
   
-  cate = estimate.average.effect(forest.causal, target.sample = "all")
-  expect_true(abs(cate[1] - mean(TAU)) <= 0.2)
-  expect_true(abs(cate[1] - mean(TAU)) <= 3 * cate[2])
+  cate.aipw = estimate.average.effect(forest.causal, target.sample = "all", method = "AIPW")
+  expect_true(abs(cate.aipw[1] - mean(TAU)) <= 0.2)
+  expect_true(abs(cate.aipw[1] - mean(TAU)) <= 3 * cate.aipw[2])
   
-  catt = estimate.average.effect(forest.causal, target.sample = "treated")
-  expect_true(abs(catt[1] - mean(TAU[W==1])) <= 0.2)
-  expect_true(abs(catt[1] - mean(TAU[W==1])) <= 3 * catt[2])
+  cate.tmle = estimate.average.effect(forest.causal, target.sample = "all", method = "TMLE")
+  expect_true(abs(cate.tmle[1] - mean(TAU)) <= 0.2)
+  expect_true(abs(cate.tmle[1] - mean(TAU)) <= 3 * cate.tmle[2])
   
-  catc = estimate.average.effect(forest.causal, target.sample = "control")
-  expect_true(abs(catc[1] - mean(TAU[W==0])) <= 0.2)
-  expect_true(abs(catc[1] - mean(TAU[W==0])) <= 3 * catc[2])
+  catt.aipw = estimate.average.effect(forest.causal, target.sample = "treated", method = "AIPW")
+  expect_true(abs(catt.aipw[1] - mean(TAU[W==1])) <= 0.2)
+  expect_true(abs(catt.aipw[1] - mean(TAU[W==1])) <= 3 * catt.aipw[2])
+  
+  catt.tmle = estimate.average.effect(forest.causal, target.sample = "treated", method = "TMLE")
+  expect_true(abs(catt.tmle[1] - mean(TAU[W==1])) <= 0.2)
+  expect_true(abs(catt.tmle[1] - mean(TAU[W==1])) <= 3 * catt.tmle[2])
+  
+  catc.aipw = estimate.average.effect(forest.causal, target.sample = "control", method = "AIPW")
+  expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 0.2)
+  expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 3 * catc.aipw[2])
+  
+  catc.tmle = estimate.average.effect(forest.causal, target.sample = "control", method = "TMLE")
+  expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 0.2)
+  expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 3 * catc.tmle[2])
 })
 
 test_that("average effects larger example works", {
@@ -59,7 +83,7 @@ test_that("average effects larger example works", {
   p = 10
   
   X = matrix(runif(n * p), n, p)
-  E = (1 + dbeta(X[,2], 2, 4)) / 4
+  E = (0.4 + dbeta(X[,2], 2, 4)) / 4
   W = rbinom(n, 1, E)
   M = 2 * X[,2] - 1
   TAU = (1 + 1/(1 + exp(-20 * (X[,1] - 0.3)))) * (1 + 1/(1 + exp(-20 * (X[,2] - 0.3))))
@@ -67,14 +91,23 @@ test_that("average effects larger example works", {
   
   forest.causal = causal.forest(X, Y, W, num.trees = 1000, ci.group.size = 1, precompute.nuisance = TRUE)
   
-  cate = estimate.average.effect(forest.causal, target.sample = "all")
-  expect_true(abs(cate[1] - mean(TAU)) <= 3 * cate[2])
+  cate.aipw = estimate.average.effect(forest.causal, target.sample = "all", method = "AIPW")
+  expect_true(abs(cate.aipw[1] - mean(TAU)) <= 3 * cate.aipw[2])
   
-  catt = estimate.average.effect(forest.causal, target.sample = "treated")
-  expect_true(abs(catt[1] - mean(TAU[W==1])) <= 3 * catt[2])
+  cate.tmle = estimate.average.effect(forest.causal, target.sample = "all", method = "TMLE")
+  expect_true(abs(cate.tmle[1] - mean(TAU)) <= 3 * cate.tmle[2])
   
-  catc = estimate.average.effect(forest.causal, target.sample = "control")
-  expect_true(abs(catc[1] - mean(TAU[W==0])) <= 3 * catc[2])
+  catt.aipw = estimate.average.effect(forest.causal, target.sample = "treated", method = "AIPW")
+  expect_true(abs(catt.aipw[1] - mean(TAU[W==1])) <= 3 * catt.aipw[2])
+  
+  catt.tmle = estimate.average.effect(forest.causal, target.sample = "treated", method = "TMLE")
+  expect_true(abs(catt.tmle[1] - mean(TAU[W==1])) <= 3 * catt.tmle[2])
+  
+  catc.aipw = estimate.average.effect(forest.causal, target.sample = "control", method = "AIPW")
+  expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 3 * catc.aipw[2])
+  
+  catc.tmle = estimate.average.effect(forest.causal, target.sample = "control", method = "TMLE")
+  expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 3 * catc.tmle[2])
 })
 
 

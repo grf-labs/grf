@@ -56,34 +56,81 @@ estimate.average.effect = function(forest,
   Y.hat.0 <- forest$Y.hat - forest$W.hat * tau.hat.pointwise
   Y.hat.1 <- forest$Y.hat + (1 - forest$W.hat) * tau.hat.pointwise
   
-  # Compute inverse-propensity-type weights that can be used for either
-  # AIPW or TMLE estimation.
-  
-  if (target.sample == "all") {
-    gamma.control.raw <- 1 / (1 - forest$W.hat[control.idx])
-    gamma.treated.raw <- 1 / forest$W.hat[treated.idx]
-  } else if (target.sample == "treated") {
-    gamma.control.raw <- forest$W.hat[control.idx] / (1 - forest$W.hat[control.idx])
-    gamma.treated.raw <- rep(1, length(treated.idx))
-  } else if (target.sample == "control") {
-    gamma.control.raw <- rep(1, length(control.idx))
-    gamma.treated.raw <- (1 - forest$W.hat[treated.idx]) / forest$W.hat[treated.idx]
-  } else {
-    stop("Invalid target sample.")
+  if (method == "TMLE") {
+    loaded <- require("sandwich", quietly = TRUE)
+    if (!loaded) {
+      warning("To use TMLE, please install the package `sandwich`. Using AIPW instead.")
+      method = "AIPW"
+    }
   }
   
-  gamma <- rep(0, length(forest$W.orig))
-  gamma[control.idx] <- gamma.control.raw / sum(gamma.control.raw) * length(forest$W.orig)
-  gamma[treated.idx] <- gamma.treated.raw / sum(gamma.treated.raw) * length(forest$W.orig)
-  
-  # Now compute a doubly robust correction
+  # Now apply a doubly robust correction
   if (method == "AIPW") {
+  
+    # Compute normalized inverse-propensity-type weights gamma
+    if (target.sample == "all") {
+      gamma.control.raw <- 1 / (1 - forest$W.hat[control.idx])
+      gamma.treated.raw <- 1 / forest$W.hat[treated.idx]
+    } else if (target.sample == "treated") {
+      gamma.control.raw <- forest$W.hat[control.idx] / (1 - forest$W.hat[control.idx])
+      gamma.treated.raw <- rep(1, length(treated.idx))
+    } else if (target.sample == "control") {
+      gamma.control.raw <- rep(1, length(control.idx))
+      gamma.treated.raw <- (1 - forest$W.hat[treated.idx]) / forest$W.hat[treated.idx]
+    } else {
+      stop("Invalid target sample.")
+    }
+    
+    gamma <- rep(0, length(forest$W.orig))
+    gamma[control.idx] <- gamma.control.raw / sum(gamma.control.raw) * length(forest$W.orig)
+    gamma[treated.idx] <- gamma.treated.raw / sum(gamma.treated.raw) * length(forest$W.orig)
+  
     dr.correction.all <- forest$W.orig * gamma * (forest$Y.orig - Y.hat.1) -
       (1 - forest$W.orig) * gamma * (forest$Y.orig - Y.hat.0)
     dr.correction <- mean(dr.correction.all)
     sigma2.hat <- mean(dr.correction.all^2) / length(dr.correction.all)
+    
   } else if (method == "TMLE") {
-    stop("... not implemented ...")
+    
+    if (target.sample == "all") {
+      eps.tmle.robust.0 <-
+        lm(B ~ A + 0, data=data.frame(A=1/(1 - forest$W.hat[forest$W.orig==0]),
+                                      B=forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0]))
+      eps.tmle.robust.1 <-
+        lm(B ~ A + 0, data=data.frame(A=1/forest$W.hat[forest$W.orig==1],
+                                      B=forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1]))
+      delta.tmle.robust.0 <- predict(eps.tmle.robust.0, newdata=data.frame(A=mean(1/(1 - forest$W.hat))))
+      delta.tmle.robust.1 <- predict(eps.tmle.robust.1, newdata=data.frame(A=mean(1/forest$W.hat)))
+      dr.correction <- delta.tmle.robust.1 - delta.tmle.robust.0
+      # use robust SE
+      sigma2.hat <- vcovHC(eps.tmle.robust.0) * mean(1/(1 - forest$W.hat))^2 +
+        vcovHC(eps.tmle.robust.1) * mean(1/forest$W.hat)^2
+    } else if (target.sample == "treated") {
+      eps.tmle.robust.0 <-
+        lm(B ~ A + 0,
+           data=data.frame(A=forest$W.hat[forest$W.orig==0]/(1 - forest$W.hat[forest$W.orig==0]),
+                           B=forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0]))
+      new.center <- mean(forest$W.hat[forest$W.orig==1]/(1 - forest$W.hat[forest$W.orig==1]))
+      delta.tmle.robust.0 <- predict(eps.tmle.robust.0,
+                                     newdata=data.frame(A=new.center))
+      dr.correction <- -delta.tmle.robust.0
+      sigma2.hat = vcovHC(eps.tmle.robust.0) * new.center^2 +
+        var(forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1]) / sum(forest$W.orig==1)
+    } else if (target.sample == "control") {
+      eps.tmle.robust.1 <-
+        lm(B ~ A + 0,
+           data=data.frame(A=(1 - forest$W.hat[forest$W.orig==1])/forest$W.hat[forest$W.orig==1],
+                           B=forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1]))
+      new.center <- mean((1 - forest$W.hat[forest$W.orig==0])/forest$W.hat[forest$W.orig==0])
+      delta.tmle.robust.1 <- predict(eps.tmle.robust.1,
+                                     newdata=data.frame(A=new.center))
+      dr.correction <- delta.tmle.robust.1
+      sigma2.hat = var(forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0]) / sum(forest$W.orig==0) +
+        vcovHC(eps.tmle.robust.1) * new.center^2
+    } else {
+      stop("Invalid target sample.")
+    }
+    
   } else {
     stop("Invalid method.")
   }
