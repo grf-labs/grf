@@ -47,7 +47,15 @@ tau.hat = predict(tau.forest, X.test)
 plot(X.test[,1], tau.hat$predictions, ylim = range(tau.hat$predictions, 0, 2), xlab = "x", ylab = "tau", type = "l")
 lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 2)
 
-# Add confidence intervals -- growing more trees is now recommended.
+# Estimate the conditional average treatment effect on the full sample (CATE).
+estimate.average.effect(tau.forest, target.sample = "all")
+
+# Estimate the conditional average treatment effect on the treated sample (CATT).
+# Here, we don't expect much difference between the CATE and the CATT, since
+# treatment assignment was randomized.
+estimate.average.effect(tau.forest, target.sample = "treated")
+
+# Add confidence intervals for heterogeneous treatment effects; growing more trees is now recommended.
 tau.forest = causal.forest(X, Y, W, num.trees = 4000)
 tau.hat = predict(tau.forest, X.test, estimate.variance = TRUE)
 sigma.hat = sqrt(tau.hat$variance.estimates)
