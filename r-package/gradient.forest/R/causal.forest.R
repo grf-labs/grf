@@ -118,7 +118,8 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(ncol(X)
     forest[["W.orig"]] <- W
     forest[["Y.hat"]] <- Y.hat
     forest[["W.hat"]] <- W.hat
-    class(forest) <- "causal.forest"
+
+    class(forest) <- c("causal.forest", "grf")
     forest
 }
 

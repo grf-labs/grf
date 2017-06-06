@@ -83,7 +83,7 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size)
     
     forest[["original.data"]] <- input.data
-    class(forest) <- "quantile.forest"
+    class(forest) <- c("quantile.forest", "grf")
     forest
 }
 

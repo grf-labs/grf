@@ -122,7 +122,7 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data
-    class(forest) <- "instrumental.forest"
+    class(forest) <- c("instrumental.forest", "grf")
     forest
 }
 
