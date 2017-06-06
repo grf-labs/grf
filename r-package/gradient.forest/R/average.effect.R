@@ -21,7 +21,7 @@ estimate.average.effect = function(forest,
                                    target.sample=c("all", "treated", "control"),
                                    method=c("AIPW", "TMLE")) {
 
-  if (class(forest) != "causal.forest") {
+  if (!("causal.forest" %in% class(forest))) {
     stop("Average effect estimation only implemented for causal.forest")
   }
   
