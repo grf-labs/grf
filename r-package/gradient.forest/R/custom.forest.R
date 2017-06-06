@@ -74,7 +74,7 @@ custom.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3)
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size)
     
     forest[["original.data"]] <- input.data
-    class(forest) <- "custom.forest"
+    class(forest) <- c("custom.forest", "grf")
     forest
 }
 

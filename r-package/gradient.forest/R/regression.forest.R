@@ -76,7 +76,7 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data
-    class(forest) <- "regression.forest"
+    class(forest) <- c("regression.forest", "grf")
     forest
 }
 
