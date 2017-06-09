@@ -5,6 +5,9 @@ library(testthat)
 package.name <- "gradient.forest"
 package.src <- "gradient.forest/src"
 
+# Auto-generate documentation files
+devtools::document(package.name)
+
 # Copy Rcpp bindings and C++ source into the package src directory.
 unlink(package.src, recursive = TRUE)
 dir.create(package.src)
