@@ -2,7 +2,7 @@ set.seed(1234)
 
 rm(list = ls())
 
-setwd("~/git/split-relabel/experiments/instrumental_examples")
+setwd("~/git/gradient-forest/experiments/instrumental_examples")
 
 library(gradient.forest)
 p = 20

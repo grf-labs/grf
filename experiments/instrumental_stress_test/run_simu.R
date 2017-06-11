@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("~/git/split-relabel/experiments/instrumental_stress_test")
+setwd("~/git/gradient-forest/experiments/instrumental_stress_test")
 
 library(gradient.forest)
 source("../baselines.R")
@@ -22,9 +22,9 @@ k.mu = 2
 p.vals = c(10, 20)
 
 n.vals = c(1000, 2000)
-n.test = 100
+n.test = 1000
 
-REPS = 20
+REPS = 100
 
 for (alpha.mu in alpha.mu.vals) {
 for (confounding in confounding.vals) {
@@ -73,10 +73,10 @@ if(axis.aligned) {
 #
 
 forest.orthog = instrumental.forest(X, Y, W, Z, precompute.nuisance = TRUE)
-tau.forest.orthog = predict(forest.orthog, newdata = X.test)
+tau.forest.orthog = predict(forest.orthog, newdata = X.test)$predictions
 
 forest.plain = instrumental.forest(X, Y, W, Z, precompute.nuisance = FALSE)
-tau.forest.plain = predict(forest.plain, newdata = X.test)
+tau.forest.plain = predict(forest.plain, newdata = X.test)$predictions
 
 tau.iv.noint = iv.series(X, Y, W, Z, X.test, interact = FALSE)
 tau.iv.int = iv.series(X, Y, W, Z, X.test, interact = TRUE)

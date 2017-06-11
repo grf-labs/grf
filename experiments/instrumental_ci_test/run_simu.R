@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("~/git/split-relabel/experiments/instrumental_ci_test")
+setwd("~/git/gradient-forest/experiments/instrumental_ci_test")
 
 library(gradient.forest)
 
@@ -20,12 +20,10 @@ k.tau.vals = c(2, 4)
 k.mu = 2
 p.vals = c(10, 20)
 
-n.vals = c(1000, 2000)
-n.test = 400
+n.vals = c(5000, 10000)
+n.test = 1000
 
-REPS = 10
-
-num.trees = 4000
+REPS = 4
 
 for (alpha.mu in alpha.mu.vals) {
 for (confounding in confounding.vals) {
@@ -73,7 +71,7 @@ if(axis.aligned) {
 #
 #
 
-forest.orthog = instrumental.forest(X, Y, W, Z, precompute.nuisance = TRUE, num.trees = num.trees)
+forest.orthog = instrumental.forest(X, Y, W, Z, precompute.nuisance = TRUE)
 tau.forest.orthog = predict(forest.orthog, newdata = X.test, estimate.variance = TRUE)
 tau.hat = tau.forest.orthog$predictions
 sigma.hat = sqrt(tau.forest.orthog$variance.estimates)
