@@ -118,12 +118,14 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
     }
   }
 
+  size_t min_child_samples = (size_t) ceil(num_samples_node * 0.10);
+
   // Compute decrease of impurity for each possible split
   for (size_t i = 0; i < num_splits; ++i) {
 
-    // Stop if one child empty
+    // Skip this split if one child is too small.
     size_t n_left = num_samples_node - n_right[i];
-    if (n_left == 0 || n_right[i] == 0) {
+    if (n_left < min_child_samples || n_right[i] < min_child_samples) {
       continue;
     }
 
@@ -162,20 +164,21 @@ void RegressionSplittingRule::find_best_split_value_large_q(size_t node, size_t 
   size_t n_left = 0;
   double sum_left = 0;
 
+  size_t min_child_samples = (size_t) ceil(num_samples_node * 0.10);
+
   // Compute decrease of impurity for each split
   for (size_t i = 0; i < num_unique - 1; ++i) {
-
-    // Stop if nothing here
-    if (counter[i] == 0) {
-      continue;
-    }
-
     n_left += counter[i];
     sum_left += sums[i];
 
-    // Stop if right child empty
+    // Skip to the next value if the left child is too small.
+    if (n_left < min_child_samples) {
+      continue;
+    }
+
+    // Stop if the right child is too small.
     size_t n_right = num_samples_node - n_left;
-    if (n_right == 0) {
+    if (n_right < min_child_samples) {
       break;
     }
 
