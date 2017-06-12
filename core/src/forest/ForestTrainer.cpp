@@ -43,13 +43,11 @@ void ForestTrainer::init(uint mtry,
                          uint min_node_size,
                          std::vector<size_t> no_split_variables,
                          std::string split_select_weights_file,
-                         std::vector<std::string>& always_split_variable_names,
                          bool sample_with_replacement,
                          std::string sample_weights_file,
                          double sample_fraction,
                          bool honesty,
                          uint ci_group_size) {
-  this->always_split_variable_names = always_split_variable_names;
   this->split_select_weights_file = split_select_weights_file;
   this->sample_weights_file = sample_weights_file;
 
@@ -135,11 +133,6 @@ Forest ForestTrainer::train(Data* data) {
   // Set minimal node size
   if (min_node_size == 0) {
     min_node_size = DEFAULT_MIN_NODE_SIZE_REGRESSION;
-  }
-
-  // Set variables to be always considered for splitting
-  if (!always_split_variable_names.empty()) {
-    set_always_split_variables(data, always_split_variable_names, num_independent_variables);
   }
 
   // Check if any observations samples
@@ -295,22 +288,5 @@ void ForestTrainer::set_split_select_weights(std::vector<double>& split_select_w
   }
   if (deterministic_vars.size() + split_select_vars.size() < mtry) {
     throw std::runtime_error("Too many zeros in split select weights. Need at least mtry variables to split at.");
-  }
-}
-
-void ForestTrainer::set_always_split_variables(Data* data,
-                                               std::vector<std::string>& always_split_variable_names,
-                                               size_t num_independent_variables) {
-  deterministic_vars.clear();
-  deterministic_vars.reserve(num_independent_variables);
-
-  for (auto& variable_name : always_split_variable_names) {
-    size_t var = data->get_variable_id(variable_name);
-    deterministic_vars.push_back(var);
-  }
-
-  if (deterministic_vars.size() + mtry > num_independent_variables) {
-    throw std::runtime_error(
-        "Number of variables to be always considered for splitting plus mtry cannot be larger than number of independent variables.");
   }
 }
