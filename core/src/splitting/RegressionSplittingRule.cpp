@@ -16,9 +16,11 @@
  #-------------------------------------------------------------------------------*/
 
 #include "RegressionSplittingRule.h"
+#include <math.h>
 
-RegressionSplittingRule::RegressionSplittingRule(Data* data) {
+RegressionSplittingRule::RegressionSplittingRule(Data* data, double alpha) {
   this->data = data;
+  this->alpha = alpha;
 
   size_t max_num_unique_values = data->get_max_num_unique_values();
   this->counter = new size_t[max_num_unique_values];
@@ -42,6 +44,8 @@ bool RegressionSplittingRule::find_best_split(size_t node,
                                               std::vector<double>& split_values) {
 
   size_t num_samples_node = samples[node].size();
+  size_t min_child_samples = (size_t) fmax(1, ceil(num_samples_node * alpha));
+
   double best_decrease = -1;
   size_t best_var = 0;
   double best_value = 0;
@@ -57,11 +61,11 @@ bool RegressionSplittingRule::find_best_split(size_t node,
     // Use faster method for both cases
     double q = (double) num_samples_node / (double) data->get_num_unique_data_values(var);
     if (q < Q_THRESHOLD) {
-      find_best_split_value_small_q(node, var, sum_node, num_samples_node, best_value, best_var, best_decrease,
-                                    labels_by_sample, samples);
+      find_best_split_value_small_q(node, var, sum_node, num_samples_node, min_child_samples,
+                                    best_value, best_var, best_decrease, labels_by_sample, samples);
     } else {
-      find_best_split_value_large_q(node, var, sum_node, num_samples_node, best_value, best_var, best_decrease,
-                                    labels_by_sample, samples);
+      find_best_split_value_large_q(node, var, sum_node, num_samples_node, min_child_samples,
+                                    best_value, best_var, best_decrease, labels_by_sample, samples);
     }
   }
 
@@ -78,6 +82,7 @@ bool RegressionSplittingRule::find_best_split(size_t node,
 
 void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t var, double sum_node,
                                                             size_t num_samples_node,
+                                                            size_t min_child_samples,
                                                             double& best_value, size_t& best_var,
                                                             double& best_decrease,
                                                             const std::unordered_map<size_t, double>& responses_by_sample,
@@ -118,8 +123,6 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
     }
   }
 
-  size_t min_child_samples = (size_t) ceil(num_samples_node * 0.10);
-
   // Compute decrease of impurity for each possible split
   for (size_t i = 0; i < num_splits; ++i) {
 
@@ -144,7 +147,9 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
 
 void RegressionSplittingRule::find_best_split_value_large_q(size_t node, size_t var, double sum_node,
                                                             size_t num_samples_node,
-                                                            double& best_value, size_t& best_var,
+                                                            size_t min_child_samples,
+                                                            double& best_value,
+                                                            size_t& best_var,
                                                             double& best_decrease,
                                                             const std::unordered_map<size_t, double>& responses_by_sample,
                                                             const std::vector<std::vector<size_t>>& samples) {
@@ -163,8 +168,6 @@ void RegressionSplittingRule::find_best_split_value_large_q(size_t node, size_t 
 
   size_t n_left = 0;
   double sum_left = 0;
-
-  size_t min_child_samples = (size_t) ceil(num_samples_node * 0.10);
 
   // Compute decrease of impurity for each split
   for (size_t i = 0; i < num_unique - 1; ++i) {

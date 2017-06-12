@@ -25,7 +25,7 @@
 #' @export
 custom.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
-    honesty = TRUE, ci.group.size = 2, seed = NULL) {
+    honesty = TRUE, ci.group.size = 2, alpha = 0.10, seed = NULL) {
     
     sparse.data <- as.matrix(0)
     
@@ -71,7 +71,7 @@ custom.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3)
     
     forest <- custom_train(input.data, outcome.index.zeroindexed, sparse.data, 
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement, 
-        keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size)
+        keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
     forest[["original.data"]] <- input.data
     class(forest) <- c("custom.forest", "grf")

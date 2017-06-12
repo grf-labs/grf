@@ -28,7 +28,7 @@
 #' @export
 quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction = 0.5, 
     mtry = ceiling(ncol(X)/3), num.trees = 2000, num.threads = NULL, min.node.size = NULL, 
-    keep.inbag = FALSE, seed = NULL, ci.group.size = 2, honesty = TRUE) {
+    keep.inbag = FALSE, seed = NULL, ci.group.size = 2, alpha = 0.10, honesty = TRUE) {
     
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
@@ -80,7 +80,7 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
     
     forest <- quantile_train(quantiles, input.data, outcome.index.zeroindexed, sparse.data, 
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement, 
-        keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size)
+        keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
     forest[["original.data"]] <- input.data
     class(forest) <- c("quantile.forest", "grf")

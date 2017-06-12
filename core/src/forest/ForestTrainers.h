@@ -26,17 +26,21 @@ public:
                                             size_t outcome_index,
                                             size_t treatment_index,
                                             size_t instrument_index,
-                                            double split_regularization);
+                                            double split_regularization,
+                                            double alpha);
 
   static ForestTrainer quantile_trainer(Data* data,
                                         size_t outcome_index,
-                                        const std::vector<double>& quantiles);
+                                        const std::vector<double>& quantiles,
+                                        double alpha);
 
   static ForestTrainer regression_trainer(Data* data,
-                                          size_t outcome_index);
+                                          size_t outcome_index,
+                                          double alpha);
 
   static ForestTrainer custom_trainer(Data* data,
-                                      size_t outcome_index);
+                                      size_t outcome_index,
+                                      double alpha);
 };
 
 

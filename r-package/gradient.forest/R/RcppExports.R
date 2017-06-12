@@ -9,8 +9,8 @@ examine_tree <- function(forest_object, tree_index) {
     .Call('gradient_forest_examine_tree', PACKAGE = 'gradient.forest', forest_object, tree_index)
 }
 
-custom_train <- function(input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size) {
-    .Call('gradient_forest_custom_train', PACKAGE = 'gradient.forest', input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size)
+custom_train <- function(input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha) {
+    .Call('gradient_forest_custom_train', PACKAGE = 'gradient.forest', input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha)
 }
 
 custom_predict <- function(forest_object, input_data, sparse_data, variable_names, num_threads) {
@@ -21,8 +21,8 @@ custom_predict_oob <- function(forest_object, input_data, sparse_data, variable_
     .Call('gradient_forest_custom_predict_oob', PACKAGE = 'gradient.forest', forest_object, input_data, sparse_data, variable_names, num_threads)
 }
 
-instrumental_train <- function(input_data, outcome_index, treatment_index, instrument_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, split_regularization) {
-    .Call('gradient_forest_instrumental_train', PACKAGE = 'gradient.forest', input_data, outcome_index, treatment_index, instrument_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, split_regularization)
+instrumental_train <- function(input_data, outcome_index, treatment_index, instrument_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, split_regularization, alpha) {
+    .Call('gradient_forest_instrumental_train', PACKAGE = 'gradient.forest', input_data, outcome_index, treatment_index, instrument_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, split_regularization, alpha)
 }
 
 instrumental_predict <- function(forest_object, input_data, sparse_data, variable_names, num_threads, ci_group_size) {
@@ -33,8 +33,8 @@ instrumental_predict_oob <- function(forest_object, input_data, sparse_data, var
     .Call('gradient_forest_instrumental_predict_oob', PACKAGE = 'gradient.forest', forest_object, input_data, sparse_data, variable_names, num_threads, ci_group_size)
 }
 
-quantile_train <- function(quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size) {
-    .Call('gradient_forest_quantile_train', PACKAGE = 'gradient.forest', quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size)
+quantile_train <- function(quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha) {
+    .Call('gradient_forest_quantile_train', PACKAGE = 'gradient.forest', quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha)
 }
 
 quantile_predict <- function(forest_object, quantiles, input_data, sparse_data, variable_names, num_threads) {
@@ -45,8 +45,8 @@ quantile_predict_oob <- function(forest_object, quantiles, input_data, sparse_da
     .Call('gradient_forest_quantile_predict_oob', PACKAGE = 'gradient.forest', forest_object, quantiles, input_data, sparse_data, variable_names, num_threads)
 }
 
-regression_train <- function(input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size) {
-    .Call('gradient_forest_regression_train', PACKAGE = 'gradient.forest', input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size)
+regression_train <- function(input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha) {
+    .Call('gradient_forest_regression_train', PACKAGE = 'gradient.forest', input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha)
 }
 
 regression_predict <- function(forest_object, input_data, sparse_data, variable_names, num_threads, ci_group_size) {

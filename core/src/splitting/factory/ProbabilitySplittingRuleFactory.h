@@ -26,11 +26,21 @@
 
 class ProbabilitySplittingRuleFactory: public SplittingRuleFactory {
 public:
-  ProbabilitySplittingRuleFactory(Data* data, size_t num_classes);
+  /**
+   * Creates a factory that produces standard classification splitting rules.
+   *
+   * data: A pointer to the training data.
+   * alpha: The minimum fraction of samples that are allowed to be on either
+   *     side of the split. Splits that are too uneven according to this
+   *     parameter will not be considered.
+   * num_classes: The number of unique classes in the data.
+   */
+  ProbabilitySplittingRuleFactory(Data* data, double alpha, size_t num_classes);
   std::shared_ptr<SplittingRule> create();
 
 private:
   Data* data;
+  double alpha;
   size_t num_classes;
 
   DISALLOW_COPY_AND_ASSIGN(ProbabilitySplittingRuleFactory);
