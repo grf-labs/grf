@@ -15,6 +15,7 @@
   along with gradient-forest. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
+#include <algorithm>
 #include <memory>
 
 #include "commons/Data.h"
@@ -114,22 +115,26 @@ void TreeTrainer::repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
 
 void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
                                                BootstrapSampler& bootstrap_sampler,
-                                               Data *data,
+                                               Data* data,
                                                const std::vector<double>& split_select_weights) {
 
   // Always use deterministic variables
   std::vector<size_t> deterministic_vars = options.get_deterministic_vars();
   std::copy(deterministic_vars.begin(), deterministic_vars.end(), std::inserter(result, result.end()));
 
+  // Randomly select an mtry for this tree based on the overall setting.
+  size_t num_independent_variables = data->get_num_cols() - options.get_no_split_variables().size();
+  size_t mtry_sample = bootstrap_sampler.sample_poisson(options.get_mtry());
+  size_t split_mtry = std::min(mtry_sample, num_independent_variables);
+
   // Randomly add non-deterministic variables (according to weights if needed)
-  uint mtry = options.get_mtry();
   if (split_select_weights.empty()) {
     bootstrap_sampler.draw_without_replacement_skip(result,
                                                     data->get_num_cols(),
                                                     options.get_no_split_variables(),
-                                                    mtry);
-  } else {
-    size_t num_draws = mtry - result.size();
+                                                    split_mtry);
+  } else if (split_mtry > result.size()){
+    size_t num_draws = split_mtry - result.size();
     bootstrap_sampler.draw_without_replacement_weighted(result,
                                                         options.get_split_select_vars(),
                                                         num_draws,

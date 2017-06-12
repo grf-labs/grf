@@ -88,6 +88,8 @@ public:
                          size_t n_all,
                          size_t n_first);
 
+  size_t sample_poisson(size_t mean);
+
 private:
   void bootstrap(size_t num_samples,
                  double sample_fraction,

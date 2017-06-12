@@ -140,11 +140,6 @@ Forest ForestTrainer::train(Data* data) {
     throw std::runtime_error("sample_fraction too small, no observations sampled.");
   }
 
-  // Check if mtry is in valid range
-  if (mtry > num_independent_variables) {
-    throw std::runtime_error("mtry can not be larger than number of variables in data.");
-  }
-
   size_t num_types = observables.size();
   std::vector<std::vector<double>> observations_by_type(num_types);
   for (auto it : observables) {
@@ -281,12 +276,5 @@ void ForestTrainer::set_split_select_weights(std::vector<double>& split_select_w
     } else if (weight < 0 || weight > 1) {
       throw std::runtime_error("One or more split select weights not in range [0,1].");
     }
-  }
-
-  if (deterministic_vars.size() > this->mtry) {
-    throw std::runtime_error("Number of ones in split select weights cannot be larger than mtry.");
-  }
-  if (deterministic_vars.size() + split_select_vars.size() < mtry) {
-    throw std::runtime_error("Too many zeros in split select weights. Need at least mtry variables to split at.");
   }
 }

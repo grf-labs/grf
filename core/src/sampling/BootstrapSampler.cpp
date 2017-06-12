@@ -23,6 +23,7 @@ BootstrapSampler::BootstrapSampler(uint seed,
                                    SamplingOptions options):
     options(options) {
   random_number_generator.seed(seed);
+
 }
 
 void BootstrapSampler::sample(size_t num_samples,
@@ -287,4 +288,9 @@ void BootstrapSampler::draw_without_replacement_weighted(std::vector<size_t>& re
     temp[draw] = true;
     result.push_back(draw);
   }
+}
+
+size_t BootstrapSampler::sample_poisson(size_t mean) {
+  std::poisson_distribution<size_t> distribution;
+  return distribution(random_number_generator);
 }
