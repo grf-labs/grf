@@ -23,7 +23,7 @@ TreeOptions::TreeOptions(uint mtry,
                          const std::vector<double>& split_select_weights,
                          const std::vector<size_t>& split_select_vars,
                          const std::vector<size_t>& deterministic_vars,
-                         const std::vector<size_t>& no_split_variables,
+                         const std::set<size_t>& no_split_variables,
                          bool honesty):
   mtry(mtry),
   min_node_size(min_node_size),
@@ -53,7 +53,7 @@ const std::vector<size_t>& TreeOptions::get_deterministic_vars() {
   return deterministic_vars;
 }
 
-const std::vector<size_t>& TreeOptions::get_no_split_variables() {
+const std::set<size_t>& TreeOptions::get_no_split_variables() {
   return no_split_variables;
 }
 

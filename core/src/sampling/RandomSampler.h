@@ -18,11 +18,14 @@
 #ifndef GRADIENTFOREST_BOOTSTRAPSAMPLER_H
 #define GRADIENTFOREST_BOOTSTRAPSAMPLER_H
 
-#include <cstddef>
-#include <vector>
-#include <random>
+
 #include "commons/globals.h"
 #include "SamplingOptions.h"
+
+#include <cstddef>
+#include <random>
+#include <set>
+#include <vector>
 
 class RandomSampler {
 public:
@@ -48,7 +51,7 @@ public:
    */
   void draw_without_replacement_skip(std::vector<size_t>& result,
                                      size_t range_length,
-                                     const std::vector<size_t>& skip,
+                                     const std::set<size_t>& skip,
                                      size_t num_samples);
 
   /**
@@ -120,7 +123,7 @@ private:
    */
   void draw_without_replacement(std::vector<size_t>& result,
                                 size_t max,
-                                const std::vector<size_t>& skip,
+                                const std::set<size_t>& skip,
                                 size_t num_samples);
 
   /**
@@ -133,7 +136,7 @@ private:
    */
   void draw_without_replacement_knuth(std::vector<size_t>& result,
                                       size_t max,
-                                      const std::vector<size_t>& skip,
+                                      const std::set<size_t>& skip,
                                       size_t num_samples);
 
   SamplingOptions options;

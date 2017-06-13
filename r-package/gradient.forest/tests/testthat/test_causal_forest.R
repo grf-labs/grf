@@ -1,6 +1,6 @@
 library(gradient.forest)
 
-set.seed(1234)
+set.seed(4321)
 
 test_that("causal forests give reasonable estimates", {
 	p = 6
@@ -32,4 +32,17 @@ test_that("causal forests give reasonable estimates", {
 	
 	Z.oob = error.oob / sqrt(preds.causal.oob$variance.estimate)
 	expect_true(mean(abs(Z.oob) > 1) < 0.5)
+})
+
+test_that("causal forests can split on the last parameter", {
+	n = 1000
+	p = 6
+	X = matrix(rnorm(n*p), n, p)
+	W = rbinom(n, 1, 0.5)
+	Y = W * (X[,1] + X[,6]) + rnorm(n)
+	 
+	forest = causal.forest(X, Y, W)
+	split.frequencies = compute_split_frequencies(forest, 10)
+
+ 	expect_gt(sum(split.frequencies[,6]), 0)
 })

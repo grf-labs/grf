@@ -26,9 +26,10 @@
 #include "tree/TreeTrainer.h"
 #include "forest/Forest.h"
 
-#include <memory>
-#include <thread>
 #include <future>
+#include <memory>
+#include <set>
+#include <thread>
 
 class ForestTrainer {
 public:
@@ -44,7 +45,7 @@ public:
             uint seed,
             uint num_threads,
             uint min_node_size,
-            std::vector<size_t> no_split_variables,
+            std::set<size_t> no_split_variables,
             std::string split_select_weights_file,
             bool sample_with_replacement,
             std::string case_weights_file,
@@ -73,7 +74,7 @@ private:
   bool sample_with_replacement;
   double sample_fraction;
 
-  std::vector<size_t> no_split_variables;
+  std::set<size_t> no_split_variables;
 
   uint num_threads;
   std::vector<uint> thread_ranges;
