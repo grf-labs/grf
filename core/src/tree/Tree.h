@@ -24,7 +24,7 @@
 
 #include "commons/globals.h"
 #include "commons/Data.h"
-#include "sampling/BootstrapSampler.h"
+#include "sampling/RandomSampler.h"
 #include "prediction/PredictionValues.h"
 #include "splitting/SplittingRule.h"
 

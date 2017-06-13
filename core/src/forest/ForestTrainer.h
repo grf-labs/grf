@@ -46,7 +46,6 @@ public:
             uint min_node_size,
             std::vector<size_t> no_split_variables,
             std::string split_select_weights_file,
-            std::vector<std::string>& always_split_variable_names,
             bool sample_with_replacement,
             std::string case_weights_file,
             double sample_fraction,
@@ -56,7 +55,7 @@ public:
 private:
   std::vector<std::shared_ptr<Tree>> train_ci_group(Data* data,
                                                     const Observations& observations,
-                                                    BootstrapSampler& bootstrap_sampler,
+                                                    RandomSampler& sampler,
                                                     double sample_fraction);
 
   std::vector<std::shared_ptr<Tree>> train_batch(
@@ -66,9 +65,6 @@ private:
 
   void set_split_select_weights(std::vector<double>& split_select_weights,
                                 size_t num_independent_variables);
-  void set_always_split_variables(Data* data,
-                                  std::vector<std::string>& always_split_variable_names,
-                                  size_t num_independent_variables);
 
   size_t num_trees;
   uint mtry;
@@ -86,7 +82,6 @@ private:
 
   // Weight vector for selecting possible split variables, one weight between 0 (never select) and 1 (always select) for each variable
   // Deterministic variables are always selected
-  std::vector<std::string> always_split_variable_names;
   std::vector<size_t> deterministic_vars;
   std::vector<size_t> split_select_vars;
   std::vector<double> split_select_weights;

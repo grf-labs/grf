@@ -18,13 +18,12 @@ void RcppUtilities::initialize_trainer(ForestTrainer& forest_trainer,
                                        bool honesty,
                                        uint ci_group_size) {
   std::string split_select_weights_file = "";
-  std::vector<std::string> always_split_variable_names;
   std::string case_weights_file = "";
 
   forest_trainer.init(mtry, num_trees, seed, num_threads, min_node_size,
                       no_split_variables, split_select_weights_file,
-                      always_split_variable_names, sample_with_replacement,
-                      case_weights_file, sample_fraction, honesty, ci_group_size);
+                      sample_with_replacement, case_weights_file,
+                      sample_fraction, honesty, ci_group_size);
 }
 
 Rcpp::List RcppUtilities::create_forest_object(const Forest& forest,

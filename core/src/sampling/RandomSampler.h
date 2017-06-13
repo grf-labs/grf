@@ -24,10 +24,10 @@
 #include "commons/globals.h"
 #include "SamplingOptions.h"
 
-class BootstrapSampler {
+class RandomSampler {
 public:
-  BootstrapSampler(uint seed,
-                   SamplingOptions options);
+  RandomSampler(uint seed,
+                SamplingOptions options);
 
   void sample(size_t num_samples,
               double sample_fraction,
@@ -87,6 +87,8 @@ public:
                          std::vector<size_t>& second_part,
                          size_t n_all,
                          size_t n_first);
+
+  size_t sample_poisson(size_t mean);
 
 private:
   void bootstrap(size_t num_samples,
