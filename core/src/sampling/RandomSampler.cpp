@@ -291,6 +291,6 @@ void RandomSampler::draw_without_replacement_weighted(std::vector<size_t>& resul
 }
 
 size_t RandomSampler::sample_poisson(size_t mean) {
-  std::poisson_distribution<size_t> distribution;
+  std::poisson_distribution<size_t> distribution(mean);
   return distribution(random_number_generator);
 }
