@@ -41,7 +41,7 @@ void ForestTrainer::init(uint mtry,
                          uint seed,
                          uint num_threads,
                          uint min_node_size,
-                         std::vector<size_t> no_split_variables,
+                         std::set<size_t> no_split_variables,
                          std::string split_select_weights_file,
                          bool sample_with_replacement,
                          std::string sample_weights_file,
@@ -74,7 +74,7 @@ void ForestTrainer::init(uint mtry,
 
   this->no_split_variables = no_split_variables;
   for (auto it : observables) {
-    this->no_split_variables.push_back(it.second);
+      this->no_split_variables.insert(it.second);
   }
 
   if (seed != 0) {
@@ -85,9 +85,6 @@ void ForestTrainer::init(uint mtry,
   }
 
   this->ci_group_size = ci_group_size;
-
-  // Sort no split variables in ascending order
-  std::sort(no_split_variables.begin(), no_split_variables.end());
 
   TreeOptions tree_options(mtry,
       min_node_size,

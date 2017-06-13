@@ -19,6 +19,7 @@
 #define GRADIENTFOREST_TREEOPTIONS_H
 
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -31,7 +32,7 @@ public:
               const std::vector<double>& split_select_weights,
               const std::vector<size_t>& split_select_vars,
               const std::vector<size_t>& deterministic_vars,
-              const std::vector<size_t>& no_split_variables,
+              const std::set<size_t>& no_split_variables,
               bool honesty);
 
   uint get_mtry();
@@ -40,7 +41,7 @@ public:
   const std::vector<size_t>& get_split_select_vars();
 
   const std::vector<size_t>& get_deterministic_vars();
-  const std::vector<size_t>& get_no_split_variables();
+  const std::set<size_t>& get_no_split_variables();
 
   bool get_honesty();
 
@@ -50,7 +51,7 @@ private:
   std::vector<double> split_select_weights;
   std::vector<size_t> split_select_vars;
   std::vector<size_t> deterministic_vars;
-  std::vector<size_t> no_split_variables;
+  std::set<size_t> no_split_variables;
 
   bool honesty;
 };

@@ -36,7 +36,7 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
   RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 9;
-  std::vector<size_t> skip = std::vector<size_t>({7});
+  std::set<size_t> skip = {7};
   size_t num_samples = 4;
   size_t num_replicates = 10000;
 
@@ -55,7 +55,7 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
     size_t difference = absolute_difference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.05);
   }
-  REQUIRE(0 == counts[skip[0]]);
+  REQUIRE(0 == counts[*skip.begin()]);
 }
 
 TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
@@ -67,7 +67,7 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
   RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 9;
-  std::vector<size_t> skip = std::vector<size_t>({0});
+  std::set<size_t> skip = {0};
   size_t num_samples = 4;
   size_t num_replicates = 10000;
 
@@ -86,7 +86,7 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
     size_t difference = absolute_difference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.05);
   }
-  REQUIRE(0 == counts[skip[0]]);
+  REQUIRE(0 == counts[*skip.begin()]);
 }
 
 TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
@@ -98,7 +98,7 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
     RandomSampler sampler(random_device(), sampling_options); 
 
   size_t max = 9;
-  std::vector<size_t> skip = std::vector<size_t>({9});
+  std::set<size_t> skip = {9};
   size_t num_samples = 4;
   size_t num_replicates = 10000;
 
@@ -117,7 +117,7 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
     size_t difference = absolute_difference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.05);
   }
-  REQUIRE(0 == counts[skip[0]]);
+  REQUIRE(0 == counts[*skip.begin()]);
 }
 
 TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
@@ -129,7 +129,7 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
   RandomSampler sampler(random_device(), sampling_options);
   
   size_t max = 1000;
-  std::vector<size_t> skip = std::vector<size_t>({7});
+  std::set<size_t> skip = {7};
   size_t num_samples = 50;
   size_t num_replicates = 100000;
 
@@ -148,7 +148,7 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
     size_t difference = absolute_difference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.10);
   }
-  REQUIRE(0 == counts[skip[0]]);
+  REQUIRE(0 == counts[*skip.begin()]);
 }
 
 TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
@@ -160,7 +160,7 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 1000;
-  std::vector<size_t> skip = std::vector<size_t>({7});
+  std::set<size_t> skip = {7};
   size_t num_samples = 500;
   size_t num_replicates = 10000;
 
@@ -179,7 +179,7 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
     size_t difference = absolute_difference(expected_count, c.second);
     REQUIRE(difference < expected_count * 0.05);
   }
-  REQUIRE(0 == counts[skip[0]]);
+  REQUIRE(0 == counts[*skip.begin()]);
 }
 
 

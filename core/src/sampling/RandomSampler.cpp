@@ -181,7 +181,7 @@ void RandomSampler::shuffle_and_split(std::vector<size_t>& first_part,
 
 void RandomSampler::draw_without_replacement_skip(std::vector<size_t>& result,
                                                   size_t max,
-                                                  const std::vector<size_t>& skip,
+                                                  const std::set<size_t>& skip,
                                                   size_t num_samples) {
   if (num_samples < max / 2) {
     draw_without_replacement(result, max, skip, num_samples);
@@ -192,7 +192,7 @@ void RandomSampler::draw_without_replacement_skip(std::vector<size_t>& result,
 
 void RandomSampler::draw_without_replacement(std::vector<size_t>& result,
                                              size_t max,
-                                             const std::vector<size_t>& skip,
+                                             const std::set<size_t>& skip,
                                              size_t num_samples) {
   result.reserve(num_samples);
 
@@ -218,7 +218,7 @@ void RandomSampler::draw_without_replacement(std::vector<size_t>& result,
 
 void RandomSampler::draw_without_replacement_knuth(std::vector<size_t>& result,
                                                    size_t max,
-                                                   const std::vector<size_t>& skip,
+                                                   const std::set<size_t>& skip,
                                                    size_t num_samples) {
   size_t size_no_skip = max - skip.size();
   result.resize(num_samples);

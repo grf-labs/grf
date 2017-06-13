@@ -34,7 +34,7 @@ void ForestTestUtilities::init_trainer(ForestTrainer& trainer,
   uint seed = 42;
   uint num_threads = 4;
   uint min_node_size = 1;
-  std::vector<size_t> no_split_variables;
+  std::set<size_t> no_split_variables;
   std::string split_select_weights_file = "";
   bool sample_with_replacement = true;
   std::string sample_weights_file = "";
