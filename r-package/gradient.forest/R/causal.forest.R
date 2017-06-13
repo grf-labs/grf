@@ -35,7 +35,7 @@
 #'
 #' @return A trained causal forest object.
 #' @export
-causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
+causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
     honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, alpha = 0.10, seed = NULL) {
     

@@ -24,7 +24,7 @@
 #'
 #' @return A trained regression forest object.
 #' @export
-regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
+regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
     honesty = TRUE, ci.group.size = 2, alpha = 0.10, seed = NULL) {
     
