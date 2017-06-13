@@ -1,6 +1,6 @@
 library(gradient.forest)
 
-set.seed(1234)
+set.seed(4321)
 
 test_that("causal forests give reasonable estimates", {
 	p = 6
