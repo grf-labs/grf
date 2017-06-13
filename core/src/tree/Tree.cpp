@@ -16,7 +16,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include <iterator>
-#include "sampling/BootstrapSampler.h"
+#include "sampling/RandomSampler.h"
 
 #include "tree/Tree.h"
 #include "commons/utility.h"

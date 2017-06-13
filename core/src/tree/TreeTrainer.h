@@ -23,7 +23,7 @@
 #include "commons/Data.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
-#include "sampling/BootstrapSampler.h"
+#include "sampling/RandomSampler.h"
 #include "splitting/factory/SplittingRuleFactory.h"
 #include "tree/Tree.h"
 #include "tree/TreeOptions.h"
@@ -37,7 +37,7 @@ public:
 
   std::shared_ptr<Tree> train(Data* data,
                               const Observations& observations,
-                              BootstrapSampler& bootstrap_sampler,
+                              RandomSampler& sampler,
                               const std::vector<size_t>& samples);
 
 private:
@@ -51,13 +51,13 @@ private:
                              const std::vector<size_t> &leaf_samples);
 
   void create_split_variable_subset(std::vector<size_t>& result,
-                                    BootstrapSampler &bootstrap_sampler,
-                                    Data *data,
+                                    RandomSampler& sampler,
+                                    Data* data,
                                     const std::vector<double>& split_select_weights);
 
   bool split_node(size_t node,
                   std::shared_ptr<SplittingRule> splitting_rule,
-                  BootstrapSampler& bootstrap_sampler,
+                  RandomSampler& sampler,
                   Data* data,
                   const Observations& observations,
                   std::vector<std::vector<size_t>>& child_nodes,

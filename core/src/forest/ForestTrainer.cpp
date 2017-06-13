@@ -199,20 +199,20 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
     for (size_t i = start; i < end; ++i) {
       uint tree_seed = udist(random_number_generator);
       SamplingOptions sampling_options(sample_with_replacement, sample_weights);
-      BootstrapSampler bootstrap_sampler(tree_seed, sampling_options);
+      RandomSampler sampler(tree_seed, sampling_options);
 
       if (ci_group_size == 1) {
         std::vector<size_t> samples;
         std::vector<size_t> oob_samples;
-        bootstrap_sampler.sample(data->get_num_rows(), sample_fraction, samples, oob_samples);
+        sampler.sample(data->get_num_rows(), sample_fraction, samples, oob_samples);
 
         std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
-            bootstrap_sampler, samples);
+            sampler, samples);
         tree->set_oob_samples(oob_samples);
         trees.push_back(tree);
       } else {
         std::vector<std::shared_ptr<Tree>> group = train_ci_group(
-            data, observations, bootstrap_sampler, sample_fraction);
+            data, observations, sampler, sample_fraction);
         trees.insert(trees.end(), group.begin(), group.end());
       }
     }
@@ -222,22 +222,22 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
 
 std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
                                                                  const Observations& observations,
-                                                                 BootstrapSampler& bootstrap_sampler,
+                                                                 RandomSampler& sampler,
                                                                  double sample_fraction) {
   std::vector<std::shared_ptr<Tree>> trees;
 
   std::vector<size_t> sample;
   std::vector<size_t> oob_sample;
-  bootstrap_sampler.sample(data->get_num_rows(), 0.5, sample, oob_sample);
+  sampler.sample(data->get_num_rows(), 0.5, sample, oob_sample);
 
   for (size_t i = 0; i < ci_group_size; ++i) {
     std::vector<size_t> subsample;
     std::vector<size_t> oob_subsample;
-    bootstrap_sampler.subsample(sample, sample_fraction * 2, subsample, oob_subsample);
+    sampler.subsample(sample, sample_fraction * 2, subsample, oob_subsample);
     oob_subsample.insert(oob_subsample.end(), oob_sample.begin(), oob_sample.end());
 
     std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
-        bootstrap_sampler, subsample);
+        sampler, subsample);
     tree->set_oob_samples(oob_subsample);
     trees.push_back(tree);
   }

@@ -55,7 +55,7 @@ public:
 private:
   std::vector<std::shared_ptr<Tree>> train_ci_group(Data* data,
                                                     const Observations& observations,
-                                                    BootstrapSampler& bootstrap_sampler,
+                                                    RandomSampler& sampler,
                                                     double sample_fraction);
 
   std::vector<std::shared_ptr<Tree>> train_batch(

@@ -24,10 +24,10 @@
 #include "commons/globals.h"
 #include "SamplingOptions.h"
 
-class BootstrapSampler {
+class RandomSampler {
 public:
-  BootstrapSampler(uint seed,
-                   SamplingOptions options);
+  RandomSampler(uint seed,
+                SamplingOptions options);
 
   void sample(size_t num_samples,
               double sample_fraction,
