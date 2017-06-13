@@ -71,7 +71,7 @@ if(axis.aligned) {
 #
 #
 
-forest.orthog = instrumental.forest(X, Y, W, Z, precompute.nuisance = TRUE, num.trees = 10000, ci.group.size = 50)
+forest.orthog = instrumental.forest(X, Y, W, Z, precompute.nuisance = TRUE, num.trees = 10000, ci.group.size = 50, mtry = p)
 tau.forest.orthog = predict(forest.orthog, newdata = X.test, estimate.variance = TRUE)
 tau.hat = tau.forest.orthog$predictions
 sigma.hat = sqrt(tau.forest.orthog$variance.estimates)
