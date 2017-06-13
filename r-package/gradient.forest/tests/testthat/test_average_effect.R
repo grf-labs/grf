@@ -1,6 +1,6 @@
 library(gradient.forest)
 
-set.seed(4321)
+set.seed(1000)
 
 test_that("average effects are translation invariant", {
 	p = 6
