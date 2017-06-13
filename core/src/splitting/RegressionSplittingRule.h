@@ -25,7 +25,7 @@
 
 class RegressionSplittingRule: public SplittingRule {
 public:
-  RegressionSplittingRule(Data* data);
+  RegressionSplittingRule(Data* data, double alpha);
 
   ~RegressionSplittingRule();
 
@@ -41,6 +41,7 @@ private:
                                              size_t var,
                                              double sum_node,
                                              size_t num_samples_node,
+                                             size_t min_child_samples,
                                              double& best_value,
                                              size_t& best_var,
                                              double& best_decrease,
@@ -50,6 +51,7 @@ private:
                                              size_t var,
                                              double sum_node,
                                              size_t num_samples_node,
+                                             size_t min_child_samples,
                                              double& best_value,
                                              size_t& best_var,
                                              double& best_decrease,
@@ -59,6 +61,7 @@ private:
   Data* data;
   size_t* counter;
   double* sums;
+  double alpha;
 
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRule);
 };

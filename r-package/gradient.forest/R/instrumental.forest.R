@@ -41,7 +41,7 @@
 instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
     honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, split.regularization = 0, 
-    seed = NULL) {
+    alpha = 0.10, seed = NULL) {
     
     sparse.data <- as.matrix(0)
     
@@ -116,9 +116,9 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
     no.split.variables <- numeric(0)
     
     forest <- instrumental_train(input.data, outcome.index.zeroindexed, treatment.index.zeroindexed, 
-        instrument.index.zeroindexed, sparse.data, variable.names, mtry, num.trees, 
-        verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, 
-        sample.fraction, no.split.variables, seed, honesty, ci.group.size, split.regularization)
+        instrument.index.zeroindexed, sparse.data, variable.names, mtry, num.trees, verbose,
+        num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
+        no.split.variables, seed, honesty, ci.group.size, split.regularization, alpha)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data

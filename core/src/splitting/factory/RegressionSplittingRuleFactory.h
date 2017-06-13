@@ -23,11 +23,20 @@
 
 class RegressionSplittingRuleFactory: public SplittingRuleFactory {
 public:
-  RegressionSplittingRuleFactory(Data* data);
+  /**
+   * Creates a factory that produces standard regression splitting rules.
+   *
+   * data: A pointer to the training data.
+   * alpha: The minimum fraction of samples that are allowed to be on either
+   *     side of the split. Splits that are too uneven according to this
+   *     parameter will not be considered.
+   */
+  RegressionSplittingRuleFactory(Data* data, double alpha);
   std::shared_ptr<SplittingRule> create();
 
 private:
   Data* data;
+  double alpha;
 };
 
 

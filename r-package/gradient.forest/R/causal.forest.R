@@ -37,7 +37,7 @@
 #' @export
 causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
-    honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, seed = NULL) {
+    honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, alpha = 0.10, seed = NULL) {
     
     sparse.data <- as.matrix(0)
     
@@ -87,12 +87,12 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(ncol(X)
         
         forest.Y <- regression.forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
+            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha)
         Y.hat <- predict(forest.Y)$predictions
         
         forest.W <- regression.forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
             num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
+            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha)
         W.hat <- predict(forest.W)$predictions
         
         input.data <- as.matrix(cbind(X, Y - Y.hat, W - W.hat))
@@ -110,7 +110,7 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(ncol(X)
     forest <- instrumental_train(input.data, outcome.index.zeroindexed, treatment.index.zeroindexed, 
         instrument.index.zeroindexed, sparse.data, variable.names, mtry, num.trees, 
         verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, 
-        sample.fraction, no.split.variables, seed, honesty, ci.group.size, split.regularization)
+        sample.fraction, no.split.variables, seed, honesty, ci.group.size, split.regularization, alpha)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data

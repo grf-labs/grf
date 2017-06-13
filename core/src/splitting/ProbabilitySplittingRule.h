@@ -25,7 +25,7 @@
 
 class ProbabilitySplittingRule: public SplittingRule {
 public:
-  ProbabilitySplittingRule(Data* data, size_t num_classes);
+  ProbabilitySplittingRule(Data* data, double alpha, size_t num_classes);
   ~ProbabilitySplittingRule();
 
   bool find_best_split(size_t node,
@@ -38,17 +38,24 @@ public:
 private:
   void find_best_split_value_small_q(size_t node, size_t var, size_t num_classes, size_t* class_counts,
                                      size_t num_samples_node,
-                                     double& best_value, size_t& best_var, double& best_decrease,
+                                     size_t min_child_samples,
+                                     double& best_value,
+                                     size_t& best_var,
+                                     double& best_decrease,
                                      const std::unordered_map<size_t, double>& labels_by_sample,
                                      const std::vector<std::vector<size_t>>& samples);
 
   void find_best_split_value_large_q(size_t node, size_t var, size_t num_classes, size_t* class_counts,
                                      size_t num_samples_node,
-                                     double& best_value, size_t& best_var, double& best_decrease,
+                                     size_t min_child_samples,
+                                     double& best_value,
+                                     size_t& best_var,
+                                     double& best_decrease,
                                      const std::unordered_map<size_t, double>& labels_by_sample,
                                      const std::vector<std::vector<size_t>>& samples);
 
   Data* data;
+  double alpha;
   size_t num_classes;
 
   size_t* counter;
