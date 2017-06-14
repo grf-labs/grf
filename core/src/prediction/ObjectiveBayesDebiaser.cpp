@@ -29,18 +29,24 @@ double ObjectiveBayesDebiaser::debias(double var_between,
   // num_good_groups * var_between to be chi-squared with scale
   // S + group_noise and num_good_groups degrees of freedom, and assume
   // that group_noise >> S, we find that var[initial_estimate] is roughly
-  // group_noise * sqrt(2 / num_good_groups); moreover, the distribution of
+  // var_between^2 * 2 / num_good_groups; moreover, the distribution of
   // \hat{S} - S is roughly Gaussian with this variance. Our estimation strategy
-  // relies on this fact, and puts a uniform prior on S for the interval [S, infty).
-  // This debiasing does nothing when \hat{S} >> group_noise * sqrt(2 / num_good_groups),
+  // relies on this fact, and puts a uniform prior on S for the interval [0, infty).
+  // This debiasing does nothing when \hat{S} >> var_between * sqrt(2 / num_good_groups),
   // but keeps \hat{S} from going negative.
   
   double initial_estimate = var_between - group_noise;
-  double initial_se = group_noise * std::sqrt(2 / num_good_groups);
+  double initial_se = var_between * std::sqrt(2 / num_good_groups);
   
   double ratio = initial_estimate / initial_se;
-  double part_1 = initial_se * std::exp(- ratio * ratio / 2) * ONE_over_SQRT_TWO_PI;
-  double part_2 = initial_estimate * 0.5 * erfc(-ratio * ONE_over_SQRT_TWO);
   
-  return part_1 + part_2;
+  // corresponds to \int_(-r)^infty x * phi(x) dx, for the standard Gaussian density phi(x)
+  double numerator = std::exp(- ratio * ratio / 2) * ONE_over_SQRT_TWO_PI;
+
+  // corresponds to int_(-r)^infty phi(x) dx
+  double denominator =  0.5 * std::erfc(-ratio * ONE_over_SQRT_TWO);
+
+  // this is the o-Bayes estimate of the error of the initial estimate
+  double bayes_correction = initial_se * numerator / denominator;
+  return initial_estimate + bayes_correction;
 }
