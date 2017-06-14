@@ -1,6 +1,7 @@
 library(Rcpp)
 library(devtools)
 library(testthat)
+library(roxygen2)
 
 package.name <- "gradient.forest"
 package.src <- "gradient.forest/src"
@@ -16,7 +17,7 @@ file.copy("../core/src", package.src, recursive = TRUE)
 file.copy("../core/third_party", package.src, recursive = TRUE)
 
 # Auto-generate documentation files
-devtools::document(package.name)
+roxygen2::roxygenise(package.name)
 
 # Build the package.
 compileAttributes(package.name)
