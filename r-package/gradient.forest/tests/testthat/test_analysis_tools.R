@@ -1,6 +1,5 @@
 library(gradient.forest)
 
-#TODO THIS IS BROKEN --- quantile.forest appears to be broken
 test_that("quantile forest split frequencies are reasonable", {
 	p = 10
 	n = 500
@@ -21,7 +20,6 @@ test_that("regression forest split frequencies are reasonable", {
   freq = compute_split_frequencies(rrr, 4)
   expect_true(freq[1,1] / sum(freq[1,]) > 2/3)
 })
-
 
 test_that("causal forest split frequencies are reasonable", {
   n = 100
