@@ -5,7 +5,7 @@ rm(list = ls())
 setwd("~/git/split-relabel/experiments/quantile_examples")
 
 library(quantregForest)
-library(gradient.forest)
+library(grf)
 
 p = 40
 n = 2000

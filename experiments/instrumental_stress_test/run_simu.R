@@ -2,7 +2,7 @@ rm(list = ls())
 
 setwd("~/git/gradient-forest/experiments/instrumental_stress_test")
 
-library(gradient.forest)
+library(grf)
 source("../baselines.R")
 
 #

@@ -1,5 +1,5 @@
-#ifndef GRADIENTFOREST_RCPPUTILITIES_H
-#define GRADIENTFOREST_RCPPUTILITIES_H
+#ifndef GRF_RCPPUTILITIES_H
+#define GRF_RCPPUTILITIES_H
 
 #include "forest/ForestTrainer.h"
 #include "commons/globals.h"
@@ -35,4 +35,4 @@ public:
 };
 
 
-#endif //GRADIENTFOREST_RCPPUTILITIES_H
+#endif //GRF_RCPPUTILITIES_H
