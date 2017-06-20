@@ -23,7 +23,7 @@
 .idea/
 
 # copied src files
-gradient.forest/src/*
+grf/src/*
 
 # documentation by roxygen
 *.Rd

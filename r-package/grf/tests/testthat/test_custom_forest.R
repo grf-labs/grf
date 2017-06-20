@@ -1,4 +1,4 @@
-library(gradient.forest)
+library(grf)
 
 test_that("custom forests behave as expected", {
 	p = 40

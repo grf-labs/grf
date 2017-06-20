@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/swager/gradient-forest.svg?branch=master)](https://travis-ci.org/swager/gradient-forest)
+[![Build Status](https://travis-ci.org/swager/grf.svg?branch=master)](https://travis-ci.org/swager/grf)
 
-# gradient-forest
+# grf: generalized random forests
 
 This repository is in an 'alpha' state, and is actively under development. We expect to make continual improvements to performance and usability.
 
@@ -15,7 +15,7 @@ The repository first started as a fork of the [ranger](https://github.com/imbs-h
 The package can be installed from source as follows:
 
 ```R
-install.packages("https://raw.github.com/swager/gradient-forest/master/releases/gradient-forest-alpha.tar.gz", repos = NULL, type = "source")
+install.packages("https://raw.github.com/swager/grf/master/releases/grf-alpha.tar.gz", repos = NULL, type = "source")
 ```
 
 Note that a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
@@ -23,7 +23,7 @@ Note that a compiler that implements C++11 is required (clang 3.3 or higher, or 
 ### Usage Examples
 
 ```R
-library(gradient.forest)
+library(grf)
 
 # Generate data.
 n = 2000; p = 10
@@ -69,7 +69,7 @@ More usage examples, including examples around instrumental variables, can be fo
 
 ### Developing
 
-In addition to providing out-of-the-box forests for quantile regression and instrumental variables, gradient-forest provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using gradient-forest, please consult the [developing page](DEVELOPING.md).
+In addition to providing out-of-the-box forests for quantile regression and instrumental variables, grf provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using grf, please consult the [development guide](DEVELOPING.md).
 
 ### References
 

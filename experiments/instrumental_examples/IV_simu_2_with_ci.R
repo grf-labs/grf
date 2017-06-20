@@ -4,7 +4,7 @@ rm(list = ls())
 
 setwd("~/git/gradient-forest/experiments/instrumental_examples")
 
-library(gradient.forest)
+library(grf)
 p = 20
 n = 4000
 num.trees = 10000

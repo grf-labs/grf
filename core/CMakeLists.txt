@@ -1,4 +1,4 @@
-project(gradientforest)
+project(grf)
 cmake_minimum_required(VERSION 2.0)
 
 ## ======================================================================================##
@@ -57,5 +57,5 @@ ADD_CUSTOM_TARGET(release
 ## ======================================================================================##
 ## Executable
 ## ======================================================================================##
-add_executable(gradientforest ${SOURCES})
+add_executable(grf ${SOURCES})
 
