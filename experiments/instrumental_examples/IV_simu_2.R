@@ -2,7 +2,7 @@ set.seed(1234)
 
 rm(list = ls())
 
-setwd("~/git/split-relabel/experiments/instrumental_examples")
+setwd("~/git/gradient-forest/experiments/instrumental_examples")
 
 library(gradient.forest)
 p = 20
@@ -20,11 +20,11 @@ Z = rnorm(n)
 W = A + Z
 Y = 2 * (X[,1] <= 0) * A + (X[,1] > 0) * W + (1 + (sqrt(3) - 1) * (X[,1] > 0)) * rnorm(n)
 
-forest.causal.split = instrumental.forest(X, Y, W, Z, min.node.size = 100, split.regularization = 1)
-preds.causal.split = predict(forest.causal.split, X.test)
+forest.causal.split = instrumental.forest(X, Y, W, Z, min.node.size = 10, split.regularization = 1, mtry = p)
+preds.causal.split = predict(forest.causal.split, X.test)$predictions
 
-forest.iv = instrumental.forest(X, Y, W, Z, min.node.size = 100, split.regularization = 0)
-preds.iv = predict(forest.iv, X.test)
+forest.iv = instrumental.forest(X, Y, W, Z, min.node.size = 10, split.regularization = 0, mtry = p)
+preds.iv = predict(forest.iv, X.test)$predictions
 
 pdf("IV_forest_causal_splitting.pdf")
 pardef = par(mar = c(5, 4, 4, 2) + 0.5, cex.lab = 1.5, cex.axis = 1.5, cex.sub = 1.5)

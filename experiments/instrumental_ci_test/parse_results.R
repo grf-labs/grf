@@ -2,7 +2,7 @@ rm(list = ls())
 
 library(xtable)
 
-setwd("~/git/split-relabel/experiments/instrumental_ci_test")
+setwd("~/git/gradient-forest/experiments/instrumental_ci_test")
 
 filenames = list.files("output", pattern="*", full.names=TRUE)
 

@@ -2,7 +2,7 @@ set.seed(2)
 
 rm(list = ls())
 
-setwd("~/git/split-relabel/experiments/instrumental_examples")
+setwd("~/git/gradient-forest/experiments/instrumental_examples")
 
 library(gradient.forest)
 p = 20
@@ -26,7 +26,7 @@ W = A + Z
 Y = 2 * (X[,1] <= 0) * A + (X[,1] > 0) * W + (1 + (sqrt(3) - 1) * (X[,1] > 0)) * rnorm(n)
 
 
-forest.iv = instrumental.forest(X, Y, W, Z, num.trees = num.trees)
+forest.iv = instrumental.forest(X, Y, W, Z, num.trees = num.trees, ci.group.size = 20, mtry = p)
 preds.iv = predict(forest.iv, X.test, estimate.variance=TRUE)
 tau.hat = preds.iv$predictions
 sigma.hat = sqrt(preds.iv$variance.estimate)

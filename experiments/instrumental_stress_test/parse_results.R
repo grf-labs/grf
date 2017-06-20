@@ -2,7 +2,7 @@ rm(list = ls())
 
 library(xtable)
 
-setwd("~/git/split-relabel/experiments/instrumental_stress_test")
+setwd("~/git/gradient-forest/experiments/instrumental_stress_test")
 
 filenames = list.files("output", pattern="*", full.names=TRUE)
 
@@ -39,7 +39,9 @@ raw = raw[order(raw[,1], decreasing=FALSE),]
 
 raw = raw[,c(1, 3, 2, 4:10)]
 
-collapsed = cbind(raw[1:32, 2:10], raw[33:64, 7:10])
+raw2 = raw[,c(1:6, 10:7)]
+
+collapsed = cbind(raw2[1:32, 2:10], raw2[33:64, 7:10])
 
 xtab = xtable(collapsed, align=c("r", "|", "|", rep("c", 2), "|", rep("r", 3), "|", "|", rep("c", 4), "|", rep("c", 4), "|", "|"))
 print(xtab, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, hline.after = c(-1, -1, 0, 0, 4, 8, 12, 16, 16, 20, 24, 28, 32, 32), file = "simulation_results.tex")
