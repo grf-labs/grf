@@ -192,12 +192,12 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(size_t node, size_t
 
   // Compute decrease of impurity for each split
   for (size_t i = 0; i < num_unique - 1; ++i) {
-    n_left += counter[i];
-
-    // Skip to the next value if the left child is too small.
-    if (n_left < min_child_samples) {
+    // Skip this split if the left child is empty.
+    if (counter[i] == 0) {
       continue;
     }
+
+    n_left += counter[i];
 
     // Stop if the right child is too small.
     size_t n_right = num_samples_node - n_left;
@@ -214,6 +214,11 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(size_t node, size_t
 
       sum_left += class_counts_left[j] * class_counts_left[j];
       sum_right += class_count_right * class_count_right;
+    }
+
+    // Skip to the next value if the left child is too small.
+    if (n_left < min_child_samples) {
+        continue;
     }
 
     // Decrease of impurity
