@@ -6,8 +6,6 @@ print.grf <- function(forest, decay.exponent=0.5, max.depth=12) {
     weight = (1:nrow(split.freq))^decay.exponent
     var.importance = t(split.freq) %*% weight / sum(weight)
     var.importance = c(round(var.importance, 3))
-
-    var.names = lapply(1:length(var.importance), function())
     names(var.importance) = 1:length(var.importance)
 
     main.class = class(forest)[1]
