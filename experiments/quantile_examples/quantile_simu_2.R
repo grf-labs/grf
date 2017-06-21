@@ -2,7 +2,7 @@ set.seed(1234)
 
 rm(list = ls())
 
-setwd("~/git/split-relabel/experiments/quantile_examples")
+setwd("~/git/grf/experiments/quantile_examples")
 
 library(quantregForest)
 library(grf)
@@ -20,10 +20,10 @@ X = matrix(2 * runif(n * p) - 1, n, p)
 Y = rnorm(n) + JMP * (X[,1] > 0)
 D = data.frame(X=X, Y=Y)
 
-qrf.meinshausen = quantregForest(X, Y, mtry=p, nodesize=10, replace=FALSE)
+qrf.meinshausen = quantregForest(X, Y, mtry=p, nodesize=10, replace=FALSE, sampsize=ceiling(0.25*n))
 preds.meinshausen = predict(qrf.meinshausen, X.test, quantiles = c(0.1, 0.5, 0.9))
 
-qrf.grad = quantile.forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632, num.trees=500)
+qrf.grad = quantile.forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.5, num.trees=500)
 preds.grad = predict(qrf.grad, X.test.df, quantiles = c(0.1, 0.5, 0.9))
 
 preds.truth = cbind(-qnorm(0.9) + JMP * (X.test[,1] > 0),
@@ -47,7 +47,7 @@ lines(X.test[,1], preds.truth[,1], col = 1, lwd = 2, lty = 2)
 lines(X.test[,1], preds.truth[,2], col = 1, lwd = 2, lty = 1)
 lines(X.test[,1], preds.truth[,3], col = 1, lwd = 2, lty = 2)
 
-legend("topleft", c("truth", "quantregForest", "split-relabel"), lwd = 2, col = c(1, 4, 2), cex=1.5)
+legend("topleft", c("truth", "quantregForest", "GRF"), lwd = 2, col = c(1, 4, 2), cex=1.5)
 
 par=pardef
 dev.off()

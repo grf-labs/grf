@@ -2,7 +2,7 @@ rm(list = ls())
 
 library(xtable)
 
-setwd("~/git/gradient-forest/experiments/instrumental_ci_test")
+setwd("~/git/grf/experiments/instrumental_ci_test2")
 
 filenames = list.files("output", pattern="*", full.names=TRUE)
 
@@ -30,9 +30,11 @@ names(raw) = c(param.names, "coverage")
 rownames(raw) = 1:nrow(raw)
 
 raw = raw[,-c(1, 2)]
+raw = raw[order(as.numeric(as.character(raw[,3]))),]
+raw = raw[order(as.numeric(as.character(raw[,2]))),]
 raw = raw[order(raw[,1], decreasing=TRUE),]
 
-collapsed = cbind(raw[1:8, 2:5], "coverage"=raw[9:16, 5])
+collapsed = cbind(raw[1:18, 2:5], "coverage"=raw[19:36, 5])
 
 xtab = xtable(collapsed, align=c("r", "|", rep("c", 3), "|", rep("c", 2), "|"))
-print(xtab, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, hline.after = c(-1, 0, 4, 8), file = "simulation_results.tex")
+print(xtab, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, hline.after = c(-1, -1, 0, 0, 3, 6, 9, 9, 12, 15, 18, 18), file = "simulation_results.tex")

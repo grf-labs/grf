@@ -2,7 +2,7 @@ rm(list = ls())
 
 library(xtable)
 
-setwd("~/git/gradient-forest/experiments/instrumental_stress_test")
+setwd("~/git/grf/experiments/instrumental_stress_test")
 
 filenames = list.files("output", pattern="*", full.names=TRUE)
 
