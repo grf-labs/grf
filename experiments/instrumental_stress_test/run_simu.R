@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("~/git/gradient-forest/experiments/instrumental_stress_test")
+setwd("~/git/grf/experiments/instrumental_stress_test")
 
 library(grf)
 source("../baselines.R")

@@ -2,7 +2,7 @@ set.seed(2)
 
 rm(list = ls())
 
-setwd("~/git/gradient-forest/experiments/instrumental_examples")
+setwd("~/git/grf/experiments/instrumental_examples")
 
 library(grf)
 p = 20
