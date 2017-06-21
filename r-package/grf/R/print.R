@@ -1,4 +1,5 @@
 #' Print a GRF forest object.
+#' @export
 print.grf <- function(forest, decay.exponent=0.5, max.depth=12) {
     split.freq = compute_split_frequencies(forest, max.depth)
     split.freq = split.freq / pmax(1, rowSums(split.freq))
@@ -19,6 +20,7 @@ print.grf <- function(forest, decay.exponent=0.5, max.depth=12) {
 }
 
 #' Print a GRF tree object.
+#' @export
 print.grf.tree <- function(tree) {
     cat("GRF tree object", "\n")
     cat("Number of training samples: ", tree$num_samples, "\n")
