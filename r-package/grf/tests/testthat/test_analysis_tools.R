@@ -42,7 +42,7 @@ test_that("examining a tree gives reasonable results", {
 	D = data.frame(X=X, Y=Y)
 
 	qrf = quantile.forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632, ci.group.size=1)
-	quantile.tree = examine_tree(qrf, 500)
+	quantile.tree = examine.tree(qrf, 500)
 
 	expect_lt(length(quantile.tree$nodes), n)
 
