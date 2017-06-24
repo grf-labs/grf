@@ -67,11 +67,10 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
     input.data <- as.matrix(cbind(X, Y))
     variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(input.data)
-    outcome.index.zeroindexed <- outcome.index - 1
     no.split.variables <- numeric(0)
     
-    forest <- regression_train(input.data, outcome.index.zeroindexed, sparse.data, 
-        variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement, 
+    forest <- regression_train(input.data, outcome.index, sparse.data,
+        variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
     forest[["ci.group.size"]] <- ci.group.size

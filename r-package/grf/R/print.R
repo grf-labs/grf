@@ -13,6 +13,7 @@ print.grf <- function(forest, decay.exponent=0.5, max.depth=12) {
     num.samples= ncol(forest$original.data)
 
     cat("GRF forest object of type", main.class, "\n")
+    cat("Number of trees: ", forest$num.trees, "\n")
     cat("Number of training samples:", num.samples, "\n")
  
     cat("Variable importance:", "\n")

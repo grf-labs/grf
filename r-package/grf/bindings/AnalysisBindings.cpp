@@ -51,6 +51,7 @@ Rcpp::List examine_tree(Rcpp::List forest_object,
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
+  tree_index--; // Decrement since R is one-indexed.
   size_t num_trees = forest.get_trees().size();
   if (tree_index >= num_trees) {
     throw std::runtime_error("The provided tree index is not valid.");

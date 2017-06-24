@@ -71,12 +71,11 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
     input.data <- as.matrix(cbind(X, Y))
     variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(input.data)
-    outcome.index.zeroindexed <- outcome.index - 1
     no.split.variables <- numeric(0)
     ci.group.size <- 1
     
-    forest <- quantile_train(quantiles, input.data, outcome.index.zeroindexed, sparse.data, 
-        variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement, 
+    forest <- quantile_train(quantiles, input.data, outcome.index, sparse.data,
+        variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
     forest[["original.data"]] <- input.data
