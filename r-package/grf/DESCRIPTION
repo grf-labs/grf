@@ -3,8 +3,8 @@ Title: A pluggable package for forest-based statistical estimation
 Version: 0.0.0.1
 Authors@R: c(
     person("Julie", "Tibshirani", email = "jtibs@cs.stanford.edu", role = c("aut", "cre")),
-    person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut")),
     person("Susan", "Athey", email = "athey@stanford.edu", role = c("aut")),
+    person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut")),
     person("Marvin", "Wright", email = "wright@imbs.uni-luebeck.de", role = c("ctb")))
 Description: ...
 Depends:
