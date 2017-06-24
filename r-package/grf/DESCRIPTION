@@ -1,12 +1,15 @@
 Package: grf
-Title: A pluggable package for forest-based statistical estimation
-Version: 0.0.0.1
+Title: Generalized Random Forests
+Version: 0.9.0
 Authors@R: c(
     person("Julie", "Tibshirani", email = "jtibs@cs.stanford.edu", role = c("aut", "cre")),
+    person("Marvin", "Wright", email = "wright@imbs.uni-luebeck.de", role = c("ctb")),
     person("Susan", "Athey", email = "athey@stanford.edu", role = c("aut")),
-    person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut")),
-    person("Marvin", "Wright", email = "wright@imbs.uni-luebeck.de", role = c("ctb")))
-Description: ...
+    person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut")))
+Description: GRF is a pluggable package for statistical estimation and inference with
+    forests. It currently provides methods for non-parametric least-squares regression,
+    quantile regression, and treatment effect estimation (optionally using instrumental
+    variables).
 Depends:
     R (>= 3.3.1)
 License: GPL-3
