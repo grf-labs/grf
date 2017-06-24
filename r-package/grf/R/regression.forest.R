@@ -15,7 +15,6 @@
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size Minimum number of observations in each tree leaf.
-#' @param keep.inbag Currently not used.
 #' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
@@ -25,49 +24,27 @@
 #' @return A trained regression forest object.
 #' @export
 regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
-    num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
-    honesty = TRUE, ci.group.size = 2, alpha = 0.05, seed = NULL) {
+                              num.trees = 2000, num.threads = NULL, min.node.size = NULL,
+                              honesty = TRUE, ci.group.size = 2, alpha = 0.05, seed = NULL) {
+    
+    validate.X(X)
+    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+    
+    mtry <- validate.mtry(mtry)
+    num.threads <- validate.num.threads(num.threads)
+    min.node.size <- validate.min.node.size(min.node.size)
+    sample.fraction <- validate.sample.fraction(sample.fraction)
+    seed <- validate.seed(seed)
     
     sparse.data <- as.matrix(0)
-    
-    if (is.null(mtry)) {
-        mtry <- 0
-    } else if (!is.numeric(mtry) | mtry < 0) {
-        stop("Error: Invalid value for mtry")
-    }
-    
-    verbose = FALSE
-    
-    if (is.null(num.threads)) {
-        num.threads <- 0
-    } else if (!is.numeric(num.threads) | num.threads < 0) {
-        stop("Error: Invalid value for num.threads")
-    }
-    
-    if (is.null(min.node.size)) {
-        min.node.size <- 0
-    } else if (!is.numeric(min.node.size) | min.node.size < 0) {
-        stop("Error: Invalid value for min.node.size")
-    }
-    
+    no.split.variables <- numeric(0)
     sample.with.replacement <- FALSE
-    
-    if (!is.logical(keep.inbag)) {
-        stop("Error: Invalid value for keep.inbag")
-    }
-    
-    if (!is.numeric(sample.fraction) | sample.fraction <= 0 | sample.fraction > 1) {
-        stop("Error: Invalid value for sample.fraction. Please give a value in (0,1].")
-    }
-    
-    if (is.null(seed)) {
-        seed <- runif(1, 0, .Machine$integer.max)
-    }
+    verbose <- FALSE
+    keep.inbag <- FALSE
     
     input.data <- as.matrix(cbind(X, Y))
     variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(input.data)
-    no.split.variables <- numeric(0)
     
     forest <- regression_train(input.data, outcome.index, sparse.data,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
@@ -75,6 +52,7 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data
+    forest[["feature.indices"]] <- 1:ncol(X)
     class(forest) <- c("regression.forest", "grf")
     forest
 }
@@ -96,8 +74,8 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
 #' @return Vector of predictions.
 #' @export
 predict.regression.forest <- function(forest, newdata = NULL,
-    num.threads = NULL,
-    estimate.variance = FALSE) {
+                                      num.threads = NULL,
+                                      estimate.variance = FALSE) {
     
     if (is.null(num.threads)) {
         num.threads <- 0
@@ -107,7 +85,7 @@ predict.regression.forest <- function(forest, newdata = NULL,
     
     sparse.data <- as.matrix(0)
     variable.names <- character(0)
-
+    
     if (estimate.variance) {
         ci.group.size = forest$ci.group.size
     } else {
@@ -119,10 +97,10 @@ predict.regression.forest <- function(forest, newdata = NULL,
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         regression_predict(forest.short, input.data, sparse.data, variable.names, 
-            num.threads, ci.group.size)
+                           num.threads, ci.group.size)
     } else {
         input.data <- forest[["original.data"]]
         regression_predict_oob(forest.short, input.data, sparse.data, variable.names, 
-            num.threads, ci.group.size)
+                               num.threads, ci.group.size)
     }
 }
