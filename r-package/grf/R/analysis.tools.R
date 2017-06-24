@@ -15,3 +15,14 @@ examine.tree = function(forest, index) {
 	tree$columns = colnames(forest$original.data)
 	tree
 }
+
+#' Get summaries of which features the forest split on
+#'
+#' @param forest The trained forest.
+#' @param index Maximum depth of splits to consider.
+#'
+#' @export
+split.frequencies = function(forest, max.depth=4) {
+  raw = compute_split_frequencies(forest, max.depth)
+  raw[,forest$feature.indices]
+}
