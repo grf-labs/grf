@@ -15,7 +15,7 @@ The repository first started as a fork of the [ranger](https://github.com/imbs-h
 The package can be installed from source as follows:
 
 ```R
-install.packages("https://raw.github.com/swager/grf/master/releases/grf-alpha.tar.gz", repos = NULL, type = "source")
+install.packages("https://raw.github.com/swager/grf/master/releases/grf_0.9.0.tar.gz", repos = NULL, type = "source")
 ```
 
 Note that a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
@@ -74,5 +74,5 @@ In addition to providing out-of-the-box forests for quantile regression and inst
 ### References
 
 Susan Athey, Julie Tibshirani and Stefan Wager.
-<b>Solving Heterogeneous Estimating Equations with Gradient Forests</b>, 2016.
+<b>Generalized Random Forests</b>, 2016.
 [<a href="https://arxiv.org/abs/1610.01271">arxiv</a>]
