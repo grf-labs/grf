@@ -23,8 +23,8 @@
 #' @return A trained quantile forest object.
 #' @export
 quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction = 0.5, 
-    mtry = ceiling(2*ncol(X)/3), num.trees = 2000, num.threads = NULL, min.node.size = NULL, 
-    keep.inbag = FALSE, seed = NULL, alpha = 0.05, honesty = TRUE) {
+                            mtry = ceiling(2*ncol(X)/3), num.trees = 2000, num.threads = NULL,
+                            min.node.size = NULL, seed = NULL, alpha = 0.05, honesty = TRUE) {
     
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
@@ -32,46 +32,25 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
         stop("Error: Quantiles must be in (0, 1)")
     }
     
+    validate.X(X)
+    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+    
+    mtry <- validate.mtry(mtry)
+    num.threads <- validate.num.threads(num.threads)
+    min.node.size <- validate.min.node.size(min.node.size)
+    sample.fraction <- validate.sample.fraction(sample.fraction)
+    seed <- validate.seed(seed)
+    
     sparse.data <- as.matrix(0)
-    
-    if (is.null(mtry)) {
-        mtry <- 0
-    } else if (!is.numeric(mtry) | mtry < 0) {
-        stop("Error: Invalid value for mtry")
-    }
-    
-    verbose = FALSE
-    
-    if (is.null(num.threads)) {
-        num.threads <- 0
-    } else if (!is.numeric(num.threads) | num.threads < 0) {
-        stop("Error: Invalid value for num.threads")
-    }
-    
-    if (is.null(min.node.size)) {
-        min.node.size <- 0
-    } else if (!is.numeric(min.node.size) | min.node.size < 0) {
-        stop("Error: Invalid value for min.node.size")
-    }
-    
+    no.split.variables <- numeric(0)
     sample.with.replacement <- FALSE
-    
-    if (!is.logical(keep.inbag)) {
-        stop("Error: Invalid value for keep.inbag")
-    }
-    
-    if (!is.numeric(sample.fraction) | sample.fraction <= 0 | sample.fraction > 1) {
-        stop("Error: Invalid value for sample.fraction. Please give a value in (0,1].")
-    }
-    
-    if (is.null(seed)) {
-        seed <- runif(1, 0, .Machine$integer.max)
-    }
+    verbose <- FALSE
+    keep.inbag <- FALSE
     
     input.data <- as.matrix(cbind(X, Y))
     variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(input.data)
-    no.split.variables <- numeric(0)
+
     ci.group.size <- 1
     
     forest <- quantile_train(quantiles, input.data, outcome.index, sparse.data,
@@ -101,7 +80,7 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
 #' @export
 
 predict.quantile.forest <- function(forest, newdata = NULL, quantiles = c(0.1, 0.5, 
-    0.9), num.threads = NULL) {
+                                                                          0.9), num.threads = NULL) {
     
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
@@ -123,10 +102,10 @@ predict.quantile.forest <- function(forest, newdata = NULL, quantiles = c(0.1, 0
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         quantile_predict(forest, quantiles, input.data, sparse.data, variable.names, 
-            num.threads)
+                         num.threads)
     } else {
         input.data <- forest[["original.data"]]
         quantile_predict_oob(forest, quantiles, input.data, sparse.data, variable.names, 
-            num.threads)
+                             num.threads)
     }
 }

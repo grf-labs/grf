@@ -39,45 +39,26 @@
 #' @return A trained instrumental forest object.
 #' @export
 instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
-    num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
-    honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, split.regularization = 0, 
-    alpha = 0.05, seed = NULL) {
+                                num.trees = 2000, num.threads = NULL, min.node.size = NULL,
+                                honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE,
+                                split.regularization = 0, alpha = 0.05, seed = NULL) {
+    
+    validate.X(X)
+    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+    if(length(W) != nrow(X)) { stop("W has incorrect length.") }
+    if(length(Z) != nrow(X)) { stop("Z has incorrect length.") }
+    
+    mtry <- validate.mtry(mtry)
+    num.threads <- validate.num.threads(num.threads)
+    min.node.size <- validate.min.node.size(min.node.size)
+    sample.fraction <- validate.sample.fraction(sample.fraction)
+    seed <- validate.seed(seed)
     
     sparse.data <- as.matrix(0)
-    
-    if (is.null(mtry)) {
-        mtry <- 0
-    } else if (!is.numeric(mtry) | mtry < 0) {
-        stop("Error: Invalid value for mtry")
-    }
-    
-    verbose = FALSE
-    
-    if (is.null(num.threads)) {
-        num.threads <- 0
-    } else if (!is.numeric(num.threads) | num.threads < 0) {
-        stop("Error: Invalid value for num.threads")
-    }
-    
-    if (is.null(min.node.size)) {
-        min.node.size <- 0
-    } else if (!is.numeric(min.node.size) | min.node.size < 0) {
-        stop("Error: Invalid value for min.node.size")
-    }
-    
+    no.split.variables <- numeric(0)
     sample.with.replacement <- FALSE
-    
-    if (!is.logical(keep.inbag)) {
-        stop("Error: Invalid value for keep.inbag")
-    }
-    
-    if (!is.numeric(sample.fraction) | sample.fraction <= 0 | sample.fraction > 1) {
-        stop("Error: Invalid value for sample.fraction. Please give a value in (0,1].")
-    }
-    
-    if (is.null(seed)) {
-        seed <- runif(1, 0, .Machine$integer.max)
-    }
+    verbose <- FALSE
+    keep.inbag <- FALSE
     
     if (!is.numeric(split.regularization) | split.regularization < 0 | split.regularization > 1) {
         stop("Error: Invalid value for split.regularization. Please give a value in [0,1].")
@@ -90,18 +71,18 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
     } else {
         
         forest.Y <- regression.forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
-            num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
+                                      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
+                                      honesty = TRUE, seed = seed, ci.group.size = 1)
         Y.hat = predict(forest.Y)$predictions
         
         forest.W <- regression.forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
-            num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
+                                      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
+                                      honesty = TRUE, seed = seed, ci.group.size = 1)
         W.hat = predict(forest.W)$predictions
         
         forest.Z <- regression.forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
-            num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-            keep.inbag = FALSE, honesty = TRUE, seed = seed, ci.group.size = 1)
+                                      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
+                                      honesty = TRUE, seed = seed, ci.group.size = 1)
         Z.hat = predict(forest.Z)$predictions
         
         input.data <- as.matrix(cbind(X, Y - Y.hat, W - W.hat, Z - Z.hat))
@@ -112,8 +93,6 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
     outcome.index <- ncol(X) + 1
     treatment.index <- ncol(X) + 2
     instrument.index <- ncol(X) + 3
-    
-    no.split.variables <- numeric(0)
     
     forest <- instrumental_train(input.data, outcome.index, treatment.index,
         instrument.index, sparse.data, variable.names, mtry, num.trees, verbose,
@@ -144,8 +123,8 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
 #' @return Vector of predictions, along with (optional) variance estimates.
 #' @export
 predict.instrumental.forest <- function(forest, newdata = NULL,
-    num.threads = NULL, 
-    estimate.variance = FALSE) {
+                                        num.threads = NULL, 
+                                        estimate.variance = FALSE) {
     
     if (is.null(num.threads)) {
         num.threads <- 0
@@ -167,10 +146,10 @@ predict.instrumental.forest <- function(forest, newdata = NULL,
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         instrumental_predict(forest.short, input.data, sparse.data, variable.names, num.threads, 
-            ci.group.size)
+                             ci.group.size)
     } else {
         input.data <- forest[["original.data"]]
         instrumental_predict_oob(forest.short, input.data, sparse.data, variable.names, 
-            num.threads, ci.group.size)
+                                 num.threads, ci.group.size)
     }
 }
