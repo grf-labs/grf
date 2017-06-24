@@ -22,7 +22,7 @@
 #' @export
 custom.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
-    honesty = TRUE, alpha = 0.01, seed = NULL) {
+    honesty = TRUE, alpha = 0.05, seed = NULL) {
     
     sparse.data <- as.matrix(0)
     
