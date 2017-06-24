@@ -37,7 +37,7 @@
 #' @export
 causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
-    honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, alpha = 0.10, seed = NULL) {
+    honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, alpha = 0.01, seed = NULL) {
     
     sparse.data <- as.matrix(0)
     

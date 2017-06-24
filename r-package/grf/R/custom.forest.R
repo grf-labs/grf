@@ -15,17 +15,14 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size Minimum number of observations in each tree leaf.
 #' @param keep.inbag Currently not used.
-#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
-#' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
-#'                      In order to provide confidence intervals, ci.group.size must
-#'                      be at least 2.
+#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?      
 #' @param seed The seed of the c++ random number generator.
 #'
 #' @return A trained regression forest object.
 #' @export
 custom.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
-    honesty = TRUE, ci.group.size = 2, alpha = 0.10, seed = NULL) {
+    honesty = TRUE, alpha = 0.01, seed = NULL) {
     
     sparse.data <- as.matrix(0)
     
@@ -68,6 +65,7 @@ custom.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/
     outcome.index <- ncol(input.data)
     outcome.index.zeroindexed <- outcome.index - 1
     no.split.variables <- numeric(0)
+    ci.group.size <- 1
     
     forest <- custom_train(input.data, outcome.index.zeroindexed, sparse.data, 
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement, 

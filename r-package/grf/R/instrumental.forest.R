@@ -41,7 +41,7 @@
 instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
     honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE, split.regularization = 0, 
-    alpha = 0.10, seed = NULL) {
+    alpha = 0.01, seed = NULL) {
     
     sparse.data <- as.matrix(0)
     
@@ -155,7 +155,6 @@ predict.instrumental.forest <- function(forest, newdata = NULL,
     sparse.data <- as.matrix(0)
     variable.names <- character(0)
     
-    # hackhack don't ask....
     if (estimate.variance) {
         ci.group.size = forest$ci.group.size
     } else {

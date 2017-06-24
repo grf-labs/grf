@@ -18,17 +18,13 @@
 #' @param min.node.size Minimum number of observations in each tree leaf.
 #' @param keep.inbag Currently not used.
 #' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
-#' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
-#'                      In order to provide confidence intervals, ci.group.size must
-#'                      be at least 2. [Note: confidence intervals for quantile forests
-#'                      are not yet implemented.]
 #' @param seed The seed of the c++ random number generator.
 #'
 #' @return A trained quantile forest object.
 #' @export
 quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction = 0.5, 
     mtry = ceiling(2*ncol(X)/3), num.trees = 2000, num.threads = NULL, min.node.size = NULL, 
-    keep.inbag = FALSE, seed = NULL, ci.group.size = 2, alpha = 0.10, honesty = TRUE) {
+    keep.inbag = FALSE, seed = NULL, alpha = 0.01, honesty = TRUE) {
     
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
@@ -77,6 +73,7 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
     outcome.index <- ncol(input.data)
     outcome.index.zeroindexed <- outcome.index - 1
     no.split.variables <- numeric(0)
+    ci.group.size <- 1
     
     forest <- quantile_train(quantiles, input.data, outcome.index.zeroindexed, sparse.data, 
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement, 
