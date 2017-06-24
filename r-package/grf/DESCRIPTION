@@ -6,6 +6,7 @@ Authors@R: c(
     person("Marvin", "Wright", email = "wright@imbs.uni-luebeck.de", role = c("ctb")),
     person("Susan", "Athey", email = "athey@stanford.edu", role = c("aut")),
     person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut")))
+Maintainer: Julie Tibshirani <jtibs@cs.stanford.edu>
 Description: GRF is a pluggable package for statistical estimation and inference with
     forests. It currently provides methods for non-parametric least-squares regression,
     quantile regression, and treatment effect estimation (optionally using instrumental
