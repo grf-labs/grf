@@ -57,7 +57,7 @@ estimate.average.effect = function(forest,
   Y.hat.1 <- forest$Y.hat + (1 - forest$W.hat) * tau.hat.pointwise
   
   if (method == "TMLE") {
-    loaded <- require("sandwich", quietly = TRUE)
+    loaded <- requireNamespace("sandwich", quietly = TRUE)
     if (!loaded) {
       warning("To use TMLE, please install the package `sandwich`. Using AIPW instead.")
       method = "AIPW"
@@ -103,8 +103,8 @@ estimate.average.effect = function(forest,
       delta.tmle.robust.1 <- predict(eps.tmle.robust.1, newdata=data.frame(A=mean(1/forest$W.hat)))
       dr.correction <- delta.tmle.robust.1 - delta.tmle.robust.0
       # use robust SE
-      sigma2.hat <- vcovHC(eps.tmle.robust.0) * mean(1/(1 - forest$W.hat))^2 +
-        vcovHC(eps.tmle.robust.1) * mean(1/forest$W.hat)^2
+      sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * mean(1/(1 - forest$W.hat))^2 +
+        sandwich::vcovHC(eps.tmle.robust.1) * mean(1/forest$W.hat)^2
     } else if (target.sample == "treated") {
       eps.tmle.robust.0 <-
         lm(B ~ A + 0,
@@ -114,7 +114,7 @@ estimate.average.effect = function(forest,
       delta.tmle.robust.0 <- predict(eps.tmle.robust.0,
                                      newdata=data.frame(A=new.center))
       dr.correction <- -delta.tmle.robust.0
-      sigma2.hat = vcovHC(eps.tmle.robust.0) * new.center^2 +
+      sigma2.hat = sandwich::vcovHC(eps.tmle.robust.0) * new.center^2 +
         var(forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1]) / sum(forest$W.orig==1)
     } else if (target.sample == "control") {
       eps.tmle.robust.1 <-
@@ -126,7 +126,7 @@ estimate.average.effect = function(forest,
                                      newdata=data.frame(A=new.center))
       dr.correction <- delta.tmle.robust.1
       sigma2.hat = var(forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0]) / sum(forest$W.orig==0) +
-        vcovHC(eps.tmle.robust.1) * new.center^2
+        sandwich::vcovHC(eps.tmle.robust.1) * new.center^2
     } else {
       stop("Invalid target sample.")
     }

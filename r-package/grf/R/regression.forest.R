@@ -19,6 +19,7 @@
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
+#' @param alpha Maximum imbalance of a split.
 #' @param seed The seed of the c++ random number generator.
 #'
 #' @return A trained regression forest object.
