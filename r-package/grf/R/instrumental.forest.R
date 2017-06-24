@@ -109,14 +109,14 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
     }
     
     variable.names <- c(colnames(X), "outcome", "treatment", "instrument")
-    outcome.index.zeroindexed <- ncol(X)
-    treatment.index.zeroindexed <- ncol(X) + 1
-    instrument.index.zeroindexed <- ncol(X) + 2
+    outcome.index <- ncol(X) + 1
+    treatment.index <- ncol(X) + 2
+    instrument.index <- ncol(X) + 3
     
     no.split.variables <- numeric(0)
     
-    forest <- instrumental_train(input.data, outcome.index.zeroindexed, treatment.index.zeroindexed, 
-        instrument.index.zeroindexed, sparse.data, variable.names, mtry, num.trees, verbose,
+    forest <- instrumental_train(input.data, outcome.index, treatment.index,
+        instrument.index, sparse.data, variable.names, mtry, num.trees, verbose,
         num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
         no.split.variables, seed, honesty, ci.group.size, split.regularization, alpha)
     

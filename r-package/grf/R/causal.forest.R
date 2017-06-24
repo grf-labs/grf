@@ -101,16 +101,16 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
     
     
     variable.names <- c(colnames(X), "outcome", "treatment")
-    outcome.index.zeroindexed <- ncol(X)
-    treatment.index.zeroindexed <- ncol(X) + 1
-    instrument.index.zeroindexed <- treatment.index.zeroindexed
+    outcome.index <- ncol(X) + 1
+    treatment.index <- ncol(X) + 2
+    instrument.index <- treatment.index
     
     no.split.variables <- numeric(0)
     
-    forest <- instrumental_train(input.data, outcome.index.zeroindexed, treatment.index.zeroindexed, 
-        instrument.index.zeroindexed, sparse.data, variable.names, mtry, num.trees, 
-        verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, 
-        sample.fraction, no.split.variables, seed, honesty, ci.group.size, split.regularization, alpha)
+    forest <- instrumental_train(input.data, outcome.index, treatment.index,
+        instrument.index, sparse.data, variable.names, mtry, num.trees, verbose,
+        num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
+        no.split.variables, seed, honesty, ci.group.size, split.regularization, alpha)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data
