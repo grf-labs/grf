@@ -1,10 +1,10 @@
 #' Print a GRF forest object.
 #' @export
-print.grf <- function(forest, decay.exponent=0.5, max.depth=12) {
-    split.freq = compute_split_frequencies(forest, max.depth)
+print.grf <- function(forest, decay.exponent=2, max.depth=4) {
+    split.freq = split.frequencies(forest, max.depth)
     split.freq = split.freq / pmax(1, rowSums(split.freq))
 
-    weight = (1:nrow(split.freq))^decay.exponent
+    weight = (1:nrow(split.freq))^(-decay.exponent)
     var.importance = t(split.freq) %*% weight / sum(weight)
     var.importance = c(round(var.importance, 3))
     names(var.importance) = 1:length(var.importance)
