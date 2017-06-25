@@ -17,12 +17,12 @@
 #'
 #' @return Vector of predictions, along with (optional) variance estimates.
 #' @export
-estimate.average.effect = function(forest,
+estimate_average_effect = function(forest,
                                    target.sample=c("all", "treated", "control"),
                                    method=c("AIPW", "TMLE")) {
 
-  if (!("causal.forest" %in% class(forest))) {
-    stop("Average effect estimation only implemented for causal.forest")
+  if (!("causal_forest" %in% class(forest))) {
+    stop("Average effect estimation only implemented for causal_forest")
   }
   
   if (is.null(forest$Y.hat) | is.null(forest$W.hat)) {

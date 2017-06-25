@@ -22,7 +22,7 @@
 #'
 #' @return A trained quantile forest object.
 #' @export
-quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction = 0.5, 
+quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction = 0.5, 
                             mtry = ceiling(2*ncol(X)/3), num.trees = 2000, num.threads = NULL,
                             min.node.size = NULL, seed = NULL, alpha = 0.05, honesty = TRUE) {
     
@@ -59,7 +59,7 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
     
     forest[["original.data"]] <- input.data
     forest[["feature.indices"]] <- 1:ncol(X)
-    class(forest) <- c("quantile.forest", "grf")
+    class(forest) <- c("quantile_forest", "grf")
     forest
 }
 
@@ -67,7 +67,7 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
 #' 
 #' Gets estimates of the conditional quantiles of Y given X using a trained forest.
 #'
-#' @param forest The trained forest.
+#' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL,
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
@@ -75,12 +75,15 @@ quantile.forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
 #' @param quantiles Vector of quantiles at which estimates are required.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
+#' @param ... Additional arguments (currently ignored).
 #'
 #' @return Predictions for each test point and each desired quantile.
 #' @export
 
-predict.quantile.forest <- function(forest, newdata = NULL, quantiles = c(0.1, 0.5, 
-                                                                          0.9), num.threads = NULL) {
+predict.quantile_forest <- function(object,
+                                    newdata = NULL,
+                                    quantiles = c(0.1, 0.5, 0.9),
+                                    num.threads = NULL, ...) {
     
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
@@ -97,15 +100,15 @@ predict.quantile.forest <- function(forest, newdata = NULL, quantiles = c(0.1, 0
     sparse.data <- as.matrix(0)
     variable.names <- character(0)
     
-    forest.short <- forest[-which(names(forest) == "original.data")]
+    forest.short <- object[-which(names(object) == "original.data")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
-        quantile_predict(forest, quantiles, input.data, sparse.data, variable.names, 
+        quantile_predict(forest.short, quantiles, input.data, sparse.data, variable.names, 
                          num.threads)
     } else {
-        input.data <- forest[["original.data"]]
-        quantile_predict_oob(forest, quantiles, input.data, sparse.data, variable.names, 
+        input.data <- object[["original.data"]]
+        quantile_predict_oob(forest.short, quantiles, input.data, sparse.data, variable.names, 
                              num.threads)
     }
 }

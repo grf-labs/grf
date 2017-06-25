@@ -24,7 +24,7 @@
 #'
 #' @return A trained regression forest object.
 #' @export
-regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
+regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                               honesty = TRUE, ci.group.size = 2, alpha = 0.05, seed = NULL) {
     
@@ -54,7 +54,7 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data
     forest[["feature.indices"]] <- 1:ncol(X)
-    class(forest) <- c("regression.forest", "grf")
+    class(forest) <- c("regression_forest", "grf")
     forest
 }
 
@@ -62,7 +62,7 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
 #' 
 #' Gets estimates of E[Y|X=x] using a trained regression forest.
 #'
-#' @param forest The trained forest.
+#' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL,
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
@@ -71,12 +71,14 @@ regression.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
+#' @param ... Additional arguments (currently ignored).
 #'
 #' @return Vector of predictions.
 #' @export
-predict.regression.forest <- function(forest, newdata = NULL,
+predict.regression_forest <- function(object, newdata = NULL,
                                       num.threads = NULL,
-                                      estimate.variance = FALSE) {
+                                      estimate.variance = FALSE,
+                                      ...) {
     
     if (is.null(num.threads)) {
         num.threads <- 0
@@ -88,19 +90,19 @@ predict.regression.forest <- function(forest, newdata = NULL,
     variable.names <- character(0)
     
     if (estimate.variance) {
-        ci.group.size = forest$ci.group.size
+        ci.group.size = object$ci.group.size
     } else {
         ci.group.size = 1
     }
     
-    forest.short <- forest[-which(names(forest) == "original.data")]
+    forest.short <- object[-which(names(object) == "original.data")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         regression_predict(forest.short, input.data, sparse.data, variable.names, 
                            num.threads, ci.group.size)
     } else {
-        input.data <- forest[["original.data"]]
+        input.data <- object[["original.data"]]
         regression_predict_oob(forest.short, input.data, sparse.data, variable.names, 
                                num.threads, ci.group.size)
     }

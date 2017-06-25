@@ -155,7 +155,7 @@ Data* load_data(std::string file_name) {
 
   bool rounding_error = data->load_from_file(file_name);
   if (rounding_error) {
-    std::cerr << "A rounding error occurred while loading data from file." << std::endl;
+    throw std::runtime_error("A rounding error occurred while loading data from file.");
   }
 
   data->sort();

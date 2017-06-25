@@ -23,10 +23,10 @@ A = rbinom(n, 1, 1/(1 + exp(X[,3])))
 W = Z * A
 Y = (W - 1/2) * tau(X[,1]) + 3/2 * (2*A - 1) * (X[,1] > 1/3) + 2 * rnorm(n)
 
-forest.causal = causal.forest(X, Y, W, min.node.size = 10, mtry = p)
+forest.causal = causal_forest(X, Y, W, min.node.size = 10, mtry = p)
 preds.causal = predict(forest.causal, X.test)$predictions
 
-forest.iv = instrumental.forest(X, Y, W, Z, min.node.size = 10, mtry = p)
+forest.iv = instrumental_forest(X, Y, W, Z, min.node.size = 10, mtry = p)
 preds.iv = predict(forest.iv, X.test)$predictions
 
 pdf("IV_plot_10k_20.pdf")

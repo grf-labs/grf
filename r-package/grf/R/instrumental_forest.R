@@ -38,7 +38,7 @@
 #'
 #' @return A trained instrumental forest object.
 #' @export
-instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
+instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
                                 num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                                 honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE,
                                 split.regularization = 0, alpha = 0.05, seed = NULL) {
@@ -70,17 +70,17 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
         
     } else {
         
-        forest.Y <- regression.forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
+        forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                       honesty = TRUE, seed = seed, ci.group.size = 1)
         Y.hat = predict(forest.Y)$predictions
         
-        forest.W <- regression.forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
+        forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                       honesty = TRUE, seed = seed, ci.group.size = 1)
         W.hat = predict(forest.W)$predictions
         
-        forest.Z <- regression.forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
+        forest.Z <- regression_forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                       honesty = TRUE, seed = seed, ci.group.size = 1)
         Z.hat = predict(forest.Z)$predictions
@@ -102,7 +102,7 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data
     forest[["feature.indices"]] <- 1:ncol(X)
-    class(forest) <- c("instrumental.forest", "grf")
+    class(forest) <- c("instrumental_forest", "grf")
     forest
 }
 
@@ -110,7 +110,7 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
 #' 
 #' Gets estimates of tau(x) using a trained instrumental forest.
 #'
-#' @param forest The trained forest.
+#' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL,
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
@@ -119,12 +119,14 @@ instrumental.forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
+#' @param ... Additional arguments (currently ignored).
 #'
 #' @return Vector of predictions, along with (optional) variance estimates.
 #' @export
-predict.instrumental.forest <- function(forest, newdata = NULL,
+predict.instrumental_forest <- function(object, newdata = NULL,
                                         num.threads = NULL, 
-                                        estimate.variance = FALSE) {
+                                        estimate.variance = FALSE,
+                                        ...) {
     
     if (is.null(num.threads)) {
         num.threads <- 0
@@ -136,19 +138,19 @@ predict.instrumental.forest <- function(forest, newdata = NULL,
     variable.names <- character(0)
     
     if (estimate.variance) {
-        ci.group.size = forest$ci.group.size
+        ci.group.size = object$ci.group.size
     } else {
         ci.group.size = 1
     }
     
-    forest.short <- forest[-which(names(forest) == "original.data")]
+    forest.short <- object[-which(names(object) == "original.data")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         instrumental_predict(forest.short, input.data, sparse.data, variable.names, num.threads, 
                              ci.group.size)
     } else {
-        input.data <- forest[["original.data"]]
+        input.data <- object[["original.data"]]
         instrumental_predict_oob(forest.short, input.data, sparse.data, variable.names, 
                                  num.threads, ci.group.size)
     }

@@ -16,7 +16,7 @@ test_that("causal forests give reasonable estimates", {
 	W = rbinom(n, 1, 0.5)
 	Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)
 
-	forest.causal = causal.forest(X, Y, W, num.trees = 2000, ci.group.size = 4)
+	forest.causal = causal_forest(X, Y, W, num.trees = 2000, ci.group.size = 4)
 	preds.causal.oob = predict(forest.causal, estimate.variance=TRUE)
 	preds.causal = predict(forest.causal, X.test, estimate.variance=TRUE)
 
@@ -41,8 +41,8 @@ test_that("causal forests can split on the last parameter", {
 	W = rbinom(n, 1, 0.5)
 	Y = W * (X[,1] + X[,6]) + rnorm(n)
 	 
-	forest = causal.forest(X, Y, W)
-	split.frequencies = compute_split_frequencies(forest, 10)
+	forest = causal_forest(X, Y, W)
+	split_frequencies = compute_split_frequencies(forest, 10)
 
- 	expect_gt(sum(split.frequencies[,6]), 0)
+ 	expect_gt(sum(split_frequencies[,6]), 0)
 })

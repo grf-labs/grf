@@ -5,8 +5,8 @@ compute_split_frequencies <- function(forest_object, max_depth) {
     .Call('grf_compute_split_frequencies', PACKAGE = 'grf', forest_object, max_depth)
 }
 
-examine_tree <- function(forest_object, tree_index) {
-    .Call('grf_examine_tree', PACKAGE = 'grf', forest_object, tree_index)
+deserialize_tree <- function(forest_object, tree_index) {
+    .Call('grf_deserialize_tree', PACKAGE = 'grf', forest_object, tree_index)
 }
 
 custom_train <- function(input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha) {
