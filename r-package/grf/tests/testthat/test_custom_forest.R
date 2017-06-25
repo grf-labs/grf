@@ -8,7 +8,7 @@ test_that("custom forests behave as expected", {
 	Y = rnorm(n) * (1 + (X[,1] > 0))
 	D = data.frame(X=X, Y=Y)
 
-	forest = custom.forest(X, Y)
+	forest = custom_forest(X, Y)
 	predictions = predict(forest, X)
 	expect_equal(0.0, sum(predictions))
 })

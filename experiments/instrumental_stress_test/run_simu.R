@@ -72,10 +72,10 @@ if(axis.aligned) {
 #
 #
 
-forest.orthog = instrumental.forest(X, Y, W, Z, precompute.nuisance = TRUE)
+forest.orthog = instrumental_forest(X, Y, W, Z, precompute.nuisance = TRUE)
 tau.forest.orthog = predict(forest.orthog, newdata = X.test)$predictions
 
-forest.plain = instrumental.forest(X, Y, W, Z, precompute.nuisance = FALSE)
+forest.plain = instrumental_forest(X, Y, W, Z, precompute.nuisance = FALSE)
 tau.forest.plain = predict(forest.plain, newdata = X.test)$predictions
 
 tau.iv.noint = iv.series(X, Y, W, Z, X.test, interact = FALSE)

@@ -1,7 +1,11 @@
 #' Print a GRF forest object.
+#' @param x The tree to print.
+#' @param decay.exponent Controls the relative importance of splits.
+#' @param max.depth The maximum depth of splits to consider.
+#' @param ... Additional arguments (currently ignored).
 #' @export
-print.grf <- function(forest, decay.exponent=2, max.depth=4) {
-    split.freq = split.frequencies(forest, max.depth)
+print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
+    split.freq = split_frequencies(x, max.depth)
     split.freq = split.freq / pmax(1, rowSums(split.freq))
 
     weight = (1:nrow(split.freq))^(-decay.exponent)
@@ -9,11 +13,11 @@ print.grf <- function(forest, decay.exponent=2, max.depth=4) {
     var.importance = c(round(var.importance, 3))
     names(var.importance) = 1:length(var.importance)
 
-    main.class = class(forest)[1]
-    num.samples= ncol(forest$original.data)
+    main.class = class(x)[1]
+    num.samples= ncol(x$original.data)
 
     cat("GRF forest object of type", main.class, "\n")
-    cat("Number of trees: ", forest$num.trees, "\n")
+    cat("Number of trees: ", x$num.trees, "\n")
     cat("Number of training samples:", num.samples, "\n")
  
     cat("Variable importance:", "\n")
@@ -21,15 +25,17 @@ print.grf <- function(forest, decay.exponent=2, max.depth=4) {
 }
 
 #' Print a GRF tree object.
+#' @param x The tree to print.
+#' @param ... Additional arguments (currently ignored).
 #' @export
-print.grf.tree <- function(tree) {
+print.grf_tree <- function(x, ...) {
     cat("GRF tree object", "\n")
-    cat("Number of training samples: ", tree$num_samples, "\n")
+    cat("Number of training samples: ", x$num_samples, "\n")
     cat("Variable splits:", "\n")
 
     # Add the index of each node as an attribute for easy access.
-    nodes = lapply(1:length(tree$nodes), function(i) {
-        node = tree$nodes[[i]]
+    nodes = lapply(1:length(x$nodes), function(i) {
+        node = x$nodes[[i]]
         node$index = i
         return(node)
     })
@@ -49,7 +55,7 @@ print.grf.tree <- function(tree) {
             output = paste(output, "* num_samples:", length(node$samples))
         } else {
             split.var = node$split_variable
-            split.var.name = if (tree$columns[split.var] != "") tree$columns[split.var] else paste("X", split.var, sep=".")
+            split.var.name = if (x$columns[split.var] != "") x$columns[split.var] else paste("X", split.var, sep=".")
             output = paste(output, "split_variable:", split.var.name, " split_value:", signif(node$split_value))
 
             left_child = nodes[node$left_child]

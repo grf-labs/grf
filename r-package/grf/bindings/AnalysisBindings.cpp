@@ -46,8 +46,8 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List examine_tree(Rcpp::List forest_object,
-                        size_t tree_index) {
+Rcpp::List deserialize_tree(Rcpp::List forest_object,
+                            size_t tree_index) {
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 

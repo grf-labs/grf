@@ -15,7 +15,7 @@ test_that("regression variance estimates are positive", {
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = (X[,1] > 0) + 2 * rnorm(n)
 
-	forest = regression.forest(X, Y, num.trees = 1000, ci.group.size = 4)
+	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 4)
 	preds.oob = predict(forest, estimate.variance=TRUE)
 	preds = predict(forest, X.test, estimate.variance=TRUE)
 	

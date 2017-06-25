@@ -15,12 +15,14 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size Minimum number of observations in each tree leaf.
 #' @param keep.inbag Currently not used.
-#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?      
+#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?   
+#' @param alpha Maximum imbalance of a split.   
 #' @param seed The seed of the c++ random number generator.
+#' @param ... Additional arguments (currently ignored).
 #'
 #' @return A trained regression forest object.
 #' @export
-custom.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
+custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
     honesty = TRUE, alpha = 0.05, seed = NULL) {
     
@@ -71,23 +73,24 @@ custom.forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
     forest[["original.data"]] <- input.data
-    class(forest) <- c("custom.forest", "grf")
+    class(forest) <- c("custom_forest", "grf")
     forest
 }
 
 #' Predict with a custom forest.
 #'
-#' @param forest The trained forest.
+#' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL,
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
 #'                not use the i-th training example).
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
+#' @param ... Additional arguments (currently ignored).
 #'
 #' @return Vector of predictions.
 #' @export
-predict.custom.forest <- function(forest, newdata = NULL, num.threads = NULL) {
+predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
     
     if (is.null(num.threads)) {
         num.threads <- 0
@@ -98,14 +101,14 @@ predict.custom.forest <- function(forest, newdata = NULL, num.threads = NULL) {
     sparse.data <- as.matrix(0)
     variable.names <- character(0)
     
-    forest.short <- forest[-which(names(forest) == "original.data")]
+    forest.short <- object[-which(names(object) == "original.data")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         custom_predict(forest.short, input.data, sparse.data, variable.names, 
             num.threads)
     } else {
-        input.data <- forest[["original.data"]]
+        input.data <- object[["original.data"]]
         custom_predict_oob(forest.short, input.data, sparse.data, variable.names, 
             num.threads)
     }

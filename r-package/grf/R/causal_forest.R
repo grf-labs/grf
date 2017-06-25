@@ -35,7 +35,7 @@
 #'
 #' @return A trained causal forest object.
 #' @export
-causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
+causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
                           num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                           honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE,
                           alpha = 0.05, seed = NULL) {
@@ -66,12 +66,12 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
         
     } else {
         
-        forest.Y <- regression.forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
+        forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                       honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha)
         Y.hat <- predict(forest.Y)$predictions
         
-        forest.W <- regression.forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
+        forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                       honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha)
         W.hat <- predict(forest.W)$predictions
@@ -99,7 +99,7 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
     forest[["Y.hat"]] <- Y.hat
     forest[["W.hat"]] <- W.hat
     
-    class(forest) <- c("causal.forest", "grf")
+    class(forest) <- c("causal_forest", "grf")
     forest
 }
 
@@ -107,7 +107,7 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
 #' 
 #' Gets estimates of tau(x) using a trained causal forest.
 #'
-#' @param forest The trained forest.
+#' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL,
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
@@ -116,9 +116,10 @@ causal.forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
+#' @param ... Additional arguments (currently ignored).
 #'
 #' @return Vector of predictions, along with (optional) variance estimates.
 #' @export
-predict.causal.forest <- function(forest, newdata = NULL, num.threads = NULL, estimate.variance = FALSE) {
-    predict.instrumental.forest(forest, newdata, num.threads, estimate.variance)
+predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, estimate.variance = FALSE, ...) {
+    predict.instrumental_forest(object, newdata, num.threads, estimate.variance)
 }
