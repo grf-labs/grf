@@ -16,8 +16,8 @@
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size Minimum number of observations in each tree leaf.
-#' @param keep.inbag Currently not used.
 #' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
+#' @param alpha Maximum imbalance of a split.
 #' @param seed The seed of the c++ random number generator.
 #'
 #' @return A trained quantile forest object.

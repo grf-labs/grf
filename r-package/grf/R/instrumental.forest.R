@@ -21,7 +21,6 @@
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size Minimum number of observations in each tree leaf.
-#' @param keep.inbag Currently not used.
 #' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
@@ -34,6 +33,7 @@
 #' @param split.regularization Whether splits should be regularized towards a naive
 #'                             splitting criterion that ignores the instrument (and
 #'                             instead emulates a causal forest).
+#' @param alpha Maximum imbalance of a split.
 #' @param seed The seed of the c++ random number generator.
 #'
 #' @return A trained instrumental forest object.
