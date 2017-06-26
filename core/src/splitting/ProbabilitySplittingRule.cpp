@@ -15,6 +15,7 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
+#include <algorithm>
 #include <cmath>
 #include <unordered_map>
 
@@ -46,7 +47,7 @@ bool ProbabilitySplittingRule::find_best_split(size_t node,
                                                std::vector<size_t>& split_vars,
                                                std::vector<double>& split_values) {
   size_t num_samples_node = samples[node].size();
-  size_t min_child_samples = std::max((size_t) ceil(num_samples_node * alpha), 1uL);
+  size_t min_child_samples = std::max<size_t>(ceil(num_samples_node * alpha), 1uL);
 
   double best_decrease = -1;
   size_t best_var = 0;

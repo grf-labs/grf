@@ -12,9 +12,7 @@ There was 1 WARNING:
 Found the following file(s) containing GNU extensions:
   src/Makevars
 
-  We need to specify a wildcard pattern for SOURCES to allow for a
-  hierarchical structure in the `src` folder, and are not aware of a
-  cross-platform way to accomplish this.
+We need to specify a wildcard pattern for SOURCES to allow for a hierarchical structure in the `src` folder, and are not aware of a cross-platform way to accomplish this.
 
 There was 1 NOTE of interest:
 
@@ -22,9 +20,7 @@ There was 1 NOTE of interest:
 Non-standard file/directory found at top level:
   ‘bindings’
 
-  In our build set-up, the contents of two directories (core C++, and Rcpp
-  bindings must be copied into `src`. It was cleaner to keep the bindings
-  in a designated directory and fully regenerate `src` on each build.
+In our build set-up, the contents of two directories (core C++, and Rcpp bindings must be copied into `src`. It was cleaner to keep the bindings in a designated directory and fully regenerate `src` on each build.
 
 ## Downstream dependencies
 We have no known downstream dependencies.
