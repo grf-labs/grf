@@ -10,6 +10,7 @@
 
 // [[Rcpp::export]]
 Rcpp::List quantile_train(std::vector<double> quantiles,
+                          bool regression_splits,
                           Rcpp::NumericMatrix input_data,
                           size_t outcome_index,
                           Rcpp::RawMatrix sparse_data,
@@ -29,10 +30,9 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
                           double alpha) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
 
-  ForestTrainer trainer = ForestTrainers::quantile_trainer(data,
-          outcome_index - 1,
-          quantiles,
-          alpha);
+  ForestTrainer trainer = regression_splits
+      ? ForestTrainers::regression_trainer(data, outcome_index - 1, alpha)
+      : ForestTrainers::quantile_trainer(data, outcome_index - 1, quantiles, alpha);
   RcppUtilities::initialize_trainer(trainer, mtry, num_trees, num_threads, min_node_size,
       sample_with_replacement, sample_fraction, no_split_variables, seed, honesty, ci_group_size);
   Forest forest = trainer.train(data);

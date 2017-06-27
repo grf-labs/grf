@@ -6,6 +6,10 @@
 #' @param X The covariates used in the quantile regression.
 #' @param Y The outcome.
 #' @param quantiles Vector of quantiles used to calibrate the forest.
+#' @param regression.splitting Whether to use regression splits when growing trees instead
+#'                             of specialized splits based on the quantiles (the default).
+#'                             Setting this flag to true corresponds to the approach to
+#'                             quantile forests from (Meinshausen, 2006).
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty is used, these subsamples will
 #'                        further be cut in half.
@@ -16,15 +20,16 @@
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size Minimum number of observations in each tree leaf.
+#' @param seed The seed of the c++ random number generator.
 #' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
 #' @param alpha Maximum imbalance of a split.
-#' @param seed The seed of the c++ random number generator.
 #'
 #' @return A trained quantile forest object.
 #' @export
-quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction = 0.5, 
-                            mtry = ceiling(2*ncol(X)/3), num.trees = 2000, num.threads = NULL,
-                            min.node.size = NULL, seed = NULL, alpha = 0.05, honesty = TRUE) {
+quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = FALSE,
+                            sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), num.trees = 2000,
+                            num.threads = NULL, min.node.size = NULL, seed = NULL, alpha = 0.05,
+                            honesty = TRUE) {
     
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
@@ -53,7 +58,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), sample.fraction 
 
     ci.group.size <- 1
     
-    forest <- quantile_train(quantiles, input.data, outcome.index, sparse.data,
+    forest <- quantile_train(quantiles, regression.splitting, input.data, outcome.index, sparse.data,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     

@@ -33,8 +33,8 @@ instrumental_predict_oob <- function(forest_object, input_data, sparse_data, var
     .Call('grf_instrumental_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_data, variable_names, num_threads, ci_group_size)
 }
 
-quantile_train <- function(quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha) {
-    .Call('grf_quantile_train', PACKAGE = 'grf', quantiles, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha)
+quantile_train <- function(quantiles, regression_splits, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha) {
+    .Call('grf_quantile_train', PACKAGE = 'grf', quantiles, regression_splits, input_data, outcome_index, sparse_data, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, no_split_variables, seed, honesty, ci_group_size, alpha)
 }
 
 quantile_predict <- function(forest_object, quantiles, input_data, sparse_data, variable_names, num_threads) {
