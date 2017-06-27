@@ -9,7 +9,7 @@
 #' @param regression.splitting Whether to use regression splits when growing trees instead
 #'                             of specialized splits based on the quantiles (the default).
 #'                             Setting this flag to true corresponds to the approach to
-#'                             quantile forests from (Meinshausen, 2006).
+#'                             quantile forests from Meinshausen (2006).
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty is used, these subsamples will
 #'                        further be cut in half.
