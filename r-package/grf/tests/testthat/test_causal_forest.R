@@ -46,3 +46,18 @@ test_that("causal forests can split on the last parameter", {
 
  	expect_gt(sum(split_frequencies[,6]), 0)
 })
+
+test_that("causal forest split frequencies are reasonable", {
+  n = 100
+  p = 7
+  X = matrix(rnorm(n*p), n, p)
+  W = rbinom(n, 1, 0.2)
+  Y = 1000 * (X[,p]) * (2 * W - 1) + rnorm(n)
+
+  # Note that we increase alpha to ensure the test reliably passes. Once
+  # we add variance corrections, this should no longer be necessary.
+  ccc = causal_forest(X, Y, W, mtry = p, alpha=0.05)
+  freq = split_frequencies(ccc, 4)
+  expect_true(freq[1,p] / sum(freq[1,]) > 2/3)
+})
+
