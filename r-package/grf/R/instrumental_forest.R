@@ -43,16 +43,16 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
                                 honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE,
                                 split.regularization = 0, alpha = 0.05, seed = NULL) {
     
-    validate.X(X)
+    validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
     if(length(Z) != nrow(X)) { stop("Z has incorrect length.") }
     
-    mtry <- validate.mtry(mtry)
-    num.threads <- validate.num.threads(num.threads)
-    min.node.size <- validate.min.node.size(min.node.size)
-    sample.fraction <- validate.sample.fraction(sample.fraction)
-    seed <- validate.seed(seed)
+    mtry <- validate_mtry(mtry)
+    num.threads <- validate_num_threads(num.threads)
+    min.node.size <- validate_min_node_size(min.node.size)
+    sample.fraction <- validate_sample_fraction(sample.fraction)
+    seed <- validate_seed(seed)
     
     sparse.data <- as.matrix(0)
     no.split.variables <- numeric(0)

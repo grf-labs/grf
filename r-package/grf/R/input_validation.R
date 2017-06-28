@@ -1,4 +1,4 @@
-validate.X <- function(X) {
+validate_X <- function(X) {
   if(!is.numeric(X)) {
     stop(paste("The feature matrix X must numeric. GRF does not", 
          "currently support non-numeric features. If factor variables",
@@ -9,7 +9,7 @@ validate.X <- function(X) {
   }
 }
 
-validate.mtry <- function(mtry) {
+validate_mtry <- function(mtry) {
   if (is.null(mtry)) {
     mtry <- 0
   } else if (!is.numeric(mtry) | mtry < 0) {
@@ -18,7 +18,7 @@ validate.mtry <- function(mtry) {
   mtry
 }
 
-validate.num.threads <- function(num.threads) {
+validate_num_threads <- function(num.threads) {
   if (is.null(num.threads)) {
     num.threads <- 0
   } else if (!is.numeric(num.threads) | num.threads < 0) {
@@ -27,7 +27,7 @@ validate.num.threads <- function(num.threads) {
   num.threads
 }
 
-validate.min.node.size <- function(min.node.size) {
+validate_min_node_size <- function(min.node.size) {
   if (is.null(min.node.size)) {
     min.node.size <- 0
   } else if (!is.numeric(min.node.size) | min.node.size < 0) {
@@ -36,14 +36,14 @@ validate.min.node.size <- function(min.node.size) {
   min.node.size
 }
 
-validate.sample.fraction <- function(sample.fraction) {
+validate_sample_fraction <- function(sample.fraction) {
   if (!is.numeric(sample.fraction) | sample.fraction <= 0 | sample.fraction > 1) {
     stop("Error: Invalid value for sample.fraction. Please give a value in (0,1].")
   }
   sample.fraction
 }
 
-validate.seed = function(seed) {
+validate_seed = function(seed) {
   if (is.null(seed)) {
     seed <- runif(1, 0, .Machine$integer.max)
   }

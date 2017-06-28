@@ -37,14 +37,14 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
         stop("Error: Quantiles must be in (0, 1)")
     }
     
-    validate.X(X)
+    validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     
-    mtry <- validate.mtry(mtry)
-    num.threads <- validate.num.threads(num.threads)
-    min.node.size <- validate.min.node.size(min.node.size)
-    sample.fraction <- validate.sample.fraction(sample.fraction)
-    seed <- validate.seed(seed)
+    mtry <- validate_mtry(mtry)
+    num.threads <- validate_num_threads(num.threads)
+    min.node.size <- validate_min_node_size(min.node.size)
+    sample.fraction <- validate_sample_fraction(sample.fraction)
+    seed <- validate_seed(seed)
     
     sparse.data <- as.matrix(0)
     no.split.variables <- numeric(0)
