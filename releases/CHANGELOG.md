@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.9.1] - 2017-06-27
 
 ### Added
-- Add a regression.splits option to quantile forests to allow emulating the approach in (Meinhausen, 2006).
+- Add a regression.splits option to quantile forests to allow emulating the approach in Meinhause (2006).
 
 ## [0.9.0] - 2017-06-25
 First official (beta) release. The package currently supports
