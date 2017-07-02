@@ -4,23 +4,20 @@
 * Windows, Microsoft R Open 3.3.2
 
 ## R CMD check results
-There were no ERRORs. 
+There were no ERRORs or WARNINGs.
 
-There was 1 WARNING:
-
-* checking for GNU extensions in Makefiles ... WARNING
-Found the following file(s) containing GNU extensions:
-  src/Makevars
-
-We need to specify a wildcard pattern for SOURCES to allow for a hierarchical structure in the `src` folder, and are not aware of a cross-platform way to accomplish this.
-
-There was 1 NOTE of interest:
+There were 2 NOTEs of interest:
 
 * checking top-level files ... NOTE
 Non-standard file/directory found at top level:
   ‘bindings’
 
 In our build set-up, the contents of two directories (core C++, and Rcpp bindings must be copied into `src`. It was cleaner to keep the bindings in a designated directory and fully regenerate `src` on each build.
+
+* checking for GNU extensions in Makefiles ... NOTE
+GNU make is a SystemRequirements.
+
+We need to specify a wildcard pattern for SOURCES to allow for a hierarchical structure in the `src` folder, and according to the CRAN documentation, there does not seem to be a simple cross-platform way to accomplish this: https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Compiling-in-sub_002ddirectories
 
 ## Downstream dependencies
 We have no known downstream dependencies.
