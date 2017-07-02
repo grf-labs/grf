@@ -15,7 +15,7 @@ The repository first started as a fork of the [ranger](https://github.com/imbs-h
 The package can be installed from source as follows:
 
 ```R
-install.packages("https://raw.github.com/swager/grf/master/releases/grf_0.9.1.tar.gz", repos = NULL, type = "source")
+install.packages("https://raw.github.com/swager/grf/master/releases/grf_0.9.2.tar.gz", repos = NULL, type = "source")
 ```
 
 Note that a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
@@ -30,14 +30,6 @@ n = 2000; p = 10
 X = matrix(rnorm(n*p), n, p)
 X.test = matrix(0, 101, p)
 X.test[,1] = seq(-2, 2, length.out = 101)
-
-# Perform quantile regression.
-Y = X[,1] * rnorm(n)
-q.forest = quantile_forest(X, Y, quantiles=c(0.1, 0.5, 0.9))
-q.hat = predict(q.forest, X.test)
-plot(X.test[,1], q.hat[,1], ylim = range(q.hat), xlab = "x", ylab = "y", type = "l")
-lines(X.test[,1], q.hat[,2]); lines(X.test[,1], q.hat[,3])
-abline(0, qnorm(0.9), lty = 2, col = 2); abline(0, -qnorm(0.9), lty = 2, col = 2)
 
 # Perform treatment effect estimation.
 W = rbinom(n, 1, 0.5)
@@ -65,11 +57,12 @@ lines(X.test[,1], tau.hat$predictions - 1.96 * sigma.hat, col = 1, lty = 2)
 lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
 ```
 
-More usage examples, including examples around instrumental variables, can be found in the `experiments` directory.
+More usage examples, including 
+For examples on how to use other types of forest, including quantile regression and causal effect estimation using instrumental variables, including examples around instrumental variables, please see the `documentation` directory.
 
 ### Developing
 
-In addition to providing out-of-the-box forests for quantile regression and instrumental variables, grf provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using grf, please consult the [development guide](DEVELOPING.md).
+In addition to providing out-of-the-box forests for quantile regression and causal effect estimation, grf provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using grf, please consult the [development guide](DEVELOPING.md).
 
 ### References
 
