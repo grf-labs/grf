@@ -28,14 +28,14 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                               honesty = TRUE, ci.group.size = 2, alpha = 0.05, seed = NULL) {
     
-    validate.X(X)
+    validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     
-    mtry <- validate.mtry(mtry)
-    num.threads <- validate.num.threads(num.threads)
-    min.node.size <- validate.min.node.size(min.node.size)
-    sample.fraction <- validate.sample.fraction(sample.fraction)
-    seed <- validate.seed(seed)
+    mtry <- validate_mtry(mtry)
+    num.threads <- validate_num_threads(num.threads)
+    min.node.size <- validate_min_node_size(min.node.size)
+    sample.fraction <- validate_sample_fraction(sample.fraction)
+    seed <- validate_seed(seed)
     
     sparse.data <- as.matrix(0)
     no.split.variables <- numeric(0)
