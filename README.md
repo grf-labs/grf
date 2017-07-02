@@ -2,7 +2,7 @@
 
 # grf: generalized random forests
 
-This repository is in an 'alpha' state, and is actively under development. We expect to make continual improvements to performance and usability.
+This repository is in an 'beta' state, and is actively under development. We expect to make continual improvements to performance and usability.
 
 ### Authors
 
