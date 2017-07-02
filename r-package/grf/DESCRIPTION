@@ -10,6 +10,7 @@ Author: Julie Tibshirani [aut, cre],
     Marvin Wright [ctb],
     Susan Athey [aut],
     Stefan Wager [aut]
+BugReports: https://github.com/swager/grf/issues
 Maintainer: Julie Tibshirani <jtibs@cs.stanford.edu>
 Description: A pluggable package for forest-based statistical estimation and inference.
     GRF currently provides methods for non-parametric least-squares regression,
@@ -21,8 +22,8 @@ License: GPL-3
 LinkingTo: Rcpp
 Imports:
     Rcpp (>= 0.12.10)
+RoxygenNote: 6.0.1
 Suggests:
     sandwich, testthat
-RoxygenNote: 6.0.1
+SystemRequirements: GNU make
 URL: https://github.com/swager/grf
-BugReports: https://github.com/swager/grf/issues
