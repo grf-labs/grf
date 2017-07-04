@@ -1,15 +1,11 @@
 Package: grf
-Title: Generalized Random Forests (beta)
+Title: Generalized Random Forests (Beta)
 Version: 0.9.2
-Authors@R: c(
-    person("Julie", "Tibshirani", email = "jtibs@cs.stanford.edu", role = c("aut", "cre")),
-    person("Marvin", "Wright", email = "wright@imbs.uni-luebeck.de", role = c("ctb")),
-    person("Susan", "Athey", email = "athey@stanford.edu", role = c("aut")),
-    person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut")))
 Author: Julie Tibshirani [aut, cre],
-    Marvin Wright [ctb],
     Susan Athey [aut],
-    Stefan Wager [aut]
+    Stefan Wager [aut],
+    Marvin Wright [ctb],
+    all contributors to the included version of Eigen [ctb]
 BugReports: https://github.com/swager/grf/issues
 Maintainer: Julie Tibshirani <jtibs@cs.stanford.edu>
 Description: A pluggable package for forest-based statistical estimation and inference.
