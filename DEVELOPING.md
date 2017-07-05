@@ -12,7 +12,7 @@ The forest implementation is composed of two top-level components, [ForestTraine
 
 ForestTrainer drives the tree-growing process, and has two pluggable components.
 * [RelabelingStrategy](https://github.com/swager/grf/blob/master/core/src/relabeling/RelabelingStrategy.h) is applied before every split, and produces a set of relabelled outcomes given the observations for a group of samples. In the case of quantile forests, this strategy computes the quantiles for the group of samples, then relabels them with a factor corresponding to the quantile they belong to.
-* [SplittingRule](https://github.com/swager/grf/blob/master/core/src/splitting/SplittingRule.h) is called to find the best split for a particular node. There are currently implementations to standard regression and multinomial splitting.
+* [SplittingRule](https://github.com/swager/grf/blob/master/core/src/splitting/SplittingRule.h) is called to find the best split for a particular node. There are currently implementations for standard regression and multinomial splitting.
 
 The trained forest produces a [Forest](https://github.com/swager/grf/blob/master/core/src/forest/Forest.h) object. This can then be passed to the ForestPredictor to predict on test samples. The predictor has a pluggable 'prediction strategy', which computes a prediction given a test sample. Prediction strategies can be one of two types:
 * [DefaultPredictionStrategy](https://github.com/swager/grf/blob/master/core/src/prediction/DefaultPredictionStrategy.h) computes a prediction given a weighted list of training sample IDs that share a leaf with the test sample. For quantile forests, this strategy computes the quantiles of the weighted leaf samples.
