@@ -26,6 +26,7 @@
 #include "relabeling/QuantileRelabelingStrategy.h"
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
+#include "splitting/factory/RegularizedRegressionSplittingRuleFactory.h"
 
 ForestTrainer ForestTrainers::instrumental_trainer(Data* data,
                                                    size_t outcome_index,
@@ -80,3 +81,38 @@ ForestTrainer ForestTrainers::custom_trainer(Data* data,
 
   return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, NULL);
 }
+
+ForestTrainer ForestTrainers::regularized_regression_trainer(Data* data,
+                                                             size_t outcome_index,
+                                                             double lambda,
+                                                             bool downweight_penalty) {
+  std::unordered_map<size_t, size_t> observables = {{Observations::OUTCOME, outcome_index}};
+
+  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(
+      new RegularizedRegressionSplittingRuleFactory(data, lambda, downweight_penalty));
+  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
+
+  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
+}
+
+ForestTrainer ForestTrainers::regularized_instrumental_trainer(Data* data,
+                                                   size_t outcome_index,
+                                                   size_t treatment_index,
+                                                   size_t instrument_index,
+                                                   double split_regularization,
+                                                   double lambda,
+                                                   bool downweight_penalty) {
+  std::unordered_map<size_t, size_t> observables = {
+      {Observations::OUTCOME, outcome_index},
+      {Observations::TREATMENT, treatment_index},
+      {Observations::INSTRUMENT, instrument_index}};
+
+  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy(split_regularization));
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(
+      new RegularizedRegressionSplittingRuleFactory(data, lambda, downweight_penalty));
+  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
+
+  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
+}
+
