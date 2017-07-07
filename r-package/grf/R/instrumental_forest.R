@@ -34,14 +34,16 @@
 #'                             splitting criterion that ignores the instrument (and
 #'                             instead emulates a causal forest).
 #' @param alpha Maximum imbalance of a split.
+#' @param lambda A tuning parameter to control the amount of split regularization (experimental).
+#' @param downweight.penalty Whether or not the regularization penalty should be downweighted (experimental).
 #' @param seed The seed of the c++ random number generator.
 #'
 #' @return A trained instrumental forest object.
 #' @export
 instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
-                                num.trees = 2000, num.threads = NULL, min.node.size = NULL,
-                                honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE,
-                                split.regularization = 0, alpha = 0.05, seed = NULL) {
+                                num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
+                                ci.group.size = 2, precompute.nuisance = TRUE, split.regularization = 0,
+                                alpha = 0.05, lambda = 0.0, downweight.penalty = FALSE, seed = NULL) {
     
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -72,17 +74,20 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
         
         forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1)
+                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda,
+                                      downweight.penalty = downweight.penalty)
         Y.hat = predict(forest.Y)$predictions
         
         forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1)
+                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda,
+                                      downweight.penalty = downweight.penalty)
         W.hat = predict(forest.W)$predictions
         
         forest.Z <- regression_forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1)
+                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda,
+                                      downweight.penalty = downweight.penalty)
         Z.hat = predict(forest.Z)$predictions
         
         input.data <- as.matrix(cbind(X, Y - Y.hat, W - W.hat, Z - Z.hat))
@@ -94,10 +99,10 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceilin
     treatment.index <- ncol(X) + 2
     instrument.index <- ncol(X) + 3
     
-    forest <- instrumental_train(input.data, outcome.index, treatment.index,
-        instrument.index, sparse.data, variable.names, mtry, num.trees, verbose,
-        num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
-        no.split.variables, seed, honesty, ci.group.size, split.regularization, alpha)
+    forest <- instrumental_train(input.data, outcome.index, treatment.index, instrument.index,
+        sparse.data, variable.names, mtry, num.trees, verbose, num.threads, min.node.size,
+        sample.with.replacement, keep.inbag, sample.fraction, no.split.variables, seed, honesty,
+        ci.group.size, split.regularization, alpha, lambda, downweight.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data

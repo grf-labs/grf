@@ -16,17 +16,20 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size Minimum number of observations in each tree leaf.
 #' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
-#' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
+#' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
 #' @param alpha Maximum imbalance of a split.
+#' @param lambda A tuning parameter to control the amount of split regularization (experimental).
+#' @param downweight.penalty Whether or not the regularization penalty should be downweighted (experimental).
 #' @param seed The seed of the c++ random number generator.
 #'
 #' @return A trained regression forest object.
 #' @export
 regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
-                              honesty = TRUE, ci.group.size = 2, alpha = 0.05, seed = NULL) {
+                              honesty = TRUE, ci.group.size = 2, alpha = 0.05, lambda = 0.0,
+                              downweight.penalty = FALSE, seed = NULL) {
     
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -47,9 +50,9 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
     variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(input.data)
     
-    forest <- regression_train(input.data, outcome.index, sparse.data,
-        variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
-        keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
+    forest <- regression_train(input.data, outcome.index, sparse.data, variable.names, mtry, num.trees,
+        verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
+        no.split.variables, seed, honesty, ci.group.size, alpha, lambda, downweight.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["original.data"]] <- input.data
