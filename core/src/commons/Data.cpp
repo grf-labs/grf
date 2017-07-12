@@ -35,8 +35,6 @@ Data::Data(double* data,
     num_rows(num_rows),
     num_rows_rounded(0),
     num_cols(num_cols),
-    sparse_data(0),
-    num_cols_no_sparse(num_cols),
     externalData(true),
     index_data(0),
     max_num_unique_values(0),
@@ -49,20 +47,6 @@ Data::~Data() {
   if (!externalData) {
     delete[] data;
   }
-}
-
-size_t Data::get_variable_id(std::string variable_name) {
-  std::vector<std::string>::iterator it = std::find(variable_names.begin(), variable_names.end(), variable_name);
-  if (it == variable_names.end()) {
-    throw std::runtime_error("Variable " + variable_name + " not found.");
-  }
-  return (std::distance(variable_names.begin(), it));
-}
-
-void Data::add_sparse_data(unsigned char *sparse_data, size_t num_cols_sparse) {
-  num_cols = num_cols_no_sparse + num_cols_sparse;
-  num_rows_rounded = round_to_next_multiple(num_rows, 4);
-  this->sparse_data = sparse_data;
 }
 
 bool Data::load_from_file(std::string filename) {
@@ -113,7 +97,6 @@ bool Data::load_from_whitespace_file(std::ifstream& input_file, std::string head
     variable_names.push_back(header_token);
   }
   num_cols = variable_names.size();
-  num_cols_no_sparse = num_cols;
 
   // Read body
   reserve_memory();
@@ -148,7 +131,6 @@ bool Data::load_from_other_file(std::ifstream& input_file, std::string header_li
     variable_names.push_back(header_token);
   }
   num_cols = variable_names.size();
-  num_cols_no_sparse = num_cols;
 
   // Read body
   reserve_memory();
@@ -173,41 +155,25 @@ bool Data::load_from_other_file(std::ifstream& input_file, std::string header_li
 }
 
 void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) {
-
-  // All values for var (no duplicates) for given samples
-  if (var < num_cols_no_sparse) {
-
-    all_values.reserve(samples.size());
-    for (size_t i = 0; i < samples.size(); ++i) {
-      all_values.push_back(get(samples[i], var));
-    }
-    std::sort(all_values.begin(), all_values.end());
-    all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
-  } else {
-    // If GWA data just use 0, 1, 2
-    all_values = std::vector<double>( { 0, 1, 2 });
+  all_values.reserve(samples.size());
+  for (size_t i = 0; i < samples.size(); ++i) {
+    all_values.push_back(get(samples[i], var));
   }
-
+  std::sort(all_values.begin(), all_values.end());
+  all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
 }
 
 double Data::get(size_t row, size_t col) const {
-  if (col < num_cols_no_sparse) {
-    return data[col * num_rows + row];
-  } else {
-    // Get data out of sparse storage. -1 because of GenABEL coding.
-    size_t idx = (col - num_cols_no_sparse) * num_rows_rounded + row;
-    double result = (((sparse_data[idx / 4]&  mask[idx % 4]) >> offset[idx % 4]) - 1);
-    return result;
-  }
+  return data[col * num_rows + row];
 }
 
 void Data::sort() {
 
   // Reserve memory
-  index_data = new size_t[num_cols_no_sparse * num_rows];
+  index_data = new size_t[num_cols * num_rows];
 
   // For all columns, get unique values and save index for each observation
-  for (size_t col = 0; col < num_cols_no_sparse; ++col) {
+  for (size_t col = 0; col < num_cols; ++col) {
 
     // Get all unique values
     std::vector<double> unique_values(num_rows);

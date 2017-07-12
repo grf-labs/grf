@@ -36,12 +36,8 @@ public:
 
   double get(size_t row, size_t col) const;
 
-  size_t get_variable_id(std::string variable_name);
-
   void reserve_memory();
   void set(size_t col, size_t row, double value, bool& error);
-
-  void add_sparse_data(unsigned char *sparse_data, size_t num_cols_sparse);
 
   bool load_from_file(std::string filename);
   bool load_from_whitespace_file(std::ifstream& input_file, std::string header_line);
@@ -50,38 +46,15 @@ public:
   void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var);
 
   size_t get_index(size_t row, size_t col) const {
-    if (col < num_cols_no_sparse) {
-      return index_data[col * num_rows + row];
-    } else {
-      // Get data out of sparse storage. -1 because of GenABEL coding.
-      size_t idx = (col - num_cols_no_sparse) * num_rows_rounded + row;
-      size_t result = (((sparse_data[idx / 4]&  mask[idx % 4]) >> offset[idx % 4]) - 1);
-
-      // TODO: Better way to treat missing values?
-      if (result > 2) {
-        return 0;
-      } else {
-        return result;
-      }
-    }
+    return index_data[col * num_rows + row];
   }
 
   double get_unique_data_value(size_t var, size_t index) const {
-    if (var < num_cols_no_sparse) {
-      return unique_data_values[var][index];
-    } else {
-      // For GWAS data the index is the value
-      return (index);
-    }
+    return unique_data_values[var][index];
   }
 
   size_t get_num_unique_data_values(size_t var) const {
-    if (var < num_cols_no_sparse) {
-      return unique_data_values[var].size();
-    } else {
-      // For GWAS data 0,1,2
-      return (3);
-    }
+    return unique_data_values[var].size();
   }
 
   void sort();
@@ -97,13 +70,7 @@ public:
   }
 
   size_t get_max_num_unique_values() const {
-    if (sparse_data == 0 || max_num_unique_values > 3) {
-      // If no sparse data or one variable with more than 3 unique values, return that value
-      return max_num_unique_values;
-    } else {
-      // If sparse data and no variable with more than 3 unique values, return 3
-      return 3;
-    }
+    return max_num_unique_values;
   }
 
 protected:
@@ -111,9 +78,6 @@ protected:
   size_t num_rows;
   size_t num_rows_rounded;
   size_t num_cols;
-
-  unsigned char* sparse_data;
-  size_t num_cols_no_sparse;
 
   bool externalData;
 
