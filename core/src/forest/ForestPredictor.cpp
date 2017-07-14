@@ -86,9 +86,9 @@ std::vector<std::vector<size_t>> ForestPredictor::find_leaf_nodes(
 
   std::vector<std::future<
       std::vector<std::vector<size_t>>>> futures;
-  futures.reserve(num_threads);
+  futures.reserve(thread_ranges.size());
 
-  for (uint i = 0; i < num_threads; ++i) {
+  for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
     size_t start_index = thread_ranges[i];
     size_t num_trees_batch = thread_ranges[i + 1] - start_index;
     futures.push_back(std::async(std::launch::async,
