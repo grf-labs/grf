@@ -27,7 +27,6 @@
 // [[Rcpp::export]]
 Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
                         size_t outcome_index,
-                        Rcpp::RawMatrix sparse_data,
                         std::vector <std::string> variable_names,
                         unsigned int mtry,
                         unsigned int num_trees,
@@ -42,7 +41,7 @@ Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
                         bool honesty,
                         unsigned int ci_group_size,
                         double alpha) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
+  Data* data = RcppUtilities::convert_data(input_data, variable_names);
 
   ForestTrainer trainer = ForestTrainers::custom_trainer(data,
           outcome_index - 1,
@@ -59,10 +58,9 @@ Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
 // [[Rcpp::export]]
 Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
                                    Rcpp::NumericMatrix input_data,
-                                   Rcpp::RawMatrix sparse_data,
                                    std::vector<std::string> variable_names,
                                    unsigned int num_threads) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
+  Data* data = RcppUtilities::convert_data(input_data, variable_names);
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
@@ -77,10 +75,9 @@ Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::NumericMatrix custom_predict_oob(Rcpp::List forest_object,
                                        Rcpp::NumericMatrix input_data,
-                                       Rcpp::RawMatrix sparse_data,
                                        std::vector<std::string> variable_names,
                                        unsigned int num_threads) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_data, variable_names);
+  Data* data = RcppUtilities::convert_data(input_data, variable_names);
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 

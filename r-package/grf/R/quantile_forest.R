@@ -46,7 +46,6 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
     
-    sparse.data <- as.matrix(0)
     no.split.variables <- numeric(0)
     sample.with.replacement <- FALSE
     verbose <- FALSE
@@ -58,7 +57,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
 
     ci.group.size <- 1
     
-    forest <- quantile_train(quantiles, regression.splitting, input.data, outcome.index, sparse.data,
+    forest <- quantile_train(quantiles, regression.splitting, input.data, outcome.index,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
@@ -102,18 +101,17 @@ predict.quantile_forest <- function(object,
         stop("Error: Invalid value for num.threads")
     }
     
-    sparse.data <- as.matrix(0)
     variable.names <- character(0)
     
     forest.short <- object[-which(names(object) == "original.data")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
-        quantile_predict(forest.short, quantiles, input.data, sparse.data, variable.names, 
+        quantile_predict(forest.short, quantiles, input.data, variable.names, 
                          num.threads)
     } else {
         input.data <- object[["original.data"]]
-        quantile_predict_oob(forest.short, quantiles, input.data, sparse.data, variable.names, 
+        quantile_predict_oob(forest.short, quantiles, input.data, variable.names, 
                              num.threads)
     }
 }

@@ -40,7 +40,6 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
     
-    sparse.data <- as.matrix(0)
     no.split.variables <- numeric(0)
     sample.with.replacement <- FALSE
     verbose <- FALSE
@@ -50,7 +49,7 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
     variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(input.data)
     
-    forest <- regression_train(input.data, outcome.index, sparse.data, variable.names, mtry, num.trees,
+    forest <- regression_train(input.data, outcome.index, variable.names, mtry, num.trees,
         verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
         no.split.variables, seed, honesty, ci.group.size, alpha, lambda, downweight.penalty)
     
@@ -89,7 +88,6 @@ predict.regression_forest <- function(object, newdata = NULL,
         stop("Error: Invalid value for num.threads")
     }
     
-    sparse.data <- as.matrix(0)
     variable.names <- character(0)
     
     if (estimate.variance) {
@@ -102,11 +100,11 @@ predict.regression_forest <- function(object, newdata = NULL,
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
-        regression_predict(forest.short, input.data, sparse.data, variable.names, 
+        regression_predict(forest.short, input.data, variable.names, 
                            num.threads, ci.group.size)
     } else {
         input.data <- object[["original.data"]]
-        regression_predict_oob(forest.short, input.data, sparse.data, variable.names, 
+        regression_predict_oob(forest.short, input.data, variable.names, 
                                num.threads, ci.group.size)
     }
 }
