@@ -52,7 +52,6 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
     
-    sparse.data <- as.matrix(0)
     no.split.variables <- numeric(0)
     sample.with.replacement <- FALSE
     verbose <- FALSE
@@ -92,7 +91,7 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
     instrument.index <- treatment.index
     
     forest <- instrumental_train(input.data, outcome.index, treatment.index, instrument.index,
-        sparse.data, variable.names, mtry, num.trees, verbose, num.threads, min.node.size,
+        variable.names, mtry, num.trees, verbose, num.threads, min.node.size,
         sample.with.replacement, keep.inbag, sample.fraction, no.split.variables, seed, honesty,
         ci.group.size, split.regularization, alpha, lambda, downweight.penalty)
     

@@ -60,7 +60,8 @@ private:
                                                     double sample_fraction);
 
   std::vector<std::shared_ptr<Tree>> train_batch(
-      uint thread_idx,
+      size_t thread_index,
+      size_t num_trees,
       Data* data,
       const Observations& observations);
 
@@ -77,8 +78,6 @@ private:
   std::set<size_t> no_split_variables;
 
   uint num_threads;
-  std::vector<uint> thread_ranges;
-
   std::shared_ptr<TreeTrainer> tree_trainer;
 
   // Weight vector for selecting possible split variables, one weight between 0 (never select) and 1 (always select) for each variable

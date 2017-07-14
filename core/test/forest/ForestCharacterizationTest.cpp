@@ -73,6 +73,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/quantile_oob_predictions.csv");
+  update_predictions_file("test/forest/resources/quantile_oob_predictions.csv", oob_predictions);
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<Prediction> predictions = predictor.predict(forest, data);
@@ -99,6 +100,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/causal_oob_predictions.csv");
+  update_predictions_file("test/forest/resources/causal_oob_predictions.csv", oob_predictions);
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<Prediction> predictions = predictor.predict(forest, data);

@@ -60,18 +60,12 @@ Forest RcppUtilities::deserialize_forest(Rcpp::RawVector input) {
 }
 
 Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
-                                  Rcpp::RawMatrix sparse_data,
                                   const std::vector<std::string>& variable_names) {
   size_t num_rows = input_data.nrow();
   size_t num_cols = input_data.ncol();
 
   Data* data = new Data(input_data.begin(), variable_names, num_rows, num_cols);
   data->sort();
-
-  if (sparse_data.nrow() > 1) {
-    data->add_sparse_data(sparse_data.begin(), sparse_data.ncol());
-  }
-
   return data;
 }
 

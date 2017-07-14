@@ -15,14 +15,12 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "prediction/DefaultPredictionStrategy.h"
 #include "commons/utility.h"
 #include "forest/ForestPredictor.h"
-#include "forest/ForestTrainer.h"
-#include "utilities/ForestTestUtilities.h"
-
-#include "forest/ForestTrainers.h"
 #include "forest/ForestPredictors.h"
+#include "forest/ForestTrainer.h"
+#include "forest/ForestTrainers.h"
+#include "utilities/ForestTestUtilities.h"
 
 #include "catch.hpp"
 

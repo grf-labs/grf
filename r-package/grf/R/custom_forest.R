@@ -25,9 +25,7 @@
 custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
     honesty = TRUE, alpha = 0.05, seed = NULL) {
-    
-    sparse.data <- as.matrix(0)
-    
+        
     if (is.null(mtry)) {
         mtry <- 0
     } else if (!is.numeric(mtry) | mtry < 0) {
@@ -68,7 +66,7 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/
     no.split.variables <- numeric(0)
     ci.group.size <- 1
     
-    forest <- custom_train(input.data, outcome.index, sparse.data,
+    forest <- custom_train(input.data, outcome.index,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
@@ -98,18 +96,17 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
         stop("Error: Invalid value for num.threads")
     }
     
-    sparse.data <- as.matrix(0)
     variable.names <- character(0)
     
     forest.short <- object[-which(names(object) == "original.data")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
-        custom_predict(forest.short, input.data, sparse.data, variable.names, 
+        custom_predict(forest.short, input.data, variable.names, 
             num.threads)
     } else {
         input.data <- object[["original.data"]]
-        custom_predict_oob(forest.short, input.data, sparse.data, variable.names, 
+        custom_predict_oob(forest.short, input.data, variable.names, 
             num.threads)
     }
 }

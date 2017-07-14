@@ -151,19 +151,24 @@ Forest ForestTrainer::train(Data* data) {
   Observations observations(observations_by_type, data->get_num_rows());
 
   uint num_groups = (uint) num_trees / ci_group_size;
+
+  std::vector<uint> thread_ranges;
   split_sequence(thread_ranges, 0, num_groups - 1, num_threads);
 
   std::vector<std::future<std::vector<std::shared_ptr<Tree>>>> futures;
-  futures.reserve(num_threads);
+  futures.reserve(thread_ranges.size());
 
   std::vector<std::shared_ptr<Tree>> trees;
   trees.reserve(num_trees);
 
-  for (uint i = 0; i < num_threads; ++i) {
+  for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
+    size_t start_index = thread_ranges[i];
+    size_t num_trees_batch = thread_ranges[i + 1] - start_index;
     futures.push_back(std::async(std::launch::async,
                                  &ForestTrainer::train_batch,
                                  this,
-                                 i,
+                                 start_index,
+                                 num_trees_batch,
                                  data,
                                  observations));
   }
@@ -177,41 +182,38 @@ Forest ForestTrainer::train(Data* data) {
 }
 
 std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
-    uint thread_idx,
+    size_t start,
+    size_t num_trees,
     Data* data,
     const Observations& observations) {
-  std::mt19937_64 random_number_generator(seed + thread_idx);
+  std::mt19937_64 random_number_generator(seed + start);
   std::uniform_int_distribution<uint> udist;
   std::vector<std::shared_ptr<Tree>> trees;
 
-  if (thread_ranges.size() > thread_idx + 1) {
-    size_t start = thread_ranges[thread_idx];
-    size_t end = thread_ranges[thread_idx + 1];
+  if (ci_group_size == 1) {
+    trees.reserve(num_trees);
+  } else {
+    trees.reserve(num_trees * ci_group_size);
+  }
+
+  for (int i = 0; i < num_trees; i++) {
+    uint tree_seed = udist(random_number_generator);
+    SamplingOptions sampling_options(sample_with_replacement, sample_weights);
+    RandomSampler sampler(tree_seed, sampling_options);
+
     if (ci_group_size == 1) {
-      trees.reserve(end - start);
+      std::vector<size_t> samples;
+      std::vector<size_t> oob_samples;
+      sampler.sample(data->get_num_rows(), sample_fraction, samples, oob_samples);
+
+      std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
+          sampler, samples);
+      tree->set_oob_samples(oob_samples);
+      trees.push_back(tree);
     } else {
-      trees.reserve((end - start) * ci_group_size);
-    }
-
-    for (size_t i = start; i < end; ++i) {
-      uint tree_seed = udist(random_number_generator);
-      SamplingOptions sampling_options(sample_with_replacement, sample_weights);
-      RandomSampler sampler(tree_seed, sampling_options);
-
-      if (ci_group_size == 1) {
-        std::vector<size_t> samples;
-        std::vector<size_t> oob_samples;
-        sampler.sample(data->get_num_rows(), sample_fraction, samples, oob_samples);
-
-        std::shared_ptr<Tree> tree = tree_trainer->train(data, observations,
-            sampler, samples);
-        tree->set_oob_samples(oob_samples);
-        trees.push_back(tree);
-      } else {
-        std::vector<std::shared_ptr<Tree>> group = train_ci_group(
-            data, observations, sampler, sample_fraction);
-        trees.insert(trees.end(), group.begin(), group.end());
-      }
+      std::vector<std::shared_ptr<Tree>> group = train_ci_group(
+          data, observations, sampler, sample_fraction);
+      trees.insert(trees.end(), group.begin(), group.end());
     }
   }
   return trees;
