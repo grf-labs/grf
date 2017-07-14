@@ -61,7 +61,6 @@ private:
 
   std::vector<std::shared_ptr<Tree>> train_batch(
       size_t thread_index,
-      size_t start,
       size_t num_trees,
       Data* data,
       const Observations& observations);

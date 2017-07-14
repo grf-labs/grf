@@ -167,7 +167,6 @@ Forest ForestTrainer::train(Data* data) {
     futures.push_back(std::async(std::launch::async,
                                  &ForestTrainer::train_batch,
                                  this,
-                                 i,
                                  start_index,
                                  num_trees_batch,
                                  data,
@@ -183,12 +182,11 @@ Forest ForestTrainer::train(Data* data) {
 }
 
 std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
-    size_t thread_index,
     size_t start,
     size_t num_trees,
     Data* data,
     const Observations& observations) {
-  std::mt19937_64 random_number_generator(seed + thread_index);
+  std::mt19937_64 random_number_generator(seed + start);
   std::uniform_int_distribution<uint> udist;
   std::vector<std::shared_ptr<Tree>> trees;
 
