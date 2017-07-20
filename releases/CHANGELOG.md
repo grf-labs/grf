@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.3] - 2017-07-20
+
+### Fixed
+- Fix an out of bounds error when there are fewer trees than threads.
+- Fix a bug in the get_tree function where the same tree was always returned.
+
 ## [0.9.2] - 2017-07-06
 
 ### Added
