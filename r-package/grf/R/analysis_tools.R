@@ -10,7 +10,7 @@ get_tree = function(forest, index) {
 		stop(paste("The provided index,", index, "is not valid."))
 	}
 
-	tree = deserialize_tree(forest, 500)
+	tree = deserialize_tree(forest, index)
 	class(tree) = "grf_tree"
 	tree$columns = colnames(forest$original.data)
 	tree
