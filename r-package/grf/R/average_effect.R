@@ -15,6 +15,26 @@
 #'               augmented inverse-propensity weighting (AIPW), or
 #'               targeted maximum likelihood estimation (TMLE).
 #'
+#' @examples
+#' # Train a causal forest.
+#' n = 50; p = 10
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' c.forest = causal_forest(X, Y, W)
+#'
+#' # Predict using the forest.
+#' X.test = matrix(0, 101, p)
+#' X.test[,1] = seq(-2, 2, length.out = 101)
+#' c.pred = predict(c.forest, X.test)
+#' # Estimate the conditional average treatment effect on the full sample (CATE).
+#' estimate_average_effect(c.forest, target.sample = "all")
+#' 
+#' # Estimate the conditional average treatment effect on the treated sample (CATT).
+#' # We don't expect much difference between the CATE and the CATT in this example,
+#' # since treatment assignment was randomized.
+#' estimate_average_effect(c.forest, target.sample = "treated")
+#'
 #' @return Vector of predictions, along with (optional) variance estimates.
 #' @export
 estimate_average_effect = function(forest,
