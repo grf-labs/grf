@@ -21,6 +21,19 @@
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A trained regression forest object.
+#'
+#' @examples
+#' # Train a custom forest.
+#' n = 50; p = 10
+#' X = matrix(rnorm(n*p), n, p)
+#' Y = X[,1] * rnorm(n)
+#' c.forest = custom_forest(X, Y)
+#'
+#' # Predict using the forest.
+#' X.test = matrix(0, 101, p)
+#' X.test[,1] = seq(-2, 2, length.out = 101)
+#' c.pred = predict(c.forest, X.test)
+#'
 #' @export
 custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
@@ -87,6 +100,19 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return Vector of predictions.
+#'
+#' @examples
+#' # Train a custom forest.
+#' n = 50; p = 10
+#' X = matrix(rnorm(n*p), n, p)
+#' Y = X[,1] * rnorm(n)
+#' c.forest = custom_forest(X, Y)
+#'
+#' # Predict using the forest.
+#' X.test = matrix(0, 101, p)
+#' X.test[,1] = seq(-2, 2, length.out = 101)
+#' c.pred = predict(c.forest, X.test)
+#'
 #' @export
 predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
     

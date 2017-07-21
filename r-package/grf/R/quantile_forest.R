@@ -25,6 +25,25 @@
 #' @param alpha Maximum imbalance of a split.
 #'
 #' @return A trained quantile forest object.
+#'
+#' @examples
+#' # Train a quantile forest.
+#' n = 50; p = 10
+#' X = matrix(rnorm(n*p), n, p)
+#' Y = X[,1] * rnorm(n)
+#' q.forest = quantile_forest(X, Y, quantiles=c(0.1, 0.5, 0.9))
+#'
+#' # Predict using the forest.
+#' X.test = matrix(0, 101, p)
+#' X.test[,1] = seq(-2, 2, length.out = 101)
+#' q.pred = predict(q.forest, X.test)
+#'
+#' # Train a quantile forest with regression splits, as in Meinshausen (2006).
+#' n = 50; p = 10
+#' X = matrix(rnorm(n*p), n, p)
+#' Y = X[,1] * rnorm(n)
+#' meins.forest = quantile_forest(X, Y, quantiles=c(0.1, 0.5, 0.9), regression.splitting = TRUE)
+#'
 #' @export
 quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = FALSE,
                             sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), num.trees = 2000,
@@ -81,9 +100,24 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
 #'                    automatically selects an appropriate amount.
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return Predictions for each test point and each desired quantile.
+#' @return Predictions at each test point for each desired quantile.
+#'
+#' @examples
+#' # Train a quantile forest.
+#' n = 50; p = 10
+#' X = matrix(rnorm(n*p), n, p)
+#' Y = X[,1] * rnorm(n)
+#' q.forest = quantile_forest(X, Y, quantiles=c(0.1, 0.5, 0.9))
+#'
+#' # Predict on out-of-bag training samples.
+#' q.pred = predict(q.forest)
+#'
+#' # Predict using the forest.
+#' X.test = matrix(0, 101, p)
+#' X.test[,1] = seq(-2, 2, length.out = 101)
+#' q.pred = predict(q.forest, X.test)
+#'
 #' @export
-
 predict.quantile_forest <- function(object,
                                     newdata = NULL,
                                     quantiles = c(0.1, 0.5, 0.9),
