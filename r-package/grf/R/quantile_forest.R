@@ -42,7 +42,7 @@
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
 #' Y = X[,1] * rnorm(n)
-#' meins.forest = quantile_forest(X, Y, quantiles=c(0.1, 0.5, 0.9), regression.splitting = TRUE)
+#' meins.forest = quantile_forest(X, Y, regression.splitting = TRUE)
 #'
 #' @export
 quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = FALSE,
