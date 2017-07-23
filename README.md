@@ -64,7 +64,7 @@ lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
 ```
 
 More usage examples, including 
-For examples on how to use other types of forest, including quantile regression and causal effect estimation using instrumental variables, including examples around instrumental variables, please see the `documentation` directory.
+For examples on how to use other types of forest, including [quantile regression](documentation/quantile_examples.md) and causal effect estimation using instrumental variables, including examples around instrumental variables, please see the `documentation` directory.
 
 ### Developing
 
