@@ -27,23 +27,29 @@
 #' @return A trained quantile forest object.
 #'
 #' @examples
-#' # Train a quantile forest.
+#' # Generate data.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
-#' Y = X[,1] * rnorm(n)
-#' q.forest = quantile_forest(X, Y, quantiles=c(0.1, 0.5, 0.9))
-#'
-#' # Predict using the forest.
 #' X.test = matrix(0, 101, p)
 #' X.test[,1] = seq(-2, 2, length.out = 101)
-#' q.pred = predict(q.forest, X.test)
-#'
-#' # Train a quantile forest with regression splits, as in Meinshausen (2006).
-#' n = 50; p = 10
-#' X = matrix(rnorm(n*p), n, p)
 #' Y = X[,1] * rnorm(n)
-#' meins.forest = quantile_forest(X, Y, regression.splitting = TRUE)
-#'
+#' 
+#' # Train a quantile forest.
+#' q.forest = quantile_forest(X, Y, quantiles=c(0.1, 0.5, 0.9))
+#' 
+#' # Make predictions.
+#' q.hat = predict(q.forest, X.test)
+#' 
+#' # Make predictions for different quantiles than those used in training.
+#' q.hat = predict(q.forest, X.test, quantiles=c(0.1, 0.9))
+#' 
+#' # Train a quantile forest using regression splitting instead of quantile-based
+#' # splits, emulating the approach in Meinshausen (2006).
+#' meins.forest = quantile_forest(X, Y, regression.splitting=TRUE)
+#' 
+#' # Make predictions for the desired quantiles.
+#' q.hat = predict(meins.forest, X.test, quantiles=c(0.1, 0.5, 0.9))
+#' 
 #' @export
 quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = FALSE,
                             sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), num.trees = 2000,
