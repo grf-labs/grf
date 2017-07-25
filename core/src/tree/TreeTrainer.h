@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
 #include "sampling/RandomSampler.h"

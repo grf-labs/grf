@@ -23,7 +23,7 @@
 #include "tree/TreeTrainer.h"
 #include "commons/globals.h"
 #include "tree/Tree.h"
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "commons/Observations.h"
 
 class Forest {

@@ -21,13 +21,13 @@
 #include <algorithm>
 #include <iterator>
 
-#include "Data.h"
+#include "DefaultData.h"
 #include "utility.h"
 
-Data::Data() :
-  Data(NULL, std::vector<std::string>(), 0, 0) {}
+DefaultData::DefaultData() :
+    DefaultData(NULL, std::vector<std::string>(), 0, 0) {}
 
-Data::Data(double* data,
+DefaultData::DefaultData(double* data,
            std::vector<std::string> variable_names,
            size_t num_rows,
            size_t num_cols):
@@ -40,7 +40,7 @@ Data::Data(double* data,
     max_num_unique_values(0),
     data(data) {}
 
-Data::~Data() {
+DefaultData::~DefaultData() {
   if (index_data != 0) {
     delete[] index_data;
   }
@@ -49,7 +49,7 @@ Data::~Data() {
   }
 }
 
-bool Data::load_from_file(std::string filename) {
+bool DefaultData::load_from_file(std::string filename) {
 
   bool result;
 
@@ -88,7 +88,7 @@ bool Data::load_from_file(std::string filename) {
   return result;
 }
 
-bool Data::load_from_whitespace_file(std::ifstream& input_file, std::string header_line) {
+bool DefaultData::load_from_whitespace_file(std::ifstream& input_file, std::string header_line) {
 
   // Read header
   std::string header_token;
@@ -122,7 +122,7 @@ bool Data::load_from_whitespace_file(std::ifstream& input_file, std::string head
   return error;
 }
 
-bool Data::load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator) {
+bool DefaultData::load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator) {
 
   // Read header
   std::string header_token;
@@ -154,7 +154,7 @@ bool Data::load_from_other_file(std::ifstream& input_file, std::string header_li
   return error;
 }
 
-void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) {
+void DefaultData::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) {
   all_values.reserve(samples.size());
   for (size_t i = 0; i < samples.size(); ++i) {
     all_values.push_back(get(samples[i], var));
@@ -163,11 +163,11 @@ void Data::get_all_values(std::vector<double>& all_values, const std::vector<siz
   all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
 }
 
-double Data::get(size_t row, size_t col) const {
+double DefaultData::get(size_t row, size_t col) const {
   return data[col * num_rows + row];
 }
 
-void Data::sort() {
+void DefaultData::sort() {
 
   // Reserve memory
   index_data = new size_t[num_cols * num_rows];
@@ -197,10 +197,10 @@ void Data::sort() {
   }
 }
 
-void Data::reserve_memory() {
+void DefaultData::reserve_memory() {
   data = new double[num_cols * num_rows];
 }
 
-void Data::set(size_t col, size_t row, double value, bool& error) {
+void DefaultData::set(size_t col, size_t row, double value, bool& error) {
   data[col * num_rows + row] = value;
 }

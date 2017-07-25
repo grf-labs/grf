@@ -19,7 +19,7 @@
 #include <vector>
 #include <string>
 
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "prediction/QuantilePredictionStrategy.h"
 
 QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double> quantiles):

@@ -20,7 +20,7 @@
 
 #include "commons/globals.h"
 #include <vector>
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "splitting/SplittingRule.h"
 
 class ProbabilitySplittingRule: public SplittingRule {

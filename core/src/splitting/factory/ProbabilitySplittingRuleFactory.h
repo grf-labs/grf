@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "commons/globals.h"
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "splitting/factory/SplittingRuleFactory.h"
 
 class ProbabilitySplittingRuleFactory: public SplittingRuleFactory {

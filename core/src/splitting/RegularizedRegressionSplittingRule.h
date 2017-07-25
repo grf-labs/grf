@@ -19,7 +19,7 @@
 #define GRF_REGULARIZEDREGRESSIONSPLITTINGRULE_H
 
 
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "SplittingRule.h"
 #include <unordered_map>
 #include <vector>

@@ -25,70 +25,33 @@
 
 class Data {
 public:
-  Data();
+  virtual ~Data() {};
 
-  Data(double* data,
-       std::vector<std::string> variable_names,
-       size_t num_rows,
-       size_t num_cols);
+  virtual double get(size_t row, size_t col) const = 0;
 
-  ~Data();
+  virtual void reserve_memory() = 0;
+  virtual void set(size_t col, size_t row, double value, bool& error) = 0;
 
-  double get(size_t row, size_t col) const;
+  virtual bool load_from_file(std::string filename) = 0;
+  virtual bool load_from_whitespace_file(std::ifstream& input_file, std::string header_line) = 0;
+  virtual bool load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator)  = 0;
 
-  void reserve_memory();
-  void set(size_t col, size_t row, double value, bool& error);
+  virtual void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var)  = 0;
 
-  bool load_from_file(std::string filename);
-  bool load_from_whitespace_file(std::ifstream& input_file, std::string header_line);
-  bool load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator);
+  virtual size_t get_index(size_t row, size_t col) const = 0;
 
-  void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var);
+  virtual double get_unique_data_value(size_t var, size_t index) const = 0;
 
-  size_t get_index(size_t row, size_t col) const {
-    return index_data[col * num_rows + row];
-  }
+  virtual size_t get_num_unique_data_values(size_t var) const = 0;
 
-  double get_unique_data_value(size_t var, size_t index) const {
-    return unique_data_values[var][index];
-  }
+  virtual void sort() = 0;
 
-  size_t get_num_unique_data_values(size_t var) const {
-    return unique_data_values[var].size();
-  }
+  virtual const std::vector<std::string>& get_variable_names() const  = 0;
 
-  void sort();
+  virtual size_t get_num_cols() const = 0;
+  virtual size_t get_num_rows() const = 0;
 
-  const std::vector<std::string>& get_variable_names() const {
-    return variable_names;
-  }
-  size_t get_num_cols() const {
-    return num_cols;
-  }
-  size_t get_num_rows() const {
-    return num_rows;
-  }
-
-  size_t get_max_num_unique_values() const {
-    return max_num_unique_values;
-  }
-
-protected:
-  std::vector<std::string> variable_names;
-  size_t num_rows;
-  size_t num_rows_rounded;
-  size_t num_cols;
-
-  bool externalData;
-
-  size_t* index_data;
-  std::vector<std::vector<double>> unique_data_values;
-  size_t max_num_unique_values;
-
-  double* data;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Data);
+  virtual size_t get_max_num_unique_values() const = 0;
 };
 
 #endif /* GRF_DATA_H_ */
