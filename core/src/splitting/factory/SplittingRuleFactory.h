@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "splitting/SplittingRule.h"
 
 

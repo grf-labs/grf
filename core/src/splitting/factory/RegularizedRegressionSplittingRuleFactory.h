@@ -19,7 +19,7 @@
 #define GRF_REGULARIZEDREGRESSIONSPLITTINGRULEFACTORY_H
 
 
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "splitting/SplittingRule.h"
 #include "SplittingRuleFactory.h"
 

@@ -15,7 +15,7 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "forest/Forest.h"
 
 Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,

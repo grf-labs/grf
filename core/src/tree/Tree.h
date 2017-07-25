@@ -23,7 +23,7 @@
 #include <iostream>
 
 #include "commons/globals.h"
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "sampling/RandomSampler.h"
 #include "prediction/PredictionValues.h"
 #include "splitting/SplittingRule.h"

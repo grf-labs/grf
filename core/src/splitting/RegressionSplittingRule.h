@@ -21,7 +21,7 @@
 #include "tree/Tree.h"
 #include "splitting/SplittingRule.h"
 #include <unordered_map>
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 
 class RegressionSplittingRule: public SplittingRule {
 public:

@@ -29,7 +29,7 @@
 
 #include "utility.h"
 #include "globals.h"
-#include "Data.h"
+#include "DefaultData.h"
 
 void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_parts) {
 
@@ -151,7 +151,7 @@ bool equal_doubles(double first, double second, double epsilon) {
 }
 
 Data* load_data(std::string file_name) {
-  Data* data = new Data();
+  Data* data = new DefaultData();
 
   bool rounding_error = data->load_from_file(file_name);
   if (rounding_error) {

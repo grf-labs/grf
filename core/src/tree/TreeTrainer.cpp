@@ -18,7 +18,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "tree/TreeTrainer.h"
 
 TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,

@@ -19,7 +19,7 @@
 #define GRF_RELABELINGSTRATEGY_H
 
 
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "commons/Observations.h"
 #include <unordered_map>
 #include <vector>

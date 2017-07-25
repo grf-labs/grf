@@ -18,7 +18,7 @@
 #ifndef GRF_REGRESSIONPREDICTIONSTRATEGY_H
 #define GRF_REGRESSIONPREDICTIONSTRATEGY_H
 
-#include "commons/Data.h"
+#include "commons/DefaultData.h"
 #include "commons/Observations.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
