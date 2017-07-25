@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/swager/grf.svg?branch=master)](https://travis-ci.org/swager/grf)
+![CRAN Downloads overall](http://cranlogs.r-pkg.org/badges/grand-total/grf)
 
 # grf: generalized random forests
 
