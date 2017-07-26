@@ -64,7 +64,7 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
   size_t num_rows = input_data.nrow();
   size_t num_cols = input_data.ncol();
 
-  Data* data = new Data(input_data.begin(), variable_names, num_rows, num_cols);
+  Data* data = new DefaultData(input_data.begin(), variable_names, num_rows, num_cols);
   data->sort();
   return data;
 }
