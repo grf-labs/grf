@@ -3,7 +3,11 @@
 
 # grf: generalized random forests
 
-This repository is in an 'beta' state, and is actively under development. We expect to make continual improvements to performance and usability.
+A pluggable package for forest-based statistical estimation and inference. GRF currently provides non-parametric methods for least-squares regression, quantile regression, and treatment effect estimation (optionally using instrumental variables).
+
+In addition, GRF supports 'honest' estimation (where one subset of the data is used for choosing splits, and another for populating the leaves of the tree), and confidence intervals for least-squares regression and treatment effect estimation.
+
+This package is currently in beta, and we expect to make continual improvements to its performance and usability.
 
 ### Authors
 
@@ -68,7 +72,7 @@ For examples on how to use other types of forest, including those for [quantile 
 
 ### Developing
 
-In addition to providing out-of-the-box forests for quantile regression and causal effect estimation, grf provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using grf, please consult the [development guide](DEVELOPING.md).
+In addition to providing out-of-the-box forests for quantile regression and causal effect estimation, GRF provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using GRF, please consult the [development guide](DEVELOPING.md).
 
 ### References
 
