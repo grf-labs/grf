@@ -58,7 +58,7 @@
 #' c.pred = predict(c.forest, X.test, estimate.variance = TRUE)
 #'
 #' @export
-causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
+causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL, 
                           num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                           honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE,
                           alpha = 0.05, lambda = 0.0, downweight.penalty = FALSE, seed = NULL) {
@@ -67,7 +67,7 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
     
-    mtry <- validate_mtry(mtry)
+    mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
     min.node.size <- validate_min_node_size(min.node.size)
     sample.fraction <- validate_sample_fraction(sample.fraction)
@@ -81,13 +81,10 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
     split.regularization <- 0
     
     if (!precompute.nuisance) {
-        
         input.data <- as.matrix(cbind(X, Y, W))
         Y.hat <- NULL
         W.hat <- NULL
-        
     } else {
-        
         forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                       honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda,
@@ -102,10 +99,8 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = ceiling(2*ncol(
         W.hat <- predict(forest.W)$predictions
         
         input.data <- as.matrix(cbind(X, Y - Y.hat, W - W.hat))
-        
     }
-    
-    
+
     variable.names <- c(colnames(X), "outcome", "treatment")
     outcome.index <- ncol(X) + 1
     treatment.index <- ncol(X) + 2
