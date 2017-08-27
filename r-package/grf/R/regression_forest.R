@@ -54,7 +54,7 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     
-    mtry <- validate_mtry(mtry)
+    mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
     min.node.size <- validate_min_node_size(min.node.size)
     sample.fraction <- validate_sample_fraction(sample.fraction)
@@ -121,13 +121,7 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
-    
-    if (is.null(num.threads)) {
-        num.threads <- 0
-    } else if (!is.numeric(num.threads) | num.threads < 0) {
-        stop("Error: Invalid value for num.threads")
-    }
-    
+    num.threads <- validate_num_threads(num.threads)
     variable.names <- character(0)
     
     if (estimate.variance) {

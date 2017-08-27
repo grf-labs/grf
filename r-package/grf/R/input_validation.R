@@ -9,10 +9,12 @@ validate_X <- function(X) {
   }
 }
 
-validate_mtry <- function(mtry) {
+validate_mtry <- function(mtry, X) {
   if (is.null(mtry)) {
-    mtry <- 0
-  } else if (!is.numeric(mtry) | mtry < 0) {
+    num.col = ncol(X)
+    default = ceiling(sqrt(num.col) + 20)
+    return(min(default, num.col))
+  } else if (!is.numeric(mtry) || mtry < 0) {
     stop("Error: Invalid value for mtry")
   }
   mtry
