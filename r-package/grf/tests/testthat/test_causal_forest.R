@@ -58,6 +58,6 @@ test_that("causal forest split frequencies are reasonable", {
   # we add variance corrections, this should no longer be necessary.
   ccc = causal_forest(X, Y, W, mtry = p, lambda=0.1, downweight.penalty=TRUE)
   split.freq = split_frequencies(ccc, 4)
-  expect_true(freq[1,p] / sum(freq[1,]) > 2/3)
+  expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })
 
