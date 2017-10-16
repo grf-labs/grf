@@ -8,6 +8,8 @@ The core forest implementation is written in C++, with an R interface powered by
 
 ### Code structure
 
+![GRF Architecture Diagram](https://github.com/swager/grf/blob/master/documentation/arch_diagram.png)
+
 The forest implementation is composed of two top-level components, [ForestTrainer](https://github.com/swager/grf/blob/master/core/src/forest/ForestTrainer.h) and [ForestPredictor](https://github.com/swager/grf/blob/master/core/src/forest/ForestPredictor.h).
 
 ForestTrainer drives the tree-growing process, and has two pluggable components.
