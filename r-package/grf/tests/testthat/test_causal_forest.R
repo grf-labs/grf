@@ -42,9 +42,9 @@ test_that("causal forests can split on the last parameter", {
 	Y = W * (X[,1] + X[,6]) + rnorm(n)
 	 
 	forest = causal_forest(X, Y, W)
-	split_frequencies = compute_split_frequencies(forest, 10)
+	split.freq = split_frequencies(forest, 10)
 
- 	expect_gt(sum(split_frequencies[,6]), 0)
+ 	expect_gt(sum(split.freq[,6]), 0)
 })
 
 test_that("causal forest split frequencies are reasonable", {
@@ -57,7 +57,7 @@ test_that("causal forest split frequencies are reasonable", {
   # Note that we increase alpha to ensure the test reliably passes. Once
   # we add variance corrections, this should no longer be necessary.
   ccc = causal_forest(X, Y, W, mtry = p, lambda=0.1, downweight.penalty=TRUE)
-  freq = split_frequencies(ccc, 4)
-  freq[1,p] / sum(freq[1,])
+  split.freq = split_frequencies(ccc, 4)
+  expect_true(freq[1,p] / sum(freq[1,]) > 2/3)
 })
 
