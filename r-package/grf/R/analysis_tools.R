@@ -49,5 +49,5 @@ get_tree = function(forest, index) {
 #' @export
 split_frequencies = function(forest, max.depth=4) {
   raw = compute_split_frequencies(forest, max.depth)
-  raw[,forest$feature.indices]
+  raw[,forest$feature.indices, drop = FALSE]
 }
