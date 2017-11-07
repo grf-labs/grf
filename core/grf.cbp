@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="grf"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="grf">
+				<Option output="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/grf" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir=""/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src"/>
+					<Add directory="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test"/>
+					<Add directory="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/third_party"/>
+					<Add directory="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/bayesopt"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/9.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 grf"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="grf/fast">
+				<Option output="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/grf" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir=""/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src"/>
+					<Add directory="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test"/>
+					<Add directory="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/third_party"/>
+					<Add directory="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/bayesopt"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/9.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 grf/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="release">
+				<Option working_dir="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 release"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="debug">
+				<Option working_dir="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 debug"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/Stanford/Generalized\ Random\ Forests/Code/grftuning/core/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/analysis/SplitFrequencyComputer.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/analysis/SplitFrequencyComputer.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/commons/DefaultData.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/commons/DefaultData.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/commons/Observations.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/commons/Observations.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/commons/utility.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/commons/utility.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/BayesoptSrc.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/BayesoptSrc.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/Forest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/Forest.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestOptions.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestOptions.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestPredictor.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestPredictor.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestPredictors.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestPredictors.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestTrainer.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestTrainer.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestTrainers.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/forest/ForestTrainers.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/CustomPredictionStrategy.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/CustomPredictionStrategy.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/InstrumentalPredictionStrategy.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/InstrumentalPredictionStrategy.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/ObjectiveBayesDebiaser.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/ObjectiveBayesDebiaser.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/Prediction.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/Prediction.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/PredictionValues.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/PredictionValues.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/QuantilePredictionStrategy.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/QuantilePredictionStrategy.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/RegressionPredictionStrategy.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/RegressionPredictionStrategy.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/collector/DefaultPredictionCollector.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/collector/DefaultPredictionCollector.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/collector/OptimizedPredictionCollector.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/prediction/collector/OptimizedPredictionCollector.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/relabeling/CustomRelabelingStrategy.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/relabeling/CustomRelabelingStrategy.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/relabeling/InstrumentalRelabelingStrategy.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/relabeling/InstrumentalRelabelingStrategy.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/relabeling/NoopRelabelingStrategy.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/relabeling/NoopRelabelingStrategy.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/relabeling/QuantileRelabelingStrategy.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/relabeling/QuantileRelabelingStrategy.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/sampling/RandomSampler.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/sampling/RandomSampler.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/sampling/SamplingOptions.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/sampling/SamplingOptions.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/serialization/ForestSerializer.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/serialization/ForestSerializer.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/serialization/ObservationsSerializer.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/serialization/ObservationsSerializer.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/serialization/PredictionValuesSerializer.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/serialization/PredictionValuesSerializer.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/serialization/TreeSerializer.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/serialization/TreeSerializer.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/ProbabilitySplittingRule.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/ProbabilitySplittingRule.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/RegressionSplittingRule.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/RegressionSplittingRule.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/RegularizedRegressionSplittingRule.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/RegularizedRegressionSplittingRule.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/factory/ProbabilitySplittingRuleFactory.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/factory/ProbabilitySplittingRuleFactory.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/factory/RegressionSplittingRuleFactory.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/factory/RegressionSplittingRuleFactory.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/factory/RegularizedRegressionSplittingRuleFactory.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/splitting/factory/RegularizedRegressionSplittingRuleFactory.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/tree/Tree.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/tree/Tree.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/tree/TreeOptions.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/tree/TreeOptions.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/tree/TreeTrainer.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/src/tree/TreeTrainer.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/analysis/SplitFrequencyUnitTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/commons/utilitytest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/forest/BayesoptTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/forest/CustomForestTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/forest/ForestCharacterizationTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/forest/ForestSmokeTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/forest/RegressionForestTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/prediction/InstrumentalPredictionStrategyTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/prediction/QuantilePredictionStrategyTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/prediction/RegressionPredictionStrategyTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/relabeling/InstrumentalRelabelingStrategyTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/relabeling/QuantileRelabelingStrategyTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/sampling/RandomSamplerTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/serialization/SerializationTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/setup.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/tree/TreePruningUnitTest.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/utilities/FileTestUtilities.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/utilities/FileTestUtilities.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/utilities/ForestTestUtilities.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/utilities/ForestTestUtilities.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/utilities/TestUtilities.cpp">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/test/utilities/TestUtilities.h">
+			<Option target="grf"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grftuning/core/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

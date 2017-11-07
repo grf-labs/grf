@@ -1,0 +1,436 @@
+1. Title of Database: Buzz prediction on Twitter
+
+
+2. Sources:
+   -- Creators : 
+        François Kawala (1,2) and 
+        Ahlame Douzal (1) and 
+        Eric Gaussier (1) and
+        Eustache Diemert (2)
+
+   -- Institutions : 
+        (1) Université Joseph Fourier (Grenoble I)
+            Laboratoire d'informatique de Grenoble (LIG)
+        (2) BestofMedia Group
+
+   -- Donor: BestofMedia (ediemert@bestofmedia.com)
+   -- Date: May, 2013
+
+
+3. Past Usage:
+   -- References : 
+        Predicting Buzz Magnitude in Social Media (in submission (ECML-PKDD 13))
+
+   -- Predicted attribute : 
+         Mean Number of display (ND). This attribute is a positive integer that describe
+         the popularity of the instance's topic. It is stored is the rightmost
+         column. 
+
+   -- Study results : 
+        The results achieved are acceptable, nevertheless the unbalanced nature
+        of this dataset leaves some room for improvement. The data may be scaled
+        and normalized. First order discrete difference over features may also 
+        be considered as additional features. Please see the reference to get
+        further details regarding the results.
+
+4. Relevant Information Paragraph:
+   -- Observations : 
+        Each instance covers height weeks of observation for a specific topic (eg. 
+        overclocking...). The predicted attribute's mean value is computed on the 
+        the couple weeks following this initial observation.
+
+        Observations are Independent and identically distributed.
+
+
+5. Number of Instances
+   -- Total number of instances : 282
+
+
+6. Number of Attributes 
+   -- Total number of attributes : 96. 
+
+   -- Time representation : 
+        Each instance is described by 96 features, those describe the evolution
+        of 12 `primary features' through time. Hence each feature name is 
+        postfixed with the relative time of observation. For instance, the value
+        of the feature `Nb_Active_Discussion' at time t is given in 
+        'Nb_Active_Discussion_t'.
+
+
+7. Attributes
+
+    -- Number of Created Discussions (NCD) (columns [0,7])
+
+       -- Type : Numeric, integers only 
+       -- Description : This feature measures the number of discussions created 
+          at time step t and involving the instance's topic.
+       -- Columns : From column 0 (NCD at relative time 0) to column 7 (NCD at 
+          relative time 7)
+       -- Abbreviations : NCD_0, NCD_1, NCD_2, NCD_3, NCD_4, NCD_5, NCD_6, NCD_7  
+       -- Statistics : 
+          +---------+-----+-----+-------+-------+
+          | feature | min | max | mean  | std   |
+          +---------+-----+-----+-------+-------+
+          | NCD_0   | 0   | 182 | 1.159 | 5.562 |
+          +---------+-----+-----+-------+-------+
+          | NCD_1   | 0   | 118 | 1.138 | 5.353 |
+          +---------+-----+-----+-------+-------+
+          | NCD_2   | 0   | 118 | 1.165 | 5.222 |
+          +---------+-----+-----+-------+-------+
+          | NCD_3   | 0   | 118 | 1.193 | 5.153 |
+          +---------+-----+-----+-------+-------+
+          | NCD_4   | 0   | 118 | 1.187 | 4.983 |
+          +---------+-----+-----+-------+-------+
+          | NCD_5   | 0   | 118 | 1.169 | 4.811 |
+          +---------+-----+-----+-------+-------+
+          | NCD_6   | 0   | 154 | 1.160 | 4.772 |
+          +---------+-----+-----+-------+-------+
+          | NCD_7   | 0   | 88  | 1.080 | 4.496 |
+          +---------+-----+-----+-------+-------+
+
+
+    -- Burstiness Level (BL) (columns [8,15])
+
+       -- Type : Numeric, defined on [0,1] 
+       -- Description : The burstiness level for a topic z at a time t is 
+          defined as the ratio of ncd and nad
+       -- Columns : From column 8 (BL at relative time 0) to column 15 (BL at 
+          relative time 7)
+       -- Abbreviations : BL_0, BL_1, BL_2, BL_3, BL_4, BL_5, BL_6, BL_7
+       -- Statistics : 
+          +---------+-----+-----+-------+-------+
+          | feature | min | max | mean  | std   |
+          +---------+-----+-----+-------+-------+
+          | BL_0    | 0   | 1   | 0.129 | 0.278 |
+          +---------+-----+-----+-------+-------+
+          | BL_1    | 0   | 1   | 0.131 | 0.280 |
+          +---------+-----+-----+-------+-------+
+          | BL_2    | 0   | 1   | 0.143 | 0.292 |
+          +---------+-----+-----+-------+-------+
+          | BL_3    | 0   | 1   | 0.150 | 0.299 |
+          +---------+-----+-----+-------+-------+
+          | BL_4    | 0   | 1   | 0.154 | 0.302 |
+          +---------+-----+-----+-------+-------+
+          | BL_5    | 0   | 1   | 0.159 | 0.307 |
+          +---------+-----+-----+-------+-------+
+          | BL_6    | 0   | 1   | 0.164 | 0.312 |
+          +---------+-----+-----+-------+-------+
+          | BL_7    | 0   | 1   | 0.150 | 0.300 |
+          +---------+-----+-----+-------+-------+
+
+
+    -- Average Discussions Length (NAD) (columns [16,23])
+
+       -- Type : Numeric, integer.
+       -- Description : This features measures the number of discussions
+          involving the instance's topic until time t.
+       -- Columns : From column 16 (NAD at relative time 0) to column 23 (NAD at
+          relative time 7)
+       -- Abbreviations : NAD_0, NAD_1, NAD_2, NAD_3, NAD_4, NAD_5, NAD_6, NAD_7
+       -- Statistics :
+          +---------+-----+-----+-------+--------+
+          | feature | min | max | mean  | std    |
+          +---------+-----+-----+-------+--------+
+          | NAD_0   | 0   | 217 | 2.649 | 10.948 |
+          +---------+-----+-----+-------+--------+
+          | NAD_1   | 0   | 210 | 2.617 | 10.766 |
+          +---------+-----+-----+-------+--------+
+          | NAD_2   | 0   | 210 | 2.666 | 10.526 |
+          +---------+-----+-----+-------+--------+
+          | NAD_3   | 0   | 210 | 2.699 | 10.286 |
+          +---------+-----+-----+-------+--------+
+          | NAD_4   | 0   | 210 | 2.650 | 9.792  |
+          +---------+-----+-----+-------+--------+
+          | NAD_5   | 0   | 194 | 2.580 | 9.267  |
+          +---------+-----+-----+-------+--------+
+          | NAD_6   | 0   | 170 | 2.509 | 8.797  |
+          +---------+-----+-----+-------+--------+
+          | NAD_7   | 0   | 185 | 2.388 | 8.396  |
+          +---------+-----+-----+-------+--------+
+
+
+    -- Author Increase (AI) (columns [24,31])
+
+       -- Type : Numeric, integers only 
+       -- Description : This featurethe number of new authors interacting on
+          the instance's topic at time t (i.e. its popularity)
+       -- Columns : From column 24 (AI at relative time 0) to column 31 (AI at 
+          relative time 7)
+       -- Abbreviations : AI_0, AI_1, AI_2, AI_3, AI_4, AI_5, AI_6, AI_7, AI_8   
+       -- Statistics : 
+          +---------+-----+-----+-------+-------+
+          | feature | min | max | mean  | std   |
+          +---------+-----+-----+-------+-------+
+          | AI_0    | 0   | 158 | 1.837 | 5.851 |
+          +---------+-----+-----+-------+-------+
+          | AI_1    | 0   | 146 | 1.897 | 6.198 |
+          +---------+-----+-----+-------+-------+
+          | AI_2    | 0   | 149 | 2.062 | 6.507 |
+          +---------+-----+-----+-------+-------+
+          | AI_3    | 0   | 161 | 2.178 | 6.942 |
+          +---------+-----+-----+-------+-------+
+          | AI_4    | 0   | 169 | 2.144 | 6.564 |
+          +---------+-----+-----+-------+-------+
+          | AI_5    | 0   | 149 | 2.059 | 6.132 |
+          +---------+-----+-----+-------+-------+
+          | AI_6    | 0   | 156 | 2.015 | 5.792 |
+          +---------+-----+-----+-------+-------+
+          | AI_7    | 0   | 160 | 1.987 | 5.935 |
+          +---------+-----+-----+-------+-------+
+
+
+    -- Number of Atomic Containers (NAC) (columns [32,39])
+
+       -- Type : Numeric, integer
+       -- Description : This feature measures the total number of atomic 
+          containers generated through the whole social media on the instance's topic until time t.
+       -- Columns : From column 32 (NAC at relative time 0) to column 39 (NAC at 
+          relative time 7)
+       -- Abbreviations : NAC_0, NAC_1, NAC_2, NAC_3, NAC_4, NAC_5, NAC_6, NAC_7
+       -- Statistics : 
+          +---------+-----+------+--------+--------+
+          | feature | min | max  | mean   | std    |
+          +---------+-----+------+--------+--------+
+          | NAC_0   | 0   | 1734 | 22.754 | 97.137 |
+          +---------+-----+------+--------+--------+
+          | NAC_1   | 0   | 1966 | 22.373 | 95.599 |
+          +---------+-----+------+--------+--------+
+          | NAC_2   | 0   | 1734 | 22.764 | 90.919 |
+          +---------+-----+------+--------+--------+
+          | NAC_3   | 0   | 1734 | 22.856 | 86.572 |
+          +---------+-----+------+--------+--------+
+          | NAC_4   | 0   | 1734 | 22.662 | 82.500 |
+          +---------+-----+------+--------+--------+
+          | NAC_5   | 0   | 1657 | 22.034 | 77.397 |
+          +---------+-----+------+--------+--------+
+          | NAC_6   | 0   | 1403 | 21.776 | 73.021 |
+          +---------+-----+------+--------+--------+
+          | NAC_7   | 0   | 1707 | 20.408 | 70.117 |
+          +---------+-----+------+--------+--------+
+
+
+    -- Number of displays (ND) (columns [40,47])
+
+       -- Type : Numeric, integer
+       -- Description : This feature gives the number of time discussions
+          relying on the instance's topic has been displayed by users.
+       -- Columns : From column 40 (ND at relative time 0) to column 47 
+          (ND at relative time 7)
+       -- Abbreviations : ND_0, ND_1, ND_2, ND_3, ND_4, ND_5, ND_6, ND_7
+       -- Statistics : 
+          +---------+-----+--------+----------+-----------+
+          | feature | min | max    | mean     | std       |
+          +---------+-----+--------+----------+-----------+
+          | ND_0    | 0   | 235271 | 2724.021 | 10136.708 |
+          +---------+-----+--------+----------+-----------+
+          | ND_1    | 0   | 197284 | 2660.790 | 9657.336  |
+          +---------+-----+--------+----------+-----------+
+          | ND_2    | 0   | 225099 | 2876.742 | 10699.834 |
+          +---------+-----+--------+----------+-----------+
+          | ND_3    | 0   | 207633 | 3180.817 | 11644.980 |
+          +---------+-----+--------+----------+-----------+
+          | ND_4    | 0   | 272256 | 3490.710 | 12968.661 |
+          +---------+-----+--------+----------+-----------+
+          | ND_5    | 0   | 272256 | 3693.204 | 13681.773 |
+          +---------+-----+--------+----------+-----------+
+          | ND_6    | 0   | 330561 | 3942.772 | 15026.515 |
+          +---------+-----+--------+----------+-----------+
+          | ND_7    | 0   | 272256 | 3830.376 | 14068.158 |
+          +---------+-----+--------+----------+-----------+
+
+
+    -- Contribution Sparseness (CS) (columns [48,55])
+
+       -- Type : Numeric, defined on [0,1] 
+       -- Description : This feature is a measure of spreading of contributions
+          over discussion for the instance's topic at time t.
+       -- Columns : From column 48 (CS at relative time 0) to column 55 
+          (CS at relative time 7)
+       -- Abbreviations : CS_0, CS_1, CS_2, CS_3, CS_4, CS_5, CS_6, CS_7
+       -- Statistics :
+          +---------+-----+-----+-------+-------+
+          | feature | min | max | mean  | std   |
+          +---------+-----+-----+-------+-------+
+          | CS_0    | 0   | 1   | 0.013 | 0.061 |
+          +---------+-----+-----+-------+-------+
+          | CS_1    | 0   | 1   | 0.013 | 0.059 |
+          +---------+-----+-----+-------+-------+
+          | CS_2    | 0   | 1   | 0.014 | 0.061 |
+          +---------+-----+-----+-------+-------+
+          | CS_3    | 0   | 1   | 0.015 | 0.060 |
+          +---------+-----+-----+-------+-------+
+          | CS_4    | 0   | 1   | 0.015 | 0.061 |
+          +---------+-----+-----+-------+-------+
+          | CS_5    | 0   | 1   | 0.016 | 0.062 |
+          +---------+-----+-----+-------+-------+
+          | CS_6    | 0   | 1   | 0.016 | 0.060 |
+          +---------+-----+-----+-------+-------+
+          | CS_7    | 0   | 1   | 0.015 | 0.056 |
+          +---------+-----+-----+-------+-------+
+
+
+
+    -- Author Interaction (AT) (columns [56,63])
+
+       -- Type : Numeric, integer.
+       -- Description : This feature measures the average number of authors
+          interacting on the instance's topic within a discussion.
+       -- Columns : From column 56 (AT at relative time 0) to column 63 
+          (AT at relative time 7)
+       -- Abbreviations : AT_0, AT_1, AT_2, AT_3, AT_4, AT_5, AT_6, AT_7
+       -- Statistics :
+          +---------+-----+-----+-------+-------+
+          | feature | min | max | mean  | std   |
+          +---------+-----+-----+-------+-------+
+          | AT_0    | 0   | 105 | 3.403 | 8.335 |
+          +---------+-----+-----+-------+-------+
+          | AT_1    | 0   | 98  | 3.401 | 8.290 |
+          +---------+-----+-----+-------+-------+
+          | AT_2    | 0   | 104 | 3.607 | 8.656 |
+          +---------+-----+-----+-------+-------+
+          | AT_3    | 0   | 106 | 3.735 | 8.789 |
+          +---------+-----+-----+-------+-------+
+          | AT_4    | 0   | 107 | 3.635 | 8.471 |
+          +---------+-----+-----+-------+-------+
+          | AT_5    | 0   | 107 | 3.612 | 8.420 |
+          +---------+-----+-----+-------+-------+
+          | AT_6    | 0   | 104 | 3.517 | 8.047 |
+          +---------+-----+-----+-------+-------+
+          | AT_7    | 0   | 106 | 3.477 | 7.934 |
+          +---------+-----+-----+-------+-------+
+
+
+    -- Number of Authors (NA) (columns [64,71])
+
+       -- Type : Numeric, integer.
+       -- Description : This feature measures the number of authors interacting
+          on the instance's topic at time t.
+       -- Columns : From column 64 (NA at relative time 0) to column 71 (NA at
+          relative time 7)
+       -- Abbreviations : NA_0, NA_1, NA_2, NA_3, NA_4, NA_5, NA_6, NA_7
+       -- Statistics :
+          +---------+-----+-----+-------+--------+
+          | feature | min | max | mean  | std    |
+          +---------+-----+-----+-------+--------+
+          | NA_0    | 0   | 313 | 5.223 | 18.771 |
+          +---------+-----+-----+-------+--------+
+          | NA_1    | 0   | 313 | 5.230 | 18.866 |
+          +---------+-----+-----+-------+--------+
+          | NA_2    | 0   | 313 | 5.374 | 18.465 |
+          +---------+-----+-----+-------+--------+
+          | NA_3    | 0   | 313 | 5.438 | 18.034 |
+          +---------+-----+-----+-------+--------+
+          | NA_4    | 0   | 313 | 5.315 | 16.997 |
+          +---------+-----+-----+-------+--------+
+          | NA_5    | 0   | 322 | 5.123 | 15.744 |
+          +---------+-----+-----+-------+--------+
+          | NA_6    | 0   | 264 | 4.951 | 14.531 |
+          +---------+-----+-----+-------+--------+
+          | NA_7    | 0   | 309 | 4.750 | 14.054 |
+          +---------+-----+-----+-------+--------+
+
+
+    -- Average Discussions Length (ADL) (columns [72,79])
+
+       -- Type : Numeric, real.
+       -- Description : This feature directly measures the average length of a 
+          discussion belonging to the instance's topic.
+       -- Columns : From column 72 (ADL at relative time 0) to column 19 (ADL at
+          relative time 7)
+       -- Abbreviations : ADL_0, ADL_1, ADL_2, ADL_3, ADL_4, ADL_5, ADL_6, ADL_7
+       -- Statistics :
+          +---------+-----+-----+--------+--------+
+          | feature | min | max | mean   | std    |
+          +---------+-----+-----+--------+--------+
+          | ADL_0   | 0   | 150 | 11.025 | 22.516 |
+          +---------+-----+-----+--------+--------+
+          | ADL_1   | 0   | 150 | 10.938 | 22.378 |
+          +---------+-----+-----+--------+--------+
+          | ADL_2   | 0   | 150 | 11.558 | 22.779 |
+          +---------+-----+-----+--------+--------+
+          | ADL_3   | 0   | 150 | 12.235 | 23.474 |
+          +---------+-----+-----+--------+--------+
+          | ADL_4   | 0   | 150 | 12.354 | 23.631 |
+          +---------+-----+-----+--------+--------+
+          | ADL_5   | 0   | 150 | 12.515 | 23.894 |
+          +---------+-----+-----+--------+--------+
+          | ADL_6   | 0   | 150 | 12.595 | 23.885 |
+          +---------+-----+-----+--------+--------+
+          | ADL_7   | 0   | 150 | 12.551 | 24.038 |
+          +---------+-----+-----+--------+--------+
+
+
+    -- Attention Level (measured with number of authors) (AS(NA)) 
+       (columns [80,87])
+
+       -- Type : Numeric, integer
+       -- Description : This feature is a measure of the attention payed to a 
+          the instance's topic on a social media.
+       -- Columns : From column 80 (AS(NAC) at relative time 0) to column 87 
+          (AS(NAC) at relative time 7)
+       -- Abbreviations : AS(NA)_0, AS(NA)_1, AS(NA)_2, AS(NA)_3, AS(NA)_4,
+          AS(NA)_5, AS(NA)_6, AS(NA)_7
+       -- Statistics : 
+          +----------+-----+-------+-------+-------+
+          | feature  | min | max   | mean  | std   |
+          +----------+-----+-------+-------+-------+
+          | AS(NA)_0 | 0   | 0.120 | 0.002 | 0.008 |
+          +----------+-----+-------+-------+-------+
+          | AS(NA)_1 | 0   | 0.129 | 0.002 | 0.008 |
+          +----------+-----+-------+-------+-------+
+          | AS(NA)_2 | 0   | 0.129 | 0.002 | 0.008 |
+          +----------+-----+-------+-------+-------+
+          | AS(NA)_3 | 0   | 0.159 | 0.002 | 0.008 |
+          +----------+-----+-------+-------+-------+
+          | AS(NA)_4 | 0   | 0.166 | 0.002 | 0.008 |
+          +----------+-----+-------+-------+-------+
+          | AS(NA)_5 | 0   | 0.166 | 0.002 | 0.008 |
+          +----------+-----+-------+-------+-------+
+          | AS(NA)_6 | 0   | 0.155 | 0.002 | 0.007 |
+          +----------+-----+-------+-------+-------+
+          | AS(NA)_7 | 0   | 0.147 | 0.002 | 0.007 |
+          +----------+-----+-------+-------+-------+
+
+
+    -- Attention Level (measured with number of contributions) (AS(NAC)) 
+       (columns [88,95])
+
+       -- Type : Numeric, integer
+       -- Description : This feature is a measure of the attention payed to a 
+          the instance's topic on a social media.
+       -- Columns : From column 28 (AS(NAC) at relative time 0) to column 34 
+          (AS(NAC) at relative time 6)
+       -- Abbreviations : AS(NAC)_0, AS(NAC)_1, AS(NAC)_2, AS(NAC)_3, AS(NAC)_4,
+          AS(NAC)_5, AS(NAC)_6, AS(NAC)_7
+       -- Statistics : 
+          +-----------+-----+-------+-------+-------+
+          | feature   | min | max   | mean  | std   |
+          +-----------+-----+-------+-------+-------+
+          | AS(NAC)_0 | 0   | 0.107 | 0.002 | 0.006 |
+          +-----------+-----+-------+-------+-------+
+          | AS(NAC)_1 | 0   | 0.130 | 0.002 | 0.006 |
+          +-----------+-----+-------+-------+-------+
+          | AS(NAC)_2 | 0   | 0.136 | 0.002 | 0.006 |
+          +-----------+-----+-------+-------+-------+
+          | AS(NAC)_3 | 0   | 0.153 | 0.002 | 0.006 |
+          +-----------+-----+-------+-------+-------+
+          | AS(NAC)_4 | 0   | 0.153 | 0.002 | 0.006 |
+          +-----------+-----+-------+-------+-------+
+          | AS(NAC)_5 | 0   | 0.147 | 0.002 | 0.006 |
+          +-----------+-----+-------+-------+-------+
+          | AS(NAC)_6 | 0   | 0.179 | 0.002 | 0.006 |
+          +-----------+-----+-------+-------+-------+
+          | AS(NAC)_7 | 0   | 0.188 | 0.002 | 0.006 |
+          +-----------+-----+-------+-------+-------+
+
+
+    -- Feature to predict (column 96)
+       -- Type : Numeric, real
+       -- Description : See 3. and 4.  
+       -- Columns : 96
+
+8. Missing Attribute Values:
+   -- There is not any missing values.  
+
+9. Class Distribution: 
+   -- This is a regression task.

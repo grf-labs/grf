@@ -1,0 +1,34 @@
+/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/kuangkun/Documents/R_code/grf/core
+CMake Warning (dev) at CMakeLists.txt:2 (cmake_minimum_required):
+  Compatibility with CMake < 2.4 is not supported by CMake >= 3.0.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+Compiler with C++11 support found.
+-- Configuring done
+CMake Warning (dev) at CMakeLists.txt:62 (add_executable):
+  Policy CMP0003 should be set before this line.  Add code such as
+
+    if(COMMAND cmake_policy)
+      cmake_policy(SET CMP0003 NEW)
+    endif(COMMAND cmake_policy)
+
+  as early as possible but after the most recent call to
+  cmake_minimum_required or cmake_policy(VERSION).  This warning appears
+  because target "grf" links to some libraries for which the linker must
+  search:
+
+    bayesopt
+
+  and other libraries with known full path:
+
+    /Users/kuangkun/Documents/R_code/grf/core/bayesopt/lib/libnlopt.a
+
+  CMake is adding directories in the second list to the linker search path in
+  case they are needed to find libraries from the first list (for backwards
+  compatibility with CMake 2.4).  Set policy CMP0003 to OLD or NEW to enable
+  or disable this behavior explicitly.  Run "cmake --help-policy CMP0003" for
+  more information.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Generating done
+-- Build files have been written to: /Users/kuangkun/Documents/R_code/grf/core
