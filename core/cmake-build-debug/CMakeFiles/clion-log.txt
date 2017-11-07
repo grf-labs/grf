@@ -1,0 +1,9 @@
+/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" "/Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grf/core"
+CMake Warning (dev) at CMakeLists.txt:2 (cmake_minimum_required):
+  Compatibility with CMake < 2.4 is not supported by CMake >= 3.0.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+Compiler with C++11 support found.
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/kuangkun/Documents/Stanford/Generalized Random Forests/Code/grf/core/cmake-build-debug

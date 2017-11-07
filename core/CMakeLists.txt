@@ -19,6 +19,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 
 
+#set(CMAKE_CXX_STANDARD 98)
 ## ======================================================================================##
 ## In Clang pthread flag only for compiler, not for linker. For
 ## windows use static linking
@@ -34,7 +35,8 @@ endif()
 ## ======================================================================================##
 ## Subdirectories and source files
 ## ======================================================================================##
-include_directories(src test third_party)
+include_directories(src test third_party bayesopt)
+
 file(GLOB_RECURSE SOURCES src/*.cpp test/*.cpp)
 
 ## ======================================================================================##
@@ -57,5 +59,14 @@ ADD_CUSTOM_TARGET(release
 ## ======================================================================================##
 ## Executable
 ## ======================================================================================##
-add_executable(grf ${SOURCES})
+add_executable(grf ${SOURCES} test/forest/BayesoptTest.cpp)
+#include_directories(/Users/kuangkun/Documents/R_code/bayesopt)
+#link_directories(/Users/kuangkun/Documents/R_code/bayesopt/lib)
+#TARGET_LINK_LIBRARIES(grf bayesopt /Users/kuangkun/Documents/R_code/bayesopt/lib/libnlopt.a)
+#link_directories(bayesopt_package/lib)
+
+
+#TARGET_LINK_LIBRARIES(grf ${CMAKE_SOURCE_DIR}/bayesopt/include/bayesopt ${CMAKE_SOURCE_DIR}/bayesopt/lib/libnlopt.a)
+
+TARGET_LINK_LIBRARIES(grf bayesopt libnlopt.a)
 
