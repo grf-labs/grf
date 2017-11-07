@@ -1,0 +1,44 @@
+data: AirFoil
+Best Query: [3](1,1,0.474638)
+Best Outcome: 4.11578
+Best Outcome with 5000 trees: 3.49592
+Elapsed time: 62.4625 seconds
+
+data: BeijingPM2.5
+
+
+data: BikeSharing_day
+Best Query: [3](0.99871,5.96573,0.49009)
+Best Outcome: 28045.8
+Best Outcome with 5000 trees: 22146.2
+Elapsed time: 73.8049 seconds
+
+data: BikeSharing_hour
+
+
+data: CommunityCrimes
+Best Query: [3](0.841557,1,0.279256)
+Best Outcome: 0.0171034
+Best Outcome with 5000 trees: 0.0163489
+Elapsed time: 332.956 seconds
+
+
+data: EnergyData
+
+
+data: FBComments
+
+
+data: TomsHardware
+
+data: winequality-red
+Best Query: [3](0.999543,1,0.32875)
+Best Outcome: 0.32469
+Best Outcome with 5000 trees: 0.305606
+Elapsed time: 71.9084 seconds
+
+data: winequality-white
+Best Query: [3](0.596203,1,0.336524)
+Best Outcome: 0.378782
+Best Outcome with 5000 trees: 0.351624
+Elapsed time: 162.264 seconds
