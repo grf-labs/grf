@@ -1,0 +1,76 @@
+/*!  \page contriblib Contribute to the library
+\tableofcontents
+
+\section addcomp Adding components
+
+Thanks to the modular design, adding new components is very easy. Most
+of the inner functions (kernels, criteria, etc.) are designed as
+functors (function objects). Thus, we just need to inherit from the
+interface (abstract) functor or one of the existing functions. Then,
+we need to include the reference in the corresponding factory module
+and the new functor would be automatically integrated, including
+advanced usage (for example: annealing).
+
+Although it would be more efficient to use a template system. The
+functors are instantiated dynamically using a factory model. This
+allows great flexibility without recompiling the library, which is
+specially important while using interpreted languages (Python, Matlab,
+etc.).
+
+\subsection addfunct Adding functors (kernels, criteria and mean functions)
+
+The three elements follow the same structure. The interface (abstract
+class) and the factory model are defined in the \c *_functors.hpp and
+\c *_functors.cpp files, respectively.
+
+Then, there are two types of functors: atomic and combined. Atomic
+functors are used to define directly a function (e.g.: a Gaussian
+kernel) and they return a value. Combined functors are used to combine
+2 or more functors (e.g.: sum of kernels), which can be atomic or
+combined (e.g.: a sum of products of kernels).
+
+Combined kernels and mean functions only allows binary expressions -2
+elements- as they represent associative functions (sum, product,
+etc.). Meanwhile combined criteria support any number of elements (see
+cHedge function in \ref combcri).
+
+Finally, add the corresponding register with the new function name in
+the Factory model in \c *_functors.cpp
+
+\section modpy Modifying the Python interface:
+
+Read this part <B>only if you need to modify</B> the Python interface.
+
+\subsection instcython Install Cython:
+
+First, you need to install Cython:
+
+In \b Ubuntu/Debian, you can get it by running:
+\verbatim
+>> sudo apt-get install cython
+\endverbatim
+
+In \b MacOS you can install macports and run:
+\verbatim
+>> sudo port install py27-cython
+\endverbatim
+
+Or we can download it from the website: http://cython.org 
+
+\subsection modcython Working with Cython:
+
+The interface is defined in \c python/bayesopt.pyx file, which is
+written in Cython, a mixture of C and Python code. For more
+information, check the online documentation http://docs.cython.org/
+
+Then, you need to run the Cython compiler.
+
+\verbatim
+$ cython --cplus bayesopt.pyx
+\endverbatim
+
+which generates the file \c python/bayesopt.cpp, which can be directly
+used in the library. Python would only find the library if it is
+called exactly \c bayesopt.so
+
+*/

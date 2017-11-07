@@ -1,0 +1,21 @@
+MATPLOT++ (MATLAB-like plotting tool in C++)
+Copyright (c) 2011 Yuichi Katori All Rights Reserved
+Author: Yuichi Katori (yuichi.katori@gmail.com)
+
+Getting Started
+------------------------------------------
+
+To install a required library on ubuntu
+
+$ sudo apt-get install freeglut3-dev
+
+To compile MATPLOT++ library, type as following:
+
+$ tar xvf matplotpp-0.3.x.tar
+$ cd matplotpp
+$ make
+
+To compile examples:
+
+$ cd examples
+$ make

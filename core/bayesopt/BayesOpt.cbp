@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="BayesOpt"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bo_cont">
+				<Option output="/Users/kuangkun/Documents/R_code/bayesopt/bin/bo_cont" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DUSE_SOBOL"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/include"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/utils"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/sobol"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/9.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 bo_cont"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bo_cont/fast">
+				<Option output="/Users/kuangkun/Documents/R_code/bayesopt/bin/bo_cont" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DUSE_SOBOL"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/include"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/utils"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/sobol"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/9.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 bo_cont/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/strip">
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bayesopt">
+				<Option output="/Users/kuangkun/Documents/R_code/bayesopt/lib/libbayesopt.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DUSE_SOBOL"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/include"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/utils"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/sobol"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/9.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 bayesopt"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bayesopt/fast">
+				<Option output="/Users/kuangkun/Documents/R_code/bayesopt/lib/libbayesopt.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/kuangkun/Documents/R_code/bayesopt"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DUSE_SOBOL"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/include"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/utils"/>
+					<Add directory="/Users/kuangkun/Documents/R_code/bayesopt/sobol"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/9.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 bayesopt/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/kuangkun/Documents/R_code/bayesopt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/examples/bo_cont.cpp">
+			<Option target="bo_cont"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/sobol/sobol.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/sobol/sobol.hpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/sobol/sobol_i4.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/sobol/sobol_i8.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/bayesoptbase.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/bayesoptcont.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/bayesoptdisc.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/bopt_state.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/conditionalbayesprocess.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/criteria_functors.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/criteria_hedge.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/dataset.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/gauss_distribution.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/gaussian_process.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/gaussian_process_hierarchical.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/gaussian_process_ml.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/gaussian_process_normal.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/inneroptimization.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/kernel_functors.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/kernelregressor.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/mcmc_sampler.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/mean_functors.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/nonparametricprocess.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/parameters.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/posterior_empirical.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/posterior_fixed.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/posterior_mcmc.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/posteriormodel.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/student_t_distribution.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/student_t_process_jef.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/student_t_process_nig.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/src/wrappers/bayesoptwpr.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/utils/fileparser.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/utils/fileparser.hpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/utils/param_loader.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/utils/param_loader.hpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/utils/parser.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/utils/parser.hpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/utils/ublas_extra.cpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/utils/ublas_extra.hpp">
+			<Option target="bayesopt"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/kuangkun/Documents/R_code/bayesopt/cmake/UseDoxygen.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

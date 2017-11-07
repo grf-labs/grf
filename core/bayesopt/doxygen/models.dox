@@ -1,0 +1,435 @@
+/*! \page bopttheory Bayesian optimization
+\tableofcontents
+
+\section introbopt Introduction to Bayesian Optimization
+
+Many problems in engineering, computer science, economics, etc.,
+require to find the extremum of a real valued function. These
+functions are typically continuous and sometimes smooth (e.g.:
+Lipschitz continuous). However, those functions do not have a
+closed-form expression or might be multimodal, where some of the local
+extrema might have a bad outcome compared to the global extremum. The
+evaluation of those functions might be costly.
+
+Global optimization is a special case of non-convex optimization where
+we want to find the global extremum of a real valued function, that
+is, the target function. The search is done by some pointwise
+evaluation of the target function.
+
+The objective of a global optimization algorithm is to find the
+sequence of points
+\f[
+x_n \in \mathcal{A} \subset \mathbb{R}^m , \;\;\; n = 1,2,\ldots
+\f]
+which converges to the point \f$x^*\f$, that is, the extremum of the
+target function, when \f$n\f$ is large. The algorithm should be able to
+find that sequence at least for all functions from a given family.
+
+As explained in \cite Mockus94, this search procedure is a sequential
+decision making problem where point at step \f$n+1\f$ is based on decision
+\f$d_n\f$ which considers all previous data:
+\f[
+x_{n+1} = d_n(x_{1:n},y_{1:n})
+\f]
+where \f$y_i = f(x_i) + \epsilon_i\f$. For simplicity, many works assume
+\f$\epsilon_i = 0\f$, that is, function evaluations are
+deterministic. However, we can easily extend the description to
+include stochastic functions (e.g.: homoscedastic noise \f$\epsilon_i
+\sim \mathcal{N}(0,\sigma)\f$).
+
+The search method is the sequence of decisions \f$d = {d_0,\ldots,
+d_{n-1}}\f$, which leads to the final decision \f$x_{n} = x_{n}(d)\f$. In
+most applications, the objective is to optimize the response of the
+final decisions. Then, the criteria relies on the \a optimality
+\a error or \a optimality \a gap, which can be expressed as:
+\f[
+\delta_n(f,d) = f\left(x_n\right) - f(x^*)
+\f]
+In other applications, the objective may require to converge to \f$x^*\f$
+in the input space. Then, we can use for example the <em>Euclidean
+distance error</em>:
+\f[
+\delta_n(f,d) = \|x_n - x^*\|_2 \label{eq:dist-error}
+\f]
+The previous equations can also be interpreted as variants of the
+\a loss function for the decision at each step. Thus, the optimal
+decision is defined as the function that minimizes the loss function:
+\f[
+d_n = \arg \min_d \delta_n(f,d) 
+\f]
+This requires full knowledge of function \f$f\f$, which is
+unavailable. Instead, let assume that the target function \f$f = f(x)\f$
+belongs to a family of functions \f$f \in F\f$, e.g.: continuous functions
+in \f$\mathbb{R}^m\f$. Let also assume that the function can be
+represented as sample from a probability distribution over functions
+\f$f \sim P(f)\f$. Then, the best response case analysis for the search
+process is defined as the decision that optimizes the expectation of
+the loss function:
+\f[
+d^{BR}_n = \arg \min_d \mathbb{E}_{P(f)} \left[
+\delta_n(f,d)\right]= \arg \min_d \int_F \delta_n(f,d) \; dP(f)
+\f]
+where \f$P\f$ is a prior distribution over functions.
+
+However, we can improve the equation considering that, at decision
+\f$d_n\f$ we have already \a observed the actual response of the
+function at \f$n-1\f$ points, \f$\{x_{1:n-1},y_{1:n-1}\}\f$. Thus, the prior
+information of the function can be updated with the observations and
+the Bayes rule:
+\f[
+  P(f|x_{1:n-1},y_{1:n-1}) = \frac{P(x_{1:n-1},y_{1:n-1}|f) P(f)}{P(x_{1:n-1},y_{1:n-1})}
+\f]
+In fact, we can actually rewrite the equation to represent the updates
+sequentially:
+\f[
+  P(f|x_{1:i},y_{1:i}) = \frac{P(x_{i},y_{i}|f) P(f|x_{1:i-1},y_{1:i-1})}{P(x_{i},y_{i})}, \qquad \forall \; i=1 \ldots n-1
+\f]
+Thus, the previous equation can be rewritten as:
+\f[
+d^{BO}_n = \arg \min_d \mathbb{E}_{P(f|x_{1:n-1},y_{1:n-1})} \left[ \delta_n(f,d)\right] = \arg \min_d \int_F \delta_n(f,d) \; dP(f|x_{1:n-1},y_{1:n-1})     
+\f]
+This equation is the root of <em>Bayesian optimization</em>, where the
+Bayesian part comes from the fact that we are computing the
+expectation with respect to the posterior distribution, also called
+\a belief, over functions. Therefore, Bayesian optimization is a
+memory-based optimization algorithm.
+
+As commented before, most of the theory of Bayesian optimization is
+related to deterministic functions, we consider also stochastic
+functions, that is, we assume there might be a random error in the
+function output. In fact, evaluations can produce different outputs if
+repeated. In that case, the target function is the expected
+output. Furthermore, in a recent paper by \cite Gramacy2012 it has
+been shown that, even for deterministic functions, it is better to
+assume certain error in the observation. The main reason being that,
+in practice, there might be some mismodelling errors which can lead to
+instability of the recursion if neglected.
+
+\section modbopt Bayesian optimization general model
+
+In order to simplify the description, we are going to use a special
+case of Bayesian optimization model defined previously which
+corresponds to the most common application. In subsequent Sections we
+will introduce some generalizations for different applications.
+
+Without loss of generality, consider the problem of finding the
+minimum of an unknown real valued function \f$f:\mathbb{X} \rightarrow
+\mathbb{R}\f$, where \f$\mathbb{X}\f$ is a compact space, \f$\mathbb{X}
+\subset \mathbb{R}^d, d \geq 1\f$. Let \f$P(f)\f$ be a prior distribution
+over functions represented as a stochastic process, for example, a
+Gaussian process \f$\mathbf{x}i(\cdot)\f$, with inputs \f$x \in \mathbb{X}\f$ and an
+associate kernel or covariance function \f$k(\cdot,\cdot)\f$. Let also
+assume that the target function is a sample of the stochastic process
+\f$f \sim \mathbf{x}i(\cdot)\f$.
+
+In order to find the minimum, the algorithm has a maximum budget of
+\f$N\f$ evaluations of the target function \f$f\f$. The purpose of the
+algorithm is to find optimal decisions that provide a better
+performance at the end.
+
+One advantage of using Gaussian processes as a prior distributions
+over functions is that new observations of the target function
+\f$(x_i,y_i)\f$ can be easily used to update the distribution over
+functions. Furthermore, the posterior distribution is also a Gaussian
+process \f$\mathbf{x}i_i = \left[ \mathbf{x}i(\cdot) | x_{1:i},y_{1:i}
+\right]\f$. Therefore, the posterior can be used as an informative prior
+for the next iteration in a recursive algorithm.
+
+In a more general setting, many authors have suggested to modify the
+standard zero-mean Gaussian process for different variations that
+include semi-parametric models \cite Huang06 \cite Handcock1993 \cite Jones:1998 \cite OHagan1992, use of hyperpriors on the parameters
+\cite MartinezCantin09AR \cite Brochu:2010c \cite Hoffman2011, Student
+t processes \cite Gramacy_Polson_2009 \cite Sacks89SS \cite Williams_Santner_Notz_2000, etc.
+
+We use a generalized linear model of the form:
+\f[
+  f(x) = \phi(\mathbf{x})^T \mathbf{w} + \epsilon(\mathbf{x})
+\f]
+where
+\f[
+  \epsilon(\mathbf{x}) \sim \mathcal{NP} \left( 0, \sigma^2_s (\mathbf{K}(\theta) + \sigma^2_n \mathbf{I}) \right)
+\f]
+The term \f$\mathcal{NP}\f$ means a non-parametric process, which can
+make reference to a Gaussian process \f$\mathcal{GP}\f$ or a Student's
+t process \f$\mathcal{TP}\f$. In both cases, \f$\sigma^2_n\f$ is the
+observation noise variance, sometimes called nugget, and it is problem
+specific. Many authors decide to fix this value \f$\sigma^2_n = 0\f$
+when the function \f$f(x)\f$ is deterministic, for example, a computer
+simulation. However, as cleverly pointed out in \cite Gramacy2012,
+there might be more reasons to include this term appart from being the
+observation noise, for example, to consider model inaccuracies.
+
+This model has been presented in different ways depending on the field
+where it was used:
+\li As a generalized linear model \f$\phi(\mathbf{x})^T\mathbf{w}\f$ with heteroscedastic
+perturbation \f$\epsilon(\mathbf{x})\f$.
+\li As a nonparametric process of the form \f$\mathcal{NP} \left(\phi(\mathbf{x})^T\mathbf{w},
+\sigma^2_s (\mathbf{K}(\theta) + \sigma^2_n \mathbf{I}) \right)\f$.
+\li As a semiparametric model \f$f(\mathbf{x}) = f_{par}(\mathbf{x}) + f_{nonpar}(\mathbf{x}) =
+\phi(\mathbf{x})^T\mathbf{w} + \mathcal{NP}(\cdot)\f$
+
+\section modelopt Models and functions
+
+This library was originally developed for as part of a robotics
+research project \cite MartinezCantin09AR \cite MartinezCantin07RSS,
+where a Gaussian process with hyperpriors on the mean and signal
+covariance parameters. Then, the metamodel was constructed using the
+Maximum a Posteriory (MAP) of the parameters. By that time, it only
+supported one kernel function, one mean function and one criterion.
+
+However, the library now has grown to support many more surrogate
+models, with different distributions (Gaussian processes,
+Student's-t processes, etc.), with many kernels and mean
+functions. It also provides different criteria (even some combined
+criteria) so the library can be used to any problem involving some
+bounded optimization, stochastic bandits, active learning for
+regression, etc.
+
+\subsection surrmod Surrogate models
+
+As seen in Section \ref modopt this library implements only one
+general regression model. However, we can assign a set of priors on
+the parameters of the model \f$\mathbf{w}\f$, \f$\sigma_s^2\f$ (the
+kernel hyperparameter will be discussed in Section \ref
+learnker). Thus, the options are:
+
+\li "sGaussianProcess": a standard Gaussian process where the
+hyperparameters are known.
+\li "sGaussianProcessML": a standard Gaussian process where the
+hyperparameters are estimated directly from data using maximum
+likelihood estimates.
+\li "sGaussianProcessNormal": a Gaussian process with a Normal 
+prior on the mean function parameters \f$\mathbf{w}\f$ and known 
+\f$\sigma_s^2\f$.
+\li "sStudentTProcessJef": in this case we use the Jeffreys prior 
+for \f$\mathbf{w}\f$ and \f$\sigma_s^2\f$. This is a kind of 
+uninformative prior which is invariant to reparametrizations. Once
+we set a prior on \f$\sigma_s^2\f$ the posterior becomes a Student's
+t Process.
+\li "sStudentTProcessNIG": in this case we standard conjugate priors,
+that is, a Normal prior on \f$\mathbf{w}\f$ and a Inverse Gamma on 
+\f$\sigma_s^2\f$. Therefore, the posterior is again a Student's t process.
+
+Gaussian processes are a very general model that can achieve good
+performance with a reasonable computational cost. However, Student's t
+processes, thanks to the hierarchical structure of priors, provide an
+even more general setup for a minor extra cost. Furthermore, the
+Student's t distribution is robust to outliers and heavy tails in the
+data.
+
+\subsection kermod Kernel (covariance) models
+
+One of the critical components of Gaussian and Student's t processes
+is the definition of the kernel function, which defines the
+correlation between points in the input space. As a correlation
+function, the kernel must satisfy a set of properties (e.g.: being
+positive definite). All the kernel models available and its
+combinations satisfy the kernel restrictions.
+
+The functions with \b "ISO" in their name are \a isotropic function,
+that is, they share a single set of parameters for all the dimensions
+of the input space.
+
+The functions with \b "ARD" in their name use <em>Automatic Relevance
+Determination</em>, that is, they use independent parameters for every
+dimension of the problem. Therefore, they can be use to find the \a
+relevance of the each feature in the input space. In the limit, this
+can be used for feature selection.
+
+\subsubsection singker Atomic kernels
+\li "kConst": a simple constant function.
+\li "kLinear", "kLinearARD": a linear function.
+\li "kMaternISO1",
+"kMaternISO3","kMaternISO5","kMaternARD1","kMaternARD3","kMaternARD5":
+Matern kernel functions. The number divided by 2 represents the order
+of the function. See \cite Rasmussen:2006 for a description.
+\li "kPolyX": Polynomial kernel function. X is a number 1-6 which
+represents the exponent of the function.
+\li "kSEARD","kSEISO": Squared exponential kernel, also known as
+Gaussian kernel.
+\li "kRQISO": Rational quadratic kernel, also known as Student's t
+kernel.
+
+\subsubsection combker Binary kernels
+This kernels allow to combine some of the previous kernels.
+\li "kSum": Sum of kernels.
+\li "kProd": Product of kernels.
+
+Note that the binary kernels only admits two terms. However, we can
+combine them for more complex operations. For example if we write:
+
+"kSum(kMaternISO3,kSum(kRQISO,kProd(kPoly4,kConst))"
+
+it represents the expresion: Matern(3) + RationalQuadratic + C*Polynomial^4 
+
+In this case, the vector of parameters is splited from left to right:
+1 for the Matern function, 2 for the RQ function, 2 for polynomial
+function and 1 for the constant. If the vector of parameters have more
+or less than 6 elements, the system complains.
+
+\subsection parmod Parametric (mean) functions
+
+Although the nonparametric process is able to model a large amount of
+funtions, we can model the expected value of the nonparametric process
+as a parametric function. This parametric model will help to capture
+large offsets and global trends. 
+
+The usage is analogous to the kernel functions.
+
+\li "mZero","mOne","mConst": constant functions. For simplicity and
+because they are largely used, we provide special cases f(x) = 0 and
+f(x) = 1.
+\li "mLinear": linear function.
+\li "mSum": binary function which can be used to combine other functions.
+
+\subsection critmod Selection criteria
+
+As discussed in \ref introbopt, one of the critical aspects for
+Bayesian optimization is the decision (loss) function. Unfortunately,
+the functions described there are unavailable, because they assume
+knowledge of the optimal value \f$x^*\f$. However, we can define proxies for
+those functions.
+
+Some criteria, such as the expected improvement and the lower
+confidence bound admits an annealed version "cXXXa". In that version,
+the parameter that is used to trade off exploration and exploitation
+changes over time to priorize exploration at the begining and
+exploitation at the end.
+
+Many criteria depends on the prediction function, which can be a
+Gaussian or a Student's t distribution, depending on the surrogate
+model. However, the library includes all the criteria for both
+distributions, and the system automatically selected the correct one.
+
+\subsubsection atomcri Atomic criteria
+
+\li "cEI","cBEI","cEIa": The most extended and reliable algorithm is
+the Expected Improvement algorithm \cite Mockus78. In this case we
+provide the general version from \cite Schonlau98 which includes an
+exponent to trade off exploration and exploitation "cEI". For an
+annealed version of the exploration/exploitation trade off, use
+"cEIa". Whe also includes a variation from \cite Mockus1989 which add
+a \a bias or \a threshold to the improvement "cBEI".
+\li "cLCB", "cLCBa": Another popular algorithm is the Lower Confidence
+Bound (LCB), or UCB in case of maximization. Introduced by 
+\cite cox1992statistical as Sequential Design for Optimization
+(SDO). Analogously, "cLCBa" represents an annealed version of the
+exploration/exploitation trade off.
+\li "cMI": A generalized version of the LCB criterion which relies on
+the mutual information. See \cite Contal2014
+\li "cPOI": Probability of improvement, by \cite Kushner:1964
+\li "cExpReturn","cThompsonSampling","cOptimisticSampling": This
+criteria are related with the predicted return of the function. The
+first one is literally the expected return of the function (mean
+value). The second one is based on the Thompson sampling (drawing a
+random sample from the predicted distribution). Finally, the
+optimistic sampling takes the minimum of the other two (mean vs random).
+\li "cAopt": This is based on the A-optimality criteria. It is the
+predicted variance at the query point. Thus, this criteria is intended
+for \b exploration of the input space, not for optimization.
+\li "cDistance": This criteria adds a cost to a query point based on
+the distance with respect to the previous evaluation. Combined with other
+criteria functions, it might provide a more realistic setup for certain
+applications \cite Marchant2012
+
+
+\subsubsection combcri Combined criteria
+
+\li "cSum","cProd": Sum and product of different criteria functions.
+\li "cHedge", "cHedgeRandom": Bandit based selection of the best
+criteria based on the GP-Hedge algorithm \cite Hoffman2011. It
+automatically learns based on the behaviour of the criteria during the
+optimization process. The original version "cHedge" uses the maximum
+expected return as a \a reward for each criteria. We add a variant
+"cHedgeRandom" where the \a reward is defined in terms of Thompson
+sampling.
+
+In this case, the combined criteria admits more that two
+functions. For example:
+
+"cHedge(cSum(cEI,cDistance),cLCB,cPOI,cOptimisticSampling)"
+
+\subsection learnmod Methods for learning the kernel parameters  
+
+The posterior distribution of the model, which is necessary to compute
+the criterion function, cannot be computed in closed form if the
+kernel hyperparameters are unknown. Thus, we need a find to
+approximate this posterior distribution conditional on the kernel
+hyperparameters.
+
+First, we need to consider if we are going to use a full Bayesian
+approach or an empirical Bayesian approach. The first one, computes
+the full posterior distribution by propagation of the uncertainty of
+each element and hyperparameter to the posterior. In this case, it can
+be done by discretization of the hyperparameter space or by using MCMC
+(not yet implemented). In theory, it is more precise but the
+computation burden can be orders of magnitude higher. The empirical
+approach on the other hand computes a point estimate of the
+hyperparameters based on some score function and use it as a "true"
+value. Although the uncertainty estimation in this case might not be
+as accurate as the full Bayesian, the computation overhead is minimal.
+
+For the score function, we need to find the likelihood function of the
+observed data for the parameters. Depending on the model, this
+function will be a multivariate Gaussian distribution or multivariate
+t distribution. In general, we present the likelihood as a
+log-likelihood function up to a constant factor, that is, we remove
+the terms independent of \f$\theta\f$ from the log likelihood. In
+practice, whether we use a point estimate (maximum score) or full
+Bayes MCMC/discrete posterior, the constant factor is not needed.
+
+We are going to consider the following score functions to learn the kernel
+hyperparameters:
+
+\li Leave one out cross-validation (SC_LOOCV): In this case, we try to maximize the
+average predicted log probability by the <em>leave one out</em> (LOO)
+cross-validation strategy. This is sometimes called a pseudo-likelihood.
+
+\li Maximum Total Likelihood (SC_MTL) For any of the models presented, one
+approach to learn the hyperparameters is to maximize the likelihood of
+all the parameters \f$\mathbf{w}\f$, \f$\sigma_s^2\f$ and
+\f$\theta\f$. Then, the likelihood function is a multivariate Gaussian
+distribution. We can obtain a better estimate if we adjust the number
+of degrees of freedom, this is called <em>restricted maximum
+likelihood</em>. The library automatically selects the restricted
+version, if it is suitable.
+
+\li Posterior maximum likelihood (SC_ML): In this case, the likelihood
+function is modified to consider the posterior estimate of
+\f$(\mathbf{w},\sigma_s^2)\f$ based on the different cases defined in
+Section \ref surrmods. In this case, the function will be a
+multivariate Gaussian or t distribution, depending on the kind of
+prior used for \f$\sigma_s^2\f$.
+
+\li Maximum a posteriori (SC_MAP): We can modify the previous
+algorithms by adding a prior distribution \f$p(\theta)\f$. By default,
+we add a joint normal prior on all the kernel
+hyperparameters. However, if the variance of the prior \a hp_std is
+invalid (<=0), then we assume a flat prior on that
+hyperparameter. Since we assume that the hyperparameters are
+independent, we can apply priors selectively only to a small set.
+
+\subsection initdes Initial design methods
+
+In order to build a suitable surrogate function, we a need a
+preliminar set of samples. In Bayesian optimization this is typically
+performed using alternative experimental design criteria. In this
+first step, usually the main criteria is space filling. Thus, we have
+implemented the subsequent designs:
+
+\li Latin hypercube sampling: Each dimension of the space is divided
+in several intervals. Samples are then taken according to a
+generalization of the Latin square
+scheme. http://en.wikipedia.org/wiki/Latin_hypercube_sampling
+
+\li Sobol sequences: It is a set of quasi-random low-discrepancy
+sequences. Thus the space is sampled more evenly than with uniform
+sampling. http://en.wikipedia.org/wiki/Sobol_sequence
+
+\li Uniform sampling: The search space is sampled uniformly.
+
+Note: Since we do not assume any struture in the set of discrete
+points during discrete optimization, only uniform sampling of the
+discrete set is available in that case.
+
+*/

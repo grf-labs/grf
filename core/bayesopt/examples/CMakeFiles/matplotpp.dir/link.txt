@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libmatplotpp.a  CMakeFiles/matplotpp.dir/Users/kuangkun/Documents/R_code/bayesopt/matplotpp/matplotpp.cc.o CMakeFiles/matplotpp.dir/Users/kuangkun/Documents/R_code/bayesopt/matplotpp/gl2ps.c.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libmatplotpp.a

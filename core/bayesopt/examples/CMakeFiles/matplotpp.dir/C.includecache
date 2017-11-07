@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/kuangkun/Documents/R_code/bayesopt/matplotpp/gl2ps.c
+gl2ps.h
+/Users/kuangkun/Documents/R_code/bayesopt/matplotpp/gl2ps.h
+math.h
+-
+string.h
+-
+sys/types.h
+-
+stdarg.h
+-
+time.h
+-
+float.h
+-
+zlib.h
+-
+png.h
+-
+
+/Users/kuangkun/Documents/R_code/bayesopt/matplotpp/gl2ps.h
+stdio.h
+-
+stdlib.h
+-
+windows.h
+-
+OpenGL/gl.h
+-
+GL/gl.h
+-
+
