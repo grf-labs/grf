@@ -25,7 +25,7 @@
 
 
 TEST_CASE("forests don't crash when there are fewer trees than threads", "[forest]") {
-  Data *data = load_data("test/forest/resources/gaussian_data.csv");
+  Data *data = load_data("../test/forest/resources/gaussian_data.csv");
   uint outcome_index = 10;
   double alpha = 0.10;
 

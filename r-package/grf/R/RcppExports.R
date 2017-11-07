@@ -57,3 +57,7 @@ regression_predict_oob <- function(forest_object, input_data, variable_names, nu
     .Call('_grf_regression_predict_oob', PACKAGE = 'grf', forest_object, input_data, variable_names, num_threads, ci_group_size)
 }
 
+selftuning_train <- function(input_data, outcome_index, variable_names, mtry_l, mtry_r, min_node_size_l, min_node_size_r, sample_faction_l, sample_faction_r) {
+    .Call('_grf_selftuning_train', PACKAGE = 'grf', input_data, outcome_index, variable_names, mtry_l, mtry_r, min_node_size_l, min_node_size_r, sample_faction_l, sample_faction_r)
+}
+
