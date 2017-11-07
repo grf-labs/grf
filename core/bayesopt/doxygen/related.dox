@@ -1,0 +1,53 @@
+/*!  \page  relsoft Related software
+
+\section relbopt Bayesian optimization with Gaussian process
+
+\li Limbo (C++11): A lightweight framework for Bayesian and
+model-based optimisation of black-box functions
+(C++11). https://github.com/jbmouret/limbo
+
+\li pybo (Python): A Python package for modular Bayesian
+optimization. https://github.com/mwhoffman/pybo
+
+\li Spearmint (Python): A library based on \cite Snoek2012. It is more
+oriented to cluster computing. It provides time based
+criteria. Implemented in Python with interface also to Matlab
+https://github.com/JasperSnoek/spearmint
+
+\li DiceOptim (R): It adds optimization capabilities to
+DiceKriging. See \cite Roustant2012 and
+http://cran.r-project.org/web/packages/DiceOptim/index.html
+
+\section relbopt2 Bayesian optimization with other models
+
+\li SMAC (Java): A library based on \cite HutHooLey11-smac. It uses
+random forests as surrogate model. Intended for hyperparameter
+optimization. It has Python interface through HPOlib \cite EggFeuBerSnoHooHutLey13. 
+http://www.cs.ubc.ca/labs/beta/Projects/SMAC/
+
+\li Hyperopt (Python): A library mainly based on \cite Bergstra2011. 
+It uses trees of Parzen estimators for the surrogate
+model https://github.com/jaberg/hyperopt
+
+\section relkrig Related surrogate modeling software
+
+\li Perk (Fortran+Shell): A library for surrogate modelling. It was
+mainly used to illustrate the results in \cite Santner03. 
+http://www.stat.osu.edu/~comp_exp/book.html
+
+\li SUMO (Matlab+Java): A library for surrogate modelling using
+Gaussian processes. Its main purpose it is not optimization but it
+also includes a demo with the Expected Imporvement
+algorithm. http://www.sumowiki.intec.ugent.be/Main_Page
+
+\li GPML (Matlab): The most popular library for Gaussian
+Process. BayesOpt uses some of its design
+principles. http://www.gaussianprocess.org/gpml/code/matlab/doc/
+
+\section relnopt Related nonlinear optimization software
+
+\li NLOPT (C): One of the best libraries for general purpose nonlinear
+optimization. It has intefaces for a large number of programming
+languages. http://ab-initio.mit.edu/wiki/index.php/NLopt
+
+*/

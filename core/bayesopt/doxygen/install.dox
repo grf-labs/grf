@@ -1,0 +1,425 @@
+/*! \page install Installing BayesOpt
+\tableofcontents
+
+The core of BayesOpt uses standard C/C++ code (C++98) so it can be
+compiled from many C++ compilers (gcc, clang, MSVC...). The library
+also include wrappers for Python, Matlab and Octave interfaces.
+
+First, choose the install instructions based on your operating system:
+\li \ref unixinst
+\li \ref cinwin
+
+Once you have installed the library with your desired interface, you can \ref testing
+
+For an advanced installation, you can read \ref confinst and you can get a detailed explanation of
+the dependencies needed in \ref getDepend.
+
+<HR>
+
+\section unixinst Install in Linux/MacOS
+
+The compilation is very similar in any *nix system. Following these
+instructions, the library will be compiled using the default
+configuration. You can modify that easily as explained in 
+\ref confinst
+
+\subsection cinlinux Linux:
+For Ubuntu/Debian, the minimum dependencies (C/C++) can be optained by running:
+\verbatim
+>> sudo apt-get install libboost-dev cmake cmake-curses-gui g++
+\endverbatim
+
+If you want the Python interface:
+\verbatim
+>> sudo apt-get install python-dev python-numpy
+\endverbatim
+
+If you want the Octave interface (note that the \a octave package does not include all the necessary files):
+\verbatim
+>> sudo apt-get install octave-headers
+\endverbatim
+
+And for all dependencies:
+\verbatim
+>> sudo apt-get install libboost-dev python-dev python-numpy cmake cmake-curses-gui g++ cython octave-headers freeglut3-dev
+\endverbatim
+
+\subsection cinmac MacOS:
+This section assumes \b macports is installed. Similar packages can be
+found in \b fink or \b homebrew. For the minimal install, run:
+\verbatim
+>> sudo port install boost gcc47 cmake
+\endverbatim
+
+If you want the Python interface:
+\verbatim
+>> sudo port install python27 py27-numpy
+\endverbatim
+
+If you want the Octave interface:
+\verbatim
+>> sudo port install octave
+\endverbatim
+
+Again, for all dependencies:
+\verbatim
+>> sudo port install boost python27 py27-numpy gcc47 cmake py27-cython octave freeglut
+\endverbatim
+
+
+\subsection compile Compile the library:
+In order to compile the source code in a *nix system, run this from a
+terminal.
+\verbatim
+>> cmake . 
+>> make
+>> sudo make install
+\endverbatim
+
+\b Important: If you use \b ccmake instead of \b cmake you will access a graphical
+interface to select features such as the include the Python and Matlab interfaces,
+debug/release mode or if you want to use shared libraries or not. More details about how
+to configure it can be found in \ref confinst
+
+\subsubsection docbuild Building the documentation
+
+If you have doxygen installed on your computer, you can compile the
+documentation right after compiling the code by running.
+\verbatim
+>> make doc
+\endverbatim
+Thid documentation will appear in the "doc" subdirectory.
+
+
+\subsection instpython Python interface:
+
+Both Python development files (Python.h) and Numpy are needed if you
+want the python interface. The library has been tested with Python
+2.5, 2.6 and 2.7. The interface relies on Numpy arrays. If we want to
+select the option to compile the Python interface we can just run:
+\verbatim
+>> cmake -DBAYESOPT_PYTHON_INTERFACE=ON . 
+\endverbatim
+or 
+\verbatim
+>> ccmake . 
+\endverbatim
+and select the corresponding option.
+
+\b Important: Python requires a special module with shared access and
+nonstandard name. Thus, it will build a separate module called
+"bayesopt.so". This module can be accessible from Python provided that
+it is in the PYTHONPATH or sys.path. It cannot be linked to any
+executable or other libraries. Use libbayesopt.* instead.
+
+\subsubsection notepython Issues with multiple Python versions:
+
+CMake has a special system to find the Python dependencies. However,
+sometimes, in systems where there are several instances of Python
+installed, it can find mixed dependencies.
+
+If you find an error about incorrect Python versions or include files,
+you can fix this by checking the Python depencies found by CMake. Run:
+\verbatim
+>> ccmake . 
+\endverbatim
+and press "t" to select advanced features. Then, look if the PYTHON_*
+variables point to the same install/version. Once it has been
+fixed. Press "c" several times to run the CMake processor. Finally,
+press "g" to generate the corresponding Makefiles.
+
+\subsection instmatlab MATLAB/Octave interface:
+
+Make sure the library is compiled with the MATLAB_COMPATIBLE option
+using ccmake. For Mac OS they must be shared. 
+
+\subsubsection Generate interface from Octave 
+
+Run the script compile_octave.m, which can be found in the \em
+/matlab/ directory.
+
+If bayesopt or nlopt are compiled as \b shared libraries, then, at run
+time, Octave also needs to access to the libraries. For example,
+LD_LIBRARY_PATH must include the folder where the libraries are. If
+the install path is the default, you can execute the
+exportlocalpath.sh script before calling MATLAB.
+
+\subsubsection Generate interface from Matlab 
+
+First, configure Matlab to compile mex files if you have not done that
+before. Run to check the supported compilers and select the appropiate:
+\verbatim
+>> mex -setup
+\endverbatim
+
+Run the script compile_matlab.m, which can be found in the \em
+/matlab/ directory.
+
+If bayesopt or nlopt are compiled as \b shared libraries, then, at run
+time, MATLAB also needs to access to the libraries. For example,
+LD_LIBRARY_PATH must include the folder where the libraries are. If
+the install path is the default, you can execute the
+exportlocalpath.sh script before calling MATLAB.
+
+
+\subsubsection notematlab Issues on libstdc++ linking:
+
+<ul>
+<li> Matlab for *nix OS may ship outdated libraries for gcc (e.g.: 4.3 in
+2011b). You might get errors like this one:
+\verbatim
+/usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/cc1: /usr/local/MATLAB/R2010b/sys/os/glnxa64/libstdc++.so.6: version `GLIBCXX_3.4.14' not found (required by /usr/lib/libppl_c.so.2)
+\endverbatim
+
+The solution is to change the symbolic links
+in /matlabroot/sys/os/glnx86 for \em libgcc_s.so.1
+and \em libstdc++.so.6 to point to the system libraries, which
+typically can be found in /lib or /usr/lib.
+
+
+<li> On MacOS there are known issues both in Matlab and Octave about the compiler linking with
+the worng std++ library for different reasons. See:
+<ul> 
+<li> http://www.mathworks.com/matlabcentral/newsreader/view_thread/291752
+<li> https://mailman.cae.wisc.edu/pipermail/octave-maintainers/2012-January/026341.html
+</ul>
+</ul>
+
+<HR>
+
+\section cinwin Install in Windows and other systems
+Install this components:
+\li CMake: http://www.cmake.org
+\li Boost: http://www.boost.org
+\li MinGW(optional): http://www.mingw.org
+\li FreeGLUT(optional): http://freeglut.sourceforge.net/
+
+First, you need to compile the library from sources using a C++
+compiler. If you do not have a C++ compiler, we recomend
+MinGW+MSYS. In order to configure the compiler and link the
+dependencies we recomend CMake.
+
+CMake for Windows provides a nice GUI where you can select your
+favorite C++ compiler (MinGW, Visual Studio, etc.). It will
+automatically create the necesary configuration files for the compiler
+(makefile, solution, etc.). In CMake you need to set the paths of the
+Boost and FreeGLUT to allow the compiler to find them. 
+
+Since Boost they are pure template libraries, they do not require any
+install/compilation steps in advance. Just make sure the headers are
+on the include path. You can also add an entry named BOOST_ROOT in
+CMake with the corresponding path to the library.
+
+Once CMake have generated the corresponding configuration file, you
+still need to compile the sources. If you use MinGW, just run:
+\verbatim
+>> mingw32-make
+\endverbatim
+from the Command Prompt or PowerShell. 
+
+If you use Visual Studio, make sure the compilation is set to Release
+mode and not Debug mode. Although the mode is defined in CMake, Visual
+Studio tends to ignore that.
+
+The most important options/variables are explained in \ref confinst.
+
+\subsection instmatlabwin MATLAB/Octave interface:
+
+Make sure the library is compiled with the MATLAB_COMPATIBLE option
+and configure Matlab/Octave to compile mex files. For example, in
+Matlab you can run to check the supported compilers:
+\verbatim
+>> mex -setup
+\endverbatim
+
+Run the corresponding script compile_matlab.m or compile_octave.m,
+which can be found in the \em /matlab/ directory. 
+
+If bayesopt or nlopt are compiled as \b shared libraries, then, at run
+time, MATLAB/Octave also needs to access to the libraries. You can
+modify the PATH variable or copy the dll files in the same bolder as
+the generated mexfile.
+
+\b Important: It is strongly recommended to compile bayesopt with
+exactly the same compiler that was select for mex files. For a list of
+the supported compilers for your Matlab version, you can check the
+online docs at mathworks. 
+
+\subsubsection matlabmingw MATLAB and MinGW
+
+Unfortunately, MinGW has never been suported by Matlab. Thus I have
+also included a Makefile to generate the mex files outside Matlab. You
+might need to change the \c MATLABROOT path with the root folder of
+your Matlab install and copy the dlls. Then, run \c mingw32-make. Note
+that \c mingw32-make only supports 32 bits libraries, so you need a 32
+bit version of Matlab. There is a fork of MinGW with 64 bit support
+under development, but it has not been tested here.
+
+\subsection instpythonwin Python interface:
+
+The Python interface has not been tested in \b Windows because getting
+the correct dependencies is highly involved. You might need to
+download and install:
+\li Python (binary and \b sources): http://www.python.org
+\li Numpy: http://new.scipy.org/download.html 
+
+Also, read this article about how to link everything:
+http://docs.python.org/2/extending/windows.html#building-on-windows
+
+<HR>
+
+\section testing Test the installation.
+
+The library includes several test program that can be found in the \em
+bin folder. Furthermore, there are test programs respectively under
+the \em python and \em matlab folders.  They provide examples of the
+different interfaces that BayesOpt provide.
+
+<ol>
+<li> Run \b bo_branin. It should found one of the minima
+shown at the end of the run.
+
+If this does not work, it might be because the program is not finding
+the correct dynamic libraries:
+<ul>
+<li> In Windows, you can copy the DLLs to your working folder or
+include the lib folder in the system PATH.
+
+<li> In some *nix systems, including Ubuntu, Debian and Mac OS, the
+library is installed by default in /usr/local/lib/. However, this
+folder is not included by default in the linker or Matlab paths by
+default. This is specially critical when building shared
+libraries. The script \em exportlocalpaths.sh makes sure that the
+folder with the libraries is included in all the necessary
+paths. 
+
+<li> The Python package is compiled in a different file and installed
+in the proper folder by default (site-packages). Thus, the Python
+interface should work out of the box in Linux and Mac OS.
+
+</ul>
+
+<li> Python: the scrip \b demo_quad gives a quick overview of all the
+features of the Python interface. The function to optimize is a
+5-dimensional quadratic function \f$x^* = [0.3]^5\f$ and \f$y^* =
+5.0\f$. The discrete version just consider only 100 points randomly
+distributed in the \f$[0,1]^5\f$ box, so the result might differ from
+the actual optimum.
+
+<li> Matlab/Octave: the scrip \b runtest also is configured to run
+different sets of test, the first one also on the Branin function.
+</ol>
+<HR>
+
+\section confinst Configure the compilation/install
+
+CMake allows to configure the compilation using some variables (see
+for example how to compile the Python module in Linux). These
+variables can be set in Linux/MacOS from the command line with the -D
+flag:
+\verbatim
+>> cmake -DVARIABLE=VALUE .
+\endverbatim
+For example
+\verbatim
+>> cmake -DCMAKE_BUILD_TYPE=Debug .
+\endverbatim
+
+If you use ccmake in Linux/MacOS or CMake for Windows, you can access
+to a list of all the variables and their values. Just modify the value
+of the desired variable.
+
+\subsection instshared Compile as shared libraries
+
+We can select if we want BayesOpt and NLOPT compiled as shared libraries
+\verbatim
+BAYESOPT_BUILD_SHARED=ON 
+NLOPT_BUILD_SHARED=ON
+\endverbatim
+In this case, we also need to force rebuild NLOPT (by default it is
+not compiled if it is found in the system).
+
+\subsection instpath Install the library in a different path
+
+CMake allows to select the install path before compilation
+compilation. You just need to change the CMAKE_INSTALL_PREFIX
+variable.
+\verbatim
+CMAKE_INSTALL_PREFIX=/your/desired/path
+\endverbatim
+
+
+\subsection mininst Minimal installation (fast compilation)
+
+Sobol sequences can be used to for the initial design (see \ref
+initpar). In many cases, the performance is similar to latin hypercube
+sampling, however including the Sobol components increases
+considerably the library size and the compilation time. Thus, it can
+be removed from compilation:
+\verbatim
+BAYESOPT_BUILD_SOBOL=OFF
+\endverbatim
+Similarly, we can avoid to compile the example files and demos:
+\verbatim
+BAYESOPT_BUILD_EXAMPLES=OFF
+\endverbatim
+
+<HR>
+
+\section getDepend Dependencies
+
+CMake: The easiest way to compile this library is using the cross platform
+and cross compiler tool <a href="http://www.cmake.org/">CMake</a>.
+
+Boost: This code uses Boost libraries for matrix operations (uBlas), random
+number generation, math functions and smart pointers. Boost can
+be found in many Linux and MacOS repositories. It can also be
+downloaded from http://www.boost.org.
+
+OpenGL/FreeGLUT (optional): It is used for the demos that include visualization.
+
+Python/Numpy (optional): Both Python development files (Python.h) and
+Numpy are needed if you want the Python interface. The library has
+been tested with Python 2.6 and 2.7. The interface relies on Numpy
+arrays.
+
+Matlab/Octave (optional): The library is compatible with any Matlab
+from 2010 and Octave. If you want the Matlab interface, just make sure
+you have a C++ compiler compatible with your Matlab version.
+
+NLOPT (included): A LGPL library for nonlinear optimization. It has been slightly
+modified and include the corresponding CMake files.
+
+Sobol (included): A LGPL library to generate Sobol sequences. 
+
+Matplotpp (included): A GPL library for visualization and plotting. The code
+included in this package includes some bug-fixes and compiling
+issues. It requires OpenGL/GLUT.
+
+
+\section comptests Compatibility tests
+
+| API    |  Linux |  MacOS |  Win/MinGW   |  Win/MSVC |
+|--------|--------|--------|--------------|-----------|
+| C/C++  | OK     | OK     | OK           | OK        |
+| Matlab | OK     | OK     | OK (32 bits) | OK        |
+| Octave | OK     | OK     | No test      | No test   |
+| Python | OK     | OK     | No test      | No test   |
+
+\subsection notetests Notes on tested systems: 
+- Linux: Debian 6.0, Ubuntu from 11.04
+- MacOS: 10.6 (Snow Leopard)
+- MS Windows: XP, Vista, 7
+
+Compilers:
+- gcc: different versions from 4.1
+- clang: version 2.7
+- MinGW: version from 0.5
+- MSVC: Visual Studio Professional 2012, Express 2010-2012
+
+Interfaces
+- Matlab from 2010a
+- Octave from version 3.2
+- Python from version 2.5 (not tested on Python 3)
+
+*/

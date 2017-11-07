@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>BayesOpt by rmcantin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">BayesOpt</h1>
+      <h2 class="project-tagline">BayesOpt: A toolbox for bayesian optimization, experimental design and stochastic bandits.</h2>
+      <a href="https://github.com/rmcantin/bayesopt" class="btn">View on GitHub</a>
+      <a href="https://github.com/rmcantin/bayesopt/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/rmcantin/bayesopt/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="bayesopt-a-bayesian-optimization-library" class="anchor" href="#bayesopt-a-bayesian-optimization-library" aria-hidden="true"><span class="octicon octicon-link"></span></a>BayesOpt: A Bayesian optimization library</h1>
+
+<p>BayesOpt is an efficient implementation of the Bayesian optimization
+methodology for nonlinear-optimization, experimental design,
+stochastic bandits and hyperparameter tunning. In the literature it is
+also called Sequential Kriging Optimization (SKO), Sequential
+Model-Based Optimization (SMBO) or Efficient Global Optimization
+(EGO).</p>
+
+<p>Bayesian optimization uses a distribution over functions to build a
+model of the unknown function for we are looking the extrema, and then
+apply some active learning strategy to select the query points that
+provides most potential interest or improvement. Thus, it is a
+sampling efficient method for nonlinear optimization, design of
+experiments or bandits-like problems.</p>
+
+<h2>
+<a id="getting-and-installing-bayesopt" class="anchor" href="#getting-and-installing-bayesopt" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting and installing BayesOpt</h2>
+
+<p>The library can be download from any of this sources:</p>
+
+<ul>
+<li>Download: <a href="https://bitbucket.org/rmcantin/bayesopt">https://bitbucket.org/rmcantin/bayesopt</a>
+</li>
+<li>Mirror: <a href="https://github.com/rmcantin/bayesopt">https://github.com/rmcantin/bayesopt</a>
+</li>
+<li>Mirror: <a href="http://mloss.org/software/view/453/">http://mloss.org/software/view/453/</a>
+</li>
+</ul>
+
+<p>You can also get the <em>cutting-edge</em> version from the repositories:</p>
+
+<pre><code>&gt;&gt; hg clone https://bitbucket.org/rmcantin/bayesopt
+</code></pre>
+
+<p>or the git mirror:</p>
+
+<pre><code>&gt;&gt; git clone https://github.com/rmcantin/bayesopt
+</code></pre>
+
+<p>The install guide and documentation for Windows, Linux and MacOS:</p>
+
+<ul>
+<li><a href="http://rmcantin.bitbucket.org/html/">Online docs</a></li>
+</ul>
+
+<h2>
+<a id="using-bayesopt-for-academic-or-commercial-purposes" class="anchor" href="#using-bayesopt-for-academic-or-commercial-purposes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using BayesOpt for academic or commercial purposes</h2>
+
+<p>BayesOpt is licensed under the GPL and it is free to use. However,
+please consider these recomentations when using BayesOpt:</p>
+
+<ul>
+<li>If you use BayesOpt in a work that leads to a <strong>scientific
+publication</strong>, we would appreciate it if you would kindly cite BayesOpt
+in your manuscript. Cite BayesOpt as:</li>
+</ul>
+
+<blockquote>
+<p>Ruben Martinez-Cantin, <strong>BayesOpt: A Bayesian Optimization
+Library for Nonlinear Optimization, Experimental Design and
+Bandits</strong>. Journal of Machine Learning Research, 15(Nov):3735--3739, 2014.</p>
+</blockquote>
+
+<p>The paper can be found at <a href="http://jmlr.org/papers/v15/martinezcantin14a.html">http://jmlr.org/papers/v15/martinezcantin14a.html</a>
+In addition, if you <strong>use a specific algorithm</strong> (REMBO, GP-Hedge,
+etc.), please also cite the corresponding work. The reference for each
+specific algorithm can be found in the documentation.</p>
+
+<ul>
+<li>Commercial applications may also adquire a <strong>commercial license</strong> or ask for consulting support. Please
+contact <a href="mailto:rmcantin@unizar.es">rmcantin@unizar.es</a> for details.</li>
+</ul>
+
+<h2>
+<a id="getting-involved" class="anchor" href="#getting-involved" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting involved</h2>
+
+<p>The best place to ask questions and discuss about BayesOpt is the
+<a href="https://groups.google.com/forum/#!forum/bayesopt-discussion">bayesopt-discussion mailing
+list</a>. Alternatively,
+you may directly contact Ruben Martinez-Cantin <a href="mailto:rmcantin@unizar.es">rmcantin@unizar.es</a>.</p>
+
+<p>Please file bug reports or suggestions at: </p>
+
+<ul>
+<li>
+<a href="https://bitbucket.org/rmcantin/bayesopt/issues">https://bitbucket.org/rmcantin/bayesopt/issues</a> or</li>
+<li><a href="https://github.com/rmcantin/bayesopt/issues">https://github.com/rmcantin/bayesopt/issues</a></li>
+</ul>
+
+<hr>
+
+<p>Copyright (C) 2011-2015 Ruben Martinez-Cantin <a href="mailto:rmcantin@unizar.es">rmcantin@unizar.es</a></p>
+
+<p>BayesOpt is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.</p>
+
+<p>BayesOpt is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU General Public License
+along with BayesOpt. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+
+<hr>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/rmcantin/bayesopt">BayesOpt</a> is maintained by <a href="https://github.com/rmcantin">rmcantin</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-41494186-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>

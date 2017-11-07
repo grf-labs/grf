@@ -1,0 +1,223 @@
+/*! \page demos Demos and examples
+\tableofcontents
+
+We have include a descriptions of the different demos than can be
+found in the library. Most of them are used to highlight the
+capabilities of the Bayesian optimization framework or the
+characteristics of the library.
+
+\b Important: Some demos requires extra dependencies to work. They
+will be mention in each demo.
+
+\section cppdemos C/C++ demos
+
+These demos are automatically compiled and installed with the
+library. They can be found in the \c /bin subfolder. The source code
+of these demos is in \c /examples
+
+\subsection quadcpp Quadratic examples (continuous and discrete)
+
+\b bo_cont and \b bo_disc provides examples of the C (callback) and
+C++ (inheritance) interfaces for a simple quadratic function. They are
+the best starting point to start playing with the library.
+
+\subsection onedcpp Interactive 1D test
+
+\b bo_oned deals with a more interesting, yet simple, multimodal 1D
+function. \b bo_display shows the same example, but includes an
+interactive visualization tool to show the features of different
+configurations, like different surrogate and criteria functions
+(Important: bo_display requires CMake to find OpenGL and GLUT/FreeGLUT
+to be compiled).
+
+Note: For some NVIDIA setups, you might need to preload the Pthreads dynamic library. For example, in Linux
+
+\verbatim
+>> LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ./bin/bo_display
+\endverbatim
+
+\image html doxygen/oned.jpg
+
+\subsection stdcpp Standalone optimization module
+
+BayesOpt can also be used to optimize a standalone application either using CLI for sending parameters and receiving output (see \b branin_system_call) or by using XML files to message passing (see \b branin_xml). Both demos use the Branin function defined in the next section.
+
+\subsection brcpp Standard nonlinear function benchmarks
+
+\subsubsection braninfunc Branin function
+
+\b bo_branin_* are different examples using the 2D Branin function, which is
+a standard function to evaluate nonlinear optimization algorithms.
+
+\f[
+f(x,y) = \left(y-\frac{5.1}{4\pi^2}x^2 + \frac{5}{\pi}x-6\right)^2 + 10\left(1-\frac{1}{8\pi}\right) \cos(x) + 10
+\f]
+
+with a search domain \f$-5 \leq x \leq 10\f$, \f$0 \leq y \leq 15\f$.
+
+\image html doxygen/branin.png
+
+For simplicity to display and use the function, the function used in
+the code has already been normalized in the [0,1] interval. Then, the
+function has three global minimum. The position of those points (after
+normalization) are:
+
+\f{align*}{
+x &= 0.1239, y = 0.8183\\
+x &= 0.5428, y = 0.1517  \qquad \qquad f(x,y) = 0.397887\\
+x &= 0.9617, y = 0.1650
+\f}
+
+\b bo_branin use sporadically an empirical estimator (MAP) for kernel
+hyperparameters. Really fast.
+
+\b bo_branin_mcmc use continuously a Bayesian estimator (MCMC) for
+kernel hyperparameters. Much slower but much more robuts. Although for
+this function the robustness is not as critical, it might be an issue
+for more complex or high-dimensional functions.
+
+\subsubsection hart6func Hartmann6 function
+
+\b bo_hartmann_* are different examples using the 6D Hartmann function, which is
+a standard function to evaluate nonlinear optimization algorithms.
+
+\f{align*}{
+f(\mathbf{x}) &= - \sum_{i=1}^{4} \alpha_i \left( -\sum_{j=1}^{6} A_{ij} \left( x_j - P_{ij}\right)^2 \right)\\
+\alpha &= \left( 1.0, 1.2, 3.0, 3.2 \right)^T\\
+A &= \left(\begin{array}{cccccc}
+  10   & 3  & 17 & 3.50 & 1.7 & 8 \\
+  0.05 & 10 & 17 & 0.1  & 8   & 14 \\
+  3    & 3.5 & 1.7 & 10  & 17 & 8 \\
+  17  & 8 & 0.05 & 10  & 0.1  & 14 
+  \end{array}\right) \\
+P &= 10^{-4} \left(\begin{array}{cccccc}
+  1312 & 1696 & 5569 & 124 & 8283 & 5886 \\
+  2329 & 4135 & 8307 & 3736 & 1004 & 9991 \\
+  2348 & 1451 & 3522 & 2883 & 3047 & 6650 \\
+  4047 & 8828 & 8732 & 5743 & 1091 & 381 
+  \end{array}\right)
+\f}
+with a search domain \f$x_i \in (0,1) \qquad \forall i=1\ldots6\f$.
+
+The global minimum is: 
+\f[
+\mathbf{x}^* = \left(0.2069, 0.150011, 0.476874, 0.275332, 0.311652, 0.6573 \right) \qquad \qquad f(\mathbf{x}^*) = -3.32237
+\f]
+
+\subsubsection camelfunc Camelback function
+
+\b bo_camel_* are different examples using the 2D Camelback function, which is
+a standard function to evaluate nonlinear optimization algorithms.
+
+\f[
+f(x,y) = \left(4 - 2.1x^2 + \frac{x^4}{3}\right) x^2 + x y + \left(-4 + 4y^2\right) y^2
+\f]
+
+with a search domain \f$-2 \leq x \leq 2\f$, \f$-1 \leq y \leq 1\f$.
+
+\image html doxygen/camelback.png
+
+There are two global minima:
+
+\f{align*}{
+x &= 0.0898, y = -0.7126\\
+x &= -0.0898, y = 0.7126 \qquad \qquad f(x,y) = -1.0316
+\f}
+
+
+\section pydemos Python demos
+
+These demos use the Python interface of the library. They can be found
+in the \c /python subfolder.
+
+Make sure that the interface has been generated and that it can be
+found in the corresponding path (i.e. PYTHONPATH).
+
+\subsection pyapidemo Interface test
+
+\b demo_quad provides an simple example (quadratic function). It shows
+the continuous and discrete cases and it also compares the standard
+(Cython) and the object oriented interfaces. It is the best starting
+point to start playing with the Python interface.
+
+\b demo_dimscaling shows a 20 dimensional quadratic function with
+different smoothness in each dimension. It also show the speed of the
+library for <em>high dimensional functions</em>.
+
+\b demo_distance is equivalent to the demo_quad example, but it
+includes a penalty term with respect to the distance between the
+current and previous sample. For example, it can be used to model
+sampling strategies which includes a mobile agent, like a robotic
+sensor as seen in \cite Marchant2012.
+
+\subsection pyproc Multiprocess demo
+
+\b demo_multiprocess is a simple example that combines BayesOpt with
+the standard Python multiprocessing library. It shows how simple
+BayesOpt can be used in a parallelized setup, where one process is
+dedicated for the BayesOpt and the rests are dedicated to function
+evaluations. Also, it shows that BayesOpt is thread-safe.
+
+\subsection pycam Computer Vision demo
+
+\b demo_cam is a demonstration of the potetial of BayesOpt for
+parameter tuning. The advantage of using BayesOpt versus traditional
+strategies is that it only requires knowledge of the <em>desired
+behavior</em>, while traditional methods for parameter tuning requires
+deep knowledge of the algorithm and the meaning of the parameters.
+
+In this case, it takes a simple example (image binarization) and show
+how optimizing a simple behavior (balanced white/black result) could
+match the result of the adaptive thresholding from Otsu's method
+-default in SimpleCV-. Besides, it finds the optimal with few samples
+(typically between 10 and 20). It can also be used as reference for
+hyperparameter optimization.
+
+demo_cam requires SimpleCV and a compatible webcam.
+
+\section matdemos MATLAB/Octave demos
+
+These demos use the Matlab interface of the library. They can be found
+in the \c /matlab subfolder.
+
+Make sure that the interface has been generated. If the library has
+been generated as a shared library, make sure that it can be found in
+the corresponding path (i.e. LD_LIBRARY_PATH in Linux/MacOS) before
+running MATLAB/Octave.
+
+\subsection matapidemo Interface test
+
+\b demo_test shows the discrete and continuous interface. The
+objective function can be selected among all the functions defined in
+the \c /matlab/testfunctions subfolder, which includes a selection of
+standard test functions for nonlinear optimization. By default, the
+test run these functions:
+
+- Branin
+- Quadratic function (discrete version)
+- Hartmann 6D
+
+However, these functions are also available for testing:
+
+- Ackley
+- Camelback
+- Langermann
+- Michaelewicz
+- Rosenbrock
+
+\subsection reembodemo Demo in very high dimensions
+
+\b demo_rembo evaluates the REMBO (Random EMbedding Bayesian
+Optimization) algorithm for optimization in very high dimensions. The
+idea is that Bayesian optimization can be used very high dimensions
+provided that the effective dimension is embedded in a lower space, by
+using random projections.
+
+In this case, we test it against an artificially augmented Branin
+function with 1000 dimensions where only 2 dimensions are actually
+relevant (but unknown). The function is defined in the file: 
+\c braninghighdim
+
+For details about REMBO, see \cite ZiyuWang2013.
+
+*/

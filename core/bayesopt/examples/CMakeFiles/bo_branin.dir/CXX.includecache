@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/kuangkun/Documents/R_code/bayesopt/examples/bo_branin.cpp
+testfunctions.hpp
+/Users/kuangkun/Documents/R_code/bayesopt/examples/testfunctions.hpp
+param_loader.hpp
+/Users/kuangkun/Documents/R_code/bayesopt/examples/param_loader.hpp
+

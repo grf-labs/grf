@@ -45,3 +45,29 @@ void ForestTestUtilities::init_trainer(ForestTrainer& trainer,
                sample_with_replacement, sample_weights_file, sample_fraction,
                honesty, ci_group_size);
 }
+
+void ForestTestUtilities::init_trainer_test(ForestTrainer& trainer,
+                                       bool honesty,
+                                       uint ci_group_size,
+                                       uint number_of_tree,
+                                       const double *query,
+                                       uint variable_dimensions) {
+//uint mtry = 3;
+  uint mtry = query[0]*variable_dimensions;
+  uint num_trees = number_of_tree;
+  uint seed = 42;
+  uint num_threads = 4;
+//uint min_node_size = 1;
+  uint min_node_size = query[1];
+  std::set<size_t> no_split_variables;
+  std::string split_select_weights_file = "";
+  bool sample_with_replacement = true;
+  std::string sample_weights_file = "";
+//double sample_fraction = ci_group_size > 1 ? 0.35 : 0.7;
+  double sample_fraction = query[2];
+
+  trainer.init(mtry, num_trees, seed, num_threads,
+               min_node_size, no_split_variables, split_select_weights_file,
+               sample_with_replacement, sample_weights_file, sample_fraction,
+               honesty, ci_group_size);
+}

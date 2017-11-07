@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/c++    -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/bo_display.dir/bo_display.cpp.o CMakeFiles/bo_display.dir/Users/kuangkun/Documents/R_code/bayesopt/utils/displaygp.cpp.o  -o bo_display  -lbayesopt libmatplotpp.a -framework GLUT -framework Cocoa -framework AGL -framework OpenGL 

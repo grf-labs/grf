@@ -24,9 +24,17 @@
 
 #include "catch.hpp"
 
+#include <dirent.h>
+#include <stdio.h>
+#include <unistd.h>
 
 TEST_CASE("honest regression forests are shift invariant", "[regression, forest]") {
   // Run the original forest.
+  //*
+  char buffer[100];
+  getcwd(buffer, 100);
+  printf( "The   current   directory   is:   %s ",   buffer);
+   //*/
   Data* data = load_data("test/forest/resources/gaussian_data.csv");
   uint outcome_index = 10;
   double alpha = 0.10;
@@ -80,6 +88,11 @@ TEST_CASE("regression forests give reasonable variance estimates", "[regression,
   Forest forest = trainer.train(data);
   ForestPredictor predictor = ForestPredictors::regression_predictor(4, 2);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+
+    std::cout << "*******" << predictions.size() << std::endl;
+    std::cout << "*******" << predictions[1].size() << std::endl;
+    std::cout << data->get_num_rows() << "***" << data->get_num_cols() << std::endl;
+    std::cout << data << std::endl;
 
   for (size_t i = 0; i < predictions.size(); i++) {
     Prediction prediction = predictions[i];

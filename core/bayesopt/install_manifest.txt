@@ -1,0 +1,12 @@
+/usr/local/lib/libbayesopt.a
+/usr/local/include/bayesopt/bayesopt.h
+/usr/local/include/bayesopt/bayesopt.hpp
+/usr/local/include/bayesopt/bayesoptbase.hpp
+/usr/local/include/bayesopt/parameters.h
+/usr/local/include/bayesopt/parameters.hpp
+/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/bayesopt.so
+/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/bayesoptmodule.py
+/usr/local/include/nlopt.hpp
+/usr/local/include/nlopt.f
+/usr/local/include/nlopt.h
+/usr/local/lib/libnlopt.a
