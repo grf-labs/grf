@@ -151,7 +151,7 @@ void RegularizedRegressionSplittingRule::find_best_split_value_small_q(size_t no
     // Penalize splits that are too close to the edges of the data.
     double penalty = lambda * (1.0 / n_left + 1.0 / n_right[i]) * node_impurity;
     if (downweight_penalty) {
-      penalty *= sqrt(num_samples_node);
+      penalty *= std::sqrt((double) num_samples_node);
     }
     decrease -= penalty;
 
@@ -210,7 +210,7 @@ void RegularizedRegressionSplittingRule::find_best_split_value_large_q(size_t no
     // Penalize splits that are too close to the edges of the data.
     double penalty = lambda * (1.0 / n_left + 1.0 / n_right) * node_impurity;
     if (downweight_penalty) {
-      penalty *= sqrt(num_samples_node);
+      penalty *= std::sqrt((double) num_samples_node);
     }
     decrease -= penalty;
 
