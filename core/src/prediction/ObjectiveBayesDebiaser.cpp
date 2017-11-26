@@ -39,7 +39,7 @@ double ObjectiveBayesDebiaser::debias(double var_between,
   // but keeps \hat{S} from going negative.
   
   double initial_estimate = var_between - group_noise;
-  double initial_se = std::max(var_between, group_noise) * std::sqrt(2 / num_good_groups);
+  double initial_se = std::max(var_between, group_noise) * std::sqrt(2.0 / num_good_groups);
   
   double ratio = initial_estimate / initial_se;
   
