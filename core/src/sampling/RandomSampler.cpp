@@ -73,7 +73,7 @@ void RandomSampler::bootstrap(size_t num_samples,
 
   // Reserve space, reserve a little more to be safe
   samples.reserve(num_samples_inbag);
-  oob_sample.reserve(num_samples * (exp(-sample_fraction) + 0.1));
+  oob_sample.reserve(num_samples * (std::exp(-sample_fraction) + 0.1));
 
   std::uniform_int_distribution<size_t> unif_dist(0, num_samples - 1);
 
@@ -106,7 +106,7 @@ void RandomSampler::bootstrap_weighted(size_t num_samples,
 
 // Reserve space, reserve a little more to be save)
   samples.reserve(num_samples_inbag);
-  oob_samples.reserve(num_samples * (exp(-sample_fraction) + 0.1));
+  oob_samples.reserve(num_samples * (std::exp(-sample_fraction) + 0.1));
 
   std::discrete_distribution<> weighted_dist(case_weights.begin(), case_weights.end());
 

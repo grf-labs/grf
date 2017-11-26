@@ -46,7 +46,7 @@ bool RegressionSplittingRule::find_best_split(size_t node,
                                               std::vector<double>& split_values) {
 
   size_t num_samples_node = samples[node].size();
-  size_t min_child_samples = std::max<size_t>(ceil(num_samples_node * alpha), 1uL);
+  size_t min_child_samples = std::max<size_t>(std::ceil(num_samples_node * alpha), 1uL);
 
   double best_decrease = -1;
   size_t best_var = 0;

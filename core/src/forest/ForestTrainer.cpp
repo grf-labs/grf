@@ -124,7 +124,7 @@ Forest ForestTrainer::train(Data* data) {
   }
 
   if (mtry == 0) {
-    mtry = ceil((num_independent_variables) / 3.0);
+    mtry = std::ceil(num_independent_variables / 3.0);
   }
 
   // Set minimal node size

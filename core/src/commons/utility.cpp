@@ -52,7 +52,7 @@ void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_pa
 
   uint length = (end - start + 1);
   uint part_length_short = length / num_parts;
-  uint part_length_long = (uint) ceil(length / ((double) num_parts));
+  uint part_length_long = (uint) std::ceil(length / ((double) num_parts));
   uint cut_pos = length % num_parts;
 
   // Add long ranges
