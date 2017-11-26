@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.4] - 2017-11-25
+
+### Changed
+- Update the default for mtry to sqrt(p) + 20. 
+
+### Fixed
+- Fix an issue where split_frequencies fails when p = 1.
+- Use a Solaris-compatible version of std::sqrt.
+
 ## [0.9.3] - 2017-07-20
 
 ### Fixed
