@@ -125,7 +125,7 @@ void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
   // Randomly select an mtry for this tree based on the overall setting.
   size_t num_independent_variables = data->get_num_cols() - options.get_no_split_variables().size();
   size_t mtry_sample = sampler.sample_poisson(options.get_mtry());
-  size_t split_mtry = std::max<size_t>(std::min(mtry_sample, num_independent_variables), 1uL);
+  size_t split_mtry = std::max<size_t>(std::min<size_t>(mtry_sample, num_independent_variables), 1uL);
 
   // Randomly add non-deterministic variables (according to weights if needed)
   if (split_select_weights.empty()) {
