@@ -28,7 +28,7 @@ get_tree = function(forest, index) {
 	tree
 }
 
-#' Get summaries of which features the forest split on
+#' Calculate which features the forest split on at each depth.
 #'
 #' @param forest The trained forest.
 #' @param max.depth Maximum depth of splits to consider.
@@ -50,4 +50,30 @@ get_tree = function(forest, index) {
 split_frequencies = function(forest, max.depth=4) {
   raw = compute_split_frequencies(forest, max.depth)
   raw[,forest$feature.indices, drop = FALSE]
+}
+
+#' Calculate a simple measure of 'importance' for each feature.
+#'
+#' @param forest The trained forest.
+#' @param decay.exponent A tuning parameter that controls the importance of split depth.
+#' @param max.depth Maximum depth of splits to consider.
+#'
+#' @return A list specifying an 'importance value' for each feature.
+#'
+#' @examples
+#' # Train a quantile forest.
+#' n = 50; p = 10
+#' X = matrix(rnorm(n*p), n, p)
+#' Y = X[,1] * rnorm(n)
+#' q.forest = quantile_forest(X, Y, quantiles=c(0.1, 0.5, 0.9))
+#'
+#' # Calculate the 'importance' of each feature.
+#' variable_importance(q.forest)
+#'
+#' @export
+variable_importance = function(forest, decay.exponent=2, max.depth=4) {
+  split.freq <- split_frequencies(forest, max.depth)
+  split.freq <- split.freq / pmax(1L, rowSums(split.freq))
+  weight <- seq_len(nrow(split.freq)) ^ -decay.exponent
+  t(split.freq) %*% weight / sum(weight)
 }
