@@ -13,11 +13,11 @@
 #'                  getting accurate predictions.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
-#' @param min.node.size Minimum number of observations in each tree leaf.
-#' @param keep.inbag Currently not used.
-#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?   
+#' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
+#'                      with size smaller than min.node.size can occur, as in the original randomForest package.
+#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
 #' @param alpha Maximum imbalance of a split.   
-#' @param seed The seed of the c++ random number generator.
+#' @param seed The seed for the C++ random number generator.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A trained regression forest object.
@@ -36,7 +36,7 @@
 #'
 #' @export
 custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
-    num.trees = 2000, num.threads = NULL, min.node.size = NULL, keep.inbag = FALSE, 
+    num.trees = 2000, num.threads = NULL, min.node.size = NULL,
     honesty = TRUE, alpha = 0.05, seed = NULL) {
 
     validate_X(X)
