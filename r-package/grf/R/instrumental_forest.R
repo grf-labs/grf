@@ -20,8 +20,9 @@
 #'                  getting accurate predictions.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
-#' @param min.node.size Minimum number of observations in each tree leaf.
-#' @param honesty Should honest splitting (i.e., sub-sample splitting) be used?
+#' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
+#'                      with size smaller than min.node.size can occur, as in the original randomForest package.
+#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -36,7 +37,7 @@
 #' @param alpha Maximum imbalance of a split.
 #' @param lambda A tuning parameter to control the amount of split regularization (experimental).
 #' @param downweight.penalty Whether or not the regularization penalty should be downweighted (experimental).
-#' @param seed The seed of the c++ random number generator.
+#' @param seed The seed for the C++ random number generator.
 #'
 #' @return A trained instrumental forest object.
 #' @export
