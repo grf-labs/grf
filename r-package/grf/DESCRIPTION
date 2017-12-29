@@ -4,8 +4,7 @@ Version: 0.9.4
 Author: Julie Tibshirani [aut, cre],
     Susan Athey [aut],
     Stefan Wager [aut],
-    Marvin Wright [ctb],
-    all contributors to the included version of Eigen [ctb]
+    Marvin Wright [ctb]
 BugReports: https://github.com/swager/grf/issues
 Maintainer: Julie Tibshirani <jtibs@cs.stanford.edu>
 Description: A pluggable package for forest-based statistical estimation and inference.

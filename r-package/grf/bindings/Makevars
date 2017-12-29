@@ -1,7 +1,7 @@
 ## Use c++11
 CXX_STD = CXX11
 
-PKG_CXXFLAGS = -I. -Isrc -Ithird_party -DR_BUILD
+PKG_CXXFLAGS = -I. -Isrc -DR_BUILD
 
 SOURCES = $(wildcard *.cpp */*.cpp */*/*.cpp */*/*/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
