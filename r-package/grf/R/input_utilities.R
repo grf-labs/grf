@@ -1,11 +1,15 @@
 validate_X <- function(X) {
-  if(!is.numeric(X)) {
+  if(inherits(X, "matrix") & !is.numeric(X)) {
     stop(paste("The feature matrix X must numeric. GRF does not", 
          "currently support non-numeric features. If factor variables",
          "are required, we recommend one of the following: Either",
          "represent the factor with a 1-vs-all expansion,",
          "(e.g., using model.matrix(~. , data=X)), or then encode the factor",
          "as a numeric via any natural ordering (e.g., if the factor is a month)."))
+  }
+
+  if (inherits(X, "Matrix") & !(inherits(X, "dgCMatrix"))) {
+      stop("Currently only sparse data of class 'dgCMatrix' is supported.")
   }
 }
 
@@ -45,9 +49,21 @@ validate_sample_fraction <- function(sample.fraction) {
   sample.fraction
 }
 
-validate_seed = function(seed) {
+validate_seed <- function(seed) {
   if (is.null(seed)) {
     seed <- runif(1, 0, .Machine$integer.max)
   }
   seed
+}
+
+create_data_matrices <- function(X, ...) {
+  default.data <- matrix(nrow=0, ncol=0);    
+  sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
+  if (inherits(X, "dgCMatrix")) {
+    sparse.data = Matrix::cBind(X, ...)
+  } else {
+    default.data <- as.matrix(cbind(X, ...))
+  }
+
+  list(default = default.data, sparse = sparse.data)
 }

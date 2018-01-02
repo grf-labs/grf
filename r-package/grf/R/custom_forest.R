@@ -53,17 +53,17 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     verbose <- FALSE
     keep.inbag <- FALSE
     
-    input.data <- as.matrix(cbind(X, Y))
+    data <- create_data_matrices(X, Y)
     variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(X) + 1
     no.split.variables <- numeric(0)
     ci.group.size <- 1
     
-    forest <- custom_train(input.data, outcome.index,
+    forest <- custom_train(data$default, data$sparse, outcome.index,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
-    forest[["X.orig"]] <- input.data
+    forest[["X.orig"]] <- X
     class(forest) <- c("custom_forest", "grf")
     forest
 }
@@ -107,12 +107,12 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
     forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
-        input.data <- as.matrix(cbind(newdata, NA))
-        custom_predict(forest.short, input.data, variable.names, 
-            num.threads)
+        data <- create_data_matrices(newdata, NA)
+        custom_predict(forest.short, data$default, data$sparse,
+                       variable.names, num.threads)
     } else {
-        input.data <- as.matrix(cbind(object[["X.orig"]], NA))
-        custom_predict_oob(forest.short, input.data, variable.names, 
-            num.threads)
+        data <- create_data_matrices(object[["X.orig"]], NA)
+        custom_predict_oob(forest.short, data$default, data$sparse,
+                           variable.names, num.threads)
     }
 }

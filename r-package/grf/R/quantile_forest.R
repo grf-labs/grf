@@ -77,13 +77,13 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
     verbose <- FALSE
     keep.inbag <- FALSE
     
-    input.data <- as.matrix(cbind(X, Y))
+    data <- create_data_matrices(X, Y)
     variable.names <- c(colnames(X), "outcome")
-    outcome.index <- ncol(input.data)
+    outcome.index <- ncol(X) + 1
 
     ci.group.size <- 1
     
-    forest <- quantile_train(quantiles, regression.splitting, input.data, outcome.index,
+    forest <- quantile_train(quantiles, regression.splitting, data$default, data$sparse, outcome.index,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
@@ -141,12 +141,12 @@ predict.quantile_forest <- function(object,
     forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
-        input.data <- as.matrix(cbind(newdata, NA))
-        quantile_predict(forest.short, quantiles, input.data, variable.names, 
-                         num.threads)
+        data <- create_data_matrices(newdata, NA)
+        quantile_predict(forest.short, quantiles, data$default, data$sparse,
+                         variable.names, num.threads)
     } else {
-        input.data <- as.matrix(cbind(object[["X.orig"]], NA))
-        quantile_predict_oob(forest.short, quantiles, input.data, variable.names, 
-                             num.threads)
+        data <- create_data_matrices(object[["X.orig"]], NA)
+        quantile_predict_oob(forest.short, quantiles, data$default, data$sparse,
+                             variable.names, num.threads)
     }
 }
