@@ -17,40 +17,37 @@
 
 #include <fstream>
 #include <sstream>
-#include <stdexcept>
-#include <algorithm>
-#include <iterator>
 
-#include "DefaultData.h"
+#include "SparseData.h"
 #include "utility.h"
 
-DefaultData::DefaultData() :
-    DefaultData(NULL, std::vector<std::string>(), 0, 0) {}
+SparseData::SparseData() :
+    SparseData(NULL, std::vector<std::string>(), 0, 0) {}
 
-DefaultData::DefaultData(double *data,
-                         std::vector<std::string> variable_names,
-                         size_t num_rows,
-                         size_t num_cols) :
+SparseData::SparseData(Eigen::SparseMatrix<double>* data,
+                       std::vector<std::string> variable_names,
+                       size_t num_rows,
+                       size_t num_cols):
     data(data) {
   this->variable_names = variable_names;
   this->num_rows = num_rows;
   this->num_cols = num_cols;
 }
 
-DefaultData::~DefaultData() {
+SparseData::~SparseData() {
   if (!externalData) {
-    delete[] data;
+    delete data;
   }
 }
 
-double DefaultData::get(size_t row, size_t col) const {
-  return data[col * num_rows + row];
+double SparseData::get(size_t row, size_t col) const {
+  return data->coeff(row, col);
 }
 
-void DefaultData::reserve_memory() {
-  data = new double[num_cols * num_rows];
+void SparseData::reserve_memory() {
+  data = new Eigen::SparseMatrix<double>(num_rows, num_cols);
 }
 
-void DefaultData::set(size_t col, size_t row, double value, bool& error) {
-  data[col * num_rows + row] = value;
+void SparseData::set(size_t col, size_t row, double value, bool& error) {
+  data->coeffRef(row, col) = value;
 }
