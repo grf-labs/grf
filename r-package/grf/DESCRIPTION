@@ -17,6 +17,7 @@ Depends:
 License: GPL-3
 LinkingTo: Rcpp, RcppEigen
 Imports:
+    Matrix,
     Rcpp (>= 0.12.10)
 RoxygenNote: 6.0.1
 Suggests:

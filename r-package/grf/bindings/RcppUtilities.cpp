@@ -1,6 +1,8 @@
 #include <Rcpp.h>
 #include <sstream>
 
+#include "commons/DefaultData.h"
+#include "commons/SparseData.h"
 #include "RcppUtilities.h"
 #include "serialization/ForestSerializer.h"
 
@@ -60,11 +62,20 @@ Forest RcppUtilities::deserialize_forest(Rcpp::RawVector input) {
 }
 
 Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
+                                  Eigen::SparseMatrix<double>& sparse_input_data,
                                   const std::vector<std::string>& variable_names) {
-  size_t num_rows = input_data.nrow();
-  size_t num_cols = input_data.ncol();
+  Data* data;
 
-  Data* data = new DefaultData(input_data.begin(), variable_names, num_rows, num_cols);
+  if (input_data.nrow() > 0) {
+    size_t num_rows = input_data.nrow();
+    size_t num_cols = input_data.ncol();
+    data = new DefaultData(input_data.begin(), variable_names, num_rows, num_cols);
+  } else {
+    size_t num_rows = sparse_input_data.rows();
+    size_t num_cols = sparse_input_data.cols();
+    data = new SparseData(&sparse_input_data, variable_names, num_rows, num_cols);
+  }
+
   data->sort();
   return data;
 }
