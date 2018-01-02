@@ -23,7 +23,6 @@
 
 #include "catch.hpp"
 
-
 TEST_CASE("forests don't crash when there are fewer trees than threads", "[forest]") {
   Data *data = load_data("test/forest/resources/gaussian_data.csv");
   uint outcome_index = 10;

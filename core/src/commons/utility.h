@@ -184,4 +184,6 @@ bool equal_doubles(double first, double second, double epsilon);
 
 Data* load_data(std::string file_name);
 
+Data* load_sparse_data(std::string file_name);
+
 #endif /* GRF_UTILITY_H_ */
