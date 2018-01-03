@@ -25,33 +25,43 @@
 
 class Data {
 public:
-  virtual ~Data() {};
-
-  virtual double get(size_t row, size_t col) const = 0;
+  Data();
+  virtual ~Data();
 
   virtual void reserve_memory() = 0;
+  virtual double get(size_t row, size_t col) const = 0;
   virtual void set(size_t col, size_t row, double value, bool& error) = 0;
 
-  virtual bool load_from_file(std::string filename) = 0;
-  virtual bool load_from_whitespace_file(std::ifstream& input_file, std::string header_line) = 0;
-  virtual bool load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator)  = 0;
+  void sort();
 
-  virtual void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var)  = 0;
+  bool load_from_file(std::string filename);
+  bool load_from_whitespace_file(std::ifstream& input_file, std::string header_line);
+  bool load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator);
 
-  virtual size_t get_index(size_t row, size_t col) const = 0;
+  void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var);
 
-  virtual double get_unique_data_value(size_t var, size_t index) const = 0;
+  size_t get_index(size_t row, size_t col) const;
+  double get_unique_data_value(size_t var, size_t index) const;
+  size_t get_num_unique_data_values(size_t var) const;
 
-  virtual size_t get_num_unique_data_values(size_t var) const = 0;
+  const std::vector<std::string>& get_variable_names() const;
+  size_t get_num_cols() const;
+  size_t get_num_rows() const;
+  size_t get_max_num_unique_values() const;
 
-  virtual void sort() = 0;
+protected:
+  std::vector<std::string> variable_names;
+  size_t num_rows;
+  size_t num_cols;
 
-  virtual const std::vector<std::string>& get_variable_names() const  = 0;
+  bool externalData;
 
-  virtual size_t get_num_cols() const = 0;
-  virtual size_t get_num_rows() const = 0;
+  size_t* index_data;
+  std::vector<std::vector<double>> unique_data_values;
+  size_t max_num_unique_values;
 
-  virtual size_t get_max_num_unique_values() const = 0;
+private:
+  DISALLOW_COPY_AND_ASSIGN(Data);
 };
 
 #endif /* GRF_DATA_H_ */
