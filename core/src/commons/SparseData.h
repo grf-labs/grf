@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------------
-  This file is part of generalized random forest (grf).
+  This file is part of generalized-random-forest.
 
   grf is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,25 +15,23 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_DEFAULTDATA_H_
-#define GRF_DEFAULTDATA_H_
+#ifndef GRF_SPARSEDATA_H
+#define GRF_SPARSEDATA_H
 
-#include <vector>
-#include <iostream>
 
 #include "Data.h"
-#include "globals.h"
+#include "Eigen/Sparse"
 
-class DefaultData: public Data {
+class SparseData: public Data {
 public:
-  DefaultData();
+  SparseData();
 
-  DefaultData(double* data,
-       std::vector<std::string> variable_names,
-       size_t num_rows,
-       size_t num_cols);
+  SparseData(Eigen::SparseMatrix<double>* data,
+             std::vector<std::string> variable_names,
+             size_t num_rows,
+             size_t num_cols);
 
-  virtual ~DefaultData();
+  virtual ~SparseData();
 
   double get(size_t row, size_t col) const;
 
@@ -41,10 +39,11 @@ public:
   void set(size_t col, size_t row, double value, bool& error);
 
 protected:
-  double* data;
+  Eigen::SparseMatrix<double>* data;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(DefaultData);
+  DISALLOW_COPY_AND_ASSIGN(SparseData);
 };
 
-#endif /* GRF_DEFAULTDATA_H_ */
+
+#endif //GRF_SPARSEDATA_H
