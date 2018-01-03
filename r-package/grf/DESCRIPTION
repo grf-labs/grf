@@ -15,7 +15,7 @@ Description: A pluggable package for forest-based statistical estimation and inf
 Depends:
     R (>= 3.3.1)
 License: GPL-3
-LinkingTo: Rcpp
+LinkingTo: Rcpp, RcppEigen
 Imports:
     Rcpp (>= 0.12.10)
 RoxygenNote: 6.0.1
