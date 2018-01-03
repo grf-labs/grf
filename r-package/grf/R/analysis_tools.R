@@ -23,8 +23,9 @@ get_tree = function(forest, index) {
 	}
 
 	tree = deserialize_tree(forest, index)
+	tree$columns = colnames(forest$X.orig)
+
 	class(tree) = "grf_tree"
-	tree$columns = colnames(forest$original.data)
 	tree
 }
 
@@ -49,7 +50,8 @@ get_tree = function(forest, index) {
 #' @export
 split_frequencies = function(forest, max.depth=4) {
   raw = compute_split_frequencies(forest, max.depth)
-  raw[,forest$feature.indices, drop = FALSE]
+  feature.indices = 1:ncol(forest$X.orig)
+  raw[,feature.indices, drop = FALSE]
 }
 
 #' Calculate a simple measure of 'importance' for each feature.

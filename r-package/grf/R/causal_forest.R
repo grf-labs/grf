@@ -113,8 +113,7 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
         ci.group.size, split.regularization, alpha, lambda, downweight.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
-    forest[["original.data"]] <- input.data
-    forest[["feature.indices"]] <- 1:ncol(X)
+    forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
     forest[["W.orig"]] <- W
     forest[["Y.hat"]] <- Y.hat
