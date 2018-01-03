@@ -63,7 +63,7 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
-    forest[["original.data"]] <- input.data
+    forest[["X.orig"]] <- input.data
     class(forest) <- c("custom_forest", "grf")
     forest
 }
@@ -104,14 +104,14 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
     
     variable.names <- character(0)
     
-    forest.short <- object[-which(names(object) == "original.data")]
+    forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         custom_predict(forest.short, input.data, variable.names, 
             num.threads)
     } else {
-        input.data <- object[["original.data"]]
+        input.data <- as.matrix(cbind(object[["X.orig"]], NA))
         custom_predict_oob(forest.short, input.data, variable.names, 
             num.threads)
     }

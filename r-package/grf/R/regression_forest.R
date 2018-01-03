@@ -75,8 +75,7 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = ceiling(2*ncol
         no.split.variables, seed, honesty, ci.group.size, alpha, lambda, downweight.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
-    forest[["original.data"]] <- input.data
-    forest[["feature.indices"]] <- 1:ncol(X)
+    forest[["X.orig"]] <- X
     class(forest) <- c("regression_forest", "grf")
     forest
 }
@@ -131,14 +130,14 @@ predict.regression_forest <- function(object, newdata = NULL,
         ci.group.size = 1
     }
     
-    forest.short <- object[-which(names(object) == "original.data")]
+    forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         regression_predict(forest.short, input.data, variable.names, 
                            num.threads, ci.group.size)
     } else {
-        input.data <- object[["original.data"]]
+        input.data <- as.matrix(cbind(object[["X.orig"]], NA))
         regression_predict_oob(forest.short, input.data, variable.names, 
                                num.threads, ci.group.size)
     }
