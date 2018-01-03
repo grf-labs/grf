@@ -87,8 +87,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
         keep.inbag, sample.fraction, no.split.variables, seed, honesty, ci.group.size, alpha)
     
-    forest[["original.data"]] <- input.data
-    forest[["feature.indices"]] <- 1:ncol(X)
+    forest[["X.orig"]] <- X
     class(forest) <- c("quantile_forest", "grf")
     forest
 }
@@ -139,14 +138,14 @@ predict.quantile_forest <- function(object,
     num.threads <- validate_num_threads(num.threads)
     variable.names <- character(0)
     
-    forest.short <- object[-which(names(object) == "original.data")]
+    forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
         input.data <- as.matrix(cbind(newdata, NA))
         quantile_predict(forest.short, quantiles, input.data, variable.names, 
                          num.threads)
     } else {
-        input.data <- object[["original.data"]]
+        input.data <- as.matrix(cbind(object[["X.orig"]], NA))
         quantile_predict_oob(forest.short, quantiles, input.data, variable.names, 
                              num.threads)
     }
