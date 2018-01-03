@@ -196,7 +196,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
     trees.reserve(num_trees * ci_group_size);
   }
 
-  for (int i = 0; i < num_trees; i++) {
+  for (size_t i = 0; i < num_trees; i++) {
     uint tree_seed = udist(random_number_generator);
     SamplingOptions sampling_options(sample_with_replacement, sample_weights);
     RandomSampler sampler(tree_seed, sampling_options);
