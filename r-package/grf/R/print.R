@@ -51,7 +51,7 @@ print.grf_tree <- function(x, ...) {
             output = paste(output, "* num_samples:", length(node$samples))
         } else {
             split.var = node$split_variable
-            split.var.name = if (x$columns[split.var] != "") x$columns[split.var] else paste("X", split.var, sep=".")
+            split.var.name = x$columns[split.var]
             output = paste(output, "split_variable:", split.var.name, " split_value:", signif(node$split_value))
 
             left_child = nodes[node$left_child]
