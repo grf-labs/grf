@@ -42,3 +42,18 @@ test_that("regression forest split frequencies are reasonable", {
   freq = split_frequencies(rrr, 4)
   expect_true(freq[1,1] / sum(freq[1,]) > 1/2)
 })
+
+test_that("using a sparse data representation produces the same predictions", {
+  dim = 20
+  X = diag(rnorm(dim), dim)
+  sparse.X = as(X, "dgCMatrix")
+  Y = 1000 * (X[,1]) + rnorm(dim)
+
+  forest = regression_forest(X, Y, mtry = p, seed=10)
+  preds = predict(forest, estimate.variance=TRUE)
+
+  sparse.forest = regression_forest(sparse.X, Y, mtry = p, seed=10)
+  sparse.preds = predict(sparse.forest, estimate.variance=TRUE)
+
+  expect_equal(preds$predictions, sparse.preds$predictions)
+})

@@ -1,8 +1,9 @@
 #ifndef GRF_RCPPUTILITIES_H
 #define GRF_RCPPUTILITIES_H
 
-#include "forest/ForestTrainer.h"
 #include "commons/globals.h"
+#include "Eigen/Sparse"
+#include "forest/ForestTrainer.h"
 
 class RcppUtilities {
 public:
@@ -25,6 +26,7 @@ public:
   static Forest deserialize_forest(Rcpp::RawVector input);
 
   static Data* convert_data(Rcpp::NumericMatrix input_data,
+                            Eigen::SparseMatrix<double>& sparse_input_data,
                             const std::vector<std::string>& variable_names);
 
   static Rcpp::List create_prediction_object(const std::vector<Prediction>& predictions);
