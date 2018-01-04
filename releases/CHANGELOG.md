@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.5] - 2018-01-04
+
+### Added
+- Create a simple method for variable importance based on split frequency and depth.
+- Add support for sparse data matrices of type 'dgCMatrix'.
+
+### Changed
+- Use RcppEigen for the R package, as opposed to the eigen source.
+
 ## [0.9.4] - 2017-11-25
 
 ### Changed

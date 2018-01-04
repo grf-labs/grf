@@ -1,6 +1,6 @@
 Package: grf
 Title: Generalized Random Forests (Beta)
-Version: 0.9.4
+Version: 0.9.5
 Author: Julie Tibshirani [aut, cre],
     Susan Athey [aut],
     Stefan Wager [aut],
@@ -18,8 +18,9 @@ License: GPL-3
 LinkingTo: Rcpp, RcppEigen
 Imports:
     Matrix,
+    methods,
     Rcpp (>= 0.12.10)
-RoxygenNote: 6.0.1
+RoxygenNote: 6.0.1.9000
 Suggests:
     sandwich, testthat
 SystemRequirements: GNU make
