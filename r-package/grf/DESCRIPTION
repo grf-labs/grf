@@ -13,7 +13,7 @@ Description: A pluggable package for forest-based statistical estimation and inf
     variables). This package is currently in beta, and we expect to make continual
     improvements to its performance and usability.
 Depends:
-    R (>= 3.3.1)
+    R (>= 3.3.0)
 License: GPL-3
 LinkingTo: Rcpp, RcppEigen
 Imports:
