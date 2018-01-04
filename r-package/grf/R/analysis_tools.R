@@ -23,9 +23,15 @@ get_tree = function(forest, index) {
 	}
 
 	tree = deserialize_tree(forest, index)
-	tree$columns = colnames(forest$X.orig)
-
 	class(tree) = "grf_tree"
+
+	columns = colnames(forest$X.orig)
+	indices = 1:ncol(forest$X.orig)
+	tree$columns  = sapply(indices, function(i) {
+		if (!is.null(columns) & length(columns[i]) > 0) columns[i]
+		else paste("X", i, sep=".")
+	})
+
 	tree
 }
 
