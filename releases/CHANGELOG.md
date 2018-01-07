@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Use RcppEigen for the R package, as opposed to the eigen source.
 
+### Fixed
+- Fix a few places where we were still using the old default for mtry. This issue was
+causing poor performance for even moderately large numbers of features.
+
 ## [0.9.4] - 2017-11-25
 
 ### Changed
