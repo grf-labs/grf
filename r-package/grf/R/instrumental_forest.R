@@ -41,7 +41,7 @@
 #'
 #' @return A trained instrumental forest object.
 #' @export
-instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), 
+instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
                                 num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
                                 ci.group.size = 2, precompute.nuisance = TRUE, split.regularization = 0,
                                 alpha = 0.05, lambda = 0.0, downweight.penalty = FALSE, seed = NULL) {
