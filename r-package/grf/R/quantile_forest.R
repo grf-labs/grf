@@ -53,7 +53,7 @@
 #' 
 #' @export
 quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = FALSE,
-                            sample.fraction = 0.5, mtry = ceiling(2*ncol(X)/3), num.trees = 2000,
+                            sample.fraction = 0.5, mtry = NULL, num.trees = 2000,
                             num.threads = NULL, min.node.size = NULL, seed = NULL, alpha = 0.05,
                             honesty = TRUE) {
     
