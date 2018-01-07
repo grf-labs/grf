@@ -35,7 +35,7 @@
 #' # since treatment assignment was randomized.
 #' estimate_average_effect(c.forest, target.sample = "treated")
 #'
-#' @return Vector of predictions, along with (optional) variance estimates.
+#' @return An estimate of the average effect, along with standard error.
 #' @export
 estimate_average_effect = function(forest,
                                    target.sample=c("all", "treated", "control"),
