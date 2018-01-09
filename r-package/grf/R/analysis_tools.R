@@ -5,7 +5,7 @@
 #'
 #' @return A GRF tree object.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a quantile forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -15,6 +15,7 @@
 #' # Examine a particular tree.
 #' q.tree = get_tree(q.forest, 3)
 #' q.tree$nodes
+#' }
 #'
 #' @export
 get_tree = function(forest, index) {
@@ -43,7 +44,7 @@ get_tree = function(forest, index) {
 #' @return A matrix of split depth by feature index, where each value
 #' is the number of times the feature was split on at that depth.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a quantile forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -52,6 +53,7 @@ get_tree = function(forest, index) {
 #'
 #' # Calculate the split frequencies for this forest.
 #' split_frequencies(q.forest)
+#' }
 #'
 #' @export
 split_frequencies = function(forest, max.depth=4) {
@@ -68,7 +70,7 @@ split_frequencies = function(forest, max.depth=4) {
 #'
 #' @return A list specifying an 'importance value' for each feature.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a quantile forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -77,6 +79,7 @@ split_frequencies = function(forest, max.depth=4) {
 #'
 #' # Calculate the 'importance' of each feature.
 #' variable_importance(q.forest)
+#' }
 #'
 #' @export
 variable_importance = function(forest, decay.exponent=2, max.depth=4) {

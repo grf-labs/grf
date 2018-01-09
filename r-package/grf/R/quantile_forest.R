@@ -27,7 +27,7 @@
 #'
 #' @return A trained quantile forest object.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Generate data.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -50,6 +50,7 @@
 #' 
 #' # Make predictions for the desired quantiles.
 #' q.hat = predict(meins.forest, X.test, quantiles=c(0.1, 0.5, 0.9))
+#' }
 #' 
 #' @export
 quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = FALSE,
@@ -108,7 +109,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
 #'
 #' @return Predictions at each test point for each desired quantile.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a quantile forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -122,6 +123,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
 #' X.test = matrix(0, 101, p)
 #' X.test[,1] = seq(-2, 2, length.out = 101)
 #' q.pred = predict(q.forest, X.test)
+#' }
 #'
 #' @export
 predict.quantile_forest <- function(object,
