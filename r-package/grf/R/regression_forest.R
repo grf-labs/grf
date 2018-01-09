@@ -27,7 +27,7 @@
 #'
 #' @return A trained regression forest object.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a standard regression forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -45,6 +45,7 @@
 #' # Predict with confidence intervals; growing more trees is now recommended.
 #' r.forest = regression_forest(X, Y, num.trees = 100)
 #' r.pred = predict(r.forest, X.test, estimate.variance = TRUE)
+#' }
 #'
 #' @export
 regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
@@ -97,7 +98,7 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
 #'
 #' @return A vector of predictions.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a standard regression forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -115,6 +116,7 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
 #' # Predict with confidence intervals; growing more trees is now recommended.
 #' r.forest = regression_forest(X, Y, num.trees = 100)
 #' r.pred = predict(r.forest, X.test, estimate.variance = TRUE)
+#' }
 #'
 #' @export
 predict.regression_forest <- function(object, newdata = NULL,

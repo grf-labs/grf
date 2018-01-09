@@ -38,7 +38,7 @@
 #'
 #' @return A trained causal forest object.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a causal forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -57,6 +57,7 @@
 #' # Predict with confidence intervals; growing more trees is now recommended.
 #' c.forest = causal_forest(X, Y, W, num.trees = 4000)
 #' c.pred = predict(c.forest, X.test, estimate.variance = TRUE)
+#' }
 #'
 #' @export
 causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL, 
@@ -140,7 +141,7 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
 #'
 #' @return Vector of predictions, along with (optional) variance estimates.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a causal forest.
 #' n = 100; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -159,6 +160,7 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
 #' # Predict with confidence intervals; growing more trees is now recommended.
 #' c.forest = causal_forest(X, Y, W, num.trees = 500)
 #' c.pred = predict(c.forest, X.test, estimate.variance = TRUE)
+#' }
 #'
 #' @export
 predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, estimate.variance = FALSE, ...) {

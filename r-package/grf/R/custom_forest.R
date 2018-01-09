@@ -22,7 +22,7 @@
 #'
 #' @return A trained regression forest object.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a custom forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -33,6 +33,7 @@
 #' X.test = matrix(0, 101, p)
 #' X.test[,1] = seq(-2, 2, length.out = 101)
 #' c.pred = predict(c.forest, X.test)
+#' }
 #'
 #' @export
 custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
@@ -81,7 +82,7 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
 #'
 #' @return Vector of predictions.
 #'
-#' @examples
+#' @examples \dontrun{
 #' # Train a custom forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
@@ -92,6 +93,7 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
 #' X.test = matrix(0, 101, p)
 #' X.test[,1] = seq(-2, 2, length.out = 101)
 #' c.pred = predict(c.forest, X.test)
+#' }
 #'
 #' @export
 predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
