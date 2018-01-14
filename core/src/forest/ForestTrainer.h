@@ -45,9 +45,7 @@ public:
             uint seed,
             uint num_threads,
             uint min_node_size,
-            std::set<size_t> no_split_variables,
             bool sample_with_replacement,
-            std::string sample_weights_file,
             double sample_fraction,
             bool honesty,
             uint ci_group_size);
@@ -65,26 +63,20 @@ private:
       const Observations& observations);
 
   size_t num_trees;
-  uint mtry;
-  uint min_node_size;
-  uint seed;
-  bool sample_with_replacement;
-  double sample_fraction;
-
-  std::set<size_t> no_split_variables;
+  uint ci_group_size;
 
   uint num_threads;
-  std::shared_ptr<TreeTrainer> tree_trainer;
+  uint random_seed;
 
   std::unordered_map<size_t, size_t> observables;
+  std::shared_ptr<TreeTrainer> tree_trainer;
+
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
 
-  std::vector<double> sample_weights;
-  std::string sample_weights_file;
-
-  uint ci_group_size;
+  double sample_fraction;
+  SamplingOptions sampling_options;
 };
 
 

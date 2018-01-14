@@ -29,19 +29,18 @@ class TreeOptions {
 public:
   TreeOptions(uint mtry,
               uint min_node_size,
-              const std::set<size_t>& no_split_variables,
+              const std::set<size_t>& disallowed_split_variables,
               bool honesty);
 
   uint get_mtry();
   uint get_min_node_size();
-  const std::set<size_t>& get_no_split_variables();
+  const std::set<size_t>& get_disallowed_split_variables();
   bool get_honesty();
 
 private:
   uint mtry;
   uint min_node_size;
-  std::set<size_t> no_split_variables;
-
+  std::set<size_t> disallowed_split_variables;
   bool honesty;
 };
 
