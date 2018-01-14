@@ -64,13 +64,12 @@ private:
       const Observations& observations);
 
   size_t num_trees;
-  uint random_seed;
-  bool sample_with_replacement;
-  double sample_fraction;
-
-  std::set<size_t> no_split_variables;
+  uint ci_group_size;
 
   uint num_threads;
+  uint random_seed;
+
+  std::set<size_t> no_split_variables;
   std::shared_ptr<TreeTrainer> tree_trainer;
 
   std::unordered_map<size_t, size_t> observables;
@@ -78,7 +77,8 @@ private:
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
 
-  uint ci_group_size;
+  double sample_fraction;
+  SamplingOptions sampling_options;
 };
 
 

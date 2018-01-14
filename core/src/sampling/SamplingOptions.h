@@ -24,6 +24,7 @@
 
 class SamplingOptions {
 public:
+  SamplingOptions();
   SamplingOptions(bool sample_with_replacement);
 
   bool get_sample_with_replacement() const;

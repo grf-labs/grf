@@ -30,13 +30,13 @@ ForestTrainer::ForestTrainer(std::unordered_map<size_t, size_t> observables,
                              std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                              std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                              std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
+    num_threads(DEFAULT_NUM_THREADS),
     random_seed(0),
-    sample_with_replacement(true),
-    sample_fraction(1), num_threads(DEFAULT_NUM_THREADS),
     observables(observables),
     relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
-    prediction_strategy(prediction_strategy) {}
+    prediction_strategy(prediction_strategy),
+    sample_fraction(1) {}
 
 void ForestTrainer::init(uint mtry,
                          uint num_trees,
@@ -57,8 +57,8 @@ void ForestTrainer::init(uint mtry,
   // If necessary, round the number of trees up to a multiple of
   // the confidence interval group size.
   this->num_trees = num_trees + (num_trees % ci_group_size);
-  this->sample_with_replacement = sample_with_replacement;
 
+  this->sampling_options = SamplingOptions(sample_with_replacement);
   if (ci_group_size > 1 && sample_fraction > 0.5) {
     throw std::runtime_error("When confidence intervals are enabled, the"
         " sampling fraction must be less than 0.5.");
@@ -159,7 +159,6 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
 
   for (size_t i = 0; i < num_trees; i++) {
     uint tree_seed = udist(random_number_generator);
-    SamplingOptions sampling_options(sample_with_replacement);
     RandomSampler sampler(tree_seed, sampling_options);
 
     if (ci_group_size == 1) {
@@ -201,6 +200,5 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
     tree->set_oob_samples(oob_subsample);
     trees.push_back(tree);
   }
-
   return trees;
 }

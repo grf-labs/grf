@@ -17,6 +17,10 @@
 
 #include "SamplingOptions.h"
 
+SamplingOptions::SamplingOptions():
+    sample_with_replacement(true),
+    sample_weights(0) {}
+
 SamplingOptions::SamplingOptions(bool sample_with_replacement):
     sample_with_replacement(sample_with_replacement),
     sample_weights(0) {}
