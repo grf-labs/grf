@@ -36,10 +36,9 @@ void ForestTestUtilities::init_trainer(ForestTrainer& trainer,
   uint min_node_size = 1;
   std::set<size_t> no_split_variables;
   bool sample_with_replacement = true;
-  std::string sample_weights_file = "";
   double sample_fraction = ci_group_size > 1 ? 0.35 : 0.7;
 
   trainer.init(mtry, num_trees, seed, num_threads, min_node_size,
-               no_split_variables, sample_with_replacement, sample_weights_file,
+               no_split_variables, sample_with_replacement,
                sample_fraction, honesty, ci_group_size);
 }

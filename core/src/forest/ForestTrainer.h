@@ -47,7 +47,6 @@ public:
             uint min_node_size,
             std::set<size_t> no_split_variables,
             bool sample_with_replacement,
-            std::string sample_weights_file,
             double sample_fraction,
             bool honesty,
             uint ci_group_size);
@@ -78,9 +77,6 @@ private:
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
-
-  std::vector<double> sample_weights;
-  std::string sample_weights_file;
 
   uint ci_group_size;
 };
