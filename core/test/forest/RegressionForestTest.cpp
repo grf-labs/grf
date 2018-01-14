@@ -31,8 +31,10 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
   uint outcome_index = 10;
   double alpha = 0.10;
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha);
-  ForestTestUtilities::init_honest_trainer(trainer);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(
+      outcome_index,
+      alpha,
+      ForestTestUtilities::default_honest_options());
 
   Forest forest = trainer.train(data);
   ForestPredictor predictor = ForestPredictors::regression_predictor(4, 1);
@@ -45,8 +47,10 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
     data->set(outcome_index, r, outcome + 1, error);
   }
 
-  ForestTrainer shifted_trainer = ForestTrainers::regression_trainer(outcome_index, alpha);
-  ForestTestUtilities::init_default_trainer(shifted_trainer);
+  ForestTrainer shifted_trainer = ForestTrainers::regression_trainer(
+      outcome_index,
+      alpha,
+      ForestTestUtilities::default_honest_options());
 
   Forest shifted_forest = trainer.train(data);
   ForestPredictor shifted_predictor = ForestPredictors::regression_predictor(4, 1);
@@ -74,8 +78,8 @@ TEST_CASE("regression forests give reasonable variance estimates", "[regression,
   uint outcome_index = 10;
   double alpha = 0.10;
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha);
-  ForestTestUtilities::init_trainer(trainer, false, 2);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha,
+      ForestTestUtilities::default_options(false, 2));
 
   Forest forest = trainer.train(data);
   ForestPredictor predictor = ForestPredictors::regression_predictor(4, 2);

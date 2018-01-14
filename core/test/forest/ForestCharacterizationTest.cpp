@@ -64,8 +64,8 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   Data* data = load_data("test/forest/resources/quantile_data.csv");
   double alpha = 0.0;
 
-  ForestTrainer trainer = ForestTrainers::quantile_trainer(10, quantiles, alpha);
-  ForestTestUtilities::init_default_trainer(trainer);
+  ForestTrainer trainer = ForestTrainers::quantile_trainer(10, quantiles, alpha,
+      ForestTestUtilities::default_options());
   Forest forest = trainer.train(data);
 
   ForestPredictor predictor = ForestPredictors::quantile_predictor(4, quantiles);
@@ -73,7 +73,6 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/quantile_oob_predictions.csv");
-  update_predictions_file("test/forest/resources/quantile_oob_predictions.csv", oob_predictions);
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<Prediction> predictions = predictor.predict(forest, data);
@@ -90,8 +89,8 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   double alpha = 0.0;
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
-      10, 11, 11, split_regularization, alpha);
-  ForestTestUtilities::init_default_trainer(trainer);
+      10, 11, 11, split_regularization, alpha,
+      ForestTestUtilities::default_options());
 
   Forest forest = trainer.train(data);
 
@@ -100,7 +99,6 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/causal_oob_predictions.csv");
-  update_predictions_file("test/forest/resources/causal_oob_predictions.csv", oob_predictions);
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<Prediction> predictions = predictor.predict(forest, data);
@@ -115,8 +113,8 @@ TEST_CASE("regression forest predictions have not changed", "[regression], [char
   Data* data = load_data("test/forest/resources/regression_data.csv");
   double alpha = 0.0;
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(10, alpha);
-  ForestTestUtilities::init_default_trainer(trainer);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(10, alpha,
+      ForestTestUtilities::default_options());
 
   Forest forest = trainer.train(data);
 

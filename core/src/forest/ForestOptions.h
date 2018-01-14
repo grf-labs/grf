@@ -19,18 +19,40 @@
 #define GRF_FORESTOPTIONS_H
 
 
+#include <tree/TreeOptions.h>
+#include <sampling/SamplingOptions.h>
 #include "commons/globals.h"
 
 class ForestOptions {
 public:
-  ForestOptions(uint num_trees, uint num_threads, uint random_seed);
+  ForestOptions(uint num_trees,
+                uint ci_group_size,
+                double sample_fraction,
+                uint mtry,
+                uint min_node_size,
+                bool honesty,
+                bool sample_with_replacement,
+                uint num_threads,
+                uint random_seed);
 
-  uint get_num_trees();
-  uint get_num_threads();
-  uint get_random_seed();
+  uint get_num_trees() const;
+  uint get_ci_group_size() const;
+  double get_sample_fraction() const;
+
+  const TreeOptions& get_tree_options() const;
+  const SamplingOptions& get_sampling_options() const;
+
+  uint get_num_threads() const;
+  uint get_random_seed() const;
 
 private:
   uint num_trees;
+  uint ci_group_size;
+  double sample_fraction;
+
+  TreeOptions tree_options;
+  SamplingOptions sampling_options;
+
   uint num_threads;
   uint random_seed;
 };

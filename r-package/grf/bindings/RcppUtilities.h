@@ -9,17 +9,6 @@ class RcppUtilities {
 public:
   static const std::string SERIALIZED_FOREST_KEY;
 
-  static void initialize_trainer(ForestTrainer& forest_trainer,
-                                 uint mtry,
-                                 uint num_trees,
-                                 uint num_threads,
-                                 uint min_node_size,
-                                 bool sample_with_replacement,
-                                 double sample_fraction,
-                                 uint seed,
-                                 bool honesty,
-                                 uint ci_group_size);
-
   static Rcpp::List create_forest_object(const Forest& forest, Data* data);
   static Rcpp::RawVector serialize_forest(const Forest& forest);
   static Forest deserialize_forest(Rcpp::RawVector input);
