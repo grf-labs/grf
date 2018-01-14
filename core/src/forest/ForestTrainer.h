@@ -65,9 +65,7 @@ private:
       const Observations& observations);
 
   size_t num_trees;
-  uint mtry;
-  uint min_node_size;
-  uint seed;
+  uint random_seed;
   bool sample_with_replacement;
   double sample_fraction;
 
