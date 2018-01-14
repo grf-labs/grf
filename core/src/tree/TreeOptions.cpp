@@ -20,11 +20,11 @@
 
 TreeOptions::TreeOptions(uint mtry,
                          uint min_node_size,
-                         const std::set<size_t>& no_split_variables,
+                         const std::set<size_t>& disallowed_split_variables,
                          bool honesty):
   mtry(mtry),
   min_node_size(min_node_size),
-  no_split_variables(no_split_variables),
+  disallowed_split_variables(disallowed_split_variables),
   honesty(honesty) {}
 
 uint TreeOptions::get_mtry() {
@@ -35,8 +35,8 @@ uint TreeOptions::get_min_node_size() {
   return min_node_size;
 }
 
-const std::set<size_t>& TreeOptions::get_no_split_variables() {
-  return no_split_variables;
+const std::set<size_t>& TreeOptions::get_disallowed_split_variables() {
+  return disallowed_split_variables;
 }
 
 bool TreeOptions::get_honesty() {

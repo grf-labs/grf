@@ -45,7 +45,6 @@ public:
             uint seed,
             uint num_threads,
             uint min_node_size,
-            std::set<size_t> no_split_variables,
             bool sample_with_replacement,
             double sample_fraction,
             bool honesty,
@@ -69,10 +68,9 @@ private:
   uint num_threads;
   uint random_seed;
 
-  std::set<size_t> no_split_variables;
+  std::unordered_map<size_t, size_t> observables;
   std::shared_ptr<TreeTrainer> tree_trainer;
 
-  std::unordered_map<size_t, size_t> observables;
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
