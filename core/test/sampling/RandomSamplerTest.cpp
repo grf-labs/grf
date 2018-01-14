@@ -32,7 +32,7 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, {});
+  SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 9;
@@ -63,7 +63,7 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, {});
+  SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 9;
@@ -94,8 +94,8 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, {});
-    RandomSampler sampler(random_device(), sampling_options); 
+  SamplingOptions sampling_options(true);
+  RandomSampler sampler(random_device(), sampling_options); 
 
   size_t max = 9;
   std::set<size_t> skip = {9};
@@ -125,7 +125,7 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, {});
+  SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
   
   size_t max = 1000;
@@ -156,7 +156,7 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true, {});
+  SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 1000;
@@ -186,7 +186,7 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
 TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
   std::random_device random_device;
 
-  SamplingOptions sampling_options(true, {});
+  SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
 
   std::vector<size_t> first_part;
@@ -201,7 +201,7 @@ TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
 TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
   std::random_device random_device;
 
-  SamplingOptions sampling_options(true, {});
+  SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
 
   std::vector<size_t> first_part;
@@ -216,7 +216,7 @@ TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
 TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
   std::random_device random_device;
 
-  SamplingOptions sampling_options(true, {});
+  SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
 
   std::vector<size_t> first_part;
@@ -231,7 +231,7 @@ TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
 TEST_CASE("Shuffle and split 4", "[shuffleAndSplit]") {
   std::random_device random_device;
 
-  SamplingOptions sampling_options(true, {});
+  SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
   
   std::vector<size_t> first_part;

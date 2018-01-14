@@ -24,7 +24,6 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
                           bool sample_with_replacement,
                           bool keep_inbag,
                           double sample_fraction,
-                          std::vector<size_t> no_split_variables,
                           unsigned int seed,
                           bool honesty,
                           unsigned int ci_group_size,
@@ -35,7 +34,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
       ? ForestTrainers::regression_trainer(data, outcome_index - 1, alpha)
       : ForestTrainers::quantile_trainer(data, outcome_index - 1, quantiles, alpha);
   RcppUtilities::initialize_trainer(trainer, mtry, num_trees, num_threads, min_node_size,
-      sample_with_replacement, sample_fraction, no_split_variables, seed, honesty, ci_group_size);
+      sample_with_replacement, sample_fraction, seed, honesty, ci_group_size);
   Forest forest = trainer.train(data);
 
   Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
