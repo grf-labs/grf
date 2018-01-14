@@ -43,7 +43,6 @@ void ForestTrainer::init(uint mtry,
                          uint seed,
                          uint num_threads,
                          uint min_node_size,
-                         std::set<size_t> no_split_variables,
                          bool sample_with_replacement,
                          double sample_fraction,
                          bool honesty,
@@ -65,11 +64,6 @@ void ForestTrainer::init(uint mtry,
   }
   this->sample_fraction = sample_fraction;
 
-  this->no_split_variables = no_split_variables;
-  for (auto it : observables) {
-      this->no_split_variables.insert(it.second);
-  }
-
   if (seed != 0) {
     this->random_seed = seed;
   } else {
@@ -79,10 +73,12 @@ void ForestTrainer::init(uint mtry,
 
   this->ci_group_size = ci_group_size;
 
-  TreeOptions tree_options(mtry,
-      min_node_size,
-      this->no_split_variables,
-      honesty);
+  std::set<size_t> disallowed_split_variables;
+  for (auto it : observables) {
+    disallowed_split_variables.insert(it.second);
+  }
+
+  TreeOptions tree_options(mtry, min_node_size, disallowed_split_variables, honesty);
   tree_trainer = std::shared_ptr<TreeTrainer>(new TreeTrainer(
       relabeling_strategy,
       splitting_rule_factory,
