@@ -23,12 +23,10 @@
 
 class ForestTestUtilities {
 public:
-  static void init_default_trainer(ForestTrainer &trainer);
-  static void init_honest_trainer(ForestTrainer& trainer);
+  static ForestOptions default_options();
+  static ForestOptions default_honest_options();
 
-  static void init_trainer(ForestTrainer& trainer,
-                           bool honesty,
-                           uint ci_group_size);
+  static ForestOptions default_options(bool honesty, uint ci_group_size);
 };
 
 #endif //GRF_FORESTTESTUTILITIES_H

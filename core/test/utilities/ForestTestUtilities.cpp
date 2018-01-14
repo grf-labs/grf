@@ -18,17 +18,16 @@
 #include "utilities/ForestTestUtilities.h"
 #include "forest/ForestTrainer.h"
 
-void ForestTestUtilities::init_default_trainer(ForestTrainer &trainer) {
-  init_trainer(trainer, false, 1);
+ForestOptions ForestTestUtilities::default_options() {
+  return default_options(false, 1);
 }
 
-void ForestTestUtilities::init_honest_trainer(ForestTrainer& trainer) {
-  init_trainer(trainer, true, 1);
+ForestOptions ForestTestUtilities::default_honest_options() {
+  return default_options(true, 1);
 }
 
-void ForestTestUtilities::init_trainer(ForestTrainer& trainer,
-                                       bool honesty,
-                                       uint ci_group_size) {
+ForestOptions ForestTestUtilities::default_options(bool honesty,
+                                                   uint ci_group_size) {
   uint mtry = 3;
   uint num_trees = 50;
   uint seed = 42;
@@ -37,6 +36,6 @@ void ForestTestUtilities::init_trainer(ForestTrainer& trainer,
   bool sample_with_replacement = true;
   double sample_fraction = ci_group_size > 1 ? 0.35 : 0.7;
 
-  trainer.init(mtry, num_trees, seed, num_threads, min_node_size,
-               sample_with_replacement, sample_fraction, honesty, ci_group_size);
+  return ForestOptions(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
+                       honesty, sample_with_replacement, num_threads, seed);
 }
