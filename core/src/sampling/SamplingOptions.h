@@ -25,19 +25,19 @@
 class SamplingOptions {
 public:
   SamplingOptions(bool sample_with_replacement,
-                  const std::vector<double>& case_weights);
+                  const std::vector<double>& sample_weights);
 
   bool get_sample_with_replacement() const {
     return sample_with_replacement;
   }
 
-  const std::vector<double>& get_case_weights() const {
-    return case_weights;
+  const std::vector<double>& get_sample_weights() const {
+    return sample_weights;
   }
 
 private:
   bool sample_with_replacement;
-  std::vector<double> case_weights;
+  std::vector<double> sample_weights;
 };
 
 #endif //GRF_SAMPLINGOPTIONS_H

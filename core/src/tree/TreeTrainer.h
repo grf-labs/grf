@@ -52,8 +52,7 @@ private:
 
   void create_split_variable_subset(std::vector<size_t>& result,
                                     RandomSampler& sampler,
-                                    Data* data,
-                                    const std::vector<double>& split_select_weights);
+                                    Data* data);
 
   bool split_node(size_t node,
                   std::shared_ptr<SplittingRule> splitting_rule,
@@ -63,8 +62,7 @@ private:
                   std::vector<std::vector<size_t>>& child_nodes,
                   std::vector<std::vector<size_t>>& samples,
                   std::vector<size_t>& split_vars,
-                  std::vector<double>& split_values,
-                  const std::vector<double>& split_select_weights);
+                  std::vector<double>& split_values);
 
   bool split_node_internal(size_t node,
                            std::shared_ptr<SplittingRule> splitting_rule,
