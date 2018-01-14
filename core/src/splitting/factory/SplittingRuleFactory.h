@@ -26,7 +26,7 @@
 
 class SplittingRuleFactory {
 public:
-  virtual std::shared_ptr<SplittingRule> create() = 0;
+  virtual std::shared_ptr<SplittingRule> create(Data* data) = 0;
 };
 
 #endif //GRF_SPLITTINGRULEFACTORY_H

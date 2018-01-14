@@ -28,7 +28,7 @@ TEST_CASE("forests don't crash when there are fewer trees than threads", "[fores
   uint outcome_index = 10;
   double alpha = 0.10;
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(data, outcome_index, alpha);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha);
 
   uint mtry = 3;
   uint num_trees = 2;
