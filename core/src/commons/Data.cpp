@@ -192,9 +192,11 @@ size_t Data::get_num_unique_data_values(size_t var) const {
 const std::vector<std::string>& Data::get_variable_names() const {
   return variable_names;
 }
+
 size_t Data::get_num_cols() const {
   return num_cols;
 }
+
 size_t Data::get_num_rows() const {
   return num_rows;
 }

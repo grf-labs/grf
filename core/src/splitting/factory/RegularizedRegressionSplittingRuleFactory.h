@@ -37,11 +37,10 @@ public:
    * downweight_penalty: Whether or not to downweight the penalty (experimental,
    *     will be removed once we run tuning experiments).
    */
-  RegularizedRegressionSplittingRuleFactory(Data* data, double lambda, bool downweight_penalty);
-  std::shared_ptr<SplittingRule> create();
+  RegularizedRegressionSplittingRuleFactory(double lambda, bool downweight_penalty);
+  std::shared_ptr<SplittingRule> create(Data* data);
 
 private:
-  Data* data;
   double lambda;
   bool downweight_penalty;
 };

@@ -64,7 +64,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   Data* data = load_data("test/forest/resources/quantile_data.csv");
   double alpha = 0.0;
 
-  ForestTrainer trainer = ForestTrainers::quantile_trainer(data, 10, quantiles, alpha);
+  ForestTrainer trainer = ForestTrainers::quantile_trainer(10, quantiles, alpha);
   ForestTestUtilities::init_default_trainer(trainer);
   Forest forest = trainer.train(data);
 
@@ -90,7 +90,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   double alpha = 0.0;
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
-      data, 10, 11, 11, split_regularization, alpha);
+      10, 11, 11, split_regularization, alpha);
   ForestTestUtilities::init_default_trainer(trainer);
 
   Forest forest = trainer.train(data);
@@ -115,7 +115,7 @@ TEST_CASE("regression forest predictions have not changed", "[regression], [char
   Data* data = load_data("test/forest/resources/regression_data.csv");
   double alpha = 0.0;
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(data, 10, alpha);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(10, alpha);
   ForestTestUtilities::init_default_trainer(trainer);
 
   Forest forest = trainer.train(data);

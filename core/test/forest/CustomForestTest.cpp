@@ -31,7 +31,7 @@ TEST_CASE("custom forests predict 0 by default", "[custom, forest]") {
   uint outcome_index = 10;
   double alpha = 0.0;
 
-  ForestTrainer trainer = ForestTrainers::custom_trainer(data, outcome_index, alpha);
+  ForestTrainer trainer = ForestTrainers::custom_trainer(outcome_index, alpha);
   ForestTestUtilities::init_honest_trainer(trainer);
   Forest forest = trainer.train(data);
 
