@@ -57,7 +57,6 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
     
-    no.split.variables <- numeric(0)
     sample.with.replacement <- FALSE
     verbose <- FALSE
     keep.inbag <- FALSE
@@ -97,7 +96,7 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index, instrument.index,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size,
-        sample.with.replacement, keep.inbag, sample.fraction, no.split.variables, seed, honesty,
+        sample.with.replacement, keep.inbag, sample.fraction, seed, honesty,
         ci.group.size, split.regularization, alpha, lambda, downweight.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size

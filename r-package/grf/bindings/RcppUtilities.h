@@ -16,7 +16,6 @@ public:
                                  uint min_node_size,
                                  bool sample_with_replacement,
                                  double sample_fraction,
-                                 const std::vector<size_t>& no_split_variables,
                                  uint seed,
                                  bool honesty,
                                  uint ci_group_size);
