@@ -46,9 +46,8 @@ public:
             uint num_threads,
             uint min_node_size,
             std::set<size_t> no_split_variables,
-            std::string split_select_weights_file,
             bool sample_with_replacement,
-            std::string case_weights_file,
+            std::string sample_weights_file,
             double sample_fraction,
             bool honesty,
             uint ci_group_size);
@@ -65,9 +64,6 @@ private:
       Data* data,
       const Observations& observations);
 
-  void set_split_select_weights(std::vector<double>& split_select_weights,
-                                size_t num_independent_variables);
-
   size_t num_trees;
   uint mtry;
   uint min_node_size;
@@ -80,13 +76,6 @@ private:
   uint num_threads;
   std::shared_ptr<TreeTrainer> tree_trainer;
 
-  // Weight vector for selecting possible split variables, one weight between 0 (never select) and 1 (always select) for each variable
-  // Deterministic variables are always selected
-  std::vector<size_t> deterministic_vars;
-  std::vector<size_t> split_select_vars;
-  std::vector<double> split_select_weights;
-
-
   std::unordered_map<size_t, size_t> observables;
   std::shared_ptr<RelabelingStrategy> relabeling_strategy;
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
@@ -94,7 +83,6 @@ private:
 
   std::vector<double> sample_weights;
   std::string sample_weights_file;
-  std::string split_select_weights_file;
 
   uint ci_group_size;
 };

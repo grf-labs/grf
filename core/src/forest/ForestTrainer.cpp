@@ -42,13 +42,11 @@ void ForestTrainer::init(uint mtry,
                          uint num_threads,
                          uint min_node_size,
                          std::set<size_t> no_split_variables,
-                         std::string split_select_weights_file,
                          bool sample_with_replacement,
                          std::string sample_weights_file,
                          double sample_fraction,
                          bool honesty,
                          uint ci_group_size) {
-  this->split_select_weights_file = split_select_weights_file;
   this->sample_weights_file = sample_weights_file;
 
   // Set number of threads
@@ -88,9 +86,6 @@ void ForestTrainer::init(uint mtry,
 
   TreeOptions tree_options(mtry,
       min_node_size,
-      split_select_weights,
-      split_select_vars,
-      deterministic_vars,
       this->no_split_variables,
       honesty);
   tree_trainer = std::shared_ptr<TreeTrainer>(new TreeTrainer(
@@ -104,16 +99,6 @@ Forest ForestTrainer::train(Data* data) {
   size_t num_samples = data->get_num_rows();
   size_t num_variables = data->get_num_cols();
   size_t num_independent_variables = num_variables - no_split_variables.size();
-
-  if (!split_select_weights_file.empty()) {
-    std::vector<double> split_select_weights;
-    split_select_weights.resize(1);
-    read_vector_from_file(split_select_weights, split_select_weights_file);
-    if (split_select_weights.size() != num_variables - 1) {
-      throw std::runtime_error("Number of split select weights is not equal to number of independent variables.");
-    }
-    set_split_select_weights(split_select_weights, num_independent_variables);
-  }
 
   // Load case weights from file
   if (!sample_weights_file.empty()) {
@@ -242,38 +227,4 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
   }
 
   return trees;
-}
-
-void ForestTrainer::set_split_select_weights(std::vector<double>& split_select_weights,
-                                             size_t num_independent_variables) {
-// Reserve space
-  this->split_select_weights.resize(num_independent_variables);
-  this->split_select_vars.resize(num_independent_variables);
-  deterministic_vars.reserve(num_independent_variables);
-
-  // Split up in deterministic and weighted variables, ignore zero weights
-  // Size should be 1 x num_independent_variables or num_trees x num_independent_variables
-  if (split_select_weights.size() != num_independent_variables) {
-    throw std::runtime_error("Number of split select weights not equal to number of independent variables.");
-  }
-
-  for (size_t j = 0; j < split_select_weights.size(); ++j) {
-    double weight = split_select_weights[j];
-
-    size_t var = j;
-    for (auto& skip : no_split_variables) {
-      if (var >= skip) {
-        ++var;
-      }
-    }
-
-    if (weight == 1) {
-      deterministic_vars.push_back(var);
-    } else if (weight < 1 && weight > 0) {
-      this->split_select_vars[j] = var;
-      this->split_select_weights[j] = weight;
-    } else if (weight < 0 || weight > 1) {
-      throw std::runtime_error("One or more split select weights not in range [0,1].");
-    }
-  }
 }
