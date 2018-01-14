@@ -30,9 +30,11 @@ ForestTrainer::ForestTrainer(std::unordered_map<size_t, size_t> observables,
                              std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                              std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                              std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
-    num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), seed(0),
-    sample_with_replacement(true), sample_fraction(1), num_threads(DEFAULT_NUM_THREADS),
-    observables(observables), relabeling_strategy(relabeling_strategy),
+    random_seed(0),
+    sample_with_replacement(true),
+    sample_fraction(1), num_threads(DEFAULT_NUM_THREADS),
+    observables(observables),
+    relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
     prediction_strategy(prediction_strategy) {}
 
@@ -47,9 +49,6 @@ void ForestTrainer::init(uint mtry,
                          double sample_fraction,
                          bool honesty,
                          uint ci_group_size) {
-  this->sample_weights_file = sample_weights_file;
-
-  // Set number of threads
   if (num_threads == DEFAULT_NUM_THREADS) {
     this->num_threads = std::thread::hardware_concurrency();
   } else {
@@ -59,9 +58,6 @@ void ForestTrainer::init(uint mtry,
   // If necessary, round the number of trees up to a multiple of
   // the confidence interval group size.
   this->num_trees = num_trees + (num_trees % ci_group_size);
-
-  this->mtry = mtry;
-  this->min_node_size = min_node_size;
   this->sample_with_replacement = sample_with_replacement;
 
   if (ci_group_size > 1 && sample_fraction > 0.5) {
@@ -76,10 +72,10 @@ void ForestTrainer::init(uint mtry,
   }
 
   if (seed != 0) {
-    this->seed = seed;
+    this->random_seed = seed;
   } else {
     std::random_device random_device;
-    this->seed = random_device();
+    this->random_seed = random_device();
   }
 
   this->ci_group_size = ci_group_size;
@@ -97,8 +93,6 @@ void ForestTrainer::init(uint mtry,
 
 Forest ForestTrainer::train(Data* data) {
   size_t num_samples = data->get_num_rows();
-  size_t num_variables = data->get_num_cols();
-  size_t num_independent_variables = num_variables - no_split_variables.size();
 
   // Load case weights from file
   if (!sample_weights_file.empty()) {
@@ -108,18 +102,9 @@ Forest ForestTrainer::train(Data* data) {
     }
   }
 
-  if (mtry == 0) {
-    mtry = std::ceil(num_independent_variables / 3.0);
-  }
-
-  // Set minimal node size
-  if (min_node_size == 0) {
-    min_node_size = DEFAULT_MIN_NODE_SIZE;
-  }
-
-  // Check if any observations samples
+  // Ensure that the sample fraction is not too small.
   if ((size_t) num_samples * sample_fraction < 1) {
-    throw std::runtime_error("sample_fraction too small, no observations sampled.");
+    throw std::runtime_error("The sample fraction is too small, as no observations will be sampled.");
   }
 
   size_t num_types = observables.size();
@@ -171,7 +156,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
     size_t num_trees,
     Data* data,
     const Observations& observations) {
-  std::mt19937_64 random_number_generator(seed + start);
+  std::mt19937_64 random_number_generator(random_seed + start);
   std::uniform_int_distribution<uint> udist;
   std::vector<std::shared_ptr<Tree>> trees;
 
