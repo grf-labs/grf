@@ -31,7 +31,7 @@ void RandomSampler::sample(size_t num_samples,
                            std::vector<size_t>& samples,
                            std::vector<size_t>& oob_samples) {
   bool sample_with_replacement = options.get_sample_with_replacement();
-  if (options.get_case_weights().empty()) {
+  if (options.get_sample_weights().empty()) {
     if (sample_with_replacement) {
       bootstrap(num_samples, sample_fraction, samples, oob_samples);
     } else {
@@ -100,7 +100,7 @@ void RandomSampler::bootstrap_weighted(size_t num_samples,
                                        double sample_fraction,
                                        std::vector<size_t>& samples,
                                        std::vector<size_t>& oob_samples) {
-  const std::vector<double>& case_weights = options.get_case_weights();
+  const std::vector<double>& sample_weights = options.get_sample_weights();
 
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
 
@@ -108,7 +108,7 @@ void RandomSampler::bootstrap_weighted(size_t num_samples,
   samples.reserve(num_samples_inbag);
   oob_samples.reserve(num_samples * (std::exp(-sample_fraction) + 0.1));
 
-  std::discrete_distribution<> weighted_dist(case_weights.begin(), case_weights.end());
+  std::discrete_distribution<> weighted_dist(sample_weights.begin(), sample_weights.end());
 
 // Start with all samples OOB
   std::vector<size_t> inbag_counts;
@@ -145,7 +145,7 @@ void RandomSampler::bootstrap_without_replacement_weighted(size_t num_samples,
   draw_without_replacement_weighted(samples,
                                     num_samples - 1,
                                     num_samples_inbag,
-                                    options.get_case_weights());
+                                    options.get_sample_weights());
 
   std::vector<size_t> inbag_counts;
   inbag_counts.resize(num_samples, 0);
