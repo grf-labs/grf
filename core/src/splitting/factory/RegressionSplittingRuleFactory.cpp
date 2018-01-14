@@ -18,10 +18,9 @@
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
 #include "splitting/RegressionSplittingRule.h"
 
-RegressionSplittingRuleFactory::RegressionSplittingRuleFactory(Data* data,
-                                                               double alpha):
-    data(data), alpha(alpha) {}
+RegressionSplittingRuleFactory::RegressionSplittingRuleFactory(double alpha):
+    alpha(alpha) {}
 
-std::shared_ptr<SplittingRule> RegressionSplittingRuleFactory::create() {
+std::shared_ptr<SplittingRule> RegressionSplittingRuleFactory::create(Data* data) {
   return std::shared_ptr<SplittingRule>(new RegressionSplittingRule(data, alpha));
 }

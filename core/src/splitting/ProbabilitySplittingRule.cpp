@@ -21,7 +21,9 @@
 
 #include "ProbabilitySplittingRule.h"
 
-ProbabilitySplittingRule::ProbabilitySplittingRule(Data* data, double alpha, size_t num_classes) {
+ProbabilitySplittingRule::ProbabilitySplittingRule(Data* data,
+                                                   double alpha,
+                                                   size_t num_classes) {
   this->data = data;
   this->alpha = alpha;
   this->num_classes = num_classes;
