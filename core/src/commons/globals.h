@@ -25,10 +25,7 @@ static const int offset[4] = {6,4,2,0};
 // Default values
 const uint DEFAULT_NUM_TREE = 500;
 const uint DEFAULT_NUM_THREADS = 0;
-
-const uint DEFAULT_MIN_NODE_SIZE_CLASSIFICATION = 1;
-const uint DEFAULT_MIN_NODE_SIZE_REGRESSION = 5;
-const uint DEFAULT_MIN_NODE_SIZE_PROBABILITY = 10;
+const uint DEFAULT_MIN_NODE_SIZE = 5;
 
 // Interval to print progress in seconds
 const double STATUS_INTERVAL = 30.0;

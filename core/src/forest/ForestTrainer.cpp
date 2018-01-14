@@ -129,7 +129,7 @@ Forest ForestTrainer::train(Data* data) {
 
   // Set minimal node size
   if (min_node_size == 0) {
-    min_node_size = DEFAULT_MIN_NODE_SIZE_REGRESSION;
+    min_node_size = DEFAULT_MIN_NODE_SIZE;
   }
 
   // Check if any observations samples
