@@ -25,7 +25,6 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               bool sample_with_replacement,
                               bool keep_inbag,
                               double sample_fraction,
-                              std::vector<size_t> no_split_variables,
                               unsigned int seed,
                               bool honesty,
                               unsigned int ci_group_size,
@@ -50,7 +49,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                                            split_regularization,
                                            alpha);
   RcppUtilities::initialize_trainer(trainer, mtry, num_trees, num_threads, min_node_size,
-      sample_with_replacement, sample_fraction, no_split_variables, seed, honesty, ci_group_size);
+                                    sample_with_replacement, sample_fraction, seed, honesty, ci_group_size);
 
   Forest forest = trainer.train(data);
 
