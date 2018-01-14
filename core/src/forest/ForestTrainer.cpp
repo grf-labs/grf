@@ -45,7 +45,6 @@ void ForestTrainer::init(uint mtry,
                          uint min_node_size,
                          std::set<size_t> no_split_variables,
                          bool sample_with_replacement,
-                         std::string sample_weights_file,
                          double sample_fraction,
                          bool honesty,
                          uint ci_group_size) {
@@ -93,14 +92,6 @@ void ForestTrainer::init(uint mtry,
 
 Forest ForestTrainer::train(Data* data) {
   size_t num_samples = data->get_num_rows();
-
-  // Load case weights from file
-  if (!sample_weights_file.empty()) {
-    read_vector_from_file(sample_weights, sample_weights_file);
-    if (sample_weights.size() != num_samples - 1) {
-      throw std::runtime_error("Number of case weights is not equal to number of samples.");
-    }
-  }
 
   // Ensure that the sample fraction is not too small.
   if ((size_t) num_samples * sample_fraction < 1) {
@@ -168,7 +159,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
 
   for (size_t i = 0; i < num_trees; i++) {
     uint tree_seed = udist(random_number_generator);
-    SamplingOptions sampling_options(sample_with_replacement, sample_weights);
+    SamplingOptions sampling_options(sample_with_replacement);
     RandomSampler sampler(tree_seed, sampling_options);
 
     if (ci_group_size == 1) {
