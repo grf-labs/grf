@@ -35,15 +35,13 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names);
 
   ForestTrainer trainer = lambda > 0
-    ? ForestTrainers::regularized_instrumental_trainer(data,
-                                                       outcome_index - 1,
+    ? ForestTrainers::regularized_instrumental_trainer(outcome_index - 1,
                                                        treatment_index - 1,
                                                        instrument_index - 1,
                                                        split_regularization,
                                                        lambda,
                                                        downweight_penalty)
-    : ForestTrainers::instrumental_trainer(data,
-                                           outcome_index - 1,
+    : ForestTrainers::instrumental_trainer(outcome_index - 1,
                                            treatment_index - 1,
                                            instrument_index - 1,
                                            split_regularization,

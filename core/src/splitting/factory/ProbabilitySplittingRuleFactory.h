@@ -35,11 +35,10 @@ public:
    *     parameter will not be considered.
    * num_classes: The number of unique classes in the data.
    */
-  ProbabilitySplittingRuleFactory(Data* data, double alpha, size_t num_classes);
-  std::shared_ptr<SplittingRule> create();
+  ProbabilitySplittingRuleFactory(double alpha, size_t num_classes);
+  std::shared_ptr<SplittingRule> create(Data* data);
 
 private:
-  Data* data;
   double alpha;
   size_t num_classes;
 
