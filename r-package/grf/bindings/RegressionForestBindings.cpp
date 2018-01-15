@@ -30,12 +30,12 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             bool downweight_penalty) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names);
 
+  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
+                        honesty, sample_with_replacement, num_threads, seed);
   ForestTrainer trainer = lambda > 0
-      ? ForestTrainers::regularized_regression_trainer(outcome_index - 1, lambda, downweight_penalty)
-      : ForestTrainers::regression_trainer(outcome_index - 1, alpha);
+      ? ForestTrainers::regularized_regression_trainer(outcome_index - 1, lambda, downweight_penalty, options)
+      : ForestTrainers::regression_trainer(outcome_index - 1, alpha, options);
 
-  RcppUtilities::initialize_trainer(trainer, mtry, num_trees, num_threads, min_node_size,
-      sample_with_replacement, sample_fraction, seed, honesty, ci_group_size);
   Forest forest = trainer.train(data);
 
   Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
