@@ -44,9 +44,9 @@ Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
                         double alpha) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names);
 
-  ForestTrainer trainer = ForestTrainers::custom_trainer(outcome_index - 1, alpha);
-  RcppUtilities::initialize_trainer(trainer, mtry, num_trees, num_threads, min_node_size,
-      sample_with_replacement, sample_fraction, seed, honesty, ci_group_size);
+  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
+      honesty, sample_with_replacement, num_threads, seed);
+  ForestTrainer trainer = ForestTrainers::custom_trainer(outcome_index - 1, alpha, options);
   Forest forest = trainer.train(data);
 
   Rcpp::List result = RcppUtilities::create_forest_object(forest, data);

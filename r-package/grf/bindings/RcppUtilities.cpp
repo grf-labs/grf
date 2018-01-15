@@ -3,24 +3,11 @@
 
 #include "commons/DefaultData.h"
 #include "commons/SparseData.h"
+#include "forest/ForestOptions.h"
 #include "RcppUtilities.h"
 #include "serialization/ForestSerializer.h"
 
 const std::string RcppUtilities::SERIALIZED_FOREST_KEY = "serialized.forest";
-
-void RcppUtilities::initialize_trainer(ForestTrainer& forest_trainer,
-                                       uint mtry,
-                                       uint num_trees,
-                                       uint num_threads,
-                                       uint min_node_size,
-                                       bool sample_with_replacement,
-                                       double sample_fraction,
-                                       uint seed,
-                                       bool honesty,
-                                       uint ci_group_size) {
-  forest_trainer.init(mtry, num_trees, seed, num_threads, min_node_size,
-      sample_with_replacement, sample_fraction, honesty, ci_group_size);
-}
 
 Rcpp::List RcppUtilities::create_forest_object(const Forest& forest,
                                                Data* data) {
