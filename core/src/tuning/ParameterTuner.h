@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------------
-  This file is part of generalized random forest (grf).
+  This file is part of generalized-random-forest.
 
   grf is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,32 +15,31 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_TREEOPTIONS_H
-#define GRF_TREEOPTIONS_H
-
-
-#include <set>
-#include <string>
-#include <vector>
+#ifndef GRF_PARAMETERTUNER_H
+#define GRF_PARAMETERTUNER_H
 
 #include "commons/globals.h"
+#include "forest/ForestPredictor.h"
+#include "forest/ForestTrainer.h"
 
-class TreeOptions {
+class ParameterTuner {
+
 public:
-  TreeOptions(uint mtry,
-              uint min_node_size,
-              bool honesty);
-
-  uint get_mtry() const;
-  uint get_min_node_size() const;
-  bool get_honesty() const;
-
-  void set_min_node_size(uint min_node_size);
+  ParameterTuner(const ForestTrainer& trainer,
+                 const ForestPredictor& predictor,
+                 uint outcome_index);
+  uint tune_min_node_size(Data* data,
+                          ForestOptions &options);
 
 private:
-  uint mtry;
-  uint min_node_size;
-  bool honesty;
+  double calculate_mse(const std::vector<Prediction>& predictions,
+                       Data* data);
+
+  ForestTrainer trainer;
+  ForestPredictor predictor;
+  uint outcome_index;
 };
 
-#endif //GRF_TREEOPTIONS_H
+
+
+#endif //GRF_PARAMETERTUNER_H

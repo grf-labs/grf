@@ -24,6 +24,7 @@
 #' @param lambda A tuning parameter to control the amount of split regularization (experimental).
 #' @param downweight.penalty Whether or not the regularization penalty should be downweighted (experimental).
 #' @param seed The seed for the C++ random number generator.
+#' @param tune.parameters Experimental option that allows for parameters like min.node.size to be automatically tuned.
 #'
 #' @return A trained regression forest object.
 #'
@@ -51,7 +52,7 @@
 regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                               honesty = TRUE, ci.group.size = 2, alpha = 0.05, lambda = 0.0,
-                              downweight.penalty = FALSE, seed = NULL) {
+                              downweight.penalty = FALSE, seed = NULL, tune.parameters = FALSE) {
     
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -69,10 +70,10 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     data <- create_data_matrices(X, Y)
     variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(X) + 1
-    
+
     forest <- regression_train(data$default, data$sparse, outcome.index, variable.names, mtry, num.trees,
         verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
-        seed, honesty, ci.group.size, alpha, lambda, downweight.penalty)
+        seed, honesty, ci.group.size, alpha, lambda, downweight.penalty, tune.parameters)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

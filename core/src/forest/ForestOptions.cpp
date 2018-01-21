@@ -83,3 +83,11 @@ uint ForestOptions::get_num_threads() const {
 uint ForestOptions::get_random_seed() const {
   return random_seed;
 }
+
+uint ForestOptions::get_min_node_size() const {
+  return tree_options.get_min_node_size();
+}
+
+void ForestOptions::set_min_node_size(uint min_node_size) {
+  return tree_options.set_min_node_size(min_node_size);
+}
