@@ -22,11 +22,9 @@
 #include "tree/TreeTrainer.h"
 
 TreeTrainer::TreeTrainer(const std::unordered_map<size_t, size_t>& observables,
-                         const TreeOptions& options,
                          std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                          std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                          std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
-    options(options),
     relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
     prediction_strategy(prediction_strategy) {
@@ -39,7 +37,8 @@ TreeTrainer::TreeTrainer(const std::unordered_map<size_t, size_t>& observables,
 std::shared_ptr<Tree> TreeTrainer::train(Data* data,
                                          const Observations& observations,
                                          RandomSampler& sampler,
-                                         const std::vector<size_t>& samples) const {
+                                         const std::vector<size_t>& samples,
+                                         const TreeOptions& options) const {
   std::vector<std::vector<size_t>> child_nodes;
   std::vector<std::vector<size_t>> nodes;
   std::vector<size_t> split_vars;
@@ -70,7 +69,8 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
                                    child_nodes,
                                    nodes,
                                    split_vars,
-                                   split_values);
+                                   split_values,
+                                   options);
     if (is_leaf_node) {
       --num_open_nodes;
     } else {
@@ -120,11 +120,12 @@ void TreeTrainer::repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
 
 void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
                                                RandomSampler& sampler,
-                                               Data* data) const {
+                                               Data* data,
+                                               uint mtry) const {
 
   // Randomly select an mtry for this tree based on the overall setting.
   size_t num_independent_variables = data->get_num_cols() - disallowed_split_variables.size();
-  size_t mtry_sample = sampler.sample_poisson(options.get_mtry());
+  size_t mtry_sample = sampler.sample_poisson(mtry);
   size_t split_mtry = std::max<size_t>(std::min<size_t>(mtry_sample, num_independent_variables), 1uL);
 
   sampler.draw_without_replacement_skip(result,
@@ -141,10 +142,11 @@ bool TreeTrainer::split_node(size_t node,
                              std::vector<std::vector<size_t>>& child_nodes,
                              std::vector<std::vector<size_t>>& samples,
                              std::vector<size_t>& split_vars,
-                             std::vector<double>& split_values) const {
+                             std::vector<double>& split_values,
+                             const TreeOptions& options) const {
 
   std::vector<size_t> possible_split_vars;
-  create_split_variable_subset(possible_split_vars, sampler, data);
+  create_split_variable_subset(possible_split_vars, sampler, data, options.get_mtry());
 
   bool stop = split_node_internal(node,
                                   splitting_rule,
@@ -152,7 +154,8 @@ bool TreeTrainer::split_node(size_t node,
                                   possible_split_vars,
                                   samples,
                                   split_vars,
-                                  split_values);
+                                  split_values,
+                                  options.get_min_node_size());
   if (stop) {
     return true;
   }
@@ -188,9 +191,10 @@ bool TreeTrainer::split_node_internal(size_t node,
                                       const std::vector<size_t>& possible_split_vars,
                                       std::vector<std::vector<size_t>>& samples,
                                       std::vector<size_t>& split_vars,
-                                      std::vector<double>& split_values) const {
+                                      std::vector<double>& split_values,
+                                      uint min_node_size) const {
   // Check node size, stop if maximum reached
-  if (samples[node].size() <= options.get_min_node_size()) {
+  if (samples[node].size() <= min_node_size) {
     split_values[node] = -1.0;
     return true;
   }
