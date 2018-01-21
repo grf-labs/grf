@@ -64,9 +64,9 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   Data* data = load_data("test/forest/resources/quantile_data.csv");
   double alpha = 0.0;
 
-  ForestTrainer trainer = ForestTrainers::quantile_trainer(10, quantiles, alpha,
-      ForestTestUtilities::default_options());
-  Forest forest = trainer.train(data);
+  ForestTrainer trainer = ForestTrainers::quantile_trainer(10, quantiles, alpha);
+  ForestOptions options = ForestTestUtilities::default_options();
+  Forest forest = trainer.train(data, options);
 
   ForestPredictor predictor = ForestPredictors::quantile_predictor(4, quantiles);
 
@@ -89,11 +89,10 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   double alpha = 0.0;
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
-      10, 11, 11, split_regularization, alpha,
-      ForestTestUtilities::default_options());
+      10, 11, 11, split_regularization, alpha);
+  ForestOptions options = ForestTestUtilities::default_options();
 
-  Forest forest = trainer.train(data);
-
+  Forest forest = trainer.train(data, options);
   ForestPredictor predictor = ForestPredictors::instrumental_predictor(4, 1);
 
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
@@ -113,10 +112,9 @@ TEST_CASE("regression forest predictions have not changed", "[regression], [char
   Data* data = load_data("test/forest/resources/regression_data.csv");
   double alpha = 0.0;
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(10, alpha,
-      ForestTestUtilities::default_options());
-
-  Forest forest = trainer.train(data);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(10, alpha);
+  ForestOptions options = ForestTestUtilities::default_options();
+  Forest forest = trainer.train(data, options);
 
   ForestPredictor predictor = ForestPredictors::regression_predictor(4, 1);
 

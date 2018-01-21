@@ -24,9 +24,11 @@
 #include "catch.hpp"
 
 TEST_CASE("forests don't crash when there are fewer trees than threads", "[forest]") {
-  Data *data = load_data("test/forest/resources/gaussian_data.csv");
   uint outcome_index = 10;
   double alpha = 0.10;
+
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha);
+  Data* data = load_data("test/forest/resources/gaussian_data.csv");
 
   uint mtry = 3;
   uint num_trees = 2;
@@ -41,9 +43,7 @@ TEST_CASE("forests don't crash when there are fewer trees than threads", "[fores
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry,
         min_node_size, honesty, sample_with_replacement, num_threads, seed);
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha, options);
-
-  Forest forest = trainer.train(data);
+  Forest forest = trainer.train(data, options);
   ForestPredictor predictor = ForestPredictors::regression_predictor(4, 2);
   predictor.predict_oob(forest, data);
   delete data;

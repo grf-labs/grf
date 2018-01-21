@@ -33,10 +33,9 @@ TEST_CASE("custom forests predict 0 by default", "[custom, forest]") {
 
   ForestTrainer trainer = ForestTrainers::custom_trainer(
       outcome_index,
-      alpha,
-      ForestTestUtilities::default_honest_options());
-
-  Forest forest = trainer.train(data);
+      alpha);
+  ForestOptions options = ForestTestUtilities::default_honest_options();
+  Forest forest = trainer.train(data, options);
 
   // Predict on the same data.
   ForestPredictor predictor = ForestPredictors::custom_predictor(4);
