@@ -32,26 +32,24 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               double alpha,
                               double lambda,
                               bool downweight_penalty) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names);
-
-  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-                        honesty, sample_with_replacement, num_threads, seed);
   ForestTrainer trainer = lambda > 0
     ? ForestTrainers::regularized_instrumental_trainer(outcome_index - 1,
                                                        treatment_index - 1,
                                                        instrument_index - 1,
                                                        split_regularization,
                                                        lambda,
-                                                       downweight_penalty,
-                                                       options)
+                                                       downweight_penalty)
     : ForestTrainers::instrumental_trainer(outcome_index - 1,
                                            treatment_index - 1,
                                            instrument_index - 1,
                                            split_regularization,
-                                           alpha,
-                                           options);
+                                           alpha);
 
-  Forest forest = trainer.train(data);
+  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names);
+  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
+                        honesty, sample_with_replacement, num_threads, seed);
+
+  Forest forest = trainer.train(data, options);
 
   Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
   delete data;
