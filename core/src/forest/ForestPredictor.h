@@ -42,28 +42,28 @@ public:
                   uint ci_group_size,
                   std::shared_ptr<OptimizedPredictionStrategy> strategy);
 
-  std::vector<Prediction> predict(const Forest& forest, Data* prediction_data);
-  std::vector<Prediction> predict_oob(const Forest& forest, Data* original_data);
+  std::vector<Prediction> predict(const Forest& forest, Data* prediction_data) const;
+  std::vector<Prediction> predict_oob(const Forest& forest, Data* original_data) const;
 
 private:
   std::vector<Prediction> predict(const Forest& forest,
                                   Data* prediction_data,
-                                  bool oob_prediction);
+                                  bool oob_prediction) const;
 
   std::vector<std::vector<bool>> get_trees_by_sample(const Forest &forest,
-                                                     Data *data);
+                                                     Data *data) const;
 
   std::vector<std::vector<size_t>> find_leaf_nodes(
       const Forest &forest,
       Data *data,
-      bool oob_prediction);
+      bool oob_prediction) const;
 
   std::vector<std::vector<size_t>> find_batch(
       size_t start,
       size_t num_trees,
       const Forest &forest,
       Data *prediction_data,
-      bool oob_prediction);
+      bool oob_prediction) const;
 
 
 private:
