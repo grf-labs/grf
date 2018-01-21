@@ -39,17 +39,17 @@ ForestPredictor::ForestPredictor(uint num_threads,
                       : num_threads;
 }
 
-std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* data) {
+std::vector<Prediction> ForestPredictor::predict(const Forest& forest, Data* data) const {
   return predict(forest, data, false);
 }
 
-std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data* data) {
+std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest, Data* data) const {
   return predict(forest, data, true);
 }
 
 std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
                                                  Data* data,
-                                                 bool oob_prediction) {
+                                                 bool oob_prediction) const {
   std::vector<std::vector<size_t>> leaf_nodes_by_tree = find_leaf_nodes(forest, data, oob_prediction);
   std::vector<std::vector<bool>> trees_by_sample = oob_prediction
           ? get_trees_by_sample(forest, data)
@@ -58,7 +58,7 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
 }
 
 std::vector<std::vector<bool>> ForestPredictor::get_trees_by_sample(const Forest &forest,
-                                                                    Data *data) {
+                                                                    Data *data) const {
   size_t num_trees = forest.get_trees().size();
   size_t num_samples = data->get_num_rows();
 
@@ -75,7 +75,7 @@ std::vector<std::vector<bool>> ForestPredictor::get_trees_by_sample(const Forest
 std::vector<std::vector<size_t>> ForestPredictor::find_leaf_nodes(
     const Forest& forest,
     Data* data,
-    bool oob_prediction) {
+    bool oob_prediction) const {
   size_t num_trees = forest.get_trees().size();
 
   std::vector<std::vector<size_t>> leaf_nodes_by_tree;
@@ -116,7 +116,7 @@ std::vector<std::vector<size_t>> ForestPredictor::find_batch(
     size_t num_trees,
     const Forest &forest,
     Data *prediction_data,
-    bool oob_prediction) {
+    bool oob_prediction) const {
   std::vector<std::vector<size_t>> all_leaf_nodes(num_trees);
   for (size_t i = 0; i < num_trees; ++i) {
     std::shared_ptr<Tree> tree = forest.get_trees()[start + i];
