@@ -7,6 +7,7 @@
 #include "Eigen/Sparse"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainers.h"
+#include "tuning/ParameterTuner.h"
 #include "RcppUtilities.h"
 
 // [[Rcpp::export]]
@@ -27,7 +28,8 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             unsigned int ci_group_size,
                             double alpha,
                             double lambda,
-                            bool downweight_penalty) {
+                            bool downweight_penalty,
+                            bool tune_parameters) {
   ForestTrainer trainer = lambda > 0
       ? ForestTrainers::regularized_regression_trainer(outcome_index - 1, lambda, downweight_penalty)
       : ForestTrainers::regression_trainer(outcome_index - 1, alpha);
@@ -36,9 +38,18 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
                         honesty, sample_with_replacement, num_threads, seed);
 
+  if (tune_parameters) {
+    ForestPredictor predictor = ForestPredictors::regression_predictor(num_threads, ci_group_size);
+    ParameterTuner tuner(trainer, predictor, outcome_index);
+    uint tuned_min_node_size = tuner.tune_min_node_size(data, options);
+    options.set_min_node_size(tuned_min_node_size);
+  }
+
   Forest forest = trainer.train(data, options);
 
   Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
+  result.push_back(options.get_min_node_size(), "tuned.min.node.size");
+
   delete data;
   return result;
 }
