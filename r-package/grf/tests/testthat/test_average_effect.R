@@ -43,6 +43,10 @@ test_that("average effects are translation invariant", {
 	cape = average_partial_effect(forest.causal)
 	cape.plus.1 = average_partial_effect(forest.causal.plus.1)
 	expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.005)
+	
+	wate = average_treatment_effect(forest.causal, target.sample = "overlap")
+	wate.plus.1 = average_treatment_effect(forest.causal.plus.1, target.sample = "overlap")
+	expect_true(abs(wate[1] - wate.plus.1[1]) <= 0.005)
 })
 
 test_that("average effect estimates are reasonable", {
@@ -50,7 +54,8 @@ test_that("average effect estimates are reasonable", {
   n = 1000
   
   X = matrix(2 * runif(n * p) - 1, n, p)
-  W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
+  eX = 0.25 + 0.5 * (X[,1] > 0)
+  W = rbinom(n, 1, eX)
   TAU = 4 * (X[,1] > 0)
   Y =  TAU * (W  - 0.5) + rnorm(n)
   
@@ -95,6 +100,11 @@ test_that("average effect estimates are reasonable", {
   
   expect_true(abs(cate.aipw[1] - cape[1]) <= 0.05)
   expect_true(abs(cate.aipw[2] - cape[2]) <= 0.05)
+  
+  wate = average_treatment_effect(forest.causal, target.sample = "overlap")
+  tau.overlap = sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
+  expect_true(abs(wate[1] - tau.overlap) <= 0.2)
+  expect_true(abs(wate[1] - tau.overlap) <= 3 * wate[2])
 })
 
 test_that("average treatment effects larger example works", {
@@ -143,8 +153,31 @@ test_that("average partial effects larger example works", {
   Y = M + (W - 0.5) * TAU + rnorm(n)
   
   forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1, precompute.nuisance = TRUE)
+  
   cape = average_partial_effect(forest.causal)
+  expect_true(abs(cape[1] - mean(TAU)) <= 0.2)
   expect_true(abs(cape[1] - mean(TAU)) <= 3 * cape[2])
+  
+})
+
+test_that("average treatment effect larger overlap example works", {
+  
+  n = 4000
+  p = 10
+  
+  X = matrix(rnorm(n * (p)), n, p)
+  eX = 1/(1 + exp(-10 * X[,2]))
+  W = rbinom(n, 1, eX)
+  M = X[,2]
+  TAU = (1 + X[,2])^2
+  Y = M + (W - 0.5) * TAU + rnorm(n)
+  
+  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1, precompute.nuisance = TRUE)
+  
+  wate = average_treatment_effect(forest.causal, target.sample = "overlap")
+  tau.overlap = sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
+  expect_true(abs(wate[1] - tau.overlap) <= 0.2)
+  expect_true(abs(wate[1] - tau.overlap) <= 3 * wate[2])
   
 })
 

@@ -67,12 +67,12 @@ average_treatment_effect = function(forest,
   # W to be binary here.
   #
   
-  if (method == "overlap") {
+  if (target.sample == "overlap") {
     W.residual = forest$W.orig - forest$W.hat
     Y.residual = forest$Y.orig - forest$Y.hat
-    tau.ols = lm(Y.residual ~ W.residual + 0)
-    tau.est <- coef(summary(tau.ols))[1,1]
-    tau.se <- coef(summary(tau.ols))[1,2]
+    tau.ols = lm(Y.residual ~ W.residual)
+    tau.est <- coef(summary(tau.ols))[2,1]
+    tau.se <- coef(summary(tau.ols))[2,2]
     return(c(estimate=tau.est, std.err=tau.se))
   }
   
