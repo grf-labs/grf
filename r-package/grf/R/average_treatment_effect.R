@@ -28,19 +28,19 @@
 #' X.test[,1] = seq(-2, 2, length.out = 101)
 #' c.pred = predict(c.forest, X.test)
 #' # Estimate the conditional average treatment effect on the full sample (CATE).
-#' estimate_average_effect(c.forest, target.sample = "all")
+#' average_treatment_effect(c.forest, target.sample = "all")
 #' 
 #' # Estimate the conditional average treatment effect on the treated sample (CATT).
 #' # We don't expect much difference between the CATE and the CATT in this example,
 #' # since treatment assignment was randomized.
-#' estimate_average_effect(c.forest, target.sample = "treated")
+#' average_treatment_effect(c.forest, target.sample = "treated")
 #' }
 #'
-#' @return An estimate of the average effect, along with standard error.
+#' @return An estimate of the average treatment effect, along with standard error.
 #' @export
-estimate_average_effect = function(forest,
-                                   target.sample=c("all", "treated", "control"),
-                                   method=c("AIPW", "TMLE")) {
+average_treatment_effect = function(forest,
+                                    target.sample=c("all", "treated", "control"),
+                                    method=c("AIPW", "TMLE")) {
 
   if (!("causal_forest" %in% class(forest))) {
     stop("Average effect estimation only implemented for causal_forest")
@@ -51,7 +51,8 @@ estimate_average_effect = function(forest,
   }
   
   if (!all(forest$W.orig %in% c(0, 1))) {
-    stop("Average effect estimation only implemented for binary treatment")
+    stop(paste("Average treatment effect estimation only implemented for binary treatment.",
+               "See `average_partial_effect` for continuous W."))
   }
   
   target.sample <- match.arg(target.sample)
