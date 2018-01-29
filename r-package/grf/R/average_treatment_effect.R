@@ -36,7 +36,7 @@
 #' average_treatment_effect(c.forest, target.sample = "treated")
 #' }
 #'
-#' @return An estimate of the average effect, along with standard error.
+#' @return An estimate of the average treatment effect, along with standard error.
 #' @export
 average_treatment_effect = function(forest,
                                     target.sample=c("all", "treated", "control"),
@@ -51,7 +51,8 @@ average_treatment_effect = function(forest,
   }
   
   if (!all(forest$W.orig %in% c(0, 1))) {
-    stop("Average effect estimation only implemented for binary treatment")
+    stop(paste("Average treatment effect estimation only implemented for binary treatment.",
+               "See `average_partial_effect` for continuous W."))
   }
   
   target.sample <- match.arg(target.sample)
