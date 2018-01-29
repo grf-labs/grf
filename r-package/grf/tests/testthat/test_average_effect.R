@@ -39,6 +39,10 @@ test_that("average effects are translation invariant", {
 	catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
 	catc.plus.1.tmle = average_treatment_effect(forest.causal.plus.1, target.sample = "control", method = "TMLE")
 	expect_equal(catc.tmle, catc.plus.1.tmle)
+	
+	cape = average_partial_effect(forest.causal)
+	cape.plus.1 = average_partial_effect(forest.causal.plus.1)
+	expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.005)
 })
 
 test_that("average effect estimates are reasonable", {
@@ -75,9 +79,13 @@ test_that("average effect estimates are reasonable", {
   catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
   expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 0.2)
   expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 3 * catc.tmle[2])
+  
+  cape = average_partial_effect(forest.causal)
+  expect_true(abs(cape[1] - mean(TAU)) <= 0.2)
+  expect_true(abs(cape[1] - mean(TAU)) <= 3 * cape[2])
 })
 
-test_that("average effects larger example works", {
+test_that("average treatment effects larger example works", {
   
   n = 4000
   p = 10
@@ -108,6 +116,24 @@ test_that("average effects larger example works", {
   
   catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
   expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 3 * catc.tmle[2])
+})
+
+test_that("average partial effects larger example works", {
+  
+  n = 4000
+  p = 10
+  
+  X = matrix(runif(n * p), n, p)
+  E = (0.4 + dbeta(X[,2], 2, 4)) / 4
+  W = rbinom(n, 1, E) + 0.2 * rnorm(n)
+  M = 2 * X[,2] - 1
+  TAU = (1 + 1/(1 + exp(-20 * (X[,1] - 0.3)))) * (1 + 1/(1 + exp(-20 * (X[,2] - 0.3))))
+  Y = M + (W - 0.5) * TAU + rnorm(n)
+  
+  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1, precompute.nuisance = TRUE)
+  cape = average_partial_effect(forest.causal)
+  expect_true(abs(cape[1] - mean(TAU)) <= 3 * cape[2])
+  
 })
 
 
