@@ -38,9 +38,9 @@ average_partial_effect = function(forest) {
   
   # Estimate the variance of W given X. For binary treatments,
   # we get a good implicit estimator V.hat = e.hat (1 - e.hat), and
-  # so this step is not needed. Note that if we use the present APE estimator
+  # so this step is not needed. Note that if we use the present CAPE estimator
   # with a binary treatment and set V.hat = e.hat (1 - e.hat), then we recover
-  # exactly the AIPW estimator of the ATE.
+  # exactly the AIPW estimator of the CATE.
   variance_forest <- regression_forest(forest$X.orig,
                                        (forest$W.orig - forest$W.hat)^2)
   V.hat <- predict(variance_forest)$predictions

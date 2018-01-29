@@ -64,6 +64,9 @@ test_that("average effect estimates are reasonable", {
   expect_true(abs(cate.tmle[1] - mean(TAU)) <= 0.2)
   expect_true(abs(cate.tmle[1] - mean(TAU)) <= 3 * cate.tmle[2])
   
+  expect_true(abs(cate.aipw[1] - cate.tmle[1]) <= 0.01)
+  expect_true(abs(cate.aipw[2] - cate.tmle[2]) <= 0.01)
+  
   catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
   expect_true(abs(catt.aipw[1] - mean(TAU[W==1])) <= 0.2)
   expect_true(abs(catt.aipw[1] - mean(TAU[W==1])) <= 3 * catt.aipw[2])
@@ -71,6 +74,9 @@ test_that("average effect estimates are reasonable", {
   catt.tmle = average_treatment_effect(forest.causal, target.sample = "treated", method = "TMLE")
   expect_true(abs(catt.tmle[1] - mean(TAU[W==1])) <= 0.2)
   expect_true(abs(catt.tmle[1] - mean(TAU[W==1])) <= 3 * catt.tmle[2])
+  
+  expect_true(abs(catt.aipw[1] - catt.tmle[1]) <= 0.05)
+  expect_true(abs(catt.aipw[2] - catt.tmle[2]) <= 0.05)
   
   catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
   expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 0.2)
@@ -80,9 +86,15 @@ test_that("average effect estimates are reasonable", {
   expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 0.2)
   expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 3 * catc.tmle[2])
   
+  expect_true(abs(catc.aipw[1] - catc.tmle[1]) <= 0.05)
+  expect_true(abs(catc.aipw[2] - catc.tmle[2]) <= 0.05)
+  
   cape = average_partial_effect(forest.causal)
   expect_true(abs(cape[1] - mean(TAU)) <= 0.2)
   expect_true(abs(cape[1] - mean(TAU)) <= 3 * cape[2])
+  
+  expect_true(abs(cate.aipw[1] - cape[1]) <= 0.05)
+  expect_true(abs(cate.aipw[2] - cape[2]) <= 0.05)
 })
 
 test_that("average treatment effects larger example works", {
