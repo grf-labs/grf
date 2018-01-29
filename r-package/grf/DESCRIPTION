@@ -19,7 +19,7 @@ LinkingTo: Rcpp, RcppEigen
 Imports:
     Matrix,
     methods,
-    Rcpp (>= 0.12.10)
+    Rcpp (>= 0.12.15)
 RoxygenNote: 6.0.1.9000
 Suggests:
     sandwich, testthat
