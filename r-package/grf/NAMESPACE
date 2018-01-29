@@ -15,7 +15,7 @@ S3method(print,grf_tree)
 
 export(causal_forest)
 export(custom_forest)
-export(estimate_average_effect)
+export(average_treatment_effect)
 export(get_tree)
 export(instrumental_forest)
 export(quantile_forest)
