@@ -34,6 +34,15 @@ SparseData::SparseData(Eigen::SparseMatrix<double>* data,
   this->num_cols = num_cols;
 }
 
+SparseData::SparseData(Eigen::SparseMatrix<double>* data,
+                       std::vector<std::string> variable_names,
+                       size_t num_rows,
+                       size_t num_cols,
+                       std::vector<uint>& clusters):
+        SparseData(data, variable_names, num_rows, num_cols) {
+  Data::set_clusters(clusters);
+}
+
 SparseData::~SparseData() {
   if (!externalData) {
     delete data;

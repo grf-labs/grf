@@ -137,7 +137,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
 
   std::vector<size_t> sample;
   std::vector<size_t> oob_sample;
-  sampler.sample(data->get_num_rows(), 0.5, sample, oob_sample);
+  sampler.sample_for_ci(data, 0.5, sample, oob_sample);
 
   double sample_fraction = options.get_sample_fraction();
 

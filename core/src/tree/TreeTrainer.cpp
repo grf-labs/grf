@@ -50,7 +50,9 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
 
   std::vector<size_t> new_leaf_samples;
 
-  if (options.get_honesty()) {
+  if (options.get_honesty() && options.get_clustered()) {
+    sampler.subsample_with_clusters(samples, 0.5, nodes[0], new_leaf_samples, data->get_clusters());
+  } else if (options.get_honesty()) {
     sampler.subsample(samples, 0.5, nodes[0], new_leaf_samples);
   } else {
     nodes[0] = samples;

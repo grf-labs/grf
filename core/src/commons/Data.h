@@ -18,6 +18,7 @@
 #ifndef GRF_DATA_H_
 #define GRF_DATA_H_
 
+#include <unordered_map>
 #include <vector>
 #include <iostream>
 
@@ -48,17 +49,23 @@ public:
   size_t get_num_cols() const;
   size_t get_num_rows() const;
   size_t get_max_num_unique_values() const;
+  std::unordered_map<uint, std::vector<size_t>>& get_cluster_map();
+  std::vector<uint>& get_clusters();
 
 protected:
   std::vector<std::string> variable_names;
   size_t num_rows;
   size_t num_cols;
+  std::unordered_map<uint, std::vector<size_t>> cluster_map;
+  std::vector<uint> clusters;
 
   bool externalData;
 
   size_t* index_data;
   std::vector<std::vector<double>> unique_data_values;
   size_t max_num_unique_values;
+
+  void set_clusters(std::vector<uint>& clusters);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Data);

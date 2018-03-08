@@ -24,6 +24,10 @@
 #' @param seed The seed for the C++ random number generator.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
 #' @param alpha Maximum imbalance of a split.
+#' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
+#'                            software will set this value to the size of the smallest cluster.
 #'
 #' @return A trained quantile forest object.
 #'
@@ -56,7 +60,7 @@
 quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = FALSE,
                             sample.fraction = 0.5, mtry = NULL, num.trees = 2000,
                             num.threads = NULL, min.node.size = NULL, seed = NULL, alpha = 0.05,
-                            honesty = TRUE) {
+                            honesty = TRUE, clusters = NULL, samples_per_cluster = NULL) {
     
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
@@ -72,6 +76,8 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
     min.node.size <- validate_min_node_size(min.node.size)
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
+    clusters <- validate_clusters(clusters, X)
+    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     
     sample.with.replacement <- FALSE
     verbose <- FALSE
@@ -85,7 +91,8 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
     
     forest <- quantile_train(quantiles, regression.splitting, data$default, data$sparse, outcome.index,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
-        keep.inbag, sample.fraction, seed, honesty, ci.group.size, alpha)
+        keep.inbag, sample.fraction, seed, honesty, ci.group.size, alpha, clusters,
+        samples_per_cluster)
     
     forest[["X.orig"]] <- X
     class(forest) <- c("quantile_forest", "grf")

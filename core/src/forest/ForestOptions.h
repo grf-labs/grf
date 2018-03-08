@@ -33,7 +33,8 @@ public:
                 bool honesty,
                 bool sample_with_replacement,
                 uint num_threads,
-                uint random_seed);
+                uint random_seed,
+                uint samples_per_cluster);
 
   uint get_num_trees() const;
   uint get_ci_group_size() const;
@@ -44,7 +45,6 @@ public:
 
   uint get_num_threads() const;
   uint get_random_seed() const;
-
 
   uint get_min_node_size() const;
 

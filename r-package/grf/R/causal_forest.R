@@ -35,6 +35,10 @@
 #' @param lambda A tuning parameter to control the amount of split regularization (experimental).
 #' @param downweight.penalty Whether or not the regularization penalty should be downweighted (experimental).
 #' @param seed The seed of the c++ random number generator.
+#' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
+#'                            software will set this value to the size of the smallest cluster.
 #'
 #' @return A trained causal forest object.
 #'
@@ -63,7 +67,8 @@
 causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL, 
                           num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                           honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE,
-                          alpha = 0.05, lambda = 0.0, downweight.penalty = FALSE, seed = NULL) {
+                          alpha = 0.05, lambda = 0.0, downweight.penalty = FALSE, seed = NULL,
+                          clusters = NULL, samples_per_cluster = NULL) {
     
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -74,6 +79,8 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     min.node.size <- validate_min_node_size(min.node.size)
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
+    clusters <- validate_clusters(clusters, X)
+    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     
     sample.with.replacement <- FALSE
     verbose <- FALSE
@@ -89,13 +96,15 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
         forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                       honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda,
-                                      downweight.penalty = downweight.penalty)
+                                      downweight.penalty = downweight.penalty, clusters = clusters,
+                                      samples_per_cluster = samples_per_cluster)
         Y.hat <- predict(forest.Y)$predictions
         
         forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                       honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda,
-                                      downweight.penalty = downweight.penalty)
+                                      downweight.penalty = downweight.penalty, clusters = clusters,
+                                      samples_per_cluster = samples_per_cluster)
 
         W.hat <- predict(forest.W)$predictions
         
@@ -110,7 +119,8 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index, instrument.index,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size,
         sample.with.replacement, keep.inbag, sample.fraction, seed, honesty,
-        ci.group.size, split.regularization, alpha, lambda, downweight.penalty)
+        ci.group.size, split.regularization, alpha, lambda, downweight.penalty,
+        clusters, samples_per_cluster)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
