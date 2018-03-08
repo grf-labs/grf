@@ -25,6 +25,10 @@
 #' @param downweight.penalty Whether or not the regularization penalty should be downweighted (experimental).
 #' @param seed The seed for the C++ random number generator.
 #' @param tune.parameters Experimental option that allows for parameters like min.node.size to be automatically tuned.
+#' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
+#'                            software will set this value to the size of the smallest cluster.
 #'
 #' @return A trained regression forest object.
 #'
@@ -52,7 +56,8 @@
 regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                               honesty = TRUE, ci.group.size = 2, alpha = 0.05, lambda = 0.0,
-                              downweight.penalty = FALSE, seed = NULL, tune.parameters = FALSE) {
+                              downweight.penalty = FALSE, seed = NULL, tune.parameters = FALSE,
+                              clusters = NULL, samples_per_cluster = NULL) {
     
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -62,6 +67,8 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     min.node.size <- validate_min_node_size(min.node.size)
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
+    clusters <- validate_clusters(clusters, X)
+    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     
     sample.with.replacement <- FALSE
     verbose <- FALSE
@@ -73,7 +80,8 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
 
     forest <- regression_train(data$default, data$sparse, outcome.index, variable.names, mtry, num.trees,
         verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
-        seed, honesty, ci.group.size, alpha, lambda, downweight.penalty, tune.parameters)
+        seed, honesty, ci.group.size, alpha, lambda, downweight.penalty, tune.parameters,
+        clusters, samples_per_cluster)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

@@ -19,11 +19,21 @@
 
 SamplingOptions::SamplingOptions():
     sample_with_replacement(true),
-    sample_weights(0) {}
+    sample_weights(0),
+    samples_per_cluster(1)
+{}
 
 SamplingOptions::SamplingOptions(bool sample_with_replacement):
     sample_with_replacement(sample_with_replacement),
-    sample_weights(0) {}
+    sample_weights(0),
+    samples_per_cluster(1)
+{}
+
+SamplingOptions::SamplingOptions(bool sample_with_replacement, unsigned int samples_per_cluster):
+        sample_with_replacement(sample_with_replacement),
+        sample_weights(0),
+        samples_per_cluster(samples_per_cluster)
+{}
 
 bool SamplingOptions::get_sample_with_replacement() const {
   return sample_with_replacement;
@@ -31,4 +41,8 @@ bool SamplingOptions::get_sample_with_replacement() const {
 
 const std::vector<double>& SamplingOptions::get_sample_weights() const {
   return sample_weights;
+}
+
+unsigned int SamplingOptions::get_samples_per_cluster() const {
+  return samples_per_cluster;
 }

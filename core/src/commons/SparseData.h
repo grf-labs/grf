@@ -31,6 +31,12 @@ public:
              size_t num_rows,
              size_t num_cols);
 
+  SparseData(Eigen::SparseMatrix<double>* data,
+             std::vector<std::string> variable_names,
+             size_t num_rows,
+             size_t num_cols,
+             std::vector<uint>& clusters);
+
   virtual ~SparseData();
 
   double get(size_t row, size_t col) const;

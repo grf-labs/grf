@@ -37,6 +37,15 @@ DefaultData::DefaultData(double *data,
   this->num_cols = num_cols;
 }
 
+DefaultData::DefaultData(double *data,
+                         std::vector<std::string> variable_names,
+                         size_t num_rows,
+                         size_t num_cols,
+                         std::vector<uint>& clusters) :
+        DefaultData(data, variable_names, num_rows, num_cols) {
+  Data::set_clusters(clusters);
+}
+
 DefaultData::~DefaultData() {
   if (!externalData) {
     delete[] data;

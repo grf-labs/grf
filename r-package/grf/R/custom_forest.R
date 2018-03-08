@@ -18,6 +18,10 @@
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
 #' @param alpha Maximum imbalance of a split.   
 #' @param seed The seed for the C++ random number generator.
+#' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
+#'                            software will set this value to the size of the smallest cluster.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A trained regression forest object.
@@ -38,7 +42,8 @@
 #' @export
 custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL,
-    honesty = TRUE, alpha = 0.05, seed = NULL) {
+    honesty = TRUE, alpha = 0.05, seed = NULL, clusters = NULL,
+    samples_per_cluster = NULL) {
 
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -48,6 +53,8 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     min.node.size <- validate_min_node_size(min.node.size)
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
+    clusters <- validate_clusters(clusters, X)
+    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     
     no.split.variables <- numeric(0)
     sample.with.replacement <- FALSE
@@ -61,7 +68,8 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     
     forest <- custom_train(data$default, data$sparse, outcome.index,
         variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
-        keep.inbag, sample.fraction, seed, honesty, ci.group.size, alpha)
+        keep.inbag, sample.fraction, seed, honesty, ci.group.size, alpha,
+        clusters, samples_per_cluster)
     
     forest[["X.orig"]] <- X
     class(forest) <- c("custom_forest", "grf")

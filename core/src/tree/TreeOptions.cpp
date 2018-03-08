@@ -20,10 +20,12 @@
 
 TreeOptions::TreeOptions(uint mtry,
                          uint min_node_size,
-                         bool honesty):
+                         bool honesty,
+                         uint samples_per_cluster):
   mtry(mtry),
   min_node_size(min_node_size),
-  honesty(honesty) {}
+  honesty(honesty),
+  clustered(samples_per_cluster > 1) {}
 
 uint TreeOptions::get_mtry() const  {
   return mtry;
@@ -35,6 +37,10 @@ uint TreeOptions::get_min_node_size() const  {
 
 bool TreeOptions::get_honesty() const {
   return honesty;
+}
+
+bool TreeOptions::get_clustered() const {
+  return clustered;
 }
 
 void TreeOptions::set_min_node_size(uint min_node_size) {

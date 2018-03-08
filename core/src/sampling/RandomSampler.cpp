@@ -16,11 +16,12 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "RandomSampler.h"
 
 RandomSampler::RandomSampler(uint seed,
-                                   SamplingOptions options):
+                             SamplingOptions options):
     options(options) {
   random_number_generator.seed(seed);
 
@@ -46,6 +47,19 @@ void RandomSampler::sample(size_t num_samples,
   }
 }
 
+void RandomSampler::sample_for_ci(Data* data,
+                                  double sample_fraction,
+                                  std::vector<size_t>& samples,
+                                  std::vector<size_t>& oob_samples) {
+  size_t num_samples = data->get_num_rows();
+  uint samples_per_cluster = options.get_samples_per_cluster();
+  if (samples_per_cluster > 1) {
+    bootstrap_with_clusters(num_samples, sample_fraction, samples, oob_samples, data->get_cluster_map());
+  } else {
+    sample(num_samples, sample_fraction, samples, oob_samples);
+  }
+}
+
 void RandomSampler::subsample(const std::vector<size_t>& samples,
                               double sample_fraction,
                               std::vector<size_t>& subsamples,
@@ -63,6 +77,46 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
   std::copy(shuffled_sample.begin() + subsamples.size(),
             shuffled_sample.end(),
             oob_samples.begin());
+}
+
+void RandomSampler::subsample_with_clusters(const std::vector<size_t>& samples,
+                                            double sample_fraction,
+                                            std::vector<size_t>& subsamples,
+                                            std::vector<size_t>& oob_samples,
+                                            std::vector<uint>& clusters) {
+  // get map of cluster to observations
+  std::unordered_map<uint, std::vector<size_t>> cluster_map;
+  for (auto const& obs : samples) {
+    auto cluster = clusters[obs];
+    cluster_map[cluster].push_back(obs);
+  }
+
+  // Now shuffle the clusters
+  std::vector<uint> shuffled_clusters;
+  shuffled_clusters.reserve(cluster_map.size());
+  size_t max_cluster_size = 0;
+  for(auto const& imap: cluster_map) {
+    shuffled_clusters.push_back(imap.first);
+    if (imap.second.size() > max_cluster_size) {
+      max_cluster_size = imap.second.size();
+    }
+  }
+
+  std::shuffle(shuffled_clusters.begin(), shuffled_clusters.end(), random_number_generator);
+
+  // finally populate vectors with proper observations
+  uint subsample_size = (uint) std::ceil(shuffled_clusters.size() * sample_fraction);
+  subsamples.resize(subsample_size * max_cluster_size);
+  oob_samples.resize((shuffled_clusters.size() - subsample_size) * max_cluster_size);
+
+  for (size_t s = 0; s < shuffled_clusters.size(); ++s) {
+    auto cluster = shuffled_clusters[s];
+    if (s < subsample_size) {
+      subsamples.insert(subsamples.end(), cluster_map[cluster].begin(), cluster_map[cluster].end());
+    } else {
+      oob_samples.insert(oob_samples.end(), cluster_map[cluster].begin(), cluster_map[cluster].end());
+    }
+  }
 }
 
 void RandomSampler::bootstrap(size_t num_samples,
@@ -156,6 +210,72 @@ void RandomSampler::bootstrap_without_replacement_weighted(size_t num_samples,
   for (size_t s = 0; s < inbag_counts.size(); ++s) {
     if (inbag_counts[s] == 0) {
       oob_samples.push_back(s);
+    }
+  }
+}
+
+void RandomSampler::bootstrap_without_oob(size_t num_samples,
+                                          double sample_fraction,
+                                          std::vector<size_t>& samples) {
+  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
+
+  // Reserve space, reserve a little more to be safe
+  samples.reserve(num_samples_inbag);
+
+  std::uniform_int_distribution<size_t> unif_dist(0, num_samples - 1);
+
+  // Draw num_samples samples with replacement (num_samples_inbag out of n) as inbag and mark as not OOB
+  for (size_t s = 0; s < num_samples_inbag; ++s) {
+    size_t draw = unif_dist(random_number_generator);
+    samples.push_back(draw);
+  }
+}
+
+void RandomSampler::bootstrap_with_clusters(size_t num_samples,
+                                            double sample_fraction,
+                                            std::vector<size_t>& samples,
+                                            std::vector<size_t>& oob_sample,
+                                            std::unordered_map<uint, std::vector<size_t>>& clusters) {
+
+  // Reserve space
+  size_t num_clusters = clusters.size();
+  size_t num_samples_inbag = (size_t) num_clusters * sample_fraction * options.get_samples_per_cluster();
+  samples.reserve(num_samples_inbag);
+  oob_sample.reserve(num_samples * (std::exp(-sample_fraction) + 0.1));
+
+  // First sample at the cluster level
+  std::vector<size_t> cluster_samples;
+  RandomSampler::bootstrap_without_oob(num_clusters, sample_fraction, cluster_samples);
+
+  // Count number of times each cluster is sampled
+  std::unordered_map<size_t, size_t> inbag_cluster_counts;
+  for (size_t sampled_cluster : cluster_samples) {
+    inbag_cluster_counts[sampled_cluster]++;
+  }
+
+  // Add all non-sampled clusters to oob
+  for (size_t i = 0; i < num_clusters; ++i) {
+    if (inbag_cluster_counts.find(i) == inbag_cluster_counts.end()) {
+      oob_sample.insert(oob_sample.end(), clusters[i].begin(), clusters[i].end());
+    }
+  }
+
+  // Sample from each selected cluster
+  for (auto const& entry : inbag_cluster_counts) {
+    std::vector<size_t> cluster_obs = clusters[entry.first];
+    size_t cluster_size = cluster_obs.size();
+
+    // Case where same cluster sampled multiple times
+    for (size_t i = 0; i < entry.second; ++i) {
+      std::vector<size_t> sample_indices;
+      double within_cluster_sample_fraction = (double) options.get_samples_per_cluster() / cluster_size;
+      RandomSampler::bootstrap_without_oob(cluster_size,
+                                           within_cluster_sample_fraction,
+                                           sample_indices);
+
+      for (size_t k : sample_indices) {
+        samples.push_back(cluster_obs[k]);
+      }
     }
   }
 }

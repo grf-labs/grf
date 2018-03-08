@@ -26,13 +26,16 @@ class SamplingOptions {
 public:
   SamplingOptions();
   SamplingOptions(bool sample_with_replacement);
+  SamplingOptions(bool sample_with_replacement, unsigned int samples_per_cluster);
 
   bool get_sample_with_replacement() const;
   const std::vector<double>& get_sample_weights() const;
+  unsigned int get_samples_per_cluster() const;
 
 private:
   bool sample_with_replacement;
   std::vector<double> sample_weights;
+  unsigned int samples_per_cluster;
 };
 
 #endif //GRF_SAMPLINGOPTIONS_H
