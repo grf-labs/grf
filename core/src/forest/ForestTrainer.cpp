@@ -144,7 +144,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
   for (size_t i = 0; i < options.get_ci_group_size(); ++i) {
     std::vector<size_t> subsample;
     std::vector<size_t> oob_subsample;
-    sampler.subsample(sample, sample_fraction * 2, subsample, oob_subsample);
+    sampler.subsample_for_ci(sample, sample_fraction * 2, subsample, oob_subsample, data);
     oob_subsample.insert(oob_subsample.end(), oob_sample.begin(), oob_sample.end());
 
     std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
