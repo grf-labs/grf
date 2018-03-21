@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
 #include <thread>
 #include <random>
-#include <set>
 #include "forest/ForestOptions.h"
 
 ForestOptions::ForestOptions(uint num_trees,
