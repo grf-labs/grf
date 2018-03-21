@@ -44,6 +44,12 @@ public:
                      std::vector<size_t>& samples,
                      std::vector<size_t>& oob_samples);
 
+  void subsample_for_ci(const std::vector<size_t>& samples,
+                        double sample_fraction,
+                        std::vector<size_t>& subsamples,
+                        std::vector<size_t>& oob_samples,
+                        Data* data);
+
   void subsample(const std::vector<size_t>& samples,
                  double sample_fraction,
                  std::vector<size_t>& subsamples,

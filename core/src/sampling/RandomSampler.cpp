@@ -60,6 +60,19 @@ void RandomSampler::sample_for_ci(Data* data,
   }
 }
 
+void RandomSampler::subsample_for_ci(const std::vector<size_t>& samples,
+                                     double sample_fraction,
+                                     std::vector<size_t>& subsamples,
+                                     std::vector<size_t>& oob_samples,
+                                     Data* data) {
+  if (options.get_samples_per_cluster() > 1) {
+    auto clusters = data->get_clusters();
+    subsample_with_clusters(samples, sample_fraction, subsamples, oob_samples, clusters);
+  } else {
+    subsample(samples, sample_fraction, subsamples, oob_samples);
+  }
+}
+
 void RandomSampler::subsample(const std::vector<size_t>& samples,
                               double sample_fraction,
                               std::vector<size_t>& subsamples,
@@ -94,20 +107,14 @@ void RandomSampler::subsample_with_clusters(const std::vector<size_t>& samples,
   // Now shuffle the clusters
   std::vector<uint> shuffled_clusters;
   shuffled_clusters.reserve(cluster_map.size());
-  size_t max_cluster_size = 0;
   for(auto const& imap: cluster_map) {
     shuffled_clusters.push_back(imap.first);
-    if (imap.second.size() > max_cluster_size) {
-      max_cluster_size = imap.second.size();
-    }
   }
 
   std::shuffle(shuffled_clusters.begin(), shuffled_clusters.end(), random_number_generator);
 
   // finally populate vectors with proper observations
   uint subsample_size = (uint) std::ceil(shuffled_clusters.size() * sample_fraction);
-  subsamples.resize(subsample_size * max_cluster_size);
-  oob_samples.resize((shuffled_clusters.size() - subsample_size) * max_cluster_size);
 
   for (size_t s = 0; s < shuffled_clusters.size(); ++s) {
     auto cluster = shuffled_clusters[s];

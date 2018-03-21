@@ -297,13 +297,48 @@ TEST_CASE("sample multilevel 1", "[sampleMultilevel]") {
     clusters_sampled.insert(cluster);
   }
   REQUIRE(clusters_sampled.size() == num_clusters);
+}
+
+TEST_CASE("Clustered subsample", "[clusteredSubsample]") {
+  std::vector<size_t> result;
+  std::random_device random_device;
+
+  size_t samples_per_cluster = 3;
+  double sample_fraction = .5;
+  SamplingOptions sampling_options(true, samples_per_cluster);
+  RandomSampler sampler(random_device(), sampling_options);
+
+  std::vector<uint> clusters = {0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 2, 2, 2, 2, 0, 3, 3, 3, 2, 3};
+  std::vector<size_t> samples1 = {0, 1, 2, 3, 4, 10, 11, 12, 13};
+  std::vector<size_t> subsample1;
+  std::vector<size_t> oob_sample1;
+  DefaultData data(NULL, std::vector<std::string>(), 0, 0, clusters);
 
 
-  for (auto const& c : samples)
-    std::cout << c << ' ';
+  sampler.subsample_with_clusters(samples1,
+                                  sample_fraction,
+                                  subsample1,
+                                  oob_sample1,
+                                  clusters);
+  std::set<size_t> clusters_sampled;
+  for (auto const& i: subsample1) {
+    size_t cluster = clusters[i];
+    clusters_sampled.insert(cluster);
+  }
+  REQUIRE(clusters_sampled.size() == 2);
 
-  std::cout << '\n';
-
-  for (auto const& c : oob_sample)
-    std::cout << c << ' ';
+  std::vector<size_t> samples2 = {0, 2};
+  std::vector<size_t> subsample2;
+  std::vector<size_t> oob_sample2;
+  sampler.subsample_with_clusters(samples2,
+                                  sample_fraction,
+                                  subsample2,
+                                  oob_sample2,
+                                  clusters);
+  clusters_sampled.clear();
+  for (auto const& i: subsample2) {
+    size_t cluster = clusters[i];
+    clusters_sampled.insert(cluster);
+  }
+  REQUIRE(clusters_sampled.size() == 1);
 }
