@@ -51,25 +51,27 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
                                                  Data* data,
                                                  bool oob_prediction) const {
   std::vector<std::vector<size_t>> leaf_nodes_by_tree = find_leaf_nodes(forest, data, oob_prediction);
-  std::vector<std::vector<bool>> trees_by_sample = oob_prediction
-          ? get_trees_by_sample(forest, data)
-          : std::vector<std::vector<bool>>();
+  std::vector<std::vector<bool>> trees_by_sample = get_valid_trees_by_sample(forest, data, oob_prediction);
   return prediction_collector->collect_predictions(forest, data, leaf_nodes_by_tree, trees_by_sample);
 }
 
-std::vector<std::vector<bool>> ForestPredictor::get_trees_by_sample(const Forest &forest,
-                                                                    Data *data) const {
+std::vector<std::vector<bool>> ForestPredictor::get_valid_trees_by_sample(const Forest &forest,
+                                                                          Data* data,
+                                                                          bool oob_prediction) const {
   size_t num_trees = forest.get_trees().size();
   size_t num_samples = data->get_num_rows();
 
-  std::vector<std::vector<bool>> result(num_samples, std::vector<bool>(num_trees));
-
-  for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-    for (size_t sample : forest.get_trees()[tree_idx]->get_oob_samples()) {
-      result[sample][tree_idx] = true;
+  if (!oob_prediction) {
+    return std::vector<std::vector<bool>>(num_samples, std::vector<bool>(num_trees, true));
+  } else {
+    std::vector<std::vector<bool>> result(num_samples, std::vector<bool>(num_trees));
+    for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
+      for (size_t sample : forest.get_trees()[tree_idx]->get_oob_samples()) {
+        result[sample][tree_idx] = true;
+      }
     }
+    return result;
   }
-  return result;
 }
 
 std::vector<std::vector<size_t>> ForestPredictor::find_leaf_nodes(

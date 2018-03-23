@@ -50,8 +50,9 @@ private:
                                   Data* prediction_data,
                                   bool oob_prediction) const;
 
-  std::vector<std::vector<bool>> get_trees_by_sample(const Forest &forest,
-                                                     Data *data) const;
+  std::vector<std::vector<bool>> get_valid_trees_by_sample(const Forest &forest,
+                                                           Data* data,
+                                                           bool oob_prediction) const;
 
   std::vector<std::vector<size_t>> find_leaf_nodes(
       const Forest &forest,
