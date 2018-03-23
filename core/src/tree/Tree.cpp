@@ -38,40 +38,56 @@ Tree::Tree(size_t root_node,
 
 std::vector<size_t> Tree::find_leaf_nodes(Data* prediction_data,
                                           const std::vector<size_t>& samples) {
-  bool use_subsample = !samples.empty();
-  const std::vector<std::vector<size_t>>& child_nodes = get_child_nodes();
-
   std::vector<size_t> prediction_leaf_nodes;
   prediction_leaf_nodes.resize(prediction_data->get_num_rows());
 
-  size_t num_samples_predict = use_subsample ? samples.size() : prediction_data->get_num_rows();
-
-  for (size_t i = 0; i < num_samples_predict; ++i) {
-    size_t sample = use_subsample ? samples[i] : i;
-
-    size_t node = root_node;
-    while (true) {
-      // Break if terminal node
-      if (is_leaf(node)) {
-        break;
-      }
-
-      // Move to child
-      size_t split_var = get_split_vars()[node];
-      double value = prediction_data->get(sample, split_var);
-      if (value <= get_split_values()[node]) {
-        // Move to left child
-        node = child_nodes[0][node];
-      } else {
-        // Move to right child
-        node = child_nodes[1][node];
-      }
-    }
-
+  for (size_t sample : samples) {
+    size_t node = find_leaf_node(prediction_data, sample);
     prediction_leaf_nodes[sample] = node;
   }
   return prediction_leaf_nodes;
 }
+
+std::vector<size_t> Tree::find_leaf_nodes(Data* prediction_data,
+                                          const std::vector<bool>& valid_samples) {
+  size_t num_samples = prediction_data->get_num_rows();
+
+  std::vector<size_t> prediction_leaf_nodes;
+  prediction_leaf_nodes.resize(num_samples);
+
+  for (size_t sample = 0; sample < num_samples; sample++) {
+    if (!valid_samples[sample]) {
+      continue;
+    }
+
+    size_t node = find_leaf_node(prediction_data, sample);
+    prediction_leaf_nodes[sample] = node;
+  }
+  return prediction_leaf_nodes;
+}
+
+size_t Tree::find_leaf_node(Data* prediction_data,
+                            size_t sample) {
+  size_t node = root_node;
+  while (true) {
+    // Break if terminal node
+    if (is_leaf(node)) {
+      break;
+    }
+
+    // Move to child
+    size_t split_var = get_split_vars()[node];
+    double value = prediction_data->get(sample, split_var);
+    if (value <= get_split_values()[node]) {
+      // Move to left child
+      node = child_nodes[0][node];
+    } else {
+      // Move to right child
+      node = child_nodes[1][node];
+    }
+  }
+  return node;
+};
 
 void Tree::prune_empty_leaves() {
   size_t num_nodes = leaf_samples.size();

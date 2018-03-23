@@ -46,6 +46,12 @@ public:
                                       const std::vector<size_t>& samples);
 
   /**
+   * Given test data and a list of sample IDs, recurses down the tree to find
+   * the leaf node IDs that those samples belong in.
+   */
+  std::vector<size_t> find_leaf_nodes(Data* prediction_data,
+                                      const std::vector<bool>& valid_samples);
+  /**
    * Removes all empty leaf nodes.
    *
    * When re-populating the leaves of an honest tree, certain leaf nodes may become empty.
@@ -125,6 +131,8 @@ public:
   }
 
 private:
+  size_t find_leaf_node(Data* prediction_data,
+                        size_t sample);
   void prune_node(size_t& node);
   bool is_empty_leaf(size_t node);
 
