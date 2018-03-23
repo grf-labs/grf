@@ -66,6 +66,9 @@ private:
       Data *prediction_data,
       bool oob_prediction) const;
 
+  std::vector<bool> get_valid_samples(size_t num_samples,
+                                      std::shared_ptr<Tree> tree,
+                                      bool oob_prediction) const;
 
 private:
   uint num_threads;
