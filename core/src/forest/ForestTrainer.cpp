@@ -115,7 +115,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
     if (ci_group_size == 1) {
       std::vector<size_t> samples;
       std::vector<size_t> oob_samples;
-      sampler.sample(data->get_num_rows(), options.get_sample_fraction(), samples, oob_samples);
+      sampler.sample(data->get_num_rows(), options.get_sample_fraction(), samples);
 
       std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
           sampler, samples, options.get_tree_options());
@@ -136,16 +136,13 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
   std::vector<std::shared_ptr<Tree>> trees;
 
   std::vector<size_t> sample;
-  std::vector<size_t> oob_sample;
-  sampler.sample(data->get_num_rows(), 0.5, sample, oob_sample);
+  sampler.sample(data->get_num_rows(), 0.5, sample);
 
   double sample_fraction = options.get_sample_fraction();
 
   for (size_t i = 0; i < options.get_ci_group_size(); ++i) {
     std::vector<size_t> subsample;
-    std::vector<size_t> oob_subsample;
-    sampler.subsample(sample, sample_fraction * 2, subsample, oob_subsample);
-    oob_subsample.insert(oob_subsample.end(), oob_sample.begin(), oob_sample.end());
+    sampler.subsample(sample, sample_fraction * 2, subsample);
 
     std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
         sampler, subsample, options.get_tree_options());
