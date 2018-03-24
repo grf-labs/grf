@@ -66,7 +66,7 @@ TEST_CASE("trees serialize and deserialize correctly", "[treeSerialization]") {
   REQUIRE(tree->get_child_nodes().size() == original_tree->get_child_nodes().size());
   REQUIRE(tree->get_split_vars().size() == original_tree->get_split_vars().size());
   REQUIRE(tree->get_split_values().size() == original_tree->get_split_values().size());
-  REQUIRE(tree->get_oob_samples().size() == original_tree->get_oob_samples().size());
+  REQUIRE(tree->get_drawn_samples().size() == original_tree->get_drawn_samples().size());
 }
 
 TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]") {

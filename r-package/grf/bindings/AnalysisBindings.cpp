@@ -96,12 +96,12 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
     node_objects.push_back(node_object);
   }
 
-  const std::vector<size_t>& oob_samples = tree->get_oob_samples();
+  const std::vector<size_t>& drawn_samples = tree->get_drawn_samples();
   size_t num_samples = forest.get_observations().get_num_samples();
 
   Rcpp::List result;
-  result.push_back(num_samples - oob_samples.size(), "num_samples");
-  result.push_back(oob_samples, "oob_samples");
+  result.push_back(drawn_samples.size(), "num_samples");
+  result.push_back(drawn_samples, "drawn_samples");
   result.push_back(node_objects, "nodes");
   return result;
 }

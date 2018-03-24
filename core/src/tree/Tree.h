@@ -35,16 +35,36 @@ public:
        const std::vector<std::vector<size_t>>& leaf_samples,
        const std::vector<size_t>& split_vars,
        const std::vector<double>& split_values,
-       const std::vector<size_t>& oob_samples,
+       const std::vector<size_t>& drawn_samples,
        const PredictionValues& prediction_values);
 
   /**
    * Given test data and a list of sample IDs, recurses down the tree to find
    * the leaf node IDs that those samples belong in.
+   *
+   * @param prediction_data: the data matrix containing all test samples.
+   * @param samples: a list of sample IDs whose leaf nodes should be calculated.
+   * @return The resulting node IDs for each sample ID in the input. For efficiency reasons, this
+   * vector's length will be equal to the total number of test samples, and the index for each
+   * requested sample ID will contain the corresponding node ID. All other values will be 0.
    */
   std::vector<size_t> find_leaf_nodes(Data* prediction_data,
                                       const std::vector<size_t>& samples);
 
+  /**
+   * Given test data and a vector indicating which samples to consider, recurses
+   * down the tree to find the leaf node IDs that those samples belong in.
+   *
+   * @param prediction_data: the data matrix containing all test samples.
+   * @param samples: a vector indicating which samples should have their leaf nodes
+   * calculated. This vector's length should be equal to the total number of samples, and
+   * contain 'true' for a sample ID's index if that sample's leaf node should be calculated.
+   * @return The resulting node IDs for each sample ID in the input. For efficiency reasons, this
+   * vector's length will be equal to the total number of test samples, and the index for each
+   * requested sample ID will contain the corresponding node ID. All other values will be 0.
+   */
+  std::vector<size_t> find_leaf_nodes(Data* prediction_data,
+                                      const std::vector<bool>& valid_samples);
   /**
    * Removes all empty leaf nodes.
    *
@@ -98,8 +118,8 @@ public:
    * this excludes both samples that went into growing the tree, as well as samples
    * used to repopulate the leaves.
    */
-  const std::vector<size_t>& get_oob_samples() {
-    return oob_samples;
+  const std::vector<size_t>& get_drawn_samples() {
+    return drawn_samples;
   }
 
   /**
@@ -110,21 +130,39 @@ public:
     return prediction_values;
   }
 
+  /**
+   * Given a node ID, returns true if the node represents a leaf in this tree (in
+   * particular, the node has no children).
+   */
   bool is_leaf(size_t node);
 
-  void set_leaf_nodes(const std::vector<std::vector<size_t>>& leaf_nodes) {
-    this->leaf_samples = leaf_nodes;
+  /**
+   * Sets the contents of this tree's leaf nodes. Please see
+   * Tree::get_leaf_samples for a description of this variable.
+   */
+  void set_leaf_samples(const std::vector<std::vector<size_t>>& leaf_samples) {
+    this->leaf_samples = leaf_samples;
   }
 
-  void set_oob_samples(const std::vector<size_t> &oob_samples) {
-    this->oob_samples = oob_samples;
+  /**
+   * Sets the contents of this tree's drawn samples. Please see
+   * Tree::get_drawn_samples for a description of this variable.
+   */
+  void set_drawn_samples(const std::vector<size_t>& drawn_samples) {
+    this->drawn_samples = drawn_samples;
   }
 
+  /**
+   * Sets the contents of this tree's prediction values. Please see
+   * Tree::get_prediction_values for a description of this variable.
+   */
   void set_prediction_values(const PredictionValues& prediction_values) {
     this->prediction_values = prediction_values;
   }
 
 private:
+  size_t find_leaf_node(Data* prediction_data,
+                        size_t sample);
   void prune_node(size_t& node);
   bool is_empty_leaf(size_t node);
 
@@ -135,6 +173,7 @@ private:
   std::vector<double> split_values;
 
   std::vector<size_t> oob_samples;
+  std::vector<size_t> drawn_samples;
 
   PredictionValues prediction_values;
 };
