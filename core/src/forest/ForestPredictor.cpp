@@ -61,17 +61,15 @@ std::vector<std::vector<bool>> ForestPredictor::get_valid_trees_by_sample(const 
   size_t num_trees = forest.get_trees().size();
   size_t num_samples = data->get_num_rows();
 
-  if (!oob_prediction) {
-    return std::vector<std::vector<bool>>(num_samples, std::vector<bool>(num_trees, true));
-  } else {
-    std::vector<std::vector<bool>> result(num_samples, std::vector<bool>(num_trees));
+  std::vector<std::vector<bool>> result(num_samples, std::vector<bool>(num_trees, true));
+  if (oob_prediction) {
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      for (size_t sample : forest.get_trees()[tree_idx]->get_oob_samples()) {
-        result[sample][tree_idx] = true;
+      for (size_t sample : forest.get_trees()[tree_idx]->get_drawn_samples()) {
+        result[sample][tree_idx] = false;
       }
     }
-    return result;
   }
+  return result;
 }
 
 std::vector<std::vector<size_t>> ForestPredictor::find_leaf_nodes(
@@ -137,13 +135,11 @@ std::vector<std::vector<size_t>> ForestPredictor::find_batch(
 std::vector<bool> ForestPredictor::get_valid_samples(size_t num_samples,
                                                      std::shared_ptr<Tree> tree,
                                                      bool oob_prediction) const {
-  if (!oob_prediction) {
-    return std::vector<bool>(num_samples, true);
-  } else {
-    std::vector<bool> valid_samples(num_samples, false);
-    for (size_t sample : tree->get_oob_samples()) {
-      valid_samples[sample] = true;
+  std::vector<bool> valid_samples(num_samples, true);
+  if (oob_prediction) {
+    for (size_t sample : tree->get_drawn_samples()) {
+      valid_samples[sample] = false;
     }
-    return valid_samples;
   }
+  return valid_samples;
 }
