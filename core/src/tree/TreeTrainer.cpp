@@ -114,7 +114,7 @@ void TreeTrainer::repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
     size_t leaf_node = leaf_nodes.at(sample);
     new_leaf_nodes.at(leaf_node).push_back(sample);
   }
-  tree->set_leaf_nodes(new_leaf_nodes);
+  tree->set_leaf_samples(new_leaf_nodes);
   tree->prune_empty_leaves();
 }
 
