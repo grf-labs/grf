@@ -25,7 +25,7 @@ OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<Optim
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
                                                                           Data* prediction_data,
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                                                          const std::vector<std::vector<bool>>& trees_by_sample) {
+                                                                          const std::vector<std::vector<bool>>& valid_trees_by_sample) {
   size_t num_trees = forest.get_trees().size();
   size_t num_samples = prediction_data->get_num_rows();
 
@@ -42,7 +42,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     // Create a list of weighted neighbors for this sample.
     uint num_leaves = 0;
     for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
-      if (!trees_by_sample.empty() && !trees_by_sample[sample][tree_index]) {
+      if (!valid_trees_by_sample[sample][tree_index]) {
         continue;
       }
 
