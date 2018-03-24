@@ -59,8 +59,9 @@ validate_seed <- function(seed) {
 create_data_matrices <- function(X, ...) {
   default.data <- matrix(nrow=0, ncol=0);    
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
-  if (inherits(X, "dgCMatrix")) {
-    sparse.data = Matrix::cBind(X, ...)
+
+  if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
+    sparse.data <- cbind(X, ...)
   } else {
     default.data <- as.matrix(cbind(X, ...))
   }
