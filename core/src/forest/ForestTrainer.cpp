@@ -119,7 +119,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
 
       std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
           sampler, samples, options.get_tree_options());
-      tree->set_oob_samples(oob_samples);
+      tree->set_drawn_samples(samples);
       trees.push_back(tree);
     } else {
       std::vector<std::shared_ptr<Tree>> group = train_ci_group(data, observations, sampler, options);
@@ -149,7 +149,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
 
     std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
         sampler, subsample, options.get_tree_options());
-    tree->set_oob_samples(oob_subsample);
+    tree->set_drawn_samples(subsample);
     trees.push_back(tree);
   }
   return trees;

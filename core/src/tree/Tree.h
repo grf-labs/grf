@@ -35,7 +35,7 @@ public:
        const std::vector<std::vector<size_t>>& leaf_samples,
        const std::vector<size_t>& split_vars,
        const std::vector<double>& split_values,
-       const std::vector<size_t>& oob_samples,
+       const std::vector<size_t>& drawn_samples,
        const PredictionValues& prediction_values);
 
   /**
@@ -118,8 +118,8 @@ public:
    * this excludes both samples that went into growing the tree, as well as samples
    * used to repopulate the leaves.
    */
-  const std::vector<size_t>& get_oob_samples() {
-    return oob_samples;
+  const std::vector<size_t>& get_drawn_samples() {
+    return drawn_samples;
   }
 
   /**
@@ -145,11 +145,11 @@ public:
   }
 
   /**
-   * Sets the contents of this tree's OOB samples. Please see
-   * Tree::get_oob_samples for a description of this variable.
+   * Sets the contents of this tree's drawn samples. Please see
+   * Tree::get_drawn_samples for a description of this variable.
    */
-  void set_oob_samples(const std::vector<size_t> &oob_samples) {
-    this->oob_samples = oob_samples;
+  void set_drawn_samples(const std::vector<size_t>& drawn_samples) {
+    this->drawn_samples = drawn_samples;
   }
 
   /**
@@ -173,6 +173,7 @@ private:
   std::vector<double> split_values;
 
   std::vector<size_t> oob_samples;
+  std::vector<size_t> drawn_samples;
 
   PredictionValues prediction_values;
 };

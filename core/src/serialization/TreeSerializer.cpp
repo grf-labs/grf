@@ -28,7 +28,7 @@ void TreeSerializer::serialize(std::ostream& stream, const std::shared_ptr<Tree>
   write_matrix(tree->get_leaf_samples(), stream);
   write_vector(tree->get_split_vars(), stream);
   write_vector(tree->get_split_values(), stream);
-  write_vector(tree->get_oob_samples(), stream);
+  write_vector(tree->get_drawn_samples(), stream);
 
   PredictionValuesSerializer prediction_values_serializer;
   prediction_values_serializer.serialize(stream, tree->get_prediction_values());
@@ -50,8 +50,8 @@ std::shared_ptr<Tree> TreeSerializer::deserialize(std::istream& stream) {
   std::vector<double> split_values;
   read_vector(split_values, stream);
 
-  std::vector<size_t> oob_samples;
-  read_vector(oob_samples, stream);
+  std::vector<size_t> drawn_samples;
+  read_vector(drawn_samples, stream);
 
   PredictionValuesSerializer prediction_values_serializer;
   PredictionValues prediction_values = prediction_values_serializer.deserialize(stream);
@@ -62,6 +62,6 @@ std::shared_ptr<Tree> TreeSerializer::deserialize(std::istream& stream) {
                samples,
                split_vars,
                split_values,
-               oob_samples,
+               drawn_samples,
                prediction_values));
 }

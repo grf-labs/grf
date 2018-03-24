@@ -26,14 +26,14 @@ Tree::Tree(size_t root_node,
            const std::vector<std::vector<size_t>>& leaf_samples,
            const std::vector<size_t>& split_vars,
            const std::vector<double>& split_values,
-           const std::vector<size_t>& oob_samples,
+           const std::vector<size_t>& drawn_samples,
            const PredictionValues& prediction_values) :
     root_node(root_node),
     child_nodes(child_nodes),
     leaf_samples(leaf_samples),
     split_vars(split_vars),
     split_values(split_values),
-    oob_samples(oob_samples),
+    drawn_samples(drawn_samples),
     prediction_values(prediction_values) {}
 
 std::vector<size_t> Tree::find_leaf_nodes(Data* prediction_data,
