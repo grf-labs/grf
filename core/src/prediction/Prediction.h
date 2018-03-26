@@ -25,7 +25,8 @@ class Prediction {
 public:
   Prediction(const std::vector<double>& predictions);
   Prediction(const std::vector<double>& predictions,
-             const std::vector<double>& variance_estimates);
+             const std::vector<double>& variance_estimates,
+             const std::vector<double>& mse_estimates);
 
   const std::vector<double>& get_predictions() const {
     return predictions;
@@ -35,8 +36,16 @@ public:
     return variance_estimates;
   }
 
+  const std::vector<double>& get_mse_estimates() const {
+    return mse_estimates;
+  }
+
   const bool contains_variance_estimates() const {
     return !variance_estimates.empty();
+  }
+
+  const bool contains_mse_estimates() const {
+    return !mse_estimates.empty();
   }
 
   const size_t size() const {
@@ -46,6 +55,7 @@ public:
 private:
   std::vector<double> predictions;
   std::vector<double> variance_estimates;
+  std::vector<double> mse_estimates;
 };
 
 

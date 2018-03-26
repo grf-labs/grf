@@ -25,9 +25,11 @@ OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<Optim
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
                                                                           Data* prediction_data,
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                                                          const std::vector<std::vector<bool>>& valid_trees_by_sample) {
+                                                                          const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                                                          bool estimate_mse) {
   size_t num_trees = forest.get_trees().size();
   size_t num_samples = prediction_data->get_num_rows();
+  bool record_leaf_values = ci_group_size > 1 || estimate_mse;
 
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
@@ -35,7 +37,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
   for (size_t sample = 0; sample < num_samples; ++sample) {
     std::vector<double> average_value;
     std::vector<std::vector<double>> leaf_values;
-    if (ci_group_size > 1) {
+    if (record_leaf_values) {
       leaf_values.resize(num_trees);
     }
 
@@ -55,7 +57,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
       if (!prediction_values.empty(node)) {
         num_leaves++;
         add_prediction_values(node, prediction_values, average_value);
-        if (ci_group_size > 1) {
+        if (record_leaf_values) {
           leaf_values[tree_index] = prediction_values.get_values(node);
         }
       }
@@ -70,15 +72,18 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     }
 
     normalize_prediction_values(num_leaves, average_value);
-
     std::vector<double> point_prediction = strategy->predict(average_value);
-    std::vector<double> variance_estimate;
-    if (ci_group_size > 1) {
-      PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
-      variance_estimate = strategy->compute_variance(average_value, prediction_values, ci_group_size);
-    }
 
-    Prediction prediction(point_prediction, variance_estimate);
+    PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
+    std::vector<double> variance = ci_group_size > 1
+        ? strategy->compute_variance(average_value, prediction_values, ci_group_size)
+        : std::vector<double>();
+
+    std::vector<double> mse = estimate_mse
+        ? strategy->compute_mse(sample, average_value, prediction_values, forest.get_observations())
+        : std::vector<double>();
+
+    Prediction prediction(point_prediction, variance, mse);
     validate_prediction(sample, prediction);
     predictions.push_back(prediction);
   }

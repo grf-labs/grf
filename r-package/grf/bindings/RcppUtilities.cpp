@@ -63,6 +63,7 @@ Rcpp::List RcppUtilities::create_prediction_object(const std::vector<Prediction>
   Rcpp::List result;
   result.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
   result.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");
+  result.push_back(RcppUtilities::create_mse_matrix(predictions), "mse.estimates");
   return result;
 };
 
@@ -99,9 +100,31 @@ Rcpp::NumericMatrix RcppUtilities::create_variance_matrix(const std::vector<Pred
 
   for (size_t i = 0; i < predictions.size(); i++) {
     const std::vector<double>& variance_estimate = predictions[i].get_variance_estimates();
-
     for (size_t j = 0; j < variance_estimate.size(); j++) {
       double value = variance_estimate[j];
+      result(i, j) = value;
+    }
+  }
+  return result;
+}
+
+Rcpp::NumericMatrix RcppUtilities::create_mse_matrix(const std::vector<Prediction>& predictions) {
+  if (predictions.empty()) {
+    return Rcpp::NumericMatrix(0);
+  }
+
+  Prediction first_prediction = predictions.at(0);
+  if (!first_prediction.contains_mse_estimates()) {
+    return Rcpp::NumericMatrix(0);
+  }
+
+  size_t prediction_length = first_prediction.size();
+  Rcpp::NumericMatrix result(predictions.size(), prediction_length);
+
+  for (size_t i = 0; i < predictions.size(); i++) {
+    const std::vector<double>& mse_estimate = predictions[i].get_mse_estimates();
+    for (size_t j = 0; j < mse_estimate.size(); j++) {
+      double value = mse_estimate[j];
       result(i, j) = value;
     }
   }
