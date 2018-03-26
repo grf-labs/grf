@@ -97,7 +97,6 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
   }
 
   const std::vector<size_t>& drawn_samples = tree->get_drawn_samples();
-  size_t num_samples = forest.get_observations().get_num_samples();
 
   Rcpp::List result;
   result.push_back(drawn_samples.size(), "num_samples");
