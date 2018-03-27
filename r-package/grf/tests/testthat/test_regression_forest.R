@@ -58,7 +58,7 @@ test_that("using a sparse data representation produces the same predictions", {
   expect_equal(preds$predictions, sparse.preds$predictions)
 })
 
-test_that("OOB predictions contain MSE estimates", {
+test_that("OOB predictions contain debiased error estimates", {
   p = 6
   n = 10
 
@@ -68,5 +68,5 @@ test_that("OOB predictions contain MSE estimates", {
   forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 4)
   preds.oob = predict(forest)
 
-  expect_equal(n, nrow(preds.oob$mse.estimates))
+  expect_equal(n, nrow(preds.oob$debiased.error))
 })

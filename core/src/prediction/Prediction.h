@@ -26,19 +26,19 @@ public:
   Prediction(const std::vector<double>& predictions);
   Prediction(const std::vector<double>& predictions,
              const std::vector<double>& variance_estimates,
-             const std::vector<double>& mse_estimates);
+             const std::vector<double>& error_estimates);
 
   const std::vector<double>& get_predictions() const;
   const std::vector<double>& get_variance_estimates() const;
-  const std::vector<double>& get_mse_estimates() const;
+  const std::vector<double>& get_error_estimates() const;
   const bool contains_variance_estimates() const;
-  const bool contains_mse_estimates() const;
+  const bool contains_error_estimates() const;
   const size_t size() const;
 
 private:
   std::vector<double> predictions;
   std::vector<double> variance_estimates;
-  std::vector<double> mse_estimates;
+  std::vector<double> error_estimates;
 };
 
 

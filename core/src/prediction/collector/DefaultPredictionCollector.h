@@ -27,11 +27,11 @@ class DefaultPredictionCollector: public PredictionCollector {
 public:
   DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy);
 
-  std::vector<Prediction> collect_predictions(const Forest &forest,
-                                              Data *prediction_data,
+  std::vector<Prediction> collect_predictions(const Forest& forest,
+                                              Data* prediction_data,
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                               const std::vector<std::vector<bool>>& valid_trees_by_sample,
-                                              bool estimate_mse);
+                                              bool estimate_error);
 
 private:
   void add_sample_weights(const std::vector<size_t>& samples,
