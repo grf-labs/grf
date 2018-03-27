@@ -20,26 +20,31 @@
 #include "prediction/InstrumentalPredictionStrategy.h"
 #include "prediction/QuantilePredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
+#include "ForestOptions.h"
 
 ForestPredictor ForestPredictors::custom_predictor(uint num_threads) {
+  num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new CustomPredictionStrategy());
   return ForestPredictor(num_threads, prediction_strategy);
 }
 
 ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads,
                                                          uint ci_group_size) {
+  num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
   return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
 }
 
 ForestPredictor ForestPredictors::quantile_predictor(uint num_threads,
                                                      const std::vector<double>& quantiles) {
+  num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
   return ForestPredictor(num_threads, prediction_strategy);
 }
 
 ForestPredictor ForestPredictors::regression_predictor(uint num_threads,
                                                        uint ci_group_size) {
+  num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
   return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
 }

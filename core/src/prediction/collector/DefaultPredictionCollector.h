@@ -21,6 +21,7 @@
 
 #include "forest/Forest.h"
 #include "prediction/collector/PredictionCollector.h"
+#include "prediction/collector/SampleWeightComputer.h"
 #include "prediction/DefaultPredictionStrategy.h"
 
 class DefaultPredictionCollector: public PredictionCollector {
@@ -34,13 +35,10 @@ public:
                                               bool estimate_error);
 
 private:
-  void add_sample_weights(const std::vector<size_t>& samples,
-                          std::unordered_map<size_t, double>& weights_by_sample);
-
-  void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sample);
-  void validate_prediction(size_t sample, Prediction prediction);
+    void validate_prediction(size_t sample, Prediction prediction);
 
   std::shared_ptr<DefaultPredictionStrategy> strategy;
+  SampleWeightComputer weight_computer;
 };
 
 
