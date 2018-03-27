@@ -52,7 +52,9 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
                                                  bool oob_prediction) const {
   std::vector<std::vector<size_t>> leaf_nodes_by_tree = find_leaf_nodes(forest, data, oob_prediction);
   std::vector<std::vector<bool>> trees_by_sample = get_valid_trees_by_sample(forest, data, oob_prediction);
-  return prediction_collector->collect_predictions(forest, data, leaf_nodes_by_tree, trees_by_sample);
+
+  return prediction_collector->collect_predictions(
+      forest, data, leaf_nodes_by_tree, trees_by_sample, oob_prediction);
 }
 
 std::vector<std::vector<bool>> ForestPredictor::get_valid_trees_by_sample(const Forest &forest,

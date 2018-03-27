@@ -30,7 +30,9 @@ public:
   std::vector<Prediction> collect_predictions(const Forest &forest,
                                               Data *prediction_data,
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                              const std::vector<std::vector<bool>>& valid_trees_by_sample);
+                                              const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                              bool estimate_mse);
+
 private:
   void add_sample_weights(const std::vector<size_t>& samples,
                           std::unordered_map<size_t, double>& weights_by_sample);
