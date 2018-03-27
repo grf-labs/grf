@@ -176,7 +176,7 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
   return PredictionValues(values, num_leaves, NUM_TYPES);
 }
 
-std::vector<double> InstrumentalPredictionStrategy::compute_mse(
+std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,

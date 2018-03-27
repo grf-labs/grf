@@ -25,7 +25,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     Data* prediction_data,
     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
-    bool estimate_mse) {
+    bool estimate_error) {
 
   size_t num_samples = prediction_data->get_num_rows();
   std::vector<Prediction> predictions;
