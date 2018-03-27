@@ -57,7 +57,7 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
       forest, data, leaf_nodes_by_tree, trees_by_sample, oob_prediction);
 }
 
-std::vector<std::vector<bool>> ForestPredictor::get_valid_trees_by_sample(const Forest &forest,
+std::vector<std::vector<bool>> ForestPredictor::get_valid_trees_by_sample(const Forest& forest,
                                                                           Data* data,
                                                                           bool oob_prediction) const {
   size_t num_trees = forest.get_trees().size();
@@ -116,7 +116,7 @@ std::vector<std::vector<size_t>> ForestPredictor::find_leaf_nodes(
 std::vector<std::vector<size_t>> ForestPredictor::find_batch(
     size_t start,
     size_t num_trees,
-    const Forest &forest,
+    const Forest& forest,
     Data* prediction_data,
     bool oob_prediction) const {
 
