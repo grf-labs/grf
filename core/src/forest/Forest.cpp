@@ -45,3 +45,15 @@ Forest::Forest(const std::vector<std::shared_ptr<Tree>>& trees,
   trees(trees),
   observations(observations),
   num_variables(num_variables) {}
+
+const Observations& Forest::get_observations() const {
+  return observations;
+};
+
+const std::vector<std::shared_ptr<Tree>>& Forest::get_trees() const {
+  return trees;
+}
+
+const size_t Forest::get_num_variables() const {
+  return num_variables;
+}

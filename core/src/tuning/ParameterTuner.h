@@ -29,7 +29,7 @@ public:
                  const ForestPredictor& predictor,
                  uint outcome_index);
   uint tune_min_node_size(Data* data,
-                          ForestOptions &options);
+                          ForestOptions& options);
 
 private:
   double calculate_mse(const std::vector<Prediction>& predictions,
