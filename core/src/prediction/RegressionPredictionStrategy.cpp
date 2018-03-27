@@ -110,7 +110,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
   return PredictionValues(values, num_leaves, 1);
 }
 
-std::vector<double> RegressionPredictionStrategy::compute_mse(
+std::vector<double> RegressionPredictionStrategy::compute_debiased_error(
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,

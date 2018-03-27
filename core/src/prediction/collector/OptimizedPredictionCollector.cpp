@@ -26,10 +26,10 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                                                           Data* prediction_data,
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample,
-                                                                          bool estimate_mse) {
+                                                                          bool estimate_error) {
   size_t num_trees = forest.get_trees().size();
   size_t num_samples = prediction_data->get_num_rows();
-  bool record_leaf_values = ci_group_size > 1 || estimate_mse;
+  bool record_leaf_values = ci_group_size > 1 || estimate_error;
 
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
@@ -79,8 +79,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
         ? strategy->compute_variance(average_value, prediction_values, ci_group_size)
         : std::vector<double>();
 
-    std::vector<double> mse = estimate_mse
-        ? strategy->compute_mse(sample, average_value, prediction_values, forest.get_observations())
+    std::vector<double> mse = estimate_error
+        ? strategy->compute_debiased_error(sample, average_value, prediction_values, forest.get_observations())
         : std::vector<double>();
 
     Prediction prediction(point_prediction, variance, mse);
