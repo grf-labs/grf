@@ -28,29 +28,12 @@ public:
              const std::vector<double>& variance_estimates,
              const std::vector<double>& mse_estimates);
 
-  const std::vector<double>& get_predictions() const {
-    return predictions;
-  }
-
-  const std::vector<double>& get_variance_estimates() const {
-    return variance_estimates;
-  }
-
-  const std::vector<double>& get_mse_estimates() const {
-    return mse_estimates;
-  }
-
-  const bool contains_variance_estimates() const {
-    return !variance_estimates.empty();
-  }
-
-  const bool contains_mse_estimates() const {
-    return !mse_estimates.empty();
-  }
-
-  const size_t size() const {
-    return predictions.size();
-  }
+  const std::vector<double>& get_predictions() const;
+  const std::vector<double>& get_variance_estimates() const;
+  const std::vector<double>& get_mse_estimates() const;
+  const bool contains_variance_estimates() const;
+  const bool contains_mse_estimates() const;
+  const size_t size() const;
 
 private:
   std::vector<double> predictions;

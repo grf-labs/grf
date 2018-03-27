@@ -31,20 +31,13 @@ public:
                    size_t num_nodes,
                    size_t num_types);
 
-  double empty(size_t node) const;
 
   double get(size_t node, size_t type) const;
-
   const std::vector<double>& get_values(size_t node) const;
 
-  const size_t get_num_nodes() const {
-    return num_nodes;
-  }
-
-  const size_t get_num_types() const {
-    return num_types;
-  }
-
+  double empty(size_t node) const;
+  const size_t get_num_nodes() const;
+  const size_t get_num_types() const;
 private:
   std::vector<std::vector<double>> values;
   size_t num_nodes;

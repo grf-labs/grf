@@ -36,6 +36,34 @@ Tree::Tree(size_t root_node,
     drawn_samples(drawn_samples),
     prediction_values(prediction_values) {}
 
+size_t Tree::get_root_node() {
+  return root_node;
+}
+
+const std::vector<std::vector<size_t>>& Tree::get_child_nodes() {
+  return child_nodes;
+}
+
+const std::vector<std::vector<size_t>>& Tree::get_leaf_samples() {
+  return leaf_samples;
+}
+
+const std::vector<size_t>& Tree::get_split_vars() {
+  return split_vars;
+}
+
+const std::vector<double>& Tree::get_split_values() {
+  return split_values;
+}
+
+const std::vector<size_t>& Tree::get_drawn_samples() {
+  return drawn_samples;
+}
+
+const PredictionValues& Tree::get_prediction_values() {
+  return prediction_values;
+}
+
 std::vector<size_t> Tree::find_leaf_nodes(Data* prediction_data,
                                           const std::vector<size_t>& samples) {
   std::vector<size_t> prediction_leaf_nodes;
@@ -65,6 +93,19 @@ std::vector<size_t> Tree::find_leaf_nodes(Data* prediction_data,
   }
   return prediction_leaf_nodes;
 }
+
+void Tree::set_leaf_samples(const std::vector<std::vector<size_t>>& leaf_samples) {
+  this->leaf_samples = leaf_samples;
+}
+
+void Tree::set_drawn_samples(const std::vector<size_t>& drawn_samples) {
+  this->drawn_samples = drawn_samples;
+}
+
+void Tree::set_prediction_values(const PredictionValues& prediction_values) {
+  this->prediction_values = prediction_values;
+}
+
 
 size_t Tree::find_leaf_node(Data* prediction_data,
                             size_t sample) {

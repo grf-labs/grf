@@ -28,9 +28,7 @@ PredictionValues::PredictionValues(const std::vector<std::vector<double>>& value
   num_nodes(num_nodes),
   num_types(num_types) {}
 
-double PredictionValues::empty(std::size_t node) const {
-  return values.at(node).empty();
-}
+
 
 double PredictionValues::get(std::size_t node, size_t type) const {
   return values.at(node).at(type);
@@ -38,4 +36,16 @@ double PredictionValues::get(std::size_t node, size_t type) const {
 
 const std::vector<double>& PredictionValues::get_values(std::size_t node) const {
   return values.at(node);
+}
+
+double PredictionValues::empty(std::size_t node) const {
+  return values.at(node).empty();
+}
+
+const size_t PredictionValues::get_num_nodes() const {
+  return num_nodes;
+}
+
+const size_t PredictionValues::get_num_types() const {
+  return num_types;
 }

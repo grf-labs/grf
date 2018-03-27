@@ -31,13 +31,8 @@ public:
 
   double get(std::size_t type, size_t sample) const;
 
-  const std::vector<std::vector<double>>& get_observations_by_type() const {
-    return observations_by_type;
-  }
-
-  size_t get_num_samples() const {
-    return num_samples;
-  }
+  const std::vector<std::vector<double>>& get_observations_by_type() const;
+  size_t get_num_samples() const;
 
   static const std::size_t OUTCOME;
   static const std::size_t TREATMENT;
