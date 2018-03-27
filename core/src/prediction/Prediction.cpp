@@ -18,8 +18,13 @@
 #include "prediction/Prediction.h"
 
 Prediction::Prediction(const std::vector<double>& predictions):
-  predictions(predictions), variance_estimates(0) {}
+  predictions(predictions),
+  variance_estimates(0),
+  mse_estimates(0) {}
 
 Prediction::Prediction(const std::vector<double>& predictions,
-                       const std::vector<double>& variance_estimates):
-  predictions(predictions), variance_estimates(variance_estimates) {}
+                       const std::vector<double>& variance_estimates,
+                       const std::vector<double>& mse_estimates):
+  predictions(predictions),
+  variance_estimates(variance_estimates),
+  mse_estimates(mse_estimates) {}

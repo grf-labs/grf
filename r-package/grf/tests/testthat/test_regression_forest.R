@@ -57,3 +57,16 @@ test_that("using a sparse data representation produces the same predictions", {
 
   expect_equal(preds$predictions, sparse.preds$predictions)
 })
+
+test_that("OOB predictions contain MSE estimates", {
+  p = 6
+  n = 10
+
+  X = matrix(2 * runif(n * p) - 1, n, p)
+  Y = (X[,1] > 0) + 2 * rnorm(n)
+
+  forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 4)
+  preds.oob = predict(forest)
+
+  expect_equal(n, nrow(preds.oob$mse.estimates))
+})

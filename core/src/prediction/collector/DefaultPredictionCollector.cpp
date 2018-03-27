@@ -24,7 +24,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
     Data* prediction_data,
     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-    const std::vector<std::vector<bool>>& valid_trees_by_sample) {
+    const std::vector<std::vector<bool>>& valid_trees_by_sample,
+    bool estimate_mse) {
 
   size_t num_samples = prediction_data->get_num_rows();
   std::vector<Prediction> predictions;
@@ -40,10 +41,10 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
         continue;
       }
 
-      std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
-      const std::vector<size_t> &leaf_nodes = leaf_nodes_by_tree.at(tree_index);
-
+      const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
       size_t node = leaf_nodes.at(sample);
+
+      std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
       const std::vector<size_t>& samples = tree->get_leaf_samples()[node];
       if (!samples.empty()) {
         num_leaves++;
@@ -61,8 +62,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
 
     normalize_sample_weights(weights_by_sample);
 
-    Prediction prediction = strategy->predict(
-        sample, weights_by_sample, forest.get_observations());
+    Prediction prediction = strategy->predict(sample, weights_by_sample, forest.get_observations());
 
     validate_prediction(sample, prediction);
     predictions.push_back(prediction);

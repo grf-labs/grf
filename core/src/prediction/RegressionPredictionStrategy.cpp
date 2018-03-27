@@ -110,3 +110,28 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
   return PredictionValues(values, num_leaves, 1);
 }
 
+std::vector<double> RegressionPredictionStrategy::compute_mse(
+    size_t sample,
+    const std::vector<double>& average,
+    const PredictionValues& leaf_values,
+    const Observations& observations) {
+  double outcome = observations.get(Observations::OUTCOME, sample);
+
+  double error = average.at(OUTCOME) - outcome;
+  double mse = error * error;
+
+  double bias = 0.0;
+  size_t num_trees = 0;
+  for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
+    if (leaf_values.empty(n)) {
+      continue;
+    }
+
+    double tree_error = leaf_values.get(n, OUTCOME) - outcome;
+    bias += tree_error * tree_error;
+    num_trees++;
+  }
+
+  bias /= num_trees * (num_trees - 1);
+  return { mse - bias };
+}

@@ -62,7 +62,6 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
   }
 
   REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
-
   delete data;
 }
 
@@ -88,3 +87,44 @@ TEST_CASE("regression forests give reasonable variance estimates", "[regression,
 
   delete data;
 }
+
+TEST_CASE("regression MSE estimates are shift invariant", "[regression, forest]") {
+  // Run the original forest.
+  Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  uint outcome_index = 10;
+  double alpha = 0.10;
+
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha);
+  ForestOptions options = ForestTestUtilities::default_honest_options();
+
+  Forest forest = trainer.train(data, options);
+  ForestPredictor predictor = ForestPredictors::regression_predictor(4, 1);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+
+  // Shift each outcome by 1, and re-run the forest.
+  bool error;
+  for (size_t r = 0; r < data->get_num_rows(); r++) {
+    double outcome = data->get(r, outcome_index);
+    data->set(outcome_index, r, outcome + 1, error);
+  }
+
+  Forest shifted_forest = trainer.train(data, options);
+  ForestPredictor shifted_predictor = ForestPredictors::regression_predictor(4, 1);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
+
+  REQUIRE(predictions.size() == shifted_predictions.size());
+  double delta = 0.0;
+  for (size_t i = 0; i < predictions.size(); i++) {
+    Prediction prediction = predictions[i];
+    Prediction shifted_prediction = shifted_predictions[i];
+
+    double mse = prediction.get_mse_estimates()[0];
+    double shifted_mse = shifted_prediction.get_mse_estimates()[0];
+
+    delta += shifted_mse - mse;
+  }
+
+  REQUIRE(equal_doubles(delta / predictions.size(), 0, 1e-1));
+  delete data;
+}
+
