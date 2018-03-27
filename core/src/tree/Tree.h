@@ -78,57 +78,43 @@ public:
    * The ID of the root node for this tree. Note that this is usually 0, but may not always
    * be as the top of the tree can be pruned.
    */
-  size_t get_root_node() {
-    return root_node;
-  }
+  size_t get_root_node();
 
   /**
    * A vector containing two vectors: the first gives the ID of the left child for every
    * node, and the second gives the ID of the right child. If a node is a leaf, the entries
    * for both the left and right children will be '0'.
    */
-  const std::vector<std::vector<size_t>>& get_child_nodes() {
-    return child_nodes;
-  }
+  const std::vector<std::vector<size_t>>& get_child_nodes();
 
   /**
    * Specifies the samples that each node contains. Note that only leaf nodes will contain
    * a non-empty vector of sample IDs.
    */
-  const std::vector<std::vector<size_t>>& get_leaf_samples() {
-    return leaf_samples;
-  }
+  const std::vector<std::vector<size_t>>& get_leaf_samples();
 
   /**
    * For each split, the ID of the variable that was chosen to split on.
    */
-  const std::vector<size_t>& get_split_vars() {
-    return split_vars;
-  }
+  const std::vector<size_t>& get_split_vars();
 
   /**
    * For each split, the value of the variable that was chosen to split on.
    */
-  const std::vector<double>& get_split_values() {
-    return split_values;
-  }
+  const std::vector<double>& get_split_values();
 
   /**
    * The sample IDs that were not drawn in creating this tree. For honest trees,
    * this excludes both samples that went into growing the tree, as well as samples
    * used to repopulate the leaves.
    */
-  const std::vector<size_t>& get_drawn_samples() {
-    return drawn_samples;
-  }
+  const std::vector<size_t>& get_drawn_samples();
 
   /**
    * Optional summary values about the samples in each leaf. Note that this will only
    * be non-empty if the tree was trained with an 'optimized' prediction strategy.
    */
-  const PredictionValues& get_prediction_values() {
-    return prediction_values;
-  }
+  const PredictionValues& get_prediction_values();
 
   /**
    * Given a node ID, returns true if the node represents a leaf in this tree (in
@@ -140,25 +126,19 @@ public:
    * Sets the contents of this tree's leaf nodes. Please see
    * Tree::get_leaf_samples for a description of this variable.
    */
-  void set_leaf_samples(const std::vector<std::vector<size_t>>& leaf_samples) {
-    this->leaf_samples = leaf_samples;
-  }
+  void set_leaf_samples(const std::vector<std::vector<size_t>>& leaf_samples);
 
   /**
    * Sets the contents of this tree's drawn samples. Please see
    * Tree::get_drawn_samples for a description of this variable.
    */
-  void set_drawn_samples(const std::vector<size_t>& drawn_samples) {
-    this->drawn_samples = drawn_samples;
-  }
+  void set_drawn_samples(const std::vector<size_t>& drawn_samples);
 
   /**
    * Sets the contents of this tree's prediction values. Please see
    * Tree::get_prediction_values for a description of this variable.
    */
-  void set_prediction_values(const PredictionValues& prediction_values) {
-    this->prediction_values = prediction_values;
-  }
+  void set_prediction_values(const PredictionValues& prediction_values);
 
 private:
   size_t find_leaf_node(Data* prediction_data,
@@ -172,7 +152,6 @@ private:
   std::vector<size_t> split_vars;
   std::vector<double> split_values;
 
-  std::vector<size_t> oob_samples;
   std::vector<size_t> drawn_samples;
 
   PredictionValues prediction_values;
