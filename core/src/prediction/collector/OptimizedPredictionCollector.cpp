@@ -66,8 +66,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     // If this sample has no neighbors, then return placeholder predictions. Note
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
-      std::vector<double> temp(strategy->prediction_length(), NAN);
-      predictions.push_back(Prediction(temp));
+      std::vector<double> nan(strategy->prediction_length(), NAN);
+      predictions.push_back(Prediction(nan, nan, nan));
       continue;
     }
 
