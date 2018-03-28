@@ -25,7 +25,7 @@
 Data::Data() :
     num_rows(0),
     num_cols(0),
-    externalData(true),
+    external_data(true),
     index_data(0),
     max_num_unique_values(0) {}
 
@@ -48,42 +48,41 @@ bool Data::load_from_file(std::string filename) {
   // Count number of rows
   size_t line_count = 0;
   std::string line;
+  std::string first_line;
   while (getline(input_file, line)) {
+    if (line_count == 0) {
+      first_line = line;
+    }
     ++line_count;
   }
-  num_rows = line_count - 1;
+
+  num_rows = line_count;
   input_file.close();
   input_file.open(filename);
 
-  // Check if comma, semicolon or whitespace seperated
-  std::string header_line;
-  getline(input_file, header_line);
-
   // Find out if comma, semicolon or whitespace seperated and call appropriate method
-  if (header_line.find(",") != std::string::npos) {
-    result = load_from_other_file(input_file, header_line, ',');
-  } else if (header_line.find(";") != std::string::npos) {
-    result = load_from_other_file(input_file, header_line, ';');
+  if (first_line.find(",") != std::string::npos) {
+    result = load_from_other_file(input_file, first_line, ',');
+  } else if (first_line.find(";") != std::string::npos) {
+    result = load_from_other_file(input_file, first_line, ';');
   } else {
-    result = load_from_whitespace_file(input_file, header_line);
+    result = load_from_whitespace_file(input_file, first_line);
   }
 
-  externalData = false;
+  external_data = false;
   input_file.close();
   return result;
 }
 
-bool Data::load_from_whitespace_file(std::ifstream& input_file, std::string header_line) {
-
-  // Read header
-  std::string header_token;
-  std::stringstream header_line_stream(header_line);
-  while (header_line_stream >> header_token) {
-    variable_names.push_back(header_token);
+bool Data::load_from_whitespace_file(std::ifstream& input_file, std::string first_line) {
+  // Read the first line to determine the number of columns.
+  std::string dummy_token;
+  std::stringstream first_line_stream(first_line);
+  while (first_line_stream >> dummy_token)  {
+    num_cols++;
   }
-  num_cols = variable_names.size();
 
-  // Read body
+  // Read the entire contents.
   reserve_memory();
   bool error = false;
   std::string line;
@@ -107,17 +106,15 @@ bool Data::load_from_whitespace_file(std::ifstream& input_file, std::string head
   return error;
 }
 
-bool Data::load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator) {
-
-  // Read header
-  std::string header_token;
-  std::stringstream header_line_stream(header_line);
-  while (getline(header_line_stream, header_token, seperator)) {
-    variable_names.push_back(header_token);
+bool Data::load_from_other_file(std::ifstream& input_file, std::string first_line, char seperator) {
+  // Read the first line to determine the number of columns.
+  std::string dummy_token;
+  std::stringstream first_line_stream(first_line);
+  while (getline(first_line_stream, dummy_token, seperator)) {
+    num_cols++;
   }
-  num_cols = variable_names.size();
 
-  // Read body
+  // Read the entire contents.
   reserve_memory();
   bool error = false;
   std::string line;
@@ -187,10 +184,6 @@ double Data::get_unique_data_value(size_t var, size_t index) const {
 
 size_t Data::get_num_unique_data_values(size_t var) const {
   return unique_data_values[var].size();
-}
-
-const std::vector<std::string>& Data::get_variable_names() const {
-  return variable_names;
 }
 
 size_t Data::get_num_cols() const {

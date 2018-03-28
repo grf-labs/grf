@@ -22,20 +22,18 @@
 #include "utility.h"
 
 SparseData::SparseData() :
-    SparseData(NULL, std::vector<std::string>(), 0, 0) {}
+    SparseData(NULL, 0, 0) {}
 
 SparseData::SparseData(Eigen::SparseMatrix<double>* data,
-                       std::vector<std::string> variable_names,
                        size_t num_rows,
                        size_t num_cols):
     data(data) {
-  this->variable_names = variable_names;
   this->num_rows = num_rows;
   this->num_cols = num_cols;
 }
 
 SparseData::~SparseData() {
-  if (!externalData) {
+  if (!external_data) {
     delete data;
   }
 }
