@@ -35,6 +35,8 @@ public:
                 uint num_threads,
                 uint random_seed);
 
+  static uint validate_num_threads(uint num_threads);
+
   uint get_num_trees() const;
   uint get_ci_group_size() const;
   double get_sample_fraction() const;
