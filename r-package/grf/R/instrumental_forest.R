@@ -58,8 +58,6 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     seed <- validate_seed(seed)
     
     sample.with.replacement <- FALSE
-    verbose <- FALSE
-    keep.inbag <- FALSE
     
     if (!is.numeric(split.regularization) | split.regularization < 0 | split.regularization > 1) {
         stop("Error: Invalid value for split.regularization. Please give a value in [0,1].")
@@ -89,14 +87,13 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
         data <- create_data_matrices(X, Y - Y.hat, W - W.hat, Z - Z.hat)
     }
     
-    variable.names <- c(colnames(X), "outcome", "treatment", "instrument")
     outcome.index <- ncol(X) + 1
     treatment.index <- ncol(X) + 2
     instrument.index <- ncol(X) + 3
     
-    forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index, instrument.index,
-        variable.names, mtry, num.trees, verbose, num.threads, min.node.size,
-        sample.with.replacement, keep.inbag, sample.fraction, seed, honesty,
+    forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
+        instrument.index, mtry, num.trees, num.threads, min.node.size,
+        sample.with.replacement, sample.fraction, seed, honesty,
         ci.group.size, split.regularization, alpha, lambda, downweight.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
@@ -128,7 +125,6 @@ predict.instrumental_forest <- function(object, newdata = NULL,
                                         ...) {
     
     num.threads <- validate_num_threads(num.threads)    
-    variable.names <- character(0)
     
     if (estimate.variance) {
         ci.group.size = object$ci.group.size
@@ -141,10 +137,10 @@ predict.instrumental_forest <- function(object, newdata = NULL,
     if (!is.null(newdata)) {
         data <- create_data_matrices(newdata, NA, NA, NA)
         instrumental_predict(forest.short, data$default, data$sparse,
-                             variable.names, num.threads, ci.group.size)
+                             num.threads, ci.group.size)
     } else {
         data <- create_data_matrices(object[["X.orig"]], NA, NA, NA)
         instrumental_predict_oob(forest.short, data$default, data$sparse,
-                                 variable.names, num.threads, ci.group.size)
+                                 num.threads, ci.group.size)
     }
 }

@@ -63,15 +63,12 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     seed <- validate_seed(seed)
     
     sample.with.replacement <- FALSE
-    verbose <- FALSE
-    keep.inbag <- FALSE
 
     data <- create_data_matrices(X, Y)
-    variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(X) + 1
 
-    forest <- regression_train(data$default, data$sparse, outcome.index, variable.names, mtry, num.trees,
-        verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
+    forest <- regression_train(data$default, data$sparse, outcome.index, mtry, num.trees,
+        num.threads, min.node.size, sample.with.replacement, sample.fraction,
         seed, honesty, ci.group.size, alpha, lambda, downweight.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
@@ -123,7 +120,6 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
     num.threads <- validate_num_threads(num.threads)
-    variable.names <- character(0)
     
     if (estimate.variance) {
         ci.group.size = object$ci.group.size
@@ -136,10 +132,10 @@ predict.regression_forest <- function(object, newdata = NULL,
     if (!is.null(newdata)) {
         data <- create_data_matrices(newdata, NA)
         regression_predict(forest.short, data$default, data$sparse,
-                           variable.names, num.threads, ci.group.size)
+                           num.threads, ci.group.size)
     } else {
         data <- create_data_matrices(object[["X.orig"]], NA)
         regression_predict_oob(forest.short, data$default, data$sparse,
-                               variable.names, num.threads, ci.group.size)
+                               num.threads, ci.group.size)
     }
 }

@@ -121,14 +121,13 @@ variable_importance = function(forest, decay.exponent=2, max.depth=4) {
 #' @export
 get_sample_weights = function(forest, newdata = NULL, num.threads=NULL) {
   num.threads <- validate_num_threads(num.threads)
-  variable.names <- character(0)
 
   forest.short <- forest[-which(names(forest) == "X.orig")]
   if (!is.null(newdata)) {
     data <- create_data_matrices(newdata, NA)
-    compute_weights(forest.short, data$default, data$sparse, variable.names, num.threads)
+    compute_weights(forest.short, data$default, data$sparse, num.threads)
   } else {
     data <- create_data_matrices(forest[["X.orig"]], NA)
-    compute_weights_oob(forest.short, data$default, data$sparse, variable.names, num.threads)
+    compute_weights_oob(forest.short, data$default, data$sparse, num.threads)
   }
 }

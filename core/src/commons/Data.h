@@ -35,8 +35,8 @@ public:
   void sort();
 
   bool load_from_file(std::string filename);
-  bool load_from_whitespace_file(std::ifstream& input_file, std::string header_line);
-  bool load_from_other_file(std::ifstream& input_file, std::string header_line, char seperator);
+  bool load_from_whitespace_file(std::ifstream& input_file, std::string first_line);
+  bool load_from_other_file(std::ifstream& input_file, std::string first_line, char seperator);
 
   void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var);
 
@@ -44,17 +44,15 @@ public:
   double get_unique_data_value(size_t var, size_t index) const;
   size_t get_num_unique_data_values(size_t var) const;
 
-  const std::vector<std::string>& get_variable_names() const;
   size_t get_num_cols() const;
   size_t get_num_rows() const;
   size_t get_max_num_unique_values() const;
 
 protected:
-  std::vector<std::string> variable_names;
   size_t num_rows;
   size_t num_cols;
 
-  bool externalData;
+  bool external_data;
 
   size_t* index_data;
   std::vector<std::vector<double>> unique_data_values;
