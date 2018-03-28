@@ -53,8 +53,8 @@ quantile_predict_oob <- function(forest_object, quantiles, input_data, sparse_in
     .Call('_grf_quantile_predict_oob', PACKAGE = 'grf', forest_object, quantiles, input_data, sparse_input_data, variable_names, num_threads)
 }
 
-regression_train <- function(input_data, sparse_input_data, outcome_index, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, seed, honesty, ci_group_size, alpha, lambda, downweight_penalty, tune_parameters) {
-    .Call('_grf_regression_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, seed, honesty, ci_group_size, alpha, lambda, downweight_penalty, tune_parameters)
+regression_train <- function(input_data, sparse_input_data, outcome_index, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, seed, honesty, ci_group_size, alpha, lambda, downweight_penalty) {
+    .Call('_grf_regression_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, variable_names, mtry, num_trees, verbose, num_threads, min_node_size, sample_with_replacement, keep_inbag, sample_fraction, seed, honesty, ci_group_size, alpha, lambda, downweight_penalty)
 }
 
 regression_predict <- function(forest_object, input_data, sparse_input_data, variable_names, num_threads, ci_group_size) {
