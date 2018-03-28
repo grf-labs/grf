@@ -127,9 +127,13 @@ std::vector<double> RegressionPredictionStrategy::compute_debiased_error(
       continue;
     }
 
-    double tree_error = leaf_values.get(n, OUTCOME) - outcome;
-    bias += tree_error * tree_error;
+    double tree_variance = leaf_values.get(n, OUTCOME) - average.at(OUTCOME);
+    bias += tree_variance * tree_variance;
     num_trees++;
+  }
+
+  if (num_trees <= 1) {
+    return { NAN };
   }
 
   bias /= num_trees * (num_trees - 1);
