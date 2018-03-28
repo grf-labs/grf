@@ -5,6 +5,14 @@ compute_split_frequencies <- function(forest_object, max_depth) {
     .Call('_grf_compute_split_frequencies', PACKAGE = 'grf', forest_object, max_depth)
 }
 
+compute_weights <- function(forest_object, input_data, sparse_input_data, variable_names, num_threads) {
+    .Call('_grf_compute_weights', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, variable_names, num_threads)
+}
+
+compute_weights_oob <- function(forest_object, input_data, sparse_input_data, variable_names, num_threads) {
+    .Call('_grf_compute_weights_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, variable_names, num_threads)
+}
+
 deserialize_tree <- function(forest_object, tree_index) {
     .Call('_grf_deserialize_tree', PACKAGE = 'grf', forest_object, tree_index)
 }

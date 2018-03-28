@@ -22,6 +22,9 @@
 #include "analysis/SplitFrequencyComputer.h"
 #include "commons/globals.h"
 #include "forest/Forest.h"
+#include "prediction/collector/SampleWeightComputer.h"
+#include "prediction/collector/TreeTraverser.h"
+
 #include "RcppUtilities.h"
 
 // [[Rcpp::export]]
@@ -44,6 +47,62 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
     }
   return result;
 }
+
+Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
+                                                   Rcpp::NumericMatrix input_data,
+                                                   Eigen::SparseMatrix<double> sparse_input_data,
+                                                   std::vector<std::string> variable_names,
+                                                   uint num_threads,
+                                                   bool oob_prediction) {
+  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names);
+  Forest forest = RcppUtilities::deserialize_forest(
+      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  num_threads = ForestOptions::validate_num_threads(num_threads);
+
+  TreeTraverser tree_traverser(num_threads);
+  SampleWeightComputer weight_computer;
+
+  std::vector<std::vector<size_t>> leaf_nodes_by_tree = tree_traverser.get_leaf_nodes(forest, data, oob_prediction);
+  std::vector<std::vector<bool>> trees_by_sample = tree_traverser.get_valid_trees_by_sample(forest, data, oob_prediction);
+
+  size_t num_samples = data->get_num_rows();
+  size_t num_neighbors = forest.get_observations().get_num_samples();
+
+  Eigen::SparseMatrix<double> result(num_samples, num_neighbors);
+
+  for (size_t sample = 0; sample < num_samples; sample++) {
+    std::unordered_map<size_t, double> weights = weight_computer.compute_weights(
+        sample, forest, leaf_nodes_by_tree, trees_by_sample);
+    for (auto it = weights.begin(); it != weights.end(); it++) {
+      size_t neighbor = it->first;
+      double weight = it->second;
+      result.insert(sample, neighbor) = weight;
+    }
+  }
+  result.makeCompressed();
+  return result;
+}
+
+// [[Rcpp::export]]
+Eigen::SparseMatrix<double> compute_weights(Rcpp::List forest_object,
+                                            Rcpp::NumericMatrix input_data,
+                                            Eigen::SparseMatrix<double> sparse_input_data,
+                                            std::vector<std::string> variable_names,
+                                            uint num_threads) {
+  return compute_sample_weights(forest_object, input_data, sparse_input_data,
+                                variable_names, num_threads, false);
+}
+
+// [[Rcpp::export]]
+Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object,
+                                                Rcpp::NumericMatrix input_data,
+                                                Eigen::SparseMatrix<double> sparse_input_data,
+                                                std::vector<std::string> variable_names,
+                                                uint num_threads) {
+  return compute_sample_weights(forest_object, input_data, sparse_input_data,
+                                variable_names, num_threads, true);
+}
+
 
 // [[Rcpp::export]]
 Rcpp::List deserialize_tree(Rcpp::List forest_object,
