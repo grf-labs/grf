@@ -7,7 +7,6 @@
 #include "Eigen/Sparse"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainers.h"
-#include "tuning/ParameterTuner.h"
 #include "RcppUtilities.h"
 
 // [[Rcpp::export]]
@@ -28,8 +27,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             unsigned int ci_group_size,
                             double alpha,
                             double lambda,
-                            bool downweight_penalty,
-                            bool tune_parameters) {
+                            bool downweight_penalty) {
   ForestTrainer trainer = lambda > 0
       ? ForestTrainers::regularized_regression_trainer(outcome_index - 1, lambda, downweight_penalty)
       : ForestTrainers::regression_trainer(outcome_index - 1, alpha);
