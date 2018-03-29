@@ -51,10 +51,9 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
 Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
                                                    Rcpp::NumericMatrix input_data,
                                                    Eigen::SparseMatrix<double> sparse_input_data,
-                                                   std::vector<std::string> variable_names,
                                                    uint num_threads,
                                                    bool oob_prediction) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names);
+  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
   num_threads = ForestOptions::validate_num_threads(num_threads);
@@ -87,22 +86,17 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
 Eigen::SparseMatrix<double> compute_weights(Rcpp::List forest_object,
                                             Rcpp::NumericMatrix input_data,
                                             Eigen::SparseMatrix<double> sparse_input_data,
-                                            std::vector<std::string> variable_names,
                                             uint num_threads) {
-  return compute_sample_weights(forest_object, input_data, sparse_input_data,
-                                variable_names, num_threads, false);
+  return compute_sample_weights(forest_object, input_data, sparse_input_data, num_threads, false);
 }
 
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object,
                                                 Rcpp::NumericMatrix input_data,
                                                 Eigen::SparseMatrix<double> sparse_input_data,
-                                                std::vector<std::string> variable_names,
                                                 uint num_threads) {
-  return compute_sample_weights(forest_object, input_data, sparse_input_data,
-                                variable_names, num_threads, true);
+  return compute_sample_weights(forest_object, input_data, sparse_input_data, num_threads, true);
 }
-
 
 // [[Rcpp::export]]
 Rcpp::List deserialize_tree(Rcpp::List forest_object,

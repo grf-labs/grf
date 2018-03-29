@@ -27,7 +27,6 @@ public:
   SparseData();
 
   SparseData(Eigen::SparseMatrix<double>* data,
-             std::vector<std::string> variable_names,
              size_t num_rows,
              size_t num_cols);
 
