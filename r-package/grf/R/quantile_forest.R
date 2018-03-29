@@ -138,10 +138,10 @@ predict.quantile_forest <- function(object,
     forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
-        data <- create_data_matrices(newdata, NA)
+        data <- create_data_matrices(newdata)
         quantile_predict(forest.short, quantiles, data$default, data$sparse, num.threads)
     } else {
-        data <- create_data_matrices(object[["X.orig"]], NA)
+        data <- create_data_matrices(object[["X.orig"]])
         quantile_predict_oob(forest.short, quantiles, data$default, data$sparse, num.threads)
     }
 }
