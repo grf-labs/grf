@@ -37,8 +37,8 @@ private:
   std::vector<std::vector<size_t>> get_leaf_node_batch(
       size_t start,
       size_t num_trees,
-      const Forest &forest,
-      Data *prediction_data,
+      const Forest& forest,
+      Data* prediction_data,
       bool oob_prediction) const;
 
   std::vector<bool> get_valid_samples(size_t num_samples,

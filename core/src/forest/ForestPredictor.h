@@ -49,7 +49,7 @@ public:
 
 private:
   std::vector<Prediction> predict(const Forest& forest,
-                                  Data* prediction_data,
+                                  Data* data,
                                   bool oob_prediction) const;
 
 private:
