@@ -130,11 +130,11 @@ predict.regression_forest <- function(object, newdata = NULL,
     forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
-        data <- create_data_matrices(newdata, NA)
+        data <- create_data_matrices(newdata)
         regression_predict(forest.short, data$default, data$sparse,
                            num.threads, ci.group.size)
     } else {
-        data <- create_data_matrices(object[["X.orig"]], NA)
+        data <- create_data_matrices(object[["X.orig"]])
         regression_predict_oob(forest.short, data$default, data$sparse,
                                num.threads, ci.group.size)
     }

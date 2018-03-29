@@ -124,10 +124,10 @@ get_sample_weights = function(forest, newdata = NULL, num.threads=NULL) {
 
   forest.short <- forest[-which(names(forest) == "X.orig")]
   if (!is.null(newdata)) {
-    data <- create_data_matrices(newdata, NA)
+    data <- create_data_matrices(newdata)
     compute_weights(forest.short, data$default, data$sparse, num.threads)
   } else {
-    data <- create_data_matrices(forest[["X.orig"]], NA)
+    data <- create_data_matrices(forest[["X.orig"]])
     compute_weights_oob(forest.short, data$default, data$sparse, num.threads)
   }
 }

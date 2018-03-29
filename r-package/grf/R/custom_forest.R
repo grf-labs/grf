@@ -103,10 +103,10 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
     forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
-        data <- create_data_matrices(newdata, NA)
+        data <- create_data_matrices(newdata)
         custom_predict(forest.short, data$default, data$sparse, num.threads)
     } else {
-        data <- create_data_matrices(object[["X.orig"]], NA)
+        data <- create_data_matrices(object[["X.orig"]])
         custom_predict_oob(forest.short, data$default, data$sparse, num.threads)
     }
 }
