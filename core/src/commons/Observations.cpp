@@ -43,3 +43,7 @@ size_t Observations::get_num_samples() const {
   return num_samples;
 }
 
+size_t Observations::get_num_types() const {
+  return observations_by_type.size();
+}
+
