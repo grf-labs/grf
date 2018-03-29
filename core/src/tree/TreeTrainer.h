@@ -48,7 +48,7 @@ private:
                          std::vector<double>& split_values) const;
 
   void repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
-                             Data *data,
+                             Data* data,
                              const std::vector<size_t> &leaf_samples) const;
 
   void create_split_variable_subset(std::vector<size_t>& result,

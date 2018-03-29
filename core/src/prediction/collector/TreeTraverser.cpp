@@ -24,8 +24,8 @@ TreeTraverser::TreeTraverser(uint num_threads) :
     num_threads(num_threads) {}
 
 std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
-    const Forest &forest,
-    Data *data,
+    const Forest& forest,
+    Data* data,
     bool oob_prediction) const {
   size_t num_trees = forest.get_trees().size();
 
@@ -82,8 +82,8 @@ std::vector<std::vector<bool>> TreeTraverser::get_valid_trees_by_sample(const Fo
 std::vector<std::vector<size_t>> TreeTraverser::get_leaf_node_batch(
     size_t start,
     size_t num_trees,
-    const Forest &forest,
-    Data *prediction_data,
+    const Forest& forest,
+    Data* prediction_data,
     bool oob_prediction) const {
 
   size_t num_samples = prediction_data->get_num_rows();
