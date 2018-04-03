@@ -17,8 +17,8 @@ deserialize_tree <- function(forest_object, tree_index) {
     .Call('_grf_deserialize_tree', PACKAGE = 'grf', forest_object, tree_index)
 }
 
-custom_train <- function(input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, alpha) {
-    .Call('_grf_custom_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, alpha)
+custom_train <- function(input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, alpha, lambda) {
+    .Call('_grf_custom_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, alpha, lambda)
 }
 
 custom_predict <- function(forest_object, input_data, sparse_input_data, num_threads) {
@@ -41,8 +41,8 @@ instrumental_predict_oob <- function(forest_object, input_data, sparse_input_dat
     .Call('_grf_instrumental_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, ci_group_size)
 }
 
-quantile_train <- function(quantiles, regression_splits, input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, alpha) {
-    .Call('_grf_quantile_train', PACKAGE = 'grf', quantiles, regression_splits, input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, alpha)
+quantile_train <- function(quantiles, regression_splits, input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, alpha, lambda) {
+    .Call('_grf_quantile_train', PACKAGE = 'grf', quantiles, regression_splits, input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, alpha, lambda)
 }
 
 quantile_predict <- function(forest_object, quantiles, input_data, sparse_input_data, num_threads) {

@@ -28,17 +28,13 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               double split_regularization,
                               double alpha,
                               double lambda) {
-  ForestTrainer trainer = lambda > 0
-    ? ForestTrainers::regularized_instrumental_trainer(outcome_index - 1,
-                                                       treatment_index - 1,
-                                                       instrument_index - 1,
-                                                       split_regularization,
-                                                       lambda)
-    : ForestTrainers::instrumental_trainer(outcome_index - 1,
-                                           treatment_index - 1,
-                                           instrument_index - 1,
-                                           split_regularization,
-                                           alpha);
+  ForestTrainer trainer = ForestTrainers::instrumental_trainer(
+      outcome_index - 1,
+      treatment_index - 1,
+      instrument_index - 1,
+      split_regularization,
+      alpha,
+      lambda);
 
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,

@@ -24,9 +24,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             unsigned int ci_group_size,
                             double alpha,
                             double lambda) {
-  ForestTrainer trainer = lambda > 0
-      ? ForestTrainers::regularized_regression_trainer(outcome_index - 1, lambda)
-      : ForestTrainers::regression_trainer(outcome_index - 1, alpha);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index - 1, alpha, lambda);
 
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,

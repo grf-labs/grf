@@ -17,6 +17,7 @@
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
 #' @param alpha Maximum imbalance of a split.   
+#' @param lambda A tuning parameter to control the amount of split regularization (experimental).
 #' @param seed The seed for the C++ random number generator.
 #' @param ... Additional arguments (currently ignored).
 #'
@@ -38,7 +39,7 @@
 #' @export
 custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL,
-    honesty = TRUE, alpha = 0.05, seed = NULL) {
+    honesty = TRUE, alpha = 0.05, lambda = 0.0, seed = NULL) {
 
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -58,7 +59,7 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     
     forest <- custom_train(data$default, data$sparse, outcome.index, mtry,
         num.trees, num.threads, min.node.size, sample.with.replacement,
-        sample.fraction, seed, honesty, ci.group.size, alpha)
+        sample.fraction, seed, honesty, ci.group.size, alpha, lambda)
     
     forest[["X.orig"]] <- X
     class(forest) <- c("custom_forest", "grf")
