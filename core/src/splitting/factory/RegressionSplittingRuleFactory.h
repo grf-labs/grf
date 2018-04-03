@@ -26,15 +26,21 @@ public:
   /**
    * Creates a factory that produces standard regression splitting rules.
    *
+   * In addition to performing standard regression splits, this rule applies
+   * a penalty to avoid splits too close to the edge of the node's data.
+   *
    * alpha: The minimum fraction of samples that are allowed to be on either
    *     side of the split. Splits that are too uneven according to this
    *     parameter will not be considered.
+   * lambda: A tuning parameter to control the amount of regularization applied
+   *     to each split.
    */
-  RegressionSplittingRuleFactory(double alpha);
+  RegressionSplittingRuleFactory(double alpha, double lambda);
   std::shared_ptr<SplittingRule> create(Data* data);
 
 private:
   double alpha;
+  double lambda;
 };
 
 
