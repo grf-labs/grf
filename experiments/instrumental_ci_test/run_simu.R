@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("~/git/grf/experiments/instrumental_ci_test2")
+setwd("~/git/grf/experiments/instrumental_ci_test")
 
 library(grf)
 
