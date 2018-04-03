@@ -26,8 +26,9 @@
 TEST_CASE("forests don't crash when there are fewer trees than threads", "[forest]") {
   uint outcome_index = 10;
   double alpha = 0.10;
+  double lambda = 0.07;
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha, lambda);
   Data* data = load_data("test/forest/resources/gaussian_data.csv");
 
   uint mtry = 3;

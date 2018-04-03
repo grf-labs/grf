@@ -87,9 +87,10 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   Data* data = load_data("test/forest/resources/causal_data.csv");
   double split_regularization = 0.0;
   double alpha = 0.0;
+  double lambda = 0.0;
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
-      10, 11, 11, split_regularization, alpha);
+      10, 11, 11, split_regularization, alpha, lambda);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(data, options);
@@ -111,8 +112,9 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
 TEST_CASE("regression forest predictions have not changed", "[regression], [characterization]") {
   Data* data = load_data("test/forest/resources/regression_data.csv");
   double alpha = 0.0;
+  double lambda = 0.0;
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(10, alpha);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(10, alpha, lambda);
   ForestOptions options = ForestTestUtilities::default_options();
   Forest forest = trainer.train(data, options);
 
