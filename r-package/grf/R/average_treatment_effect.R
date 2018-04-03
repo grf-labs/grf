@@ -1,19 +1,20 @@
 #' Estimate average treatment effects using a causal forest
 #' 
-#' Gets estimates of one of the following
-#' 
-#' The (conditional) average treatment effect (target.sample = all):
+#' Gets estimates of one of the following.
+#' \itemize{
+#'   \item The (conditional) average treatment effect (target.sample = all):
 #'   sum_{i = 1}^n E[Y(1) - Y(0) | X = Xi] / n
-#' The (conditional) average treatment effect on the treated (target.sample = treated):
+#'   \item The (conditional) average treatment effect on the treated (target.sample = treated):
 #'   sum_{Wi = 1} E[Y(1) - Y(0) | X = Xi] / |{i : Wi = 1}|
-#' The (conditional) average treatment effect on the controls (target.sample = control):
+#'   \item The (conditional) average treatment effect on the controls (target.sample = control):
 #'   sum_{Wi = 0} E[Y(1) - Y(0) | X = Xi] / |{i : Wi = 0}|
-#' The overlap-weighted (conditional) average treatment effect
+#'   \item The overlap-weighted (conditional) average treatment effect
 #'   sum_{i = 1}^n e(Xi) (1 - e(Xi)) E[Y(1) - Y(0) | X = Xi] / sum_{i = 1}^n e(Xi) (1 - e(Xi)),
-#' where e(x) = P[Wi = 1 | Xi = x]. This last estimand is recommended by
-#' Li, Morgan, and Zaslavsky (JASA, 2017) in case of poor overlap
-#' (i.e., when the propensities e(x) may be very close to 0 or 1), as it doesn't
-#' involve dividing by estimated propensities.
+#'   where e(x) = P[Wi = 1 | Xi = x].
+#' }
+#' This last estimand is recommended by Li, Morgan, and Zaslavsky (JASA, 2017)
+#' in case of poor overlap (i.e., when the propensities e(x) may be very close
+#' to 0 or 1), as it doesn't involve dividing by estimated propensities.
 #'
 #' @param forest The trained forest.
 #' @param target.sample Which sample to aggregate treatment effects over.
