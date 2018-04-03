@@ -32,10 +32,10 @@ test_that("regression CIs are reasonable", {
   forest = regression_forest(X, Y)
   preds.oob = predict(forest, estimate.variance = TRUE)
   error.standardized = (preds.oob$predictions - (X[,1] > 0)) / sqrt(preds.oob$variance.estimates)
-  expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.12)
+  expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.15)
 })
 
-test_that("instrument CIs are reasonable", {
+test_that("instrumental CIs are reasonable", {
   n = 1000
   n.test = 1000
   p = 4
@@ -59,13 +59,13 @@ test_that("instrument CIs are reasonable", {
   forest = instrumental_forest(X, Y, W, Z, precompute.nuisance = TRUE)
   tau.hat = predict(forest, newdata = X.test, estimate.variance = TRUE)
   error.standardized = (tau.hat$predictions - tau.true) / sqrt(tau.hat$variance.estimates)
-  expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.12)
+  expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.15)
 })
 
-test_that("instrument CIs are invariant to scaling Z", {
-  n = 1000
+test_that("instrumental CIs are invariant to scaling Z", {
+  n = 2000
   p = 5
-  n.test = 1000
+  n.test = 2000
   X = matrix(rnorm(n*p), n, p)
   W = rnorm(n)
   Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
@@ -74,16 +74,18 @@ test_that("instrument CIs are invariant to scaling Z", {
   tau.true = pmax(X.test[,1], 0)
   
   forest = causal_forest(X, Y, W)
-  tau.hat = predict(forest, newdata = X.test, estimate.variance = TRUE)
+  tau.hat = predict(forest, newdata = X.test, estimate.variance = TRUE, precompute.nuisance = FALSE)
   error.standardized = (tau.hat$predictions - tau.true) / sqrt(tau.hat$variance.estimates)
   expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.15)
+  expect_true(mean(abs(error.standardized) > qnorm(0.975)) >= 0.005)
   
-  Z = 10000 * W
-  forest.iv = instrumental_forest(X, Y, W, Z)
+  Z = 0.00000001 * W
+  forest.iv = instrumental_forest(X, Y, W, Z, precompute.nuisance = FALSE)
   tau.hat.iv = predict(forest.iv, newdata = X.test, estimate.variance = TRUE)
   error.standardized.iv = (tau.hat.iv$predictions - tau.true) / sqrt(tau.hat.iv$variance.estimates)
   expect_true(mean(abs(error.standardized.iv) > qnorm(0.975)) <= 0.15)
+  expect_true(mean(abs(error.standardized.iv) > qnorm(0.975)) >= 0.005)
   
-  ksp = ks.test(error.standardized, error.standardized.iv)$p.value
-  expect_true(ksp >= 0.05)
+  kst = ks.test(error.standardized, error.standardized.iv)
+  expect_true(kst$statistic <= 0.1)
 })
