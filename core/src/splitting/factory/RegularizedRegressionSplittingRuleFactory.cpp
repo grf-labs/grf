@@ -18,11 +18,10 @@
 #include "splitting/RegularizedRegressionSplittingRule.h"
 #include "RegularizedRegressionSplittingRuleFactory.h"
 
-RegularizedRegressionSplittingRuleFactory::RegularizedRegressionSplittingRuleFactory(double alpha,
-                                                                                     bool downweight_penalty):
-    lambda(alpha), downweight_penalty(downweight_penalty) {}
+RegularizedRegressionSplittingRuleFactory::RegularizedRegressionSplittingRuleFactory(double lambda):
+    lambda(lambda) {}
 
 std::shared_ptr<SplittingRule> RegularizedRegressionSplittingRuleFactory::create(Data* data) {
-  return std::shared_ptr<SplittingRule>(new RegularizedRegressionSplittingRule(data, lambda, downweight_penalty));
+  return std::shared_ptr<SplittingRule>(new RegularizedRegressionSplittingRule(data, lambda));
 }
 

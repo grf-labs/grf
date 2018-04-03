@@ -39,15 +39,13 @@ public:
                                       double alpha);
 
   static ForestTrainer regularized_regression_trainer(size_t outcome_index,
-                                                      double lambda,
-                                                      bool downweight_penalty);
+                                                      double lambda);
 
   static ForestTrainer regularized_instrumental_trainer(size_t outcome_index,
                                                         size_t treatment_index,
                                                         size_t instrument_index,
                                                         double split_regularization,
-                                                        double lambda,
-                                                        bool downweight_penalty);
+                                                        double lambda);
 };
 
 

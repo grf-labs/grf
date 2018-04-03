@@ -34,15 +34,12 @@ public:
    * data: A pointer to the training data.
    * lambda: A tuning parameter to control the amount of regularization applied
    *     to each split.
-   * downweight_penalty: Whether or not to downweight the penalty (experimental,
-   *     will be removed once we run tuning experiments).
    */
-  RegularizedRegressionSplittingRuleFactory(double lambda, bool downweight_penalty);
+  RegularizedRegressionSplittingRuleFactory(double lambda);
   std::shared_ptr<SplittingRule> create(Data* data);
 
 private:
   double lambda;
-  bool downweight_penalty;
 };
 
 

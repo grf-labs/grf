@@ -21,11 +21,9 @@
 #include "RegularizedRegressionSplittingRule.h"
 
 RegularizedRegressionSplittingRule::RegularizedRegressionSplittingRule(Data* data,
-                                                                       double lambda,
-                                                                       bool downweight_penalty) {
+                                                                       double lambda) {
   this->data = data;
   this->lambda = lambda;
-  this->downweight_penalty = downweight_penalty;
 
   size_t max_num_unique_values = data->get_max_num_unique_values();
   this->counter = new size_t[max_num_unique_values];
@@ -150,9 +148,6 @@ void RegularizedRegressionSplittingRule::find_best_split_value_small_q(size_t no
 
     // Penalize splits that are too close to the edges of the data.
     double penalty = lambda * (1.0 / n_left + 1.0 / n_right[i]) * node_impurity;
-    if (downweight_penalty) {
-      penalty *= std::sqrt((double) num_samples_node);
-    }
     decrease -= penalty;
 
     // If better than before, use this
@@ -209,9 +204,6 @@ void RegularizedRegressionSplittingRule::find_best_split_value_large_q(size_t no
 
     // Penalize splits that are too close to the edges of the data.
     double penalty = lambda * (1.0 / n_left + 1.0 / n_right) * node_impurity;
-    if (downweight_penalty) {
-      penalty *= std::sqrt((double) num_samples_node);
-    }
     decrease -= penalty;
 
     // If better than before, use this
