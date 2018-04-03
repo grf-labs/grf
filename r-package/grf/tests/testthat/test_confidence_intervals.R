@@ -73,8 +73,8 @@ test_that("instrumental CIs are invariant to scaling Z", {
   X.test = matrix(rnorm(n*p), n, p)
   tau.true = pmax(X.test[,1], 0)
   
-  forest = causal_forest(X, Y, W)
-  tau.hat = predict(forest, newdata = X.test, estimate.variance = TRUE, precompute.nuisance = FALSE)
+  forest = causal_forest(X, Y, W, precompute.nuisance = FALSE)
+  tau.hat = predict(forest, newdata = X.test, estimate.variance = TRUE)
   error.standardized = (tau.hat$predictions - tau.true) / sqrt(tau.hat$variance.estimates)
   expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.15)
   expect_true(mean(abs(error.standardized) > qnorm(0.975)) >= 0.005)
@@ -87,5 +87,5 @@ test_that("instrumental CIs are invariant to scaling Z", {
   expect_true(mean(abs(error.standardized.iv) > qnorm(0.975)) >= 0.005)
   
   kst = ks.test(error.standardized, error.standardized.iv)
-  expect_true(kst$statistic <= 0.1)
+  expect_true(kst$statistic <= 0.05)
 })
