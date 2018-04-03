@@ -225,6 +225,8 @@ get_params <- function(X, draw) {
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
 #'                not use the i-th training example).
+#' @param local.linear Optional flag for local linear prediction. Defaults to FALSE.
+#' @param lambda Regularization parameter for local linear ridge regression.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -254,7 +256,7 @@ get_params <- function(X, draw) {
 #' }
 #'
 #' @export
-predict.regression_forest <- function(object, newdata = NULL,
+predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE, lambda = 0.0,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
