@@ -227,6 +227,8 @@ get_params <- function(X, draw) {
 #'                not use the i-th training example).
 #' @param local.linear Optional flag for local linear prediction. Defaults to FALSE.
 #' @param lambda Regularization parameter for local linear ridge regression.
+#' @param ridge.type Type of regularization. Can either be a full identity penalty or
+#'                  a standardized covariance ridge, which weights different covariates differently (default).
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -256,7 +258,7 @@ get_params <- function(X, draw) {
 #' }
 #'
 #' @export
-predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE, lambda = 0.0,
+predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE, lambda = 0.0, ridge.type= "standardized",
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
