@@ -58,18 +58,14 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     
     no.split.variables <- numeric(0)
     sample.with.replacement <- FALSE
-    verbose <- FALSE
-    keep.inbag <- FALSE
     
     data <- create_data_matrices(X, Y)
-    variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(X) + 1
     ci.group.size <- 1
     
-    forest <- custom_train(data$default, data$sparse, outcome.index,
-        variable.names, mtry, num.trees, verbose, num.threads, min.node.size, sample.with.replacement,
-        keep.inbag, sample.fraction, seed, honesty, ci.group.size, alpha,
-        clusters, samples_per_cluster)
+    forest <- custom_train(data$default, data$sparse, outcome.index, mtry, num.trees,
+        num.threads, min.node.size, sample.with.replacement, sample.fraction, seed,
+        honesty, ci.group.size, alpha, clusters, samples_per_cluster)
     
     forest[["X.orig"]] <- X
     class(forest) <- c("custom_forest", "grf")
@@ -110,18 +106,14 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
     } else if (!is.numeric(num.threads) | num.threads < 0) {
         stop("Error: Invalid value for num.threads")
     }
-    
-    variable.names <- character(0)
-    
+        
     forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
-        data <- create_data_matrices(newdata, NA)
-        custom_predict(forest.short, data$default, data$sparse,
-                       variable.names, num.threads)
+        data <- create_data_matrices(newdata)
+        custom_predict(forest.short, data$default, data$sparse, num.threads)
     } else {
-        data <- create_data_matrices(object[["X.orig"]], NA)
-        custom_predict_oob(forest.short, data$default, data$sparse,
-                           variable.names, num.threads)
+        data <- create_data_matrices(object[["X.orig"]])
+        custom_predict_oob(forest.short, data$default, data$sparse, num.threads)
     }
 }

@@ -189,13 +189,11 @@ TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
   SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
 
-  std::vector<size_t> first_part;
-  std::vector<size_t> second_part;
+  std::vector<size_t> samples;
 
-  sampler.shuffle_and_split(first_part, second_part, 10, 3);
+  sampler.shuffle_and_split(samples, 10, 3);
 
-  REQUIRE(3 == first_part.size());
-  REQUIRE(7 == second_part.size());
+  REQUIRE(3 == samples.size());
 }
 
 TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
@@ -204,13 +202,11 @@ TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
   SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
 
-  std::vector<size_t> first_part;
-  std::vector<size_t> second_part;
+  std::vector<size_t> samples;
 
-  sampler.shuffle_and_split(first_part, second_part, 100, 63);
+  sampler.shuffle_and_split(samples, 100, 63);
 
-  REQUIRE(63 == first_part.size());
-  REQUIRE(37 == second_part.size());
+  REQUIRE(63 == samples.size());
 }
 
 TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
@@ -219,13 +215,11 @@ TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
   SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
 
-  std::vector<size_t> first_part;
-  std::vector<size_t> second_part;
+  std::vector<size_t> samples;
 
-  sampler.shuffle_and_split(first_part, second_part, 1, 1);
+  sampler.shuffle_and_split(samples, 1, 1);
 
-  REQUIRE(1 == first_part.size());
-  REQUIRE(0 == second_part.size());
+  REQUIRE(1 == samples.size());
 }
 
 TEST_CASE("Shuffle and split 4", "[shuffleAndSplit]") {
@@ -234,13 +228,11 @@ TEST_CASE("Shuffle and split 4", "[shuffleAndSplit]") {
   SamplingOptions sampling_options(true);
   RandomSampler sampler(random_device(), sampling_options);
   
-  std::vector<size_t> first_part;
-  std::vector<size_t> second_part;
+  std::vector<size_t> samples;
 
-  sampler.shuffle_and_split(first_part, second_part, 3, 0);
+  sampler.shuffle_and_split(samples, 3, 0);
 
-  REQUIRE(0 == first_part.size());
-  REQUIRE(3 == second_part.size());
+  REQUIRE(0 == samples.size());
 }
 
 TEST_CASE("sample multilevel 1", "[sampleMultilevel]") {
@@ -258,7 +250,7 @@ TEST_CASE("sample multilevel 1", "[sampleMultilevel]") {
   size_t num_clusters = 4;
   std::vector<size_t> samples;
   std::vector<size_t> oob_sample;
-  DefaultData data(NULL, std::vector<std::string>(), 0, 0, clusters);
+  DefaultData data(NULL, 0, 0, clusters);
 
   auto cluster_map = data.get_cluster_map();
 
@@ -312,7 +304,7 @@ TEST_CASE("Clustered subsample", "[clusteredSubsample]") {
   std::vector<size_t> samples1 = {0, 1, 2, 3, 4, 10, 11, 12, 13};
   std::vector<size_t> subsample1;
   std::vector<size_t> oob_sample1;
-  DefaultData data(NULL, std::vector<std::string>(), 0, 0, clusters);
+  DefaultData data(NULL, 0, 0, clusters);
 
 
   sampler.subsample_with_clusters(samples1,

@@ -25,7 +25,8 @@ public:
   virtual std::vector<Prediction> collect_predictions(const Forest& forest,
                                                       Data* prediction_data,
                                                       const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                                      const std::vector<std::vector<bool>>& trees_by_sample) = 0;
+                                                      const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                                      bool estimate_error) = 0;
 };
 
 #endif //GRF_PREDICTIONCOLLECTOR_H

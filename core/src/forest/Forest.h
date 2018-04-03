@@ -36,19 +36,11 @@ public:
          const Observations& observations,
          size_t num_variables);
 
-  const Observations& get_observations() const {
-    return observations;
-  };
+  const Observations& get_observations() const;
+  const std::vector<std::shared_ptr<Tree>>& get_trees() const;
+  const size_t get_num_variables() const;
 
-  const std::vector<std::shared_ptr<Tree>>& get_trees() const {
-    return trees;
-  }
-
-  const size_t get_num_variables() const {
-    return num_variables;
-  }
-
-protected:
+private:
   std::vector<std::shared_ptr<Tree>> trees;
   Observations observations;
   size_t num_variables;

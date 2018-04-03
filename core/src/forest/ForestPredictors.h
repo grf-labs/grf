@@ -32,6 +32,8 @@ public:
 
   static ForestPredictor regression_predictor(uint num_threads,
                                               uint ci_group_size);
+private:
+  static uint get_num_threads(uint provided_num_threads);
 };
 
 

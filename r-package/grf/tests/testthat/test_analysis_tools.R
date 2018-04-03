@@ -9,7 +9,6 @@ test_that("examining a tree gives reasonable results", {
 	i = 5
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = rnorm(n) * (1 + (X[,i] > 0))
-	D = data.frame(X=X, Y=Y)
 
 	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632)
 	quantile.tree = get_tree(qrf, 500)
@@ -27,7 +26,6 @@ test_that("tree indexes are one-indexed", {
 	i = 5
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = rnorm(n) * (1 + (X[,i] > 0))
-	D = data.frame(X=X, Y=Y)
 
 	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632)
 
@@ -42,7 +40,6 @@ test_that("calculating variable importance gives reasonable results", {
 	i = 5
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = rnorm(n) * (1 + (X[,i] > 0))
-	D = data.frame(X=X, Y=Y)
 
 	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632)
 
@@ -50,4 +47,31 @@ test_that("calculating variable importance gives reasonable results", {
 
 	expect_equal(length(var.importance), p)
 	expect_equal(which.max(var.importance), i)
+})
+
+test_that("computing sample weights gives reasonable results", {
+	p = 10
+	n = 100
+
+	X = matrix(2 * runif(n * p) - 1, n, p)
+	Y = (X[,1] > 0) + 2 * rnorm(n)
+
+	rrf = regression_forest(X, Y, mtry=p)
+
+	sample.weights.oob = get_sample_weights(rrf)
+	expect_equal(nrow(sample.weights.oob), n)
+	expect_equal(ncol(sample.weights.oob), n)
+
+	row.sums.oob = apply(sample.weights.oob, 1, sum)
+	expect_true(all(row.sums.oob - 1.0 < 1e-10))
+
+	n.test = 103
+	X.test = matrix(2 * runif(n.test * p) - 1, n.test, p)
+
+	sample.weights = get_sample_weights(rrf, X.test)
+	expect_equal(nrow(sample.weights), n.test)
+	expect_equal(ncol(sample.weights), n)
+
+	row.sums = apply(sample.weights, 1, sum)
+	expect_true(all(row.sums - 1.0 < 1e-10))
 })

@@ -21,24 +21,24 @@
 
 #include "forest/Forest.h"
 #include "prediction/collector/PredictionCollector.h"
+#include "prediction/collector/SampleWeightComputer.h"
 #include "prediction/DefaultPredictionStrategy.h"
 
 class DefaultPredictionCollector: public PredictionCollector {
 public:
   DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy);
 
-  std::vector<Prediction> collect_predictions(const Forest &forest,
-                                              Data *prediction_data,
+  std::vector<Prediction> collect_predictions(const Forest& forest,
+                                              Data* prediction_data,
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                              const std::vector<std::vector<bool>>& trees_by_sample);
-private:
-  void add_sample_weights(const std::vector<size_t>& samples,
-                          std::unordered_map<size_t, double>& weights_by_sample);
+                                              const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                              bool estimate_error);
 
-  void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sample);
-  void validate_prediction(size_t sample, Prediction prediction);
+private:
+    void validate_prediction(size_t sample, Prediction prediction);
 
   std::shared_ptr<DefaultPredictionStrategy> strategy;
+  SampleWeightComputer weight_computer;
 };
 
 

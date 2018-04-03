@@ -35,4 +35,15 @@ double Observations::get(std::size_t type, size_t sample) const {
   return observations_by_type.at(type).at(sample);
 }
 
+const std::vector<std::vector<double>>& Observations::get_observations_by_type() const {
+  return observations_by_type;
+}
+
+size_t Observations::get_num_samples() const {
+  return num_samples;
+}
+
+size_t Observations::get_num_types() const {
+  return observations_by_type.size();
+}
 
