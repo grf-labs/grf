@@ -48,12 +48,13 @@ ForestTrainer ForestTrainers::instrumental_trainer(size_t outcome_index,
 
 ForestTrainer ForestTrainers::quantile_trainer(size_t outcome_index,
                                                const std::vector<double>& quantiles,
-                                               double alpha) {
+                                               double alpha,
+                                               double lambda) {
   std::unordered_map<size_t, size_t> observables = {{Observations::OUTCOME, outcome_index}};
 
   std::shared_ptr<RelabelingStrategy> relabeling_strategy(new QuantileRelabelingStrategy(quantiles));
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(
-      new ProbabilitySplittingRuleFactory(alpha, quantiles.size() + 1));
+      new ProbabilitySplittingRuleFactory(alpha, lambda, quantiles.size() + 1));
 
   return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, NULL);
 }

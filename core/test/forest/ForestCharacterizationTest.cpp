@@ -63,8 +63,9 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   std::vector<double> quantiles({0.25, 0.5, 0.75});
   Data* data = load_data("test/forest/resources/quantile_data.csv");
   double alpha = 0.0;
+  double lambda = 0.0;
 
-  ForestTrainer trainer = ForestTrainers::quantile_trainer(10, quantiles, alpha);
+  ForestTrainer trainer = ForestTrainers::quantile_trainer(10, quantiles, alpha, lambda);
   ForestOptions options = ForestTestUtilities::default_options();
   Forest forest = trainer.train(data, options);
 
