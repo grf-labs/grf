@@ -36,7 +36,6 @@
 #'                             instead emulates a causal forest).
 #' @param alpha Maximum imbalance of a split.
 #' @param lambda A tuning parameter to control the amount of split regularization (experimental).
-#' @param downweight.penalty Whether or not the regularization penalty should be downweighted (experimental).
 #' @param seed The seed for the C++ random number generator.
 #'
 #' @return A trained instrumental forest object.
@@ -44,7 +43,7 @@
 instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
                                 num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
                                 ci.group.size = 2, precompute.nuisance = TRUE, split.regularization = 0,
-                                alpha = 0.05, lambda = 0.0, downweight.penalty = FALSE, seed = NULL) {
+                                alpha = 0.05, lambda = 0.0, seed = NULL) {
     
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -68,20 +67,17 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     } else {
         forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda,
-                                      downweight.penalty = downweight.penalty)
+                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda)
         Y.hat = predict(forest.Y)$predictions
         
         forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda,
-                                      downweight.penalty = downweight.penalty)
+                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda)
         W.hat = predict(forest.W)$predictions
         
         forest.Z <- regression_forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda,
-                                      downweight.penalty = downweight.penalty)
+                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda)
         Z.hat = predict(forest.Z)$predictions
         
         data <- create_data_matrices(X, Y - Y.hat, W - W.hat, Z - Z.hat)
@@ -94,7 +90,7 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size,
         sample.with.replacement, sample.fraction, seed, honesty,
-        ci.group.size, split.regularization, alpha, lambda, downweight.penalty)
+        ci.group.size, split.regularization, alpha, lambda)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

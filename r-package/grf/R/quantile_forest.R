@@ -24,6 +24,7 @@
 #' @param seed The seed for the C++ random number generator.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
 #' @param alpha Maximum imbalance of a split.
+#' @param lambda A tuning parameter to control the amount of split regularization (experimental).
 #'
 #' @return A trained quantile forest object.
 #'
@@ -56,7 +57,7 @@
 quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = FALSE,
                             sample.fraction = 0.5, mtry = NULL, num.trees = 2000,
                             num.threads = NULL, min.node.size = NULL, seed = NULL, alpha = 0.05,
-                            honesty = TRUE) {
+                            lambda = 0.0, honesty = TRUE) {
     
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
@@ -82,7 +83,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
     
     forest <- quantile_train(quantiles, regression.splitting, data$default, data$sparse,
         outcome.index, mtry, num.trees, num.threads, min.node.size, sample.with.replacement,
-        sample.fraction, seed, honesty, ci.group.size, alpha)
+        sample.fraction, seed, honesty, ci.group.size, alpha, lambda)
     
     forest[["X.orig"]] <- X
     class(forest) <- c("quantile_forest", "grf")

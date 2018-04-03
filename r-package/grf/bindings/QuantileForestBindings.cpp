@@ -24,9 +24,10 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
                           unsigned int seed,
                           bool honesty,
                           unsigned int ci_group_size,
-                          double alpha) {
+                          double alpha,
+                          double lambda) {
   ForestTrainer trainer = regression_splits
-      ? ForestTrainers::regression_trainer(outcome_index - 1, alpha)
+      ? ForestTrainers::regression_trainer(outcome_index - 1, alpha, lambda)
       : ForestTrainers::quantile_trainer(outcome_index - 1, quantiles, alpha);
 
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);

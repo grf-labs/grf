@@ -38,8 +38,9 @@ Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
                         unsigned int seed,
                         bool honesty,
                         unsigned int ci_group_size,
-                        double alpha) {
-  ForestTrainer trainer = ForestTrainers::custom_trainer(outcome_index - 1, alpha);
+                        double alpha,
+                        double lambda) {
+  ForestTrainer trainer = ForestTrainers::custom_trainer(outcome_index - 1, alpha, lambda);
 
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
