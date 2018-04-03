@@ -26,7 +26,7 @@
 
 class RegularizedRegressionSplittingRule: public SplittingRule {
 public:
-  RegularizedRegressionSplittingRule(Data* data, double lambda, bool downweight_penalty);
+  RegularizedRegressionSplittingRule(Data* data, double lambda);
 
   ~RegularizedRegressionSplittingRule();
 

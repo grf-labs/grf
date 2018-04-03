@@ -23,10 +23,9 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             bool honesty,
                             unsigned int ci_group_size,
                             double alpha,
-                            double lambda,
-                            bool downweight_penalty) {
+                            double lambda) {
   ForestTrainer trainer = lambda > 0
-      ? ForestTrainers::regularized_regression_trainer(outcome_index - 1, lambda, downweight_penalty)
+      ? ForestTrainers::regularized_regression_trainer(outcome_index - 1, lambda)
       : ForestTrainers::regression_trainer(outcome_index - 1, alpha);
 
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);

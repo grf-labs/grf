@@ -27,15 +27,13 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               unsigned int ci_group_size,
                               double split_regularization,
                               double alpha,
-                              double lambda,
-                              bool downweight_penalty) {
+                              double lambda) {
   ForestTrainer trainer = lambda > 0
     ? ForestTrainers::regularized_instrumental_trainer(outcome_index - 1,
                                                        treatment_index - 1,
                                                        instrument_index - 1,
                                                        split_regularization,
-                                                       lambda,
-                                                       downweight_penalty)
+                                                       lambda)
     : ForestTrainers::instrumental_trainer(outcome_index - 1,
                                            treatment_index - 1,
                                            instrument_index - 1,
