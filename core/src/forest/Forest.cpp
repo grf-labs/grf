@@ -25,6 +25,8 @@ Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
   size_t num_samples = data->get_num_rows();
 
   std::vector<std::vector<double>> observations_by_type(num_types);
+  std::set<size_t> disallowed_split_variables;
+
   for (auto it : observables) {
     size_t type = it.first;
     size_t index = it.second;
@@ -33,10 +35,13 @@ Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
     for (size_t row = 0; row < num_samples; ++row) {
       observations_by_type[type][row] = data->get(row, index);
     }
+    disallowed_split_variables.insert(index);
   }
 
   Observations observations(observations_by_type, num_samples);
-  return Forest(trees, observations, data->get_num_cols());
+  size_t num_independent_variables = data->get_num_cols() - disallowed_split_variables.size();
+
+  return Forest(trees, observations, num_independent_variables);
 }
 
 Forest::Forest(const std::vector<std::shared_ptr<Tree>>& trees,
@@ -45,3 +50,15 @@ Forest::Forest(const std::vector<std::shared_ptr<Tree>>& trees,
   trees(trees),
   observations(observations),
   num_variables(num_variables) {}
+
+const Observations& Forest::get_observations() const {
+  return observations;
+};
+
+const std::vector<std::shared_ptr<Tree>>& Forest::get_trees() const {
+  return trees;
+}
+
+const size_t Forest::get_num_variables() const {
+  return num_variables;
+}

@@ -29,12 +29,10 @@ public:
   DefaultData();
 
   DefaultData(double* data,
-       std::vector<std::string> variable_names,
        size_t num_rows,
        size_t num_cols);
 
   DefaultData(double *data,
-              std::vector<std::string> variable_names,
               size_t num_rows,
               size_t num_cols,
               std::vector<uint>& clusters);

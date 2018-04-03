@@ -85,6 +85,12 @@ public:
   virtual PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_samples,
       const Observations& observations) = 0;
+
+  virtual std::vector<double> compute_debiased_error(
+      size_t sample,
+      const std::vector<double>& average,
+      const PredictionValues& leaf_values,
+      const Observations& observations) = 0;
 };
 
 

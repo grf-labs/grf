@@ -88,3 +88,46 @@ variable_importance = function(forest, decay.exponent=2, max.depth=4) {
   weight <- seq_len(nrow(split.freq)) ^ -decay.exponent
   t(split.freq) %*% weight / sum(weight)
 }
+
+#' Given a trained forest and test data, compute the training sample weights for each test point.
+#'
+#' During normal prediction, these weights are computed as an intermediate step towards producing estimates.
+#' This function allows for examining the weights directly, so they could be potentially be used as the
+#' input to a different analysis.
+#'
+#' @param forest The trained forest.
+#' @param newdata Points at which predictions should be made. If NULL,
+#'                makes out-of-bag predictions on the training set instead
+#'                (i.e., provides predictions at Xi using only trees that did
+#'                not use the i-th training example).#' @param max.depth Maximum depth of splits to consider.
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#' @return A sparse matrix where each row represents a test sample, and each column is a sample in the
+#'         training data. The value at (i, j) gives the weight of training sample j for test sample i.
+#'
+#' @examples \dontrun{
+#'  p = 10
+#'  n = 100
+#'  X = matrix(2 * runif(n * p) - 1, n, p)
+#'  Y = (X[,1] > 0) + 2 * rnorm(n)
+#'  rrf = regression_forest(X, Y, mtry=p)
+#'  sample.weights.oob = get_sample_weights(rrf)
+#'
+#'  n.test = 15
+#'  X.test = matrix(2 * runif(n.test * p) - 1, n.test, p)
+#'  sample.weights = get_sample_weights(rrf, X.test)
+#' }
+#'
+#' @export
+get_sample_weights = function(forest, newdata = NULL, num.threads=NULL) {
+  num.threads <- validate_num_threads(num.threads)
+
+  forest.short <- forest[-which(names(forest) == "X.orig")]
+  if (!is.null(newdata)) {
+    data <- create_data_matrices(newdata)
+    compute_weights(forest.short, data$default, data$sparse, num.threads)
+  } else {
+    data <- create_data_matrices(forest[["X.orig"]])
+    compute_weights_oob(forest.short, data$default, data$sparse, num.threads)
+  }
+}

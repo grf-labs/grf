@@ -36,6 +36,8 @@ public:
                 uint random_seed,
                 uint samples_per_cluster);
 
+  static uint validate_num_threads(uint num_threads);
+
   uint get_num_trees() const;
   uint get_ci_group_size() const;
   double get_sample_fraction() const;

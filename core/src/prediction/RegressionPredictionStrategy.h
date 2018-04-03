@@ -40,6 +40,12 @@ public:
       const PredictionValues& leaf_values,
       uint ci_group_size);
 
+  std::vector<double> compute_debiased_error(
+      size_t sample,
+      const std::vector<double>& average,
+      const PredictionValues& leaf_values,
+      const Observations& observations);
+
 private:
   static const std::size_t OUTCOME;
   ObjectiveBayesDebiaser bayes_debiaser;

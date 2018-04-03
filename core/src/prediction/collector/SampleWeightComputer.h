@@ -15,31 +15,26 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_PARAMETERTUNER_H
-#define GRF_PARAMETERTUNER_H
+#ifndef GRF_SAMPLEWEIGHTCOMPUTER_H
+#define GRF_SAMPLEWEIGHTCOMPUTER_H
 
-#include "commons/globals.h"
-#include "forest/ForestPredictor.h"
-#include "forest/ForestTrainer.h"
+#include "forest/Forest.h"
 
-class ParameterTuner {
+#include <unordered_map>
+#include <vector>
 
+class SampleWeightComputer {
 public:
-  ParameterTuner(const ForestTrainer& trainer,
-                 const ForestPredictor& predictor,
-                 uint outcome_index);
-  uint tune_min_node_size(Data* data,
-                          ForestOptions &options);
+  std::unordered_map<size_t, double> compute_weights(size_t sample,
+                                                     const Forest& forest,
+                                                     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                     const std::vector<std::vector<bool>>& valid_trees_by_sample) const;
 
 private:
-  double calculate_mse(const std::vector<Prediction>& predictions,
-                       Data* data);
+  void add_sample_weights(const std::vector<size_t>& samples,
+                          std::unordered_map<size_t, double>& weights_by_sample) const;
 
-  ForestTrainer trainer;
-  ForestPredictor predictor;
-  uint outcome_index;
+  void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sample) const;
 };
 
-
-
-#endif //GRF_PARAMETERTUNER_H
+#endif //GRF_SAMPLEWEIGHTCOMPUTER_H

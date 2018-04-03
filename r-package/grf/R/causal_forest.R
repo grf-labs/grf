@@ -83,8 +83,6 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     
     sample.with.replacement <- FALSE
-    verbose <- FALSE
-    keep.inbag <- FALSE
     
     split.regularization <- 0
     
@@ -111,16 +109,14 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
         data <- create_data_matrices(X, Y - Y.hat, W - W.hat)
     }
 
-    variable.names <- c(colnames(X), "outcome", "treatment")
     outcome.index <- ncol(X) + 1
     treatment.index <- ncol(X) + 2
     instrument.index <- treatment.index
     
-    forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index, instrument.index,
-        variable.names, mtry, num.trees, verbose, num.threads, min.node.size,
-        sample.with.replacement, keep.inbag, sample.fraction, seed, honesty,
-        ci.group.size, split.regularization, alpha, lambda, downweight.penalty,
-        clusters, samples_per_cluster)
+    forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
+        instrument.index, mtry, num.trees, num.threads, min.node.size, sample.with.replacement,
+        sample.fraction, seed, honesty, ci.group.size, split.regularization, alpha, lambda,
+        downweight.penalty, clusters, samples_per_cluster)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

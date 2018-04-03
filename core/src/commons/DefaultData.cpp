@@ -25,29 +25,26 @@
 #include "utility.h"
 
 DefaultData::DefaultData() :
-    DefaultData(NULL, std::vector<std::string>(), 0, 0) {}
+    DefaultData(NULL, 0, 0) {}
 
-DefaultData::DefaultData(double *data,
-                         std::vector<std::string> variable_names,
+DefaultData::DefaultData(double* data,
                          size_t num_rows,
                          size_t num_cols) :
     data(data) {
-  this->variable_names = variable_names;
   this->num_rows = num_rows;
   this->num_cols = num_cols;
 }
 
 DefaultData::DefaultData(double *data,
-                         std::vector<std::string> variable_names,
                          size_t num_rows,
                          size_t num_cols,
                          std::vector<uint>& clusters) :
-        DefaultData(data, variable_names, num_rows, num_cols) {
+        DefaultData(data, num_rows, num_cols) {
   Data::set_clusters(clusters);
 }
 
 DefaultData::~DefaultData() {
-  if (!externalData) {
+  if (!external_data) {
     delete[] data;
   }
 }

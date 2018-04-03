@@ -16,14 +16,11 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               size_t outcome_index,
                               size_t treatment_index,
                               size_t instrument_index,
-                              std::vector<std::string> variable_names,
                               unsigned int mtry,
                               unsigned int num_trees,
-                              bool verbose,
                               unsigned int num_threads,
                               unsigned int min_node_size,
                               bool sample_with_replacement,
-                              bool keep_inbag,
                               double sample_fraction,
                               unsigned int seed,
                               bool honesty,
@@ -47,7 +44,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                                            split_regularization,
                                            alpha);
 
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names, clusters);
+  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, clusters);
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
                         honesty, sample_with_replacement, num_threads, seed, samples_per_cluster);
 
@@ -62,10 +59,9 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
 Rcpp::List instrumental_predict(Rcpp::List forest_object,
                                 Rcpp::NumericMatrix input_data,
                                 Eigen::SparseMatrix<double> sparse_input_data,
-                                std::vector <std::string> variable_names,
                                 unsigned int num_threads,
                                 unsigned int ci_group_size) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names);
+  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
@@ -81,10 +77,9 @@ Rcpp::List instrumental_predict(Rcpp::List forest_object,
 Rcpp::List instrumental_predict_oob(Rcpp::List forest_object,
                                     Rcpp::NumericMatrix input_data,
                                     Eigen::SparseMatrix<double> sparse_input_data,
-                                    std::vector <std::string> variable_names,
                                     unsigned int num_threads,
                                     unsigned int ci_group_size) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, variable_names);
+  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 

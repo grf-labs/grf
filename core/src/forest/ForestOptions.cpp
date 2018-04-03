@@ -33,11 +33,7 @@ ForestOptions::ForestOptions(uint num_trees,
     tree_options(mtry, min_node_size, honesty, samples_per_cluster),
     sampling_options(sample_with_replacement, samples_per_cluster) {
 
-  if (num_threads == DEFAULT_NUM_THREADS) {
-    this->num_threads = std::thread::hardware_concurrency();
-  } else {
-    this->num_threads = num_threads;
-  }
+  this->num_threads = validate_num_threads(num_threads);
 
   // If necessary, round the number of trees up to a multiple of
   // the confidence interval group size.
@@ -90,4 +86,14 @@ uint ForestOptions::get_min_node_size() const {
 
 void ForestOptions::set_min_node_size(uint min_node_size) {
   return tree_options.set_min_node_size(min_node_size);
+}
+
+uint ForestOptions::validate_num_threads(uint num_threads) {
+  if (num_threads == DEFAULT_NUM_THREADS) {
+    return std::thread::hardware_concurrency();
+  } else if (num_threads > 0) {
+    return num_threads;
+  } else {
+    throw std::runtime_error("A negative number of threads was provided.");
+  }
 }

@@ -36,8 +36,11 @@ public:
 
   void sample(size_t num_samples,
               double sample_fraction,
-              std::vector<size_t>& samples,
-              std::vector<size_t>& oob_samples);
+              std::vector<size_t>& samples);
+
+  void subsample(const std::vector<size_t>& samples,
+                 double sample_fraction,
+                 std::vector<size_t>& subsamples);
 
   void sample_for_ci(Data* data,
                      double sample_fraction,
@@ -109,16 +112,15 @@ public:
                                          const std::vector<double>& weights);
 
   /**
-   * Create numbers from 0 to n_all-1, shuffle and split in two parts.
-   * @param first_part First part
-   * @param second_part Second part
+   * Create numbers from 0 to n_all-1, then shuffle and select the first 'size' elements.
+   *
+   * @param samples A list of first 'size'n_first shuffled numbers
    * @param n_all Number elements
-   * @param n_first Number of elements of first part
+   * @param size Number of elements of to select
    */
-  void shuffle_and_split(std::vector<size_t>& first_part,
-                         std::vector<size_t>& second_part,
+  void shuffle_and_split(std::vector<size_t>& samples,
                          size_t n_all,
-                         size_t n_first);
+                         size_t size);
 
   size_t sample_poisson(size_t mean);
 
@@ -139,23 +141,19 @@ public:
 private:
   void bootstrap(size_t num_samples,
                  double sample_fraction,
-                 std::vector<size_t>& samples,
-                 std::vector<size_t>& oob_sample);
+                 std::vector<size_t>& samples);
 
   void bootstrap_without_replacement(size_t num_samples,
                                      double sample_fraction,
-                                     std::vector<size_t>& samples,
-                                     std::vector<size_t>& oob_samples);
+                                     std::vector<size_t>& samples);
 
   void bootstrap_weighted(size_t num_samples,
                           double sample_fraction,
-                          std::vector<size_t>& samples,
-                          std::vector<size_t>& oob_samples);
+                          std::vector<size_t>& samples);
 
   void bootstrap_without_replacement_weighted(size_t num_samples,
                                               double sample_fraction,
-                                              std::vector<size_t>& samples,
-                                              std::vector<size_t>& oob_samples);
+                                              std::vector<size_t>& samples);
 
   void bootstrap_without_oob(size_t num_samples,
                              double sample_fraction,

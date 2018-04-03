@@ -25,9 +25,11 @@ OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<Optim
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
                                                                           Data* prediction_data,
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                                                          const std::vector<std::vector<bool>>& trees_by_sample) {
+                                                                          const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                                                          bool estimate_error) {
   size_t num_trees = forest.get_trees().size();
   size_t num_samples = prediction_data->get_num_rows();
+  bool record_leaf_values = ci_group_size > 1 || estimate_error;
 
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
@@ -35,14 +37,14 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
   for (size_t sample = 0; sample < num_samples; ++sample) {
     std::vector<double> average_value;
     std::vector<std::vector<double>> leaf_values;
-    if (ci_group_size > 1) {
+    if (record_leaf_values) {
       leaf_values.resize(num_trees);
     }
 
     // Create a list of weighted neighbors for this sample.
     uint num_leaves = 0;
     for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
-      if (!trees_by_sample.empty() && !trees_by_sample[sample][tree_index]) {
+      if (!valid_trees_by_sample[sample][tree_index]) {
         continue;
       }
 
@@ -55,7 +57,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
       if (!prediction_values.empty(node)) {
         num_leaves++;
         add_prediction_values(node, prediction_values, average_value);
-        if (ci_group_size > 1) {
+        if (record_leaf_values) {
           leaf_values[tree_index] = prediction_values.get_values(node);
         }
       }
@@ -64,21 +66,24 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     // If this sample has no neighbors, then return placeholder predictions. Note
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
-      std::vector<double> temp(strategy->prediction_length(), NAN);
-      predictions.push_back(Prediction(temp));
+      std::vector<double> nan(strategy->prediction_length(), NAN);
+      predictions.push_back(Prediction(nan, nan, nan));
       continue;
     }
 
     normalize_prediction_values(num_leaves, average_value);
-
     std::vector<double> point_prediction = strategy->predict(average_value);
-    std::vector<double> variance_estimate;
-    if (ci_group_size > 1) {
-      PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
-      variance_estimate = strategy->compute_variance(average_value, prediction_values, ci_group_size);
-    }
 
-    Prediction prediction(point_prediction, variance_estimate);
+    PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
+    std::vector<double> variance = ci_group_size > 1
+        ? strategy->compute_variance(average_value, prediction_values, ci_group_size)
+        : std::vector<double>();
+
+    std::vector<double> mse = estimate_error
+        ? strategy->compute_debiased_error(sample, average_value, prediction_values, forest.get_observations())
+        : std::vector<double>();
+
+    Prediction prediction(point_prediction, variance, mse);
     validate_prediction(sample, prediction);
     predictions.push_back(prediction);
   }

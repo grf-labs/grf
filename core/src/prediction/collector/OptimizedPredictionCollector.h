@@ -27,10 +27,11 @@ public:
   OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy,
                                uint ci_group_size);
 
-  std::vector<Prediction> collect_predictions(const Forest &forest,
-                                              Data *prediction_data,
+  std::vector<Prediction> collect_predictions(const Forest& forest,
+                                              Data* prediction_data,
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                              const std::vector<std::vector<bool>>& trees_by_sample);
+                                              const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                              bool estimate_error);
 
 private:
   void add_prediction_values(size_t node,

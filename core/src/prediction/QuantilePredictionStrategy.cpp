@@ -30,11 +30,12 @@ size_t QuantilePredictionStrategy::prediction_length() {
     return quantiles.size();
 }
 
-std::vector<double> QuantilePredictionStrategy::predict(size_t prediction_sample,
+std::vector<double> QuantilePredictionStrategy::predict(
+    size_t prediction_sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations) {
   std::vector<std::pair<size_t, double>> samples_and_values;
-  for (auto it = weights_by_sample.begin(); it != weights_by_sample.end(); ++it) {
+  for (auto it = weights_by_sample.begin(); it != weights_by_sample.end(); it++) {
     size_t sample = it->first;
     samples_and_values.push_back(std::pair<size_t, double>(
         sample, observations.get(Observations::OUTCOME, sample)));

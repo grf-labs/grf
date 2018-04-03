@@ -24,7 +24,6 @@
 #' @param lambda A tuning parameter to control the amount of split regularization (experimental).
 #' @param downweight.penalty Whether or not the regularization penalty should be downweighted (experimental).
 #' @param seed The seed for the C++ random number generator.
-#' @param tune.parameters Experimental option that allows for parameters like min.node.size to be automatically tuned.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
@@ -56,9 +55,8 @@
 regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                               honesty = TRUE, ci.group.size = 2, alpha = 0.05, lambda = 0.0,
-                              downweight.penalty = FALSE, seed = NULL, tune.parameters = FALSE,
+                              downweight.penalty = FALSE, seed = NULL,
                               clusters = NULL, samples_per_cluster = NULL) {
-    
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     
@@ -71,17 +69,13 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     
     sample.with.replacement <- FALSE
-    verbose <- FALSE
-    keep.inbag <- FALSE
 
     data <- create_data_matrices(X, Y)
-    variable.names <- c(colnames(X), "outcome")
     outcome.index <- ncol(X) + 1
 
-    forest <- regression_train(data$default, data$sparse, outcome.index, variable.names, mtry, num.trees,
-        verbose, num.threads, min.node.size, sample.with.replacement, keep.inbag, sample.fraction,
-        seed, honesty, ci.group.size, alpha, lambda, downweight.penalty, tune.parameters,
-        clusters, samples_per_cluster)
+    forest <- regression_train(data$default, data$sparse, outcome.index, mtry, num.trees,
+        num.threads, min.node.size, sample.with.replacement, sample.fraction, seed, honesty,
+        ci.group.size, alpha, lambda, downweight.penalty, clusters, samples_per_cluster)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
@@ -132,7 +126,6 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
     num.threads <- validate_num_threads(num.threads)
-    variable.names <- character(0)
     
     if (estimate.variance) {
         ci.group.size = object$ci.group.size
@@ -143,12 +136,12 @@ predict.regression_forest <- function(object, newdata = NULL,
     forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
-        data <- create_data_matrices(newdata, NA)
+        data <- create_data_matrices(newdata)
         regression_predict(forest.short, data$default, data$sparse,
-                           variable.names, num.threads, ci.group.size)
+                           num.threads, ci.group.size)
     } else {
-        data <- create_data_matrices(object[["X.orig"]], NA)
+        data <- create_data_matrices(object[["X.orig"]])
         regression_predict_oob(forest.short, data$default, data$sparse,
-                               variable.names, num.threads, ci.group.size)
+                               num.threads, ci.group.size)
     }
 }
