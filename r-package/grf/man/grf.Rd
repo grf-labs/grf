@@ -14,7 +14,7 @@ This package is currently in beta, and we expect to make continual improvements 
 library(grf)
 
 # The following script demonstrates how to use GRF for heterogeneous treatment effect estimation. For examples
-# of using other types of forest, including quantile regression and causal effect estimation using instrumental
+# of how to use other types of forest, as for quantile regression and causal effect estimation using instrumental
 # variables, please consult the documentation on the relevant forest methods (quantile_forest, instrumental_forest, etc.).
 
 # Generate data.
@@ -32,12 +32,12 @@ plot(X.test[,1], tau.hat$predictions, ylim = range(tau.hat$predictions, 0, 2), x
 lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 2)
 
 # Estimate the conditional average treatment effect on the full sample (CATE).
-estimate_average_effect(tau.forest, target.sample = "all")
+average_treatment_effect(tau.forest, target.sample = "all")
 
 # Estimate the conditional average treatment effect on the treated sample (CATT).
 # Here, we don't expect much difference between the CATE and the CATT, since
 # treatment assignment was randomized.
-estimate_average_effect(tau.forest, target.sample = "treated")
+average_treatment_effect(tau.forest, target.sample = "treated")
 
 # Add confidence intervals for heterogeneous treatment effects; growing more trees is now recommended.
 tau.forest = causal_forest(X, Y, W, num.trees = 4000)
