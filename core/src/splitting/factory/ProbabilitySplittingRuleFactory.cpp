@@ -20,12 +20,13 @@
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/ProbabilitySplittingRule.h"
 
-
 ProbabilitySplittingRuleFactory::ProbabilitySplittingRuleFactory(double alpha,
+                                                                 double lambda,
                                                                  size_t num_classes):
     alpha(alpha),
+    lambda(lambda),
     num_classes(num_classes) {}
 
 std::shared_ptr<SplittingRule> ProbabilitySplittingRuleFactory::create(Data* data) {
-  return std::shared_ptr<SplittingRule>(new ProbabilitySplittingRule(data, alpha, num_classes));
+  return std::shared_ptr<SplittingRule>(new ProbabilitySplittingRule(data, num_classes, alpha, lambda));
 }

@@ -31,7 +31,8 @@ public:
 
   static ForestTrainer quantile_trainer(size_t outcome_index,
                                         const std::vector<double>& quantiles,
-                                        double alpha);
+                                        double alpha,
+                                        double lambda);
 
   static ForestTrainer regression_trainer(size_t outcome_index,
                                           double alpha,

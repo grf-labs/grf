@@ -51,22 +51,23 @@ bool RegressionSplittingRule::find_best_split(size_t node,
   size_t num_samples_node = samples[node].size();
   size_t min_child_samples = std::max<size_t>(std::ceil(num_samples_node * alpha), 1uL);
 
-  size_t best_var = 0;
-  double best_value = 0;
-
-  // Compute sum of outcomes in this node.
+  // Precompute sum of outcomes in this node.
   double sum_node = 0.0;
   for (auto& sample : samples[node]) {
     sum_node += labels_by_sample.at(sample);
   }
 
-  // Compute the outcome variance within this node.
+  // Precompute the outcome variance within this node.
   double node_mean = sum_node / num_samples_node;
   double node_impurity = 0.0;
   for (auto& sample : samples[node]) {
     double difference = labels_by_sample.at(sample) - node_mean;
     node_impurity += difference * difference;
   }
+
+  // Initialize the variables to track the best split variable.
+  size_t best_var = 0;
+  double best_value = 0;
 
   double initial_decrease = -2 * lambda * node_impurity - 1;
   double best_decrease = initial_decrease;
