@@ -156,7 +156,9 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
   }
 }
 
-void RegressionSplittingRule::find_best_split_value_large_q(size_t node, size_t var, double sum_node,
+void RegressionSplittingRule::find_best_split_value_large_q(size_t node,
+                                                            size_t var,
+                                                            double sum_node,
                                                             size_t num_samples_node,
                                                             size_t min_child_samples,
                                                             double& best_value,
@@ -164,7 +166,6 @@ void RegressionSplittingRule::find_best_split_value_large_q(size_t node, size_t 
                                                             double& best_decrease,
                                                             const std::unordered_map<size_t, double>& responses_by_sample,
                                                             const std::vector<std::vector<size_t>>& samples) {
-
   // Set counters to 0
   size_t num_unique = data->get_num_unique_data_values(var);
   std::fill(counter, counter + num_unique, 0);

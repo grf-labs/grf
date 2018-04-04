@@ -31,6 +31,8 @@ public:
                 uint mtry,
                 uint min_node_size,
                 bool honesty,
+                double alpha,
+                double lambda,
                 bool sample_with_replacement,
                 uint num_threads,
                 uint random_seed);

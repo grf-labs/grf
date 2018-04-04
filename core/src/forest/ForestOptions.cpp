@@ -25,12 +25,14 @@ ForestOptions::ForestOptions(uint num_trees,
                              uint mtry,
                              uint min_node_size,
                              bool honesty,
+                             double alpha,
+                             double lambda,
                              bool sample_with_replacement,
                              uint num_threads,
                              uint random_seed):
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
-    tree_options(mtry, min_node_size, honesty),
+    tree_options(mtry, min_node_size, honesty, alpha, lambda),
     sampling_options(sample_with_replacement) {
 
   this->num_threads = validate_num_threads(num_threads);
