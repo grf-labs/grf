@@ -34,10 +34,7 @@ public:
               double lambda);
 
   uint get_mtry() const;
-
   uint get_min_node_size() const;
-  void set_min_node_size(uint min_node_size);
-
   bool get_honesty() const;
 
   /**
