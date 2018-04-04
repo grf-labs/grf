@@ -21,26 +21,20 @@
 #include <vector>
 
 #include "commons/globals.h"
-#include "commons/DefaultData.h"
 #include "splitting/factory/SplittingRuleFactory.h"
 
+/**
+ * A factory that produces standard classification splitting rules.
+ *
+ * In addition to performing standard regression splits, this rule applies
+ * a penalty to avoid splits too close to the edge of the node's data.
+ */
 class ProbabilitySplittingRuleFactory: public SplittingRuleFactory {
 public:
-  /**
-   * Creates a factory that produces standard classification splitting rules.
-   *
-   * data: A pointer to the training data.
-   * alpha: The minimum fraction of samples that are allowed to be on either
-   *     side of the split. Splits that are too uneven according to this
-   *     parameter will not be considered.
-   * num_classes: The number of unique classes in the data.
-   */
-  ProbabilitySplittingRuleFactory(double alpha, double lambda, size_t num_classes);
-  std::shared_ptr<SplittingRule> create(Data* data);
+  ProbabilitySplittingRuleFactory(size_t num_classes);
+  std::shared_ptr<SplittingRule> create(Data* data, const TreeOptions& options);
 
 private:
-  double alpha;
-  double lambda;
   size_t num_classes;
 
   DISALLOW_COPY_AND_ASSIGN(ProbabilitySplittingRuleFactory);
