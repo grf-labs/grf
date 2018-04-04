@@ -135,8 +135,13 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
 
     // Skip this split if one child is too small.
     size_t n_left = size_node - n_right[i];
-    if (n_left < min_child_size || n_right[i] < min_child_size) {
+    if (n_left < min_child_size) {
       continue;
+    }
+
+    // Stop if the right child is too small.
+    if (n_right[i] < min_child_size) {
+      break;
     }
 
     double sum_right = sums_right[i];

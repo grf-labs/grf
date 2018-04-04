@@ -144,10 +144,15 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(size_t node, size_t
   // Compute decrease of impurity for each possible split
   for (size_t i = 0; i < num_splits; ++i) {
 
-    // Skip this split if one child is too small.
+    // Skip this split if the left child is too small.
     size_t n_left = size_node - n_right[i];
-    if (n_left < min_child_size || n_right[i] < min_child_size) {
+    if (n_left < min_child_size) {
       continue;
+    }
+
+    // Stop if the right child is too small.
+    if (n_right[i] < min_child_size) {
+      break;
     }
 
     // Sum of squares
