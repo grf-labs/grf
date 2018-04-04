@@ -23,7 +23,7 @@ p.vals = c(6, 12, 18)
 n.vals = c(2000, 4000, 8000)
 n.test = 1000
 
-REPS = 4
+REPS = 20
 
 for (alpha.mu in alpha.mu.vals) {
   for (confounding in confounding.vals) {
