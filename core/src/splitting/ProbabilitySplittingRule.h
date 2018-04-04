@@ -40,8 +40,8 @@ public:
 
 private:
   void find_best_split_value_small_q(size_t node, size_t var, size_t num_classes, size_t* class_counts,
-                                     size_t num_samples_node,
-                                     size_t min_child_samples,
+                                     size_t size_node,
+                                     size_t min_child_size,
                                      double& best_value,
                                      size_t& best_var,
                                      double& best_decrease,
@@ -49,8 +49,8 @@ private:
                                      const std::vector<std::vector<size_t>>& samples);
 
   void find_best_split_value_large_q(size_t node, size_t var, size_t num_classes, size_t* class_counts,
-                                     size_t num_samples_node,
-                                     size_t min_child_samples,
+                                     size_t size_node,
+                                     size_t min_child_size,
                                      double& best_value,
                                      size_t& best_var,
                                      double& best_decrease,
