@@ -29,13 +29,11 @@ class TreeOptions {
 public:
   TreeOptions(uint mtry,
               uint min_node_size,
-              bool honesty,
-              uint samples_per_cluster);
+              bool honesty);
 
   uint get_mtry() const;
   uint get_min_node_size() const;
   bool get_honesty() const;
-  bool get_clustered() const;
 
   void set_min_node_size(uint min_node_size);
 
@@ -43,7 +41,6 @@ private:
   uint mtry;
   uint min_node_size;
   bool honesty;
-  bool clustered;
 };
 
 #endif //GRF_TREEOPTIONS_H

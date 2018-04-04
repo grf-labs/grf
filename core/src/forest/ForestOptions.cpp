@@ -31,7 +31,7 @@ ForestOptions::ForestOptions(uint num_trees,
                              uint samples_per_cluster):
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
-    tree_options(mtry, min_node_size, honesty, samples_per_cluster),
+    tree_options(mtry, min_node_size, honesty),
     sampling_options(sample_with_replacement, samples_per_cluster, clusters) {
 
   this->num_threads = validate_num_threads(num_threads);
