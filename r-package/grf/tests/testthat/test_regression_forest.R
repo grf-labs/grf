@@ -96,3 +96,26 @@ test_that("regression forest tuning decreases prediction error", {
 	error = mean((preds$predictions - truth)^2)
 	expect_true(tuned.error < error)
 })
+
+test_that("locally linear prediction gives reasonable estimates", {
+    n = 1000
+
+	ticks = 101
+	X.test = matrix(0, ticks, p)
+	xvals = seq(-1, 1, length.out = ticks)
+	X.test[,1] = xvals
+	truth = xvals > 0
+
+	X = matrix(2 * runif(n * p) - 1, n, p)
+	Y = (X[,1] > 0) + 2 * rnorm(n)
+
+	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 4)
+    preds = predict(forest, X.test, locally.linear=TRUE, lambda=0.1)
+    preds.oob = predict(forest, locally.linear=TRUE, lambda=0.1)
+
+    mse = (preds - truth)^2
+    mse.oob =(preds - Y)^2
+
+    expect_true(mse < 0.5)
+    expect_tre(mse.oob < 0.5)
+})
