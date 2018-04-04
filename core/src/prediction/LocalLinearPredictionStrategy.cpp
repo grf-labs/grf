@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "eigen3/Eigen/Dense"
+#include "Eigen/Dense"
 #include "commons/utility.h"
 #include "commons/Observations.h"
 #include "prediction/LocalLinearPredictionStrategy.h"
@@ -44,8 +44,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
   size_t n = observations.get_num_samples();
   size_t p = test_data->get_num_cols();
 
-  Eigen::MatrixXf weights(n,n);
-  weights = Eigen::MatrixXf::Zero(n,n);
+  Eigen::MatrixXd weights(n,n);
+  weights = Eigen::MatrixXd::Zero(n,n);
 
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it){
     size_t i = it->first;
@@ -54,8 +54,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
   }
 
   // generate design matrix X and responses Y as Eigen objects
-  Eigen::MatrixXf X(n, p+1);
-  Eigen::MatrixXf Y(n, 1);
+  Eigen::MatrixXd X(n, p+1);
+  Eigen::MatrixXd Y(n, 1);
 
   for (size_t i=0; i<n; ++i) {
     for(size_t j=0; j<p; ++j){
@@ -66,7 +66,7 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
   }
 
   // find ridge regression predictions
-  Eigen::MatrixXf M(p+1,p+1);
+  Eigen::MatrixXd M(p+1,p+1);
   M = X.transpose()*weights*X;
 
   if (ridge_type == 1) {
@@ -82,7 +82,7 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
     }
   }
 
-  Eigen::MatrixXf preds(p+1,1);
+  Eigen::MatrixXd preds(p+1,1);
   preds = M.colPivHouseholderQr().solve(X.transpose()*weights*Y);
 
   std::vector<double> yhat_vector;
