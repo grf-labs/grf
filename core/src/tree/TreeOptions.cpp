@@ -20,10 +20,14 @@
 
 TreeOptions::TreeOptions(uint mtry,
                          uint min_node_size,
-                         bool honesty):
+                         bool honesty,
+                         double alpha,
+                         double lambda):
   mtry(mtry),
   min_node_size(min_node_size),
-  honesty(honesty) {}
+  honesty(honesty),
+  alpha(alpha),
+  lambda(lambda) {}
 
 uint TreeOptions::get_mtry() const  {
   return mtry;
@@ -33,10 +37,18 @@ uint TreeOptions::get_min_node_size() const  {
   return min_node_size;
 }
 
+void TreeOptions::set_min_node_size(uint min_node_size) {
+  this->min_node_size = min_node_size;
+}
+
 bool TreeOptions::get_honesty() const {
   return honesty;
 }
 
-void TreeOptions::set_min_node_size(uint min_node_size) {
-  this->min_node_size = min_node_size;
+double TreeOptions::get_alpha() const {
+  return alpha;
+}
+
+double TreeOptions::get_lambda() const {
+  return lambda;
 }
