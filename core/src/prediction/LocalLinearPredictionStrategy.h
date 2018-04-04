@@ -15,22 +15,38 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_CUSTOMPREDICTIONSTRATEGY_H
-#define GRF_CUSTOMPREDICTIONSTRATEGY_H
+#ifndef GRF_LOCALLINEARPREDICTIONSTRATEGY_H
+#define GRF_LOCALLINEARPREDICTIONSTRATEGY_H
 
 
-#include "DefaultPredictionStrategy.h"
+#include <cstddef>
+#include <unordered_map>
+#include "commons/Data.h"
+#include "prediction/Prediction.h"
+#include "prediction/DefaultPredictionStrategy.h"
+#include "prediction/PredictionValues.h"
 
-class CustomPredictionStrategy: public DefaultPredictionStrategy {
+class LocalLinearPredictionStrategy: public DefaultPredictionStrategy {
+
 public:
-  // Add more observables here as needed.
-  static const std::size_t OUTCOME;
+    LocalLinearPredictionStrategy(const Data *original_data,
+                                    const Data *test_data,
+                                    double lambda,
+                                    bool ridge_type);
 
-  size_t prediction_length();
-  std::vector<double> predict(size_t sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
-    const Observations& observations);
+    size_t prediction_length();
+    std::vector<double> predict(size_t sampleID,
+                                const std::unordered_map<size_t, double>& weights_by_sampleID,
+                                const Observations& observations);
+
+    bool requires_leaf_sampleIDs();
+
+private:
+    static const std::size_t OUTCOME;
+    const Data *original_data;
+    const Data *test_data;
+    double lambda;
+    bool ridge_type;
 };
 
-
-#endif //GRF_CUSTOMPREDICTIONSTRATEGY_H
+#endif //GRF_LOCALLINEARPREDICTIONSTRATEGY_H
