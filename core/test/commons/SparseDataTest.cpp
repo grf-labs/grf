@@ -28,8 +28,6 @@ TEST_CASE("using a sparse data representation produces the same predictions", "[
   Data* sparse_data = load_sparse_data("test/forest/resources/gaussian_data.csv");
 
   uint outcome_index = 10;
-  double alpha = 0.10;
-  double imbalance_penalty = 0.07;
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
   ForestPredictor predictor = ForestPredictors::regression_predictor(4, 1);

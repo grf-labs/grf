@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------------
-  This file is part of generalized random forest (grf).
+  This file is part of generalized-random-forest.
 
   grf is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,14 +15,13 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "splitting/factory/InstrumentalSplittingRuleFactory.h"
-#include "splitting/InstrumentalSplittingRule.h"
+#ifndef GRF_SPLITPENALTY_H
+#define GRF_SPLITPENALTY_H
 
-InstrumentalSplittingRuleFactory::InstrumentalSplittingRuleFactory() {}
+enum SplitPenalty {
+  STANDARD = 0,
+  INSTRUMENT_ONLY = 1
+};
 
-std::shared_ptr<SplittingRule> InstrumentalSplittingRuleFactory::create(Data* data,
-                                                                        const Observations& observations,
-                                                                        const TreeOptions& options) {
-  return std::shared_ptr<SplittingRule>(new InstrumentalSplittingRule(data, observations,
-      options.get_alpha(), options.get_imbalance_penalty()));
-}
+#endif //GRF_SPLITPENALTY_H
+

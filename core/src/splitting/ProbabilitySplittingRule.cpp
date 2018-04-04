@@ -54,7 +54,6 @@ bool ProbabilitySplittingRule::find_best_split(size_t node,
   size_t size_node = samples[node].size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
-  //
   size_t* class_counts = new size_t[num_classes]();
   for (size_t i = 0; i < size_node; ++i) {
     size_t sample = samples[node][i];

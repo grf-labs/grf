@@ -34,11 +34,11 @@ TEST_CASE("forests don't crash when there are fewer trees than threads", "[fores
   uint seed = 42;
   uint num_threads = 4;
   uint min_node_size = 1;
+  uint ci_group_size = 2;
   double sample_fraction = 0.35;
   bool honesty = true;
   double alpha = 0.10;
   double imbalance_penalty = 0.07;
-  uint ci_group_size = 2;
   std::vector<size_t> empty_clusters;
   uint samples_per_cluster = 0;
 

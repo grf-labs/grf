@@ -20,6 +20,7 @@
 
 #include "commons/Data.h"
 #include "commons/Observations.h"
+#include "splitting/SplitPenalty.h"
 #include "splitting/SplittingRule.h"
 
 class InstrumentalSplittingRule: public SplittingRule {
@@ -27,7 +28,7 @@ public:
   InstrumentalSplittingRule(Data* data,
                             const Observations& observations,
                             double alpha,
-                            double lambda);
+                            double imbalance_penalty);
   ~InstrumentalSplittingRule();
 
   bool find_best_split(size_t node,
@@ -40,9 +41,11 @@ public:
 private:
   void find_best_split_value_small_q(size_t node,
                                      size_t var,
+                                     size_t num_samples,
                                      double sum_node,
-                                     size_t node_size,
-                                     size_t min_child_size,
+                                     double sum_node_w,
+                                     double sum_node_w_squared,
+                                     double min_child_size,
                                      double& best_value,
                                      size_t& best_var,
                                      double& best_decrease,
@@ -50,9 +53,11 @@ private:
                                      const std::vector<std::vector<size_t>>& samples);
   void find_best_split_value_large_q(size_t node,
                                      size_t var,
+                                     size_t num_samples,
                                      double sum_node,
-                                     size_t node_size,
-                                     size_t min_child_size,
+                                     double sum_node_w,
+                                     double sum_node_w_squared,
+                                     double min_child_size,
                                      double& best_value,
                                      size_t& best_var,
                                      double& best_decrease,
@@ -63,10 +68,13 @@ private:
   const Observations& observations;
 
   size_t* counter;
+  double* sums_z;
+  double* sums_z_squared;
   double* sums;
 
   double alpha;
   double lambda;
+  SplitPenalty split_penalty;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalSplittingRule);
 };

@@ -61,3 +61,17 @@ test_that("causal forest split frequencies are reasonable", {
   expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })
 
+test_that("causal forests behave reasonably with a low treatment probability", {
+	p = 20
+	n = 10000
+	X = matrix(rnorm(n * p), n, p)
+	W = rbinom(n, 1, 0.01)
+	tau = 0.1
+	Y = X[,1] + X[,2] + tau * W + rnorm(n)
+
+	ff = causal_forest(X, Y, W, stabilize.split = TRUE)
+	tau.hat = predict(ff)$predictions
+
+	print(sqrt(mean((tau.hat - tau)^2)))
+	expect_true(sqrt(mean((tau.hat - tau)^2)) < 0.20)
+})

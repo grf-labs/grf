@@ -3,11 +3,11 @@
 #include <sstream>
 #include <vector>
 
-
 #include "commons/globals.h"
 #include "Eigen/Sparse"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainers.h"
+#include "splitting/SplitPenalty.h"
 #include "RcppUtilities.h"
 
 // [[Rcpp::export]]
@@ -27,13 +27,15 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               double reduced_form_weight,
                               double alpha,
                               bool imbalance_penalty,
+                              bool stabilize_splits,
                               std::vector<size_t> clusters,
                               uint samples_per_cluster) {
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
       outcome_index - 1,
       treatment_index - 1,
       instrument_index - 1,
-      reduced_form_weight);
+      reduced_form_weight,
+      stabilize_splits);
 
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,

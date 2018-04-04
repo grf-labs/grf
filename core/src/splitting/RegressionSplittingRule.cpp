@@ -50,7 +50,7 @@ bool RegressionSplittingRule::find_best_split(size_t node,
   size_t size_node = samples[node].size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
-  // Precompute sum of outcomes in this node.
+  // Precompute the sum of outcomes in this node.
   double sum_node = 0.0;
   for (auto& sample : samples[node]) {
     sum_node += labels_by_sample.at(sample);

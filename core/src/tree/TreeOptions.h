@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "commons/globals.h"
+#include "splitting/SplitPenalty.h"
 
 class TreeOptions {
 public:

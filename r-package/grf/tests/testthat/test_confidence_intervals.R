@@ -59,7 +59,7 @@ test_that("instrumental CIs are reasonable", {
   forest = instrumental_forest(X, Y, W, Z, precompute.nuisance = TRUE)
   tau.hat = predict(forest, newdata = X.test, estimate.variance = TRUE)
   error.standardized = (tau.hat$predictions - tau.true) / sqrt(tau.hat$variance.estimates)
-  expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.15)
+  expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.18)
 })
 
 test_that("instrumental CIs are invariant to scaling Z", {

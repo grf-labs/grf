@@ -19,9 +19,11 @@
 #define GRF_FORESTOPTIONS_H
 
 
-#include <tree/TreeOptions.h>
-#include <sampling/SamplingOptions.h>
 #include "commons/globals.h"
+#include "sampling/SamplingOptions.h"
+#include "tree/TreeOptions.h"
+#include "splitting/SplitPenalty.h"
+
 
 class ForestOptions {
 public:

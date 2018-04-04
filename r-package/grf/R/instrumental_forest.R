@@ -36,6 +36,8 @@
 #'                            instead emulates a causal forest).
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
+#' @param stabilize.splits Whether or not the instrument should be taken into account when
+#'                         determining the imbalance of a split (experimental).
 #' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
@@ -47,7 +49,7 @@
 instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
                                 num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
                                 ci.group.size = 2, precompute.nuisance = TRUE, reduced.form.weight = 0,
-                                alpha = 0.05, imbalance.penalty = 0.0, seed = NULL,
+                                alpha = 0.05, imbalance.penalty = 0.0, stabilize.splits = FALSE , seed = NULL,
                                 clusters = NULL, samples_per_cluster = NULL) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -98,7 +100,8 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
-        ci.group.size, reduced.form.weight, alpha, imbalance.penalty, clusters, samples_per_cluster)
+        ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits,
+        clusters, samples_per_cluster)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
