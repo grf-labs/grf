@@ -134,16 +134,15 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
                                                                  const ForestOptions& options) const {
   std::vector<std::shared_ptr<Tree>> trees;
 
+  // If clustering enabled, samples by cluster id rather than by observation id
   std::vector<size_t> sample;
-  std::vector<size_t> dummy_oob_sample;
-  sampler.sample_for_ci(data, 0.5, sample, dummy_oob_sample);
+  sampler.sample_for_ci(data, 0.5, sample);
 
   double sample_fraction = options.get_sample_fraction();
 
   for (size_t i = 0; i < options.get_ci_group_size(); ++i) {
     std::vector<size_t> subsample;
-    std::vector<size_t> dummy_oob_subsample;
-    sampler.subsample_for_ci(sample, sample_fraction * 2, subsample, dummy_oob_subsample, data);
+    sampler.subsample(sample, sample_fraction * 2, subsample);
 
     std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
         sampler, subsample, options.get_tree_options());

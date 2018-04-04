@@ -32,11 +32,6 @@ public:
        size_t num_rows,
        size_t num_cols);
 
-  DefaultData(double *data,
-              size_t num_rows,
-              size_t num_cols,
-              std::vector<uint>& clusters);
-
   virtual ~DefaultData();
 
   double get(size_t row, size_t col) const;

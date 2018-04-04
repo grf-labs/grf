@@ -62,9 +62,9 @@ validate_clusters <- function(clusters, X) {
   } else if (length(clusters) == 0) {
     clusters <- vector(mode="numeric", length=0)
   } else if (!is.vector(clusters) | !all(clusters == floor(clusters))) {
-    stop("clusters must be a vector of integers.")
+    stop("Clusters must be a vector of integers.")
   } else if (length(clusters) != nrow(X)) {
-    stop("clusters has incorrect length.")
+    stop("Clusters has incorrect length.")
   } else {
     # convert to integers between 0 and n clusters
     clusters <- as.numeric(as.factor(clusters)) - 1
@@ -74,8 +74,8 @@ validate_clusters <- function(clusters, X) {
 
 validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
   if (is.null(clusters) || length(clusters) == 0) {
-    return(1)
-  } 
+    return(0)
+  }
   cluster_size_counts <- table(clusters)
   min_size <- unname(cluster_size_counts[order(cluster_size_counts)][1])
   # Check for whether this number is too small?

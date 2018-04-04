@@ -32,7 +32,8 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true);
+  std::vector<uint> dummy_clusters;
+  SamplingOptions sampling_options(true, 0, dummy_clusters);
   RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 9;
@@ -63,7 +64,8 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true);
+  std::vector<uint> dummy_clusters;
+  SamplingOptions sampling_options(true, 0, dummy_clusters);
   RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 9;
@@ -94,7 +96,8 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true);
+  std::vector<uint> dummy_clusters;
+  SamplingOptions sampling_options(true, 0, dummy_clusters);
   RandomSampler sampler(random_device(), sampling_options); 
 
   size_t max = 9;
@@ -125,7 +128,8 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true);
+  std::vector<uint> dummy_clusters;
+  SamplingOptions sampling_options(true, 0, dummy_clusters);
   RandomSampler sampler(random_device(), sampling_options);
   
   size_t max = 1000;
@@ -156,7 +160,8 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   std::random_device random_device;
   std::map<size_t, uint> counts;
 
-  SamplingOptions sampling_options(true);
+  std::vector<uint> dummy_clusters;
+  SamplingOptions sampling_options(true, 0, dummy_clusters);
   RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 1000;
@@ -186,7 +191,8 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
 TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
   std::random_device random_device;
 
-  SamplingOptions sampling_options(true);
+  std::vector<uint> dummy_clusters;
+  SamplingOptions sampling_options(true, 0, dummy_clusters);
   RandomSampler sampler(random_device(), sampling_options);
 
   std::vector<size_t> samples;
@@ -199,7 +205,8 @@ TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
 TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
   std::random_device random_device;
 
-  SamplingOptions sampling_options(true);
+  std::vector<uint> dummy_clusters;
+  SamplingOptions sampling_options(true, 0, dummy_clusters);
   RandomSampler sampler(random_device(), sampling_options);
 
   std::vector<size_t> samples;
@@ -212,7 +219,8 @@ TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
 TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
   std::random_device random_device;
 
-  SamplingOptions sampling_options(true);
+  std::vector<uint> dummy_clusters;
+  SamplingOptions sampling_options(true, 0, dummy_clusters);
   RandomSampler sampler(random_device(), sampling_options);
 
   std::vector<size_t> samples;
@@ -225,7 +233,8 @@ TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
 TEST_CASE("Shuffle and split 4", "[shuffleAndSplit]") {
   std::random_device random_device;
 
-  SamplingOptions sampling_options(true);
+  std::vector<uint> dummy_clusters;
+  SamplingOptions sampling_options(true, 0, dummy_clusters);
   RandomSampler sampler(random_device(), sampling_options);
   
   std::vector<size_t> samples;
@@ -236,101 +245,59 @@ TEST_CASE("Shuffle and split 4", "[shuffleAndSplit]") {
 }
 
 TEST_CASE("sample multilevel 1", "[sampleMultilevel]") {
-  std::vector<size_t> result;
   std::random_device random_device;
-  std::map<size_t, uint> counts;
-
-  size_t samples_per_cluster = 3;
-  SamplingOptions sampling_options(true, samples_per_cluster);
+  DefaultData data(NULL, 0, 0);
+  uint samples_per_cluster = 3;
+  std::vector<uint> clusters = {0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 2, 2, 2, 2, 0, 3, 3, 3, 2, 3};
+  size_t num_clusters = 4;
+  SamplingOptions sampling_options(true, samples_per_cluster, clusters);
   RandomSampler sampler(random_device(), sampling_options);
 
-  std::vector<uint> clusters = {0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 2, 2, 2, 2, 0, 3, 3, 3, 2, 3};
-  size_t num_samples = clusters.size();
-  double sample_fraction = .5;
-  size_t num_clusters = 4;
+  std::vector<size_t> sampled_clusters;
+  sampler.sample_for_ci(&data, .5, sampled_clusters);
+
+  size_t expected_num_sampled_clusters = (size_t) std::ceil(.5 * num_clusters);
+  REQUIRE(expected_num_sampled_clusters == sampled_clusters.size());
+
+  std::vector<size_t> subsampled_clusters;
+  std::vector<size_t> oob_subsampled_clusters;
+  sampler.subsample(sampled_clusters, 0.5, subsampled_clusters, oob_subsampled_clusters);
+
   std::vector<size_t> samples;
   std::vector<size_t> oob_sample;
-  DefaultData data(NULL, 0, 0, clusters);
+  sampler.sample_from_clusters(subsampled_clusters, samples);
+  sampler.get_oob_from_clusters(oob_subsampled_clusters, oob_sample);
 
-  auto cluster_map = data.get_cluster_map();
-
-  sampler.bootstrap_with_clusters(num_samples,
-                                  sample_fraction,
-                                  samples,
-                                  oob_sample,
-                                  cluster_map);
-  // Start checks
   std::unordered_set<size_t> samples_set(samples.begin(), samples.end());
   std::unordered_set<size_t> oob_sample_set(oob_sample.begin(), oob_sample.end());
-  size_t max_clusters_to_sample = sample_fraction * num_clusters;
-  size_t expected_sample_size = max_clusters_to_sample * samples_per_cluster;
+  size_t expected_num_subsampled_clusters = (size_t) std::ceil(.5 * expected_num_sampled_clusters);
+  size_t expected_sample_size = expected_num_subsampled_clusters * samples_per_cluster;
 
-  // Check if sample is of correct size
+  // Check that sample is of correct size
   REQUIRE(expected_sample_size == samples.size());
 
-  // Check if sample and oob_sample don't intersect
+  // Check that sample and oob_sample don't intersect
   std::vector<size_t> intersection;
   std::set_intersection(samples_set.begin(), samples_set.end(),
                         oob_sample_set.begin(), oob_sample_set.end(),
                         std::back_inserter(intersection));
   REQUIRE(intersection.empty());
 
-  // Check that sample is from appropriate number of clusters
-  std::set<size_t> clusters_sampled;
+  // Check that sample is from appropriate clusters
+  std::set<size_t> expected_subsampled_clusters(subsampled_clusters.begin(), subsampled_clusters.end());
+  std::set<size_t> actual_subsampled_clusters;
   for (auto const& i: samples) {
     size_t cluster = clusters[i];
-    clusters_sampled.insert(cluster);
+      actual_subsampled_clusters.insert(cluster);
   }
-  REQUIRE(clusters_sampled.size() <= max_clusters_to_sample);
+  REQUIRE(actual_subsampled_clusters == expected_subsampled_clusters);
 
-  // Check that all clusters are included in union of oob_sample and sample
+  // Check that oob sample is from appropriate clusters
+  std::set<size_t> expected_oob_subsampled_clusters(oob_subsampled_clusters.begin(), oob_subsampled_clusters.end());
+  std::set<size_t> actual_oob_subsampled_clusters;
   for (auto const& i: oob_sample) {
-    size_t cluster = clusters[i];
-    clusters_sampled.insert(cluster);
+      size_t cluster = clusters[i];
+      actual_oob_subsampled_clusters.insert(cluster);
   }
-  REQUIRE(clusters_sampled.size() == num_clusters);
-}
-
-TEST_CASE("Clustered subsample", "[clusteredSubsample]") {
-  std::vector<size_t> result;
-  std::random_device random_device;
-
-  size_t samples_per_cluster = 3;
-  double sample_fraction = .5;
-  SamplingOptions sampling_options(true, samples_per_cluster);
-  RandomSampler sampler(random_device(), sampling_options);
-
-  std::vector<uint> clusters = {0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 2, 2, 2, 2, 0, 3, 3, 3, 2, 3};
-  std::vector<size_t> samples1 = {0, 1, 2, 3, 4, 10, 11, 12, 13};
-  std::vector<size_t> subsample1;
-  std::vector<size_t> oob_sample1;
-  DefaultData data(NULL, 0, 0, clusters);
-
-
-  sampler.subsample_with_clusters(samples1,
-                                  sample_fraction,
-                                  subsample1,
-                                  oob_sample1,
-                                  clusters);
-  std::set<size_t> clusters_sampled;
-  for (auto const& i: subsample1) {
-    size_t cluster = clusters[i];
-    clusters_sampled.insert(cluster);
-  }
-  REQUIRE(clusters_sampled.size() == 2);
-
-  std::vector<size_t> samples2 = {0, 2};
-  std::vector<size_t> subsample2;
-  std::vector<size_t> oob_sample2;
-  sampler.subsample_with_clusters(samples2,
-                                  sample_fraction,
-                                  subsample2,
-                                  oob_sample2,
-                                  clusters);
-  clusters_sampled.clear();
-  for (auto const& i: subsample2) {
-    size_t cluster = clusters[i];
-    clusters_sampled.insert(cluster);
-  }
-  REQUIRE(clusters_sampled.size() == 1);
+  REQUIRE(actual_oob_subsampled_clusters == expected_oob_subsampled_clusters);
 }

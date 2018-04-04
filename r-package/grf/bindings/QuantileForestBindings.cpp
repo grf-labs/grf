@@ -31,9 +31,10 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
       ? ForestTrainers::regression_trainer(outcome_index - 1, alpha)
       : ForestTrainers::quantile_trainer(outcome_index - 1, quantiles, alpha);
 
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data, clusters);
+  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-                        honesty, sample_with_replacement, num_threads, seed, samples_per_cluster);
+                        honesty, sample_with_replacement, num_threads, seed, clusters,
+                        samples_per_cluster);
   Forest forest = trainer.train(data, options);
 
   Rcpp::List result = RcppUtilities::create_forest_object(forest, data);

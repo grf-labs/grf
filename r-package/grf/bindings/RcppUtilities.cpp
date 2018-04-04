@@ -58,25 +58,6 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
   return data;
 }
 
-Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
-                                  Eigen::SparseMatrix<double>& sparse_input_data,
-                                  std::vector<unsigned int>& clusters) {
-  Data* data;
-
-  if (input_data.nrow() > 0) {
-    size_t num_rows = input_data.nrow();
-    size_t num_cols = input_data.ncol();
-    data = new DefaultData(input_data.begin(), num_rows, num_cols, clusters);
-  } else {
-    size_t num_rows = sparse_input_data.rows();
-    size_t num_cols = sparse_input_data.cols();
-    data = new SparseData(&sparse_input_data, num_rows, num_cols, clusters);
-  }
-
-  data->sort();
-  return data;
-}
-
 Rcpp::List RcppUtilities::create_prediction_object(const std::vector<Prediction>& predictions) {
   Rcpp::List result;
   result.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");

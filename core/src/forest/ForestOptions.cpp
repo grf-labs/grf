@@ -27,11 +27,12 @@ ForestOptions::ForestOptions(uint num_trees,
                              bool sample_with_replacement,
                              uint num_threads,
                              uint random_seed,
+                             std::vector<uint>& clusters,
                              uint samples_per_cluster):
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
     tree_options(mtry, min_node_size, honesty, samples_per_cluster),
-    sampling_options(sample_with_replacement, samples_per_cluster) {
+    sampling_options(sample_with_replacement, samples_per_cluster, clusters) {
 
   this->num_threads = validate_num_threads(num_threads);
 

@@ -42,37 +42,29 @@ public:
                  double sample_fraction,
                  std::vector<size_t>& subsamples);
 
+  /**
+   * Sampling to be used only in the case of calculating confidence intervals. If clustered standard errors
+   * are enabled, sampling will return the ids corresponding to sample clusters. Otherwise, ids will correspond
+   * to individual observations.
+   *
+   * @param data
+   * @param sample_fraction
+   * @param samples
+   */
   void sample_for_ci(Data* data,
                      double sample_fraction,
-                     std::vector<size_t>& samples,
-                     std::vector<size_t>& oob_samples);
-
-  void subsample_for_ci(const std::vector<size_t>& samples,
-                        double sample_fraction,
-                        std::vector<size_t>& subsamples,
-                        std::vector<size_t>& oob_samples,
-                        Data* data);
+                     std::vector<size_t>& samples);
 
   void subsample(const std::vector<size_t>& samples,
                  double sample_fraction,
                  std::vector<size_t>& subsamples,
                  std::vector<size_t>& oob_samples);
 
-  /**
-   * Split sample into subsample and oob_sample sets. The split is performed by cluster so that all observations
-   * corresponding to an individual cluster are entirely contained in one of the two subsets.
-   *
-   * @param samples Observations to sample
-   * @param sample_fraction Fraction of clusters that go into subsamples
-   * @param subsamples Empty vector to be populated by subsample
-   * @param oob_samples Empty vector to be populated by oob sample
-   * @param clusters Cluster information for each entry in samples
-   */
-  void subsample_with_clusters(const std::vector<size_t>& samples,
-                               double sample_fraction,
-                               std::vector<size_t>& subsamples,
-                               std::vector<size_t>& oob_samples,
-                               std::vector<uint>& clusters);
+  void sample_from_clusters(const std::vector<size_t>& cluster_samples,
+                            std::vector<size_t>& samples);
+
+  void get_oob_from_clusters(const std::vector<size_t>& cluster_oob_sample,
+                             std::vector<size_t>& oob_samples);
 
   /**
    * Draw random numbers in a range without replacement and skip values.
@@ -124,20 +116,6 @@ public:
 
   size_t sample_poisson(size_t mean);
 
-  /**
-   * Performs bootstrapping at the cluster level rather than at the individual level.
-   * @param num_samples Number of rows to be sampled from
-   * @param sample_fraction Fraction to include inbag
-   * @param samples Samples to be populated
-   * @param oob_samples OOB samples to be populated
-   * @param clusters Cluster information for each observation
-   */
-  void bootstrap_with_clusters(size_t num_samples,
-                               double sample_fraction,
-                               std::vector<size_t>& samples,
-                               std::vector<size_t>& oob_samples,
-                               std::unordered_map<uint, std::vector<size_t>>& clusters);
-
 private:
   void bootstrap(size_t num_samples,
                  double sample_fraction,
@@ -154,10 +132,6 @@ private:
   void bootstrap_without_replacement_weighted(size_t num_samples,
                                               double sample_fraction,
                                               std::vector<size_t>& samples);
-
-  void bootstrap_without_oob(size_t num_samples,
-                             double sample_fraction,
-                             std::vector<size_t>& samples);
 
   /**
    * Simple algorithm for sampling without replacement, faster for smaller num_samples
