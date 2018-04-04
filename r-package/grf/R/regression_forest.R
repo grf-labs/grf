@@ -271,14 +271,27 @@ predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE
     }
     
     forest.short <- object[-which(names(object) == "X.orig")]
+    data = create_data_matrices(object[["X.orig"]])
+
+    if(local.linear){
+        ridge_type = ifelse(ridge.type == "standardized", 0, 1)
+    }
     
     if (!is.null(newdata)) {
-        data <- create_data_matrices(newdata)
-        regression_predict(forest.short, data$default, data$sparse,
-                           num.threads, ci.group.size)
+        new.data <- create_data_matrices(newdata)
+
+        if(local.linear){
+            local_linear_predict(forest.short, new.data$default, data$default, new.data$sparse,
+            lambda, ridge_type, num.threads)
+        }else{
+            regression_predict(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+        }
+
     } else {
-        data <- create_data_matrices(object[["X.orig"]])
-        regression_predict_oob(forest.short, data$default, data$sparse,
-                               num.threads, ci.group.size)
+        if(local.linear){
+            local_linear_predict_oob(forest.short, data$default, data$sparse,
+            lambda, ridge_type, num.threads)
+        }else{regression_predict_oob(forest.short, data$default, data$sparse,
+            num.threads, ci.group.size)
     }
 }
