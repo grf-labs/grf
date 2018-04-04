@@ -32,7 +32,9 @@
 class ProbabilitySplittingRuleFactory: public SplittingRuleFactory {
 public:
   ProbabilitySplittingRuleFactory(size_t num_classes);
-  std::shared_ptr<SplittingRule> create(Data* data, const TreeOptions& options);
+  std::shared_ptr<SplittingRule> create(Data* data,
+                                        const Observations& observations,
+                                        const TreeOptions& options);
 
 private:
   size_t num_classes;

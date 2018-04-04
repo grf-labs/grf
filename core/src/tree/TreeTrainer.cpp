@@ -56,7 +56,8 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
     nodes[0] = samples;
   }
 
-  std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(data, options);
+  std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(
+      data, observations, options);
 
   size_t num_open_nodes = 1;
   size_t i = 0;
