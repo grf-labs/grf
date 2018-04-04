@@ -35,8 +35,9 @@ ForestOptions ForestTestUtilities::default_options(bool honesty,
   uint min_node_size = 1;
   bool sample_with_replacement = true;
   double sample_fraction = ci_group_size > 1 ? 0.35 : 0.7;
-  uint samples_per_cluster = 1;
+  std::vector<uint> dummy_clusters;
+  uint samples_per_cluster = 0;
 
   return ForestOptions(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-                       honesty, sample_with_replacement, num_threads, seed, samples_per_cluster);
+                       honesty, sample_with_replacement, num_threads, seed, dummy_clusters, samples_per_cluster);
 }

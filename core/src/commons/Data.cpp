@@ -197,20 +197,3 @@ size_t Data::get_num_rows() const {
 size_t Data::get_max_num_unique_values() const {
   return max_num_unique_values;
 }
-
-std::unordered_map<uint, std::vector<size_t>>& Data::get_cluster_map() {
-  return cluster_map;
-}
-
-std::vector<uint>& Data::get_clusters() {
-  return clusters;
-}
-
-void Data::set_clusters(std::vector<uint>& clusters) {
-  this->clusters = clusters;
-  // Create map containing all obs for each cluster. Saves on expense of having to recalculate many times in sampler
-  for (size_t s = 0; s < clusters.size(); ++s) {
-    size_t obs_cluster = clusters[s];
-    this->cluster_map[obs_cluster].push_back(s);
-  }
-}

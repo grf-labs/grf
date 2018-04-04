@@ -20,22 +20,29 @@
 
 
 #include <string>
+#include <unordered_map>
 #include <vector>
+
+#include "commons/globals.h"
 
 class SamplingOptions {
 public:
   SamplingOptions();
-  SamplingOptions(bool sample_with_replacement);
-  SamplingOptions(bool sample_with_replacement, unsigned int samples_per_cluster);
+  SamplingOptions(bool sample_with_replacement, uint samples_per_cluster, std::vector<uint>& clusters);
 
   bool get_sample_with_replacement() const;
   const std::vector<double>& get_sample_weights() const;
-  unsigned int get_samples_per_cluster() const;
+
+  bool clustering_enabled() const;
+  uint get_samples_per_cluster() const;
+  std::unordered_map<uint, std::vector<size_t>>& get_cluster_map();
+  size_t get_num_clusters() const;
 
 private:
   bool sample_with_replacement;
   std::vector<double> sample_weights;
-  unsigned int samples_per_cluster;
+  uint samples_per_cluster;
+  std::unordered_map<uint, std::vector<size_t>> cluster_map;
 };
 
 #endif //GRF_SAMPLINGOPTIONS_H

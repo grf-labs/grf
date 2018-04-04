@@ -15,9 +15,6 @@ public:
 
   static Data* convert_data(Rcpp::NumericMatrix input_data,
                             Eigen::SparseMatrix<double>& sparse_input_data);
-  static Data* convert_data(Rcpp::NumericMatrix input_data,
-                            Eigen::SparseMatrix<double>& sparse_input_data,
-                            std::vector<unsigned int>& clusters);
 
   static Rcpp::List create_prediction_object(const std::vector<Prediction>& predictions);
   static Rcpp::NumericMatrix create_prediction_matrix(const std::vector<Prediction>& predictions);

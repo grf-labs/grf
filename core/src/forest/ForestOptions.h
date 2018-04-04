@@ -34,6 +34,7 @@ public:
                 bool sample_with_replacement,
                 uint num_threads,
                 uint random_seed,
+                std::vector<uint>& clusters,
                 uint samples_per_cluster);
 
   static uint validate_num_threads(uint num_threads);
