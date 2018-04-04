@@ -57,36 +57,26 @@ bool RegressionSplittingRule::find_best_split(size_t node,
     sum_node += labels_by_sample.at(sample);
   }
 
-  // Precompute the outcome variance within this node.
-  double node_mean = sum_node / num_samples_node;
-  double node_impurity = 0.0;
-  for (auto& sample : samples[node]) {
-    double difference = labels_by_sample.at(sample) - node_mean;
-    node_impurity += difference * difference;
-  }
-
   // Initialize the variables to track the best split variable.
   size_t best_var = 0;
   double best_value = 0;
-
-  double initial_decrease = -2 * lambda * node_impurity - 1;
-  double best_decrease = initial_decrease;
+  double best_decrease = -1;
 
   // For all possible split variables
   for (auto& var : possible_split_vars) {
     // Use faster method for both cases
     double q = (double) num_samples_node / (double) data->get_num_unique_data_values(var);
     if (q < Q_THRESHOLD) {
-      find_best_split_value_small_q(node, var, sum_node, num_samples_node, min_child_samples, node_impurity,
+      find_best_split_value_small_q(node, var, sum_node, num_samples_node, min_child_samples,
                                     best_value, best_var, best_decrease, labels_by_sample, samples);
     } else {
-      find_best_split_value_large_q(node, var, sum_node, num_samples_node, min_child_samples, node_impurity,
+      find_best_split_value_large_q(node, var, sum_node, num_samples_node, min_child_samples,
                                     best_value, best_var, best_decrease, labels_by_sample, samples);
     }
   }
 
   // Stop if no good split found
-  if (best_decrease <= initial_decrease) {
+  if (best_decrease < 0) {
     return true;
   }
 
@@ -99,7 +89,6 @@ bool RegressionSplittingRule::find_best_split(size_t node,
 void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t var, double sum_node,
                                                             size_t num_samples_node,
                                                             size_t min_child_samples,
-                                                            double node_impurity,
                                                             double& best_value, size_t& best_var,
                                                             double& best_decrease,
                                                             const std::unordered_map<size_t, double>& responses_by_sample,
@@ -154,7 +143,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
     double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right[i];
 
     // Penalize splits that are too close to the edges of the data.
-    double penalty = lambda * (1.0 / n_left + 1.0 / n_right[i]) * node_impurity;
+    double penalty = lambda * (1.0 / n_left + 1.0 / n_right[i]);
     decrease -= penalty;
 
 
@@ -170,7 +159,6 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
 void RegressionSplittingRule::find_best_split_value_large_q(size_t node, size_t var, double sum_node,
                                                             size_t num_samples_node,
                                                             size_t min_child_samples,
-                                                            double node_impurity,
                                                             double& best_value,
                                                             size_t& best_var,
                                                             double& best_decrease,
@@ -212,7 +200,7 @@ void RegressionSplittingRule::find_best_split_value_large_q(size_t node, size_t 
     double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
 
     // Penalize splits that are too close to the edges of the data.
-    double penalty = lambda * (1.0 / n_left + 1.0 / n_right) * node_impurity;
+    double penalty = lambda * (1.0 / n_left + 1.0 / n_right);
     decrease -= penalty;
 
     // If better than before, use this
