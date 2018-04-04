@@ -16,14 +16,13 @@
  #-------------------------------------------------------------------------------*/
 
 #include "forest/ForestTrainers.h"
-#include "prediction/CustomPredictionStrategy.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
-#include "prediction/QuantilePredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
 #include "relabeling/CustomRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "relabeling/NoopRelabelingStrategy.h"
 #include "relabeling/QuantileRelabelingStrategy.h"
+#include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
 
@@ -37,8 +36,9 @@ ForestTrainer ForestTrainers::instrumental_trainer(size_t outcome_index,
       {Observations::TREATMENT, treatment_index},
       {Observations::INSTRUMENT, instrument_index}};
 
+
   std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy(reduced_form_weight));
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
+    std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new InstrumentalSplittingRuleFactory());
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
 
   return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);

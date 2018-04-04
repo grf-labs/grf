@@ -18,9 +18,9 @@
 #ifndef GRF_PROBABILITYSPLITTINGRULE_H
 #define GRF_PROBABILITYSPLITTINGRULE_H
 
-#include "commons/globals.h"
 #include <vector>
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
+#include "commons/globals.h"
 #include "splitting/SplittingRule.h"
 
 class ProbabilitySplittingRule: public SplittingRule {

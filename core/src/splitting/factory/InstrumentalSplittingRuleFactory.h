@@ -15,8 +15,8 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_REGRESSIONSPLITTINGRULEFACTORY_H
-#define GRF_REGRESSIONSPLITTINGRULEFACTORY_H
+#ifndef GRF_INSTRUMENTALSPLITTINGRULEFACTORY_H
+#define GRF_INSTRUMENTALSPLITTINGRULEFACTORY_H
 
 
 #include "splitting/factory/SplittingRuleFactory.h"
@@ -27,15 +27,13 @@
  * In addition to performing standard regression splits, this rule applies
  * a penalty to avoid splits too close to the edge of the node's data.
  */
-class RegressionSplittingRuleFactory: public SplittingRuleFactory {
+class InstrumentalSplittingRuleFactory: public SplittingRuleFactory {
 public:
-  RegressionSplittingRuleFactory();
+  InstrumentalSplittingRuleFactory();
   std::shared_ptr<SplittingRule> create(Data* data,
                                         const Observations& observations,
                                         const TreeOptions& options);
-private:
-  DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRuleFactory);
 };
 
 
-#endif //GRF_REGRESSIONSPLITTINGRULEFACTORY_H
+#endif //GRF_INSTRUMENTALSPLITTINGRULEFACTORY_H

@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------------
-  This file is part of generalized random forest (grf).
+  This file is part of generalized-random-forest.
 
   grf is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,21 +15,20 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_REGRESSIONSPLITTINGRULE_H
-#define GRF_REGRESSIONSPLITTINGRULE_H
+#ifndef GRF_INSTRUMENTALSPLITTINGRULE_H
+#define GRF_INSTRUMENTALSPLITTINGRULE_H
 
-#include "tree/Tree.h"
+#include "commons/Data.h"
+#include "commons/Observations.h"
 #include "splitting/SplittingRule.h"
-#include <unordered_map>
-#include "commons/DefaultData.h"
 
-class RegressionSplittingRule: public SplittingRule {
+class InstrumentalSplittingRule: public SplittingRule {
 public:
-  RegressionSplittingRule(Data* data,
-                          double alpha,
-                          double imbalance_penalty);
-
-  ~RegressionSplittingRule();
+  InstrumentalSplittingRule(Data* data,
+                            const Observations& observations,
+                            double alpha,
+                            double lambda);
+  ~InstrumentalSplittingRule();
 
   bool find_best_split(size_t node,
                        const std::vector<size_t>& possible_split_vars,
@@ -42,18 +41,18 @@ private:
   void find_best_split_value_small_q(size_t node,
                                      size_t var,
                                      double sum_node,
-                                     size_t size_node,
+                                     size_t node_size,
                                      size_t min_child_size,
                                      double& best_value,
                                      size_t& best_var,
                                      double& best_decrease,
-                                     const std::unordered_map<size_t, double>& labels_by_sample,
+                                     const std::unordered_map<size_t, double>& responses_by_sample,
                                      const std::vector<std::vector<size_t>>& samples);
   void find_best_split_value_large_q(size_t node,
                                      size_t var,
                                      double sum_node,
-                                     size_t size_node,
-                                     size_t mind_child_size,
+                                     size_t node_size,
+                                     size_t min_child_size,
                                      double& best_value,
                                      size_t& best_var,
                                      double& best_decrease,
@@ -61,14 +60,16 @@ private:
                                      const std::vector<std::vector<size_t>>& samples);
 
   Data* data;
+  const Observations& observations;
+
   size_t* counter;
   double* sums;
 
   double alpha;
-  double imbalance_penalty;
+  double lambda;
 
-  DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRule);
+  DISALLOW_COPY_AND_ASSIGN(InstrumentalSplittingRule);
 };
 
 
-#endif //GRF_REGRESSIONSPLITTINGRULE_H
+#endif //GRF_INSTRUMENTALSPLITTINGRULE_H

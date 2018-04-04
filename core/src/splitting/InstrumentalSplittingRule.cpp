@@ -18,20 +18,22 @@
 #include <algorithm>
 #include <math.h>
 
-#include "RegressionSplittingRule.h"
+#include "InstrumentalSplittingRule.h"
 
-RegressionSplittingRule::RegressionSplittingRule(Data* data,
-                                                 double alpha,
-                                                 double imbalance_penalty):
+InstrumentalSplittingRule::InstrumentalSplittingRule(Data* data,
+                                                     const Observations& observations,
+                                                     double alpha,
+                                                     double lambda):
     data(data),
+    observations(observations),
     alpha(alpha),
-    imbalance_penalty(imbalance_penalty) {
+    lambda(lambda) {
   size_t max_num_unique_values = data->get_max_num_unique_values();
   this->counter = new size_t[max_num_unique_values];
   this->sums = new double[max_num_unique_values];
 }
 
-RegressionSplittingRule::~RegressionSplittingRule() {
+InstrumentalSplittingRule::~InstrumentalSplittingRule() {
   if (counter != 0) {
     delete[] counter;
   }
@@ -40,15 +42,15 @@ RegressionSplittingRule::~RegressionSplittingRule() {
   }
 }
 
-bool RegressionSplittingRule::find_best_split(size_t node,
-                                              const std::vector<size_t>& possible_split_vars,
-                                              const std::unordered_map<size_t, double>& labels_by_sample,
-                                              const std::vector<std::vector<size_t>>& samples,
-                                              std::vector<size_t>& split_vars,
-                                              std::vector<double>& split_values) {
+bool InstrumentalSplittingRule::find_best_split(size_t node,
+                                                const std::vector<size_t>& possible_split_vars,
+                                                const std::unordered_map<size_t, double>& labels_by_sample,
+                                                const std::vector<std::vector<size_t>>& samples,
+                                                std::vector<size_t>& split_vars,
+                                                std::vector<double>& split_values) {
 
-  size_t size_node = samples[node].size();
-  size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
+  size_t num_samples_node = samples[node].size();
+  size_t min_child_samples = std::max<size_t>(std::ceil(num_samples_node * alpha), 1uL);
 
   // Precompute sum of outcomes in this node.
   double sum_node = 0.0;
@@ -64,12 +66,12 @@ bool RegressionSplittingRule::find_best_split(size_t node,
   // For all possible split variables
   for (auto& var : possible_split_vars) {
     // Use faster method for both cases
-    double q = (double) size_node / (double) data->get_num_unique_data_values(var);
+    double q = (double) num_samples_node / (double) data->get_num_unique_data_values(var);
     if (q < Q_THRESHOLD) {
-      find_best_split_value_small_q(node, var, sum_node, size_node, min_child_size,
+      find_best_split_value_small_q(node, var, sum_node, num_samples_node, min_child_samples,
                                     best_value, best_var, best_decrease, labels_by_sample, samples);
     } else {
-      find_best_split_value_large_q(node, var, sum_node, size_node, min_child_size,
+      find_best_split_value_large_q(node, var, sum_node, num_samples_node, min_child_samples,
                                     best_value, best_var, best_decrease, labels_by_sample, samples);
     }
   }
@@ -85,14 +87,15 @@ bool RegressionSplittingRule::find_best_split(size_t node,
   return false;
 }
 
-void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t var,
-                                                            double sum_node,
-                                                            size_t size_node,
-                                                            size_t min_child_size,
-                                                            double& best_value, size_t& best_var,
-                                                            double& best_decrease,
-                                                            const std::unordered_map<size_t, double>& labels_by_sample,
-                                                            const std::vector<std::vector<size_t>>& samples) {
+void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_t var,
+                                                              double sum_node,
+                                                              size_t node_size,
+                                                              size_t min_child_size,
+                                                              double& best_value,
+                                                              size_t& best_var,
+                                                              double& best_decrease,
+                                                              const std::unordered_map<size_t, double>& labels_by_sample,
+                                                              const std::vector<std::vector<size_t>>& samples) {
   std::vector<double> possible_split_values;
   data->get_all_values(possible_split_values, samples.at(node), var);
 
@@ -133,14 +136,9 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
   for (size_t i = 0; i < num_splits; ++i) {
 
     // Skip this split if one child is too small.
-    size_t n_left = size_node - n_right[i];
-    if (n_left < min_child_size) {
+    size_t n_left = node_size - n_right[i];
+    if (n_left < min_child_size || n_right[i] < min_child_size) {
       continue;
-    }
-
-    // Stop if the right child is too small.
-    if (n_right[i] < min_child_size) {
-      break;
     }
 
     double sum_right = sums_right[i];
@@ -148,7 +146,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
     double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right[i];
 
     // Penalize splits that are too close to the edges of the data.
-    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right[i]);
+    double penalty = lambda * (1.0 / n_left + 1.0 / n_right[i]);
     decrease -= penalty;
 
 
@@ -161,16 +159,16 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
   }
 }
 
-void RegressionSplittingRule::find_best_split_value_large_q(size_t node,
-                                                            size_t var,
-                                                            double sum_node,
-                                                            size_t size_node,
-                                                            size_t min_child_size,
-                                                            double& best_value,
-                                                            size_t& best_var,
-                                                            double& best_decrease,
-                                                            const std::unordered_map<size_t, double>& responses_by_sample,
-                                                            const std::vector<std::vector<size_t>>& samples) {
+void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
+                                                              size_t var,
+                                                              double sum_node,
+                                                              size_t node_size,
+                                                              size_t min_child_size,
+                                                              double& best_value,
+                                                              size_t& best_var,
+                                                              double& best_decrease,
+                                                              const std::unordered_map<size_t, double>& responses_by_sample,
+                                                              const std::vector<std::vector<size_t>>& samples) {
   // Set counters to 0
   size_t num_unique = data->get_num_unique_data_values(var);
   std::fill(counter, counter + num_unique, 0);
@@ -197,7 +195,7 @@ void RegressionSplittingRule::find_best_split_value_large_q(size_t node,
     }
 
     // Stop if the right child is too small.
-    size_t n_right = size_node - n_left;
+    size_t n_right = node_size - n_left;
     if (n_right < min_child_size) {
       break;
     }
@@ -206,7 +204,7 @@ void RegressionSplittingRule::find_best_split_value_large_q(size_t node,
     double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
 
     // Penalize splits that are too close to the edges of the data.
-    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
+    double penalty = lambda * (1.0 / n_left + 1.0 / n_right);
     decrease -= penalty;
 
     // If better than before, use this
