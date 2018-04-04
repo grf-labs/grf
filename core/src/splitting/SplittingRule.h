@@ -26,7 +26,7 @@ public:
   virtual ~SplittingRule() {}
   virtual bool find_best_split(size_t node,
                                const std::vector<size_t>& possible_split_vars,
-                               const std::unordered_map<size_t, double>& responses_by_sample,
+                               const std::unordered_map<size_t, double>& labels_by_sample,
                                const std::vector<std::vector<size_t>>& samples,
                                std::vector<size_t>& split_vars,
                                std::vector<double>& split_values) = 0;
