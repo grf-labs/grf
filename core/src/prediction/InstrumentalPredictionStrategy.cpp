@@ -37,10 +37,10 @@ size_t InstrumentalPredictionStrategy::prediction_length() {
 }
 
 std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<double>& average) {
-  double instrument_effect = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
-  double first_stage = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
+  double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
+  double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
 
-  return { instrument_effect / first_stage };
+  return { instrument_effect_numerator / first_stage_numerator };
 }
 
 std::vector<double> InstrumentalPredictionStrategy::compute_variance(
@@ -48,9 +48,11 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     const PredictionValues& leaf_values,
     uint ci_group_size) {
 
-  double instrument_effect = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
-  double first_stage = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
-  double treatment_estimate = instrument_effect / first_stage;
+  double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT)
+     - average.at(OUTCOME) * average.at(INSTRUMENT);
+  double first_stage_numerator = average.at(TREATMENT_INSTRUMENT)
+     - average.at(TREATMENT) * average.at(INSTRUMENT);
+  double treatment_estimate = instrument_effect_numerator / first_stage_numerator;
   double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_estimate;
 
   double num_good_groups = 0;
@@ -108,16 +110,28 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     }
   }
 
-  double avg_W = average.at(TREATMENT);
-  double var_between = psi_grouped_squared[0][0]
-	  - psi_grouped_squared[0][1] * avg_W
-	  - psi_grouped_squared[1][0] * avg_W
-	  + psi_grouped_squared[1][1] * avg_W * avg_W;
+  // Using notation from the GRF paper, we want to apply equation (16),
+  // \hat{sigma^2} = \xi' V^{-1} Hn V^{-1}' \xi
+  // with Hn = Psi as computed above, \xi = (1 0), and
+  // V(x) = (E[ZW|X=x] E[Z|X=x]; E[W|X=x] 1).
+  // By simple algebra, we can verify that
+  // V^{-1}'\xi = 1/(E[ZW|X=x] - E[W|X=x]E[Z|X=x]) (1; -E[Z|X=x]),
+  // leading to the expression below for the variance if we
+  // use forest-kernel averages to estimate all conditional moments above.
 
-  double var_total = psi_squared[0][0]
-	  - psi_squared[0][1] * avg_W
-	  - psi_squared[1][0] * avg_W
-	  + psi_squared[1][1] * avg_W * avg_W;
+  double avg_Z = average.at(INSTRUMENT);
+
+  double var_between = 1 / (first_stage_numerator * first_stage_numerator)
+    * (psi_grouped_squared[0][0]
+	     - psi_grouped_squared[0][1] * avg_Z
+	     - psi_grouped_squared[1][0] * avg_Z
+	     + psi_grouped_squared[1][1] * avg_Z * avg_Z);
+
+  double var_total = 1 / (first_stage_numerator * first_stage_numerator)
+    * (psi_squared[0][0]
+	     - psi_squared[0][1] * avg_Z
+	     - psi_squared[1][0] * avg_Z
+	     + psi_squared[1][1] * avg_Z * avg_Z);
 
   // This is the amount by which var_between is inflated due to using small groups
   double group_noise = (var_total - var_between) / (ci_group_size - 1);
@@ -128,7 +142,7 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
   // Bayes analysis of variance instead to avoid negative values.
   double var_debiased = bayes_debiaser.debias(var_between, group_noise, num_good_groups);
 
-  double variance_estimate = var_debiased / (first_stage * first_stage);
+  double variance_estimate = var_debiased;
   return { variance_estimate };
 }
 
