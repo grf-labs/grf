@@ -116,6 +116,8 @@ public:
 
   size_t sample_poisson(size_t mean);
 
+  bool clustering_enabled() const;
+
 private:
   void bootstrap(size_t num_samples,
                  double sample_fraction,

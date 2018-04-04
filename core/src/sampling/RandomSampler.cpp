@@ -297,3 +297,7 @@ size_t RandomSampler::sample_poisson(size_t mean) {
   std::poisson_distribution<size_t> distribution(mean);
   return distribution(random_number_generator);
 }
+
+bool RandomSampler::clustering_enabled() const {
+    return options.clustering_enabled();
+}
