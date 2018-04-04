@@ -37,10 +37,6 @@ uint TreeOptions::get_min_node_size() const  {
   return min_node_size;
 }
 
-void TreeOptions::set_min_node_size(uint min_node_size) {
-  this->min_node_size = min_node_size;
-}
-
 bool TreeOptions::get_honesty() const {
   return honesty;
 }
