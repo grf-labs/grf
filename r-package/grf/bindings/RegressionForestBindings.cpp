@@ -33,7 +33,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
   Forest forest = trainer.train(data, options);
 
   Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
-  result.push_back(options.get_min_node_size(), "min.node.size");
+  result.push_back(options.get_tree_options().get_min_node_size(), "min.node.size");
 
   delete data;
   return result;

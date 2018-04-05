@@ -19,10 +19,10 @@
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 
 InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy():
-  split_regularization(0) {}
+  reduced_form_weight(0) {}
 
-InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(double split_regularization):
-  split_regularization(split_regularization) {}
+InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(double reduced_form_weight):
+  reduced_form_weight(reduced_form_weight) {}
 
 std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
@@ -44,8 +44,8 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
   double average_outcome = total_outcome / num_samples;
   double average_treatment = total_treatment / num_samples;
   double average_instrument = total_instrument / num_samples;
-  double average_regularized_instrument = (1 - split_regularization) * average_instrument
-    + split_regularization * average_treatment;
+  double average_regularized_instrument = (1 - reduced_form_weight) * average_instrument
+                                          + reduced_form_weight * average_treatment;
 
   // Calculate the treatment effect.
   double numerator = 0.0;
@@ -55,7 +55,8 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
     double outcome = observations.get(Observations::OUTCOME, sample);
     double treatment = observations.get(Observations::TREATMENT, sample);
     double instrument = observations.get(Observations::INSTRUMENT, sample);
-    double regularized_instrument = (1 - split_regularization) * instrument + split_regularization * treatment;
+    double regularized_instrument = (1 - reduced_form_weight) * instrument
+                                    + reduced_form_weight * treatment;
 
     numerator += (regularized_instrument - average_regularized_instrument) * (outcome - average_outcome);
     denominator += (regularized_instrument - average_regularized_instrument) * (treatment - average_treatment);
@@ -74,7 +75,7 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
     double response = observations.get(Observations::OUTCOME, sample);
     double treatment = observations.get(Observations::TREATMENT, sample);
     double instrument = observations.get(Observations::INSTRUMENT, sample);
-    double regularized_instrument = (1 - split_regularization) * instrument + split_regularization * treatment;
+    double regularized_instrument = (1 - reduced_form_weight) * instrument + reduced_form_weight * treatment;
 
     double residual = (response - average_outcome) - local_average_treatment_effect * (treatment - average_treatment);
     relabeled_outcomes[sample] = (regularized_instrument - average_regularized_instrument) * residual;
