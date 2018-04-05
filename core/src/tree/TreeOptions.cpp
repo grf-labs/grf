@@ -22,12 +22,12 @@ TreeOptions::TreeOptions(uint mtry,
                          uint min_node_size,
                          bool honesty,
                          double alpha,
-                         double lambda):
+                         double imbalance_penalty):
   mtry(mtry),
   min_node_size(min_node_size),
   honesty(honesty),
   alpha(alpha),
-  lambda(lambda) {}
+  imbalance_penalty(imbalance_penalty) {}
 
 uint TreeOptions::get_mtry() const  {
   return mtry;
@@ -45,6 +45,6 @@ double TreeOptions::get_alpha() const {
   return alpha;
 }
 
-double TreeOptions::get_lambda() const {
-  return lambda;
+double TreeOptions::get_imbalance_penalty() const {
+  return imbalance_penalty;
 }

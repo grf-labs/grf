@@ -27,7 +27,7 @@ class RegressionSplittingRule: public SplittingRule {
 public:
   RegressionSplittingRule(Data* data,
                           double alpha,
-                          double lambda);
+                          double imbalance_penalty);
 
   ~RegressionSplittingRule();
 
@@ -65,7 +65,7 @@ private:
   double* sums;
 
   double alpha;
-  double lambda;
+  double imbalance_penalty;
 
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRule);
 };

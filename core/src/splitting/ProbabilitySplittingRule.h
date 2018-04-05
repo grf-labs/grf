@@ -28,7 +28,7 @@ public:
   ProbabilitySplittingRule(Data* data,
                            size_t num_classes,
                            double alpha,
-                           double lambda);
+                           double imbalance_penalty);
   ~ProbabilitySplittingRule();
 
   bool find_best_split(size_t node,
@@ -61,7 +61,7 @@ private:
   size_t num_classes;
 
   double alpha;
-  double lambda;
+  double imbalance_penalty;
 
   size_t* counter;
   size_t* counter_per_class;

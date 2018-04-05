@@ -22,10 +22,10 @@
 
 RegressionSplittingRule::RegressionSplittingRule(Data* data,
                                                  double alpha,
-                                                 double lambda) {
+                                                 double imbalance_penalty) {
   this->data = data;
   this->alpha = alpha;
-  this->lambda = lambda;
+  this->imbalance_penalty = imbalance_penalty;
 
   size_t max_num_unique_values = data->get_max_num_unique_values();
   this->counter = new size_t[max_num_unique_values];
@@ -149,7 +149,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(size_t node, size_t 
     double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right[i];
 
     // Penalize splits that are too close to the edges of the data.
-    double penalty = lambda * (1.0 / n_left + 1.0 / n_right[i]);
+    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right[i]);
     decrease -= penalty;
 
 
@@ -207,7 +207,7 @@ void RegressionSplittingRule::find_best_split_value_large_q(size_t node,
     double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
 
     // Penalize splits that are too close to the edges of the data.
-    double penalty = lambda * (1.0 / n_left + 1.0 / n_right);
+    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
     decrease -= penalty;
 
     // If better than before, use this
