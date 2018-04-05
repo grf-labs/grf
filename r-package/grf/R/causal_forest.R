@@ -75,8 +75,7 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     seed <- validate_seed(seed)
     
     sample.with.replacement <- FALSE
-    
-    split.regularization <- 0
+    reduced.form.weight <- 0
     
     if (!precompute.nuisance) {
         data <- create_data_matrices(X, Y, W)
@@ -104,7 +103,7 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size,
         sample.with.replacement, sample.fraction, seed, honesty,
-        ci.group.size, split.regularization, alpha, lambda)
+        ci.group.size, reduced.form.weight, alpha, lambda)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
