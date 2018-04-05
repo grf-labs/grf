@@ -31,9 +31,9 @@
 #'                            y(x) = E[Y|X=x] and w(x) = E[W|X=x], and then run a
 #'                            causal forest on the residuals? This approach is
 #'                            recommended, computational resources permitting.
-#' @param alpha Maximum imbalance of a split.
-#' @param lambda A tuning parameter to control the amount of split regularization (experimental).
-#' @param seed The seed of the c++ random number generator.
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
+#' @param seed The seed of the C++ random number generator.
 #'
 #' @return A trained causal forest object.
 #'
@@ -62,7 +62,7 @@
 causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL, 
                           num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                           honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE,
-                          alpha = 0.05, lambda = 0.0, seed = NULL) {
+                          alpha = 0.05, imbalance.penalty = 0.0, seed = NULL) {
     
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -84,12 +84,12 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     } else {
         forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda);
+                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty);
         Y.hat <- predict(forest.Y)$predictions
         
         forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
                                       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, lambda = lambda);
+                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty);
 
         W.hat <- predict(forest.W)$predictions
         
@@ -103,7 +103,7 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size,
         sample.with.replacement, sample.fraction, seed, honesty,
-        ci.group.size, reduced.form.weight, alpha, lambda)
+        ci.group.size, reduced.form.weight, alpha, imbalance.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

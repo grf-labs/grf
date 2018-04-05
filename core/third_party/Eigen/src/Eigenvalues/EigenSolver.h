@@ -27,7 +27,7 @@ namespace Eigen {
   * class template. Currently, only real matrices are supported.
   *
   * The eigenvalues and eigenvectors of a matrix \f$ A \f$ are scalars
-  * \f$ \lambda \f$ and vectors \f$ v \f$ such that \f$ Av = \lambda v \f$.  If
+  * \f$ \imbalance_penalty \f$ and vectors \f$ v \f$ such that \f$ Av = \imbalance_penalty v \f$.  If
   * \f$ D \f$ is a diagonal matrix with the eigenvalues on the diagonal, and
   * \f$ V \f$ is a matrix with the eigenvectors as its columns, then \f$ A V =
   * V D \f$. The matrix \f$ V \f$ is almost always invertible, in which case we
