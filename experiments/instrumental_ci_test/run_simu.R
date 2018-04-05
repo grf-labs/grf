@@ -20,7 +20,7 @@ k.tau.vals = c(2, 4)
 k.mu = 2
 p.vals = c(6, 12, 18)
 
-n.vals = c(2000, 4000, 8000)
+n.vals = c(2000, 4000, 8000, 16000)
 n.test = 1000
 
 REPS = 20

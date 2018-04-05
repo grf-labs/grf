@@ -30,14 +30,17 @@ names(raw) = c(param.names, "coverage")
 rownames(raw) = 1:nrow(raw)
 
 raw = raw[,-c(1, 2)]
+raw = raw[order(as.numeric(as.character(raw[,4]))),]
 raw = raw[order(as.numeric(as.character(raw[,3]))),]
 raw = raw[order(as.numeric(as.character(raw[,2]))),]
 raw = raw[order(raw[,1], decreasing=TRUE),]
 
-collapsed = cbind(raw[1:18, 2:5], "coverage"=raw[19:36, 5])
+collapsed = cbind(raw[1:24, 2:5], "coverage"=raw[25:48, 5])
 
 xtab = xtable(collapsed, align=c("r", "|", rep("c", 3), "|", rep("c", 2), "|"))
-print(xtab, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, hline.after = c(-1, -1, 0, 0, 3, 6, 9, 9, 12, 15, 18, 18), file = "simulation_results_true.tex")
+print(xtab, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity,
+      hline.after = c(-1, -1, 0, 0, 4, 8, 12, 12, 16, 20, 24, 24),
+      file = "simulation_results_true.tex")
 
 
 raw = data.frame(t(sapply(filenames, function(fnm) {
@@ -62,13 +65,16 @@ names(raw) = c(param.names, "coverage")
 rownames(raw) = 1:nrow(raw)
 
 raw = raw[,-c(1, 2)]
+raw = raw[order(as.numeric(as.character(raw[,4]))),]
 raw = raw[order(as.numeric(as.character(raw[,3]))),]
 raw = raw[order(as.numeric(as.character(raw[,2]))),]
 raw = raw[order(raw[,1], decreasing=TRUE),]
 
-collapsed = cbind(raw[1:18, 2:5], "coverage"=raw[19:36, 5])
+collapsed = cbind(raw[1:24, 2:5], "coverage"=raw[25:48, 5])
 
 xtab = xtable(collapsed, align=c("r", "|", rep("c", 3), "|", rep("c", 2), "|"))
-print(xtab, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, hline.after = c(-1, -1, 0, 0, 3, 6, 9, 9, 12, 15, 18, 18), file = "simulation_results_avg.tex")
+print(xtab, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity,
+      hline.after = c(-1, -1, 0, 0, 4, 8, 12, 12, 16, 20, 24, 24),
+      file = "simulation_results_avg.tex")
 
 
