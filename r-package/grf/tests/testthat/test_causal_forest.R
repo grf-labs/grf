@@ -54,9 +54,9 @@ test_that("causal forest split frequencies are reasonable", {
   W = rbinom(n, 1, 0.2)
   Y = 1000 * (X[,p]) * (2 * W - 1) + rnorm(n)
 
-  # Note that we increase lambda to ensure the test reliably passes. Once
+  # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
   # we add variance corrections, this should no longer be necessary.
-  ccc = causal_forest(X, Y, W, mtry = p, lambda=0.1)
+  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1)
   split.freq = split_frequencies(ccc, 4)
   expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })

@@ -31,7 +31,7 @@ public:
               uint min_node_size,
               bool honesty,
               double alpha,
-              double lambda);
+              double imbalance_penalty);
 
   uint get_mtry() const;
   uint get_min_node_size() const;
@@ -47,7 +47,7 @@ public:
   /**
    * A tuning parameter that controls how harshly imbalanced splits are penalized.
    */
-  double get_lambda() const;
+  double get_imbalance_penalty() const;
 
 private:
   uint mtry;
@@ -55,7 +55,7 @@ private:
   bool honesty;
 
   double alpha;
-  double lambda;
+  double imbalance_penalty;
 };
 
 #endif //GRF_TREEOPTIONS_H

@@ -68,7 +68,7 @@ TEST_CASE("regression forests give reasonable variance estimates", "[regression,
   Data* data = load_data("test/forest/resources/gaussian_data.csv");
   uint outcome_index = 10;
   double alpha = 0.10;
-  double lambda = 0.07;
+  double imbalance_penalty = 0.07;
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
   ForestOptions options = ForestTestUtilities::default_options(false, 2);

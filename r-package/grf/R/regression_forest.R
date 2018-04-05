@@ -20,8 +20,8 @@
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
-#' @param alpha Maximum imbalance of a split.
-#' @param lambda A tuning parameter to control the amount of split regularization (experimental).
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param seed The seed for the C++ random number generator.
 #'
 #' @return A trained regression forest object.
@@ -49,7 +49,7 @@
 #' @export
 regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
-                              honesty = TRUE, ci.group.size = 2, alpha = 0.05, lambda = 0.0,
+                              honesty = TRUE, ci.group.size = 2, alpha = 0.05, imbalance.penalty = 0.0,
                               seed = NULL) {
     
     validate_X(X)
@@ -68,7 +68,7 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
 
     forest <- regression_train(data$default, data$sparse, outcome.index, mtry, num.trees,
         num.threads, min.node.size, sample.with.replacement, sample.fraction,
-        seed, honesty, ci.group.size, alpha, lambda)
+        seed, honesty, ci.group.size, alpha, imbalance.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

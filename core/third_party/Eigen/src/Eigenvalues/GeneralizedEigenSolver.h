@@ -28,7 +28,7 @@ namespace Eigen {
   * class template. Currently, only real matrices are supported.
   *
   * The generalized eigenvalues and eigenvectors of a matrix pair \f$ A \f$ and \f$ B \f$ are scalars
-  * \f$ \lambda \f$ and vectors \f$ v \f$ such that \f$ Av = \lambda Bv \f$.  If
+  * \f$ \imbalance_penalty \f$ and vectors \f$ v \f$ such that \f$ Av = \imbalance_penalty Bv \f$.  If
   * \f$ D \f$ is a diagonal matrix with the eigenvalues on the diagonal, and
   * \f$ V \f$ is a matrix with the eigenvectors as its columns, then \f$ A V =
   * B V D \f$. The matrix \f$ V \f$ is almost always invertible, in which case we
@@ -37,7 +37,7 @@ namespace Eigen {
   * The generalized eigenvalues and eigenvectors of a matrix pair may be complex, even when the
   * matrices are real. Moreover, the generalized eigenvalue might be infinite if the matrix B is
   * singular. To workaround this difficulty, the eigenvalues are provided as a pair of complex \f$ \alpha \f$
-  * and real \f$ \beta \f$ such that: \f$ \lambda_i = \alpha_i / \beta_i \f$. If \f$ \beta_i \f$ is (nearly) zero,
+  * and real \f$ \beta \f$ such that: \f$ \imbalance_penalty_i = \alpha_i / \beta_i \f$. If \f$ \beta_i \f$ is (nearly) zero,
   * then one can consider the well defined left eigenvalue \f$ \mu = \beta_i / \alpha_i\f$ such that:
   * \f$ \mu_i A v_i = B v_i \f$, or even \f$ \mu_i u_i^T A  = u_i^T B \f$ where \f$ u_i \f$ is
   * called the left eigenvector.
