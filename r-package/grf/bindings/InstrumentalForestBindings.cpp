@@ -27,7 +27,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               unsigned int ci_group_size,
                               double reduced_form_weight,
                               double alpha,
-                              double lambda) {
+                              double imbalance_penalty) {
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
       outcome_index - 1,
       treatment_index - 1,
@@ -35,8 +35,8 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
       reduced_form_weight);
 
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
-  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-                        honesty, alpha, lambda, sample_with_replacement, num_threads, seed);
+  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
+                        alpha, imbalance_penalty, sample_with_replacement, num_threads, seed);
 
   Forest forest = trainer.train(data, options);
 
