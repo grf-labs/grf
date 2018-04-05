@@ -31,13 +31,13 @@
 ForestTrainer ForestTrainers::instrumental_trainer(size_t outcome_index,
                                                    size_t treatment_index,
                                                    size_t instrument_index,
-                                                   double split_regularization) {
+                                                   double reduced_form_weight) {
   std::unordered_map<size_t, size_t> observables = {
       {Observations::OUTCOME, outcome_index},
       {Observations::TREATMENT, treatment_index},
       {Observations::INSTRUMENT, instrument_index}};
 
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy(split_regularization));
+  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy(reduced_form_weight));
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
 

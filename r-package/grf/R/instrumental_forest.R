@@ -31,9 +31,9 @@
 #'                            and then run an instrumental forest on the residuals?
 #'                            This approach is recommended, computational resources
 #'                            permitting.
-#' @param split.regularization Whether splits should be regularized towards a naive
-#'                             splitting criterion that ignores the instrument (and
-#'                             instead emulates a causal forest).
+#' @param reduced.form.weight Whether splits should be regularized towards a naive
+#'                            splitting criterion that ignores the instrument (and
+#'                            instead emulates a causal forest).
 #' @param alpha Maximum imbalance of a split.
 #' @param lambda A tuning parameter to control the amount of split regularization (experimental).
 #' @param seed The seed for the C++ random number generator.
@@ -42,7 +42,7 @@
 #' @export
 instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
                                 num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
-                                ci.group.size = 2, precompute.nuisance = TRUE, split.regularization = 0,
+                                ci.group.size = 2, precompute.nuisance = TRUE, reduced.form.weight = 0,
                                 alpha = 0.05, lambda = 0.0, seed = NULL) {
     
     validate_X(X)
@@ -58,8 +58,8 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     
     sample.with.replacement <- FALSE
     
-    if (!is.numeric(split.regularization) | split.regularization < 0 | split.regularization > 1) {
-        stop("Error: Invalid value for split.regularization. Please give a value in [0,1].")
+    if (!is.numeric(reduced.form.weight) | reduced.form.weight < 0 | reduced.form.weight > 1) {
+        stop("Error: Invalid value for reduced.form.weight. Please give a value in [0,1].")
     }
     
     if (!precompute.nuisance) {
@@ -90,7 +90,7 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size,
         sample.with.replacement, sample.fraction, seed, honesty,
-        ci.group.size, split.regularization, alpha, lambda)
+        ci.group.size, reduced.form.weight, alpha, lambda)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

@@ -29,8 +29,8 @@ custom_predict_oob <- function(forest_object, input_data, sparse_input_data, num
     .Call('_grf_custom_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads)
 }
 
-instrumental_train <- function(input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, split_regularization, alpha, lambda) {
-    .Call('_grf_instrumental_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, split_regularization, alpha, lambda)
+instrumental_train <- function(input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, reduced_form_weight, alpha, lambda) {
+    .Call('_grf_instrumental_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_with_replacement, sample_fraction, seed, honesty, ci_group_size, reduced_form_weight, alpha, lambda)
 }
 
 instrumental_predict <- function(forest_object, input_data, sparse_input_data, num_threads, ci_group_size) {
