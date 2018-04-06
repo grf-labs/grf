@@ -205,7 +205,7 @@ TEST_CASE("sample multilevel 1", "[sampleMultilevel]") {
   std::vector<size_t> samples;
   std::vector<size_t> oob_sample;
   sampler.sample_from_clusters(subsampled_clusters, samples);
-  sampler.get_oob_from_clusters(oob_subsampled_clusters, oob_sample);
+  sampler.sample_from_clusters(oob_subsampled_clusters, oob_sample);
 
   std::unordered_set<size_t> samples_set(samples.begin(), samples.end());
   std::unordered_set<size_t> oob_sample_set(oob_sample.begin(), oob_sample.end());

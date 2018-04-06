@@ -104,15 +104,6 @@ void RandomSampler::sample_from_clusters(const std::vector<size_t>& cluster_samp
   }
 }
 
-void RandomSampler::get_oob_from_clusters(const std::vector<size_t>& cluster_oob_sample,
-                                          std::vector<size_t>& oob_samples) {
-  std::unordered_map<uint, std::vector<size_t>>& cluster_map = options.get_cluster_map();
-
-  for (auto const& cluster_id : cluster_oob_sample) {
-    oob_samples.insert(oob_samples.end(), cluster_map[cluster_id].begin(), cluster_map[cluster_id].end());
-  }
-}
-
 void RandomSampler::shuffle_and_split(std::vector<size_t> &samples,
                                       size_t n_all,
                                       size_t size) {

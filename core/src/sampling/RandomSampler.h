@@ -62,9 +62,6 @@ public:
   void sample_from_clusters(const std::vector<size_t>& cluster_samples,
                             std::vector<size_t>& samples);
 
-  void get_oob_from_clusters(const std::vector<size_t>& cluster_oob_sample,
-                             std::vector<size_t>& oob_samples);
-
   /**
    * Draw random numbers in a range without replacement and skip values.
    * @param result Vector to add results to. Will not be cleaned before filling.
