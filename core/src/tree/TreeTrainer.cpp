@@ -50,16 +50,12 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
 
   std::vector<size_t> new_leaf_samples;
 
-  if (options.get_honesty() && sampler.clustering_enabled()) {
-    std::vector<size_t> cluster_subsample;
-    std::vector<size_t> cluster_oob_subsample;
-    sampler.subsample(samples, 0.5, cluster_subsample, cluster_oob_subsample);
-    sampler.sample_from_clusters(cluster_subsample, nodes[0]);
-    sampler.sample_from_clusters(cluster_oob_subsample, new_leaf_samples);
-  } else if (sampler.clustering_enabled()) {
-    sampler.sample_from_clusters(samples, nodes[0]);
-  } else if (options.get_honesty()) {
-    sampler.subsample(samples, 0.5, nodes[0], new_leaf_samples);
+  if (options.get_honesty()) {
+    std::vector<size_t> tree_growing_clusters;
+    std::vector<size_t> new_leaf_clusters;
+    sampler.subsample(samples, 0.5, tree_growing_clusters, new_leaf_clusters);
+    sampler.sample_from_clusters(tree_growing_clusters, nodes[0]);
+    sampler.sample_from_clusters(new_leaf_clusters, new_leaf_samples);
   } else {
     nodes[0] = samples;
   }

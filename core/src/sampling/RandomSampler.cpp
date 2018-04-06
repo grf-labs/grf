@@ -84,22 +84,25 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
             oob_samples.begin());
 }
 
-void RandomSampler::sample_from_clusters(const std::vector<size_t>& cluster_samples, std::vector<size_t>& samples) {
+void RandomSampler::sample_from_clusters(const std::vector<size_t>& cluster_samples,
+                                         std::vector<size_t>& samples) {
+  if (options.clustering_enabled()) {
+    samples = cluster_samples;
+    return;
+  }
+
   // Now sample observations from clusters
   std::unordered_map<uint, std::vector<size_t>>& cluster_map = options.get_cluster_map();
   std::vector<size_t> cluster_obs_subsample;
-  std::vector<size_t> dummy_cluster_obs_oob_subsample;
 
   for (auto const& cluster_id : cluster_samples) {
     std::vector<size_t> cluster_obs = cluster_map[cluster_id];
     double cluster_obs_sample_fraction = (double) options.get_samples_per_cluster() / cluster_obs.size();
 
     cluster_obs_subsample.clear();
-    dummy_cluster_obs_oob_subsample.clear();
     RandomSampler::subsample(cluster_obs,
                              cluster_obs_sample_fraction,
-                             cluster_obs_subsample,
-                             dummy_cluster_obs_oob_subsample);
+                             cluster_obs_subsample);
     samples.insert(samples.end(), cluster_obs_subsample.begin(), cluster_obs_subsample.end());
   }
 }
@@ -209,8 +212,4 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
 size_t RandomSampler::sample_poisson(size_t mean) {
   std::poisson_distribution<size_t> distribution(mean);
   return distribution(random_number_generator);
-}
-
-bool RandomSampler::clustering_enabled() const {
-    return options.clustering_enabled();
 }

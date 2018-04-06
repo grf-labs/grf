@@ -56,8 +56,12 @@ public:
                  std::vector<size_t>& oob_samples);
 
   /**
-   * Draws the appropriate number of IDs from the provided cluster IDs. Note that the
-   * number of samples drawn is configured through {@link SampleOptions#get_samples_per_cluster}.
+   * Draws the appropriate number of IDs from the provided cluster IDs. Otherwise, it
+   * is a no-op: it simply returns the passed in 'cluster samples', as they already
+   * represent individual sample IDs.
+   *
+   * Note that the number of samples drawn is configured through
+   * {@link SamplingOptions#get_samples_per_cluster}.
    */
   void sample_from_clusters(const std::vector<size_t>& cluster_samples,
                             std::vector<size_t>& samples);
@@ -75,8 +79,6 @@ public:
             size_t num_samples);
 
   size_t sample_poisson(size_t mean);
-
-  bool clustering_enabled() const;
 
 private:
  /**
