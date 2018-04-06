@@ -129,10 +129,10 @@ void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
   size_t mtry_sample = sampler.sample_poisson(mtry);
   size_t split_mtry = std::max<size_t>(std::min<size_t>(mtry_sample, num_independent_variables), 1uL);
 
-  sampler.draw_without_replacement_skip(result,
-                                        data->get_num_cols(),
-                                        disallowed_split_variables,
-                                        split_mtry);
+  sampler.draw(result,
+               data->get_num_cols(),
+               disallowed_split_variables,
+               split_mtry);
 }
 
 bool TreeTrainer::split_node(size_t node,
