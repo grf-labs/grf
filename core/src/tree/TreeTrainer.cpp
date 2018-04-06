@@ -54,10 +54,11 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
     std::vector<size_t> tree_growing_clusters;
     std::vector<size_t> new_leaf_clusters;
     sampler.subsample(samples, 0.5, tree_growing_clusters, new_leaf_clusters);
+
     sampler.sample_from_clusters(tree_growing_clusters, nodes[0]);
     sampler.sample_from_clusters(new_leaf_clusters, new_leaf_samples);
   } else {
-    nodes[0] = samples;
+    sampler.sample_from_clusters(samples, nodes[0]);
   }
 
   std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(

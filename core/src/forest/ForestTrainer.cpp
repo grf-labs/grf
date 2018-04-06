@@ -130,7 +130,7 @@ std::shared_ptr<Tree> ForestTrainer::train_tree(Data* data,
   // Note that if clustering is enabled, the IDs returned correspond to
   // cluster IDs as opposed to sample IDs.
   std::vector<size_t> samples;
-  sampler.sample_clusters(data, options.get_sample_fraction(), samples);
+  sampler.sample_clusters(data->get_num_rows(), options.get_sample_fraction(), samples);
 
   std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
                                                   sampler, samples, options.get_tree_options());
@@ -147,7 +147,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
   // Note that if clustering is enabled, the IDs returned correspond to
   // cluster IDs as opposed to sample IDs.
   std::vector<size_t> samples;
-  sampler.sample_clusters(data, 0.5, samples);
+  sampler.sample_clusters(data->get_num_rows(), 0.5, samples);
 
   double sample_fraction = options.get_sample_fraction();
   for (size_t i = 0; i < options.get_ci_group_size(); ++i) {

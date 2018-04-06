@@ -39,7 +39,7 @@ TEST_CASE("forests don't crash when there are fewer trees than threads", "[fores
   double alpha = 0.10;
   double imbalance_penalty = 0.07;
   uint ci_group_size = 2;
-  std::vector<uint> empty_clusters;
+  std::vector<size_t> empty_clusters;
   uint samples_per_cluster = 0;
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,

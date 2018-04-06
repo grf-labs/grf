@@ -17,22 +17,34 @@
 
 #include "SamplingOptions.h"
 
+#include <unordered_set>
 #include "commons/globals.h"
 
 SamplingOptions::SamplingOptions():
     sample_weights(0),
-    samples_per_cluster(0),
-    cluster_map(0) {}
+    num_samples_per_cluster(0),
+    clusters(0) {}
 
 SamplingOptions::SamplingOptions(uint samples_per_cluster,
-                                 const std::vector<uint>& clusters):
+                                 const std::vector<size_t>& sample_clusters):
+    sample_weights(0),
+    num_samples_per_cluster(samples_per_cluster) {
 
-        sample_weights(0),
-        samples_per_cluster(samples_per_cluster) {
-  // Create map containing all obs for each cluster. Saves on expense of having to recalculate many times in sampler
-  for (size_t s = 0; s < clusters.size(); ++s) {
-    size_t obs_cluster = clusters[s];
-    this->cluster_map[obs_cluster].push_back(s);
+  // Map the provided clusters to IDs in the range 0 ... num_clusters.
+  std::unordered_map<size_t, size_t> cluster_ids;
+  for (size_t cluster : sample_clusters) {
+    if (cluster_ids.find(cluster) == cluster_ids.end()) {
+      size_t cluster_id = cluster_ids.size();
+      cluster_ids[cluster] = cluster_id;
+    }
+  }
+
+  // Populate the index of each cluster ID with the samples it contains.
+  clusters = std::vector<std::vector<size_t>>(cluster_ids.size());
+  for (size_t sample = 0; sample < sample_clusters.size(); sample++) {
+    size_t cluster = sample_clusters.at(sample);
+    size_t cluster_id = cluster_ids.at(cluster);
+    clusters[cluster_id].push_back(sample);
   }
 }
 
@@ -42,18 +54,9 @@ const std::vector<double>& SamplingOptions::get_sample_weights() const {
 
 
 unsigned int SamplingOptions::get_samples_per_cluster() const {
-  return samples_per_cluster;
+  return num_samples_per_cluster;
 }
 
-std::unordered_map<uint, std::vector<size_t>>& SamplingOptions::get_cluster_map() {
-  return cluster_map;
+const std::vector<std::vector<size_t>>& SamplingOptions::get_clusters() {
+  return clusters;
 }
-
-bool SamplingOptions::clustering_enabled() const {
-  return !cluster_map.empty();
-}
-
-size_t SamplingOptions::get_num_clusters() const {
-  return cluster_map.size();
-}
-
