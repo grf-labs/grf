@@ -113,12 +113,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
     RandomSampler sampler(tree_seed, options.get_sampling_options());
 
     if (ci_group_size == 1) {
-      std::vector<size_t> samples;
-      sampler.sample(data->get_num_rows(), options.get_sample_fraction(), samples);
-
-      std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
-          sampler, samples, options.get_tree_options());
-      tree->set_drawn_samples(samples);
+      std::shared_ptr<Tree> tree = train_tree(data, observations, sampler, options);
       trees.push_back(tree);
     } else {
       std::vector<std::shared_ptr<Tree>> group = train_ci_group(data, observations, sampler, options);
@@ -128,21 +123,36 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
   return trees;
 }
 
+std::shared_ptr<Tree> ForestTrainer::train_tree(Data* data,
+                                                const Observations& observations,
+                                                RandomSampler& sampler,
+                                                const ForestOptions& options) const {
+  // Note that if clustering is enabled, the IDs returned correspond to
+  // cluster IDs as opposed to sample IDs.
+  std::vector<size_t> samples;
+  sampler.sample_clusters(data, options.get_sample_fraction(), samples);
+
+  std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
+                                                  sampler, samples, options.get_tree_options());
+  tree->set_drawn_samples(samples);
+  return tree;
+}
+
 std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
                                                                  const Observations& observations,
                                                                  RandomSampler& sampler,
                                                                  const ForestOptions& options) const {
   std::vector<std::shared_ptr<Tree>> trees;
 
-  // If clustering enabled, samples by cluster id rather than by observation id
-  std::vector<size_t> sample;
-  sampler.sample_for_ci(data, 0.5, sample);
+  // Note that if clustering is enabled, the IDs returned correspond to
+  // cluster IDs as opposed to sample IDs.
+  std::vector<size_t> samples;
+  sampler.sample_clusters(data, 0.5, samples);
 
   double sample_fraction = options.get_sample_fraction();
-
   for (size_t i = 0; i < options.get_ci_group_size(); ++i) {
     std::vector<size_t> subsample;
-    sampler.subsample(sample, sample_fraction * 2, subsample);
+    sampler.subsample(samples, sample_fraction * 2, subsample);
 
     std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
         sampler, subsample, options.get_tree_options());

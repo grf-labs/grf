@@ -21,9 +21,21 @@
 #include "RandomSampler.h"
 
 RandomSampler::RandomSampler(uint seed,
-                             SamplingOptions options):
+                             const SamplingOptions& options):
     options(options) {
   random_number_generator.seed(seed);
+}
+
+void RandomSampler::sample_clusters(Data *data,
+                                    double sample_fraction,
+                                    std::vector<size_t> &samples) {
+  if (options.clustering_enabled()) {
+    size_t num_samples = options.get_num_clusters();
+    sample(num_samples, sample_fraction, samples);
+  } else {
+    size_t num_samples = data->get_num_rows();
+    sample(num_samples, sample_fraction, samples);
+  }
 }
 
 void RandomSampler::sample(size_t num_samples,
@@ -37,18 +49,6 @@ void RandomSampler::sample(size_t num_samples,
                   num_samples - 1,
                   num_samples_inbag,
                   options.get_sample_weights());
-  }
-}
-
-void RandomSampler::sample_for_ci(Data* data,
-                                  double sample_fraction,
-                                  std::vector<size_t>& samples) {
-  if (options.clustering_enabled()) {
-    size_t num_samples = options.get_num_clusters();
-    sample(num_samples, sample_fraction, samples);
-  } else {
-    size_t num_samples = data->get_num_rows();
-    sample(num_samples, sample_fraction, samples);
   }
 }
 

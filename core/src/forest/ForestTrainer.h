@@ -48,6 +48,11 @@ private:
       const Observations& observations,
       const ForestOptions& options) const;
 
+  std::shared_ptr<Tree> train_tree(Data* data,
+                                   const Observations& observations,
+                                   RandomSampler& sampler,
+                                   const ForestOptions& options) const;
+
   std::vector<std::shared_ptr<Tree>> train_ci_group(Data* data,
                                                     const Observations& observations,
                                                     RandomSampler& sampler,
