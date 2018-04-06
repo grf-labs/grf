@@ -193,7 +193,7 @@ TEST_CASE("sample multilevel 1", "[sampleMultilevel]") {
   RandomSampler sampler(random_device(), sampling_options);
 
   std::vector<size_t> sampled_clusters;
-  sampler.sample_for_ci(&data, .5, sampled_clusters);
+  sampler.sample_clusters(&data, .5, sampled_clusters);
 
   size_t expected_num_sampled_clusters = (size_t) std::ceil(.5 * num_clusters);
   REQUIRE(expected_num_sampled_clusters == sampled_clusters.size());

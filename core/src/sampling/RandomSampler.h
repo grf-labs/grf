@@ -32,7 +32,15 @@
 class RandomSampler {
 public:
   RandomSampler(uint seed,
-                SamplingOptions options);
+                const SamplingOptions& options);
+
+  /**
+   * If sample clustering is enabled, sampling will work in terms of cluster IDs.
+   * Otherwise, IDs will represent individual samples, as usual.
+   */
+  void sample_clusters(Data* data,
+                       double sample_fraction,
+                       std::vector<size_t>& samples);
 
   void sample(size_t num_samples,
               double sample_fraction,
@@ -42,24 +50,15 @@ public:
                  double sample_fraction,
                  std::vector<size_t>& subsamples);
 
-  /**
-   * Sampling to be used only in the case of calculating confidence intervals. If clustered standard errors
-   * are enabled, sampling will return the ids corresponding to sample clusters. Otherwise, ids will correspond
-   * to individual observations.
-   *
-   * @param data
-   * @param sample_fraction
-   * @param samples
-   */
-  void sample_for_ci(Data* data,
-                     double sample_fraction,
-                     std::vector<size_t>& samples);
-
   void subsample(const std::vector<size_t>& samples,
                  double sample_fraction,
                  std::vector<size_t>& subsamples,
                  std::vector<size_t>& oob_samples);
 
+  /**
+   * Draws the appropriate number of IDs from the provided cluster IDs. Note that the
+   * number of samples drawn is configured through {@link SampleOptions#get_samples_per_cluster}.
+   */
   void sample_from_clusters(const std::vector<size_t>& cluster_samples,
                             std::vector<size_t>& samples);
 
