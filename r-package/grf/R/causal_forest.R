@@ -74,7 +74,6 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
     
-    sample.with.replacement <- FALSE
     reduced.form.weight <- 0
     
     if (!precompute.nuisance) {
@@ -101,9 +100,8 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     instrument.index <- treatment.index
     
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
-        instrument.index, mtry, num.trees, num.threads, min.node.size,
-        sample.with.replacement, sample.fraction, seed, honesty,
-        ci.group.size, reduced.form.weight, alpha, imbalance.penalty)
+        instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed,
+        honesty, ci.group.size, reduced.form.weight, alpha, imbalance.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

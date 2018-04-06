@@ -33,7 +33,6 @@ public:
                 bool honesty,
                 double alpha,
                 double imbalance_penalty,
-                bool sample_with_replacement,
                 uint num_threads,
                 uint random_seed);
 

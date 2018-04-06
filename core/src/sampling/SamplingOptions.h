@@ -25,13 +25,11 @@
 class SamplingOptions {
 public:
   SamplingOptions();
-  SamplingOptions(bool sample_with_replacement);
+  SamplingOptions(const std::vector<double>& sample_weights);
 
-  bool get_sample_with_replacement() const;
   const std::vector<double>& get_sample_weights() const;
 
 private:
-  bool sample_with_replacement;
   std::vector<double> sample_weights;
 };
 

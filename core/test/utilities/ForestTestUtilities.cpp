@@ -35,9 +35,8 @@ ForestOptions ForestTestUtilities::default_options(bool honesty,
   uint min_node_size = 1;
   double alpha = 0.0;
   double imbalance_penalty = 0.0;
-  bool sample_with_replacement = true;
   double sample_fraction = ci_group_size > 1 ? 0.35 : 0.7;
 
   return ForestOptions(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-                       honesty, alpha, imbalance_penalty, sample_with_replacement, num_threads, seed);
+                       honesty, alpha, imbalance_penalty, num_threads, seed);
 }

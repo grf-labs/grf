@@ -29,19 +29,14 @@ RandomSampler::RandomSampler(uint seed,
 void RandomSampler::sample(size_t num_samples,
                            double sample_fraction,
                            std::vector<size_t>& samples) {
-  bool sample_with_replacement = options.get_sample_with_replacement();
+  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
   if (options.get_sample_weights().empty()) {
-    if (sample_with_replacement) {
-      bootstrap(num_samples, sample_fraction, samples);
-    } else {
-      bootstrap_without_replacement(num_samples, sample_fraction, samples);
-    }
+    shuffle_and_split(samples, num_samples, num_samples_inbag);
   } else {
-    if (sample_with_replacement) {
-      bootstrap_weighted(num_samples, sample_fraction, samples);
-    } else {
-      bootstrap_without_replacement_weighted(num_samples, sample_fraction, samples);
-    }
+    draw_weighted(samples,
+                  num_samples - 1,
+                  num_samples_inbag,
+                  options.get_sample_weights());
   }
 }
 
@@ -77,58 +72,6 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
             oob_samples.begin());
 }
 
-void RandomSampler::bootstrap(size_t num_samples,
-                              double sample_fraction,
-                              std::vector<size_t>& samples) {
-
-  // Reserve space, reserve a little more to be safe
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-  samples.reserve(num_samples_inbag);
-
-  std::uniform_int_distribution<size_t> unif_dist(0, num_samples - 1);
-
-  // Draw num_samples samples with replacement (num_samples_inbag out of n) as inbag and mark as not OOB
-  for (size_t s = 0; s < num_samples_inbag; ++s) {
-    size_t draw = unif_dist(random_number_generator);
-    samples.push_back(draw);
-  }
-}
-
-void RandomSampler::bootstrap_weighted(size_t num_samples,
-                                       double sample_fraction,
-                                       std::vector<size_t>& samples) {
-  const std::vector<double>& sample_weights = options.get_sample_weights();
-
-  // Reserve space, reserve a little more to be save)
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-  samples.reserve(num_samples_inbag);
-
-  std::discrete_distribution<> weighted_dist(sample_weights.begin(), sample_weights.end());
-
-  // Draw num_samples samples with replacement (n out of n) as inbag and mark as not OOB
-  for (size_t s = 0; s < num_samples_inbag; ++s) {
-    size_t draw = weighted_dist(random_number_generator);
-    samples.push_back(draw);
-  }
-}
-
-void RandomSampler::bootstrap_without_replacement(size_t num_samples,
-                                                  double sample_fraction,
-                                                  std::vector<size_t>& samples) {
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-  shuffle_and_split(samples, num_samples, num_samples_inbag);
-}
-
-void RandomSampler::bootstrap_without_replacement_weighted(size_t num_samples,
-                                                           double sample_fraction,
-                                                           std::vector<size_t>& samples) {
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-  draw_without_replacement_weighted(samples,
-                                    num_samples - 1,
-                                    num_samples_inbag,
-                                    options.get_sample_weights());
-}
-
 void RandomSampler::shuffle_and_split(std::vector<size_t> &samples,
                                       size_t n_all,
                                       size_t size) {
@@ -141,21 +84,21 @@ void RandomSampler::shuffle_and_split(std::vector<size_t> &samples,
   samples.resize(size);
 }
 
-void RandomSampler::draw_without_replacement_skip(std::vector<size_t>& result,
-                                                  size_t max,
-                                                  const std::set<size_t>& skip,
-                                                  size_t num_samples) {
+void RandomSampler::draw(std::vector<size_t>& result,
+                         size_t max,
+                         const std::set<size_t>& skip,
+                         size_t num_samples) {
   if (num_samples < max / 2) {
-    draw_without_replacement(result, max, skip, num_samples);
+    draw_simple(result, max, skip, num_samples);
   } else {
-    draw_without_replacement_knuth(result, max, skip, num_samples);
+    draw_knuth(result, max, skip, num_samples);
   }
 }
 
-void RandomSampler::draw_without_replacement(std::vector<size_t>& result,
-                                             size_t max,
-                                             const std::set<size_t>& skip,
-                                             size_t num_samples) {
+void RandomSampler::draw_simple(std::vector<size_t>& result,
+                                size_t max,
+                                const std::set<size_t>& skip,
+                                size_t num_samples) {
   result.reserve(num_samples);
 
   // Set all to not selected
@@ -178,10 +121,10 @@ void RandomSampler::draw_without_replacement(std::vector<size_t>& result,
   }
 }
 
-void RandomSampler::draw_without_replacement_knuth(std::vector<size_t>& result,
-                                                   size_t max,
-                                                   const std::set<size_t>& skip,
-                                                   size_t num_samples) {
+void RandomSampler::draw_knuth(std::vector<size_t> &result,
+                               size_t max,
+                               const std::set<size_t> &skip,
+                               size_t num_samples) {
   size_t size_no_skip = max - skip.size();
   result.resize(num_samples);
   double u;
@@ -210,36 +153,15 @@ void RandomSampler::draw_without_replacement_knuth(std::vector<size_t>& result,
   }
 }
 
-void RandomSampler::draw_without_replacement_weighted(std::vector<size_t>& result,
-                                                      const std::vector<size_t>& indices,
-                                                      size_t num_samples,
-                                                      const std::vector<double>& weights) {
+void RandomSampler::draw_weighted(std::vector<size_t>& result,
+                                  size_t max,
+                                  size_t num_samples,
+                                  const std::vector<double>& weights) {
   result.reserve(num_samples);
 
   // Set all to not selected
   std::vector<bool> temp;
-  temp.resize(indices.size(), false);
-
-  std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
-  for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
-    do {
-      draw = weighted_dist(random_number_generator);
-    } while (temp[draw]);
-    temp[draw] = true;
-    result.push_back(indices[draw]);
-  }
-}
-
-void RandomSampler::draw_without_replacement_weighted(std::vector<size_t>& result,
-                                                      size_t max_index,
-                                                      size_t num_samples,
-                                                      const std::vector<double>& weights) {
-  result.reserve(num_samples);
-
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(max_index + 1, false);
+  temp.resize(max + 1, false);
 
   std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
   for (size_t i = 0; i < num_samples; ++i) {

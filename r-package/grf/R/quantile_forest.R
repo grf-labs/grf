@@ -74,16 +74,14 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
     
-    sample.with.replacement <- FALSE
-    
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
 
     ci.group.size <- 1
     
     forest <- quantile_train(quantiles, regression.splitting, data$default, data$sparse,
-        outcome.index, mtry, num.trees, num.threads, min.node.size, sample.with.replacement,
-        sample.fraction, seed, honesty, ci.group.size, alpha, imbalance.penalty)
+        outcome.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed,
+        honesty, ci.group.size, alpha, imbalance.penalty)
     
     forest[["X.orig"]] <- X
     class(forest) <- c("quantile_forest", "grf")
