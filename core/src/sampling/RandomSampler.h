@@ -58,7 +58,7 @@ public:
                                      size_t num_samples);
 
   /**
-   * Draw random numebrs without replacement and with weighted probabilites from vector of indices.
+   * Draw random numbers without replacement and with weighted probabilites from vector of indices.
    * @param result Vector to add results to. Will not be cleaned before filling.
    * @param indices Vector with numbers to draw
    * @param num_samples Number of samples to draw
@@ -96,17 +96,9 @@ public:
   size_t sample_poisson(size_t mean);
 
 private:
-  void bootstrap(size_t num_samples,
-                 double sample_fraction,
-                 std::vector<size_t>& samples);
-
   void bootstrap_without_replacement(size_t num_samples,
                                      double sample_fraction,
                                      std::vector<size_t>& samples);
-
-  void bootstrap_weighted(size_t num_samples,
-                          double sample_fraction,
-                          std::vector<size_t>& samples);
 
   void bootstrap_without_replacement_weighted(size_t num_samples,
                                               double sample_fraction,
