@@ -55,7 +55,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
     std::vector<size_t> cluster_oob_subsample;
     sampler.subsample(samples, 0.5, cluster_subsample, cluster_oob_subsample);
     sampler.sample_from_clusters(cluster_subsample, nodes[0]);
-    sampler.get_oob_from_clusters(cluster_oob_subsample, new_leaf_samples);
+    sampler.sample_from_clusters(cluster_oob_subsample, new_leaf_samples);
   } else if (sampler.clustering_enabled()) {
     sampler.sample_from_clusters(samples, nodes[0]);
   } else if (options.get_honesty()) {
