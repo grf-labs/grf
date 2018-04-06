@@ -325,7 +325,7 @@ namespace Eigen {
         Scalar q = p*p + STi(1,0)*STi(0,1);
         if (q>=0) {
           Scalar z = sqrt(q);
-          // one QR-like iteration for ABi - lambda I
+          // one QR-like iteration for ABi - imbalance_penalty I
           // is enough - when we know exact eigenvalue in advance,
           // convergence is immediate
           JRs G;

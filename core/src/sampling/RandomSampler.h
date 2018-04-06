@@ -69,71 +69,30 @@ public:
   /**
    * Draw random numbers in a range without replacement and skip values.
    * @param result Vector to add results to. Will not be cleaned before filling.
-   * @param range_length Length of range. Interval to draw from: 0..max-1
+   * @param max Specifies the interval to draw from:  0 ... (max-1).
    * @param skip Values to skip
    * @param num_samples Number of samples to draw
    */
-  void draw_without_replacement_skip(std::vector<size_t>& result,
-                                     size_t range_length,
-                                     const std::set<size_t>& skip,
-                                     size_t num_samples);
-
-  /**
-   * Draw random numebrs without replacement and with weighted probabilites from vector of indices.
-   * @param result Vector to add results to. Will not be cleaned before filling.
-   * @param indices Vector with numbers to draw
-   * @param num_samples Number of samples to draw
-   * @param weights A weight for each element of indices
-   */
-  void draw_without_replacement_weighted(std::vector<size_t>& result,
-                                         const std::vector<size_t>& indices,
-                                         size_t num_samples,
-                                         const std::vector<double>& weights);
-
-  /**
-   * Draw random numbers without replacement and with weighted probabilites from vector of indices.
-   * @param result Vector to add results to. Will not be cleaned before filling.
-   * @param random_number_generator Random number generator
-   * @param indices Vector with numbers to draw
-   * @param num_samples Number of samples to draw
-   * @param weights A weight for each element of indices
-   */
-  void draw_without_replacement_weighted(std::vector<size_t>& result,
-                                         size_t max_index,
-                                         size_t num_samples,
-                                         const std::vector<double>& weights);
-
-  /**
-   * Create numbers from 0 to n_all-1, then shuffle and select the first 'size' elements.
-   *
-   * @param samples A list of first 'size'n_first shuffled numbers
-   * @param n_all Number elements
-   * @param size Number of elements of to select
-   */
-  void shuffle_and_split(std::vector<size_t>& samples,
-                         size_t n_all,
-                         size_t size);
+  void draw(std::vector<size_t>& result,
+            size_t max,
+            const std::set<size_t>& skip,
+            size_t num_samples);
 
   size_t sample_poisson(size_t mean);
 
   bool clustering_enabled() const;
 
 private:
-  void bootstrap(size_t num_samples,
-                 double sample_fraction,
-                 std::vector<size_t>& samples);
-
-  void bootstrap_without_replacement(size_t num_samples,
-                                     double sample_fraction,
-                                     std::vector<size_t>& samples);
-
-  void bootstrap_weighted(size_t num_samples,
-                          double sample_fraction,
-                          std::vector<size_t>& samples);
-
-  void bootstrap_without_replacement_weighted(size_t num_samples,
-                                              double sample_fraction,
-                                              std::vector<size_t>& samples);
+ /**
+  * Create numbers from 0 to n_all-1, then shuffle and select the first 'size' elements.
+  *
+  * @param samples A list of first 'size'n_first shuffled numbers
+  * @param n_all Number elements
+  * @param size Number of elements of to select
+  */
+  void shuffle_and_split(std::vector<size_t>& samples,
+                         size_t n_all,
+                         size_t size);
 
   /**
    * Simple algorithm for sampling without replacement, faster for smaller num_samples
@@ -142,23 +101,35 @@ private:
    * @param skip Values to skip
    * @param num_samples Number of samples to draw
    */
-  void draw_without_replacement(std::vector<size_t>& result,
-                                size_t max,
-                                const std::set<size_t>& skip,
-                                size_t num_samples);
+  void draw_simple(std::vector<size_t>& result,
+                   size_t max,
+                   const std::set<size_t>& skip,
+                   size_t num_samples);
+
+  /**
+  * Draw random numbers without replacement and with weighted probabilites from vector of indices.
+  * @param result Vector to add results to. Will not be cleaned before filling.
+  * @param max Specifies the interval to draw from:  0 ... (max-1).
+  * @param num_samples Number of samples to draw
+  * @param weights A weight for each element of indices
+  */
+  void draw_weighted(std::vector<size_t>& result,
+                     size_t max,
+                     size_t num_samples,
+                     const std::vector<double>& weights);
 
   /**
    * Knuth's algorithm for sampling without replacement, faster for larger num_samples
    * Idea from Knuth 1985, The Art of Computer Programming, Vol. 2, Sec. 3.4.2 Algorithm S
    * @param result Vector to add results to. Will not be cleaned before filling.
-   * @param range_length Length of range. Interval to draw from: 0..max-1
+   * @param max Specifies the interval to draw from:  0 ... (max-1).
    * @param skip Values to skip
    * @param num_samples Number of samples to draw
    */
-  void draw_without_replacement_knuth(std::vector<size_t>& result,
-                                      size_t max,
-                                      const std::set<size_t>& skip,
-                                      size_t num_samples);
+  void draw_knuth(std::vector<size_t>& result,
+                  size_t max,
+                  const std::set<size_t>& skip,
+                  size_t num_samples);
 
   SamplingOptions options;
   std::mt19937_64 random_number_generator;

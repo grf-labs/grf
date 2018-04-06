@@ -29,18 +29,33 @@ class TreeOptions {
 public:
   TreeOptions(uint mtry,
               uint min_node_size,
-              bool honesty);
+              bool honesty,
+              double alpha,
+              double imbalance_penalty);
 
   uint get_mtry() const;
   uint get_min_node_size() const;
   bool get_honesty() const;
 
-  void set_min_node_size(uint min_node_size);
+  /**
+   * The minimum fraction of samples that are allowed to be on either
+   * side of each tree split. Splits that are too uneven according to this
+   * parameter will not be considered.
+   */
+  double get_alpha() const;
+
+  /**
+   * A tuning parameter that controls how harshly imbalanced splits are penalized.
+   */
+  double get_imbalance_penalty() const;
 
 private:
   uint mtry;
   uint min_node_size;
   bool honesty;
+
+  double alpha;
+  double imbalance_penalty;
 };
 
 #endif //GRF_TREEOPTIONS_H

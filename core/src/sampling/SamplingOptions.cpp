@@ -20,13 +20,13 @@
 #include "commons/globals.h"
 
 SamplingOptions::SamplingOptions():
-    sample_with_replacement(false),
     sample_weights(0),
     samples_per_cluster(0),
     cluster_map(0) {}
 
-SamplingOptions::SamplingOptions(bool sample_with_replacement, uint samples_per_cluster, std::vector<uint>& clusters):
-        sample_with_replacement(sample_with_replacement),
+SamplingOptions::SamplingOptions(uint samples_per_cluster,
+                                 const std::vector<uint>& clusters):
+
         sample_weights(0),
         samples_per_cluster(samples_per_cluster) {
   // Create map containing all obs for each cluster. Saves on expense of having to recalculate many times in sampler
@@ -36,13 +36,10 @@ SamplingOptions::SamplingOptions(bool sample_with_replacement, uint samples_per_
   }
 }
 
-bool SamplingOptions::get_sample_with_replacement() const {
-  return sample_with_replacement;
-}
-
 const std::vector<double>& SamplingOptions::get_sample_weights() const {
   return sample_weights;
 }
+
 
 unsigned int SamplingOptions::get_samples_per_cluster() const {
   return samples_per_cluster;
@@ -59,3 +56,4 @@ bool SamplingOptions::clustering_enabled() const {
 size_t SamplingOptions::get_num_clusters() const {
   return cluster_map.size();
 }
+

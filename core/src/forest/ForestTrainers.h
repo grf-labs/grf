@@ -25,29 +25,14 @@ public:
   static ForestTrainer instrumental_trainer(size_t outcome_index,
                                             size_t treatment_index,
                                             size_t instrument_index,
-                                            double split_regularization,
-                                            double alpha);
+                                            double reduced_form_weight);
 
   static ForestTrainer quantile_trainer(size_t outcome_index,
-                                        const std::vector<double>& quantiles,
-                                        double alpha);
+                                        const std::vector<double>& quantiles);
 
-  static ForestTrainer regression_trainer(size_t outcome_index,
-                                          double alpha);
+  static ForestTrainer regression_trainer(size_t outcome_index);
 
-  static ForestTrainer custom_trainer(size_t outcome_index,
-                                      double alpha);
-
-  static ForestTrainer regularized_regression_trainer(size_t outcome_index,
-                                                      double lambda,
-                                                      bool downweight_penalty);
-
-  static ForestTrainer regularized_instrumental_trainer(size_t outcome_index,
-                                                        size_t treatment_index,
-                                                        size_t instrument_index,
-                                                        double split_regularization,
-                                                        double lambda,
-                                                        bool downweight_penalty);
+  static ForestTrainer custom_trainer(size_t outcome_index);
 };
 
 

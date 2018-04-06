@@ -25,7 +25,9 @@
 
 class RegressionSplittingRule: public SplittingRule {
 public:
-  RegressionSplittingRule(Data* data, double alpha);
+  RegressionSplittingRule(Data* data,
+                          double alpha,
+                          double imbalance_penalty);
 
   ~RegressionSplittingRule();
 
@@ -40,18 +42,18 @@ private:
   virtual void find_best_split_value_small_q(size_t node,
                                              size_t var,
                                              double sum_node,
-                                             size_t num_samples_node,
-                                             size_t min_child_samples,
+                                             size_t size_node,
+                                             size_t min_child_size,
                                              double& best_value,
                                              size_t& best_var,
                                              double& best_decrease,
-                                             const std::unordered_map<size_t, double>& responses_by_sample,
+                                             const std::unordered_map<size_t, double>& labels_by_sample,
                                              const std::vector<std::vector<size_t>>& samples);
   virtual void find_best_split_value_large_q(size_t node,
                                              size_t var,
                                              double sum_node,
-                                             size_t num_samples_node,
-                                             size_t min_child_samples,
+                                             size_t size_node,
+                                             size_t min_child_size,
                                              double& best_value,
                                              size_t& best_var,
                                              double& best_decrease,
@@ -61,7 +63,9 @@ private:
   Data* data;
   size_t* counter;
   double* sums;
+
   double alpha;
+  double imbalance_penalty;
 
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRule);
 };

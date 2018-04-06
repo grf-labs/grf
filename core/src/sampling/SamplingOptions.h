@@ -28,9 +28,9 @@
 class SamplingOptions {
 public:
   SamplingOptions();
-  SamplingOptions(bool sample_with_replacement, uint samples_per_cluster, std::vector<uint>& clusters);
+  SamplingOptions(uint samples_per_cluster,
+                  const std::vector<uint>& clusters);
 
-  bool get_sample_with_replacement() const;
   const std::vector<double>& get_sample_weights() const;
 
   bool clustering_enabled() const;
@@ -39,7 +39,6 @@ public:
   size_t get_num_clusters() const;
 
 private:
-  bool sample_with_replacement;
   std::vector<double> sample_weights;
   uint samples_per_cluster;
   std::unordered_map<uint, std::vector<size_t>> cluster_map;

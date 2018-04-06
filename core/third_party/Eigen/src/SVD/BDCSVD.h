@@ -399,7 +399,7 @@ void BDCSVD<MatrixType>::divide (Index firstCol, Index lastCol, Index firstRowW,
   RealScalar alphaK;
   RealScalar betaK; 
   RealScalar r0; 
-  RealScalar lambda, phi, c0, s0;
+  RealScalar imbalance_penalty, phi, c0, s0;
   VectorType l, f;
   // We use the other algorithm which is more efficient for small 
   // matrices.
@@ -430,15 +430,15 @@ void BDCSVD<MatrixType>::divide (Index firstCol, Index lastCol, Index firstRowW,
 
   if (m_compU)
   {
-    lambda = m_naiveU(firstCol + k, firstCol + k);
+    imbalance_penalty = m_naiveU(firstCol + k, firstCol + k);
     phi = m_naiveU(firstCol + k + 1, lastCol + 1);
   } 
   else 
   {
-    lambda = m_naiveU(1, firstCol + k);
+    imbalance_penalty = m_naiveU(1, firstCol + k);
     phi = m_naiveU(0, lastCol + 1);
   }
-  r0 = sqrt((abs(alphaK * lambda) * abs(alphaK * lambda)) + abs(betaK * phi) * abs(betaK * phi));
+  r0 = sqrt((abs(alphaK * imbalance_penalty) * abs(alphaK * imbalance_penalty)) + abs(betaK * phi) * abs(betaK * phi));
   if (m_compU)
   {
     l = m_naiveU.row(firstCol + k).segment(firstCol, k);
@@ -457,7 +457,7 @@ void BDCSVD<MatrixType>::divide (Index firstCol, Index lastCol, Index firstRowW,
   }
   else
   {
-    c0 = alphaK * lambda / r0;
+    c0 = alphaK * imbalance_penalty / r0;
     s0 = betaK * phi / r0;
   }
   

@@ -17,29 +17,24 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             unsigned int num_trees,
                             unsigned int num_threads,
                             unsigned int min_node_size,
-                            bool sample_with_replacement,
                             double sample_fraction,
                             unsigned int seed,
                             bool honesty,
                             unsigned int ci_group_size,
                             double alpha,
-                            double lambda,
-                            bool downweight_penalty,
+                            double imbalance_penalty,
                             std::vector<uint> clusters,
                             unsigned int samples_per_cluster) {
-  ForestTrainer trainer = lambda > 0
-      ? ForestTrainers::regularized_regression_trainer(outcome_index - 1, lambda, downweight_penalty)
-      : ForestTrainers::regression_trainer(outcome_index - 1, alpha);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index - 1);
 
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-                        honesty, sample_with_replacement, num_threads, seed, clusters,
-                        samples_per_cluster);
+      honesty, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
 
   Forest forest = trainer.train(data, options);
 
   Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
-  result.push_back(options.get_min_node_size(), "min.node.size");
+  result.push_back(options.get_tree_options().get_min_node_size(), "min.node.size");
 
   delete data;
   return result;

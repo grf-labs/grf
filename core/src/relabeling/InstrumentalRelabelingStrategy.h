@@ -28,7 +28,7 @@ class InstrumentalRelabelingStrategy: public RelabelingStrategy {
 public:
   InstrumentalRelabelingStrategy();
 
-  InstrumentalRelabelingStrategy(double split_regularization);
+  InstrumentalRelabelingStrategy(double reduced_form_weight);
 
   std::unordered_map<size_t, double> relabel(
       const std::vector<size_t>& samples,
@@ -37,7 +37,7 @@ public:
   DISALLOW_COPY_AND_ASSIGN(InstrumentalRelabelingStrategy);
 
 private:
-  double split_regularization;
+  double reduced_form_weight;
 };
 
 #endif //GRF_INSTRUMENTALRELABELINGSTRATEGY_H

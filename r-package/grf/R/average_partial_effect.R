@@ -1,10 +1,8 @@
 #' Estimate average partial effects using a causal forest
 #' 
-#' Gets estimates of the average partial effect,
-#' 
-#' The (conditional) average treatment effect (target.sample = all):
+#' Gets estimates of the average partial effect, in particular
+#' the (conditional) average treatment effect (target.sample = all):
 #'   1/n sum_{i = 1}^n Cov[Wi, Yi | X = Xi] / Var[Wi | X = Xi].
-#'
 #' Note that for a binary unconfounded treatment, the
 #' average partial effect matches the average treatment effect.
 #'

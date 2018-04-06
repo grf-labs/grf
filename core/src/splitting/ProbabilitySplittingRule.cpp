@@ -22,11 +22,14 @@
 #include "ProbabilitySplittingRule.h"
 
 ProbabilitySplittingRule::ProbabilitySplittingRule(Data* data,
+                                                   size_t num_classes,
                                                    double alpha,
-                                                   size_t num_classes) {
+                                                   double imbalance_penalty) {
   this->data = data;
-  this->alpha = alpha;
   this->num_classes = num_classes;
+
+  this->alpha = alpha;
+  this->imbalance_penalty = imbalance_penalty;
 
   size_t max_num_unique_values = data->get_max_num_unique_values();
   this->counter = new size_t[max_num_unique_values];
@@ -44,35 +47,36 @@ ProbabilitySplittingRule::~ProbabilitySplittingRule() {
 
 bool ProbabilitySplittingRule::find_best_split(size_t node,
                                                const std::vector<size_t>& possible_split_vars,
-                                               const std::unordered_map<size_t, double>& responses_by_sample,
+                                               const std::unordered_map<size_t, double>& labels_by_sample,
                                                const std::vector<std::vector<size_t>>& samples,
                                                std::vector<size_t>& split_vars,
                                                std::vector<double>& split_values) {
-  size_t num_samples_node = samples[node].size();
-  size_t min_child_samples = std::max<size_t>(std::ceil(num_samples_node * alpha), 1uL);
+  size_t size_node = samples[node].size();
+  size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
-  double best_decrease = -1;
-  size_t best_var = 0;
-  double best_value = 0;
-
+  //
   size_t* class_counts = new size_t[num_classes]();
-  // Compute overall class counts
-  for (size_t i = 0; i < num_samples_node; ++i) {
+  for (size_t i = 0; i < size_node; ++i) {
     size_t sample = samples[node][i];
-    uint sample_class = (uint) std::round(responses_by_sample.at(sample));
+    uint sample_class = (uint) std::round(labels_by_sample.at(sample));
     ++class_counts[sample_class];
   }
+
+  // Initialize the variables to track the best split variable.
+  size_t best_var = 0;
+  double best_value = 0;
+  double best_decrease = -1;
 
   // For all possible split variables
   for (size_t var : possible_split_vars) {
     // Use faster method for both cases
-    double q = (double) num_samples_node / (double) data->get_num_unique_data_values(var);
+    double q = (double) size_node / (double) data->get_num_unique_data_values(var);
     if (q < Q_THRESHOLD) {
-      find_best_split_value_small_q(node, var, num_classes, class_counts, num_samples_node, min_child_samples,
-                                    best_value, best_var, best_decrease, responses_by_sample, samples);
+      find_best_split_value_small_q(node, var, num_classes, class_counts, size_node, min_child_size,
+                                    best_value, best_var, best_decrease, labels_by_sample, samples);
     } else {
-      find_best_split_value_large_q(node, var, num_classes, class_counts, num_samples_node, min_child_samples,
-                                    best_value, best_var, best_decrease, responses_by_sample, samples);
+      find_best_split_value_large_q(node, var, num_classes, class_counts, size_node, min_child_size,
+                                    best_value, best_var, best_decrease, labels_by_sample, samples);
     }
   }
 
@@ -83,16 +87,18 @@ bool ProbabilitySplittingRule::find_best_split(size_t node,
     return true;
   }
 
+
   // Save best values
   split_vars[node] = best_var;
   split_values[node] = best_value;
   return false;
 }
 
-void ProbabilitySplittingRule::find_best_split_value_small_q(size_t node, size_t var, size_t num_classes,
+void ProbabilitySplittingRule::find_best_split_value_small_q(size_t node, size_t var,
+                                                             size_t num_classes,
                                                              size_t* class_counts,
-                                                             size_t num_samples_node,
-                                                             size_t min_child_samples,
+                                                             size_t size_node,
+                                                             size_t min_child_size,
                                                              double& best_value,
                                                              size_t& best_var,
                                                              double& best_decrease,
@@ -138,10 +144,15 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(size_t node, size_t
   // Compute decrease of impurity for each possible split
   for (size_t i = 0; i < num_splits; ++i) {
 
-    // Skip this split if one child is too small.
-    size_t n_left = num_samples_node - n_right[i];
-    if (n_left < min_child_samples || n_right[i] < min_child_samples) {
+    // Skip this split if the left child is too small.
+    size_t n_left = size_node - n_right[i];
+    if (n_left < min_child_size) {
       continue;
+    }
+
+    // Stop if the right child is too small.
+    if (n_right[i] < min_child_size) {
+      break;
     }
 
     // Sum of squares
@@ -158,6 +169,10 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(size_t node, size_t
     // Decrease of impurity
     double decrease = sum_left / (double) n_left + sum_right / (double) n_right[i];
 
+    // Penalize splits that are too close to the edges of the data.
+    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right[i]);
+    decrease -= penalty;
+
     // If better than before, use this
     if (decrease > best_decrease) {
       best_value = possible_split_values[i];
@@ -167,10 +182,11 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(size_t node, size_t
   }
 }
 
-void ProbabilitySplittingRule::find_best_split_value_large_q(size_t node, size_t var, size_t num_classes,
+void ProbabilitySplittingRule::find_best_split_value_large_q(size_t node, size_t var,
+                                                             size_t num_classes,
                                                              size_t* class_counts,
-                                                             size_t num_samples_node,
-                                                             size_t min_child_samples,
+                                                             size_t size_node,
+                                                             size_t min_child_size,
                                                              double& best_value,
                                                              size_t& best_var,
                                                              double& best_decrease,
@@ -203,8 +219,8 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(size_t node, size_t
     n_left += counter[i];
 
     // Stop if the right child is too small.
-    size_t n_right = num_samples_node - n_left;
-    if (n_right < min_child_samples) {
+    size_t n_right = size_node - n_left;
+    if (n_right < min_child_size) {
       break;
     }
 
@@ -220,12 +236,16 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(size_t node, size_t
     }
 
     // Skip to the next value if the left child is too small.
-    if (n_left < min_child_samples) {
+    if (n_left < min_child_size) {
         continue;
     }
 
     // Decrease of impurity
     double decrease = sum_right / (double) n_right + sum_left / (double) n_left;
+
+    // Penalize splits that are too close to the edges of the data.
+    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
+    decrease -= penalty;
 
     // If better than before, use this
     if (decrease > best_decrease) {

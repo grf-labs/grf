@@ -20,13 +20,17 @@
 
 #include <memory>
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
+#include "commons/Observations.h"
 #include "splitting/SplittingRule.h"
+#include "tree/TreeOptions.h"
 
 
 class SplittingRuleFactory {
 public:
-  virtual std::shared_ptr<SplittingRule> create(Data* data) = 0;
+  virtual std::shared_ptr<SplittingRule> create(Data* data,
+                                                const Observations& observations,
+                                                const TreeOptions& options) = 0;
 };
 
 #endif //GRF_SPLITTINGRULEFACTORY_H

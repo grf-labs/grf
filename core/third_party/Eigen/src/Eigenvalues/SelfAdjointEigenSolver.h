@@ -38,8 +38,8 @@ ComputationInfo computeFromTridiagonal_impl(DiagType& diag, SubDiagType& subdiag
   * A matrix \f$ A \f$ is selfadjoint if it equals its adjoint. For real
   * matrices, this means that the matrix is symmetric: it equals its
   * transpose. This class computes the eigenvalues and eigenvectors of a
-  * selfadjoint matrix. These are the scalars \f$ \lambda \f$ and vectors
-  * \f$ v \f$ such that \f$ Av = \lambda v \f$.  The eigenvalues of a
+  * selfadjoint matrix. These are the scalars \f$ \imbalance_penalty \f$ and vectors
+  * \f$ v \f$ such that \f$ Av = \imbalance_penalty v \f$.  The eigenvalues of a
   * selfadjoint matrix are always real. If \f$ D \f$ is a diagonal matrix with
   * the eigenvalues on the diagonal, and \f$ V \f$ is a matrix with the
   * eigenvectors as its columns, then \f$ A = V D V^{-1} \f$ (for selfadjoint
@@ -62,7 +62,7 @@ ComputationInfo computeFromTridiagonal_impl(DiagType& diag, SubDiagType& subdiag
   * The documentation for SelfAdjointEigenSolver(const MatrixType&, int)
   * contains an example of the typical use of this class.
   *
-  * To solve the \em generalized eigenvalue problem \f$ Av = \lambda Bv \f$ and
+  * To solve the \em generalized eigenvalue problem \f$ Av = \imbalance_penalty Bv \f$ and
   * the likes, see the class GeneralizedSelfAdjointEigenSolver.
   *
   * \sa MatrixBase::eigenvalues(), class EigenSolver, class ComplexEigenSolver
