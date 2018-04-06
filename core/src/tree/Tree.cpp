@@ -98,10 +98,6 @@ void Tree::set_leaf_samples(const std::vector<std::vector<size_t>>& leaf_samples
   this->leaf_samples = leaf_samples;
 }
 
-void Tree::set_drawn_samples(const std::vector<size_t>& drawn_samples) {
-  this->drawn_samples = drawn_samples;
-}
-
 void Tree::set_prediction_values(const PredictionValues& prediction_values) {
   this->prediction_values = prediction_values;
 }
