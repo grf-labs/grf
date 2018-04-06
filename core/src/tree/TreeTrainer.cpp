@@ -37,7 +37,7 @@ TreeTrainer::TreeTrainer(const std::unordered_map<size_t, size_t>& observables,
 std::shared_ptr<Tree> TreeTrainer::train(Data* data,
                                          const Observations& observations,
                                          RandomSampler& sampler,
-                                         const std::vector<size_t>& samples,
+                                         const std::vector<size_t>& clusters,
                                          const TreeOptions& options) const {
   std::vector<std::vector<size_t>> child_nodes;
   std::vector<std::vector<size_t>> nodes;
@@ -53,12 +53,12 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
   if (options.get_honesty()) {
     std::vector<size_t> tree_growing_clusters;
     std::vector<size_t> new_leaf_clusters;
-    sampler.subsample(samples, 0.5, tree_growing_clusters, new_leaf_clusters);
+    sampler.subsample(clusters, 0.5, tree_growing_clusters, new_leaf_clusters);
 
     sampler.sample_from_clusters(tree_growing_clusters, nodes[0]);
     sampler.sample_from_clusters(new_leaf_clusters, new_leaf_samples);
   } else {
-    sampler.sample_from_clusters(samples, nodes[0]);
+    sampler.sample_from_clusters(clusters, nodes[0]);
   }
 
   std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(
@@ -86,12 +86,15 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
     ++i;
   }
 
+  std::vector<size_t> drawn_samples;
+  sampler.get_samples_in_clusters(clusters, drawn_samples);
+
   auto tree = std::shared_ptr<Tree>(new Tree(0,
       child_nodes,
       nodes,
       split_vars,
       split_values,
-      std::vector<size_t>(),
+      drawn_samples,
       PredictionValues()));
 
   if (!new_leaf_samples.empty()) {

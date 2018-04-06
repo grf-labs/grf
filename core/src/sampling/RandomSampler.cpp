@@ -26,11 +26,11 @@ RandomSampler::RandomSampler(uint seed,
   random_number_generator.seed(seed);
 }
 
-void RandomSampler::sample_clusters(size_t total_samples,
+void RandomSampler::sample_clusters(size_t num_rows,
                                     double sample_fraction,
                                     std::vector<size_t>& samples) {
   if (options.get_clusters().empty()) {
-    sample(total_samples, sample_fraction, samples);
+    sample(num_rows, sample_fraction, samples);
   } else {
     size_t num_samples = options.get_clusters().size();
     sample(num_samples, sample_fraction, samples);
@@ -107,6 +107,18 @@ void RandomSampler::sample_from_clusters(const std::vector<size_t>& clusters,
       std::vector<size_t> subsamples;
       subsample_with_size(cluster_samples, options.get_samples_per_cluster(), subsamples);
       samples.insert(samples.end(), subsamples.begin(), subsamples.end());
+    }
+  }
+}
+
+void RandomSampler::get_samples_in_clusters(const std::vector<size_t>& clusters,
+                                            std::vector<size_t>& samples) {
+  if (options.get_clusters().empty()) {
+    samples = clusters;
+  } else {
+    for (size_t cluster : clusters) {
+      const std::vector<size_t>& cluster_samples = options.get_clusters().at(cluster);
+      samples.insert(samples.end(), cluster_samples.begin(), cluster_samples.end());
     }
   }
 }

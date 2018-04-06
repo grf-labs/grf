@@ -127,15 +127,9 @@ std::shared_ptr<Tree> ForestTrainer::train_tree(Data* data,
                                                 const Observations& observations,
                                                 RandomSampler& sampler,
                                                 const ForestOptions& options) const {
-  // Note that if clustering is enabled, the IDs returned correspond to
-  // cluster IDs as opposed to sample IDs.
-  std::vector<size_t> samples;
-  sampler.sample_clusters(data->get_num_rows(), options.get_sample_fraction(), samples);
-
-  std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
-                                                  sampler, samples, options.get_tree_options());
-  tree->set_drawn_samples(samples);
-  return tree;
+  std::vector<size_t> clusters;
+  sampler.sample_clusters(data->get_num_rows(), options.get_sample_fraction(), clusters);
+  return tree_trainer.train(data, observations, sampler, clusters, options.get_tree_options());
 }
 
 std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
@@ -144,19 +138,16 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(Data* data,
                                                                  const ForestOptions& options) const {
   std::vector<std::shared_ptr<Tree>> trees;
 
-  // Note that if clustering is enabled, the IDs returned correspond to
-  // cluster IDs as opposed to sample IDs.
-  std::vector<size_t> samples;
-  sampler.sample_clusters(data->get_num_rows(), 0.5, samples);
+  std::vector<size_t> clusters;
+  sampler.sample_clusters(data->get_num_rows(), 0.5, clusters);
 
   double sample_fraction = options.get_sample_fraction();
   for (size_t i = 0; i < options.get_ci_group_size(); ++i) {
-    std::vector<size_t> subsample;
-    sampler.subsample(samples, sample_fraction * 2, subsample);
+    std::vector<size_t> cluster_subsample;
+    sampler.subsample(clusters, sample_fraction * 2, cluster_subsample);
 
     std::shared_ptr<Tree> tree = tree_trainer.train(data, observations,
-        sampler, subsample, options.get_tree_options());
-    tree->set_drawn_samples(subsample);
+        sampler, cluster_subsample, options.get_tree_options());
     trees.push_back(tree);
   }
   return trees;

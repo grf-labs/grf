@@ -35,12 +35,39 @@ public:
                 const SamplingOptions& options);
 
   /**
-   * If sample clustering is enabled, sampling will work in terms of cluster IDs.
-   * Otherwise, IDs will represent individual samples, as usual.
+   * Samples some number of clusters, given the configuration in {@link SampleOptions}.
+   *
+   * If sample clustering is enabled, this method will return cluster IDs. Otherwise,
+   * the returned IDs represent individual sample IDs for efficiency. They should still
+   * be thought of as degenerate 'cluster IDs', and even if clustering is not enabled,
+   * these IDs can be passed to the other cluster methods below.
+   *
+   * @param num_rows The total number of rows in the input data.
+   * @param sample_fraction The fraction of clusters that should be in the sample.
+   * @param samples An empty vector, which this method will populate with the sampled cluster IDs.
    */
-  void sample_clusters(size_t total_samples,
+  void sample_clusters(size_t num_rows,
                        double sample_fraction,
                        std::vector<size_t>& samples);
+
+  /**
+   * If clustering is enabled, draws the appropriate number of samples from the provided
+   * cluster IDs. Otherwise, it is a no-op: we simply return the passed in 'cluster IDs',
+   * as they already represent individual sample IDs.
+   *
+   * Note that the number of samples drawn is configured through
+   * {@link SamplingOptions#get_samples_per_cluster}.
+   */
+  void sample_from_clusters(const std::vector<size_t>& clusters,
+                            std::vector<size_t>& samples);
+
+  /**
+   * If clustering is enabled, returns all samples in the givenclusters. Otherwise,
+   * Returns IDs from the provided cluster IDs. Otherwise, we return the passed-in
+   * 'cluster IDs', as they already represent individual sample IDs.
+   */
+  void get_samples_in_clusters(const std::vector<size_t>& clusters,
+                               std::vector<size_t>& samples);
 
   void sample(size_t num_samples,
               double sample_fraction,
@@ -58,17 +85,6 @@ public:
   void subsample_with_size(const std::vector<size_t>& samples,
                            size_t subsample_size,
                            std::vector<size_t>& subsamples);
-
-  /**
-   * Draws the appropriate number of IDs from the provided cluster IDs. Otherwise, it
-   * is a no-op: it simply returns the passed in 'cluster samples', as they already
-   * represent individual sample IDs.
-   *
-   * Note that the number of samples drawn is configured through
-   * {@link SamplingOptions#get_samples_per_cluster}.
-   */
-  void sample_from_clusters(const std::vector<size_t>& clusters,
-                            std::vector<size_t>& samples);
 
   /**
    * Draw random numbers in a range without replacement and skip values.

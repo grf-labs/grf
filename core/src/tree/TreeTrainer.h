@@ -38,7 +38,7 @@ public:
   std::shared_ptr<Tree> train(Data* data,
                               const Observations& observations,
                               RandomSampler& sampler,
-                              const std::vector<size_t>& samples,
+                              const std::vector<size_t>& clusters,
                               const TreeOptions& options) const;
 
 private:
