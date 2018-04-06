@@ -51,15 +51,14 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     seed <- validate_seed(seed)
     
     no.split.variables <- numeric(0)
-    sample.with.replacement <- FALSE
     
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
     ci.group.size <- 1
     
     forest <- custom_train(data$default, data$sparse, outcome.index, mtry,
-        num.trees, num.threads, min.node.size, sample.with.replacement,
-        sample.fraction, seed, honesty, ci.group.size, alpha, imbalance.penalty)
+        num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
+        ci.group.size, alpha, imbalance.penalty)
     
     forest[["X.orig"]] <- X
     class(forest) <- c("custom_forest", "grf")

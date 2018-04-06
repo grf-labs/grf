@@ -18,17 +18,12 @@
 #include "SamplingOptions.h"
 
 SamplingOptions::SamplingOptions():
-    sample_with_replacement(false),
     sample_weights(0) {}
 
-SamplingOptions::SamplingOptions(bool sample_with_replacement):
-    sample_with_replacement(sample_with_replacement),
+SamplingOptions::SamplingOptions(const std::vector<double>& sample_weights):
     sample_weights(0) {}
-
-bool SamplingOptions::get_sample_with_replacement() const {
-  return sample_with_replacement;
-}
 
 const std::vector<double>& SamplingOptions::get_sample_weights() const {
   return sample_weights;
 }
+
