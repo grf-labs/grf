@@ -29,19 +29,25 @@ class SamplingOptions {
 public:
   SamplingOptions();
   SamplingOptions(uint samples_per_cluster,
-                  const std::vector<uint>& clusters);
+                  const std::vector<size_t>& clusters);
 
   const std::vector<double>& get_sample_weights() const;
 
-  bool clustering_enabled() const;
+  /**
+   * A map from each cluster ID to the set of sample IDs it contains.
+   */
+  const std::vector<std::vector<size_t>>& get_clusters();
+
+  /**
+   * The number of samples that should be drawn from each cluster when
+   * training trees.
+   */
   uint get_samples_per_cluster() const;
-  std::unordered_map<uint, std::vector<size_t>>& get_cluster_map();
-  size_t get_num_clusters() const;
 
 private:
   std::vector<double> sample_weights;
-  uint samples_per_cluster;
-  std::unordered_map<uint, std::vector<size_t>> cluster_map;
+  uint num_samples_per_cluster;
+  std::vector<std::vector<size_t>> clusters;
 };
 
 #endif //GRF_SAMPLINGOPTIONS_H

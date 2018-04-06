@@ -28,12 +28,12 @@ ForestOptions::ForestOptions(uint num_trees,
                              double imbalance_penalty,
                              uint num_threads,
                              uint random_seed,
-                             std::vector<uint>& clusters,
+                             const std::vector<size_t>& sample_clusters,
                              uint samples_per_cluster):
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
     tree_options(mtry, min_node_size, honesty, alpha, imbalance_penalty),
-    sampling_options(samples_per_cluster, clusters) {
+    sampling_options(samples_per_cluster, sample_clusters) {
 
   this->num_threads = validate_num_threads(num_threads);
 

@@ -27,8 +27,8 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               double reduced_form_weight,
                               double alpha,
                               bool imbalance_penalty,
-                              std::vector<unsigned int> clusters,
-                              unsigned int samples_per_cluster) {
+                              std::vector<size_t> clusters,
+                              uint samples_per_cluster) {
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
       outcome_index - 1,
       treatment_index - 1,
