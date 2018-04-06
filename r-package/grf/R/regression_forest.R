@@ -60,15 +60,14 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     min.node.size <- validate_min_node_size(min.node.size)
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
-    
-    sample.with.replacement <- FALSE
+
 
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
 
-    forest <- regression_train(data$default, data$sparse, outcome.index, mtry, num.trees,
-        num.threads, min.node.size, sample.with.replacement, sample.fraction,
-        seed, honesty, ci.group.size, alpha, imbalance.penalty)
+    forest <- regression_train(data$default, data$sparse, outcome.index, mtry,
+        num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
+        ci.group.size, alpha, imbalance.penalty)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

@@ -29,19 +29,10 @@ RandomSampler::RandomSampler(uint seed,
 void RandomSampler::sample(size_t num_samples,
                            double sample_fraction,
                            std::vector<size_t>& samples) {
-  bool sample_with_replacement = options.get_sample_with_replacement();
   if (options.get_sample_weights().empty()) {
-    if (sample_with_replacement) {
-      bootstrap(num_samples, sample_fraction, samples);
-    } else {
       bootstrap_without_replacement(num_samples, sample_fraction, samples);
-    }
   } else {
-    if (sample_with_replacement) {
-      bootstrap_weighted(num_samples, sample_fraction, samples);
-    } else {
       bootstrap_without_replacement_weighted(num_samples, sample_fraction, samples);
-    }
   }
 }
 
@@ -75,41 +66,6 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
   std::copy(shuffled_sample.begin() + subsamples.size(),
             shuffled_sample.end(),
             oob_samples.begin());
-}
-
-void RandomSampler::bootstrap(size_t num_samples,
-                              double sample_fraction,
-                              std::vector<size_t>& samples) {
-
-  // Reserve space, reserve a little more to be safe
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-  samples.reserve(num_samples_inbag);
-
-  std::uniform_int_distribution<size_t> unif_dist(0, num_samples - 1);
-
-  // Draw num_samples samples with replacement (num_samples_inbag out of n) as inbag and mark as not OOB
-  for (size_t s = 0; s < num_samples_inbag; ++s) {
-    size_t draw = unif_dist(random_number_generator);
-    samples.push_back(draw);
-  }
-}
-
-void RandomSampler::bootstrap_weighted(size_t num_samples,
-                                       double sample_fraction,
-                                       std::vector<size_t>& samples) {
-  const std::vector<double>& sample_weights = options.get_sample_weights();
-
-  // Reserve space, reserve a little more to be save)
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-  samples.reserve(num_samples_inbag);
-
-  std::discrete_distribution<> weighted_dist(sample_weights.begin(), sample_weights.end());
-
-  // Draw num_samples samples with replacement (n out of n) as inbag and mark as not OOB
-  for (size_t s = 0; s < num_samples_inbag; ++s) {
-    size_t draw = weighted_dist(random_number_generator);
-    samples.push_back(draw);
-  }
 }
 
 void RandomSampler::bootstrap_without_replacement(size_t num_samples,

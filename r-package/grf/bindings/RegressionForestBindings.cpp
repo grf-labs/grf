@@ -17,7 +17,6 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             unsigned int num_trees,
                             unsigned int num_threads,
                             unsigned int min_node_size,
-                            bool sample_with_replacement,
                             double sample_fraction,
                             unsigned int seed,
                             bool honesty,
@@ -27,8 +26,8 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
   ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index - 1);
 
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
-  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-                        alpha, imbalance_penalty, sample_with_replacement, num_threads, seed);
+  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
+                        honesty, alpha, imbalance_penalty, num_threads, seed);
   
   Forest forest = trainer.train(data, options);
 
