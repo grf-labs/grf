@@ -94,7 +94,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   Data* data = load_data("test/forest/resources/causal_data.csv");
 
   double reduced_form_weight = 0.0;
-  bool stabilize_splits = false;
+  bool stabilize_splits = true;
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
       10, 11, 11, reduced_form_weight, stabilize_splits);

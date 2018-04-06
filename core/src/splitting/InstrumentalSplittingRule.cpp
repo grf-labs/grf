@@ -22,10 +22,12 @@
 
 InstrumentalSplittingRule::InstrumentalSplittingRule(Data* data,
                                                      const Observations& observations,
+                                                     uint min_node_size,
                                                      double alpha,
                                                      double imbalance_penalty):
     data(data),
     observations(observations),
+    min_node_size(min_node_size),
     alpha(alpha),
     lambda(imbalance_penalty) {
   size_t max_num_unique_values = data->get_max_num_unique_values();
@@ -33,6 +35,7 @@ InstrumentalSplittingRule::InstrumentalSplittingRule(Data* data,
   this->sums = new double[max_num_unique_values];
   this->sums_z = new double[max_num_unique_values];
   this->sums_z_squared = new double[max_num_unique_values];
+  this->num_small_z = new size_t[max_num_unique_values];
 }
 
 InstrumentalSplittingRule::~InstrumentalSplittingRule() {
@@ -48,6 +51,9 @@ InstrumentalSplittingRule::~InstrumentalSplittingRule() {
   if (sums_z_squared != 0) {
     delete[] sums_z_squared;
   }
+  if (num_small_z != 0) {
+    delete[] num_small_z;
+  }
 }
 
 bool InstrumentalSplittingRule::find_best_split(size_t node,
@@ -58,20 +64,29 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
                                                 std::vector<double>& split_values) {
   size_t num_samples = samples[node].size();
 
-  // Precompute the relevant sums for this node.
+  // Precompute relevant quantities for this node.
   double sum_node = 0.0;
   double sum_node_z = 0.0;
   double sum_node_z_squared = 0.0;
   for (auto& sample : samples[node]) {
     sum_node += labels_by_sample.at(sample);
 
-    double treatment = observations.get(Observations::TREATMENT, sample);
-    sum_node_z += treatment;
-    sum_node_z_squared += treatment * treatment;
+    double z = observations.get(Observations::INSTRUMENT, sample);
+    sum_node_z += z;
+    sum_node_z_squared += z * z;
   }
 
-  double size_node = sum_node_z_squared * sum_node_z_squared- sum_node_z * sum_node_z / (double) num_samples;
+  double size_node = sum_node_z_squared * sum_node_z_squared - sum_node_z * sum_node_z / (double) num_samples;
   double min_child_size = std::max<double>(size_node * alpha, 1.0);
+
+  double mean_z_node = sum_node_z / num_samples;
+  size_t num_node_small_z = 0;
+  for (auto& sample : samples[node]) {
+    double z = observations.get(Observations::INSTRUMENT, sample);
+    if (z < mean_z_node) {
+      num_node_small_z++;
+    }
+  }
 
   // Initialize the variables to track the best split variable.
   size_t best_var = 0;
@@ -82,13 +97,13 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
     // Use faster method for both cases
     double q = (double) num_samples / (double) data->get_num_unique_data_values(var);
     if (q < Q_THRESHOLD) {
-      find_best_split_value_small_q(node, var, num_samples, sum_node, sum_node_z, sum_node_z_squared,
-                                    min_child_size, best_value, best_var, best_decrease, labels_by_sample,
-                                    samples);
+      find_best_split_value_small_q(node, var, num_samples, sum_node, mean_z_node, num_node_small_z,
+                                    sum_node_z, sum_node_z_squared, min_child_size, best_value,
+                                    best_var, best_decrease, labels_by_sample, samples);
     } else {
-      find_best_split_value_large_q(node, var, num_samples, sum_node, sum_node_z, sum_node_z_squared,
-                                    min_child_size, best_value, best_var, best_decrease, labels_by_sample,
-                                    samples);
+      find_best_split_value_large_q(node, var, num_samples, sum_node, mean_z_node, num_node_small_z,
+                                    sum_node_z, sum_node_z_squared, min_child_size, best_value,
+                                    best_var, best_decrease, labels_by_sample, samples);
     }
   }
 
@@ -106,6 +121,8 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
 void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_t var,
                                                               size_t num_samples,
                                                               double sum_node,
+                                                              double mean_node_z,
+                                                              size_t num_node_small_z,
                                                               double sum_node_z,
                                                               double sum_node_z_squared,
                                                               double min_child_size,
@@ -127,29 +144,31 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
 
   // Initialize with 0m if not in memory efficient mode, use pre-allocated space
   size_t num_splits = possible_split_values.size();
-  double* sums_right;
-  size_t* n_right;
-  sums_right = sums;
-  n_right = counter;
+  double* sums_right = sums;
+  size_t* n_right = counter;
 
   std::fill(sums_right, sums_right + num_splits, 0);
   std::fill(n_right, n_right + num_splits, 0);
   std::fill(sums_z, sums_z + num_splits, 0);
   std::fill(sums_z_squared, sums_z_squared + num_splits, 0);
+  std::fill(num_small_z, num_small_z + num_splits, 0);
 
   // Sum in right child and possible split
   for (auto& sample : samples[node]) {
     double value = data->get(sample, var);
     double label = labels_by_sample.at(sample);
-    double treatment = observations.get(Observations::TREATMENT, sample);
+    double z = observations.get(Observations::INSTRUMENT, sample);
 
     // Count samples until split_value reached
     for (size_t i = 0; i < num_splits; ++i) {
       if (value > possible_split_values[i]) {
         ++n_right[i];
         sums_right[i] += label;
-        sums_z[i] += treatment;
-        sums_z_squared[i] += treatment * treatment;
+        sums_z[i] += z;
+        sums_z_squared[i] += z * z;
+        if (z < mean_node_z) {
+          ++num_small_z[i];
+        }
       } else {
         break;
       }
@@ -160,25 +179,41 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
   for (size_t i = 0; i < num_splits; ++i) {
     size_t n_left = num_samples - n_right[i];
 
-    // Calculate the relevant sums.
+    // Stop if the right child does not contain enough z
+    // values below and above the parent's mean.
+    size_t num_right_small_z = num_small_z[i];
+    size_t num_right_large_z = n_right[i] - num_right_small_z;
+    if (num_right_small_z < min_node_size || num_right_large_z < min_node_size) {
+      break;
+    }
+
+    // Skip this split if the left child does not contain enough
+    // z values below and above the parent's mean.
+    size_t num_left_small_z = num_node_small_z - num_right_small_z;
+    size_t num_left_large_z = n_left - num_left_small_z;
+    if (num_left_small_z < min_node_size || num_left_large_z < min_node_size) {
+      continue;
+    }
+
+    // Calculate sums for the right child.
     double sum_right = sums_right[i];
     double sum_right_z = sums_z[i];
     double sum_right_z_squared = sums_z_squared[i];
     double size_right = sum_right_z_squared * sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right[i];
 
-    // Stop if the right child is too small.
-    if (size_right < min_child_size) {
-      break;
+    // Skip this split if the right child's variance is too small.
+    if (size_right < min_child_size || (lambda > 0.0 && size_right == 0)) {
+      continue;
     }
 
-    // Calculate more relevant sums.
+    // Calculate sums for the left child.
     double sum_left = sum_node - sum_right;
     double sum_left_z = sum_node_z - sum_right_z;
     double sum_left_z_squared = sum_node_z_squared - sum_right_z_squared;
     double size_left = sum_left_z_squared * sum_left_z_squared - sum_left_z * sum_left_z / (double) n_left;
 
-    // Skip this split if the left child is too small.
-    if (size_left < min_child_size) {
+    // Skip this split if the left child's variance is too small.
+    if (size_left < min_child_size || (lambda > 0.0 && size_left == 0)) {
       continue;
     }
 
@@ -199,6 +234,8 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
                                                               size_t var,
                                                               size_t num_samples,
                                                               double sum_node,
+                                                              double mean_node_z,
+                                                              size_t num_node_small_z,
                                                               double sum_node_z,
                                                               double sum_node_z_squared,
                                                               double min_child_size,
@@ -213,47 +250,68 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
   std::fill(sums, sums + num_unique, 0);
   std::fill(sums_z, sums_z + num_unique, 0);
   std::fill(sums_z_squared, sums_z_squared + num_unique, 0);
+  std::fill(num_small_z, num_small_z + num_unique, 0);
 
   for (auto& sample : samples[node]) {
-    size_t index = data->get_index(sample, var);
-    double treatment = observations.get(Observations::TREATMENT, sample);
+    size_t i = data->get_index(sample, var);
+    double z = observations.get(Observations::INSTRUMENT, sample);
 
-    sums[index] += responses_by_sample.at(sample);
-    ++counter[index];
+    sums[i] += responses_by_sample.at(sample);
+    ++counter[i];
 
-    sums_z[index] += treatment;
-    sums_z_squared[index] += treatment * treatment;
+    sums_z[i] += z;
+    sums_z_squared[i] += z * z;
+    if (z < mean_node_z) {
+      ++num_small_z[i];
+    }
   }
 
   size_t n_left = 0;
   double sum_left = 0;
   double sum_left_z = 0.0;
   double sum_left_z_squared = 0.0;
+  size_t num_left_small_z = 0;
 
   // Compute decrease of impurity for each possible split.
   for (size_t i = 0; i < num_unique - 1; ++i) {
-
-    // Calculate the relevant sums.
     n_left += counter[i];
+    num_left_small_z += num_small_z[i];
+    size_t n_right = num_samples - n_left;
+
+    // Skip this split if the left child does not contain enough
+    // z values below and above the parent's mean.
+    size_t num_left_large_z = n_left - num_left_small_z;
+    if (num_left_small_z < min_node_size || num_left_large_z < min_node_size) {
+      continue;
+    }
+
+    // Stop if the right child does not contain enough z values below
+    // and above the parent's mean.
+    size_t num_right_small_z = num_small_z[i];
+    size_t num_right_large_z = num_node_small_z - num_left_small_z;
+    if (num_right_small_z < min_node_size || num_right_large_z < min_node_size) {
+      break;
+    }
+
+    // Calculate sums for the left child.
     sum_left += sums[i];
     sum_left_z += sums_z[i];
     sum_left_z_squared += sums_z_squared[i];
     double size_left = sum_left_z_squared * sum_left_z_squared - sum_left_z * sum_left_z / (double) n_left;
 
-    // Skip to the next value if the left child is too small.
-    if (size_left < min_child_size) {
+    // Skip this split if the left child's variance is too small.
+    if (size_left < min_child_size || (lambda > 0.0 && size_left == 0)) {
       continue;
     }
 
-    // Calculate more relevant sums.
-    size_t n_right = num_samples - n_left;
+    // Calculate sums for the right child.
     double sum_right_z_squared = sum_node_z_squared - sum_left_z_squared;
     double sum_right_z = sum_node_z - sum_left_z;
     double size_right = sum_right_z_squared * sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right;
 
-    // Stop if the right child is too small.
+    // Skip this split if the right child's variance is too small.
     if (size_right < min_child_size || (lambda > 0.0 && size_right == 0)) {
-      break;
+      continue;
     }
 
     // Calculate the decrease in impurity.

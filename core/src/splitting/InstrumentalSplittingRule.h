@@ -27,6 +27,7 @@ class InstrumentalSplittingRule: public SplittingRule {
 public:
   InstrumentalSplittingRule(Data* data,
                             const Observations& observations,
+                            uint min_node_size,
                             double alpha,
                             double imbalance_penalty);
   ~InstrumentalSplittingRule();
@@ -43,6 +44,8 @@ private:
                                      size_t var,
                                      size_t num_samples,
                                      double sum_node,
+                                     double mean_node_z,
+                                     size_t num_node_small_z,
                                      double sum_node_w,
                                      double sum_node_w_squared,
                                      double min_child_size,
@@ -55,6 +58,8 @@ private:
                                      size_t var,
                                      size_t num_samples,
                                      double sum_node,
+                                     double mean_node_z,
+                                     size_t num_node_small_z,
                                      double sum_node_w,
                                      double sum_node_w_squared,
                                      double min_child_size,
@@ -71,10 +76,11 @@ private:
   double* sums_z;
   double* sums_z_squared;
   double* sums;
+  size_t* num_small_z;
 
+  uint min_node_size;
   double alpha;
   double lambda;
-  SplitPenalty split_penalty;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalSplittingRule);
 };
