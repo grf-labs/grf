@@ -44,7 +44,7 @@ TEST_CASE("Draw without replacement 1", "[drawWithoutReplacement]") {
 
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    sampler.draw_without_replacement_skip(result, max + 1, skip, num_samples);
+    sampler.draw(result, max + 1, skip, num_samples);
     for (auto& idx : result) {
       ++counts[idx];
     }
@@ -75,7 +75,7 @@ TEST_CASE("Draw without replacement 2", "[drawWithoutReplacement]") {
 
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    sampler.draw_without_replacement_skip(result, max + 1, skip, num_samples);
+    sampler.draw(result, max + 1, skip, num_samples);
     for (auto& idx : result) {
       ++counts[idx];
     }
@@ -106,7 +106,7 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
 
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    sampler.draw_without_replacement_skip(result, max + 1, skip, num_samples);
+    sampler.draw(result, max + 1, skip, num_samples);
     for (auto& idx : result) {
       ++counts[idx];
     }
@@ -137,7 +137,7 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
 
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    sampler.draw_without_replacement_skip(result, max + 1, skip, num_samples);
+    sampler.draw(result, max + 1, skip, num_samples);
     for (auto& idx : result) {
       ++counts[idx];
     }
@@ -168,7 +168,7 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
 
   for (size_t i = 0; i < num_replicates; ++i) {
     result.clear();
-    sampler.draw_without_replacement_skip(result, max + 1, skip, num_samples);
+    sampler.draw(result, max + 1, skip, num_samples);
     for (auto& idx : result) {
       ++counts[idx];
     }
@@ -182,55 +182,3 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   REQUIRE(0 == counts[*skip.begin()]);
 }
 
-
-TEST_CASE("Shuffle and split 1", "[shuffleAndSplit]") {
-  std::random_device random_device;
-
-  SamplingOptions sampling_options;
-  RandomSampler sampler(random_device(), sampling_options);
-
-  std::vector<size_t> samples;
-
-  sampler.shuffle_and_split(samples, 10, 3);
-
-  REQUIRE(3 == samples.size());
-}
-
-TEST_CASE("Shuffle and split 2", "[shuffleAndSplit]") {
-  std::random_device random_device;
-
-  SamplingOptions sampling_options;
-  RandomSampler sampler(random_device(), sampling_options);
-
-  std::vector<size_t> samples;
-
-  sampler.shuffle_and_split(samples, 100, 63);
-
-  REQUIRE(63 == samples.size());
-}
-
-TEST_CASE("Shuffle and split 3", "[shuffleAndSplit]") {
-  std::random_device random_device;
-
-  SamplingOptions sampling_options;
-  RandomSampler sampler(random_device(), sampling_options);
-
-  std::vector<size_t> samples;
-
-  sampler.shuffle_and_split(samples, 1, 1);
-
-  REQUIRE(1 == samples.size());
-}
-
-TEST_CASE("Shuffle and split 4", "[shuffleAndSplit]") {
-  std::random_device random_device;
-
-  SamplingOptions sampling_options;
-  RandomSampler sampler(random_device(), sampling_options);
-  
-  std::vector<size_t> samples;
-
-  sampler.shuffle_and_split(samples, 3, 0);
-
-  REQUIRE(0 == samples.size());
-}
