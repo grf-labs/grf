@@ -24,15 +24,16 @@ ForestOptions::ForestOptions(uint num_trees,
                              uint mtry,
                              uint min_node_size,
                              bool honesty,
-                             bool sample_with_replacement,
+                             double alpha,
+                             double imbalance_penalty,
                              uint num_threads,
                              uint random_seed,
                              std::vector<uint>& clusters,
                              uint samples_per_cluster):
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
-    tree_options(mtry, min_node_size, honesty),
-    sampling_options(sample_with_replacement, samples_per_cluster, clusters) {
+    tree_options(mtry, min_node_size, honesty, alpha, imbalance_penalty),
+    sampling_options(samples_per_cluster, clusters) {
 
   this->num_threads = validate_num_threads(num_threads);
 
@@ -79,14 +80,6 @@ uint ForestOptions::get_num_threads() const {
 
 uint ForestOptions::get_random_seed() const {
   return random_seed;
-}
-
-uint ForestOptions::get_min_node_size() const {
-  return tree_options.get_min_node_size();
-}
-
-void ForestOptions::set_min_node_size(uint min_node_size) {
-  return tree_options.set_min_node_size(min_node_size);
 }
 
 uint ForestOptions::validate_num_threads(uint num_threads) {

@@ -31,7 +31,8 @@ public:
                 uint mtry,
                 uint min_node_size,
                 bool honesty,
-                bool sample_with_replacement,
+                double alpha,
+                double imbalance_penalty,
                 uint num_threads,
                 uint random_seed,
                 std::vector<uint>& clusters,
@@ -48,12 +49,6 @@ public:
 
   uint get_num_threads() const;
   uint get_random_seed() const;
-
-  uint get_min_node_size() const;
-
-  // TODO(jtibs): check the C++ best practices on mutability, and perhaps
-  // replace this with an immutable factory method 'with_min_node_size'.
-  void set_min_node_size(uint min_node_size);
 
 private:
   uint num_trees;

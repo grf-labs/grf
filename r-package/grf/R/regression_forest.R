@@ -20,9 +20,8 @@
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
-#' @param alpha Maximum imbalance of a split.
-#' @param lambda A tuning parameter to control the amount of split regularization (experimental).
-#' @param downweight.penalty Whether or not the regularization penalty should be downweighted (experimental).
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
@@ -54,9 +53,8 @@
 #' @export
 regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
-                              honesty = TRUE, ci.group.size = 2, alpha = 0.05, lambda = 0.0,
-                              downweight.penalty = FALSE, seed = NULL,
-                              clusters = NULL, samples_per_cluster = NULL) {
+                              honesty = TRUE, ci.group.size = 2, alpha = 0.05, imbalance.penalty = 0.0,
+                              seed = NULL, clusters = NULL, samples_per_cluster = NULL) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     
@@ -65,17 +63,16 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     min.node.size <- validate_min_node_size(min.node.size)
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
+
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
-    
-    sample.with.replacement <- FALSE
 
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
 
-    forest <- regression_train(data$default, data$sparse, outcome.index, mtry, num.trees,
-        num.threads, min.node.size, sample.with.replacement, sample.fraction, seed, honesty,
-        ci.group.size, alpha, lambda, downweight.penalty, clusters, samples_per_cluster)
+    forest <- regression_train(data$default, data$sparse, outcome.index, mtry,
+        num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
+        ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

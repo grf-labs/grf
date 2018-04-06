@@ -20,10 +20,10 @@ Z = rnorm(n)
 W = A + Z
 Y = 2 * (X[,1] <= 0) * A + (X[,1] > 0) * W + (1 + (sqrt(3) - 1) * (X[,1] > 0)) * rnorm(n)
 
-forest.causal.split = instrumental_forest(X, Y, W, Z, min.node.size = 10, split.regularization = 1, mtry = p)
+forest.causal.split = instrumental_forest(X, Y, W, Z, min.node.size = 10, reduced.form.weight = 1, mtry = p)
 preds.causal.split = predict(forest.causal.split, X.test)$predictions
 
-forest.iv = instrumental_forest(X, Y, W, Z, min.node.size = 10, split.regularization = 0, mtry = p)
+forest.iv = instrumental_forest(X, Y, W, Z, min.node.size = 10, reduced.form.weight = 0, mtry = p)
 preds.iv = predict(forest.iv, X.test)$predictions
 
 pdf("IV_forest_causal_splitting.pdf")

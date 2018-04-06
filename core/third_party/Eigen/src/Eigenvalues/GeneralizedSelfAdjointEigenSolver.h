@@ -27,7 +27,7 @@ namespace Eigen {
   * class template.
   *
   * This class solves the generalized eigenvalue problem
-  * \f$ Av = \lambda Bv \f$. In this case, the matrix \f$ A \f$ should be
+  * \f$ Av = \imbalance_penalty Bv \f$. In this case, the matrix \f$ A \f$ should be
   * selfadjoint and the matrix \f$ B \f$ should be positive definite.
   *
   * Only the \b lower \b triangular \b part of the input matrix is referenced.
@@ -88,15 +88,15 @@ class GeneralizedSelfAdjointEigenSolver : public SelfAdjointEigenSolver<_MatrixT
       *
       * This constructor calls compute(const MatrixType&, const MatrixType&, int)
       * to compute the eigenvalues and (if requested) the eigenvectors of the
-      * generalized eigenproblem \f$ Ax = \lambda B x \f$ with \a matA the
+      * generalized eigenproblem \f$ Ax = \imbalance_penalty B x \f$ with \a matA the
       * selfadjoint matrix \f$ A \f$ and \a matB the positive definite matrix
       * \f$ B \f$. Each eigenvector \f$ x \f$ satisfies the property
       * \f$ x^* B x = 1 \f$. The eigenvectors are computed if
       * \a options contains ComputeEigenvectors.
       *
       * In addition, the two following variants can be solved via \p options:
-      * - \c ABx_lx: \f$ ABx = \lambda x \f$
-      * - \c BAx_lx: \f$ BAx = \lambda x \f$
+      * - \c ABx_lx: \f$ ABx = \imbalance_penalty x \f$
+      * - \c BAx_lx: \f$ BAx = \imbalance_penalty x \f$
       *
       * Example: \include SelfAdjointEigenSolver_SelfAdjointEigenSolver_MatrixType2.cpp
       * Output: \verbinclude SelfAdjointEigenSolver_SelfAdjointEigenSolver_MatrixType2.out
@@ -123,9 +123,9 @@ class GeneralizedSelfAdjointEigenSolver : public SelfAdjointEigenSolver<_MatrixT
       *
       * Accoring to \p options, this function computes eigenvalues and (if requested)
       * the eigenvectors of one of the following three generalized eigenproblems:
-      * - \c Ax_lBx: \f$ Ax = \lambda B x \f$
-      * - \c ABx_lx: \f$ ABx = \lambda x \f$
-      * - \c BAx_lx: \f$ BAx = \lambda x \f$
+      * - \c Ax_lBx: \f$ Ax = \imbalance_penalty B x \f$
+      * - \c ABx_lx: \f$ ABx = \imbalance_penalty x \f$
+      * - \c BAx_lx: \f$ BAx = \imbalance_penalty x \f$
       * with \a matA the selfadjoint matrix \f$ A \f$ and \a matB the positive definite
       * matrix \f$ B \f$.
       * In addition, each eigenvector \f$ x \f$ satisfies the property \f$ x^* B x = 1 \f$.
@@ -140,8 +140,8 @@ class GeneralizedSelfAdjointEigenSolver : public SelfAdjointEigenSolver<_MatrixT
       * of the selfadjoint matrix \f$ L^{-1} A (L^*)^{-1} \f$ if \p options contains Ax_lBx
       * and of \f$ L^{*} A L \f$ otherwise. This solves the
       * generalized eigenproblem, because any solution of the generalized
-      * eigenproblem \f$ Ax = \lambda B x \f$ corresponds to a solution
-      * \f$ L^{-1} A (L^*)^{-1} (L^* x) = \lambda (L^* x) \f$ of the
+      * eigenproblem \f$ Ax = \imbalance_penalty B x \f$ corresponds to a solution
+      * \f$ L^{-1} A (L^*)^{-1} (L^* x) = \imbalance_penalty (L^* x) \f$ of the
       * eigenproblem for \f$ L^{-1} A (L^*)^{-1} \f$. Similar statements
       * can be made for the two other variants.
       *
