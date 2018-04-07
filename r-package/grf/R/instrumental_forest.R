@@ -102,6 +102,8 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
+    forest[["clusters"]] <- clusters
+    
     class(forest) <- c("instrumental_forest", "grf")
     forest
 }

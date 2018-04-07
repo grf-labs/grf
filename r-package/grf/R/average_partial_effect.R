@@ -64,7 +64,15 @@ average_partial_effect = function(forest, calibrate.weights = TRUE) {
   cape.estimate = cape.plugin + cape.correction
   
   # Estimate variance using the calibration
-  cape.se = sqrt(mean((debiasing.weights * plugin.residual)^2) / length(forest$W.orig))
+  if (length(forest$clusters) == 0) {
+    cape.se = sqrt(mean((debiasing.weights * plugin.residual)^2) / length(forest$W.orig))
+  } else {
+    debiasing.clust = Matrix::sparse.model.matrix(
+      ~ factor(forest$clusters) + 0,
+      transpose = TRUE) %*% (debiasing.weights * plugin.residual)
+    cape.se = sqrt(sum(debiasing.clust^2) / length(forest$W.orig) /
+      (length(forest$W.orig) - 1))
+  }
   
   return(c(estimate=cape.estimate, std.err=cape.se))
 }
