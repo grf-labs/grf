@@ -76,6 +76,8 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
+    forest[["clusters"]] <- clusters
+    
     class(forest) <- c("regression_forest", "grf")
     forest
 }
