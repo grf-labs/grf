@@ -117,6 +117,7 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     forest[["W.orig"]] <- W
     forest[["Y.hat"]] <- Y.hat
     forest[["W.hat"]] <- W.hat
+    forest[["clusters"]] <- clusters
     
     class(forest) <- c("causal_forest", "grf")
     forest

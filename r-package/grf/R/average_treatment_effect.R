@@ -51,6 +51,7 @@ average_treatment_effect = function(forest,
 
   target.sample <- match.arg(target.sample)
   method <- match.arg(method)
+  cluster.se <- length(forest$clusters) > 0
   
   if (!("causal_forest" %in% class(forest))) {
     stop("Average effect estimation only implemented for causal_forest")
@@ -69,11 +70,17 @@ average_treatment_effect = function(forest,
   #
   
   if (target.sample == "overlap") {
-    W.residual = forest$W.orig - forest$W.hat
-    Y.residual = forest$Y.orig - forest$Y.hat
-    tau.ols = lm(Y.residual ~ W.residual)
+    W.residual <- forest$W.orig - forest$W.hat
+    Y.residual <- forest$Y.orig - forest$Y.hat
+    tau.ols <- lm(Y.residual ~ W.residual)
     tau.est <- coef(summary(tau.ols))[2,1]
-    tau.se <- coef(summary(tau.ols))[2,2]
+    
+    if (cluster.se) {
+      tau.se <- sqrt(sandwich::vcovCL(tau.ols, cluster = forest$clusters)[2,2])
+    } else {
+      tau.se <- sqrt(sandwich::vcovHC(tau.ols)[2,2])
+    }
+    
     return(c(estimate=tau.est, std.err=tau.se))
   }
   
@@ -153,7 +160,16 @@ average_treatment_effect = function(forest,
     dr.correction.all <- forest$W.orig * gamma * (forest$Y.orig - Y.hat.1) -
       (1 - forest$W.orig) * gamma * (forest$Y.orig - Y.hat.0)
     dr.correction <- mean(dr.correction.all)
-    sigma2.hat <- mean(dr.correction.all^2) / length(dr.correction.all)
+    
+    if (cluster.se) {
+      correction.clust <- Matrix::sparse.model.matrix(
+        ~ factor(forest$clusters) + 0,
+        transpose = TRUE) %*% dr.correction.all
+      sigma2.hat <- sum(correction.clust^2) / length(dr.correction.all) /
+        (length(dr.correction.all) - 1)
+    } else {
+      sigma2.hat <- mean(dr.correction.all^2) / (length(dr.correction.all) - 1)
+    }
     
   } else if (method == "TMLE") {
     
@@ -168,8 +184,15 @@ average_treatment_effect = function(forest,
       delta.tmle.robust.1 <- predict(eps.tmle.robust.1, newdata=data.frame(A=mean(1/forest$W.hat)))
       dr.correction <- delta.tmle.robust.1 - delta.tmle.robust.0
       # use robust SE
-      sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * mean(1/(1 - forest$W.hat))^2 +
-        sandwich::vcovHC(eps.tmle.robust.1) * mean(1/forest$W.hat)^2
+      if (cluster.se) {
+        sigma2.hat <- sandwich::vcovCL(eps.tmle.robust.0, cluster = forest$clusters[forest$W.orig==0]) *
+          mean(1/(1 - forest$W.hat))^2 +
+          sandwich::vcovCL(eps.tmle.robust.1, cluster = forest$clusters[forest$W.orig==1]) *
+          mean(1/forest$W.hat)^2
+      } else {
+        sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * mean(1/(1 - forest$W.hat))^2 +
+          sandwich::vcovHC(eps.tmle.robust.1) * mean(1/forest$W.hat)^2
+      }
     } else if (target.sample == "treated") {
       eps.tmle.robust.0 <-
         lm(B ~ A + 0,
@@ -179,8 +202,18 @@ average_treatment_effect = function(forest,
       delta.tmle.robust.0 <- predict(eps.tmle.robust.0,
                                      newdata=data.frame(A=new.center))
       dr.correction <- -delta.tmle.robust.0
-      sigma2.hat = sandwich::vcovHC(eps.tmle.robust.0) * new.center^2 +
-        var(forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1]) / sum(forest$W.orig==1)
+      if (cluster.se) {
+        s.0 <- sandwich::vcovCL(eps.tmle.robust.0, cluster = forest$clusters[forest$W.orig==0]) *
+          new.center^2
+        delta.1 <- Matrix::sparse.model.matrix(
+          ~ factor(forest$clusters[forest$W.orig==1]) + 0,
+          transpose = TRUE) %*% (forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1])
+        s.1 <- sum(delta.1^2) / sum(forest$W.orig==1) / (sum(forest$W.orig==1) - 1)
+        sigma2.hat <- s.0 + s.1
+      } else {
+        sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * new.center^2 +
+          var(forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1]) / sum(forest$W.orig==1)
+      }
     } else if (target.sample == "control") {
       eps.tmle.robust.1 <-
         lm(B ~ A + 0,
@@ -190,8 +223,18 @@ average_treatment_effect = function(forest,
       delta.tmle.robust.1 <- predict(eps.tmle.robust.1,
                                      newdata=data.frame(A=new.center))
       dr.correction <- delta.tmle.robust.1
-      sigma2.hat = var(forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0]) / sum(forest$W.orig==0) +
-        sandwich::vcovHC(eps.tmle.robust.1) * new.center^2
+      if (cluster.se) {
+        delta.0 <- Matrix::sparse.model.matrix(
+          ~ factor(forest$clusters[forest$W.orig==0]) + 0,
+          transpose = TRUE) %*% (forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0])
+        s.0 <- sum(delta.0^2) / sum(forest$W.orig==0) / (sum(forest$W.orig==0) - 1)
+        s.1 <- sandwich::vcovCL(eps.tmle.robust.1, cluster = forest$clusters[forest$W.orig==1]) *
+          new.center^2
+        sigma2.hat <- s.0 + s.1
+      } else {
+        sigma2.hat <- var(forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0]) / sum(forest$W.orig==0) +
+          sandwich::vcovHC(eps.tmle.robust.1) * new.center^2
+      }
     } else {
       stop("Invalid target sample.")
     }
