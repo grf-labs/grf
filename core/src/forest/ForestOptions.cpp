@@ -14,7 +14,6 @@
   You should have received a copy of the GNU General Public License
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
-
 #include <thread>
 #include <random>
 #include "forest/ForestOptions.h"
@@ -28,11 +27,13 @@ ForestOptions::ForestOptions(uint num_trees,
                              double alpha,
                              double imbalance_penalty,
                              uint num_threads,
-                             uint random_seed):
+                             uint random_seed,
+                             const std::vector<size_t>& sample_clusters,
+                             uint samples_per_cluster):
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
     tree_options(mtry, min_node_size, honesty, alpha, imbalance_penalty),
-    sampling_options() {
+    sampling_options(samples_per_cluster, sample_clusters) {
 
   this->num_threads = validate_num_threads(num_threads);
 

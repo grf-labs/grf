@@ -36,7 +36,9 @@ ForestOptions ForestTestUtilities::default_options(bool honesty,
   double alpha = 0.0;
   double imbalance_penalty = 0.0;
   double sample_fraction = ci_group_size > 1 ? 0.35 : 0.7;
+  std::vector<size_t> empty_clusters;
+  uint samples_per_cluster = 0;
 
-  return ForestOptions(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-                       honesty, alpha, imbalance_penalty, num_threads, seed);
+  return ForestOptions(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
+      alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
 }

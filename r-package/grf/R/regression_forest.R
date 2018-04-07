@@ -23,6 +23,10 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param seed The seed for the C++ random number generator.
+#' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
+#'                            software will set this value to the size of the smallest cluster.
 #'
 #' @return A trained regression forest object.
 #'
@@ -50,8 +54,7 @@
 regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                               honesty = TRUE, ci.group.size = 2, alpha = 0.05, imbalance.penalty = 0.0,
-                              seed = NULL) {
-    
+                              seed = NULL, clusters = NULL, samples_per_cluster = NULL) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     
@@ -61,13 +64,15 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     sample.fraction <- validate_sample_fraction(sample.fraction)
     seed <- validate_seed(seed)
 
+    clusters <- validate_clusters(clusters, X)
+    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
 
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
 
     forest <- regression_train(data$default, data$sparse, outcome.index, mtry,
         num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
-        ci.group.size, alpha, imbalance.penalty)
+        ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X

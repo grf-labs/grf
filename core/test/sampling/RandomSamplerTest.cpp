@@ -14,13 +14,13 @@
   You should have received a copy of the GNU General Public License
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
-
-#include <map>
-#include <unordered_set>
 #include <fstream>
+#include <map>
 #include <random>
+#include <unordered_set>
 
 #include "catch.hpp"
+#include "commons/DefaultData.h"
 #include "sampling/RandomSampler.h"
 
 size_t absolute_difference(size_t first, size_t second) {
@@ -95,7 +95,7 @@ TEST_CASE("Draw without replacement 3", "[drawWithoutReplacement]") {
   std::map<size_t, uint> counts;
 
   SamplingOptions sampling_options;
-  RandomSampler sampler(random_device(), sampling_options); 
+  RandomSampler sampler(random_device(), sampling_options);
 
   size_t max = 9;
   std::set<size_t> skip = {9};
@@ -182,3 +182,62 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
   REQUIRE(0 == counts[*skip.begin()]);
 }
 
+TEST_CASE("sample multilevel 1", "[sampleMultilevel]") {
+  std::random_device random_device;
+  DefaultData data(NULL, 0, 0);
+
+  uint samples_per_cluster = 3;
+  std::vector<size_t> clusters = {0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 2, 2, 2, 2, 0, 3, 3, 3, 2, 3};
+  size_t num_clusters = 4;
+
+  SamplingOptions sampling_options(samples_per_cluster, clusters);
+  RandomSampler sampler(random_device(), sampling_options);
+
+  std::vector<size_t> sampled_clusters;
+  sampler.sample_clusters(data.get_num_rows(), 0.5, sampled_clusters);
+
+  size_t expected_num_sampled_clusters = (size_t) std::ceil(0.5 * num_clusters);
+  REQUIRE(expected_num_sampled_clusters == sampled_clusters.size());
+
+  std::vector<size_t> subsampled_clusters;
+  std::vector<size_t> oob_subsampled_clusters;
+  sampler.subsample(sampled_clusters, 0.5, subsampled_clusters, oob_subsampled_clusters);
+
+  std::vector<size_t> samples;
+  std::vector<size_t> oob_samples;
+  sampler.sample_from_clusters(subsampled_clusters, samples);
+  sampler.sample_from_clusters(oob_subsampled_clusters, oob_samples);
+
+  std::unordered_set<size_t> samples_set(samples.begin(), samples.end());
+  std::unordered_set<size_t> oob_sample_set(oob_samples.begin(), oob_samples.end());
+  size_t expected_num_subsampled_clusters = (size_t) std::ceil(.5 * expected_num_sampled_clusters);
+  size_t expected_sample_size = expected_num_subsampled_clusters * samples_per_cluster;
+
+  // Check that sample is of correct size
+  REQUIRE(expected_sample_size == samples.size());
+
+  // Check that sample and oob_sample don't intersect
+  std::vector<size_t> intersection;
+  std::set_intersection(samples_set.begin(), samples_set.end(),
+                        oob_sample_set.begin(), oob_sample_set.end(),
+                        std::back_inserter(intersection));
+  REQUIRE(intersection.empty());
+
+  // Check that sample is from appropriate clusters
+  std::set<size_t> expected_subsampled_clusters(subsampled_clusters.begin(), subsampled_clusters.end());
+  std::set<size_t> actual_subsampled_clusters;
+  for (size_t sample : samples) {
+    size_t cluster = clusters[sample];
+      actual_subsampled_clusters.insert(cluster);
+  }
+  REQUIRE(actual_subsampled_clusters == expected_subsampled_clusters);
+
+  // Check that oob sample is from appropriate clusters
+  std::set<size_t> expected_oob_subsampled_clusters(oob_subsampled_clusters.begin(), oob_subsampled_clusters.end());
+  std::set<size_t> actual_oob_subsampled_clusters;
+  for (size_t oob_sample : oob_samples) {
+      size_t cluster = clusters[oob_sample];
+      actual_oob_subsampled_clusters.insert(cluster);
+  }
+  REQUIRE(actual_oob_subsampled_clusters == expected_oob_subsampled_clusters);
+}

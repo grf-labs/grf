@@ -16,14 +16,25 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "RandomSampler.h"
 
 RandomSampler::RandomSampler(uint seed,
-                                   SamplingOptions options):
+                             const SamplingOptions& options):
     options(options) {
   random_number_generator.seed(seed);
+}
 
+void RandomSampler::sample_clusters(size_t num_rows,
+                                    double sample_fraction,
+                                    std::vector<size_t>& samples) {
+  if (options.get_clusters().empty()) {
+    sample(num_rows, sample_fraction, samples);
+  } else {
+    size_t num_samples = options.get_clusters().size();
+    sample(num_samples, sample_fraction, samples);
+  }
 }
 
 void RandomSampler::sample(size_t num_samples,
@@ -60,7 +71,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
   std::vector<size_t> shuffled_sample(samples);
   std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
 
-  uint subsample_size = (uint) std::ceil(samples.size() * sample_fraction);
+  size_t subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
   oob_samples.resize(samples.size() - subsample_size);
 
@@ -70,6 +81,46 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
   std::copy(shuffled_sample.begin() + subsamples.size(),
             shuffled_sample.end(),
             oob_samples.begin());
+}
+
+void RandomSampler::subsample_with_size(const std::vector<size_t>& samples,
+                                        size_t subsample_size,
+                                        std::vector<size_t>& subsamples) {
+  std::vector<size_t> shuffled_sample(samples);
+  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
+
+  subsamples.resize(subsample_size);
+  std::copy(shuffled_sample.begin(),
+            shuffled_sample.begin() + subsamples.size(),
+            subsamples.begin());
+}
+
+void RandomSampler::sample_from_clusters(const std::vector<size_t>& clusters,
+                                         std::vector<size_t>& samples) {
+  if (options.get_clusters().empty()) {
+    samples = clusters;
+  } else {
+    const std::vector<std::vector<size_t>>& samples_by_cluster = options.get_clusters();
+    for (size_t cluster : clusters) {
+      const std::vector<size_t>& cluster_samples = samples_by_cluster.at(cluster);
+
+      std::vector<size_t> subsamples;
+      subsample_with_size(cluster_samples, options.get_samples_per_cluster(), subsamples);
+      samples.insert(samples.end(), subsamples.begin(), subsamples.end());
+    }
+  }
+}
+
+void RandomSampler::get_samples_in_clusters(const std::vector<size_t>& clusters,
+                                            std::vector<size_t>& samples) {
+  if (options.get_clusters().empty()) {
+    samples = clusters;
+  } else {
+    for (size_t cluster : clusters) {
+      const std::vector<size_t>& cluster_samples = options.get_clusters().at(cluster);
+      samples.insert(samples.end(), cluster_samples.begin(), cluster_samples.end());
+    }
+  }
 }
 
 void RandomSampler::shuffle_and_split(std::vector<size_t> &samples,

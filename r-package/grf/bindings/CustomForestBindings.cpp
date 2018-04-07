@@ -29,22 +29,23 @@
 Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
                         Eigen::SparseMatrix<double> sparse_input_data,
                         size_t outcome_index,
-                        unsigned int mtry,
-                        unsigned int num_trees,
-                        unsigned int num_threads,
-                        unsigned int min_node_size,
+                        uint mtry,
+                        uint num_trees,
+                        uint num_threads,
+                        uint min_node_size,
                         double sample_fraction,
-                        unsigned int seed,
+                        uint seed,
                         bool honesty,
-                        unsigned int ci_group_size,
+                        uint ci_group_size,
                         double alpha,
-                        double imbalance_penalty) {
-  ForestTrainer trainer = ForestTrainers::custom_trainer(outcome_index - 1);
-
+                        double imbalance_penalty,
+                        std::vector<size_t> clusters,
+                        uint samples_per_cluster) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-                        honesty, alpha, imbalance_penalty, num_threads, seed);
+      honesty, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
 
+  ForestTrainer trainer = ForestTrainers::custom_trainer(outcome_index - 1);
   Forest forest = trainer.train(data, options);
 
   Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
@@ -56,7 +57,7 @@ Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
 Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
                                    Rcpp::NumericMatrix input_data,
                                    Eigen::SparseMatrix<double> sparse_input_data,
-                                   unsigned int num_threads) {
+                                   uint num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
@@ -73,7 +74,7 @@ Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
 Rcpp::NumericMatrix custom_predict_oob(Rcpp::List forest_object,
                                        Rcpp::NumericMatrix input_data,
                                        Eigen::SparseMatrix<double> sparse_input_data,
-                                       unsigned int num_threads) {
+                                       uint num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);

@@ -129,12 +129,6 @@ public:
   void set_leaf_samples(const std::vector<std::vector<size_t>>& leaf_samples);
 
   /**
-   * Sets the contents of this tree's drawn samples. Please see
-   * Tree::get_drawn_samples for a description of this variable.
-   */
-  void set_drawn_samples(const std::vector<size_t>& drawn_samples);
-
-  /**
    * Sets the contents of this tree's prediction values. Please see
    * Tree::get_prediction_values for a description of this variable.
    */

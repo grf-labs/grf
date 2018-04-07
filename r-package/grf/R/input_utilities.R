@@ -56,6 +56,38 @@ validate_seed <- function(seed) {
   seed
 }
 
+validate_clusters <- function(clusters, X) {
+  if (is.null(clusters)) {
+    clusters <- vector(mode="numeric", length=0)
+  } else if (length(clusters) == 0) {
+    clusters <- vector(mode="numeric", length=0)
+  } else if (!is.vector(clusters) | !all(clusters == floor(clusters))) {
+    stop("Clusters must be a vector of integers.")
+  } else if (length(clusters) != nrow(X)) {
+    stop("Clusters has incorrect length.")
+  } else {
+    # convert to integers between 0 and n clusters
+    clusters <- as.numeric(as.factor(clusters)) - 1
+  }
+  clusters
+}
+
+validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
+  if (is.null(clusters) || length(clusters) == 0) {
+    return(0)
+  }
+  cluster_size_counts <- table(clusters)
+  min_size <- unname(cluster_size_counts[order(cluster_size_counts)][1])
+  # Check for whether this number is too small?
+  if (is.null(samples_per_cluster)) {
+    samples_per_cluster <- min_size
+  } else if (samples_per_cluster > min_size) {
+    stop(paste("Smallest cluster has", min_size, "observations",
+         "samples_per_cluster of", samples_per_cluster, "is too large."))
+  }
+  samples_per_cluster
+}
+
 create_data_matrices <- function(X, ...) {
   default.data <- matrix(nrow=0, ncol=0);    
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
