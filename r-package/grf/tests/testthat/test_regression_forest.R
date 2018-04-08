@@ -34,39 +34,65 @@ test_that("regression variance estimates are positive", {
 })
 
 test_that("regression forest split frequencies are reasonable", {
-  n = 100
-  p = 6
-  X = matrix(rnorm(n*p), n, p)
-  Y = 1000 * (X[,1]) + rnorm(n)
-  rrr = regression_forest(X, Y, mtry = p)
-  freq = split_frequencies(rrr, 4)
-  expect_true(freq[1,1] / sum(freq[1,]) > 1/2)
+	n = 100
+	p = 6
+	X = matrix(rnorm(n*p), n, p)
+	Y = 1000 * (X[,1]) + rnorm(n)
+	rrr = regression_forest(X, Y, mtry = p)
+	freq = split_frequencies(rrr, 4)
+	expect_true(freq[1,1] / sum(freq[1,]) > 1/2)
 })
 
 test_that("using a sparse data representation produces the same predictions", {
-  dim = 20
-  X = diag(rnorm(dim), dim)
-  sparse.X = as(X, "dgCMatrix")
-  Y = 1000 * (X[,1]) + rnorm(dim)
+	dim = 20
+	X = diag(rnorm(dim), dim)
+	sparse.X = as(X, "dgCMatrix")
+	Y = 1000 * (X[,1]) + rnorm(dim)
 
-  forest = regression_forest(X, Y, mtry = dim, seed=10)
-  preds = predict(forest, estimate.variance=TRUE)
+	forest = regression_forest(X, Y, mtry = dim, seed=10)
+	preds = predict(forest, estimate.variance=TRUE)
 
-  sparse.forest = regression_forest(sparse.X, Y, mtry = dim, seed=10)
-  sparse.preds = predict(sparse.forest, estimate.variance=TRUE)
+	sparse.forest = regression_forest(sparse.X, Y, mtry = dim, seed=10)
+	sparse.preds = predict(sparse.forest, estimate.variance=TRUE)
 
-  expect_equal(preds$predictions, sparse.preds$predictions)
+	expect_equal(preds$predictions, sparse.preds$predictions)
 })
 
 test_that("OOB predictions contain debiased error estimates", {
-  p = 6
-  n = 10
+	p = 6
+	n = 10
 
-  X = matrix(2 * runif(n * p) - 1, n, p)
-  Y = (X[,1] > 0) + 2 * rnorm(n)
+	X = matrix(2 * runif(n * p) - 1, n, p)
+	Y = (X[,1] > 0) + 2 * rnorm(n)
 
-  forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 4)
-  preds.oob = predict(forest)
+	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 4)
+	preds.oob = predict(forest)
 
-  expect_equal(n, nrow(preds.oob$debiased.error))
+	expect_equal(n, nrow(preds.oob$debiased.error))
+})
+
+test_that("regression forest tuning decreases prediction error", {
+	p = 2
+	n = 5000
+
+	X = matrix(2 * runif(n * p) - 1, n, p)
+	Y = (X[,1] > 0) + rnorm(n)
+
+	params = tune_regression_forest(X, Y)$params
+	tuned.forest = regression_forest(X, Y, num.trees = 1000,
+	    min.node.size = params["min.node.size"],
+	    sample.fraction = params["sample.fraction"],
+	    alpha = params["alpha"],
+	    imbalance.penalty = params["imbalance.penalty"])
+	forest = regression_forest(X, Y, num.trees = 1000)
+
+	X.test = matrix(2 * runif(n * p) - 1, n, p)
+	truth = (X.test[,1] > 0)
+
+	tuned.preds = predict(tuned.forest, X.test)
+	preds = predict(forest, X.test)
+
+	tuned.error = mean((tuned.preds$predictions - truth)^2)
+	error = mean((preds$predictions - truth)^2)
+	expect_true(tuned.error < error)
 })
