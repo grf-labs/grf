@@ -30,9 +30,9 @@ class LocalLinearPredictionStrategy: public DefaultPredictionStrategy {
 
 public:
     LocalLinearPredictionStrategy(const Data *original_data,
-                                    const Data *test_data,
-                                    double lambda,
-                                    bool ridge_type);
+                                  const Data *test_data,
+                                  double lambda,
+                                  bool ridge_type);
 
     size_t prediction_length();
     std::vector<double> predict(size_t sampleID,
