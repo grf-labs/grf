@@ -22,6 +22,6 @@ Imports:
     Rcpp (>= 0.12.15)
 RoxygenNote: 6.0.1.9000
 Suggests:
-    sandwich, testthat
+    DiceKriging, sandwich, testthat
 SystemRequirements: GNU make
 URL: https://github.com/swager/grf
