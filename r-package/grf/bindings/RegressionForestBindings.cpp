@@ -85,7 +85,7 @@ Rcpp::NumericMatrix local_linear_predict(Rcpp::List forest,
                                            bool ridge_type,
                                            unsigned int num_threads) {
   Data *test_data = RcppUtilities::convert_data(input_data, sparse_input_data);
-  Data *original_data = RcppUtilities::convert_data(training_data, variable_names);
+  Data *original_data = RcppUtilities::convert_data(training_data, sparse_input_data);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
