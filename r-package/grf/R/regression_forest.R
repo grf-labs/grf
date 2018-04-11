@@ -263,7 +263,7 @@ get_params <- function(X, draw) {
 predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE, lambda = 0.0, ridge.type= "standardized",
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
-                                      variable.selection = FALSE,
+                                      number.variables = NULL
                                       ...) {
     num.threads <- validate_num_threads(num.threads)
     
@@ -274,21 +274,38 @@ predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE
     }
     
     forest.short <- object[-which(names(object) == "X.orig")]
-    data = create_data_matrices(object[["X.orig"]])
+    X = as.matrix(object[["X.orig"]])
 
     if(local.linear){
         ridge_type = ifelse(ridge.type == "standardized", 0, 1)
 
-        if(variable.selection){
-            # find the variables to give to regression via R var importance function
-            # maybe just feed the right columns of X?? bc we already have the weights now??
+        if(!is.null(number.variables)){
+            # find the variables to give to regression via the GRF variable importance function
+
+            # sort and identify the right columns
+            var.imp = variable_importance(object)
+            df = data.frame(cbind(var.imp, 1:ncol(X.orig)))
+            colnames(df) = c("var.imp", "index")
+            df = df[sort(var.imp,decreasing=T),]
+            cols = df$index[1:number.variables]
+
+            X = object[["X.orig"]]
+            data = create_data_matrices(X[,cols])
+
+            if(!is.null(newdata)){
+                newdata.shrunk = newdata[,cols]
+            }
+
         }else{
-            # regression.variables = all
+            # feed all variables to LLF prediction
+
+            data = create_data_matrices(object[["X.orig"]])
+            newdata.shrunk = newdata
         }
     }
     
     if (!is.null(newdata)) {
-        new.data <- create_data_matrices(newdata)
+        new.data <- create_data_matrices(newdata.shrunk)
 
         if(local.linear){
             local_linear_predict(forest.short, new.data$default, data$default, new.data$sparse,
