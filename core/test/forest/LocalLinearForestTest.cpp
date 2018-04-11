@@ -25,7 +25,7 @@
 #include "catch.hpp"
 
 
-TEST_CASE("LLF predictions are shift-invariant", "[prediction]") {
+TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
     // Run the original forest.
     Data* data = load_data("test/forest/resources/gaussian_data.csv");
     uint outcome_index = 10;
