@@ -57,6 +57,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
   Eigen::MatrixXd X(n, p+1);
   Eigen::MatrixXd Y(n, 1);
 
+  // check if we do variable selection. If so, isolate to those variables.
+
   for (size_t i=0; i<n; ++i) {
     for(size_t j=0; j<p; ++j){
       X(i,j+1) = test_data->get(sampleID, j) - original_data->get(i,j);

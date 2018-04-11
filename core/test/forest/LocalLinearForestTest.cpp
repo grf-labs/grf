@@ -15,16 +15,7 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-
-#include <map>
-#include <unordered_set>
-#include <fstream>
-#include "commons/Observations.h"
 #include "commons/utility.h"
-#include "utilities/ForestTestUtilities.h"
-#include "prediction/LocalLinearPredictionStrategy.h"
-#include "prediction/RegressionPredictionStrategy.h"
-
 #include "forest/ForestPredictor.h"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainer.h"
@@ -38,8 +29,10 @@ TEST_CASE("basic llf test", "[prediction]") {
     std::cout << "beginning test \n";
     std::cout << "second output \n";
 
-    //Data* data = load_data("test/forest/resources/gaussian_data.csv");
-    Data* data = load_data("resources/gaussian_data.csv");
+    Data* data;
+    std::cout << "do I have access to Data?";
+    data = load_data("test/forest/resources/gaussian_data.csv");
+    //Data* data = load_data("resources/gaussian_data.csv");
     std::cout << "have some data test";
     uint outcome_index = 10;
     double alpha = 0.10;
