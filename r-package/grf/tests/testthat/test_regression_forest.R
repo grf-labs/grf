@@ -136,7 +136,5 @@ test_that("Variable selection is correctly implemented for LLF", {
     preds = predict(forest, X.test, locally.linear=TRUE, lambda=0.1, number.variables=3)
 
     mse = (preds-truth)^2
-    # check if anything crazy is up
-    # expect_true( mse < 0 )
     expect_true(mse < 0.5)
-}
+})
