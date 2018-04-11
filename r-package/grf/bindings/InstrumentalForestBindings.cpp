@@ -7,7 +7,6 @@
 #include "Eigen/Sparse"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainers.h"
-#include "splitting/SplitPenalty.h"
 #include "RcppUtilities.h"
 
 // [[Rcpp::export]]

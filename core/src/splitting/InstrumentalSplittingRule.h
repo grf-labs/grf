@@ -20,7 +20,6 @@
 
 #include "commons/Data.h"
 #include "commons/Observations.h"
-#include "splitting/SplitPenalty.h"
 #include "splitting/SplittingRule.h"
 
 class InstrumentalSplittingRule: public SplittingRule {

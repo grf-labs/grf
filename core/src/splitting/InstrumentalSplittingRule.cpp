@@ -76,8 +76,8 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
     sum_node_z_squared += z * z;
   }
 
-  double size_node = sum_node_z_squared * sum_node_z_squared - sum_node_z * sum_node_z / (double) num_samples;
-  double min_child_size = std::max<double>(size_node * alpha, 1.0);
+  double size_node = sum_node_z_squared - sum_node_z * sum_node_z / (double) num_samples;
+  double min_child_size = size_node * alpha;
 
   double mean_z_node = sum_node_z / num_samples;
   size_t num_node_small_z = 0;
@@ -199,7 +199,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
     double sum_right = sums_right[i];
     double sum_right_z = sums_z[i];
     double sum_right_z_squared = sums_z_squared[i];
-    double size_right = sum_right_z_squared * sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right[i];
+    double size_right = sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right[i];
 
     // Skip this split if the right child's variance is too small.
     if (size_right < min_child_size || (lambda > 0.0 && size_right == 0)) {
@@ -210,7 +210,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
     double sum_left = sum_node - sum_right;
     double sum_left_z = sum_node_z - sum_right_z;
     double sum_left_z_squared = sum_node_z_squared - sum_right_z_squared;
-    double size_left = sum_left_z_squared * sum_left_z_squared - sum_left_z * sum_left_z / (double) n_left;
+    double size_left = sum_left_z_squared - sum_left_z * sum_left_z / (double) n_left;
 
     // Skip this split if the left child's variance is too small.
     if (size_left < min_child_size || (lambda > 0.0 && size_left == 0)) {
@@ -297,7 +297,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
     sum_left += sums[i];
     sum_left_z += sums_z[i];
     sum_left_z_squared += sums_z_squared[i];
-    double size_left = sum_left_z_squared * sum_left_z_squared - sum_left_z * sum_left_z / (double) n_left;
+    double size_left = sum_left_z_squared - sum_left_z * sum_left_z / (double) n_left;
 
     // Skip this split if the left child's variance is too small.
     if (size_left < min_child_size || (lambda > 0.0 && size_left == 0)) {
@@ -307,7 +307,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
     // Calculate sums for the right child.
     double sum_right_z_squared = sum_node_z_squared - sum_left_z_squared;
     double sum_right_z = sum_node_z - sum_left_z;
-    double size_right = sum_right_z_squared * sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right;
+    double size_right = sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right;
 
     // Skip this split if the right child's variance is too small.
     if (size_right < min_child_size || (lambda > 0.0 && size_right == 0)) {

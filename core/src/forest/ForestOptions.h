@@ -22,7 +22,6 @@
 #include "commons/globals.h"
 #include "sampling/SamplingOptions.h"
 #include "tree/TreeOptions.h"
-#include "splitting/SplitPenalty.h"
 
 
 class ForestOptions {
@@ -35,7 +34,6 @@ public:
                 bool honesty,
                 double alpha,
                 double imbalance_penalty,
-
                 uint num_threads,
                 uint random_seed,
                 const std::vector<size_t>& sample_clusters,
