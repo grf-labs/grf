@@ -119,3 +119,24 @@ test_that("locally linear prediction gives reasonable estimates", {
     expect_true(mse < 0.5)
     expect_tre(mse.oob < 0.5)
 })
+
+test_that("Variable selection is correctly implemented for LLF", {
+    n = 1000
+
+	ticks = 101
+	X.test = matrix(0, ticks, p)
+	xvals = seq(-1, 1, length.out = ticks)
+	X.test[,1] = xvals
+	truth = xvals > 0
+
+	X = matrix(2 * runif(n * p) - 1, n, p)
+	Y = (X[,1] > 0) + 2 * rnorm(n)
+
+	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 1)
+    preds = predict(forest, X.test, locally.linear=TRUE, lambda=0.1, number.variables=3)
+
+    mse = (preds-truth)^2
+    # check if anything crazy is up
+    # expect_true( mse < 0 )
+    expect_true(mse < 0.5)
+}
