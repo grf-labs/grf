@@ -52,8 +52,8 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
      - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT)
      - average.at(TREATMENT) * average.at(INSTRUMENT);
-  double treatment_estimate = instrument_effect_numerator / first_stage_numerator;
-  double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_estimate;
+  double treatment_effect_estimate = instrument_effect_numerator / first_stage_numerator;
+  double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_effect_estimate;
 
   double num_good_groups = 0;
   std::vector<std::vector<double>> psi_squared = {{0, 0}, {0, 0}};
@@ -79,10 +79,10 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
       const std::vector<double>& leaf_value = leaf_values.get_values(i);
 
       double psi_1 = leaf_value.at(OUTCOME_INSTRUMENT)
-                     - leaf_value.at(TREATMENT_INSTRUMENT) * treatment_estimate
+                     - leaf_value.at(TREATMENT_INSTRUMENT) * treatment_effect_estimate
                      - leaf_value.at(INSTRUMENT) * main_effect;
       double psi_2 = leaf_value.at(OUTCOME)
-                     - leaf_value.at(TREATMENT) * treatment_estimate
+                     - leaf_value.at(TREATMENT) * treatment_effect_estimate
                      - main_effect;
 
       psi_squared[0][0] += psi_1 * psi_1;
@@ -198,32 +198,38 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
-  double treatment_estimate = instrument_effect_numerator / first_stage_numerator;
-  double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_estimate;
+  double treatment_effect_estimate = instrument_effect_numerator / first_stage_numerator;
+  double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_effect_estimate;
 
   double outcome = observations.get(Observations::OUTCOME, sample);
   double treatment = observations.get(Observations::TREATMENT, sample);
   double instrument = observations.get(Observations::INSTRUMENT, sample);
-  double psi_1 = instrument * (outcome - treatment * treatment_estimate - main_effect);
-  double psi_2 = outcome - treatment * treatment_estimate - main_effect;
-  double error_raw = 1 / (first_stage_numerator * first_stage_numerator)
-    * (psi_1 * psi_1 - 2 * psi_1 * psi_2 * avg_Z + psi_2 * psi_2 * avg_Z * avg_Z);
 
-  double bias = 0.0;
+  // To justify the squared residual below as an error criterion in the case of CATE estimation
+  // with an unconfounded treatment assignment, see Nie and Wager (2017).
+  double residual = outcome - treatment * treatment_effect_estimate - main_effect;
+  double error_raw = residual * residual;
+
+  // Estimates the Monte Carlo bias via Taylor expansions.
+  double error_bias = 0.0;
   size_t num_trees = 0;
   for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
     if (leaf_values.empty(n)) {
       continue;
     }
-    double psi_1_leaf = leaf_value.at(OUTCOME_INSTRUMENT)
-                   - leaf_value.at(TREATMENT_INSTRUMENT) * treatment_estimate
-                   - leaf_value.at(INSTRUMENT) * main_effect;
-    double psi_2_leaf = leaf_value.at(OUTCOME)
-                   - leaf_value.at(TREATMENT) * treatment_estimate
-                   - main_effect;
-    double error_leaf = 1 / (first_stage_numerator * first_stage_numerator)
-      * (psi_1_leaf * psi_1_leaf - 2 * psi_1_leaf * psi_2_leaf * avg_Z + psi_2_leaf * psi_2_leaf * avg_Z * avg_Z);
-    bias += error_leaf;
+    const std::vector<double>& leaf_value = leaf_values.get_values(n);
+    double delta_instrument_effect_numerator = leaf_value.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME_INSTRUMENT)
+        - (leaf_value.at(OUTCOME) - average.at(OUTCOME)) * average.at(INSTRUMENT)
+        - (leaf_value.at(INSTRUMENT) - average.at(INSTRUMENT)) * average.at(OUTCOME);
+    double delta_first_stage_numerator = leaf_value.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT_INSTRUMENT)
+        - (leaf_value.at(TREATMENT) - average.at(TREATMENT)) * average.at(INSTRUMENT)
+        - (leaf_value.at(INSTRUMENT) - average.at(INSTRUMENT)) * average.at(TREATMENT);
+    double delta_treatment_effect_estimate = delta_instrument_effect_numerator / first_stage_numerator
+         - delta_first_stage_numerator / first_stage_numerator / first_stage_numerator;
+    double delta_residual = (average.at(TREATMENT) - treatment) * delta_treatment_effect_estimate
+         - (leaf_value.at(OUTCOME) - average.at(OUTCOME))
+         + (leaf_value.at(TREATMENT) - average.at(TREATMENT)) * treatment_effect_estimate;
+    error_bias += delta_residual * delta_residual;
     num_trees++;
   }
 
@@ -231,6 +237,6 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
     return { NAN };
   }
 
-  bias /= num_trees * (num_trees - 1);
-  return { error_raw - bias };
+  error_bias /= num_trees * (num_trees - 1);
+  return { error_raw - error_bias };
 }

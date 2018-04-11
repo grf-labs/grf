@@ -39,7 +39,6 @@ test_that("regression error estimates are reasonable", {
 })
 
 test_that("causal error estimates are reasonable", {
-  
   p = 3
   n = 2000
   sigma = 1
@@ -55,6 +54,20 @@ test_that("causal error estimates are reasonable", {
   Y.forest = regression_forest(X, Y, num.trees = 500, sample.fraction = 0.2)
   Y.hat = predict(Y.forest)$predictions
   
-  cf = causal_forest(X, Y - Y.hat, W - W.hat, num.trees = 20)
+  Y.resid = Y - Y.hat
+  W.resid = W - W.hat
+  
+  cf.40 = causal_forest(X, Y.resid, W.resid, precompute.nuisance = FALSE, num.trees = 40)
+  tau.hat.40 = predict(cf.40)
+  err.40 = mean(tau.hat.40$debiased.error, na.rm = TRUE)
+  
+  cf = causal_forest(X, Y.resid, W.resid, precompute.nuisance = FALSE, num.trees = 2000)
   tau.hat = predict(cf)
+  
+  hist(tau.hat$predictions)
+  
+  c(err.40,
+    mean( (W.resid * (Y.resid - tau.hat.40$predictions * W.resid) / (W.hat * (1 - W.hat)))^2),
+    mean(tau.hat$debiased.error, na.rm = TRUE),
+    mean((Y.resid - tau.hat$predictions * W.resid)^2))
 })
