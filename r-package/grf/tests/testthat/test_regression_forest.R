@@ -99,6 +99,7 @@ test_that("regression forest tuning decreases prediction error", {
 
 test_that("locally linear prediction gives reasonable estimates", {
     n = 1000
+    p = 10
 
 	ticks = 101
 	X.test = matrix(0, ticks, p)
@@ -122,6 +123,7 @@ test_that("locally linear prediction gives reasonable estimates", {
 
 test_that("Variable selection is correctly implemented for LLF", {
     n = 1000
+    p = 10
 
 	ticks = 101
 	X.test = matrix(0, ticks, p)
