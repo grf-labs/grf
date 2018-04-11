@@ -286,7 +286,7 @@ predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE
             var.imp = variable_importance(object)
             df = data.frame(cbind(var.imp, 1:ncol(X.orig)))
             colnames(df) = c("var.imp", "index")
-            df = df[sort(var.imp,decreasing=T),]
+            df = df[order(var.imp,decreasing=T),]
             cols = df$index[1:number.variables]
 
             X = object[["X.orig"]]
