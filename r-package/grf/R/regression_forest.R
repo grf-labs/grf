@@ -233,8 +233,7 @@ get_params <- function(X, draw) {
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
-#' @param variable.selection Whether local linear correction should only be done for
-#'                           most significant variables.
+#' @param linear.correction.variables Optional set of variables to simplify linear correction. 
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A vector of predictions.
@@ -263,7 +262,7 @@ get_params <- function(X, draw) {
 predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE, lambda = 0.0, ridge.type= "standardized",
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
-                                      number.variables = NULL
+                                      linear.correction.variables = NULL
                                       ...) {
     num.threads <- validate_num_threads(num.threads)
     
@@ -274,38 +273,19 @@ predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE
     }
     
     forest.short <- object[-which(names(object) == "X.orig")]
-    X = as.matrix(object[["X.orig"]])
+    X = object[["X.orig"]] # check if matrix call is required RINA
 
     if(local.linear){
         ridge_type = ifelse(ridge.type == "standardized", 0, 1)
 
-        if(!is.null(number.variables)){
-            # find the variables to give to regression via the GRF variable importance function
-
-            # sort and identify the right columns
-            var.imp = variable_importance(object)
-            df = data.frame(cbind(var.imp, 1:ncol(X.orig)))
-            colnames(df) = c("var.imp", "index")
-            df = df[order(var.imp,decreasing=T),]
-            cols = df$index[1:number.variables]
-
-            X = object[["X.orig"]]
-            data = create_data_matrices(X[,cols])
-
-            if(!is.null(newdata)){
-                newdata.shrunk = newdata[,cols]
-            }
-
-        }else{
-            # feed all variables to LLF prediction
-
-            data = create_data_matrices(object[["X.orig"]])
-            newdata.shrunk = newdata
+        if(!is.null(linear.correction.variables)){
+            X = X[,linear.correction.variables]
+            newdata = newdata[,linear.correction.variables]
         }
     }
     
     if (!is.null(newdata)) {
-        new.data <- create_data_matrices(newdata.shrunk)
+        new.data <- create_data_matrices(newdata)
 
         if(local.linear){
             local_linear_predict(forest.short, new.data$default, data$default, new.data$sparse,
