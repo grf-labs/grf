@@ -61,7 +61,7 @@ void update_predictions_file(const std::string file_name, std::vector<Prediction
   FileTestUtilities::write_csv_file(file_name, values);
 }
 
-TEST_CASE("quantile forest predictions have not changed", "[quantile], [characterization]") {
+TEST_CASE("quantile forest predictions have not changed", "[quantile, characterization]") {
   std::vector<double> quantiles({0.25, 0.5, 0.75});
   Data* data = load_data("test/forest/resources/quantile_data.csv");
 
@@ -90,7 +90,7 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   delete data;
 }
 
-TEST_CASE("causal forest predictions have not changed", "[causal], [characterization]") {
+TEST_CASE("causal forest predictions have not changed", "[causal, characterization]") {
   Data* data = load_data("test/forest/resources/causal_data.csv");
 
   double reduced_form_weight = 0.0;
@@ -122,6 +122,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   delete data;
 }
 
+<<<<<<< HEAD
 TEST_CASE("causal forest predictions with stable splitting have not changed", "[causal], [characterization]") {
   Data* data = load_data("test/forest/resources/causal_data.csv");
 
@@ -154,7 +155,7 @@ TEST_CASE("causal forest predictions with stable splitting have not changed", "[
   delete data;
 }
 
-TEST_CASE("regression forest predictions have not changed", "[regression], [characterization]") {
+TEST_CASE("regression forest predictions have not changed", "[regression, characterization]") {
   Data* data = load_data("test/forest/resources/regression_data.csv");
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(10);
