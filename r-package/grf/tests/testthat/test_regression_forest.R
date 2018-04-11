@@ -109,7 +109,7 @@ test_that("locally linear prediction gives reasonable estimates", {
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = (X[,1] > 0) + 2 * rnorm(n)
 
-	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 4)
+	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 1)
     preds = predict(forest, X.test, locally.linear=TRUE, lambda=0.1)
     preds.oob = predict(forest, locally.linear=TRUE, lambda=0.1)
 

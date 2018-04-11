@@ -233,6 +233,8 @@ get_params <- function(X, draw) {
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
+#' @param variable.selection Whether local linear correction should only be done for
+#'                           most significant variables.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A vector of predictions.
@@ -261,6 +263,7 @@ get_params <- function(X, draw) {
 predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE, lambda = 0.0, ridge.type= "standardized",
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
+                                      variable.selection = FALSE,
                                       ...) {
     num.threads <- validate_num_threads(num.threads)
     
@@ -275,6 +278,13 @@ predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE
 
     if(local.linear){
         ridge_type = ifelse(ridge.type == "standardized", 0, 1)
+
+        if(variable.selection){
+            # find the variables to give to regression via R var importance function
+            # maybe just feed the right columns of X?? bc we already have the weights now??
+        }else{
+            # regression.variables = all
+        }
     }
     
     if (!is.null(newdata)) {
