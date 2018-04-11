@@ -122,8 +122,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal, characterizati
   delete data;
 }
 
-<<<<<<< HEAD
-TEST_CASE("causal forest predictions with stable splitting have not changed", "[causal], [characterization]") {
+TEST_CASE("causal forest predictions with stable splitting have not changed", "[causal, characterization]") {
   Data* data = load_data("test/forest/resources/causal_data.csv");
 
   double reduced_form_weight = 0.0;

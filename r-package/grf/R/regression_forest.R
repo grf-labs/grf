@@ -273,16 +273,18 @@ predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE
     }
     
     forest.short <- object[-which(names(object) == "X.orig")]
-    data = object[["X.orig"]]
+    X = matrix(object[["X.orig"]])
 
     if(local.linear){
         ridge_type = ifelse(ridge.type == "standardized", 0, 1)
 
         if(!is.null(linear.correction.variables)){
-            data = data[,linear.correction.variables]
+            X = X[,linear.correction.variables]
             newdata = newdata[,linear.correction.variables]
         }
     }
+
+    data <- create_data_matrices(X)
     
     if (!is.null(newdata)) {
         new.data <- create_data_matrices(newdata)

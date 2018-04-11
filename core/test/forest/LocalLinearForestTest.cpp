@@ -29,9 +29,8 @@ TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
     // Run the original forest.
     Data* data = load_data("test/forest/resources/gaussian_data.csv");
     uint outcome_index = 10;
-    double alpha = 0.10;
 
-    ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha);
+    ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
     ForestOptions options = ForestTestUtilities::default_honest_options();
     Forest forest = trainer.train(data, options);
     ForestPredictor predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false);
