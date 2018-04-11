@@ -233,7 +233,7 @@ get_params <- function(X, draw) {
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
-#' @param linear.correction.variables Optional set of variables to simplify linear correction. 
+#' @param linear.correction.variables Optional set of variables to simplify linear correction.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A vector of predictions.
