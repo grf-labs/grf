@@ -300,5 +300,6 @@ predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE
             lambda, ridge_type, num.threads)
         }else{regression_predict_oob(forest.short, data$default, data$sparse,
             num.threads, ci.group.size)
+        }
     }
 }
