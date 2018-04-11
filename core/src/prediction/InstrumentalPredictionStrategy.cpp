@@ -195,5 +195,42 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
     const Observations& observations) {
-  return {};
+
+  double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
+  double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
+  double treatment_estimate = instrument_effect_numerator / first_stage_numerator;
+  double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_estimate;
+
+  double outcome = observations.get(Observations::OUTCOME, sample);
+  double treatment = observations.get(Observations::TREATMENT, sample);
+  double instrument = observations.get(Observations::INSTRUMENT, sample);
+  double psi_1 = instrument * (outcome - treatment * treatment_estimate - main_effect);
+  double psi_2 = outcome - treatment * treatment_estimate - main_effect;
+  double error_raw = 1 / (first_stage_numerator * first_stage_numerator)
+    * (psi_1 * psi_1 - 2 * psi_1 * psi_2 * avg_Z + psi_2 * psi_2 * avg_Z * avg_Z);
+
+  double bias = 0.0;
+  size_t num_trees = 0;
+  for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
+    if (leaf_values.empty(n)) {
+      continue;
+    }
+    double psi_1_leaf = leaf_value.at(OUTCOME_INSTRUMENT)
+                   - leaf_value.at(TREATMENT_INSTRUMENT) * treatment_estimate
+                   - leaf_value.at(INSTRUMENT) * main_effect;
+    double psi_2_leaf = leaf_value.at(OUTCOME)
+                   - leaf_value.at(TREATMENT) * treatment_estimate
+                   - main_effect;
+    double error_leaf = 1 / (first_stage_numerator * first_stage_numerator)
+      * (psi_1_leaf * psi_1_leaf - 2 * psi_1_leaf * psi_2_leaf * avg_Z + psi_2_leaf * psi_2_leaf * avg_Z * avg_Z);
+    bias += error_leaf;
+    num_trees++;
+  }
+
+  if (num_trees <= 1) {
+    return { NAN };
+  }
+
+  bias /= num_trees * (num_trees - 1);
+  return { error_raw - bias };
 }

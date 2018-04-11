@@ -37,3 +37,24 @@ test_that("regression error estimates are reasonable", {
 	expect_true(mse.5 - mse.200 >= sigma^2 / 5 / 1.5)
 	expect_true(mse.20 - mse.200 >= sigma^2 / 20 / 1.2)
 })
+
+test_that("causal error estimates are reasonable", {
+  
+  p = 3
+  n = 2000
+  sigma = 1
+  
+  X = matrix(2 * runif(n * p) - 1, n, p)
+  W = rbinom(n, 1, 0.5)
+  TAU = 0.5 * (X[,1] > 0)
+  Y = TAU * (2 * W - 1) + sigma * rnorm(n)
+  
+  W.forest = regression_forest(X, W, num.trees = 500, sample.fraction = 0.2)
+  W.hat = predict(W.forest)$predictions
+  
+  Y.forest = regression_forest(X, Y, num.trees = 500, sample.fraction = 0.2)
+  Y.hat = predict(Y.forest)$predictions
+  
+  cf = causal_forest(X, Y - Y.hat, W - W.hat, num.trees = 20)
+  tau.hat = predict(cf)
+})
