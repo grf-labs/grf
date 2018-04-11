@@ -262,7 +262,7 @@ get_params <- function(X, draw) {
 predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE, lambda = 0.0, ridge.type= "standardized",
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
-                                      linear.correction.variables = NULL
+                                      linear.correction.variables = NULL,
                                       ...) {
     num.threads <- validate_num_threads(num.threads)
     
