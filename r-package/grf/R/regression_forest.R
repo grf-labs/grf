@@ -273,13 +273,13 @@ predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE
     }
     
     forest.short <- object[-which(names(object) == "X.orig")]
-    X = object[["X.orig"]] # check if matrix call is required RINA
+    data = object[["X.orig"]]
 
     if(local.linear){
         ridge_type = ifelse(ridge.type == "standardized", 0, 1)
 
         if(!is.null(linear.correction.variables)){
-            X = X[,linear.correction.variables]
+            data = data[,linear.correction.variables]
             newdata = newdata[,linear.correction.variables]
         }
     }
