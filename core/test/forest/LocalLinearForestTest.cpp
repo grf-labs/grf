@@ -24,36 +24,18 @@
 
 #include "catch.hpp"
 
-TEST_CASE("basic llf test", "[prediction]") {
-    // Run the original forest.
-    std::cout << "beginning test \n";
-    std::cout << "second output \n";
 
-    Data* data;
-    std::cout << "do I have access to Data?";
-    data = load_data("test/forest/resources/gaussian_data.csv");
-    //Data* data = load_data("resources/gaussian_data.csv");
-    std::cout << "have some data test";
+TEST_CASE("LLF predictions are shift-invariant", "[prediction]") {
+    // Run the original forest.
+    Data* data = load_data("test/forest/resources/gaussian_data.csv");
     uint outcome_index = 10;
     double alpha = 0.10;
 
-    std::cout << "calling forest trainers";
-
     ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index, alpha);
     ForestOptions options = ForestTestUtilities::default_honest_options();
-
-    std::cout << "training";
-
     Forest forest = trainer.train(data, options);
     ForestPredictor predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false);
 
-    std::cout << "made a  predictor";
-
-    double temp = 1;
-    double temp2 = 1;
-    REQUIRE(equal_doubles(temp, temp2, 1.0e-10));
-
-    /*ForestPredictor predictor = ForestPredictors::regression_predictor(4, 1);
     std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
 
     // Shift each outcome by 1, and re-run the forest.
@@ -64,7 +46,7 @@ TEST_CASE("basic llf test", "[prediction]") {
     }
 
     Forest shifted_forest = trainer.train(data, options);
-    ForestPredictor shifted_predictor = ForestPredictors::regression_predictor(4, 1);
+    ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false);
     std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
 
     REQUIRE(predictions.size() == shifted_predictions.size());
@@ -81,25 +63,4 @@ TEST_CASE("basic llf test", "[prediction]") {
 
     REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
     delete data;
-
-
-    std::vector<double> averages = {1.1251472};
-    std::vector<double> flipped_averages = {-1.1251472};
-
-    std::vector<std::vector<double>> dataset = {
-            {0, 0.0}, {1, 0.1}, {2, 0.2}, {3, 0.1}, {4, 0.1},
-            {5, 0.1}, {6, 0.2}, {7, 0.1}, {8, 0.0}, {9, 0.1}};
-
-    Data* original_data = Data(dataset);
-
-    LocalLinearPredictionStrategy prediction_strategy = LocalLinearPredictionStrategy(dataset, dataset, 0.1, 0);
-    //LocalLinearPredictionStrategy prediction_strategy();
-    // NEED TO FEED IT: original data, test data, lambda, ridge
-    std::vector<double> first_prediction = prediction_strategy.predict(averages);
-    std::vector<double> second_prediction = prediction_strategy.predict(flipped_averages);
-
-    REQUIRE(first_prediction.size() == 1);
-    REQUIRE(second_prediction.size() == 1);
-    REQUIRE(equal_doubles(first_prediction[0], -second_prediction[0], 1.0e-10));
-     */
 }
