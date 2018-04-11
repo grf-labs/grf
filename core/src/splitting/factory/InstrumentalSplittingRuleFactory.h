@@ -15,27 +15,30 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_REGRESSIONSPLITTINGRULEFACTORY_H
-#define GRF_REGRESSIONSPLITTINGRULEFACTORY_H
+#ifndef GRF_INSTRUMENTALSPLITTINGRULEFACTORY_H
+#define GRF_INSTRUMENTALSPLITTINGRULEFACTORY_H
 
 
 #include "splitting/factory/SplittingRuleFactory.h"
 
 /**
- * A factory that produces standard regression splitting rules.
+ * An experimental factory that produces splitting rules specialized
+ * for instrumental forests.
  *
  * In addition to performing standard regression splits, this rule applies
- * a penalty to avoid splits too close to the edge of the node's data.
+ * a penalty to avoid splits that are too imbalanced in terms of treatment
+ * assignment or instrument. The exact penalty used  depends on the value
+ * of {@link TreeOptions#get_split_penalty}.
  */
-class RegressionSplittingRuleFactory: public SplittingRuleFactory {
+class InstrumentalSplittingRuleFactory: public SplittingRuleFactory {
 public:
-  RegressionSplittingRuleFactory();
+  InstrumentalSplittingRuleFactory();
   std::shared_ptr<SplittingRule> create(Data* data,
                                         const Observations& observations,
                                         const TreeOptions& options);
 private:
-  DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRuleFactory);
+  DISALLOW_COPY_AND_ASSIGN(InstrumentalSplittingRuleFactory);
 };
 
 
-#endif //GRF_REGRESSIONSPLITTINGRULEFACTORY_H
+#endif //GRF_INSTRUMENTALSPLITTINGRULEFACTORY_H

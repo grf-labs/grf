@@ -17,6 +17,7 @@
 #include <thread>
 #include <random>
 #include "forest/ForestOptions.h"
+#include "tree/TreeOptions.h"
 
 ForestOptions::ForestOptions(uint num_trees,
                              uint ci_group_size,

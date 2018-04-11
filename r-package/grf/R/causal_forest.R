@@ -33,11 +33,14 @@
 #'                            recommended, computational resources permitting.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
+#' @param stabilize.splits Whether or not the treatment should be taken into account when
+#'                         determining the imbalance of a split (experimental).
 #' @param seed The seed of the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
 #'                            software will set this value to the size of the smallest cluster.#'
+#'
 #' @return A trained causal forest object.
 #'
 #' @examples \dontrun{
@@ -65,9 +68,8 @@
 causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL, 
                           num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                           honesty = TRUE, ci.group.size = 2, precompute.nuisance = TRUE,
-                          alpha = 0.05, imbalance.penalty = 0.0, seed = NULL,
+                          alpha = 0.05, imbalance.penalty = 0.0, stabilize.splits = FALSE, seed = NULL,
                           clusters = NULL, samples_per_cluster = NULL) {
-    
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
@@ -109,7 +111,8 @@ causal_forest <- function(X, Y, W, sample.fraction = 0.5, mtry = NULL,
     
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
-        ci.group.size, reduced.form.weight, alpha, imbalance.penalty, clusters, samples_per_cluster)
+        ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits,
+        clusters, samples_per_cluster)
 
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
