@@ -287,8 +287,8 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
 
     // Stop if the right child does not contain enough z values below
     // and above the parent's mean.
-    size_t num_right_small_z = num_small_z[i];
-    size_t num_right_large_z = num_node_small_z - num_left_small_z;
+    size_t num_right_small_z = num_node_small_z - num_left_small_z;
+    size_t num_right_large_z = n_right - num_right_small_z;
     if (num_right_small_z < min_node_size || num_right_large_z < min_node_size) {
       break;
     }
