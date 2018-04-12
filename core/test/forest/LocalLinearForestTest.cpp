@@ -27,8 +27,11 @@
 
 TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
     // Run the original forest.
+    std::cout << "inside LLF prediction testcase";
+
     Data* data = load_data("test/forest/resources/gaussian_data.csv");
     uint outcome_index = 10;
+
 
     ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
     ForestOptions options = ForestTestUtilities::default_honest_options();
@@ -62,4 +65,6 @@ TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
 
     REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
     delete data;
+
+    std::cout << "leaving LLF prediction test case";
 }
