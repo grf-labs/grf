@@ -99,7 +99,7 @@ test_that("regression forest tuning decreases prediction error", {
 
 test_that("locally linear prediction gives reasonable estimates", {
     n = 1000
-    p = 10
+    p = 4
 
 	ticks = 101
 	X.test = matrix(0, ticks, p)
@@ -108,22 +108,22 @@ test_that("locally linear prediction gives reasonable estimates", {
 	truth = xvals > 0
 
 	X = matrix(2 * runif(n * p) - 1, n, p)
-	Y = (X[,1] > 0) + 2 * rnorm(n)
+	Y = (X[,1] > 0) + rnorm(n)
 
 	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 1)
-    preds = predict(forest, X.test, locally.linear=TRUE, lambda=0.1)
-    preds.oob = predict(forest, locally.linear=TRUE, lambda=0.1)
+    preds = predict(forest, X.test, local.linear=TRUE, lambda=0.1)$predictions
+    preds.oob = predict(forest, local.linear=TRUE, lambda=0.01)$predictions
 
-    mse = (preds - truth)^2
-    mse.oob =(preds - Y)^2
+    mse = mean( (preds - truth)^2 )
+    mse.oob = mean( (preds.oob - Y)^2 )
 
     expect_true(mse < 0.5)
-    expect_tre(mse.oob < 0.5)
+    expect_true(mse.oob < 5)
 })
 
-test_that("Variable selection is correctly implemented for LLF", {
+test_that("Linear correction variables are correctly implemented for LLF", {
     n = 1000
-    p = 10
+    p = 5
 
 	ticks = 101
 	X.test = matrix(0, ticks, p)
@@ -135,8 +135,8 @@ test_that("Variable selection is correctly implemented for LLF", {
 	Y = (X[,1] > 0) + 2 * rnorm(n)
 
 	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 1)
-    preds = predict(forest, X.test, locally.linear=TRUE, lambda=0.1, number.variables=3)
+    preds = predict(forest, X.test, local.linear=TRUE, lambda=0.1, linear.selection.variables=c(1,2))$predictions
 
-    mse = (preds-truth)^2
+    mse = mean( (preds - truth)^2 )
     expect_true(mse < 0.5)
 })

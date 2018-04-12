@@ -1,7 +1,7 @@
 library(DiceKriging)
 
 #' Regression forest
-#' 
+#'
 #' Trains a regression forest that can be used to estimate
 #' the conditional mean function mu(x) = E[Y | X = x]
 #'
@@ -53,13 +53,13 @@ library(DiceKriging)
 #' }
 #'
 #' @export
-regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
+regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
                               num.trees = 2000, num.threads = NULL, min.node.size = NULL,
                               honesty = TRUE, ci.group.size = 2, alpha = 0.05, imbalance.penalty = 0.0,
                               seed = NULL, clusters = NULL, samples_per_cluster = NULL) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-    
+
     mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
     min.node.size <- validate_min_node_size(min.node.size)
@@ -75,17 +75,17 @@ regression_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     forest <- regression_train(data$default, data$sparse, outcome.index, mtry,
         num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
         ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
-    
+
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
     forest[["clusters"]] <- clusters
-    
+
     class(forest) <- c("regression_forest", "grf")
     forest
 }
 
 #' Regression forest tuning
-#' 
+#'
 #' Finds the optimal parameters to be used in training a regression forest. This method
 #' currently tunes over min.node.size, sample.fraction, alpha, and imbalance.penalty.
 #' Please see the method 'regression_forest' for a description of the standard forest
@@ -133,7 +133,7 @@ tune_regression_forest <- function(X, Y,
                                    samples_per_cluster = NULL) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-    
+
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
@@ -141,7 +141,7 @@ tune_regression_forest <- function(X, Y,
 
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
-  
+
     # Separate out the tuning parameters with supplied values, and those that were
     # left as 'NULL'. We will only tune those parameters that the user didn't supply.
     all.params = c(min.node.size = null_to_na(min.node.size),
@@ -179,17 +179,17 @@ tune_regression_forest <- function(X, Y,
     capture.output(env$kriging.model <- km(design = data.frame(fit.draws),
                                            response = debiased.errors,
                                            noise.var = variance.guess))
-  
+
     # To determine the optimal parameter values, predict using the kriging model at a large
     # number of random values, then select those that produced the lowest error.
     optimize.draws = matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
     colnames(optimize.draws) = names(tuning.params)
     model.surface = predict(kriging.model, newdata=data.frame(optimize.draws), type = "SK")
-    
+
     min.error = min(model.surface$mean)
     optimal.draw = optimize.draws[which.min(model.surface$mean),]
     optimal.params = get_params(X, optimal.draw)
-    
+
     list("error"=min.error, "params"=optimal.params)
 }
 
@@ -217,7 +217,7 @@ get_params <- function(X, draw) {
 }
 
 #' Predict with a regression forest
-#' 
+#'
 #' Gets estimates of E[Y|X=x] using a trained regression forest.
 #'
 #' @param object The trained forest.
@@ -225,15 +225,16 @@ get_params <- function(X, draw) {
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
 #'                not use the i-th training example).
-#' @param local.linear Optional flag for local linear prediction. Defaults to FALSE.
-#' @param lambda Regularization parameter for local linear ridge regression.
-#' @param ridge.type Type of regularization. Can either be a full identity penalty or
-#'                  a standardized covariance ridge, which weights different covariates differently (default).
+#' @param local.linear Optional local linear prediction correction
+#' @param lambda Ridge penalty for local linear predictions
+#' @param linear.correction.variables Optional list containing the indices of important variables;
+#'                    if non-null, local ridge regression will only use these variables.
+#' @ridge.type Option to standardize ridge penalty by covariance ("standardized"),
+#'                    or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
-#' @param linear.correction.variables Optional set of variables to simplify linear correction.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A vector of predictions.
@@ -259,49 +260,54 @@ get_params <- function(X, draw) {
 #' }
 #'
 #' @export
-predict.regression_forest <- function(object, newdata = NULL, local.linear=FALSE, lambda = 0.0, ridge.type= "standardized",
+predict.regression_forest <- function(object, newdata = NULL,
+                                      local.linear = FALSE,
+                                      lambda = 0.0,
+                                      ridge.type = "standardized",
+                                      linear.correction.variables = NULL,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
-                                      linear.correction.variables = NULL,
                                       ...) {
     num.threads <- validate_num_threads(num.threads)
-    
+
     if (estimate.variance) {
         ci.group.size = object$ci.group.size
     } else {
         ci.group.size = 1
     }
-    
+
+    ridge_type = ifelse(ridge.type == "standardized", 0, 1)
+
     forest.short <- object[-which(names(object) == "X.orig")]
-    X = matrix(object[["X.orig"]])
+    X.orig = object[["X.orig"]]
 
-    if(local.linear){
-        ridge_type = ifelse(ridge.type == "standardized", 0, 1)
-
-        if(!is.null(linear.correction.variables)){
-            X = X[,linear.correction.variables]
-            newdata = newdata[,linear.correction.variables]
-        }
+    if(is.null(linear.correction.variables)){
+        cols = 1:ncol(X.orig)
+    } else{
+        cols = linear.correction.variables
     }
 
-    data <- create_data_matrices(X)
-    
-    if (!is.null(newdata)) {
-        new.data <- create_data_matrices(newdata)
+    training.data <- create_data_matrices(X.orig[,cols])
 
-        if(local.linear){
-            local_linear_predict(forest.short, new.data$default, data$default, new.data$sparse,
-            lambda, ridge_type, num.threads)
-        }else{
-            regression_predict(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+    if (!is.null(newdata)) {
+        data <- create_data_matrices(newdata)
+
+        if(!local.linear){
+            regression_predict(forest.short, data$default, data$sparse,
+                num.threads, ci.group.size)
+        } else{
+            local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
+                training.data$sparse, lambda, ridge_type, num.threads)
         }
 
     } else {
-        if(local.linear){
-            local_linear_predict_oob(forest.short, data$default, data$sparse,
-            lambda, ridge_type, num.threads)
-        }else{regression_predict_oob(forest.short, data$default, data$sparse,
-            num.threads, ci.group.size)
+        data <- create_data_matrices(X.orig)
+
+        if(!local.linear){
+            regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+        } else{
+            local_linear_predict_oob(forest.short, data$default, training.data$default,
+                data$sparse, training.data$sparse, lambda, ridge_type, num.threads)
         }
     }
 }
