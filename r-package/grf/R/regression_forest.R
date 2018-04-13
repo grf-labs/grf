@@ -1,5 +1,3 @@
-library(DiceKriging)
-
 #' Regression forest
 #'
 #' Trains a regression forest that can be used to estimate
