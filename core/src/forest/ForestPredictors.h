@@ -32,6 +32,13 @@ public:
 
   static ForestPredictor regression_predictor(uint num_threads,
                                               uint ci_group_size);
+
+  static ForestPredictor local_linear_predictor(uint num_threads,
+                                                const Data*original_data,
+                                                const Data *test_data,
+                                                double lambda,
+                                                bool ridge_type);
+
 private:
   static uint get_num_threads(uint provided_num_threads);
 };
