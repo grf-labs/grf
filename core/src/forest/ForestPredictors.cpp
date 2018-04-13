@@ -20,6 +20,7 @@
 #include "prediction/InstrumentalPredictionStrategy.h"
 #include "prediction/QuantilePredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
+#include "prediction/LocalLinearPredictionStrategy.h"
 #include "ForestOptions.h"
 
 ForestPredictor ForestPredictors::custom_predictor(uint num_threads) {
@@ -47,4 +48,17 @@ ForestPredictor ForestPredictors::regression_predictor(uint num_threads,
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
   return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
+}
+
+ForestPredictor ForestPredictors::local_linear_predictor(uint num_threads,
+                                                         const Data*original_data,
+                                                         const Data *test_data,
+                                                         double lambda,
+                                                         bool use_unweighted_penalty) {
+  num_threads = ForestOptions::validate_num_threads(num_threads);
+  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new LocalLinearPredictionStrategy(original_data,
+                                                                                                   test_data,
+                                                                                                   lambda,
+                                                                                                   use_unweighted_penalty));
+  return ForestPredictor(num_threads, prediction_strategy);
 }

@@ -26,3 +26,10 @@ n = 500
 p = 11
 X = matrix(rnorm(n * p), n , p)
 ```
+
+```
+# gaussian_data_shrunk.csv
+n = 50
+p = 11
+X = matrix(rnorm(n * p), n , p)
+```
