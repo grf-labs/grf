@@ -37,8 +37,7 @@ public:
                                                 const Data*original_data,
                                                 const Data *test_data,
                                                 double lambda,
-                                                bool ridge_type,
-                                                std::vector<size_t> linear_correction_variables);
+                                                bool ridge_type);
 
 private:
   static uint get_num_threads(uint provided_num_threads);

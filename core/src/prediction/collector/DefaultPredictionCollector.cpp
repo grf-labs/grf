@@ -35,7 +35,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     std::unordered_map<size_t, double> weights_by_sample = weight_computer.compute_weights(
         sample, forest, leaf_nodes_by_tree, valid_trees_by_sample);
     Prediction prediction = strategy->predict(sample, weights_by_sample, forest.get_observations());
-    
+
     validate_prediction(sample, prediction);
     predictions.push_back(prediction);
   }

@@ -26,13 +26,11 @@
 
 
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data *original_data, const Data *test_data,
-                                                             double lambda, bool ridge_type,
-                                                             std::vector<size_t> linear_correction_variables):
+                                                             double lambda, bool ridge_type):
         original_data(original_data),
         test_data(test_data),
         lambda(lambda),
-        ridge_type(ridge_type),
-        linear_correction_variables(linear_correction_variables){
+        ridge_type(ridge_type){
 };
 
 const size_t LocalLinearPredictionStrategy::OUTCOME = 0;
@@ -45,8 +43,7 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
                                                              const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                              const Observations& observations) {
   size_t n = observations.get_num_samples();
-  // size_t p = test_data->get_num_cols();
-  size_t num_variables = linear_correction_variables.size();
+  size_t num_variables = test_data->get_num_cols();
 
   Eigen::MatrixXd weights(n,n);
   weights = Eigen::MatrixXd::Zero(n,n);
@@ -65,8 +62,7 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
 
   for (size_t i=0; i<n; ++i) {
     for(size_t j=0; j<num_variables; ++j){
-      size_t current_variable = linear_correction_variables.at(j);
-      X(i,j+1) = test_data->get(sampleID, current_variable) - original_data->get(i,current_variable);
+      X(i,j+1) = test_data->get(sampleID, j) - original_data->get(i,j);
     }
     Y(i) = observations.get(Observations::OUTCOME, i);
     X(i, 0) = 1;
