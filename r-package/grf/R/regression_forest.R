@@ -276,18 +276,20 @@ predict.regression_forest <- function(object, newdata = NULL,
         ci.group.size = 1
     }
 
-    ridge_type = ifelse(ridge.type == "standardized", 0, 1)
+    if(ridge.type == "standardized"){
+        ridge_type = 0
+    } else if(ridge.type == "identity"){
+        ridge_type = 1
+    } else{
+        stop("Error: invalid ridge type")
+    }
 
     forest.short <- object[-which(names(object) == "X.orig")]
     X.orig = object[["X.orig"]]
 
     if(is.null(linear.correction.variables)){
-        cols = 1:ncol(X.orig)
-    } else{
-        cols = linear.correction.variables
+        linear.correction.variables = 1:ncol(X.orig)
     }
-
-    training.data <- create_data_matrices(X.orig[,cols])
 
     if (!is.null(newdata)) {
         data <- create_data_matrices(newdata)
@@ -296,8 +298,9 @@ predict.regression_forest <- function(object, newdata = NULL,
             regression_predict(forest.short, data$default, data$sparse,
                 num.threads, ci.group.size)
         } else{
+            training.data <- create_data_matrices(X.orig)
             local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                training.data$sparse, lambda, ridge_type, num.threads)
+                training.data$sparse, lambda, ridge_type, linear.correction.variables, num.threads)
         }
 
     } else {
@@ -306,8 +309,8 @@ predict.regression_forest <- function(object, newdata = NULL,
         if(!local.linear){
             regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
         } else{
-            local_linear_predict_oob(forest.short, data$default, training.data$default,
-                data$sparse, training.data$sparse, lambda, ridge_type, num.threads)
+            local_linear_predict_oob(forest.short, data$default, data$sparse, lambda, ridge_type,
+                linear.correction.variables, num.threads)
         }
     }
 }

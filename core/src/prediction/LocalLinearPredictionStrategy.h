@@ -32,7 +32,8 @@ public:
     LocalLinearPredictionStrategy(const Data *original_data,
                                   const Data *test_data,
                                   double lambda,
-                                  bool ridge_type);
+                                  bool ridge_type,
+                                  std::vector<size_t> linear_correction_variables);
 
     size_t prediction_length();
     std::vector<double> predict(size_t sampleID,
@@ -47,6 +48,7 @@ private:
     const Data *test_data;
     double lambda;
     bool ridge_type;
+    std::vector<size_t> linear_correction_variables;
 };
 
 #endif //GRF_LOCALLINEARPREDICTIONSTRATEGY_H
