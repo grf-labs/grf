@@ -227,8 +227,6 @@ get_params <- function(X, draw) {
 #'                not use the i-th training example).
 #' @param local.linear Optional local linear prediction correction
 #' @param lambda Ridge penalty for local linear predictions
-#' @param linear.correction.variables Optional list containing the indices of important variables;
-#'                    if non-null, local ridge regression will only use these variables.
 #' @ridge.type Option to standardize ridge penalty by covariance ("standardized"),
 #'                    or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
@@ -264,7 +262,6 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       local.linear = FALSE,
                                       lambda = 0.0,
                                       ridge.type = "standardized",
-                                      linear.correction.variables = NULL,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
@@ -287,10 +284,6 @@ predict.regression_forest <- function(object, newdata = NULL,
     forest.short <- object[-which(names(object) == "X.orig")]
     X.orig = object[["X.orig"]]
 
-    if(is.null(linear.correction.variables)){
-        linear.correction.variables = 1:ncol(X.orig)
-    }
-
     if (!is.null(newdata)) {
         data <- create_data_matrices(newdata)
 
@@ -300,7 +293,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         } else{
             training.data <- create_data_matrices(X.orig)
             local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                training.data$sparse, lambda, ridge_type, linear.correction.variables, num.threads)
+                training.data$sparse, lambda, ridge_type, num.threads)
         }
 
     } else {
@@ -310,7 +303,7 @@ predict.regression_forest <- function(object, newdata = NULL,
             regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
         } else{
             local_linear_predict_oob(forest.short, data$default, data$sparse, lambda, ridge_type,
-                linear.correction.variables, num.threads)
+                num.threads)
         }
     }
 }

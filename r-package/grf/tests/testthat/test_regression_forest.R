@@ -117,47 +117,6 @@ test_that("locally linear prediction gives reasonable estimates", {
     mse = mean( (preds - truth)^2 )
     mse.oob = mean( (preds.oob - Y)^2 )
 
-    print("MSE and preds")
-    print(mse)
-
-    print(preds)
-
-    print("OOB MSE and preds")
-    print(mse.oob)
-
-    print(preds.oob)
-
     expect_true(mse < 0.5)
     expect_true(mse.oob < 5)
-})
-
-test_that("Linear correction variables are correctly implemented for LLF", {
-    n = 1000
-    p = 5
-
-	ticks = 101
-	X.test = matrix(0, ticks, p)
-	xvals = seq(-1, 1, length.out = ticks)
-	X.test[,1] = xvals
-	truth = xvals > 0
-
-	X = matrix(2 * runif(n * p) - 1, n, p)
-	Y = (X[,1] > 0) + 2 * rnorm(n)
-
-	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 1)
-    preds = predict(forest, X.test, local.linear=TRUE, lambda=0.1, linear.selection.variables=c(1,2))$predictions
-    mse = mean( (preds - truth)^2 )
-
-    preds.oob = predict(forest, local.linear=TRUE, lambda=0.01, linear.selection.variables=c(1,2))$predictions
-    mse.oob = mean( (preds.oob - Y)^2 )
-
-
-    print("selection MSE")
-    print(mse)
-
-    print("OOB SElection MSE")
-    print(mse.oob)
-
-    expect_true(mse < 1)
-    expect_true(mse.oob < 2)
 })
