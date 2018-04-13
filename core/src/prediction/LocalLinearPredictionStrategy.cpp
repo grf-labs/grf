@@ -25,19 +25,19 @@
 #include "prediction/LocalLinearPredictionStrategy.h"
 
 
-LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data *original_data, const Data *test_data,
-                                                             double lambda, bool ridge_type):
-        original_data(original_data),
-        test_data(test_data),
-        lambda(lambda),
-        ridge_type(ridge_type){
-};
-
 const size_t LocalLinearPredictionStrategy::OUTCOME = 0;
 
 size_t LocalLinearPredictionStrategy::prediction_length() {
   return 1;
 }
+
+LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data *original_data, const Data *test_data,
+                                                             double lambda, bool use_unweighted_penalty):
+        original_data(original_data),
+        test_data(test_data),
+        lambda(lambda),
+        use_unweighted_penalty(use_unweighted_penalty){
+};
 
 std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
                                                              const std::unordered_map<size_t, double>& weights_by_sampleID,
@@ -45,8 +45,7 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
   size_t n = observations.get_num_samples();
   size_t num_variables = test_data->get_num_cols();
 
-  Eigen::MatrixXd weights(n,n);
-  weights = Eigen::MatrixXd::Zero(n,n);
+  Eigen::MatrixXd weights = Eigen::MatrixXd::Zero(n,n);
 
   for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it){
     size_t i = it->first;
@@ -60,8 +59,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
 
   // check if we do variable selection. If so, isolate to those variables.
 
-  for (size_t i=0; i<n; ++i) {
-    for(size_t j=0; j<num_variables; ++j){
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < num_variables; ++j){
       X(i,j+1) = test_data->get(sampleID, j) - original_data->get(i,j);
     }
     Y(i) = observations.get(Observations::OUTCOME, i);
@@ -69,31 +68,24 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
   }
 
   // find ridge regression predictions
-  Eigen::MatrixXd M(num_variables+1,num_variables+1);
+  Eigen::MatrixXd M(num_variables+1, num_variables+1);
   M = X.transpose()*weights*X;
 
-  if (ridge_type == 1) {
+  if (use_unweighted_penalty) {
     // standard ridge penalty
-    double additional_regularization = M.trace()/num_variables+1;
-    for(size_t i=1; i<num_variables+1;++i){
-      M(i,i) += lambda*additional_regularization;
+    double additional_regularization = M.trace() / (num_variables + 1);
+    for (size_t i = 1; i < num_variables + 1; ++i){
+      M(i,i) += lambda * additional_regularization;
     }
   } else {
     // covariance ridge penalty
-    for(size_t i=1; i<num_variables+1; ++i){
-      M(i,i) += lambda*M(i,i); // note that the weights are already normalized
+    for (size_t i = 1; i < num_variables+1; ++i){
+      M(i,i) += lambda * M(i,i); // note that the weights are already normalized
     }
   }
 
-  Eigen::MatrixXd preds(num_variables+1,1);
+  Eigen::MatrixXd preds(num_variables+1, 1);
   preds = M.colPivHouseholderQr().solve(X.transpose()*weights*Y);
 
-  std::vector<double> yhat_vector;
-  yhat_vector.push_back(preds(0));
-
-  return(yhat_vector);
-}
-
-bool LocalLinearPredictionStrategy::requires_leaf_sampleIDs(){
-  return true;
+  return { preds(0) };
 }

@@ -25,7 +25,7 @@
 #include "catch.hpp"
 
 
-TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
+TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
     // Run the original forest.
 
     Data* data = load_data("test/forest/resources/gaussian_data.csv");
@@ -34,7 +34,7 @@ TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
     ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
     ForestOptions options = ForestTestUtilities::default_honest_options();
     Forest forest = trainer.train(data, options);
-    ForestPredictor predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false);
+    ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false);
 
     std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
 
@@ -46,7 +46,7 @@ TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
     }
 
     Forest shifted_forest = trainer.train(data, options);
-    ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false);
+    ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false);
     std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
 
     REQUIRE(predictions.size() == shifted_predictions.size());

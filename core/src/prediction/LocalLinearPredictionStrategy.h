@@ -32,21 +32,19 @@ public:
     LocalLinearPredictionStrategy(const Data *original_data,
                                   const Data *test_data,
                                   double lambda,
-                                  bool ridge_type);
+                                  bool use_unweighted_penalty);
 
     size_t prediction_length();
     std::vector<double> predict(size_t sampleID,
                                 const std::unordered_map<size_t, double>& weights_by_sampleID,
                                 const Observations& observations);
 
-    bool requires_leaf_sampleIDs();
-
 private:
     static const std::size_t OUTCOME;
     const Data *original_data;
     const Data *test_data;
     double lambda;
-    bool ridge_type;
+    bool use_unweighted_penalty;
 };
 
 #endif //GRF_LOCALLINEARPREDICTIONSTRATEGY_H
