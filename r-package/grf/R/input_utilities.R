@@ -13,11 +13,15 @@ validate_X <- function(X) {
   }
 }
 
-validate_mtry <- function(mtry, X) {
+validate_mtry <- function(mtry, X, null_to_na = FALSE) {
   if (is.null(mtry)) {
-    num.col = ncol(X)
-    default = ceiling(sqrt(num.col) + 20)
-    return(min(default, num.col))
+    if (null_to_na) {
+      return(NA)
+    } else {
+      num.col = ncol(X)
+      default = ceiling(sqrt(num.col) + 20)
+      return(min(default, num.col))
+    }
   } else if (!is.numeric(mtry) || mtry < 0) {
     stop("Error: Invalid value for mtry")
   }
@@ -33,20 +37,56 @@ validate_num_threads <- function(num.threads) {
   num.threads
 }
 
-validate_min_node_size <- function(min.node.size) {
+validate_min_node_size <- function(min.node.size, null_to_na = FALSE) {
   if (is.null(min.node.size)) {
-    min.node.size <- 10
+    if (null_to_na) {
+      return(NA)
+    } else {
+      min.node.size <- 10
+    }
   } else if (!is.numeric(min.node.size) | min.node.size < 0) {
     stop("Error: Invalid value for min.node.size")
   }
   min.node.size
 }
 
-validate_sample_fraction <- function(sample.fraction) {
-  if (!is.numeric(sample.fraction) | sample.fraction <= 0 | sample.fraction > 1) {
+validate_sample_fraction <- function(sample.fraction, null_to_na = FALSE) {
+  if (is.null(sample.fraction)) {
+    if (null_to_na) {
+      return(NA)
+    } else {
+      sample.fraction <- 0.5
+    }
+  } else if (!is.numeric(sample.fraction) | sample.fraction <= 0 | sample.fraction > 1) {
     stop("Error: Invalid value for sample.fraction. Please give a value in (0,1].")
   }
   sample.fraction
+}
+
+validate_alpha <- function(alpha, null_to_na = FALSE) {
+  if (is.null(alpha)) {
+    if (null_to_na) {
+      return(NA)
+    } else {
+      alpha <- 0.05
+    }
+  } else if (!is.numeric(alpha) | alpha < 0 | alpha > 0.25) {
+    stop("Error: Invalid value for alpha. Please give a value in [0,0.25].")
+  }
+  alpha
+}
+
+validate_imbalance_penalty <- function(imbalance.penalty, null_to_na = FALSE) {
+  if (is.null(imbalance.penalty)) {
+    if (null_to_na) {
+      return(NA)
+    } else {
+      imbalance.penalty <- 0.0
+    }
+  } else if (!is.numeric(imbalance.penalty) | imbalance.penalty < 0) {
+    stop("Error: Invalid value for alpha. Please give a non-negative value.")
+  }
+  imbalance.penalty
 }
 
 validate_seed <- function(seed) {
