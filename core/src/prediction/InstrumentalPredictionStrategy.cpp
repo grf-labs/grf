@@ -52,8 +52,8 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
      - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT)
      - average.at(TREATMENT) * average.at(INSTRUMENT);
-  double treatment_estimate = instrument_effect_numerator / first_stage_numerator;
-  double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_estimate;
+  double treatment_effect_estimate = instrument_effect_numerator / first_stage_numerator;
+  double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_effect_estimate;
 
   double num_good_groups = 0;
   std::vector<std::vector<double>> psi_squared = {{0, 0}, {0, 0}};
@@ -79,10 +79,10 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
       const std::vector<double>& leaf_value = leaf_values.get_values(i);
 
       double psi_1 = leaf_value.at(OUTCOME_INSTRUMENT)
-                     - leaf_value.at(TREATMENT_INSTRUMENT) * treatment_estimate
+                     - leaf_value.at(TREATMENT_INSTRUMENT) * treatment_effect_estimate
                      - leaf_value.at(INSTRUMENT) * main_effect;
       double psi_2 = leaf_value.at(OUTCOME)
-                     - leaf_value.at(TREATMENT) * treatment_estimate
+                     - leaf_value.at(TREATMENT) * treatment_effect_estimate
                      - main_effect;
 
       psi_squared[0][0] += psi_1 * psi_1;
@@ -195,5 +195,54 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
     const Observations& observations) {
-  return {};
+
+  double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
+  double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
+  double treatment_effect_estimate = instrument_effect_numerator / first_stage_numerator;
+
+  double outcome = observations.get(Observations::OUTCOME, sample);
+  double treatment = observations.get(Observations::TREATMENT, sample);
+  double instrument = observations.get(Observations::INSTRUMENT, sample);
+
+  // To justify the squared residual below as an error criterion in the case of CATE estimation
+  // with an unconfounded treatment assignment, see Nie and Wager (2017).
+  double residual = outcome - (treatment - average.at(TREATMENT)) * treatment_effect_estimate - average.at(OUTCOME);
+  double error_raw = residual * residual;
+
+  // Estimates the Monte Carlo bias of the raw error via the jackknife estimate of variance.
+  size_t num_trees = 0;
+  for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
+    if (leaf_values.empty(n)) {
+      continue;
+    }
+    num_trees++;
+  }
+
+  // If the treatment effect estimate is due to less than 5 trees, do not attempt to estimate error,
+  // as this quantity is unstable due to non-linearities.
+  if (num_trees <= 5) {
+    return { NAN };
+  }
+
+  // Compute 'leave one tree out' treatment effect estimates, and use them get a jackknife estimate of the excess error.
+  double error_bias = 0.0;
+  for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
+    if (leaf_values.empty(n)) {
+      continue;
+    }
+    const std::vector<double>& leaf_value = leaf_values.get_values(n);
+    double outcome_loto = (num_trees *  average.at(OUTCOME) - leaf_value.at(OUTCOME)) / (num_trees - 1);
+    double treatment_loto = (num_trees *  average.at(TREATMENT) - leaf_value.at(TREATMENT)) / (num_trees - 1);
+    double instrument_loto = (num_trees *  average.at(INSTRUMENT) - leaf_value.at(INSTRUMENT)) / (num_trees - 1);
+    double outcome_instrument_loto = (num_trees *  average.at(OUTCOME_INSTRUMENT) - leaf_value.at(OUTCOME_INSTRUMENT)) / (num_trees - 1);
+    double treatment_instrument_loto = (num_trees *  average.at(TREATMENT_INSTRUMENT) - leaf_value.at(TREATMENT_INSTRUMENT)) / (num_trees - 1);
+    double instrument_effect_numerator_loto = outcome_instrument_loto - outcome_loto * instrument_loto;
+    double first_stage_numerator_loto = treatment_instrument_loto - treatment_loto * instrument_loto;
+    double treatment_effect_estimate_loto = instrument_effect_numerator_loto / first_stage_numerator_loto;
+    double residual_loto = outcome - (treatment - treatment_loto) * treatment_effect_estimate_loto - outcome_loto;
+    error_bias += (residual_loto - residual) * (residual_loto - residual);
+  }
+  
+  error_bias *= ((num_trees - 1) / num_trees);
+  return { error_raw - error_bias };
 }

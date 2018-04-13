@@ -97,35 +97,26 @@ test_that("regression forest tuning decreases prediction error", {
 	expect_true(tuned.error < error)
 })
 
-test_that("local linear prediction gives reasonable estimates", {
-    f = function(x){ x[1] + 2 * x[2] + 2 * x[3]**2 }
-
+test_that("locally linear prediction gives reasonable estimates", {
     n = 1000
-    p = 5
-    X = matrix(rnorm( n *p),n,p)
-    Y = apply(X,FUN=f,MARGIN=1) + rnorm(n)
+    p = 4
 
-    X.test = matrix(rnorm(n * p), n, p)
-    truth = apply(X.test, FUN=f, MARGIN=1)
+	ticks = 101
+	X.test = matrix(0, ticks, p)
+	xvals = seq(-1, 1, length.out = ticks)
+	X.test[,1] = xvals
+	truth = xvals > 0
+
+	X = matrix(2 * runif(n * p) - 1, n, p)
+	Y = (X[,1] > 0) + rnorm(n)
 
 	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 1)
     preds = predict(forest, X.test, local.linear=TRUE, lambda=0.1)$predictions
     preds.oob = predict(forest, local.linear=TRUE, lambda=0.01)$predictions
 
-    # Check that MSE is reasonably controlled
     mse = mean( (preds - truth)^2 )
     mse.oob = mean( (preds.oob - Y)^2 )
 
     expect_true(mse < 0.5)
-    expect_true(mse.oob < 1.5)
-
-    # Check that MSE improves over standard GRF prediction
-    preds.grf = predict(forest, X.test)$predictions
-    preds.grf.oob = predict(forest)$predictions
-
-    mse.grf = mean( (preds.grf - truth)^2 )
-    mse.grf.oob = mean( (preds.grf.oob - Y)^2 )
-
-    expect_true(mse < mse.grf)
-    expect_true(mse.oob < mse.grf.oob)
+    expect_true(mse.oob < 5)
 })

@@ -47,7 +47,7 @@ test_that("causal forests can split on the last parameter", {
  	expect_gt(sum(split.freq[,6]), 0)
 })
 
-test_that("causal forest split frequencies are reasonable", {
+test_that("causal forests have reasonable split frequencies", {
   n = 100
   p = 7
   X = matrix(rnorm(n*p), n, p)
@@ -57,6 +57,20 @@ test_that("causal forest split frequencies are reasonable", {
   # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
   # we add variance corrections, this should no longer be necessary.
   ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1)
+  split.freq = split_frequencies(ccc, 4)
+  expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
+})
+
+test_that("causal forests with stable splitting have reasonable split frequencies", {
+  n = 100
+  p = 7
+  X = matrix(rnorm(n*p), n, p)
+  W = rbinom(n, 1, 0.2)
+  Y = 1000 * (X[,p]) * (2 * W - 1) + rnorm(n)
+
+  # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
+  # we add variance corrections, this should no longer be necessary.
+  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1, stabilize.splits=TRUE, min.node.size=2)
   split.freq = split_frequencies(ccc, 4)
   expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })
