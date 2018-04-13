@@ -274,9 +274,9 @@ predict.regression_forest <- function(object, newdata = NULL,
     }
 
     if(ridge.type == "standardized"){
-        ridge_type = 0
+        use_unweighted_penalty = 0
     } else if(ridge.type == "identity"){
-        ridge_type = 1
+        use_unweighted_penalty = 1
     } else{
         stop("Error: invalid ridge type")
     }
@@ -293,7 +293,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         } else{
             training.data <- create_data_matrices(X.orig)
             local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                training.data$sparse, lambda, ridge_type, num.threads)
+                training.data$sparse, lambda, use_unweighted_penalty, num.threads)
         }
 
     } else {
@@ -302,7 +302,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         if(!local.linear){
             regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
         } else{
-            local_linear_predict_oob(forest.short, data$default, data$sparse, lambda, ridge_type,
+            local_linear_predict_oob(forest.short, data$default, data$sparse, lambda, use_unweighted_penalty,
                 num.threads)
         }
     }

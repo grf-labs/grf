@@ -97,26 +97,33 @@ test_that("regression forest tuning decreases prediction error", {
 	expect_true(tuned.error < error)
 })
 
-test_that("locally linear prediction gives reasonable estimates", {
+test_that("local linear prediction gives reasonable estimates", {
+    f = function(x){x[1] + 2*x[2] + 2*x[3]**2}
+
     n = 1000
-    p = 4
+    p = 5
+    X = matrix(rnorm(n*p), n, p)
+    Y = apply(X, FUN=f, MARGIN=1) + rnorm(n)
 
-	ticks = 101
-	X.test = matrix(0, ticks, p)
-	xvals = seq(-1, 1, length.out = ticks)
-	X.test[,1] = xvals
-	truth = xvals > 0
+    forest = regression_forest(X, Y)
+    preds.grf.oob = predict(forest)
+    preds.ll.oob = predict(forest, local.linear=T)
 
-	X = matrix(2 * runif(n * p) - 1, n, p)
-	Y = (X[,1] > 0) + rnorm(n)
+    mse.grf.oob = mean( (preds.grf.oob$predictions - Y)^2 )
+    mse.ll.oob = mean( (preds.ll.oob$predictions - Y)^2 )
 
-	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 1)
-    preds = predict(forest, X.test, local.linear=TRUE, lambda=0.1)$predictions
-    preds.oob = predict(forest, local.linear=TRUE, lambda=0.01)$predictions
+    expect_true( mse.ll.oob < 1.5 )
+    expect_true( mse.ll.oob < mse.grf.oob )
 
-    mse = mean( (preds - truth)^2 )
-    mse.oob = mean( (preds.oob - Y)^2 )
+    X.test = matrix(rnorm(n*p), n, p)
+    Y.test = apply(X.test, FUN=f, MARGIN=1)
 
-    expect_true(mse < 0.5)
-    expect_true(mse.oob < 5)
+    preds.grf = predict(forest, X.test)
+    preds.ll = predict(forest, X.test, local.linear=T)
+
+    mse.grf = mean( (preds.grf$predictions - Y.test)^2 )
+    mse.ll = mean( (preds.ll$predictions - Y.test)^2 )
+
+    expect_true( mse.ll < 1.5 )
+    expect_true( mse.ll < mse.grf )
 })

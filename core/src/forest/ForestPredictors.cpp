@@ -54,11 +54,11 @@ ForestPredictor ForestPredictors::local_linear_predictor(uint num_threads,
                                                          const Data*original_data,
                                                          const Data *test_data,
                                                          double lambda,
-                                                         bool ridge_type) {
+                                                         bool use_unweighted_penalty) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new LocalLinearPredictionStrategy(original_data,
                                                                                                    test_data,
                                                                                                    lambda,
-                                                                                                   ridge_type));
+                                                                                                   use_unweighted_penalty));
   return ForestPredictor(num_threads, prediction_strategy);
 }
