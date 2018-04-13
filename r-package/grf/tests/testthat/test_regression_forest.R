@@ -113,7 +113,7 @@ test_that("local linear prediction gives reasonable estimates", {
     mse.ll.oob = mean( (preds.ll.oob$predictions - Y)^2 )
 
     expect_true( mse.ll.oob < 1.5 )
-    expect_true( mse.ll.oob < mse.grf.oob )
+    expect_true( mse.ll.oob < mse.grf.oob / 1.5 )
 
     X.test = matrix(rnorm(n*p), n, p)
     Y.test = apply(X.test, FUN=f, MARGIN=1)
@@ -125,5 +125,5 @@ test_that("local linear prediction gives reasonable estimates", {
     mse.ll = mean( (preds.ll$predictions - Y.test)^2 )
 
     expect_true( mse.ll < 1.5 )
-    expect_true( mse.ll < mse.grf )
+    expect_true( mse.ll < mse.grf / 2 )
 })
