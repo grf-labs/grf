@@ -27,16 +27,15 @@
 
 TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
     // Run the original forest.
-    std::cout << "inside LLF prediction testcase";
 
     Data* data = load_data("test/forest/resources/gaussian_data.csv");
     uint outcome_index = 10;
-
+    std::vector<size_t> linear_correction_variables = {1,2,3,4,5,6,7,8,9};
 
     ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
     ForestOptions options = ForestTestUtilities::default_honest_options();
     Forest forest = trainer.train(data, options);
-    ForestPredictor predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false);
+    ForestPredictor predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false,linear_correction_variables);
 
     std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
 
@@ -48,7 +47,7 @@ TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
     }
 
     Forest shifted_forest = trainer.train(data, options);
-    ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false);
+    ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false,linear_correction_variables);
     std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
 
     REQUIRE(predictions.size() == shifted_predictions.size());
@@ -65,6 +64,26 @@ TEST_CASE("LLF predictions are shift-invariant", "[locally.linear, forest]") {
 
     REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
     delete data;
+}
 
-    std::cout << "leaving LLF prediction test case";
+TEST_CASE("Variable selection inside LLF does not break", "[local.linear, forest]") {
+    Data* data = load_data("test/forest/resources/gaussian_data.csv");
+    uint outcome_index = 10;
+    std::vector<size_t> linear_correction_variables = {1,2,3};
+
+    ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
+    ForestOptions options = ForestTestUtilities::default_honest_options();
+    Forest forest = trainer.train(data, options);
+    ForestPredictor predictor = ForestPredictors::local_linear_predictor(4,data,data,0.1,false,linear_correction_variables);
+    std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+
+    // Check that prediction has no NA's
+    size_t num_predictions = predictions.size();
+    double prediction_sum = 0;
+    for(int i=0; i < num_predictions; ++i){
+        Prediction prediction = predictions[i];
+        double value = prediction.get_predictions()[0];
+        prediction_sum += value*value;
+    }
+    REQUIRE(prediction_sum > 0);
 }
