@@ -225,7 +225,10 @@ get_params <- function(X, draw) {
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
 #'                not use the i-th training example).
-#' @param local.linear Optional local linear prediction correction
+#' @param local.linear Optional local linear prediction correction. If TRUE,
+#'                code will run a locally weighted ridge regression at each test point.
+#'                Note that this is a beta feature still in development, and may slow down
+#'                prediction considerably. 
 #' @param lambda Ridge penalty for local linear predictions
 #' @ridge.type Option to standardize ridge penalty by covariance ("standardized"),
 #'                    or penalize all covariates equally ("identity").
