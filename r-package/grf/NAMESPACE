@@ -2,7 +2,8 @@ useDynLib(grf)
 
 importFrom("Matrix", "Matrix", "cBind")
 importFrom("methods", "new")
-importFrom("stats", "lm", "predict", "runif", "var")
+importFrom("stats", "coef", "lm", "predict", "runif", "var")
+importFrom("utils", "capture.output")
 import(Rcpp)
 
 S3method(predict,causal_forest)

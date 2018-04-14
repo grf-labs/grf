@@ -1,6 +1,6 @@
 library(grf)
 
-set.seed(4321)
+set.seed(3141)
 
 test_that("causal forests give reasonable estimates", {
 	p = 6
@@ -56,12 +56,12 @@ test_that("causal forests have reasonable split frequencies", {
 
   # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
   # we add variance corrections, this should no longer be necessary.
-  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1, min.node.size = 0)
+  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1, stabilize.splits=TRUE, min.node.size=2)
   split.freq = split_frequencies(ccc, 4)
   expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })
 
-test_that("causal forests with stable splitting have reasonable split frequencies", {
+test_that("causal forests without stable splitting have reasonable split frequencies", {
   n = 100
   p = 7
   X = matrix(rnorm(n*p), n, p)
@@ -70,7 +70,7 @@ test_that("causal forests with stable splitting have reasonable split frequencie
 
   # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
   # we add variance corrections, this should no longer be necessary.
-  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1, stabilize.splits=TRUE, min.node.size=2)
+  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1, stabilize.splits=FALSE, min.node.size=2)
   split.freq = split_frequencies(ccc, 4)
   expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })

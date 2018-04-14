@@ -8,10 +8,31 @@
 #' called with min.node.size = 10 and alpha = 0.7, then those parameter values will be treated
 #' as fixed, and only sample.fraction and imbalance.penalty will be tuned.
 #'
+#' @param X The covariates used in the causal regression.
+#' @param Y The outcome.
+#' @param W The treatment assignment (may be binary or real).
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
+#' @param sample.fraction Fraction of the data used to build each tree.
+#'                        Note: If honesty is used, these subsamples will
+#'                        further be cut in half.
+#' @param mtry Number of variables tried for each split.
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
+#'                      with size smaller than min.node.size can occur, as in the original randomForest package.
+#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
+#' @param stabilize.splits Whether or not the treatment should be taken into account when
+#'                         determining the imbalance of a split (experimental).
+#' @param seed The seed of the C++ random number generator.
+#' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
+#'                            software will set this value to the size of the smallest cluster.#'
 #'
 #' @return A list consisting of the optimal parameter values ('params') along with their debiased
 #'         error ('error').
@@ -106,11 +127,12 @@ tune_causal_forest <- function(X, Y, W,
   # Note that in the 'km' call, the kriging package prints a large amount of information
   # about the fitting process. Here, capture its console output and discard it.
   variance.guess = rep(var(debiased.errors)/2, nrow(fit.draws))
-  env = environment()
+  env = new.env()
   capture.output(env$kriging.model <-
                    DiceKriging::km(design = data.frame(fit.draws),
                                    response = debiased.errors,
                                    noise.var = variance.guess))
+  kriging.model <- env$kriging.model
   
   # To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
