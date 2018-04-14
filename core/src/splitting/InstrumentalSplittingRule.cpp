@@ -29,13 +29,13 @@ InstrumentalSplittingRule::InstrumentalSplittingRule(Data* data,
     observations(observations),
     min_node_size(min_node_size),
     alpha(alpha),
-    lambda(imbalance_penalty) {
+    imbalance_penalty(imbalance_penalty) {
   size_t max_num_unique_values = data->get_max_num_unique_values();
   this->counter = new size_t[max_num_unique_values];
   this->sums = new double[max_num_unique_values];
+  this->num_small_z = new size_t[max_num_unique_values];
   this->sums_z = new double[max_num_unique_values];
   this->sums_z_squared = new double[max_num_unique_values];
-  this->num_small_z = new size_t[max_num_unique_values];
 }
 
 InstrumentalSplittingRule::~InstrumentalSplittingRule() {
@@ -149,9 +149,9 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
 
   std::fill(sums_right, sums_right + num_splits, 0);
   std::fill(n_right, n_right + num_splits, 0);
+  std::fill(num_small_z, num_small_z + num_splits, 0);
   std::fill(sums_z, sums_z + num_splits, 0);
   std::fill(sums_z_squared, sums_z_squared + num_splits, 0);
-  std::fill(num_small_z, num_small_z + num_splits, 0);
 
   // Sum in right child and possible split
   for (auto& sample : samples[node]) {
@@ -202,7 +202,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
     double size_right = sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right[i];
 
     // Skip this split if the right child's variance is too small.
-    if (size_right < min_child_size || (lambda > 0.0 && size_right == 0)) {
+    if (size_right < min_child_size || (imbalance_penalty > 0.0 && size_right == 0)) {
       continue;
     }
 
@@ -213,13 +213,13 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
     double size_left = sum_left_z_squared - sum_left_z * sum_left_z / (double) n_left;
 
     // Skip this split if the left child's variance is too small.
-    if (size_left < min_child_size || (lambda > 0.0 && size_left == 0)) {
+    if (size_left < min_child_size || (imbalance_penalty > 0.0 && size_left == 0)) {
       continue;
     }
 
     // Calculate the decrease in impurity.
     double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right[i];
-    decrease -= lambda * (1.0 / size_left + 1.0 / size_right);
+    decrease -= imbalance_penalty * (1.0 / size_left + 1.0 / size_right);
 
     // Save this split if it is the best seen so fa.
     if (decrease > best_decrease) {
@@ -248,9 +248,9 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
   size_t num_unique = data->get_num_unique_data_values(var);
   std::fill(counter, counter + num_unique, 0);
   std::fill(sums, sums + num_unique, 0);
+  std::fill(num_small_z, num_small_z + num_unique, 0);
   std::fill(sums_z, sums_z + num_unique, 0);
   std::fill(sums_z_squared, sums_z_squared + num_unique, 0);
-  std::fill(num_small_z, num_small_z + num_unique, 0);
 
   for (auto& sample : samples[node]) {
     size_t i = data->get_index(sample, var);
@@ -300,7 +300,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
     double size_left = sum_left_z_squared - sum_left_z * sum_left_z / (double) n_left;
 
     // Skip this split if the left child's variance is too small.
-    if (size_left < min_child_size || (lambda > 0.0 && size_left == 0)) {
+    if (size_left < min_child_size || (imbalance_penalty > 0.0 && size_left == 0)) {
       continue;
     }
 
@@ -310,7 +310,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
     double size_right = sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right;
 
     // Skip this split if the right child's variance is too small.
-    if (size_right < min_child_size || (lambda > 0.0 && size_right == 0)) {
+    if (size_right < min_child_size || (imbalance_penalty > 0.0 && size_right == 0)) {
       continue;
     }
 
@@ -319,7 +319,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
     double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
 
     // Penalize splits that are too close to the edges of the data.
-    decrease -= lambda * (1.0 / size_left + 1.0 / size_right);
+    decrease -= imbalance_penalty * (1.0 / size_left + 1.0 / size_right);
 
     // Save this split if it is the best seen so fa.
     if (decrease > best_decrease) {
