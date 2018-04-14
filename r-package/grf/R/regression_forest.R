@@ -58,7 +58,7 @@
 #'
 #' @export
 regression_forest <- function(X, Y,
-                              sample.fraction = NULL,
+                              sample.fraction = 0.5,
                               mtry = NULL, 
                               num.trees = 2000,
                               num.threads = NULL,

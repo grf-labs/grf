@@ -1,8 +1,8 @@
 #' Causal forest tuning
 #' 
 #' Finds the optimal parameters to be used in training a regression forest. This method
-#' currently tunes over min.node.size, sample.fraction, alpha, and imbalance.penalty.
-#' Please see the method 'regression_forest' for a description of the standard forest
+#' currently tunes over min.node.size, mtry, sample.fraction, alpha, and imbalance.penalty.
+#' Please see the method 'causal_forest' for a description of the standard causal forest
 #' parameters. Note that if fixed values can be supplied for any of the parameters mentioned
 #' above, and in that case, that parameter will not be tuned. For example, if this method is
 #' called with min.node.size = 10 and alpha = 0.7, then those parameter values will be treated
@@ -20,16 +20,17 @@
 #' # Find the optimal tuning parameters.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
-#' Y = X[,1] * rnorm(n)
-#' params = tune_regression_forest(X, Y)$params
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' params = tune_causal_forest(X, Y, W)$params
 #'
 #' # Use these parameters to train a regression forest.
-#' tuned.forest = causal_forest(X, Y, num.trees = 1000,
-#'     min.node.size = params["min.node.size"],
-#'     sample.fraction = params["sample.fraction"],
-#'     alpha = params["alpha"],
-#'     alpha = params["alpha"],
-#'     imbalance.penalty = params["imbalance.penalty"])
+#' tuned.forest = causal_forest(X, Y, W, num.trees = 1000,
+#'     min.node.size = as.numeric(params["min.node.size"]),
+#'     sample.fraction = as.numeric(params["sample.fraction"]),
+#'     mtry = as.numeric(params["mtry"]),
+#'     alpha = as.numeric(params["alpha"]),
+#'     imbalance.penalty = as.numeric(params["imbalance.penalty"])
 #' }
 #'
 #' @export
@@ -38,7 +39,7 @@ tune_causal_forest <- function(X, Y, W,
                                num.fit.reps = 100,
                                num.optimize.reps = 1000,
                                min.node.size = NULL,
-                               sample.fraction = NULL,
+                               sample.fraction = 0.5,
                                mtry = NULL,
                                alpha = NULL,
                                imbalance.penalty = NULL,

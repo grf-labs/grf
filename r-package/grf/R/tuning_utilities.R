@@ -18,7 +18,7 @@ get_params_from_draw <- function(X, draw) {
     } else if (param == "sample.fraction") {
       value = 0.05 + 0.45 * draw[param]
     } else if (param == "mtry") {
-      value = ceiling(ncol(X) * draw[param])
+      value = ceiling(min(ncol(X), sqrt(ncol(X)) + 20) * draw[param])
     } else if (param == "alpha") {
       value = draw[param]/4
     } else if (param == "imbalance.penalty") {

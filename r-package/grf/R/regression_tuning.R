@@ -1,7 +1,7 @@
 #' Regression forest tuning
 #' 
 #' Finds the optimal parameters to be used in training a regression forest. This method
-#' currently tunes over min.node.size, sample.fraction, alpha, and imbalance.penalty.
+#' currently tunes over min.node.size, mtry, sample.fraction, alpha, and imbalance.penalty.
 #' Please see the method 'regression_forest' for a description of the standard forest
 #' parameters. Note that if fixed values can be supplied for any of the parameters mentioned
 #' above, and in that case, that parameter will not be tuned. For example, if this method is
@@ -18,18 +18,18 @@
 #'
 #' @examples \dontrun{
 #' # Find the optimal tuning parameters.
-#' n = 50; p = 10
+#' n = 500; p = 10
 #' X = matrix(rnorm(n*p), n, p)
 #' Y = X[,1] * rnorm(n)
 #' params = tune_regression_forest(X, Y)$params
 #'
 #' # Use these parameters to train a regression forest.
 #' tuned.forest = regression_forest(X, Y, num.trees = 1000,
-#'     min.node.size = params["min.node.size"],
-#'     sample.fraction = params["sample.fraction"],
-#'     alpha = params["alpha"],
-#'     alpha = params["alpha"],
-#'     imbalance.penalty = params["imbalance.penalty"])
+#'     min.node.size = as.numeric(params["min.node.size"]),
+#'     sample.fraction = as.numeric(params["sample.fraction"]),
+#'     mtry = as.numeric(params["mtry"]),
+#'     alpha = as.numeric(params["alpha"]),
+#'     imbalance.penalty = as.numeric(params["imbalance.penalty"]))
 #' }
 #'
 #' @export
@@ -38,7 +38,7 @@ tune_regression_forest <- function(X, Y,
                                    num.fit.reps = 100,
                                    num.optimize.reps = 1000,
                                    min.node.size = NULL,
-                                   sample.fraction = NULL,
+                                   sample.fraction = 0.5,
                                    mtry = NULL,
                                    alpha = NULL,
                                    imbalance.penalty = NULL,
