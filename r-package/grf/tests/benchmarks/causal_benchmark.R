@@ -109,7 +109,6 @@ res.untuned.stab
 res.tuned.stab
 
 
-
 # res.ip = outer(c(0, 0.25, 0.5, 2, 4), 1:5,
 #             FUN = Vectorize(function(imbalance.penalty, setup) {
 #               evaluate_method(make_causal_forest(

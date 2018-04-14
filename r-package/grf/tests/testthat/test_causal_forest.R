@@ -90,7 +90,7 @@ test_that("causal forests behave reasonably with a low treatment probability", {
 })
 
 test_that("causal forest tuning decreases prediction error", {
-	p = 6
+	p = 4
 	n = 1000
 
 	X = matrix(2 * runif(n * p) - 1, n, p)
@@ -98,7 +98,7 @@ test_that("causal forest tuning decreases prediction error", {
 	TAU = 0.1 * (X[,1] > 0)
 	Y = TAU * (W  - 1/2) + 2 * rnorm(n)
 
-	forest = causal_forest(X, Y, W, num.trees = 400, tune.parameters = FALSE)
+	forest = causal_forest(X, Y, W, num.trees = 400, min.node.size = 1, tune.parameters = FALSE)
 	preds = predict(forest)
 	error = mean((preds$predictions - TAU)^2)
 
@@ -111,7 +111,7 @@ test_that("causal forest tuning decreases prediction error", {
 
 test_that("causal forest tuning only cross-validates null parameters", {
 	p = 6
-	n = 1000
+	n = 100
 
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	W = rbinom(n, 1, 0.5)

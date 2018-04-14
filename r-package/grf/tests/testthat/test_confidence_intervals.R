@@ -45,7 +45,7 @@ test_that("instrumental CIs are reasonable", {
   k.mu = 2
   
   X = matrix(rnorm(n * p), n, p)
-  eps = rnorm(n)
+  eps = 2 * rnorm(n)
   Z = rbinom(n, 1, 2/3)
   filter = rbinom(n, 1, 1/(1 + exp(-eps)))
   W = Z * filter
