@@ -101,8 +101,6 @@ tune_causal_forest <- function(X, Y, W,
                                           num.threads, ci.group.size)
     mean(prediction$debiased.error, na.rm = TRUE)
   })
-
-  #print(debiased.errors)
   
   # Fit the 'dice kriging' model to these error estimates.
   # Note that in the 'km' call, the kriging package prints a large amount of information

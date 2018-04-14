@@ -18,8 +18,8 @@ test_that("using big ci.group.size doesn't result in tiny CIs", {
   pred.sm.group = predict(forest.sm.group, X.test, estimate.variance=TRUE)
   var.sm.group = sqrt(pred.sm.group$variance.estimates)
 
-  expect_true(min(var.big.group) > 0.02)
-  expect_true(min(var.sm.group) > 0.02)
+  expect_true(min(var.big.group) > 0.01)
+  expect_true(min(var.sm.group) > 0.01)
   expect_true(mean(var.big.group)/mean(var.sm.group) > 0.8)
 })
 

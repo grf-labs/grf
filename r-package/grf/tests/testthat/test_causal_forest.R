@@ -118,7 +118,7 @@ test_that("causal forest tuning only cross-validates null parameters", {
 	TAU = 2 * (X[,1] > 0)
 	Y = TAU * (W  - 1/2) + 2 * rnorm(n)
 
-	min.node.size = 42
+	min.node.size = 5
 	imbalance.penalty = 0.42
 
   tune.output = tune_causal_forest(X, Y, W, min.node.size = min.node.size, imbalance.penalty = imbalance.penalty)
