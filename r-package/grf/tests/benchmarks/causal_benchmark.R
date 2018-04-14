@@ -67,29 +67,67 @@ make_causal_forest = function(stabilize.splits, min.node.size,
   }
 }
 
-res.ip = outer(c(0, 0.25, 0.5, 2, 4), 1:5,
-            FUN = Vectorize(function(imbalance.penalty, setup) {
-              evaluate_method(make_causal_forest(
-                stabilize.splits = TRUE,
-                min.node.size = 5,
-                alpha = 0.05,
-                imbalance.penalty = imbalance.penalty),
-                setup)
-            }))
+res.untuned.unstab = sapply(1:5, function(setup) {
+  evaluate_method(function(X, Y, W) {
+    cf = causal_forest(X, Y, W, tune.parameters = FALSE, stabilize.splits = FALSE)
+    cf.pred = predict(cf)
+    cf.pred$predictions
+  }, setup)
+})
+res.untuned.unstab
 
-res.mns = outer(c(0, 1, 2, 4, 8, 16, 32), 1:5,
-                FUN = Vectorize(function(mns, setup) {
-                  evaluate_method(make_causal_forest(
-                    stabilize.splits = TRUE,
-                    min.node.size = mns,
-                    alpha = 0.05,
-                    imbalance.penalty = 0),
-                    setup)
-                }))
-colnames(res.mns) = sapply(1:5, function(ii) paste("setup", ii))
-rownames(res.mns) = sapply(c(0, 1, 2, 4, 8, 16, 32), function(ii) paste("min. node size", ii))
+res.tuned.unstab = sapply(1:5, function(setup) {
+  evaluate_method(function(X, Y, W) {
+    cf = causal_forest(X, Y, W, tune.parameters = TRUE, stabilize.splits = FALSE)
+    cf.pred = predict(cf)
+    cf.pred$predictions
+  }, setup)
+})
+res.tuned.unstab
+
+res.untuned.stab = sapply(1:5, function(setup) {
+  evaluate_method(function(X, Y, W) {
+    cf = causal_forest(X, Y, W, min.node.size = 5, tune.parameters = FALSE, stabilize.splits = TRUE)
+    cf.pred = predict(cf)
+    cf.pred$predictions
+  }, setup)
+})
+res.untuned.stab
+
+res.tuned.stab = sapply(1:5, function(setup) {
+  evaluate_method(function(X, Y, W) {
+    cf = causal_forest(X, Y, W, tune.parameters = TRUE, stabilize.splits = TRUE)
+    cf.pred = predict(cf)
+    cf.pred$predictions
+  }, setup)
+})
+res.tuned.stab
+
+res.untuned.unstab
+res.tuned.unstab
+res.untuned.stab
+res.tuned.stab
 
 
 
-
-
+# res.ip = outer(c(0, 0.25, 0.5, 2, 4), 1:5,
+#             FUN = Vectorize(function(imbalance.penalty, setup) {
+#               evaluate_method(make_causal_forest(
+#                 stabilize.splits = TRUE,
+#                 min.node.size = 5,
+#                 alpha = 0.05,
+#                 imbalance.penalty = imbalance.penalty),
+#                 setup)
+#             }))
+# 
+# res.mns = outer(c(0, 1, 2, 4, 8, 16, 32), 1:5,
+#                 FUN = Vectorize(function(mns, setup) {
+#                   evaluate_method(make_causal_forest(
+#                     stabilize.splits = TRUE,
+#                     min.node.size = mns,
+#                     alpha = 0.05,
+#                     imbalance.penalty = 0),
+#                     setup)
+#                 }))
+# colnames(res.mns) = sapply(1:5, function(ii) paste("setup", ii))
+# rownames(res.mns) = sapply(c(0, 1, 2, 4, 8, 16, 32), function(ii) paste("min. node size", ii))

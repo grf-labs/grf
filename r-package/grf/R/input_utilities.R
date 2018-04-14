@@ -35,7 +35,7 @@ validate_num_threads <- function(num.threads) {
 
 validate_min_node_size <- function(min.node.size) {
   if (is.null(min.node.size)) {
-    min.node.size <- 10
+    min.node.size <- 5
   } else if (!is.numeric(min.node.size) | min.node.size < 0) {
     stop("Error: Invalid value for min.node.size")
   }
