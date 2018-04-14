@@ -54,17 +54,19 @@ tune_regression_forest <- function(X, Y,
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
   samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
-  
+  ci.group.size <- 1
+
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
   
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
-  all.params = c(min.node.size = validate_min_node_size(min.node.size, null_to_na = TRUE),
-                 sample.fraction = validate_sample_fraction(sample.fraction, null_to_na = TRUE),
-                 mtry = validate_mtry(mtry, X, null_to_na = TRUE),
-                 alpha = validate_alpha(alpha, null_to_na = TRUE),
-                 imbalance.penalty = validate_imbalance_penalty(imbalance.penalty, null_to_na = TRUE))
+  all.params = c(
+    min.node.size = if (is.null(min.node.size)) NA else validate_min_node_size(min.node.size),
+    sample.fraction = if (is.null(sample.fraction)) NA else validate_sample_fraction(sample.fraction),
+    mtry = if (is.null(mtry)) NA else validate_mtry(mtry),
+    alpha = if (is.null(alpha)) NA else validate_alpha(alpha),
+    imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty))
   fixed.params = all.params[!is.na(all.params)]
   tuning.params = all.params[is.na(all.params)]
   
@@ -79,17 +81,21 @@ tune_regression_forest <- function(X, Y,
   
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params(X, draw))
-    small.forest = regression_forest(X, Y, tune.parameters = FALSE,
-                                     num.threads = num.threads, honesty = honesty, seed = seed,
-                                     clusters = clusters, samples_per_cluster = samples_per_cluster,
-                                     num.trees = num.fit.trees,
-                                     min.node.size = as.numeric(params["min.node.size"]), 
-                                     sample.fraction = as.numeric(params["sample.fraction"]),
-                                     mtry = as.numeric(params["mtry"]),
-                                     alpha = as.numeric(params["alpha"]),
-                                     imbalance.penalty = as.numeric(params["imbalance.penalty"])
-    )
-    prediction = predict(small.forest)
+    small.forest <- regression_train(data$default, data$sparse, outcome.index,
+                                     as.numeric(params["mtry"]),
+                                     num.fit.trees,
+                                     num.threads,
+                                     as.numeric(params["min.node.size"]),
+                                     as.numeric(params["sample.fraction"]),
+                                     seed,
+                                     honesty,
+                                     ci.group.size,
+                                     as.numeric(params["alpha"]),
+                                     as.numeric(params["imbalance.penalty"]),
+                                     clusters,
+                                     samples_per_cluster)
+    prediction = regression_predict_oob(small.forest, data$default, data$sparse,
+                                        num.threads, ci.group.size)
     mean(prediction$debiased.error, na.rm = TRUE)
   })
   
@@ -111,9 +117,9 @@ tune_regression_forest <- function(X, Y,
   
   min.error = min(model.surface$mean)
   optimal.draw = optimize.draws[which.min(model.surface$mean),]
-  fitted.params = get_params(X, optimal.draw)
+  tuned.params = get_params(X, optimal.draw)
   
-  list("error"=min.error, "params"=c(fixed.params, fitted.params))
+  list(error = min.error, params = c(fixed.params, tuned.params))
 }
 
 

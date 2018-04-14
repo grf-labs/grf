@@ -72,8 +72,8 @@ test_that("OOB predictions contain debiased error estimates", {
 })
 
 test_that("regression forest tuning decreases prediction error", {
-	p = 2
 	n = 5000
+	p = 2
 
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = (X[,1] > 0) + rnorm(n)
@@ -89,6 +89,25 @@ test_that("regression forest tuning decreases prediction error", {
 	tuned.error = mean((tuned.preds$predictions - truth)^2)
 	
 	expect_true(tuned.error < error * 0.75)
+})
+
+test_that("regression forest tuning only tunes null parameters", {
+	n = 5000
+	p = 2
+
+	X = matrix(2 * runif(n * p) - 1, n, p)
+	Y = (X[,1] > 0) + rnorm(n)
+	X.test = matrix(2 * runif(n * p) - 1, n, p)
+	truth = (X.test[,1] > 0)
+
+	min.node.size = 42
+	imbalance.penalty = 0.42
+
+    tune.output = tune_regression_forest(X, Y, min.node.size = min.node.size, imbalance.penalty = imbalance.penalty)
+    tunable.params = tune.output$params
+
+    expect_equal(as.numeric(tunable.params["min.node.size"]), min.node.size)
+    expect_equal(as.numeric(tunable.params["imbalance.penalty"]), imbalance.penalty)
 })
 
 test_that("local linear prediction gives reasonable estimates", {

@@ -8,8 +8,6 @@
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty is used, these subsamples will
 #'                        further be cut in half.
-#' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
-#'                        NULL parameters are set to defaults.
 #' @param mtry Number of variables tried for each split.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
@@ -29,6 +27,8 @@
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
 #'                            software will set this value to the size of the smallest cluster.
+#' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
+#'                        NULL parameters are set to defaults.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
@@ -58,7 +58,6 @@
 #'
 #' @export
 regression_forest <- function(X, Y,
-                              tune.parameters = FALSE,
                               sample.fraction = NULL,
                               mtry = NULL, 
                               num.trees = 2000,
@@ -71,6 +70,7 @@ regression_forest <- function(X, Y,
                               seed = NULL,
                               clusters = NULL,
                               samples_per_cluster = NULL,
+                              tune.parameters = FALSE,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
