@@ -17,13 +17,13 @@ Depends:
 License: GPL-3
 LinkingTo: Rcpp, RcppEigen
 Imports:
+    DiceKriging,
     Matrix,
     methods,
     Rcpp (>= 0.12.15),
-    DiceKriging (>= 2.4-0)
+    sandwich (>= 2.4-0)
 RoxygenNote: 6.0.1.9000
 Suggests:
-    sandwich,
     testthat
 SystemRequirements: GNU make
 URL: https://github.com/swager/grf
