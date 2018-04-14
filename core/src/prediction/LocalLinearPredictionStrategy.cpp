@@ -31,8 +31,10 @@ size_t LocalLinearPredictionStrategy::prediction_length() {
   return 1;
 }
 
-LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data *original_data, const Data *test_data,
-                                                             double lambda, bool use_unweighted_penalty):
+LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data* original_data,
+                                                             const Data* test_data,
+                                                             double lambda,
+                                                             bool use_unweighted_penalty):
         original_data(original_data),
         test_data(test_data),
         lambda(lambda),
@@ -40,8 +42,8 @@ LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data *origina
 };
 
 std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
-                                                             const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                             const Observations& observations) {
+                                                           const std::unordered_map<size_t, double>& weights_by_sampleID,
+                                                           const Observations& observations) {
   size_t n = observations.get_num_samples();
   size_t num_variables = test_data->get_num_cols();
 

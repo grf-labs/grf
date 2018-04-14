@@ -26,41 +26,40 @@
 
 
 TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
-    // Run the original forest.
+  Data* data = load_data("test/forest/resources/small_gaussian_data.csv");
+  uint outcome_index = 10;
 
-    Data* data = load_data("test/forest/resources/gaussian_data_shrunk.csv");
-    uint outcome_index = 10;
-
-    ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
-    ForestOptions options = ForestTestUtilities::default_honest_options();
-    Forest forest = trainer.train(data, options);
-    ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false);
-
-    std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
-
-    // Shift each outcome by 1, and re-run the forest.
-    bool error;
-    for (size_t r = 0; r < data->get_num_rows(); r++) {
-        double outcome = data->get(r, outcome_index);
-        data->set(outcome_index, r, outcome + 1, error);
-    }
-
-    Forest shifted_forest = trainer.train(data, options);
-    ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false);
-    std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
-
-    REQUIRE(predictions.size() == shifted_predictions.size());
-    double delta = 0.0;
-    for (size_t i = 0; i < predictions.size(); i++) {
-        Prediction prediction = predictions[i];
-        Prediction shifted_prediction = shifted_predictions[i];
-
-        double value = prediction.get_predictions()[0];
-        double shifted_value = shifted_prediction.get_predictions()[0];
-
-        delta += shifted_value - value;
-    }
-
-    REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
-    delete data;
+  // Run the original forest.
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
+  ForestOptions options = ForestTestUtilities::default_honest_options();
+  Forest forest = trainer.train(data, options);
+  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false);
+  
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+  
+  // Shift each outcome by 1, and re-run the forest.
+  bool error;
+  for (size_t r = 0; r < data->get_num_rows(); r++) {
+    double outcome = data->get(r, outcome_index);
+    data->set(outcome_index, r, outcome + 1, error);
+  }
+  
+  Forest shifted_forest = trainer.train(data, options);
+  ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
+  
+  REQUIRE(predictions.size() == shifted_predictions.size());
+  double delta = 0.0;
+  for (size_t i = 0; i < predictions.size(); i++) {
+    Prediction prediction = predictions[i];
+    Prediction shifted_prediction = shifted_predictions[i];
+  
+    double value = prediction.get_predictions()[0];
+    double shifted_value = shifted_prediction.get_predictions()[0];
+  
+    delta += shifted_value - value;
+  }
+  
+  REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
+  delete data;
 }
