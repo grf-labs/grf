@@ -51,7 +51,7 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
 Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
                                                    Rcpp::NumericMatrix input_data,
                                                    Eigen::SparseMatrix<double> sparse_input_data,
-                                                   uint num_threads,
+                                                   unsigned int num_threads,
                                                    bool oob_prediction) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
@@ -86,7 +86,7 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
 Eigen::SparseMatrix<double> compute_weights(Rcpp::List forest_object,
                                             Rcpp::NumericMatrix input_data,
                                             Eigen::SparseMatrix<double> sparse_input_data,
-                                            uint num_threads) {
+                                            unsigned int num_threads) {
   return compute_sample_weights(forest_object, input_data, sparse_input_data, num_threads, false);
 }
 
@@ -94,7 +94,7 @@ Eigen::SparseMatrix<double> compute_weights(Rcpp::List forest_object,
 Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object,
                                                 Rcpp::NumericMatrix input_data,
                                                 Eigen::SparseMatrix<double> sparse_input_data,
-                                                uint num_threads) {
+                                                unsigned int num_threads) {
   return compute_sample_weights(forest_object, input_data, sparse_input_data, num_threads, true);
 }
 
