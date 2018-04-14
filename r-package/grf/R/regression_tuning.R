@@ -61,12 +61,7 @@ tune_regression_forest <- function(X, Y,
   
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
-  all.params = c(
-    min.node.size = if (is.null(min.node.size)) NA else validate_min_node_size(min.node.size),
-    sample.fraction = if (is.null(sample.fraction)) NA else validate_sample_fraction(sample.fraction),
-    mtry = if (is.null(mtry)) NA else validate_mtry(mtry),
-    alpha = if (is.null(alpha)) NA else validate_alpha(alpha),
-    imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty))
+  all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
   fixed.params = all.params[!is.na(all.params)]
   tuning.params = all.params[is.na(all.params)]
   
@@ -80,7 +75,7 @@ tune_regression_forest <- function(X, Y,
   colnames(fit.draws) = names(tuning.params)
   
   debiased.errors = apply(fit.draws, 1, function(draw) {
-    params = c(fixed.params, get_params(X, draw))
+    params = c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- regression_train(data$default, data$sparse, outcome.index,
                                      as.numeric(params["mtry"]),
                                      num.fit.trees,
@@ -117,29 +112,7 @@ tune_regression_forest <- function(X, Y,
   
   min.error = min(model.surface$mean)
   optimal.draw = optimize.draws[which.min(model.surface$mean),]
-  tuned.params = get_params(X, optimal.draw)
+  tuned.params = get_params_from_draw(X, optimal.draw)
   
   list(error = min.error, params = c(fixed.params, tuned.params))
-}
-
-
-get_params <- function(X, draw) {
-  result = c()
-  for (param in names(draw)) {
-    if (param == "min.node.size") {
-      value = floor(2^(draw[param] * (log(nrow(X)) / log(2) - 4)))
-    } else if (param == "sample.fraction") {
-      value = 0.05 + 0.45 * draw[param]
-    } else if (param == "mtry") {
-      value = ceiling(ncol(X) * draw[param])
-    } else if (param == "alpha") {
-      value = draw[param]/4
-    } else if (param == "imbalance.penalty") {
-      value = -log(draw[param])
-    } else {
-      stop("Unrecognized parameter name provided: ", param)
-    }
-    result = c(result, value)
-  }
-  result
 }
