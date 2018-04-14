@@ -72,14 +72,14 @@ private:
   const Observations& observations;
 
   size_t* counter;
-  double* sums_z;
-  double* sums_z_squared;
   double* sums;
   size_t* num_small_z;
+  double* sums_z;
+  double* sums_z_squared;
 
   uint min_node_size;
   double alpha;
-  double lambda;
+  double imbalance_penalty;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalSplittingRule);
 };
