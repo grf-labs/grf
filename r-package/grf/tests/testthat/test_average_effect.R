@@ -181,7 +181,7 @@ test_that("average treatment effect with overlap: larger example works", {
 
 test_that("cluster robust average effects are consistent", {
   p = 6
-  n = 200
+  n = 400
 
   X = matrix(2 * runif(n * p) - 1, n, p)
   W = rbinom(n, 1, 0.5)
