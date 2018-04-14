@@ -1,9 +1,11 @@
 Package: grf
 Title: Generalized Random Forests (Beta)
-Version: 0.9.5
+Version: 0.9.6
 Author: Julie Tibshirani [aut, cre],
     Susan Athey [aut],
     Stefan Wager [aut],
+    Rina Friedberg [ctb],
+    Luke Miner [ctb],
     Marvin Wright [ctb]
 BugReports: https://github.com/swager/grf/issues
 Maintainer: Julie Tibshirani <jtibs@cs.stanford.edu>

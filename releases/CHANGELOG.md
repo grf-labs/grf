@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.6] - 2018-04-13
+
+### Added
+- Debiased error criterion for measuring the out-of-bag accuracy of a forest using only a few trees.
+- Automated tuning via cross-validation for regression and causal forests.
+- Estimation of average partial effects with a continuous treatment.
+- Cluster-robust standard errors for regression and causal forests, and average effect estimates (contributed by lminer).
+- Locally linear prediction in regression forests (contributed by rinafriedberg).
+- Regularize splits in causal/instrumental forests via a variance penalty.
+
+### Changed
+- Avoid causal forest leaves with all treated or all control samples.
+- Store in-bag rather than out-of-bag samples to save memory.
+- Only support sampling with replacement (as some features are ambiguously defined with bootstrapping).
+
+### Fixed
+- Bug in IV CI construction (#209).
+
 ## [0.9.5] - 2018-01-04
 
 ### Added

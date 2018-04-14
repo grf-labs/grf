@@ -26,7 +26,7 @@ install.packages("grf")
 Any published release can also be installed from source:
 
 ```R
-install.packages("https://raw.github.com/swager/grf/master/releases/grf_0.9.5.tar.gz", repos = NULL, type = "source")
+install.packages("https://raw.github.com/swager/grf/master/releases/grf_0.9.6.tar.gz", repos = NULL, type = "source")
 ```
 
 Note that to install from source, a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
@@ -80,5 +80,5 @@ In addition to providing out-of-the-box forests for quantile regression and caus
 ### References
 
 Susan Athey, Julie Tibshirani and Stefan Wager.
-<b>Generalized Random Forests</b>, 2016.
+<b>Generalized Random Forests</b>, <i>Annals of Statistics</i>, forthcoming.
 [<a href="https://arxiv.org/abs/1610.01271">arxiv</a>]
