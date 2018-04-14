@@ -16,7 +16,7 @@ test_that("causal forests give reasonable estimates", {
 	W = rbinom(n, 1, 0.5)
 	Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)
 
-	forest.causal = causal_forest(X, Y, W, num.trees = 2000, ci.group.size = 4)
+	forest.causal = causal_forest(X, Y, W, num.trees = 2000, ci.group.size = 4, precompute.nuisance = FALSE)
 	preds.causal.oob = predict(forest.causal, estimate.variance=TRUE)
 	preds.causal = predict(forest.causal, X.test, estimate.variance=TRUE)
 
@@ -76,8 +76,9 @@ test_that("causal forests with stable splitting have reasonable split frequencie
 })
 
 test_that("causal forests behave reasonably with a low treatment probability", {
-	p = 5
 	n = 1000
+	p = 5
+
 	X = matrix(rnorm(n * p), n, p)
 	W = rbinom(n, 1, 0.1)
 	tau = 0.1
@@ -86,4 +87,43 @@ test_that("causal forests behave reasonably with a low treatment probability", {
 	forest = causal_forest(X, Y, W, stabilize.splits = TRUE)
 	tau.hat = predict(forest)$predictions
 	expect_true(sqrt(mean((tau.hat - tau)^2)) < 0.20)
+})
+
+test_that("causal forest tuning decreases prediction error", {
+	p = 6
+	n = 1000
+
+	X = matrix(2 * runif(n * p) - 1, n, p)
+	W = rbinom(n, 1, 0.5)
+	TAU = 0.1 * (X[,1] > 0)
+	Y = TAU * (W  - 1/2) + 2 * rnorm(n)
+
+	forest = causal_forest(X, Y, W, num.trees = 400, tune.parameters = FALSE)
+	preds = predict(forest)
+	error = mean((preds$predictions - TAU)^2)
+
+	tuned.forest = causal_forest(X, Y, W, num.trees = 400, tune.parameters = TRUE)
+	tuned.preds = predict(tuned.forest)
+	tuned.error = mean((tuned.preds$predictions - TAU)^2)
+
+	expect_true(tuned.error < error * 0.75)
+})
+
+test_that("causal forest tuning only cross-validates null parameters", {
+	p = 6
+	n = 1000
+
+	X = matrix(2 * runif(n * p) - 1, n, p)
+	W = rbinom(n, 1, 0.5)
+	TAU = 2 * (X[,1] > 0)
+	Y = TAU * (W  - 1/2) + 2 * rnorm(n)
+
+	min.node.size = 42
+	imbalance.penalty = 0.42
+
+  tune.output = tune_causal_forest(X, Y, W, min.node.size = min.node.size, imbalance.penalty = imbalance.penalty)
+  tunable.params = tune.output$params
+
+  expect_equal(as.numeric(tunable.params["min.node.size"]), min.node.size)
+  expect_equal(as.numeric(tunable.params["imbalance.penalty"]), imbalance.penalty)
 })

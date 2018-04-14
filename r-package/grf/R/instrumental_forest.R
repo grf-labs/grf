@@ -132,9 +132,7 @@ predict.instrumental_forest <- function(object, newdata = NULL,
                                         num.threads = NULL, 
                                         estimate.variance = FALSE,
                                         ...) {
-    
     num.threads <- validate_num_threads(num.threads)    
-    
     if (estimate.variance) {
         ci.group.size = object$ci.group.size
     } else {
