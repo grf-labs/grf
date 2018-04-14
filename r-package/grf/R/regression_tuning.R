@@ -79,7 +79,7 @@ tune_regression_forest <- function(X, Y,
   
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params(X, draw))
-    small.forest = regression_forest(X, Y, tune = FALSE,
+    small.forest = regression_forest(X, Y, tune.parameters = FALSE,
                                      num.threads = num.threads, honesty = honesty, seed = seed,
                                      clusters = clusters, samples_per_cluster = samples_per_cluster,
                                      num.trees = num.fit.trees,
