@@ -127,3 +127,15 @@ test_that("causal forest tuning only cross-validates null parameters", {
   expect_equal(as.numeric(tunable.params["min.node.size"]), min.node.size)
   expect_equal(as.numeric(tunable.params["imbalance.penalty"]), imbalance.penalty)
 })
+
+test_that("causal forests behave reasonably with small sample size", {
+  p = 5
+  n = 50
+  X = matrix(rnorm(n * p), n, p)
+  W = rbinom(n, 1, 0.5)
+  tau = 100 * (X[,1] > 0)
+  Y = tau * (W - 0.5) + rnorm(n)
+  forest = causal_forest(X, Y, W, stabilize.splits = TRUE, min.node.size = 1, mtry = p)
+  tau.hat = predict(forest)$predictions
+  expect_true(sqrt(mean((tau.hat - tau)^2)) / 100 < 1/4)
+})
