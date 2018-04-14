@@ -72,7 +72,7 @@
 #'
 #' @export
 causal_forest <- function(X, Y, W,
-                          sample.fraction = NULL,
+                          sample.fraction = 0.5,
                           mtry = NULL,
                           num.trees = 2000,
                           num.threads = NULL,
@@ -82,7 +82,7 @@ causal_forest <- function(X, Y, W,
                           precompute.nuisance = TRUE,
                           alpha = NULL,
                           imbalance.penalty = NULL,
-                          stabilize.splits = FALSE,
+                          stabilize.splits = TRUE,
                           seed = NULL,
                           clusters = NULL,
                           samples_per_cluster = NULL,

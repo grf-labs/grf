@@ -58,7 +58,7 @@
 #'
 #' @export
 regression_forest <- function(X, Y,
-                              sample.fraction = NULL,
+                              sample.fraction = 0.5,
                               mtry = NULL, 
                               num.trees = 2000,
                               num.threads = NULL,
@@ -147,8 +147,8 @@ regression_forest <- function(X, Y,
 #'                Note that this is a beta feature still in development, and may slow down
 #'                prediction considerably.
 #' @param lambda Ridge penalty for local linear predictions
-#' @ridge.type Option to standardize ridge penalty by covariance ("standardized"),
-#'                    or penalize all covariates equally ("identity").
+#' @param ridge.type Option to standardize ridge penalty by covariance ("standardized"),
+#'                   or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired

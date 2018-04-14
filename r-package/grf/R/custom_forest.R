@@ -23,7 +23,6 @@
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
 #'                            software will set this value to the size of the smallest cluster.
-#' @param ... Additional arguments (currently ignored).
 #'
 #' @return A trained regression forest object.
 #'

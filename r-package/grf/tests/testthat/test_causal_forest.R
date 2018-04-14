@@ -1,6 +1,6 @@
 library(grf)
 
-set.seed(4321)
+set.seed(3141)
 
 test_that("causal forests give reasonable estimates", {
 	p = 6
@@ -56,12 +56,12 @@ test_that("causal forests have reasonable split frequencies", {
 
   # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
   # we add variance corrections, this should no longer be necessary.
-  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1)
+  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1, stabilize.splits=TRUE, min.node.size=2)
   split.freq = split_frequencies(ccc, 4)
   expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })
 
-test_that("causal forests with stable splitting have reasonable split frequencies", {
+test_that("causal forests without stable splitting have reasonable split frequencies", {
   n = 100
   p = 7
   X = matrix(rnorm(n*p), n, p)
@@ -70,7 +70,7 @@ test_that("causal forests with stable splitting have reasonable split frequencie
 
   # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
   # we add variance corrections, this should no longer be necessary.
-  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1, stabilize.splits=TRUE, min.node.size=2)
+  ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=0.1, stabilize.splits=FALSE, min.node.size=2)
   split.freq = split_frequencies(ccc, 4)
   expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })
@@ -90,7 +90,7 @@ test_that("causal forests behave reasonably with a low treatment probability", {
 })
 
 test_that("causal forest tuning decreases prediction error", {
-	p = 6
+	p = 4
 	n = 1000
 
 	X = matrix(2 * runif(n * p) - 1, n, p)
@@ -98,7 +98,7 @@ test_that("causal forest tuning decreases prediction error", {
 	TAU = 0.1 * (X[,1] > 0)
 	Y = TAU * (W  - 1/2) + 2 * rnorm(n)
 
-	forest = causal_forest(X, Y, W, num.trees = 400, tune.parameters = FALSE)
+	forest = causal_forest(X, Y, W, num.trees = 400, min.node.size = 1, tune.parameters = FALSE)
 	preds = predict(forest)
 	error = mean((preds$predictions - TAU)^2)
 
@@ -111,14 +111,14 @@ test_that("causal forest tuning decreases prediction error", {
 
 test_that("causal forest tuning only cross-validates null parameters", {
 	p = 6
-	n = 1000
+	n = 100
 
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	W = rbinom(n, 1, 0.5)
 	TAU = 2 * (X[,1] > 0)
 	Y = TAU * (W  - 1/2) + 2 * rnorm(n)
 
-	min.node.size = 42
+	min.node.size = 5
 	imbalance.penalty = 0.42
 
   tune.output = tune_causal_forest(X, Y, W, min.node.size = min.node.size, imbalance.penalty = imbalance.penalty)
@@ -126,4 +126,16 @@ test_that("causal forest tuning only cross-validates null parameters", {
 
   expect_equal(as.numeric(tunable.params["min.node.size"]), min.node.size)
   expect_equal(as.numeric(tunable.params["imbalance.penalty"]), imbalance.penalty)
+})
+
+test_that("causal forests behave reasonably with small sample size", {
+  p = 5
+  n = 50
+  X = matrix(rnorm(n * p), n, p)
+  W = rbinom(n, 1, 0.5)
+  tau = 100 * (X[,1] > 0)
+  Y = tau * (W - 0.5) + rnorm(n)
+  forest = causal_forest(X, Y, W, stabilize.splits = TRUE, min.node.size = 1, mtry = p)
+  tau.hat = predict(forest)$predictions
+  expect_true(sqrt(mean((tau.hat - tau)^2)) / 100 < 1/4)
 })

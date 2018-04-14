@@ -49,8 +49,8 @@ test_that("Clustered standard errors are greater than unclustered", {
   mean_corrected <- mean(preds_corrected.oob$variance.estimates)
   mean_corrected_no_cluster <- mean(preds_corrected_no_cluster.oob$variance.estimates)
  
-  expect_equal(mean_no_cluster, mean_corrected, tolerance = 0.05 * mean_no_cluster)
-  expect_equal(mean_no_cluster, mean_corrected_no_cluster, tolerance = 0.05 * mean_no_cluster)
+  expect_equal(mean_no_cluster, mean_corrected, tolerance = 0.2 * mean_no_cluster)
+  expect_equal(mean_no_cluster, mean_corrected_no_cluster, tolerance = 0.2 * mean_no_cluster)
   expect_true(mean_no_cluster > 2 * mean_uncorrected)
 
   mse_no_cluster <- mean((preds_no_cluster.oob$predictions - MU)^2)

@@ -49,7 +49,7 @@
 instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
                                 num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
                                 ci.group.size = 2, precompute.nuisance = TRUE, reduced.form.weight = 0,
-                                alpha = 0.05, imbalance.penalty = 0.0, stabilize.splits = FALSE , seed = NULL,
+                                alpha = 0.05, imbalance.penalty = 0.0, stabilize.splits = TRUE , seed = NULL,
                                 clusters = NULL, samples_per_cluster = NULL) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
