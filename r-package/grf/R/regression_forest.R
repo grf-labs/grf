@@ -149,6 +149,8 @@ regression_forest <- function(X, Y,
 #' @param lambda Ridge penalty for local linear predictions
 #' @param ridge.type Option to standardize ridge penalty by covariance ("standardized"),
 #'                   or penalize all covariates equally ("identity").
+#' @param linear.correction.variables Optional subset of variables to be used in local
+#'                   linear prediction. If NULL, all variables are automatically used.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -182,6 +184,7 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       local.linear = FALSE,
                                       lambda = 0.0,
                                       ridge.type = "standardized",
+                                      linear.correction.variables = NULL,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
@@ -204,6 +207,14 @@ predict.regression_forest <- function(object, newdata = NULL,
     forest.short <- object[-which(names(object) == "X.orig")]
     X.orig = object[["X.orig"]]
 
+    if (is.null(linear.correction.variables)) {
+        p = dim(X.orig)[2]
+        linear.correction.variables = seq(1,p)
+    }
+
+    # subtract 1 for C++ indexing
+    linear.correction.variables = linear.correction.variables - 1
+
     if (!is.null(newdata)) {
         data <- create_data_matrices(newdata)
         if (!local.linear) {
@@ -212,7 +223,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         } else {
             training.data <- create_data_matrices(X.orig)
             local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                training.data$sparse, lambda, use_unweighted_penalty, num.threads)
+                training.data$sparse, lambda, use_unweighted_penalty, linear.correction.variables, num.threads)
         }
     } else {
         data <- create_data_matrices(X.orig)
@@ -220,7 +231,7 @@ predict.regression_forest <- function(object, newdata = NULL,
             regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
         } else {
             local_linear_predict_oob(forest.short, data$default, data$sparse, lambda, use_unweighted_penalty,
-                num.threads)
+                linear.correction.variables, num.threads)
         }
     }
 }

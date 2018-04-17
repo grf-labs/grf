@@ -32,7 +32,8 @@ public:
     LocalLinearPredictionStrategy(const Data *original_data,
                                   const Data *test_data,
                                   double lambda,
-                                  bool use_unweighted_penalty);
+                                  bool use_unweighted_penalty,
+                                  std::vector<size_t> linear_correction_variables);
 
     size_t prediction_length();
     std::vector<double> predict(size_t sampleID,
@@ -45,6 +46,7 @@ private:
     const Data *test_data;
     double lambda;
     bool use_unweighted_penalty;
+    std::vector<size_t> linear_correction_variables;
 };
 
 #endif //GRF_LOCALLINEARPREDICTIONSTRATEGY_H
