@@ -142,15 +142,14 @@ regression_forest <- function(X, Y,
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
 #'                not use the i-th training example).
-#' @param local.linear Optional local linear prediction correction. If TRUE,
-#'                code will run a locally weighted ridge regression at each test point.
-#'                Note that this is a beta feature still in development, and may slow down
-#'                prediction considerably.
+#' @param linear.correction.variables Optional subset of indexes for variables to be used in local
+#'                   linear prediction. If NULL, standard GRF prediction is used. Otherwise,
+#'                   we run a locally weighted linear regression on the included variables.
+#'                   Please note that this is a beta feature still in development, and may slow down
+#'                   prediction considerably.
 #' @param lambda Ridge penalty for local linear predictions
 #' @param ridge.type Option to standardize ridge penalty by covariance ("standardized"),
 #'                   or penalize all covariates equally ("identity").
-#' @param linear.correction.variables Optional subset of variables to be used in local
-#'                   linear prediction. If NULL, all variables are automatically used.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -181,10 +180,9 @@ regression_forest <- function(X, Y,
 #'
 #' @export
 predict.regression_forest <- function(object, newdata = NULL,
-                                      local.linear = FALSE,
+                                      linear.correction.variables = NULL,
                                       lambda = 0.0,
                                       ridge.type = "standardized",
-                                      linear.correction.variables = NULL,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
@@ -207,15 +205,16 @@ predict.regression_forest <- function(object, newdata = NULL,
     forest.short <- object[-which(names(object) == "X.orig")]
     X.orig = object[["X.orig"]]
 
-    if (is.null(linear.correction.variables)) {
-        p = dim(X.orig)[2]
-        linear.correction.variables = seq(1,p)
+    if ( is.null(linear.correction.variables) ){
+        local.linear = FALSE
+    } else {
+        local.linear = TRUE
     }
 
     # subtract 1 for C++ indexing
     linear.correction.variables = linear.correction.variables - 1
 
-    if (!is.null(newdata)) {
+    if (!is.null(newdata) ) {
         data <- create_data_matrices(newdata)
         if (!local.linear) {
             regression_predict(forest.short, data$default, data$sparse,

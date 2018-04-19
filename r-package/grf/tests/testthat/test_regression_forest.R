@@ -120,7 +120,7 @@ test_that("local linear prediction gives reasonable estimates", {
 
     forest = regression_forest(X, Y)
     preds.grf.oob = predict(forest)
-    preds.ll.oob = predict(forest, local.linear=TRUE, lambda = 0)
+    preds.ll.oob = predict(forest, linear.correction.variables = 1:p, lambda = 0)
 
     mse.grf.oob = mean( (preds.grf.oob$predictions - MU)^2 )
     mse.ll.oob = mean( (preds.ll.oob$predictions - MU)^2 )
@@ -132,7 +132,7 @@ test_that("local linear prediction gives reasonable estimates", {
     MU.test = apply(X.test, FUN=f, MARGIN=1)
 
     preds.grf = predict(forest, X.test)
-    preds.ll = predict(forest, X.test, local.linear=TRUE, lambda=0.1)
+    preds.ll = predict(forest, X.test, linear.correction.variables = 1:p, lambda=0.1)
 
     mse.grf = mean( (preds.grf$predictions - MU.test)^2 )
     mse.ll = mean( (preds.ll$predictions - MU.test)^2 )
@@ -144,22 +144,17 @@ test_that("local linear prediction gives reasonable estimates", {
 test_that("linear correction variables function as expected", {
     f = function(x){x[1] + 2*x[2] + 2*x[3]**2}
     n = 400
-    p = 10
+    p = 20
     X = matrix(rnorm(n*p), n, p)
     MU = apply(X, FUN=f, MARGIN=1)
     Y = MU + rnorm(n)
 
     forest = regression_forest(X, Y)
-    preds.empty = predict(forest, local.linear = TRUE)
-    preds = predict(forest, local.linear = TRUE, linear.correction.variables = 1:10)
-
-    mse.empty = mean( (preds$predictions - MU)^2 )
+    preds = predict(forest, linear.correction.variables = 1:20)
     mse = mean( (preds$predictions - MU)^2 )
 
-    expect_equal(mse.empty, mse)
-
-    preds.selected = predict(forest, local.linear=TRUE, linear.correction.variables = 1:3)
+    preds.selected = predict(forest, linear.correction.variables = 1:3)
     mse.selected = mean( (preds.selected$predictions - MU)^2 )
 
-    expect_true( mse.selected < mse / 1.4 )
+    expect_true( mse.selected < mse / 1.5 )
 })
