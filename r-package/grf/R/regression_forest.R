@@ -146,10 +146,15 @@ regression_forest <- function(X, Y,
 #'                   linear prediction. If NULL, standard GRF prediction is used. Otherwise,
 #'                   we run a locally weighted linear regression on the included variables.
 #'                   Please note that this is a beta feature still in development, and may slow down
-#'                   prediction considerably.
+#'                   prediction considerably. Defaults to NULL.
 #' @param lambda Ridge penalty for local linear predictions
 #' @param ridge.type Option to standardize ridge penalty by covariance ("standardized"),
 #'                   or penalize all covariates equally ("identity").
+#' @param select.correction.variables Option to automatically select linear correction variables via
+#'                   the built-in forest variable importance measures. Defaults to FALSE. If TRUE,
+#'                   package automatically selects important variables and applies a local linear correction.
+#'                   Note that this currently overrides the set given in linear.correction.variables if
+#'                   both values are included in the predict call.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -183,6 +188,7 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       linear.correction.variables = NULL,
                                       lambda = 0.0,
                                       ridge.type = "standardized",
+                                      select.correction.variables = FALSE,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
@@ -204,6 +210,16 @@ predict.regression_forest <- function(object, newdata = NULL,
 
     forest.short <- object[-which(names(object) == "X.orig")]
     X.orig = object[["X.orig"]]
+
+    if ( select.correction.variables == TRUE ) {
+        var.imp = variable_importance(object)
+        avg.importance.score = mean(var.imp)
+        p = dim(X.orig)[2]
+        selected = sapply(seq(1,p), FUN = function(i){
+            is.numeric( X.orig[,i] ) && var.imp[i] > avg.importance.score
+        })
+        linear.correction.variables = seq(1,p)[selected]
+    }
 
     if ( is.null(linear.correction.variables) ){
         local.linear = FALSE
