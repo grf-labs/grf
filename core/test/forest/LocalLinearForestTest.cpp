@@ -28,12 +28,13 @@
 TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
   Data* data = load_data("test/forest/resources/small_gaussian_data.csv");
   uint outcome_index = 10;
+  linear_correction_variables = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
   // Run the original forest.
   ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
   ForestOptions options = ForestTestUtilities::default_honest_options();
   Forest forest = trainer.train(data, options);
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false);
+  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false, linear_correction_variables);
   
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
   
@@ -45,7 +46,7 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
   }
   
   Forest shifted_forest = trainer.train(data, options);
-  ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false);
+  ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false, linear_correction_variables);
   std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
   
   REQUIRE(predictions.size() == shifted_predictions.size());
