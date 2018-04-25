@@ -2,11 +2,11 @@
 #' 
 #' Trains a causal forest that can be used to estimate
 #' conditional average treatment effects tau(X). When
-#' the treatment assignmnet W is binary and unconfounded,
+#' the treatment assignment W is binary and unconfounded,
 #' we have tau(X) = E[Y(1) - Y(0) | X = x], where Y(0) and
 #' Y(1) are potential outcomes corresponding to the two possible
 #' treatment states. When W is continuous, we effectively estimate
-#' an average partical effect Cov[Y, W | X = x] / Var[W | X = x],
+#' an average partial effect Cov[Y, W | X = x] / Var[W | X = x],
 #' and interpret it as a treatment effect given unconfoundedness.
 #'
 #' @param X The covariates used in the causal regression.
