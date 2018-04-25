@@ -28,7 +28,7 @@
 TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
   Data* data = load_data("test/forest/resources/small_gaussian_data.csv");
   uint outcome_index = 10;
-  std::vector<size_t> linear_correction_variables = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  std::vector<size_t> linear_correction_variables = {1, 4, 7};
 
   // Run the original forest.
   ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
