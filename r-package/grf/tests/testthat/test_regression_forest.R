@@ -157,10 +157,4 @@ test_that("linear correction variables function as expected", {
     mse.selected = mean((preds.selected$predictions - MU)^2)
 
     expect_true(mse.selected < mse / 1.5)
-
-    preds.automatic = predict(forest, select.correction.variables = TRUE)
-    mse.automatic = mean((preds.selected$predictions - MU)^2)
-
-    expect_true(mse.automatic < mse / 1.5)
-
 })
