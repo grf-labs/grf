@@ -65,11 +65,11 @@ regression_predict_oob <- function(forest_object, input_data, sparse_input_data,
     .Call('_grf_regression_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, ci_group_size)
 }
 
-local_linear_predict <- function(forest, input_data, training_data, sparse_input_data, sparse_training_data, lambda, use_unweighted_penalty, num_threads) {
-    .Call('_grf_local_linear_predict', PACKAGE = 'grf', forest, input_data, training_data, sparse_input_data, sparse_training_data, lambda, use_unweighted_penalty, num_threads)
+local_linear_predict <- function(forest, input_data, training_data, sparse_input_data, sparse_training_data, lambda, use_unweighted_penalty, linear_correction_variables, num_threads) {
+    .Call('_grf_local_linear_predict', PACKAGE = 'grf', forest, input_data, training_data, sparse_input_data, sparse_training_data, lambda, use_unweighted_penalty, linear_correction_variables, num_threads)
 }
 
-local_linear_predict_oob <- function(forest, input_data, sparse_input_data, lambda, use_unweighted_penalty, num_threads) {
-    .Call('_grf_local_linear_predict_oob', PACKAGE = 'grf', forest, input_data, sparse_input_data, lambda, use_unweighted_penalty, num_threads)
+local_linear_predict_oob <- function(forest, input_data, sparse_input_data, lambda, use_unweighted_penalty, linear_correction_variables, num_threads) {
+    .Call('_grf_local_linear_predict_oob', PACKAGE = 'grf', forest, input_data, sparse_input_data, lambda, use_unweighted_penalty, linear_correction_variables, num_threads)
 }
 

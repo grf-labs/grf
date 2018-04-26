@@ -34,18 +34,20 @@ size_t LocalLinearPredictionStrategy::prediction_length() {
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data* original_data,
                                                              const Data* test_data,
                                                              double lambda,
-                                                             bool use_unweighted_penalty):
+                                                             bool use_unweighted_penalty,
+                                                             std::vector<size_t> linear_correction_variables):
         original_data(original_data),
         test_data(test_data),
         lambda(lambda),
-        use_unweighted_penalty(use_unweighted_penalty){
+        use_unweighted_penalty(use_unweighted_penalty),
+        linear_correction_variables(linear_correction_variables){
 };
 
 std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
                                                            const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                            const Observations& observations) {
   size_t n = observations.get_num_samples();
-  size_t num_variables = test_data->get_num_cols();
+  size_t num_variables = linear_correction_variables.size();
 
   Eigen::MatrixXd weights = Eigen::MatrixXd::Zero(n,n);
 
@@ -63,7 +65,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
 
   for (size_t i = 0; i < n; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
-      X(i,j+1) = test_data->get(sampleID, j) - original_data->get(i,j);
+      size_t current_predictor = linear_correction_variables[j];
+      X(i,j+1) = test_data->get(sampleID, current_predictor) - original_data->get(i,current_predictor);
     }
     Y(i) = observations.get(Observations::OUTCOME, i);
     X(i, 0) = 1;
