@@ -11,12 +11,12 @@
 #' @param Y The outcome.
 #' @param W The treatment assignment (may be binary or real).
 #' @param Z The instrument (may be binary or real).
-#' @param Y.hat Estimate of the expected response E[Y | Xi], marginalizing
+#' @param Y.hat Estimates of the expected responses E[Y | Xi], marginalizing
 #'              over treatment. If Y.hat = NULL, these are estimated using
 #'              a separate regression forest.
-#' @param W.hat Estimate of the treatment propensity E[W | Xi]. If W.hat = NULL,
+#' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest.
-#' @param Z.hat Estimate of the instrument propensity E[Z | Xi]. If Z.hat = NULL,
+#' @param Z.hat Estimates of the instrument propensities E[Z | Xi]. If Z.hat = NULL,
 #'              these are estimated using a separate regression forest.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty is used, these subsamples will
