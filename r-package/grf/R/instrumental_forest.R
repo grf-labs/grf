@@ -104,7 +104,7 @@ instrumental_forest <- function(X, Y, W, Z,
     } else if (length(W.hat) == 1) {
       W.hat <- rep(W.hat, nrow(X))
     } else if (length(W.hat) != nrow(X)) {
-      stop("Y.hat has incorrect length.")
+      stop("W.hat has incorrect length.")
     }
     
     if (is.null(Z.hat)) {
@@ -116,7 +116,7 @@ instrumental_forest <- function(X, Y, W, Z,
     } else if (length(Z.hat) == 1) {
       Z.hat <- rep(Z.hat, nrow(X))
     } else if (length(Z.hat) != nrow(X)) {
-      stop("Y.hat has incorrect length.")
+      stop("Z.hat has incorrect length.")
     }
     
     data <- create_data_matrices(X, Y - Y.hat, W - W.hat, Z - Z.hat)

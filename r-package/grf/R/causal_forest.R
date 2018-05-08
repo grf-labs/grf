@@ -89,8 +89,8 @@ causal_forest <- function(X, Y, W,
                           clusters = NULL,
                           samples_per_cluster = NULL,
                           tune.parameters = FALSE,
-                          num.fit.trees = 40,
-                          num.fit.reps = 100,
+                          num.fit.trees = 200,
+                          num.fit.reps = 50,
                           num.optimize.reps = 1000) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
@@ -104,7 +104,7 @@ causal_forest <- function(X, Y, W,
     reduced.form.weight <- 0
 
     if (is.null(Y.hat)) {
-      forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
+      forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                     honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
@@ -116,7 +116,7 @@ causal_forest <- function(X, Y, W,
     }
 
     if (is.null(W.hat)) {
-      forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
+      forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                     honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
@@ -124,7 +124,7 @@ causal_forest <- function(X, Y, W,
     } else if (length(W.hat) == 1) {
       W.hat <- rep(W.hat, nrow(X))
     } else if (length(W.hat) != nrow(X)) {
-      stop("Y.hat has incorrect length.")
+      stop("W.hat has incorrect length.")
     }
 
     Y.centered = Y - Y.hat
@@ -185,6 +185,7 @@ causal_forest <- function(X, Y, W,
     forest[["Y.hat"]] <- Y.hat
     forest[["W.hat"]] <- W.hat
     forest[["clusters"]] <- clusters
+    forest[["tunable.params"]] <- tunable.params
     
     class(forest) <- c("causal_forest", "grf")
     forest
