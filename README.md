@@ -80,9 +80,9 @@ lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
 # Generate new data.
 n = 2000; p = 20
 X = matrix(rnorm(n * p), n, p)
-TAU = 1 / (1 + exp(-X[,3]))
-W = rbinom(n ,1, 1 / (1 + exp(-X[,1] - X[,2])))
-Y = pmax(X[,2] + X[,3], 0) + rowMeans(X[, 4:6]) / 2 + W * TAU + rnorm(n)
+TAU = 1 / (1 + exp(-X[, 3]))
+W = rbinom(n ,1, 1 / (1 + exp(-X[, 1] - X[, 2])))
+Y = pmax(X[, 2] + X[, 3], 0) + rowMeans(X[, 4:6]) / 2 + W * TAU + rnorm(n)
 
 forest.W = regression_forest(X, W, tune.parameters = TRUE)
 W.hat = predict(forest.W)$predictions
@@ -97,10 +97,10 @@ forest.Y.varimp = variable_importance(forest.Y)
 # in selection.
 selected.vars = which(forest.Y.varimp / mean(forest.Y.varimp) > 0.2)
 
-cf = causal_forest(X[,selected.vars], Y, W,
-                   W.hat = W.hat, Y.hat = Y.hat,
-                   tune.parameters = TRUE)
-tau.hat = predict(cf)$predictions
+tau.forest = causal_forest(X[, selected.vars], Y, W,
+                           W.hat = W.hat, Y.hat = Y.hat,
+                           tune.parameters = TRUE)
+tau.hat = predict(tau.forest)$predictions
 ```
 
 ### Developing

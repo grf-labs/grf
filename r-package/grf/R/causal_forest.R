@@ -14,7 +14,8 @@
 #' @param W The treatment assignment (may be binary or real).
 #' @param Y.hat Estimates of the expected responses E[Y | Xi], marginalizing
 #'              over treatment. If Y.hat = NULL, these are estimated using
-#'              a separate regression forest.
+#'              a separate regression forest. See section 6.1.1 of the GRF paper for
+#'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest.
 #' @param sample.fraction Fraction of the data used to build each tree.
@@ -76,9 +77,9 @@
 #' # using a completely different method (e.g., boosting).
 #' n = 2000; p = 20
 #' X = matrix(rnorm(n * p), n, p)
-#' TAU = 1 / (1 + exp(-X[,3]))
-#' W = rbinom(n ,1, 1 / (1 + exp(-X[,1] - X[,2])))
-#' Y = pmax(X[,2] + X[,3], 0) + rowMeans(X[, 4:6]) / 2 + W * TAU + rnorm(n)
+#' TAU = 1 / (1 + exp(-X[, 3]))
+#' W = rbinom(n, 1, 1 / (1 + exp(-X[, 1] - X[, 2])))
+#' Y = pmax(X[, 2] + X[, 3], 0) + rowMeans(X[, 4:6]) / 2 + W * TAU + rnorm(n)
 #'
 #' forest.W = regression_forest(X, W, tune.parameters = TRUE)
 #' W.hat = predict(forest.W)$predictions
@@ -93,10 +94,10 @@
 #' # in selection.
 #' selected.vars = which(forest.Y.varimp / mean(forest.Y.varimp) > 0.2)
 #'
-#' cf = causal_forest(X[,selected.vars], Y, W,
-#'                    W.hat = W.hat, Y.hat = Y.hat,
-#'                    tune.parameters = TRUE)
-#' tau.hat = predict(cf)$predictions
+#' tau.forest = causal_forest(X[,selected.vars], Y, W,
+#'                            W.hat = W.hat, Y.hat = Y.hat,
+#'                            tune.parameters = TRUE)
+#' tau.hat = predict(tau.forest)$predictions
 #' }
 #'
 #' @export
