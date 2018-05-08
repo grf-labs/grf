@@ -56,7 +56,7 @@ test_that("instrumental CIs are reasonable", {
   X.test = matrix(rnorm(n.test * p), n.test, p)
   tau.true = alpha.tau *  apply(X.test[,1:k.tau], 1, function(xx) sum(pmax(0, xx)))
   
-  forest = instrumental_forest(X, Y, W, Z, precompute.nuisance = TRUE)
+  forest = instrumental_forest(X, Y, W, Z)
   tau.hat = predict(forest, newdata = X.test, estimate.variance = TRUE)
   error.standardized = (tau.hat$predictions - tau.true) / sqrt(tau.hat$variance.estimates)
   expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.18)
@@ -73,14 +73,18 @@ test_that("instrumental CIs are invariant to scaling Z", {
   X.test = matrix(rnorm(n*p), n, p)
   tau.true = pmax(X.test[,1], 0)
   
-  forest = causal_forest(X, Y, W, precompute.nuisance = FALSE)
+  y.forest = regression_forest(X, Y)
+  Y.hat = predict(y.forest)$predictions
+  
+  forest = causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0)
   tau.hat = predict(forest, newdata = X.test, estimate.variance = TRUE)
   error.standardized = (tau.hat$predictions - tau.true) / sqrt(tau.hat$variance.estimates)
   expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.15)
   expect_true(mean(abs(error.standardized) > qnorm(0.975)) >= 0.005)
   
   Z = 0.00000001 * W
-  forest.iv = instrumental_forest(X, Y, W, Z, precompute.nuisance = FALSE)
+  forest.iv = instrumental_forest(X, Y, W, Z,
+                                  Y.hat = Y.hat, W.hat = 0, Z.hat = 0)
   tau.hat.iv = predict(forest.iv, newdata = X.test, estimate.variance = TRUE)
   error.standardized.iv = (tau.hat.iv$predictions - tau.true) / sqrt(tau.hat.iv$variance.estimates)
   expect_true(mean(abs(error.standardized.iv) > qnorm(0.975)) <= 0.15)

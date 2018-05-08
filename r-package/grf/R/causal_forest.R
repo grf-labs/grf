@@ -12,6 +12,11 @@
 #' @param X The covariates used in the causal regression.
 #' @param Y The outcome.
 #' @param W The treatment assignment (may be binary or real).
+#' @param Y.hat Estimate of the expected response E[Y | Xi], marginalizing
+#'              over treatment. If Y.hat = NULL, these are estimated using
+#'              a separate regression forest.
+#' @param W.hat Estimate of the treatment propensity E[W | Xi]. If W.hat = NULL,
+#'              these are estimated using a separate regression forest.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty is used, these subsamples will
 #'                        further be cut in half.
@@ -27,10 +32,6 @@
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
-#' @param precompute.nuisance Should we first run regression forests to estimate
-#'                            y(x) = E[Y|X=x] and w(x) = E[W|X=x], and then run a
-#'                            causal forest on the residuals? This approach is
-#'                            recommended, computational resources permitting.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
@@ -72,6 +73,8 @@
 #'
 #' @export
 causal_forest <- function(X, Y, W,
+                          Y.hat = NULL,
+                          W.hat = NULL,
                           sample.fraction = 0.5,
                           mtry = NULL,
                           num.trees = 2000,
@@ -79,7 +82,6 @@ causal_forest <- function(X, Y, W,
                           min.node.size = NULL,
                           honesty = TRUE,
                           ci.group.size = 2,
-                          precompute.nuisance = TRUE,
                           alpha = NULL,
                           imbalance.penalty = NULL,
                           stabilize.splits = TRUE,
@@ -101,21 +103,28 @@ causal_forest <- function(X, Y, W,
     
     reduced.form.weight <- 0
 
-    if (!precompute.nuisance) {
-      Y.hat = 0
-      W.hat = 0
-    } else {
+    if (is.null(Y.hat)) {
       forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                     honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       Y.hat <- predict(forest.Y)$predictions
+    } else if (length(Y.hat) == 1) {
+      Y.hat <- rep(Y.hat, nrow(X))
+    } else if (length(Y.hat) != nrow(X)) {
+      stop("Y.hat has incorrect length.")
+    }
 
+    if (is.null(W.hat)) {
       forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
                                     honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       W.hat <- predict(forest.W)$predictions
+    } else if (length(W.hat) == 1) {
+      W.hat <- rep(W.hat, nrow(X))
+    } else if (length(W.hat) != nrow(X)) {
+      stop("Y.hat has incorrect length.")
     }
 
     Y.centered = Y - Y.hat

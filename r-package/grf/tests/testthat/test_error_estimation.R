@@ -46,7 +46,7 @@ test_that("causal error estimates are reasonable", {
   W = rbinom(n, 1, 0.1)
   TAU = (X[,1] > 0)
   Y = TAU * (W - 1/2) + sigma * rnorm(n)
-  
+
   W.forest = regression_forest(X, W, num.trees = 500, sample.fraction = 0.2)
   W.hat = predict(W.forest)$predictions
   
@@ -56,20 +56,20 @@ test_that("causal error estimates are reasonable", {
   Y.resid = Y - Y.hat
   W.resid = W - W.hat
   
-  cf.10 = causal_forest(X, Y.resid, W.resid, precompute.nuisance = FALSE, num.trees = 10,
-                        min.node.size = 1, stabilize.splits = TRUE)
+  cf.10 = causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = W.hat,
+                        num.trees = 10, min.node.size = 1, stabilize.splits = TRUE)
   tau.hat.10 = predict(cf.10)
   raw.10 = mean((Y.resid - tau.hat.10$predictions * W.resid)^2, na.rm = TRUE)
   err.10 = mean(tau.hat.10$debiased.error, na.rm = TRUE)
   
-  cf.20 = causal_forest(X, Y.resid, W.resid, precompute.nuisance = FALSE, num.trees = 20,
-                        min.node.size = 1, stabilize.splits = TRUE)
+  cf.20 = causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = W.hat,
+                        num.trees = 20, min.node.size = 1, stabilize.splits = TRUE)
   tau.hat.20 = predict(cf.20)
   raw.20 = mean((Y.resid - tau.hat.20$predictions * W.resid)^2, na.rm = TRUE)
   err.20 = mean(tau.hat.20$debiased.error, na.rm = TRUE)
   
-  cf.400 = causal_forest(X, Y.resid, W.resid, precompute.nuisance = FALSE, num.trees = 400,
-                         min.node.size = 1, stabilize.splits = TRUE)
+  cf.400 = causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = W.hat,
+                         num.trees = 400, min.node.size = 1, stabilize.splits = TRUE)
   tau.hat.400 = predict(cf.400)
   raw.400 = mean((Y.resid - tau.hat.400$predictions * W.resid)^2)
   err.400 =  mean(tau.hat.400$debiased.error, na.rm = TRUE)

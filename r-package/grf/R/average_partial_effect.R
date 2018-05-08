@@ -28,10 +28,6 @@ average_partial_effect = function(forest, calibrate.weights = TRUE) {
     stop("Average effect estimation only implemented for causal_forest")
   }
   
-  if (is.null(forest$Y.hat) | is.null(forest$W.hat)) {
-    stop("For average effect estimation to work, please train with precompute.nuisance = TRUE")
-  }
-  
   # This is a simple plugin estimate of the APE.
   tau.hat = predict(forest)$predictions
   cape.plugin = mean(tau.hat)

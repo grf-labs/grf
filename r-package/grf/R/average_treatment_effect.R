@@ -57,10 +57,6 @@ average_treatment_effect = function(forest,
     stop("Average effect estimation only implemented for causal_forest")
   }
   
-  if (is.null(forest$Y.hat) | is.null(forest$W.hat)) {
-    stop("For average effect estimation to work, please train with precompute.nuisance = TRUE")
-  }
-  
   #
   # Address the overlap case separately, as this is a very different estimation problem.
   # The method argument (AIPW vs TMLE) is ignored in this case, as both methods are effectively

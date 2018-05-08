@@ -16,7 +16,7 @@ test_that("causal forests give reasonable estimates", {
 	W = rbinom(n, 1, 0.5)
 	Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)
 
-	forest.causal = causal_forest(X, Y, W, num.trees = 2000, ci.group.size = 4, precompute.nuisance = FALSE)
+	forest.causal = causal_forest(X, Y, W, num.trees = 2000, ci.group.size = 4, W.hat = 0.5)
 	preds.causal.oob = predict(forest.causal, estimate.variance=TRUE)
 	preds.causal = predict(forest.causal, X.test, estimate.variance=TRUE)
 
