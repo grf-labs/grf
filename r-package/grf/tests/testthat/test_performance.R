@@ -25,7 +25,7 @@ X = matrix(2 * runif(n * p) - 1, n, p)
 W = rbinom(n, 1, 0.5)
 Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)
 
-forest.causal = causal_forest(X, Y, W, num.trees = 500, ci.group.size = 4, sample.fraction = 0.10, precompute.nuisance = TRUE)
+forest.causal = causal_forest(X, Y, W, num.trees = 500, ci.group.size = 4, sample.fraction = 0.10)
 
 # Sys.sleep(5)
 

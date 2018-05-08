@@ -71,6 +71,36 @@ plot(X.test[,1], tau.hat$predictions, ylim = range(tau.hat$predictions + 1.96 * 
 lines(X.test[,1], tau.hat$predictions + 1.96 * sigma.hat, col = 1, lty = 2)
 lines(X.test[,1], tau.hat$predictions - 1.96 * sigma.hat, col = 1, lty = 2)
 lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
+
+# In some examples, pre-fitting models for Y and W separately may
+# be helpful (e.g., if different models use different covariates).
+# In some applications, one may even want to get Y.hat and W.hat
+# using a completely different method (e.g., boosting).
+
+# Generate new data.
+n = 2000; p = 20
+X = matrix(rnorm(n * p), n, p)
+TAU = 1 / (1 + exp(-X[, 3]))
+W = rbinom(n ,1, 1 / (1 + exp(-X[, 1] - X[, 2])))
+Y = pmax(X[, 2] + X[, 3], 0) + rowMeans(X[, 4:6]) / 2 + W * TAU + rnorm(n)
+
+forest.W = regression_forest(X, W, tune.parameters = TRUE)
+W.hat = predict(forest.W)$predictions
+
+forest.Y = regression_forest(X, Y, tune.parameters = TRUE)
+Y.hat = predict(forest.Y)$predictions
+
+forest.Y.varimp = variable_importance(forest.Y)
+
+# Note: Forests may have a hard time when trained on very few variables
+# (e.g., ncol(X) = 1, 2, or 3). We recommend not being too aggressive
+# in selection.
+selected.vars = which(forest.Y.varimp / mean(forest.Y.varimp) > 0.2)
+
+tau.forest = causal_forest(X[, selected.vars], Y, W,
+                           W.hat = W.hat, Y.hat = Y.hat,
+                           tune.parameters = TRUE)
+tau.hat = predict(tau.forest)$predictions
 ```
 
 ### Developing

@@ -14,7 +14,7 @@ get_params_from_draw <- function(X, draw) {
   result = c()
   for (param in names(draw)) {
     if (param == "min.node.size") {
-      value = floor(2^(draw[param] * (log(nrow(X)) / log(2) - 4))) - 1
+      value = floor(2^(draw[param] * (log(nrow(X)) / log(2) - 4)))
     } else if (param == "sample.fraction") {
       value = 0.05 + 0.45 * draw[param]
     } else if (param == "mtry") {

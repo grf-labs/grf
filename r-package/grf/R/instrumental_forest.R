@@ -11,6 +11,13 @@
 #' @param Y The outcome.
 #' @param W The treatment assignment (may be binary or real).
 #' @param Z The instrument (may be binary or real).
+#' @param Y.hat Estimates of the expected responses E[Y | Xi], marginalizing
+#'              over treatment. If Y.hat = NULL, these are estimated using
+#'              a separate regression forest.
+#' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
+#'              these are estimated using a separate regression forest.
+#' @param Z.hat Estimates of the instrument propensities E[Z | Xi]. If Z.hat = NULL,
+#'              these are estimated using a separate regression forest.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty is used, these subsamples will
 #'                        further be cut in half.
@@ -26,11 +33,6 @@
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
-#' @param precompute.nuisance Should we first run regression forests to estimate
-#'                            y(x) = E[Y|X=x], w(x) = E[W|X=x] and z(x) = E[Z|X=x],
-#'                            and then run an instrumental forest on the residuals?
-#'                            This approach is recommended, computational resources
-#'                            permitting.
 #' @param reduced.form.weight Whether splits should be regularized towards a naive
 #'                            splitting criterion that ignores the instrument (and
 #'                            instead emulates a causal forest).
@@ -46,11 +48,24 @@
 #'
 #' @return A trained instrumental forest object.
 #' @export
-instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
-                                num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
-                                ci.group.size = 2, precompute.nuisance = TRUE, reduced.form.weight = 0,
-                                alpha = 0.05, imbalance.penalty = 0.0, stabilize.splits = TRUE , seed = NULL,
-                                clusters = NULL, samples_per_cluster = NULL) {
+instrumental_forest <- function(X, Y, W, Z,
+                                Y.hat = NULL,
+                                W.hat = NULL,
+                                Z.hat = NULL,
+                                sample.fraction = 0.5,
+                                mtry = NULL,
+                                num.trees = 2000,
+                                num.threads = NULL,
+                                min.node.size = NULL,
+                                honesty = TRUE,
+                                ci.group.size = 2,
+                                reduced.form.weight = 0,
+                                alpha = 0.05,
+                                imbalance.penalty = 0.0,
+                                stabilize.splits = TRUE,
+                                seed = NULL,
+                                clusters = NULL,
+                                samples_per_cluster = NULL) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
@@ -68,31 +83,43 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
         stop("Error: Invalid value for reduced.form.weight. Please give a value in [0,1].")
     }
     
-    if (!precompute.nuisance) {
-        data <- create_data_matrices(X, Y, W, Z)
-    } else {
-        forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
-                                      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                      clusters = clusters, samples_per_cluster = samples_per_cluster)
-
-        Y.hat = predict(forest.Y)$predictions
-        
-        forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
-                                      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                      clusters = clusters, samples_per_cluster = samples_per_cluster)
-
-        W.hat = predict(forest.W)$predictions
-
-        forest.Z <- regression_forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
-                                      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                      honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                      clusters = clusters, samples_per_cluster = samples_per_cluster)
-        Z.hat = predict(forest.Z)$predictions
-        
-        data <- create_data_matrices(X, Y - Y.hat, W - W.hat, Z - Z.hat)
+    if (is.null(Y.hat)) {
+      forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
+                                    honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+      Y.hat <- predict(forest.Y)$predictions
+    } else if (length(Y.hat) == 1) {
+      Y.hat <- rep(Y.hat, nrow(X))
+    } else if (length(Y.hat) != nrow(X)) {
+      stop("Y.hat has incorrect length.")
     }
+    
+    if (is.null(W.hat)) {
+      forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
+                                    honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+      W.hat <- predict(forest.W)$predictions
+    } else if (length(W.hat) == 1) {
+      W.hat <- rep(W.hat, nrow(X))
+    } else if (length(W.hat) != nrow(X)) {
+      stop("W.hat has incorrect length.")
+    }
+    
+    if (is.null(Z.hat)) {
+      forest.Z <- regression_forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
+                                    honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+      Z.hat <- predict(forest.Z)$predictions
+    } else if (length(Z.hat) == 1) {
+      Z.hat <- rep(Z.hat, nrow(X))
+    } else if (length(Z.hat) != nrow(X)) {
+      stop("Z.hat has incorrect length.")
+    }
+    
+    data <- create_data_matrices(X, Y - Y.hat, W - W.hat, Z - Z.hat)
     
     outcome.index <- ncol(X) + 1
     treatment.index <- ncol(X) + 2
@@ -105,6 +132,12 @@ instrumental_forest <- function(X, Y, W, Z, sample.fraction = 0.5, mtry = NULL,
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
+    forest[["Y.orig"]] <- Y
+    forest[["W.orig"]] <- W
+    forest[["Z.orig"]] <- Z
+    forest[["Y.hat"]] <- Y.hat
+    forest[["W.hat"]] <- W.hat
+    forest[["Z.hat"]] <- Z.hat
     forest[["clusters"]] <- clusters
     
     class(forest) <- c("instrumental_forest", "grf")

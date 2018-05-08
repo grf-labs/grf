@@ -57,7 +57,7 @@ test_that("average effect estimates are reasonable", {
   TAU = 4 * (X[,1] > 0)
   Y =  TAU * (W  - 0.5) + rnorm(n)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 500, ci.group.size = 1, precompute.nuisance = TRUE)
+  forest.causal = causal_forest(X, Y, W, num.trees = 500, ci.group.size = 1)
 
   cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - mean(TAU)) <= 0.2)
@@ -117,7 +117,7 @@ test_that("average treatment effects larger example works", {
   TAU = (1 + 1/(1 + exp(-20 * (X[,1] - 0.3)))) * (1 + 1/(1 + exp(-20 * (X[,2] - 0.3))))
   Y = M + (W - 0.5) * TAU + rnorm(n)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1, precompute.nuisance = TRUE)
+  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
 
   cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - mean(TAU)) <= 3 * cate.aipw[2])
@@ -150,7 +150,7 @@ test_that("average partial effects larger example works", {
   TAU = (1 + 1/(1 + exp(-20 * (X[,1] - 0.3)))) * (1 + 1/(1 + exp(-20 * (X[,2] - 0.3))))
   Y = M + (W - 0.5) * TAU + rnorm(n)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1, precompute.nuisance = TRUE)
+  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
 
   cape = average_partial_effect(forest.causal)
   expect_true(abs(cape[1] - mean(TAU)) <= 0.2)
@@ -170,7 +170,7 @@ test_that("average treatment effect with overlap: larger example works", {
   TAU = (1 + X[,2])^2
   Y = M + (W - 0.5) * TAU + rnorm(n)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1, precompute.nuisance = TRUE)
+  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
 
   wate = average_treatment_effect(forest.causal, target.sample = "overlap")
   tau.overlap = sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
