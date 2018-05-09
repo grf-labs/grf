@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2018-05-08
+### Added
+- Replace the local.linear option with linear.correction.variables, which allows for a subset of
+  variables to be considered during local linear regression.
+- Update causal_forest interface to allow user to specify Y.hat and W.hat. Note that these options supercede
+  the precompute.nuisance parameter, which has been removed. To recreate the behavior of
+  precompute.nuisance = TRUE, NULL can be provided for Y.hat and W.hat, and for precompute.nuisance = FALSE,
+  Y.hat and W.hat should be 0.
+- Add a causal forest example with variable selection and parameter tuning.
+
+### Changed
+- Adjust the defaults for the causal forest tuning algorithm.
+
+### Fixed
+- Prevent tuning down to a min.node.size of 0.
+
 ## [0.9.6] - 2018-04-13
 
 ### Added
