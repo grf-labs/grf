@@ -47,11 +47,31 @@
 #' @export
 average_treatment_effect = function(forest,
                                     target.sample=c("all", "treated", "control", "overlap"),
-                                    method=c("AIPW", "TMLE")) {
-
+                                    subset=NULL,
+                                    method=c("AIPW", "TMLE"), 
+                                    predictions=NULL) {
+  
   target.sample <- match.arg(target.sample)
   method <- match.arg(method)
   cluster.se <- length(forest$clusters) > 0
+  
+  if(!is.null(subset)) {
+    Y.orig <- forest$Y.orig[subset]
+    Y.hat <- forest$Y.hat[subset]
+    W.orig <- forest$W.orig[subset]
+    W.hat <- forest$W.hat[subset]
+    clusters <- forest$clusters[subset]
+  } else {
+    Y.orig <- forest$Y.orig
+    Y.hat <- forest$Y.hat
+    W.orig <- forest$W.orig
+    W.hat <- forest$W.hat
+    clusters <- forest$clusters[subset]
+  }
+  
+  if(is.null(predictions)) {
+    predictions <- predict(forest)$predictions
+  }
   
   if (!("causal_forest" %in% class(forest))) {
     stop("Average effect estimation only implemented for causal_forest")
@@ -66,13 +86,13 @@ average_treatment_effect = function(forest,
   #
   
   if (target.sample == "overlap") {
-    W.residual <- forest$W.orig - forest$W.hat
-    Y.residual <- forest$Y.orig - forest$Y.hat
+    W.residual <- W.orig - W.hat
+    Y.residual <- Y.orig - Y.hat
     tau.ols <- lm(Y.residual ~ W.residual)
     tau.est <- coef(summary(tau.ols))[2,1]
     
     if (cluster.se) {
-      tau.se <- sqrt(sandwich::vcovCL(tau.ols, cluster = forest$clusters)[2,2])
+      tau.se <- sqrt(sandwich::vcovCL(tau.ols, cluster = clusters)[2,2])
     } else {
       tau.se <- sqrt(sandwich::vcovHC(tau.ols)[2,2])
     }
@@ -80,36 +100,36 @@ average_treatment_effect = function(forest,
     return(c(estimate=tau.est, std.err=tau.se))
   }
   
-  if (!all(forest$W.orig %in% c(0, 1))) {
+  if (!all(W.orig %in% c(0, 1))) {
     stop(paste("Average treatment effect estimation only implemented for binary treatment.",
                "See `average_partial_effect` for continuous W."))
   }
   
-  if (min(forest$W.hat) <= 0.01 && max(forest$W.hat) >= 0.99) {
-    rng = range(forest$W.hat)
+  if (min(W.hat) <= 0.01 && max(W.hat) >= 0.99) {
+    rng = range(W.hat)
     warning(paste0("Estimated treatment propensities take values between ",
                    round(rng[1], 3), " and ", round(rng[2], 3),
                    " and in particular get very close to 0 and 1. ",
                    "In this case, using `target.sample=overlap`, or filtering data as in ",
                    "Crump, Hotz, Imbens, and Mitnik (Biometrika, 2009) may be helpful."))
-  } else if (min(forest$W.hat) <= 0.01 && target.sample != "treated") {
+  } else if (min(W.hat) <= 0.01 && target.sample != "treated") {
     warning(paste0("Estimated treatment propensities go as low as ",
-                   round(min(forest$W.hat), 3), " which means that treatment ",
+                   round(min(W.hat), 3), " which means that treatment ",
                    "effects for some controls may not be well identified. ",
                    "In this case, using `target.sample=treated` may be helpful."))
-  } else if (max(forest$W.hat) >= 0.99 && target.sample != "control") {
+  } else if (max(W.hat) >= 0.99 && target.sample != "control") {
     warning(paste0("Estimated treatment propensities go as high as ",
-                   round(max(forest$W.hat), 3), " which means that treatment ",
+                   round(max(W.hat), 3), " which means that treatment ",
                    "effects for some treated units may not be well identified. ",
                    "In this case, using `target.sample=control` may be helpful."))
   }
   
-  control.idx <- which(forest$W.orig == 0)
-  treated.idx <- which(forest$W.orig == 1)
+  control.idx <- which(W.orig == 0)
+  treated.idx <- which(W.orig == 1)
   
   # Retreive pointwise treatment effect predictions from forest, and
   # compute naive average effect estimates (notice that this uses OOB)
-  tau.hat.pointwise <- predict(forest)$predictions
+  tau.hat.pointwise <- predictions[subset]
   if (target.sample == "all") {
     tau.avg.raw <- mean(tau.hat.pointwise)
   } else if (target.sample == "treated") {
@@ -121,8 +141,8 @@ average_treatment_effect = function(forest,
   }
   
   # Get estimates for the regress surfaces E[Y|X, W=0/1]
-  Y.hat.0 <- forest$Y.hat - forest$W.hat * tau.hat.pointwise
-  Y.hat.1 <- forest$Y.hat + (1 - forest$W.hat) * tau.hat.pointwise
+  Y.hat.0 <- Y.hat - W.hat * tau.hat.pointwise
+  Y.hat.1 <- Y.hat + (1 - W.hat) * tau.hat.pointwise
   
   if (method == "TMLE") {
     loaded <- requireNamespace("sandwich", quietly = TRUE)
@@ -134,32 +154,32 @@ average_treatment_effect = function(forest,
   
   # Now apply a doubly robust correction
   if (method == "AIPW") {
-  
+    
     # Compute normalized inverse-propensity-type weights gamma
     if (target.sample == "all") {
-      gamma.control.raw <- 1 / (1 - forest$W.hat[control.idx])
-      gamma.treated.raw <- 1 / forest$W.hat[treated.idx]
+      gamma.control.raw <- 1 / (1 - W.hat[control.idx])
+      gamma.treated.raw <- 1 / W.hat[treated.idx]
     } else if (target.sample == "treated") {
-      gamma.control.raw <- forest$W.hat[control.idx] / (1 - forest$W.hat[control.idx])
+      gamma.control.raw <- W.hat[control.idx] / (1 - W.hat[control.idx])
       gamma.treated.raw <- rep(1, length(treated.idx))
     } else if (target.sample == "control") {
       gamma.control.raw <- rep(1, length(control.idx))
-      gamma.treated.raw <- (1 - forest$W.hat[treated.idx]) / forest$W.hat[treated.idx]
+      gamma.treated.raw <- (1 - W.hat[treated.idx]) / W.hat[treated.idx]
     } else {
       stop("Invalid target sample.")
     }
     
-    gamma <- rep(0, length(forest$W.orig))
-    gamma[control.idx] <- gamma.control.raw / sum(gamma.control.raw) * length(forest$W.orig)
-    gamma[treated.idx] <- gamma.treated.raw / sum(gamma.treated.raw) * length(forest$W.orig)
-  
-    dr.correction.all <- forest$W.orig * gamma * (forest$Y.orig - Y.hat.1) -
-      (1 - forest$W.orig) * gamma * (forest$Y.orig - Y.hat.0)
+    gamma <- rep(0, length(W.orig))
+    gamma[control.idx] <- gamma.control.raw / sum(gamma.control.raw) * length(W.orig)
+    gamma[treated.idx] <- gamma.treated.raw / sum(gamma.treated.raw) * length(W.orig)
+    
+    dr.correction.all <- W.orig * gamma * (Y.orig - Y.hat.1) -
+      (1 - W.orig) * gamma * (Y.orig - Y.hat.0)
     dr.correction <- mean(dr.correction.all)
     
     if (cluster.se) {
       correction.clust <- Matrix::sparse.model.matrix(
-        ~ factor(forest$clusters) + 0,
+        ~ factor(clusters) + 0,
         transpose = TRUE) %*% dr.correction.all
       sigma2.hat <- sum(correction.clust^2) / length(dr.correction.all) /
         (length(dr.correction.all) - 1)
@@ -171,64 +191,64 @@ average_treatment_effect = function(forest,
     
     if (target.sample == "all") {
       eps.tmle.robust.0 <-
-        lm(B ~ A + 0, data=data.frame(A=1/(1 - forest$W.hat[forest$W.orig==0]),
-                                      B=forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0]))
+        lm(B ~ A + 0, data=data.frame(A=1/(1 - W.hat[W.orig==0]),
+                                      B=Y.orig[W.orig==0]-Y.hat.0[W.orig==0]))
       eps.tmle.robust.1 <-
-        lm(B ~ A + 0, data=data.frame(A=1/forest$W.hat[forest$W.orig==1],
-                                      B=forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1]))
-      delta.tmle.robust.0 <- predict(eps.tmle.robust.0, newdata=data.frame(A=mean(1/(1 - forest$W.hat))))
-      delta.tmle.robust.1 <- predict(eps.tmle.robust.1, newdata=data.frame(A=mean(1/forest$W.hat)))
+        lm(B ~ A + 0, data=data.frame(A=1/W.hat[W.orig==1],
+                                      B=Y.orig[W.orig==1]-Y.hat.1[W.orig==1]))
+      delta.tmle.robust.0 <- predict(eps.tmle.robust.0, newdata=data.frame(A=mean(1/(1 - W.hat))))
+      delta.tmle.robust.1 <- predict(eps.tmle.robust.1, newdata=data.frame(A=mean(1/W.hat)))
       dr.correction <- delta.tmle.robust.1 - delta.tmle.robust.0
       # use robust SE
       if (cluster.se) {
-        sigma2.hat <- sandwich::vcovCL(eps.tmle.robust.0, cluster = forest$clusters[forest$W.orig==0]) *
-          mean(1/(1 - forest$W.hat))^2 +
-          sandwich::vcovCL(eps.tmle.robust.1, cluster = forest$clusters[forest$W.orig==1]) *
-          mean(1/forest$W.hat)^2
+        sigma2.hat <- sandwich::vcovCL(eps.tmle.robust.0, cluster = clusters[W.orig==0]) *
+          mean(1/(1 - W.hat))^2 +
+          sandwich::vcovCL(eps.tmle.robust.1, cluster = clusters[W.orig==1]) *
+          mean(1/W.hat)^2
       } else {
-        sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * mean(1/(1 - forest$W.hat))^2 +
-          sandwich::vcovHC(eps.tmle.robust.1) * mean(1/forest$W.hat)^2
+        sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * mean(1/(1 - W.hat))^2 +
+          sandwich::vcovHC(eps.tmle.robust.1) * mean(1/W.hat)^2
       }
     } else if (target.sample == "treated") {
       eps.tmle.robust.0 <-
         lm(B ~ A + 0,
-           data=data.frame(A=forest$W.hat[forest$W.orig==0]/(1 - forest$W.hat[forest$W.orig==0]),
-                           B=forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0]))
-      new.center <- mean(forest$W.hat[forest$W.orig==1]/(1 - forest$W.hat[forest$W.orig==1]))
+           data=data.frame(A=W.hat[W.orig==0]/(1 - W.hat[W.orig==0]),
+                           B=Y.orig[W.orig==0]-Y.hat.0[W.orig==0]))
+      new.center <- mean(W.hat[W.orig==1]/(1 - W.hat[W.orig==1]))
       delta.tmle.robust.0 <- predict(eps.tmle.robust.0,
                                      newdata=data.frame(A=new.center))
       dr.correction <- -delta.tmle.robust.0
       if (cluster.se) {
-        s.0 <- sandwich::vcovCL(eps.tmle.robust.0, cluster = forest$clusters[forest$W.orig==0]) *
+        s.0 <- sandwich::vcovCL(eps.tmle.robust.0, cluster = clusters[W.orig==0]) *
           new.center^2
         delta.1 <- Matrix::sparse.model.matrix(
-          ~ factor(forest$clusters[forest$W.orig==1]) + 0,
-          transpose = TRUE) %*% (forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1])
-        s.1 <- sum(delta.1^2) / sum(forest$W.orig==1) / (sum(forest$W.orig==1) - 1)
+          ~ factor(clusters[W.orig==1]) + 0,
+          transpose = TRUE) %*% (Y.orig[W.orig==1]-Y.hat.1[W.orig==1])
+        s.1 <- sum(delta.1^2) / sum(W.orig==1) / (sum(W.orig==1) - 1)
         sigma2.hat <- s.0 + s.1
       } else {
         sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * new.center^2 +
-          var(forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1]) / sum(forest$W.orig==1)
+          var(Y.orig[W.orig==1]-Y.hat.1[W.orig==1]) / sum(W.orig==1)
       }
     } else if (target.sample == "control") {
       eps.tmle.robust.1 <-
         lm(B ~ A + 0,
-           data=data.frame(A=(1 - forest$W.hat[forest$W.orig==1])/forest$W.hat[forest$W.orig==1],
-                           B=forest$Y.orig[forest$W.orig==1]-Y.hat.1[forest$W.orig==1]))
-      new.center <- mean((1 - forest$W.hat[forest$W.orig==0])/forest$W.hat[forest$W.orig==0])
+           data=data.frame(A=(1 - W.hat[W.orig==1])/W.hat[W.orig==1],
+                           B=Y.orig[W.orig==1]-Y.hat.1[W.orig==1]))
+      new.center <- mean((1 - W.hat[W.orig==0])/W.hat[W.orig==0])
       delta.tmle.robust.1 <- predict(eps.tmle.robust.1,
                                      newdata=data.frame(A=new.center))
       dr.correction <- delta.tmle.robust.1
       if (cluster.se) {
         delta.0 <- Matrix::sparse.model.matrix(
-          ~ factor(forest$clusters[forest$W.orig==0]) + 0,
-          transpose = TRUE) %*% (forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0])
-        s.0 <- sum(delta.0^2) / sum(forest$W.orig==0) / (sum(forest$W.orig==0) - 1)
-        s.1 <- sandwich::vcovCL(eps.tmle.robust.1, cluster = forest$clusters[forest$W.orig==1]) *
+          ~ factor(clusters[W.orig==0]) + 0,
+          transpose = TRUE) %*% (Y.orig[W.orig==0]-Y.hat.0[W.orig==0])
+        s.0 <- sum(delta.0^2) / sum(W.orig==0) / (sum(W.orig==0) - 1)
+        s.1 <- sandwich::vcovCL(eps.tmle.robust.1, cluster = clusters[W.orig==1]) *
           new.center^2
         sigma2.hat <- s.0 + s.1
       } else {
-        sigma2.hat <- var(forest$Y.orig[forest$W.orig==0]-Y.hat.0[forest$W.orig==0]) / sum(forest$W.orig==0) +
+        sigma2.hat <- var(Y.orig[W.orig==0]-Y.hat.0[W.orig==0]) / sum(W.orig==0) +
           sandwich::vcovHC(eps.tmle.robust.1) * new.center^2
       }
     } else {
