@@ -18,6 +18,7 @@
 #'
 #' @param forest The trained forest.
 #' @param target.sample Which sample to aggregate treatment effects over.
+#' @param subset The subset to calculate CATE for.
 #' @param method Method used for doubly robust inference. Can be either
 #'               augmented inverse-propensity weighting (AIPW), or
 #'               targeted maximum likelihood estimation (TMLE).
@@ -48,8 +49,7 @@
 average_treatment_effect = function(forest,
                                     target.sample=c("all", "treated", "control", "overlap"),
                                     subset=NULL,
-                                    method=c("AIPW", "TMLE"), 
-                                    predictions=NULL) {
+                                    method=c("AIPW", "TMLE")) {
   
   target.sample <- match.arg(target.sample)
   method <- match.arg(method)
@@ -67,10 +67,6 @@ average_treatment_effect = function(forest,
     W.orig <- forest$W.orig
     W.hat <- forest$W.hat
     clusters <- forest$clusters[subset]
-  }
-  
-  if(is.null(predictions)) {
-    predictions <- predict(forest)$predictions
   }
   
   if (!("causal_forest" %in% class(forest))) {
@@ -129,6 +125,15 @@ average_treatment_effect = function(forest,
   
   # Retreive pointwise treatment effect predictions from forest, and
   # compute naive average effect estimates (notice that this uses OOB)
+  forest.with.preds <- forest
+  
+  if (is.null(forest.with.preds$predictions)) {
+    forest.with.preds$predictions <- predict(forest.with.preds)$predictions
+    eval.parent(substitute(forest <- forest.with.preds))
+  }  
+  
+  predictions <- forest.with.preds$predictions
+  
   tau.hat.pointwise <- predictions[subset]
   if (target.sample == "all") {
     tau.avg.raw <- mean(tau.hat.pointwise)
