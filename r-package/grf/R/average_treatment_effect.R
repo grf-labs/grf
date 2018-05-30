@@ -50,7 +50,7 @@ average_treatment_effect = function(forest,
                                     target.sample=c("all", "treated", "control", "overlap"),
                                     subset=NULL,
                                     method=c("AIPW", "TMLE")) {
-  
+
   target.sample <- match.arg(target.sample)
   method <- match.arg(method)
   cluster.se <- length(forest$clusters) > 0
@@ -125,16 +125,13 @@ average_treatment_effect = function(forest,
   
   # Retreive pointwise treatment effect predictions from forest, and
   # compute naive average effect estimates (notice that this uses OOB)
-  forest.with.preds <- forest
+  predictions <- predict(forest)$predictions
   
-  if (is.null(forest.with.preds$predictions)) {
-    forest.with.preds$predictions <- predict(forest.with.preds)$predictions
-    eval.parent(substitute(forest <- forest.with.preds))
-  }  
+  if(!is.null(subset)) {
+    predictions <- predictions[subset]
+  }
   
-  predictions <- forest.with.preds$predictions
-  
-  tau.hat.pointwise <- predictions[subset]
+  tau.hat.pointwise <- predictions
   if (target.sample == "all") {
     tau.avg.raw <- mean(tau.hat.pointwise)
   } else if (target.sample == "treated") {
