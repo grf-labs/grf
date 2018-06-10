@@ -47,10 +47,16 @@ X = matrix(rnorm(n*p), n, p)
 X.test = matrix(0, 101, p)
 X.test[,1] = seq(-2, 2, length.out = 101)
 
-# Perform treatment effect estimation.
+# Train a causal forest.
 W = rbinom(n, 1, 0.5)
 Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
 tau.forest = causal_forest(X, Y, W)
+
+# Estimate treatment effects for the training data using out-of-bag prediction.
+tau.hat.oob = predict(tau.forest)
+hist(tau.hat.oob$predictions)
+
+# Estimate treatment effects for the test sample.
 tau.hat = predict(tau.forest, X.test)
 plot(X.test[,1], tau.hat$predictions, ylim = range(tau.hat$predictions, 0, 2), xlab = "x", ylab = "tau", type = "l")
 lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 2)
