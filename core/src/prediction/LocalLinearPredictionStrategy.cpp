@@ -47,32 +47,22 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
                                                            const std::unordered_map<size_t, double>& weights_by_sampleID,
                                                            const Observations& observations) {
   size_t num_variables = linear_correction_variables.size();
-  size_t nNZ = 0;
-  for (auto const & it : weights_by_sampleID) {
+  size_t num_nonzero_weights = weights_by_sampleID.size();
+
+  std::vector<size_t> indices(num_nonzero_weights);
+  Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
+  size_t weights_index = 0;
+  for (auto& it : weights_by_sampleID) {
+    size_t i = it.first;
     double weight = it.second;
-    if (weight > 0) {
-      nNZ++;
-    }
-  }
-  std::vector<size_t> indices;
-  Eigen::MatrixXd weightsVec = Eigen::VectorXd::Zero(nNZ);
-  Eigen::MatrixXd X = Eigen::MatrixXd::Zero(nNZ, num_variables+1);
-  Eigen::MatrixXd Y = Eigen::MatrixXd::Zero(nNZ, 1);
-  Eigen::MatrixXd M = Eigen::MatrixXd::Zero(num_variables+1, num_variables+1);
-  Eigen::MatrixXd preds = Eigen::MatrixXd::Zero(num_variables+1, 1);
-
-  size_t curIdx = 0;
-  for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it){
-    size_t i = it->first;
-    double weight = it->second;
-    if (weight > 0) {
-      indices.push_back(i);
-      weightsVec(curIdx) = weight;
-      curIdx++;
-    }
+    indices[weights_index] = i;
+    weights_vec(weights_index) = weight;
+    weights_index++;
   }
 
-  for (size_t i = 0; i < nNZ; ++i) {
+  Eigen::MatrixXd X = Eigen::MatrixXd::Zero(num_nonzero_weights, num_variables+1);
+  Eigen::MatrixXd Y = Eigen::MatrixXd::Zero(num_nonzero_weights, 1);
+  for (size_t i = 0; i < num_nonzero_weights; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
       X(i,j+1) = test_data->get(sampleID, current_predictor)
@@ -83,7 +73,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
   }
 
   // find ridge regression predictions
-  M.noalias() = X.transpose()*weightsVec.asDiagonal()*X;
+  Eigen::MatrixXd M = Eigen::MatrixXd::Zero(num_variables+1, num_variables+1);
+  M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
 
   if (use_unweighted_penalty) {
     // standard ridge penalty
@@ -98,7 +89,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
     }
   }
 
-  preds = M.ldlt().solve(X.transpose()*weightsVec.asDiagonal()*Y);
+  Eigen::MatrixXd preds = M.ldlt().solve(
+      X.transpose()*weights_vec.asDiagonal()*Y);
 
   return { preds(0) };
 }
