@@ -60,8 +60,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
     weights_index++;
   }
 
-  Eigen::MatrixXd X = Eigen::MatrixXd::Zero(num_nonzero_weights, num_variables+1);
-  Eigen::MatrixXd Y = Eigen::MatrixXd::Zero(num_nonzero_weights, 1);
+  Eigen::MatrixXd X (num_nonzero_weights, num_variables+1);
+  Eigen::MatrixXd Y (num_nonzero_weights, 1);
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
@@ -73,7 +73,7 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
   }
 
   // find ridge regression predictions
-  Eigen::MatrixXd M = Eigen::MatrixXd::Zero(num_variables+1, num_variables+1);
+  Eigen::MatrixXd M (num_variables+1, num_variables+1);
   M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
 
   if (use_unweighted_penalty) {

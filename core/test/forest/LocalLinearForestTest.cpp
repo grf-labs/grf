@@ -21,9 +21,6 @@
 #include "forest/ForestTrainer.h"
 #include "forest/ForestTrainers.h"
 #include "utilities/ForestTestUtilities.h"
-#include <chrono>
-#include <prediction/LocalLinearPredictionStrategy.h>
-#include <prediction/collector/DefaultPredictionCollector.h>
 
 #include "catch.hpp"
 
