@@ -24,7 +24,7 @@
 
 #include "catch.hpp"
 
-TEST_CASE("LLF_friedman_2k") {
+TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, forest]") {
   Data* data = load_data("test/forest/resources/friedman.csv");
   uint outcome_index = 10;
   std::vector<size_t> linear_correction_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};

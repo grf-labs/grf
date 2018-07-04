@@ -43,21 +43,24 @@ LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data* origina
         linear_correction_variables(linear_correction_variables){
 };
 
-std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
-                                                           const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                           const Observations& observations) {
+std::vector<double> LocalLinearPredictionStrategy::predict(
+    size_t sampleID,
+    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const Observations& observations) {
   size_t num_variables = linear_correction_variables.size();
   size_t num_nonzero_weights = weights_by_sampleID.size();
 
   std::vector<size_t> indices(num_nonzero_weights);
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
-  size_t weights_index = 0;
-  for (auto& it : weights_by_sampleID) {
-    size_t i = it.first;
-    double weight = it.second;
-    indices[weights_index] = i;
-    weights_vec(weights_index) = weight;
-    weights_index++;
+  {
+    size_t i = 0;
+    for (auto& it : weights_by_sampleID) {
+      size_t index = it.first;
+      double weight = it.second;
+      indices[i] = index;
+      weights_vec(i) = weight;
+      i++;
+    }
   }
 
   Eigen::MatrixXd X (num_nonzero_weights, num_variables+1);
