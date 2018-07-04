@@ -43,38 +43,41 @@ LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data* origina
         linear_correction_variables(linear_correction_variables){
 };
 
-std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
-                                                           const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                                           const Observations& observations) {
-  size_t n = observations.get_num_samples();
+std::vector<double> LocalLinearPredictionStrategy::predict(
+    size_t sampleID,
+    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const Observations& observations) {
   size_t num_variables = linear_correction_variables.size();
+  size_t num_nonzero_weights = weights_by_sampleID.size();
 
-  Eigen::MatrixXd weights = Eigen::MatrixXd::Zero(n,n);
-
-  for (auto it = weights_by_sampleID.begin(); it != weights_by_sampleID.end(); ++it){
-    size_t i = it->first;
-    double weight = it->second;
-    weights(i,i) = weight;
+  std::vector<size_t> indices(num_nonzero_weights);
+  Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
+  {
+    size_t i = 0;
+    for (auto& it : weights_by_sampleID) {
+      size_t index = it.first;
+      double weight = it.second;
+      indices[i] = index;
+      weights_vec(i) = weight;
+      i++;
+    }
   }
 
-  // generate design matrix X and responses Y as Eigen objects
-  Eigen::MatrixXd X(n, num_variables+1);
-  Eigen::MatrixXd Y(n, 1);
-
-  // check if we do variable selection. If so, isolate to those variables.
-
-  for (size_t i = 0; i < n; ++i) {
+  Eigen::MatrixXd X (num_nonzero_weights, num_variables+1);
+  Eigen::MatrixXd Y (num_nonzero_weights, 1);
+  for (size_t i = 0; i < num_nonzero_weights; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
-      X(i,j+1) = test_data->get(sampleID, current_predictor) - original_data->get(i,current_predictor);
+      X(i,j+1) = test_data->get(sampleID, current_predictor)
+              - original_data->get(indices[i],current_predictor);
     }
-    Y(i) = observations.get(Observations::OUTCOME, i);
+    Y(i) = observations.get(Observations::OUTCOME, indices[i]);
     X(i, 0) = 1;
   }
 
   // find ridge regression predictions
-  Eigen::MatrixXd M(num_variables+1, num_variables+1);
-  M = X.transpose()*weights*X;
+  Eigen::MatrixXd M (num_variables+1, num_variables+1);
+  M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
 
   if (use_unweighted_penalty) {
     // standard ridge penalty
@@ -89,8 +92,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(size_t sampleID,
     }
   }
 
-  Eigen::MatrixXd preds(num_variables+1, 1);
-  preds = M.colPivHouseholderQr().solve(X.transpose()*weights*Y);
+  Eigen::MatrixXd preds = M.ldlt().solve(
+      X.transpose()*weights_vec.asDiagonal()*Y);
 
   return { preds(0) };
 }
