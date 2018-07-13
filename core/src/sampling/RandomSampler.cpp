@@ -139,69 +139,27 @@ void RandomSampler::draw(std::vector<size_t>& result,
                          size_t max,
                          const std::set<size_t>& skip,
                          size_t num_samples) {
-  if (num_samples < max / 2) {
-    draw_simple(result, max, skip, num_samples);
-  } else {
-    draw_knuth(result, max, skip, num_samples);
+
+  // Create indices
+  result.resize(max);
+  std::iota(result.begin(), result.end(), 0);
+
+
+  // Remove values that are to be skipped
+  result.erase(std::remove_if(result.begin(), result.end(),
+                              [&](size_t i) { return skip.find(i) != skip.end(); }),
+               result.end());
+
+
+  // Draw without replacement using Fisher Yates algorithm
+  for (size_t i = result.size() - 1; i > 0; --i) {
+    std::uniform_int_distribution<size_t> distribution(0, i);
+    size_t j = distribution(random_number_generator);
+    std::swap(result.at(i), result.at(j));
   }
-}
 
-void RandomSampler::draw_simple(std::vector<size_t>& result,
-                                size_t max,
-                                const std::set<size_t>& skip,
-                                size_t num_samples) {
-  result.reserve(num_samples);
-
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(max, false);
-
-  std::uniform_int_distribution<size_t> unif_dist(0, max - 1 - skip.size());
-  for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
-    do {
-      draw = unif_dist(random_number_generator);
-      for (auto& skip_value : skip) {
-        if (draw >= skip_value) {
-          ++draw;
-        }
-      }
-    } while (temp[draw]);
-    temp[draw] = true;
-    result.push_back(draw);
-  }
-}
-
-void RandomSampler::draw_knuth(std::vector<size_t> &result,
-                               size_t max,
-                               const std::set<size_t> &skip,
-                               size_t num_samples) {
-  size_t size_no_skip = max - skip.size();
   result.resize(num_samples);
-  double u;
-  size_t final_value;
 
-  std::uniform_real_distribution<double> distribution(0.0, 1.0);
-
-  size_t i = 0;
-  size_t j = 0;
-  while (i < num_samples) {
-    u = distribution(random_number_generator);
-
-    if ((size_no_skip - j) * u >= num_samples - i) {
-      j++;
-    } else {
-      final_value = j;
-      for (auto& skip_value : skip) {
-        if (final_value >= skip_value) {
-          ++final_value;
-        }
-      }
-      result[i] = final_value;
-      j++;
-      i++;
-    }
-  }
 }
 
 void RandomSampler::draw_weighted(std::vector<size_t>& result,
