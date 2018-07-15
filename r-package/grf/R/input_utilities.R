@@ -108,6 +108,24 @@ validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
   samples_per_cluster
 }
 
+validate_vars <- function(linear.correction.variables, num.cols){
+  if (min(linear.correction.variables) < 0 ){
+    stop("Linear correction variables must take non-negative values.")
+  } else if (max(linear.correction.variables) > num.cols) {
+    stop("Invalid range of correction variables.")
+  } else if (!is.vector(linear.correction.variables) | !all(linear.correction.variables == floor(linear.correction.variables))) {
+    stop("Linear correction variables must be a vector of integers.")
+  }
+  linear.correction.variables
+}
+
+validate_lambda <- function(lambda){
+  if (lambda < 0) {
+    stop("Lambda cannot be negative")
+  }
+  lambda
+}
+
 create_data_matrices <- function(X, ...) {
   default.data <- matrix(nrow=0, ncol=0);    
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))

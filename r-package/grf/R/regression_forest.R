@@ -29,6 +29,11 @@
 #'                            software will set this value to the size of the smallest cluster.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults.
+#' @param tune.linear If true, cross-validation will use locally linear prediction.
+#' @param linear.correction.variables If tune.linear is set to true, a user can supply specific linear correction
+#'                            variables. If left NULL, selected by cross-validation.
+#' @param lambda If tune.linear is set to true, a user can specify a value for penalty lambda. If left NULL,
+#'                            selected by cross-validation.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
@@ -71,6 +76,9 @@ regression_forest <- function(X, Y,
                               clusters = NULL,
                               samples_per_cluster = NULL,
                               tune.parameters = FALSE,
+                              tune.linear = FALSE,
+                              linear.correction.variables = NULL,
+                              lambda = NULL,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
@@ -92,6 +100,9 @@ regression_forest <- function(X, Y,
                                               mtry = mtry,
                                               alpha = alpha,
                                               imbalance.penalty = imbalance.penalty,
+                                              locally.linear = FALSE,
+                                              linear.correction.variables = NULL,
+                                              lambda = NULL,
                                               num.threads = num.threads,
                                               honesty = honesty,
                                               seed = seed,
