@@ -136,7 +136,7 @@ void RandomSampler::draw(std::vector<size_t>& result,
                          size_t max,
                          const std::set<size_t>& skip,
                          size_t num_samples) {
-  if (num_samples < max / 2) {
+  if (num_samples < max / 10) {
     draw_simple(result, max, skip, num_samples);
   } else {
     draw_fisher_yates(result, max, skip, num_samples);
@@ -192,7 +192,6 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
 
   // Retain only num_samples
   result.erase(result.begin() + num_samples, result.end());
-
 }
 
 void RandomSampler::draw_weighted(std::vector<size_t>& result,
