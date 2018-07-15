@@ -18,14 +18,14 @@
 #include "RandomSampler.h"
 
 RandomSampler::RandomSampler(uint seed,
-                             const SamplingOptions &options) :
+                             const SamplingOptions& options) :
     options(options) {
   random_number_generator.seed(seed);
 }
 
 void RandomSampler::sample_clusters(size_t num_rows,
                                     double sample_fraction,
-                                    std::vector<size_t> &samples) {
+                                    std::vector<size_t>& samples) {
   if (options.get_clusters().empty()) {
     sample(num_rows, sample_fraction, samples);
   } else {
@@ -36,7 +36,7 @@ void RandomSampler::sample_clusters(size_t num_rows,
 
 void RandomSampler::sample(size_t num_samples,
                            double sample_fraction,
-                           std::vector<size_t> &samples) {
+                           std::vector<size_t>& samples) {
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
   if (options.get_sample_weights().empty()) {
     shuffle_and_split(samples, num_samples, num_samples_inbag);
@@ -48,9 +48,9 @@ void RandomSampler::sample(size_t num_samples,
   }
 }
 
-void RandomSampler::subsample(const std::vector<size_t> &samples,
+void RandomSampler::subsample(const std::vector<size_t>& samples,
                               double sample_fraction,
-                              std::vector<size_t> &subsamples) {
+                              std::vector<size_t>& subsamples) {
   std::vector<size_t> shuffled_sample(samples);
   std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
 
@@ -61,10 +61,10 @@ void RandomSampler::subsample(const std::vector<size_t> &samples,
             subsamples.begin());
 }
 
-void RandomSampler::subsample(const std::vector<size_t> &samples,
+void RandomSampler::subsample(const std::vector<size_t>& samples,
                               double sample_fraction,
-                              std::vector<size_t> &subsamples,
-                              std::vector<size_t> &oob_samples) {
+                              std::vector<size_t>& subsamples,
+                              std::vector<size_t>& oob_samples) {
   std::vector<size_t> shuffled_sample(samples);
   std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
 
@@ -80,9 +80,9 @@ void RandomSampler::subsample(const std::vector<size_t> &samples,
             oob_samples.begin());
 }
 
-void RandomSampler::subsample_with_size(const std::vector<size_t> &samples,
+void RandomSampler::subsample_with_size(const std::vector<size_t>& samples,
                                         size_t subsample_size,
-                                        std::vector<size_t> &subsamples) {
+                                        std::vector<size_t>& subsamples) {
   std::vector<size_t> shuffled_sample(samples);
   std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
 
@@ -92,14 +92,14 @@ void RandomSampler::subsample_with_size(const std::vector<size_t> &samples,
             subsamples.begin());
 }
 
-void RandomSampler::sample_from_clusters(const std::vector<size_t> &clusters,
-                                         std::vector<size_t> &samples) {
+void RandomSampler::sample_from_clusters(const std::vector<size_t>& clusters,
+                                         std::vector<size_t>& samples) {
   if (options.get_clusters().empty()) {
     samples = clusters;
   } else {
-    const std::vector<std::vector<size_t>> &samples_by_cluster = options.get_clusters();
+    const std::vector<std::vector<size_t>>& samples_by_cluster = options.get_clusters();
     for (size_t cluster : clusters) {
-      const std::vector<size_t> &cluster_samples = samples_by_cluster.at(cluster);
+      const std::vector<size_t>& cluster_samples = samples_by_cluster.at(cluster);
 
       std::vector<size_t> subsamples;
       subsample_with_size(cluster_samples, options.get_samples_per_cluster(), subsamples);
@@ -108,19 +108,19 @@ void RandomSampler::sample_from_clusters(const std::vector<size_t> &clusters,
   }
 }
 
-void RandomSampler::get_samples_in_clusters(const std::vector<size_t> &clusters,
-                                            std::vector<size_t> &samples) {
+void RandomSampler::get_samples_in_clusters(const std::vector<size_t>& clusters,
+                                            std::vector<size_t>& samples) {
   if (options.get_clusters().empty()) {
     samples = clusters;
   } else {
     for (size_t cluster : clusters) {
-      const std::vector<size_t> &cluster_samples = options.get_clusters().at(cluster);
+      const std::vector<size_t>& cluster_samples = options.get_clusters().at(cluster);
       samples.insert(samples.end(), cluster_samples.begin(), cluster_samples.end());
     }
   }
 }
 
-void RandomSampler::shuffle_and_split(std::vector<size_t> &samples,
+void RandomSampler::shuffle_and_split(std::vector<size_t>& samples,
                                       size_t n_all,
                                       size_t size) {
   samples.resize(n_all);
@@ -132,9 +132,9 @@ void RandomSampler::shuffle_and_split(std::vector<size_t> &samples,
   samples.resize(size);
 }
 
-void RandomSampler::draw(std::vector<size_t> &result,
+void RandomSampler::draw(std::vector<size_t>& result,
                          size_t max,
-                         const std::set<size_t> &skip,
+                         const std::set<size_t>& skip,
                          size_t num_samples) {
   if (num_samples < max / 2) {
     draw_simple(result, max, skip, num_samples);
@@ -143,9 +143,9 @@ void RandomSampler::draw(std::vector<size_t> &result,
   }
 }
 
-void RandomSampler::draw_simple(std::vector<size_t> &result,
+void RandomSampler::draw_simple(std::vector<size_t>& result,
                                 size_t max,
-                                const std::set<size_t> &skip,
+                                const std::set<size_t>& skip,
                                 size_t num_samples) {
   result.reserve(num_samples);
 
@@ -158,7 +158,7 @@ void RandomSampler::draw_simple(std::vector<size_t> &result,
     size_t draw;
     do {
       draw = unif_dist(random_number_generator);
-      for (auto &skip_value : skip) {
+      for (auto& skip_value : skip) {
         if (draw >= skip_value) {
           ++draw;
         }
@@ -169,9 +169,9 @@ void RandomSampler::draw_simple(std::vector<size_t> &result,
   }
 }
 
-void RandomSampler::draw_fisher_yates(std::vector<size_t> &result,
+void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
                                       size_t max,
-                                      const std::set<size_t> &skip,
+                                      const std::set<size_t>& skip,
                                       size_t num_samples) {
 
   // Populate result vector with 0,...,max-1
@@ -195,10 +195,10 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t> &result,
 
 }
 
-void RandomSampler::draw_weighted(std::vector<size_t> &result,
+void RandomSampler::draw_weighted(std::vector<size_t>& result,
                                   size_t max,
                                   size_t num_samples,
-                                  const std::vector<double> &weights) {
+                                  const std::vector<double>& weights) {
   result.reserve(num_samples);
 
   // Set all to not selected
