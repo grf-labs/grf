@@ -10,8 +10,7 @@ get_initial_params <- function(min.node.size,
     imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty))
 }
 
-get_linear_params <- function(linear.correction.variables, lambda){
-    c(linear.correction.variables = if (is.null(linear.correction.variables)) NA else validate_vars(linear.correction.variables),
+get_linear_params <- function(lambda){
     lambda = if (is.null(lambda)) NA else validate_lambda(lambda))
 }
 

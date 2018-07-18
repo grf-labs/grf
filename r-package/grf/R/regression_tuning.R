@@ -91,9 +91,10 @@ tune_regression_forest <- function(X, Y,
   tuning.params = all.params[is.na(all.params)]
 
   if (locally.linear) {
-    linear.params = get_linear_params(linear.correction.variables, lambda, ncol(X))
+    lambda = get_linear_params(lambda)
     fixed.params = c(fixed.params, linear.params[!is.na(linear.params)])
     tuning.params = c(tuning.params, linear.params[is.na(linear.params)])
+    linear.correction.variables = validate_vars(linear.correction.variables)
   } else {
     # give lambda a value so it does not break in the predict step
     lambda = 0.0
@@ -123,10 +124,21 @@ tune_regression_forest <- function(X, Y,
                                      as.numeric(params["imbalance.penalty"]),
                                      clusters,
                                      samples_per_cluster)
-    prediction = regression_predict_oob(small.forest, data$default, data$sparse,
-                                        linear.correction.variables = linear.correction.variables,
-                                        lambda = lambda,
-                                        num.threads, ci.group.size)
+
+    if(locally.linear == TRUE) {
+        prediction = local_linear_predict_oob(small.forest, data$default, data$sparse,
+                                            lambda = lambda,
+                                            use_unweighted_penalty = FALSE
+                                            linear.correction.variables = linear.correction.variables,
+                                            num.threads)
+    } else {
+        prediction = regression_predict_oob(small.forest, data$default, data$sparse,
+                                            linear.correction.variables = linear.correction.variables,
+                                            lambda = lambda,
+                                            num.threads, ci.group.size)
+    }
+
+
     mean(prediction$debiased.error, na.rm = TRUE)
   })
   
