@@ -109,7 +109,10 @@ validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
 }
 
 validate_vars <- function(linear.correction.variables, num.cols){
-  if (min(linear.correction.variables) < 0 ){
+  if (is.null(linear.correction.variables)) {
+    linear.correction.variables = 1:num.cols
+  }
+  if (min(linear.correction.variables) < 0) {
     stop("Linear correction variables must take non-negative values.")
   } else if (max(linear.correction.variables) > num.cols) {
     stop("Invalid range of correction variables.")
