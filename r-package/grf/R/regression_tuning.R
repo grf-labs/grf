@@ -128,7 +128,7 @@ tune_regression_forest <- function(X, Y,
     if(locally.linear == TRUE) {
         prediction = local_linear_predict_oob(small.forest, data$default, data$sparse,
                                             lambda = lambda,
-                                            use_unweighted_penalty = FALSE
+                                            use_unweighted_penalty = FALSE,
                                             linear.correction.variables = linear.correction.variables,
                                             num.threads)
     } else {

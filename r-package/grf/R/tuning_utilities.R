@@ -11,7 +11,8 @@ get_initial_params <- function(min.node.size,
 }
 
 get_linear_params <- function(lambda){
-    lambda = if (is.null(lambda)) NA else validate_lambda(lambda))
+    lambda = if (is.null(lambda)) NA else validate_lambda(lambda)
+    lambda
 }
 
 get_params_from_draw <- function(X, draw) {
