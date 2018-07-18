@@ -31,7 +31,7 @@
 #'                        NULL parameters are set to defaults.
 #' @param tune.linear If true, cross-validation will use locally linear prediction.
 #' @param linear.correction.variables If tune.linear is set to true, a user can supply specific linear correction
-#'                            variables. If left NULL, selected by cross-validation.
+#'                            variables. If left NULL, all variables are used.
 #' @param lambda If tune.linear is set to true, a user can specify a value for penalty lambda. If left NULL,
 #'                            selected by cross-validation.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
