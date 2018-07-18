@@ -133,8 +133,6 @@ tune_regression_forest <- function(X, Y,
                                             num.threads)
     } else {
         prediction = regression_predict_oob(small.forest, data$default, data$sparse,
-                                            linear.correction.variables = linear.correction.variables,
-                                            lambda = lambda,
                                             num.threads, ci.group.size)
     }
 
