@@ -27,10 +27,8 @@ get_params_from_draw <- function(X, draw) {
       value = draw[param]/4
     } else if (param == "imbalance.penalty") {
       value = -log(draw[param])
-    } else if (param == "linear.correction.variables") {
-      value = 1 # need: method for CV-ing LCVS from a U[0,1]
     } else if (param == "lambda" ){
-      value = 1 # need: method for CV-ing lambda from a U[0,1]
+      value = exp(draw[param])
     } else {
       stop("Unrecognized parameter name provided: ", param)
     }
