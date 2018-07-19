@@ -87,18 +87,14 @@ tune_regression_forest <- function(X, Y,
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
   all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
 
-  fixed.params = all.params[!is.na(all.params)]
-  tuning.params = all.params[is.na(all.params)]
-
   if (locally.linear) {
     lambda = get_linear_params(lambda)
-    fixed.params = c(fixed.params, linear.params[!is.na(linear.params)])
-    tuning.params = c(tuning.params, linear.params[is.na(linear.params)])
-    linear.correction.variables = validate_vars(linear.correction.variables)
-  } else {
-    # give lambda a value so it does not break in the predict step
-    lambda = 0.0
+    all.params = c(all.params, lambda)
+    linear.correction.variables = validate_vars(linear.correction.variables, ncol(X))
   }
+
+  fixed.params = all.params[!is.na(all.params)]
+  tuning.params = all.params[is.na(all.params)]
 
   if (length(tuning.params) == 0) {
     return(list("error"=NA, "params"=c(all.params)))
@@ -127,17 +123,18 @@ tune_regression_forest <- function(X, Y,
 
     if(locally.linear == TRUE) {
         prediction = local_linear_predict_oob(small.forest, data$default, data$sparse,
-                                            lambda = lambda,
+                                            lambda = as.numeric(params["lambda"]),
                                             use_unweighted_penalty = FALSE,
-                                            linear.correction.variables = linear.correction.variables,
+                                            linear_correction_variables = linear.correction.variables,
                                             num.threads)
+        error = mean((prediction$predictions - Y)**2)
     } else {
         prediction = regression_predict_oob(small.forest, data$default, data$sparse,
                                             num.threads, ci.group.size)
+        error = prediction$debiased.error
     }
 
-
-    mean(prediction$debiased.error, na.rm = TRUE)
+    mean(error, na.rm = TRUE)
   })
   
   # Fit the 'dice kriging' model to these error estimates.

@@ -11,8 +11,7 @@ get_initial_params <- function(min.node.size,
 }
 
 get_linear_params <- function(lambda){
-    lambda = if (is.null(lambda)) NA else validate_lambda(lambda)
-    lambda
+    c(lambda = if (is.null(lambda)) NA else validate_lambda(lambda))
 }
 
 get_params_from_draw <- function(X, draw) {
@@ -29,7 +28,7 @@ get_params_from_draw <- function(X, draw) {
     } else if (param == "imbalance.penalty") {
       value = -log(draw[param])
     } else if (param == "lambda" ){
-      value = exp(draw[param])
+      value = draw[param] * exp(draw[param])
     } else {
       stop("Unrecognized parameter name provided: ", param)
     }
