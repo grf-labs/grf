@@ -107,16 +107,6 @@ tau.forest = causal_forest(X[, selected.vars], Y, W,
                            W.hat = W.hat, Y.hat = Y.hat,
                            tune.parameters = TRUE)
 tau.hat = predict(tau.forest)$predictions
-
-# A simple omnibus test for signal uses tau.hat as a linear predictor for CATE.
-# A coefficient of 1 in the regression below suggests that tau.hat is well calibrated.
-DF = data.frame(dY = Y - Y.hat, dY.hat = (W - W.hat) * tau.hat)
-best.linear.predictor = lm(dY ~ dY.hat + 0, data = DF)
-
-# We need to use some extra packages to get
-# heteroskedasticity-consistent inference.
-lmtest::coeftest(best.linear.predictor,
-                 vcov = sandwich::vcovHC)
 ```
 
 ### Developing
