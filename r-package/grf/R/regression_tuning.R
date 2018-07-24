@@ -85,19 +85,17 @@ tune_regression_forest <- function(X, Y,
   
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
-  all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
-
-  if (locally.linear) {
-    lambda = get_linear_params(lambda)
-    all.params = c(all.params, lambda)
-    linear.correction.variables = validate_vars(linear.correction.variables, ncol(X))
-  }
+  all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty, lambda, locally.linear)
 
   fixed.params = all.params[!is.na(all.params)]
   tuning.params = all.params[is.na(all.params)]
 
   if (length(tuning.params) == 0) {
     return(list("error"=NA, "params"=c(all.params)))
+  }
+
+  if (locally.linear) {
+    linear.correction.variables = validate_vars(linear.correction.variables, ncol(X))
   }
   
   # Train several mini-forests, and gather their debiased OOB error estimates.

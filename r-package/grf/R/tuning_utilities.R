@@ -2,16 +2,23 @@ get_initial_params <- function(min.node.size,
                                sample.fraction,
                                mtry,
                                alpha,
-                               imbalance.penalty) {
-  c(min.node.size = if (is.null(min.node.size)) NA else validate_min_node_size(min.node.size),
-    sample.fraction = if (is.null(sample.fraction)) NA else validate_sample_fraction(sample.fraction),
-    mtry = if (is.null(mtry)) NA else validate_mtry(mtry),
-    alpha = if (is.null(alpha)) NA else validate_alpha(alpha),
-    imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty))
-}
-
-get_linear_params <- function(lambda){
-    c(lambda = if (is.null(lambda)) NA else validate_lambda(lambda))
+                               imbalance.penalty,
+                               lambda,
+                               locally.linear) {
+  if (locally.linear) {
+    c(min.node.size = if (is.null(min.node.size)) NA else validate_min_node_size(min.node.size),
+        sample.fraction = if (is.null(sample.fraction)) NA else validate_sample_fraction(sample.fraction),
+        mtry = if (is.null(mtry)) NA else validate_mtry(mtry),
+        alpha = if (is.null(alpha)) NA else validate_alpha(alpha),
+        imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty),
+        lambda = if (is.null(lambda)) NA else validate_lambda(lambda))
+  } else {
+    c(min.node.size = if (is.null(min.node.size)) NA else validate_min_node_size(min.node.size),
+        sample.fraction = if (is.null(sample.fraction)) NA else validate_sample_fraction(sample.fraction),
+        mtry = if (is.null(mtry)) NA else validate_mtry(mtry),
+        alpha = if (is.null(alpha)) NA else validate_alpha(alpha),
+        imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty))
+  }
 }
 
 get_params_from_draw <- function(X, draw) {

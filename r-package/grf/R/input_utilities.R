@@ -124,7 +124,7 @@ validate_vars <- function(linear.correction.variables, num.cols){
 
 validate_lambda <- function(lambda){
   if (lambda < 0) {
-    stop("Lambda cannot be negative")
+    stop("Lambda cannot be negative.")
   }
   lambda
 }
