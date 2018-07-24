@@ -128,6 +128,7 @@ regression_forest <- function(X, Y,
 
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
+    forest[["Y.orig"]] <- Y
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
 
