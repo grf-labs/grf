@@ -48,7 +48,7 @@ X.test = matrix(0, 101, p)
 X.test[,1] = seq(-2, 2, length.out = 101)
 
 # Train a causal forest.
-W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
+W = rbinom(n, 1, 0.5)
 Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
 tau.forest = causal_forest(X, Y, W)
 
