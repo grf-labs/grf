@@ -37,6 +37,7 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
 #'                         determining the imbalance of a split (experimental).
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
 #' @param seed The seed of the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
@@ -114,6 +115,7 @@ causal_forest <- function(X, Y, W,
                           alpha = NULL,
                           imbalance.penalty = NULL,
                           stabilize.splits = TRUE,
+                          compute.oob.predictions = TRUE,
                           seed = NULL,
                           clusters = NULL,
                           samples_per_cluster = NULL,
@@ -215,8 +217,15 @@ causal_forest <- function(X, Y, W,
     forest[["W.hat"]] <- W.hat
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
-    
+
     class(forest) <- c("causal_forest", "grf")
+
+    if (compute.oob.predictions) {
+        oob.pred <- predict(forest)
+        forest[["predictions"]] <- oob.pred$predictions
+        forest[["debiased.error"]] <- oob.pred$debiased.error
+    }
+
     forest
 }
 
@@ -260,22 +269,34 @@ causal_forest <- function(X, Y, W,
 #'
 #' @export
 predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, estimate.variance = FALSE, ...) {
-  num.threads <- validate_num_threads(num.threads) 
-  if (estimate.variance) {
-      ci.group.size = object$ci.group.size
-  } else {
-      ci.group.size = 1
-  }
 
-  forest.short <- object[-which(names(object) == "X.orig")]
-  if (!is.null(newdata)) {
-      data <- create_data_matrices(newdata)
-      instrumental_predict(forest.short, data$default, data$sparse,
-                           num.threads, ci.group.size)
-  } else {
-      data <- create_data_matrices(object[["X.orig"]])
-      instrumental_predict_oob(forest.short, data$default, data$sparse,
-                               num.threads, ci.group.size)
-  }
+    # If possible, use pre-computed predictions.
+    if (is.null(newdata) & !estimate.variance & !is.null(object$predictions)) {
+        return(data.frame(predictions=object$predictions,
+                          debiased.error=object$debiased.error))
+    }
+
+    num.threads <- validate_num_threads(num.threads)
+
+    if (estimate.variance) {
+        ci.group.size = object$ci.group.size
+    } else {
+        ci.group.size = 1
+    }
+
+    forest.short <- object[-which(names(object) == "X.orig")]
+    if (!is.null(newdata)) {
+        data <- create_data_matrices(newdata)
+        ret <- instrumental_predict(forest.short, data$default, data$sparse,
+                                    num.threads, ci.group.size)
+    } else {
+        data <- create_data_matrices(object[["X.orig"]])
+        ret <- instrumental_predict_oob(forest.short, data$default, data$sparse,
+                                        num.threads, ci.group.size)
+    }
+
+    # Convert list to data frame.
+    empty = sapply(ret, function(elem) length(elem) == 0)
+    do.call(cbind.data.frame, ret[!empty])
 }
 
