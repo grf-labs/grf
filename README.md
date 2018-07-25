@@ -106,7 +106,9 @@ selected.vars = which(forest.Y.varimp / mean(forest.Y.varimp) > 0.2)
 tau.forest = causal_forest(X[, selected.vars], Y, W,
                            W.hat = W.hat, Y.hat = Y.hat,
                            tune.parameters = TRUE)
-tau.hat = predict(tau.forest)$predictions
+
+# Check whether causal forest predictions are well calibrated.
+test_calibration(tau.forest)
 ```
 
 ### Developing
