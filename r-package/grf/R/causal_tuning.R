@@ -87,7 +87,7 @@ tune_causal_forest <- function(X, Y, W,
   
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
-  all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty, lambda = NULL, locally.linear = FALSE)
+  all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
   fixed.params = all.params[!is.na(all.params)]
   tuning.params = all.params[is.na(all.params)]
   

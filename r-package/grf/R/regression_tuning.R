@@ -22,9 +22,6 @@
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
-#' @param locally.linear Option to tune for locally linear prediction.
-#' @param linear.correction.variables Optional features for linear regression at prediction. Defaults to FALSE.
-#' @param lambda Ridge penalty for linear correction variables. Defaults to 0.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
@@ -63,9 +60,6 @@ tune_regression_forest <- function(X, Y,
                                    mtry = NULL,
                                    alpha = NULL,
                                    imbalance.penalty = NULL,
-                                   locally.linear = FALSE,
-                                   linear.correction.variables = NULL,
-                                   lambda = NULL,
                                    num.threads = NULL,
                                    honesty = TRUE,
                                    seed = NULL,
@@ -85,17 +79,13 @@ tune_regression_forest <- function(X, Y,
   
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
-  all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty, lambda, locally.linear)
+  all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
 
   fixed.params = all.params[!is.na(all.params)]
   tuning.params = all.params[is.na(all.params)]
 
   if (length(tuning.params) == 0) {
     return(list("error"=NA, "params"=c(all.params)))
-  }
-
-  if (locally.linear) {
-    linear.correction.variables = validate_vars(linear.correction.variables, ncol(X))
   }
   
   # Train several mini-forests, and gather their debiased OOB error estimates.
@@ -119,19 +109,9 @@ tune_regression_forest <- function(X, Y,
                                      clusters,
                                      samples_per_cluster)
 
-    if(locally.linear == TRUE) {
-        prediction = local_linear_predict_oob(small.forest, data$default, data$sparse,
-                                            lambda = as.numeric(params["lambda"]),
-                                            use_unweighted_penalty = FALSE,
-                                            linear_correction_variables = linear.correction.variables,
-                                            num.threads)
-        error = mean((prediction$predictions - Y)**2)
-    } else {
-        prediction = regression_predict_oob(small.forest, data$default, data$sparse,
+    prediction = regression_predict_oob(small.forest, data$default, data$sparse,
                                             num.threads, ci.group.size)
-        error = prediction$debiased.error
-    }
-
+    error = prediction$debiased.error
     mean(error, na.rm = TRUE)
   })
   

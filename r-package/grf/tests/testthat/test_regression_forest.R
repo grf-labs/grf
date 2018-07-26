@@ -162,25 +162,20 @@ test_that("linear correction variables function as expected", {
 test_that("locally linear forest tuning decreases prediction error", {
     n = 1000
     p = 20
+    sigma = 5
 
-    f = function(x){x[1] + 2*x[2] + 2*x[3]**2}
+    mu = function(x){log(1+exp(6*x))}
 
-	X = matrix(runif(n*p), n, p)
-    Y = apply(X, FUN = f, MARGIN = 1) + rnorm(n)
-    X.test = matrix(runif(n*p), n, p)
-    truth = apply(X.test, FUN = f, MARGIN = 1)
+    X = matrix(runif(n*p,-1,1), nrow = n)
+    truth = apply(X, FUN = mu, MARGIN = 1)[1,]
+    Y = truth + sigma*rnorm(n)
 
-    forest = regression_forest(X, Y, tune.parameters = FALSE)
-    preds = predict(forest, X.test, linear.correction.variables = 1:p)
-    error = mean((preds$predictions - truth)^2)
+    forest = regression_forest(X, Y)
+    preds = predict(forest, linear.correction.variables = 1:20, tune.lambda = TRUE)$predictions
+    mse = mean((preds - truth)^2)
 
-    tuned.forest = regression_forest(X, Y, tune.parameters = TRUE, tune.linear = TRUE,
-                                   linear.correction.variables = 1:p)
-    tuned.lambda = tuned.forest[["tunable.params"]][6]
-    tuned.preds = predict(tuned.forest, X.test,
-                        linear.correction.variables = 1:p,
-                        lambda = tuned.lambda)
-    tuned.error = mean((tuned.preds$predictions - truth)^2)
+    preds.untuned = predict(forest, linear.correction.variables = 1:20)$predictions
+    mse.untuned = mean((preds.untuned - truth)^2)
 
-    expect_true(tuned.error < 0.75 * error)
+    expect_true(mse < 0.75 * mse.untuned)
 })

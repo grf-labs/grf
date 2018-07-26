@@ -76,9 +76,6 @@ regression_forest <- function(X, Y,
                               clusters = NULL,
                               samples_per_cluster = NULL,
                               tune.parameters = FALSE,
-                              tune.linear = FALSE,
-                              linear.correction.variables = NULL,
-                              lambda = NULL,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
@@ -100,9 +97,6 @@ regression_forest <- function(X, Y,
                                               mtry = mtry,
                                               alpha = alpha,
                                               imbalance.penalty = imbalance.penalty,
-                                              locally.linear = tune.linear,
-                                              linear.correction.variables = NULL,
-                                              lambda = lambda,
                                               num.threads = num.threads,
                                               honesty = honesty,
                                               seed = seed,
@@ -137,6 +131,7 @@ regression_forest <- function(X, Y,
     
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
+    forest[["Y.orig"]] <- Y
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
     
@@ -159,6 +154,7 @@ regression_forest <- function(X, Y,
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
 #' @param lambda Ridge penalty for local linear predictions
+#' @param tune.lambda Optional self-tuning for ridge penalty lambda. Defaults to FALSE.
 #' @param ridge.type Option to standardize ridge penalty by covariance ("standardized"),
 #'                   or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
@@ -193,6 +189,7 @@ regression_forest <- function(X, Y,
 predict.regression_forest <- function(object, newdata = NULL,
                                       linear.correction.variables = NULL,
                                       lambda = 0.01,
+                                      tune.lambda = FALSE,
                                       ridge.type = "standardized",
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
@@ -218,8 +215,16 @@ predict.regression_forest <- function(object, newdata = NULL,
 
     local.linear = !is.null(linear.correction.variables)
 
-    # subtract 1 for C++ indexing
     if (local.linear) {
+        linear.correction.variables = validate_vars(linear.correction.variables, ncol(X.orig))
+
+        if (tune.lambda) {
+            lambda = tune_locally_linear_forest(object, linear.correction.variables)
+        } else {
+            lambda = validate_lambda(lambda)
+        }
+
+        # subtract 1 to account for C++ indexing
         linear.correction.variables = linear.correction.variables - 1
     }
 
