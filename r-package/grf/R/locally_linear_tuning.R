@@ -25,9 +25,8 @@ tune_locally_linear_forest <- function(forest, linear.correction.variables) {
   linear.correction.variables = validate_vars(linear.correction.variables, ncol(X))
   linear.correction.variables = linear.correction.variables - 1
 
-  vals = -20:10
+  vals = -15:5
   lambdas = exp(vals)
-
 
   errors = sapply(lambdas, function(lambda){
     oob.predictions = predict(forest, linear.correction.variables = linear.correction.variables, lambda = lambda)$predictions
