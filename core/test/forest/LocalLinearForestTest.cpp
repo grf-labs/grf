@@ -24,6 +24,42 @@
 
 #include "catch.hpp"
 
+TEST_CASE("Testing for seg fault", "[local_linear, forest]"){
+  Data* data = load_data("test/forest/resources/friedman_2.csv");
+  uint outcome_index = 20;
+  std::vector<size_t> linear_correction_variables = {0, 1, 2, 3, 4};
+
+  bool honesty = true;
+  uint num_trees = 50;
+  double sample_fraction = 0.35;
+  uint mtry = 3;
+  uint min_node_size = 3;
+  double alpha = 0.0;
+  double imbalance_penalty = 0.0;
+  std::vector<size_t> empty_clusters;
+  uint samples_per_cluster = 0;
+  uint num_threads = 1;
+  uint seed = 42;
+  ForestOptions options (
+      num_trees, 1, sample_fraction,
+      mtry, min_node_size, honesty, alpha, imbalance_penalty,
+      num_threads, seed, empty_clusters, samples_per_cluster);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
+  Forest forest = trainer.train(data, options);
+
+  Data* queries = data;
+  ForestPredictor predictor = ForestPredictors::local_linear_predictor(
+      2, data, queries,
+      0.1, false,
+      linear_correction_variables);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+
+  const std::vector<double>& p = predictions[0].get_predictions();
+
+  REQUIRE(equal_doubles(14.9163, p[0], 1.0));
+  delete data;
+}
+
 TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, forest]") {
   Data* data = load_data("test/forest/resources/friedman.csv");
   uint outcome_index = 10;
