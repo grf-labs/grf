@@ -161,7 +161,7 @@ test_that("linear correction variables function as expected", {
 
 test_that("locally linear forest tuning decreases prediction error", {
     n = 1000
-    p = 20
+    p = 50
     sigma = 5
 
     mu = function(x){log(1+exp(6*x))}
