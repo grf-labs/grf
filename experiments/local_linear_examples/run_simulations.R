@@ -2,6 +2,9 @@
 source("comparison_functions.R")
 
 main = function(args){
+  print("running args")
+  print(args)
+  
   n = as.numeric(args[1])
   p = as.numeric(args[2])
   sigma = as.numeric(args[3])
@@ -9,6 +12,8 @@ main = function(args){
   experiment = as.numeric(args[5])
   num_reps = as.numeric(args[6])
   num_test = as.numeric(args[7])
+  
+  print("Defining setup")
   
   if(setup == 1){
     gen.data = function() {
@@ -39,6 +44,8 @@ main = function(args){
     
   }
   
+  print("running expt")
+  
   if (experiment == 1) {
     # MSE vs. other methods
     res = replicate(num_reps, {
@@ -59,13 +66,13 @@ main = function(args){
   write.csv(results, file = paste0(paste("results/res", n, p, sigma, setup, experiment, sep = "-"), ".csv")) 
 }
 
-ns = c(600, 1000)
-ps.friedman = c(10, 30, 50)
-sigmas.friedman = c(5, 10, 20)
+ns = 1000
+ps.friedman = c(10, 50)
+sigmas.friedman = c(5, 20)
 setups = c(1, 2)
 experiments = c(1, 2)
-num_reps = 100
-num_test = 2000
+num_reps = 1
+num_test = 100
 
 args_friedman = expand.grid(n = ns, p = ps.friedman, sigma = sigmas.friedman, setup = 1, experiment = experiments, 
                             num_reps = num_reps, num_test = num_test)

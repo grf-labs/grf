@@ -1,6 +1,6 @@
-#' Locally linear forest tuning
+#' Local linear forest tuning
 #' 
-#' Finds the optimal ridge penalty for locally linear prediction.
+#' Finds the optimal ridge penalty for local linear prediction.
 #'
 #' @param forest The forest used for prediction.
 #' @return The optimal ridge penalty lambda.
@@ -17,7 +17,7 @@
 #' predictions = predict(forest, linear.correction.variables = 1:p, lambda = tuned.lambda)
 #'
 #' @export
-tune_locally_linear_forest <- function(forest, linear.correction.variables) {
+tune_local_linear_forest <- function(forest, linear.correction.variables) {
   Y = forest[["Y.orig"]]
   X = forest[["X.orig"]]
 
@@ -25,7 +25,7 @@ tune_locally_linear_forest <- function(forest, linear.correction.variables) {
   linear.correction.variables = validate_vars(linear.correction.variables, ncol(X))
   linear.correction.variables = linear.correction.variables - 1
 
-  vals = -15:5
+  vals = -10:5
   lambdas = exp(vals)
 
   errors = sapply(lambdas, function(lambda){

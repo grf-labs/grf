@@ -219,7 +219,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         linear.correction.variables = validate_vars(linear.correction.variables, ncol(X.orig))
 
         if (tune.lambda) {
-            lambda = tune_locally_linear_forest(object, linear.correction.variables)
+            lambda = tune_local_linear_forest(object, linear.correction.variables)
         } else {
             lambda = validate_lambda(lambda)
         }
