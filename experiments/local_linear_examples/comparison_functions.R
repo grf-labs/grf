@@ -3,7 +3,6 @@ library(glmnet)
 library(BayesTree)
 
 run.comparison = function(data) {
-  print("Beginning run")
   
   # Extract train and test data
   X = data$X
@@ -12,26 +11,21 @@ run.comparison = function(data) {
   truth = data$truth
   
   # Run random forest
-  print("RF")
   forest = regression_forest(X, Y, num.trees = 1000, tune.parameters = FALSE, honesty = TRUE)
   preds.grf = predict(forest, X.test)$predictions
   mse.grf = mean((preds.grf - truth)**2)
   
   # Run random forest-cv
-  print("RFCV")
   forest = regression_forest(X, Y, num.trees = 1000, tune.parameters = TRUE, honesty = TRUE)
   preds.grf = predict(forest, X.test)$predictions
   mse.grf.cv = mean((preds.grf - truth)**2)
   
   # Run local linear frorest
-  print("LLF")
   preds.llf = predict(forest, X.test, linear.correction.variables = 1:ncol(X.test), lambda = 0.1)$predictions
   mse.llf = mean((preds.llf - truth)**2)
   
   # Local linear forest - cv
-  print("LLF CV")
-  preds.llf.cv = predict(forest, X.test, linear.correction.variables = 1:5, tune.lambda = FALSE)$predictions
-  #preds.llf.cv = predict(forest, X.test, linear.correction.variables = 1:ncol(X.test), tune.lambda = TRUE)$predictions
+  preds.llf.cv = predict(forest, X.test, linear.correction.variables = 1:ncol(X.test), tune.lambda = TRUE)$predictions
   mse.llf.cv = mean((preds.llf.cv - truth)**2)
   
   # Run adaptive (non-honest) random forest 
@@ -77,14 +71,11 @@ run.comparison = function(data) {
 }
 
 check.timing = function(data){
-  # Add LLF-CV
   # Extract train and test data
   X = data$X
   Y = data$Y
   X.test = data$X.test
   truth = data$truth
-  
-  print("RF")
   
   # Run random forest
   ptm = proc.time()
@@ -92,23 +83,17 @@ check.timing = function(data){
   preds.grf = predict(forest, X.test)$predictions
   time.grf = proc.time() - ptm 
   
-  print("RFCV")
-  
   # Run random forest-CV
   ptm = proc.time()
   forest = regression_forest(X, Y, num.trees = 1000, tune.parameters = TRUE, honesty = TRUE)
   preds.grf = predict(forest, X.test)$predictions
   time.grf.cv = proc.time() - ptm 
   
-  print("LLF")
-  
   # Run local linear forest 
   ptm = proc.time()
   forest = regression_forest(X, Y, num.trees = 1000, tune.parameters = FALSE, honesty = TRUE)
   preds.llf = predict(forest, X.test, linear.correction.variables = 1:ncol(X), lambda = 0.1)$predictions
   time.llf = proc.time() - ptm 
-  
-  print("LLF CV")
   
   # Run local linear forest - cv
   ptm = proc.time()
