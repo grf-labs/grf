@@ -20,11 +20,13 @@ run.comparison = function(data) {
   preds.grf = predict(forest, X.test)$predictions
   mse.grf.cv = mean((preds.grf - truth)**2)
   
-  # Run local linear frorest
-  preds.llf = predict(forest, X.test, linear.correction.variables = 1:ncol(X.test), lambda = 0.1)$predictions
+  # Run local linear forest
+  preds.llf = predict(forest, X.test, linear.correction.variables = 1:ncol(X), lambda = 0.1)$predictions
   mse.llf = mean((preds.llf - truth)**2)
   
   # Local linear forest - cv
+  selected = predict(lasso.mod, type = "nonzero")
+  selected = ifelse(length(selected)>0, selected, 1:ncol(X))
   preds.llf.cv = predict(forest, X.test, linear.correction.variables = 1:ncol(X.test), tune.lambda = TRUE)$predictions
   mse.llf.cv = mean((preds.llf.cv - truth)**2)
   
