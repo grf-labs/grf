@@ -21,14 +21,16 @@ preds.llf = predict(forest, X.test, linear.correction.variables = 1, lambda = 0.
 preds.grf = predict(forest, X.test)$predictions
 df = data.frame(cbind(ticks, truth, preds.llf))
 
+pdf("images/llf-bias.pdf")
 ggplot(df, aes(ticks)) + 
   geom_point(aes(y = preds.llf, color = "LLF"), show.legend=F, size=0.6) +
   geom_line(aes(y = truth)) + 
   xlab("x") + ylab("y") + theme_bw()
-ggsave("llf-bias.pdf")
+dev.off()
 
+pdf("images/rf-bias.pdf")
 ggplot(df, aes(ticks)) + 
   geom_point(aes(y = preds.grf, color = "RF-H"), show.legend=F, size=0.6) +
   geom_line(aes(y = truth)) + 
   xlab("x") + ylab("y") + theme_bw()
-ggsave("grf-bias.pdf")
+dev.off()
