@@ -1,14 +1,19 @@
 # The GRF Algorithm
 
-## Table of Contents
-1. [General Algorithm](#general-algorithm)
-2. [Causal Forests](#causal-forests)
-3. [Additional Features](#additional-features)
-4. [Troubleshooting](#troubleshooting)
-
 The following guide gives an introduction to the generalized random forests algorithm as implemented in the `grf` package. It aims to give a complete description of the training and prediction procedures, as well as the options available for tuning. This guide is intended as an informal and practical reference; for a theoretical treatment of GRF, please consult the ['Generalized Random Forests' paper](https://arxiv.org/abs/1610.01271).
 
 GRF extends the idea of a classic random forest to allow for estimating other statistical quantities besides the expected outcome. Each forest type, for example`quantile_forest`, trains a random forest targeted at a particular problem, like quantile estimation. The most common use of GRF is in estimating treatment effects through the function `causal_forest`.
+
+## Table of Contents
+* [General Algorithm](#general-algorithm)
+  * [Training](#training)
+  * [Prediction](#prediction)
+  * [Out-of-bag Prediction](#out-of-bag-prediction)
+  * [Training Options](#training-options)
+  * [Variance Estimates](#variance-estimates)
+* [Causal Forests](#causal-forests)
+* [Additional Features](#additional-features)
+* [Troubleshooting](#troubleshooting)
 
 ## General Algorithm
 
@@ -58,9 +63,9 @@ Given a test example, the GRF algorithm computes a prediction as follows:
 
 Those familiar with classic random forests might note that this approach differs from the way forest prediction is usually described. The traditional view is that to predict for a test example, each tree makes a prediction on that example. To make a final prediction, the tree predictions are combined in some way, for example through averaging or through 'majority voting'. It's worth noting that for regression forests, the GRF algorithm described above is identical this 'ensemble' approach, where each tree predicts by averaging the outcomes in each leaf, and predictions are combined through a weighted average.
 
-### Out-of-bag (OOB) Prediction
+### Out-of-bag Prediction
 
-If a dataset is provided to the `predict` method, then predictions are made for these new test example. When no dataset is provided, prediction proceeds on the training examples. In particular, for each training example, all the trees that did not use this example during training are identified (the example was 'out-of-bag'). Then, a prediction for the test example is made using only these trees. These out-of-bag predictions can be useful in understanding the model's goodness-of-fit, and are also used in several of the methods for causal effect estimation methods described later in this guide.
+If a dataset is provided to the `predict` method, then predictions are made for these new test example. When no dataset is provided, prediction proceeds on the training examples. In particular, for each training example, all the trees that did not use this example during training are identified (the example was 'out-of-bag', or OOB). Then, a prediction for the test example is made using only these trees. These out-of-bag predictions can be useful in understanding the model's goodness-of-fit, and are also used in several of the methods for causal effect estimation methods described later in this guide.
 
 ### Training Options
 
@@ -74,7 +79,7 @@ The parameter `num.trees` controls how many trees are grown during training, and
 
 Tree training is parallelized across several threads in an effort to improve performance. By default, all available cores are used, but the number of threads can be set directly through `num.threads`.
 
-### `honesty`
+#### `honesty`
 
 By default, 'honest' forests are trained. In a classic random forest, a single subsample is used both to choose a tree's splits, and for the leaf node examples used in making predictions. In contrast, honest forests randomly split this subsample in half, and use only the first half when performing splitting. The second half is then used to populate the tree's leaf nodes: each new example is 'pushed down' the tree, and added to the leaf in which it falls. In a sense, the leaf nodes are 'repopulated' after splitting using a fresh set of examples.
 
@@ -159,7 +164,7 @@ If you observe poor performance on a dataset with a small number of examples, it
 
 In this case, it would be good to try growing a larger number of trees. Obtaining good variance estimates often requires growing more trees than it takes to only obtain accurate predictions.
 
-### The predictions for `regression_forest` differ from those of `randomForest` or `ranger`.
+### Regression forest predictions differ from those of the randomForest and ranger packages.
 
 While the algorithm in `regression_forest` is very similar to that of classic random forests, it has several notable differences, including 'honesty', group tree training for variance estimates, and restrictions during splitting to avoid imbalanced child nodes. These features can cause the predictions of the algorithm to be different, and also lead to a slower training procedure than other packages. We welcome GitHub issues that shows cases where GRF does notably worse than other packages (either in statistical or computational performance), as this will help us choose better defaults for the algorithm, or potentially point to a bug.
 
