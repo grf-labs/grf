@@ -159,7 +159,7 @@ test_that("linear correction variables function as expected", {
     expect_true(mse.selected < mse / 1.5)
 })
 
-test_that("locally linear forest tuning decreases prediction error", {
+test_that("local linear forest tuning decreases prediction error", {
     n = 1000
     p = 50
     sigma = 5
