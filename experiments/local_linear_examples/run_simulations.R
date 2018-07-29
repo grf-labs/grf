@@ -71,7 +71,7 @@ ps.friedman = c(10, 50)
 sigmas.friedman = c(5, 20)
 setups = c(1, 2)
 experiments = c(1, 2)
-num_reps = 1
+num_reps = 2
 num_test = 100
 
 args_friedman = expand.grid(n = ns, p = ps.friedman, sigma = sigmas.friedman, setup = 1, experiment = experiments, 
