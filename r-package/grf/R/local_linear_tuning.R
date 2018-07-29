@@ -23,7 +23,6 @@ tune_local_linear_forest <- function(forest, linear.correction.variables) {
 
   # validate correction variables and subtract 1 to account for C++ indexing
   linear.correction.variables = validate_vars(linear.correction.variables, ncol(X))
-  linear.correction.variables = linear.correction.variables - 1
 
   vals = -10:5
   lambdas = exp(vals)
