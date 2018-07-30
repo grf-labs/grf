@@ -68,7 +68,7 @@ test_that("OOB predictions contain debiased error estimates", {
 	forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 4)
 	preds.oob = predict(forest)
 
-	expect_equal(n, nrow(preds.oob$debiased.error))
+	expect_equal(n, length(preds.oob$debiased.error))
 })
 
 test_that("regression forest tuning decreases prediction error", {

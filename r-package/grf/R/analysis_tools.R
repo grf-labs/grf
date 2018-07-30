@@ -3,7 +3,20 @@
 #' @param forest The trained forest.
 #' @param index The index of the tree to retrieve.
 #'
-#' @return A GRF tree object.
+#' @return A GRF tree object containing the below attributes.
+#'     drawn_samples: a list of examples that were used in training the tree. This includes
+#'     examples that were used in choosing splits, as well as the examples that populate the leaf
+#'     nodes. Put another way, if honesty is enabled, this list includes both subsamples from the
+#'     split (J1 and J2 in the notation of the paper).
+#'     num_samples: the number of examples used in training the tree.
+#'     nodes: a list of objects representing the nodes in the tree, starting with the root node. Each
+#'     node will contain an 'is_leaf' attribute, which indicates whether it is an interior or leaf node.
+#'     Interior nodes contain the attributes 'left_child' and 'right_child', which give the indices of
+#'     their children in the list, as well as 'split_variable', and 'split_value', which describe the
+#'     split that was chosen. Leaf nodes only have the attribute 'samples', which is a list of the
+#'     training examples that the leaf contains. Note that if honesty is enabled, this list will only
+#'     contain examples from the second subsample that was used to 'repopulate' the tree (J2 in the
+#'     notation of the paper).
 #'
 #' @examples \dontrun{
 #' # Train a quantile forest.
