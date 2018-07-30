@@ -12,10 +12,17 @@ test_that("examining a tree gives reasonable results", {
 
 	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632)
 	quantile.tree = get_tree(qrf, 500)
-	expect_lt(length(quantile.tree$nodes), n)
+
+	num.nodes = length(quantile.tree$nodes)
+	expect_lt(num.nodes, n)
 
   	split.vars = unlist(sapply(quantile.tree$nodes, function(node) node$split_variable))
 	expect_true(all(split.vars >= 0 && split.vars <= 40))
+
+	left.children = unlist(sapply(quantile.tree$nodes, function(node) node$left_child))
+	expect_equal(seq(2, num.nodes, 2), left.children)
+	right.children = unlist(sapply(quantile.tree$nodes, function(node) node$right_child))
+	expect_equal(seq(3, num.nodes, 2), right.children)
 })
 
 test_that("leaf samples are indexed correctly", {
