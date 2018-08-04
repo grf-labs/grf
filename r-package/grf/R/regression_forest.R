@@ -253,6 +253,7 @@ predict.regression_forest <- function(object, newdata = NULL,
             training.data <- create_data_matrices(X.orig)
             ret <- local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
                 training.data$sparse, lambda, use_unweighted_penalty, linear.correction.variables, num.threads)
+            return(ret)
         }
     } else {
         data <- create_data_matrices(X.orig)
@@ -261,6 +262,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         } else {
             ret <- local_linear_predict_oob(forest.short, data$default, data$sparse, lambda, use_unweighted_penalty,
                 linear.correction.variables, num.threads)
+             return(ret)
         }
     }
 
