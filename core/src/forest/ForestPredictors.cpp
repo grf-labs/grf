@@ -53,7 +53,7 @@ ForestPredictor ForestPredictors::regression_predictor(uint num_threads,
 ForestPredictor ForestPredictors::local_linear_predictor(uint num_threads,
                                                          const Data*original_data,
                                                          const Data *test_data,
-                                                         double lambda,
+                                                         std::vector<double> lambda,
                                                          bool use_unweighted_penalty,
                                                          std::vector<size_t> linear_correction_variables) {
   num_threads = ForestOptions::validate_num_threads(num_threads);

@@ -221,7 +221,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         if (tune.lambda) {
             lambda = tune_local_linear_forest(object, linear.correction.variables)
         } else {
-            lambda = validate_lambda(lambda)
+            lambda = sapply(c(lambda), function(ld){validate_lambda(ld)})
         }
 
         # subtract 1 to account for C++ indexing

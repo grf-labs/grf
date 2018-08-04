@@ -27,10 +27,12 @@ tune_local_linear_forest <- function(forest, linear.correction.variables) {
   vals = -10:5
   lambdas = exp(vals)
 
-  errors = sapply(lambdas, function(lambda){
-    oob.predictions = predict(forest, linear.correction.variables = linear.correction.variables, lambda = lambda)$predictions
-    mean( (oob.predictions - Y)**2 )
+  preds.matrix = predict(forest, linear.correction.variables = linear.correction.variables, lambda = lambdas)$predictions
+  errors = sapply(1:length(lambdas), function(i){
+    preds.lambda = preds.matrix[,i]
+    mean( (preds.lambda - Y)**2 )
   })
+
   tuned.lambda = lambdas[which.min(errors)]
-  tuned.lambda
+  c(tuned.lambda)
 }

@@ -28,12 +28,13 @@
 const size_t LocalLinearPredictionStrategy::OUTCOME = 0;
 
 size_t LocalLinearPredictionStrategy::prediction_length() {
-  return 1;
+  size_t num_lambdas = lambda.size();
+  return num_lambdas;
 }
 
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data* original_data,
                                                              const Data* test_data,
-                                                             double lambda,
+                                                             std::vector<double> lambda,
                                                              bool use_unweighted_penalty,
                                                              std::vector<size_t> linear_correction_variables):
         original_data(original_data),
@@ -79,21 +80,29 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
   Eigen::MatrixXd M (num_variables+1, num_variables+1);
   M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
 
-  if (use_unweighted_penalty) {
-    // standard ridge penalty
-    double additional_regularization = M.trace() / (num_variables + 1);
-    for (size_t i = 1; i < num_variables + 1; ++i){
-      M(i,i) += lambda * additional_regularization;
+  size_t num_lambdas = lambda.size();
+  std::vector<double> predictions(num_lambdas);
+
+  for( size_t i = 0; i < num_lambdas; ++i){
+    double lambda_iter = lambda[i];
+    if (use_unweighted_penalty) {
+      // standard ridge penalty
+      double additional_regularization = M.trace() / (num_variables + 1);
+      for (size_t i = 1; i < num_variables + 1; ++i){
+        M(i,i) += lambda_iter * additional_regularization;
+      }
+    } else {
+      // covariance ridge penalty
+      for (size_t i = 1; i < num_variables+1; ++i){
+        M(i,i) += lambda_iter * M(i,i); // note that the weights are already normalized
+      }
     }
-  } else {
-    // covariance ridge penalty
-    for (size_t i = 1; i < num_variables+1; ++i){
-      M(i,i) += lambda * M(i,i); // note that the weights are already normalized
-    }
+
+    Eigen::MatrixXd preds = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
+    //double pred_iter = preds(0);
+
+    predictions[i] =  preds(0);
   }
 
-  Eigen::MatrixXd preds = M.ldlt().solve(
-      X.transpose()*weights_vec.asDiagonal()*Y);
-
-  return { preds(0) };
+  return(predictions);
 }

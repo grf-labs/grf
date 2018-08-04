@@ -31,11 +31,12 @@ class LocalLinearPredictionStrategy: public DefaultPredictionStrategy {
 public:
     LocalLinearPredictionStrategy(const Data *original_data,
                                   const Data *test_data,
-                                  double lambda,
+                                  std::vector<double> lambda,
                                   bool use_unweighted_penalty,
                                   std::vector<size_t> linear_correction_variables);
 
     size_t prediction_length();
+
     std::vector<double> predict(size_t sampleID,
                                 const std::unordered_map<size_t, double>& weights_by_sampleID,
                                 const Observations& observations);
@@ -44,7 +45,7 @@ private:
     static const std::size_t OUTCOME;
     const Data *original_data;
     const Data *test_data;
-    double lambda;
+    std::vector<double> lambda;
     bool use_unweighted_penalty;
     std::vector<size_t> linear_correction_variables;
 };

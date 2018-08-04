@@ -126,7 +126,7 @@ validate_lambda <- function(lambda){
   if (lambda < 0) {
     stop("Lambda cannot be negative.")
   }
-  lambda
+  c(lambda)
 }
 
 create_data_matrices <- function(X, ...) {
