@@ -24,8 +24,7 @@ tune_local_linear_forest <- function(forest, linear.correction.variables) {
   # validate correction variables and subtract 1 to account for C++ indexing
   linear.correction.variables = validate_vars(linear.correction.variables, ncol(X))
 
-  vals = -10:5
-  lambdas = exp(vals)
+  lambdas = c(0, 0.001, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1, 10)
 
   preds.matrix = predict(forest, linear.correction.variables = linear.correction.variables, lambda = lambdas)$predictions
   errors = sapply(1:length(lambdas), function(i){
