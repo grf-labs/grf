@@ -22,6 +22,7 @@
 #'                      be at least 2.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
 #' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
@@ -72,6 +73,7 @@ regression_forest <- function(X, Y,
                               ci.group.size = 2,
                               alpha = NULL,
                               imbalance.penalty = NULL,
+                              compute.oob.predictions = TRUE,
                               seed = NULL,
                               clusters = NULL,
                               samples_per_cluster = NULL,
@@ -128,14 +130,21 @@ regression_forest <- function(X, Y,
                                as.numeric(tunable.params["imbalance.penalty"]),
                                clusters,
                                samples_per_cluster)
-    
+
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
-    
+
     class(forest) <- c("regression_forest", "grf")
+
+    if (compute.oob.predictions) {
+        oob.pred <- predict(forest)
+        forest[["predictions"]] <- oob.pred$predictions
+        forest[["debiased.error"]] <- oob.pred$debiased.error
+    }
+
     forest
 }
 
@@ -194,26 +203,33 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
+
+    local.linear <- !is.null(linear.correction.variables)
+
+    # If possible, use pre-computed predictions.
+    if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
+        return(data.frame(predictions=object$predictions,
+                          debiased.error=object$debiased.error))
+    }
+
     num.threads <- validate_num_threads(num.threads)
 
     if (estimate.variance) {
-        ci.group.size = object$ci.group.size
+        ci.group.size <- object$ci.group.size
     } else {
-        ci.group.size = 1
+        ci.group.size <- 1
     }
 
     if (ridge.type == "standardized") {
-        use_unweighted_penalty = 0
+        use_unweighted_penalty <- 0
     } else if (ridge.type == "identity") {
-        use_unweighted_penalty = 1
+        use_unweighted_penalty <- 1
     } else {
         stop("Error: invalid ridge type")
     }
 
     forest.short <- object[-which(names(object) == "X.orig")]
-    X.orig = object[["X.orig"]]
-
-    local.linear = !is.null(linear.correction.variables)
+    X.orig <- object[["X.orig"]]
 
     if (local.linear) {
         linear.correction.variables = validate_vars(linear.correction.variables, ncol(X.orig))
@@ -231,20 +247,24 @@ predict.regression_forest <- function(object, newdata = NULL,
     if (!is.null(newdata) ) {
         data <- create_data_matrices(newdata)
         if (!local.linear) {
-            regression_predict(forest.short, data$default, data$sparse,
+            ret <- regression_predict(forest.short, data$default, data$sparse,
                 num.threads, ci.group.size)
         } else {
             training.data <- create_data_matrices(X.orig)
-            local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
+            ret <- local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
                 training.data$sparse, lambda, use_unweighted_penalty, linear.correction.variables, num.threads)
         }
     } else {
         data <- create_data_matrices(X.orig)
         if (!local.linear) {
-            regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+            ret <- regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
         } else {
-            local_linear_predict_oob(forest.short, data$default, data$sparse, lambda, use_unweighted_penalty,
+            ret <- local_linear_predict_oob(forest.short, data$default, data$sparse, lambda, use_unweighted_penalty,
                 linear.correction.variables, num.threads)
         }
     }
+
+    # Convert list to data frame.
+    empty = sapply(ret, function(elem) length(elem) == 0)
+    do.call(cbind.data.frame, ret[!empty])
 }

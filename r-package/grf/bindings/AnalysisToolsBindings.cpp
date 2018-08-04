@@ -130,7 +130,13 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
 
     if (tree->is_leaf(node)) {
       node_object.push_back(true, "is_leaf");
-      node_object.push_back(leaf_samples.at(node), "samples");
+
+      std::vector<size_t> samples;
+      samples.reserve(leaf_samples.at(node).size());
+      for (size_t index : leaf_samples.at(node)) {
+        samples.push_back(index + 1); // R is 1-indexed.
+      }
+      node_object.push_back(samples, "samples");
     } else {
       node_object.push_back(false, "is_leaf");
       node_object.push_back(split_vars.at(node) + 1, "split_variable"); // R is 1-indexed.
