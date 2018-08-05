@@ -7,7 +7,7 @@ A pluggable package for forest-based statistical estimation and inference. GRF c
 
 In addition, GRF supports 'honest' estimation (where one subset of the data is used for choosing splits, and another for populating the leaves of the tree), and confidence intervals for least-squares regression and treatment effect estimation.
 
-This package is currently in beta, and we expect to make continual improvements to its performance and usability.
+This package is currently in beta, and we expect to make continual improvements to its performance and usability. For a practical description of the GRF algorithm, including explanations of model parameters and troubleshooting suggestions, please see the [GRF reference](REFERENCE.md).
 
 ### Authors
 
@@ -48,7 +48,7 @@ X.test = matrix(0, 101, p)
 X.test[,1] = seq(-2, 2, length.out = 101)
 
 # Train a causal forest.
-W = rbinom(n, 1, 0.5)
+W = rbinom(n, 1, 0.4 + 0.2 * (X[,1] > 0))
 Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
 tau.forest = causal_forest(X, Y, W)
 
@@ -106,7 +106,9 @@ selected.vars = which(forest.Y.varimp / mean(forest.Y.varimp) > 0.2)
 tau.forest = causal_forest(X[, selected.vars], Y, W,
                            W.hat = W.hat, Y.hat = Y.hat,
                            tune.parameters = TRUE)
-tau.hat = predict(tau.forest)$predictions
+
+# Check whether causal forest predictions are well calibrated.
+test_calibration(tau.forest)
 ```
 
 ### Developing
