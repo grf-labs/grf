@@ -159,6 +159,26 @@ test_that("linear correction variables function as expected", {
     expect_true(mse.selected < mse / 1.5)
 })
 
+test_that("local linear tuning always returns lambda", {
+   n = 100
+   p = 5
+   sigma = 1
+
+   mu = function(x){log(1+exp(6*x[1]))}
+
+   X = matrix(runif(n*p,-1,1), nrow = n)
+   Y = apply(X, FUN = mu, MARGIN = 1) + sigma*rnorm(n)
+
+   num.reps = 100
+   lambda.indicators = replicate(num.reps, {
+      forest = regression_forest(X, Y, num.trees = 200)
+      lambda = tune_local_linear_forest(forest)$lambda.min
+      is.numeric(lambda)
+   })
+   numeric.lambda.count = sum(lambda.indicators)
+   expect_true(numeric.lambda.count == num.reps)
+})
+
 test_that("local linear forest tuning decreases prediction error", {
     n = 1000
     p = 50
