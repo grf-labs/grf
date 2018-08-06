@@ -1,16 +1,13 @@
 /*-------------------------------------------------------------------------------
   This file is part of generalized random forest (grf).
-
   grf is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-
   grf is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-
   You should have received a copy of the GNU General Public License
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
@@ -21,7 +18,7 @@
 #include "RandomSampler.h"
 
 RandomSampler::RandomSampler(uint seed,
-                             const SamplingOptions& options):
+                             const SamplingOptions& options) :
     options(options) {
   random_number_generator.seed(seed);
 }
@@ -123,7 +120,7 @@ void RandomSampler::get_samples_in_clusters(const std::vector<size_t>& clusters,
   }
 }
 
-void RandomSampler::shuffle_and_split(std::vector<size_t> &samples,
+void RandomSampler::shuffle_and_split(std::vector<size_t>& samples,
                                       size_t n_all,
                                       size_t size) {
   samples.resize(n_all);
@@ -139,10 +136,10 @@ void RandomSampler::draw(std::vector<size_t>& result,
                          size_t max,
                          const std::set<size_t>& skip,
                          size_t num_samples) {
-  if (num_samples < max / 2) {
+  if (num_samples < max / 10) {
     draw_simple(result, max, skip, num_samples);
   } else {
-    draw_knuth(result, max, skip, num_samples);
+    draw_fisher_yates(result, max, skip, num_samples);
   }
 }
 
@@ -172,36 +169,29 @@ void RandomSampler::draw_simple(std::vector<size_t>& result,
   }
 }
 
-void RandomSampler::draw_knuth(std::vector<size_t> &result,
-                               size_t max,
-                               const std::set<size_t> &skip,
-                               size_t num_samples) {
-  size_t size_no_skip = max - skip.size();
-  result.resize(num_samples);
-  double u;
-  size_t final_value;
+void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
+                                      size_t max,
+                                      const std::set<size_t>& skip,
+                                      size_t num_samples) {
 
-  std::uniform_real_distribution<double> distribution(0.0, 1.0);
+  // Populate result vector with 0,...,max-1
+  result.resize(max);
+  std::iota(result.begin(), result.end(), 0);
 
-  size_t i = 0;
-  size_t j = 0;
-  while (i < num_samples) {
-    u = distribution(random_number_generator);
+  // Remove values that are to be skipped
+  std::for_each(skip.rbegin(), skip.rend(),
+                [&](size_t i) { result.erase(result.begin() + i); }
+  );
 
-    if ((size_no_skip - j) * u >= num_samples - i) {
-      j++;
-    } else {
-      final_value = j;
-      for (auto& skip_value : skip) {
-        if (final_value >= skip_value) {
-          ++final_value;
-        }
-      }
-      result[i] = final_value;
-      j++;
-      i++;
-    }
+  // Draw without replacement using Fisher Yates algorithm
+  for (size_t i = result.size() - 1; i > 0; --i) {
+    std::uniform_int_distribution<size_t> distribution(0, i);
+    size_t j = distribution(random_number_generator);
+    std::swap(result[i], result[j]);
   }
+
+  // Retain only num_samples
+  result.erase(result.begin() + num_samples, result.end());
 }
 
 void RandomSampler::draw_weighted(std::vector<size_t>& result,
