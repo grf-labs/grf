@@ -28,8 +28,7 @@
 const size_t LocalLinearPredictionStrategy::OUTCOME = 0;
 
 size_t LocalLinearPredictionStrategy::prediction_length() {
-  size_t num_lambdas = lambda.size();
-  return num_lambdas;
+  return lambda.size();
 }
 
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data* original_data,
@@ -87,9 +86,9 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
     double lambda_iter = lambda[i];
     if (use_unweighted_penalty) {
       // standard ridge penalty
-      double additional_regularization = M.trace() / (num_variables + 1);
+      double normalization = M.trace() / (num_variables + 1);
       for (size_t i = 1; i < num_variables + 1; ++i){
-        M(i,i) += lambda_iter * additional_regularization;
+        M(i,i) += lambda_iter * normalization;
       }
     } else {
       // covariance ridge penalty
@@ -102,5 +101,5 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
     predictions[i] =  preds(0);
   }
 
-  return(predictions);
+  return predictions;
 }

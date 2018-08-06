@@ -120,7 +120,7 @@ test_that("local linear prediction gives reasonable estimates", {
 
     forest = regression_forest(X, Y)
     preds.grf.oob = predict(forest)
-    preds.ll.oob = predict(forest, linear.correction.variables = 1:p, lambda = 0)
+    preds.ll.oob = predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)
 
     mse.grf.oob = mean((preds.grf.oob$predictions - MU)^2)
     mse.ll.oob = mean((preds.ll.oob$predictions - MU)^2)
@@ -132,7 +132,7 @@ test_that("local linear prediction gives reasonable estimates", {
     MU.test = apply(X.test, FUN=f, MARGIN=1)
 
     preds.grf = predict(forest, X.test)
-    preds.ll = predict(forest, X.test, linear.correction.variables = 1:p, lambda=0.1)
+    preds.ll = predict(forest, X.test, linear.correction.variables = 1:p, ll.lambda = 0.1)
 
     mse.grf = mean((preds.grf$predictions - MU.test)^2)
     mse.ll = mean((preds.ll$predictions - MU.test)^2)
@@ -164,10 +164,10 @@ test_that("local linear forest tuning decreases prediction error", {
     p = 50
     sigma = 5
 
-    mu = function(x){log(1+exp(6*x))}
+    mu = function(x){log(1+exp(6*x[1]))}
 
     X = matrix(runif(n*p,-1,1), nrow = n)
-    truth = apply(X, FUN = mu, MARGIN = 1)[1,]
+    truth = apply(X, FUN = mu, MARGIN = 1)
     Y = truth + sigma*rnorm(n)
 
     forest = regression_forest(X, Y)

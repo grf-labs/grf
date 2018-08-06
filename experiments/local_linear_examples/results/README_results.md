@@ -1,1 +1,0 @@
-Empty folder where results will be stored after simulation runs.
