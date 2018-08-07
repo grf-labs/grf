@@ -36,7 +36,7 @@ public:
   static ForestPredictor local_linear_predictor(uint num_threads,
                                                 const Data*original_data,
                                                 const Data *test_data,
-                                                double lambda,
+                                                std::vector<double> lambdas,
                                                 bool ridge_type,
                                                 std::vector<size_t> linear_correction_variables);
 

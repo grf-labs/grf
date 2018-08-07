@@ -157,8 +157,10 @@ regression_forest <- function(X, Y,
 #'                   we run a locally weighted linear regression on the included variables.
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
-#' @param lambda Ridge penalty for local linear predictions
-#' @param ridge.type Option to standardize ridge penalty by covariance ("standardized"),
+#' @param ll.lambda Ridge penalty for local linear predictions
+#' @param tune.lambda Optional self-tuning for ridge penalty lambda. Defaults to FALSE.
+#' @param lambda.path Optional list of lambdas to use for cross-validation, used if tune.lambda is TRUE.
+#' @param ll.ridge.type Option to standardize ridge penalty by covariance ("standardized"),
 #'                   or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
@@ -191,13 +193,15 @@ regression_forest <- function(X, Y,
 #' @export
 predict.regression_forest <- function(object, newdata = NULL,
                                       linear.correction.variables = NULL,
-                                      lambda = 0.01,
-                                      ridge.type = "standardized",
+                                      ll.lambda = 0.01,
+                                      tune.lambda = FALSE,
+                                      lambda.path = NULL,
+                                      ll.ridge.type = "standardized",
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
 
-    local.linear <- !is.null(linear.correction.variables)
+    local.linear = !is.null(linear.correction.variables)
 
     # If possible, use pre-computed predictions.
     if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
@@ -205,46 +209,55 @@ predict.regression_forest <- function(object, newdata = NULL,
                           debiased.error=object$debiased.error))
     }
 
-    num.threads <- validate_num_threads(num.threads)
+    num.threads = validate_num_threads(num.threads)
 
     if (estimate.variance) {
-        ci.group.size <- object$ci.group.size
+        ci.group.size = object$ci.group.size
     } else {
-        ci.group.size <- 1
+        ci.group.size = 1
     }
 
-    if (ridge.type == "standardized") {
-        use_unweighted_penalty <- 0
-    } else if (ridge.type == "identity") {
-        use_unweighted_penalty <- 1
+    if (ll.ridge.type == "standardized") {
+        use.unweighted.penalty = 0
+    } else if (ll.ridge.type == "identity") {
+        use.unweighted.penalty = 1
     } else {
-        stop("Error: invalid ridge type")
+        stop("Error: invalid local linear ridge type")
     }
 
-    forest.short <- object[-which(names(object) == "X.orig")]
-    X.orig <- object[["X.orig"]]
+    forest.short = object[-which(names(object) == "X.orig")]
+    X.orig = object[["X.orig"]]
 
-    # subtract 1 for C++ indexing
     if (local.linear) {
+        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
+
+        if (tune.lambda) {
+            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, use.unweighted.penalty, num.threads, lambda.path)
+            ll.lambda = ll.regularization.path$lambda.min
+        } else {
+            ll.lambda = validate_ll_lambda(ll.lambda)
+        }
+
+        # subtract 1 to account for C++ indexing
         linear.correction.variables <- linear.correction.variables - 1
     }
 
     if (!is.null(newdata) ) {
-        data <- create_data_matrices(newdata)
+        data = create_data_matrices(newdata)
         if (!local.linear) {
-            ret <- regression_predict(forest.short, data$default, data$sparse,
+            ret = regression_predict(forest.short, data$default, data$sparse,
                 num.threads, ci.group.size)
         } else {
-            training.data <- create_data_matrices(X.orig)
-            ret <- local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                training.data$sparse, lambda, use_unweighted_penalty, linear.correction.variables, num.threads)
+            training.data = create_data_matrices(X.orig)
+            ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
+                training.data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads)
         }
     } else {
-        data <- create_data_matrices(X.orig)
+        data = create_data_matrices(X.orig)
         if (!local.linear) {
-            ret <- regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+            ret = regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
         } else {
-            ret <- local_linear_predict_oob(forest.short, data$default, data$sparse, lambda, use_unweighted_penalty,
+            ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, use.unweighted.penalty,
                 linear.correction.variables, num.threads)
         }
     }
