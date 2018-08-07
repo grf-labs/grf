@@ -25,6 +25,7 @@
 #include "catch.hpp"
 
 TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, forest]") {
+
   Data* data = load_data("test/forest/resources/friedman.csv");
   uint outcome_index = 10;
   std::vector<size_t> linear_correction_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -57,7 +58,8 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, fo
 
   const std::vector<double>& p = predictions[0].get_predictions();
 
-  REQUIRE(equal_doubles(14.9163, p[0], 1.0));
+
+  REQUIRE(equal_doubles(14.9163, p[0], 3.0));
   delete data;
 }
 
@@ -71,6 +73,7 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
   ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
   ForestOptions options = ForestTestUtilities::default_honest_options();
   Forest forest = trainer.train(data, options);
+
   ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, data, data, lambda, false, linear_correction_variables);
   
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
@@ -81,23 +84,24 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
     double outcome = data->get(r, outcome_index);
     data->set(outcome_index, r, outcome + 1, error);
   }
-  
+
   Forest shifted_forest = trainer.train(data, options);
   ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4, data, data, lambda, false, linear_correction_variables);
   std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
-  
+
+
   REQUIRE(predictions.size() == shifted_predictions.size());
   double delta = 0.0;
   for (size_t i = 0; i < predictions.size(); i++) {
     Prediction prediction = predictions[i];
     Prediction shifted_prediction = shifted_predictions[i];
-  
+
     double value = prediction.get_predictions()[0];
     double shifted_value = shifted_prediction.get_predictions()[0];
-  
+
     delta += shifted_value - value;
   }
-  
+
   REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
   delete data;
 }
