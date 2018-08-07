@@ -28,17 +28,17 @@
 const size_t LocalLinearPredictionStrategy::OUTCOME = 0;
 
 size_t LocalLinearPredictionStrategy::prediction_length() {
-  return lambda.size();
+  return lambdas.size();
 }
 
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data* original_data,
                                                              const Data* test_data,
-                                                             std::vector<double> lambda,
+                                                             std::vector<double> lambdas,
                                                              bool use_unweighted_penalty,
                                                              std::vector<size_t> linear_correction_variables):
         original_data(original_data),
         test_data(test_data),
-        lambda(lambda),
+        lambdas(lambdas),
         use_unweighted_penalty(use_unweighted_penalty),
         linear_correction_variables(linear_correction_variables){
 };
@@ -79,21 +79,21 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
   Eigen::MatrixXd M (num_variables+1, num_variables+1);
   M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
 
-  size_t num_lambdas = lambda.size();
+  size_t num_lambdas = lambdas.size();
   std::vector<double> predictions(num_lambdas);
 
   for( size_t i = 0; i < num_lambdas; ++i){
-    double lambda_iter = lambda[i];
+    double lambda = lambdas[i];
     if (use_unweighted_penalty) {
       // standard ridge penalty
       double normalization = M.trace() / (num_variables + 1);
       for (size_t i = 1; i < num_variables + 1; ++i){
-        M(i,i) += lambda_iter * normalization;
+        M(i,i) += lambda * normalization;
       }
     } else {
       // covariance ridge penalty
       for (size_t i = 1; i < num_variables+1; ++i){
-        M(i,i) += lambda_iter * M(i,i); // note that the weights are already normalized
+        M(i,i) += lambda * M(i,i); // note that the weights are already normalized
       }
     }
 

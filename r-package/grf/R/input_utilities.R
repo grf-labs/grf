@@ -125,7 +125,7 @@ validate_ll_vars <- function(linear.correction.variables, num.cols){
 validate_ll_lambda <- function(lambda){
   if (lambda < 0) {
     stop("Lambda cannot be negative.")
-  } else if (!is.numeric(lambda)) {
+  } else if (!is.numeric(lambda) | length(lambda) > 1) {
     stop("Lambda must be a scalar.")
   }
   lambda

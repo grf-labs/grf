@@ -48,5 +48,6 @@ tune_local_linear_forest <- function(forest, linear.correction.variables = NULL,
     mean( (row - Y)**2 )
   })
 
-  return(list(lambdas = lambda.path, errors = errors, lambda.min = lambda.path[which.min(errors)]))
+  return(list(lambdas = lambda.path, errors = errors, oob.predictions = prediction.object,
+           lambda.min = lambda.path[which.min(errors)]))
 }

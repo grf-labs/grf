@@ -169,14 +169,11 @@ test_that("local linear tuning always returns lambda", {
    X = matrix(runif(n*p,-1,1), nrow = n)
    Y = apply(X, FUN = mu, MARGIN = 1) + sigma*rnorm(n)
 
-   num.reps = 100
-   lambda.indicators = replicate(num.reps, {
-      forest = regression_forest(X, Y, num.trees = 200)
-      lambda = tune_local_linear_forest(forest)$lambda.min
-      is.numeric(lambda)
-   })
-   numeric.lambda.count = sum(lambda.indicators)
-   expect_true(numeric.lambda.count == num.reps)
+   forest = regression_forest(X, Y, num.trees = 200)
+   lambda = tune_local_linear_forest(forest)$lambda.min
+
+   expect_true(is.numeric(lambda))
+   expect_true(length(lambda) == 1)
 })
 
 test_that("local linear forest tuning decreases prediction error", {
