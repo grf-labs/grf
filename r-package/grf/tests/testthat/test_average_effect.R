@@ -37,7 +37,7 @@ test_that("average effects are translation invariant", {
 	catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
 	catc.plus.1.tmle = average_treatment_effect(forest.causal.plus.1, target.sample = "control", method = "TMLE")
 	expect_equal(catc.tmle, catc.plus.1.tmle)
-
+	
 	cape = average_partial_effect(forest.causal)
 	cape.plus.1 = average_partial_effect(forest.causal.plus.1)
 	expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.005)
@@ -47,10 +47,9 @@ test_that("average effects are translation invariant", {
 	expect_true(abs(wate[1] - wate.plus.1[1]) <= 0.005)
 })
 
-test_that("average effect estimates are reasonable", {
+test_that("average treatment effect estimates are reasonable", {
   p = 6
   n = 1000
-
   X = matrix(2 * runif(n * p) - 1, n, p)
   eX = 0.25 + 0.5 * (X[,1] > 0)
   W = rbinom(n, 1, eX)
@@ -82,11 +81,11 @@ test_that("average effect estimates are reasonable", {
   expect_true(abs(catt.aipw[2] - catt.tmle[2]) <= 0.05)
 
   catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 0.2)
+  expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 0.25)
   expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 3 * catc.aipw[2])
 
   catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
-  expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 0.2)
+  expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 0.25)
   expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 3 * catc.tmle[2])
 
   expect_true(abs(catc.aipw[1] - catc.tmle[1]) <= 0.05)
@@ -103,6 +102,36 @@ test_that("average effect estimates are reasonable", {
   tau.overlap = sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
   expect_true(abs(wate[1] - tau.overlap) <= 0.2)
   expect_true(abs(wate[1] - tau.overlap) <= 3 * wate[2])
+  
+  cate.aipw.pos = average_treatment_effect(forest.causal, target.sample = "all",
+                                           method = "AIPW", subset = X[,1] > 0)
+  cate.tmle.pos = average_treatment_effect(forest.causal, target.sample = "all",
+                                           method = "TMLE", subset = X[,1] > 0)
+  cate.aipw.pos.treat = average_treatment_effect(forest.causal, target.sample = "treated",
+                                                 method = "AIPW", subset = which(X[,1] > 0))
+  cate.tmle.pos.control = average_treatment_effect(forest.causal, target.sample = "control",
+                                               method = "TMLE", subset = which(X[,1] > 0))
+  wate.pos = average_treatment_effect(forest.causal, target.sample = "overlap", subset = X[,1] > 0)
+
+  expect_true(abs(cate.aipw.pos[1] - 4) < 0.2)
+  expect_true(abs(cate.tmle.pos[1] - 4) < 0.2)
+  expect_true(abs(cate.aipw.pos.treat[1] - 4) < 0.2)
+  expect_true(abs(cate.tmle.pos.control[1] - 4) < 0.3)
+  expect_true(abs(wate.pos[1] - 4) < 0.2)
+})
+
+test_that("average partial effect estimates are reasonable", {
+  p = 6
+  n = 1000
+  X = matrix(2 * runif(n * p) - 1, n, p)
+  eX = 0.25 + 0.5 * (X[,1] > 0)
+  W = rbinom(n, 1, eX) + rnorm(n)
+  TAU = 4 * (X[,1] > 0)
+  Y =  TAU * (W  - 0.5) + rnorm(n)
+  forest.causal = causal_forest(X, Y, W, num.trees = 500,
+                                ci.group.size = 1, clusters = rep(1:(n/2), 2))
+  cape.pos = average_partial_effect(forest.causal, subset = X[,1] > 0)
+  expect_true(abs(cape.pos["estimate"] - 4) < 0.1)
 })
 
 test_that("average treatment effects larger example works", {
