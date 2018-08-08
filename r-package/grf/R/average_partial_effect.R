@@ -42,19 +42,20 @@ average_partial_effect = function(forest, calibrate.weights = TRUE, subset = NUL
   }
   
   if (!all(subset %in% 1:length(forest$Y.hat))) {
-    stop("If specified, subset must be a vector contained in 1:n.")
+    stop(paste("If specified, subset must be a vector contained in 1:n,",
+               "or a boolean vector of length n."))
   }
 
   # Only use data selected via subsetting.
-  focal.W.orig <- forest$W.orig[subset]
-  focal.W.hat <- forest$W.hat[subset]
-  focal.Y.orig <- forest$Y.orig[subset]
-  focal.Y.hat <- forest$Y.hat[subset]
+  subset.W.orig <- forest$W.orig[subset]
+  subset.W.hat <- forest$W.hat[subset]
+  subset.Y.orig <- forest$Y.orig[subset]
+  subset.Y.hat <- forest$Y.hat[subset]
   tau.hat <- predict(forest)$predictions[subset]
   if (length(forest$clusters) == 0) {
-    focal.clusters <- numeric(0)
+    subset.clusters <- numeric(0)
   } else {
-    focal.clusters <- forest$clusters[subset]
+    subset.clusters <- forest$clusters[subset]
   }
   
   # This is a simple plugin estimate of the APE.
@@ -66,15 +67,15 @@ average_partial_effect = function(forest, calibrate.weights = TRUE, subset = NUL
   # with a binary treatment and set V.hat = e.hat (1 - e.hat), then we recover
   # exactly the AIPW estimator of the CATE.
   variance_forest <- regression_forest(forest$X.orig[subset,],
-                                       (focal.W.orig - focal.W.hat)^2)
+                                       (subset.W.orig - subset.W.hat)^2)
   V.hat <- predict(variance_forest)$predictions
-  debiasing.weights <- (focal.W.orig - focal.W.hat) / V.hat
+  debiasing.weights <- (subset.W.orig - subset.W.hat) / V.hat
   
   # In the population, we want A' %*% weights = b.
   # Modify debiasing weights gamma to make this true, i.e., compute
   # argmin {||gamma - gamma.original||_2^2 : A'gamma = b}
   if (calibrate.weights) {
-    A = cbind(1, focal.W.orig, focal.W.hat) / length(focal.W.orig)
+    A = cbind(1, subset.W.orig, subset.W.hat) / length(subset.W.orig)
     b = c(0, 1, 0)
     bias = t(A) %*% debiasing.weights - b
     lambda = solve(t(A) %*% A, bias)
@@ -83,20 +84,20 @@ average_partial_effect = function(forest, calibrate.weights = TRUE, subset = NUL
   }
   
   # Compute a residual-based correction to the plugin.
-  plugin.prediction = focal.Y.hat + (focal.W.orig - focal.W.hat) * tau.hat
-  plugin.residual = focal.Y.orig - plugin.prediction
+  plugin.prediction = subset.Y.hat + (subset.W.orig - subset.W.hat) * tau.hat
+  plugin.residual = subset.Y.orig - plugin.prediction
   cape.correction = mean(debiasing.weights * plugin.residual)
   cape.estimate = cape.plugin + cape.correction
   
   # Estimate variance using the calibration
-  if (length(focal.clusters) == 0) {
-    cape.se = sqrt(mean((debiasing.weights * plugin.residual)^2) / length(focal.W.orig))
+  if (length(subset.clusters) == 0) {
+    cape.se = sqrt(mean((debiasing.weights * plugin.residual)^2) / length(subset.W.orig))
   } else {
     debiasing.clust = Matrix::sparse.model.matrix(
-      ~ factor(focal.clusters) + 0,
+      ~ factor(subset.clusters) + 0,
       transpose = TRUE) %*% (debiasing.weights * plugin.residual)
-    cape.se = sqrt(sum(debiasing.clust^2) / length(focal.W.orig) /
-                     (length(focal.W.orig) - 1))
+    cape.se = sqrt(sum(debiasing.clust^2) / length(subset.W.orig) /
+                     (length(subset.W.orig) - 1))
   }
   
   return(c(estimate=cape.estimate, std.err=cape.se))
