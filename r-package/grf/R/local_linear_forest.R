@@ -64,26 +64,26 @@ local_linear_forest <- function(X, Y,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
 
-    # return a standard regression forest with appropriate defaults
-    forest = regression_forest(X, Y, sample.fraction,
-                               mtry,
-                               num.trees,
-                               num.threads,
-                               min.node.size,
-                               honesty,
-                               ci.group.size = 1,
-                               alpha,
-                               imbalance.penalty,
-                               compute.oob.predictions,
-                               seed,
-                               clusters,
-                               samples_per_cluster,
-                               tune.parameters,
-                               num.fit.trees,
-                               num.fit.reps,
-                               num.optimize.reps)
+  # return a standard regression forest with appropriate defaults
+  forest = regression_forest(X, Y, sample.fraction,
+                             mtry,
+                             num.trees,
+                             num.threads,
+                             min.node.size,
+                             honesty,
+                             ci.group.size = 1,
+                             alpha,
+                             imbalance.penalty,
+                             compute.oob.predictions,
+                             seed,
+                             clusters,
+                             samples_per_cluster,
+                             tune.parameters,
+                             num.fit.trees,
+                             num.fit.reps,
+                             num.optimize.reps)
 
-    forest
+  forest
 }
 
 #' Predict with a local linear forest
@@ -136,19 +136,20 @@ predict.local_linear_forest <- function(object, newdata = NULL,
                                       ll.ridge.type = "standardized",
                                       num.threads = NULL,
                                       ...) {
-    # force local linear prediction to be on
-    X.orig = object[["X.orig"]]
-    linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
+  X.orig = object[["X.orig"]]
+  if (is.null(linear.correction.variables)) {
+    linear.correction.variables = 1:ncol(X.orig)
+  }
 
-    # then run regression forest predictions with local linear correction
-    predictions = predict(object, newdata,
-                          linear.correction.variables,
-                          ll.lambda,
-                          tune.lambda,
-                          lambda.path,
-                          ll.ridge.type,
-                          nu.threads,
-                          estimate.variance = FALSE)
+  # then run regression forest predictions with local linear correction
+  predictions = predict(object, newdata,
+                        linear.correction.variables,
+                        ll.lambda,
+                        tune.lambda,
+                        lambda.path,
+                        ll.ridge.type,
+                        num.threads,
+                        estimate.variance = FALSE)
 
-    predictions
+  predictions
 }

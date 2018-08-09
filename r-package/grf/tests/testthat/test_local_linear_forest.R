@@ -107,6 +107,6 @@ test_that("local linear forest wrapper and local.linear = TRUE are the same", {
     ll.preds = predict(ll.forest, lambda = 0.1)$predictions
 
     average.difference = mean((ll.preds - preds)**2)
-    
+
     expect_true(average.difference < 0.1)
 })
