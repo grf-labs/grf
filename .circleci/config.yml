@@ -1,0 +1,41 @@
+version: 2
+
+# `templates` is not a CircleCI key. I'm just defining shared YAML keys here,
+#  which I will reuse later using YAML references.
+templates:
+  job_defaults: &job_defaults
+    docker:
+      - image: yatharthagarwal/grf:3
+    steps:
+      - checkout
+      - run:
+          name: "Build and test C++ core"
+          command: |
+            mkdir ~/project/core/build && cd ~/project/core/build
+            cmake -DCMAKE_CXX_COMPILER=$COMPILER ..
+            make
+            cd ~/project/core
+            ./build/grf exclude:[characterization]
+            valgrind --leak-check=full --error-exitcode=1 ./build/grf exclude:[characterization]
+      - run:
+          name: "Build and test R package"
+          command: |
+            cd ~/project/r-package
+            cat build_package.R | R --vanilla  # Rscript does not work.
+
+jobs:
+  clang:
+    <<: *job_defaults  # YAML reference to the shared key defined above.
+    environment:
+      COMPILER: clang++-3.7
+  gpp:
+    <<: *job_defaults
+    environment:
+      COMPILER: g++-4.9
+
+workflows:
+  version: 2
+  all:
+    jobs:
+      - clang
+      - gpp
