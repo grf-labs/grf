@@ -83,6 +83,7 @@ local_linear_forest <- function(X, Y,
                              num.fit.reps,
                              num.optimize.reps)
 
+  class(forest) = c("local_linear_forest", "grf")
   forest
 }
 
@@ -130,26 +131,52 @@ local_linear_forest <- function(X, Y,
 #' @export
 predict.local_linear_forest <- function(object, newdata = NULL,
                                       linear.correction.variables = NULL,
-                                      ll.lambda = 0.01,
+                                      ll.lambda = NULL,
                                       tune.lambda = FALSE,
                                       lambda.path = NULL,
                                       ll.ridge.type = "standardized",
                                       num.threads = NULL,
                                       ...) {
+
+  forest.short = object[-which(names(object) == "X.orig")]
   X.orig = object[["X.orig"]]
   if (is.null(linear.correction.variables)) {
     linear.correction.variables = 1:ncol(X.orig)
   }
+  # Validate and account for C++ indexing
+  linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig)) - 1
 
-  # then run regression forest predictions with local linear correction
-  predictions = predict(object, newdata,
-                        linear.correction.variables,
-                        ll.lambda,
-                        tune.lambda,
-                        lambda.path,
-                        ll.ridge.type,
-                        num.threads,
-                        estimate.variance = FALSE)
+  if (ll.ridge.type == "standardized") {
+    use.unweighted.penalty = 0
+  } else if (ll.ridge.type == "identity") {
+    use.unweighted.penalty = 1
+  } else {
+    stop("Error: invalid local linear ridge type")
+  }
 
-  predictions
+  if (is.null(ll.lambda)) {
+    ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, use.unweighted.penalty, num.threads)
+    ll.lambda = ll.regularization.path$lambda.min
+  } else {
+    ll.lambda = validate_ll_lambda(ll.lambda)
+  }
+
+  num.threads = validate_num_threads(num.threads)
+
+  if (!is.null(newdata) ) {
+    data = create_data_matrices(newdata)
+    training.data = create_data_matrices(X.orig)
+    ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
+                  training.data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads)
+  } else {
+     data = create_data_matrices(X.orig)
+     ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, use.unweighted.penalty,
+                  linear.correction.variables, num.threads)
+  }
+
+  ret[["ll.lambda"]] = ll.lambda
+
+  # Convert list to data frame.
+  empty = sapply(ret, function(elem) length(elem) == 0)
+  do.call(cbind.data.frame, ret[!empty])
 }
