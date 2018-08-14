@@ -63,25 +63,70 @@ local_linear_forest <- function(X, Y,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
+  validate_X(X)
+  if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
 
-  # return a standard regression forest with appropriate defaults
-  forest = regression_forest(X, Y, sample.fraction,
-                             mtry,
+  num.threads <- validate_num_threads(num.threads)
+  seed <- validate_seed(seed)
+  clusters <- validate_clusters(clusters, X)
+  samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+
+  if (tune.parameters) {
+    tuning.output <- tune_regression_forest(X, Y,
+                                            num.fit.trees = num.fit.trees,
+                                            num.fit.reps = num.fit.reps,
+                                            num.optimize.reps = num.optimize.reps,
+                                            min.node.size = min.node.size,
+                                            sample.fraction = sample.fraction,
+                                            mtry = mtry,
+                                            alpha = alpha,
+                                            imbalance.penalty = imbalance.penalty,
+                                            num.threads = num.threads,
+                                            honesty = honesty,
+                                            seed = seed,
+                                            clusters = clusters,
+                                            samples_per_cluster = samples_per_cluster)
+      tunable.params <- tuning.output$params
+  } else {
+    tunable.params <- c(
+      min.node.size = validate_min_node_size(min.node.size),
+      sample.fraction = validate_sample_fraction(sample.fraction),
+      mtry = validate_mtry(mtry, X),
+      alpha = validate_alpha(alpha),
+      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
+  }
+
+  data <- create_data_matrices(X, Y)
+  outcome.index <- ncol(X) + 1
+
+  ci.group.size = 1
+  forest <- regression_train(data$default, data$sparse, outcome.index,
+                             as.numeric(tunable.params["mtry"]),
                              num.trees,
                              num.threads,
-                             min.node.size,
-                             honesty,
-                             ci.group.size = 1,
-                             alpha,
-                             imbalance.penalty,
-                             compute.oob.predictions,
+                             as.numeric(tunable.params["min.node.size"]),
+                             as.numeric(tunable.params["sample.fraction"]),
                              seed,
+                             honesty,
+                             ci.group.size,
+                             as.numeric(tunable.params["alpha"]),
+                             as.numeric(tunable.params["imbalance.penalty"]),
                              clusters,
-                             samples_per_cluster,
-                             tune.parameters,
-                             num.fit.trees,
-                             num.fit.reps,
-                             num.optimize.reps)
+                             samples_per_cluster)
+
+  forest[["ci.group.size"]] <- ci.group.size
+  forest[["X.orig"]] <- X
+  forest[["Y.orig"]] <- Y
+  forest[["clusters"]] <- clusters
+  forest[["tunable.params"]] <- tunable.params
+
+  class(forest) <- c("regression_forest", "grf")
+
+  if (compute.oob.predictions) {
+    oob.pred <- predict(forest)
+    forest[["predictions"]] <- oob.pred$predictions
+    forest[["debiased.error"]] <- oob.pred$debiased.error
+  }
 
   class(forest) = c("local_linear_forest", "grf")
   forest
@@ -144,7 +189,7 @@ predict.local_linear_forest <- function(object, newdata = NULL,
     linear.correction.variables = 1:ncol(X.orig)
   }
   # Validate and account for C++ indexing
-  linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig)) - 1
+  linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
 
   if (ll.ridge.type == "standardized") {
     use.unweighted.penalty = 0
@@ -162,6 +207,9 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   }
 
   num.threads = validate_num_threads(num.threads)
+
+  # Subtract 1 to account for C++ indexing
+  linear.correction.variables = linear.correction.variables - 1
 
   if (!is.null(newdata) ) {
     data = create_data_matrices(newdata)
