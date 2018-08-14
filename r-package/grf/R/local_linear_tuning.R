@@ -21,6 +21,7 @@
 #'
 #' # Use this parameter to predict from a local linear forest.
 #' predictions = predict(forest, linear.correction.variables = 1:p, lambda = tuned.lambda)
+#' }
 #'
 #' @export
 tune_local_linear_forest <- function(forest, linear.correction.variables = NULL,
