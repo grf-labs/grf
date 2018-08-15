@@ -192,22 +192,22 @@ causal_forest <- function(X, Y, W,
     treatment.index <- ncol(X) + 2
     instrument.index <- treatment.index
 
-    forest <- instrumental_train(data$default, data$sparse,
-                                 outcome.index, treatment.index, instrument.index,
-                                 as.numeric(tunable.params["mtry"]),
-                                 num.trees,
-                                 num.threads,
-                                 as.numeric(tunable.params["min.node.size"]),
-                                 as.numeric(tunable.params["sample.fraction"]),
-                                 seed,
-                                 honesty,
-                                 ci.group.size,
-                                 reduced.form.weight,
-                                 as.numeric(tunable.params["alpha"]),
-                                 as.numeric(tunable.params["imbalance.penalty"]),
-                                 stabilize.splits,
-                                 clusters,
-                                 samples_per_cluster)
+    forest <- causal_train(data$default, data$sparse,
+                           outcome.index, treatment.index, instrument.index,
+                           as.numeric(tunable.params["mtry"]),
+                           num.trees,
+                           num.threads,
+                           as.numeric(tunable.params["min.node.size"]),
+                           as.numeric(tunable.params["sample.fraction"]),
+                           seed,
+                           honesty,
+                           ci.group.size,
+                           reduced.form.weight,
+                           as.numeric(tunable.params["alpha"]),
+                           as.numeric(tunable.params["imbalance.penalty"]),
+                           stabilize.splits,
+                           clusters,
+                           samples_per_cluster)
 
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
@@ -287,12 +287,12 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
     forest.short <- object[-which(names(object) == "X.orig")]
     if (!is.null(newdata)) {
         data <- create_data_matrices(newdata)
-        ret <- instrumental_predict(forest.short, data$default, data$sparse,
-                                    num.threads, ci.group.size)
+        ret <- causal_predict(forest.short, data$default, data$sparse,
+                              num.threads, ci.group.size)
     } else {
         data <- create_data_matrices(object[["X.orig"]])
-        ret <- instrumental_predict_oob(forest.short, data$default, data$sparse,
-                                        num.threads, ci.group.size)
+        ret <- causal_predict_oob(forest.short, data$default, data$sparse,
+                                  num.threads, ci.group.size)
     }
 
     # Convert list to data frame.

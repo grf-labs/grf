@@ -17,9 +17,11 @@
 
 #include "forest/ForestTrainers.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
+#include "prediction/CausalPredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
 #include "relabeling/CustomRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
+#include "relabeling/CausalRelabelingStrategy.h"
 #include "relabeling/NoopRelabelingStrategy.h"
 #include "relabeling/QuantileRelabelingStrategy.h"
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
@@ -42,6 +44,25 @@ ForestTrainer ForestTrainers::instrumental_trainer(size_t outcome_index,
           ? std::shared_ptr<SplittingRuleFactory>(new InstrumentalSplittingRuleFactory())
           : std::shared_ptr<SplittingRuleFactory>(new RegressionSplittingRuleFactory());
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
+
+  return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
+}
+
+ForestTrainer ForestTrainers::causal_trainer(size_t outcome_index,
+                                             size_t treatment_index,
+                                             size_t instrument_index,
+                                             double reduced_form_weight,
+                                             bool stabilize_splits) {
+  std::unordered_map<size_t, size_t> observables = {
+          {Observations::OUTCOME, outcome_index},
+          {Observations::TREATMENT, treatment_index},
+          {Observations::INSTRUMENT, instrument_index}};
+
+  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new CausalRelabelingStrategy(reduced_form_weight));
+  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory = stabilize_splits
+                                                                 ? std::shared_ptr<SplittingRuleFactory>(new InstrumentalSplittingRuleFactory())
+                                                                 : std::shared_ptr<SplittingRuleFactory>(new RegressionSplittingRuleFactory());
+  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new CausalPredictionStrategy());
 
   return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
 }

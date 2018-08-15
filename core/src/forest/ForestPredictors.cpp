@@ -18,6 +18,7 @@
 #include "forest/ForestPredictors.h"
 #include "prediction/CustomPredictionStrategy.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
+#include "prediction/CausalPredictionStrategy.h"
 #include "prediction/QuantilePredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
 #include "prediction/LocalLinearPredictionStrategy.h"
@@ -33,6 +34,13 @@ ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads,
                                                          uint ci_group_size) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
+  return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
+}
+
+ForestPredictor ForestPredictors::causal_predictor(uint num_threads,
+                                                   uint ci_group_size) {
+  num_threads = ForestOptions::validate_num_threads(num_threads);
+  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new CausalPredictionStrategy());
   return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
 }
 
