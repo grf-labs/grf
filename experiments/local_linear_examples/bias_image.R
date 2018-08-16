@@ -2,7 +2,7 @@ set.seed(1234)
 
 rm(list = ls())
 
-setwd("~/git/grf/experiments/local_linear_examples")
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 library(grf)
 library(glmnet)
