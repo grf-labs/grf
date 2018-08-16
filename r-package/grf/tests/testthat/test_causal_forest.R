@@ -157,8 +157,18 @@ test_that("local linear causal forest works in a simple case", {
     Y = TAU * (W  - 1/2) + 2 * rnorm(n)
 
     forest = causal_forest(X, Y, W, num.trees = 400)
-    preds.ll = predict(forest, linear.correction.variables = 1:p, lambda = 1)
+    preds.ll = predict(forest, linear.correction.variables = 1:p, lambda = 0.1)
     error.ll = mean((preds.ll$predictions - TAU)^2)
 
-    expect_true(error>0)
+
+    forest = causal_forest(X, Y, W, num.trees = 400)
+    preds.ll = predict(forest, linear.correction.variables = 1:p, lambda = 2)
+    error.ll = mean((preds.ll$predictions - TAU)^2)
+
+
+    forest = causal_forest(X, Y, W, num.trees = 400)
+    preds.ll = predict(forest, linear.correction.variables = 1:p, lambda = 1, ll.ridge.type = "identity")
+    error.ll = mean((preds.ll$predictions - TAU)^2)
+
+    expect_true(error.ll>0)
 })
