@@ -23,38 +23,33 @@
 #include <unordered_map>
 #include "commons/DefaultData.h"
 #include "prediction/Prediction.h"
-#include "prediction/OptimizedPredictionStrategy.h"
+#include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
-#include "ObjectiveBayesDebiaser.h"
 
-class CausalPredictionStrategy: public OptimizedPredictionStrategy {
+class CausalPredictionStrategy: public DefaultPredictionStrategy {
 public:
+  CausalPredictionStrategy(const Data *original_data,
+                           const Data *test_data,
+                           std::vector<double> lambdas,
+                           bool use_unweighted_penalty,
+                           std::vector<size_t> linear_correction_variables);
+
   static const std::size_t OUTCOME;
   static const std::size_t TREATMENT;
-  static const std::size_t INSTRUMENT;
-  static const std::size_t OUTCOME_INSTRUMENT;
-  static const std::size_t TREATMENT_INSTRUMENT;
 
   size_t prediction_value_length();
-  PredictionValues precompute_prediction_values(
-      const std::vector<std::vector<size_t>>& leaf_samples,
-      const Observations& observations);
 
   size_t prediction_length();
-  std::vector<double> predict(const std::vector<double>& average);
-
-  std::vector<double> compute_variance(const std::vector<double>& average,
-                          const PredictionValues& leaf_values,
-                          uint ci_group_size);
-
-  std::vector<double> compute_debiased_error(
-      size_t sample,
-      const std::vector<double>& average,
-      const PredictionValues& leaf_values,
-      const Observations& observations);
+  std::vector<double> predict(size_t sampleID,
+                              const std::unordered_map<size_t, double>& weights_by_sampleID,
+                              const Observations &observations);
 
 private:
-  ObjectiveBayesDebiaser bayes_debiaser;
+  const Data *original_data;
+  const Data *test_data;
+  std::vector<double> lambdas;
+  bool use_unweighted_penalty;
+  std::vector<size_t> linear_correction_variables;
 };
 
 #endif //GRF_CAUSALPREDICTIONSTRATEGY_H

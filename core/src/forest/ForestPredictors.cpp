@@ -38,10 +38,18 @@ ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads,
 }
 
 ForestPredictor ForestPredictors::causal_predictor(uint num_threads,
-                                                   uint ci_group_size) {
+                                                   const Data*original_data,
+                                                   const Data *test_data,
+                                                   std::vector<double> lambdas,
+                                                   bool use_unweighted_penalty,
+                                                   std::vector<size_t> linear_correction_variables){
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new CausalPredictionStrategy());
-  return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
+  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new CausalPredictionStrategy(original_data,
+                                                                                                test_data,
+                                                                                                lambdas,
+                                                                                                use_unweighted_penalty,
+                                                                                                linear_correction_variables));
+  return ForestPredictor(num_threads, prediction_strategy);
 }
 
 ForestPredictor ForestPredictors::quantile_predictor(uint num_threads,

@@ -238,6 +238,16 @@ causal_forest <- function(X, Y, W,
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
 #'                not use the i-th training example).
+#' @param linear.correction.variables Optional subset of indexes for variables to be used in local
+#'                   linear prediction. If NULL, standard GRF prediction is used. Otherwise,
+#'                   we run a locally weighted linear regression on the included variables.
+#'                   Please note that this is a beta feature still in development, and may slow down
+#'                   prediction considerably. Defaults to NULL.
+#' @param ll.lambda Ridge penalty for local linear predictions
+#' @param tune.lambda Optional self-tuning for ridge penalty lambda. Defaults to FALSE.
+#' @param lambda.path Optional list of lambdas to use for cross-validation, used if tune.lambda is TRUE.
+#' @param ll.ridge.type Option to standardize ridge penalty by covariance ("standardized"),
+#'                   or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -268,10 +278,15 @@ causal_forest <- function(X, Y, W,
 #' }
 #'
 #' @export
-predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, estimate.variance = FALSE, ...) {
+predict.causal_forest <- function(object, newdata = NULL,
+                                  linear.correction.variables = NULL,
+                                  ll.lambda = 0.1,
+                                  lamdba.path = NULL,
+                                  ll.ridge.type = "standardized",
+                                  num.threads = NULL, estimate.variance = FALSE, ...) {
 
-    # If possible, use pre-computed predictions.
-    if (is.null(newdata) & !estimate.variance & !is.null(object$predictions)) {
+   # If possible, use pre-computed predictions.
+    if (is.null(linear.correction.variables) & is.null(newdata) & !estimate.variance & !is.null(object$predictions)) {
         return(data.frame(predictions=object$predictions,
                           debiased.error=object$debiased.error))
     }
@@ -279,24 +294,58 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
     num.threads <- validate_num_threads(num.threads)
 
     if (estimate.variance) {
-        ci.group.size = object$ci.group.size
+        ci.group.size <- object$ci.group.size
     } else {
-        ci.group.size = 1
+        ci.group.size <- 1
     }
 
     forest.short <- object[-which(names(object) == "X.orig")]
-    if (!is.null(newdata)) {
-        data <- create_data_matrices(newdata)
-        ret <- causal_predict(forest.short, data$default, data$sparse,
-                              num.threads, ci.group.size)
+
+    if (ll.ridge.type == "standardized") {
+        use.unweighted.penalty = 0
+    } else if (ll.ridge.type == "identity") {
+        use.unweighted.penalty = 1
     } else {
-        data <- create_data_matrices(object[["X.orig"]])
-        ret <- causal_predict_oob(forest.short, data$default, data$sparse,
-                                  num.threads, ci.group.size)
+        stop("Error: invalid local linear ridge type")
+    }
+
+    local.linear = !is.null(linear.correction.variables)
+    if(local.linear){
+        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
+
+        if (tune.lambda) {
+            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, use.unweighted.penalty, num.threads, lambda.path)
+            ll.lambda = ll.regularization.path$lambda.min
+        } else {
+            ll.lambda = validate_ll_lambda(ll.lambda)
+        }
+
+        # subtract 1 to account for C++ indexing
+        linear.correction.variables <- linear.correction.variables - 1
+    }
+
+    X.orig = object[["X.orig"]]
+    W.orig = object[["W.orig"]]
+    original.XW = cbind(X.orig, W.orig)
+
+    if (!is.null(newdata) ) {
+        data = create_data_matrices(newdata)
+        if (!local.linear) {
+            ret = causal_predict(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+        } else {
+            training.data = create_data_matrices(original.XW)
+            ret = causal_predict_linear(forest.short, data$default, training.data$default, data$sparse, training.data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads)
+        }
+    } else {
+        data = create_data_matrices(original.XW)
+        if (!local.linear) {
+            ret = causal_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+        } else {
+            ret = causal_predict_oob_linear(forest.short, data$default, data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads)
+        }
     }
 
     # Convert list to data frame.
     empty = sapply(ret, function(elem) length(elem) == 0)
     do.call(cbind.data.frame, ret[!empty])
 }
-

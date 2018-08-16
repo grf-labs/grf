@@ -17,7 +17,6 @@
 
 #include "forest/ForestTrainers.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
-#include "prediction/CausalPredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
 #include "relabeling/CustomRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
@@ -62,7 +61,7 @@ ForestTrainer ForestTrainers::causal_trainer(size_t outcome_index,
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory = stabilize_splits
                                                                  ? std::shared_ptr<SplittingRuleFactory>(new InstrumentalSplittingRuleFactory())
                                                                  : std::shared_ptr<SplittingRuleFactory>(new RegressionSplittingRuleFactory());
-  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new CausalPredictionStrategy());
+  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
 
   return ForestTrainer(observables, relabeling_strategy, splitting_rule_factory, prediction_strategy);
 }

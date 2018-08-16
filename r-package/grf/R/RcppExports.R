@@ -29,6 +29,14 @@ causal_predict_oob <- function(forest_object, input_data, sparse_input_data, num
     .Call('_grf_causal_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, ci_group_size)
 }
 
+causal_predict_linear <- function(forest, input_data, training_data, sparse_input_data, sparse_training_data, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads) {
+    .Call('_grf_causal_predict_linear', PACKAGE = 'grf', forest, input_data, training_data, sparse_input_data, sparse_training_data, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads)
+}
+
+causal_predict_oob_linear <- function(forest, input_data, sparse_input_data, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads) {
+    .Call('_grf_causal_predict_oob_linear', PACKAGE = 'grf', forest, input_data, sparse_input_data, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads)
+}
+
 custom_train <- function(input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
     .Call('_grf_custom_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
 }
