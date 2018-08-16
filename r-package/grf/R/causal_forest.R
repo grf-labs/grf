@@ -244,8 +244,6 @@ causal_forest <- function(X, Y, W,
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
 #' @param ll.lambda Ridge penalty for local linear predictions
-#' @param tune.lambda Optional self-tuning for ridge penalty lambda. Defaults to FALSE.
-#' @param lambda.path Optional list of lambdas to use for cross-validation, used if tune.lambda is TRUE.
 #' @param ll.ridge.type Option to standardize ridge penalty by covariance ("standardized"),
 #'                   or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
@@ -281,7 +279,6 @@ causal_forest <- function(X, Y, W,
 predict.causal_forest <- function(object, newdata = NULL,
                                   linear.correction.variables = NULL,
                                   ll.lambda = 0.1,
-                                  lamdba.path = NULL,
                                   ll.ridge.type = "standardized",
                                   num.threads = NULL, estimate.variance = FALSE, ...) {
 
@@ -301,6 +298,10 @@ predict.causal_forest <- function(object, newdata = NULL,
 
     forest.short <- object[-which(names(object) == "X.orig")]
 
+    X.orig = object[["X.orig"]]
+    W.orig = object[["W.orig"]]
+    original.XW = cbind(X.orig, W.orig)
+
     if (ll.ridge.type == "standardized") {
         use.unweighted.penalty = 0
     } else if (ll.ridge.type == "identity") {
@@ -312,21 +313,11 @@ predict.causal_forest <- function(object, newdata = NULL,
     local.linear = !is.null(linear.correction.variables)
     if(local.linear){
         linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
-
-        if (tune.lambda) {
-            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, use.unweighted.penalty, num.threads, lambda.path)
-            ll.lambda = ll.regularization.path$lambda.min
-        } else {
-            ll.lambda = validate_ll_lambda(ll.lambda)
-        }
+        ll.lambda = validate_ll_lambda(ll.lambda)
 
         # subtract 1 to account for C++ indexing
         linear.correction.variables <- linear.correction.variables - 1
     }
-
-    X.orig = object[["X.orig"]]
-    W.orig = object[["W.orig"]]
-    original.XW = cbind(X.orig, W.orig)
 
     if (!is.null(newdata) ) {
         data = create_data_matrices(newdata)
