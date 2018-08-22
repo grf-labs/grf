@@ -87,13 +87,13 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
     if (use_unweighted_penalty) {
       // standard ridge penalty
       double normalization = M.trace() / (num_variables + 1);
-      for (size_t i = 1; i < num_variables + 1; ++i){
-        M(i,i) += lambda * normalization;
+      for (size_t j = 1; j < num_variables + 1; ++j){
+        M(j,j) += lambda * normalization;
       }
     } else {
       // covariance ridge penalty
-      for (size_t i = 1; i < num_variables+1; ++i){
-        M(i,i) += lambda * M(i,i); // note that the weights are already normalized
+      for (size_t j = 1; j < num_variables+1; ++j){
+        M(j,j) += lambda * M(j,j); // note that the weights are already normalized
       }
     }
 

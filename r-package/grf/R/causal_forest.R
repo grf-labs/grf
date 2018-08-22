@@ -335,7 +335,6 @@ predict.causal_forest <- function(object, newdata = NULL,
             ret = causal_predict_oob_linear(forest.short, data$default, data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads)
         }
     }
-
     # Convert list to data frame.
     empty = sapply(ret, function(elem) length(elem) == 0)
     do.call(cbind.data.frame, ret[!empty])

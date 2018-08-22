@@ -131,4 +131,3 @@ Rcpp::List causal_predict_oob_linear(Rcpp::List forest,
   delete data;
   return result;
 }
-

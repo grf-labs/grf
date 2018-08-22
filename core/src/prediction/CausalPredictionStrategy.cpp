@@ -65,7 +65,7 @@ std::vector<double> CausalPredictionStrategy::predict(
     }
   }
 
-  Eigen::MatrixXd X (num_nonzero_weights, 2*num_variables+2);
+  Eigen::MatrixXd X (num_nonzero_weights, num_variables + 2);
   Eigen::MatrixXd Y (num_nonzero_weights, 1);
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
     // X columns
@@ -76,10 +76,6 @@ std::vector<double> CausalPredictionStrategy::predict(
     }
     // treatment W column
     X(i, num_variables+1) = original_data->get(indices[i], num_total_predictors+1);
-    //XW columns
-    for(size_t k = 1; k < num_variables; ++k){
-      X(i, k+ num_variables + 1) = X(i, k) * X(i, num_variables + 1);
-    }
 
     Y(i) = observations.get(Observations::OUTCOME, indices[i]);
     X(i, 0) = 1;
@@ -96,19 +92,19 @@ std::vector<double> CausalPredictionStrategy::predict(
     double lambda = lambdas[i];
     if (use_unweighted_penalty) {
       // standard ridge penalty
-      double normalization = M.trace() / (num_variables + 1);
-      for (size_t i = 1; i < num_variables + 1; ++i){
-        M(i,i) += lambda * normalization;
+      double normalization = M.trace() / num_variables + 1;
+      for (size_t j = 1; j < num_variables+1; ++j){
+        M(j,j) += lambda * normalization;
       }
     } else {
       // covariance ridge penalty
-      for (size_t i = 1; i < num_variables+1; ++i){
-        M(i,i) += lambda * M(i,i); // note that the weights are already normalized
+      for (size_t j = 1; j < num_variables+1; ++j){
+        M(j,j) += lambda * M(j,j); // note that the weights are already normalized
       }
     }
 
     Eigen::MatrixXd preds = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
-    predictions[i] =  preds(num_variables+1);
+    predictions[i] = preds(num_variables + 1);
   }
 
   return predictions;
