@@ -148,27 +148,26 @@ test_that("causal forests behave reasonably with small sample size", {
 })
 
 test_that("local linear causal forest works in a simple case", {
+    library(MASS)
     p = 4
-    n = 1000
+    n = 400
 
-    X = matrix(2 * runif(n * p) - 1, n, p)
-    W = rbinom(n, 1, 0.5)
-    TAU = 0.1 * X[,1]
-    Y = TAU * (W  - 1/2) + 2 * rnorm(n)
-
-    forest = causal_forest(X, Y, W, num.trees = 400)
-    preds.ll = predict(forest, linear.correction.variables = 1:p, lambda = 0.1)
-    error.ll = mean((preds.ll$predictions - TAU)^2)
-
-
-    forest = causal_forest(X, Y, W, num.trees = 400)
-    preds.ll = predict(forest, linear.correction.variables = 1:p, lambda = 2)
-    error.ll = mean((preds.ll$predictions - TAU)^2)
-
+    variances <- c(1, 1, 0.7)
+    cov.mat <- diag(variances)
+    X <- matrix(mvrnorm(n = n, mu = c(0, 0, 0), Sigma = cov.mat), nrow = n)
+    MU <- 1 * (X[, 1] < X[, 2]) - 1 * (X[, 1] >= X[, 2])
+    p <- pnorm(q = MU)
+    W <- matrix(rbinom(n = n, size = 1, prob = p), nrow = n)
+    Y <- matrix(mu + W + X[, 3], nrow = n)
+    TAU <- matrix(rep(1, n = n), nrow = n)
 
     forest = causal_forest(X, Y, W, num.trees = 400)
-    preds.ll = predict(forest, linear.correction.variables = 1:p, lambda = 1, ll.ridge.type = "identity")
+    preds.ll = predict(forest, linear.correction.variables = 1:p, ll.lambda = 1, ll.ridge.type = "identity")
     error.ll = mean((preds.ll$predictions - TAU)^2)
 
-    expect_true(error.ll>0)
+    preds.rf = predict(forest)
+    error.rf = mean((preds.rf$predictions - TAU)^2)
+
+    expect_true(error.ll < 0.75 * error.rf)
 })
+
