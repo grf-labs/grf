@@ -158,7 +158,7 @@ test_that("local linear causal forest works in a simple case", {
     MU <- 1 * (X[, 1] < X[, 2]) - 1 * (X[, 1] >= X[, 2])
     p <- pnorm(q = MU)
     W <- matrix(rbinom(n = n, size = 1, prob = p), nrow = n)
-    Y <- matrix(mu + W + X[, 3], nrow = n)
+    Y <- matrix(MU + W + X[, 3], nrow = n)
     TAU <- matrix(rep(1, n = n), nrow = n)
 
     forest = causal_forest(X, Y, W, num.trees = 400)
