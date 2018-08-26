@@ -29,13 +29,14 @@ class TreeOptions {
 public:
   TreeOptions(uint mtry,
               uint min_node_size,
-              bool honesty,
+              double honesty_fraction,
               double alpha,
               double imbalance_penalty);
 
   uint get_mtry() const;
   uint get_min_node_size() const;
   bool get_honesty() const;
+  double get_honesty_fraction() const;
 
   /**
    * The minimum fraction of samples that are allowed to be on either
@@ -52,7 +53,7 @@ public:
 private:
   uint mtry;
   uint min_node_size;
-  bool honesty;
+  double honesty_fraction;
 
   double alpha;
   double imbalance_penalty;
