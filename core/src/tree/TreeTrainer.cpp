@@ -53,7 +53,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
   if (options.get_honesty()) {
     std::vector<size_t> tree_growing_clusters;
     std::vector<size_t> new_leaf_clusters;
-    sampler.subsample(clusters, 0.5, tree_growing_clusters, new_leaf_clusters);
+    sampler.subsample(clusters, options.get_honesty_fraction(), tree_growing_clusters, new_leaf_clusters);
 
     sampler.sample_from_clusters(tree_growing_clusters, nodes[0]);
     sampler.sample_from_clusters(new_leaf_clusters, new_leaf_samples);
