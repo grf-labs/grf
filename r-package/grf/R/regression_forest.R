@@ -18,7 +18,7 @@
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty.fraction Fraction of the data used for training and cross-validation in honest splitting 
 #'                         (i.e., sub-sample splitting).
-#'                         Note: setting honesty.fraction = 1 will result in a forest of non-honest trees.
+#'                         Note: an honesty.fraction value >= 1 or <= 0 will result in a forest of non-honest trees.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.

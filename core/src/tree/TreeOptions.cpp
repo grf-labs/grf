@@ -38,7 +38,7 @@ uint TreeOptions::get_min_node_size() const  {
 }
 
 bool TreeOptions::get_honesty() const {
-  return honesty_fraction == 1;
+  return honesty_fraction < 1 && honesty_fraction > 0;
 }
 
 double TreeOptions::get_honesty_fraction() const {
