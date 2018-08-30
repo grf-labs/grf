@@ -16,14 +16,16 @@
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty is used, these subsamples will
-#'                        further be cut in half.
+#'                        Note: If honesty.fraction is less than 1, these subsamples will
+#'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param honesty.fraction Fraction of the data used for training and cross-validation in honest splitting 
+#'                         (i.e., sub-sample splitting).
+#'                         Note: setting honesty.fraction = 1 will result in a forest of non-honest trees.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
@@ -66,7 +68,7 @@ tune_causal_forest <- function(X, Y, W,
                                imbalance.penalty = NULL,
                                stabilize.splits = TRUE,
                                num.threads = NULL,
-                               honesty = TRUE,
+                               honesty.fraction = 0.5,
                                seed = NULL,
                                clusters = NULL,
                                samples_per_cluster = NULL) {
@@ -110,7 +112,7 @@ tune_causal_forest <- function(X, Y, W,
                                        as.numeric(params["min.node.size"]),
                                        as.numeric(params["sample.fraction"]),
                                        seed,
-                                       honesty,
+                                       honesty.fraction,
                                        ci.group.size,
                                        reduced.form.weight,
                                        as.numeric(params["alpha"]),

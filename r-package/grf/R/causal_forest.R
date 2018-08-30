@@ -19,8 +19,8 @@
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty is used, these subsamples will
-#'                        further be cut in half.
+#'                        Note: If honesty.fraction is less than 1, these subsamples will
+#'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
@@ -29,7 +29,9 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param honesty.fraction Fraction of the data used for training and cross-validation in honest splitting 
+#'                         (i.e., sub-sample splitting).
+#'                         Note: an honesty.fraction value >= 1 or <= 0 will result in a forest of non-honest trees.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -110,7 +112,7 @@ causal_forest <- function(X, Y, W,
                           num.trees = 2000,
                           num.threads = NULL,
                           min.node.size = NULL,
-                          honesty = TRUE,
+                          honesty.fraction = 0.5,
                           ci.group.size = 2,
                           alpha = NULL,
                           imbalance.penalty = NULL,
@@ -137,7 +139,7 @@ causal_forest <- function(X, Y, W,
     if (is.null(Y.hat)) {
       forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                    honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    honesty.fraction = 0.5, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       Y.hat <- predict(forest.Y)$predictions
     } else if (length(Y.hat) == 1) {
@@ -149,7 +151,7 @@ causal_forest <- function(X, Y, W,
     if (is.null(W.hat)) {
       forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                    honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    honesty.fraction = 0.5, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       W.hat <- predict(forest.W)$predictions
     } else if (length(W.hat) == 1) {
@@ -173,7 +175,7 @@ causal_forest <- function(X, Y, W,
                                           imbalance.penalty = imbalance.penalty,
                                           stabilize.splits = stabilize.splits,
                                           num.threads = num.threads,
-                                          honesty = honesty,
+                                          honesty.fraction = honesty.fraction,
                                           seed = seed,
                                           clusters = clusters,
                                           samples_per_cluster = samples_per_cluster)
@@ -200,7 +202,7 @@ causal_forest <- function(X, Y, W,
                                  as.numeric(tunable.params["min.node.size"]),
                                  as.numeric(tunable.params["sample.fraction"]),
                                  seed,
-                                 honesty,
+                                 honesty.fraction,
                                  ci.group.size,
                                  reduced.form.weight,
                                  as.numeric(tunable.params["alpha"]),

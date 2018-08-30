@@ -22,7 +22,7 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty.fraction WhetherFraction of the data used for training and cross-validation in honest splitting 
+#' @param honesty.fraction Fraction of the data used for training and cross-validation in honest splitting 
 #'                         (i.e., sub-sample splitting).
 #'                         Note: setting honesty.fraction = 1 will result in a forest of non-honest trees.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
