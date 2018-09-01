@@ -78,6 +78,10 @@ regression_forest <- function(X, Y,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
+    if (!is.double(honesty.fraction)){
+        stop("Error: Must provide a double for honesty.fraction")
+    }
+    
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
 

@@ -125,6 +125,10 @@ causal_forest <- function(X, Y, W,
                           num.fit.trees = 200,
                           num.fit.reps = 50,
                           num.optimize.reps = 1000) {
+    if (!is.double(honesty.fraction)){
+        stop("Error: Must provide a double for honesty.fraction")
+    }
+    
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }

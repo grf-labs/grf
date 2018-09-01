@@ -33,7 +33,7 @@ test_that("leaf samples are indexed correctly", {
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = rnorm(n) * (1 + (X[,i] > 0))
 
-	qrf = quantile_forest(X, Y, sample.fraction=1.0, honesty=FALSE)
+	qrf = quantile_forest(X, Y, sample.fraction=1.0, honesty=0)
 	quantile.tree = get_tree(qrf, 1)
 
 	samples = unlist(sapply(quantile.tree$nodes, function(node) node$samples))

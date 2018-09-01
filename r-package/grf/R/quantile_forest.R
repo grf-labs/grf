@@ -71,6 +71,10 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
         stop("Error: Quantiles must be in (0, 1)")
     }
     
+    if (!is.double(honesty.fraction)){
+        stop("Error: Must provide a double for honesty.fraction")
+    }
+    
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     

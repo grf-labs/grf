@@ -70,10 +70,15 @@ instrumental_forest <- function(X, Y, W, Z,
                                 seed = NULL,
                                 clusters = NULL,
                                 samples_per_cluster = NULL) {
+    if (!is.double(honesty.fraction)){
+        stop("Error: Must provide a double for honesty.fraction")
+    }
+    
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
     if(length(Z) != nrow(X)) { stop("Z has incorrect length.") }
+    
     
     mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
