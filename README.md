@@ -113,7 +113,7 @@ test_calibration(tau.forest)
 
 ### Developing
 
-In addition to providing out-of-the-box forests for quantile regression and causal effect estimation, GRF provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using GRF, please consult the [development guide](DEVELOPING.md).
+In addition to providing out-of-the-box forests for quantile regression and causal effect estimation, GRF provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using GRF, please consult the [algorithm reference](REFERENCE.md) and [development guide](DEVELOPING.md).
 
 ### References
 
