@@ -38,7 +38,36 @@ test_that("leaf samples are indexed correctly", {
 
 	samples = unlist(sapply(quantile.tree$nodes, function(node) node$samples))
 	expect_equal(seq(1, n), sort(samples))
+
 })
+
+test_that("draw samples are indexed correctly",{
+  p = 40
+  n = 500
+  
+  i = 5
+  X = matrix(2 * runif(n * p) - 1, n, p)
+  Y = rnorm(n) * (1 + (X[,i] > 0))
+  
+  forest = regression_forest(X, Y)
+  forest.tree = get_tree(forest, 1)
+  
+  leaf_nodes <- Filter(f = function(x) x$is_leaf, forest.tree$nodes)
+  
+  # This should contain all in-bag data
+  estimation_and_split_sample <- forest.tree$drawn_samples
+  
+  # This is the estimation sample. It should be contained in the vector above
+  estimation_sample <- unlist(Map(f=function(x) x$samples, leaf_nodes)) 
+  
+  # This shouldn't contain anything...
+  should_be_empty <- setdiff(estimation_sample, estimation_and_split_sample)
+  expect_equal(length(should_be_empty), 0)
+  
+})
+
+
+
 
 test_that("tree indexes are one-indexed", {
 	p = 40
