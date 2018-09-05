@@ -156,9 +156,8 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
   }
 
   std::vector<size_t> drawn_samples(tree->get_drawn_samples());
-  for (int& index : drawn_samples) {
-    index += 1; //R is 1-indexed.
-  }
+  for (size_t& index : drawn_samples) index += 1; //R is 1-indexed.
+
 
   Rcpp::List result;
   result.push_back(drawn_samples.size(), "num_samples");
