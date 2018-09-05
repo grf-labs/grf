@@ -59,7 +59,7 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear], [
   const std::vector<double>& p = predictions[0].get_predictions();
 
 
-  REQUIRE(equal_doubles(14.9163, p[0], 1.0));
+  REQUIRE(equal_doubles(14.9163, p[0], 2.0));
   delete data;
 }
 
