@@ -59,7 +59,7 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear], [
   const std::vector<double>& p = predictions[0].get_predictions();
 
 
-  REQUIRE(equal_doubles(14.9163, p[0], 3.0));
+  REQUIRE(equal_doubles(14.9163, p[0], 1.0));
   delete data;
 }
 
@@ -103,5 +103,31 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local_linear], [forest]") {
   }
 
   REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
+  delete data;
+}
+
+TEST_CASE("LLCF predictions are reasonable", "[local_linear], [causal], [forest]") {
+  Data* data = load_data("test/forest/resources/causal_data.csv");
+  uint outcome_index = 10;
+  std::vector<size_t> linear_correction_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  std::vector<double> lambdas = {0.1};
+
+  double reduced_form_weight = 0.0;
+  bool stabilize_splits = false;
+  bool use_unweighted_penalty = false;
+
+  ForestTrainer trainer = ForestTrainers::instrumental_trainer(
+        10, 11, 11, reduced_form_weight, stabilize_splits);
+  ForestOptions options = ForestTestUtilities::default_options();
+
+  Forest forest = trainer.train(data, options);
+
+  ForestPredictor predictor = ForestPredictors::causal_predictor(data, data, lambdas,
+    use_unweighted_penalty, linear_correction_variables);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
+
+  const std::vector<double>& p = predictions[0].get_predictions();
+
+  REQUIRE(equal_doubles(97.57, p, 10.0));
   delete data;
 }
