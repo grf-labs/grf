@@ -106,7 +106,6 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local_linear], [forest]") {
   delete data;
 }
 
-/*
 TEST_CASE("LLCF predictions are reasonable", "[local_linear], [causal], [forest]") {
   Data* data = load_data("test/forest/resources/causal_data.csv");
   uint outcome_index = 10;
@@ -129,7 +128,6 @@ TEST_CASE("LLCF predictions are reasonable", "[local_linear], [causal], [forest]
 
   const std::vector<double>& p = predictions[0].get_predictions();
 
-  REQUIRE(equal_doubles(97.57, p, 10.0));
+  REQUIRE(equal_doubles(p, 100, 10.0));
   delete data;
 }
-*/
