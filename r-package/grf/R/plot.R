@@ -1,3 +1,6 @@
+#' Writes each node information 
+#' If it is a leaf node: show it in different color, show number of samples, show leaf id
+#' If it is a non-leaf node: show its splitting variable and splitting value
 create_dot_body <- function(nodes, index=1) {
   
   node <- nodes[[index]]
@@ -50,6 +53,9 @@ create_dot_body <- function(nodes, index=1) {
   return(lines)
 }
 
+#' Export a tree in DOT format.
+#' This function generates a GraphViz representation of the tree,
+#' which is then written into `dot_string`. 
 export_graphviz <- function(nodes){
   header <- "digraph nodes { \n node [shape=box] ;"
   footer <- "}"
