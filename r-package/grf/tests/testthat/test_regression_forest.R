@@ -2,6 +2,42 @@ library(grf)
 
 set.seed(1234)
 
+rm(list=ls())
+
+extract_samples <- function(tree) {
+  
+  # Keep only leaf nodes
+  leaf_nodes <- Filter(f = function(x) x$is_leaf, tree$nodes)
+  
+  # Leaf nodes' 'samples' are estimation samples
+  estimation_sample <- unlist(Map(f=function(x) x$samples, leaf_nodes)) - 1
+  
+  # Split = Drawn - Samples
+  split_sample <- base::setdiff(tree$drawn_samples, estimation_sample)
+  
+  # OOB samples
+  oob_sample <- base::setdiff(seq(2*length(tree$drawn_samples)-1), tree$drawn_samples)
+  return(list(drawn_sample=tree$drawn_samples,
+              estimation_sample=estimation_sample,
+              split_sample=split_sample,
+              oob_sample=oob_sample))
+}
+
+test_that("changing honest.fraction changes honest splitting sample size", {
+  samplefraction = 0.5
+  honestyfraction = 0.25
+  
+  n <- 16
+  k <- 10
+  X <- matrix(runif(n*k), nrow=n, ncol=k)
+  Y <- matrix(runif(n), nrow=n, ncol=1)
+  forest <- grf::regression_forest(X, Y, sample.fraction = samplefraction, 
+                                   honesty = TRUE, honesty.fraction = honestyfraction)
+  samples <- extract_samples(get_tree(forest, 1))
+  
+  expect_equal(length(samples$split_sample), n*samplefraction*honestyfraction)
+})
+
 test_that("regression variance estimates are positive", {
 	p = 6
 	n = 1000
