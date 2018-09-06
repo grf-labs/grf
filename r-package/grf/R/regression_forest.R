@@ -6,7 +6,7 @@
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty.fraction is less than 1, these subsamples will
+#'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
@@ -16,9 +16,9 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
 #' @param honesty.fraction Fraction of the data used for training and cross-validation in honest splitting 
-#'                         (i.e., sub-sample splitting).
-#'                         Note: an honesty.fraction value >= 1 or <= 0 will result in a forest of non-honest trees.
+#'                         (i.e., sub-sample splitting) if honesty = TRUE.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -66,6 +66,7 @@ regression_forest <- function(X, Y,
                               num.trees = 2000,
                               num.threads = NULL,
                               min.node.size = NULL,
+                              honesty = TRUE,
                               honesty.fraction = 0.5,
                               ci.group.size = 2,
                               alpha = NULL,
@@ -78,10 +79,6 @@ regression_forest <- function(X, Y,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
-    if (!is.double(honesty.fraction)){
-        stop("Error: Must provide a double for honesty.fraction")
-    }
-    
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
 
@@ -89,6 +86,7 @@ regression_forest <- function(X, Y,
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
     
     if (tune.parameters) {
       tuning.output <- tune_regression_forest(X, Y,
@@ -101,6 +99,7 @@ regression_forest <- function(X, Y,
                                               alpha = alpha,
                                               imbalance.penalty = imbalance.penalty,
                                               num.threads = num.threads,
+                                              honesty = honesty,
                                               honesty.fraction = honesty.fraction,
                                               seed = seed,
                                               clusters = clusters,
@@ -125,6 +124,7 @@ regression_forest <- function(X, Y,
                                as.numeric(tunable.params["min.node.size"]),
                                as.numeric(tunable.params["sample.fraction"]),
                                seed,
+                               honesty,
                                honesty.fraction,
                                ci.group.size,
                                as.numeric(tunable.params["alpha"]),

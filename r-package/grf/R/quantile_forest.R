@@ -11,8 +11,8 @@
 #'                             Setting this flag to true corresponds to the approach to
 #'                             quantile forests from Meinshausen (2006).
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty.fraction is less than 1, these subsamples will
-#'                        further be cut by a factor of honesty.fraction. 
+#'                        Note: If honesty = TRUE, these subsamples will
+#'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
@@ -21,9 +21,9 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
 #' @param honesty.fraction Fraction of the data used for training and cross-validation in honest splitting 
-#'                         (i.e., sub-sample splitting).
-#'                         Note: an honesty.fraction value >= 1 or <= 0 will result in a forest of non-honest trees.
+#'                         (i.e., sub-sample splitting) if honesty = TRUE.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param seed The seed for the C++ random number generator.
@@ -62,17 +62,13 @@
 #' @export
 quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = FALSE,
                             sample.fraction = 0.5, mtry = NULL, num.trees = 2000,
-                            num.threads = NULL, min.node.size = NULL, honesty.fraction = 0.5,
-                            alpha = 0.05, imbalance.penalty = 0.0, seed = NULL,
-                            clusters = NULL, samples_per_cluster = NULL) {
+                            num.threads = NULL, min.node.size = NULL, honesty = TRUE,
+                            honesty.fraction = 0.5, alpha = 0.05, imbalance.penalty = 0.0, 
+                            seed = NULL, clusters = NULL, samples_per_cluster = NULL) {
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
     } else if (min(quantiles) <= 0 | max(quantiles) >= 1) {
         stop("Error: Quantiles must be in (0, 1)")
-    }
-    
-    if (!is.double(honesty.fraction)){
-        stop("Error: Must provide a double for honesty.fraction")
     }
     
     validate_X(X)
@@ -85,6 +81,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
     
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
@@ -92,7 +89,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
     ci.group.size <- 1
     
     forest <- quantile_train(quantiles, regression.splitting, data$default, data$sparse,
-        outcome.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed,
+        outcome.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
         honesty.fraction, ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
     
     forest[["X.orig"]] <- X

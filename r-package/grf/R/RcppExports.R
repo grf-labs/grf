@@ -17,8 +17,8 @@ deserialize_tree <- function(forest_object, tree_index) {
     .Call('_grf_deserialize_tree', PACKAGE = 'grf', forest_object, tree_index)
 }
 
-custom_train <- function(input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
-    .Call('_grf_custom_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
+custom_train <- function(input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
+    .Call('_grf_custom_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
 }
 
 custom_predict <- function(forest_object, input_data, sparse_input_data, num_threads) {
@@ -29,8 +29,8 @@ custom_predict_oob <- function(forest_object, input_data, sparse_input_data, num
     .Call('_grf_custom_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads)
 }
 
-instrumental_train <- function(input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster) {
-    .Call('_grf_instrumental_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster)
+instrumental_train <- function(input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster) {
+    .Call('_grf_instrumental_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster)
 }
 
 instrumental_predict <- function(forest_object, input_data, sparse_input_data, num_threads, ci_group_size) {
@@ -41,8 +41,8 @@ instrumental_predict_oob <- function(forest_object, input_data, sparse_input_dat
     .Call('_grf_instrumental_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, ci_group_size)
 }
 
-quantile_train <- function(quantiles, regression_splits, input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
-    .Call('_grf_quantile_train', PACKAGE = 'grf', quantiles, regression_splits, input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
+quantile_train <- function(quantiles, regression_splits, input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
+    .Call('_grf_quantile_train', PACKAGE = 'grf', quantiles, regression_splits, input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
 }
 
 quantile_predict <- function(forest_object, quantiles, input_data, sparse_input_data, num_threads) {
@@ -53,8 +53,8 @@ quantile_predict_oob <- function(forest_object, quantiles, input_data, sparse_in
     .Call('_grf_quantile_predict_oob', PACKAGE = 'grf', forest_object, quantiles, input_data, sparse_input_data, num_threads)
 }
 
-regression_train <- function(input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
-    .Call('_grf_regression_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
+regression_train <- function(input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
+    .Call('_grf_regression_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
 }
 
 regression_predict <- function(forest_object, input_data, sparse_input_data, num_threads, ci_group_size) {

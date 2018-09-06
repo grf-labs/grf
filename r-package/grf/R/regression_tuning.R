@@ -15,16 +15,16 @@
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty.fraction is less than 1, these subsamples will
+#'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
 #' @param honesty.fraction Fraction of the data used for training and cross-validation in honest splitting 
-#'                         (i.e., sub-sample splitting).
-#'                         Note: setting honesty.fraction = 1 will result in a forest of non-honest trees.
+#'                         (i.e., sub-sample splitting) if honesty = TRUE.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param seed The seed for the C++ random number generator.
@@ -63,6 +63,7 @@ tune_regression_forest <- function(X, Y,
                                    alpha = NULL,
                                    imbalance.penalty = NULL,
                                    num.threads = NULL,
+                                   honesty = TRUE,
                                    honesty.fraction = 0.5,
                                    seed = NULL,
                                    clusters = NULL,
@@ -103,6 +104,7 @@ tune_regression_forest <- function(X, Y,
                                      as.numeric(params["min.node.size"]),
                                      as.numeric(params["sample.fraction"]),
                                      seed,
+                                     honesty,
                                      honesty.fraction,
                                      ci.group.size,
                                      as.numeric(params["alpha"]),

@@ -19,7 +19,7 @@
 #' @param Z.hat Estimates of the instrument propensities E[Z | Xi]. If Z.hat = NULL,
 #'              these are estimated using a separate regression forest.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty.fraction is less than 1, these subsamples will
+#'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
@@ -29,9 +29,9 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
 #' @param honesty.fraction Fraction of the data used for training and cross-validation in honest splitting 
-#'                         (i.e., sub-sample splitting).
-#'                         Note: an honesty.fraction value >= 1 or <= 0 will result in a forest of non-honest trees.
+#'                         (i.e., sub-sample splitting) if honesty = TRUE.
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -60,6 +60,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 num.trees = 2000,
                                 num.threads = NULL,
                                 min.node.size = NULL,
+                                honesty = TRUE,
                                 honesty.fraction = 0.5,
                                 ci.group.size = 2,
                                 reduced.form.weight = 0,
@@ -71,7 +72,9 @@ instrumental_forest <- function(X, Y, W, Z,
                                 clusters = NULL,
                                 samples_per_cluster = NULL) {
     if (!is.double(honesty.fraction)){
-        stop("Error: Must provide a double for honesty.fraction")
+        stop("Error: Must provide a double for honesty.fraction.
+             The Boolean honesty argument is deprecated. See
+             documentation for details.")
     }
     
     validate_X(X)
@@ -87,6 +90,7 @@ instrumental_forest <- function(X, Y, W, Z,
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
     
     if (!is.numeric(reduced.form.weight) | reduced.form.weight < 0 | reduced.form.weight > 1) {
         stop("Error: Invalid value for reduced.form.weight. Please give a value in [0,1].")
@@ -94,8 +98,8 @@ instrumental_forest <- function(X, Y, W, Z,
     
     if (is.null(Y.hat)) {
       forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
-                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                    honesty.fraction = 0.5, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = honesty,
+                                    honesty.fraction = honesty.fraction, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       Y.hat <- predict(forest.Y)$predictions
     } else if (length(Y.hat) == 1) {
@@ -106,8 +110,8 @@ instrumental_forest <- function(X, Y, W, Z,
     
     if (is.null(W.hat)) {
       forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
-                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                    honesty.fraction = 0.5, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = honesty,
+                                    honesty.fraction = honesty.fraction, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       W.hat <- predict(forest.W)$predictions
     } else if (length(W.hat) == 1) {
@@ -118,8 +122,8 @@ instrumental_forest <- function(X, Y, W, Z,
     
     if (is.null(Z.hat)) {
       forest.Z <- regression_forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
-                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                    honesty.fraction = 0.5, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = honesty,
+                                    honesty.fraction = honesty.fraction, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       Z.hat <- predict(forest.Z)$predictions
     } else if (length(Z.hat) == 1) {
@@ -135,8 +139,8 @@ instrumental_forest <- function(X, Y, W, Z,
     instrument.index <- ncol(X) + 3
     
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
-        instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty.fraction,
-        ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits,
+        instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
+        honesty.fraction, ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits,
         clusters, samples_per_cluster)
 
     forest[["ci.group.size"]] <- ci.group.size
