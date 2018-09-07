@@ -110,7 +110,7 @@ validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
 
 validate_honesty_fraction <- function(honesty.fraction, honesty) {
   if (!honesty) {
-    return(0)
+    return(1)
   } else if (honesty.fraction <= 0 || honesty.fraction >= 1){
     stop("honesty.fraction must be a positive real number less than 1.")
   } else {
