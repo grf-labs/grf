@@ -42,6 +42,7 @@ test_that("changing honest.fraction behaves as expected", {
   samples <- extract_samples(get_tree(forest_1, 1))
   
   expect_equal(length(samples$split_sample), n * sample_fraction_1 * honesty_fraction_1)
+  expect_equal(length(samples$estimation_sample), n * sample_fraction_1 * (1 - honesty_fraction_1))
   expect_error(grf::regression_forest(X, Y, sample.fraction = sample_fraction_2, 
                                       honesty = TRUE, honesty.fraction = honesty_fraction_2),
                "The honesty fraction is too close to 1 or 0, as no observations will be sampled.")
