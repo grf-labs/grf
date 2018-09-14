@@ -137,38 +137,37 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
       size_t i = group * ci_group_size + j;
       double prediction = leaf_values.get(i, OUTCOME);
 
-      Eigen::MatrixXd xx(1, num_variables+1); // add Xi - x0
+      Eigen::MatrixXd X_uncentered(1, num_variables+1);
 
-      xx(0) = 1.0;
+      X_uncentered(0) = 1.0;
       for(size_t jj = 0; jj < num_variables; ++jj){
         size_t current_predictor = linear_correction_variables[jj];
-        xx(jj+1) = original_data->get(i, current_predictor);
-        // incorporate - test_data?
+        X_uncentered(jj+1) = original_data->get(i, current_predictor);
       }
 
-      Eigen::MatrixXd MM (num_variables+1, num_variables+1);
-      MM.noalias() = xx.transpose()*xx; // add weights vector
+      Eigen::MatrixXd M_uncentered (num_variables+1, num_variables+1);
+      M_uncentered.noalias() = X_uncentered.transpose()*X_uncentered; // add weights vector
 
       double lambda = lambdas[0]; // hacky
       if (use_unweighted_penalty) {
-        double normalization = MM.trace() / (num_variables + 1);
+        double normalization = M_uncentered.trace() / (num_variables + 1);
         for (size_t i = 1; i < num_variables + 1; ++i) {
-           MM(i, i) += lambda * normalization;
+          M_uncentered(i, i) += lambda * normalization;
         }
       } else {
         for (size_t i = 1; i < num_variables + 1; ++i) {
-          MM(i, i) += lambda * MM(i, i);
+          M_uncentered(i, i) += lambda * M_uncentered(i, i);
         }
       }
 
       Eigen::MatrixXd e_one = Eigen::VectorXd::Zero(num_variables+1);
-      e_one(0) = 1;
-      Eigen::MatrixXd zeta = e_one.transpose() * MM;
+      e_one(0) = 1.0;
+      Eigen::MatrixXd zeta = e_one.transpose() * M_uncentered;
 
-      double yy = original_data->get(i,p+1); 
-      double difference = yy - prediction;
+      double y_uncentered = original_data->get(i,p+1);
+      double difference = y_uncentered - prediction;
 
-      Eigen::MatrixXd x_zeta = xx*zeta;
+      Eigen::MatrixXd x_zeta = X_uncentered*zeta;
       double psi_1 = x_zeta(0) * difference;
 
       psi_squared += psi_1 * psi_1;
