@@ -53,6 +53,7 @@ local_linear_forest <- function(X, Y,
                               num.threads = NULL,
                               min.node.size = NULL,
                               honesty = TRUE,
+                              ci.group.size = 1,
                               alpha = NULL,
                               imbalance.penalty = NULL,
                               compute.oob.predictions = FALSE,
@@ -99,7 +100,6 @@ local_linear_forest <- function(X, Y,
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
 
-  ci.group.size = 1
   forest <- regression_train(data$default, data$sparse, outcome.index,
                              as.numeric(tunable.params["mtry"]),
                              num.trees,
@@ -191,6 +191,8 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   # Validate and account for C++ indexing
   linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
 
+  ci.group.size = object[["ci.group.size"]]
+
   if (ll.ridge.type == "standardized") {
     use.unweighted.penalty = 0
   } else if (ll.ridge.type == "identity") {
@@ -215,11 +217,12 @@ predict.local_linear_forest <- function(object, newdata = NULL,
     data = create_data_matrices(newdata)
     training.data = create_data_matrices(X.orig)
     ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                  training.data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads)
+                  training.data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads,
+                  ci.group.size)
   } else {
      data = create_data_matrices(X.orig)
      ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, use.unweighted.penalty,
-                  linear.correction.variables, num.threads)
+                  linear.correction.variables, num.threads, ci.group.size)
   }
 
   ret[["ll.lambda"]] = ll.lambda

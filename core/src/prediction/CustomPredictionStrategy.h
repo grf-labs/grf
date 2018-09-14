@@ -26,10 +26,22 @@ public:
   // Add more observables here as needed.
   static const std::size_t OUTCOME;
 
+  size_t prediction_value_length();
+
   size_t prediction_length();
   std::vector<double> predict(size_t sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations);
+
+  std::vector<double> compute_variance(
+          const PredictionValues& leaf_values,
+          uint ci_group_size);
+
+  std::vector<double> compute_debiased_error(
+          size_t sample,
+          const PredictionValues& leaf_values,
+          const Observations& observations);
+
 };
 
 

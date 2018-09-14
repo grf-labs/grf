@@ -41,8 +41,10 @@ tune_local_linear_forest <- function(forest, linear.correction.variables = NULL,
   # Subtract 1 to account for C++ indexing
   linear.correction.variables = linear.correction.variables - 1
 
+
+  ci.group.size = forest[["ci.group.size"]]
   prediction.object = local_linear_predict_oob(forest.short, data$default, data$sparse, lambda.path, use.unweighted.penalty,
-                                 linear.correction.variables, num.threads)
+                                 linear.correction.variables, num.threads, ci.group.size)
 
   prediction.object = prediction.object$predictions
   errors = apply(prediction.object, MARGIN = 2, FUN = function(row){

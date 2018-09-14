@@ -28,3 +28,20 @@ std::vector<double> CustomPredictionStrategy::predict(size_t sample,
     const Observations& observations) {
   return { 0.0 };
 }
+
+std::vector<double> CustomPredictionStrategy::compute_variance(
+        const PredictionValues& leaf_values,
+        uint ci_group_size){
+  return { 0.0 };
+}
+
+std::vector<double> CustomPredictionStrategy::compute_debiased_error(
+        size_t sample,
+        const PredictionValues& leaf_values,
+        const Observations& observations){
+  return { 0.0 };
+}
+
+size_t CustomPredictionStrategy::prediction_value_length() {
+  return 1;
+}

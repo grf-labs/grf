@@ -26,7 +26,8 @@
 
 class DefaultPredictionCollector: public PredictionCollector {
 public:
-  DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy);
+  DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy,
+                              uint ci_group_size);
 
   std::vector<Prediction> collect_predictions(const Forest& forest,
                                               Data* prediction_data,
@@ -37,8 +38,13 @@ public:
 private:
     void validate_prediction(size_t sample, Prediction prediction);
 
+    void add_prediction_values(size_t node,
+                               const PredictionValues& prediction_values,
+                               std::vector<double>& combined_average);
+
   std::shared_ptr<DefaultPredictionStrategy> strategy;
   SampleWeightComputer weight_computer;
+  uint ci_group_size;
 };
 
 

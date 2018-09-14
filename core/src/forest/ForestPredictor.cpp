@@ -21,10 +21,11 @@
 #include "commons/utility.h"
 
 ForestPredictor::ForestPredictor(uint num_threads,
+                                 uint ci_group_size,
                                  std::shared_ptr<DefaultPredictionStrategy> strategy) :
     tree_traverser(num_threads) {
   this->prediction_collector = std::shared_ptr<PredictionCollector>(
-        new DefaultPredictionCollector(strategy));
+        new DefaultPredictionCollector(strategy, ci_group_size));
 }
 
 ForestPredictor::ForestPredictor(uint num_threads,

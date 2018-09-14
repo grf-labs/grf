@@ -68,8 +68,11 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
-      X(i,j+1) = test_data->get(sampleID, current_predictor)
-              - original_data->get(indices[i],current_predictor);
+      // ???????
+      //X(i,j+1) = test_data->get(sampleID, current_predictor)
+      //        - original_data->get(indices[i],current_predictor);
+      X(i,j+1) = original_data->get(indices[i],current_predictor)
+                 - test_data->get(sampleID, current_predictor);
     }
     Y(i) = observations.get(Observations::OUTCOME, indices[i]);
     X(i, 0) = 1;
@@ -78,12 +81,15 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
   // find ridge regression predictions
   Eigen::MatrixXd M (num_variables+1, num_variables+1);
   M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
+  Eigen::MatrixXd M_stored = M;
 
   size_t num_lambdas = lambdas.size();
   std::vector<double> predictions(num_lambdas);
 
   for( size_t i = 0; i < num_lambdas; ++i){
     double lambda = lambdas[i];
+    // re-set M
+    M = M_stored;
     if (use_unweighted_penalty) {
       // standard ridge penalty
       double normalization = M.trace() / (num_variables + 1);
@@ -102,4 +108,121 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
   }
 
   return predictions;
+}
+
+std::vector<double> LocalLinearPredictionStrategy::compute_variance(
+        const PredictionValues& leaf_values,
+        uint ci_group_size) {
+
+  double num_good_groups = 0;
+  double psi_squared = 0;
+  double psi_grouped_squared = 0;
+
+  for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
+    bool good_group = true;
+    for (size_t j = 0; j < ci_group_size; ++j) {
+      if (leaf_values.empty(group * ci_group_size + j)) {
+        good_group = false;
+      }
+    }
+    if (!good_group) continue;
+
+    num_good_groups++;
+
+    double group_psi = 0;
+    size_t num_variables = linear_correction_variables.size();
+    size_t p = original_data->get_num_cols();
+
+    for (size_t j = 0; j < ci_group_size; ++j) {
+      size_t i = group * ci_group_size + j;
+      double prediction = leaf_values.get(i, OUTCOME);
+
+      Eigen::MatrixXd xx(1, num_variables+1); // add Xi - x0
+
+      xx(0) = 1.0;
+      for(size_t jj = 0; jj < num_variables; ++jj){
+        size_t current_predictor = linear_correction_variables[jj];
+        xx(jj+1) = original_data->get(i, current_predictor);
+        // incorporate - test_data?
+      }
+
+      Eigen::MatrixXd MM (num_variables+1, num_variables+1);
+      MM.noalias() = xx.transpose()*xx; // add weights vector
+
+      double lambda = lambdas[0]; // hacky
+      if (use_unweighted_penalty) {
+        double normalization = MM.trace() / (num_variables + 1);
+        for (size_t i = 1; i < num_variables + 1; ++i) {
+           MM(i, i) += lambda * normalization;
+        }
+      } else {
+        for (size_t i = 1; i < num_variables + 1; ++i) {
+          MM(i, i) += lambda * MM(i, i);
+        }
+      }
+
+      Eigen::MatrixXd e_one = Eigen::VectorXd::Zero(num_variables+1);
+      e_one(0) = 1;
+      Eigen::MatrixXd zeta = e_one.transpose() * MM;
+
+      double yy = original_data->get(i,p+1); // *** ORDERING OF OUTCOME, i, IS DIFFERENT?
+      double difference = yy - prediction;
+
+      Eigen::MatrixXd x_zeta = xx*zeta;
+      double psi_1 = x_zeta(0) * difference;
+
+      psi_squared += psi_1 * psi_1;
+      group_psi += psi_1;
+    }
+
+    group_psi /= ci_group_size;
+    psi_grouped_squared += group_psi * group_psi;
+  }
+
+  double var_between = psi_grouped_squared / num_good_groups;
+  double var_total = psi_squared / (num_good_groups * ci_group_size);
+
+  // This is the amount by which var_between is inflated due to using small groups
+  double group_noise = (var_total - var_between) / (ci_group_size - 1);
+
+  // A simple variance correction, would be to use:
+  // var_debiased = var_between - group_noise.
+  // However, this may be biased in small samples; we do an objective
+  // Bayes analysis of variance instead to avoid negative values.
+  double var_debiased = bayes_debiaser.debias(var_between, group_noise, num_good_groups);
+
+  return { var_debiased };
+}
+
+std::vector<double> LocalLinearPredictionStrategy::compute_debiased_error(
+        size_t sample,
+        const PredictionValues& leaf_values,
+        const Observations& observations) {
+  double outcome = observations.get(Observations::OUTCOME, sample);
+
+  double error = outcome;
+  double mse = error * error;
+
+  double bias = 0.0;
+  size_t num_trees = 0;
+  for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
+    if (leaf_values.empty(n)) {
+      continue;
+    }
+
+    double tree_variance = leaf_values.get(n, OUTCOME);
+    bias += tree_variance * tree_variance;
+    num_trees++;
+  }
+
+  if (num_trees <= 1) {
+    return { NAN };
+  }
+
+  bias /= num_trees * (num_trees - 1);
+  return { mse - bias };
+}
+
+size_t LocalLinearPredictionStrategy::prediction_value_length() {
+  return 1;
 }
