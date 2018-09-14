@@ -153,6 +153,8 @@ local_linear_forest <- function(X, Y,
 #'                   or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
+#' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
+#'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A vector of predictions.
@@ -181,6 +183,7 @@ predict.local_linear_forest <- function(object, newdata = NULL,
                                       lambda.path = NULL,
                                       ll.ridge.type = "standardized",
                                       num.threads = NULL,
+                                      estimate.variance = FALSE,
                                       ...) {
 
   forest.short = object[-which(names(object) == "X.orig")]
@@ -191,7 +194,12 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   # Validate and account for C++ indexing
   linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
 
-  ci.group.size = object[["ci.group.size"]]
+  if (estimate.variance) {
+    ci.group.size = object$ci.group.size
+  } else {
+    ci.group.size = 1
+  }
+
 
   if (ll.ridge.type == "standardized") {
     use.unweighted.penalty = 0

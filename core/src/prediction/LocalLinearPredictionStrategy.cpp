@@ -165,7 +165,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
       e_one(0) = 1;
       Eigen::MatrixXd zeta = e_one.transpose() * MM;
 
-      double yy = original_data->get(i,p+1); // *** ORDERING OF OUTCOME, i, IS DIFFERENT?
+      double yy = original_data->get(i,p+1); 
       double difference = yy - prediction;
 
       Eigen::MatrixXd x_zeta = xx*zeta;
