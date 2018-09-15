@@ -19,6 +19,7 @@ Depends:
 License: GPL-3
 LinkingTo: Rcpp, RcppEigen
 Imports:
+    DiagrammeR,
     DiceKriging,
     lmtest,
     Matrix,
