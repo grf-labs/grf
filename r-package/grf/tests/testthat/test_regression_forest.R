@@ -2,8 +2,6 @@ library(grf)
 
 set.seed(1234)
 
-rm(list=ls())
-
 extract_samples <- function(tree) {
   
   # Keep only leaf nodes
@@ -15,12 +13,8 @@ extract_samples <- function(tree) {
   # Split = Drawn - Samples
   split_sample <- base::setdiff(tree$drawn_samples, estimation_sample)
   
-  # OOB samples
-  oob_sample <- base::setdiff(seq(2*length(tree$drawn_samples)-1), tree$drawn_samples)
-  return(list(drawn_sample=tree$drawn_samples,
-              estimation_sample=estimation_sample,
-              split_sample=split_sample,
-              oob_sample=oob_sample))
+  return(list(estimation_sample=estimation_sample,
+              split_sample=split_sample))
 }
 
 test_that("changing honest.fraction behaves as expected", {
