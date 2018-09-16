@@ -30,8 +30,9 @@
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
-#' @param honesty.fraction Fraction of the data used for training and cross-validation in honest splitting 
-#'                         (i.e., sub-sample splitting) if honesty = TRUE.
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -61,7 +62,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 num.threads = NULL,
                                 min.node.size = NULL,
                                 honesty = TRUE,
-                                honesty.fraction = 0.5,
+                                honesty.fraction = NULL,
                                 ci.group.size = 2,
                                 reduced.form.weight = 0,
                                 alpha = 0.05,
@@ -71,12 +72,6 @@ instrumental_forest <- function(X, Y, W, Z,
                                 seed = NULL,
                                 clusters = NULL,
                                 samples_per_cluster = NULL) {
-    if (!is.double(honesty.fraction)){
-        stop("Error: Must provide a double for honesty.fraction.
-             The Boolean honesty argument is deprecated. See
-             documentation for details.")
-    }
-    
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
@@ -140,8 +135,8 @@ instrumental_forest <- function(X, Y, W, Z,
     
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
-        honesty.fraction, ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits,
-        clusters, samples_per_cluster)
+        coerce_honesty_fraction(honesty.fraction), ci.group.size, reduced.form.weight, alpha, 
+        imbalance.penalty, stabilize.splits, clusters, samples_per_cluster)
 
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
