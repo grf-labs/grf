@@ -8,7 +8,7 @@ extract_samples <- function(tree) {
   leaf_nodes <- Filter(f = function(x) x$is_leaf, tree$nodes)
   
   # Leaf nodes' 'samples' are estimation samples
-  estimation_sample <- unlist(Map(f=function(x) x$samples, leaf_nodes)) - 1
+  estimation_sample <- unlist(Map(f=function(x) x$samples, leaf_nodes))
   
   # Split = Drawn - Samples
   split_sample <- base::setdiff(tree$drawn_samples, estimation_sample)
@@ -34,6 +34,8 @@ test_that("changing honest.fraction behaves as expected", {
   forest_1 <- grf::regression_forest(X, Y, sample.fraction = sample_fraction_1, 
                                    honesty = TRUE, honesty.fraction = honesty_fraction_1)
   samples <- extract_samples(get_tree(forest_1, 1))
+  
+  print(samples)
   
   expect_equal(length(samples$split_sample), n * sample_fraction_1 * honesty_fraction_1)
   expect_equal(length(samples$estimation_sample), n * sample_fraction_1 * (1 - honesty_fraction_1))
