@@ -29,6 +29,7 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, fo
   Data* data = load_data("test/forest/resources/friedman.csv");
   uint outcome_index = 10;
   std::vector<size_t> linear_correction_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  std::vector<double> lambda = {0.1};
 
   bool honesty = true;
   double honesty_fraction = 0.5;
@@ -52,7 +53,7 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, fo
   Data* queries = data;
   ForestPredictor predictor = ForestPredictors::local_linear_predictor(
       2, data, queries,
-      0.1, false,
+      lambda, false,
       linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
 
@@ -63,18 +64,19 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, fo
   delete data;
 }
 
-
 TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
   Data* data = load_data("test/forest/resources/small_gaussian_data.csv");
   uint outcome_index = 10;
   std::vector<size_t> linear_correction_variables = {1, 4, 7};
+  std::vector<double> lambda = {0.1};
 
   // Run the original forest.
   ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
   ForestOptions options = ForestTestUtilities::default_honest_options();
   Forest forest = trainer.train(data, options);
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false, linear_correction_variables);
 
+  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, data, data, lambda, false, linear_correction_variables);
+  
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
 
   // Shift each outcome by 1, and re-run the forest.
@@ -85,7 +87,7 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
   }
 
   Forest shifted_forest = trainer.train(data, options);
-  ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4, data, data, 0.1, false, linear_correction_variables);
+  ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(4, data, data, lambda, false, linear_correction_variables);
   std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
 
 

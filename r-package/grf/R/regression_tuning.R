@@ -17,17 +17,17 @@
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
-#' @param mtry Number of variables tried for each split.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
-#'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
+#' @param mtry Number of variables tried for each split.
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
+#' @param num.threads Number of threads used in training. If set to NULL, the software
+#'                    automatically selects an appropriate amount.
+#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
-#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
-#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
@@ -85,9 +85,10 @@ tune_regression_forest <- function(X, Y,
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
   all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
+
   fixed.params = all.params[!is.na(all.params)]
   tuning.params = all.params[is.na(all.params)]
-  
+
   if (length(tuning.params) == 0) {
     return(list("error"=NA, "params"=c(all.params)))
   }
@@ -113,9 +114,11 @@ tune_regression_forest <- function(X, Y,
                                      as.numeric(params["imbalance.penalty"]),
                                      clusters,
                                      samples_per_cluster)
+
     prediction = regression_predict_oob(small.forest, data$default, data$sparse,
-                                        num.threads, ci.group.size)
-    mean(prediction$debiased.error, na.rm = TRUE)
+                                            num.threads, ci.group.size)
+    error = prediction$debiased.error
+    mean(error, na.rm = TRUE)
   })
   
   # Fit the 'dice kriging' model to these error estimates.
