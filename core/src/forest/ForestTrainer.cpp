@@ -40,7 +40,7 @@ const Forest ForestTrainer::train(Data* data,
   uint num_trees = options.get_num_trees();
 
   // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
-  TreeOptions tree_options = options.get_tree_options();
+  const TreeOptions& tree_options = options.get_tree_options();
   bool honesty = tree_options.get_honesty();
   double honesty_fraction = tree_options.get_honesty_fraction();
   if ((size_t) num_samples * options.get_sample_fraction() < 1) {
