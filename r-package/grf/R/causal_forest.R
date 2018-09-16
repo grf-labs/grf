@@ -153,8 +153,8 @@ causal_forest <- function(X, Y, W,
 
     if (is.null(W.hat)) {
       forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = honesty,
-                                    honesty.fraction = honesty.fraction, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       W.hat <- predict(forest.W)$predictions
     } else if (length(W.hat) == 1) {
