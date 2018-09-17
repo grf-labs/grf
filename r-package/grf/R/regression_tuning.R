@@ -15,16 +15,19 @@
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty is used, these subsamples will
-#'                        further be cut in half.
-#' @param mtry Number of variables tried for each split.
+#'                        Note: If honesty = TRUE, these subsamples will
+#'                        further be cut by a factor of honesty.fraction.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
+#' @param mtry Number of variables tried for each split.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
@@ -62,6 +65,7 @@ tune_regression_forest <- function(X, Y,
                                    imbalance.penalty = NULL,
                                    num.threads = NULL,
                                    honesty = TRUE,
+                                   honesty.fraction = NULL,
                                    seed = NULL,
                                    clusters = NULL,
                                    samples_per_cluster = NULL) {
@@ -73,6 +77,7 @@ tune_regression_forest <- function(X, Y,
   clusters <- validate_clusters(clusters, X)
   samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
   ci.group.size <- 1
+  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
@@ -103,6 +108,7 @@ tune_regression_forest <- function(X, Y,
                                      as.numeric(params["sample.fraction"]),
                                      seed,
                                      honesty,
+                                     coerce_honesty_fraction(honesty.fraction),
                                      ci.group.size,
                                      as.numeric(params["alpha"]),
                                      as.numeric(params["imbalance.penalty"]),

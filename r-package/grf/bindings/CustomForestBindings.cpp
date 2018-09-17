@@ -36,14 +36,15 @@ Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
                         double sample_fraction,
                         unsigned int seed,
                         bool honesty,
+                        double honesty_fraction,
                         unsigned int ci_group_size,
                         double alpha,
                         double imbalance_penalty,
                         std::vector<size_t> clusters,
                         unsigned int samples_per_cluster) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
-  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-      honesty, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
+  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
+      honesty_fraction, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
 
   ForestTrainer trainer = ForestTrainers::custom_trainer(outcome_index - 1);
   Forest forest = trainer.train(data, options);

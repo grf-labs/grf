@@ -37,13 +37,14 @@ TEST_CASE("forests don't crash when there are fewer trees than threads", "[fores
   uint ci_group_size = 2;
   double sample_fraction = 0.35;
   bool honesty = true;
+  double honesty_fraction = 0.5;
   double alpha = 0.10;
   double imbalance_penalty = 0.07;
   std::vector<size_t> empty_clusters;
   uint samples_per_cluster = 0;
 
-  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-      alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
+  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty, honesty_fraction,
+          alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
 
   Forest forest = trainer.train(data, options);
   ForestPredictor predictor = ForestPredictors::regression_predictor(4, 2);

@@ -5,8 +5,8 @@
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty is used, these subsamples will
-#'                        further be cut in half.
+#'                        Note: If honesty = TRUE, these subsamples will
+#'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
@@ -15,7 +15,10 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param seed The seed for the C++ random number generator.
@@ -41,8 +44,8 @@
 #'
 #' @export
 custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
-    num.trees = 2000, num.threads = NULL, min.node.size = NULL,
-    honesty = TRUE, alpha = 0.05, imbalance.penalty = 0.0, seed = NULL,
+    num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
+    honesty.fraction = NULL, alpha = 0.05, imbalance.penalty = 0.0, seed = NULL,
     clusters = NULL, samples_per_cluster = NULL) {
 
     validate_X(X)
@@ -55,6 +58,7 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
     
     no.split.variables <- numeric(0)
     
@@ -62,8 +66,8 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     outcome.index <- ncol(X) + 1
     ci.group.size <- 1
     
-    forest <- custom_train(data$default, data$sparse, outcome.index, mtry,
-        num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
+    forest <- custom_train(data$default, data$sparse, outcome.index, mtry,num.trees, num.threads,
+        min.node.size, sample.fraction, seed, honesty, coerce_honesty_fraction(honesty.fraction),
         ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
     
     forest[["X.orig"]] <- X

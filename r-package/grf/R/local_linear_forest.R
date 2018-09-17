@@ -17,6 +17,9 @@
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -53,6 +56,7 @@ local_linear_forest <- function(X, Y,
                               num.threads = NULL,
                               min.node.size = NULL,
                               honesty = TRUE,
+                              honesty.fraction = NULL,
                               alpha = NULL,
                               imbalance.penalty = NULL,
                               compute.oob.predictions = FALSE,
@@ -70,6 +74,7 @@ local_linear_forest <- function(X, Y,
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
   samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
   if (tune.parameters) {
     tuning.output <- tune_regression_forest(X, Y,
@@ -83,6 +88,7 @@ local_linear_forest <- function(X, Y,
                                             imbalance.penalty = imbalance.penalty,
                                             num.threads = num.threads,
                                             honesty = honesty,
+                                            honesty.fraction = honesty.fraction,
                                             seed = seed,
                                             clusters = clusters,
                                             samples_per_cluster = samples_per_cluster)
@@ -108,6 +114,7 @@ local_linear_forest <- function(X, Y,
                              as.numeric(tunable.params["sample.fraction"]),
                              seed,
                              honesty,
+                             coerce_honesty_fraction(honesty.fraction),
                              ci.group.size,
                              as.numeric(tunable.params["alpha"]),
                              as.numeric(tunable.params["imbalance.penalty"]),

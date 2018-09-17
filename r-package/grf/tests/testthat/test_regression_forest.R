@@ -2,6 +2,49 @@ library(grf)
 
 set.seed(1234)
 
+extract_samples <- function(tree) {
+  
+  # Keep only leaf nodes
+  leaf_nodes <- Filter(f = function(x) x$is_leaf, tree$nodes)
+  
+  # Leaf nodes' 'samples' are estimation samples
+  estimation_sample <- unlist(Map(f=function(x) x$samples, leaf_nodes))
+  
+  # Split = Drawn - Samples
+  split_sample <- base::setdiff(tree$drawn_samples, estimation_sample)
+  
+  return(list(estimation_sample=estimation_sample,
+              split_sample=split_sample))
+}
+
+test_that("changing honest.fraction behaves as expected", {
+  sample_fraction_1 = 0.5
+  honesty_fraction_1 = 0.25
+  
+  sample_fraction_2 = 0.25
+  honesty_fraction_2 = 0.1
+  
+  sample_fraction_3 = 0.25
+  honesty_fraction_3 = 0.9
+  
+  n <- 16
+  k <- 10
+  X <- matrix(runif(n*k), nrow=n, ncol=k)
+  Y <- matrix(runif(n), nrow=n, ncol=1)
+  forest_1 <- grf::regression_forest(X, Y, sample.fraction = sample_fraction_1, 
+                                   honesty = TRUE, honesty.fraction = honesty_fraction_1)
+  samples <- extract_samples(get_tree(forest_1, 1))
+  
+  expect_equal(length(samples$split_sample), n * sample_fraction_1 * honesty_fraction_1)
+  expect_equal(length(samples$estimation_sample), n * sample_fraction_1 * (1 - honesty_fraction_1))
+  expect_error(grf::regression_forest(X, Y, sample.fraction = sample_fraction_2, 
+                                      honesty = TRUE, honesty.fraction = honesty_fraction_2),
+               "The honesty fraction is too close to 1 or 0, as no observations will be sampled.")
+  expect_error(grf::regression_forest(X, Y, sample.fraction = sample_fraction_3, 
+                                      honesty = TRUE, honesty.fraction = honesty_fraction_3),
+               "The honesty fraction is too close to 1 or 0, as no observations will be sampled.")
+})
+
 test_that("regression variance estimates are positive", {
 	p = 6
 	n = 1000
