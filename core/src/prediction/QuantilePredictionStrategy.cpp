@@ -77,7 +77,8 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
 
 std::vector<double> QuantilePredictionStrategy::compute_variance(
         const PredictionValues& leaf_values,
-        uint ci_group_size){
+        uint ci_group_size,
+        const std::unordered_map<size_t, double>& weights_by_sample){
   return { 0.0 };
 }
 

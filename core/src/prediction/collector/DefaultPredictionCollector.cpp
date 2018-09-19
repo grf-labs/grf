@@ -73,7 +73,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
 
     std::vector<double> variance = ci_group_size > 1
-                                   ? strategy->compute_variance(prediction_values, ci_group_size)
+                                   ? strategy->compute_variance(prediction_values, ci_group_size, weights_by_sample)
                                    : std::vector<double>();
 
     std::vector<double> mse = estimate_error

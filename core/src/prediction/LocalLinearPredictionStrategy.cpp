@@ -112,7 +112,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
 
 std::vector<double> LocalLinearPredictionStrategy::compute_variance(
         const PredictionValues& leaf_values,
-        uint ci_group_size) {
+        uint ci_group_size,
+        const std::unordered_map<size_t, double>& weights_by_sample) {
 
   double num_good_groups = 0;
   double psi_squared = 0;
@@ -134,6 +135,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     size_t p = original_data->get_num_cols();
 
     for (size_t j = 0; j < ci_group_size; ++j) {
+
       size_t i = group * ci_group_size + j;
       double prediction = leaf_values.get(i, OUTCOME);
 
@@ -145,8 +147,16 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
         X_uncentered(jj+1) = original_data->get(i, current_predictor);
       }
 
-      Eigen::MatrixXd M_uncentered (num_variables+1, num_variables+1);
-      M_uncentered.noalias() = X_uncentered.transpose()*X_uncentered; // add weights vector
+      size_t num_weights = weights_by_sample.size();
+      Eigen::MatrixXd weights_vector = Eigen::VectorXd::Zero(num_weights);
+
+      size_t index = 0;
+      for ( auto it = weights_by_sample.begin(); it != weights_by_sample.end(); ++it ) {
+        weights_vector(index) = it->second;
+        ++index;
+      }
+
+      Eigen::MatrixXd M_uncentered = X_uncentered.transpose()*weights_vector.asDiagonal()*X_uncentered;
 
       double lambda = lambdas[0]; // hacky
       if (use_unweighted_penalty) {
@@ -167,7 +177,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
       double y_uncentered = original_data->get(i,p+1);
       double difference = y_uncentered - prediction;
 
-      Eigen::MatrixXd x_zeta = X_uncentered*zeta;
+      Eigen::MatrixXd x_zeta = X_uncentered * zeta;
       double psi_1 = x_zeta(0) * difference;
 
       psi_squared += psi_1 * psi_1;
