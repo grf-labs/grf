@@ -36,7 +36,8 @@ hist(tau.hat.oob$predictions)
 
 # Estimate treatment effects for the test sample.
 tau.hat = predict(tau.forest, X.test)
-plot(X.test[,1], tau.hat$predictions, ylim = range(tau.hat$predictions, 0, 2), xlab = "x", ylab = "tau", type = "l")
+plot(X.test[,1], tau.hat$predictions, ylim = range(tau.hat$predictions, 0, 2),
+	xlab = "x", ylab = "tau", type = "l")
 lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 2)
 
 # Estimate the conditional average treatment effect on the full sample (CATE).
@@ -47,11 +48,14 @@ average_treatment_effect(tau.forest, target.sample = "all")
 # treatment assignment was randomized.
 average_treatment_effect(tau.forest, target.sample = "treated")
 
-# Add confidence intervals for heterogeneous treatment effects; growing more trees is now recommended.
+# Add confidence intervals for heterogeneous treatment effects; growing more
+# trees is now recommended.
 tau.forest = causal_forest(X, Y, W, num.trees = 4000)
 tau.hat = predict(tau.forest, X.test, estimate.variance = TRUE)
 sigma.hat = sqrt(tau.hat$variance.estimates)
-plot(X.test[,1], tau.hat$predictions, ylim = range(tau.hat$predictions + 1.96 * sigma.hat, tau.hat$predictions - 1.96 * sigma.hat, 0, 2), xlab = "x", ylab = "tau", type = "l")
+
+ylim = range(tau.hat$predictions + 1.96 * sigma.hat, tau.hat$predictions - 1.96 * sigma.hat, 0, 2),
+plot(X.test[,1], tau.hat$predictions, ylim = ylim, xlab = "x", ylab = "tau", type = "l")
 lines(X.test[,1], tau.hat$predictions + 1.96 * sigma.hat, col = 1, lty = 2)
 lines(X.test[,1], tau.hat$predictions - 1.96 * sigma.hat, col = 1, lty = 2)
 lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)

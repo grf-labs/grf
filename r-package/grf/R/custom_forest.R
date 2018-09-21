@@ -101,6 +101,7 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
 #' c.pred = predict(c.forest, X.test)
 #' }
 #'
+#' @method predict custom_forest
 #' @export
 predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
     

@@ -17,7 +17,7 @@
 #'             "Generic Machine Learning Inference on Heterogenous Treatment Effects in
 #'             Randomized Experiments." arXiv preprint arXiv:1712.04802 (2017).
 #'
-#'  @examples \dontrun{
+#' @examples \dontrun{
 #' n = 800; p = 5
 #' X = matrix(rnorm(n*p), n, p)
 #' W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))

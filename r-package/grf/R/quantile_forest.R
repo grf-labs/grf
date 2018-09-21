@@ -132,6 +132,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
 #' q.pred = predict(q.forest, X.test)
 #' }
 #'
+#' @method predict quantile_forest
 #' @export
 predict.quantile_forest <- function(object,
                                     newdata = NULL,

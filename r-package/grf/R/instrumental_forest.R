@@ -175,6 +175,8 @@ instrumental_forest <- function(X, Y, W, Z,
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return Vector of predictions, along with (optional) variance estimates.
+#'
+#' @method predict instrumental_forest
 #' @export
 predict.instrumental_forest <- function(object, newdata = NULL,
                                         num.threads = NULL, 

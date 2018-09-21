@@ -197,6 +197,7 @@ regression_forest <- function(X, Y,
 #' r.pred = predict(r.forest, X.test, estimate.variance = TRUE)
 #' }
 #'
+#' @method predict regression_forest
 #' @export
 predict.regression_forest <- function(object, newdata = NULL,
                                       linear.correction.variables = NULL,
