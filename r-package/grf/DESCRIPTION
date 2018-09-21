@@ -7,7 +7,7 @@ Author: Julie Tibshirani [aut, cre],
     Rina Friedberg [ctb],
     Luke Miner [ctb],
     Marvin Wright [ctb]
-BugReports: https://github.com/swager/grf/issues
+BugReports: https://github.com/grf-labs/grf/issues
 Maintainer: Julie Tibshirani <jtibs@cs.stanford.edu>
 Description: A pluggable package for forest-based statistical estimation and inference.
     GRF currently provides methods for non-parametric least-squares regression,
@@ -30,4 +30,4 @@ RoxygenNote: 6.0.1.9000
 Suggests:
     testthat
 SystemRequirements: GNU make
-URL: https://github.com/swager/grf
+URL: https://github.com/grf-labs/grf

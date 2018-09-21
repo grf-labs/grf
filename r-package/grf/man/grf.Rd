@@ -6,7 +6,7 @@ A pluggable package for forest-based statistical estimation and inference. GRF c
 
 In addition, GRF supports 'honest' estimation (where one subset of the data is used for choosing splits, and another for populating the leaves of the tree), and confidence intervals for least-squares regression and treatment effect estimation.
 
-This package is currently in beta, and we expect to make continual improvements to its performance and usability. For a practical description of the GRF algorithm, including explanations of model parameters and troubleshooting suggestions, please see the [GRF reference](https://github.com/swager/grf/blob/master/REFERENCE.md).
+This package is currently in beta, and we expect to make continual improvements to its performance and usability. For a practical description of the GRF algorithm, including explanations of model parameters and troubleshooting suggestions, please see the [GRF reference](https://github.com/grf-labs/grf/blob/master/REFERENCE.md).
 }
 
 \examples{
