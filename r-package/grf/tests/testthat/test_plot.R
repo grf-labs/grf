@@ -5,7 +5,6 @@ test_that("basic quantile forest plotting is successful", {
   X = matrix(2 * runif(n * p) - 1, n, p)
   Y = rnorm(n) * (1 + (X[,i] > 0))
   D = data.frame(X=X, Y=Y)
-  names(D) = c("age", "income", "weight", "height")
   q.forest = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), num.trees = 50)
   q.tree = get_tree(q.forest, 1)
   capture_output(plot(q.tree))
@@ -17,6 +16,7 @@ test_that("basic regression forest plotting is successful", {
   n = 50
   i = 2
   X = matrix(2 * runif(n * p) - 1, n, p)
+  colnames(X) = c("age", "income", "weight", "height")
   Y = rnorm(n) * (1 + (X[,i] > 0))
   r.forest = regression_forest(X, Y)
   r.tree = get_tree(r.forest, 1)
