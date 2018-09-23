@@ -35,7 +35,8 @@ create_dot_body <- function(tree, index=1) {
     edge_info_right<-NULL
   }
   
-  node_info <- paste(index-1, '[label="split_variable', node$split_variable, '<=', round(node$split_value,2), '"] ;')
+  variable_name = tree$columns[node$split_variable]
+  node_info <- paste(index-1, '[label="', variable_name, '<=', round(node$split_value,2), '"] ;')
   
   this_lines <- paste(node_info,
                       edge_info_left,
