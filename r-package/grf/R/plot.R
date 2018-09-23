@@ -1,9 +1,9 @@
 #' Writes each node information 
 #' If it is a leaf node: show it in different color, show number of samples, show leaf id
 #' If it is a non-leaf node: show its splitting variable and splitting value
-create_dot_body <- function(nodes, index=1) {
+create_dot_body <- function(tree, index=1) {
   
-  node <- nodes[[index]]
+  node <- tree$nodes[[index]]
   
   # Leaf case: print label only
   if (node$is_leaf) {
@@ -13,26 +13,27 @@ create_dot_body <- function(nodes, index=1) {
   }
   
   # Non-leaf case: print label, child edges
-  if(!is.null(node$left_child)){
+  if (!is.null(node$left_child)) {
     edge = paste(index-1, "->", node$left_child-1)
-    if(index ==1 ){
+    if (index == 1){
       edge_info_left <- paste(edge, '[labeldistance=2.5, labelangle=45, headlabel="True"];')
     }
-    else{
+    else {
       edge_info_left <- paste(edge, " ;")
     }
   } 
   else{edge_info_right<-NULL}
   
-  if(!is.null(node$right_child)){
+  if (!is.null(node$right_child)) {
     edge = paste(index-1, "->", node$right_child-1)
-    if(index==1){
+    if (index==1) {
       edge_info_right <- paste(edge, '[labeldistance=2.5, labelangle=-45, headlabel="False"]')
-    }
-    else{
+    } else {
       edge_info_right <- paste(edge, " ;")
     }
-  }else{edge_info_right<-NULL}
+  } else {
+    edge_info_right<-NULL
+  }
   
   node_info <- paste(index-1, '[label="split_variable', node$split_variable, '<=', round(node$split_value,2), '"] ;')
   
@@ -41,11 +42,11 @@ create_dot_body <- function(nodes, index=1) {
                       edge_info_right, sep="\n")
   
   left_child_lines <- ifelse(!is.null(node$left_child),
-                             create_dot_body(nodes, index=node$left_child),
+                             create_dot_body(tree, index=node$left_child),
                              NULL)
   
   right_child_lines <- ifelse(!is.null(node$right_child),
-                              create_dot_body(nodes, index=node$right_child),
+                              create_dot_body(tree, index=node$right_child),
                               NULL)
   
   lines <- paste(this_lines, left_child_lines, right_child_lines, sep="\n")
@@ -56,10 +57,10 @@ create_dot_body <- function(nodes, index=1) {
 #' Export a tree in DOT format.
 #' This function generates a GraphViz representation of the tree,
 #' which is then written into `dot_string`. 
-export_graphviz <- function(nodes){
+export_graphviz <- function(tree){
   header <- "digraph nodes { \n node [shape=box] ;"
   footer <- "}"
-  body <- create_dot_body(nodes)
+  body <- create_dot_body(tree)
   
   dot_string <- paste(header, body, footer, sep="\n")
   
@@ -71,7 +72,7 @@ export_graphviz <- function(nodes){
 #' @param ... Additional arguments (currently ignored).
 #' @export
 plot.grf_tree <- function(x){
-  dot_file <- export_graphviz(nodes=x$nodes)
+  dot_file <- export_graphviz(x)
   DiagrammeR::grViz(dot_file)
 }
 
