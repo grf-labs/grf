@@ -8,7 +8,7 @@ create_dot_body <- function(tree, index=1) {
   # Leaf case: print label only
   if (node$is_leaf) {
     num_samples = length(node$samples)
-    line_label <- paste(index-1, ' [shape=box,style=filled,color=".7 .3 1.0" , label="leaf' , index,' \nsamples = ',num_samples,'"];')
+    line_label <- paste(index-1, ' [shape=box,style=filled,color=".7 .3 1.0" , label="leaf node', ' \nsize = ',num_samples,'"];')
     return(line_label)
   }
   
