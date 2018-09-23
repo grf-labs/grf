@@ -68,9 +68,6 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
-      // ???????
-      //X(i,j+1) = test_data->get(sampleID, current_predictor)
-      //        - original_data->get(indices[i],current_predictor);
       X(i,j+1) = original_data->get(indices[i],current_predictor)
                  - test_data->get(sampleID, current_predictor);
     }
@@ -88,7 +85,7 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
 
   for( size_t i = 0; i < num_lambdas; ++i){
     double lambda = lambdas[i];
-    // re-set M
+
     M = M_stored;
     if (use_unweighted_penalty) {
       // standard ridge penalty
@@ -110,14 +107,60 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
   return predictions;
 }
 
+Eigen::MatrixXd LocalLinearPredictionStrategy::find_M(
+        std::unordered_map<size_t, double> weights_by_sampleID,
+        size_t sampleID,
+        const Observations& observations,
+        double lambda){
+
+  size_t num_variables = linear_correction_variables.size();
+  size_t num_leaf_samples = original_data->get_num_rows();
+
+  Eigen::MatrixXd X (num_leaf_samples, num_variables+1);
+  Eigen::MatrixXd Y (num_leaf_samples, 1);
+  for (size_t i = 0; i < num_leaf_samples; ++i) {
+    for (size_t j = 0; j < num_variables; ++j){
+      size_t current_predictor = linear_correction_variables[j];
+      X(i,j+1) = original_data->get(i,current_predictor) - test_data->get(sampleID,current_predictor);
+    }
+    Y(i) = observations.get(Observations::OUTCOME, i);
+    X(i, 0) = 1;
+  }
+
+  // find ridge regression predictions
+  Eigen::MatrixXd M (num_variables+1, num_variables+1);
+  M.noalias() = X.transpose()*X;
+
+  if (use_unweighted_penalty) {
+    // standard ridge penalty
+    double normalization = M.trace() / (num_variables + 1);
+    for (size_t i = 1; i < num_variables + 1; ++i){
+      M(i,i) += lambda * normalization;
+    }
+  } else {
+    // covariance ridge penalty
+    for (size_t i = 1; i < num_variables+1; ++i){
+      M(i,i) += lambda * M(i,i); // note that the weights are already normalized
+    }
+  }
+  return M;
+}
+
 std::vector<double> LocalLinearPredictionStrategy::compute_variance(
         const PredictionValues& leaf_values,
         uint ci_group_size,
-        const std::unordered_map<size_t, double>& weights_by_sample) {
+        size_t sampleID,
+        std::unordered_map<size_t, double> weights_by_sampleID,
+        const Observations& observations){
+
+  double lambda = lambdas[0];
+  Eigen::MatrixXd M_total = find_M(weights_by_sampleID, sampleID, observations, lambda);
 
   double num_good_groups = 0;
   double psi_squared = 0;
   double psi_grouped_squared = 0;
+
+  size_t num_variables = linear_correction_variables.size();
 
   for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
@@ -131,57 +174,19 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     num_good_groups++;
 
     double group_psi = 0;
-    size_t num_variables = linear_correction_variables.size();
-    size_t p = original_data->get_num_cols();
+    double psi_squared = 0;
 
     for (size_t j = 0; j < ci_group_size; ++j) {
-
       size_t i = group * ci_group_size + j;
-      double prediction = leaf_values.get(i, OUTCOME);
 
-      Eigen::MatrixXd X_uncentered(1, num_variables+1);
-
-      X_uncentered(0) = 1.0;
-      for(size_t jj = 0; jj < num_variables; ++jj){
-        size_t current_predictor = linear_correction_variables[jj];
-        X_uncentered(jj+1) = original_data->get(i, current_predictor);
-      }
-
-      size_t num_weights = weights_by_sample.size();
-      Eigen::MatrixXd weights_vector = Eigen::VectorXd::Zero(num_weights);
-
-      size_t index = 0;
-      for ( auto it = weights_by_sample.begin(); it != weights_by_sample.end(); ++it ) {
-        weights_vector(index) = it->second;
-        ++index;
-      }
-
-      Eigen::MatrixXd M_uncentered = X_uncentered.transpose()*weights_vector.asDiagonal()*X_uncentered;
-
-      double lambda = lambdas[0]; // hacky
-      if (use_unweighted_penalty) {
-        double normalization = M_uncentered.trace() / (num_variables + 1);
-        for (size_t i = 1; i < num_variables + 1; ++i) {
-          M_uncentered(i, i) += lambda * normalization;
-        }
-      } else {
-        for (size_t i = 1; i < num_variables + 1; ++i) {
-          M_uncentered(i, i) += lambda * M_uncentered(i, i);
-        }
-      }
-
-      Eigen::MatrixXd e_one = Eigen::VectorXd::Zero(num_variables+1);
+      Eigen::VectorXd e_one = Eigen::VectorXd::Zero(num_variables+1);
       e_one(0) = 1.0;
-      Eigen::MatrixXd zeta = e_one.transpose() * M_uncentered;
+      double y_observed = observations.get(Observations::OUTCOME, sampleID);
+      double y_prediction = leaf_values.get(i, OUTCOME);
+      Eigen::MatrixXd psi_1 = M_total.ldlt().solve(e_one) * (y_observed - y_prediction);
 
-      double y_uncentered = original_data->get(i,p+1);
-      double difference = y_uncentered - prediction;
-
-      Eigen::MatrixXd x_zeta = X_uncentered * zeta;
-      double psi_1 = x_zeta(0) * difference;
-
-      psi_squared += psi_1 * psi_1;
-      group_psi += psi_1;
+      psi_squared += psi_1(0) * psi_1(0);
+      group_psi += psi_1(0);
     }
 
     group_psi /= ci_group_size;

@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Eigen/Dense"
 #include "commons/globals.h"
 #include "commons/Observations.h"
 #include "prediction/Prediction.h"
@@ -56,10 +57,18 @@ public:
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations) = 0;
 
+  virtual Eigen::MatrixXd find_M(
+          std::unordered_map<size_t, double> weights_by_sampleID,
+          size_t sampleID,
+          const Observations& observations,
+          double lambda) = 0;
+
   virtual std::vector<double> compute_variance(
-          const PredictionValues& leaf_prediction_values,
+          const PredictionValues& leaf_values,
           uint ci_group_size,
-          const std::unordered_map<size_t, double>& weights_by_sample) = 0;
+          size_t sampleID,
+          std::unordered_map<size_t, double> weights_by_sampleID,
+          const Observations& observations) = 0;
 
   virtual std::vector<double> compute_debiased_error(
           size_t sample,

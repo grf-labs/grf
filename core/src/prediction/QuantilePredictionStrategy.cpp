@@ -19,6 +19,7 @@
 #include <vector>
 #include <string>
 
+#include "Eigen/Dense"
 #include "commons/DefaultData.h"
 #include "prediction/QuantilePredictionStrategy.h"
 
@@ -78,8 +79,19 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
 std::vector<double> QuantilePredictionStrategy::compute_variance(
         const PredictionValues& leaf_values,
         uint ci_group_size,
-        const std::unordered_map<size_t, double>& weights_by_sample){
+        size_t sampleID,
+        std::unordered_map<size_t, double> weights_by_sampleID,
+        const Observations& observations){
   return { 0.0 };
+}
+
+Eigen::MatrixXd QuantilePredictionStrategy::find_M(
+        std::unordered_map<size_t, double> weights_by_sampleID,
+        size_t sampleID,
+        const Observations& observations,
+        double lambda){
+  Eigen::MatrixXd empty_matrix = Eigen::MatrixXd::Zero (1, 1);
+  return empty_matrix;
 }
 
 std::vector<double> QuantilePredictionStrategy::compute_debiased_error(

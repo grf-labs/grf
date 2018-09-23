@@ -16,6 +16,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include "CustomPredictionStrategy.h"
+#include "Eigen/Dense"
 
 const std::size_t CustomPredictionStrategy::OUTCOME = 0;
 
@@ -29,10 +30,21 @@ std::vector<double> CustomPredictionStrategy::predict(size_t sample,
   return { 0.0 };
 }
 
+Eigen::MatrixXd CustomPredictionStrategy::find_M(
+        std::unordered_map<size_t, double> weights_by_sampleID,
+        size_t sampleID,
+        const Observations& observations,
+        double lambda){
+  Eigen::MatrixXd empty_matrix = Eigen::MatrixXd::Zero (1, 1);
+  return empty_matrix;
+}
+
 std::vector<double> CustomPredictionStrategy::compute_variance(
         const PredictionValues& leaf_values,
         uint ci_group_size,
-        const std::unordered_map<size_t, double>& weights_by_sample){
+        size_t sampleID,
+        std::unordered_map<size_t, double> weights_by_sampleID,
+        const Observations& observations){
   return { 0.0 };
 }
 
