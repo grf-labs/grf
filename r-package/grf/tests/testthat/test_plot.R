@@ -16,6 +16,7 @@ test_that("basic regression forest plotting is successful", {
   n = 50
   i = 2
   X = matrix(2 * runif(n * p) - 1, n, p)
+  colnames(X) = c("age", "income", "weight", "height")
   Y = rnorm(n) * (1 + (X[,i] > 0))
   r.forest = regression_forest(X, Y)
   r.tree = get_tree(r.forest, 1)
