@@ -62,7 +62,7 @@ lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
 # using a completely different method (e.g., boosting).
 
 # Generate new data.
-n = 2000; p = 20
+n = 4000; p = 20
 X = matrix(rnorm(n * p), n, p)
 TAU = 1 / (1 + exp(-X[, 3]))
 W = rbinom(n ,1, 1 / (1 + exp(-X[, 1] - X[, 2])))
