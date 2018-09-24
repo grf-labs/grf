@@ -181,6 +181,8 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
 
       Eigen::VectorXd e_one = Eigen::VectorXd::Zero(num_variables+1);
       e_one(0) = 1.0;
+
+      // valid for OOB predictions: 
       double y_observed = observations.get(Observations::OUTCOME, sampleID);
       double y_prediction = leaf_values.get(i, OUTCOME);
       Eigen::MatrixXd psi_1 = M_total.ldlt().solve(e_one) * (y_observed - y_prediction);
