@@ -33,7 +33,6 @@ std::vector<double> CustomPredictionStrategy::predict(size_t sample,
 Eigen::MatrixXd CustomPredictionStrategy::find_M(
         std::unordered_map<size_t, double> weights_by_sampleID,
         size_t sampleID,
-        const Observations& observations,
         double lambda){
   Eigen::MatrixXd empty_matrix = Eigen::MatrixXd::Zero (1, 1);
   return empty_matrix;
@@ -44,7 +43,7 @@ std::vector<double> CustomPredictionStrategy::compute_variance(
         uint ci_group_size,
         size_t sampleID,
         std::unordered_map<size_t, double> weights_by_sampleID,
-        const Observations& observations){
+        double prediction_sample){
   return { 0.0 };
 }
 

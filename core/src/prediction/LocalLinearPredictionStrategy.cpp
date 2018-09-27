@@ -52,15 +52,15 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
 
   std::vector<size_t> indices(num_nonzero_weights);
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
-  {
-    size_t i = 0;
-    for (auto& it : weights_by_sampleID) {
-      size_t index = it.first;
-      double weight = it.second;
-      indices[i] = index;
-      weights_vec(i) = weight;
-      i++;
-    }
+    {
+      size_t i = 0;
+      for (auto& it : weights_by_sampleID) {
+        size_t index = it.first;
+        double weight = it.second;
+        indices[i] = index;
+        weights_vec(i) = weight;
+        i++;
+      }
   }
 
   Eigen::MatrixXd X (num_nonzero_weights, num_variables+1);
@@ -110,26 +110,37 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
 Eigen::MatrixXd LocalLinearPredictionStrategy::find_M(
         std::unordered_map<size_t, double> weights_by_sampleID,
         size_t sampleID,
-        const Observations& observations,
         double lambda){
 
   size_t num_variables = linear_correction_variables.size();
-  size_t num_leaf_samples = original_data->get_num_rows();
+  size_t num_nonzero_weights = weights_by_sampleID.size();
 
-  Eigen::MatrixXd X (num_leaf_samples, num_variables+1);
-  Eigen::MatrixXd Y (num_leaf_samples, 1);
-  for (size_t i = 0; i < num_leaf_samples; ++i) {
+  std::vector<size_t> indices(num_nonzero_weights);
+  Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
+  {
+    size_t i = 0;
+    for (auto& it : weights_by_sampleID) {
+      size_t index = it.first;
+      double weight = it.second;
+      indices[i] = index;
+      weights_vec(i) = weight;
+      i++;
+    }
+  }
+
+  Eigen::MatrixXd X (num_nonzero_weights, num_variables+1);
+  for (size_t i = 0; i < num_nonzero_weights; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
-      X(i,j+1) = original_data->get(i,current_predictor) - test_data->get(sampleID,current_predictor);
+      X(i,j+1) = original_data->get(indices[i],current_predictor)
+                 - test_data->get(sampleID, current_predictor);
     }
-    Y(i) = observations.get(Observations::OUTCOME, i);
     X(i, 0) = 1;
   }
 
   // find ridge regression predictions
   Eigen::MatrixXd M (num_variables+1, num_variables+1);
-  M.noalias() = X.transpose()*X;
+  M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
 
   if (use_unweighted_penalty) {
     // standard ridge penalty
@@ -140,7 +151,7 @@ Eigen::MatrixXd LocalLinearPredictionStrategy::find_M(
   } else {
     // covariance ridge penalty
     for (size_t i = 1; i < num_variables+1; ++i){
-      M(i,i) += lambda * M(i,i); // note that the weights are already normalized
+      M(i,i) += lambda * M(i,i);
     }
   }
   return M;
@@ -151,16 +162,28 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
         uint ci_group_size,
         size_t sampleID,
         std::unordered_map<size_t, double> weights_by_sampleID,
-        const Observations& observations){
+        double prediction_sample){
+
+  size_t num_variables = linear_correction_variables.size();
 
   double lambda = lambdas[0];
-  Eigen::MatrixXd M_total = find_M(weights_by_sampleID, sampleID, observations, lambda);
+  Eigen::MatrixXd M_total = find_M(weights_by_sampleID, sampleID, lambda);
+  Eigen::VectorXd e_one = Eigen::VectorXd::Zero(num_variables+1);
+  e_one(0) = 1.0;
+  Eigen::MatrixXd M_inverse = M_total.ldlt().solve(e_one);
+
+  Eigen::VectorXd X_sample (1, num_variables);
+  for(size_t index = 0; index < num_variables; ++ index){
+    size_t current_predictor = linear_correction_variables[index];
+    X_sample(index) = test_data->get(sampleID, current_predictor);
+  }
+
+  Eigen::MatrixXd M_X = M_inverse * X_sample;
+  double factor = M_X(0);
 
   double num_good_groups = 0;
   double psi_squared = 0;
   double psi_grouped_squared = 0;
-
-  size_t num_variables = linear_correction_variables.size();
 
   for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
@@ -179,16 +202,12 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t i = group * ci_group_size + j;
 
-      Eigen::VectorXd e_one = Eigen::VectorXd::Zero(num_variables+1);
-      e_one(0) = 1.0;
+      // valid for OOB predictions:
+      double prediction_group = leaf_values.get(i, OUTCOME);
+      double psi_1 = factor * (prediction_sample - prediction_group);
 
-      // valid for OOB predictions: 
-      double y_observed = observations.get(Observations::OUTCOME, sampleID);
-      double y_prediction = leaf_values.get(i, OUTCOME);
-      Eigen::MatrixXd psi_1 = M_total.ldlt().solve(e_one) * (y_observed - y_prediction);
-
-      psi_squared += psi_1(0) * psi_1(0);
-      group_psi += psi_1(0);
+      psi_squared += psi_1 * psi_1;
+      group_psi += psi_1;
     }
 
     group_psi /= ci_group_size;

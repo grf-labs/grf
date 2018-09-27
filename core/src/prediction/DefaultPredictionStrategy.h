@@ -60,7 +60,6 @@ public:
   virtual Eigen::MatrixXd find_M(
           std::unordered_map<size_t, double> weights_by_sampleID,
           size_t sampleID,
-          const Observations& observations,
           double lambda) = 0;
 
   virtual std::vector<double> compute_variance(
@@ -68,7 +67,7 @@ public:
           uint ci_group_size,
           size_t sampleID,
           std::unordered_map<size_t, double> weights_by_sampleID,
-          const Observations& observations) = 0;
+          double prediction_sample) = 0;
 
   virtual std::vector<double> compute_debiased_error(
           size_t sample,
