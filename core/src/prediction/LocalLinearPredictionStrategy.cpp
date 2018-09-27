@@ -202,7 +202,6 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t i = group * ci_group_size + j;
 
-      // valid for OOB predictions:
       double prediction_group = leaf_values.get(i, OUTCOME);
       double psi_1 = factor * (prediction_sample - prediction_group);
 

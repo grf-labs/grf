@@ -196,9 +196,6 @@ predict.local_linear_forest <- function(object, newdata = NULL,
 
   if (estimate.variance) {
     ci.group.size = object$ci.group.size
-    if(!is.null(newdata)){
-        stop("Error: llf variance estimates are currently implemented only for OOB predictions.")
-    }
   } else {
     ci.group.size = 1
   }
