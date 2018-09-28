@@ -20,9 +20,6 @@
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
-#' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
-#'                      In order to provide confidence intervals, ci.group.size must
-#'                      be at least 2.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
@@ -50,23 +47,23 @@
 #'
 #' @export
 local_linear_forest <- function(X, Y,
-                              sample.fraction = 0.5,
-                              mtry = NULL, 
-                              num.trees = 2000,
-                              num.threads = NULL,
-                              min.node.size = NULL,
-                              honesty = TRUE,
-                              honesty.fraction = NULL,
-                              alpha = NULL,
-                              imbalance.penalty = NULL,
-                              compute.oob.predictions = FALSE,
-                              seed = NULL,
-                              clusters = NULL,
-                              samples_per_cluster = NULL,
-                              tune.parameters = FALSE,
-                              num.fit.trees = 10,
-                              num.fit.reps = 100,
-                              num.optimize.reps = 1000) {
+                                sample.fraction = 0.5,
+                                mtry = NULL,
+                                num.trees = 2000,
+                                num.threads = NULL,
+                                min.node.size = NULL,
+                                honesty = TRUE,
+                                honesty.fraction = NULL,
+                                alpha = NULL,
+                                imbalance.penalty = NULL,
+                                compute.oob.predictions = FALSE,
+                                seed = NULL,
+                                clusters = NULL,
+                                samples_per_cluster = NULL,
+                                tune.parameters = FALSE,
+                                num.fit.trees = 10,
+                                num.fit.reps = 100,
+                                num.optimize.reps = 1000) {
   validate_X(X)
   if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
 
@@ -154,8 +151,6 @@ local_linear_forest <- function(X, Y,
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
 #' @param ll.lambda Ridge penalty for local linear predictions
-#' @param tune.lambda Optional self-tuning for ridge penalty lambda. Defaults to FALSE.
-#' @param lambda.path Optional list of lambdas to use for cross-validation, used if tune.lambda is TRUE.
 #' @param ll.ridge.type Option to standardize ridge penalty by covariance ("standardized"),
 #'                   or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
@@ -180,15 +175,14 @@ local_linear_forest <- function(X, Y,
 #' predictions.oob = predict(forest)
 #' }
 #'
+#' @method predict local_linear_forest
 #' @export
 predict.local_linear_forest <- function(object, newdata = NULL,
-                                      linear.correction.variables = NULL,
-                                      ll.lambda = NULL,
-                                      tune.lambda = FALSE,
-                                      lambda.path = NULL,
-                                      ll.ridge.type = "standardized",
-                                      num.threads = NULL,
-                                      ...) {
+                                        linear.correction.variables = NULL,
+                                        ll.lambda = NULL,
+                                        ll.ridge.type = "standardized",
+                                        num.threads = NULL,
+                                        ...) {
 
   forest.short = object[-which(names(object) == "X.orig")]
   X.orig = object[["X.orig"]]

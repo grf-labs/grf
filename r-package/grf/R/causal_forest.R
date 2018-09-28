@@ -274,6 +274,7 @@ causal_forest <- function(X, Y, W,
 #' c.pred = predict(c.forest, X.test, estimate.variance = TRUE)
 #' }
 #'
+#' @method predict causal_forest
 #' @export
 predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, estimate.variance = FALSE, ...) {
 
