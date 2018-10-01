@@ -71,7 +71,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     }
 
     PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
-    double prediction_sample = point_prediction[0]; // is this correct?????
+
+    double prediction_sample = point_prediction[0];
 
     std::vector<double> variance = ci_group_size > 1
                                    ? strategy->compute_variance(prediction_values, ci_group_size, sample, weights_by_sample,

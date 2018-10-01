@@ -132,15 +132,13 @@ Eigen::MatrixXd LocalLinearPredictionStrategy::find_M(
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
-      X(i,j+1) = original_data->get(indices[i],current_predictor)
-                 - test_data->get(sampleID, current_predictor);
+      X(i,j+1) = original_data->get(indices[i],current_predictor) - test_data->get(indices[i], current_predictor);
     }
     X(i, 0) = 1;
   }
 
   // find ridge regression predictions
-  Eigen::MatrixXd M (num_variables+1, num_variables+1);
-  M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
+  Eigen::MatrixXd M = X.transpose()*weights_vec.asDiagonal()*X;
 
   if (use_unweighted_penalty) {
     // standard ridge penalty
@@ -172,13 +170,16 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   e_one(0) = 1.0;
   Eigen::MatrixXd M_inverse = M_total.ldlt().solve(e_one);
 
-  Eigen::VectorXd X_sample (1, num_variables);
+  Eigen::VectorXd X_sample (1, num_variables + 1);
+
   for(size_t index = 0; index < num_variables; ++ index){
     size_t current_predictor = linear_correction_variables[index];
-    X_sample(index) = test_data->get(sampleID, current_predictor);
+    X_sample(index) = original_data->get(sampleID, current_predictor)
+                      - test_data->get(sampleID, current_predictor);
   }
+  X_sample(0) = 1.0;
 
-  Eigen::MatrixXd M_X = M_inverse * X_sample;
+  Eigen::MatrixXd M_X = M_inverse.transpose() * X_sample;
   double factor = M_X(0);
 
   double num_good_groups = 0;
@@ -197,12 +198,12 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     num_good_groups++;
 
     double group_psi = 0;
-    double psi_squared = 0;
 
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t i = group * ci_group_size + j;
 
       double prediction_group = leaf_values.get(i, OUTCOME);
+      double difference = prediction_sample - prediction_group;
       double psi_1 = factor * (prediction_sample - prediction_group);
 
       psi_squared += psi_1 * psi_1;
@@ -211,6 +212,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
 
     group_psi /= ci_group_size;
     psi_grouped_squared += group_psi * group_psi;
+
   }
 
   double var_between = psi_grouped_squared / num_good_groups;
