@@ -116,3 +116,30 @@ test_that("local linear predict returns local linear predictions even without tu
     ll.indicator = !is.null(preds$ll.lambda)
     expect_true(ll.indicator)
 })
+
+test_that("local linear confidence intervals have reasonable coverage", {
+    mu = function(x){log(1+exp(6*x))}
+
+    n = 500
+    p = 20
+    sigma = sqrt(20)
+
+    X = matrix(runif(n*p,-1,1), nrow = n)
+    truth = mu(X[,1])
+    Y = truth + sigma*rnorm(n)
+
+    forest = local_linear_forest(X, Y, num.trees = 1000, ci.group.size = 5)
+    preds = predict(forest, linear.correction.variables = 1, tune.lambda = TRUE, estimate.variance = TRUE)
+
+    expect_true(all(preds$variance.estimates > 0))
+
+    df = data.frame(predictions= preds$predictions,
+                    upper = preds$predictions + 1.96*sqrt(preds$variance.estimates),
+                    lower = preds$predictions - 1.96*sqrt(preds$variance.estimates))
+
+    percent_llf = mean(sapply(1:n, function(i){
+        ifelse(df$lower[i] <= truth[i] && truth[i] <= df$upper[i], 1, 0)
+    }))
+
+    expect_true(percent_llf > 0.94)
+})
