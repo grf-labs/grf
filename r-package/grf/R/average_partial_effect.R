@@ -47,6 +47,7 @@ average_partial_effect = function(forest, calibrate.weights = TRUE, subset = NUL
   }
 
   # Only use data selected via subsetting.
+  subset.X.orig <- forest$X.orig[subset, , drop = FALSE]
   subset.W.orig <- forest$W.orig[subset]
   subset.W.hat <- forest$W.hat[subset]
   subset.Y.orig <- forest$Y.orig[subset]
@@ -66,8 +67,7 @@ average_partial_effect = function(forest, calibrate.weights = TRUE, subset = NUL
   # so this step is not needed. Note that if we use the present CAPE estimator
   # with a binary treatment and set V.hat = e.hat (1 - e.hat), then we recover
   # exactly the AIPW estimator of the CATE.
-  variance_forest <- regression_forest(forest$X.orig[subset,],
-                                       (subset.W.orig - subset.W.hat)^2)
+  variance_forest <- regression_forest(subset.X.orig, (subset.W.orig - subset.W.hat)^2)
   V.hat <- predict(variance_forest)$predictions
   debiasing.weights <- (subset.W.orig - subset.W.hat) / V.hat
   
