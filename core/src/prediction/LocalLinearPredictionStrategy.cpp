@@ -136,13 +136,13 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   Eigen::MatrixXd X (num_nonzero_weights, num_variables+1);
   Eigen::MatrixXd Y (num_nonzero_weights, 1);
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
+    X(i, 0) = 1;
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
       X(i,j+1) = original_data->get(indices[i],current_predictor)
                  - test_data->get(sampleID, current_predictor);
     }
     Y(i) = observations.get(Observations::OUTCOME, indices[i]);
-    X(i, 0) = 1;
   }
 
   // find ridge regression predictions
@@ -160,11 +160,16 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     }
   }
 
-  Eigen::MatrixXd preds = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
+  Eigen::VectorXd preds = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
+
+  Eigen::VectorXd theta (num_variables);
+  for(size_t l = 0; l < num_variables; ++ l){
+    theta(l) = preds(l+1);
+  }
 
   Eigen::VectorXd e_one = Eigen::VectorXd::Zero(num_variables+1);
   e_one(0) = 1.0;
-  Eigen::MatrixXd zeta = M.ldlt().solve(e_one);
+  Eigen::VectorXd zeta = M.ldlt().solve(e_one);
 
   double num_good_groups = 0;
   double psi_squared = 0;
@@ -197,20 +202,25 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
       for(size_t k = 0; k < leaf_size; ++ k){
         size_t current_training_sample = samples_at_tree_b[k];
 
-        Eigen::VectorXd Delta_i (num_variables + 1, 1);
-        for(size_t l = 0; l < num_variables + 1; ++ l){
-          Delta_i(l) = X(current_training_sample, l);
+        Eigen::VectorXd Delta_i (num_variables + 1);
+        Delta_i(0) = 1.0;
+        for(size_t l = 0; l < num_variables; ++ l){
+          Delta_i(l+1) = X(current_training_sample, l);
         }
 
-        Eigen::MatrixXd zeta_delta = zeta * Delta_i;
-        double factor = zeta_delta(0);
+        double zeta_delta = zeta.dot(Delta_i);
 
-        Eigen::VectorXd linear_effect = Delta_i * preds;
+        Eigen::VectorXd Delta (num_variables);
+        for(size_t l = 0; l < num_variables; ++ l){
+          Delta(l) = X(current_training_sample, l);
+        }
+
+        double linear_effect = Delta.dot(theta);
 
         double current_training_Y = observations.get(Observations::OUTCOME, current_training_sample);
-        double difference = current_training_Y - linear_effect(0);
+        double difference = current_training_Y - preds(0) - linear_effect;
 
-        psi_1 += factor * difference;
+        psi_1 += zeta_delta * difference;
       }
 
       psi_1 /= leaf_size;
