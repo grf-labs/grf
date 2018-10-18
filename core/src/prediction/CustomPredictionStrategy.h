@@ -34,17 +34,13 @@ public:
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations);
 
-  Eigen::MatrixXd find_M(
-          std::unordered_map<size_t, double> weights_by_sampleID,
-          size_t sampleID,
-          double lambda);
-
   std::vector<double> compute_variance(
-          const PredictionValues& leaf_values,
+          std::vector<std::vector<size_t>> samples_by_tree,
           uint ci_group_size,
           size_t sampleID,
           std::unordered_map<size_t, double> weights_by_sampleID,
-          double prediction_sample);
+          const Observations& observations,
+          const PredictionValues& leaf_values);
 
   std::vector<double> compute_debiased_error(
           size_t sample,

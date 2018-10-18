@@ -77,20 +77,13 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
 }
 
 std::vector<double> QuantilePredictionStrategy::compute_variance(
-        const PredictionValues& leaf_values,
+        std::vector<std::vector<size_t>> samples_by_tree,
         uint ci_group_size,
         size_t sampleID,
         std::unordered_map<size_t, double> weights_by_sampleID,
-        double prediction_sample){
+        const Observations& observations,
+        const PredictionValues& leaf_values){
   return { 0.0 };
-}
-
-Eigen::MatrixXd QuantilePredictionStrategy::find_M(
-        std::unordered_map<size_t, double> weights_by_sampleID,
-        size_t sampleID,
-        double lambda){
-  Eigen::MatrixXd empty_matrix = Eigen::MatrixXd::Zero (1, 1);
-  return empty_matrix;
 }
 
 std::vector<double> QuantilePredictionStrategy::compute_debiased_error(

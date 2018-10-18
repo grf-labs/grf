@@ -47,6 +47,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       leaf_values.resize(num_trees);
     }
 
+    std::vector<std::vector<size_t>> samples_by_tree;
+
     uint num_leaves = 0;
     for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
       if (!valid_trees_by_sample[sample][tree_index]) {
@@ -61,6 +63,9 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
 
       std::vector<double> zero_average = { 0.0 };
 
+      std::vector<std::vector<size_t>> leaf_samples = tree->get_leaf_samples();
+      samples_by_tree.push_back(leaf_samples.at(node));
+
       if (!prediction_values.empty(node)) {
         num_leaves++;
         add_prediction_values(node, prediction_values, zero_average);
@@ -72,11 +77,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
 
     PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
 
-    double prediction_sample = point_prediction[0];
-
     std::vector<double> variance = ci_group_size > 1
-                                   ? strategy->compute_variance(prediction_values, ci_group_size, sample, weights_by_sample,
-                                                                prediction_sample)
+                                   ? strategy->compute_variance(samples_by_tree, ci_group_size, sample, weights_by_sample, forest.get_observations(), prediction_values)
                                    : std::vector<double>();
 
     std::vector<double> mse = estimate_error
