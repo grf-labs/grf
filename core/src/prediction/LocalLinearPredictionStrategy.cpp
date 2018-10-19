@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <Rcpp.h>
 #include "Eigen/Dense"
 #include "commons/utility.h"
 #include "commons/Observations.h"
@@ -120,7 +121,13 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   size_t num_variables = linear_correction_variables.size();
   size_t num_nonzero_weights = weights_by_sampleID.size();
 
+  std::vector<size_t> sample_index_map(observations.get_num_samples());
+  for (size_t i = 0; i < observations.get_num_samples(); i++) {
+    sample_index_map[i] = -1;
+  }
   std::vector<size_t> indices(num_nonzero_weights);
+  
+
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
     {
       size_t i = 0;
@@ -128,6 +135,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
         size_t index = it.first;
         double weight = it.second;
         indices[i] = index;
+        sample_index_map[index] = i;
         weights_vec(i) = weight;
         i++;
       }
@@ -160,28 +168,41 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     }
   }
 
-  Eigen::VectorXd preds = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
-
-  Eigen::VectorXd theta (num_variables);
-  for(size_t l = 0; l < num_variables; ++ l){
-    theta(l) = preds(l+1);
-  }
+  Eigen::VectorXd theta = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
 
   Eigen::VectorXd e_one = Eigen::VectorXd::Zero(num_variables+1);
   e_one(0) = 1.0;
   Eigen::VectorXd zeta = M.ldlt().solve(e_one);
 
+  //Eigen::VectorXd X_times_zeta = X * zeta;
+  //Eigen::VectorXd local_prediction = X * theta;
+  //Eigen::VectorXd pseudo_residual = X_times_zeta * (Y - local_prediction);
+
+  Eigen::VectorXd local_prediction = Eigen::VectorXd::Zero(num_nonzero_weights);
+  for (size_t i = 0; i < num_nonzero_weights; i++) {
+    local_prediction(i) = theta(0);
+  }
+  Eigen::VectorXd pseudo_residual = Y - local_prediction;
+
+  Rcpp::Rcout << "HELLO LAMBDA!! " << lambda << std::endl;
+  Rcpp::Rcout << "THETA 0!! " << theta(0) << std::endl;
+
+  for (size_t i = 0; i < num_nonzero_weights; i++) {
+    Rcpp::Rcout << "PS !! " << pseudo_residual(i) << std::endl;
+  }
+
   double num_good_groups = 0;
   double psi_squared = 0;
   double psi_grouped_squared = 0;
 
-  size_t num_with_training_data = samples_by_tree.size();
+  double psi_tot = 0;
 
-  for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
+  Rcpp::Rcout << "SIZE SBT " << samples_by_tree.size() << std::endl;
 
+  for (size_t group = 0; group < samples_by_tree.size() / ci_group_size; ++group) {
     bool good_group = true;
     for (size_t j = 0; j < ci_group_size; ++j) {
-      if (leaf_values.empty(group * ci_group_size + j) or (group * ci_group_size + j) > num_with_training_data) {
+      if (samples_by_tree[group * ci_group_size + j].size() == 0) {
         good_group = false;
       }
     }
@@ -195,35 +216,13 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
       size_t b = group * ci_group_size + j;
 
       double psi_1 = 0;
-
-      std::vector<size_t> samples_at_tree_b = samples_by_tree[b];
-      size_t leaf_size = samples_at_tree_b.size();
-
-      for(size_t k = 0; k < leaf_size; ++ k){
-        size_t current_training_sample = samples_at_tree_b[k];
-
-        Eigen::VectorXd Delta_i (num_variables + 1);
-        Delta_i(0) = 1.0;
-        for(size_t l = 0; l < num_variables; ++ l){
-          Delta_i(l+1) = X(current_training_sample, l);
-        }
-
-        double zeta_delta = zeta.dot(Delta_i);
-
-        Eigen::VectorXd Delta (num_variables);
-        for(size_t l = 0; l < num_variables; ++ l){
-          Delta(l) = X(current_training_sample, l);
-        }
-
-        double linear_effect = Delta.dot(theta);
-
-        double current_training_Y = observations.get(Observations::OUTCOME, current_training_sample);
-        double difference = current_training_Y - preds(0) - linear_effect;
-
-        psi_1 += zeta_delta * difference;
+      for(size_t k = 0; k < samples_by_tree[b].size(); ++ k){
+        Rcpp::Rcout << "CURR IDX... " << sample_index_map[samples_by_tree[b][k]] << ", " << b << ", " << k << std::endl;
+        Rcpp::Rcout << "PSI1... " << pseudo_residual(sample_index_map[samples_by_tree[b][k]]) << std::endl;
+        psi_1 += pseudo_residual(sample_index_map[samples_by_tree[b][k]]);
       }
-
-      psi_1 /= leaf_size;
+      psi_1 /= samples_by_tree[b].size();
+      Rcpp::Rcout << "PSI1... eventually " << psi_1 << std::endl;
 
       psi_squared += psi_1 * psi_1;
       group_psi += psi_1;
@@ -231,10 +230,16 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
 
     group_psi /= ci_group_size;
     psi_grouped_squared += group_psi * group_psi;
+
+    psi_tot += group_psi;
   }
 
   double var_between = psi_grouped_squared / num_good_groups;
   double var_total = psi_squared / (num_good_groups * ci_group_size);
+
+  psi_tot /= num_good_groups;
+
+  Rcpp::Rcout << "PSI TOT " << psi_tot << "; VAR TOT " << var_total << "; VAR BET " << var_between << std::endl;
 
   // This is the amount by which var_between is inflated due to using small groups
   double group_noise = (var_total - var_between) / (ci_group_size - 1);
