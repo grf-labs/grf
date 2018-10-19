@@ -174,28 +174,31 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   e_one(0) = 1.0;
   Eigen::VectorXd zeta = M.ldlt().solve(e_one);
 
-  //Eigen::VectorXd X_times_zeta = X * zeta;
-  //Eigen::VectorXd local_prediction = X * theta;
-  //Eigen::VectorXd pseudo_residual = X_times_zeta * (Y - local_prediction);
+  Eigen::VectorXd X_times_zeta = X * zeta;
+  Eigen::VectorXd local_prediction = X * theta;
+  Eigen::VectorXd pseudo_residual = Eigen::VectorXd::Zero(num_nonzero_weights);
 
-  Eigen::VectorXd local_prediction = Eigen::VectorXd::Zero(num_nonzero_weights);
   for (size_t i = 0; i < num_nonzero_weights; i++) {
-    local_prediction(i) = theta(0);
+    pseudo_residual(i) = X_times_zeta(i) * (Y(i) - local_prediction(i));
   }
-  Eigen::VectorXd pseudo_residual = Y - local_prediction;
+
+  // Eigen::VectorXd local_prediction = Eigen::VectorXd::Zero(num_nonzero_weights);
+
+  // for (size_t i = 0; i < num_nonzero_weights; i++) {
+  //  local_prediction(i) = theta(0);
+  //}
+  //Eigen::VectorXd pseudo_residual = Y - local_prediction;
 
   Rcpp::Rcout << "HELLO LAMBDA!! " << lambda << std::endl;
   Rcpp::Rcout << "THETA 0!! " << theta(0) << std::endl;
 
-  for (size_t i = 0; i < num_nonzero_weights; i++) {
-    Rcpp::Rcout << "PS !! " << pseudo_residual(i) << std::endl;
-  }
+  Rcpp::Rcout << "PS !! " << pseudo_residual << " XZ: " << X_times_zeta << " LP: " << local_prediction << std::endl;
 
   double num_good_groups = 0;
   double psi_squared = 0;
   double psi_grouped_squared = 0;
 
-  double psi_tot = 0;
+  double avg_score = 0;
 
   Rcpp::Rcout << "SIZE SBT " << samples_by_tree.size() << std::endl;
 
@@ -231,15 +234,15 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     group_psi /= ci_group_size;
     psi_grouped_squared += group_psi * group_psi;
 
-    psi_tot += group_psi;
+    avg_score += group_psi;
   }
 
-  double var_between = psi_grouped_squared / num_good_groups;
-  double var_total = psi_squared / (num_good_groups * ci_group_size);
+  avg_score /= num_good_groups;
 
-  psi_tot /= num_good_groups;
+  double var_between = psi_grouped_squared / num_good_groups - avg_score * avg_score;
+  double var_total = psi_squared / (num_good_groups * ci_group_size) - avg_score * avg_score;
 
-  Rcpp::Rcout << "PSI TOT " << psi_tot << "; VAR TOT " << var_total << "; VAR BET " << var_between << std::endl;
+  Rcpp::Rcout << "PSI TOT " << avg_score << "; VAR TOT " << var_total << "; VAR BET " << var_between << std::endl;
 
   // This is the amount by which var_between is inflated due to using small groups
   double group_noise = (var_total - var_between) / (ci_group_size - 1);
