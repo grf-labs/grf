@@ -120,16 +120,16 @@ test_that("local linear predict returns local linear predictions even without tu
 test_that("local linear confidence intervals have reasonable coverage", {
     mu = function(x){log(1+exp(6*x))}
 
-    n = 500
-    p = 20
+    n = 200
+    p = 10
     sigma = sqrt(20)
 
     X = matrix(runif(n*p,-1,1), nrow = n)
     truth = mu(X[,1])
     Y = truth + sigma*rnorm(n)
 
-    forest = local_linear_forest(X, Y, num.trees = 1000, ci.group.size = 5)
-    preds = predict(forest, linear.correction.variables = 1, tune.lambda = TRUE, estimate.variance = TRUE)
+    forest = local_linear_forest(X, Y, num.trees = 500, ci.group.size = 5)
+    preds = predict(forest, linear.correction.variables = 1, ll.lambda = 1, estimate.variance = TRUE)
 
     expect_true(all(preds$variance.estimates > 0))
 
@@ -137,9 +137,28 @@ test_that("local linear confidence intervals have reasonable coverage", {
                     upper = preds$predictions + 1.96*sqrt(preds$variance.estimates),
                     lower = preds$predictions - 1.96*sqrt(preds$variance.estimates))
 
-    percent_llf = mean(sapply(1:n, function(i){
-        ifelse(df$lower[i] <= truth[i] && truth[i] <= df$upper[i], 1, 0)
-    }))
+    percent_llf = mean(df$lower <= truth & truth <= df$upper)
+    expect_true(percent_llf > 0.85)
+})
 
-    expect_true(percent_llf > 0.94)
+
+test_that("local linear confidence intervals match regression forest with large lambda", {
+    mu = function(x){log(1+exp(6*x))}
+    
+    n = 80
+    p = 4
+    sigma = sqrt(20)
+    
+    X = matrix(runif(n*p,-1,1), nrow = n)
+    truth = mu(X[,1])
+    Y = truth + sigma*rnorm(n)
+    
+    forest = regression_forest(X, Y, num.trees = 80, ci.group.size = 2)
+    
+    preds.rf = predict(forest, estimate.variance = TRUE)
+    preds.llf = predict(forest, linear.correction.variables = 1,
+                        ll.lambda = 10000000, estimate.variance = TRUE)
+    
+    expect_true(max(abs(preds.llf$predictions - preds.rf$predictions)) < 10^-5)
+    expect_true(max(abs(preds.llf$variance.estimates - preds.rf$variance.estimates)) < 10^-5)
 })
