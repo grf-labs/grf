@@ -29,6 +29,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
     bool estimate_error) {
 
+  // force debiased error estimates off for default prediction strategies 
+  estimate_error = false;
   size_t num_samples = prediction_data->get_num_rows();
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
@@ -78,7 +80,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
 
     std::vector<double> variance = ci_group_size > 1
-                                   ? strategy->compute_variance(samples_by_tree, ci_group_size, sample, weights_by_sample, forest.get_observations(), prediction_values)
+                                   ? strategy->compute_variance(samples_by_tree, ci_group_size, sample, weights_by_sample, forest.get_observations())
                                    : std::vector<double>();
 
     std::vector<double> mse = estimate_error

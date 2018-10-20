@@ -62,8 +62,7 @@ public:
           uint ci_group_size,
           size_t sampleID,
           std::unordered_map<size_t, double> weights_by_sampleID,
-          const Observations& observations,
-          const PredictionValues& leaf_values) = 0;
+          const Observations& observations) = 0;
 
   virtual std::vector<double> compute_debiased_error(
           size_t sample,

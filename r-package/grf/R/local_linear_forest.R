@@ -194,12 +194,6 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   # Validate and account for C++ indexing
   linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
 
-  if (estimate.variance) {
-    ci.group.size = object$ci.group.size
-  } else {
-    ci.group.size = 1
-  }
-
   if (ll.ridge.type == "standardized") {
     use.unweighted.penalty = 0
   } else if (ll.ridge.type == "identity") {
@@ -213,6 +207,12 @@ predict.local_linear_forest <- function(object, newdata = NULL,
     ll.lambda = ll.regularization.path$lambda.min
   } else {
     ll.lambda = validate_ll_lambda(ll.lambda)
+  }
+
+  if (estimate.variance) {
+    ci.group.size = object$ci.group.size
+  } else {
+    ci.group.size = 1
   }
 
   num.threads = validate_num_threads(num.threads)

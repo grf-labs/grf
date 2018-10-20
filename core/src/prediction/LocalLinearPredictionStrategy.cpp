@@ -112,8 +112,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
         uint ci_group_size,
         size_t sampleID,
         std::unordered_map<size_t, double> weights_by_sampleID,
-        const Observations& observations,
-        const PredictionValues& leaf_values){
+        const Observations& observations){
 
   double lambda = lambdas[0];
 
@@ -238,29 +237,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_debiased_error(
         size_t sample,
         const PredictionValues& leaf_values,
         const Observations& observations) {
-  double outcome = observations.get(Observations::OUTCOME, sample);
-
-  double error = outcome;
-  double mse = error * error;
-
-  double bias = 0.0;
-  size_t num_trees = 0;
-  for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
-    if (leaf_values.empty(n)) {
-      continue;
-    }
-
-    double tree_variance = leaf_values.get(n, OUTCOME);
-    bias += tree_variance * tree_variance;
-    num_trees++;
-  }
-
-  if (num_trees <= 1) {
-    return { NAN };
-  }
-
-  bias /= num_trees * (num_trees - 1);
-  return { mse - bias };
+  return { 0.0 };
 }
 
 size_t LocalLinearPredictionStrategy::prediction_value_length() {
