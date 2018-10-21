@@ -38,10 +38,3 @@ std::vector<double> CustomPredictionStrategy::compute_variance(
         const Observations& observations){
   return { 0.0 };
 }
-
-std::vector<double> CustomPredictionStrategy::compute_debiased_error(
-        size_t sample,
-        const PredictionValues& leaf_values,
-        const Observations& observations){
-  return { 0.0 };
-}

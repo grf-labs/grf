@@ -32,8 +32,6 @@ public:
 
   size_t prediction_length();
 
-  size_t prediction_value_length();
-
   std::vector<double> predict(size_t prediction_sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations);
@@ -43,11 +41,6 @@ public:
           uint ci_group_size,
           size_t sampleID,
           std::unordered_map<size_t, double> weights_by_sampleID,
-          const Observations& observations);
-
-  std::vector<double> compute_debiased_error(
-          size_t sample,
-          const PredictionValues& leaf_values,
           const Observations& observations);
 
 private:

@@ -84,11 +84,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
                                    ? strategy->compute_variance(samples_by_tree, ci_group_size, sample, weights_by_sample, forest.get_observations())
                                    : std::vector<double>();
 
-    std::vector<double> mse = estimate_error
-                              ? strategy->compute_debiased_error(sample, prediction_values, forest.get_observations())
-                              : std::vector<double>();
-
-    Prediction prediction(point_prediction, variance, mse);
+    Prediction prediction(point_prediction, variance, std::vector<double>());
     validate_prediction(sample, point_prediction);
     predictions.push_back(prediction);
   }

@@ -76,22 +76,11 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
   return quantile_cutoffs;
 }
 
-size_t QuantilePredictionStrategy::prediction_value_length() {
-  return 1;
-}
-
 std::vector<double> QuantilePredictionStrategy::compute_variance(
         std::vector<std::vector<size_t>> samples_by_tree,
         uint ci_group_size,
         size_t sampleID,
         std::unordered_map<size_t, double> weights_by_sampleID,
-        const Observations& observations){
-  return { 0.0 };
-}
-
-std::vector<double> QuantilePredictionStrategy::compute_debiased_error(
-        size_t sample,
-        const PredictionValues& leaf_values,
         const Observations& observations){
   return { 0.0 };
 }

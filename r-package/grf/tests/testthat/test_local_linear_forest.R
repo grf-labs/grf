@@ -162,25 +162,3 @@ test_that("local linear confidence intervals match regression forest with large 
     expect_true(max(abs(preds.llf$predictions - preds.rf$predictions)) < 10^-5)
     expect_true(max(abs(preds.llf$variance.estimates - preds.rf$variance.estimates)) < 10^-5)
 })
-
-
-test_that("local linear confidence intervals match regression forest with large lambda", {
-    mu = function(x){log(1+exp(6*x))}
-    
-    n = 80
-    p = 4
-    sigma = sqrt(20)
-    
-    X = matrix(runif(n*p,-1,1), nrow = n)
-    truth = mu(X[,1])
-    Y = truth + sigma*rnorm(n)
-    
-    forest = regression_forest(X, Y, num.trees = 80, ci.group.size = 2)
-    
-    preds.rf = predict(forest, estimate.variance = TRUE)
-    preds.llf = predict(forest, linear.correction.variables = 1,
-                        ll.lambda = 10000000, estimate.variance = TRUE)
-    
-    expect_true(max(abs(preds.llf$predictions - preds.rf$predictions)) < 10^-5)
-    expect_true(max(abs(preds.llf$variance.estimates - preds.rf$variance.estimates)) < 10^-5)
-})

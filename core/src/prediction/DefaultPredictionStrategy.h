@@ -55,17 +55,24 @@ public:
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations) = 0;
 
-
+    /**
+   * Computes a prediction variance estimate for a single test sample.
+   *
+   * samples_by_tree: vector of samples in the same leaf as the test point,
+   *    for each tree
+   * ci_group_size: the size of the tree groups used to train the forest. This
+   *     parameter is used when computing within vs. across group variance.
+   * sampleID: the ID of the test sample.
+   * weights_by_sampleID: a map from neighboring sample ID, to a weight specifying
+   *     how often the sample appeared in the same leaf as the test sample. Note that
+   *     these weights are normalized and will sum to 1.
+   * observations: the list of observations for all training samples.
+   */
   virtual std::vector<double> compute_variance(
             std::vector<std::vector<size_t>> samples_by_tree,
             uint ci_group_size,
             size_t sampleID,
             std::unordered_map<size_t, double> weights_by_sampleID,
-            const Observations& observations) = 0;
-
-  virtual std::vector<double> compute_debiased_error(
-            size_t sample,
-            const PredictionValues& leaf_values,
             const Observations& observations) = 0;
 };
 

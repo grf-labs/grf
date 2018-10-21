@@ -232,14 +232,3 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
 
   return { var_debiased };
 }
-
-std::vector<double> LocalLinearPredictionStrategy::compute_debiased_error(
-        size_t sample,
-        const PredictionValues& leaf_values,
-        const Observations& observations) {
-  return { 0.0 };
-}
-
-size_t LocalLinearPredictionStrategy::prediction_value_length() {
-  return 1;
-}

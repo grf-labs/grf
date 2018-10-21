@@ -41,12 +41,6 @@ public:
           size_t sampleID,
           std::unordered_map<size_t, double> weights_by_sampleID,
           const Observations& observations);
-
-  std::vector<double> compute_debiased_error(
-          size_t sample,
-          const PredictionValues& leaf_values,
-          const Observations& observations);
-
 };
 
 
