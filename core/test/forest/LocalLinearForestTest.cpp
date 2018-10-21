@@ -39,10 +39,10 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, fo
   std::vector<size_t> empty_clusters;
   uint samples_per_cluster = 0;
   uint num_threads = 1;
-  uint ci_size = 1;
+  uint ci_group_size = 1;
   uint seed = 42;
   ForestOptions options (
-      num_trees, 1, sample_fraction,
+      num_trees, ci_group_size, sample_fraction,
       mtry, min_node_size, honesty, honesty_fraction, alpha, imbalance_penalty,
       num_threads, seed, empty_clusters, samples_per_cluster);
   ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
