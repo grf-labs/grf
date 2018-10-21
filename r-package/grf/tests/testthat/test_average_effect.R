@@ -264,3 +264,14 @@ test_that("cluster robust average effects are consistent", {
   expect_true(abs(wate[1] - wate.clust[1]) <= 0.05)
   expect_true(abs(wate[2] - wate.clust[2]) <= 0.005)
 })
+
+test_that("average effect estimation doesn't error on data with a single feature", {
+  p = 1; n = 100
+
+  X = matrix(rnorm(n * p), n, p)
+  Y = rnorm(n)
+  W = rbinom(n, size=1, prob=0.5)
+
+  forest = causal_forest(X,Y,W)
+  average_partial_effect(forest)
+})

@@ -1,0 +1,789 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
+    <generated>
+      <config projectName="grf" targetName="grf" />
+      <config projectName="grf" targetName="debug" />
+      <config projectName="grf" targetName="release" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4092da3e-c77a-4179-99be-ed4fc4d08640" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/core/src/prediction/CustomPredictionStrategy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/prediction/CustomPredictionStrategy.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/prediction/CustomPredictionStrategy.h" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/prediction/CustomPredictionStrategy.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/prediction/DefaultPredictionStrategy.h" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/prediction/DefaultPredictionStrategy.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/prediction/LocalLinearPredictionStrategy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/prediction/LocalLinearPredictionStrategy.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/prediction/LocalLinearPredictionStrategy.h" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/prediction/LocalLinearPredictionStrategy.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/prediction/QuantilePredictionStrategy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/prediction/QuantilePredictionStrategy.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/prediction/QuantilePredictionStrategy.h" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/prediction/QuantilePredictionStrategy.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/prediction/collector/DefaultPredictionCollector.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/prediction/collector/DefaultPredictionCollector.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/r-package/grf/tests/testthat/test_local_linear_forest.R" beforeDir="false" afterPath="$PROJECT_DIR$/r-package/grf/tests/testthat/test_local_linear_forest.R" afterDir="false" />
+    </list>
+    <ignored path="$USER_HOME$/CLionProjects/grf/core/cmake-build-debug/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FavoritesManager">
+    <favorites_list name="grf" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="LocalLinearPredictionStrategy.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/prediction/LocalLinearPredictionStrategy.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="341">
+              <caret line="58" column="8" selection-start-line="58" selection-start-column="8" selection-end-line="58" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CustomPredictionStrategy.cpp" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/core/src/prediction/CustomPredictionStrategy.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="415">
+              <caret line="40" selection-start-line="40" selection-end-line="40" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DefaultPredictionStrategy.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/prediction/DefaultPredictionStrategy.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="201">
+              <caret line="68" column="5" selection-start-line="68" selection-start-column="5" selection-end-line="68" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_local_linear_forest.R" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/r-package/grf/tests/testthat/test_local_linear_forest.R">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="370">
+              <caret line="161" column="79" selection-start-line="161" selection-start-column="79" selection-end-line="161" selection-end-column="79" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/core/src/forest/ForestTrainers.h" />
+        <option value="$PROJECT_DIR$/core/src/forest/ForestTrainers.cpp" />
+        <option value="$PROJECT_DIR$/core/src/prediction/CausalPredictionStrategy.h" />
+        <option value="$PROJECT_DIR$/r-package/grf/bindings/CausalForestBindings.cpp" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/causal_forest.R" />
+        <option value="$PROJECT_DIR$/core/src/prediction/CausalPredictionStrategy.cpp" />
+        <option value="$PROJECT_DIR$/core/test/forest/ForestCharacterizationTest.cpp" />
+        <option value="$PROJECT_DIR$/core/src/forest/ForestPredictors.h" />
+        <option value="$PROJECT_DIR$/core/src/prediction/OptimizedPredictionStrategy.h" />
+        <option value="$PROJECT_DIR$/core/src/prediction/collector/OptimizedPredictionCollector.cpp" />
+        <option value="$PROJECT_DIR$/core/src/forest/ForestPredictor.cpp" />
+        <option value="$PROJECT_DIR$/core/src/forest/ForestPredictor.h" />
+        <option value="$PROJECT_DIR$/core/src/forest/ForestPredictors.cpp" />
+        <option value="$PROJECT_DIR$/core/src/prediction/collector/DefaultPredictionCollector.h" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/local_linear_tuning.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/tests/testthat/test_custom_forest.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/custom_forest.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/bindings/CustomForestBindings.cpp" />
+        <option value="$PROJECT_DIR$/core/src/forest/ForestOptions.h" />
+        <option value="$PROJECT_DIR$/core/src/forest/ForestOptions.cpp" />
+        <option value="$PROJECT_DIR$/r-package/grf/bindings/InstrumentalForestBindings.cpp" />
+        <option value="$PROJECT_DIR$/r-package/grf/bindings/QuantileForestBindings.cpp" />
+        <option value="$PROJECT_DIR$/r-package/grf/bindings/RegressionForestBindings.cpp" />
+        <option value="$PROJECT_DIR$/core/src/tree/TreeOptions.h" />
+        <option value="$PROJECT_DIR$/core/src/tree/TreeOptions.cpp" />
+        <option value="$PROJECT_DIR$/core/src/tree/TreeTrainer.cpp" />
+        <option value="$PROJECT_DIR$/core/test/forest/LocalLinearForestTest.cpp" />
+        <option value="$PROJECT_DIR$/core/test/forest/ForestSmokeTest.cpp" />
+        <option value="$PROJECT_DIR$/r-package/grf/tests/testthat/test_regression_forest.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/tests/testthat/test_analysis_tools.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/tests/testthat/test_average_effect.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/tests/testthat/test_causal_forest.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/regression_tuning.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/input_utilities.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/causal_tuning.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/regression_forest.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/quantile_forest.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/local_linear_forest.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/instrumental_forest.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/average_partial_effect.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/average_treatment_effect.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/R/analysis_tools.R" />
+        <option value="$PROJECT_DIR$/r-package/grf/tests/testthat/test_local_linear_forest.R" />
+        <option value="$PROJECT_DIR$/core/src/prediction/CustomPredictionStrategy.cpp" />
+        <option value="$PROJECT_DIR$/core/src/prediction/CustomPredictionStrategy.h" />
+        <option value="$PROJECT_DIR$/core/src/prediction/LocalLinearPredictionStrategy.cpp" />
+        <option value="$PROJECT_DIR$/core/src/prediction/LocalLinearPredictionStrategy.h" />
+        <option value="$PROJECT_DIR$/core/src/prediction/QuantilePredictionStrategy.h" />
+        <option value="$PROJECT_DIR$/core/src/prediction/collector/DefaultPredictionCollector.cpp" />
+        <option value="$PROJECT_DIR$/core/src/prediction/DefaultPredictionStrategy.h" />
+        <option value="$PROJECT_DIR$/core/src/prediction/QuantilePredictionStrategy.cpp" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-49" />
+    <option name="y" value="23" />
+    <option name="width" value="1280" />
+    <option name="height" value="716" />
+  </component>
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="grf" type="b2602c69:ProjectViewProjectNode" />
+              <item name="grf" type="47feb1d3:ProjectViewModuleNode" />
+            </path>
+            <path>
+              <item name="grf" type="b2602c69:ProjectViewProjectNode" />
+              <item name="grf" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="grf" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="grf" type="b2602c69:ProjectViewProjectNode" />
+              <item name="grf" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="grf" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="grf" type="b2602c69:ProjectViewProjectNode" />
+              <item name="grf" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="grf" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="grf" type="b2602c69:ProjectViewProjectNode" />
+              <item name="grf" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="grf" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="prediction" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="grf" type="b2602c69:ProjectViewProjectNode" />
+              <item name="grf" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="grf" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="prediction" type="462c0819:PsiDirectoryNode" />
+              <item name="collector" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="grf" type="b2602c69:ProjectViewProjectNode" />
+              <item name="grf" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="grf" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="tree" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="SearchEverywhereHistoryKey" value="estimate_error&#9;null&#9;null" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="settings.github" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/r-package/grf/bindings" />
+      <recent name="$PROJECT_DIR$/core/src/relabeling" />
+      <recent name="$PROJECT_DIR$/core/src/prediction" />
+      <recent name="$PROJECT_DIR$/r-package/grf/tests/testthat" />
+      <recent name="$PROJECT_DIR$/r-package/grf/R" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.Build All">
+    <configuration name="LLF gives reasonable prediction on friedman data (1)" type="CMakeCatchTestRunConfigurationType" factoryName="Catch Test" temporary="true" PASS_PARENT_ENVS_2="true" TEST_CLASS="[local_linear], [forest]" TEST_METHOD="LLF gives reasonable prediction on friedman data" TEST_MODE="SUITE_TEST" />
+    <configuration name="LLF gives reasonable prediction on friedman data" type="CMakeCatchTestRunConfigurationType" factoryName="Catch Test" temporary="true" WORKING_DIR="file://$USER_HOME$/CLionProjects/grf/core" PASS_PARENT_ENVS_2="true" PROJECT_NAME="grf" TARGET_NAME="grf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="grf" RUN_TARGET_NAME="grf" TEST_CLASS="[local_linear][forest]" TEST_METHOD="LLF gives reasonable prediction on friedman data" TEST_MODE="SUITE_TEST" />
+    <configuration name="causal forest predictions have not changed" type="CMakeCatchTestRunConfigurationType" factoryName="Catch Test" temporary="true" PASS_PARENT_ENVS_2="true" TEST_CLASS="[causal] [characterization]" TEST_METHOD="causal forest predictions have not changed" TEST_MODE="SUITE_TEST">
+      <method>
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="false" />
+      </method>
+    </configuration>
+    <configuration name="local linear causal predictions are stable" type="CMakeCatchTestRunConfigurationType" factoryName="Catch Test" temporary="true" WORKING_DIR="file://$USER_HOME$/CLionProjects/grf/core" PASS_PARENT_ENVS_2="true" PROJECT_NAME="grf" TARGET_NAME="grf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="grf" RUN_TARGET_NAME="grf" TEST_CLASS="[causal][characterization]" TEST_METHOD="local linear causal predictions are stable" TEST_MODE="SUITE_TEST" />
+    <configuration name="regression forest predictions have not changed" type="CMakeCatchTestRunConfigurationType" factoryName="Catch Test" temporary="true" WORKING_DIR="file://$USER_HOME$/CLionProjects/grf/core" PASS_PARENT_ENVS_2="true" PROJECT_NAME="grf" TARGET_NAME="grf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="grf" RUN_TARGET_NAME="grf" TEST_CLASS="[regression] [characterization]" TEST_METHOD="regression forest predictions have not changed" TEST_MODE="SUITE_TEST" />
+    <configuration name="regression forests give reasonable variance estimates" type="CMakeCatchTestRunConfigurationType" factoryName="Catch Test" temporary="true" WORKING_DIR="file://$USER_HOME$/CLionProjects/grf/core" PASS_PARENT_ENVS_2="true" PROJECT_NAME="grf" TARGET_NAME="grf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="grf" RUN_TARGET_NAME="grf" TEST_CLASS="[regression, forest]" TEST_METHOD="regression forests give reasonable variance estimates" TEST_MODE="SUITE_TEST" />
+    <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" EXPLICIT_BUILD_TARGET_NAME="all" />
+    <configuration name="debug" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="grf" TARGET_NAME="debug" CONFIG_NAME="Debug" />
+    <configuration name="grf" type="CMakeRunConfiguration" factoryName="Application" WORKING_DIR="file://$USER_HOME$/CLionProjects/grf/core" PASS_PARENT_ENVS_2="true" PROJECT_NAME="grf" TARGET_NAME="grf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="grf" RUN_TARGET_NAME="grf" />
+    <configuration name="release" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="grf" TARGET_NAME="release" CONFIG_NAME="Debug" />
+    <list>
+      <item itemvalue="Application.Build All" />
+      <item itemvalue="Application.debug" />
+      <item itemvalue="Application.grf" />
+      <item itemvalue="Application.release" />
+      <item itemvalue="Catch.causal forest predictions have not changed" />
+      <item itemvalue="Catch.LLF gives reasonable prediction on friedman data" />
+      <item itemvalue="Catch.regression forests give reasonable variance estimates" />
+      <item itemvalue="Catch.local linear causal predictions are stable" />
+      <item itemvalue="Catch.regression forest predictions have not changed" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Catch.regression forest predictions have not changed" />
+        <item itemvalue="Catch.local linear causal predictions are stable" />
+        <item itemvalue="Catch.regression forests give reasonable variance estimates" />
+        <item itemvalue="Catch.LLF gives reasonable prediction on friedman data" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4092da3e-c77a-4179-99be-ed4fc4d08640" name="Default" comment="" />
+      <created>1531617401915</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1531617401915</updated>
+      <workItem from="1531617404868" duration="5947000" />
+      <workItem from="1531877991499" duration="2803000" />
+      <workItem from="1531882109298" duration="15842000" />
+      <workItem from="1532468703654" duration="13276000" />
+      <workItem from="1532842839359" duration="5164000" />
+      <workItem from="1533353179206" duration="8616000" />
+      <workItem from="1533411307603" duration="480000" />
+      <workItem from="1533567896518" duration="764000" />
+      <workItem from="1533571859044" duration="11069000" />
+      <workItem from="1533846556007" duration="3184000" />
+      <workItem from="1533857012244" duration="41000" />
+      <workItem from="1533872703166" duration="353000" />
+      <workItem from="1534101552413" duration="4588000" />
+      <workItem from="1534221746423" duration="2438000" />
+      <workItem from="1534275258211" duration="2954000" />
+      <workItem from="1534370842114" duration="7280000" />
+      <workItem from="1534820412855" duration="17318000" />
+      <workItem from="1535390457602" duration="2478000" />
+      <workItem from="1535393613711" duration="1550000" />
+      <workItem from="1535476484022" duration="1635000" />
+      <workItem from="1535732150355" duration="326000" />
+      <workItem from="1536007467070" duration="6808000" />
+      <workItem from="1536623470563" duration="680000" />
+      <workItem from="1536708401247" duration="471000" />
+      <workItem from="1536859361742" duration="17109000" />
+      <workItem from="1536968634978" duration="36803000" />
+      <workItem from="1537846555118" duration="23133000" />
+      <workItem from="1538438792849" duration="1377000" />
+      <workItem from="1539793909874" duration="32059000" />
+      <workItem from="1539961192760" duration="1029000" />
+      <workItem from="1539970868251" duration="13052000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TestHistory">
+    <history-entry file="local_linear_causal_forest_predictions_have_not_changed_(1) - 2018.08.27 at 10h 51m 54s.xml">
+      <configuration name="local linear causal forest predictions have not changed (1)" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="local_linear_causal_forest_predictions_have_not_changed_(2) - 2018.08.27 at 10h 52m 34s.xml">
+      <configuration name="local linear causal forest predictions have not changed (2)" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="LLF_gives_reasonable_prediction_on_friedman_data - 2018.08.27 at 11h 04m 56s.xml">
+      <configuration name="LLF gives reasonable prediction on friedman data" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="local_linear_causal_predictions_have_not_changed - 2018.08.27 at 11h 12m 50s.xml">
+      <configuration name="local linear causal predictions have not changed" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="causal_forest_predictions_have_not_changed - 2018.08.27 at 11h 16m 16s.xml">
+      <configuration name="causal forest predictions have not changed" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="quantile_forest_predictions_have_not_changed - 2018.08.27 at 11h 16m 41s.xml">
+      <configuration name="quantile forest predictions have not changed" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="local_linear_causal_predictions_have_not_changed_(2) - 2018.08.27 at 11h 20m 32s.xml">
+      <configuration name="local linear causal predictions have not changed (2)" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="regression_forests_give_reasonable_variance_estimates - 2018.08.27 at 11h 22m 13s.xml">
+      <configuration name="regression forests give reasonable variance estimates" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="local_linear_causal_predictions_are_stable - 2018.08.27 at 11h 24m 04s.xml">
+      <configuration name="local linear causal predictions are stable" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+    <history-entry file="regression_forest_predictions_have_not_changed - 2018.08.27 at 11h 26m 34s.xml">
+      <configuration name="regression forest predictions have not changed" configurationId="CMakeCatchTestRunConfigurationType" />
+    </history-entry>
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="240627000" />
+  </component>
+  <component name="TodoView" selected-index="1">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-49" y="23" width="1280" height="716" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.79710144" visible="true" weight="0.24781573" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.24705882" />
+      <window_info anchor="bottom" id="CMake" order="7" visible="true" weight="0.105704695" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.25249168" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32941177" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.32941177" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" order="2" sideWeight="0.20289855" side_tool="true" weight="0.24980111" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Messages" order="7" weight="0.32890365" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" />
+    </layout>
+    <layout-to-restore>
+      <window_info anchor="bottom" id="CMake" order="9" weight="0.18867925" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.79710144" visible="true" weight="0.24404332" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.24705882" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.25249168" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32941177" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="10" weight="0.32941177" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Messages" order="7" weight="0.32890365" />
+      <window_info id="Favorites" order="2" sideWeight="0.20289855" side_tool="true" weight="0.24980111" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="16" />
+    </breakpoint-manager>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/core/src/forest/ForestPredictor.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="608">
+          <caret line="49" column="40" selection-start-line="49" selection-start-column="40" selection-end-line="49" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/RegressionPredictionStrategy.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="109">
+          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/InstrumentalPredictionStrategy.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="355">
+          <caret line="52" column="6" selection-start-line="52" selection-start-column="6" selection-end-line="52" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/tests/testthat/test_quantile_forest.R">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/forest/ForestPredictors.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4">
+          <caret line="27" column="94" selection-start-line="27" selection-start-column="94" selection-end-line="27" selection-end-column="94" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/PredictionValues.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-9">
+          <caret line="23" column="14" selection-start-line="23" selection-start-column="14" selection-end-line="23" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/custom.R">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/forest/ForestTrainer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-624" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/forest/ForestTrainers.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="18" column="54" selection-start-line="18" selection-start-column="54" selection-end-line="18" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/custom_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="325">
+          <caret line="112" column="8" selection-start-line="112" selection-start-column="8" selection-end-line="112" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/tests/testthat/test_custom_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="36" selection-start-line="11" selection-start-column="36" selection-end-line="11" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/collector/DefaultPredictionCollector.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="35" column="17" selection-start-line="35" selection-start-column="17" selection-end-line="35" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/forest/ForestPredictors.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="111">
+          <caret line="26" column="65" selection-start-line="26" selection-start-column="65" selection-end-line="26" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/forest/ForestTrainers.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-222" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/forest/ForestOptions.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="426">
+          <caret line="65" lean-forward="true" selection-start-line="65" selection-end-line="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/bindings/InstrumentalForestBindings.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="426">
+          <caret line="85" lean-forward="true" selection-start-line="85" selection-end-line="85" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/bindings/QuantileForestBindings.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="366">
+          <caret line="80" lean-forward="true" selection-start-line="80" selection-end-line="80" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/bindings/RegressionForestBindings.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="174">
+          <caret line="28" column="19" selection-start-line="28" selection-start-column="19" selection-end-line="28" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/tree/TreeOptions.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="424">
+          <caret line="60" lean-forward="true" selection-start-line="60" selection-end-line="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/forest/ForestOptions.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="426">
+          <caret line="92" selection-start-line="92" selection-end-line="92" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/tree/TreeTrainer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="426">
+          <caret line="253" selection-start-line="253" selection-end-line="253" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/test/forest/LocalLinearForestTest.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="426">
+          <caret line="104" column="1" selection-start-line="104" selection-start-column="1" selection-end-line="104" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/tree/TreeOptions.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="426">
+          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/test/forest/ForestSmokeTest.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="750">
+          <caret line="50" lean-forward="true" selection-start-line="50" selection-end-line="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/tests/testthat/test_regression_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2310">
+          <caret line="154" lean-forward="true" selection-start-line="154" selection-end-line="154" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/tests/testthat/test_analysis_tools.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="110" column="10" selection-start-line="110" selection-start-column="10" selection-end-line="110" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/regression_tuning.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="146" lean-forward="true" selection-start-line="146" selection-end-line="146" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/input_utilities.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="180" lean-forward="true" selection-start-line="180" selection-end-line="180" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/causal_tuning.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="154" lean-forward="true" selection-start-line="154" selection-end-line="154" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/regression_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="276" lean-forward="true" selection-start-line="276" selection-end-line="276" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/quantile_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="159" lean-forward="true" selection-start-line="159" selection-end-line="159" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/local_linear_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="115" column="29" selection-start-line="115" selection-start-column="29" selection-end-line="115" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/instrumental_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="215" lean-forward="true" selection-start-line="215" selection-end-line="215" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/causal_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="129" column="7" selection-start-line="129" selection-start-column="7" selection-end-line="129" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/average_treatment_effect.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="274" selection-start-line="274" selection-end-line="274" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/analysis_tools.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="146" selection-start-line="146" selection-end-line="146" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/average_partial_effect.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1560">
+          <caret line="104" lean-forward="true" selection-start-line="104" selection-end-line="104" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/tests/testthat/test_average_effect.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3975">
+          <caret line="265" column="2" selection-start-line="265" selection-start-column="2" selection-end-line="265" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/R/local_linear_tuning.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="350">
+          <caret line="43" column="43" selection-start-line="43" selection-start-column="43" selection-end-line="43" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/tests/testthat/test_causal_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2220">
+          <caret line="148" selection-start-line="148" selection-end-line="148" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/bindings/CustomForestBindings.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-460">
+          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/QuantilePredictionStrategy.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="138">
+          <caret line="33" lean-forward="true" selection-start-line="33" selection-end-line="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/CustomPredictionStrategy.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="42" column="44" selection-start-line="42" selection-start-column="44" selection-end-line="42" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/collector/DefaultPredictionCollector.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="128">
+          <caret line="84" column="59" selection-start-line="84" selection-start-column="59" selection-end-line="84" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/OptimizedPredictionStrategy.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="194">
+          <caret line="64" column="4" lean-forward="true" selection-start-line="54" selection-end-line="64" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/DefaultPredictionStrategy.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="201">
+          <caret line="68" column="5" selection-start-line="68" selection-start-column="5" selection-end-line="68" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/QuantilePredictionStrategy.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="76" column="1" selection-start-line="76" selection-start-column="1" selection-end-line="76" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r-package/grf/tests/testthat/test_local_linear_forest.R">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="370">
+          <caret line="161" column="79" selection-start-line="161" selection-start-column="79" selection-end-line="161" selection-end-column="79" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/LocalLinearPredictionStrategy.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="366">
+          <caret line="234" lean-forward="true" selection-start-line="234" selection-end-line="234" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/LocalLinearPredictionStrategy.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="341">
+          <caret line="58" column="8" selection-start-line="58" selection-start-column="8" selection-end-line="58" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/prediction/CustomPredictionStrategy.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="415">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ScopeChooserConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>

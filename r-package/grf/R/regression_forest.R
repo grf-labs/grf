@@ -6,8 +6,8 @@
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty is used, these subsamples will
-#'                        further be cut in half.
+#'                        Note: If honesty = TRUE, these subsamples will
+#'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
@@ -16,7 +16,10 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -65,6 +68,7 @@ regression_forest <- function(X, Y,
                               num.threads = NULL,
                               min.node.size = NULL,
                               honesty = TRUE,
+                              honesty.fraction = NULL,
                               ci.group.size = 2,
                               alpha = NULL,
                               imbalance.penalty = NULL,
@@ -83,6 +87,7 @@ regression_forest <- function(X, Y,
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
     
     if (tune.parameters) {
       tuning.output <- tune_regression_forest(X, Y,
@@ -96,6 +101,7 @@ regression_forest <- function(X, Y,
                                               imbalance.penalty = imbalance.penalty,
                                               num.threads = num.threads,
                                               honesty = honesty,
+                                              honesty.fraction = honesty.fraction,
                                               seed = seed,
                                               clusters = clusters,
                                               samples_per_cluster = samples_per_cluster)
@@ -120,6 +126,7 @@ regression_forest <- function(X, Y,
                                as.numeric(tunable.params["sample.fraction"]),
                                seed,
                                honesty,
+                               coerce_honesty_fraction(honesty.fraction),
                                ci.group.size,
                                as.numeric(tunable.params["alpha"]),
                                as.numeric(tunable.params["imbalance.penalty"]),
@@ -190,6 +197,7 @@ regression_forest <- function(X, Y,
 #' r.pred = predict(r.forest, X.test, estimate.variance = TRUE)
 #' }
 #'
+#' @method predict regression_forest
 #' @export
 predict.regression_forest <- function(object, newdata = NULL,
                                       linear.correction.variables = NULL,

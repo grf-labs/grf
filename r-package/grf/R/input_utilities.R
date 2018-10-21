@@ -108,6 +108,23 @@ validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
   samples_per_cluster
 }
 
+validate_honesty_fraction <- function(honesty.fraction, honesty) {
+  if (!honesty) {
+      if (is.null(honesty.fraction)) {
+        return(NULL)
+      }
+      else {
+        stop("honesty.fraction is not used when honesty = FALSE and should be NULL in this case.")
+      }
+  } else if (is.null(honesty.fraction)) {
+    return(0.5)
+  } else if (honesty.fraction > 0 && honesty.fraction < 1) {
+    return(honesty.fraction)
+  } else {
+    stop("honesty.fraction must be a positive real number less than 1.")
+  }
+}
+
 validate_ll_vars <- function(linear.correction.variables, num.cols){
   if (is.null(linear.correction.variables)) {
     linear.correction.variables = 1:num.cols
@@ -140,6 +157,13 @@ validate_ll_path <- function(lambda.path){
     stop("Lambda values must be numeric.")
   }
   lambda.path
+}
+
+coerce_honesty_fraction <- function(honesty.fraction) {
+  if(is.null(honesty.fraction)) {
+    return(0)
+  }
+  honesty.fraction
 }
 
 create_data_matrices <- function(X, ...) {

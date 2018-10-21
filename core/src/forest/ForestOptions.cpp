@@ -25,6 +25,7 @@ ForestOptions::ForestOptions(uint num_trees,
                              uint mtry,
                              uint min_node_size,
                              bool honesty,
+                             double honesty_fraction,
                              double alpha,
                              double imbalance_penalty,
                              uint num_threads,
@@ -33,7 +34,7 @@ ForestOptions::ForestOptions(uint num_trees,
                              uint samples_per_cluster):
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
-    tree_options(mtry, min_node_size, honesty, alpha, imbalance_penalty),
+    tree_options(mtry, min_node_size, honesty, honesty_fraction, alpha, imbalance_penalty),
     sampling_options(samples_per_cluster, sample_clusters) {
 
   this->num_threads = validate_num_threads(num_threads);
