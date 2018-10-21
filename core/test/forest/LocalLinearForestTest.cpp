@@ -115,8 +115,8 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
   uint outcome_index = 10;
   double alpha = 0.10;
   double imbalance_penalty = 0.07;
-  std::vector<size_t> linear_correction_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
+  std::vector<size_t> linear_correction_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   std::vector<double> lambda = {0.1};
 
   bool honesty = true;
@@ -125,8 +125,6 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
   double sample_fraction = 0.35;
   uint mtry = 3;
   uint min_node_size = 3;
-  double alpha = 0.0;
-  double imbalance_penalty = 0.1;
   std::vector<size_t> empty_clusters;
   uint samples_per_cluster = 0;
   uint num_threads = 1;
