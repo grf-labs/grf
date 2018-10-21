@@ -50,7 +50,6 @@ public:
           const PredictionValues& leaf_values,
           const Observations& observations);
 
-
 private:
   std::vector<double> compute_quantile_cutoffs(const std::unordered_map<size_t, double>& weights_by_sample,
                                                std::vector<std::pair<size_t, double>>& samples_and_values);

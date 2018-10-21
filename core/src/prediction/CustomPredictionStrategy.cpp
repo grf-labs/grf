@@ -45,7 +45,3 @@ std::vector<double> CustomPredictionStrategy::compute_debiased_error(
         const Observations& observations){
   return { 0.0 };
 }
-
-size_t CustomPredictionStrategy::prediction_value_length() {
-  return 1;
-}

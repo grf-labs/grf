@@ -70,6 +70,7 @@ public:
             const Observations& observations);
 
 private:
+
     static const std::size_t OUTCOME;
     const Data *original_data;
     const Data *test_data;

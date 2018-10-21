@@ -29,8 +29,6 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
     bool estimate_error) {
 
-  // force debiased error estimates off for default prediction strategies 
-  estimate_error = false;
   size_t num_samples = prediction_data->get_num_rows();
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
@@ -56,12 +54,15 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       if (!valid_trees_by_sample[sample][tree_index]) {
         continue;
       }
-
       const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
       size_t node = leaf_nodes.at(sample);
 
       std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
       const PredictionValues& prediction_values = tree->get_prediction_values();
+
+      if(prediction_values.get_num_nodes() == 0) {
+        continue;
+      }
 
       std::vector<double> zero_average = { 0.0 };
 
@@ -77,7 +78,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       }
     }
 
-    PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
+    PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_length());
 
     std::vector<double> variance = ci_group_size > 1
                                    ? strategy->compute_variance(samples_by_tree, ci_group_size, sample, weights_by_sample, forest.get_observations())

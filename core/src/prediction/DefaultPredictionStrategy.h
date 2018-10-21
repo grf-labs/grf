@@ -42,8 +42,6 @@ public:
    */
    virtual size_t prediction_length() = 0;
 
-   virtual size_t prediction_value_length() = 0;
-
   /**
    * Computes a prediction for a single test sample.
    *
@@ -57,17 +55,18 @@ public:
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations) = 0;
 
+
   virtual std::vector<double> compute_variance(
-          std::vector<std::vector<size_t>> samples_by_tree,
-          uint ci_group_size,
-          size_t sampleID,
-          std::unordered_map<size_t, double> weights_by_sampleID,
-          const Observations& observations) = 0;
+            std::vector<std::vector<size_t>> samples_by_tree,
+            uint ci_group_size,
+            size_t sampleID,
+            std::unordered_map<size_t, double> weights_by_sampleID,
+            const Observations& observations) = 0;
 
   virtual std::vector<double> compute_debiased_error(
-          size_t sample,
-          const PredictionValues& leaf_values,
-          const Observations& observations) = 0;
+            size_t sample,
+            const PredictionValues& leaf_values,
+            const Observations& observations) = 0;
 };
 
 #endif //GRF_PREDICTIONSTRATEGY_H
