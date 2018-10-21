@@ -117,11 +117,29 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
   double imbalance_penalty = 0.07;
   std::vector<size_t> linear_correction_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
-  ForestOptions options = ForestTestUtilities::default_options(false, 2);
+  std::vector<double> lambda = {0.1};
 
+  bool honesty = true;
+  double honesty_fraction = 0.5;
+  uint num_trees = 50;
+  double sample_fraction = 0.35;
+  uint mtry = 3;
+  uint min_node_size = 3;
+  double alpha = 0.0;
+  double imbalance_penalty = 0.1;
+  std::vector<size_t> empty_clusters;
+  uint samples_per_cluster = 0;
+  uint num_threads = 1;
+  uint ci_group_size = 2;
+  uint seed = 42;
+  ForestOptions options (
+      num_trees, ci_group_size, sample_fraction,
+      mtry, min_node_size, honesty, honesty_fraction, alpha, imbalance_penalty,
+      num_threads, seed, empty_clusters, samples_per_cluster);
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
   Forest forest = trainer.train(data, options);
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, 2, data, data, 0.1, false, linear_correction_variables);
+
+  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, 2, data, data, lambda, false, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
 
   for (size_t i = 0; i < predictions.size(); i++) {
