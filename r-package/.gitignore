@@ -7,7 +7,8 @@
 # R session files
 .Rproj.user
 .Rhistory
-.RData
+*.RData
+*.Rout
 
 # compiled object files
 *.so

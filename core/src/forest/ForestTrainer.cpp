@@ -39,10 +39,18 @@ const Forest ForestTrainer::train(Data* data,
   size_t num_samples = data->get_num_rows();
   uint num_trees = options.get_num_trees();
 
-  // Ensure that the sample fraction is not too small.
+  // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
+  const TreeOptions& tree_options = options.get_tree_options();
+  bool honesty = tree_options.get_honesty();
+  double honesty_fraction = tree_options.get_honesty_fraction();
   if ((size_t) num_samples * options.get_sample_fraction() < 1) {
     throw std::runtime_error("The sample fraction is too small, as no observations will be sampled.");
+  } else if (honesty && ((size_t) num_samples * options.get_sample_fraction() * honesty_fraction < 1
+             || (size_t) num_samples * options.get_sample_fraction() * (1-honesty_fraction) < 1)) {
+    throw std::runtime_error("The honesty fraction is too close to 1 or 0, as no observations will be sampled.");
   }
+
+
 
   size_t num_types = observables.size();
   std::vector<std::vector<double>> observations_by_type(num_types);

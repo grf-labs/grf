@@ -3,6 +3,8 @@
 #' @param decay.exponent A tuning parameter that controls the importance of split depth.
 #' @param max.depth The maximum depth of splits to consider.
 #' @param ... Additional arguments (currently ignored).
+#'
+#' @method print grf
 #' @export
 print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
     var.importance = variable_importance(x, decay.exponent, max.depth)
@@ -23,6 +25,8 @@ print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
 #' Print a GRF tree object.
 #' @param x The tree to print.
 #' @param ... Additional arguments (currently ignored).
+#'
+#' @method print grf_tree
 #' @export
 print.grf_tree <- function(x, ...) {
     cat("GRF tree object", "\n")

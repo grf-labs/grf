@@ -24,7 +24,8 @@
 #' }
 #'
 #' @export
-tune_local_linear_forest <- function(forest, linear.correction.variables = NULL,
+tune_local_linear_forest <- function(forest,
+                                     linear.correction.variables = NULL,
                                      use.unweighted.penalty = TRUE,
                                      num.threads = NULL,
                                      lambda.path = NULL) {

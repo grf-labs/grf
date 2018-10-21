@@ -6,6 +6,7 @@ importFrom("stats", "coef", "lm", "predict", "runif", "var")
 importFrom("utils", "capture.output")
 import(Rcpp)
 
+S3method(plot,grf_tree)
 S3method(predict,causal_forest)
 S3method(predict,custom_forest)
 S3method(predict,instrumental_forest)
