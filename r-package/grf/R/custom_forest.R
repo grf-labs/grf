@@ -115,14 +115,9 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
 
     if (!is.null(newdata)) {
         data <- create_data_matrices(newdata)
-        ret <- custom_predict(forest.short, data$default, data$sparse, num.threads)
+        custom_predict(forest.short, data$default, data$sparse, num.threads)
     } else {
         data <- create_data_matrices(object[["X.orig"]])
-        ret <- custom_predict_oob(forest.short, data$default, data$sparse, num.threads)
+        custom_predict_oob(forest.short, data$default, data$sparse, num.threads)
     }
-
-    # Convert list to data frame.
-    # empty = sapply(ret, function(elem) length(elem) == 0)
-    # do.call(cbind.data.frame, ret[!empty])
-    ret
 }
