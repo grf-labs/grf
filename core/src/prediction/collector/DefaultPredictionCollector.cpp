@@ -40,6 +40,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
   for (size_t sample = 0; sample < num_samples; sample++) {
     std::unordered_map<size_t, double> weights_by_sample = weight_computer.compute_weights(
         sample, forest, leaf_nodes_by_tree, valid_trees_by_sample);
+    std::vector<double> point_prediction = strategy->predict(sample, weights_by_sample, forest.get_observations());
 
     std::vector<std::vector<double>> leaf_values;
     if (record_leaf_values) {
@@ -76,8 +77,6 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
         }
       }
     }
-
-    PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_length());
 
     std::vector<double> variance = ci_group_size > 1
                                    ? strategy->compute_variance(samples_by_tree, ci_group_size, sample, weights_by_sample, forest.get_observations())
