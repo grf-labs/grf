@@ -40,7 +40,7 @@ public:
    * The number of values in a prediction, e.g. 1 for regression
    * or the number of quantiles for quantile forests.
    */
-   virtual size_t prediction_length() = 0;
+  virtual size_t prediction_length() = 0;
 
   /**
    * Computes a prediction for a single test sample.
@@ -55,7 +55,7 @@ public:
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations) = 0;
 
-    /**
+  /**
    * Computes a prediction variance estimate for a single test sample.
    *
    * samples_by_tree: vector of samples in the same leaf as the test point,

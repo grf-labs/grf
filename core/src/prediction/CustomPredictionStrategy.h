@@ -20,7 +20,6 @@
 
 #include <cstddef>
 #include <iostream>
-#include "Eigen/Dense"
 #include "DefaultPredictionStrategy.h"
 
 class CustomPredictionStrategy: public DefaultPredictionStrategy {

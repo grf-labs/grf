@@ -52,15 +52,15 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
 
   std::vector<size_t> indices(num_nonzero_weights);
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
-    {
-      size_t i = 0;
-      for (auto& it : weights_by_sampleID) {
-        size_t index = it.first;
-        double weight = it.second;
-        indices[i] = index;
-        weights_vec(i) = weight;
-        i++;
-      }
+  {
+    size_t i = 0;
+    for (auto& it : weights_by_sampleID) {
+      size_t index = it.first;
+      double weight = it.second;
+      indices[i] = index;
+      weights_vec(i) = weight;
+      i++;
+    }
   }
 
   Eigen::MatrixXd X (num_nonzero_weights, num_variables+1);

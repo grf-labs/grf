@@ -15,7 +15,6 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <map>
 #include <Rcpp.h>
 #include <sstream>
 #include <vector>
@@ -62,7 +61,7 @@ Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
                                    unsigned int num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
-          forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::custom_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict(forest, data);
@@ -79,7 +78,7 @@ Rcpp::NumericMatrix custom_predict_oob(Rcpp::List forest_object,
                                        unsigned int num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
-          forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::custom_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
