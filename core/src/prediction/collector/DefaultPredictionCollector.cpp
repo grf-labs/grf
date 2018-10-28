@@ -59,7 +59,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
 
     std::vector<double> point_prediction = strategy->predict(sample, weights_by_sample, forest.get_observations());
     std::vector<double> variance = ci_group_size > 1
-        ? strategy->compute_variance(samples_by_tree, ci_group_size, sample, weights_by_sample, forest.get_observations())
+        ? strategy->compute_variance(sample, samples_by_tree, weights_by_sample, forest.get_observations(), ci_group_size)
         : std::vector<double>();
 
     Prediction prediction(point_prediction, variance, std::vector<double>());

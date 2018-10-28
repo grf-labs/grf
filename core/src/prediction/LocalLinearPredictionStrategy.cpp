@@ -108,11 +108,11 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
 }
 
 std::vector<double> LocalLinearPredictionStrategy::compute_variance(
-        std::vector<std::vector<size_t>> samples_by_tree,
-        uint ci_group_size,
-        size_t sampleID,
-        std::unordered_map<size_t, double> weights_by_sampleID,
-        const Observations& observations){
+    size_t sampleID,
+    std::vector<std::vector<size_t>> samples_by_tree,
+    std::unordered_map<size_t, double> weights_by_sampleID,
+    const Observations& observations,
+    uint ci_group_size) {
 
   double lambda = lambdas[0];
 
@@ -125,7 +125,6 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   }
   std::vector<size_t> indices(num_nonzero_weights);
   
-
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
     {
       size_t i = 0;
