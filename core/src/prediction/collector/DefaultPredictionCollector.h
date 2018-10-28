@@ -36,11 +36,7 @@ public:
                                               bool estimate_error);
 
 private:
-    void validate_prediction(size_t sample, Prediction prediction);
-
-    void add_prediction_values(size_t node,
-                               const PredictionValues& prediction_values,
-                               std::vector<double>& combined_average);
+  void validate_prediction(size_t sample, Prediction prediction);
 
   std::shared_ptr<DefaultPredictionStrategy> strategy;
   SampleWeightComputer weight_computer;
