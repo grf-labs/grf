@@ -120,11 +120,8 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   size_t num_nonzero_weights = weights_by_sampleID.size();
 
   std::vector<size_t> sample_index_map(observations.get_num_samples());
-  for (size_t i = 0; i < observations.get_num_samples(); i++) {
-    sample_index_map[i] = -1;
-  }
   std::vector<size_t> indices(num_nonzero_weights);
-  
+
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
     {
       size_t i = 0;
