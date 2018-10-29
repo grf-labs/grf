@@ -24,7 +24,7 @@
 
 #include "catch.hpp"
 
-TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, forest]") {
+TEST_CASE("LLF gives reasonable prediction on friedman data", "[local linear], [forest]") {
 
   Data* data = load_data("test/forest/resources/friedman.csv");
   uint outcome_index = 10;
@@ -64,7 +64,7 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local_linear, fo
   delete data;
 }
 
-TEST_CASE("LLF predictions vary linearly with Y", "[local_linear, forest]") {
+TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
   Data* data = load_data("test/forest/resources/small_gaussian_data.csv");
   uint outcome_index = 10;
   std::vector<size_t> linear_correction_variables = {1, 4, 7};

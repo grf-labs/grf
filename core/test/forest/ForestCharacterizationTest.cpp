@@ -180,3 +180,32 @@ TEST_CASE("regression forest predictions have not changed", "[regression], [char
 
   delete data;
 }
+
+TEST_CASE("local linear regression forest predictions have not changed",
+          "[local linear], regression], [characterization]") {
+  Data* data = load_data("test/forest/resources/regression_data.csv");
+
+  ForestTrainer trainer = ForestTrainers::regression_trainer(10);
+  ForestOptions options = ForestTestUtilities::default_options();
+  Forest forest = trainer.train(data, options);
+
+  ForestPredictor predictor = ForestPredictors::regression_predictor(4, 1);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
+  std::vector<Prediction> predictions = predictor.predict(forest, data);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/regression_oob_predictions.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/regression_predictions.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/regression_oob_predictions.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/regression_predictions.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+
+  delete data;
+}
+
