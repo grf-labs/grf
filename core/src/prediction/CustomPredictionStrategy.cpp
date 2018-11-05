@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include "CustomPredictionStrategy.h"
-#include "Eigen/Dense"
 
 const std::size_t CustomPredictionStrategy::OUTCOME = 0;
 

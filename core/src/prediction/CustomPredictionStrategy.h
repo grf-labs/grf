@@ -18,8 +18,6 @@
 #ifndef GRF_CUSTOMPREDICTIONSTRATEGY_H
 #define GRF_CUSTOMPREDICTIONSTRATEGY_H
 
-#include <cstddef>
-#include <iostream>
 #include "DefaultPredictionStrategy.h"
 
 class CustomPredictionStrategy: public DefaultPredictionStrategy {
