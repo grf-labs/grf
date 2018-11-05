@@ -168,6 +168,10 @@ For this reason, causal splitting uses modified notions of each split balancing 
 - `min.node.size` usually determines the minimum number of examples a node should contain. In causal forests, the requirement is more stringent: a node must contain at least `min.node.size` treated samples, and also at least that many control samples.
 - In regression forests, `alpha` and `imbalance.penalty` help ensure that the size difference between children is not too large. When applying `alpha` and `imbalance.penalty`, we use a modified measure of node size that tries to capture how much 'information content' it contains. The new size measure is given by `\sum_{i in node} (W_i - \bar{W})^2`.
 
+The above description of `min.node.size` assumes that the treatment is binary, which in most cases is an oversimplification. The precise algorithm for enforcing `min.node.size` is as follows. Note that this same approach is used both when the treatment is binary or continuous.
+- Take the average of the parent node's treatment values.
+- When considering a split, require that each child node have `min.node.size` samples with treatment value less than the average, and at least that many samples with treatment value greater than or equal to the average.
+
 ### Average Treatment Effects
 
 In addition to personalized treatment effects, causal forests can be used to estimate the average treatment effect across the training population. Naively, one might estimate the average treatment effect by averaging personalized treatment effects across training examples. However, a more accurate estimate can be obtained by plugging causal forest predictions into a doubly robust average treatment effect estimator. As discussed in Chernozhukov et al. (2018), such approaches can yield semiparametrically efficient average treatment effect estimates and accurate standard error estimates under considerable generality. GRF provides the dedicated function `average_treatment_effect` to compute these estimates.

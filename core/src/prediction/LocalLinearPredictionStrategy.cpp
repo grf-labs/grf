@@ -34,12 +34,12 @@ size_t LocalLinearPredictionStrategy::prediction_length() {
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data* original_data,
                                                              const Data* test_data,
                                                              std::vector<double> lambdas,
-                                                             bool use_unweighted_penalty,
+                                                             bool weight_penalty,
                                                              std::vector<size_t> linear_correction_variables):
         original_data(original_data),
         test_data(test_data),
         lambdas(lambdas),
-        use_unweighted_penalty(use_unweighted_penalty),
+        weight_penalty(weight_penalty),
         linear_correction_variables(linear_correction_variables){
 };
 
@@ -76,27 +76,27 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
   }
 
   // find ridge regression predictions
-  Eigen::MatrixXd M (num_variables+1, num_variables+1);
-  M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
-  Eigen::MatrixXd M_stored = M;
+  Eigen::MatrixXd M_unpenalized(num_variables+1, num_variables+1);
+  M_unpenalized.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
 
+  Eigen::MatrixXd M;
   size_t num_lambdas = lambdas.size();
   std::vector<double> predictions(num_lambdas);
 
-  for( size_t i = 0; i < num_lambdas; ++i){
+  for (size_t i = 0; i < num_lambdas; ++i){
     double lambda = lambdas[i];
+    M = M_unpenalized;
 
-    M = M_stored;
-    if (use_unweighted_penalty) {
+    if (!weight_penalty) {
       // standard ridge penalty
       double normalization = M.trace() / (num_variables + 1);
-      for (size_t i = 1; i < num_variables + 1; ++i){
-        M(i,i) += lambda * normalization;
+      for (size_t j = 1; j < num_variables + 1; ++j){
+        M(j,j) += lambda * normalization;
       }
     } else {
       // covariance ridge penalty
-      for (size_t i = 1; i < num_variables+1; ++i){
-        M(i,i) += lambda * M(i,i); // note that the weights are already normalized
+      for (size_t j = 1; j < num_variables+1; ++j){
+        M(j,j) += lambda * M(j,j); // note that the weights are already normalized
       }
     }
 
@@ -151,7 +151,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   Eigen::MatrixXd M (num_variables+1, num_variables+1);
   M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
 
-  if (use_unweighted_penalty) {
+  if (!weight_penalty) {
     double normalization = M.trace() / (num_variables + 1);
     for (size_t i = 1; i < num_variables + 1; ++i){
       M(i,i) += lambda * normalization;

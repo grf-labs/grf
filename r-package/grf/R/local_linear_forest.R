@@ -151,8 +151,8 @@ local_linear_forest <- function(X, Y,
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
 #' @param ll.lambda Ridge penalty for local linear predictions
-#' @param ll.ridge.type Option to standardize ridge penalty by covariance ("standardized"),
-#'                   or penalize all covariates equally ("identity").
+#' @param ll.weighted.penalty Option to standardize ridge penalty by covariance (TRUE),
+#'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -180,14 +180,14 @@ local_linear_forest <- function(X, Y,
 #' @method predict local_linear_forest
 #' @export
 predict.local_linear_forest <- function(object, newdata = NULL,
-                                      linear.correction.variables = NULL,
-                                      ll.lambda = NULL,
-                                      tune.lambda = FALSE,
-                                      lambda.path = NULL,
-                                      ll.ridge.type = "standardized",
-                                      num.threads = NULL,
-                                      estimate.variance = FALSE,
-                                      ...) {
+                                        linear.correction.variables = NULL,
+                                        ll.lambda = NULL,
+                                        tune.lambda = FALSE,
+                                        lambda.path = NULL,
+                                        ll.weighted.penalty = FALSE,
+                                        num.threads = NULL,
+                                        estimate.variance = FALSE,
+                                        ...) {
 
   forest.short = object[-which(names(object) == "X.orig")]
   X.orig = object[["X.orig"]]
@@ -197,16 +197,8 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   # Validate and account for C++ indexing
   linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
 
-  if (ll.ridge.type == "standardized") {
-    use.unweighted.penalty = 0
-  } else if (ll.ridge.type == "identity") {
-    use.unweighted.penalty = 1
-  } else {
-    stop("Error: invalid local linear ridge type")
-  }
-
   if (is.null(ll.lambda)) {
-    ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, use.unweighted.penalty, num.threads)
+    ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weighted.penalty, num.threads)
     ll.lambda = ll.regularization.path$lambda.min
   } else {
     ll.lambda = validate_ll_lambda(ll.lambda)
@@ -227,11 +219,11 @@ predict.local_linear_forest <- function(object, newdata = NULL,
     data = create_data_matrices(newdata)
     training.data = create_data_matrices(X.orig)
     ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                  training.data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads,
-                  ci.group.size)
+                  training.data$sparse, ll.lambda, ll.weighted.penalty, linear.correction.variables,
+                  num.threads, ci.group.size)
   } else {
      data = create_data_matrices(X.orig)
-     ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, use.unweighted.penalty,
+     ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, ll.weighted.penalty,
                   linear.correction.variables, num.threads, ci.group.size)
   }
 

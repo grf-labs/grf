@@ -167,8 +167,8 @@ regression_forest <- function(X, Y,
 #' @param ll.lambda Ridge penalty for local linear predictions
 #' @param tune.lambda Optional self-tuning for ridge penalty lambda. Defaults to FALSE.
 #' @param lambda.path Optional list of lambdas to use for cross-validation, used if tune.lambda is TRUE.
-#' @param ll.ridge.type Option to standardize ridge penalty by covariance ("standardized"),
-#'                   or penalize all covariates equally ("identity").
+#' @param ll.weighted.penalty Option to standardize ridge penalty by covariance (TRUE),
+#'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -204,7 +204,7 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       ll.lambda = 0.01,
                                       tune.lambda = FALSE,
                                       lambda.path = NULL,
-                                      ll.ridge.type = "standardized",
+                                      ll.weighted.penalty = FALSE,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
@@ -225,14 +225,6 @@ predict.regression_forest <- function(object, newdata = NULL,
         ci.group.size = 1
     }
 
-    if (ll.ridge.type == "standardized") {
-        use.unweighted.penalty = 0
-    } else if (ll.ridge.type == "identity") {
-        use.unweighted.penalty = 1
-    } else {
-        stop("Error: invalid local linear ridge type")
-    }
-
     forest.short = object[-which(names(object) == "X.orig")]
     X.orig = object[["X.orig"]]
 
@@ -240,7 +232,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
 
         if (tune.lambda) {
-            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, use.unweighted.penalty, num.threads, lambda.path)
+            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weighted.penalty, num.threads, lambda.path)
             ll.lambda = ll.regularization.path$lambda.min
         } else {
             ll.lambda = validate_ll_lambda(ll.lambda)
@@ -258,7 +250,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         } else {
             training.data = create_data_matrices(X.orig)
             ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                training.data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads,
+                training.data$sparse, ll.lambda, ll.weighted.penalty, linear.correction.variables, num.threads,
                 ci.group.size)
         }
     } else {
@@ -266,7 +258,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         if (!local.linear) {
             ret = regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
         } else {
-            ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, use.unweighted.penalty,
+            ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, ll.weighted.penalty,
                 linear.correction.variables, num.threads, ci.group.size)
         }
     }
