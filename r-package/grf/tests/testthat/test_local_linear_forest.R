@@ -116,3 +116,24 @@ test_that("local linear predict returns local linear predictions even without tu
     ll.indicator = !is.null(preds$ll.lambda)
     expect_true(ll.indicator)
 })
+
+test_that("output of tune local linear forest is consistent with prediction output", {
+  n = 200
+  p = 4
+
+  X = matrix(runif(n*p,-1,1), nrow = n)
+  mu = 0.9 * exp(X[,1])
+  Y = mu + rnorm(n)
+
+  forest = local_linear_forest(X, Y, num.trees = 400)
+  
+  tune.out = tune_local_linear_forest(forest)
+
+  ll.min = tune.out$lambdas[1]
+  pred.ll.min = predict(forest, ll.lambda = ll.min)$predictions
+  expect_true(max(abs(tune.out$oob.predictions[,1] - pred.ll.min)) < 10^-6)
+
+  ll.max = tune.out$lambdas[length(tune.out$lambdas)]
+  pred.ll.max = predict(forest, ll.lambda = ll.max)$predictions
+  expect_true(max(abs(tune.out$oob.predictions[,length(tune.out$lambdas)] - pred.ll.max)) < 10^-6)
+})
