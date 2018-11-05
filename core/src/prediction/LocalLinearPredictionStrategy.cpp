@@ -34,12 +34,12 @@ size_t LocalLinearPredictionStrategy::prediction_length() {
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(const Data* original_data,
                                                              const Data* test_data,
                                                              std::vector<double> lambdas,
-                                                             bool use_unweighted_penalty,
+                                                             bool weight_penalty,
                                                              std::vector<size_t> linear_correction_variables):
         original_data(original_data),
         test_data(test_data),
         lambdas(lambdas),
-        use_unweighted_penalty(use_unweighted_penalty),
+        weight_penalty(weight_penalty),
         linear_correction_variables(linear_correction_variables){
 };
 
@@ -87,7 +87,7 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
     double lambda = lambdas[i];
     M = M_unpenalized;
 
-    if (use_unweighted_penalty) {
+    if (!weight_penalty) {
       // standard ridge penalty
       double normalization = M.trace() / (num_variables + 1);
       for (size_t j = 1; j < num_variables + 1; ++j){
