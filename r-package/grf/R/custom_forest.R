@@ -65,7 +65,7 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
     ci.group.size <- 1
-    
+
     forest <- custom_train(data$default, data$sparse, outcome.index, mtry,num.trees, num.threads,
         min.node.size, sample.fraction, seed, honesty, coerce_honesty_fraction(honesty.fraction),
         ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
@@ -112,7 +112,7 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
     }
         
     forest.short <- object[-which(names(object) == "X.orig")]
-    
+
     if (!is.null(newdata)) {
         data <- create_data_matrices(newdata)
         custom_predict(forest.short, data$default, data$sparse, num.threads)

@@ -38,6 +38,7 @@
 class ForestPredictor {
 public:
   ForestPredictor(uint num_threads,
+                  uint ci_group_size,
                   std::shared_ptr<DefaultPredictionStrategy> strategy);
 
   ForestPredictor(uint num_threads,

@@ -28,3 +28,12 @@ std::vector<double> CustomPredictionStrategy::predict(size_t sample,
     const Observations& observations) {
   return { 0.0 };
 }
+
+std::vector<double> CustomPredictionStrategy::compute_variance(
+    size_t sample,
+    std::vector<std::vector<size_t>> samples_by_tree,
+    std::unordered_map<size_t, double> weights_by_sampleID,
+    const Observations& observations,
+    uint ci_group_size){
+  return { 0.0 };
+}

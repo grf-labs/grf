@@ -26,7 +26,7 @@ Imports:
     methods,
     Rcpp (>= 0.12.15),
     sandwich (>= 2.4-0)
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.0
 Suggests:
     testthat
 SystemRequirements: GNU make

@@ -54,6 +54,7 @@ local_linear_forest <- function(X, Y,
                                 min.node.size = NULL,
                                 honesty = TRUE,
                                 honesty.fraction = NULL,
+                                ci.group.size = 1, 
                                 alpha = NULL,
                                 imbalance.penalty = NULL,
                                 compute.oob.predictions = FALSE,
@@ -102,7 +103,6 @@ local_linear_forest <- function(X, Y,
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
 
-  ci.group.size = 1
   forest <- regression_train(data$default, data$sparse, outcome.index,
                              as.numeric(tunable.params["mtry"]),
                              num.trees,
@@ -155,6 +155,8 @@ local_linear_forest <- function(X, Y,
 #'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
+#' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
+#'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A vector of predictions.
@@ -180,8 +182,11 @@ local_linear_forest <- function(X, Y,
 predict.local_linear_forest <- function(object, newdata = NULL,
                                         linear.correction.variables = NULL,
                                         ll.lambda = NULL,
+                                        tune.lambda = FALSE,
+                                        lambda.path = NULL,
                                         ll.weighted.penalty = FALSE,
                                         num.threads = NULL,
+                                        estimate.variance = FALSE,
                                         ...) {
 
   forest.short = object[-which(names(object) == "X.orig")]
@@ -199,6 +204,12 @@ predict.local_linear_forest <- function(object, newdata = NULL,
     ll.lambda = validate_ll_lambda(ll.lambda)
   }
 
+  if (estimate.variance) {
+    ci.group.size = object$ci.group.size
+  } else {
+    ci.group.size = 1
+  }
+
   num.threads = validate_num_threads(num.threads)
 
   # Subtract 1 to account for C++ indexing
@@ -208,11 +219,12 @@ predict.local_linear_forest <- function(object, newdata = NULL,
     data = create_data_matrices(newdata)
     training.data = create_data_matrices(X.orig)
     ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                  training.data$sparse, ll.lambda, ll.weighted.penalty, linear.correction.variables, num.threads)
+                  training.data$sparse, ll.lambda, ll.weighted.penalty, linear.correction.variables,
+                  num.threads, ci.group.size)
   } else {
      data = create_data_matrices(X.orig)
      ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, ll.weighted.penalty,
-                  linear.correction.variables, num.threads)
+                  linear.correction.variables, num.threads, ci.group.size)
   }
 
   ret[["ll.lambda"]] = ll.lambda

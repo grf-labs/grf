@@ -34,10 +34,11 @@ public:
                                               uint ci_group_size);
 
   static ForestPredictor local_linear_predictor(uint num_threads,
-                                                const Data*original_data,
-                                                const Data *test_data,
+                                                uint ci_group_size,
+                                                const Data* original_data,
+                                                const Data* test_data,
                                                 std::vector<double> lambdas,
-                                                bool ridge_type,
+                                                bool weighted_penalty,
                                                 std::vector<size_t> linear_correction_variables);
 
 private:

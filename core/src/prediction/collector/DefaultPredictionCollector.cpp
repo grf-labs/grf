@@ -17,8 +17,10 @@
 
 #include "prediction/collector/DefaultPredictionCollector.h"
 
-DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy):
-    strategy(strategy) {}
+DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy,
+                                                      uint ci_group_size):
+    strategy(strategy),
+    ci_group_size(ci_group_size) {}
 
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
@@ -31,14 +33,40 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
 
+  size_t num_trees = forest.get_trees().size();
+  bool record_leaf_samples = ci_group_size > 1 || estimate_error;
+
   for (size_t sample = 0; sample < num_samples; sample++) {
     std::unordered_map<size_t, double> weights_by_sample = weight_computer.compute_weights(
         sample, forest, leaf_nodes_by_tree, valid_trees_by_sample);
-    Prediction prediction = strategy->predict(sample, weights_by_sample, forest.get_observations());
+    std::vector<std::vector<size_t>> samples_by_tree;
 
-    validate_prediction(sample, prediction);
+    if (record_leaf_samples) {
+      samples_by_tree.resize(num_trees);
+
+      for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
+        if (!valid_trees_by_sample[sample][tree_index]) {
+          continue;
+        }
+        const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
+        size_t node = leaf_nodes.at(sample);
+
+        std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
+        std::vector<std::vector<size_t>> leaf_samples = tree->get_leaf_samples();
+        samples_by_tree.push_back(leaf_samples.at(node));
+      }
+    }
+
+    std::vector<double> point_prediction = strategy->predict(sample, weights_by_sample, forest.get_observations());
+    std::vector<double> variance = ci_group_size > 1
+        ? strategy->compute_variance(sample, samples_by_tree, weights_by_sample, forest.get_observations(), ci_group_size)
+        : std::vector<double>();
+
+    Prediction prediction(point_prediction, variance, std::vector<double>());
+    validate_prediction(sample, point_prediction);
     predictions.push_back(prediction);
   }
+
   return predictions;
 }
 

@@ -19,6 +19,7 @@
 #include <vector>
 #include <string>
 
+#include "Eigen/Dense"
 #include "commons/DefaultData.h"
 #include "prediction/QuantilePredictionStrategy.h"
 
@@ -73,4 +74,13 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
     quantile_cutoffs.push_back(last_value);
   }
   return quantile_cutoffs;
+}
+
+std::vector<double> QuantilePredictionStrategy::compute_variance(
+    size_t sampleID,
+    std::vector<std::vector<size_t>> samples_by_tree,
+    std::unordered_map<size_t, double> weights_by_sampleID,
+    const Observations& observations,
+    uint ci_group_size){
+  return { 0.0 };
 }

@@ -21,6 +21,7 @@
 
 #include <cstddef>
 #include <unordered_map>
+#include "Eigen/Dense"
 #include "commons/Observations.h"
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
@@ -30,9 +31,17 @@ public:
   QuantilePredictionStrategy(std::vector<double> quantiles);
 
   size_t prediction_length();
+
   std::vector<double> predict(size_t prediction_sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Observations& observations);
+
+  std::vector<double> compute_variance(
+      size_t sampleID,
+      std::vector<std::vector<size_t>> samples_by_tree,
+      std::unordered_map<size_t, double> weights_by_sampleID,
+      const Observations& observations,
+      uint ci_group_size);
 
 private:
   std::vector<double> compute_quantile_cutoffs(const std::unordered_map<size_t, double>& weights_by_sample,
