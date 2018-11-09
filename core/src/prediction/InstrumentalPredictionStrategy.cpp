@@ -242,7 +242,7 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
     double residual_loto = outcome - (treatment - treatment_loto) * treatment_effect_estimate_loto - outcome_loto;
     error_bias += (residual_loto - residual) * (residual_loto - residual);
   }
-  
-  error_bias *= ((num_trees - 1) / num_trees);
+
+  error_bias *= ((double)(num_trees - 1)) / (num_trees);
   return { error_raw - error_bias };
 }
