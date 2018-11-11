@@ -28,7 +28,7 @@ public:
                                uint ci_group_size);
 
   std::vector<Prediction> collect_predictions(const Forest& forest,
-                                              Data* prediction_data,
+                                              Data *prediction_data,
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                               const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                               bool estimate_error);

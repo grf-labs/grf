@@ -44,9 +44,9 @@ std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<do
 }
 
 std::vector<double> InstrumentalPredictionStrategy::compute_variance(
-    const std::vector<double>& average,
-    const PredictionValues& leaf_values,
-    uint ci_group_size) {
+  const std::vector<double>& average,
+  const PredictionValues& leaf_values,
+  uint ci_group_size) {
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT)
                                        - average.at(OUTCOME) * average.at(INSTRUMENT);
@@ -153,8 +153,8 @@ size_t InstrumentalPredictionStrategy::prediction_value_length() {
 }
 
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
-    const std::vector<std::vector<size_t>>& leaf_samples,
-    const Observations& observations) {
+  const std::vector<std::vector<size_t>>& leaf_samples,
+  const Observations& observations) {
   size_t num_leaves = leaf_samples.size();
 
   std::vector<std::vector<double>> values(num_leaves);
@@ -193,10 +193,10 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
 }
 
 std::vector<double> InstrumentalPredictionStrategy::compute_error(
-    size_t sample,
-    const std::vector<double>& average,
-    const PredictionValues& leaf_values,
-    const Observations& observations) {
+  size_t sample,
+  const std::vector<double>& average,
+  const PredictionValues& leaf_values,
+  const Observations& observations) {
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
@@ -237,9 +237,9 @@ std::vector<double> InstrumentalPredictionStrategy::compute_error(
     double treatment_loto = (num_trees * average.at(TREATMENT) - leaf_value.at(TREATMENT)) / (num_trees - 1);
     double instrument_loto = (num_trees * average.at(INSTRUMENT) - leaf_value.at(INSTRUMENT)) / (num_trees - 1);
     double outcome_instrument_loto =
-        (num_trees * average.at(OUTCOME_INSTRUMENT) - leaf_value.at(OUTCOME_INSTRUMENT)) / (num_trees - 1);
+      (num_trees * average.at(OUTCOME_INSTRUMENT) - leaf_value.at(OUTCOME_INSTRUMENT)) / (num_trees - 1);
     double treatment_instrument_loto =
-        (num_trees * average.at(TREATMENT_INSTRUMENT) - leaf_value.at(TREATMENT_INSTRUMENT)) / (num_trees - 1);
+      (num_trees * average.at(TREATMENT_INSTRUMENT) - leaf_value.at(TREATMENT_INSTRUMENT)) / (num_trees - 1);
     double instrument_effect_numerator_loto = outcome_instrument_loto - outcome_loto * instrument_loto;
     double first_stage_numerator_loto = treatment_instrument_loto - treatment_loto * instrument_loto;
     double treatment_effect_estimate_loto = instrument_effect_numerator_loto / first_stage_numerator_loto;
