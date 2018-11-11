@@ -19,8 +19,8 @@
 
 OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy,
                                                            uint ci_group_size) :
-    strategy(strategy),
-    ci_group_size(ci_group_size) {}
+  strategy(strategy),
+  ci_group_size(ci_group_size) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
                                                                           Data *prediction_data,

@@ -27,7 +27,7 @@
 
 #include "catch.hpp"
 
-// #define UPDATE_PREDICTION_FILES
+//#define UPDATE_PREDICTION_FILES
 
 bool equal_predictions(const std::vector<Prediction>& actual_predictions,
                        const std::vector<std::vector<double>>& expected_predictions) {
