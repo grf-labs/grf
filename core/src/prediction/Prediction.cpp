@@ -17,11 +17,7 @@
 
 #include "prediction/Prediction.h"
 
-<<<<<<< HEAD
 Prediction::Prediction(const std::vector<double>& predictions):
-=======
-Prediction::Prediction(const std::vector<double>& predictions) :
->>>>>>> e46fe7c26687defd18ae815cf6e34e7a06d385bb
   predictions(predictions),
   variance_estimates(0),
   error_estimates(0),
@@ -29,11 +25,7 @@ Prediction::Prediction(const std::vector<double>& predictions) :
 
 Prediction::Prediction(const std::vector<double>& predictions,
                        const std::vector<double>& variance_estimates,
-<<<<<<< HEAD
                        const std::vector<double>& error_estimates):
-=======
-                       const std::vector<double>& error_estimates) :
->>>>>>> e46fe7c26687defd18ae815cf6e34e7a06d385bb
   predictions(predictions),
   variance_estimates(variance_estimates),
   error_estimates(error_estimates),
@@ -42,11 +34,7 @@ Prediction::Prediction(const std::vector<double>& predictions,
 Prediction::Prediction(const std::vector<double>& predictions,
                        const std::vector<double>& variance_estimates,
                        const std::vector<double>& error_estimates,
-<<<<<<< HEAD
                        const std::vector<double>& monte_carlo_error_estimates):
-=======
-                       const std::vector<double>& monte_carlo_error_estimates) :
->>>>>>> e46fe7c26687defd18ae815cf6e34e7a06d385bb
   predictions(predictions),
   variance_estimates(variance_estimates),
   error_estimates(error_estimates),

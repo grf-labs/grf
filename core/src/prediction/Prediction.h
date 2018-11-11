@@ -53,8 +53,8 @@ public:
 private:
   std::vector<double> predictions;
   std::vector<double> variance_estimates;
-  std::vector<double> monte_carlo_error_estimates;
   std::vector<double> error_estimates;
+  std::vector<double> monte_carlo_error_estimates;
 };
 
 
