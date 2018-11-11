@@ -18,12 +18,12 @@
 #include "prediction/collector/OptimizedPredictionCollector.h"
 
 OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy,
-                                                           uint ci_group_size):
+                                                           uint ci_group_size) :
     strategy(strategy),
     ci_group_size(ci_group_size) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
-                                                                          Data* prediction_data,
+                                                                          Data *prediction_data,
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                                           bool estimate_error) {
@@ -76,14 +76,23 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
 
     PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
     std::vector<double> variance = ci_group_size > 1
-        ? strategy->compute_variance(average_value, prediction_values, ci_group_size)
-        : std::vector<double>();
+                                   ? strategy->compute_variance(average_value, prediction_values, ci_group_size)
+                                   : std::vector<double>();
 
-    std::vector<double> mse = estimate_error
-        ? strategy->compute_debiased_error(sample, average_value, prediction_values, forest.get_observations())
-        : std::vector<double>();
 
-    Prediction prediction(point_prediction, variance, mse);
+    std::vector<double> mse;
+    std::vector<double> mce;
+
+    if (estimate_error) {
+      std::vector<double> error = strategy->compute_error(sample, average_value, prediction_values,
+                                                          forest.get_observations());
+
+      mse.push_back(error[0]);
+      mce.push_back(error[1]);
+    }
+
+    Prediction prediction(point_prediction, variance, mse, mce);
+
     validate_prediction(sample, prediction);
     predictions.push_back(prediction);
   }
@@ -91,8 +100,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
 }
 
 void OptimizedPredictionCollector::add_prediction_values(size_t node,
-    const PredictionValues& prediction_values,
-    std::vector<double>& combined_average) {
+                                                         const PredictionValues& prediction_values,
+                                                         std::vector<double>& combined_average) {
   if (combined_average.empty()) {
     combined_average.resize(prediction_values.get_num_types());
   }
@@ -103,7 +112,7 @@ void OptimizedPredictionCollector::add_prediction_values(size_t node,
 }
 
 void OptimizedPredictionCollector::normalize_prediction_values(size_t num_leaves,
-    std::vector<double>& combined_average) {
+                                                               std::vector<double>& combined_average) {
   for (double& value : combined_average) {
     value /= num_leaves;
   }

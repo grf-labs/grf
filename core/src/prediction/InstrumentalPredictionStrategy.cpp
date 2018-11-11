@@ -33,14 +33,14 @@ const std::size_t InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT = 4;
 const std::size_t NUM_TYPES = 5;
 
 size_t InstrumentalPredictionStrategy::prediction_length() {
-    return 1;
+  return 1;
 }
 
 std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<double>& average) {
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
 
-  return { instrument_effect_numerator / first_stage_numerator };
+  return {instrument_effect_numerator / first_stage_numerator};
 }
 
 std::vector<double> InstrumentalPredictionStrategy::compute_variance(
@@ -49,15 +49,17 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     uint ci_group_size) {
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT)
-     - average.at(OUTCOME) * average.at(INSTRUMENT);
+                                       - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT)
-     - average.at(TREATMENT) * average.at(INSTRUMENT);
+                                 - average.at(TREATMENT) * average.at(INSTRUMENT);
   double treatment_effect_estimate = instrument_effect_numerator / first_stage_numerator;
   double main_effect = average.at(OUTCOME) - average.at(TREATMENT) * treatment_effect_estimate;
 
   double num_good_groups = 0;
-  std::vector<std::vector<double>> psi_squared = {{0, 0}, {0, 0}};
-  std::vector<std::vector<double>> psi_grouped_squared = {{0, 0}, {0, 0}};
+  std::vector<std::vector<double>> psi_squared = {{0, 0},
+                                                  {0, 0}};
+  std::vector<std::vector<double>> psi_grouped_squared = {{0, 0},
+                                                          {0, 0}};
 
   for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
@@ -122,16 +124,16 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
   double avg_Z = average.at(INSTRUMENT);
 
   double var_between = 1 / (first_stage_numerator * first_stage_numerator)
-    * (psi_grouped_squared[0][0]
-	     - psi_grouped_squared[0][1] * avg_Z
-	     - psi_grouped_squared[1][0] * avg_Z
-	     + psi_grouped_squared[1][1] * avg_Z * avg_Z);
+                       * (psi_grouped_squared[0][0]
+                          - psi_grouped_squared[0][1] * avg_Z
+                          - psi_grouped_squared[1][0] * avg_Z
+                          + psi_grouped_squared[1][1] * avg_Z * avg_Z);
 
   double var_total = 1 / (first_stage_numerator * first_stage_numerator)
-    * (psi_squared[0][0]
-	     - psi_squared[0][1] * avg_Z
-	     - psi_squared[1][0] * avg_Z
-	     + psi_squared[1][1] * avg_Z * avg_Z);
+                     * (psi_squared[0][0]
+                        - psi_squared[0][1] * avg_Z
+                        - psi_squared[1][0] * avg_Z
+                        + psi_squared[1][1] * avg_Z * avg_Z);
 
   // This is the amount by which var_between is inflated due to using small groups
   double group_noise = (var_total - var_between) / (ci_group_size - 1);
@@ -143,7 +145,7 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
   double var_debiased = bayes_debiaser.debias(var_between, group_noise, num_good_groups);
 
   double variance_estimate = var_debiased;
-  return { variance_estimate };
+  return {variance_estimate};
 }
 
 size_t InstrumentalPredictionStrategy::prediction_value_length() {
@@ -186,11 +188,11 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     value[OUTCOME_INSTRUMENT] = sum_YZ / leaf_size;
     value[TREATMENT_INSTRUMENT] = sum_WZ / leaf_size;
   }
-  
+
   return PredictionValues(values, num_leaves, NUM_TYPES);
 }
 
-std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
+std::vector<double> InstrumentalPredictionStrategy::compute_error(
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
@@ -221,7 +223,7 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
   // If the treatment effect estimate is due to less than 5 trees, do not attempt to estimate error,
   // as this quantity is unstable due to non-linearities.
   if (num_trees <= 5) {
-    return { NAN };
+    return {NAN, NAN};
   }
 
   // Compute 'leave one tree out' treatment effect estimates, and use them get a jackknife estimate of the excess error.
@@ -231,11 +233,13 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
       continue;
     }
     const std::vector<double>& leaf_value = leaf_values.get_values(n);
-    double outcome_loto = (num_trees *  average.at(OUTCOME) - leaf_value.at(OUTCOME)) / (num_trees - 1);
-    double treatment_loto = (num_trees *  average.at(TREATMENT) - leaf_value.at(TREATMENT)) / (num_trees - 1);
-    double instrument_loto = (num_trees *  average.at(INSTRUMENT) - leaf_value.at(INSTRUMENT)) / (num_trees - 1);
-    double outcome_instrument_loto = (num_trees *  average.at(OUTCOME_INSTRUMENT) - leaf_value.at(OUTCOME_INSTRUMENT)) / (num_trees - 1);
-    double treatment_instrument_loto = (num_trees *  average.at(TREATMENT_INSTRUMENT) - leaf_value.at(TREATMENT_INSTRUMENT)) / (num_trees - 1);
+    double outcome_loto = (num_trees * average.at(OUTCOME) - leaf_value.at(OUTCOME)) / (num_trees - 1);
+    double treatment_loto = (num_trees * average.at(TREATMENT) - leaf_value.at(TREATMENT)) / (num_trees - 1);
+    double instrument_loto = (num_trees * average.at(INSTRUMENT) - leaf_value.at(INSTRUMENT)) / (num_trees - 1);
+    double outcome_instrument_loto =
+        (num_trees * average.at(OUTCOME_INSTRUMENT) - leaf_value.at(OUTCOME_INSTRUMENT)) / (num_trees - 1);
+    double treatment_instrument_loto =
+        (num_trees * average.at(TREATMENT_INSTRUMENT) - leaf_value.at(TREATMENT_INSTRUMENT)) / (num_trees - 1);
     double instrument_effect_numerator_loto = outcome_instrument_loto - outcome_loto * instrument_loto;
     double first_stage_numerator_loto = treatment_instrument_loto - treatment_loto * instrument_loto;
     double treatment_effect_estimate_loto = instrument_effect_numerator_loto / first_stage_numerator_loto;
@@ -243,6 +247,12 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
     error_bias += (residual_loto - residual) * (residual_loto - residual);
   }
 
-  error_bias *= ((double)(num_trees - 1)) / (num_trees);
-  return { error_raw - error_bias };
+
+  error_bias *= ((double) (num_trees - 1)) / num_trees;
+
+  double debiased_error = error_raw - error_bias;
+
+  return {debiased_error, error_bias};
+
 }
+

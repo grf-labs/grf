@@ -110,7 +110,9 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
   return PredictionValues(values, num_leaves, 1);
 }
 
-std::vector<double> RegressionPredictionStrategy::compute_debiased_error(
+
+
+std::vector<double> RegressionPredictionStrategy::compute_error(
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
@@ -133,9 +135,13 @@ std::vector<double> RegressionPredictionStrategy::compute_debiased_error(
   }
 
   if (num_trees <= 1) {
-    return { NAN };
+    return { NAN, NAN };
   }
 
   bias /= num_trees * (num_trees - 1);
-  return { mse - bias };
+
+  double debiased_error = mse - bias;
+
+  return { debiased_error, bias };
 }
+
