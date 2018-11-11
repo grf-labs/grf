@@ -18,7 +18,11 @@
 #include "prediction/collector/OptimizedPredictionCollector.h"
 
 OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy,
+<<<<<<< HEAD
                                                            uint ci_group_size):
+=======
+                                                           uint ci_group_size) :
+>>>>>>> e46fe7c26687defd18ae815cf6e34e7a06d385bb
   strategy(strategy),
   ci_group_size(ci_group_size) {}
 
