@@ -17,8 +17,8 @@
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
-#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
@@ -63,7 +63,7 @@
 #' @export
 regression_forest <- function(X, Y,
                               sample.fraction = 0.5,
-                              mtry = NULL, 
+                              mtry = NULL,
                               num.trees = 2000,
                               num.threads = NULL,
                               min.node.size = NULL,
@@ -88,7 +88,7 @@ regression_forest <- function(X, Y,
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-    
+
     if (tune.parameters) {
       tuning.output <- tune_regression_forest(X, Y,
                                               num.fit.trees = num.fit.trees,
@@ -114,7 +114,7 @@ regression_forest <- function(X, Y,
         alpha = validate_alpha(alpha),
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
-    
+
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
 
@@ -145,6 +145,7 @@ regression_forest <- function(X, Y,
         oob.pred <- predict(forest)
         forest[["predictions"]] <- oob.pred$predictions
         forest[["debiased.error"]] <- oob.pred$debiased.error
+        forest[["monte.carlo.error"]] <- oob.pred$monte.carlo.error
     }
 
     forest
@@ -214,7 +215,8 @@ predict.regression_forest <- function(object, newdata = NULL,
     # If possible, use pre-computed predictions.
     if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
         return(data.frame(predictions=object$predictions,
-                          debiased.error=object$debiased.error))
+                          debiased.error=object$debiased.error,
+                          monte.carlo.error=object$monte.carlo.error))
     }
 
     num.threads = validate_num_threads(num.threads)
