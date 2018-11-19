@@ -95,8 +95,7 @@ average_partial_effect = function(forest,
   # Modify debiasing weights gamma to make this true, i.e., compute
   # argmin {||gamma - gamma.original||_2^2 : A'gamma = b}
   if (calibrate.weights) {
-    A = cbind(1, subset.W.orig, subset.W.hat) /
-      length(unique(subset.clusters))
+    A = cbind(1, subset.W.orig, subset.W.hat) / sum(subset.weights)
     b = c(0, 1, 0)
     bias = t(A) %*% debiasing.weights - b
     lambda = solve(t(A) %*% A, bias)
