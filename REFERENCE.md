@@ -227,7 +227,7 @@ In this case, it would be good to try growing a larger number of trees. Obtainin
 If the output of the `causal.forest` method doesn't pass a sanity check based on your knowledge of the data, it may be worth checking whether the overlap assumption is violated. In order for conditional average treatment effects to be properly identified, a dataset's propensity scores must be bounded away from 0 and 1. A simple way to validate this assumption is to calculate the propensity scores by regressing the treatment assignments W against X, and examining the out-of-bag predictions. Concretely, you can perform the following steps:
 
 ```
-propensity.forest = regression.forest(X, W)
+propensity.forest = regression_forest(X, W)
 W.hat = predict(propensity.forest)$predictions
 hist(W.hat, xlab = "propensity score")
 ```
