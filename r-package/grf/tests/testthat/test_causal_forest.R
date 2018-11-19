@@ -77,6 +77,34 @@ test_that("causal forests without stable splitting have reasonable split frequen
     expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })
 
+test_that("causal forests with a positive imbalance.penalty have reasonable tree depths", {
+    n <- 200
+    p <- 5
+    X <- matrix(rnorm(n * p), n, p)
+    W <- rbinom(p=0.5, size=1, n=n)
+    Y <- 0.5 * X[,1] * (2*W - 1) + 0.1 * rnorm(n)
+
+    forest = causal_forest(X, Y, W, imbalance.penalty=0.001)
+    split.freq = split_frequencies(forest)
+    expect_true(sum(split.freq[3,]) > 0)
+})
+
+test_that("causal forests with a very small imbalance.penalty behave similarly to unpenalized forests.", {
+    n <- 200
+    p <- 5
+    X <- matrix(rnorm(n * p), n, p)
+    W <- rbinom(n, 1, 0.5)
+    Y <- X[,1] * (2 * W - 1) + 0.1 * rnorm(n)
+
+    forest = causal_forest(X, Y, W, imbalance.penalty=0.0)
+    forest.large.penalty = causal_forest(X, Y, W, imbalance.penalty=100.0)
+    forest.small.penalty = causal_forest(X, Y, W, imbalance.penalty=1e-6)
+
+    diff.large.penalty = abs(forest.large.penalty$debiased.error - forest$debiased.error)
+    diff.small.penalty = abs(forest.small.penalty$debiased.error - forest$debiased.error)
+    expect_true(mean(diff.small.penalty) < 0.10 * mean(diff.large.penalty))
+})
+
 test_that("causal forests behave reasonably with a low treatment probability", {
     n = 1000
     p = 5
