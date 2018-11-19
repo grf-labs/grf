@@ -26,7 +26,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix input_data,
                               unsigned int ci_group_size,
                               double reduced_form_weight,
                               double alpha,
-                              bool imbalance_penalty,
+                              double imbalance_penalty,
                               bool stabilize_splits,
                               std::vector<size_t> clusters,
                               unsigned int samples_per_cluster) {
