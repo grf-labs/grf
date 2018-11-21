@@ -98,12 +98,10 @@ validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
   }
   cluster_size_counts <- table(clusters)
   min_size <- unname(cluster_size_counts[order(cluster_size_counts)][1])
-  # Check for whether this number is too small?
   if (is.null(samples_per_cluster)) {
     samples_per_cluster <- min_size
-  } else if (samples_per_cluster > min_size) {
-    stop(paste("Smallest cluster has", min_size, "observations",
-         "samples_per_cluster of", samples_per_cluster, "is too large."))
+  } else if (samples_per_cluster <= 0) {
+    stop("samples_per_cluster must be positive")
   }
   samples_per_cluster
 }
