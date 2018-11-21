@@ -51,7 +51,7 @@ test_calibration = function(forest) {
     attr(blp.summary, "method") <-
         paste("Best linear fit using forest predictions (on held-out data)",
               "as well as the mean forest prediction as regressors, along",
-              "with heteroskdasticity-robust (HC3) SEs",
+              "with heteroskedasticity-robust (HC3) SEs",
               sep="\n")
     blp.summary
 }
