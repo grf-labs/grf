@@ -206,9 +206,9 @@ When clustering is enabled during training, all subsampling procedures operate o
 - For each 'CI group' used in estimating variance, sample half of the clusters. Each CI group is then associated with a list of cluster IDs.
 - Within this half-sample of cluster IDs, sample `sample.fraction` of the clusters. Each tree is now associated with a list of cluster IDs.
 - If honesty is enabled, split these cluster IDs in half, so that one half can be used for growing the tree, and the other half is used in repopulating the leaves.
-- To grow the tree, draw `samples_per_cluster` examples from each of the cluster IDs, and do the same when repopulating the leaves for honesty.
+- To grow the tree, draw `samples_per_cluster` examples from each of the cluster IDs, and do the same when repopulating the leaves for honesty. In the event where `samples_per_cluster` is larger than the size of the cluster, we just select the whole cluster.
 
-Note that when clusters are provided, standard errors from `average_treatment_effect` and `average_partial_effect` estimation are also cluster-robust.
+Note that when clusters are provided, standard errors from `average_treatment_effect` and `average_partial_effect` estimation are also cluster-robust. Moreover, if clusters are specified, then each cluster gets equal weight. For example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall ATE is 0.5 (not 0.05).
 
 ## Troubleshooting
 
