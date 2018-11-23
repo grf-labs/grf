@@ -222,7 +222,9 @@ test_that("cluster robust average effects are consistent", {
   clust = c(1:n, 1:n, 1:n, 1:n)
 
   forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 4)
-  forest.causal.clust = causal_forest(Xc, Yc, Wc, num.trees = 1000, ci.group.size = 4, clusters = clust)
+  forest.causal.clust = causal_forest(Xc, Yc, Wc, num.trees = 1000,
+                                      ci.group.size = 4, clusters = clust,
+                                      samples_per_cluster = 7)
 
   cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   cate.clust.aipw = average_treatment_effect(forest.causal.clust, target.sample = "all", method = "AIPW")

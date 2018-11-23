@@ -101,9 +101,15 @@ void RandomSampler::sample_from_clusters(const std::vector<size_t>& clusters,
     for (size_t cluster : clusters) {
       const std::vector<size_t>& cluster_samples = samples_by_cluster.at(cluster);
 
-      std::vector<size_t> subsamples;
-      subsample_with_size(cluster_samples, options.get_samples_per_cluster(), subsamples);
-      samples.insert(samples.end(), subsamples.begin(), subsamples.end());
+      // Draw samples_per_cluster observations from each cluster. If the cluster is
+      // smaller than the samples_per_cluster parameter, just use the whole cluster.
+      if (cluster_samples.size() <= options.get_samples_per_cluster()) {
+        samples.insert(samples.end(), cluster_samples.begin(), cluster_samples.end());
+      } else {
+        std::vector<size_t> subsamples;
+        subsample_with_size(cluster_samples, options.get_samples_per_cluster(), subsamples);
+        samples.insert(samples.end(), subsamples.begin(), subsamples.end());
+      }
     }
   }
 }
