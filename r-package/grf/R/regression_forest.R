@@ -170,8 +170,6 @@ regression_forest <- function(X, Y,
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
 #' @param ll.lambda Ridge penalty for local linear predictions
-#' @param tune.lambda Optional self-tuning for ridge penalty lambda. Defaults to FALSE.
-#' @param lambda.path Optional list of lambdas to use for cross-validation, used if tune.lambda is TRUE.
 #' @param ll.weighted.penalty Option to standardize ridge penalty by covariance (TRUE),
 #'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
@@ -206,9 +204,7 @@ regression_forest <- function(X, Y,
 #' @export
 predict.regression_forest <- function(object, newdata = NULL,
                                       linear.correction.variables = NULL,
-                                      ll.lambda = 0.01,
-                                      tune.lambda = FALSE,
-                                      lambda.path = NULL,
+                                      ll.lambda = NULL,
                                       ll.weighted.penalty = FALSE,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
@@ -236,8 +232,8 @@ predict.regression_forest <- function(object, newdata = NULL,
     if (local.linear) {
         linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
 
-        if (tune.lambda) {
-            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weighted.penalty, num.threads, lambda.path)
+        if (is.null(ll.lambda)) {
+            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weighted.penalty, num.threads)
             ll.lambda = ll.regularization.path$lambda.min
         } else {
             ll.lambda = validate_ll_lambda(ll.lambda)

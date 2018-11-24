@@ -20,6 +20,9 @@
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
+#' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
+#'                      In order to provide confidence intervals, ci.group.size must
+#'                      be at least 2.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
@@ -156,6 +159,8 @@ local_linear_forest <- function(X, Y,
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
 #' @param ll.lambda Ridge penalty for local linear predictions
+#' @param tune.lambda Optional self-tuning for ridge penalty lambda. Defaults to FALSE.
+#' @param lambda.path Optional list of lambdas to use for cross-validation, used if tune.lambda is TRUE.
 #' @param ll.weighted.penalty Option to standardize ridge penalty by covariance (TRUE),
 #'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
