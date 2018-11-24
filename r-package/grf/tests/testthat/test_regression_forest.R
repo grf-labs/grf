@@ -76,16 +76,6 @@ test_that("regression variance estimates are positive", {
 	expect_true(mean(abs(Z.oob) > 1) < 0.5)
 })
 
-test_that("regression forest split frequencies are reasonable", {
-	n = 100
-	p = 6
-	X = matrix(rnorm(n*p), n, p)
-	Y = 1000 * (X[,1]) + rnorm(n)
-	rrr = regression_forest(X, Y, mtry = p)
-	freq = split_frequencies(rrr, 4)
-	expect_true(freq[1,1] / sum(freq[1,]) > 1/2)
-})
-
 test_that("using a sparse data representation produces the same predictions", {
 	dim = 20
 	X = diag(rnorm(dim), dim)
