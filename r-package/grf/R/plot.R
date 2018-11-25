@@ -1,8 +1,8 @@
-#' Writes each node information 
-#' If it is a leaf node: show it in different color, show number of samples, show leaf id
-#' If it is a non-leaf node: show its splitting variable and splitting value
-#' @param tree the tree to convert
-#' @param index the index of the current node
+# Writes each node information 
+# If it is a leaf node: show it in different color, show number of samples, show leaf id
+# If it is a non-leaf node: show its splitting variable and splitting value
+# @param tree the tree to convert
+# @param index the index of the current node
 create_dot_body <- function(tree, index=1) {
   
   node <- tree$nodes[[index]]
@@ -57,10 +57,10 @@ create_dot_body <- function(tree, index=1) {
   return(lines)
 }
 
-#' Export a tree in DOT format.
-#' This function generates a GraphViz representation of the tree,
-#' which is then written into `dot_string`. 
-#' @param tree the tree to convert
+# Export a tree in DOT format.
+# This function generates a GraphViz representation of the tree,
+# which is then written into `dot_string`. 
+# @param tree the tree to convert
 export_graphviz <- function(tree){
   header <- "digraph nodes { \n node [shape=box] ;"
   footer <- "}"
