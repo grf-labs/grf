@@ -5,7 +5,7 @@
 #' @param forest The forest used for prediction.
 #' @param linear.correction.variables Variables to use for local linear prediction. If left null,
 #'          all variables are used.
-#' @param ll.weighted.penalty Option to standardize ridge penalty by covariance (TRUE),
+#' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
 #'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
@@ -27,7 +27,7 @@
 #' @export
 tune_local_linear_forest <- function(forest,
                                      linear.correction.variables = NULL,
-                                     ll.weighted.penalty = FALSE,
+                                     ll.weight.penalty = FALSE,
                                      num.threads = NULL,
                                      lambda.path = NULL) {
   Y = forest[["Y.orig"]]
@@ -45,7 +45,7 @@ tune_local_linear_forest <- function(forest,
 
   # Enforce no variance estimates in tuning
   ci.group.size = 1
-  prediction.object = local_linear_predict_oob(forest.short, data$default, data$sparse, lambda.path, ll.weighted.penalty,
+  prediction.object = local_linear_predict_oob(forest.short, data$default, data$sparse, lambda.path, ll.weight.penalty,
                                  linear.correction.variables, num.threads, ci.group.size)
 
   prediction.object = prediction.object$predictions

@@ -80,7 +80,7 @@ test_that("causal error estimates are reasonable", {
   # c(raw.10, raw.20, raw.400) / sigma^2
   
   expect_equal(err.400, raw.400, tolerance = 0.1 * sigma^2)
-  expect_equal(err.10, err.400, tolerance = sigma^2)
+  expect_equal(err.10, err.400, tolerance = 1.5 * sigma^2)
   expect_equal(err.20, err.400, tolerance = 0.5 * sigma^2)
   expect_true(raw.10 - err.400 > sigma^2)
   expect_true(err.10 - err.400 < sigma^2)
