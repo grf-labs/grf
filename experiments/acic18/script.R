@@ -1,3 +1,5 @@
+#requires grf >= 10.2
+
 set.seed(1)
 
 rm(list = ls())
