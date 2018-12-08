@@ -1,10 +1,9 @@
-#requires grf >= 10.2
-
 set.seed(1)
 
 rm(list = ls())
 
 library(grf)
+if(packageVersion("grf") >= '0.10.2') {warning("This script requires grf 0.10.2 or higher");}
 library(sandwich)
 library(lmtest)
 library(Hmisc)
