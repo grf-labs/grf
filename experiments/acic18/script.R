@@ -46,6 +46,9 @@ cf.raw = causal_forest(X, Y, W,
 varimp = variable_importance(cf.raw)
 selected.idx = which(varimp > mean(varimp))
 
+# Currently failing with error:
+## Error in validate_samples_per_cluster(samples_per_cluster, clusters) : 
+## Smallest cluster has 14 observations samples_per_cluster of 50 is too large.
 cf = causal_forest(X[,selected.idx], Y, W,
                    Y.hat = Y.hat, W.hat = W.hat,
                    clusters = school.id,
