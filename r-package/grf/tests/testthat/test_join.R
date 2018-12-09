@@ -13,7 +13,7 @@ test_that("Concatenated regression forest attributes are sensible", {
   big_rf = join_forests(list(r.forest1, r.forest2))
 
   # Result is also a regression_forest of the same class
-  expect_true(big_rf$num.trees == (r.forest1$num.trees + r.forest2$num.trees))
+  expect_equals(r.forest1$num.trees + r.forest2$num.trees, big_rf$num.trees)
   expect_true(is(big_rf, "grf"))
   expect_equal(class(r.forest1), class(big_rf))
 })
