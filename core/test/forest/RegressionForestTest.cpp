@@ -88,6 +88,38 @@ TEST_CASE("regression forests give reasonable variance estimates", "[regression,
   delete data;
 }
 
+
+TEST_CASE("regression forests are joinable", "[regression, forest]") {
+  Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  uint outcome_index = 10;
+
+  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
+  ForestOptions options = ForestTestUtilities::default_options(false, 2);
+
+  Forest forest1 = trainer.train(data, options);
+  Forest forest2 = trainer.train(data, options);
+  Forest forest3 = trainer.train(data, options);
+
+  std::shared_ptr<Forest> forest_ptr1 = std::make_shared<Forest>(forest1);
+  std::shared_ptr<Forest> forest_ptr2 = std::make_shared<Forest>(forest2);
+  std::shared_ptr<Forest> forest_ptr3 = std::make_shared<Forest>(forest3);
+
+  std::vector<std::shared_ptr<Forest>> forests{ forest_ptr1, forest_ptr2, forest_ptr3 };
+
+  Forest big_forest = Forest::join(forests);
+
+  REQUIRE(forest1.get_trees().size() == 50);
+  REQUIRE(big_forest.get_trees().size() == 150);
+
+  ForestPredictor predictor = ForestPredictors::regression_predictor(4, 1);
+  std::vector<Prediction> predictions = predictor.predict_oob(big_forest, data);
+
+  REQUIRE(predictions.size() == data->get_num_rows());
+
+  delete data;
+}
+
+
 TEST_CASE("regression error estimates are shift invariant", "[regression, forest]") {
   // Run the original forest.
   Data* data = load_data("test/forest/resources/gaussian_data.csv");

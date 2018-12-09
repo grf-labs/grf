@@ -51,6 +51,20 @@ Forest::Forest(const std::vector<std::shared_ptr<Tree>>& trees,
   observations(observations),
   num_variables(num_variables) {}
 
+Forest Forest::join(std::vector<std::shared_ptr<Forest>>& forests) {
+
+  std::vector<std::shared_ptr<Tree>> all_trees;
+  const Observations& observations = forests[0]->get_observations();
+  const size_t num_variables = forests[0]->get_num_variables();
+
+  for (auto& forest : forests) {
+    auto& trees = forest->get_trees();
+    all_trees.insert(all_trees.end(), trees.begin(), trees.end());
+  }
+
+  return Forest(all_trees, observations, num_variables);
+}
+
 const Observations& Forest::get_observations() const {
   return observations;
 };

@@ -29,6 +29,10 @@ custom_predict_oob <- function(forest_object, input_data, sparse_input_data, num
     .Call('_grf_custom_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads)
 }
 
+cpp_join_forests <- function(forest_objects, input_data, sparse_input_data) {
+    .Call('_grf_cpp_join_forests', PACKAGE = 'grf', forest_objects, input_data, sparse_input_data)
+}
+
 instrumental_train <- function(input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster) {
     .Call('_grf_instrumental_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster)
 }
