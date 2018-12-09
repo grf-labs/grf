@@ -1,11 +1,12 @@
 Package: grf
 Title: Generalized Random Forests (Beta)
-Version: 0.10.1
+Version: 0.10.2
 Author: Julie Tibshirani [aut, cre],
     Susan Athey [aut],
-    Stefan Wager [aut],
     Rina Friedberg [ctb],
+    Vitor Hadad [ctb],
     Luke Miner [ctb],
+    Stefan Wager [aut],
     Marvin Wright [ctb]
 BugReports: https://github.com/grf-labs/grf/issues
 Maintainer: Julie Tibshirani <jtibs@cs.stanford.edu>
@@ -26,7 +27,7 @@ Imports:
     methods,
     Rcpp (>= 0.12.15),
     sandwich (>= 2.4-0)
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Suggests:
     testthat
 SystemRequirements: GNU make

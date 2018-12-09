@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.10.2] - 2018-11-23
+### Added
+- Add support for confidence intervals in local linear regression forests. 
+
+### Changed
+- Allow samples_per_cluster to be larger than smallest cluster size. 
+
+### Fixed
+- Make sure average effect estimation doesn't error on data with a single feature.
+- Fix a bug in local linear prediction where the penalty wasn't properly calculated.
+- Fix two issues in causal forest tuning that could lead to unstable results.
+- Ensure that the ATE and APE functions correctly account for cluster membership.
 
 ## [0.10.1] - 2018-09-23
 ### Added
