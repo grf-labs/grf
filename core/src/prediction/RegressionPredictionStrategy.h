@@ -24,31 +24,31 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
-class RegressionPredictionStrategy : public OptimizedPredictionStrategy {
+class RegressionPredictionStrategy: public OptimizedPredictionStrategy {
 public:
-    size_t prediction_value_length();
+  size_t prediction_value_length();
 
-    PredictionValues precompute_prediction_values(const std::vector<std::vector<size_t>>& leaf_samples,
-                                                  const Observations& observations);
+  PredictionValues precompute_prediction_values(const std::vector<std::vector<size_t>>& leaf_samples,
+                                                const Observations& observations);
 
-    size_t prediction_length();
+  size_t prediction_length();
 
-    std::vector<double> predict(const std::vector<double>& average);
+  std::vector<double> predict(const std::vector<double>& average);
 
-    std::vector<double> compute_variance(
-        const std::vector<double>& average,
-        const PredictionValues& leaf_values,
-        uint ci_group_size);
+  std::vector<double> compute_variance(
+      const std::vector<double>& average,
+      const PredictionValues& leaf_values,
+      uint ci_group_size);
 
-    std::vector<double> compute_error(
+  std::vector<std::pair<double, double>> compute_error(
         size_t sample,
         const std::vector<double>& average,
         const PredictionValues& leaf_values,
         const Observations& observations);
 
 private:
-    static const std::size_t OUTCOME;
-    ObjectiveBayesDebiaser bayes_debiaser;
+  static const std::size_t OUTCOME;
+  ObjectiveBayesDebiaser bayes_debiaser;
 };
 
 

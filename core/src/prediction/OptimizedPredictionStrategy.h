@@ -38,10 +38,10 @@
 class OptimizedPredictionStrategy {
 public:
 
-  /**
-   * The number of values in a prediction, e.g. 1 for regression,
-   * or the number of quantiles for quantile forests.
-   */
+ /**
+  * The number of values in a prediction, e.g. 1 for regression,
+  * or the number of quantiles for quantile forests.
+  */
   virtual size_t prediction_length() = 0;
 
   /**
@@ -52,45 +52,48 @@ public:
   */
   virtual std::vector<double> predict(const std::vector<double>& average_prediction_values) = 0;
 
-  /**
-   * Computes a prediction variance estimate for a single test sample.
-   *
-   * average_prediction_values: the 'prediction values' computed during training,
-   *     averaged across all leaves this test sample landed in.
-   * leaf_prediction_values: the individual 'prediction values' for each leaf this test
-   *     sample landed in. There will be one entry per tree, even if that tree was OOB or
-   *     the leaf was empty.
-   * ci_group_size: the size of the tree groups used to train the forest. This
-   *     parameter is used when computing within vs. across group variance.
-   */
+ /**
+  * Computes a prediction variance estimate for a single test sample.
+  *
+  * average_prediction_values: the 'prediction values' computed during training,
+  *     averaged across all leaves this test sample landed in.
+  * leaf_prediction_values: the individual 'prediction values' for each leaf this test
+  *     sample landed in. There will be one entry per tree, even if that tree was OOB or
+  *     the leaf was empty.
+  * ci_group_size: the size of the tree groups used to train the forest. This
+  *     parameter is used when computing within vs. across group variance.
+  */
   virtual std::vector<double> compute_variance(
-    const std::vector<double>& average_prediction_values,
-    const PredictionValues& leaf_prediction_values,
-    uint ci_group_size) = 0;
+      const std::vector<double>& average_prediction_values,
+      const PredictionValues& leaf_prediction_values,
+      uint ci_group_size) = 0;
 
-  /**
-   * The number of types of precomputed prediction values. For regression
-   * this is 1 (the average outcome), whereas for instrumental forests this
-   * is larger, as it includes the average treatment, average instrument etc.
-   */
+ /**
+  * The number of types of precomputed prediction values. For regression
+  * this is 1 (the average outcome), whereas for instrumental forests this
+  * is larger, as it includes the average treatment, average instrument etc.
+  */
   virtual size_t prediction_value_length() = 0;
 
-  /**
-   * This method is called during training on each tree to precompute
-   * summary values to be used during prediction.
-   *
-   * As an example, the regression prediction strategy computes the average outcome in
-   * each leaf so that it does not need to recompute these values during every prediction.
-   */
+ /**
+  * This method is called during training on each tree to precompute
+  * summary values to be used during prediction.
+  *
+  * As an example, the regression prediction strategy computes the average outcome in
+  * each leaf so that it does not need to recompute these values during every prediction.
+  */
   virtual PredictionValues precompute_prediction_values(
-    const std::vector<std::vector<size_t>>& leaf_samples,
-    const Observations& observations) = 0;
+      const std::vector<std::vector<size_t>>& leaf_samples,
+      const Observations& observations) = 0;
 
-  virtual std::vector<double> compute_error(
-    size_t sample,
-    const std::vector<double>& average,
-    const PredictionValues& leaf_values,
-    const Observations& observations) = 0;
+ /**
+  * TODO: Add documentation
+  */
+  virtual std::vector<std::pair<double, double>> compute_error(
+      size_t sample,
+      const std::vector<double>& average,
+      const PredictionValues& leaf_values,
+      const Observations& observations) = 0;
 };
 
 

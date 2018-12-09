@@ -1,5 +1,5 @@
 #' Causal forest
-#'
+#' 
 #' Trains a causal forest that can be used to estimate
 #' conditional average treatment effects tau(X). When
 #' the treatment assignment W is binary and unconfounded,
@@ -30,8 +30,8 @@
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
-#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
@@ -44,8 +44,13 @@
 #' @param seed The seed of the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
-#'                            software will set this value to the size of the smallest cluster.#'
+#'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples_per_cluster,
+#'                            the whole cluster is used every time the cluster is drawn. Note that
+#'                            clusters with less than samples_per_cluster observations get relatively
+#'                            smaller weight than others in training the forest, i.e., the contribution
+#'                            of a given cluster to the final forest scales with the minimum of
+#'                            the number of observations in the cluster and samples_per_cluster.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
@@ -130,13 +135,13 @@ causal_forest <- function(X, Y, W,
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
-
+    
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-
+    
     reduced.form.weight <- 0
 
     if (is.null(Y.hat)) {
@@ -231,14 +236,14 @@ causal_forest <- function(X, Y, W,
         oob.pred <- predict(forest)
         forest[["predictions"]] <- oob.pred$predictions
         forest[["debiased.error"]] <- oob.pred$debiased.error
-        forest[["monte.carlo.error"]] <- oob.pred$monte.carlo.error
+        forest[["excess.error"]] <- oob.pred$excess.error
     }
 
     forest
 }
 
 #' Predict with a causal forest
-#'
+#' 
 #' Gets estimates of tau(x) using a trained causal forest.
 #'
 #' @param object The trained forest.
@@ -282,8 +287,7 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
     # If possible, use pre-computed predictions.
     if (is.null(newdata) & !estimate.variance & !is.null(object$predictions)) {
         return(data.frame(predictions=object$predictions,
-                          debiased.error=object$debiased.error,
-                          monte.carlo.error=object$monte.carlo.error))
+                          debiased.error=object$debiased.error))
     }
 
     num.threads <- validate_num_threads(num.threads)

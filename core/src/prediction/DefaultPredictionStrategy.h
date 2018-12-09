@@ -52,8 +52,8 @@ public:
    * observations: the list of observations for all training samples.
    */
   virtual std::vector<double> predict(size_t sample,
-                                      const std::unordered_map<size_t, double>& weights_by_sample,
-                                      const Observations& observations) = 0;
+    const std::unordered_map<size_t, double>& weights_by_sample,
+    const Observations& observations) = 0;
 
   /**
    * Computes a prediction variance estimate for a single test sample.
@@ -69,11 +69,11 @@ public:
    *     parameter is used when computing within vs. across group variance.
    */
   virtual std::vector<double> compute_variance(
-    size_t sample,
-    std::vector<std::vector<size_t>> samples_by_tree,
-    std::unordered_map<size_t, double> weights_by_sampleID,
-    const Observations& observations,
-    uint ci_group_size) = 0;
+      size_t sample,
+      std::vector<std::vector<size_t>> samples_by_tree,
+      std::unordered_map<size_t, double> weights_by_sampleID,
+      const Observations& observations,
+      uint ci_group_size) = 0;
 };
 
 #endif //GRF_PREDICTIONSTRATEGY_H
