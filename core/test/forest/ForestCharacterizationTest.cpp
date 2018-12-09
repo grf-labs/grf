@@ -62,8 +62,8 @@ void update_predictions_file(const std::string file_name, std::vector<Prediction
 }
 
 TEST_CASE("quantile forest predictions have not changed", "[quantile], [characterization]") {
-  std::vector<double> quantiles({ 0.25, 0.5, 0.75 });
-  Data *data = load_data("test/forest/resources/quantile_data.csv");
+  std::vector<double> quantiles({0.25, 0.5, 0.75});
+  Data* data = load_data("test/forest/resources/quantile_data.csv");
 
   ForestTrainer trainer = ForestTrainers::quantile_trainer(10, quantiles);
   ForestOptions options = ForestTestUtilities::default_options();
@@ -80,24 +80,24 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
 #endif
 
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/quantile_oob_predictions.csv");
+      "test/forest/resources/quantile_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/quantile_predictions.csv");
+      "test/forest/resources/quantile_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 
   delete data;
 }
 
 TEST_CASE("causal forest predictions have not changed", "[causal], [characterization]") {
-  Data *data = load_data("test/forest/resources/causal_data.csv");
+  Data* data = load_data("test/forest/resources/causal_data.csv");
 
   double reduced_form_weight = 0.0;
   bool stabilize_splits = false;
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
-    10, 11, 11, reduced_form_weight, stabilize_splits);
+      10, 11, 11, reduced_form_weight, stabilize_splits);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(data, options);
@@ -112,24 +112,24 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
 #endif
 
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/causal_oob_predictions.csv");
+      "test/forest/resources/causal_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/causal_predictions.csv");
+      "test/forest/resources/causal_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 
   delete data;
 }
 
 TEST_CASE("causal forest predictions with stable splitting have not changed", "[causal], [characterization]") {
-  Data *data = load_data("test/forest/resources/causal_data.csv");
+  Data* data = load_data("test/forest/resources/causal_data.csv");
 
   double reduced_form_weight = 0.0;
   bool stabilize_splits = true;
 
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(
-    10, 11, 11, reduced_form_weight, stabilize_splits);
+      10, 11, 11, reduced_form_weight, stabilize_splits);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(data, options);
@@ -144,18 +144,18 @@ TEST_CASE("causal forest predictions with stable splitting have not changed", "[
 #endif
 
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/stable_causal_oob_predictions.csv");
+      "test/forest/resources/stable_causal_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/stable_causal_predictions.csv");
+      "test/forest/resources/stable_causal_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 
   delete data;
 }
 
 TEST_CASE("regression forest predictions have not changed", "[regression], [characterization]") {
-  Data *data = load_data("test/forest/resources/regression_data.csv");
+  Data* data = load_data("test/forest/resources/regression_data.csv");
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(10);
   ForestOptions options = ForestTestUtilities::default_options();
@@ -171,11 +171,11 @@ TEST_CASE("regression forest predictions have not changed", "[regression], [char
 #endif
 
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/regression_oob_predictions.csv");
+      "test/forest/resources/regression_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/regression_predictions.csv");
+      "test/forest/resources/regression_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 
   delete data;
@@ -183,18 +183,17 @@ TEST_CASE("regression forest predictions have not changed", "[regression], [char
 
 TEST_CASE("local linear regression forest predictions have not changed",
           "[local linear], [regression], [characterization]") {
-  Data *data = load_data("test/forest/resources/regression_data.csv");
+  Data* data = load_data("test/forest/resources/regression_data.csv");
 
   ForestTrainer trainer = ForestTrainers::regression_trainer(10);
   ForestOptions options = ForestTestUtilities::default_options();
   Forest forest = trainer.train(data, options);
 
-  std::vector<double> lambdas = { 0, 0.1, 1, 10, 100 };
+  std::vector<double> lambdas = {0, 0.1, 1, 10, 100};
   bool weight_penalty = false;
-  std::vector<size_t> linear_correction_variables = { 1, 3, 5 };
+  std::vector<size_t> linear_correction_variables = {1, 3, 5};
   ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, 1,
-                                                                       data, data, lambdas, weight_penalty,
-                                                                       linear_correction_variables);
+      data, data, lambdas, weight_penalty, linear_correction_variables);
 
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data);
   std::vector<Prediction> predictions = predictor.predict(forest, data);
@@ -205,11 +204,11 @@ TEST_CASE("local linear regression forest predictions have not changed",
 #endif
 
   std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/ll_regression_oob_predictions.csv");
+      "test/forest/resources/ll_regression_oob_predictions.csv");
   REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
-    "test/forest/resources/ll_regression_predictions.csv");
+      "test/forest/resources/ll_regression_predictions.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 
   delete data;

@@ -72,8 +72,6 @@ TEST_CASE("scaling outcome scales regression variance", "[regression, prediction
 
 
 TEST_CASE("debiased errors are smaller than raw errors", "[regression, prediction]") {
-
-
   std::vector<double> average = {2.725};
   std::vector<std::vector<double>> leaf_values = {{3.2}, {4.5}, {6.7}, {-3.5}};
   std::vector<std::vector<double>> outcomes = {{6.4, 9.0, 13.4, -7.0}};
@@ -87,14 +85,14 @@ TEST_CASE("debiased errors are smaller than raw errors", "[regression, predictio
           sample,
           average,
           PredictionValues(leaf_values, 4, 1),
-          observations).at(0);
+          observations).at(0).first;
 
     // Raw error
     double outcome = observations.get(Observations::OUTCOME, sample);
     double error = average.at(Observations::OUTCOME) - outcome;
     double mse = error * error;
 
-  //    REQUIRE(debiased_error < mse);
+    REQUIRE(debiased_error < mse);
   }
 }
 

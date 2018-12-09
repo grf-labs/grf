@@ -145,7 +145,7 @@ regression_forest <- function(X, Y,
         oob.pred <- predict(forest)
         forest[["predictions"]] <- oob.pred$predictions
         forest[["debiased.error"]] <- oob.pred$debiased.error
-        forest[["monte.carlo.error"]] <- oob.pred$monte.carlo.error
+        forest[["excess.error"]] <- oob.pred$excess.error
     }
 
     forest
@@ -216,7 +216,7 @@ predict.regression_forest <- function(object, newdata = NULL,
     if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
         return(data.frame(predictions=object$predictions,
                           debiased.error=object$debiased.error,
-                          monte.carlo.error=object$monte.carlo.error))
+                          excess.error=object$excess.error))
     }
 
     num.threads = validate_num_threads(num.threads)
