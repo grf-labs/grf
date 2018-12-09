@@ -87,7 +87,13 @@ public:
       const Observations& observations) = 0;
 
  /**
-  * TODO: Add documentation
+  * Computes out-of-bag error for a single sample.
+  *
+  * sample: index of the observation
+  * leaf_values: collected prediction values from all leaves across forests
+  * observations: depending on the forest type, this may contain output, treatment
+  *     and/or instrument values. These are used to compute an estimate of the
+  *     error given leaf_values.
   */
   virtual std::vector<std::pair<double, double>> compute_error(
       size_t sample,
