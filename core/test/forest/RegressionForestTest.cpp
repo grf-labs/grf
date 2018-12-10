@@ -106,7 +106,7 @@ TEST_CASE("regression forests are joinable", "[regression, forest]") {
 
   std::vector<std::shared_ptr<Forest>> forests{ forest_ptr1, forest_ptr2, forest_ptr3 };
 
-  Forest big_forest = Forest::join(forests);
+  Forest big_forest = Forest::merge(forests);
 
   REQUIRE(forest1.get_trees().size() == 50);
   REQUIRE(big_forest.get_trees().size() == 150);
