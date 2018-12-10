@@ -77,17 +77,19 @@ validate_seed <- function(seed) {
 }
 
 validate_clusters <- function(clusters, X) {
-  # This will convert factor to integer
-  clusters <- unclass(clusters)
-  
   if (is.null(clusters)) {
     clusters <- vector(mode="numeric", length=0)
   } else if (length(clusters) == 0) {
     clusters <- vector(mode="numeric", length=0)
-  } else if (!is.vector(clusters) | !all(clusters == floor(clusters))) {
-    stop("Clusters must be a vector of integers.")
+  } else if (mode(clusters) != "numeric") {
+    stop("Clusters must be able to be coerced to a numeric vector.")
+  }
+  
+  clusters <- as.numeric(clusters)
+  if (!all(clusters == floor(clusters))) {
+    stop("Clusters vector cannot contain floating point values.")
   } else if (length(clusters) != nrow(X)) {
-    stop("Clusters has incorrect length.")
+    stop("Clusters vector has incorrect length.")
   } else {
     # convert to integers between 0 and n clusters
     clusters <- as.numeric(as.factor(clusters)) - 1
