@@ -20,7 +20,7 @@
 
 #include <unordered_map>
 #include <vector>
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include "tree/Tree.h"
 #include "relabeling/RelabelingStrategy.h"
 
@@ -32,7 +32,7 @@ public:
 
   std::unordered_map<size_t, double> relabel(
       const std::vector<size_t>& samples,
-      const Observations& observations);
+      const Data* data);
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalRelabelingStrategy);
 

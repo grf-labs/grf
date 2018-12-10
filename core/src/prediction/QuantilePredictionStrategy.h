@@ -22,7 +22,7 @@
 #include <cstddef>
 #include <unordered_map>
 #include "Eigen/Dense"
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
 
@@ -34,13 +34,15 @@ public:
 
   std::vector<double> predict(size_t prediction_sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
-    const Observations& observations);
+    const Data* train_data,
+    const Data* data);
 
   std::vector<double> compute_variance(
       size_t sampleID,
       std::vector<std::vector<size_t>> samples_by_tree,
       std::unordered_map<size_t, double> weights_by_sampleID,
-      const Observations& observations,
+      const Data* train_data,
+      const Data* data,
       size_t ci_group_size);
 
 private:

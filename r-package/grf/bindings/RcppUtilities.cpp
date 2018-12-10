@@ -9,8 +9,7 @@
 
 const std::string RcppUtilities::SERIALIZED_FOREST_KEY = "serialized.forest";
 
-Rcpp::List RcppUtilities::create_forest_object(const Forest& forest,
-                                               Data* data) {
+Rcpp::List RcppUtilities::create_forest_object(const Forest& forest) {
   Rcpp::List result;
   Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
   result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
@@ -43,7 +42,6 @@ Forest RcppUtilities::deserialize_forest(Rcpp::RawVector input) {
 Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
                                   Eigen::SparseMatrix<double>& sparse_input_data) {
   Data* data;
-
   if (input_data.nrow() > 0) {
     size_t num_rows = input_data.nrow();
     size_t num_cols = input_data.ncol();
@@ -53,8 +51,6 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
     size_t num_cols = sparse_input_data.cols();
     data = new SparseData(&sparse_input_data, num_rows, num_cols);
   }
-
-  data->sort();
   return data;
 }
 

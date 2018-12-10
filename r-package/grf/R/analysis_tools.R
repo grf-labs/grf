@@ -136,11 +136,13 @@ get_sample_weights = function(forest, newdata = NULL, num.threads=NULL) {
   num.threads <- validate_num_threads(num.threads)
 
   forest.short <- forest[-which(names(forest) == "X.orig")]
+  train.data <- create_data_matrices(forest[["X.orig"]])
+  
   if (!is.null(newdata)) {
     data <- create_data_matrices(newdata)
-    compute_weights(forest.short, data$default, data$sparse, num.threads)
+    compute_weights(forest.short, train.data$default, train.data$sparse,
+        data$default, data$sparse, num.threads)
   } else {
-    data <- create_data_matrices(forest[["X.orig"]])
-    compute_weights_oob(forest.short, data$default, data$sparse, num.threads)
+    compute_weights_oob(forest.short, train.data$default, train.data$sparse, num.threads)
   }
 }

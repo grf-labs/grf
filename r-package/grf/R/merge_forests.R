@@ -33,7 +33,7 @@ merge_forests <- function(forest_list, compute.oob.predictions=TRUE) {
   first_forest <- forest_list[[1]]
   data <- create_data_matrices(first_forest$X.orig, first_forest$Y.orig)
   
-  big_forest <- merge(forest_list, data$default, data$sparse)
+  big_forest <- merge(forest_list)
   
   big_forest[["ci.group.size"]] <- first_forest$ci.group.size
   big_forest[["X.orig"]] <- first_forest$X.orig

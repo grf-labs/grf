@@ -25,11 +25,12 @@
 
 TEST_CASE("using a sparse data representation produces the same predictions", "[data]") {
   Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  data->set_outcome_index(10);
+
   Data* sparse_data = load_sparse_data("test/forest/resources/gaussian_data.csv");
+  sparse_data->set_outcome_index(10);
 
-  uint outcome_index = 10;
-
-  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
+  ForestTrainer trainer = ForestTrainers::regression_trainer();
   ForestPredictor predictor = ForestPredictors::regression_predictor(4);
   ForestOptions options = ForestTestUtilities::default_options();
 

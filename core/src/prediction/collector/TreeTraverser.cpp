@@ -83,17 +83,17 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_node_batch(
     size_t start,
     size_t num_trees,
     const Forest& forest,
-    Data* prediction_data,
+    Data* data,
     bool oob_prediction) const {
 
-  size_t num_samples = prediction_data->get_num_rows();
+  size_t num_samples = data->get_num_rows();
   std::vector<std::vector<size_t>> all_leaf_nodes(num_trees);
 
   for (size_t i = 0; i < num_trees; ++i) {
     std::shared_ptr<Tree> tree = forest.get_trees()[start + i];
 
     std::vector<bool> valid_samples = get_valid_samples(num_samples, tree, oob_prediction);
-    std::vector<size_t> leaf_nodes = tree->find_leaf_nodes(prediction_data, valid_samples);
+    std::vector<size_t> leaf_nodes = tree->find_leaf_nodes(data, valid_samples);
     all_leaf_nodes[i] = leaf_nodes;
   }
 

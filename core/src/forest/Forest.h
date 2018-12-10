@@ -18,29 +18,22 @@
 #ifndef GRF_FOREST_H_
 #define GRF_FOREST_H_
 
-#include <memory>
-
 #include "commons/DefaultData.h"
 #include "commons/globals.h"
-#include "commons/Observations.h"
 #include "forest/ForestOptions.h"
 #include "tree/TreeTrainer.h"
 #include "tree/Tree.h"
-
 
 class Forest {
 public:
   static Forest create(std::vector<std::shared_ptr<Tree>> trees,
                        const ForestOptions& forest_options,
-                       Data* data,
-                       std::unordered_map<size_t, size_t> observables);
+                       const Data* data);
 
   Forest(const std::vector<std::shared_ptr<Tree>>& trees,
-         const Observations& observations,
          size_t num_variables,
          size_t ci_group_size);
 
-  const Observations& get_observations() const;
   const std::vector<std::shared_ptr<Tree>>& get_trees() const;
 
   const size_t get_num_variables() const;
@@ -50,7 +43,6 @@ public:
   
 private:
   std::vector<std::shared_ptr<Tree>> trees;
-  Observations observations;
   size_t num_variables;
   size_t ci_group_size;
 };

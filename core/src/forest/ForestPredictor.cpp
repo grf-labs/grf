@@ -34,19 +34,22 @@ ForestPredictor::ForestPredictor(uint num_threads,
       new OptimizedPredictionCollector(strategy));
 }
 
+
 std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
+                                                 Data* train_data,
                                                  Data* data,
                                                  bool estimate_variance) const {
-  return predict(forest, data, estimate_variance, false);
+  return predict(forest, train_data, data, estimate_variance, false);
 }
 
 std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest,
                                                      Data* data,
                                                      bool estimate_variance) const {
-  return predict(forest, data, estimate_variance, true);
+  return predict(forest, data, data, estimate_variance, true);
 }
 
 std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
+                                                 Data* train_data,
                                                  Data* data,
                                                  bool estimate_variance,
                                                  bool oob_prediction) const {
@@ -58,7 +61,7 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
   std::vector<std::vector<size_t>> leaf_nodes_by_tree = tree_traverser.get_leaf_nodes(forest, data, oob_prediction);
   std::vector<std::vector<bool>> trees_by_sample = tree_traverser.get_valid_trees_by_sample(forest, data, oob_prediction);
 
-  return prediction_collector->collect_predictions(forest, data,
+  return prediction_collector->collect_predictions(forest, train_data, data,
       leaf_nodes_by_tree, trees_by_sample,
       estimate_variance, oob_prediction);
 }
