@@ -10,11 +10,11 @@ test_that("Concatenated regression forest attributes are sensible", {
   r.forest2 = regression_forest(X, Y, compute.oob.predictions = FALSE, num.trees = 10)
 
   # Join the forests together. 
-  big_rf = join_forests(list(r.forest1, r.forest2))
+  big_rf = merge_forests(list(r.forest1, r.forest2))
 
   # Result is also a regression_forest of the same class
-  expect_equals(r.forest1$num.trees + r.forest2$num.trees, big_rf$num.trees)
   expect_true(is(big_rf, "grf"))
+  expect_equal(r.forest1$num.trees + r.forest2$num.trees, big_rf$num.trees)
   expect_equal(class(r.forest1), class(big_rf))
 })
 
@@ -29,7 +29,7 @@ test_that("Concatenated causal forest attributes are sensible", {
   c.forest2 = causal_forest(X, Y, W, compute.oob.predictions = FALSE, num.trees = 10)
   
   # Join the forests together. 
-  big_rf = join_forests(list(c.forest1, c.forest2))
+  big_rf = merge_forests(list(c.forest1, c.forest2))
   
   # Result is also a regression_forest of the same class
   expect_true(big_rf$num.trees == (c.forest1$num.trees + c.forest2$num.trees))
