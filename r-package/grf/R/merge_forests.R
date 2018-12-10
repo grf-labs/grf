@@ -41,6 +41,7 @@ merge_forests <- function(forest_list, compute.oob.predictions=TRUE) {
   class(big_forest) <- class(first_forest)
   
   if (compute.oob.predictions) {
+<<<<<<< HEAD:r-package/grf/R/merge_forests.R
     oob.pred <- predict(big_forest)
     big_forest[["predictions"]] <- oob.pred$predictions
     # Must include checks here because some big_forest types may have this 
@@ -50,6 +51,17 @@ merge_forests <- function(forest_list, compute.oob.predictions=TRUE) {
     }
     if (!is.null(big_forest["excess.error"])) {
       big_forest[["excess.error"]] <- oob.pred$excess.error
+=======
+    oob.pred <- predict(forest)
+    forest[["predictions"]] <- oob.pred$predictions
+    # Must include checks here because some forest types may have this 
+    # method not yet implemented
+    if (!is.null(forest["debiased.error"])) {
+      forest[["debiased.error"]] <- oob.pred$debiased.error
+    }
+    if (!is.null(forest["excess.error"])) {
+      forest[["excess.error"]] <- oob.pred$excess.error
+>>>>>>> dcde786b568f06da3194c5122242b0ea09aa9de9:r-package/grf/R/merge_forests.R
     }
   }
   
