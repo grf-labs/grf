@@ -295,7 +295,8 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
     # If possible, use pre-computed predictions.
     if (is.null(newdata) & !estimate.variance & !is.null(object$predictions)) {
         return(data.frame(predictions=object$predictions,
-                          debiased.error=object$debiased.error))
+                          debiased.error=object$debiased.error,
+                          excess.error=object$excess.error))
     }
 
     num.threads <- validate_num_threads(num.threads)
