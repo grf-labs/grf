@@ -2,7 +2,7 @@ useDynLib(grf)
 
 importFrom("Matrix", "Matrix", "cBind")
 importFrom("methods", "new")
-importFrom("stats", "coef", "lm", "predict", "runif", "var")
+importFrom("stats", "coef", "lm", "predict", "runif", "var", "weighted.mean")
 importFrom("utils", "capture.output")
 import(Rcpp)
 

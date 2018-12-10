@@ -15,6 +15,11 @@
 #' This last estimand is recommended by Li, Morgan, and Zaslavsky (JASA, 2017)
 #' in case of poor overlap (i.e., when the propensities e(x) may be very close
 #' to 0 or 1), as it doesn't involve dividing by estimated propensities.
+#' 
+#' If clusters are specified, then each cluster gets equal weight. For example,
+#' if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there
+#' are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall
+#' ATE is 0.5 (not 0.05).
 #'
 #' @param forest The trained forest.
 #' @param target.sample Which sample to aggregate treatment effects over.
@@ -64,6 +69,10 @@ average_treatment_effect = function(forest,
   if (!("causal_forest" %in% class(forest))) {
     stop("Average effect estimation only implemented for causal_forest")
   }
+  
+  if (cluster.se & method == "TMLE") {
+    stop("TMLE has not yet been implemented with clustered observations.")
+  }
 
   if (is.null(subset)) {
     subset <- 1:length(forest$Y.hat)
@@ -77,6 +86,16 @@ average_treatment_effect = function(forest,
     stop(paste("If specified, subset must be a vector contained in 1:n,",
                "or a boolean vector of length n."))
   }
+  
+  if (!cluster.se) {
+    clusters <- 1:length(forest$Y.hat)
+    observation.weight <- rep(1, length(forest$Y.hat))
+  } else {
+    clusters <- forest$clusters
+    clust.factor <- factor(clusters)
+    inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
+    observation.weight <- inverse.counts[as.numeric(clust.factor)]
+  }
 
   # Only use data selected via subsetting.
   subset.W.orig <- forest$W.orig[subset]
@@ -84,11 +103,8 @@ average_treatment_effect = function(forest,
   subset.Y.orig <- forest$Y.orig[subset]
   subset.Y.hat <- forest$Y.hat[subset]
   tau.hat.pointwise <- predict(forest)$predictions[subset]
-  if (length(forest$clusters) == 0) {
-    subset.clusters <- numeric(0)
-  } else {
-    subset.clusters <- forest$clusters[subset]
-  }
+  subset.clusters <- clusters[subset]
+  subset.weights <- observation.weight[subset]
 
   # Address the overlap case separately, as this is a very different estimation problem.
   # The method argument (AIPW vs TMLE) is ignored in this case, as both methods are effectively
@@ -99,7 +115,7 @@ average_treatment_effect = function(forest,
   if (target.sample == "overlap") {
     W.residual <- subset.W.orig - subset.W.hat
     Y.residual <- subset.Y.orig - subset.Y.hat
-    tau.ols <- lm(Y.residual ~ W.residual)
+    tau.ols <- lm(Y.residual ~ W.residual, weights = subset.weights)
     tau.est <- coef(summary(tau.ols))[2,1]
     
     if (cluster.se) {
@@ -140,11 +156,13 @@ average_treatment_effect = function(forest,
   
   # Compute naive average effect estimates (notice that this uses OOB)
   if (target.sample == "all") {
-    tau.avg.raw <- mean(tau.hat.pointwise)
+    tau.avg.raw <- weighted.mean(tau.hat.pointwise, subset.weights)
   } else if (target.sample == "treated") {
-    tau.avg.raw <- mean(tau.hat.pointwise[treated.idx])
+    tau.avg.raw <- weighted.mean(tau.hat.pointwise[treated.idx],
+                                 subset.weights[treated.idx])
   } else if (target.sample == "control") {
-    tau.avg.raw <- mean(tau.hat.pointwise[control.idx])
+    tau.avg.raw <- weighted.mean(tau.hat.pointwise[control.idx],
+                                 subset.weights[control.idx])
   } else {
     stop("Invalid target sample.")
   }
@@ -179,19 +197,23 @@ average_treatment_effect = function(forest,
     }
     
     gamma <- rep(0, length(subset.W.orig))
-    gamma[control.idx] <- gamma.control.raw / sum(gamma.control.raw) * length(subset.W.orig)
-    gamma[treated.idx] <- gamma.treated.raw / sum(gamma.treated.raw) * length(subset.W.orig)
+    gamma[control.idx] <- gamma.control.raw /
+      sum(subset.weights[control.idx] * gamma.control.raw) *
+      sum(subset.weights)
+    gamma[treated.idx] <- gamma.treated.raw / 
+      sum(subset.weights[treated.idx] * gamma.treated.raw) *
+      sum(subset.weights)
     
     dr.correction.all <- subset.W.orig * gamma * (subset.Y.orig - Y.hat.1) -
       (1 - subset.W.orig) * gamma * (subset.Y.orig - Y.hat.0)
-    dr.correction <- mean(dr.correction.all)
+    dr.correction <- weighted.mean(dr.correction.all, subset.weights)
     
     if (cluster.se) {
       correction.clust <- Matrix::sparse.model.matrix(
         ~ factor(subset.clusters) + 0,
-        transpose = TRUE) %*% dr.correction.all
-      sigma2.hat <- sum(correction.clust^2) / length(dr.correction.all) /
-        (length(dr.correction.all) - 1)
+        transpose = TRUE) %*% (dr.correction.all * subset.weights)
+      sigma2.hat <- sum(correction.clust^2) / sum(subset.weights)^2 *
+        length(correction.clust) / (length(correction.clust) - 1)
     } else {
       sigma2.hat <- mean(dr.correction.all^2) / (length(dr.correction.all) - 1)
     }

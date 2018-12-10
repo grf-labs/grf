@@ -1,4 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^bindings$
-^tests/*
+
+^tests/testthat/test_((?!cran).).*
+^tests/benchmarks

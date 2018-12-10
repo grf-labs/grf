@@ -73,3 +73,28 @@ test_that("regression forest calibration is reasonable with no heterogeneous eff
   expect_true(abs(tc[1,1] - 1) <= 0.1)
   expect_true(abs(tc[2,3]) <= 4)
 })
+
+test_that("causal forest calibration works with clusters", {
+  n = 100; p = 4
+  X = matrix(rnorm(n*p), n, p)
+  W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
+  Y = pmax(X[,2], 0) + W + rnorm(n)
+  
+  cf = causal_forest(X, Y, W,
+                     W.hat = 0.25 + 0.5 * (X[,1] > 0),
+                     Y.hat = 0.25 + 0.5 * (X[,1] > 0) + pmax(X[,2], 0),
+                     num.trees = 100)
+  tc = test_calibration(cf)
+  
+  cf.clust = cf
+  cf.clust$W.orig = c(cf$W.orig[1:(n/2)], rep(cf$W.orig[n/2 + 1:(n/2)], 10))
+  cf.clust$Y.orig = c(cf$Y.orig[1:(n/2)], rep(cf$Y.orig[n/2 + 1:(n/2)], 10))
+  cf.clust$W.hat = c(cf$W.hat[1:(n/2)], rep(cf$W.hat[n/2 + 1:(n/2)], 10))
+  cf.clust$Y.hat = c(cf$Y.hat[1:(n/2)], rep(cf$Y.hat[n/2 + 1:(n/2)], 10))
+  cf.clust$predictions = c(cf$predictions[1:(n/2)], rep(cf$predictions[n/2 + 1:(n/2)], 10))
+  cf.clust$debiased.error = c(cf$debiased.error[1:(n/2)], rep(cf$debiased.error[n/2 + 1:(n/2)], 10))
+  cf.clust$clusters = c(1:(n/2), rep(n/2 + 1:(n/2), 10))
+  tc.clust = test_calibration(cf.clust)
+  
+  expect_equal(tc[,1:3], tc.clust[,1:3])
+})
