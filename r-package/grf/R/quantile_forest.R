@@ -156,6 +156,7 @@ predict.quantile_forest <- function(object,
     forest.short <- object[-which(names(object) == "X.orig")]
     
     if (!is.null(newdata)) {
+        validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
         quantile_predict(forest.short, quantiles, data$default, data$sparse, num.threads)
     } else {
