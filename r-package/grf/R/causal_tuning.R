@@ -11,6 +11,10 @@
 #' @param X The covariates used in the causal regression.
 #' @param Y The outcome.
 #' @param W The treatment assignment (may be binary or real).
+#' @param Y.hat Estimates of the expected responses E[Y | Xi], marginalizing
+#'              over treatment. See section 6.1.1 of the GRF paper for
+#'              further discussion of this quantity.
+#' @param W.hat Estimates of the treatment propensities E[W | Xi].
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
@@ -46,10 +50,13 @@
 #' X = matrix(rnorm(n*p), n, p)
 #' W = rbinom(n, 1, 0.5)
 #' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
-#' params = tune_causal_forest(X, Y, W)$params
+#' Y.hat = predict(regression_forest(X, Y))$predictions
+#' W.hat = rep(0.5, n)
+#' params = tune_causal_forest(X, Y, W, Y.hat, W.hat)$params
 #'
 #' # Use these parameters to train a regression forest.
-#' tuned.forest = causal_forest(X, Y, W, num.trees = 1000,
+#' tuned.forest = causal_forest(X, Y, W,
+#'     Y.hat = Y.hat, W.hat = W.hat, num.trees = 1000,
 #'     min.node.size = as.numeric(params["min.node.size"]),
 #'     sample.fraction = as.numeric(params["sample.fraction"]),
 #'     mtry = as.numeric(params["mtry"]),
@@ -58,7 +65,7 @@
 #' }
 #'
 #' @export
-tune_causal_forest <- function(X, Y, W,
+tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                num.fit.trees = 200,
                                num.fit.reps = 50,
                                num.optimize.reps = 1000,
@@ -85,7 +92,10 @@ tune_causal_forest <- function(X, Y, W,
   reduced.form.weight <- 0
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
-  data <- create_data_matrices(X, Y, W)
+  Y.centered = Y - Y.hat
+  W.centered = W - W.hat
+  
+  data <- create_data_matrices(X, Y.centered, W.centered)
   outcome.index <- ncol(X) + 1
   treatment.index <- ncol(X) + 2
   instrument.index <- treatment.index
