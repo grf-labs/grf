@@ -77,14 +77,12 @@ validate_seed <- function(seed) {
 }
 
 validate_clusters <- function(clusters, X) {
-  if (is.null(clusters)) {
-    clusters <- vector(mode="numeric", length=0)
-  } else if (length(clusters) == 0) {
-    clusters <- vector(mode="numeric", length=0)
-  } else if (mode(clusters) != "numeric") {
+  if (is.null(clusters) || length(clusters) == 0) {
+    return (vector(mode="numeric", length=0))
+  }
+  if (mode(clusters) != "numeric") {
     stop("Clusters must be able to be coerced to a numeric vector.")
   }
-  
   clusters <- as.numeric(clusters)
   if (!all(clusters == floor(clusters))) {
     stop("Clusters vector cannot contain floating point values.")
@@ -96,7 +94,6 @@ validate_clusters <- function(clusters, X) {
   }
   clusters
 }
-
 
 validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
   if (is.null(clusters) || length(clusters) == 0) {
