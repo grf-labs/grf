@@ -223,6 +223,7 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   linear.correction.variables = linear.correction.variables - 1
 
   if (!is.null(newdata) ) {
+    validate_newdata(newdata, object$X.orig)
     data = create_data_matrices(newdata)
     training.data = create_data_matrices(X.orig)
     ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,

@@ -300,6 +300,7 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
 
     forest.short <- object[-which(names(object) == "X.orig")]
     if (!is.null(newdata)) {
+        validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
         ret <- instrumental_predict(forest.short, data$default, data$sparse,
                                     num.threads, ci.group.size)
