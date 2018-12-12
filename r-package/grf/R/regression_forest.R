@@ -246,6 +246,7 @@ predict.regression_forest <- function(object, newdata = NULL,
 
     if (!is.null(newdata) ) {
         data = create_data_matrices(newdata)
+        validate_newdata(newdata, object$X.orig)
         if (!local.linear) {
             ret = regression_predict(forest.short, data$default, data$sparse,
                 num.threads, ci.group.size)
