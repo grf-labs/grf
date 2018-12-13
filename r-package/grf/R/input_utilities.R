@@ -77,14 +77,12 @@ validate_seed <- function(seed) {
 }
 
 validate_clusters <- function(clusters, X) {
-  if (is.null(clusters)) {
-    clusters <- vector(mode="numeric", length=0)
-  } else if (length(clusters) == 0) {
-    clusters <- vector(mode="numeric", length=0)
-  } else if (mode(clusters) != "numeric") {
+  if (is.null(clusters) || length(clusters) == 0) {
+    return (vector(mode="numeric", length=0))
+  }
+  if (mode(clusters) != "numeric") {
     stop("Clusters must be able to be coerced to a numeric vector.")
   }
-  
   clusters <- as.numeric(clusters)
   if (!all(clusters == floor(clusters))) {
     stop("Clusters vector cannot contain floating point values.")
@@ -96,7 +94,6 @@ validate_clusters <- function(clusters, X) {
   }
   clusters
 }
-
 
 validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
   if (is.null(clusters) || length(clusters) == 0) {
@@ -129,7 +126,7 @@ validate_honesty_fraction <- function(honesty.fraction, honesty) {
   }
 }
 
-validate_ll_vars <- function(linear.correction.variables, num.cols){
+validate_ll_vars <- function(linear.correction.variables, num.cols) {
   if (is.null(linear.correction.variables)) {
     linear.correction.variables = 1:num.cols
   }
@@ -143,7 +140,7 @@ validate_ll_vars <- function(linear.correction.variables, num.cols){
   linear.correction.variables
 }
 
-validate_ll_lambda <- function(lambda){
+validate_ll_lambda <- function(lambda) {
   if (lambda < 0) {
     stop("Lambda cannot be negative.")
   } else if (!is.numeric(lambda) | length(lambda) > 1) {
@@ -152,7 +149,7 @@ validate_ll_lambda <- function(lambda){
   lambda
 }
 
-validate_ll_path <- function(lambda.path){
+validate_ll_path <- function(lambda.path) {
   if (is.null(lambda.path)) {
     lambda.path = c(0, 0.001, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1, 10)
   } else if (min(lambda.path)<0) {
@@ -161,6 +158,13 @@ validate_ll_path <- function(lambda.path){
     stop("Lambda values must be numeric.")
   }
   lambda.path
+}
+
+validate_newdata <- function(newdata, X) {
+  if (ncol(newdata) != ncol(X)) {
+    stop("newdata must have the same number of columns as the training matrix.")
+  }
+  validate_X(newdata)
 }
 
 coerce_honesty_fraction <- function(honesty.fraction) {

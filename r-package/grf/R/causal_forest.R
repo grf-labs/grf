@@ -168,11 +168,8 @@ causal_forest <- function(X, Y, W,
       stop("W.hat has incorrect length.")
     }
 
-    Y.centered = Y - Y.hat
-    W.centered = W - W.hat
-
     if (tune.parameters) {
-      tuning.output <- tune_causal_forest(X, Y.centered, W.centered,
+      tuning.output <- tune_causal_forest(X, Y, W, Y.hat, W.hat,
                                           num.fit.trees = num.fit.trees,
                                           num.fit.reps = num.fit.reps,
                                           num.optimize.reps = num.optimize.reps,
@@ -197,6 +194,9 @@ causal_forest <- function(X, Y, W,
         alpha = validate_alpha(alpha),
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
+    
+    Y.centered = Y - Y.hat
+    W.centered = W - W.hat
 
     data <- create_data_matrices(X, Y.centered, W.centered)
     outcome.index <- ncol(X) + 1
@@ -300,6 +300,7 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
 
     forest.short <- object[-which(names(object) == "X.orig")]
     if (!is.null(newdata)) {
+        validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
         ret <- instrumental_predict(forest.short, data$default, data$sparse,
                                     num.threads, ci.group.size)

@@ -30,7 +30,9 @@ test_that("causal forest tuning only cross-validates null parameters", {
     min.node.size = 5
     imbalance.penalty = 0.42
     
-    tune.output = tune_causal_forest(X, Y, W, min.node.size = min.node.size, imbalance.penalty = imbalance.penalty)
+    tune.output = tune_causal_forest(X, Y, W, 0, 0.5,
+                                     min.node.size = min.node.size,
+                                     imbalance.penalty = imbalance.penalty)
     tunable.params = tune.output$params
     
     expect_equal(as.numeric(tunable.params["min.node.size"]), min.node.size)
