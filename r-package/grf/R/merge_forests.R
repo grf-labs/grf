@@ -2,6 +2,9 @@
 #'
 #' @param forest_list A `list` of forests to be concatenated. 
 #'                        All forests must be of the same type, and the type must be a subclass of `grf`.
+#'                        In addition, all forests must have the same 'ci.group.size'. 
+#'                        Other tuning parameters (e.g. alpha, mtry, min.node.size, imbalance.penalty) are
+#'                        allowed to differ across forests.
 #'                        
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
 #'        Note that even if OOB predictions have already been precomputed for the forests in 'forest_list',
@@ -36,21 +39,14 @@ merge_forests <- function(forest_list, compute.oob.predictions=TRUE) {
   big_forest[["X.orig"]] <- first_forest$X.orig
   big_forest[["Y.orig"]] <- first_forest$Y.orig
   big_forest[["clusters"]] <- first_forest$clusters
-  big_forest[["min.node.size"]] <- first_forest$min.node.size
-  
+
   class(big_forest) <- class(first_forest)
   
   if (compute.oob.predictions) {
     oob.pred <- predict(big_forest)
     big_forest[["predictions"]] <- oob.pred$predictions
-    # Must include checks here because some big_forest types may have this 
-    # method not yet implemented
-    if (!is.null(big_forest["debiased.error"])) {
-      big_forest[["debiased.error"]] <- oob.pred$debiased.error
-    }
-    if (!is.null(big_forest["excess.error"])) {
-      big_forest[["excess.error"]] <- oob.pred$excess.error
-    }
+    big_forest[["debiased.error"]] <- oob.pred$debiased.error
+    big_forest[["excess.error"]] <- oob.pred$excess.error
   }
   
   big_forest
@@ -75,4 +71,14 @@ validate_forest_list <- function(forest_list) {
                paste(classes, collapse=", ")))
   }
   
+  first.ci.group.size <- first_forest$ci.group.size
+  compatible.ci.group.sizes <- sapply(
+    forest_list, function(frst) frst$ci.group.size == first.ci.group.size)
+  if (!all(compatible.ci.group.sizes)) {
+    stop("All forests in 'forest_list' must have the same ci.group.size.")
+  }
+  
 }
+
+
+
