@@ -168,11 +168,8 @@ causal_forest <- function(X, Y, W,
       stop("W.hat has incorrect length.")
     }
 
-    Y.centered = Y - Y.hat
-    W.centered = W - W.hat
-
     if (tune.parameters) {
-      tuning.output <- tune_causal_forest(X, Y.centered, W.centered,
+      tuning.output <- tune_causal_forest(X, Y, W, Y.hat, W.hat,
                                           num.fit.trees = num.fit.trees,
                                           num.fit.reps = num.fit.reps,
                                           num.optimize.reps = num.optimize.reps,
@@ -197,6 +194,9 @@ causal_forest <- function(X, Y, W,
         alpha = validate_alpha(alpha),
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
+    
+    Y.centered = Y - Y.hat
+    W.centered = W - W.hat
 
     data <- create_data_matrices(X, Y.centered, W.centered)
     outcome.index <- ncol(X) + 1
@@ -247,10 +247,11 @@ causal_forest <- function(X, Y, W,
 #' Gets estimates of tau(x) using a trained causal forest.
 #'
 #' @param object The trained forest.
-#' @param newdata Points at which predictions should be made. If NULL,
-#'                makes out-of-bag predictions on the training set instead
-#'                (i.e., provides predictions at Xi using only trees that did
-#'                not use the i-th training example).
+#' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
+#'                predictions on the training set instead (i.e., provides predictions at
+#'                Xi using only trees that did not use the i-th training example). Note
+#'                that this matrix should have the number of columns as the training
+#'                matrix, and that the columns must appear in the same order.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -309,6 +310,7 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
 
     forest.short <- object[-which(names(object) == "X.orig")]
     if (!is.null(newdata)) {
+        validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
         ret <- instrumental_predict(forest.short, data$default, data$sparse,
                                     num.threads, ci.group.size)

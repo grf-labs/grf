@@ -161,10 +161,11 @@ regression_forest <- function(X, Y,
 #' Gets estimates of E[Y|X=x] using a trained regression forest.
 #'
 #' @param object The trained forest.
-#' @param newdata Points at which predictions should be made. If NULL,
-#'                makes out-of-bag predictions on the training set instead
-#'                (i.e., provides predictions at Xi using only trees that did
-#'                not use the i-th training example).
+#' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
+#'                predictions on the training set instead (i.e., provides predictions at
+#'                Xi using only trees that did not use the i-th training example). Note
+#'                that this matrix should have the number of columns as the training
+#'                matrix, and that the columns must appear in the same order.
 #' @param linear.correction.variables Optional subset of indexes for variables to be used in local
 #'                   linear prediction. If NULL, standard GRF prediction is used. Otherwise,
 #'                   we run a locally weighted linear regression on the included variables.
@@ -253,6 +254,7 @@ predict.regression_forest <- function(object, newdata = NULL,
 
     if (!is.null(newdata) ) {
         data = create_data_matrices(newdata)
+        validate_newdata(newdata, object$X.orig)
         if (!local.linear) {
             ret = regression_predict(forest.short, data$default, data$sparse,
                 num.threads, ci.group.size)
