@@ -40,6 +40,8 @@ public:
   const std::vector<std::shared_ptr<Tree>>& get_trees() const;
   const size_t get_num_variables() const;
 
+  static Forest merge(const std::vector<std::shared_ptr<Forest>>& forests);
+  
 private:
   std::vector<std::shared_ptr<Tree>> trees;
   Observations observations;
