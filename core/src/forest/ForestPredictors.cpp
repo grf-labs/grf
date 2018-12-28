@@ -26,32 +26,29 @@
 ForestPredictor ForestPredictors::custom_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new CustomPredictionStrategy());
-  return ForestPredictor(num_threads, 1.0, prediction_strategy);
+  return ForestPredictor(num_threads, prediction_strategy);
 }
 
-ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads,
-                                                         uint ci_group_size) {
+ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
-  return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
+  return ForestPredictor(num_threads, prediction_strategy);
 }
 
 ForestPredictor ForestPredictors::quantile_predictor(uint num_threads,
                                                      const std::vector<double>& quantiles) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
-  return ForestPredictor(num_threads, 1.0, prediction_strategy);
+  return ForestPredictor(num_threads, prediction_strategy);
 }
 
-ForestPredictor ForestPredictors::regression_predictor(uint num_threads,
-                                                       uint ci_group_size) {
+ForestPredictor ForestPredictors::regression_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
-  return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
+  return ForestPredictor(num_threads, prediction_strategy);
 }
 
 ForestPredictor ForestPredictors::local_linear_predictor(uint num_threads,
-                                                         uint ci_group_size,
                                                          const Data* original_data,
                                                          const Data* test_data,
                                                          std::vector<double> lambdas,
@@ -63,5 +60,5 @@ ForestPredictor ForestPredictors::local_linear_predictor(uint num_threads,
                                                                                                    lambdas,
                                                                                                    weighted_penalty,
                                                                                                    linear_correction_variables));
-  return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
+  return ForestPredictor(num_threads, prediction_strategy);
 }

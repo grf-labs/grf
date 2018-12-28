@@ -37,12 +37,12 @@ instrumental_train <- function(input_data, sparse_input_data, outcome_index, tre
     .Call('_grf_instrumental_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster)
 }
 
-instrumental_predict <- function(forest_object, input_data, sparse_input_data, num_threads, ci_group_size) {
-    .Call('_grf_instrumental_predict', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, ci_group_size)
+instrumental_predict <- function(forest_object, input_data, sparse_input_data, num_threads, estimate_variance) {
+    .Call('_grf_instrumental_predict', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, estimate_variance)
 }
 
-instrumental_predict_oob <- function(forest_object, input_data, sparse_input_data, num_threads, ci_group_size) {
-    .Call('_grf_instrumental_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, ci_group_size)
+instrumental_predict_oob <- function(forest_object, input_data, sparse_input_data, num_threads, estimate_variance) {
+    .Call('_grf_instrumental_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, estimate_variance)
 }
 
 quantile_train <- function(quantiles, regression_splits, input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
@@ -61,19 +61,19 @@ regression_train <- function(input_data, sparse_input_data, outcome_index, mtry,
     .Call('_grf_regression_train', PACKAGE = 'grf', input_data, sparse_input_data, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
 }
 
-regression_predict <- function(forest_object, input_data, sparse_input_data, num_threads, ci_group_size) {
-    .Call('_grf_regression_predict', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, ci_group_size)
+regression_predict <- function(forest_object, input_data, sparse_input_data, num_threads, estimate_variance) {
+    .Call('_grf_regression_predict', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, estimate_variance)
 }
 
-regression_predict_oob <- function(forest_object, input_data, sparse_input_data, num_threads, ci_group_size) {
-    .Call('_grf_regression_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, ci_group_size)
+regression_predict_oob <- function(forest_object, input_data, sparse_input_data, num_threads, estimate_variance) {
+    .Call('_grf_regression_predict_oob', PACKAGE = 'grf', forest_object, input_data, sparse_input_data, num_threads, estimate_variance)
 }
 
-local_linear_predict <- function(forest, input_data, training_data, sparse_input_data, sparse_training_data, lambdas, weight_penalty, linear_correction_variables, num_threads, ci_group_size) {
-    .Call('_grf_local_linear_predict', PACKAGE = 'grf', forest, input_data, training_data, sparse_input_data, sparse_training_data, lambdas, weight_penalty, linear_correction_variables, num_threads, ci_group_size)
+local_linear_predict <- function(forest, input_data, training_data, sparse_input_data, sparse_training_data, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
+    .Call('_grf_local_linear_predict', PACKAGE = 'grf', forest, input_data, training_data, sparse_input_data, sparse_training_data, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance)
 }
 
-local_linear_predict_oob <- function(forest, input_data, sparse_input_data, lambdas, weight_penalty, linear_correction_variables, num_threads, ci_group_size) {
-    .Call('_grf_local_linear_predict_oob', PACKAGE = 'grf', forest, input_data, sparse_input_data, lambdas, weight_penalty, linear_correction_variables, num_threads, ci_group_size)
+local_linear_predict_oob <- function(forest, input_data, sparse_input_data, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
+    .Call('_grf_local_linear_predict_oob', PACKAGE = 'grf', forest, input_data, sparse_input_data, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance)
 }
 

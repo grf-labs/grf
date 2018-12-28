@@ -54,7 +54,7 @@ public:
         std::vector<std::vector<size_t>> samples_by_tree,
         std::unordered_map<size_t, double> weights_by_sampleID,
         const Observations& observations,
-        uint ci_group_size);
+        size_t ci_group_size);
 
 private:
 

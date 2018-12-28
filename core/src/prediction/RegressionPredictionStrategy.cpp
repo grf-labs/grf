@@ -32,7 +32,7 @@ std::vector<double> RegressionPredictionStrategy::predict(const std::vector<doub
 std::vector<double> RegressionPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    uint ci_group_size) {
+    size_t ci_group_size) {
 
   double average_outcome = average.at(OUTCOME);
 

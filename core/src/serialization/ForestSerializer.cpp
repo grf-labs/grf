@@ -31,6 +31,9 @@ void ForestSerializer::serialize(std::ostream& stream, const Forest& forest) {
 
   size_t num_variables = forest.get_num_variables();
   stream.write((char*) &num_variables, sizeof(num_variables));
+
+  size_t ci_group_size = forest.get_ci_group_size();
+  stream.write((char*) &ci_group_size, sizeof(ci_group_size));
 }
 
 Forest ForestSerializer::deserialize(std::istream& stream) {
@@ -47,6 +50,9 @@ Forest ForestSerializer::deserialize(std::istream& stream) {
   size_t num_variables;
   stream.read((char*) &num_variables, sizeof(num_variables));
 
-  return Forest(trees, observations, num_variables);
+  size_t ci_group_size;
+  stream.read((char*) &ci_group_size, sizeof(ci_group_size));
+
+  return Forest(trees, observations, num_variables, ci_group_size);
 }
 
