@@ -70,14 +70,6 @@ validate_forest_list <- function(forest_list) {
     stop(paste("All forests in 'forest_list' must be of the same type, but we found:", 
                paste(classes, collapse=", ")))
   }
-  
-  first.ci.group.size <- first_forest$ci.group.size
-  compatible.ci.group.sizes <- sapply(
-    forest_list, function(frst) frst$ci.group.size == first.ci.group.size)
-  if (!all(compatible.ci.group.sizes)) {
-    stop("All forests in 'forest_list' must have the same ci.group.size.")
-  }
-  
 }
 
 

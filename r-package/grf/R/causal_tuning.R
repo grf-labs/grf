@@ -135,7 +135,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                        clusters,
                                        samples_per_cluster)
     prediction = instrumental_predict_oob(small.forest, data$default, data$sparse,
-                                          num.threads, ci.group.size)
+                                          num.threads, FALSE)
     mean(prediction$debiased.error, na.rm = TRUE)
   })
   

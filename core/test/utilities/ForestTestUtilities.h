@@ -26,7 +26,7 @@ public:
   static ForestOptions default_options();
   static ForestOptions default_honest_options();
 
-  static ForestOptions default_options(bool honesty, uint ci_group_size);
+  static ForestOptions default_options(bool honesty, size_t ci_group_size);
 };
 
 #endif //GRF_FORESTTESTUTILITIES_H

@@ -27,7 +27,7 @@ ForestOptions ForestTestUtilities::default_honest_options() {
 }
 
 ForestOptions ForestTestUtilities::default_options(bool honesty,
-                                                   uint ci_group_size) {
+                                                   size_t ci_group_size) {
   double honesty_fraction = 0.5;
   uint num_trees = 50;
   double sample_fraction = ci_group_size > 1 ? 0.35 : 0.7;

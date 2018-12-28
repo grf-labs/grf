@@ -80,11 +80,13 @@ TEST_CASE("forests serialize and deserialize correctly", "[forestSerialization]"
 
   ForestSerializer forest_serializer;
   std::stringstream stream;
-  Forest original_forest(trees, observations, 3);
+  Forest original_forest(trees, observations, 3, 5);
 
   forest_serializer.serialize(stream, original_forest);
   Forest forest = forest_serializer.deserialize(stream);
 
   REQUIRE(forest.get_trees().size() == original_forest.get_trees().size());
   REQUIRE(forest.get_observations().get_num_samples() == original_forest.get_observations().get_num_samples());
+  REQUIRE(forest.get_num_variables() == original_forest.get_num_variables());
+  REQUIRE(forest.get_ci_group_size() == original_forest.get_ci_group_size());
 }

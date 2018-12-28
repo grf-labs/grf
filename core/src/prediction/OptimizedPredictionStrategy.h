@@ -66,7 +66,7 @@ public:
   virtual std::vector<double> compute_variance(
       const std::vector<double>& average_prediction_values,
       const PredictionValues& leaf_prediction_values,
-      uint ci_group_size) = 0;
+      size_t ci_group_size) = 0;
 
  /**
   * The number of types of precomputed prediction values. For regression
