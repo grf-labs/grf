@@ -42,9 +42,10 @@ std::unordered_map<size_t, double> SampleWeightComputer::compute_weights(size_t 
     std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
     const std::vector<size_t>& samples = tree->get_leaf_samples()[node];
     
+    double w = 1.0 / samples.size();
     for (auto&s : samples) {
-      ++raw_weights[s];
-      ++total_weights;
+      raw_weights[s] += w;
+      total_weights += w;
     }
   }
   
