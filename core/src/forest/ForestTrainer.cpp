@@ -50,8 +50,6 @@ const Forest ForestTrainer::train(Data* data,
     throw std::runtime_error("The honesty fraction is too close to 1 or 0, as no observations will be sampled.");
   }
 
-
-
   size_t num_types = observables.size();
   std::vector<std::vector<double>> observations_by_type(num_types);
   for (auto it : observables) {
@@ -95,7 +93,7 @@ const Forest ForestTrainer::train(Data* data,
     trees.insert(trees.end(), thread_trees.begin(), thread_trees.end());
   }
 
-  return Forest::create(trees, data, observables);
+  return Forest::create(trees, options, data, observables);
 }
 
 std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
@@ -104,7 +102,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
     Data* data,
     const Observations& observations,
     const ForestOptions& options) const {
-  uint ci_group_size = options.get_ci_group_size();
+  size_t ci_group_size = options.get_ci_group_size();
 
   std::mt19937_64 random_number_generator(options.get_random_seed() + start);
   std::uniform_int_distribution<uint> udist;

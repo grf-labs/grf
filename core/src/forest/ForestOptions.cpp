@@ -20,7 +20,7 @@
 #include "tree/TreeOptions.h"
 
 ForestOptions::ForestOptions(uint num_trees,
-                             uint ci_group_size,
+                             size_t ci_group_size,
                              double sample_fraction,
                              uint mtry,
                              uint min_node_size,
@@ -60,7 +60,7 @@ uint ForestOptions::get_num_trees() const {
   return num_trees;
 }
 
-uint ForestOptions::get_ci_group_size() const {
+size_t ForestOptions::get_ci_group_size() const {
   return ci_group_size;
 }
 

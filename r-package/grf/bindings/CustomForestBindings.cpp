@@ -37,7 +37,7 @@ Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
                         unsigned int seed,
                         bool honesty,
                         double honesty_fraction,
-                        unsigned int ci_group_size,
+                        size_t ci_group_size,
                         double alpha,
                         double imbalance_penalty,
                         std::vector<size_t> clusters,
@@ -64,7 +64,7 @@ Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::custom_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict(forest, data);
+  std::vector<Prediction> predictions = predictor.predict(forest, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   delete data;
@@ -81,7 +81,7 @@ Rcpp::NumericMatrix custom_predict_oob(Rcpp::List forest_object,
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::custom_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   delete data;

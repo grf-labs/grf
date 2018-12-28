@@ -60,7 +60,8 @@ TEST_CASE("split frequency computation works as expected", "[analysis, unit]") {
       {{1}}, second_split_vars, {1}, {1}, PredictionValues())));
 
   size_t num_variables = 5;
-  Forest forest(trees, Observations(), num_variables);
+  size_t ci_group_size = 2;
+  Forest forest(trees, Observations(), num_variables, ci_group_size);
 
   SplitFrequencyComputer computer;
   size_t max_depth = 3;
@@ -94,7 +95,8 @@ TEST_CASE("split frequency computation respects max depth", "[analysis, unit]") 
       {{0}}, split_vars, {0}, {0}, PredictionValues())));
 
   size_t num_variables = 5;
-  Forest forest(trees, Observations(), num_variables);
+  size_t ci_group_size = 2;
+  Forest forest(trees, Observations(), num_variables, ci_group_size);
 
   SplitFrequencyComputer computer;
   size_t max_depth = 2;

@@ -211,12 +211,6 @@ predict.local_linear_forest <- function(object, newdata = NULL,
     ll.lambda = validate_ll_lambda(ll.lambda)
   }
 
-  if (estimate.variance) {
-    ci.group.size = object$ci.group.size
-  } else {
-    ci.group.size = 1
-  }
-
   num.threads = validate_num_threads(num.threads)
 
   # Subtract 1 to account for C++ indexing
@@ -228,11 +222,11 @@ predict.local_linear_forest <- function(object, newdata = NULL,
     training.data = create_data_matrices(X.orig)
     ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
                   training.data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
-                  num.threads, ci.group.size)
+                  num.threads, estimate.variance)
   } else {
      data = create_data_matrices(X.orig)
      ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, ll.weight.penalty,
-                  linear.correction.variables, num.threads, ci.group.size)
+                  linear.correction.variables, num.threads, estimate.variance)
   }
 
   ret[["ll.lambda"]] = ll.lambda

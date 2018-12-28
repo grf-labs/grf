@@ -19,6 +19,7 @@
 #include "forest/Forest.h"
 
 Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
+                      const ForestOptions& forest_options,
                       Data* data,
                       std::unordered_map<size_t, size_t> observables) {
   size_t num_types = observables.size();
@@ -41,28 +42,35 @@ Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
   Observations observations(observations_by_type, num_samples);
   size_t num_independent_variables = data->get_num_cols() - disallowed_split_variables.size();
 
-  return Forest(trees, observations, num_independent_variables);
+  return Forest(trees, observations, num_independent_variables, forest_options.get_ci_group_size());
 }
 
 Forest::Forest(const std::vector<std::shared_ptr<Tree>>& trees,
                const Observations& observations,
-               size_t num_variables):
+               size_t num_variables,
+               size_t ci_group_size):
   trees(trees),
   observations(observations),
-  num_variables(num_variables) {}
+  num_variables(num_variables),
+  ci_group_size(ci_group_size) {}
 
 Forest Forest::merge(const std::vector<std::shared_ptr<Forest>>& forests) {
 
   std::vector<std::shared_ptr<Tree>> all_trees;
   const Observations& observations = forests[0]->get_observations();
   const size_t num_variables = forests[0]->get_num_variables();
+  const size_t ci_group_size = forests[0]->get_ci_group_size();
 
   for (auto& forest : forests) {
     auto& trees = forest->get_trees();
     all_trees.insert(all_trees.end(), trees.begin(), trees.end());
+
+    if (forest->get_ci_group_size() != ci_group_size) {
+      throw std::runtime_error("All forests being merged must have the same ci_group_size.");
+    }
   }
 
-  return Forest(all_trees, observations, num_variables);
+  return Forest(all_trees, observations, num_variables, ci_group_size);
 }
 
 const Observations& Forest::get_observations() const {
@@ -75,4 +83,8 @@ const std::vector<std::shared_ptr<Tree>>& Forest::get_trees() const {
 
 const size_t Forest::get_num_variables() const {
   return num_variables;
+}
+
+const size_t Forest::get_ci_group_size() const {
+  return ci_group_size;
 }
