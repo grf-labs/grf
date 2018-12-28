@@ -46,7 +46,7 @@ std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<do
 std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    uint ci_group_size) {
+    size_t ci_group_size) {
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT)
      - average.at(OUTCOME) * average.at(INSTRUMENT);

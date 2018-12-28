@@ -221,12 +221,6 @@ predict.regression_forest <- function(object, newdata = NULL,
 
     num.threads = validate_num_threads(num.threads)
 
-    if (estimate.variance) {
-        ci.group.size = object$ci.group.size
-    } else {
-        ci.group.size = 1
-    }
-
     forest.short = object[-which(names(object) == "X.orig")]
     X.orig = object[["X.orig"]]
 
@@ -249,20 +243,20 @@ predict.regression_forest <- function(object, newdata = NULL,
         validate_newdata(newdata, object$X.orig)
         if (!local.linear) {
             ret = regression_predict(forest.short, data$default, data$sparse,
-                num.threads, ci.group.size)
+                num.threads, estimate.variance)
         } else {
             training.data = create_data_matrices(X.orig)
             ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
                 training.data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads,
-                ci.group.size)
+                estimate.variance)
         }
     } else {
         data = create_data_matrices(X.orig)
         if (!local.linear) {
-            ret = regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+            ret = regression_predict_oob(forest.short, data$default, data$sparse, num.threads, estimate.variance)
         } else {
             ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, ll.weight.penalty,
-                linear.correction.variables, num.threads, ci.group.size)
+                linear.correction.variables, num.threads, estimate.variance)
         }
     }
 

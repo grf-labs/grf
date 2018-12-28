@@ -23,7 +23,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
                           unsigned int seed,
                           bool honesty,
                           double honesty_fraction,
-                          unsigned int ci_group_size,
+                          size_t ci_group_size,
                           double alpha,
                           double imbalance_penalty,
                           std::vector<size_t> clusters,
@@ -54,7 +54,7 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::quantile_predictor(num_threads, quantiles);
-  std::vector<Prediction> predictions = predictor.predict(forest, data);
+  std::vector<Prediction> predictions = predictor.predict(forest, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   delete data;
@@ -72,7 +72,7 @@ Rcpp::NumericMatrix quantile_predict_oob(Rcpp::List forest_object,
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::quantile_predictor(num_threads, quantiles);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   delete data;

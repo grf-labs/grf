@@ -196,24 +196,17 @@ predict.instrumental_forest <- function(object, newdata = NULL,
     }
 
     num.threads <- validate_num_threads(num.threads)
-
-    if (estimate.variance) {
-        ci.group.size <- object$ci.group.size
-    } else {
-        ci.group.size <- 1
-    }
-
     forest.short <- object[-which(names(object) == "X.orig")]
 
     if (!is.null(newdata)) {
         validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
         ret <- instrumental_predict(forest.short, data$default, data$sparse,
-                                    num.threads, ci.group.size)
+                                    num.threads, estimate.variance)
     } else {
         data <- create_data_matrices(object[["X.orig"]])
         ret <- instrumental_predict_oob(forest.short, data$default, data$sparse,
-                                        num.threads, ci.group.size)
+                                        num.threads, estimate.variance)
     }
 
     # Convert list to data frame.

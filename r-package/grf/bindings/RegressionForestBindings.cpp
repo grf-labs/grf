@@ -38,7 +38,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix input_data,
                             unsigned int seed,
                             bool honesty,
                             double honesty_fraction,
-                            unsigned int ci_group_size,
+                            size_t ci_group_size,
                             double alpha,
                             double imbalance_penalty,
                             std::vector<size_t> clusters,
@@ -63,13 +63,13 @@ Rcpp::List regression_predict(Rcpp::List forest_object,
                               Rcpp::NumericMatrix input_data,
                               Eigen::SparseMatrix<double> sparse_input_data,
                               unsigned int num_threads,
-                              unsigned int ci_group_size) {
+                              bool estimate_variance) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
           forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::regression_predictor(num_threads, ci_group_size);
-  std::vector<Prediction> predictions = predictor.predict(forest, data);
+  ForestPredictor predictor = ForestPredictors::regression_predictor(num_threads);
+  std::vector<Prediction> predictions = predictor.predict(forest, data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
   delete data;
@@ -81,13 +81,13 @@ Rcpp::List regression_predict_oob(Rcpp::List forest_object,
                                   Rcpp::NumericMatrix input_data,
                                   Eigen::SparseMatrix<double> sparse_input_data,
                                   unsigned int num_threads,
-                                  unsigned int ci_group_size) {
+                                  bool estimate_variance) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Forest forest = RcppUtilities::deserialize_forest(
           forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::regression_predictor(num_threads, ci_group_size);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+  ForestPredictor predictor = ForestPredictors::regression_predictor(num_threads);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
   delete data;
@@ -104,16 +104,16 @@ Rcpp::List local_linear_predict(Rcpp::List forest,
                                 bool weight_penalty,
                                 std::vector<size_t> linear_correction_variables,
                                 unsigned int num_threads,
-                                unsigned int ci_group_size) {
+                                bool estimate_variance) {
   Data *test_data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Data *original_data = RcppUtilities::convert_data(training_data, sparse_training_data);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads, ci_group_size, original_data, test_data,
+  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads, original_data, test_data,
                                                                        lambdas, weight_penalty,
                                                                        linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict(deserialized_forest, test_data);
+  std::vector<Prediction> predictions = predictor.predict(deserialized_forest, test_data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   delete original_data;
@@ -129,15 +129,15 @@ Rcpp::List local_linear_predict_oob(Rcpp::List forest,
                                     bool weight_penalty,
                                     std::vector<size_t> linear_correction_variables,
                                     unsigned int num_threads,
-                                    unsigned int ci_group_size) {
+                                    bool estimate_variance) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads, ci_group_size, data, data,
+  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads, data, data,
                                                                        lambdas, weight_penalty,
                                                                        linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data);
+  std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   delete data;

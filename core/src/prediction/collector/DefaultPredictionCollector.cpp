@@ -17,16 +17,15 @@
 
 #include "prediction/collector/DefaultPredictionCollector.h"
 
-DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy,
-                                                      uint ci_group_size):
-    strategy(strategy),
-    ci_group_size(ci_group_size) {}
+DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy):
+    strategy(strategy) {}
 
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
     Data* prediction_data,
     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
+    bool estimate_variance,
     bool estimate_error) {
 
   size_t num_samples = prediction_data->get_num_rows();
@@ -34,7 +33,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
   predictions.reserve(num_samples);
 
   size_t num_trees = forest.get_trees().size();
-  bool record_leaf_samples = ci_group_size > 1 || estimate_error;
+  bool record_leaf_samples = estimate_variance || estimate_error;
 
   for (size_t sample = 0; sample < num_samples; sample++) {
     std::unordered_map<size_t, double> weights_by_sample = weight_computer.compute_weights(
@@ -58,8 +57,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     }
 
     std::vector<double> point_prediction = strategy->predict(sample, weights_by_sample, forest.get_observations());
-    std::vector<double> variance = ci_group_size > 1
-        ? strategy->compute_variance(sample, samples_by_tree, weights_by_sample, forest.get_observations(), ci_group_size)
+    std::vector<double> variance = estimate_variance
+        ? strategy->compute_variance(sample, samples_by_tree, weights_by_sample, forest.get_observations(), forest.get_ci_group_size())
         : std::vector<double>();
 
     Prediction prediction(point_prediction, variance, std::vector<double>());

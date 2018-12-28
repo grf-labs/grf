@@ -39,7 +39,7 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local linear], [
   std::vector<size_t> empty_clusters;
   uint samples_per_cluster = 0;
   uint num_threads = 1;
-  uint ci_group_size = 1;
+  size_t ci_group_size = 1;
   uint seed = 42;
   ForestOptions options (
       num_trees, ci_group_size, sample_fraction,
@@ -50,10 +50,10 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local linear], [
 
   Data* queries = data;
   ForestPredictor predictor = ForestPredictors::local_linear_predictor(
-      num_threads, ci_group_size, data, queries,
+      num_threads, data, queries,
       lambda, false,
       linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
 
   const std::vector<double>& p = predictions[0].get_predictions();
 
@@ -74,12 +74,12 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
   Forest forest = trainer.train(data, options);
 
   uint num_threads = 1;
-  uint ci_group_size = 1;
+  size_t ci_group_size = 1;
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads, ci_group_size,
-                                                                       data, data, lambda, false, linear_correction_variables);
+  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads,
+      data, data, lambda, false, linear_correction_variables);
 
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
 
   // Shift each outcome by 1, and re-run the forest.
   bool error;
@@ -89,10 +89,9 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
   }
 
   Forest shifted_forest = trainer.train(data, options);
-  ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(num_threads, ci_group_size,
-                                                                               data, data, lambda, false, linear_correction_variables);
-  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data);
-
+  ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(num_threads,
+      data, data, lambda, false, linear_correction_variables);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
 
   REQUIRE(predictions.size() == shifted_predictions.size());
   double delta = 0.0;
@@ -128,7 +127,7 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
   std::vector<size_t> empty_clusters;
   uint samples_per_cluster = 0;
   uint num_threads = 1;
-  uint ci_group_size = 2;
+  size_t ci_group_size = 2;
   uint seed = 42;
   ForestOptions options (
       num_trees, ci_group_size, sample_fraction,
@@ -137,8 +136,8 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
   ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
   Forest forest = trainer.train(data, options);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, 2, data, data, lambda, false, linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, data, data, lambda, false, linear_correction_variables);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, true);
 
   for (size_t i = 0; i < predictions.size(); i++) {
     Prediction prediction = predictions[i];
