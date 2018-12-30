@@ -208,39 +208,19 @@ bool TreeTrainer::split_node_internal(size_t node,
     return true;
   }
 
-  // Check if node is pure and set split_value to estimate and stop if pure
-  bool pure = true;
-  double pure_value = 0;
-  for (size_t i = 0; i < samples[node].size(); ++i) {
-    size_t sample = samples[node][i];
-    double value = observations.get(Observations::OUTCOME, sample);
-    if (i != 0 && value != pure_value) {
-      pure = false;
-      break;
-    }
-    pure_value = value;
-  }
-
-  if (pure) {
-    split_values[node] = -1.0;
-    return true;
-  }
-
   std::unordered_map<size_t, double> responses_by_sample = relabeling_strategy->relabel(
       samples[node], observations);
 
-  bool stop = responses_by_sample.empty() ||
-              splitting_rule->find_best_split(node,
-                                              possible_split_vars,
-                                              responses_by_sample,
-                                              samples,
-                                              split_vars,
-                                              split_values);
-
-  if (stop) {
+  if (responses_by_sample.empty() || splitting_rule->find_best_split(node,
+                                                                     possible_split_vars,
+                                                                     responses_by_sample,
+                                                                     samples,
+                                                                     split_vars,
+                                                                     split_values)) {
     split_values[node] = -1.0;
     return true;
   }
+
   return false;
 }
 
