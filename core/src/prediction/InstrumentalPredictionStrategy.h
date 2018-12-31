@@ -38,7 +38,7 @@ public:
   size_t prediction_value_length();
   PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_samples,
-      const Observations& observations);
+      const Data* data);
 
   size_t prediction_length();
   std::vector<double> predict(const std::vector<double>& average);
@@ -51,7 +51,7 @@ public:
       size_t sample,
       const std::vector<double>& average,
       const PredictionValues& leaf_values,
-      const Observations& observations);
+      const Data* data);
 
 private:
   ObjectiveBayesDebiaser bayes_debiaser;

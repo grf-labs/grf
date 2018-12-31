@@ -21,8 +21,8 @@
 #include "SparseData.h"
 #include "utility.h"
 
-SparseData::SparseData() :
-    SparseData(NULL, 0, 0) {}
+SparseData::SparseData():
+  SparseData(NULL, 0, 0) {}
 
 SparseData::SparseData(Eigen::SparseMatrix<double>* data,
                        size_t num_rows,

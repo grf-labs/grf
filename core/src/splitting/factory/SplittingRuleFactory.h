@@ -21,15 +21,13 @@
 #include <memory>
 
 #include "commons/Data.h"
-#include "commons/Observations.h"
 #include "splitting/SplittingRule.h"
 #include "tree/TreeOptions.h"
 
 
 class SplittingRuleFactory {
 public:
-  virtual std::shared_ptr<SplittingRule> create(Data* data,
-                                                const Observations& observations,
+  virtual std::shared_ptr<SplittingRule> create(const Data* data,
                                                 const TreeOptions& options) = 0;
 };
 

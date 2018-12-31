@@ -42,20 +42,20 @@ public:
    * Given test data and a list of sample IDs, recurses down the tree to find
    * the leaf node IDs that those samples belong in.
    *
-   * @param prediction_data: the data matrix containing all test samples.
+   * @param data: the data matrix containing all test samples.
    * @param samples: a list of sample IDs whose leaf nodes should be calculated.
    * @return The resulting node IDs for each sample ID in the input. For efficiency reasons, this
    * vector's length will be equal to the total number of test samples, and the index for each
    * requested sample ID will contain the corresponding node ID. All other values will be 0.
    */
-  std::vector<size_t> find_leaf_nodes(Data* prediction_data,
+  std::vector<size_t> find_leaf_nodes(const Data* data,
                                       const std::vector<size_t>& samples);
 
   /**
    * Given test data and a vector indicating which samples to consider, recurses
    * down the tree to find the leaf node IDs that those samples belong in.
    *
-   * @param prediction_data: the data matrix containing all test samples.
+   * @param data: the data matrix containing all test samples.
    * @param samples: a vector indicating which samples should have their leaf nodes
    * calculated. This vector's length should be equal to the total number of samples, and
    * contain 'true' for a sample ID's index if that sample's leaf node should be calculated.
@@ -63,7 +63,7 @@ public:
    * vector's length will be equal to the total number of test samples, and the index for each
    * requested sample ID will contain the corresponding node ID. All other values will be 0.
    */
-  std::vector<size_t> find_leaf_nodes(Data* prediction_data,
+  std::vector<size_t> find_leaf_nodes(const Data* data,
                                       const std::vector<bool>& valid_samples);
   /**
    * Removes all empty leaf nodes.
@@ -135,7 +135,7 @@ public:
   void set_prediction_values(const PredictionValues& prediction_values);
 
 private:
-  size_t find_leaf_node(Data* prediction_data,
+  size_t find_leaf_node(const Data* data,
                         size_t sample);
   void prune_node(size_t& node);
   bool is_empty_leaf(size_t node);

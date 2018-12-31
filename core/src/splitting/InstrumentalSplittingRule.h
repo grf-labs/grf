@@ -19,13 +19,12 @@
 #define GRF_INSTRUMENTALSPLITTINGRULE_H
 
 #include "commons/Data.h"
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 
 class InstrumentalSplittingRule: public SplittingRule {
 public:
-  InstrumentalSplittingRule(Data* data,
-                            const Observations& observations,
+  InstrumentalSplittingRule(const Data* data,
                             uint min_node_size,
                             double alpha,
                             double imbalance_penalty);
@@ -68,8 +67,7 @@ private:
                                      const std::unordered_map<size_t, double>& responses_by_sample,
                                      const std::vector<std::vector<size_t>>& samples);
 
-  Data* data;
-  const Observations& observations;
+  const Data* data;
 
   size_t* counter;
   double* sums;

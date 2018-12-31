@@ -91,11 +91,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   ci.group.size <- 1
   reduced.form.weight <- 0
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-
-  Y.centered = Y - Y.hat
-  W.centered = W - W.hat
   
-  data <- create_data_matrices(X, Y.centered, W.centered)
+  data <- create_data_matrices(X, Y - Y.hat, W - W.hat)
   outcome.index <- ncol(X) + 1
   treatment.index <- ncol(X) + 2
   instrument.index <- treatment.index
@@ -135,7 +132,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                        clusters,
                                        samples_per_cluster)
     prediction = instrumental_predict_oob(small.forest, data$default, data$sparse,
-                                          num.threads, FALSE)
+        outcome.index, treatment.index, instrument.index, num.threads, FALSE)
     mean(prediction$debiased.error, na.rm = TRUE)
   })
   

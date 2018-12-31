@@ -25,10 +25,9 @@
 #include "catch.hpp"
 
 TEST_CASE("forests don't crash when there are fewer trees than threads", "[forest]") {
-  uint outcome_index = 10;
-
-  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
+  ForestTrainer trainer = ForestTrainers::regression_trainer();
   Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  data->set_outcome_index(10);
 
   uint mtry = 3;
   uint num_trees = 2;
@@ -56,9 +55,9 @@ TEST_CASE("forests don't crash when there are fewer trees than threads", "[fores
 
 TEST_CASE("basic forest merges work", "[regression, forest]") {
   Data* data = load_data("test/forest/resources/gaussian_data.csv");
-  uint outcome_index = 10;
+  data->set_outcome_index(10);
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
+  ForestTrainer trainer = ForestTrainers::regression_trainer();
   ForestOptions options = ForestTestUtilities::default_options(false, 2);
 
   Forest forest1 = trainer.train(data, options);
@@ -89,9 +88,9 @@ TEST_CASE("basic forest merges work", "[regression, forest]") {
 
 TEST_CASE("forests with different ci_group_size cannot be merged", "[regression, forest]") {
   Data* data = load_data("test/forest/resources/gaussian_data.csv");
-  uint outcome_index = 10;
+  data->set_outcome_index(10);
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer(outcome_index);
+  ForestTrainer trainer = ForestTrainers::regression_trainer();
 
   ForestOptions options = ForestTestUtilities::default_options(false, 1);
   Forest forest = trainer.train(data, options);

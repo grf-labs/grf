@@ -22,13 +22,14 @@ DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPr
 
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
-    Data* prediction_data,
+    Data* train_data,
+    Data* data,
     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
     bool estimate_variance,
     bool estimate_error) {
 
-  size_t num_samples = prediction_data->get_num_rows();
+  size_t num_samples = data->get_num_rows();
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
 
@@ -56,9 +57,9 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       }
     }
 
-    std::vector<double> point_prediction = strategy->predict(sample, weights_by_sample, forest.get_observations());
+    std::vector<double> point_prediction = strategy->predict(sample, weights_by_sample, train_data, data);
     std::vector<double> variance = estimate_variance
-        ? strategy->compute_variance(sample, samples_by_tree, weights_by_sample, forest.get_observations(), forest.get_ci_group_size())
+        ? strategy->compute_variance(sample, samples_by_tree, weights_by_sample, train_data, data, forest.get_ci_group_size())
         : std::vector<double>();
 
     Prediction prediction(point_prediction, variance, std::vector<double>());

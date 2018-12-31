@@ -64,21 +64,21 @@ const PredictionValues& Tree::get_prediction_values() {
   return prediction_values;
 }
 
-std::vector<size_t> Tree::find_leaf_nodes(Data* prediction_data,
+std::vector<size_t> Tree::find_leaf_nodes(const Data* data,
                                           const std::vector<size_t>& samples) {
   std::vector<size_t> prediction_leaf_nodes;
-  prediction_leaf_nodes.resize(prediction_data->get_num_rows());
+  prediction_leaf_nodes.resize(data->get_num_rows());
 
   for (size_t sample : samples) {
-    size_t node = find_leaf_node(prediction_data, sample);
+    size_t node = find_leaf_node(data, sample);
     prediction_leaf_nodes[sample] = node;
   }
   return prediction_leaf_nodes;
 }
 
-std::vector<size_t> Tree::find_leaf_nodes(Data* prediction_data,
+std::vector<size_t> Tree::find_leaf_nodes(const Data* data,
                                           const std::vector<bool>& valid_samples) {
-  size_t num_samples = prediction_data->get_num_rows();
+  size_t num_samples = data->get_num_rows();
 
   std::vector<size_t> prediction_leaf_nodes;
   prediction_leaf_nodes.resize(num_samples);
@@ -88,7 +88,7 @@ std::vector<size_t> Tree::find_leaf_nodes(Data* prediction_data,
       continue;
     }
 
-    size_t node = find_leaf_node(prediction_data, sample);
+    size_t node = find_leaf_node(data, sample);
     prediction_leaf_nodes[sample] = node;
   }
   return prediction_leaf_nodes;
@@ -103,7 +103,7 @@ void Tree::set_prediction_values(const PredictionValues& prediction_values) {
 }
 
 
-size_t Tree::find_leaf_node(Data* prediction_data,
+size_t Tree::find_leaf_node(const Data* data,
                             size_t sample) {
   size_t node = root_node;
   while (true) {
@@ -114,7 +114,7 @@ size_t Tree::find_leaf_node(Data* prediction_data,
 
     // Move to child
     size_t split_var = get_split_vars()[node];
-    double value = prediction_data->get(sample, split_var);
+    double value = data->get(sample, split_var);
     if (value <= get_split_values()[node]) {
       // Move to left child
       node = child_nodes[0][node];

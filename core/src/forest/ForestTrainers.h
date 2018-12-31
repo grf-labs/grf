@@ -22,18 +22,14 @@
 
 class ForestTrainers {
 public:
-  static ForestTrainer instrumental_trainer(size_t outcome_index,
-                                            size_t treatment_index,
-                                            size_t instrument_index,
-                                            double reduced_form_weight,
+  static ForestTrainer instrumental_trainer(double reduced_form_weight,
                                             bool stabilize_splits);
 
-  static ForestTrainer quantile_trainer(size_t outcome_index,
-                                        const std::vector<double>& quantiles);
+  static ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
 
-  static ForestTrainer regression_trainer(size_t outcome_index);
+  static ForestTrainer regression_trainer();
 
-  static ForestTrainer custom_trainer(size_t outcome_index);
+  static ForestTrainer custom_trainer();
 };
 
 
