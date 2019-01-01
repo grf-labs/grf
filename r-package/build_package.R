@@ -6,13 +6,16 @@ library(roxygen2)
 package.name <- "grf"
 package.src <- "grf/src"
 
-# Copy Rcpp bindings and C++ source into the package src directory.
+# Copy Rcpp bindings and C++ source into the package src directory. Note that we
+# don't copy in third_party/Eigen, because for the R package build we provide
+# access to the library through RcppEigen.
 unlink(package.src, recursive = TRUE)
 dir.create(package.src)
 
 binding.files <- list.files("grf/bindings", full.names = TRUE)
 file.copy(binding.files, package.src, recursive = FALSE)
 file.copy("../core/src", package.src, recursive = TRUE)
+file.copy("../core/third_party/optional", package.src, recursive = TRUE)
 
 # Auto-generate documentation files
 roxygen2::roxygenise(package.name)

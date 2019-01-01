@@ -29,9 +29,8 @@ public:
   DefaultData();
 
   DefaultData(double* data,
-       size_t num_rows,
-       size_t num_cols);
-
+      size_t num_rows,
+      size_t num_cols);
   virtual ~DefaultData();
 
   double get(size_t row, size_t col) const;

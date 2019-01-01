@@ -32,14 +32,9 @@ public:
   static ForestPredictor regression_predictor(uint num_threads);
 
   static ForestPredictor local_linear_predictor(uint num_threads,
-                                                const Data* original_data,
-                                                const Data* test_data,
                                                 std::vector<double> lambdas,
                                                 bool weighted_penalty,
                                                 std::vector<size_t> linear_correction_variables);
-
-private:
-  static uint get_num_threads(uint provided_num_threads);
 };
 
 

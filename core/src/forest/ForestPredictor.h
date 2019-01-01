@@ -44,14 +44,16 @@ public:
                   std::shared_ptr<OptimizedPredictionStrategy> strategy);
 
   std::vector<Prediction> predict(const Forest& forest,
-                                  Data* prediction_data,
+                                  Data* train_data,
+                                  Data* data,
                                   bool estimate_variance) const;
-  std::vector<Prediction> predict_oob(const Forest& forest,
-                                      Data* original_data,
-                                      bool estimate_variance) const;
 
+  std::vector<Prediction> predict_oob(const Forest& forest,
+                                      Data* data,
+                                      bool estimate_variance) const;
 private:
   std::vector<Prediction> predict(const Forest& forest,
+                                  Data* train_data,
                                   Data* data,
                                   bool estimate_variance,
                                   bool oob_prediction) const;

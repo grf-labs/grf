@@ -76,6 +76,8 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
         ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
     
     forest[["X.orig"]] <- X
+    forest[["Y.orig"]] <- Y
+
     class(forest) <- c("custom_forest", "grf")
     forest
 }
@@ -109,22 +111,21 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
 #'
 #' @method predict custom_forest
 #' @export
-predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
-    
-    if (is.null(num.threads)) {
-        num.threads <- 0
-    } else if (!is.numeric(num.threads) | num.threads < 0) {
-        stop("Error: Invalid value for num.threads")
-    }
-        
+predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {        
     forest.short <- object[-which(names(object) == "X.orig")]
 
+    X <- object[["X.orig"]]
+    train.data <- create_data_matrices(X, object[["Y.orig"]])
+    outcome.index <- ncol(X) + 1
+
+    num.threads <- validate_num_threads(num.threads)
+
     if (!is.null(newdata)) {
-        validate_newdata(newdata, object$X.orig)
+        validate_newdata(newdata, X)
         data <- create_data_matrices(newdata)
-        custom_predict(forest.short, data$default, data$sparse, num.threads)
+        custom_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+            data$default, data$sparse, num.threads)
     } else {
-        data <- create_data_matrices(object[["X.orig"]])
-        custom_predict_oob(forest.short, data$default, data$sparse, num.threads)
+        custom_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index, num.threads)
     }
 }

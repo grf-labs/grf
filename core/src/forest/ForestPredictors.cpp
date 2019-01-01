@@ -49,16 +49,11 @@ ForestPredictor ForestPredictors::regression_predictor(uint num_threads) {
 }
 
 ForestPredictor ForestPredictors::local_linear_predictor(uint num_threads,
-                                                         const Data* original_data,
-                                                         const Data* test_data,
                                                          std::vector<double> lambdas,
                                                          bool weighted_penalty,
                                                          std::vector<size_t> linear_correction_variables) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new LocalLinearPredictionStrategy(original_data,
-                                                                                                   test_data,
-                                                                                                   lambdas,
-                                                                                                   weighted_penalty,
-                                                                                                   linear_correction_variables));
+  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(
+      new LocalLinearPredictionStrategy(lambdas, weighted_penalty, linear_correction_variables));
   return ForestPredictor(num_threads, prediction_strategy);
 }

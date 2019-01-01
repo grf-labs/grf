@@ -30,8 +30,7 @@
 class RegressionSplittingRuleFactory: public SplittingRuleFactory {
 public:
   RegressionSplittingRuleFactory();
-  std::shared_ptr<SplittingRule> create(Data* data,
-                                        const Observations& observations,
+  std::shared_ptr<SplittingRule> create(const Data* data,
                                         const TreeOptions& options);
 private:
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRuleFactory);

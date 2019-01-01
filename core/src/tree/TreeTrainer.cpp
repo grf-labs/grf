@@ -21,21 +21,14 @@
 #include "commons/DefaultData.h"
 #include "tree/TreeTrainer.h"
 
-TreeTrainer::TreeTrainer(const std::unordered_map<size_t, size_t>& observables,
-                         std::shared_ptr<RelabelingStrategy> relabeling_strategy,
+TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                          std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                          std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
     relabeling_strategy(relabeling_strategy),
     splitting_rule_factory(splitting_rule_factory),
-    prediction_strategy(prediction_strategy) {
+    prediction_strategy(prediction_strategy) {}
 
-  for (auto it : observables) {
-    this->disallowed_split_variables.insert(it.second);
-  }
-}
-
-std::shared_ptr<Tree> TreeTrainer::train(Data* data,
-                                         const Observations& observations,
+std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
                                          RandomSampler& sampler,
                                          const std::vector<size_t>& clusters,
                                          const TreeOptions& options) const {
@@ -62,16 +55,15 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
   }
 
   std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(
-      data, observations, options);
+      data, options);
 
   size_t num_open_nodes = 1;
   size_t i = 0;
   while (num_open_nodes > 0) {
     bool is_leaf_node = split_node(i,
+                                   data,
                                    splitting_rule,
                                    sampler,
-                                   data,
-                                   observations,
                                    child_nodes,
                                    nodes,
                                    split_vars,
@@ -103,8 +95,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
 
   PredictionValues prediction_values;
   if (prediction_strategy != NULL) {
-    prediction_values = prediction_strategy->precompute_prediction_values(
-        tree->get_leaf_samples(), observations);
+    prediction_values = prediction_strategy->precompute_prediction_values(tree->get_leaf_samples(), data);
   }
   tree->set_prediction_values(prediction_values);
 
@@ -112,7 +103,7 @@ std::shared_ptr<Tree> TreeTrainer::train(Data* data,
 }
 
 void TreeTrainer::repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
-                                        Data* data,
+                                        const Data* data,
                                         const std::vector<size_t>& leaf_samples) const {
   size_t num_nodes = tree->get_leaf_samples().size();
   std::vector<std::vector<size_t>> new_leaf_nodes(num_nodes);
@@ -129,25 +120,24 @@ void TreeTrainer::repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
 
 void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
                                                RandomSampler& sampler,
-                                               Data* data,
+                                               const Data* data,
                                                uint mtry) const {
 
   // Randomly select an mtry for this tree based on the overall setting.
-  size_t num_independent_variables = data->get_num_cols() - disallowed_split_variables.size();
+  size_t num_independent_variables = data->get_num_cols() - data->get_disallowed_split_variables().size();
   size_t mtry_sample = sampler.sample_poisson(mtry);
   size_t split_mtry = std::max<size_t>(std::min<size_t>(mtry_sample, num_independent_variables), 1uL);
 
   sampler.draw(result,
                data->get_num_cols(),
-               disallowed_split_variables,
+               data->get_disallowed_split_variables(),
                split_mtry);
 }
 
 bool TreeTrainer::split_node(size_t node,
+                             const Data* data,
                              std::shared_ptr<SplittingRule> splitting_rule,
                              RandomSampler& sampler,
-                             Data* data,
-                             const Observations& observations,
                              std::vector<std::vector<size_t>>& child_nodes,
                              std::vector<std::vector<size_t>>& samples,
                              std::vector<size_t>& split_vars,
@@ -158,8 +148,8 @@ bool TreeTrainer::split_node(size_t node,
   create_split_variable_subset(possible_split_vars, sampler, data, options.get_mtry());
 
   bool stop = split_node_internal(node,
+                                  data,
                                   splitting_rule,
-                                  observations,
                                   possible_split_vars,
                                   samples,
                                   split_vars,
@@ -195,8 +185,8 @@ bool TreeTrainer::split_node(size_t node,
 }
 
 bool TreeTrainer::split_node_internal(size_t node,
+                                      const Data* data,
                                       std::shared_ptr<SplittingRule> splitting_rule,
-                                      const Observations& observations,
                                       const std::vector<size_t>& possible_split_vars,
                                       std::vector<std::vector<size_t>>& samples,
                                       std::vector<size_t>& split_vars,
@@ -208,39 +198,19 @@ bool TreeTrainer::split_node_internal(size_t node,
     return true;
   }
 
-  // Check if node is pure and set split_value to estimate and stop if pure
-  bool pure = true;
-  double pure_value = 0;
-  for (size_t i = 0; i < samples[node].size(); ++i) {
-    size_t sample = samples[node][i];
-    double value = observations.get(Observations::OUTCOME, sample);
-    if (i != 0 && value != pure_value) {
-      pure = false;
-      break;
-    }
-    pure_value = value;
-  }
-
-  if (pure) {
-    split_values[node] = -1.0;
-    return true;
-  }
-
   std::unordered_map<size_t, double> responses_by_sample = relabeling_strategy->relabel(
-      samples[node], observations);
+      samples[node], data);
 
-  bool stop = responses_by_sample.empty() ||
-              splitting_rule->find_best_split(node,
-                                              possible_split_vars,
-                                              responses_by_sample,
-                                              samples,
-                                              split_vars,
-                                              split_values);
-
-  if (stop) {
+  if (responses_by_sample.empty() || splitting_rule->find_best_split(node,
+                                                                     possible_split_vars,
+                                                                     responses_by_sample,
+                                                                     samples,
+                                                                     split_vars,
+                                                                     split_values)) {
     split_values[node] = -1.0;
     return true;
   }
+
   return false;
 }
 

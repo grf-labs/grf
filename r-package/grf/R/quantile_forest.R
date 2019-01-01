@@ -154,13 +154,18 @@ predict.quantile_forest <- function(object,
     num.threads <- validate_num_threads(num.threads)
     
     forest.short <- object[-which(names(object) == "X.orig")]
-    
+
+    X <- object[["X.orig"]]
+    train.data <- create_data_matrices(X, object[["Y.orig"]])
+    outcome.index = ncol(X) + 1
+
     if (!is.null(newdata)) {
         validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
-        quantile_predict(forest.short, quantiles, data$default, data$sparse, num.threads)
+        quantile_predict(forest.short, quantiles, train.data$default, train.data$sparse, outcome.index,
+            data$default, data$sparse, num.threads)
     } else {
-        data <- create_data_matrices(object[["X.orig"]])
-        quantile_predict_oob(forest.short, quantiles, data$default, data$sparse, num.threads)
+        quantile_predict_oob(forest.short, quantiles, train.data$default, train.data$sparse,
+            outcome.index, num.threads)
     }
 }
