@@ -1,5 +1,5 @@
 #' Causal forest
-#' 
+#'
 #' Trains a causal forest that can be used to estimate
 #' conditional average treatment effects tau(X). When
 #' the treatment assignment W is binary and unconfounded,
@@ -30,8 +30,8 @@
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
-#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
@@ -57,6 +57,9 @@
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
+#' @param boosting If TRUE, if Y.hat = NULL then E[Y|Xi] is estimated using boosted regression forests and
+                  and if W.hat = NULL then E[W|Xi] is estimated using boosted regression forests. The number of
+                  steps of boosting are selected using a cross-validation procedure.
 #'
 #' @return A trained causal forest object.
 #'
@@ -131,21 +134,28 @@ causal_forest <- function(X, Y, W,
                           tune.parameters = FALSE,
                           num.fit.trees = 200,
                           num.fit.reps = 50,
-                          num.optimize.reps = 1000) {
+                          num.optimize.reps = 1000,
+                          boosting = FALSE) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
-    
+
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-    
+
     reduced.form.weight <- 0
 
-    if (is.null(Y.hat)) {
+    if (is.null(Y.hat) && !boosting) {
       forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+      Y.hat <- predict(forest.Y)$predictions
+    } else if (is.null(Y.hat) && boosting) {
+      forest.Y <- boosted_regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
@@ -156,12 +166,19 @@ causal_forest <- function(X, Y, W,
       stop("Y.hat has incorrect length.")
     }
 
-    if (is.null(W.hat)) {
+    if (is.null(W.hat)&& !boosting) {
       forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       W.hat <- predict(forest.W)$predictions
+
+    } else if (is.null(W.hat) && boosting) {
+      forest.Y <- boosted_regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+      W.hat <- predict(forest.Y)$predictions
     } else if (length(W.hat) == 1) {
       W.hat <- rep(W.hat, nrow(X))
     } else if (length(W.hat) != nrow(X)) {
@@ -194,7 +211,7 @@ causal_forest <- function(X, Y, W,
         alpha = validate_alpha(alpha),
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
-    
+
     Y.centered = Y - Y.hat
     W.centered = W - W.hat
 
@@ -242,7 +259,7 @@ causal_forest <- function(X, Y, W,
 }
 
 #' Predict with a causal forest
-#' 
+#'
 #' Gets estimates of tau(x) using a trained causal forest.
 #'
 #' @param object The trained forest.
@@ -319,4 +336,3 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
     empty = sapply(ret, function(elem) length(elem) == 0)
     do.call(cbind.data.frame, ret[!empty])
 }
-
