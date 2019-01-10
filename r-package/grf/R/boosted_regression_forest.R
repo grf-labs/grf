@@ -90,77 +90,39 @@ boosted_regression_forest <- function(X, Y,
                               num.optimize.reps = 1000,
                               num.steps = NULL,
                               max.steps = 4) {
-    validate_X(X)
-    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
 
-    num.threads <- validate_num_threads(num.threads)
-    seed <- validate_seed(seed)
-    clusters <- validate_clusters(clusters, X)
-    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
-    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-
-    if (tune.parameters) {
-      tuning.output <- tune_regression_forest(X, Y,
-                                              num.fit.trees = num.fit.trees,
-                                              num.fit.reps = num.fit.reps,
-                                              num.optimize.reps = num.optimize.reps,
-                                              min.node.size = min.node.size,
-                                              sample.fraction = sample.fraction,
-                                              mtry = mtry,
-                                              alpha = alpha,
-                                              imbalance.penalty = imbalance.penalty,
-                                              num.threads = num.threads,
-                                              honesty = honesty,
-                                              honesty.fraction = honesty.fraction,
-                                              seed = seed,
-                                              clusters = clusters,
-                                              samples_per_cluster = samples_per_cluster)
-      tunable.params <- tuning.output$params
-    } else {
-      tunable.params <- c(
-        min.node.size = validate_min_node_size(min.node.size),
-        sample.fraction = validate_sample_fraction(sample.fraction),
-        mtry = validate_mtry(mtry, X),
-        alpha = validate_alpha(alpha),
-        imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
+    #TODO: Replace this with tuning procedure to find the right number of steps
+    if(is.null(num.steps)) {
+        num.steps = max.steps
     }
+    boosted.forest[["forests"]] = list()
+    forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
+                                  num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                  honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                clusters = clusters, samples_per_cluster = samples_per_cluster);
+    Y.hat <- predict(forest.Y)$predictions
+    boosted.forest[[1]] <- forest.Y
 
-    data <- create_data_matrices(X, Y)
-    outcome.index <- ncol(X) + 1
-
-    forest <- regression_train(data$default, data$sparse, outcome.index,
-                               as.numeric(tunable.params["mtry"]),
-                               num.trees,
-                               num.threads,
-                               as.numeric(tunable.params["min.node.size"]),
-                               as.numeric(tunable.params["sample.fraction"]),
-                               seed,
-                               honesty,
-                               coerce_honesty_fraction(honesty.fraction),
-                               ci.group.size,
-                               as.numeric(tunable.params["alpha"]),
-                               as.numeric(tunable.params["imbalance.penalty"]),
-                               clusters,
-                               samples_per_cluster)
-
-    forest[["ci.group.size"]] <- ci.group.size
-    forest[["X.orig"]] <- X
-    forest[["Y.orig"]] <- Y
-    forest[["clusters"]] <- clusters
-    forest[["tunable.params"]] <- tunable.params
-
-    class(forest) <- c("regression_forest", "grf")
+    for (step in 2:max.steps) {
+        E.hat <- Y - Y.hat
+        forest.E <- regression_forest(X,E.hat, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
+                                      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+        Y.hat <- Y.hat + predict(forest.E)$predictions
+        boosted.forest[["forests"]][[step]] <- forest.E
+    }
 
     if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
+        boosted.forest[["predictions"]] <- Y.hat
+        #boosted.forest[["debiased.error"]] <- oob.pred$debiased.error
     }
 
-    forest
+    class(boosted.forest) <- c("boosted_regression_forest","grf")
+    boosted.forest
 }
 
-#' Predict with a boosted regression forest. No option for confidence intervals. 
+#' Predict with a boosted regression forest. No option for confidence intervals.
 #'
 #' Gets estimates of E[Y|X=x] using a trained regression forest.
 #'
@@ -170,20 +132,8 @@ boosted_regression_forest <- function(X, Y,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
-#' @param linear.correction.variables Optional subset of indexes for variables to be used in local
-#'                   linear prediction. If NULL, standard GRF prediction is used. Otherwise,
-#'                   we run a locally weighted linear regression on the included variables.
-#'                   Please note that this is a beta feature still in development, and may slow down
-#'                   prediction considerably. Defaults to NULL.
-#' @param ll.lambda Ridge penalty for local linear predictions
-#' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
-#'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
-#' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
-#'                          (for confidence intervals).
-#' @param ... Additional arguments (currently ignored).
-#'
 #' @return A vector of predictions.
 #'
 #' @examples \dontrun{
@@ -191,7 +141,7 @@ boosted_regression_forest <- function(X, Y,
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
 #' Y = X[,1] * rnorm(n)
-#' r.forest = regression_forest(X, Y)
+#' r.forest = boosted_regression_forest(X, Y)
 #'
 #' # Predict using the forest.
 #' X.test = matrix(0, 101, p)
@@ -201,72 +151,32 @@ boosted_regression_forest <- function(X, Y,
 #' # Predict on out-of-bag training samples.
 #' r.pred = predict(r.forest)
 #'
-#' # Predict with confidence intervals; growing more trees is now recommended.
-#' r.forest = regression_forest(X, Y, num.trees = 100)
-#' r.pred = predict(r.forest, X.test, estimate.variance = TRUE)
 #' }
 #'
-#' @method predict regression_forest
+#' @method predict boosted_regression_forest
 #' @export
-predict.boosted_regression_forest <- function(object, newdata = NULL,
-                                      linear.correction.variables = NULL,
-                                      ll.lambda = NULL,
-                                      ll.weight.penalty = FALSE,
+predict.boosted_regression_forest <- function(object,newdata=NULL
                                       num.threads = NULL
-                                      ...) {
+                                      ) {
 
-    local.linear = !is.null(linear.correction.variables)
 
+    #confidence interval estimation not possible with boosted forests
+    estimate.variance <- FALSE
     # If possible, use pre-computed predictions.
-    if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
+    if (is.null(newdata) & !is.null(object$predictions)) {
         return(data.frame(predictions=object$predictions,
                           debiased.error=object$debiased.error))
     }
-
-    num.threads = validate_num_threads(num.threads)
-
-    forest.short = object[-which(names(object) == "X.orig")]
-    X = object[["X.orig"]]
-    train.data = create_data_matrices(X, object[["Y.orig"]])
-    outcome.index = ncol(X) + 1
-
-    if (local.linear) {
-        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
-
-        if (is.null(ll.lambda)) {
-            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
-            ll.lambda = ll.regularization.path$lambda.min
-        } else {
-            ll.lambda = validate_ll_lambda(ll.lambda)
-        }
-
-        # subtract 1 to account for C++ indexing
-        linear.correction.variables <- linear.correction.variables - 1
+    forests <- object[["forests"]]
+    if (!is.null(newdata)) {
+        ## TODO: Implement newdata option
     }
-
-    if (!is.null(newdata) ) {
-        data = create_data_matrices(newdata)
-        validate_newdata(newdata, X)
-        if (!local.linear) {
-            ret = regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
-                data$default, data$sparse, num.threads, estimate.variance)
-        } else {
-            ret = local_linear_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
-                data$default, data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
-                num.threads, estimate.variance)
-        }
-    } else {
-        data = create_data_matrices(X)
-        if (!local.linear) {
-            ret = regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
-                num.threads, estimate.variance)
-        } else {
-            ret = local_linear_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
-                ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
+    else {
+        Y <- forests[[1]][["Y.orig"]]
+        Y.hat <- predict(forests[[1]])$predictions
+        for (f in 2:length(forests)) {
+            Y.hat <- Y.hat + predict(forests[[f]])$predictions
         }
     }
-
-    # Convert list to data frame.
-    empty = sapply(ret, function(elem) length(elem) == 0)
-    do.call(cbind.data.frame, ret[!empty])
+    data.frame(predictions=Y.hat)
 }

@@ -166,14 +166,14 @@ causal_forest <- function(X, Y, W,
       stop("Y.hat has incorrect length.")
     }
 
-    if (is.null(W.hat)&& !boosting) {
+    if (is.null(W.hat) & !boosting) {
       forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       W.hat <- predict(forest.W)$predictions
 
-    } else if (is.null(W.hat) && boosting) {
+    } else if (is.null(W.hat) & boosting) {
       forest.Y <- boosted_regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
