@@ -1,5 +1,5 @@
 #' Omnibus evaluation of the quality of the random forest estimates via calibration.
-#' 
+#'
 #' Test calibration of the forest. Computes the best linear fit of the target
 #' estimand using the forest prediction (on held-out data) as well as the mean
 #' forest prediction as the sole two regressors. A coefficient of 1 for
@@ -28,7 +28,9 @@
 #'
 #' @export
 test_calibration = function(forest) {
-  
+
+  forest$Y.orig <- unname(forest$Y.orig) # remove column name if any
+  forest$W.orig <- unname(forest$W.orig) # remove column name if any
   cluster.se <- length(forest$clusters) > 0
   if (!cluster.se) {
     clusters <- 1:length(forest$predictions)
@@ -39,7 +41,7 @@ test_calibration = function(forest) {
     inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
     observation.weight <- inverse.counts[as.numeric(clust.factor)]
   }
-  
+
   if ("regression_forest" %in% class(forest)) {
     preds = predict(forest)$predictions
     mean.pred = weighted.mean(preds, observation.weight)
@@ -56,7 +58,7 @@ test_calibration = function(forest) {
   } else {
     stop("Calibration check not supported for this type of forest.")
   }
-  
+
   best.linear.predictor =
     lm(target ~ mean.forest.prediction + differential.forest.prediction + 0,
        weights = observation.weight,
