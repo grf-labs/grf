@@ -58,8 +58,8 @@
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
 #' @param boosting If TRUE, if Y.hat = NULL then E[Y|Xi] is estimated using boosted regression forests and
-                  and if W.hat = NULL then E[W|Xi] is estimated using boosted regression forests. The number of
-                  steps of boosting are selected using a cross-validation procedure.
+#'                 and if W.hat = NULL then E[W|Xi] is estimated using boosted regression forests. The number of
+#'                 steps of boosting are selected using a cross-validation procedure.
 #'
 #' @return A trained causal forest object.
 #'

@@ -95,6 +95,7 @@ boosted_regression_forest <- function(X, Y,
     if(is.null(num.steps)) {
         num.steps = max.steps
     }
+    boosted.forest = NULL
     boosted.forest[["forests"]] = list()
     forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                   num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
@@ -155,7 +156,8 @@ boosted_regression_forest <- function(X, Y,
 #'
 #' @method predict boosted_regression_forest
 #' @export
-predict.boosted_regression_forest <- function(object,newdata=NULL
+predict.boosted_regression_forest <- function(object,
+                                        newdata=NULL,
                                       num.threads = NULL
                                       ) {
 
