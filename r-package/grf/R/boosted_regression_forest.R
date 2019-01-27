@@ -102,7 +102,7 @@ boosted_regression_forest <- function(X, Y,
                                   honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                 clusters = clusters, samples_per_cluster = samples_per_cluster);
     Y.hat <- predict(forest.Y)$predictions
-    boosted.forest[[1]] <- forest.Y
+    boosted.forest$forests[[1]] <- forest.Y
 
     for (step in 2:max.steps) {
         E.hat <- Y - Y.hat
@@ -119,7 +119,7 @@ boosted_regression_forest <- function(X, Y,
         #boosted.forest[["debiased.error"]] <- oob.pred$debiased.error
     }
 
-    class(boosted.forest) <- c("boosted_regression_forest","grf")
+    class(boosted.forest) <- c("boosted_regression_forest")
     boosted.forest
 }
 
@@ -166,8 +166,8 @@ predict.boosted_regression_forest <- function(object,
     estimate.variance <- FALSE
     # If possible, use pre-computed predictions.
     if (is.null(newdata) & !is.null(object$predictions)) {
-        return(data.frame(predictions=object$predictions,
-                          debiased.error=object$debiased.error))
+        return(data.frame(predictions=object$predictions))
+        ##    ,debiased.error=object$debiased.error))
     }
     forests <- object[["forests"]]
     if (!is.null(newdata)) {
