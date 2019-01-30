@@ -43,29 +43,28 @@
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
 #' @param num.steps The number of boosting iterations. If NULL, selected by cross-validation
-#' @param max.steps The maximum number of boosting iterations
+#' @param max.steps The maximum number of boosting iterations to try when num.steps is not specified
 #' @param num.trees.tune If num.steps is NULL, the number of trees in each boosting step to select num.steps
 #'
 #' @return A trained regression forest object.
 #'
 #' @examples \dontrun{
-#' # Train a standard regression forest.
+#' # Train a boosted regression forest.
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
 #' Y = X[,1] * rnorm(n)
-#' r.forest = regression_forest(X, Y)
+#' r.b.forest = boosted_regression_forest(X, Y)
 #'
 #' # Predict using the forest.
 #' X.test = matrix(0, 101, p)
 #' X.test[,1] = seq(-2, 2, length.out = 101)
-#' r.pred = predict(r.forest, X.test)
+#' r.pred = predict(r.b.forest, X.test)
 #'
 #' # Predict on out-of-bag training samples.
-#' r.pred = predict(r.forest)
+#' r.pred = predict(r.b.forest)
 #'
-#' # Predict with confidence intervals; growing more trees is now recommended.
-#' r.forest = regression_forest(X, Y, num.trees = 100)
-#' r.pred = predict(r.forest, X.test, estimate.variance = TRUE)
+#' #Check how many boosting iterations were used
+#' print(length(r.b.forest$forests))
 #' }
 #'
 #' @export
@@ -126,8 +125,6 @@ boosted_regression_forest <- function(X, Y,
                                           honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                         clusters = clusters, samples_per_cluster = samples_per_cluster);
             step.error.approx <- predict(forest.small)$debiased.error
-            print(mean(error.debiased,na.rm=TRUE))
-            print(mean(step.error.approx,na.rm=TRUE))
             if((mean(step.error.approx,na.rm=TRUE) < tolerance*mean(error.debiased,na.rm=TRUE))) {
                 forest.E <- regression_forest(X,E.hat, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                               num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
@@ -153,7 +150,7 @@ boosted_regression_forest <- function(X, Y,
     boosted.forest
 }
 
-#' Predict with a boosted regression forest. No option for confidence intervals.
+#' Predict with a boosted regression forest.
 #'
 #' Gets estimates of E[Y|X=x] using a trained regression forest.
 #'
@@ -163,6 +160,8 @@ boosted_regression_forest <- function(X, Y,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
+#' @param Number of boosting iterations to use for prediction. If blank, uses the full number of steps
+#'        for the object given
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @return A vector of predictions.
@@ -200,9 +199,10 @@ predict.boosted_regression_forest <- function(object,
     }
     else {
         forests <- object[["forests"]]
-        if (is.null(num.steps) | num.steps > length(forests)){
+        if (is.null(num.steps)) {
             num.steps <- length(forests)
         }
+        num.steps <- min(length(forests),num.steps)
         Y.hat <- predict(forests[[1]],newdata)$predictions
         for (f in 2:num.steps) {
             Y.hat <- Y.hat + predict(forests[[f]],newdata)$predictions
@@ -211,5 +211,5 @@ predict.boosted_regression_forest <- function(object,
     }
 
     #not clear how you would get debiased error on new data or why predict returns this
-    data.frame(predictions=Y.hat,debiased.error=NULL)
+    data.frame(predictions=Y.hat)
 }

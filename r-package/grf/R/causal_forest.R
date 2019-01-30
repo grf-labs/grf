@@ -58,8 +58,9 @@
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
 #' @param boosting If TRUE, if Y.hat = NULL then E[Y|Xi] is estimated using boosted regression forests and
-#'                 and if W.hat = NULL then E[W|Xi] is estimated using boosted regression forests. The number of
-#'                 steps of boosting are selected using a cross-validation procedure.
+#'                 and if W.hat = NULL then E[W|Xi] is estimated using boosted regression forests.
+#' @param num.boost.steps The number of steps of boosting to use for W.hat and Y.hat estimation if boosting=TRUE.
+#'        If left blank the number of steps is selected automatically to minimize OOB error.
 #'
 #' @return A trained causal forest object.
 #'
@@ -135,7 +136,9 @@ causal_forest <- function(X, Y, W,
                           num.fit.trees = 200,
                           num.fit.reps = 50,
                           num.optimize.reps = 1000,
-                          boosting = FALSE) {
+                          boosting = FALSE,
+                          num.boost.steps = NULL,
+                          max.boost.steps = 6) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
@@ -158,7 +161,8 @@ causal_forest <- function(X, Y, W,
       forest.Y <- boosted_regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+                                    clusters = clusters, samples_per_cluster = samples_per_cluster,
+                                    num.steps = num.boost.steps,max.steps = max.boost.steps);
       Y.hat <- predict(forest.Y)$predictions
     } else if (length(Y.hat) == 1) {
       Y.hat <- rep(Y.hat, nrow(X))
@@ -177,7 +181,8 @@ causal_forest <- function(X, Y, W,
       forest.Y <- boosted_regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+                                    clusters = clusters, samples_per_cluster = samples_per_cluster,num.steps=num.boost.steps,
+                                    max.steps = max.boost.steps);
       W.hat <- predict(forest.Y)$predictions
     } else if (length(W.hat) == 1) {
       W.hat <- rep(W.hat, nrow(X))
