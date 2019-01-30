@@ -22,7 +22,8 @@
 
 class CustomPredictionStrategy: public DefaultPredictionStrategy {
 public:
-
+  CustomPredictionStrategy(std::vector<double> timepoints);
+  
   size_t prediction_length();
 
   std::vector<double> predict(size_t sample,
@@ -37,6 +38,13 @@ public:
       const Data* train_data,
       const Data* data,
       size_t ci_group_size);
+  
+  std::vector<double> weighted_kaplan_meier(std::vector<double> time, std::vector<double> status,
+                                            std::vector<double> weights);
+  
+private:
+  
+  std::vector<double> timepoints;
 };
 
 

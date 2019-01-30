@@ -18,7 +18,8 @@
 #ifndef GRF_CUSTOMRELABELINGSTRATEGY_H
 #define GRF_CUSTOMRELABELINGSTRATEGY_H
 
-
+#include <numeric>
+ 
 #include "RelabelingStrategy.h"
 
 class CustomRelabelingStrategy: public RelabelingStrategy {
@@ -27,6 +28,23 @@ public:
       const std::vector<size_t>& samples,
       const Data* data);
 };
+
+std::vector<double> logrankScores(const std::vector<double>& time, const std::vector<double>& status);
+
+template<typename T>
+std::vector<size_t> order(const std::vector<T>& values, bool decreasing) {
+  // Create index vector
+  std::vector<size_t> indices(values.size());
+  std::iota(indices.begin(), indices.end(), 0);
+  
+  // Sort index vector based on value vector
+  if (decreasing) {
+    std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] > values[i2];});
+  } else {
+    std::sort(std::begin(indices), std::end(indices), [&](size_t i1, size_t i2) {return values[i1] < values[i2];});
+  }
+  return indices;
+}
 
 
 #endif //GRF_CUSTOMRELABELINGSTRATEGY_H

@@ -25,12 +25,12 @@ custom_train <- function(train_matrix, sparse_train_matrix, outcome_index, mtry,
     .Call('_grf_custom_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
 }
 
-custom_predict <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, num_threads) {
-    .Call('_grf_custom_predict', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, num_threads)
+custom_predict <- function(forest_object, timepoints, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, num_threads) {
+    .Call('_grf_custom_predict', PACKAGE = 'grf', forest_object, timepoints, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, num_threads)
 }
 
-custom_predict_oob <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, num_threads) {
-    .Call('_grf_custom_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, outcome_index, num_threads)
+custom_predict_oob <- function(forest_object, timepoints, train_matrix, sparse_train_matrix, outcome_index, num_threads) {
+    .Call('_grf_custom_predict_oob', PACKAGE = 'grf', forest_object, timepoints, train_matrix, sparse_train_matrix, outcome_index, num_threads)
 }
 
 instrumental_train <- function(train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster) {

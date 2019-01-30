@@ -22,7 +22,8 @@
 
 class ForestPredictors {
 public:
-  static ForestPredictor custom_predictor(uint num_threads);
+  static ForestPredictor custom_predictor(uint num_threads,
+                                          const std::vector<double>& timepoints);
 
   static ForestPredictor instrumental_predictor(uint num_threads);
 
