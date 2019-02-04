@@ -29,8 +29,6 @@
 #' @export
 test_calibration = function(forest) {
 
-  forest$Y.orig <- unname(forest$Y.orig) # remove column name if any
-  forest$W.orig <- unname(forest$W.orig) # remove column name if any
   cluster.se <- length(forest$clusters) > 0
   if (!cluster.se) {
     clusters <- 1:length(forest$predictions)
@@ -45,15 +43,15 @@ test_calibration = function(forest) {
   if ("regression_forest" %in% class(forest)) {
     preds = predict(forest)$predictions
     mean.pred = weighted.mean(preds, observation.weight)
-    DF = data.frame(target = forest$Y.orig,
+    DF = data.frame(target = unname(forest$Y.orig),
                     mean.forest.prediction = mean.pred,
                     differential.forest.prediction = preds - mean.pred)
   } else if ("causal_forest" %in% class(forest)) {
     preds =  predict(forest)$predictions
     mean.pred = weighted.mean(preds, observation.weight)
-    DF = data.frame(target = forest$Y.orig - forest$Y.hat,
-                    mean.forest.prediction = (forest$W.orig - forest$W.hat) * mean.pred,
-                    differential.forest.prediction = (forest$W.orig - forest$W.hat) *
+    DF = data.frame(target = unname(forest$Y.orig - forest$Y.hat),
+                    mean.forest.prediction = unname(forest$W.orig - forest$W.hat) * mean.pred,
+                    differential.forest.prediction = unname(forest$W.orig - forest$W.hat) *
                       (preds - mean.pred))
   } else {
     stop("Calibration check not supported for this type of forest.")
