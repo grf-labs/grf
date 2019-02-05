@@ -66,9 +66,9 @@ Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
                                    Rcpp::NumericMatrix test_matrix,
                                    Eigen::SparseMatrix<double> sparse_test_matrix,
                                    unsigned int num_threads) {
-  Data* train_data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+  Data* train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   train_data->set_outcome_index(outcome_index - 1);
-  Data* data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  Data* data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
 
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
