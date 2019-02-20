@@ -179,15 +179,13 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
                                       size_t max,
                                       const std::set<size_t>& skip,
                                       size_t num_samples) {
-
-  // Populate result vector with 0,...,max-1
-  result.resize(max);
-  std::iota(result.begin(), result.end(), 0);
-
-  // Remove values that are to be skipped
-  std::for_each(skip.rbegin(), skip.rend(),
-                [&](size_t i) { result.erase(result.begin() + i); }
-  );
+  // Fill result with indices i that are in 0..max-1 and not in skip
+  result.clear();
+  for(size_t i=0; i < max; ++i) {
+    if (skip.find(i) == skip.end()) {
+      result.push_back(i);
+    }
+  }
 
   // Draw without replacement using Fisher Yates algorithm
   for (size_t i = result.size() - 1; i > 0; --i) {
