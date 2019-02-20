@@ -129,3 +129,45 @@ test_that("regression forests with a very small imbalance.penalty behave similar
     diff.small.penalty = abs(forest.small.penalty$debiased.error - forest$debiased.error)
     expect_true(mean(diff.small.penalty) < 0.10 * mean(diff.large.penalty))
 })
+
+
+test_that("sample weighting in the training of a regression forest improves its sample-weighted MSE.", {
+    n <- 1000
+    p <- 2
+    X <- matrix(rnorm(n * p), n, p)
+    Y <- abs(X[,1]) + 0.1 * rnorm(n)
+	e = 1/(1+exp(-3*X[,1]))
+	sample.weights = 1/e
+
+    forest = regression_forest(X, Y)
+    forest.weighted = regression_forest(X, Y, sample.weights)
+
+    weighted.mse.forest = sum(sample.weights * (forest$predictions - Y)^2)
+    weighted.mse.forest.weighted = sum(sample.weights * (forest.weighted$predictions - Y)^2)
+
+    expect_true(weighted.mse.forest.weighted < weighted.mse.forest)
+})
+
+test_that("inverse propensity weighting in the training of a regression forest with missing data improves its complete-data MSE.", {
+    n <- 1000
+    p <- 2
+    X <- matrix(rnorm(n * p), n, p)
+    Y <- abs(X[,1]) + 0.1 * rnorm(n)
+	
+	e = 1/(1+exp(-3*X[,1]))
+	w = runif(n) <= e
+    sample.weights <- 1/e[w] 
+	
+    forest = regression_forest(X[w,], Y[w])
+    forest.weighted = regression_forest(X[w,], Y[w], sample.weights)
+
+    ipw.mse.forest = sum((predict(forest,X) - Y)^2)
+    ipw.mse.forest.weighted = sum((predict(forest.weighted,X) - Y)^2)
+
+    expect_true(ipw.mse.forest.weighted < ipw.mse.forest)
+})
+
+
+
+
+

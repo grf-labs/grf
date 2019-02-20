@@ -67,6 +67,7 @@
 #'
 #' @export
 regression_forest <- function(X, Y,
+                              sample.weights = NULL,
                               sample.fraction = 0.5,
                               mtry = NULL, 
                               num.trees = 2000,
@@ -87,7 +88,7 @@ regression_forest <- function(X, Y,
                               num.optimize.reps = 1000) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-
+    if(!is.null(sample.weights) && length(sample.weights) != nrow(X)) { stop("sample.weights has incorrect length") }
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
@@ -95,7 +96,7 @@ regression_forest <- function(X, Y,
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
     
     if (tune.parameters) {
-      tuning.output <- tune_regression_forest(X, Y,
+      tuning.output <- tune_regression_forest(X, Y, sample.weights = sample.weights,
                                               num.fit.trees = num.fit.trees,
                                               num.fit.reps = num.fit.reps,
                                               num.optimize.reps = num.optimize.reps,
@@ -119,11 +120,12 @@ regression_forest <- function(X, Y,
         alpha = validate_alpha(alpha),
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
-    
-    data <- create_data_matrices(X, Y)
-    outcome.index <- ncol(X) + 1
 
-    forest <- regression_train(data$default, data$sparse, outcome.index,
+    if(is.null(sample.weights)) { data <- create_data_matrices(X, Y) }
+    else { data <- create_data_matrices(X, Y, sample.weights) }
+    outcome.index <- ncol(X) + 1
+    sample.weight.index <- ncol(X) + 2;
+    forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
                                as.numeric(tunable.params["mtry"]),
                                num.trees,
                                num.threads,
@@ -141,6 +143,7 @@ regression_forest <- function(X, Y,
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
+    forest[["sample.weights"]] <- sample.weights
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
 
