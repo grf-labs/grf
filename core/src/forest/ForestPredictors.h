@@ -28,7 +28,7 @@ public:
                                                 uint ci_group_size);
 
 
-  static ForestPredictor causal_predictor(uint num_threads,
+  static ForestPredictor ll_causal_predictor(uint num_threads,
                                           const Data*original_data,
                                           const Data *test_data,
                                           std::vector<double> lambdas,
@@ -41,7 +41,7 @@ public:
   static ForestPredictor regression_predictor(uint num_threads,
                                               uint ci_group_size);
 
-  static ForestPredictor local_linear_predictor(uint num_threads,
+  static ForestPredictor ll_regression_predictor(uint num_threads,
                                                 const Data*original_data,
                                                 const Data *test_data,
                                                 std::vector<double> lambdas,

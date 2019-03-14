@@ -18,7 +18,7 @@
 #include "forest/ForestPredictors.h"
 #include "prediction/CustomPredictionStrategy.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
-#include "prediction/CausalPredictionStrategy.h"
+#include "prediction/LLCausalPredictionStrategy.h"
 #include "prediction/QuantilePredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
 #include "prediction/LocalLinearPredictionStrategy.h"
@@ -37,14 +37,14 @@ ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads,
   return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
 }
 
-ForestPredictor ForestPredictors::causal_predictor(uint num_threads,
+ForestPredictor ForestPredictors::ll_causal_predictor(uint num_threads,
                                                    const Data*original_data,
                                                    const Data *test_data,
                                                    std::vector<double> lambdas,
                                                    bool use_unweighted_penalty,
                                                    std::vector<size_t> linear_correction_variables){
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new CausalPredictionStrategy(original_data,
+  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new LLCausalPredictionStrategy(original_data,
                                                                                                 test_data,
                                                                                                 lambdas,
                                                                                                 use_unweighted_penalty,
@@ -66,7 +66,7 @@ ForestPredictor ForestPredictors::regression_predictor(uint num_threads,
   return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
 }
 
-ForestPredictor ForestPredictors::local_linear_predictor(uint num_threads,
+ForestPredictor ForestPredictors::ll_regression_predictor(uint num_threads,
                                                          const Data*original_data,
                                                          const Data *test_data,
                                                          std::vector<double> lambdas,

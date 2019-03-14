@@ -22,17 +22,17 @@
 #include "Eigen/Dense"
 #include "commons/utility.h"
 #include "commons/Observations.h"
-#include "prediction/CausalPredictionStrategy.h"
+#include "prediction/LLCausalPredictionStrategy.h"
 
 
-const size_t CausalPredictionStrategy::OUTCOME = 0;
-const size_t CausalPredictionStrategy::TREATMENT = 1;
+const size_t LLCausalPredictionStrategy::OUTCOME = 0;
+const size_t LLCausalPredictionStrategy::TREATMENT = 1;
 
-size_t CausalPredictionStrategy::prediction_length() {
+size_t LLCausalPredictionStrategy::prediction_length() {
   return 1;
 }
 
-CausalPredictionStrategy::CausalPredictionStrategy(const Data* original_data,
+LLCausalPredictionStrategy::LLCausalPredictionStrategy(const Data* original_data,
                                                    const Data* test_data,
                                                    std::vector<double> lambdas,
                                                    bool use_unweighted_penalty,
@@ -44,7 +44,7 @@ CausalPredictionStrategy::CausalPredictionStrategy(const Data* original_data,
         linear_correction_variables(linear_correction_variables){
 };
 
-std::vector<double> CausalPredictionStrategy::predict(
+std::vector<double> LLCausalPredictionStrategy::predict(
         size_t sampleID,
         const std::unordered_map<size_t, double>& weights_by_sampleID,
         const Observations& observations) {
@@ -75,7 +75,7 @@ std::vector<double> CausalPredictionStrategy::predict(
                  - original_data->get(indices[i],current_predictor);
     }
     // treatment W column
-    X(i, num_variables+1) = original_data->get(indices[i], num_total_predictors+1);
+    X(i, num_variables+1) = observations.get(Observations::TREATMENT, indices[i]);
 
     Y(i) = observations.get(Observations::OUTCOME, indices[i]);
     X(i, 0) = 1;

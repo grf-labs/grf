@@ -91,7 +91,7 @@ Rcpp::List local_linear_predict(Rcpp::List forest,
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads, original_data, test_data,
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(num_threads, original_data, test_data,
                                                                        lambdas, use_unweighted_penalty,
                                                                        linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict(deserialized_forest, test_data);
@@ -114,7 +114,7 @@ Rcpp::List local_linear_predict_oob(Rcpp::List forest,
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads, data, data,
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(num_threads, data, data,
                                                                        lambdas, use_unweighted_penalty,
                                                                        linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data);

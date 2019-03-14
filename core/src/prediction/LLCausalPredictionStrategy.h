@@ -15,8 +15,8 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_CAUSALPREDICTIONSTRATEGY_H
-#define GRF_CAUSALPREDICTIONSTRATEGY_H
+#ifndef GRF_LLCAUSALPREDICTIONSTRATEGY_H
+#define GRF_LLCAUSALPREDICTIONSTRATEGY_H
 
 
 #include <cstddef>
@@ -26,9 +26,9 @@
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
 
-class CausalPredictionStrategy: public DefaultPredictionStrategy {
+class LLCausalPredictionStrategy: public DefaultPredictionStrategy {
 public:
-  CausalPredictionStrategy(const Data *original_data,
+  LLCausalPredictionStrategy(const Data *original_data,
                            const Data *test_data,
                            std::vector<double> lambdas,
                            bool use_unweighted_penalty,
@@ -52,4 +52,4 @@ private:
   std::vector<size_t> linear_correction_variables;
 };
 
-#endif //GRF_CAUSALPREDICTIONSTRATEGY_H
+#endif //GRF_LLCAUSALPREDICTIONSTRATEGY_H

@@ -99,7 +99,7 @@ Rcpp::List causal_predict_linear(Rcpp::List forest,
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::causal_predictor(num_threads, original_data, test_data,
+  ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, original_data, test_data,
                                                                  lambdas, use_unweighted_penalty,
                                                                  linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict(deserialized_forest, test_data);
@@ -122,7 +122,7 @@ Rcpp::List causal_predict_oob_linear(Rcpp::List forest,
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::causal_predictor(num_threads, data, data,
+  ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, data, data,
                                                                  lambdas, use_unweighted_penalty,
                                                                  linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data);
