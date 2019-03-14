@@ -20,7 +20,7 @@
 
 
 #include "commons/DefaultData.h"
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include <unordered_map>
 #include <vector>
 
@@ -29,7 +29,7 @@
  * will then be used in calculating a standard regression (or classification) split.
  *
  * samples: the subset of samples to relabel.
- * observations: the list of observations for all training samples.
+ * data: the training data matrix.
  *
  * returns: a map from sample ID to a relabelled outcome.
  */
@@ -37,7 +37,7 @@ class RelabelingStrategy {
 public:
   virtual std::unordered_map<size_t, double> relabel(
       const std::vector<size_t>& samples,
-      const Observations& observations) = 0;
+      const Data* data) = 0;
 };
 
 

@@ -18,7 +18,7 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include "commons/utility.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
 
@@ -79,3 +79,47 @@ TEST_CASE("scaling outcome scales instrumental variance", "[instrumental, predic
   REQUIRE(second_variance.size() == 1);
   REQUIRE(equal_doubles(first_variance[0], second_variance[0] / 4, 10e-10));
 }
+
+TEST_CASE("debiased errors are smaller than raw errors for instrumental regression", "[instrumental, prediction]") {
+  const std::size_t OUTCOME = 0;
+  const std::size_t TREATMENT = 1;
+  const std::size_t INSTRUMENT = 2;
+  const std::size_t OUTCOME_INSTRUMENT = 3;
+  const std::size_t TREATMENT_INSTRUMENT = 4;
+
+  std::vector<double> average = {2.725, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+  std::vector<std::vector<double>> leaf_values = {
+      {2, 1, 1, 2, 1, 2}, {4, 2, 2, 4, 2, 1}, {-4, -3, 5, -6, -1, 0},
+      {2, 0, 1, 4, 1, 0}, {2, 0, 1, 4, 1, 3}, {2, 0, 1, 3, 4, 1}
+   };
+
+  double observations[] = { 6.4, 1.0, 1.4, 1.0, 0.0, 1.6,
+                            1.4, 2.0, 2.4, 2.0, 1.0, 5.5,
+                            2.4, 3.0, 3.4, 3.0, 2.0, 4.4 };
+  DefaultData data(observations, 6, 3);
+  data.set_outcome_index(0);
+  data.set_treatment_index(1);
+  data.set_instrument_index(2);
+
+  InstrumentalPredictionStrategy prediction_strategy;
+
+  for (size_t sample = 0; sample < 6; ++sample) {
+    double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
+    double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
+    double treatment_effect_estimate = instrument_effect_numerator / first_stage_numerator;
+    double outcome = data.get_outcome(sample);
+    double treatment = data.get_treatment(sample);
+    double residual = outcome - (treatment - average.at(TREATMENT)) * treatment_effect_estimate - average.at(OUTCOME);
+    double error_raw = residual * residual;
+
+    double debiased_error = prediction_strategy.compute_debiased_error(
+        sample,
+        average,
+        PredictionValues(leaf_values, leaf_values.size(), 3),
+        &data).at(0);
+
+    REQUIRE(debiased_error < error_raw);
+
+  }
+}
+

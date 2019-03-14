@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.10.2] - 2018-11-23
+### Added
+- Add support for confidence intervals in local linear regression forests. 
+
+### Changed
+- Allow samples_per_cluster to be larger than smallest cluster size. 
+
+### Fixed
+- Make sure average effect estimation doesn't error on data with a single feature.
+- Fix a bug in local linear prediction where the penalty wasn't properly calculated.
+- Fix two issues in causal forest tuning that could lead to unstable results.
+- Ensure that the ATE and APE functions correctly account for cluster membership.
+
+## [0.10.1] - 2018-09-23
+### Added
+- Add basic support for tree plotting (through the `plot` method).
+- Add the method `test_calibration`, which performs an omnibus test for presence of heterogeneity via calibration.
+- For local linear regression forests, add support for selecting the value of `ll.lambda` through cross-validation.
+- Introduce a training option `honesty.fraction` that can be used to specify the fraction of data that should be used in selecting splits vs. performing estimation. Note that this parameter is only relevant when honesty is enabled (the default).
+- Start a practical guide to the GRF algorithm (https://github.com/grf-labs/grf/blob/master/REFERENCE.md).
+- In `average_treatment_effect` and `average_partial_effect`, add an option `subset` to support estimating the treatment effect over a subsample of the data.
+
+### Fixed
+- Fix a bug in random sampling where features listed earlier in the data matrix were more likely to be selected for splitting.
+- Make sure that the sample indices returned in `get_tree` are 1-indexed, as opposed to 0-indexed.
+
 ## [0.10.0] - 2018-05-08
 ### Added
 - Replace the local.linear option with linear.correction.variables, which allows for a subset of

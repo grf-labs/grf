@@ -11,19 +11,26 @@
 #' @param X The covariates used in the causal regression.
 #' @param Y The outcome.
 #' @param W The treatment assignment (may be binary or real).
+#' @param Y.hat Estimates of the expected responses E[Y | Xi], marginalizing
+#'              over treatment. See section 6.1.1 of the GRF paper for
+#'              further discussion of this quantity.
+#' @param W.hat Estimates of the treatment propensities E[W | Xi].
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty is used, these subsamples will
-#'                        further be cut in half.
+#'                        Note: If honesty = TRUE, these subsamples will
+#'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
@@ -43,10 +50,13 @@
 #' X = matrix(rnorm(n*p), n, p)
 #' W = rbinom(n, 1, 0.5)
 #' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
-#' params = tune_causal_forest(X, Y, W)$params
+#' Y.hat = predict(regression_forest(X, Y))$predictions
+#' W.hat = rep(0.5, n)
+#' params = tune_causal_forest(X, Y, W, Y.hat, W.hat)$params
 #'
 #' # Use these parameters to train a regression forest.
-#' tuned.forest = causal_forest(X, Y, W, num.trees = 1000,
+#' tuned.forest = causal_forest(X, Y, W,
+#'     Y.hat = Y.hat, W.hat = W.hat, num.trees = 1000,
 #'     min.node.size = as.numeric(params["min.node.size"]),
 #'     sample.fraction = as.numeric(params["sample.fraction"]),
 #'     mtry = as.numeric(params["mtry"]),
@@ -55,7 +65,7 @@
 #' }
 #'
 #' @export
-tune_causal_forest <- function(X, Y, W,
+tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                num.fit.trees = 200,
                                num.fit.reps = 50,
                                num.optimize.reps = 1000,
@@ -67,6 +77,7 @@ tune_causal_forest <- function(X, Y, W,
                                stabilize.splits = TRUE,
                                num.threads = NULL,
                                honesty = TRUE,
+                               honesty.fraction = NULL,
                                seed = NULL,
                                clusters = NULL,
                                samples_per_cluster = NULL) {
@@ -79,8 +90,9 @@ tune_causal_forest <- function(X, Y, W,
   samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
   ci.group.size <- 1
   reduced.form.weight <- 0
-
-  data <- create_data_matrices(X, Y, W)
+  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
+  
+  data <- create_data_matrices(X, Y - Y.hat, W - W.hat)
   outcome.index <- ncol(X) + 1
   treatment.index <- ncol(X) + 2
   instrument.index <- treatment.index
@@ -111,6 +123,7 @@ tune_causal_forest <- function(X, Y, W,
                                        as.numeric(params["sample.fraction"]),
                                        seed,
                                        honesty,
+                                       coerce_honesty_fraction(honesty.fraction),
                                        ci.group.size,
                                        reduced.form.weight,
                                        as.numeric(params["alpha"]),
@@ -119,7 +132,7 @@ tune_causal_forest <- function(X, Y, W,
                                        clusters,
                                        samples_per_cluster)
     prediction = instrumental_predict_oob(small.forest, data$default, data$sparse,
-                                          num.threads, ci.group.size)
+        outcome.index, treatment.index, instrument.index, num.threads, FALSE)
     mean(prediction$debiased.error, na.rm = TRUE)
   })
   

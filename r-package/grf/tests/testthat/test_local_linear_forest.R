@@ -10,7 +10,7 @@ test_that("local linear prediction gives reasonable estimates", {
     MU = apply(X, FUN=f, MARGIN=1)
     Y = MU + rnorm(n)
 
-    forest = regression_forest(X, Y)
+    forest = regression_forest(X, Y, num.trees = 500)
     preds.grf.oob = predict(forest)
     preds.ll.oob = predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)
 
@@ -41,7 +41,7 @@ test_that("linear correction variables function as expected", {
     MU = apply(X, FUN=f, MARGIN=1)
     Y = MU + rnorm(n)
 
-    forest = regression_forest(X, Y)
+    forest = regression_forest(X, Y, num.trees = 500)
     preds = predict(forest, linear.correction.variables = 1:20)
     mse = mean((preds$predictions - MU)^2)
 
@@ -51,9 +51,9 @@ test_that("linear correction variables function as expected", {
     expect_true(mse.selected < mse / 1.5)
 })
 
-test_that("local linear forest tuning always returns lambda and decreases prediction error", {
-    n = 1000
-    p = 20
+test_that("local linear forest tuning returns lambda and decreases prediction error", {
+    n = 400
+    p = 5
     sigma = 5
 
     mu = function(x){log(1+exp(6*x[1]))}
@@ -68,17 +68,17 @@ test_that("local linear forest tuning always returns lambda and decreases predic
     expect_true(is.numeric(lambda))
     expect_true(length(lambda) == 1)
 
-    preds.tuned = predict(forest, linear.correction.variables = 1:20, ll.lambda = lambda)$predictions
+    preds.tuned = predict(forest, linear.correction.variables = 1:p, ll.lambda = lambda)$predictions
     mse.tuned = mean((preds.tuned - truth)^2)
 
-    preds.untuned = predict(forest, linear.correction.variables = 1:20, ll.lambda = 0.1)$predictions
+    preds.untuned = predict(forest, linear.correction.variables = 1:p, ll.lambda = 0.1)$predictions
     mse.untuned = mean((preds.untuned - truth)^2)
 
     expect_true(mse.tuned < 0.75 * mse.untuned)
 })
 
 test_that("default local linear forest predict and regression forest predict with local.linear = TRUE are the same", {
-    n = 1000
+    n = 400
     p = 5
     sigma = 1
 
@@ -96,11 +96,11 @@ test_that("default local linear forest predict and regression forest predict wit
 
     average.difference = mean((ll.preds - preds)**2)
 
-    expect_true(average.difference < 0.1)
+    expect_true(average.difference < 0.05)
 })
 
 test_that("local linear predict returns local linear predictions even without tuning parameters", {
-    n = 200
+    n = 50
     p = 5
     sigma = 1
 
@@ -110,9 +110,111 @@ test_that("local linear predict returns local linear predictions even without tu
     truth = apply(X, FUN = mu, MARGIN = 1)
     Y = truth + sigma*rnorm(n)
 
-    forest = local_linear_forest(X, Y)
+    forest = local_linear_forest(X, Y, num.trees = 50)
     preds = predict(forest)
 
     ll.indicator = !is.null(preds$ll.lambda)
     expect_true(ll.indicator)
+})
+
+test_that("local linear confidence intervals have reasonable coverage", {
+    mu = function(x){log(1+exp(6*x))}
+
+    n = 400
+    p = 10
+    sigma = sqrt(20)
+
+    X = matrix(runif(n*p,-1,1), nrow = n)
+    truth = mu(X[,1])
+    Y = truth + sigma*rnorm(n)
+
+    forest = local_linear_forest(X, Y, num.trees = 500, ci.group.size = 5)
+    preds = predict(forest, linear.correction.variables = 1, ll.lambda = 1, estimate.variance = TRUE)
+
+    expect_true(all(preds$variance.estimates > 0))
+
+    df = data.frame(predictions= preds$predictions,
+                    upper = preds$predictions + 1.96*sqrt(preds$variance.estimates),
+                    lower = preds$predictions - 1.96*sqrt(preds$variance.estimates))
+
+    percent_llf = mean(df$lower <= truth & truth <= df$upper)
+    expect_true(percent_llf > 0.8)
+})
+
+
+test_that("local linear confidence intervals match regression forest with large lambda", {
+    mu = function(x){log(1+exp(6*x))}
+
+    n = 80
+    p = 4
+    sigma = sqrt(20)
+
+    X = matrix(runif(n*p,-1,1), nrow = n)
+    truth = mu(X[,1])
+    Y = truth + sigma*rnorm(n)
+
+    forest = regression_forest(X, Y, num.trees = 80, ci.group.size = 2)
+
+    preds.rf = predict(forest, estimate.variance = TRUE)
+    preds.llf = predict(forest, linear.correction.variables = 1,
+                        ll.lambda = 10000000, estimate.variance = TRUE)
+
+    expect_true(max(abs(preds.llf$predictions - preds.rf$predictions)) < 10^-5)
+    expect_true(max(abs(preds.llf$variance.estimates - preds.rf$variance.estimates)) < 10^-5)
+})
+
+test_that("local linear predictions are correct without noise", {
+  n = 80
+  p = 2
+  
+  X = matrix(runif(n*p,-1,1), nrow = n)
+  mu = rowSums(X)
+  Y = mu
+  
+  forest = regression_forest(X, Y, num.trees = 80, ci.group.size = 2)
+  
+  preds.rf = predict(forest)$predictions
+  preds.llf = predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
+  
+  mean((preds.rf - mu)^2)
+  mean((preds.llf - mu)^2)
+  
+  expect_true(mean((preds.llf - mu)^2) < 10^-10)
+  expect_true(mean((preds.rf - mu)^2) > 10^-2)
+})
+
+test_that("prediction with and without CIs are the same", {
+  n = 200
+  p = 4
+  
+  X = matrix(runif(n*p,-1,1), nrow = n)
+  mu = 0.9 * exp(X[,1])
+  Y = mu + rnorm(n)
+  
+  forest = local_linear_forest(X, Y, num.trees = 800, ci.group.size = 2)
+  
+  preds.rf = predict(forest, ll.lambda = 1, estimate.variance = FALSE)$predictions
+  preds.rf2 = predict(forest, ll.lambda = 1, estimate.variance = TRUE)$predictions
+  expect_true(max(abs(preds.rf - preds.rf2)) < 10^-10)
+})
+
+test_that("output of tune local linear forest is consistent with prediction output", {
+  n = 200
+  p = 4
+
+  X = matrix(runif(n*p,-1,1), nrow = n)
+  mu = 0.9 * exp(X[,1])
+  Y = mu + rnorm(n)
+
+  forest = local_linear_forest(X, Y, num.trees = 400)
+  
+  tune.out = tune_local_linear_forest(forest)
+
+  ll.min = tune.out$lambdas[1]
+  pred.ll.min = predict(forest, ll.lambda = ll.min)$predictions
+  expect_true(max(abs(tune.out$oob.predictions[,1] - pred.ll.min)) < 10^-6)
+
+  ll.max = tune.out$lambdas[length(tune.out$lambdas)]
+  pred.ll.max = predict(forest, ll.lambda = ll.max)$predictions
+  expect_true(max(abs(tune.out$oob.predictions[,length(tune.out$lambdas)] - pred.ll.max)) < 10^-6)
 })

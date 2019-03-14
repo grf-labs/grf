@@ -26,8 +26,8 @@
 #include "RcppUtilities.h"
 
 // [[Rcpp::export]]
-Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
-                        Eigen::SparseMatrix<double> sparse_input_data,
+Rcpp::List custom_train(Rcpp::NumericMatrix train_matrix,
+                        Eigen::SparseMatrix<double> sparse_train_matrix,
                         size_t outcome_index,
                         unsigned int mtry,
                         unsigned int num_trees,
@@ -36,51 +36,66 @@ Rcpp::List custom_train(Rcpp::NumericMatrix input_data,
                         double sample_fraction,
                         unsigned int seed,
                         bool honesty,
-                        unsigned int ci_group_size,
+                        double honesty_fraction,
+                        size_t ci_group_size,
                         double alpha,
                         double imbalance_penalty,
                         std::vector<size_t> clusters,
                         unsigned int samples_per_cluster) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
-  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size,
-      honesty, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
+  Data* data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  data->set_outcome_index(outcome_index - 1);
+  data->sort();
 
-  ForestTrainer trainer = ForestTrainers::custom_trainer(outcome_index - 1);
+  ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
+      honesty_fraction, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
+
+  ForestTrainer trainer = ForestTrainers::custom_trainer();
+
   Forest forest = trainer.train(data, options);
+  Rcpp::List result = RcppUtilities::create_forest_object(forest);
 
-  Rcpp::List result = RcppUtilities::create_forest_object(forest, data);
   delete data;
   return result;
 }
 
 // [[Rcpp::export]]
 Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
-                                   Rcpp::NumericMatrix input_data,
-                                   Eigen::SparseMatrix<double> sparse_input_data,
+                                   Rcpp::NumericMatrix train_matrix,
+                                   Eigen::SparseMatrix<double> sparse_train_matrix,
+                                   size_t outcome_index,
+                                   Rcpp::NumericMatrix test_matrix,
+                                   Eigen::SparseMatrix<double> sparse_test_matrix,
                                    unsigned int num_threads) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
+  Data* train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  train_data->set_outcome_index(outcome_index - 1);
+  Data* data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::custom_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict(forest, data);
+  std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
+  delete train_data;
   delete data;
   return result;
 }
 
 // [[Rcpp::export]]
 Rcpp::NumericMatrix custom_predict_oob(Rcpp::List forest_object,
-                                       Rcpp::NumericMatrix input_data,
-                                       Eigen::SparseMatrix<double> sparse_input_data,
+                                       Rcpp::NumericMatrix train_matrix,
+                                       Eigen::SparseMatrix<double> sparse_train_matrix,
+                                       size_t outcome_index,
                                        unsigned int num_threads) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
+  Data* data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  data->set_outcome_index(outcome_index);
+
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
   ForestPredictor predictor = ForestPredictors::custom_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   delete data;

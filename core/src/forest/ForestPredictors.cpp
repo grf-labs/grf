@@ -30,11 +30,10 @@ ForestPredictor ForestPredictors::custom_predictor(uint num_threads) {
   return ForestPredictor(num_threads, prediction_strategy);
 }
 
-ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads,
-                                                         uint ci_group_size) {
+ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
-  return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
+  return ForestPredictor(num_threads, prediction_strategy);
 }
 
 ForestPredictor ForestPredictors::ll_causal_predictor(uint num_threads,
@@ -59,24 +58,20 @@ ForestPredictor ForestPredictors::quantile_predictor(uint num_threads,
   return ForestPredictor(num_threads, prediction_strategy);
 }
 
-ForestPredictor ForestPredictors::regression_predictor(uint num_threads,
-                                                       uint ci_group_size) {
+ForestPredictor ForestPredictors::regression_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
-  return ForestPredictor(num_threads, ci_group_size, prediction_strategy);
+  return ForestPredictor(num_threads, prediction_strategy);
 }
 
 ForestPredictor ForestPredictors::ll_regression_predictor(uint num_threads,
                                                          const Data*original_data,
                                                          const Data *test_data,
                                                          std::vector<double> lambdas,
-                                                         bool use_unweighted_penalty,
+                                                         bool weighted_penalty,
                                                          std::vector<size_t> linear_correction_variables) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new LocalLinearPredictionStrategy(original_data,
-                                                                                                   test_data,
-                                                                                                   lambdas,
-                                                                                                   use_unweighted_penalty,
-                                                                                                   linear_correction_variables));
+  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(
+      new LocalLinearPredictionStrategy(lambdas, weighted_penalty, linear_correction_variables));
   return ForestPredictor(num_threads, prediction_strategy);
 }

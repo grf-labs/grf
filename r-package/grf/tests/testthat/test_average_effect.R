@@ -40,11 +40,11 @@ test_that("average effects are translation invariant", {
 	
 	cape = average_partial_effect(forest.causal)
 	cape.plus.1 = average_partial_effect(forest.causal.plus.1)
-	expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.005)
+	expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.006)
 
 	wate = average_treatment_effect(forest.causal, target.sample = "overlap")
 	wate.plus.1 = average_treatment_effect(forest.causal.plus.1, target.sample = "overlap")
-	expect_true(abs(wate[1] - wate.plus.1[1]) <= 0.005)
+	expect_true(abs(wate[1] - wate.plus.1[1]) <= 0.006)
 })
 
 test_that("average treatment effect estimates are reasonable", {
@@ -221,46 +221,81 @@ test_that("cluster robust average effects are consistent", {
   Yc = c(Y, Y, Y, Y)
   clust = c(1:n, 1:n, 1:n, 1:n)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 4000, ci.group.size = 4)
-  forest.causal.clust = causal_forest(Xc, Yc, Wc, num.trees = 4000, ci.group.size = 4, clusters = clust)
+  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 4)
+  forest.causal.clust = causal_forest(Xc, Yc, Wc, num.trees = 1000,
+                                      ci.group.size = 4, clusters = clust,
+                                      samples_per_cluster = 7)
 
   cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   cate.clust.aipw = average_treatment_effect(forest.causal.clust, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - cate.clust.aipw[1]) <= 0.05)
   expect_true(abs(cate.aipw[2] - cate.clust.aipw[2]) <= 0.005)
 
-  cate.tmle = average_treatment_effect(forest.causal, target.sample = "all", method = "TMLE")
-  cate.clust.tmle = average_treatment_effect(forest.causal.clust, target.sample = "all", method = "TMLE")
-  expect_true(abs(cate.tmle[1] - cate.clust.tmle[1]) <= 0.05)
-  expect_true(abs(cate.tmle[2] - cate.clust.tmle[2]) <= 0.005)
-
   catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
   catt.clust.aipw = average_treatment_effect(forest.causal.clust, target.sample = "treated", method = "AIPW")
-  expect_true(abs(catt.aipw[1] - catt.clust.aipw[1]) <= 0.1)
+  expect_true(abs(catt.aipw[1] - catt.clust.aipw[1]) <= 0.05)
   expect_true(abs(catt.aipw[2] - catt.clust.aipw[2]) <= 0.005)
-
-  catt.tmle = average_treatment_effect(forest.causal, target.sample = "treated", method = "TMLE")
-  catt.clust.tmle = average_treatment_effect(forest.causal.clust, target.sample = "treated", method = "TMLE")
-  expect_true(abs(catt.tmle[1] - catt.clust.tmle[1]) <= 0.1)
-  expect_true(abs(catt.tmle[2] - catt.clust.tmle[2]) <= 0.005)
 
   catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
   catc.clust.aipw = average_treatment_effect(forest.causal.clust, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - catc.clust.aipw[1]) <= 0.1)
+  expect_true(abs(catc.aipw[1] - catc.clust.aipw[1]) <= 0.05)
   expect_true(abs(catc.aipw[2] - catc.clust.aipw[2]) <= 0.005)
 
-  catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
-  catc.clust.tmle = average_treatment_effect(forest.causal.clust, target.sample = "control", method = "TMLE")
-  expect_true(abs(catc.tmle[1] - catc.clust.tmle[1]) <= 0.1)
-  expect_true(abs(catc.tmle[2] - catc.clust.tmle[2]) <= 0.005)
-
-  cape = average_partial_effect(forest.causal)
-  cape.clust = average_partial_effect(forest.causal.clust)
-  expect_true(abs(cape[1] - cape.clust[1]) <= 0.1)
-  expect_true(abs(cape[2] - cape.clust[2]) <= 0.01)
+  cape = average_partial_effect(forest.causal, num.trees.for.variance = 200)
+  cape.clust = average_partial_effect(forest.causal.clust, num.trees.for.variance = 200)
+  expect_true(abs(cape[1] - cape.clust[1]) <= 0.05)
+  expect_true(abs(cape[2] - cape.clust[2]) <= 0.005)
 
   wate = average_treatment_effect(forest.causal, target.sample = "overlap")
   wate.clust = average_treatment_effect(forest.causal.clust, target.sample = "overlap")
   expect_true(abs(wate[1] - wate.clust[1]) <= 0.05)
   expect_true(abs(wate[2] - wate.clust[2]) <= 0.005)
+})
+
+test_that("cluster robust average effects do weighting correctly", {
+  
+  t0 = 2
+  K = 400
+  n = 11 * K
+  p = 4
+  clust = 1:n %% K + K * as.numeric(1:n >= K)
+  tau = 2 * t0 * as.numeric(clust < K)
+  
+  X = matrix(rnorm(n * p), n, p)
+  W = rbinom(n, 1, 0.5)
+  Y = tau * W + 2 * rnorm(n)
+  
+  forest.causal = causal_forest(X, Y, W, clusters = clust, num.trees = 400)
+  
+  cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
+  expect_true(abs(cate.aipw[1] - t0) / (3 * cate.aipw[2]) <= 1)
+  expect_true(cate.aipw[2] <= 0.2)
+  
+  catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
+  expect_true(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]) <= 1)
+  expect_true(catt.aipw[2] <= 0.2)
+  
+  catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
+  expect_true(abs(catc.aipw[1] - t0) / (3 * catc.aipw[2]) <= 1)
+  expect_true(catc.aipw[2] <= 0.2)
+  
+  cape = average_partial_effect(forest.causal, num.trees.for.variance = 200)
+  expect_true(abs(cape[1] - t0) / (3 * cape[2]) <= 1)
+  expect_true(cape[2] <= 0.2)
+  
+  wate = average_treatment_effect(forest.causal, target.sample = "overlap")
+  expect_true(abs(wate[1] - t0) / (3 * wate[2]) <= 1)
+  expect_true(wate[2] <= 0.2)
+  
+})
+
+test_that("average effect estimation doesn't error on data with a single feature", {
+  p = 1; n = 100
+
+  X = matrix(rnorm(n * p), n, p)
+  Y = rnorm(n)
+  W = rbinom(n, size=1, prob=0.5)
+
+  forest = causal_forest(X,Y,W)
+  average_partial_effect(forest)
 })

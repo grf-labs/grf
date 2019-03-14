@@ -17,10 +17,9 @@
 
 #include <cmath>
 #include <iostream>
-#include <string>
 #include <vector>
 
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include "commons/utility.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
 
@@ -46,7 +45,7 @@ std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<do
 std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    uint ci_group_size) {
+    size_t ci_group_size) {
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT)
      - average.at(OUTCOME) * average.at(INSTRUMENT);
@@ -152,7 +151,7 @@ size_t InstrumentalPredictionStrategy::prediction_value_length() {
 
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_samples,
-    const Observations& observations) {
+    const Data* data) {
   size_t num_leaves = leaf_samples.size();
 
   std::vector<std::vector<double>> values(num_leaves);
@@ -173,11 +172,11 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     double sum_WZ = 0;
 
     for (auto& sample : leaf_samples[i]) {
-      sum_Y += observations.get(Observations::OUTCOME, sample);
-      sum_W += observations.get(Observations::TREATMENT, sample);
-      sum_Z += observations.get(Observations::INSTRUMENT, sample);
-      sum_YZ += observations.get(Observations::OUTCOME, sample) * observations.get(Observations::INSTRUMENT, sample);
-      sum_WZ += observations.get(Observations::TREATMENT, sample) * observations.get(Observations::INSTRUMENT, sample);
+      sum_Y += data->get_outcome(sample);
+      sum_W += data->get_treatment(sample);
+      sum_Z += data->get_instrument(sample);
+      sum_YZ += data->get_outcome(sample) * data->get_instrument(sample);
+      sum_WZ += data->get_treatment(sample) * data->get_instrument(sample);
     }
 
     value[OUTCOME] = sum_Y / leaf_size;
@@ -194,15 +193,15 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    const Observations& observations) {
+    const Data* data) {
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
   double treatment_effect_estimate = instrument_effect_numerator / first_stage_numerator;
 
-  double outcome = observations.get(Observations::OUTCOME, sample);
-  double treatment = observations.get(Observations::TREATMENT, sample);
-  double instrument = observations.get(Observations::INSTRUMENT, sample);
+  double outcome = data->get_outcome(sample);
+  double treatment = data->get_treatment(sample);
+  double instrument = data->get_instrument(sample);
 
   // To justify the squared residual below as an error criterion in the case of CATE estimation
   // with an unconfounded treatment assignment, see Nie and Wager (2017).
@@ -242,7 +241,7 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
     double residual_loto = outcome - (treatment - treatment_loto) * treatment_effect_estimate_loto - outcome_loto;
     error_bias += (residual_loto - residual) * (residual_loto - residual);
   }
-  
-  error_bias *= ((num_trees - 1) / num_trees);
+
+  error_bias *= ((double)(num_trees - 1)) / (num_trees);
   return { error_raw - error_bias };
 }

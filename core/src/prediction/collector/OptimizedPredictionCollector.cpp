@@ -17,19 +17,19 @@
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
 
-OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy,
-                                                           uint ci_group_size):
-    strategy(strategy),
-    ci_group_size(ci_group_size) {}
+OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy):
+    strategy(strategy) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
-                                                                          Data* prediction_data,
+                                                                          Data* train_data,
+                                                                          Data* data,
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                                                          bool estimate_variance,
                                                                           bool estimate_error) {
   size_t num_trees = forest.get_trees().size();
-  size_t num_samples = prediction_data->get_num_rows();
-  bool record_leaf_values = ci_group_size > 1 || estimate_error;
+  size_t num_samples = data->get_num_rows();
+  bool record_leaf_values = estimate_variance || estimate_error;
 
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
@@ -75,12 +75,12 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     std::vector<double> point_prediction = strategy->predict(average_value);
 
     PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
-    std::vector<double> variance = ci_group_size > 1
-        ? strategy->compute_variance(average_value, prediction_values, ci_group_size)
+    std::vector<double> variance = estimate_variance
+        ? strategy->compute_variance(average_value, prediction_values, forest.get_ci_group_size())
         : std::vector<double>();
 
     std::vector<double> mse = estimate_error
-        ? strategy->compute_debiased_error(sample, average_value, prediction_values, forest.get_observations())
+        ? strategy->compute_debiased_error(sample, average_value, prediction_values, train_data)
         : std::vector<double>();
 
     Prediction prediction(point_prediction, variance, mse);

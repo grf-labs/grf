@@ -19,8 +19,8 @@
 #' @param Z.hat Estimates of the instrument propensities E[Z | Xi]. If Z.hat = NULL,
 #'              these are estimated using a separate regression forest.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty is used, these subsamples will
-#'                        further be cut in half.
+#'                        Note: If honesty = TRUE, these subsamples will
+#'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
@@ -29,7 +29,10 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -44,8 +47,13 @@
 #' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
-#'                            software will set this value to the size of the smallest cluster.
+#'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples_per_cluster,
+#'                            the whole cluster is used every time the cluster is drawn. Note that
+#'                            clusters with less than samples_per_cluster observations get relatively
+#'                            smaller weight than others in training the forest, i.e., the contribution
+#'                            of a given cluster to the final forest scales with the minimum of
+#'                            the number of observations in the cluster and samples_per_cluster.
 #'
 #' @return A trained instrumental forest object.
 #' @export
@@ -59,6 +67,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 num.threads = NULL,
                                 min.node.size = NULL,
                                 honesty = TRUE,
+                                honesty.fraction = NULL,
                                 ci.group.size = 2,
                                 reduced.form.weight = 0,
                                 alpha = 0.05,
@@ -73,6 +82,7 @@ instrumental_forest <- function(X, Y, W, Z,
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
     if(length(Z) != nrow(X)) { stop("Z has incorrect length.") }
     
+    
     mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
     min.node.size <- validate_min_node_size(min.node.size)
@@ -80,6 +90,7 @@ instrumental_forest <- function(X, Y, W, Z,
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
     
     if (!is.numeric(reduced.form.weight) | reduced.form.weight < 0 | reduced.form.weight > 1) {
         stop("Error: Invalid value for reduced.form.weight. Please give a value in [0,1].")
@@ -87,8 +98,8 @@ instrumental_forest <- function(X, Y, W, Z,
     
     if (is.null(Y.hat)) {
       forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
-                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                    honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       Y.hat <- predict(forest.Y)$predictions
     } else if (length(Y.hat) == 1) {
@@ -99,8 +110,8 @@ instrumental_forest <- function(X, Y, W, Z,
     
     if (is.null(W.hat)) {
       forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
-                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                    honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       W.hat <- predict(forest.W)$predictions
     } else if (length(W.hat) == 1) {
@@ -111,8 +122,8 @@ instrumental_forest <- function(X, Y, W, Z,
     
     if (is.null(Z.hat)) {
       forest.Z <- regression_forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
-                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, 
-                                    honesty = TRUE, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                    num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       Z.hat <- predict(forest.Z)$predictions
     } else if (length(Z.hat) == 1) {
@@ -129,8 +140,8 @@ instrumental_forest <- function(X, Y, W, Z,
     
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
-        ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits,
-        clusters, samples_per_cluster)
+        coerce_honesty_fraction(honesty.fraction), ci.group.size, reduced.form.weight, alpha, 
+        imbalance.penalty, stabilize.splits, clusters, samples_per_cluster)
 
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
@@ -158,10 +169,11 @@ instrumental_forest <- function(X, Y, W, Z,
 #' Gets estimates of tau(x) using a trained instrumental forest.
 #'
 #' @param object The trained forest.
-#' @param newdata Points at which predictions should be made. If NULL,
-#'                makes out-of-bag predictions on the training set instead
-#'                (i.e., provides predictions at Xi using only trees that did
-#'                not use the i-th training example).
+#' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
+#'                predictions on the training set instead (i.e., provides predictions at
+#'                Xi using only trees that did not use the i-th training example). Note
+#'                that this matrix should have the number of columns as the training
+#'                matrix, and that the columns must appear in the same order.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -169,6 +181,8 @@ instrumental_forest <- function(X, Y, W, Z,
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return Vector of predictions, along with (optional) variance estimates.
+#'
+#' @method predict instrumental_forest
 #' @export
 predict.instrumental_forest <- function(object, newdata = NULL,
                                         num.threads = NULL, 
@@ -182,23 +196,29 @@ predict.instrumental_forest <- function(object, newdata = NULL,
     }
 
     num.threads <- validate_num_threads(num.threads)
-
-    if (estimate.variance) {
-        ci.group.size <- object$ci.group.size
-    } else {
-        ci.group.size <- 1
-    }
-
     forest.short <- object[-which(names(object) == "X.orig")]
 
+    X = object[["X.orig"]]
+    Y.centered = object[["Y.orig"]] - object[["Y.hat"]]
+    W.centered = object[["W.orig"]] - object[["W.hat"]]
+    Z.centered = object[["Z.orig"]] - object[["Z.hat"]]
+
+    train.data <- create_data_matrices(X, Y.centered, W.centered, Z.centered)
+
+    outcome.index <- ncol(X) + 1
+    treatment.index <- ncol(X) + 2
+    instrument.index <- ncol(X) + 3
+
     if (!is.null(newdata)) {
+        validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
-        ret <- instrumental_predict(forest.short, data$default, data$sparse,
-                                    num.threads, ci.group.size)
+        ret <- instrumental_predict(forest.short, train.data$default, train.data$sparse,
+            outcome.index, treatment.index, instrument.index,
+            data$default, data$sparse, num.threads, estimate.variance)
     } else {
-        data <- create_data_matrices(object[["X.orig"]])
-        ret <- instrumental_predict_oob(forest.short, data$default, data$sparse,
-                                        num.threads, ci.group.size)
+        ret <- instrumental_predict_oob(forest.short, train.data$default, train.data$sparse,
+            outcome.index, treatment.index, instrument.index,
+            num.threads, estimate.variance)
     }
 
     # Convert list to data frame.

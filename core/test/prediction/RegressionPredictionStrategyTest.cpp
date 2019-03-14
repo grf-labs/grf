@@ -18,7 +18,7 @@
 #include <map>
 #include <unordered_set>
 #include <fstream>
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include "commons/utility.h"
 #include "prediction/RegressionPredictionStrategy.h"
 
@@ -69,4 +69,32 @@ TEST_CASE("scaling outcome scales regression variance", "[regression, prediction
   REQUIRE(second_variance.size() == 1);
   REQUIRE(equal_doubles(first_variance[0], second_variance[0] / 4, 1.0e-10));
 }
+
+
+TEST_CASE("debiased errors are smaller than raw errors", "[regression, prediction]") {
+  std::vector<double> average = {2.725};
+  std::vector<std::vector<double>> leaf_values = {{3.2}, {4.5}, {6.7}, {-3.5}};
+
+  double outcomes[] = {6.4, 9.0, 13.4, -7.0};
+  DefaultData data(outcomes, 4, 1);
+  data.set_outcome_index(0);
+
+  RegressionPredictionStrategy prediction_strategy;
+
+  for (size_t sample=0; sample < 4; ++sample) {
+    double debiased_error = prediction_strategy.compute_debiased_error(
+          sample,
+          average,
+          PredictionValues(leaf_values, 4, 1),
+          &data).at(0);
+
+    // Raw error
+    double outcome = data.get_outcome(sample);
+    double error = average.at(0) - outcome;
+    double mse = error * error;
+
+    REQUIRE(debiased_error < mse);
+  }
+}
+
 

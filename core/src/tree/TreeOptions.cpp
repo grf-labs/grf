@@ -21,11 +21,13 @@
 TreeOptions::TreeOptions(uint mtry,
                          uint min_node_size,
                          bool honesty,
+                         double honesty_fraction,
                          double alpha,
                          double imbalance_penalty):
   mtry(mtry),
   min_node_size(min_node_size),
   honesty(honesty),
+  honesty_fraction(honesty_fraction),
   alpha(alpha),
   imbalance_penalty(imbalance_penalty) {}
 
@@ -39,6 +41,10 @@ uint TreeOptions::get_min_node_size() const  {
 
 bool TreeOptions::get_honesty() const {
   return honesty;
+}
+
+double TreeOptions::get_honesty_fraction() const {
+  return honesty_fraction;
 }
 
 double TreeOptions::get_alpha() const {

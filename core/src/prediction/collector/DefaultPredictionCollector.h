@@ -29,13 +29,15 @@ public:
   DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy);
 
   std::vector<Prediction> collect_predictions(const Forest& forest,
-                                              Data* prediction_data,
+                                              Data* train_data,
+                                              Data* data,
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                               const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                              bool estimate_variance,
                                               bool estimate_error);
 
 private:
-    void validate_prediction(size_t sample, Prediction prediction);
+  void validate_prediction(size_t sample, Prediction prediction);
 
   std::shared_ptr<DefaultPredictionStrategy> strategy;
   SampleWeightComputer weight_computer;

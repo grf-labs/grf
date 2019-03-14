@@ -21,7 +21,7 @@
 
 #include "ProbabilitySplittingRule.h"
 
-ProbabilitySplittingRule::ProbabilitySplittingRule(Data* data,
+ProbabilitySplittingRule::ProbabilitySplittingRule(const Data* data,
                                                    size_t num_classes,
                                                    double alpha,
                                                    double imbalance_penalty) {

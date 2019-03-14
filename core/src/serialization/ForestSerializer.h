@@ -21,7 +21,6 @@
 #include <memory>
 
 #include "forest/Forest.h"
-#include "serialization/ObservationsSerializer.h"
 #include "serialization/TreeSerializer.h"
 
 class ForestSerializer {
@@ -30,7 +29,6 @@ public:
   Forest deserialize(std::istream& stream);
 
 private:
-  ObservationsSerializer observations_serializer;
   TreeSerializer tree_serializer;
 };
 

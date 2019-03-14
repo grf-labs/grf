@@ -19,6 +19,7 @@
 #include <vector>
 #include <string>
 
+#include "Eigen/Dense"
 #include "commons/DefaultData.h"
 #include "prediction/QuantilePredictionStrategy.h"
 
@@ -33,12 +34,13 @@ size_t QuantilePredictionStrategy::prediction_length() {
 std::vector<double> QuantilePredictionStrategy::predict(
     size_t prediction_sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
-    const Observations& observations) {
+    const Data* train_data,
+    const Data* data) {
   std::vector<std::pair<size_t, double>> samples_and_values;
   for (auto it = weights_by_sample.begin(); it != weights_by_sample.end(); it++) {
     size_t sample = it->first;
     samples_and_values.push_back(std::pair<size_t, double>(
-        sample, observations.get(Observations::OUTCOME, sample)));
+        sample, train_data->get_outcome(sample)));
   }
 
   return compute_quantile_cutoffs(weights_by_sample, samples_and_values);
@@ -73,4 +75,14 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
     quantile_cutoffs.push_back(last_value);
   }
   return quantile_cutoffs;
+}
+
+std::vector<double> QuantilePredictionStrategy::compute_variance(
+    size_t sampleID,
+    std::vector<std::vector<size_t>> samples_by_tree,
+    std::unordered_map<size_t, double> weights_by_sampleID,
+    const Data* train_data,
+    const Data* data,
+    size_t ci_group_size){
+  return { 0.0 };
 }

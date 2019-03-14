@@ -5,7 +5,8 @@
 #' @param forest The forest used for prediction.
 #' @param linear.correction.variables Variables to use for local linear prediction. If left null,
 #'          all variables are used.
-#' @param use.unweighted.penalty Optional parameter to adjust ridge regression standardization.
+#' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
+#'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param lambda.path Optional list of lambdas to use for cross-validation.
@@ -24,14 +25,17 @@
 #' }
 #'
 #' @export
-tune_local_linear_forest <- function(forest, linear.correction.variables = NULL,
-                                     use.unweighted.penalty = TRUE,
+tune_local_linear_forest <- function(forest,
+                                     linear.correction.variables = NULL,
+                                     ll.weight.penalty = FALSE,
                                      num.threads = NULL,
                                      lambda.path = NULL) {
-  Y = forest[["Y.orig"]]
-  X = forest[["X.orig"]]
-  data = create_data_matrices(X)
   forest.short = forest[-which(names(forest) == "X.orig")]
+
+  X = forest[["X.orig"]]
+  Y = forest[["Y.orig"]]
+  data = create_data_matrices(X, Y)
+  outcome.index = ncol(X) + 1
 
   # Validate variables
   num.threads = validate_num_threads(num.threads)
@@ -41,8 +45,10 @@ tune_local_linear_forest <- function(forest, linear.correction.variables = NULL,
   # Subtract 1 to account for C++ indexing
   linear.correction.variables = linear.correction.variables - 1
 
-  prediction.object = local_linear_predict_oob(forest.short, data$default, data$sparse, lambda.path, use.unweighted.penalty,
-                                 linear.correction.variables, num.threads)
+  # Enforce no variance estimates in tuning
+  estimate.variance = FALSE
+  prediction.object = local_linear_predict_oob(forest.short, data$default, data$sparse, outcome.index,
+      lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
 
   prediction.object = prediction.object$predictions
   errors = apply(prediction.object, MARGIN = 2, FUN = function(row){

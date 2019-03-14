@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/swager/grf.svg?branch=master)](https://travis-ci.org/swager/grf)
+[![Build Status](https://travis-ci.org/grf-labs/grf.svg?branch=master)](https://travis-ci.org/grf-labs/grf)
 ![CRAN Downloads overall](http://cranlogs.r-pkg.org/badges/grand-total/grf)
 
 # grf: generalized random forests
@@ -26,7 +26,7 @@ install.packages("grf")
 Any published release can also be installed from source:
 
 ```R
-install.packages("https://raw.github.com/swager/grf/master/releases/grf_0.10.0.tar.gz", repos = NULL, type = "source")
+install.packages("https://raw.github.com/grf-labs/grf/master/releases/grf_0.10.2.tar.gz", repos = NULL, type = "source")
 ```
 
 Note that to install from source, a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
@@ -84,7 +84,7 @@ lines(X.test[,1], pmax(0, X.test[,1]), col = 2, lty = 1)
 # using a completely different method (e.g., boosting).
 
 # Generate new data.
-n = 2000; p = 20
+n = 4000; p = 20
 X = matrix(rnorm(n * p), n, p)
 TAU = 1 / (1 + exp(-X[, 3]))
 W = rbinom(n ,1, 1 / (1 + exp(-X[, 1] - X[, 2])))
@@ -113,7 +113,7 @@ test_calibration(tau.forest)
 
 ### Developing
 
-In addition to providing out-of-the-box forests for quantile regression and causal effect estimation, GRF provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using GRF, please consult the [development guide](DEVELOPING.md).
+In addition to providing out-of-the-box forests for quantile regression and causal effect estimation, GRF provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using GRF, please consult the [algorithm reference](REFERENCE.md) and [development guide](DEVELOPING.md).
 
 ### References
 

@@ -6,8 +6,8 @@
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
 #' @param sample.fraction Fraction of the data used to build each tree.
-#'                        Note: If honesty is used, these subsamples will
-#'                        further be cut in half.
+#'                        Note: If honesty = TRUE, these subsamples will
+#'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
@@ -16,7 +16,10 @@
 #'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -26,8 +29,13 @@
 #' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
-#'                            software will set this value to the size of the smallest cluster.
+#'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples_per_cluster,
+#'                            the whole cluster is used every time the cluster is drawn. Note that
+#'                            clusters with less than samples_per_cluster observations get relatively
+#'                            smaller weight than others in training the forest, i.e., the contribution
+#'                            of a given cluster to the final forest scales with the minimum of
+#'                            the number of observations in the cluster and samples_per_cluster.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
@@ -65,6 +73,7 @@ regression_forest <- function(X, Y,
                               num.threads = NULL,
                               min.node.size = NULL,
                               honesty = TRUE,
+                              honesty.fraction = NULL,
                               ci.group.size = 2,
                               alpha = NULL,
                               imbalance.penalty = NULL,
@@ -83,6 +92,7 @@ regression_forest <- function(X, Y,
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
     
     if (tune.parameters) {
       tuning.output <- tune_regression_forest(X, Y,
@@ -96,6 +106,7 @@ regression_forest <- function(X, Y,
                                               imbalance.penalty = imbalance.penalty,
                                               num.threads = num.threads,
                                               honesty = honesty,
+                                              honesty.fraction = honesty.fraction,
                                               seed = seed,
                                               clusters = clusters,
                                               samples_per_cluster = samples_per_cluster)
@@ -120,6 +131,7 @@ regression_forest <- function(X, Y,
                                as.numeric(tunable.params["sample.fraction"]),
                                seed,
                                honesty,
+                               coerce_honesty_fraction(honesty.fraction),
                                ci.group.size,
                                as.numeric(tunable.params["alpha"]),
                                as.numeric(tunable.params["imbalance.penalty"]),
@@ -148,20 +160,19 @@ regression_forest <- function(X, Y,
 #' Gets estimates of E[Y|X=x] using a trained regression forest.
 #'
 #' @param object The trained forest.
-#' @param newdata Points at which predictions should be made. If NULL,
-#'                makes out-of-bag predictions on the training set instead
-#'                (i.e., provides predictions at Xi using only trees that did
-#'                not use the i-th training example).
+#' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
+#'                predictions on the training set instead (i.e., provides predictions at
+#'                Xi using only trees that did not use the i-th training example). Note
+#'                that this matrix should have the number of columns as the training
+#'                matrix, and that the columns must appear in the same order.
 #' @param linear.correction.variables Optional subset of indexes for variables to be used in local
 #'                   linear prediction. If NULL, standard GRF prediction is used. Otherwise,
 #'                   we run a locally weighted linear regression on the included variables.
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
 #' @param ll.lambda Ridge penalty for local linear predictions
-#' @param tune.lambda Optional self-tuning for ridge penalty lambda. Defaults to FALSE.
-#' @param lambda.path Optional list of lambdas to use for cross-validation, used if tune.lambda is TRUE.
-#' @param ll.ridge.type Option to standardize ridge penalty by covariance ("standardized"),
-#'                   or penalize all covariates equally ("identity").
+#' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
+#'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -190,13 +201,12 @@ regression_forest <- function(X, Y,
 #' r.pred = predict(r.forest, X.test, estimate.variance = TRUE)
 #' }
 #'
+#' @method predict regression_forest
 #' @export
 predict.regression_forest <- function(object, newdata = NULL,
                                       linear.correction.variables = NULL,
-                                      ll.lambda = 0.01,
-                                      tune.lambda = FALSE,
-                                      lambda.path = NULL,
-                                      ll.ridge.type = "standardized",
+                                      ll.lambda = NULL,
+                                      ll.weight.penalty = FALSE,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
@@ -211,28 +221,16 @@ predict.regression_forest <- function(object, newdata = NULL,
 
     num.threads = validate_num_threads(num.threads)
 
-    if (estimate.variance) {
-        ci.group.size = object$ci.group.size
-    } else {
-        ci.group.size = 1
-    }
-
-    if (ll.ridge.type == "standardized") {
-        use.unweighted.penalty = 0
-    } else if (ll.ridge.type == "identity") {
-        use.unweighted.penalty = 1
-    } else {
-        stop("Error: invalid local linear ridge type")
-    }
-
     forest.short = object[-which(names(object) == "X.orig")]
-    X.orig = object[["X.orig"]]
+    X = object[["X.orig"]]
+    train.data = create_data_matrices(X, object[["Y.orig"]])
+    outcome.index = ncol(X) + 1
 
     if (local.linear) {
-        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
+        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
 
-        if (tune.lambda) {
-            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, use.unweighted.penalty, num.threads, lambda.path)
+        if (is.null(ll.lambda)) {
+            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
             ll.lambda = ll.regularization.path$lambda.min
         } else {
             ll.lambda = validate_ll_lambda(ll.lambda)
@@ -244,21 +242,23 @@ predict.regression_forest <- function(object, newdata = NULL,
 
     if (!is.null(newdata) ) {
         data = create_data_matrices(newdata)
+        validate_newdata(newdata, X)
         if (!local.linear) {
-            ret = regression_predict(forest.short, data$default, data$sparse,
-                num.threads, ci.group.size)
+            ret = regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+                data$default, data$sparse, num.threads, estimate.variance)
         } else {
-            training.data = create_data_matrices(X.orig)
-            ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                training.data$sparse, ll.lambda, use.unweighted.penalty, linear.correction.variables, num.threads)
+            ret = local_linear_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+                data$default, data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
+                num.threads, estimate.variance)
         }
     } else {
-        data = create_data_matrices(X.orig)
+        data = create_data_matrices(X)
         if (!local.linear) {
-            ret = regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+            ret = regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+                num.threads, estimate.variance)
         } else {
-            ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, use.unweighted.penalty,
-                linear.correction.variables, num.threads)
+            ret = local_linear_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+                ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
         }
     }
 

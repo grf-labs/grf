@@ -32,7 +32,7 @@ std::vector<double> RegressionPredictionStrategy::predict(const std::vector<doub
 std::vector<double> RegressionPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    uint ci_group_size) {
+    size_t ci_group_size) {
 
   double average_outcome = average.at(OUTCOME);
 
@@ -87,7 +87,7 @@ size_t RegressionPredictionStrategy::prediction_value_length() {
 
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_samples,
-    const Observations& observations) {
+    const Data* data) {
   size_t num_leaves = leaf_samples.size();
   std::vector<std::vector<double>> values(num_leaves);
 
@@ -102,7 +102,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
 
     double average = 0.0;
     for (auto& sample : leaf_node) {
-      average += observations.get(Observations::OUTCOME, sample);
+      average += data->get_outcome(sample);
     }
     averages[OUTCOME] = average / leaf_node.size();
   }
@@ -114,8 +114,8 @@ std::vector<double> RegressionPredictionStrategy::compute_debiased_error(
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    const Observations& observations) {
-  double outcome = observations.get(Observations::OUTCOME, sample);
+    const Data* data) {
+  double outcome = data->get_outcome(sample);
 
   double error = average.at(OUTCOME) - outcome;
   double mse = error * error;

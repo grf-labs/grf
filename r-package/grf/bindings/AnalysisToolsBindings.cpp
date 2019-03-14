@@ -49,11 +49,14 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
 }
 
 Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
-                                                   Rcpp::NumericMatrix input_data,
-                                                   Eigen::SparseMatrix<double> sparse_input_data,
+                                                   Rcpp::NumericMatrix train_matrix,
+                                                   Eigen::SparseMatrix<double> sparse_train_matrix,
+                                                   Rcpp::NumericMatrix test_matrix,
+                                                   Eigen::SparseMatrix<double> sparse_test_matrix,
                                                    unsigned int num_threads,
                                                    bool oob_prediction) {
-  Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
+  Data* train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  Data* data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
   num_threads = ForestOptions::validate_num_threads(num_threads);
@@ -65,7 +68,7 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
   std::vector<std::vector<bool>> trees_by_sample = tree_traverser.get_valid_trees_by_sample(forest, data, oob_prediction);
 
   size_t num_samples = data->get_num_rows();
-  size_t num_neighbors = forest.get_observations().get_num_samples();
+  size_t num_neighbors = train_data->get_num_rows();
 
   Eigen::SparseMatrix<double> result(num_samples, num_neighbors);
 
@@ -78,24 +81,32 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
       result.insert(sample, neighbor) = weight;
     }
   }
+
+  delete train_data;
+  delete data;
+
   result.makeCompressed();
   return result;
 }
 
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> compute_weights(Rcpp::List forest_object,
-                                            Rcpp::NumericMatrix input_data,
-                                            Eigen::SparseMatrix<double> sparse_input_data,
+                                            Rcpp::NumericMatrix train_matrix,
+                                            Eigen::SparseMatrix<double> sparse_train_matrix,
+                                            Rcpp::NumericMatrix test_matrix,
+                                            Eigen::SparseMatrix<double> sparse_test_matrix,
                                             unsigned int num_threads) {
-  return compute_sample_weights(forest_object, input_data, sparse_input_data, num_threads, false);
+  return compute_sample_weights(forest_object, train_matrix, sparse_test_matrix,
+                                test_matrix, sparse_test_matrix, num_threads, false);
 }
 
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object,
-                                                Rcpp::NumericMatrix input_data,
-                                                Eigen::SparseMatrix<double> sparse_input_data,
+                                                Rcpp::NumericMatrix test_matrix,
+                                                Eigen::SparseMatrix<double> sparse_test_matrix,
                                                 unsigned int num_threads) {
-  return compute_sample_weights(forest_object, input_data, sparse_input_data, num_threads, true);
+  return compute_sample_weights(forest_object, test_matrix, sparse_test_matrix,
+                                test_matrix, sparse_test_matrix, num_threads, true);
 }
 
 // [[Rcpp::export]]
@@ -155,7 +166,9 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
     node_objects.push_back(node_object);
   }
 
-  const std::vector<size_t>& drawn_samples = tree->get_drawn_samples();
+  std::vector<size_t> drawn_samples(tree->get_drawn_samples());
+  for (size_t& index : drawn_samples) index += 1; //R is 1-indexed.
+
 
   Rcpp::List result;
   result.push_back(drawn_samples.size(), "num_samples");
@@ -163,3 +176,21 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
   result.push_back(node_objects, "nodes");
   return result;
 }
+
+// [[Rcpp::export]]
+Rcpp::List merge(const Rcpp::List forest_objects) {
+ std::vector<std::shared_ptr<Forest>> forest_ptrs;
+ 
+ for (auto& forest_obj : forest_objects) {
+   Forest deserialized_forest = RcppUtilities::deserialize_forest(
+     static_cast<Rcpp::List>(forest_obj)[RcppUtilities::SERIALIZED_FOREST_KEY]);
+   
+   forest_ptrs.push_back(std::make_shared<Forest>(deserialized_forest)); 
+ }
+
+ Forest big_forest = Forest::merge(forest_ptrs);
+ Rcpp::List result = RcppUtilities::create_forest_object(big_forest);
+
+ return result;
+}
+ 

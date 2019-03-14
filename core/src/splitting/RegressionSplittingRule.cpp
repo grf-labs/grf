@@ -20,7 +20,7 @@
 
 #include "RegressionSplittingRule.h"
 
-RegressionSplittingRule::RegressionSplittingRule(Data* data,
+RegressionSplittingRule::RegressionSplittingRule(const Data* data,
                                                  double alpha,
                                                  double imbalance_penalty):
     data(data),
