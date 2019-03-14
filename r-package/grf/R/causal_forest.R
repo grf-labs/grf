@@ -251,6 +251,14 @@ causal_forest <- function(X, Y, W,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
+#' @param linear.correction.variables Optional subset of indexes for variables to be used in local
+#'                   linear prediction. If NULL, standard GRF prediction is used. Otherwise,
+#'                   we run a locally weighted linear regression on the included variables.
+#'                   Please note that this is a beta feature still in development, and may slow down
+#'                   prediction considerably. Defaults to NULL.
+#' @param ll.lambda Ridge penalty for local linear predictions
+#' @param ll.ridge.type Option to standardize ridge penalty by covariance ("standardized"),
+#'                   or penalize all covariates equally ("identity").
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
@@ -282,10 +290,14 @@ causal_forest <- function(X, Y, W,
 #'
 #' @method predict causal_forest
 #' @export
-predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, estimate.variance = FALSE, ...) {
+predict.causal_forest <- function(object, newdata = NULL,
+                                  linear.correction.variables = NULL,
+                                  ll.lambda = 0.1,
+                                  ll.weight.penalty = FALSE,
+                                  num.threads = NULL, estimate.variance = FALSE, ...) {
 
     # If possible, use pre-computed predictions.
-    if (is.null(newdata) & !estimate.variance & !is.null(object$predictions)) {
+    if (is.null(newdata) & !estimate.variance & !is.null(object$predictions) & is.null(linear.correction.variables)) {
         return(data.frame(predictions=object$predictions,
                           debiased.error=object$debiased.error))
     }
@@ -303,16 +315,39 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
 
     num.threads <- validate_num_threads(num.threads)
 
-    if (!is.null(newdata)) {
+    local.linear = !is.null(linear.correction.variables)
+    if(local.linear){
+        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
+        ll.lambda = validate_ll_lambda(ll.lambda)
+
+        # subtract 1 to account for C++ indexing
+        linear.correction.variables <- linear.correction.variables - 1
+    }
+
+    if (!is.null(newdata) ) {
         validate_newdata(newdata, object$X.orig)
-        data <- create_data_matrices(newdata)
-        ret <- instrumental_predict(forest.short, train.data$default, train.data$sparse,
-            outcome.index, treatment.index, instrument.index,
-            data$default, data$sparse, num.threads, estimate.variance)
+        data = create_data_matrices(newdata)
+        if (!local.linear) {
+            #ret = causal_predict(forest.short, data$default, data$sparse, num.threads, estimate.variance)
+            ret <- instrumental_predict(forest.short, train.data$default, train.data$sparse,
+                        outcome.index, treatment.index, instrument.index,
+                        data$default, data$sparse, num.threads, estimate.variance)
+        } else {
+            training.data <- create_data_matrices(objects$X.orig)
+            ret <- ll_causal_predict(forest.short, data$default, training.data$default, data$sparse,
+                    training.data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
+        }
     } else {
-        ret <- instrumental_predict_oob(forest.short, train.data$default, train.data$sparse,
-          outcome.index, treatment.index, instrument.index,
-          num.threads, estimate.variance)
+        data = create_data_matrices(objects$X.orig)
+        if (!local.linear) {
+            #ret = causal_predict_oob(forest.short, data$default, data$sparse, num.threads, estimate.variance)
+            ret <- instrumental_predict_oob(forest.short, train.data$default, train.data$sparse,
+                      outcome.index, treatment.index, instrument.index,
+                      num.threads, estimate.variance)
+        } else {
+            ret <- ll_causal_predict_oob(forest.short, data$default, data$sparse, ll.lambda, ll.weight.penalty,
+                    linear.correction.variables, num.threads)
+        }
     }
 
     # Convert list to data frame.

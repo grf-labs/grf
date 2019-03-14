@@ -31,10 +31,15 @@ public:
 
   static ForestPredictor regression_predictor(uint num_threads);
 
-  static ForestPredictor local_linear_predictor(uint num_threads,
+  static ForestPredictor ll_regression_predictor(uint num_threads,
                                                 std::vector<double> lambdas,
                                                 bool weighted_penalty,
                                                 std::vector<size_t> linear_correction_variables);
+
+  static ForestPredictor ll_causal_predictor(uint num_threads,
+                                             std::vector<double> lambdas,
+                                             bool weighted_penalty,
+                                             std::vector<size_t> linear_correction_variables);
 };
 
 

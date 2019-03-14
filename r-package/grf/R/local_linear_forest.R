@@ -222,11 +222,11 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   if (!is.null(newdata) ) {
     validate_newdata(newdata, X)
     data = create_data_matrices(newdata)
-    ret = local_linear_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+    ret = ll_regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
         data$default, data$sparse,
         ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
   } else {
-     ret = local_linear_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+     ret = ll_regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
         ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
   }
 
