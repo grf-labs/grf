@@ -21,6 +21,7 @@
 #include "prediction/QuantilePredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
 #include "prediction/LocalLinearPredictionStrategy.h"
+#include "prediction/LLCausalPredictionStrategy.h"
 #include "ForestOptions.h"
 
 ForestPredictor ForestPredictors::custom_predictor(uint num_threads) {

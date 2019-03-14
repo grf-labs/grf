@@ -21,7 +21,6 @@
 #include <iostream>
 #include "Eigen/Dense"
 #include "commons/utility.h"
-#include "commons/Observations.h"
 #include "prediction/LLCausalPredictionStrategy.h"
 
 const size_t LLCausalPredictionStrategy::OUTCOME = 0;

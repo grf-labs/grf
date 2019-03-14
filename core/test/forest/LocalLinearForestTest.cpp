@@ -47,7 +47,7 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local linear], [
   ForestTrainer trainer = ForestTrainers::regression_trainer();
   Forest forest = trainer.train(data, options);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(
       num_threads, lambda, false, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
 
@@ -74,7 +74,7 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
   uint num_threads = 1;
   size_t ci_group_size = 1;
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads,
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(num_threads,
       lambda, false, linear_correction_variables);
 
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
@@ -87,7 +87,7 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
   }
 
   Forest shifted_forest = trainer.train(data, options);
-  ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(num_threads,
+  ForestPredictor shifted_predictor = ForestPredictors::ll_regression_predictor(num_threads,
       lambda, false, linear_correction_variables);
   std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
 
@@ -135,7 +135,7 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
   ForestTrainer trainer = ForestTrainers::regression_trainer();
   Forest forest = trainer.train(data, options);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, lambda, false, linear_correction_variables);
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(4, lambda, false, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, true);
 
   for (size_t i = 0; i < predictions.size(); i++) {
