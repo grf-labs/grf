@@ -21,6 +21,14 @@ merge <- function(forest_objects) {
     .Call('_grf_merge', PACKAGE = 'grf', forest_objects)
 }
 
+causal_predict <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, test_matrix, sparse_test_matrix, num_threads, estimate_variance) {
+    .Call('_grf_causal_predict', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, test_matrix, sparse_test_matrix, num_threads, estimate_variance)
+}
+
+causal_predict_oob <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, num_threads, estimate_variance) {
+    .Call('_grf_causal_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, num_threads, estimate_variance)
+}
+
 ll_causal_predict <- function(forest, input_data, training_data, sparse_input_data, sparse_training_data, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads) {
     .Call('_grf_ll_causal_predict', PACKAGE = 'grf', forest, input_data, training_data, sparse_input_data, sparse_training_data, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads)
 }

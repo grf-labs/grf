@@ -317,7 +317,7 @@ predict.causal_forest <- function(object, newdata = NULL,
 
     local.linear = !is.null(linear.correction.variables)
     if(local.linear){
-        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
+        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
         ll.lambda = validate_ll_lambda(ll.lambda)
 
         # subtract 1 to account for C++ indexing
@@ -328,23 +328,21 @@ predict.causal_forest <- function(object, newdata = NULL,
         validate_newdata(newdata, object$X.orig)
         data = create_data_matrices(newdata)
         if (!local.linear) {
-            #ret = causal_predict(forest.short, data$default, data$sparse, num.threads, estimate.variance)
-            ret <- instrumental_predict(forest.short, train.data$default, train.data$sparse,
+            ret <- causal_predict(forest.short, train.data$default, train.data$sparse,
                         outcome.index, treatment.index, instrument.index,
                         data$default, data$sparse, num.threads, estimate.variance)
         } else {
             ret <- ll_causal_predict(forest.short, data$default, train.data$default, data$sparse,
-                    train.data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
+                        train.data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
         }
     } else {
         if (!local.linear) {
-            #ret = causal_predict_oob(forest.short, data$default, data$sparse, num.threads, estimate.variance)
-            ret <- instrumental_predict_oob(forest.short, train.data$default, train.data$sparse,
+            ret <- causal_predict_oob(forest.short, train.data$default, train.data$sparse,
                       outcome.index, treatment.index, instrument.index,
                       num.threads, estimate.variance)
         } else {
             ret <- ll_causal_predict_oob(forest.short, train.data$default, train.data$sparse, ll.lambda,
-                   ll.weight.penalty, linear.correction.variables, num.threads)
+                        ll.weight.penalty, linear.correction.variables, num.threads)
         }
     }
 
