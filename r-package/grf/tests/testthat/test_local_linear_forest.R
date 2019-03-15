@@ -231,10 +231,30 @@ test_that("local linear causal forests work in a simple case", {
   TAU <- matrix(rep(1, n = n), nrow = n)
 
   forest = causal_forest(X, Y, W, num.trees = 400)
-  preds.ll = predict(forest, X, linear.correction.variables = 1:ncol(X), ll.lambda = 0.01, ll.ridge.type = "identity")
+  preds.ll = predict(forest, X, linear.correction.variables = 1:ncol(X), ll.lambda = 0.01)
   error.ll = mean((preds.ll$predictions - TAU)^2)
 
   preds.rf = predict(forest, X)
   error.rf = mean((preds.rf$predictions - TAU)^2)
   expect_true(error.ll < 0.8 * error.rf)
+})
+
+test_that("local linear causal forests with large lambda are equivalent to causal forests", {
+  library(MASS)
+  n = 400
+
+  variances <- rep(1, 4)
+  cov.mat <- diag(variances)
+  X <- matrix(mvrnorm(n = n, mu = rep(0, 4), Sigma = cov.mat), nrow = n)
+  MU <- 1 * (X[, 1] < X[, 2]) - 1 * (X[, 1] >= X[, 2])
+  p <- pnorm(q = MU)
+  W <- matrix(rbinom(n = n, size = 1, prob = p), nrow = n)
+  Y <- matrix(MU + W + 2 * X[, 3], nrow = n)
+  TAU <- matrix(rep(1, n = n), nrow = n)
+
+  forest = causal_forest(X, Y, W, num.trees = 400)
+  preds.ll = predict(forest, X, linear.correction.variables = 1:ncol(X), ll.lambda = 1e5)$predictions
+  preds.cf = predict(forest)$predictions
+
+  expect_true(mean((preds.ll - preds.cf)^2) < 0.01)
 })
