@@ -11,6 +11,36 @@ validate_X <- function(X) {
   if (inherits(X, "Matrix") & !(inherits(X, "dgCMatrix"))) {
       stop("Currently only sparse data of class 'dgCMatrix' is supported.")
   }
+  
+  if (!all(!is.na(X))){
+    stop("The feature matrix X contains at least one NA.")
+  }
+}
+
+validate_Y <- function(Y) {
+  if(!is.vector(Y) || !is.numeric(Y)) {
+    stop(paste("The outcome Y must be numeric vector. GRF does not", 
+               "currently support non-numeric or non-vector outcomes."))
+  }
+
+  if (!all(!is.na(Y))){
+    stop("The outcome vector Y contains at least one NA.")
+  }
+}
+
+validate_W <- function(W) {
+  if(!is.vector(W) || !is.numeric(W)) {
+    stop(paste("The treatment W must be numeric vector. GRF does not", 
+               "currently support non-numeric or non-vector treatments."))
+  }
+
+  if(length(unique(W))!=2) {
+    stop(paste("The treatment W must contain only two unique values."))
+  }
+
+  if (!all(!is.na(W))){
+    stop("The treatment vector W contains at least one NA.")
+  }
 }
 
 validate_mtry <- function(mtry, X) {
