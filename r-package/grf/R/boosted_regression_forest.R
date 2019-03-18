@@ -104,7 +104,7 @@ boosted_regression_forest <- function(X, Y,
                                   imbalance.penalty = imbalance.penalty,
                                 clusters = clusters, samples_per_cluster = samples_per_cluster);
     forest.Y.p <- predict(forest.Y)
-    #save tuned parameters for use on future boosting iterations 
+    #save tuned parameters for use on future boosting iterations
     tunable.params <- forest.Y$tunable.params
     Y.hat <- forest.Y.p$prediction
     error.debiased <- forest.Y.p$debiased.error
@@ -136,29 +136,32 @@ boosted_regression_forest <- function(X, Y,
         still_boosting <- TRUE
         while(still_boosting & step <= max.steps) {
             E.hat <- Y - Y.hat
-            forest.small <- regression_forest(X,E.hat, sample.fraction = tunable.params["sample.fraction"],
-                                        mtry = tunable.params["mtry"], tune.parameters = FALSE,
+            forest.small <- regression_forest(X,E.hat,
+                                    sample.fraction = as.numeric(tunable.params["sample.fraction"]),
+                                        mtry = as.numeric(tunable.params["mtry"]), tune.parameters = FALSE,
                                           num.trees = num.trees.tune,
                                            num.threads = num.threads,
-                                           min.node.size = tunable.params["min.node.size"],
+                                           min.node.size = as.numeric(tunable.params["min.node.size"]),
                                            honesty = honesty,
                                           honesty.fraction = honesty.fraction,
                                            seed = seed, ci.group.size = ci.group.size,
-                                          alpha = tunable.params["alpha"],
-                                          imbalance.penalty = tunable.params["imbalance.penalty"],
+                                          alpha = as.numeric(tunable.params["alpha"]),
+                                          imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
                                         clusters = clusters, samples_per_cluster = samples_per_cluster);
             step.error.approx <- predict(forest.small)$debiased.error
             if((mean(step.error.approx,na.rm=TRUE) < tolerance*mean(error.debiased,na.rm=TRUE))) {
-                forest.E <- regression_forest(X,E.hat, sample.fraction = tunable.params["sample.fraction"],
-                                            mtry = tunable.params["mtry"], tune.parameters = FALSE,
+                forest.E <- regression_forest(X,E.hat,
+                                            sample.fraction = as.numeric(tunable.params["sample.fraction"]),
+                                            mtry = as.numeric(tunable.params["mtry"]),
+                                             tune.parameters = FALSE,
                                               num.trees = num.trees,
                                                num.threads = num.threads,
-                                               min.node.size = tunable.params["min.node.size"],
+                                               min.node.size = as.numeric(tunable.params["min.node.size"]),
                                                honesty = honesty,
                                               honesty.fraction = honesty.fraction,
                                                seed = seed, ci.group.size = ci.group.size,
-                                              alpha = tunable.params["alpha"],
-                                              imbalance.penalty = tunable.params["imbalance.penalty"],
+                                              alpha = as.numeric(tunable.params["alpha"]),
+                                              imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
                                             clusters = clusters, samples_per_cluster = samples_per_cluster);
                 current.pred <- predict(forest.E)
                 Y.hat <- Y.hat + current.pred$predictions
