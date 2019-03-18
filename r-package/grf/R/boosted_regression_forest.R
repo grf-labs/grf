@@ -44,7 +44,8 @@
 #'                          to select the optimal parameters.
 #' @param num.steps The number of boosting iterations. If NULL, selected by cross-validation
 #' @param max.steps The maximum number of boosting iterations to try when num.steps is not specified
-#' @param num.trees.tune If num.steps is NULL, the number of trees in each boosting step to select num.steps
+#' @param num.trees.tune If num.steps is NULL, the number of trees used to test a new boosting step when tuning
+#'        num.steps
 #'
 #' @return A trained regression forest object.
 #'
@@ -71,7 +72,7 @@
 boosted_regression_forest <- function(X, Y,
                               sample.fraction = 0.5,
                               mtry = NULL,
-                              num.trees = 2000,
+                              num.trees = 500,
                               num.threads = NULL,
                               min.node.size = NULL,
                               honesty = TRUE,
@@ -92,11 +93,19 @@ boosted_regression_forest <- function(X, Y,
 
     boosted.forest = NULL
     boosted.forest[["forests"]] = list()
-    forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-                                  num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-                                  honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+    forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction,
+                                mtry = mtry, tune.parameters = tune.parameters,
+                                  num.trees = num.trees,
+                                  num.threads = num.threads,
+                                  min.node.size = min.node.size, honesty = honesty,
+                                  honesty.fraction = honesty.fraction,
+                                  seed = seed, ci.group.size = ci.group.size,
+                                  alpha = alpha,
+                                  imbalance.penalty = imbalance.penalty,
                                 clusters = clusters, samples_per_cluster = samples_per_cluster);
     forest.Y.p <- predict(forest.Y)
+    #save tuned parameters for use on future boosting iterations 
+    tunable.params <- forest.Y$tunable.params
     Y.hat <- forest.Y.p$prediction
     error.debiased <- forest.Y.p$debiased.error
     boosted.forest$forests[[1]] <- forest.Y
@@ -104,9 +113,16 @@ boosted_regression_forest <- function(X, Y,
     if(!is.null(num.steps)) {
         for (step in 2:num.steps) {
             E.hat <- Y - Y.hat
-            forest.E <- regression_forest(X,E.hat, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-                                          num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-                                          honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+            forest.E <- regression_forest(X,E.hat, sample.fraction = tunable.params["sample.fraction"],
+                                        mtry = tunable.params["mtry"], tune.parameters = FALSE,
+                                          num.trees = num.trees,
+                                           num.threads = num.threads,
+                                           min.node.size = tunable.params["min.node.size"],
+                                           honesty = honesty,
+                                          honesty.fraction = honesty.fraction,
+                                           seed = seed, ci.group.size = ci.group.size,
+                                          alpha = tunable.params["alpha"],
+                                          imbalance.penalty = tunable.params["imbalance.penalty"],
                                         clusters = clusters, samples_per_cluster = samples_per_cluster);
             current.pred <- predict(forest.E)
             Y.hat <- Y.hat + current.pred$predictions
@@ -120,15 +136,29 @@ boosted_regression_forest <- function(X, Y,
         still_boosting <- TRUE
         while(still_boosting & step <= max.steps) {
             E.hat <- Y - Y.hat
-            forest.small <- regression_forest(X,E.hat, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-                                          num.trees = num.trees.tune, num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-                                          honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+            forest.small <- regression_forest(X,E.hat, sample.fraction = tunable.params["sample.fraction"],
+                                        mtry = tunable.params["mtry"], tune.parameters = FALSE,
+                                          num.trees = num.trees.tune,
+                                           num.threads = num.threads,
+                                           min.node.size = tunable.params["min.node.size"],
+                                           honesty = honesty,
+                                          honesty.fraction = honesty.fraction,
+                                           seed = seed, ci.group.size = ci.group.size,
+                                          alpha = tunable.params["alpha"],
+                                          imbalance.penalty = tunable.params["imbalance.penalty"],
                                         clusters = clusters, samples_per_cluster = samples_per_cluster);
             step.error.approx <- predict(forest.small)$debiased.error
             if((mean(step.error.approx,na.rm=TRUE) < tolerance*mean(error.debiased,na.rm=TRUE))) {
-                forest.E <- regression_forest(X,E.hat, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-                                              num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-                                              honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
+                forest.E <- regression_forest(X,E.hat, sample.fraction = tunable.params["sample.fraction"],
+                                            mtry = tunable.params["mtry"], tune.parameters = FALSE,
+                                              num.trees = num.trees,
+                                               num.threads = num.threads,
+                                               min.node.size = tunable.params["min.node.size"],
+                                               honesty = honesty,
+                                              honesty.fraction = honesty.fraction,
+                                               seed = seed, ci.group.size = ci.group.size,
+                                              alpha = tunable.params["alpha"],
+                                              imbalance.penalty = tunable.params["imbalance.penalty"],
                                             clusters = clusters, samples_per_cluster = samples_per_cluster);
                 current.pred <- predict(forest.E)
                 Y.hat <- Y.hat + current.pred$predictions
