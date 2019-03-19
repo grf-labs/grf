@@ -52,10 +52,6 @@ const bool Prediction::contains_variance_estimates() const {
   return !variance_estimates.empty();
 }
 
-const bool Prediction::contains_excess_error_estimates() const {
-  return !excess_error_estimates.empty();
-}
-
 const bool Prediction::contains_error_estimates() const {
   return !error_estimates.empty();
 }
