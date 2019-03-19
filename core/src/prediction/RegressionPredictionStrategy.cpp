@@ -22,7 +22,7 @@
 const size_t RegressionPredictionStrategy::OUTCOME = 0;
 
 size_t RegressionPredictionStrategy::prediction_length() {
-  return 1;
+    return 1;
 }
 
 std::vector<double> RegressionPredictionStrategy::predict(const std::vector<double>& average) {

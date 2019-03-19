@@ -27,10 +27,6 @@ public:
 
   Prediction(const std::vector<double>& predictions,
              const std::vector<double>& variance_estimates,
-             const std::vector<double>& error_estimates);
-
-  Prediction(const std::vector<double>& predictions,
-             const std::vector<double>& variance_estimates,
              const std::vector<double>& error_estimates,
              const std::vector<double>& excess_error_estimates);
 

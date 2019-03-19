@@ -25,14 +25,6 @@ Prediction::Prediction(const std::vector<double>& predictions):
 
 Prediction::Prediction(const std::vector<double>& predictions,
                        const std::vector<double>& variance_estimates,
-                       const std::vector<double>& error_estimates):
-  predictions(predictions),
-  variance_estimates(variance_estimates),
-  error_estimates(error_estimates),
-  excess_error_estimates(0) {}
-
-Prediction::Prediction(const std::vector<double>& predictions,
-                       const std::vector<double>& variance_estimates,
                        const std::vector<double>& error_estimates,
                        const std::vector<double>& excess_error_estimates):
   predictions(predictions),
