@@ -19,6 +19,6 @@
 
 std::unordered_map<size_t, double> CustomRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Observations& observations) {
+    const Data* data) {
   return std::unordered_map<size_t, double>();
 }

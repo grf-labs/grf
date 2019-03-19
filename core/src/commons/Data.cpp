@@ -15,11 +15,11 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
 #include <algorithm>
+#include <fstream>
 #include <iterator>
+#include <sstream>
+
 #include "Data.h"
 
 Data::Data() :
@@ -27,7 +27,10 @@ Data::Data() :
     num_cols(0),
     external_data(true),
     index_data(0),
-    max_num_unique_values(0) {}
+    max_num_unique_values(0),
+    outcome_index(),
+    treatment_index(),
+    instrument_index() {}
 
 Data::~Data() {
   if (index_data != 0) {
@@ -136,7 +139,22 @@ bool Data::load_from_other_file(std::ifstream& input_file, std::string first_lin
   return error;
 }
 
-void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) {
+void Data::set_outcome_index(size_t index) {
+  this->outcome_index = index;
+  disallowed_split_variables.insert(index);
+}
+
+void Data::set_treatment_index(size_t index) {
+  this->treatment_index = index;
+  disallowed_split_variables.insert(index);
+}
+
+void Data::set_instrument_index(size_t index) {
+  this->instrument_index = index;
+  disallowed_split_variables.insert(index);
+}
+
+void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const {
   all_values.reserve(samples.size());
   for (size_t i = 0; i < samples.size(); ++i) {
     all_values.push_back(get(samples[i], var));
@@ -196,4 +214,20 @@ size_t Data::get_num_rows() const {
 
 size_t Data::get_max_num_unique_values() const {
   return max_num_unique_values;
+}
+
+double Data::get_outcome(size_t row) const {
+  return get(row, outcome_index.value());
+}
+
+double Data::get_treatment(size_t row) const {
+  return get(row, treatment_index.value());
+}
+
+double Data::get_instrument(size_t row) const {
+  return get(row, instrument_index.value());
+}
+
+const std::set<size_t>& Data::get_disallowed_split_variables() const {
+  return disallowed_split_variables;
 }

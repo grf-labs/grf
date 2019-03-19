@@ -25,7 +25,7 @@
 
 class RegressionSplittingRule: public SplittingRule {
 public:
-  RegressionSplittingRule(Data* data,
+  RegressionSplittingRule(const Data* data,
                           double alpha,
                           double imbalance_penalty);
 
@@ -60,7 +60,7 @@ private:
                                      const std::unordered_map<size_t, double>& responses_by_sample,
                                      const std::vector<std::vector<size_t>>& samples);
 
-  Data* data;
+  const Data* data;
   size_t* counter;
   double* sums;
 

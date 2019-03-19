@@ -196,24 +196,29 @@ predict.instrumental_forest <- function(object, newdata = NULL,
     }
 
     num.threads <- validate_num_threads(num.threads)
-
-    if (estimate.variance) {
-        ci.group.size <- object$ci.group.size
-    } else {
-        ci.group.size <- 1
-    }
-
     forest.short <- object[-which(names(object) == "X.orig")]
+
+    X = object[["X.orig"]]
+    Y.centered = object[["Y.orig"]] - object[["Y.hat"]]
+    W.centered = object[["W.orig"]] - object[["W.hat"]]
+    Z.centered = object[["Z.orig"]] - object[["Z.hat"]]
+
+    train.data <- create_data_matrices(X, Y.centered, W.centered, Z.centered)
+
+    outcome.index <- ncol(X) + 1
+    treatment.index <- ncol(X) + 2
+    instrument.index <- ncol(X) + 3
 
     if (!is.null(newdata)) {
         validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
-        ret <- instrumental_predict(forest.short, data$default, data$sparse,
-                                    num.threads, ci.group.size)
+        ret <- instrumental_predict(forest.short, train.data$default, train.data$sparse,
+            outcome.index, treatment.index, instrument.index,
+            data$default, data$sparse, num.threads, estimate.variance)
     } else {
-        data <- create_data_matrices(object[["X.orig"]])
-        ret <- instrumental_predict_oob(forest.short, data$default, data$sparse,
-                                        num.threads, ci.group.size)
+        ret <- instrumental_predict_oob(forest.short, train.data$default, train.data$sparse,
+            outcome.index, treatment.index, instrument.index,
+            num.threads, estimate.variance)
     }
 
     # Convert list to data frame.

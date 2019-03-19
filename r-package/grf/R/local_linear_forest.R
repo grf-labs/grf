@@ -197,12 +197,12 @@ predict.local_linear_forest <- function(object, newdata = NULL,
                                         ...) {
 
   forest.short = object[-which(names(object) == "X.orig")]
-  X.orig = object[["X.orig"]]
+  X = object[["X.orig"]]
   if (is.null(linear.correction.variables)) {
-    linear.correction.variables = 1:ncol(X.orig)
+    linear.correction.variables = 1:ncol(X)
   }
   # Validate and account for C++ indexing
-  linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
+  linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
 
   if (is.null(ll.lambda)) {
     ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
@@ -211,28 +211,23 @@ predict.local_linear_forest <- function(object, newdata = NULL,
     ll.lambda = validate_ll_lambda(ll.lambda)
   }
 
-  if (estimate.variance) {
-    ci.group.size = object$ci.group.size
-  } else {
-    ci.group.size = 1
-  }
-
   num.threads = validate_num_threads(num.threads)
 
   # Subtract 1 to account for C++ indexing
   linear.correction.variables = linear.correction.variables - 1
 
+  train.data = create_data_matrices(X, object[["Y.orig"]])
+  outcome.index = ncol(X) + 1
+
   if (!is.null(newdata) ) {
-    validate_newdata(newdata, object$X.orig)
+    validate_newdata(newdata, X)
     data = create_data_matrices(newdata)
-    training.data = create_data_matrices(X.orig)
-    ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                  training.data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
-                  num.threads, ci.group.size)
+    ret = local_linear_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+        data$default, data$sparse,
+        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
   } else {
-     data = create_data_matrices(X.orig)
-     ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, ll.weight.penalty,
-                  linear.correction.variables, num.threads, ci.group.size)
+     ret = local_linear_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
   }
 
   ret[["ll.lambda"]] = ll.lambda

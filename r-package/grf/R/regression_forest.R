@@ -229,17 +229,13 @@ predict.regression_forest <- function(object, newdata = NULL,
 
     num.threads = validate_num_threads(num.threads)
 
-    if (estimate.variance) {
-        ci.group.size = object$ci.group.size
-    } else {
-        ci.group.size = 1
-    }
-
     forest.short = object[-which(names(object) == "X.orig")]
-    X.orig = object[["X.orig"]]
+    X = object[["X.orig"]]
+    train.data = create_data_matrices(X, object[["Y.orig"]])
+    outcome.index = ncol(X) + 1
 
     if (local.linear) {
-        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X.orig))
+        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
 
         if (is.null(ll.lambda)) {
             ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
@@ -254,23 +250,23 @@ predict.regression_forest <- function(object, newdata = NULL,
 
     if (!is.null(newdata) ) {
         data = create_data_matrices(newdata)
-        validate_newdata(newdata, object$X.orig)
+        validate_newdata(newdata, X)
         if (!local.linear) {
-            ret = regression_predict(forest.short, data$default, data$sparse,
-                num.threads, ci.group.size)
+            ret = regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+                data$default, data$sparse, num.threads, estimate.variance)
         } else {
-            training.data = create_data_matrices(X.orig)
-            ret = local_linear_predict(forest.short, data$default, training.data$default, data$sparse,
-                training.data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads,
-                ci.group.size)
+            ret = local_linear_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+                data$default, data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
+                num.threads, estimate.variance)
         }
     } else {
-        data = create_data_matrices(X.orig)
+        data = create_data_matrices(X)
         if (!local.linear) {
-            ret = regression_predict_oob(forest.short, data$default, data$sparse, num.threads, ci.group.size)
+            ret = regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+                num.threads, estimate.variance)
         } else {
-            ret = local_linear_predict_oob(forest.short, data$default, data$sparse, ll.lambda, ll.weight.penalty,
-                linear.correction.variables, num.threads, ci.group.size)
+            ret = local_linear_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+                ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
         }
     }
 

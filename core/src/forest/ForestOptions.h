@@ -27,7 +27,7 @@
 class ForestOptions {
 public:
   ForestOptions(uint num_trees,
-                uint ci_group_size,
+                size_t ci_group_size,
                 double sample_fraction,
                 uint mtry,
                 uint min_node_size,
@@ -43,7 +43,7 @@ public:
   static uint validate_num_threads(uint num_threads);
 
   uint get_num_trees() const;
-  uint get_ci_group_size() const;
+  size_t get_ci_group_size() const;
   double get_sample_fraction() const;
 
   const TreeOptions& get_tree_options() const;
@@ -54,7 +54,7 @@ public:
 
 private:
   uint num_trees;
-  uint ci_group_size;
+  size_t ci_group_size;
   double sample_fraction;
 
   TreeOptions tree_options;

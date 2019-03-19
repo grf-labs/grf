@@ -23,21 +23,20 @@
 class CustomPredictionStrategy: public DefaultPredictionStrategy {
 public:
 
-  // Add more observables here as needed.
-  static const std::size_t OUTCOME;
-
   size_t prediction_length();
 
   std::vector<double> predict(size_t sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
-    const Observations& observations);
+    const Data* train_data,
+    const Data* data);
 
   std::vector<double> compute_variance(
       size_t sampleD,
       std::vector<std::vector<size_t>> samples_by_tree,
       std::unordered_map<size_t, double> weights_by_sampleID,
-      const Observations& observations,
-      uint ci_group_size);
+      const Data* train_data,
+      const Data* data,
+      size_t ci_group_size);
 };
 
 

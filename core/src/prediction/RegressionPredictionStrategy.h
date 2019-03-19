@@ -19,7 +19,7 @@
 #define GRF_REGRESSIONPREDICTIONSTRATEGY_H
 
 #include "commons/DefaultData.h"
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
@@ -29,7 +29,7 @@ public:
   size_t prediction_value_length();
 
   PredictionValues precompute_prediction_values(const std::vector<std::vector<size_t>>& leaf_samples,
-                                                const Observations& observations);
+                                                const Data* data);
 
   size_t prediction_length();
 
@@ -38,13 +38,13 @@ public:
   std::vector<double> compute_variance(
       const std::vector<double>& average,
       const PredictionValues& leaf_values,
-      uint ci_group_size);
+      size_t ci_group_size);
 
   std::vector<std::pair<double, double>> compute_error(
       size_t sample,
       const std::vector<double>& average,
       const PredictionValues& leaf_values,
-      const Observations& observations);
+      const Data* data);
 
 private:
   static const std::size_t OUTCOME;

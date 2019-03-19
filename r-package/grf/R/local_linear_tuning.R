@@ -30,10 +30,12 @@ tune_local_linear_forest <- function(forest,
                                      ll.weight.penalty = FALSE,
                                      num.threads = NULL,
                                      lambda.path = NULL) {
-  Y = forest[["Y.orig"]]
-  X = forest[["X.orig"]]
-  data = create_data_matrices(X)
   forest.short = forest[-which(names(forest) == "X.orig")]
+
+  X = forest[["X.orig"]]
+  Y = forest[["Y.orig"]]
+  data = create_data_matrices(X, Y)
+  outcome.index = ncol(X) + 1
 
   # Validate variables
   num.threads = validate_num_threads(num.threads)
@@ -44,9 +46,9 @@ tune_local_linear_forest <- function(forest,
   linear.correction.variables = linear.correction.variables - 1
 
   # Enforce no variance estimates in tuning
-  ci.group.size = 1
-  prediction.object = local_linear_predict_oob(forest.short, data$default, data$sparse, lambda.path, ll.weight.penalty,
-                                 linear.correction.variables, num.threads, ci.group.size)
+  estimate.variance = FALSE
+  prediction.object = local_linear_predict_oob(forest.short, data$default, data$sparse, outcome.index,
+      lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
 
   prediction.object = prediction.object$predictions
   errors = apply(prediction.object, MARGIN = 2, FUN = function(row){

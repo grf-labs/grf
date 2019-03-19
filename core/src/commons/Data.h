@@ -18,10 +18,12 @@
 #ifndef GRF_DATA_H_
 #define GRF_DATA_H_
 
-#include <vector>
 #include <iostream>
+#include <set>
+#include <vector>
 
 #include "globals.h"
+#include "optional/optional.hpp"
 
 class Data {
 public:
@@ -38,7 +40,11 @@ public:
   bool load_from_whitespace_file(std::ifstream& input_file, std::string first_line);
   bool load_from_other_file(std::ifstream& input_file, std::string first_line, char seperator);
 
-  void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var);
+  void set_outcome_index(size_t index);
+  void set_treatment_index(size_t index);
+  void set_instrument_index(size_t index);
+
+  void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const;
 
   size_t get_index(size_t row, size_t col) const;
   double get_unique_data_value(size_t var, size_t index) const;
@@ -47,6 +53,12 @@ public:
   size_t get_num_cols() const;
   size_t get_num_rows() const;
   size_t get_max_num_unique_values() const;
+
+  double get_outcome(size_t row) const;
+  double get_treatment(size_t row) const;
+  double get_instrument(size_t row) const;
+
+  const std::set<size_t>& get_disallowed_split_variables() const;
 
 protected:
   size_t num_rows;
@@ -57,6 +69,11 @@ protected:
   size_t* index_data;
   std::vector<std::vector<double>> unique_data_values;
   size_t max_num_unique_values;
+
+  std::set<size_t> disallowed_split_variables;
+  nonstd::optional<size_t> outcome_index;
+  nonstd::optional<size_t> treatment_index;
+  nonstd::optional<size_t> instrument_index;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Data);

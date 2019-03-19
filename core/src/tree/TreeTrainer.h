@@ -30,13 +30,11 @@
 
 class TreeTrainer {
 public:
-  TreeTrainer(const std::unordered_map<size_t, size_t>& observables,
-              std::shared_ptr<RelabelingStrategy> relabeling_strategy,
+  TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
               std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
               std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy);
 
-  std::shared_ptr<Tree> train(Data* data,
-                              const Observations& observations,
+  std::shared_ptr<Tree> train(const Data* data,
                               RandomSampler& sampler,
                               const std::vector<size_t>& clusters,
                               const TreeOptions& options) const;
@@ -48,19 +46,18 @@ private:
                          std::vector<double>& split_values) const;
 
   void repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
-                             Data* data,
+                             const Data* data,
                              const std::vector<size_t> &leaf_samples) const;
 
   void create_split_variable_subset(std::vector<size_t>& result,
                                     RandomSampler& sampler,
-                                    Data* data,
+                                    const Data* data,
                                     uint mtry) const;
 
   bool split_node(size_t node,
+                  const Data* data,
                   std::shared_ptr<SplittingRule> splitting_rule,
                   RandomSampler& sampler,
-                  Data* data,
-                  const Observations& observations,
                   std::vector<std::vector<size_t>>& child_nodes,
                   std::vector<std::vector<size_t>>& samples,
                   std::vector<size_t>& split_vars,
@@ -68,8 +65,8 @@ private:
                   const TreeOptions& tree_options) const;
 
   bool split_node_internal(size_t node,
+                           const Data* data,
                            std::shared_ptr<SplittingRule> splitting_rule,
-                           const Observations& observations,
                            const std::vector<size_t>& possible_split_vars,
                            std::vector<std::vector<size_t>>& samples,
                            std::vector<size_t>& split_vars,

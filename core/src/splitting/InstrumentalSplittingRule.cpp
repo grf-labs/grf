@@ -20,13 +20,11 @@
 
 #include "InstrumentalSplittingRule.h"
 
-InstrumentalSplittingRule::InstrumentalSplittingRule(Data* data,
-                                                     const Observations& observations,
+InstrumentalSplittingRule::InstrumentalSplittingRule(const Data* data,
                                                      uint min_node_size,
                                                      double alpha,
                                                      double imbalance_penalty):
     data(data),
-    observations(observations),
     min_node_size(min_node_size),
     alpha(alpha),
     imbalance_penalty(imbalance_penalty) {
@@ -71,7 +69,7 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
   for (auto& sample : samples[node]) {
     sum_node += labels_by_sample.at(sample);
 
-    double z = observations.get(Observations::INSTRUMENT, sample);
+    double z = data->get_instrument(sample);
     sum_node_z += z;
     sum_node_z_squared += z * z;
   }
@@ -82,7 +80,7 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
   double mean_z_node = sum_node_z / num_samples;
   size_t num_node_small_z = 0;
   for (auto& sample : samples[node]) {
-    double z = observations.get(Observations::INSTRUMENT, sample);
+    double z = data->get_instrument(sample);
     if (z < mean_z_node) {
       num_node_small_z++;
     }
@@ -157,7 +155,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
   for (auto& sample : samples[node]) {
     double value = data->get(sample, var);
     double label = labels_by_sample.at(sample);
-    double z = observations.get(Observations::INSTRUMENT, sample);
+    double z = data->get_instrument(sample);
 
     // Count samples until split_value reached
     for (size_t i = 0; i < num_splits; ++i) {
@@ -254,7 +252,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
 
   for (auto& sample : samples[node]) {
     size_t i = data->get_index(sample, var);
-    double z = observations.get(Observations::INSTRUMENT, sample);
+    double z = data->get_instrument(sample);
 
     sums[i] += responses_by_sample.at(sample);
     ++counter[i];

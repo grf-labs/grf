@@ -17,15 +17,14 @@
 
 #include "CustomPredictionStrategy.h"
 
-const std::size_t CustomPredictionStrategy::OUTCOME = 0;
-
 size_t CustomPredictionStrategy::prediction_length() {
   return 1;
 }
 
 std::vector<double> CustomPredictionStrategy::predict(size_t sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
-    const Observations& observations) {
+    const Data* train_data,
+    const Data* data) {
   return { 0.0 };
 }
 
@@ -33,7 +32,8 @@ std::vector<double> CustomPredictionStrategy::compute_variance(
     size_t sample,
     std::vector<std::vector<size_t>> samples_by_tree,
     std::unordered_map<size_t, double> weights_by_sampleID,
-    const Observations& observations,
-    uint ci_group_size){
+    const Data* train_data,
+    const Data* data,
+    size_t ci_group_size){
   return { 0.0 };
 }

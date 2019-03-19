@@ -34,31 +34,27 @@
 
 class ForestTrainer {
 public:
-  ForestTrainer(const std::unordered_map<size_t, size_t>& observables,
-                std::shared_ptr<RelabelingStrategy> relabeling_strategy,
+  ForestTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                 std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                 std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy);
-  const Forest train(Data* data, const ForestOptions& options) const;
+  const Forest train(const Data* data, const ForestOptions& options) const;
 
 private:
 
   std::vector<std::shared_ptr<Tree>> train_batch(
-      size_t start, size_t num_trees,
-      Data* data,
-      const Observations& observations,
+      size_t start,
+      size_t num_trees,
+      const Data* data,
       const ForestOptions& options) const;
 
-  std::shared_ptr<Tree> train_tree(Data* data,
-                                   const Observations& observations,
+  std::shared_ptr<Tree> train_tree(const Data* data,
                                    RandomSampler& sampler,
                                    const ForestOptions& options) const;
 
-  std::vector<std::shared_ptr<Tree>> train_ci_group(Data* data,
-                                                    const Observations& observations,
+  std::vector<std::shared_ptr<Tree>> train_ci_group(const Data* data,
                                                     RandomSampler& sampler,
                                                     const ForestOptions& options) const;
 
-  std::unordered_map<size_t, size_t> observables;
   TreeTrainer tree_trainer;
 };
 

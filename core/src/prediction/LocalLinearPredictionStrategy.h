@@ -31,9 +31,7 @@
 class LocalLinearPredictionStrategy: public DefaultPredictionStrategy {
 
 public:
-    LocalLinearPredictionStrategy(const Data *original_data,
-                                  const Data *test_data,
-                                  std::vector<double> lambdas,
+    LocalLinearPredictionStrategy(std::vector<double> lambdas,
                                   bool weight_penalty,
                                   std::vector<size_t> linear_correction_variables);
 
@@ -47,20 +45,18 @@ public:
     */
     std::vector<double> predict(size_t sampleID,
                                 const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                const Observations& observations);
+                                const Data* train_data,
+                                const Data* data);
 
     std::vector<double> compute_variance(
         size_t sampleID,
         std::vector<std::vector<size_t>> samples_by_tree,
         std::unordered_map<size_t, double> weights_by_sampleID,
-        const Observations& observations,
-        uint ci_group_size);
+        const Data* train_data,
+        const Data* data,
+        size_t ci_group_size);
 
 private:
-
-    static const std::size_t OUTCOME;
-    const Data *original_data;
-    const Data *test_data;
     std::vector<double> lambdas;
     bool weight_penalty;
     std::vector<size_t> linear_correction_variables;

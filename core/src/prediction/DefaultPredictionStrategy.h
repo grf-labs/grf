@@ -23,7 +23,7 @@
 
 #include "Eigen/Dense"
 #include "commons/globals.h"
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include "prediction/Prediction.h"
 #include "prediction/PredictionValues.h"
 
@@ -49,11 +49,14 @@ public:
    * weights_by_sample: a map from neighboring sample ID, to a weight specifying
    *     how often the sample appeared in the same leaf as the test sample. Note that
    *     these weights are normalized and will sum to 1.
-   * observations: the list of observations for all training samples.
+   * train_data: the training data matrix.
+   * data: the test data matrix. Note that in the case of OOB prediction, this could
+   *     be the same as the training matrix.
    */
   virtual std::vector<double> predict(size_t sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
-    const Observations& observations) = 0;
+    const Data* train_data,
+    const Data* data) = 0;
 
   /**
    * Computes a prediction variance estimate for a single test sample.
@@ -64,7 +67,9 @@ public:
    * weights_by_sampleID: a map from neighboring sample ID, to a weight specifying
    *     how often the sample appeared in the same leaf as the test sample. Note that
    *     these weights are normalized and will sum to 1.
-   * observations: the list of observations for all training samples.
+   * train_data: the training data matrix.
+   * data: the test data matrix. Note that in the case of OOB prediction, this could
+   *     be the same as the training matrix.
    * ci_group_size: the size of the tree groups used to train the forest. This
    *     parameter is used when computing within vs. across group variance.
    */
@@ -72,8 +77,9 @@ public:
       size_t sample,
       std::vector<std::vector<size_t>> samples_by_tree,
       std::unordered_map<size_t, double> weights_by_sampleID,
-      const Observations& observations,
-      uint ci_group_size) = 0;
+      const Data* train_data,
+      const Data* data,
+      size_t ci_group_size) = 0;
 };
 
 #endif //GRF_PREDICTIONSTRATEGY_H

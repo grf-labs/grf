@@ -25,7 +25,7 @@
 
 class ProbabilitySplittingRule: public SplittingRule {
 public:
-  ProbabilitySplittingRule(Data* data,
+  ProbabilitySplittingRule(const Data* data,
                            size_t num_classes,
                            double alpha,
                            double imbalance_penalty);
@@ -57,7 +57,7 @@ private:
                                      const std::unordered_map<size_t, double>& labels_by_sample,
                                      const std::vector<std::vector<size_t>>& samples);
 
-  Data* data;
+  const Data* data;
   size_t num_classes;
 
   double alpha;

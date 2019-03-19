@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "commons/globals.h"
-#include "commons/Observations.h"
+#include "commons/Data.h"
 #include "prediction/Prediction.h"
 #include "prediction/PredictionValues.h"
 
@@ -66,7 +66,7 @@ public:
   virtual std::vector<double> compute_variance(
       const std::vector<double>& average_prediction_values,
       const PredictionValues& leaf_prediction_values,
-      uint ci_group_size) = 0;
+      size_t ci_group_size) = 0;
 
  /**
   * The number of types of precomputed prediction values. For regression
@@ -84,7 +84,7 @@ public:
   */
   virtual PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_samples,
-      const Observations& observations) = 0;
+      const Data* data) = 0;
 
  /**
   * Computes out-of-bag error for a single sample.
@@ -99,7 +99,7 @@ public:
       size_t sample,
       const std::vector<double>& average,
       const PredictionValues& leaf_values,
-      const Observations& observations) = 0;
+      const Data* data) = 0;
 };
 
 
