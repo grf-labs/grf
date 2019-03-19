@@ -185,8 +185,11 @@ regression_forest <- function(X, Y,
 #'         estimates of E[Y|X=x]. The square-root of column 'variance.estimates' is the standard error 
 #          of these predictions. Column 'debiased.error' contains out-of-bag estimates of 
 #'         the test mean-squared error. Column 'excess.error' contains 
-#'         jackknife estimates of the Monte-carlo error. We recommend growing 
-#'         forests with enough trees that this quantity is negligible.
+#'         jackknife estimates of the Monte-carlo error. The sum of 'debiased.error' 
+#'         and 'excess.error' is the raw error attained by the current forest, and 
+#'         'debiased.error' alone is an estimate of the error attained by a forest with 
+#'         an infinite number of trees. We recommend that users grow 
+#'         enough forests to make the excess.error' negligible. 
 #'
 #' @examples \dontrun{
 #' # Train a standard regression forest.

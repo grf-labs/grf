@@ -262,12 +262,17 @@ causal_forest <- function(X, Y, W,
 #'         (optionally) its variance estimates. Column 'predictions' contains estimates
 #'         of the conditional average treatent effect (CATE). The square-root of
 #'         column 'variance.estimates' is the standard error of CATE.
-#          Column 'debiased.error' contains estimates of the 'R-loss' criterion, 
+#'         For out-of-bag estimates, we also output the following error measures.
+#'         First, column 'debiased.error' contains estimates of the 'R-loss' criterion, 
 #          a quantity that is related to the true (infeasible) mean-squared error 
-#'         (See Nie and Wager 2017 for a justification). Column 'excess.error' 
-#'         contains jackknife estimates of the Monte-carlo error. We recommend
-#'         growing forests with enough trees that this quantity is negligible.
-#'
+#'         (See Nie and Wager 2017 for a justification). Second, column 'excess.error' 
+#'         contains jackknife estimates of the Monte-carlo error (Wager, Hastie, Efron 2014), 
+#'         a measure of how unstable estimates are if we grow forests of the same size
+#'         on the same data set. The sum of 'debiased.error' and 'excess.error' is the raw error
+#'         attained by the current forest, and 'debiased.error' alone is an estimate of the error
+#'         attained by a forest with an infinite number of trees. We recommend that users grow 
+#'         enough forests to make the excess.error' negligible. 
+#'         
 #' @examples \dontrun{
 #' # Train a causal forest.
 #' n = 100; p = 10
