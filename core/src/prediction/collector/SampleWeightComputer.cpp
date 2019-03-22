@@ -26,7 +26,6 @@ std::unordered_map<size_t, double> SampleWeightComputer::compute_weights(size_t 
   std::unordered_map<size_t, double> weights_by_sample;
 
   // Create a list of weighted neighbors for this sample.
-  uint num_leaves = 0;
   for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
     if (!valid_trees_by_sample[sample][tree_index]) {
       continue;
@@ -38,7 +37,6 @@ std::unordered_map<size_t, double> SampleWeightComputer::compute_weights(size_t 
     std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
     const std::vector<size_t>& samples = tree->get_leaf_samples()[node];
     if (!samples.empty()) {
-      num_leaves++;
       add_sample_weights(samples, weights_by_sample);
     }
   }
