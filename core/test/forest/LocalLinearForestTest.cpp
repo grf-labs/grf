@@ -152,9 +152,12 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
 TEST_CASE("LLF causal predictions are unaffected by shifts in Y", "[local linear], [forest]") {
   Data* data = load_data("test/forest/resources/causal_data_ll.csv");
 
-  data->set_outcome_index(10);
-  data->set_treatment_index(11);
-  data->set_instrument_index(11);
+  uint outcome_index = 10;
+  uint treatment_index = 11;
+
+  data->set_outcome_index(outcome_index);
+  data->set_treatment_index(treatment_index);
+  data->set_instrument_index(treatment_index);
 
   std::vector<size_t> linear_correction_variables = {3};
   std::vector<double> lambda = {0.1};
