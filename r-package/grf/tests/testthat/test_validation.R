@@ -2,16 +2,6 @@ library(grf)
 library(testthat)
 set.seed(1234)
 
-test_that("example data passes validation"){
-  n = 50; p = 10
-  X = matrix(rnorm(n*p), n, p)
-  W = rbinom(n, 1, 0.5)
-  Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
-  expect_error(validate_X(X), NA)
-  expect_error(validate_W(W), NA)
-  expect_error(validate_Y(Y), NA)
-}
-
 test_that("non-vector Y throws error", {
   Y = matrix()
   expect_error(validate_Y(Y))
