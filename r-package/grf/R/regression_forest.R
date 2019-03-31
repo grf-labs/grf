@@ -87,8 +87,9 @@ regression_forest <- function(X, Y,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
     validate_X(X)
+    validate_sample_weights(sample.weights, X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-    if(!is.null(sample.weights) && length(sample.weights) != nrow(X)) { stop("sample.weights has incorrect length") }
+
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
@@ -121,8 +122,7 @@ regression_forest <- function(X, Y,
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
 
-    if(is.null(sample.weights)) { data <- create_data_matrices(X, Y) }
-    else { data <- create_data_matrices(X, Y, sample.weights) }
+    data <- create_data_matrices(X, Y, sample.weights) 
     outcome.index <- ncol(X) + 1
     sample.weight.index <- ncol(X) + 2;
     forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,

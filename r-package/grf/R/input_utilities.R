@@ -167,6 +167,17 @@ validate_newdata <- function(newdata, X) {
   validate_X(newdata)
 }
 
+validate_sample_weights = function(sample.weights, X) { 
+    if(!is.null(sample.weights)) {
+        if(length(sample.weights) != nrow(X)) { 
+            stop("sample.weights has incorrect length")
+        }
+        if(any(sample.weights <= 0)) {
+            stop("sample.weights must be strictly positive")
+        }
+    }
+}
+
 coerce_honesty_fraction <- function(honesty.fraction) {
   if(is.null(honesty.fraction)) {
     return(0)
@@ -174,14 +185,15 @@ coerce_honesty_fraction <- function(honesty.fraction) {
   honesty.fraction
 }
 
-create_data_matrices <- function(X, ...) {
+create_data_matrices <- function(X, ..., sample.weights=NULL) {
   default.data <- matrix(nrow=0, ncol=0);    
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
 
+  if(is.null(sample.weights)) { sample.weights = c() }
   if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
-    sparse.data <- cbind(X, ...)
+    sparse.data <- cbind(X, ..., sample.weights)
   } else {
-    default.data <- as.matrix(cbind(X, ...))
+    default.data <- as.matrix(cbind(X, ..., sample.weights))
   }
 
   list(default = default.data, sparse = sparse.data)

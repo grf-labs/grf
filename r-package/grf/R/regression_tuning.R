@@ -71,8 +71,8 @@ tune_regression_forest <- function(X, Y,
                                    clusters = NULL,
                                    samples_per_cluster = NULL) {
   validate_X(X)
+  validate_sample_weights(sample.weights, X)
   if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-  if(!is.null(sample.weights) && length(sample.weights) != nrow(X)) { stop("sample.weights has incorrect length") }
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
@@ -80,8 +80,7 @@ tune_regression_forest <- function(X, Y,
   ci.group.size <- 1
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
-  if(is.null(sample.weights)) { data <- create_data_matrices(X, Y) }
-  else { data <- create_data_matrices(X, Y, sample.weights) }
+  data <- create_data_matrices(X, Y, sample.weights) 
   outcome.index <- ncol(X) + 1
   sample.weight.index <- ncol(X) + 2
   # if no sample weights are stored, sample.weight.index is ncol(data) + 1 and is ignored
