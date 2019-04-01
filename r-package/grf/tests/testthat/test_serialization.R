@@ -18,7 +18,19 @@ test_that("regression forests make the same predictions before and after save/lo
   Y <- X[,1] + 0.1 * rnorm(n)
   X.new <- matrix(rnorm(n * p), n, p)
 
-  forest = regression_forest(X, Y, serialize=TRUE)
+  forest = regression_forest(X, Y, serialize=FALSE)
+  reloaded.forest = save_and_load(forest)
+  expect_error(predict(reloaded.forest, X.new))
+})
+
+test_that("regression forests make the same predictions before and after save/load.", {
+  n <- 200
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  Y <- X[,1] + 0.1 * rnorm(n)
+  X.new <- matrix(rnorm(n * p), n, p)
+
+  forest = regression_forest(X, Y)
   identical_predictions(forest, save_and_load(forest))
   identical_predictions(forest, save_and_load(forest), X.new)
 })
@@ -30,7 +42,7 @@ test_that("local linear forests make the same predictions before and after save/
   Y <- X[,1] + 0.1 * rnorm(n)
   X.new <- matrix(rnorm(n * p), n, p)
 
-  forest = local_linear_forest(X, Y, serialize=TRUE)
+  forest = local_linear_forest(X, Y)
   identical_predictions(forest, save_and_load(forest))
   identical_predictions(forest, save_and_load(forest), X.new)
 })
