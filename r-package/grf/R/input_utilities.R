@@ -187,13 +187,14 @@ create_data_matrices <- function(X, ...) {
   list(default = default.data, sparse = sparse.data)
 }
 
+# Create a S3 forest object
 create_forest_obj <- function(xptr, class, ..., serialize=FALSE, compute.oob.predictions=FALSE) {
   obj = list(...)
-  obj$xptr = xptr
-  obj$num.trees <- num_trees(xptr)
+  obj$structure = ForestStructure$new(xptr = xptr, serialized=raw())
+  if(serialize) { obj$structure$serialize() }
   class(obj) = c(class, 'grf')
 
-  obj$serialized = if(serialize) { serialize_forest(xptr(obj)) } else { NULL }
+  obj$num.trees <- num_trees(obj$structure$xptr)
   if (compute.oob.predictions) {
     oob.pred <- predict(obj)
     obj$predictions = oob.pred$predictions
@@ -203,15 +204,33 @@ create_forest_obj <- function(xptr, class, ..., serialize=FALSE, compute.oob.pre
   obj
 }
 
+# Get an xptr from one
 xptr = function(obj) {
-  if(is_null_pointer(obj$xptr) && is.null(obj$serialized)) {
-    stop('obj is not a valid forest. No xptr or serialized representation')
-  } else if(is_null_pointer(obj$xptr)) {
-    obj$xptr = deserialize_forest(obj$serialized)
-  }
-  obj$xptr
+  obj$structure$deserialize()
 }
 
+## A mutable object to store xptr and serialization.
+# It computes one from the other as necessary
+# and stores them when it does to avoid redundant computation
+ForestStructure = setRefClass("ForestStructure",
+  fields = list(xptr = "externalptr", serialized = "raw"))
+
+ForestStructure$methods(
+  serialize=function() {
+    if(is_null_pointer(xptr)) {
+      stop('This forest has no xptr and cannot be serialized.')
+    }
+    serialized <<- serialize_forest(xptr)
+    serialized
+  },
+  deserialize=function() {
+    if(is_null_pointer(xptr) && length(serialized) == 0) {
+      stop('Not a valid forest structure. No xptr or serialized representation. Was it saved without serialization?')
+    } else if(is_null_pointer(xptr)) {
+      xptr <<- deserialize_forest(serialized)
+    }
+    xptr
+  })
 is_null_pointer = function(xp) {
   identical(xp, new("externalptr"))
 }
