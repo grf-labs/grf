@@ -51,11 +51,11 @@
 custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
     num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
     honesty.fraction = NULL, alpha = 0.05, imbalance.penalty = 0.0, seed = NULL,
-    clusters = NULL, samples_per_cluster = NULL) {
+    clusters = NULL, samples_per_cluster = NULL, serialize = TRUE) {
 
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-    
+
     mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
     min.node.size <- validate_min_node_size(min.node.size)
@@ -64,21 +64,19 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-    
+
     no.split.variables <- numeric(0)
-    
+
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
     ci.group.size <- 1
 
-    forest <- custom_train(data$default, data$sparse, outcome.index, mtry,num.trees, num.threads,
+    xptr = custom_train(data$default, data$sparse, outcome.index, mtry,num.trees, num.threads,
         min.node.size, sample.fraction, seed, honesty, coerce_honesty_fraction(honesty.fraction),
         ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
-    
-    forest[["X.orig"]] <- X
-    forest[["Y.orig"]] <- Y
+    forest = create_forest_obj(xptr, 'custom_forest',
+        X.orig = X, Y.orig = Y, serialize=serialize)
 
-    class(forest) <- c("custom_forest", "grf")
     forest
 }
 
@@ -123,9 +121,9 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
     if (!is.null(newdata)) {
         validate_newdata(newdata, X)
         data <- create_data_matrices(newdata)
-        custom_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+        custom_predict(xptr(forest.short), train.data$default, train.data$sparse, outcome.index,
             data$default, data$sparse, num.threads)
     } else {
-        custom_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index, num.threads)
+        custom_predict_oob(xptr(forest.short), train.data$default, train.data$sparse, outcome.index, num.threads)
     }
 }

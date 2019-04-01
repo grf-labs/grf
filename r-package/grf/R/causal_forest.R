@@ -131,7 +131,8 @@ causal_forest <- function(X, Y, W,
                           tune.parameters = FALSE,
                           num.fit.trees = 200,
                           num.fit.reps = 50,
-                          num.optimize.reps = 1000) {
+                          num.optimize.reps = 1000,
+                          serialize = TRUE) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
@@ -194,7 +195,7 @@ causal_forest <- function(X, Y, W,
         alpha = validate_alpha(alpha),
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
-    
+
     Y.centered = Y - Y.hat
     W.centered = W - W.hat
 
@@ -203,41 +204,33 @@ causal_forest <- function(X, Y, W,
     treatment.index <- ncol(X) + 2
     instrument.index <- treatment.index
 
-    forest <- instrumental_train(data$default, data$sparse,
-                                 outcome.index, treatment.index, instrument.index,
-                                 as.numeric(tunable.params["mtry"]),
-                                 num.trees,
-                                 num.threads,
-                                 as.numeric(tunable.params["min.node.size"]),
-                                 as.numeric(tunable.params["sample.fraction"]),
-                                 seed,
-                                 honesty,
-                                 coerce_honesty_fraction(honesty.fraction),
-                                 ci.group.size,
-                                 reduced.form.weight,
-                                 as.numeric(tunable.params["alpha"]),
-                                 as.numeric(tunable.params["imbalance.penalty"]),
-                                 stabilize.splits,
-                                 clusters,
-                                 samples_per_cluster)
-
-    forest[["ci.group.size"]] <- ci.group.size
-    forest[["X.orig"]] <- X
-    forest[["Y.orig"]] <- Y
-    forest[["W.orig"]] <- W
-    forest[["Y.hat"]] <- Y.hat
-    forest[["W.hat"]] <- W.hat
-    forest[["clusters"]] <- clusters
-    forest[["tunable.params"]] <- tunable.params
-
-    class(forest) <- c("causal_forest", "grf")
-
-    if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
-    }
-
+    xptr=instrumental_train(data$default, data$sparse,
+                            outcome.index, treatment.index, instrument.index,
+                            as.numeric(tunable.params["mtry"]),
+                            num.trees,
+                            num.threads,
+                            as.numeric(tunable.params["min.node.size"]),
+                            as.numeric(tunable.params["sample.fraction"]),
+                            seed,
+                            honesty,
+                            coerce_honesty_fraction(honesty.fraction),
+                            ci.group.size,
+                            reduced.form.weight,
+                            as.numeric(tunable.params["alpha"]),
+                            as.numeric(tunable.params["imbalance.penalty"]),
+                            stabilize.splits,
+                            clusters,
+                            samples_per_cluster)
+    forest = create_forest_obj(xptr, "causal_forest",
+      ci.group.size = ci.group.size,
+      X.orig = X,
+      Y.orig = Y,
+      W.orig = W,
+      Y.hat = Y.hat,
+      W.hat = W.hat,
+      clusters = clusters,
+      tunable.params = tunable.params,
+      serialize=serialize, compute.oob.predictions=compute.oob.predictions)
     forest
 }
 
@@ -306,11 +299,11 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
     if (!is.null(newdata)) {
         validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
-        ret <- instrumental_predict(forest.short, train.data$default, train.data$sparse,
+        ret <- instrumental_predict(xptr(forest.short), train.data$default, train.data$sparse,
             outcome.index, treatment.index, instrument.index,
             data$default, data$sparse, num.threads, estimate.variance)
     } else {
-        ret <- instrumental_predict_oob(forest.short, train.data$default, train.data$sparse,
+        ret <- instrumental_predict_oob(xptr(forest.short), train.data$default, train.data$sparse,
           outcome.index, treatment.index, instrument.index,
           num.threads, estimate.variance)
     }

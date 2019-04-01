@@ -100,7 +100,7 @@ tune_regression_forest <- function(X, Y,
   
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
-    small.forest <- regression_train(data$default, data$sparse, outcome.index,
+    small.forest.xptr <- regression_train(data$default, data$sparse, outcome.index,
                                      as.numeric(params["mtry"]),
                                      num.fit.trees,
                                      num.threads,
@@ -115,7 +115,7 @@ tune_regression_forest <- function(X, Y,
                                      clusters,
                                      samples_per_cluster)
 
-    prediction = regression_predict_oob(small.forest, data$default, data$sparse,
+    prediction = regression_predict_oob(small.forest.xptr, data$default, data$sparse,
         outcome.index, num.threads, FALSE)
     error = prediction$debiased.error
     mean(error, na.rm = TRUE)

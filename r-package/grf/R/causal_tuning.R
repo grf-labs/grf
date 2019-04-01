@@ -114,7 +114,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
-    small.forest <- instrumental_train(data$default, data$sparse,
+    small.forest.xptr <- instrumental_train(data$default, data$sparse,
                                        outcome.index, treatment.index, instrument.index,
                                        as.numeric(params["mtry"]),
                                        num.fit.trees,
@@ -131,7 +131,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                        stabilize.splits,
                                        clusters,
                                        samples_per_cluster)
-    prediction = instrumental_predict_oob(small.forest, data$default, data$sparse,
+    prediction = instrumental_predict_oob(small.forest.xptr, data$default, data$sparse,
         outcome.index, treatment.index, instrument.index, num.threads, FALSE)
     mean(prediction$debiased.error, na.rm = TRUE)
   })

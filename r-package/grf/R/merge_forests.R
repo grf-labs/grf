@@ -26,29 +26,20 @@
 #' }
 #' 
 #' @export
-merge_forests <- function(forest_list, compute.oob.predictions=TRUE) {
+merge_forests <- function(forest_list, compute.oob.predictions=TRUE, serialize=TRUE) {
   
   validate_forest_list(forest_list)
   
   first_forest <- forest_list[[1]]
   data <- create_data_matrices(first_forest$X.orig, first_forest$Y.orig)
-  
-  big_forest <- merge(forest_list)
-  
-  big_forest[["ci.group.size"]] <- first_forest$ci.group.size
-  big_forest[["X.orig"]] <- first_forest$X.orig
-  big_forest[["Y.orig"]] <- first_forest$Y.orig
-  big_forest[["clusters"]] <- first_forest$clusters
 
-  class(big_forest) <- class(first_forest)
-  
-  if (compute.oob.predictions) {
-    oob.pred <- predict(big_forest)
-    big_forest[["predictions"]] <- oob.pred$predictions
-    big_forest[["debiased.error"]] <- oob.pred$debiased.error
-    big_forest[["excess.error"]] <- oob.pred$excess.error
-  }
-  
+  big_forest <- create_forest_obj(merge(lapply(forest_list, xptr)), class(first_forest)[1],
+    ci.group.size = first_forest$ci.group.size,
+    X.orig = first_forest$X.orig,
+    Y.orig = first_forest$Y.orig,
+    clusters = first_forest$clusters,
+    compute.oob.predictions = compute.oob.predictions,
+    serialize=serialize)
   big_forest
 }
 

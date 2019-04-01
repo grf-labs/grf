@@ -47,7 +47,7 @@ tune_local_linear_forest <- function(forest,
 
   # Enforce no variance estimates in tuning
   estimate.variance = FALSE
-  prediction.object = local_linear_predict_oob(forest.short, data$default, data$sparse, outcome.index,
+  prediction.object = local_linear_predict_oob(xptr(forest.short), data$default, data$sparse, outcome.index,
       lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
 
   prediction.object = prediction.object$predictions

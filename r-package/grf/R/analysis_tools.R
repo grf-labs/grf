@@ -36,7 +36,7 @@ get_tree = function(forest, index) {
 		stop(paste("The provided index,", index, "is not valid."))
 	}
 
-	tree = deserialize_tree(forest, index)
+	tree = deserialize_tree(xptr(forest), index)
 	class(tree) = "grf_tree"
 
 	columns = colnames(forest$X.orig)
@@ -70,7 +70,7 @@ get_tree = function(forest, index) {
 #'
 #' @export
 split_frequencies = function(forest, max.depth=4) {
-  raw = compute_split_frequencies(forest, max.depth)
+  raw = compute_split_frequencies(xptr(forest), max.depth)
   feature.indices = 1:ncol(forest$X.orig)
   raw[,feature.indices, drop = FALSE]
 }
@@ -140,9 +140,9 @@ get_sample_weights = function(forest, newdata = NULL, num.threads=NULL) {
   
   if (!is.null(newdata)) {
     data <- create_data_matrices(newdata)
-    compute_weights(forest.short, train.data$default, train.data$sparse,
+    compute_weights(xptr(forest.short), train.data$default, train.data$sparse,
         data$default, data$sparse, num.threads)
   } else {
-    compute_weights_oob(forest.short, train.data$default, train.data$sparse, num.threads)
+    compute_weights_oob(xptr(forest.short), train.data$default, train.data$sparse, num.threads)
   }
 }

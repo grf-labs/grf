@@ -84,7 +84,8 @@ regression_forest <- function(X, Y,
                               tune.parameters = FALSE,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
-                              num.optimize.reps = 1000) {
+                              num.optimize.reps = 1000,
+                              serialize = TRUE) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
 
@@ -122,36 +123,28 @@ regression_forest <- function(X, Y,
     
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
-
-    forest <- regression_train(data$default, data$sparse, outcome.index,
-                               as.numeric(tunable.params["mtry"]),
-                               num.trees,
-                               num.threads,
-                               as.numeric(tunable.params["min.node.size"]),
-                               as.numeric(tunable.params["sample.fraction"]),
-                               seed,
-                               honesty,
-                               coerce_honesty_fraction(honesty.fraction),
-                               ci.group.size,
-                               as.numeric(tunable.params["alpha"]),
-                               as.numeric(tunable.params["imbalance.penalty"]),
-                               clusters,
-                               samples_per_cluster)
-
-    forest[["ci.group.size"]] <- ci.group.size
-    forest[["X.orig"]] <- X
-    forest[["Y.orig"]] <- Y
-    forest[["clusters"]] <- clusters
-    forest[["tunable.params"]] <- tunable.params
-
-    class(forest) <- c("regression_forest", "grf")
-
-    if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
-    }
-
+    sample.weight.index <- ncol(X) + 2;
+    xptr = regression_train(data$default, data$sparse, outcome.index,
+                            as.numeric(tunable.params["mtry"]),
+                            num.trees,
+                            num.threads,
+                            as.numeric(tunable.params["min.node.size"]),
+                            as.numeric(tunable.params["sample.fraction"]),
+                            seed,
+                            honesty,
+                            coerce_honesty_fraction(honesty.fraction),
+                            ci.group.size,
+                            as.numeric(tunable.params["alpha"]),
+                            as.numeric(tunable.params["imbalance.penalty"]),
+                            clusters,
+                            samples_per_cluster)
+    forest = create_forest_obj(xptr, "regression_forest",
+      ci.group.size = ci.group.size,
+      X.orig = X,
+      Y.orig = Y,
+      clusters = clusters,
+      tunable.params = tunable.params,
+      compute.oob.predictions=compute.oob.predictions, serialize=serialize)
     forest
 }
 
@@ -244,20 +237,20 @@ predict.regression_forest <- function(object, newdata = NULL,
         data = create_data_matrices(newdata)
         validate_newdata(newdata, X)
         if (!local.linear) {
-            ret = regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+            ret = regression_predict(xptr(forest.short), train.data$default, train.data$sparse, outcome.index,
                 data$default, data$sparse, num.threads, estimate.variance)
         } else {
-            ret = local_linear_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+            ret = local_linear_predict(xptr(forest.short), train.data$default, train.data$sparse, outcome.index,
                 data$default, data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
                 num.threads, estimate.variance)
         }
     } else {
         data = create_data_matrices(X)
         if (!local.linear) {
-            ret = regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+            ret = regression_predict_oob(xptr(forest.short), train.data$default, train.data$sparse, outcome.index,
                 num.threads, estimate.variance)
         } else {
-            ret = local_linear_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+            ret = local_linear_predict_oob(xptr(forest.short), train.data$default, train.data$sparse, outcome.index,
                 ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
         }
     }

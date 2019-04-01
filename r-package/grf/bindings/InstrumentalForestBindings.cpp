@@ -10,7 +10,7 @@
 #include "RcppUtilities.h"
 
 // [[Rcpp::export]]
-Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
+SEXP instrumental_train(Rcpp::NumericMatrix train_matrix,
                               Eigen::SparseMatrix<double> sparse_train_matrix,
                               size_t outcome_index,
                               size_t treatment_index,
@@ -42,14 +42,13 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
       honesty_fraction, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
 
   Forest forest = trainer.train(data, options);
-  Rcpp::List result = RcppUtilities::create_forest_object(forest);
 
   delete data;
-  return result;
+  return Rcpp::XPtr<Forest>(new Forest(forest));
 }
 
 // [[Rcpp::export]]
-Rcpp::List instrumental_predict(Rcpp::List forest_object,
+Rcpp::List instrumental_predict(SEXP xp,
                                 Rcpp::NumericMatrix train_matrix,
                                 Eigen::SparseMatrix<double> sparse_train_matrix,
                                 size_t outcome_index,
@@ -59,17 +58,15 @@ Rcpp::List instrumental_predict(Rcpp::List forest_object,
                                 Eigen::SparseMatrix<double> sparse_test_matrix,
                                 unsigned int num_threads,
                                 bool estimate_variance) {
+  Rcpp::XPtr<Forest> forest(xp);
   Data* train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   train_data->set_outcome_index(outcome_index - 1);
   train_data->set_treatment_index(treatment_index - 1);
   train_data->set_instrument_index(instrument_index - 1);
   Data* data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
 
-  Forest forest = RcppUtilities::deserialize_forest(
-      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
-
   ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict(*forest, train_data, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   delete train_data;
@@ -78,7 +75,7 @@ Rcpp::List instrumental_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List instrumental_predict_oob(Rcpp::List forest_object,
+Rcpp::List instrumental_predict_oob(SEXP xp,
                                     Rcpp::NumericMatrix train_matrix,
                                     Eigen::SparseMatrix<double> sparse_train_matrix,
                                     size_t outcome_index,
@@ -86,16 +83,14 @@ Rcpp::List instrumental_predict_oob(Rcpp::List forest_object,
                                     size_t instrument_index,
                                     unsigned int num_threads,
                                     bool estimate_variance) {
+  Rcpp::XPtr<Forest> forest(xp);
   Data* data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index - 1);
   data->set_treatment_index(treatment_index - 1);
   data->set_instrument_index(instrument_index - 1);
 
-  Forest forest = RcppUtilities::deserialize_forest(
-      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
-
   ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict_oob(*forest, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   delete data;

@@ -55,26 +55,27 @@
 #'
 #' @export
 local_linear_forest <- function(X, Y,
-                                sample.fraction = 0.5,
-                                mtry = NULL,
-                                num.trees = 2000,
-                                num.threads = NULL,
-                                min.node.size = NULL,
-                                honesty = TRUE,
-                                honesty.fraction = NULL,
-                                ci.group.size = 1, 
-                                alpha = NULL,
-                                imbalance.penalty = NULL,
-                                compute.oob.predictions = FALSE,
-                                seed = NULL,
-                                clusters = NULL,
-                                samples_per_cluster = NULL,
-                                tune.parameters = FALSE,
-                                num.fit.trees = 10,
-                                num.fit.reps = 100,
-                                num.optimize.reps = 1000) {
+sample.fraction = 0.5,
+mtry = NULL,
+num.trees = 2000,
+num.threads = NULL,
+min.node.size = NULL,
+honesty = TRUE,
+honesty.fraction = NULL,
+ci.group.size = 1,
+alpha = NULL,
+imbalance.penalty = NULL,
+compute.oob.predictions = FALSE,
+seed = NULL,
+clusters = NULL,
+samples_per_cluster = NULL,
+tune.parameters = FALSE,
+num.fit.trees = 10,
+num.fit.reps = 100,
+num.optimize.reps = 1000,
+serialize = TRUE) {
   validate_X(X)
-  if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+  if (length(Y) != nrow(X)) { stop("Y has incorrect length.")}
 
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
@@ -110,37 +111,29 @@ local_linear_forest <- function(X, Y,
 
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
+  xptr = regression_train(data$default, data$sparse, outcome.index,
+    as.numeric(tunable.params["mtry"]),
+    num.trees,
+    num.threads,
+    as.numeric(tunable.params["min.node.size"]),
+    as.numeric(tunable.params["sample.fraction"]),
+    seed,
+    honesty,
+    coerce_honesty_fraction(honesty.fraction),
+    ci.group.size,
+    as.numeric(tunable.params["alpha"]),
+    as.numeric(tunable.params["imbalance.penalty"]),
+    clusters,
+    samples_per_cluster)
 
-  forest <- regression_train(data$default, data$sparse, outcome.index,
-                             as.numeric(tunable.params["mtry"]),
-                             num.trees,
-                             num.threads,
-                             as.numeric(tunable.params["min.node.size"]),
-                             as.numeric(tunable.params["sample.fraction"]),
-                             seed,
-                             honesty,
-                             coerce_honesty_fraction(honesty.fraction),
-                             ci.group.size,
-                             as.numeric(tunable.params["alpha"]),
-                             as.numeric(tunable.params["imbalance.penalty"]),
-                             clusters,
-                             samples_per_cluster)
-
-  forest[["ci.group.size"]] <- ci.group.size
-  forest[["X.orig"]] <- X
-  forest[["Y.orig"]] <- Y
-  forest[["clusters"]] <- clusters
-  forest[["tunable.params"]] <- tunable.params
-
-  class(forest) <- c("regression_forest", "grf")
-
-  if (compute.oob.predictions) {
-    oob.pred <- predict(forest)
-    forest[["predictions"]] <- oob.pred$predictions
-    forest[["debiased.error"]] <- oob.pred$debiased.error
-  }
-
-  class(forest) = c("local_linear_forest", "grf")
+  forest <- create_forest_obj(xptr, "local_linear_forest",
+    ci.group.size = ci.group.size,
+    X.orig = X,
+    Y.orig = Y,
+    clusters = clusters,
+    tunable.params = tunable.params,
+    serialize = serialize,
+    compute.oob.predictions = compute.oob.predictions)
   forest
 }
 
@@ -189,17 +182,17 @@ local_linear_forest <- function(X, Y,
 #' @method predict local_linear_forest
 #' @export
 predict.local_linear_forest <- function(object, newdata = NULL,
-                                        linear.correction.variables = NULL,
-                                        ll.lambda = NULL,
-                                        ll.weight.penalty = FALSE,
-                                        num.threads = NULL,
-                                        estimate.variance = FALSE,
-                                        ...) {
+linear.correction.variables = NULL,
+ll.lambda = NULL,
+ll.weight.penalty = FALSE,
+num.threads = NULL,
+estimate.variance = FALSE,
+...) {
 
-  forest.short = object[-which(names(object) == "X.orig")]
+  forest.short = object[- which(names(object) == "X.orig")]
   X = object[["X.orig"]]
   if (is.null(linear.correction.variables)) {
-    linear.correction.variables = 1:ncol(X)
+    linear.correction.variables = 1 : ncol(X)
   }
   # Validate and account for C++ indexing
   linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
@@ -219,20 +212,20 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   train.data = create_data_matrices(X, object[["Y.orig"]])
   outcome.index = ncol(X) + 1
 
-  if (!is.null(newdata) ) {
+  if (! is.null(newdata)) {
     validate_newdata(newdata, X)
     data = create_data_matrices(newdata)
-    ret = local_linear_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
-        data$default, data$sparse,
-        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
+    ret = local_linear_predict(xptr(forest.short), train.data$default, train.data$sparse, outcome.index,
+    data$default, data$sparse,
+    ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
   } else {
-     ret = local_linear_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
-        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
+    ret = local_linear_predict_oob(xptr(forest.short), train.data$default, train.data$sparse, outcome.index,
+    ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
   }
 
   ret[["ll.lambda"]] = ll.lambda
 
   # Convert list to data frame.
   empty = sapply(ret, function(elem) length(elem) == 0)
-  do.call(cbind.data.frame, ret[!empty])
+  do.call(cbind.data.frame, ret[! empty])
 }

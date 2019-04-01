@@ -186,3 +186,32 @@ create_data_matrices <- function(X, ...) {
 
   list(default = default.data, sparse = sparse.data)
 }
+
+create_forest_obj <- function(xptr, class, ..., serialize=FALSE, compute.oob.predictions=FALSE) {
+  obj = list(...)
+  obj$xptr = xptr
+  obj$num.trees <- num_trees(xptr)
+  class(obj) = c(class, 'grf')
+
+  obj$serialized = if(serialize) { serialize_forest(xptr(obj)) } else { NULL }
+  if (compute.oob.predictions) {
+    oob.pred <- predict(obj)
+    obj$predictions = oob.pred$predictions
+    obj$debiased.error = oob.pred$debiased.error
+  }
+
+  obj
+}
+
+xptr = function(obj) {
+  if(is_null_pointer(obj$xptr) && is.null(obj$serialized)) {
+    stop('obj is not a valid forest. No xptr or serialized representation')
+  } else if(is_null_pointer(obj$xptr)) {
+    obj$xptr = deserialize_forest(obj$serialized)
+  }
+  obj$xptr
+}
+
+is_null_pointer = function(xp) {
+  identical(xp, new("externalptr"))
+}

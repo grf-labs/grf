@@ -70,7 +70,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
                             sample.fraction = 0.5, mtry = NULL, num.trees = 2000,
                             num.threads = NULL, min.node.size = NULL, honesty = TRUE,
                             honesty.fraction = NULL, alpha = 0.05, imbalance.penalty = 0.0, 
-                            seed = NULL, clusters = NULL, samples_per_cluster = NULL) {
+                            seed = NULL, clusters = NULL, samples_per_cluster = NULL, serialize=TRUE) {
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
         stop("Error: Must provide numeric quantiles")
     } else if (min(quantiles) <= 0 | max(quantiles) >= 1) {
@@ -94,14 +94,11 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
 
     ci.group.size <- 1
     
-    forest <- quantile_train(quantiles, regression.splitting, data$default, data$sparse, outcome.index, mtry, 
+    xptr=quantile_train(quantiles, regression.splitting, data$default, data$sparse, outcome.index, mtry,
         num.trees, num.threads, min.node.size, sample.fraction, seed, honesty, coerce_honesty_fraction(honesty.fraction), 
         ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
-    
-    forest[["X.orig"]] <- X
-    forest[["clusters"]] <- clusters
-    
-    class(forest) <- c("quantile_forest", "grf")
+    forest = create_forest_obj(xptr, "quantile_forest",
+      X.orig = X, clusters = clusters, serialize = serialize)
     forest
 }
 
@@ -162,10 +159,10 @@ predict.quantile_forest <- function(object,
     if (!is.null(newdata)) {
         validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
-        quantile_predict(forest.short, quantiles, train.data$default, train.data$sparse, outcome.index,
+        quantile_predict(xptr(forest.short), quantiles, train.data$default, train.data$sparse, outcome.index,
             data$default, data$sparse, num.threads)
     } else {
-        quantile_predict_oob(forest.short, quantiles, train.data$default, train.data$sparse,
+        quantile_predict_oob(xptr(forest.short), quantiles, train.data$default, train.data$sparse,
             outcome.index, num.threads)
     }
 }

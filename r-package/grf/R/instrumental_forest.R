@@ -76,7 +76,8 @@ instrumental_forest <- function(X, Y, W, Z,
                                 compute.oob.predictions = TRUE,
                                 seed = NULL,
                                 clusters = NULL,
-                                samples_per_cluster = NULL) {
+                                samples_per_cluster = NULL,
+                                serialize = TRUE) {
     validate_X(X)
     if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
     if(length(W) != nrow(X)) { stop("W has incorrect length.") }
@@ -138,28 +139,22 @@ instrumental_forest <- function(X, Y, W, Z,
     treatment.index <- ncol(X) + 2
     instrument.index <- ncol(X) + 3
     
-    forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
+    xptr = instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
         coerce_honesty_fraction(honesty.fraction), ci.group.size, reduced.form.weight, alpha, 
         imbalance.penalty, stabilize.splits, clusters, samples_per_cluster)
-
-    forest[["ci.group.size"]] <- ci.group.size
-    forest[["X.orig"]] <- X
-    forest[["Y.orig"]] <- Y
-    forest[["W.orig"]] <- W
-    forest[["Z.orig"]] <- Z
-    forest[["Y.hat"]] <- Y.hat
-    forest[["W.hat"]] <- W.hat
-    forest[["Z.hat"]] <- Z.hat
-    forest[["clusters"]] <- clusters
-
-    class(forest) <- c("instrumental_forest", "grf")
-
-    if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
-    }
+    forest = create_forest_obj(xptr, 'instrumental_forest',
+      ci.group.size = ci.group.size,
+      X.orig = X,
+      Y.orig = Y,
+      W.orig = W,
+      Z.orig = Z,
+      Y.hat = Y.hat,
+      W.hat = W.hat,
+      Z.hat = Z.hat,
+      clusters = clusters,
+      compute.oob.predictions = compute.oob.predictions,
+      serialize = serialize)
 
     forest
 }
@@ -212,11 +207,11 @@ predict.instrumental_forest <- function(object, newdata = NULL,
     if (!is.null(newdata)) {
         validate_newdata(newdata, object$X.orig)
         data <- create_data_matrices(newdata)
-        ret <- instrumental_predict(forest.short, train.data$default, train.data$sparse,
+        ret <- instrumental_predict(xptr(forest.short), train.data$default, train.data$sparse,
             outcome.index, treatment.index, instrument.index,
             data$default, data$sparse, num.threads, estimate.variance)
     } else {
-        ret <- instrumental_predict_oob(forest.short, train.data$default, train.data$sparse,
+        ret <- instrumental_predict_oob(xptr(forest.short), train.data$default, train.data$sparse,
             outcome.index, treatment.index, instrument.index,
             num.threads, estimate.variance)
     }

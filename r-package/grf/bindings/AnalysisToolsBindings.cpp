@@ -28,15 +28,13 @@
 #include "RcppUtilities.h"
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
+Rcpp::NumericMatrix compute_split_frequencies(SEXP xp,
                                               size_t max_depth) {
-  Forest forest = RcppUtilities::deserialize_forest(
-      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
-
+  Rcpp::XPtr<Forest> forest(xp);
   SplitFrequencyComputer computer;
-  std::vector<std::vector<size_t>> split_frequencies = computer.compute(forest, max_depth);
+  std::vector<std::vector<size_t>> split_frequencies = computer.compute(*forest, max_depth);
 
-  size_t num_variables = forest.get_num_variables();
+  size_t num_variables = forest->get_num_variables();
   Rcpp::NumericMatrix result(max_depth, num_variables);
   for (size_t depth = 0; depth < split_frequencies.size(); depth++) {
     const std::vector<size_t>& frequencies = split_frequencies.at(depth);
@@ -48,7 +46,7 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
   return result;
 }
 
-Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
+Eigen::SparseMatrix<double> compute_sample_weights(const Forest& forest,
                                                    Rcpp::NumericMatrix train_matrix,
                                                    Eigen::SparseMatrix<double> sparse_train_matrix,
                                                    Rcpp::NumericMatrix test_matrix,
@@ -57,8 +55,6 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
                                                    bool oob_prediction) {
   Data* train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   Data* data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
-  Forest forest = RcppUtilities::deserialize_forest(
-      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
   num_threads = ForestOptions::validate_num_threads(num_threads);
 
   TreeTraverser tree_traverser(num_threads);
@@ -90,38 +86,39 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Eigen::SparseMatrix<double> compute_weights(Rcpp::List forest_object,
+Eigen::SparseMatrix<double> compute_weights(SEXP xp,
                                             Rcpp::NumericMatrix train_matrix,
                                             Eigen::SparseMatrix<double> sparse_train_matrix,
                                             Rcpp::NumericMatrix test_matrix,
                                             Eigen::SparseMatrix<double> sparse_test_matrix,
                                             unsigned int num_threads) {
-  return compute_sample_weights(forest_object, train_matrix, sparse_test_matrix,
+  Rcpp::XPtr<Forest> forest(xp);
+  return compute_sample_weights(*forest, train_matrix, sparse_test_matrix,
                                 test_matrix, sparse_test_matrix, num_threads, false);
 }
 
 // [[Rcpp::export]]
-Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object,
+Eigen::SparseMatrix<double> compute_weights_oob(SEXP xp,
                                                 Rcpp::NumericMatrix test_matrix,
                                                 Eigen::SparseMatrix<double> sparse_test_matrix,
                                                 unsigned int num_threads) {
-  return compute_sample_weights(forest_object, test_matrix, sparse_test_matrix,
+  Rcpp::XPtr<Forest> forest(xp);
+  return compute_sample_weights(*forest, test_matrix, sparse_test_matrix,
                                 test_matrix, sparse_test_matrix, num_threads, true);
 }
 
 // [[Rcpp::export]]
-Rcpp::List deserialize_tree(Rcpp::List forest_object,
+Rcpp::List deserialize_tree(SEXP xp,
                             size_t tree_index) {
-  Forest forest = RcppUtilities::deserialize_forest(
-      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  Rcpp::XPtr<Forest> forest(xp);
 
   tree_index--; // Decrement since R is one-indexed.
-  size_t num_trees = forest.get_trees().size();
+  size_t num_trees = forest->get_trees().size();
   if (tree_index >= num_trees) {
     throw std::runtime_error("The provided tree index is not valid.");
   }
 
-  std::shared_ptr<Tree> tree = forest.get_trees().at(tree_index);
+  std::shared_ptr<Tree> tree = forest->get_trees().at(tree_index);
   const std::vector<std::vector<size_t>>& child_nodes = tree->get_child_nodes();
   const std::vector<std::vector<size_t>>& leaf_samples = tree->get_leaf_samples();
 
@@ -178,19 +175,31 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List merge(const Rcpp::List forest_objects) {
- std::vector<std::shared_ptr<Forest>> forest_ptrs;
- 
- for (auto& forest_obj : forest_objects) {
-   Forest deserialized_forest = RcppUtilities::deserialize_forest(
-     static_cast<Rcpp::List>(forest_obj)[RcppUtilities::SERIALIZED_FOREST_KEY]);
-   
-   forest_ptrs.push_back(std::make_shared<Forest>(deserialized_forest)); 
- }
-
- Forest big_forest = Forest::merge(forest_ptrs);
- Rcpp::List result = RcppUtilities::create_forest_object(big_forest);
-
- return result;
+size_t num_trees(SEXP xp) {
+    Rcpp::XPtr<Forest> forest(xp);
+    return forest->get_trees().size();
 }
- 
+
+// [[Rcpp::export]]
+SEXP merge(Rcpp::List forests) {
+  // copy-pastes from rather than calls Forest::Merge because
+  // Forest::Merge doesn't know about the type Rcpp::XPtr
+  // and making it generic led to link errors.
+    std::vector<std::shared_ptr<Tree>> all_trees;
+
+    auto forest = Rcpp::as< Rcpp::XPtr<Forest> > (forests.at(0));
+    const size_t num_variables = forest->get_num_variables();
+    const size_t ci_group_size = forest->get_ci_group_size();
+
+    for (auto& opaque_forest : forests) {
+      //auto forest = Rcpp::XPtr<Forest>(opaque_forest);
+      auto forest = Rcpp::as< Rcpp::XPtr<Forest> > (opaque_forest);
+      all_trees.insert(all_trees.end(), forest->get_trees().begin(), forest->get_trees().end());
+      if (forest->get_ci_group_size() != ci_group_size) {
+        throw std::runtime_error("All forests being merged must have the same ci_group_size.");
+      }
+    }
+
+    return Rcpp::XPtr<Forest>(new Forest(all_trees, num_variables, ci_group_size));
+  }
+

@@ -3,41 +3,8 @@
 
 #include "commons/DefaultData.h"
 #include "commons/SparseData.h"
-#include "forest/ForestOptions.h"
 #include "RcppUtilities.h"
-#include "serialization/ForestSerializer.h"
 
-const std::string RcppUtilities::SERIALIZED_FOREST_KEY = "serialized.forest";
-
-Rcpp::List RcppUtilities::create_forest_object(const Forest& forest) {
-  Rcpp::List result;
-  Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
-  result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
-  result.push_back(forest.get_trees().size(), "num.trees");
-  return result;
-};
-
-
-Rcpp::RawVector RcppUtilities::serialize_forest(const Forest& forest) {
-  ForestSerializer forest_serializer;
-  std::stringstream stream;
-  forest_serializer.serialize(stream, forest);
-
-  std::string contents = stream.str();
-
-  Rcpp::RawVector result(contents.size());
-  std::copy(contents.begin(), contents.end(), result.begin());
-  return result;
-}
-
-Forest RcppUtilities::deserialize_forest(Rcpp::RawVector input) {
-  ForestSerializer forest_serializer;
-
-  std::string contents(input.begin(), input.end());
-
-  std::stringstream stream(contents);
-  return forest_serializer.deserialize(stream);
-}
 
 Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
                                   Eigen::SparseMatrix<double>& sparse_input_data) {
