@@ -53,6 +53,15 @@ validate_W <- function(W) {
   }
 }
 
+validate_ZX <- function(Z,X) {
+  validate_Z(Z)
+  if(length(Z) != nrow(X)) { stop("length(Z) does not equal nrow(X).") }
+}
+
+validate_Z <- function(Z) {
+  TRUE
+}
+
 validate_mtry <- function(mtry, X) {
   if (is.null(mtry)) {
     num.col = ncol(X)

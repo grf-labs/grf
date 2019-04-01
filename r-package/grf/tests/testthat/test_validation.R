@@ -67,3 +67,9 @@ test_that("length(Y) != nrow(X) throws error", {
   Y = c(0,1,1)
   expect_error(validate_YX(Y,X))
 })
+
+test_that("length(Z) != nrow(X) throws error", {
+  X = matrix(c(1,1), nrow=1, ncol=2)
+  Z = c(0,1,1)
+  expect_error(validate_ZX(Z,X))
+})
