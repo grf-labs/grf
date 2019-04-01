@@ -78,8 +78,8 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
     }
     
     validate_X(X)
-    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-    
+    validate_YX(Y, X)
+
     mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
     min.node.size <- validate_min_node_size(min.node.size)
