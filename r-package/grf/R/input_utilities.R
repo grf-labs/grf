@@ -17,6 +17,11 @@ validate_X <- function(X) {
   }
 }
 
+validate_YX <- function(Y,X) {
+  validate_Y(Y)
+  if(length(Y) != nrow(X)) { stop("length(Y) does not equal nrow(X).") }
+}
+
 validate_Y <- function(Y) {
   if(!is.vector(Y) || !is.numeric(Y)) {
     stop(paste("The outcome Y must be numeric vector. GRF does not", 
@@ -26,6 +31,11 @@ validate_Y <- function(Y) {
   if (any(is.na(Y))){
     stop("The outcome vector Y contains at least one NA.")
   }
+}
+
+validate_WX <- function(W,X) {
+  validate_W(W)
+  if(length(W) != nrow(X)) { stop("length(W) does not equal nrow(X).") }
 }
 
 validate_W <- function(W) {

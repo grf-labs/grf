@@ -55,3 +55,15 @@ test_that("W with NA throws error", {
   W = c(NA,1)
   expect_error(validate_W(W))
 })
+
+test_that("length(W) != nrow(X) throws error", {
+  X = matrix(c(1,1), nrow=1, ncol=2)
+  W = c(0,1,1)
+  expect_error(validate_WX(W,X))
+})
+
+test_that("length(Y) != nrow(X) throws error", {
+  X = matrix(c(1,1), nrow=1, ncol=2)
+  Y = c(0,1,1)
+  expect_error(validate_YX(Y,X))
+})
