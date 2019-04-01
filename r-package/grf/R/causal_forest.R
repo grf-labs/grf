@@ -133,11 +133,9 @@ causal_forest <- function(X, Y, W,
                           num.fit.reps = 50,
                           num.optimize.reps = 1000) {
     validate_X(X)
-    validate_Y(Y)
-    validate_W(W)
-    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-    if(length(W) != nrow(X)) { stop("W has incorrect length.") }
-    
+    validate_YX(Y, X)
+    validate_WX(W, X)
+
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
