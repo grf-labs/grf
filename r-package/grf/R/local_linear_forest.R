@@ -55,27 +55,27 @@
 #'
 #' @export
 local_linear_forest <- function(X, Y,
-sample.fraction = 0.5,
-mtry = NULL,
-num.trees = 2000,
-num.threads = NULL,
-min.node.size = NULL,
-honesty = TRUE,
-honesty.fraction = NULL,
-ci.group.size = 1,
-alpha = NULL,
-imbalance.penalty = NULL,
-compute.oob.predictions = FALSE,
-seed = NULL,
-clusters = NULL,
-samples_per_cluster = NULL,
-tune.parameters = FALSE,
-num.fit.trees = 10,
-num.fit.reps = 100,
-num.optimize.reps = 1000,
-serialize = TRUE) {
+                                sample.fraction = 0.5,
+                                mtry = NULL,
+                                num.trees = 2000,
+                                num.threads = NULL,
+                                min.node.size = NULL,
+                                honesty = TRUE,
+                                honesty.fraction = NULL,
+                                ci.group.size = 1,
+                                alpha = NULL,
+                                imbalance.penalty = NULL,
+                                compute.oob.predictions = FALSE,
+                                seed = NULL,
+                                clusters = NULL,
+                                samples_per_cluster = NULL,
+                                tune.parameters = FALSE,
+                                num.fit.trees = 10,
+                                num.fit.reps = 100,
+                                num.optimize.reps = 1000,
+                                serialize = TRUE) {
   validate_X(X)
-  if (length(Y) != nrow(X)) { stop("Y has incorrect length.")}
+  if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
 
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
@@ -99,7 +99,7 @@ serialize = TRUE) {
                                             seed = seed,
                                             clusters = clusters,
                                             samples_per_cluster = samples_per_cluster)
-      tunable.params <- tuning.output$params
+    tunable.params <- tuning.output$params
   } else {
     tunable.params <- c(
       min.node.size = validate_min_node_size(min.node.size),
@@ -112,28 +112,27 @@ serialize = TRUE) {
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
   xptr = regression_train(data$default, data$sparse, outcome.index,
-    as.numeric(tunable.params["mtry"]),
-    num.trees,
-    num.threads,
-    as.numeric(tunable.params["min.node.size"]),
-    as.numeric(tunable.params["sample.fraction"]),
-    seed,
-    honesty,
-    coerce_honesty_fraction(honesty.fraction),
-    ci.group.size,
-    as.numeric(tunable.params["alpha"]),
-    as.numeric(tunable.params["imbalance.penalty"]),
-    clusters,
-    samples_per_cluster)
-
+                          as.numeric(tunable.params["mtry"]),
+                          num.trees,
+                          num.threads,
+                          as.numeric(tunable.params["min.node.size"]),
+                          as.numeric(tunable.params["sample.fraction"]),
+                          seed,
+                          honesty,
+                          coerce_honesty_fraction(honesty.fraction),
+                          ci.group.size,
+                          as.numeric(tunable.params["alpha"]),
+                          as.numeric(tunable.params["imbalance.penalty"]),
+                          clusters,
+                          samples_per_cluster)
   forest <- create_forest_obj(xptr, "local_linear_forest",
-    ci.group.size = ci.group.size,
-    X.orig = X,
-    Y.orig = Y,
-    clusters = clusters,
-    tunable.params = tunable.params,
-    serialize = serialize,
-    compute.oob.predictions = compute.oob.predictions)
+                              ci.group.size = ci.group.size,
+                              X.orig = X,
+                              Y.orig = Y,
+                              clusters = clusters,
+                              tunable.params = tunable.params,
+                              serialize = serialize,
+                              compute.oob.predictions = compute.oob.predictions)
   forest
 }
 
