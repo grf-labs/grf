@@ -44,10 +44,6 @@ validate_W <- function(W) {
                "currently support non-numeric or non-vector treatments."))
   }
 
-  if(length(unique(W))!=2) {
-    stop(paste("The treatment W must contain only two unique values."))
-  }
-
   if (any(is.na(W))){
     stop("The treatment vector W contains at least one NA.")
   }

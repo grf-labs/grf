@@ -36,11 +36,6 @@ test_that("character W throws error", {
   expect_error(validate_W(W))
 })
 
-test_that("W must contain only two unique values", {
-  W = c(0,1,2)
-  expect_error(validate_W(W))
-})
-
 test_that("X with NA throws error", {
   X = matrix(c(NA,2), nrow=1, ncol=2)
   expect_error(validate_X(X))
