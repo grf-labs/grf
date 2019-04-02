@@ -87,7 +87,10 @@ public:
       const Data* data) = 0;
 
  /**
-  * Computes out-of-bag error for a single sample.
+  * Computes a pair of estimates for (out-of-bag debiased error, monte-carlo error) for a single sample.
+  * The 'debiased error' is the expected error for a forest containing an infinite number of trees.
+  * The 'monte-carlo error' is the error inherent in the algorithm randomization, i.e. the a measure of how
+  * different predictions from two forests grown on the same data can be.
   *
   * sample: index of the observation
   * leaf_values: collected prediction values from all leaves across forests
