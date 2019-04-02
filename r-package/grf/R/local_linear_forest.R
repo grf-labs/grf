@@ -74,7 +74,7 @@ local_linear_forest <- function(X, Y,
                                 num.fit.reps = 100,
                                 num.optimize.reps = 1000) {
   validate_X(X)
-  validate_YX(Y, X)
+  validate_observations(Y, X)
   
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)

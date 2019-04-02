@@ -17,45 +17,23 @@ validate_X <- function(X) {
   }
 }
 
-validate_YX <- function(Y,X) {
-  validate_Y(Y)
-  if(length(Y) != nrow(X)) { stop("length(Y) does not equal nrow(X).") }
-}
-
-validate_Y <- function(Y) {
-  if(!is.vector(Y) || !is.numeric(Y)) {
-    stop(paste("The outcome Y must be numeric vector. GRF does not", 
-               "currently support non-numeric or non-vector outcomes."))
+validate_observations <- function(lv,X) {
+  if (!is.list(lv)){
+    lv <- list(lv)
   }
-
-  if (any(is.na(Y))){
-    stop("The outcome vector Y contains at least one NA.")
-  }
-}
-
-validate_WX <- function(W,X) {
-  validate_W(W)
-  if(length(W) != nrow(X)) { stop("length(W) does not equal nrow(X).") }
-}
-
-validate_W <- function(W) {
-  if(!is.vector(W) || !is.numeric(W)) {
-    stop(paste("The treatment W must be numeric vector. GRF does not", 
-               "currently support non-numeric or non-vector treatments."))
-  }
-
-  if (any(is.na(W))){
-    stop("The treatment vector W contains at least one NA.")
-  }
-}
-
-validate_ZX <- function(Z,X) {
-  validate_Z(Z)
-  if(length(Z) != nrow(X)) { stop("length(Z) does not equal nrow(X).") }
-}
-
-validate_Z <- function(Z) {
-  TRUE
+  
+  lapply(lv, function(V){
+    if(!is.vector(V) || !is.numeric(V)) {
+      stop(paste( "Observations (W,Y, or Z) must be numeric vectors. GRF does not", 
+                  "currently support non-numeric or non-vector observations."))
+    }
+    
+    if (any(is.na(V))){
+      stop("The vector of observations (W,Y, or Z) contains at least one NA.")
+    }
+    
+    if(length(V) != nrow(X)) { stop("length of observation (W,Y, or Z) does not equal nrow(X).") }
+  })
 }
 
 validate_mtry <- function(mtry, X) {

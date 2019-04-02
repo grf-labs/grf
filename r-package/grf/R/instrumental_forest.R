@@ -78,10 +78,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 clusters = NULL,
                                 samples_per_cluster = NULL) {
     validate_X(X)
-    validate_YX(Y, X)
-    validate_WX(W, X)
-    validate_ZX(Z, X)
-
+    validate_observations(list(Y,W,Z), X)
 
     mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
