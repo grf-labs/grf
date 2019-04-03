@@ -67,7 +67,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
       std::vector<double> nan(strategy->prediction_length(), NAN);
-      predictions.push_back(Prediction(nan, nan, nan));
+      predictions.emplace_back(Prediction(nan, nan, nan, nan));
       continue;
     }
 
@@ -79,11 +79,19 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
         ? strategy->compute_variance(average_value, prediction_values, forest.get_ci_group_size())
         : std::vector<double>();
 
-    std::vector<double> mse = estimate_error
-        ? strategy->compute_debiased_error(sample, average_value, prediction_values, train_data)
-        : std::vector<double>();
+    std::vector<double> mse;
+    std::vector<double> mce;
 
-    Prediction prediction(point_prediction, variance, mse);
+    if (estimate_error) {
+      std::vector<std::pair<double, double>> error = strategy->compute_error(
+              sample, average_value, prediction_values, data);
+
+      mse.push_back(error[0].first);
+      mce.push_back(error[0].second);
+    }
+
+    Prediction prediction(point_prediction, variance, mse, mce);
+
     validate_prediction(sample, prediction);
     predictions.push_back(prediction);
   }

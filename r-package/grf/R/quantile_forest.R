@@ -99,6 +99,7 @@ quantile_forest <- function(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.split
         ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
     
     forest[["X.orig"]] <- X
+    forest[["Y.orig"]] <- Y
     forest[["clusters"]] <- clusters
     
     class(forest) <- c("quantile_forest", "grf")

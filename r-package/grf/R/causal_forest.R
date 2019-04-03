@@ -1,5 +1,5 @@
 #' Causal forest
-#' 
+#'
 #' Trains a causal forest that can be used to estimate
 #' conditional average treatment effects tau(X). When
 #' the treatment assignment W is binary and unconfounded,
@@ -30,8 +30,8 @@
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
-#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
@@ -133,6 +133,7 @@ causal_forest <- function(X, Y, W,
                           num.fit.reps = 50,
                           num.optimize.reps = 1000) {
     validate_X(X)
+
     validate_observations(list(Y,W), X)
     
     num.threads <- validate_num_threads(num.threads)
@@ -140,7 +141,7 @@ causal_forest <- function(X, Y, W,
     clusters <- validate_clusters(clusters, X)
     samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-    
+
     reduced.form.weight <- 0
 
     if (is.null(Y.hat)) {
@@ -193,7 +194,7 @@ causal_forest <- function(X, Y, W,
         alpha = validate_alpha(alpha),
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
-    
+
     Y.centered = Y - Y.hat
     W.centered = W - W.hat
 
@@ -235,13 +236,14 @@ causal_forest <- function(X, Y, W,
         oob.pred <- predict(forest)
         forest[["predictions"]] <- oob.pred$predictions
         forest[["debiased.error"]] <- oob.pred$debiased.error
+        forest[["excess.error"]] <- oob.pred$excess.error
     }
 
     forest
 }
 
 #' Predict with a causal forest
-#' 
+#'
 #' Gets estimates of tau(x) using a trained causal forest.
 #'
 #' @param object The trained forest.
@@ -256,7 +258,20 @@ causal_forest <- function(X, Y, W,
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return Vector of predictions, along with (optional) variance estimates.
+#' @return Vector of predictions, along with estimates of the error and
+#'         (optionally) its variance estimates. Column 'predictions' contains estimates
+#'         of the conditional average treatent effect (CATE). The square-root of
+#'         column 'variance.estimates' is the standard error of CATE.
+#'         For out-of-bag estimates, we also output the following error measures.
+#'         First, column 'debiased.error' contains estimates of the 'R-loss' criterion,
+#          a quantity that is related to the true (infeasible) mean-squared error
+#'         (See Nie and Wager 2017 for a justification). Second, column 'excess.error'
+#'         contains jackknife estimates of the Monte-carlo error (Wager, Hastie, Efron 2014),
+#'         a measure of how unstable estimates are if we grow forests of the same size
+#'         on the same data set. The sum of 'debiased.error' and 'excess.error' is the raw error
+#'         attained by the current forest, and 'debiased.error' alone is an estimate of the error
+#'         attained by a forest with an infinite number of trees. We recommend that users grow
+#'         enough forests to make the 'excess.error' negligible.
 #'
 #' @examples \dontrun{
 #' # Train a causal forest.
@@ -286,7 +301,8 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
     # If possible, use pre-computed predictions.
     if (is.null(newdata) & !estimate.variance & !is.null(object$predictions)) {
         return(data.frame(predictions=object$predictions,
-                          debiased.error=object$debiased.error))
+                          debiased.error=object$debiased.error,
+                          excess.error=object$excess.error))
     }
 
     forest.short <- object[-which(names(object) == "X.orig")]
