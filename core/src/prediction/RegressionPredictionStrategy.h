@@ -40,7 +40,7 @@ public:
       const PredictionValues& leaf_values,
       size_t ci_group_size);
 
-  std::vector<double> compute_debiased_error(
+  std::vector<std::pair<double, double>> compute_error(
       size_t sample,
       const std::vector<double>& average,
       const PredictionValues& leaf_values,
