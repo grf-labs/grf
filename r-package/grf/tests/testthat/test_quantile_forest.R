@@ -54,6 +54,6 @@ test_that("quantile forest predictions for 90th percentile are strongly positive
     Y = runif(n) + 100 * (X[,i] > 0)
 
     qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry = p, min.node.size = 10, sample.fraction = 0.632)
-  expect_true(cor(predict(qrf, quantiles=.9), X[,i]) > .5)
+    expect_true(cor(predict(qrf, quantiles=.9), X[,i]) > .5)
     expect_true(cor(predict(qrf, X.new, quantiles=.9), X.new[,i])  > .5)
 })
