@@ -10,8 +10,8 @@
 #' and interpret it as a treatment effect given unconfoundedness.
 #'
 #' @param X The covariates used in the causal regression.
-#' @param Y The outcome.
-#' @param W The treatment assignment (may be binary or real).
+#' @param Y The outcome (must be a numeric vector with no NAs).
+#' @param W The treatment assignment (must be a binary or real numeric vector with no NAs).
 #' @param Y.hat Estimates of the expected responses E[Y | Xi], marginalizing
 #'              over treatment. If Y.hat = NULL, these are estimated using
 #'              a separate regression forest. See section 6.1.1 of the GRF paper for
@@ -133,9 +133,9 @@ causal_forest <- function(X, Y, W,
                           num.fit.reps = 50,
                           num.optimize.reps = 1000) {
     validate_X(X)
-    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-    if(length(W) != nrow(X)) { stop("W has incorrect length.") }
 
+    validate_observations(list(Y,W), X)
+    
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)

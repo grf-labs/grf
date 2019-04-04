@@ -86,7 +86,7 @@ regression_forest <- function(X, Y,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
     validate_X(X)
-    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+    validate_observations(Y, X)
 
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
