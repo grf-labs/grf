@@ -35,7 +35,6 @@ public:
   const std::vector<double>& get_error_estimates() const;
   const std::vector<double>& get_excess_error_estimates() const;
   const bool contains_variance_estimates() const;
-  const bool contains_excess_error_estimates() const;
   const bool contains_error_estimates() const;
   const size_t size() const;
 
