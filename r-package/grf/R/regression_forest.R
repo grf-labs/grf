@@ -126,6 +126,7 @@ regression_forest <- function(X, Y,
     outcome.index <- ncol(X) + 1
     sample.weight.index <- ncol(X) + 2;
     forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
+                               !is.null(sample.weights),
                                as.numeric(tunable.params["mtry"]),
                                num.trees,
                                num.threads,

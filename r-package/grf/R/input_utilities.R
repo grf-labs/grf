@@ -172,8 +172,8 @@ validate_sample_weights = function(sample.weights, X) {
         if(length(sample.weights) != nrow(X)) { 
             stop("sample.weights has incorrect length")
         }
-        if(any(sample.weights <= 0)) {
-            stop("sample.weights must be strictly positive")
+        if(any(sample.weights < 0)) {
+            stop("sample.weights must be nonnegative")
         }
     }
 }

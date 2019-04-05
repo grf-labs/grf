@@ -104,6 +104,7 @@ tune_regression_forest <- function(X, Y,
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
+                                     !is.null(sample.weights),
                                      as.numeric(params["mtry"]),
                                      num.fit.trees,
                                      num.threads,

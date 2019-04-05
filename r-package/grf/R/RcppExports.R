@@ -57,8 +57,8 @@ quantile_predict_oob <- function(forest_object, quantiles, outcome_index, train_
     .Call('_grf_quantile_predict_oob', PACKAGE = 'grf', forest_object, quantiles, outcome_index, train_matrix, sparse_train_matrix, num_threads)
 }
 
-regression_train <- function(train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
-    .Call('_grf_regression_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
+regression_train <- function(train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, use_sample_weights, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
+    .Call('_grf_regression_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, use_sample_weights, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
 }
 
 regression_predict <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, num_threads, estimate_variance) {
