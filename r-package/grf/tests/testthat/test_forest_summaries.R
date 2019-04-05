@@ -93,6 +93,7 @@ test_that("causal forest calibration works with clusters", {
   cf.clust$Y.hat = c(cf$Y.hat[1:(n/2)], rep(cf$Y.hat[n/2 + 1:(n/2)], 10))
   cf.clust$predictions = c(cf$predictions[1:(n/2)], rep(cf$predictions[n/2 + 1:(n/2)], 10))
   cf.clust$debiased.error = c(cf$debiased.error[1:(n/2)], rep(cf$debiased.error[n/2 + 1:(n/2)], 10))
+  cf.clust$excess.error = c(cf$excess.error[1:(n/2)], rep(cf$excess.error[n/2 + 1:(n/2)], 10))
   cf.clust$clusters = c(1:(n/2), rep(n/2 + 1:(n/2), 10))
   tc.clust = test_calibration(cf.clust)
   
