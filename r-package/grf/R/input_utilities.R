@@ -1,6 +1,6 @@
 validate_X <- function(X) {
   if(inherits(X, "matrix") & !is.numeric(X)) {
-    stop(paste("The feature matrix X must numeric. GRF does not", 
+    stop(paste("The feature matrix X must be numeric. GRF does not",
          "currently support non-numeric features. If factor variables",
          "are required, we recommend one of the following: Either",
          "represent the factor with a 1-vs-all expansion,",
@@ -11,6 +11,30 @@ validate_X <- function(X) {
   if (inherits(X, "Matrix") & !(inherits(X, "dgCMatrix"))) {
       stop("Currently only sparse data of class 'dgCMatrix' is supported.")
   }
+  
+  if (any(is.na(X))){
+    stop("The feature matrix X contains at least one NA.")
+  }
+}
+
+validate_observations <- function(lv,X) {
+  if (!is.list(lv)){
+    lv <- list(lv)
+  }
+  
+  lapply(lv, function(V) {
+    if (!is.vector(V) || (!is.numeric(V) && !is.logical(V))) {
+      stop(paste( "Observations (W, Y, or Z) must be numeric vectors. GRF does not",
+                  "currently support non-numeric or non-vector observations."))
+    }
+    
+    if (any(is.na(V))) {
+      stop("The vector of observations (W, Y, or Z) contains at least one NA.")
+    }
+    
+    if (length(V) != nrow(X)) {
+      stop("length of observation (W, Y, or Z) does not equal nrow(X).") }
+  })
 }
 
 validate_mtry <- function(mtry, X) {

@@ -30,7 +30,7 @@ test_that("changing honest.fraction behaves as expected", {
   n <- 16
   k <- 10
   X <- matrix(runif(n*k), nrow=n, ncol=k)
-  Y <- matrix(runif(n), nrow=n, ncol=1)
+  Y <- runif(n)
   forest_1 <- grf::regression_forest(X, Y, sample.fraction = sample_fraction_1, 
                                    honesty = TRUE, honesty.fraction = honesty_fraction_1)
   samples <- extract_samples(get_tree(forest_1, 1))
