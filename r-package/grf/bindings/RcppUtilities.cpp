@@ -134,7 +134,7 @@ Rcpp::NumericMatrix RcppUtilities::create_excess_error_matrix(const std::vector<
   }
 
   Prediction first_prediction = predictions.at(0);
-  if (!first_prediction.contains_excess_error_estimates()) {
+  if (!first_prediction.contains_error_estimates()) {
     return Rcpp::NumericMatrix(0);
   }
 
