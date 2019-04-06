@@ -23,9 +23,6 @@
 #include "commons/utility.h"
 #include "prediction/LLCausalPredictionStrategy.h"
 
-const size_t LLCausalPredictionStrategy::OUTCOME = 0;
-const size_t LLCausalPredictionStrategy::TREATMENT = 1;
-
 size_t LLCausalPredictionStrategy::prediction_length() {
   return 1;
 }
@@ -46,12 +43,17 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   size_t num_variables = linear_correction_variables.size();
   size_t num_total_predictors = original_data->get_num_cols() - 2;
   size_t num_nonzero_weights = weights_by_sampleID.size();
+  size_t num_lambdas = lambdas.size();
+
+  // Creating a vector of neighbor weights weights
+  // weights_by_sampleID = [(0, 0.04), (1, 0.20), (3, 0.01), (4, 0.05), ...]
+  // weights_vec = [0.04, 0., 0.20, 0., 0.01, 0.05, ....]
 
   std::vector<size_t> indices(num_nonzero_weights);
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
   {
     size_t i = 0;
-    for (auto& it : weights_by_sampleID) {
+    for (const auto& it : weights_by_sampleID) {
       size_t index = it.first;
       double weight = it.second;
       indices[i] = index;
@@ -60,27 +62,45 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     }
   }
 
+  // The matrix X consists of differences of linear correction variables from their target.
+  // Only observations with nonzero weights need to be filled.
+  // For example, if there are K+1 linear correction variables, and m nonzero weights,
+  //  then X will be:
+  //    1.   (X[0,0] - x[0])   ...   (X[0,K] - x[K]) W[1]
+  //    1.   (X[1,0] - x[0])   ...   (X[1,K] - x[K]) W[2]
+  //    1.   (X[3,0] - x[0])   ...   (X[3,K] - x[K]) W[3]   # Observation 2 is skipped due to zero weights
+
   Eigen::MatrixXd X (num_nonzero_weights, num_variables + 2);
   Eigen::MatrixXd Y (num_nonzero_weights, 1);
+  size_t treatment_index = num_variables + 1;
+
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
-    // X columns
+    // Index of next neighbor with nonzero weights
+    size_t index = indices[i];
+
+    // Intercept
+    X(i, 0) = 1;
+
+    // Regressors
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
       X(i,j+1) = test_data->get(sampleID, current_predictor)
-                 - original_data->get(indices[i],current_predictor);
+                 - original_data->get(index, current_predictor);
     }
-    // treatment W column
-    X(i, num_variables+1) = original_data->get(indices[i], num_total_predictors+1);
 
-    Y(i) = original_data->get(indices[i], num_total_predictors);
-    X(i, 0) = 1;
+    // Treatment (just copied)
+    //X(i, treatment_index) = original_data->get_treatment(index);
+    X(i, treatment_index) = original_data->get(index, treatment_index);
+
+    // Outcome (just copied)
+    Y(i) = original_data->get(index, num_total_predictors);
+    //Y(i) = original_data->get_outcome(index);
   }
 
   // find ridge regression predictions
   Eigen::MatrixXd M (num_variables+1, num_variables+1);
   M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
 
-  size_t num_lambdas = lambdas.size();
   std::vector<double> predictions(num_lambdas);
 
   for( size_t i = 0; i < num_lambdas; ++i){
@@ -88,18 +108,20 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     if (use_unweighted_penalty) {
       // standard ridge penalty
       double normalization = M.trace() / num_variables + 1;
-      for (size_t j = 1; j < num_variables+1; ++j){
+      for (size_t j = 1; j < treatment_index; ++j){
         M(j,j) += lambda * normalization;
       }
     } else {
       // covariance ridge penalty
-      for (size_t j = 1; j < num_variables+1; ++j){
+      for (size_t j = 1; j < treatment_index; ++j){
         M(j,j) += lambda * M(j,j); // note that the weights are already normalized
       }
     }
 
     Eigen::MatrixXd preds = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
-    predictions[i] = preds(num_variables + 1);
+
+    // We're only interested in the coefficient associated with the treatment variable
+    predictions[i] = preds(treatment_index);
   }
 
   return predictions;
