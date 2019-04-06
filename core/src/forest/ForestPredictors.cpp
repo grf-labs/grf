@@ -51,20 +51,20 @@ ForestPredictor ForestPredictors::regression_predictor(uint num_threads) {
 
 ForestPredictor ForestPredictors::ll_regression_predictor(uint num_threads,
                                                          std::vector<double> lambdas,
-                                                         bool weighted_penalty,
+                                                         bool weight_penalty,
                                                          std::vector<size_t> linear_correction_variables) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(
-      new LocalLinearPredictionStrategy(lambdas, weighted_penalty, linear_correction_variables));
+      new LocalLinearPredictionStrategy(lambdas, weight_penalty, linear_correction_variables));
   return ForestPredictor(num_threads, prediction_strategy);
 }
 
 ForestPredictor ForestPredictors::ll_causal_predictor(uint num_threads,
                                                           std::vector<double> lambdas,
-                                                          bool weighted_penalty,
+                                                          bool weight_penalty,
                                                           std::vector<size_t> linear_correction_variables) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(
-          new LLCausalPredictionStrategy(lambdas, weighted_penalty, linear_correction_variables));
+          new LLCausalPredictionStrategy(lambdas, weight_penalty, linear_correction_variables));
   return ForestPredictor(num_threads, prediction_strategy);
 }

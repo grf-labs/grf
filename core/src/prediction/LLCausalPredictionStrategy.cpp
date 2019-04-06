@@ -28,10 +28,10 @@ size_t LLCausalPredictionStrategy::prediction_length() {
 }
 
 LLCausalPredictionStrategy::LLCausalPredictionStrategy(std::vector<double> lambdas,
-                                                   bool use_unweighted_penalty,
+                                                   bool weight_penalty,
                                                    std::vector<size_t> linear_correction_variables):
         lambdas(lambdas),
-        use_unweighted_penalty(use_unweighted_penalty),
+        weight_penalty(weight_penalty),
         linear_correction_variables(linear_correction_variables){
 };
 
@@ -103,7 +103,7 @@ std::vector<double> LLCausalPredictionStrategy::predict(
 
   for( size_t i = 0; i < num_lambdas; ++i){
     double lambda = lambdas[i];
-    if (use_unweighted_penalty) {
+    if (!weight_penalty) {
       // standard ridge penalty
       double normalization = M.trace() / num_variables + 1;
       for (size_t j = 1; j < treatment_index; ++j){
