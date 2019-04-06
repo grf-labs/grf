@@ -89,12 +89,10 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     }
 
     // Treatment (just copied)
-    //X(i, treatment_index) = original_data->get_treatment(index);
-    X(i, treatment_index) = original_data->get(index, treatment_index);
+    X(i, treatment_index) = original_data->get_treatment(index);
 
     // Outcome (just copied)
-    Y(i) = original_data->get(index, num_total_predictors);
-    //Y(i) = original_data->get_outcome(index);
+    Y(i) = original_data->get_outcome(index);
   }
 
   // find ridge regression predictions

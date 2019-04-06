@@ -86,12 +86,19 @@ Rcpp::List ll_causal_predict(Rcpp::List forest,
                                  Rcpp::NumericMatrix training_data,
                                  Eigen::SparseMatrix<double> sparse_input_data,
                                  Eigen::SparseMatrix<double> sparse_training_data,
+                                 size_t outcome_index,
+                                 size_t treatment_index,
+                                 size_t instrument_index,
                                  std::vector<double> lambdas,
                                  bool use_unweighted_penalty,
                                  std::vector<size_t> linear_correction_variables,
                                  unsigned int num_threads) {
-  Data *test_data = RcppUtilities::convert_data(input_data, sparse_input_data);
-  Data *train_data = RcppUtilities::convert_data(training_data, sparse_training_data);
+  Data* test_data = RcppUtilities::convert_data(input_data, sparse_input_data);
+  Data* train_data = RcppUtilities::convert_data(training_data, sparse_training_data);
+
+  train_data->set_outcome_index(outcome_index - 1);
+  train_data->set_treatment_index(treatment_index - 1);
+  train_data->set_instrument_index(instrument_index - 1);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
@@ -109,11 +116,18 @@ Rcpp::List ll_causal_predict(Rcpp::List forest,
 Rcpp::List ll_causal_predict_oob(Rcpp::List forest,
                                      Rcpp::NumericMatrix input_data,
                                      Eigen::SparseMatrix<double> sparse_input_data,
+                                     size_t outcome_index,
+                                     size_t treatment_index,
+                                     size_t instrument_index,
                                      std::vector<double> lambdas,
                                      bool use_unweighted_penalty,
                                      std::vector<size_t> linear_correction_variables,
                                      unsigned int num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
+
+  data->set_outcome_index(outcome_index - 1);
+  data->set_treatment_index(treatment_index - 1);
+  data->set_instrument_index(instrument_index - 1);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 

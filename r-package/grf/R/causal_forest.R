@@ -332,8 +332,9 @@ predict.causal_forest <- function(object, newdata = NULL,
                         outcome.index, treatment.index, instrument.index,
                         data$default, data$sparse, num.threads, estimate.variance)
         } else {
-            ret <- ll_causal_predict(forest.short, data$default, train.data$default, data$sparse,
-                        train.data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
+            ret <- ll_causal_predict(forest.short, data$default, train.data$default, data$sparse, train.data$sparse,
+                        outcome.index, treatment.index, instrument.index,
+                        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
         }
     } else {
         if (!local.linear) {
@@ -341,8 +342,9 @@ predict.causal_forest <- function(object, newdata = NULL,
                       outcome.index, treatment.index, instrument.index,
                       num.threads, estimate.variance)
         } else {
-            ret <- ll_causal_predict_oob(forest.short, train.data$default, train.data$sparse, ll.lambda,
-                        ll.weight.penalty, linear.correction.variables, num.threads)
+            ret <- ll_causal_predict_oob(forest.short, train.data$default, train.data$sparse,
+                      outcome.index, treatment.index, instrument.index,
+                      ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
         }
     }
 
