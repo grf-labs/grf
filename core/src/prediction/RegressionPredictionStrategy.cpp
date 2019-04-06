@@ -104,8 +104,8 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
       weight  += data->get_weight(sample);
     }
 
-    // if total weight is zero, treat the leaf as empty
-    if (weight == 0) {
+    // if total weight is very small, treat the leaf as empty
+    if (std::abs(weight) <= 1e-16) {
       continue;
     }
 

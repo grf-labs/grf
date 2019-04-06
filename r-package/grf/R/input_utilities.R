@@ -213,7 +213,6 @@ create_data_matrices <- function(X, ..., sample.weights=NULL) {
   default.data <- matrix(nrow=0, ncol=0);    
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
 
-  if(is.null(sample.weights)) { sample.weights = c() }
   if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
     sparse.data <- cbind(X, ..., sample.weights)
   } else {

@@ -80,7 +80,7 @@ tune_regression_forest <- function(X, Y,
   ci.group.size <- 1
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
-  data <- create_data_matrices(X, Y, sample.weights) 
+  data <- create_data_matrices(X, Y, sample.weights=sample.weights)
   outcome.index <- ncol(X) + 1
   sample.weight.index <- ncol(X) + 2
   # if no sample weights are stored, sample.weight.index is ncol(data) + 1 and is ignored

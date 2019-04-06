@@ -180,10 +180,8 @@ test_that("sample weighting in the training of a regression forest improves its 
 
     forest = regression_forest(X, Y)
     forest.weighted = regression_forest(X, Y, sample.weights)
-
     weighted.mse.forest = sum(sample.weights * (forest$predictions - Y)^2)
     weighted.mse.forest.weighted = sum(sample.weights * (forest.weighted$predictions - Y)^2)
-
     expect_true(weighted.mse.forest.weighted < weighted.mse.forest)
 })
 
@@ -192,17 +190,14 @@ test_that("inverse propensity weighting in the training of a regression forest w
     p <- 2
     X <- matrix(rnorm(n * p), n, p)
     Y <- abs(X[,1]) + 0.1 * rnorm(n)
-    
     e = 1/(1+exp(-3*X[,1]))
     w = runif(n) <= e
     sample.weights <- 1/e[w] 
     
     forest = regression_forest(X[w,], Y[w])
     forest.weighted = regression_forest(X[w,], Y[w], sample.weights)
-
     ipw.mse.forest = sum((predict(forest,X) - Y)^2)
     ipw.mse.forest.weighted = sum((predict(forest.weighted,X) - Y)^2)
-
     expect_true(ipw.mse.forest.weighted < ipw.mse.forest)
 })
 

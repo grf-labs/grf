@@ -122,7 +122,7 @@ regression_forest <- function(X, Y,
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
 
-    data <- create_data_matrices(X, Y, sample.weights) 
+    data <- create_data_matrices(X, Y, sample.weights=sample.weights)
     outcome.index <- ncol(X) + 1
     sample.weight.index <- ncol(X) + 2;
     forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
