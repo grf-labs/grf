@@ -110,8 +110,10 @@ local_linear_forest <- function(X, Y,
 
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
+  sample.weight.index <- ncol(X) + 2
 
-  forest <- regression_train(data$default, data$sparse, outcome.index,
+  forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
+                             FALSE,
                              as.numeric(tunable.params["mtry"]),
                              num.trees,
                              num.threads,

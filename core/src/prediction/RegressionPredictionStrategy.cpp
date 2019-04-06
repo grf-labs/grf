@@ -97,14 +97,21 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
       continue;
     }
 
-    std::vector<double>& averages = values[i];
-    averages.resize(1);
-
-    double average = 0.0;
+    double sum = 0.0;
+    double weight = 0.0;
     for (auto& sample : leaf_node) {
-      average += data->get_outcome(sample);
+      sum += data->get_weight(sample) * data->get_outcome(sample);
+      weight  += data->get_weight(sample);
     }
-    averages[OUTCOME] = average / leaf_node.size();
+
+    // if total weight is very small, treat the leaf as empty
+    if (std::abs(weight) <= 1e-16) {
+      continue;
+    }
+
+    std::vector<double> &averages = values[i];
+    averages.resize(1);
+    averages[OUTCOME] = sum / weight;
   }
 
   return PredictionValues(values, num_leaves, 1);

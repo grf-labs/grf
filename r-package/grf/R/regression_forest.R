@@ -67,6 +67,7 @@
 #'
 #' @export
 regression_forest <- function(X, Y,
+                              sample.weights = NULL,
                               sample.fraction = 0.5,
                               mtry = NULL,
                               num.trees = 2000,
@@ -86,6 +87,7 @@ regression_forest <- function(X, Y,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000) {
     validate_X(X)
+    validate_sample_weights(sample.weights, X)
     validate_observations(Y, X)
 
     num.threads <- validate_num_threads(num.threads)
@@ -95,7 +97,7 @@ regression_forest <- function(X, Y,
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
     if (tune.parameters) {
-      tuning.output <- tune_regression_forest(X, Y,
+      tuning.output <- tune_regression_forest(X, Y, sample.weights = sample.weights,
                                               num.fit.trees = num.fit.trees,
                                               num.fit.reps = num.fit.reps,
                                               num.optimize.reps = num.optimize.reps,
@@ -120,10 +122,11 @@ regression_forest <- function(X, Y,
         imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
     }
 
-    data <- create_data_matrices(X, Y)
+    data <- create_data_matrices(X, Y, sample.weights=sample.weights)
     outcome.index <- ncol(X) + 1
-
-    forest <- regression_train(data$default, data$sparse, outcome.index,
+    sample.weight.index <- ncol(X) + 2;
+    forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
+                               !is.null(sample.weights),
                                as.numeric(tunable.params["mtry"]),
                                num.trees,
                                num.threads,
@@ -141,6 +144,7 @@ regression_forest <- function(X, Y,
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
+    forest[["sample.weights"]] <- sample.weights
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
 
