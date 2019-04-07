@@ -78,11 +78,8 @@ instrumental_forest <- function(X, Y, W, Z,
                                 clusters = NULL,
                                 samples_per_cluster = NULL) {
     validate_X(X)
-    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-    if(length(W) != nrow(X)) { stop("W has incorrect length.") }
-    if(length(Z) != nrow(X)) { stop("Z has incorrect length.") }
-    
-    
+    validate_observations(list(Y,W,Z), X)
+
     mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
     min.node.size <- validate_min_node_size(min.node.size)

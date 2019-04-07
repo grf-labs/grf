@@ -54,7 +54,7 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
     clusters = NULL, samples_per_cluster = NULL) {
 
     validate_X(X)
-    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+    validate_observations(Y, X)
     
     mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)

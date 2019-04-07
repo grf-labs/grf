@@ -82,19 +82,18 @@ TEST_CASE("debiased errors are smaller than raw errors", "[regression, predictio
   RegressionPredictionStrategy prediction_strategy;
 
   for (size_t sample=0; sample < 4; ++sample) {
-    double debiased_error = prediction_strategy.compute_debiased_error(
+    auto error = prediction_strategy.compute_error(
           sample,
           average,
           PredictionValues(leaf_values, 4, 1),
           &data).at(0);
+    double debiased_error = error.first;
 
     // Raw error
     double outcome = data.get_outcome(sample);
-    double error = average.at(0) - outcome;
-    double mse = error * error;
+    double raw_error = average.at(0) - outcome;
+    double mse = raw_error * raw_error;
 
     REQUIRE(debiased_error < mse);
   }
 }
-
-
