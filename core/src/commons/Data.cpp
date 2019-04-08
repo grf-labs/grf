@@ -236,6 +236,7 @@ double Data::get_instrument(size_t row) const {
 
 size_t Data::get_outcome_index() const {
   return outcome_index.value();
+}
 
 double Data::get_weight(size_t row) const {
     if(weight_index.has_value()) {
