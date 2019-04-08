@@ -55,6 +55,7 @@
 #'
 #' @export
 tune_regression_forest <- function(X, Y,
+                                   sample.weights = NULL,
                                    num.fit.trees = 10,
                                    num.fit.reps = 100,
                                    num.optimize.reps = 1000,
@@ -70,8 +71,8 @@ tune_regression_forest <- function(X, Y,
                                    clusters = NULL,
                                    samples_per_cluster = NULL) {
   validate_X(X)
+  validate_sample_weights(sample.weights, X)
   if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-  
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
@@ -79,9 +80,11 @@ tune_regression_forest <- function(X, Y,
   ci.group.size <- 1
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
-  data <- create_data_matrices(X, Y)
+  data <- create_data_matrices(X, Y, sample.weights=sample.weights)
   outcome.index <- ncol(X) + 1
-  
+  sample.weight.index <- ncol(X) + 2
+  # if no sample weights are stored, sample.weight.index is ncol(data) + 1 and is ignored
+
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
   all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
@@ -100,7 +103,8 @@ tune_regression_forest <- function(X, Y,
   
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
-    small.forest <- regression_train(data$default, data$sparse, outcome.index,
+    small.forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
+                                     !is.null(sample.weights),
                                      as.numeric(params["mtry"]),
                                      num.fit.trees,
                                      num.threads,

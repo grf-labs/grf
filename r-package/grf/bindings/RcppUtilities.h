@@ -20,6 +20,7 @@ public:
   static Rcpp::NumericMatrix create_prediction_matrix(const std::vector<Prediction>& predictions);
   static Rcpp::NumericMatrix create_variance_matrix(const std::vector<Prediction>& predictions);
   static Rcpp::NumericMatrix create_error_matrix(const std::vector<Prediction>& predictions);
+  static Rcpp::NumericMatrix create_excess_error_matrix(const std::vector<Prediction>& predictions);
 
 };
 

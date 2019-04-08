@@ -70,7 +70,7 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
 
   // This is the amount by which var_between is inflated due to using small groups
   double group_noise = (var_total - var_between) / (ci_group_size - 1);
-  
+
   // A simple variance correction, would be to use:
   // var_debiased = var_between - group_noise.
   // However, this may be biased in small samples; we do an objective
@@ -97,20 +97,27 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
       continue;
     }
 
-    std::vector<double>& averages = values[i];
-    averages.resize(1);
-
-    double average = 0.0;
+    double sum = 0.0;
+    double weight = 0.0;
     for (auto& sample : leaf_node) {
-      average += data->get_outcome(sample);
+      sum += data->get_weight(sample) * data->get_outcome(sample);
+      weight  += data->get_weight(sample);
     }
-    averages[OUTCOME] = average / leaf_node.size();
+
+    // if total weight is very small, treat the leaf as empty
+    if (std::abs(weight) <= 1e-16) {
+      continue;
+    }
+
+    std::vector<double> &averages = values[i];
+    averages.resize(1);
+    averages[OUTCOME] = sum / weight;
   }
 
   return PredictionValues(values, num_leaves, 1);
 }
 
-std::vector<double> RegressionPredictionStrategy::compute_debiased_error(
+std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_error(
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
@@ -133,9 +140,14 @@ std::vector<double> RegressionPredictionStrategy::compute_debiased_error(
   }
 
   if (num_trees <= 1) {
-    return { NAN };
+    return { std::make_pair<double, double>(NAN, NAN) };
   }
 
   bias /= num_trees * (num_trees - 1);
-  return { mse - bias };
+
+  double debiased_error = mse - bias;
+
+  auto output = std::pair<double, double>(debiased_error, bias);
+  return { output };
 }
+

@@ -74,8 +74,8 @@ ll_regression_forest <- function(X, Y,
                                 num.fit.reps = 100,
                                 num.optimize.reps = 1000) {
   validate_X(X)
-  if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-
+  validate_observations(Y, X)
+  
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
@@ -110,8 +110,10 @@ ll_regression_forest <- function(X, Y,
 
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
+  sample.weight.index <- ncol(X) + 2
 
-  forest <- regression_train(data$default, data$sparse, outcome.index,
+  forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
+                             FALSE,
                              as.numeric(tunable.params["mtry"]),
                              num.trees,
                              num.threads,
