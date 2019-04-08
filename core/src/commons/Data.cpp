@@ -234,17 +234,15 @@ double Data::get_instrument(size_t row) const {
   return get(row, instrument_index.value());
 }
 
-<<<<<<< HEAD
 size_t Data::get_outcome_index() const {
   return outcome_index.value();
-=======
+
 double Data::get_weight(size_t row) const {
     if(weight_index.has_value()) {
         return get(row, weight_index.value());
     } else {
         return 1.0;
     }
->>>>>>> b3a41a8b469d9b2ebc341242fccdc3d7355d828e
 }
 
 const std::set<size_t>& Data::get_disallowed_split_variables() const {
