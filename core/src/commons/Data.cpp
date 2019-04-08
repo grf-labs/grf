@@ -239,11 +239,11 @@ size_t Data::get_outcome_index() const {
 }
 
 double Data::get_weight(size_t row) const {
-    if(weight_index.has_value()) {
-        return get(row, weight_index.value());
-    } else {
-        return 1.0;
-    }
+  if(weight_index.has_value()) {
+    return get(row, weight_index.value());
+  } else {
+    return 1.0;
+  }
 }
 
 const std::set<size_t>& Data::get_disallowed_split_variables() const {

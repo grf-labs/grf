@@ -78,13 +78,15 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   //    1.   (X[1,0] - x[0])   ...   (X[1,K] - x[K]) W[2]
   //    1.   (X[3,0] - x[0])   ...   (X[3,K] - x[K]) W[3]   # Observation 2 is skipped due to zero weights
 
-  Eigen::MatrixXd X (num_nonzero_weights, num_variables + 2);
+  size_t dim_X = 2 * num_variables + 2;
+  Eigen::MatrixXd X (num_nonzero_weights, dim_X);
   Eigen::MatrixXd Y (num_nonzero_weights, 1);
   size_t treatment_index = num_variables + 1;
 
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
     // Index of next neighbor with nonzero weights
     size_t index = indices[i];
+    double treatment = original_data->get_treatment(index);
 
     // Intercept
     X(i, 0) = 1;
@@ -92,21 +94,24 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     // Regressors
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
+      // X - x0 column
       X(i,j+1) = test_data->get(sampleID, current_predictor)
                  - original_data->get(index, current_predictor);
+      // (X - x0)*W column
+      X(i, treatment_index + j + 1) = X(i, j+1) * treatment;
     }
 
     // Treatment (just copied)
-    X(i, treatment_index) = original_data->get_treatment(index);
+    X(i, treatment_index) = treatment;
 
     // Outcome (just copied)
     Y(i) = original_data->get_outcome(index);
   }
 
   // find ridge regression predictions
-  Eigen::MatrixXd M_unpenalized (num_variables+1, num_variables+1);
-  M_unpenalized.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
-  double normalization = M_unpenalized.trace() / num_variables + 1;
+  Eigen::MatrixXd M_unpenalized (dim_X, dim_X);
+  M_unpenalized.noalias() = X.transpose() * weights_vec.asDiagonal() * X;
+  double normalization = M_unpenalized.trace() / dim_X;
 
   std::vector<double> predictions(num_lambdas);
   Eigen::MatrixXd M;
@@ -119,10 +124,16 @@ std::vector<double> LLCausalPredictionStrategy::predict(
       for (size_t j = 1; j < treatment_index; ++j){
         M(j,j) += lambda * normalization;
       }
+      for(size_t j = treatment_index + 1; j < dim_X; ++j){
+        M(j,j) += lambda * normalization;
+      }
     } else {
       // covariance ridge penalty
       for (size_t j = 1; j < treatment_index; ++j){
         M(j,j) += lambda * M(j,j); // note that the weights are already normalized
+      }
+      for(size_t j = treatment_index + 1; j < dim_X; ++j){
+        M(j,j) += lambda * M(j,j);
       }
     }
 

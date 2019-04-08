@@ -110,15 +110,6 @@ test_that("local linear causal forests work in a simple case", {
    TAU = 2*X[,1] + X[,2]
    Y = W * TAU + rnorm(n)
 
-   print("checking output")
-   print(is.numeric(X))
-   print(is.numeric(Y))
-   print(is.numeric(W))
-
-   print(is.vector(X))
-   print(is.vector(Y))
-   print(is.vector(W))
-
    forest = causal_forest(X, Y, W, num.trees = 400)
    preds.ll = predict(forest, X, linear.correction.variables = 1:2, ll.lambda = 0.01)
    error.ll = mean((preds.ll$predictions - TAU)^2)
@@ -126,10 +117,7 @@ test_that("local linear causal forests work in a simple case", {
    preds.rf = predict(forest, X)
    error.rf = mean((preds.rf$predictions - TAU)^2)
 
-   print(error.ll)
-   print(error.rf)
-
-   expect_true(error.ll < error.rf)
+   expect_true(error.ll < 0.5 * error.rf)
 })
 
 test_that("local linear causal forests with large lambda are equivalent to causal forests", {
@@ -144,5 +132,5 @@ test_that("local linear causal forests with large lambda are equivalent to causa
    preds.ll = predict(forest, X, linear.correction.variables = 1:ncol(X), ll.lambda = 1e5)$predictions
    preds.cf = predict(forest)$predictions
 
-   #expect_true(mean((preds.ll - preds.cf)^2) < 0.01)
+   expect_true(mean((preds.ll - preds.cf)^2) < 0.02)
 })
