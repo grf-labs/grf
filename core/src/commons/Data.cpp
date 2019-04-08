@@ -228,6 +228,10 @@ double Data::get_instrument(size_t row) const {
   return get(row, instrument_index.value());
 }
 
+size_t Data::get_outcome_index() const {
+  return outcome_index.value();
+}
+
 const std::set<size_t>& Data::get_disallowed_split_variables() const {
   return disallowed_split_variables;
 }

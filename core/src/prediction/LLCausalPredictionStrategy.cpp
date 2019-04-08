@@ -40,14 +40,22 @@ std::vector<double> LLCausalPredictionStrategy::predict(
         const std::unordered_map<size_t, double>& weights_by_sampleID,
         const Data *original_data,
         const Data *test_data) {
+
+  // Number of predictor variables to use in local linear regression step
   size_t num_variables = linear_correction_variables.size();
-  size_t num_total_predictors = original_data->get_num_cols() - 2;
+
+  // Number of total predictor variables given to the model
+  size_t num_total_predictors = original_data->get_outcome_index();
+
   size_t num_nonzero_weights = weights_by_sampleID.size();
   size_t num_lambdas = lambdas.size();
 
   // Creating a vector of neighbor weights weights
+  // Weights by sample ID contains pairs [sample ID, weight for test point]
+  // Weights vec is a vector of weights indexed by their corresponding sample ID
+  // For example:
   // weights_by_sampleID = [(0, 0.04), (1, 0.20), (3, 0.01), (4, 0.05), ...]
-  // weights_vec = [0.04, 0., 0.20, 0., 0.01, 0.05, ....]
+  // weights_vec = [0.04, 0.20, 0.0, 0.01, 0.05, ....]
 
   std::vector<size_t> indices(num_nonzero_weights);
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
@@ -96,16 +104,18 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   }
 
   // find ridge regression predictions
-  Eigen::MatrixXd M (num_variables+1, num_variables+1);
-  M.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
+  Eigen::MatrixXd M_unpenalized (num_variables+1, num_variables+1);
+  M_unpenalized.noalias() = X.transpose()*weights_vec.asDiagonal()*X;
+  double normalization = M_unpenalized.trace() / num_variables + 1;
 
   std::vector<double> predictions(num_lambdas);
+  Eigen::MatrixXd M;
 
   for( size_t i = 0; i < num_lambdas; ++i){
     double lambda = lambdas[i];
+    M = M_unpenalized;
     if (!weight_penalty) {
       // standard ridge penalty
-      double normalization = M.trace() / num_variables + 1;
       for (size_t j = 1; j < treatment_index; ++j){
         M(j,j) += lambda * normalization;
       }
@@ -116,10 +126,10 @@ std::vector<double> LLCausalPredictionStrategy::predict(
       }
     }
 
-    Eigen::MatrixXd preds = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
+    Eigen::MatrixXd local_coefficients = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
 
     // We're only interested in the coefficient associated with the treatment variable
-    predictions[i] = preds(treatment_index);
+    predictions[i] = local_coefficients(treatment_index);
   }
 
   return predictions;
