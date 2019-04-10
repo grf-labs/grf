@@ -58,8 +58,8 @@ public:
   double get_outcome(size_t row) const;
   double get_treatment(size_t row) const;
   double get_instrument(size_t row) const;
-  double get_weight(size_t row) const;
 
+  double get_weight(size_t row) const;
   const std::set<size_t>& get_disallowed_split_variables() const;
 
 protected:

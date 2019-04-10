@@ -112,7 +112,7 @@ Rcpp::List regression_predict_oob(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List local_linear_predict(Rcpp::List forest,
+Rcpp::List ll_regression_predict(Rcpp::List forest,
                                 Rcpp::NumericMatrix train_matrix,
                                 Eigen::SparseMatrix<double> sparse_train_matrix,
                                 size_t outcome_index,
@@ -129,7 +129,7 @@ Rcpp::List local_linear_predict(Rcpp::List forest,
   
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads,
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(num_threads,
       lambdas, weight_penalty, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict(deserialized_forest, train_data, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
@@ -140,7 +140,7 @@ Rcpp::List local_linear_predict(Rcpp::List forest,
 }
 
 // [[Rcpp::export]]
-Rcpp::List local_linear_predict_oob(Rcpp::List forest,
+Rcpp::List ll_regression_predict_oob(Rcpp::List forest,
                                     Rcpp::NumericMatrix train_matrix,
                                     Eigen::SparseMatrix<double> sparse_train_matrix,
                                     size_t outcome_index,
@@ -154,7 +154,7 @@ Rcpp::List local_linear_predict_oob(Rcpp::List forest,
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads,
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(num_threads,
       lambdas, weight_penalty, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);

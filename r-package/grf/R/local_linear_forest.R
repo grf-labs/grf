@@ -50,11 +50,11 @@
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
 #' Y = X[,1] * rnorm(n)
-#' forest = local_linear_forest(X, Y)
+#' forest = ll_regression_forest(X, Y)
 #' }
 #'
 #' @export
-local_linear_forest <- function(X, Y,
+ll_regression_forest <- function(X, Y,
                                 sample.fraction = 0.5,
                                 mtry = NULL,
                                 num.trees = 2000,
@@ -142,7 +142,7 @@ local_linear_forest <- function(X, Y,
     forest[["debiased.error"]] <- oob.pred$debiased.error
   }
 
-  class(forest) = c("local_linear_forest", "grf")
+  class(forest) = c("ll_regression_forest", "grf")
   forest
 }
 
@@ -177,7 +177,7 @@ local_linear_forest <- function(X, Y,
 #' n = 50; p = 5
 #' X = matrix(rnorm(n*p), n, p)
 #' Y = X[,1] * rnorm(n)
-#' forest = local_linear_forest(X, Y)
+#' forest = ll_regression_forest(X, Y)
 #'
 #' # Predict using the forest.
 #' X.test = matrix(0, 101, p)
@@ -188,9 +188,9 @@ local_linear_forest <- function(X, Y,
 #' predictions.oob = predict(forest)
 #' }
 #'
-#' @method predict local_linear_forest
+#' @method predict ll_regression_forest
 #' @export
-predict.local_linear_forest <- function(object, newdata = NULL,
+predict.ll_regression_forest <- function(object, newdata = NULL,
                                         linear.correction.variables = NULL,
                                         ll.lambda = NULL,
                                         ll.weight.penalty = FALSE,
@@ -207,7 +207,7 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
 
   if (is.null(ll.lambda)) {
-    ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
+    ll.regularization.path = tune_ll_regression_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
     ll.lambda = ll.regularization.path$lambda.min
   } else {
     ll.lambda = validate_ll_lambda(ll.lambda)
@@ -224,11 +224,11 @@ predict.local_linear_forest <- function(object, newdata = NULL,
   if (!is.null(newdata) ) {
     validate_newdata(newdata, X)
     data = create_data_matrices(newdata)
-    ret = local_linear_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+    ret = ll_regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
         data$default, data$sparse,
         ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
   } else {
-     ret = local_linear_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+     ret = ll_regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
         ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
   }
 

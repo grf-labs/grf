@@ -21,6 +21,22 @@ merge <- function(forest_objects) {
     .Call('_grf_merge', PACKAGE = 'grf', forest_objects)
 }
 
+causal_predict <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, test_matrix, sparse_test_matrix, num_threads, estimate_variance) {
+    .Call('_grf_causal_predict', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, test_matrix, sparse_test_matrix, num_threads, estimate_variance)
+}
+
+causal_predict_oob <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, num_threads, estimate_variance) {
+    .Call('_grf_causal_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, num_threads, estimate_variance)
+}
+
+ll_causal_predict <- function(forest, input_data, training_data, sparse_input_data, sparse_training_data, outcome_index, treatment_index, instrument_index, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads) {
+    .Call('_grf_ll_causal_predict', PACKAGE = 'grf', forest, input_data, training_data, sparse_input_data, sparse_training_data, outcome_index, treatment_index, instrument_index, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads)
+}
+
+ll_causal_predict_oob <- function(forest, input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads) {
+    .Call('_grf_ll_causal_predict_oob', PACKAGE = 'grf', forest, input_data, sparse_input_data, outcome_index, treatment_index, instrument_index, lambdas, use_unweighted_penalty, linear_correction_variables, num_threads)
+}
+
 custom_train <- function(train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster) {
     .Call('_grf_custom_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, num_threads, min_node_size, sample_fraction, seed, honesty, honesty_fraction, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster)
 }
@@ -69,11 +85,11 @@ regression_predict_oob <- function(forest_object, train_matrix, sparse_train_mat
     .Call('_grf_regression_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, outcome_index, num_threads, estimate_variance)
 }
 
-local_linear_predict <- function(forest, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
-    .Call('_grf_local_linear_predict', PACKAGE = 'grf', forest, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance)
+ll_regression_predict <- function(forest, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
+    .Call('_grf_ll_regression_predict', PACKAGE = 'grf', forest, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance)
 }
 
-local_linear_predict_oob <- function(forest, train_matrix, sparse_train_matrix, outcome_index, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
-    .Call('_grf_local_linear_predict_oob', PACKAGE = 'grf', forest, train_matrix, sparse_train_matrix, outcome_index, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance)
+ll_regression_predict_oob <- function(forest, train_matrix, sparse_train_matrix, outcome_index, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
+    .Call('_grf_ll_regression_predict_oob', PACKAGE = 'grf', forest, train_matrix, sparse_train_matrix, outcome_index, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance)
 }
 

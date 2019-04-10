@@ -62,9 +62,9 @@ test_that("local linear forest tuning returns lambda and decreases prediction er
     truth = apply(X, FUN = mu, MARGIN = 1)
     Y = truth + sigma*rnorm(n)
 
-    forest = local_linear_forest(X, Y)
+    forest = ll_regression_forest(X, Y)
 
-    lambda = tune_local_linear_forest(forest)$lambda.min
+    lambda = tune_ll_regression_forest(forest)$lambda.min
     expect_true(is.numeric(lambda))
     expect_true(length(lambda) == 1)
 
@@ -91,7 +91,7 @@ test_that("default local linear forest predict and regression forest predict wit
     forest = regression_forest(X, Y)
     preds = predict(forest, linear.correction.variables = 1:5, lambda = 0.1)$predictions
 
-    ll.forest = local_linear_forest(X, Y)
+    ll.forest = ll_regression_forest(X, Y)
     ll.preds = predict(ll.forest, ll.lambda = 0.1)$predictions
 
     average.difference = mean((ll.preds - preds)**2)
@@ -110,7 +110,7 @@ test_that("local linear predict returns local linear predictions even without tu
     truth = apply(X, FUN = mu, MARGIN = 1)
     Y = truth + sigma*rnorm(n)
 
-    forest = local_linear_forest(X, Y, num.trees = 50)
+    forest = ll_regression_forest(X, Y, num.trees = 50)
     preds = predict(forest)
 
     ll.indicator = !is.null(preds$ll.lambda)
@@ -128,7 +128,7 @@ test_that("local linear confidence intervals have reasonable coverage", {
     truth = mu(X[,1])
     Y = truth + sigma*rnorm(n)
 
-    forest = local_linear_forest(X, Y, num.trees = 500, ci.group.size = 5)
+    forest = ll_regression_forest(X, Y, num.trees = 500, ci.group.size = 5)
     preds = predict(forest, linear.correction.variables = 1, ll.lambda = 1, estimate.variance = TRUE)
 
     expect_true(all(preds$variance.estimates > 0))
@@ -166,19 +166,16 @@ test_that("local linear confidence intervals match regression forest with large 
 test_that("local linear predictions are correct without noise", {
   n = 80
   p = 2
-  
+
   X = matrix(runif(n*p,-1,1), nrow = n)
   mu = rowSums(X)
   Y = mu
-  
+
   forest = regression_forest(X, Y, num.trees = 80, ci.group.size = 2)
-  
+
   preds.rf = predict(forest)$predictions
   preds.llf = predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
-  
-  mean((preds.rf - mu)^2)
-  mean((preds.llf - mu)^2)
-  
+
   expect_true(mean((preds.llf - mu)^2) < 10^-10)
   expect_true(mean((preds.rf - mu)^2) > 10^-2)
 })
@@ -186,13 +183,13 @@ test_that("local linear predictions are correct without noise", {
 test_that("prediction with and without CIs are the same", {
   n = 200
   p = 4
-  
+
   X = matrix(runif(n*p,-1,1), nrow = n)
   mu = 0.9 * exp(X[,1])
   Y = mu + rnorm(n)
-  
-  forest = local_linear_forest(X, Y, num.trees = 800, ci.group.size = 2)
-  
+
+  forest = ll_regression_forest(X, Y, num.trees = 800, ci.group.size = 2)
+
   preds.rf = predict(forest, ll.lambda = 1, estimate.variance = FALSE)$predictions
   preds.rf2 = predict(forest, ll.lambda = 1, estimate.variance = TRUE)$predictions
   expect_true(max(abs(preds.rf - preds.rf2)) < 10^-10)
@@ -206,9 +203,9 @@ test_that("output of tune local linear forest is consistent with prediction outp
   mu = 0.9 * exp(X[,1])
   Y = mu + rnorm(n)
 
-  forest = local_linear_forest(X, Y, num.trees = 400)
-  
-  tune.out = tune_local_linear_forest(forest)
+  forest = ll_regression_forest(X, Y, num.trees = 400)
+
+  tune.out = tune_ll_regression_forest(forest)
 
   ll.min = tune.out$lambdas[1]
   pred.ll.min = predict(forest, ll.lambda = ll.min)$predictions

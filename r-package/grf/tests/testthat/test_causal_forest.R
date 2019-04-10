@@ -101,3 +101,36 @@ test_that("causal forests behave reasonably with small sample size", {
     tau.hat = predict(forest, X.test)$predictions
     expect_true(sqrt(mean((tau.hat - tau.test)^2)) / 100 < 1/3)
 })
+
+test_that("local linear causal forests work in a simple case", {
+   n = 1000
+   p = 6
+   X = matrix(rnorm(n*p), n, p)
+   W = rbinom(n, 1, 0.5)
+   TAU = 2*X[,1] + X[,2]
+   Y = W * TAU + rnorm(n)
+
+   forest = causal_forest(X, Y, W, num.trees = 400)
+   preds.ll = predict(forest, X, linear.correction.variables = 1:2, ll.lambda = 0.01)
+   error.ll = mean((preds.ll$predictions - TAU)^2)
+
+   preds.rf = predict(forest, X)
+   error.rf = mean((preds.rf$predictions - TAU)^2)
+
+   expect_true(error.ll < 0.5 * error.rf)
+})
+
+test_that("local linear causal forests with large lambda are equivalent to causal forests", {
+   n = 1000
+   p = 6
+   X = matrix(rnorm(n*p), n, p)
+   W = rbinom(n, 1, 0.5)
+   TAU = 2*X[,1] + X[,2]
+   Y = W * TAU + rnorm(n)
+
+   forest = causal_forest(X, Y, W, num.trees = 400)
+   preds.ll = predict(forest, X, linear.correction.variables = 1:ncol(X), ll.lambda = 1e5)$predictions
+   preds.cf = predict(forest)$predictions
+
+   expect_true(mean((preds.ll - preds.cf)^2) < 0.02)
+})

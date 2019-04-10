@@ -94,8 +94,8 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
       }
     }
 
-    Eigen::MatrixXd preds = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
-    predictions[i] =  preds(0);
+    Eigen::MatrixXd local_coefficients = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
+    predictions[i] =  local_coefficients(0);
   }
 
   return predictions;

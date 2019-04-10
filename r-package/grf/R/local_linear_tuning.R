@@ -18,14 +18,14 @@
 #' X = matrix(rnorm(n*p), n, p)
 #' Y = X[,1] * rnorm(n)
 #' forest = regression_forest(X,Y)
-#' tuned.lambda = tune_local_linear_forest(forest)
+#' tuned.lambda = tune_ll_regression_forest(forest)
 #'
 #' # Use this parameter to predict from a local linear forest.
 #' predictions = predict(forest, linear.correction.variables = 1:p, lambda = tuned.lambda)
 #' }
 #'
 #' @export
-tune_local_linear_forest <- function(forest,
+tune_ll_regression_forest <- function(forest,
                                      linear.correction.variables = NULL,
                                      ll.weight.penalty = FALSE,
                                      num.threads = NULL,
@@ -47,7 +47,7 @@ tune_local_linear_forest <- function(forest,
 
   # Enforce no variance estimates in tuning
   estimate.variance = FALSE
-  prediction.object = local_linear_predict_oob(forest.short, data$default, data$sparse, outcome.index,
+  prediction.object = ll_regression_predict_oob(forest.short, data$default, data$sparse, outcome.index,
       lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
 
   prediction.object = prediction.object$predictions

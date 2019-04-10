@@ -245,7 +245,7 @@ predict.regression_forest <- function(object, newdata = NULL,
         linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
 
         if (is.null(ll.lambda)) {
-            ll.regularization.path = tune_local_linear_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
+            ll.regularization.path = tune_ll_regression_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
             ll.lambda = ll.regularization.path$lambda.min
         } else {
             ll.lambda = validate_ll_lambda(ll.lambda)
@@ -262,7 +262,7 @@ predict.regression_forest <- function(object, newdata = NULL,
             ret = regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
                 data$default, data$sparse, num.threads, estimate.variance)
         } else {
-            ret = local_linear_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
+            ret = ll_regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
                 data$default, data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
                 num.threads, estimate.variance)
         }
@@ -272,7 +272,7 @@ predict.regression_forest <- function(object, newdata = NULL,
             ret = regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
                 num.threads, estimate.variance)
         } else {
-            ret = local_linear_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
+            ret = ll_regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
                 ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
         }
     }
