@@ -234,10 +234,6 @@ double Data::get_instrument(size_t row) const {
   return get(row, instrument_index.value());
 }
 
-size_t Data::get_outcome_index() const {
-  return outcome_index.value();
-}
-
 double Data::get_weight(size_t row) const {
   if(weight_index.has_value()) {
     return get(row, weight_index.value());

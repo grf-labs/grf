@@ -44,9 +44,6 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   // Number of predictor variables to use in local linear regression step
   size_t num_variables = linear_correction_variables.size();
 
-  // Number of total predictor variables given to the model
-  size_t num_total_predictors = original_data->get_outcome_index();
-
   size_t num_nonzero_weights = weights_by_sampleID.size();
   size_t num_lambdas = lambdas.size();
 
