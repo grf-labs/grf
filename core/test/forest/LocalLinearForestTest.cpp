@@ -47,7 +47,7 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local linear], [
   ForestTrainer trainer = ForestTrainers::regression_trainer();
   Forest forest = trainer.train(data, options);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(
       num_threads, lambda, false, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
 
@@ -74,7 +74,7 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
   uint num_threads = 1;
   size_t ci_group_size = 1;
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(num_threads,
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(num_threads,
       lambda, false, linear_correction_variables);
 
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
@@ -87,7 +87,7 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
   }
 
   Forest shifted_forest = trainer.train(data, options);
-  ForestPredictor shifted_predictor = ForestPredictors::local_linear_predictor(num_threads,
+  ForestPredictor shifted_predictor = ForestPredictors::ll_regression_predictor(num_threads,
       lambda, false, linear_correction_variables);
   std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
 
@@ -135,7 +135,7 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
   ForestTrainer trainer = ForestTrainers::regression_trainer();
   Forest forest = trainer.train(data, options);
 
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(4, lambda, false, linear_correction_variables);
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(4, lambda, false, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, true);
 
   for (size_t i = 0; i < predictions.size(); i++) {
@@ -146,5 +146,61 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
     REQUIRE(variance_estimate > 0);
   }
 
+  delete data;
+}
+
+TEST_CASE("LLF causal predictions are unaffected by shifts in Y", "[local linear], [forest]") {
+  Data* data = load_data("test/forest/resources/causal_data_ll.csv");
+
+  uint outcome_index = 10;
+  uint treatment_index = 11;
+
+  data->set_outcome_index(outcome_index);
+  data->set_treatment_index(treatment_index);
+  data->set_instrument_index(treatment_index);
+
+  std::vector<size_t> linear_correction_variables = {3};
+  std::vector<double> lambda = {0.1};
+
+  double reduced_form_weight = 0.0;
+  bool stabilize_splits = false;
+
+  ForestTrainer trainer = ForestTrainers::instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestOptions options = ForestTestUtilities::default_options();
+
+  Forest forest = trainer.train(data, options);
+
+  uint num_threads = 1;
+
+  ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads,
+      lambda, false, linear_correction_variables);
+
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
+
+  // Shift each outcome by 1, and re-run the forest.
+  bool error;
+  for (size_t r = 0; r < data->get_num_rows(); r++) {
+    double outcome = data->get(r, outcome_index);
+    data->set(outcome_index, r, outcome + 1, error);
+  }
+
+  Forest shifted_forest = trainer.train(data, options);
+  ForestPredictor shifted_predictor = ForestPredictors::ll_causal_predictor(num_threads,
+      lambda, false, linear_correction_variables);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
+
+  REQUIRE(predictions.size() == shifted_predictions.size());
+  double delta = 0.0;
+  for (size_t i = 0; i < predictions.size(); i++) {
+    Prediction prediction = predictions[i];
+    Prediction shifted_prediction = shifted_predictions[i];
+
+    double value = prediction.get_predictions()[0];
+    double shifted_value = shifted_prediction.get_predictions()[0];
+
+    delta += shifted_value - value;
+  }
+
+  REQUIRE(delta / predictions.size() < 1e-1);
   delete data;
 }

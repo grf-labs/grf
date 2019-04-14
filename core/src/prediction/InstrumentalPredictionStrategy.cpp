@@ -189,7 +189,7 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
   return PredictionValues(values, num_leaves, NUM_TYPES);
 }
 
-std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
+std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_error(
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
@@ -220,7 +220,7 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
   // If the treatment effect estimate is due to less than 5 trees, do not attempt to estimate error,
   // as this quantity is unstable due to non-linearities.
   if (num_trees <= 5) {
-    return { NAN };
+    return { std::make_pair<double, double>(NAN, NAN) };
   }
 
   // Compute 'leave one tree out' treatment effect estimates, and use them get a jackknife estimate of the excess error.
@@ -242,6 +242,13 @@ std::vector<double> InstrumentalPredictionStrategy::compute_debiased_error(
     error_bias += (residual_loto - residual) * (residual_loto - residual);
   }
 
-  error_bias *= ((double)(num_trees - 1)) / (num_trees);
-  return { error_raw - error_bias };
+
+  error_bias *= ((double) (num_trees - 1)) / num_trees;
+
+  double debiased_error = error_raw - error_bias;
+
+  auto output = std::make_pair(debiased_error, error_bias);
+  return {output};
+
 }
+

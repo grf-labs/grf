@@ -10,8 +10,8 @@
 #' and interpret it as a treatment effect given unconfoundedness.
 #'
 #' @param X The covariates used in the causal regression.
-#' @param Y The outcome.
-#' @param W The treatment assignment (may be binary or real).
+#' @param Y The outcome (must be a numeric vector with no NAs).
+#' @param W The treatment assignment (must be a binary or real numeric vector with no NAs).
 #' @param Y.hat Estimates of the expected responses E[Y | Xi], marginalizing
 #'              over treatment. If Y.hat = NULL, these are estimated using
 #'              a separate regression forest. See section 6.1.1 of the GRF paper for
@@ -138,9 +138,7 @@ causal_forest <- function(X, Y, W,
                           boosting = FALSE
                           ) {
     validate_X(X)
-    if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
-    if(length(W) != nrow(X)) { stop("W has incorrect length.") }
-
+    validate_observations(list(Y,W), X)
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
@@ -254,6 +252,7 @@ causal_forest <- function(X, Y, W,
         oob.pred <- predict(forest)
         forest[["predictions"]] <- oob.pred$predictions
         forest[["debiased.error"]] <- oob.pred$debiased.error
+        forest[["excess.error"]] <- oob.pred$excess.error
     }
 
     forest
@@ -269,13 +268,34 @@ causal_forest <- function(X, Y, W,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
+#' @param linear.correction.variables Optional subset of indexes for variables to be used in local
+#'                   linear prediction. If NULL, standard GRF prediction is used. Otherwise,
+#'                   we run a locally weighted linear regression on the included variables.
+#'                   Please note that this is a beta feature still in development, and may slow down
+#'                   prediction considerably. Defaults to NULL.
+#' @param ll.lambda Ridge penalty for local linear predictions
+#' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
+#'                  or penalize all covariates equally (FALSE). Penalizes equally by default.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return Vector of predictions, along with (optional) variance estimates.
+#' @return Vector of predictions, along with estimates of the error and
+#'         (optionally) its variance estimates. Column 'predictions' contains estimates
+#'         of the conditional average treatent effect (CATE). The square-root of
+#'         column 'variance.estimates' is the standard error of CATE.
+#'         For out-of-bag estimates, we also output the following error measures.
+#'         First, column 'debiased.error' contains estimates of the 'R-loss' criterion,
+#          a quantity that is related to the true (infeasible) mean-squared error
+#'         (See Nie and Wager 2017 for a justification). Second, column 'excess.error'
+#'         contains jackknife estimates of the Monte-carlo error (Wager, Hastie, Efron 2014),
+#'         a measure of how unstable estimates are if we grow forests of the same size
+#'         on the same data set. The sum of 'debiased.error' and 'excess.error' is the raw error
+#'         attained by the current forest, and 'debiased.error' alone is an estimate of the error
+#'         attained by a forest with an infinite number of trees. We recommend that users grow
+#'         enough forests to make the 'excess.error' negligible.
 #'
 #' @examples \dontrun{
 #' # Train a causal forest.
@@ -300,12 +320,17 @@ causal_forest <- function(X, Y, W,
 #'
 #' @method predict causal_forest
 #' @export
-predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, estimate.variance = FALSE, ...) {
+predict.causal_forest <- function(object, newdata = NULL,
+                                  linear.correction.variables = NULL,
+                                  ll.lambda = 0.1,
+                                  ll.weight.penalty = FALSE,
+                                  num.threads = NULL, estimate.variance = FALSE, ...) {
 
     # If possible, use pre-computed predictions.
-    if (is.null(newdata) & !estimate.variance & !is.null(object$predictions)) {
+    if (is.null(newdata) & !estimate.variance & !is.null(object$predictions) & is.null(linear.correction.variables)) {
         return(data.frame(predictions=object$predictions,
-                          debiased.error=object$debiased.error))
+                          debiased.error=object$debiased.error,
+                          excess.error=object$excess.error))
     }
 
     forest.short <- object[-which(names(object) == "X.orig")]
@@ -321,16 +346,37 @@ predict.causal_forest <- function(object, newdata = NULL, num.threads = NULL, es
 
     num.threads <- validate_num_threads(num.threads)
 
-    if (!is.null(newdata)) {
+    local.linear = !is.null(linear.correction.variables)
+    if(local.linear){
+        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
+        ll.lambda = validate_ll_lambda(ll.lambda)
+
+        # subtract 1 to account for C++ indexing
+        linear.correction.variables <- linear.correction.variables - 1
+    }
+
+    if (!is.null(newdata) ) {
         validate_newdata(newdata, object$X.orig)
-        data <- create_data_matrices(newdata)
-        ret <- instrumental_predict(forest.short, train.data$default, train.data$sparse,
-            outcome.index, treatment.index, instrument.index,
-            data$default, data$sparse, num.threads, estimate.variance)
+        data = create_data_matrices(newdata)
+        if (!local.linear) {
+            ret <- causal_predict(forest.short, train.data$default, train.data$sparse,
+                        outcome.index, treatment.index, instrument.index,
+                        data$default, data$sparse, num.threads, estimate.variance)
+        } else {
+            ret <- ll_causal_predict(forest.short, data$default, train.data$default, data$sparse, train.data$sparse,
+                        outcome.index, treatment.index, instrument.index,
+                        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
+        }
     } else {
-        ret <- instrumental_predict_oob(forest.short, train.data$default, train.data$sparse,
-          outcome.index, treatment.index, instrument.index,
-          num.threads, estimate.variance)
+        if (!local.linear) {
+            ret <- causal_predict_oob(forest.short, train.data$default, train.data$sparse,
+                      outcome.index, treatment.index, instrument.index,
+                      num.threads, estimate.variance)
+        } else {
+            ret <- ll_causal_predict_oob(forest.short, train.data$default, train.data$sparse,
+                      outcome.index, treatment.index, instrument.index,
+                      ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
+        }
     }
 
     # Convert list to data frame.

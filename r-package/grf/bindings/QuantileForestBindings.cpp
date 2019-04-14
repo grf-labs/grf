@@ -56,8 +56,8 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
                                      Eigen::SparseMatrix<double> sparse_test_matrix,
                                      unsigned int num_threads) {
   Data* train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  train_data->set_outcome_index(outcome_index);
   Data* data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+  train_data->set_outcome_index(outcome_index - 1);
 
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
@@ -74,12 +74,13 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::NumericMatrix quantile_predict_oob(Rcpp::List forest_object,
                                          std::vector<double> quantiles,
-                                         size_t outcome_index,
                                          Rcpp::NumericMatrix train_matrix,
                                          Eigen::SparseMatrix<double> sparse_train_matrix,
+                                         size_t outcome_index,
                                          unsigned int num_threads) {
   Data* data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  data->set_outcome_index(outcome_index);
+  data->set_outcome_index(outcome_index - 1);
+
   Forest forest = RcppUtilities::deserialize_forest(
       forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
 

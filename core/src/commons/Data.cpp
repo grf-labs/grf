@@ -30,7 +30,8 @@ Data::Data() :
     max_num_unique_values(0),
     outcome_index(),
     treatment_index(),
-    instrument_index() {}
+    instrument_index(),
+    weight_index() {}
 
 Data::~Data() {
   if (index_data != 0) {
@@ -154,6 +155,11 @@ void Data::set_instrument_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
+void Data::set_weight_index(size_t index) {
+    this->weight_index = index;
+    disallowed_split_variables.insert(index);
+}
+
 void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const {
   all_values.reserve(samples.size());
   for (size_t i = 0; i < samples.size(); ++i) {
@@ -226,6 +232,14 @@ double Data::get_treatment(size_t row) const {
 
 double Data::get_instrument(size_t row) const {
   return get(row, instrument_index.value());
+}
+
+double Data::get_weight(size_t row) const {
+  if(weight_index.has_value()) {
+    return get(row, weight_index.value());
+  } else {
+    return 1.0;
+  }
 }
 
 const std::set<size_t>& Data::get_disallowed_split_variables() const {

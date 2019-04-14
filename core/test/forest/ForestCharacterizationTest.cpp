@@ -198,7 +198,7 @@ TEST_CASE("local linear regression forest predictions have not changed",
   std::vector<double> lambdas = {0, 0.1, 1, 10, 100};
   bool weight_penalty = false;
   std::vector<size_t> linear_correction_variables = {1, 3, 5};
-  ForestPredictor predictor = ForestPredictors::local_linear_predictor(
+  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(
       4, lambdas, weight_penalty, linear_correction_variables);
 
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data, false);

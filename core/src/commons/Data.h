@@ -43,6 +43,7 @@ public:
   void set_outcome_index(size_t index);
   void set_treatment_index(size_t index);
   void set_instrument_index(size_t index);
+  void set_weight_index(size_t index);
 
   void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const;
 
@@ -58,6 +59,7 @@ public:
   double get_treatment(size_t row) const;
   double get_instrument(size_t row) const;
 
+  double get_weight(size_t row) const;
   const std::set<size_t>& get_disallowed_split_variables() const;
 
 protected:
@@ -74,6 +76,7 @@ protected:
   nonstd::optional<size_t> outcome_index;
   nonstd::optional<size_t> treatment_index;
   nonstd::optional<size_t> instrument_index;
+  nonstd::optional<size_t> weight_index;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Data);
