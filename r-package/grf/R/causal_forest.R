@@ -264,6 +264,8 @@ causal_forest <- function(X, Y, W,
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
+#' @param tune.parameters Optional cross-validation tuning for local linear correction ridge
+#'                      penalty. Defaults to FALSE.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return Vector of predictions, along with estimates of the error and
@@ -308,7 +310,9 @@ predict.causal_forest <- function(object, newdata = NULL,
                                   linear.correction.variables = NULL,
                                   ll.lambda = 0.1,
                                   ll.weight.penalty = FALSE,
-                                  num.threads = NULL, estimate.variance = FALSE, ...) {
+                                  num.threads = NULL,
+                                  estimate.variance = FALSE,
+                                  tune.parameters = FALSE, ...) {
 
     # If possible, use pre-computed predictions.
     if (is.null(newdata) & !estimate.variance & !is.null(object$predictions) & is.null(linear.correction.variables)) {
@@ -333,7 +337,13 @@ predict.causal_forest <- function(object, newdata = NULL,
     local.linear = !is.null(linear.correction.variables)
     if(local.linear){
         linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
-        ll.lambda = validate_ll_lambda(ll.lambda)
+
+        if (is.null(ll.lambda)) {
+            ll.regularization.path = tune_ll_causal_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
+            ll.lambda = ll.regularization.path$lambda.min
+        } else {
+            ll.lambda = validate_ll_lambda(ll.lambda)
+        }
 
         # subtract 1 to account for C++ indexing
         linear.correction.variables <- linear.correction.variables - 1

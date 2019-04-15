@@ -26,6 +26,7 @@ Imports:
     Matrix,
     methods,
     Rcpp (>= 0.12.15),
+    rlearner,
     sandwich (>= 2.4-0)
 RoxygenNote: 6.1.1
 Suggests:

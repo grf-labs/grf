@@ -24,7 +24,7 @@
 #include "prediction/LLCausalPredictionStrategy.h"
 
 size_t LLCausalPredictionStrategy::prediction_length() {
-  return 1;
+  return lambdas.size();
 }
 
 LLCausalPredictionStrategy::LLCausalPredictionStrategy(std::vector<double> lambdas,
