@@ -33,8 +33,9 @@ public:
 
   double get(size_t node, size_t type) const;
   const std::vector<double>& get_values(size_t node) const;
-
   double empty(size_t node) const;
+
+  const std::vector<std::vector<double>>& get_all_values() const;
   const size_t get_num_nodes() const;
   const size_t get_num_types() const;
 private:

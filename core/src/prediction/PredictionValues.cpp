@@ -41,6 +41,10 @@ double PredictionValues::empty(std::size_t node) const {
   return values.at(node).empty();
 }
 
+const std::vector<std::vector<double>>& PredictionValues::get_all_values() const {
+  return values;
+}
+
 const size_t PredictionValues::get_num_nodes() const {
   return num_nodes;
 }
