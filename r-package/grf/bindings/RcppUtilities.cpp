@@ -5,7 +5,6 @@
 #include "commons/SparseData.h"
 #include "forest/ForestOptions.h"
 #include "RcppUtilities.h"
-#include "serialization/ForestSerializer.h"
 
 Forest RcppUtilities::deserialize_forest(Rcpp::List forest_object) {
   size_t ci_group_size = forest_object["_ci_group_size"];
