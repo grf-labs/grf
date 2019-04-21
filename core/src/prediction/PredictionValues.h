@@ -28,7 +28,6 @@ public:
   PredictionValues();
 
   PredictionValues(const std::vector<std::vector<double>>& values,
-                   size_t num_nodes,
                    size_t num_types);
 
 

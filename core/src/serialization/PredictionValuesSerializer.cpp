@@ -42,5 +42,5 @@ PredictionValues PredictionValuesSerializer::deserialize(std::istream& stream) {
   for (size_t i = 0; i < num_nodes; ++i) {
     read_vector(values[i], stream);
   }
-  return PredictionValues(values, num_nodes, num_types);
+  return PredictionValues(values, num_types);
 }

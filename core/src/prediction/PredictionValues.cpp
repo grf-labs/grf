@@ -22,10 +22,9 @@ PredictionValues::PredictionValues():
   num_types(0) {}
 
 PredictionValues::PredictionValues(const std::vector<std::vector<double>>& values,
-                                   size_t num_nodes,
                                    size_t num_types):
   values(values),
-  num_nodes(num_nodes),
+  num_nodes(values.size()),
   num_types(num_types) {}
 
 

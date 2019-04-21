@@ -114,7 +114,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     averages[OUTCOME] = sum / weight;
   }
 
-  return PredictionValues(values, num_leaves, 1);
+  return PredictionValues(values, 1);
 }
 
 std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_error(

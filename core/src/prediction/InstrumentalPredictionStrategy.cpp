@@ -186,7 +186,7 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     value[TREATMENT_INSTRUMENT] = sum_WZ / leaf_size;
   }
   
-  return PredictionValues(values, num_leaves, NUM_TYPES);
+  return PredictionValues(values, NUM_TYPES);
 }
 
 std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_error(
