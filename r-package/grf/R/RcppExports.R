@@ -5,6 +5,10 @@ compute_split_frequencies <- function(forest_object, max_depth) {
     .Call('_grf_compute_split_frequencies', PACKAGE = 'grf', forest_object, max_depth)
 }
 
+compute_interaction_frequencies <- function(forest_object) {
+    .Call('_grf_compute_interaction_frequencies', PACKAGE = 'grf', forest_object)
+}
+
 compute_weights <- function(forest_object, train_matrix, sparse_train_matrix, test_matrix, sparse_test_matrix, num_threads) {
     .Call('_grf_compute_weights', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, test_matrix, sparse_test_matrix, num_threads)
 }

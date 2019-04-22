@@ -48,6 +48,27 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
   return result;
 }
 
+// [[Rcpp::export]]
+Rcpp::List compute_interaction_frequencies(Rcpp::List forest_object) {
+    Forest forest = RcppUtilities::deserialize_forest(                                                      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+    SplitFrequencyComputer computer;
+    std::map<std::vector<size_t>, size_t> split_frequencies = computer.compute_interaction(forest);
+    
+    Rcpp::List result;
+    
+    for (std::map<std::vector<size_t>, size_t>::iterator it = split_frequencies.begin(); it != split_frequencies.end(); it++ )
+    {
+        Rcpp::List key_val; //key value pair
+
+        std::vector<size_t> key_split = it->first; //key
+        size_t val = it->second;   // value
+        key_val.push_back(key_split);
+        key_val.push_back(val);
+        result.push_back(key_val);
+    }
+    return result;
+}
+
 Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
                                                    Rcpp::NumericMatrix train_matrix,
                                                    Eigen::SparseMatrix<double> sparse_train_matrix,

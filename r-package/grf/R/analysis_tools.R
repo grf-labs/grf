@@ -75,6 +75,21 @@ split_frequencies = function(forest, max.depth=4) {
   raw[,feature.indices, drop = FALSE]
 }
 
+#' Calculate feature interactions at each depth.
+#'
+#' @param forest The trained forest.
+#'
+#' @return A list of lists, where the first element 
+#' of each list is the interacted variables and the 
+#' second element of each list is the frequency count
+#' of the interactions
+#'
+#' @export
+interaction_frequencies = function(forest) {
+  raw = compute_interaction_frequencies(forest)
+  raw
+}
+
 #' Calculate a simple measure of 'importance' for each feature.
 #'
 #' @param forest The trained forest.
