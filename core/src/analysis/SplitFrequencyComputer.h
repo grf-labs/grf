@@ -32,7 +32,7 @@ class SplitFrequencyComputer {
 public:
   std::vector<std::vector<size_t>> compute(const Forest& forest,
                                            size_t max_depth);
+  std::map<std::vector<size_t>, size_t> compute_interaction(const Forest& forest);
 };
-
 
 #endif //GRF_VARIABLEIMPORTANCECOMPUTER_H
