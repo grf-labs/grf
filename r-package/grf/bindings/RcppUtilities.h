@@ -7,7 +7,16 @@
 
 class RcppUtilities {
 public:
-  static Rcpp::List serialize_forest(const Forest& forest);
+
+  /**
+   * Converts the provided {@link Forest} object to an R list to be returned
+   * through the Rcpp bindings.
+   *
+   * NOTE: To converse memory, this method destructively modifies the forest
+   * object by clearing out individual {@link Tree} objects. The forest cannot
+   * be used once it has been passed to the method.
+   */
+  static Rcpp::List serialize_forest(Forest& forest);
   static Forest deserialize_forest(Rcpp::List forest_object);
 
   static Data* convert_data(Rcpp::NumericMatrix input_data,

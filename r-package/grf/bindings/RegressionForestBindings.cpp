@@ -83,10 +83,9 @@ Rcpp::List regression_predict(Rcpp::List forest_object,
   ForestPredictor predictor = ForestPredictors::regression_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
 
-  Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
   delete train_data;
   delete data;
-  return result;
+  return RcppUtilities::create_prediction_object(predictions);
 }
 
 // [[Rcpp::export]]

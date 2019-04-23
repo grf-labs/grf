@@ -13,15 +13,14 @@ Forest RcppUtilities::deserialize_forest(Rcpp::List forest_object) {
   size_t num_trees = forest_object["num.trees"];
   std::vector<std::shared_ptr<Tree>> trees(num_trees);
 
-  std::vector<size_t> root_nodes = forest_object["_root_nodes"];
-  std::vector<std::vector<std::vector<size_t>>> child_nodes = forest_object["_child_nodes"];
-  std::vector<std::vector<std::vector<size_t>>> leaf_samples = forest_object["_leaf_samples"];
+  Rcpp::List root_nodes = forest_object["_root_nodes"];
+  Rcpp::List child_nodes = forest_object["_child_nodes"];
+  Rcpp::List leaf_samples = forest_object["_leaf_samples"];
+  Rcpp::List split_vars = forest_object["_split_vars"];
+  Rcpp::List split_values = forest_object["_split_values"];
+  Rcpp::List drawn_samples = forest_object["_drawn_samples"];
 
-  std::vector<std::vector<size_t>> split_vars = forest_object["_split_vars"];
-  std::vector<std::vector<double>> split_values = forest_object["_split_values"];
-  std::vector<std::vector<size_t>> drawn_samples = forest_object["_drawn_samples"];
-
-  std::vector<std::vector<std::vector<double>>> prediction_values = forest_object["_pv_values"];
+  Rcpp::List prediction_values = forest_object["_pv_values"];
   size_t num_types = forest_object["_pv_num_types"];
 
   for (size_t t = 0; t < num_trees; t++) {
@@ -38,7 +37,7 @@ Forest RcppUtilities::deserialize_forest(Rcpp::List forest_object) {
   return Forest(trees, num_variables, ci_group_size);
 }
 
-Rcpp::List RcppUtilities::serialize_forest(const Forest& forest) {
+Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   Rcpp::List result;
 
   result.push_back(forest.get_ci_group_size(), "_ci_group_size");
@@ -47,13 +46,13 @@ Rcpp::List RcppUtilities::serialize_forest(const Forest& forest) {
   size_t num_trees = forest.get_trees().size();
   result.push_back(num_trees, "num.trees");
 
-  std::vector<size_t> root_nodes(num_trees);
-  std::vector<std::vector<std::vector<size_t>>> child_nodes(num_trees);
-  std::vector<std::vector<std::vector<size_t>>> leaf_samples(num_trees);
-  std::vector<std::vector<size_t>> split_vars(num_trees);
-  std::vector<std::vector<double>> split_values(num_trees);
-  std::vector<std::vector<size_t>> drawn_samples(num_trees);
-  std::vector<std::vector<std::vector<double>>> prediction_values(num_trees);
+  Rcpp::List root_nodes(num_trees);
+  Rcpp::List child_nodes(num_trees);
+  Rcpp::List leaf_samples(num_trees);
+  Rcpp::List split_vars(num_trees);
+  Rcpp::List split_values(num_trees);
+  Rcpp::List drawn_samples(num_trees);
+  Rcpp::List prediction_values(num_trees);
   size_t num_types = 0;
 
   for (size_t t = 0; t < num_trees; t++) {
@@ -66,9 +65,9 @@ Rcpp::List RcppUtilities::serialize_forest(const Forest& forest) {
     drawn_samples[t] = tree->get_drawn_samples();
 
     prediction_values[t] = tree->get_prediction_values().get_all_values();
-    if (t == 0) {
-      num_types = tree->get_prediction_values().get_num_types();
-    }
+    num_types = tree->get_prediction_values().get_num_types();
+
+    tree->clear();
   }
 
   result.push_back(root_nodes, "_root_nodes");
