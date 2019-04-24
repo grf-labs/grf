@@ -71,7 +71,7 @@ std::map<std::vector<size_t>, size_t> SplitFrequencyComputer::compute_interactio
                 std::vector<size_t> nodes_left;
                 std::vector<size_t> nodes_right;
     
-                size_t variable_root = tree->get_split_vars().at(node);
+                size_t variable_root = tree->get_split_vars().at(node)+1;
                 size_t variable_left = 0; //0 is default value, also means leaf node
                 size_t variable_right = 0; //0 is default value, also means leaf node
                 
