@@ -79,11 +79,9 @@ split_frequencies = function(forest, max.depth=4) {
 #'
 #' @param forest The trained forest.
 #'
-#' @return A list and sub-lists, where the first element 
-#' of each sub-list is a vector of interacted variables and the 
-#' second element of each sub-list is the frequency count
-#' of the interactions.
-#'
+#' @return A dataframe of nodes and interaction counts. 
+#' Note that 0 in the nodes columns means leaf node, and all other numbers starting from 1 
+#' indicates the variables. 
 #' @export
 interaction_frequencies = function(forest) {
   raw = compute_interaction_frequencies(forest)
