@@ -75,7 +75,7 @@ split_frequencies = function(forest, max.depth=4) {
   raw[,feature.indices, drop = FALSE]
 }
 
-#' Calculate feature interactions at each depth.
+#' Calculate feature interactions at all depths
 #'
 #' @param forest The trained forest.
 #'
