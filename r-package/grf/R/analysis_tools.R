@@ -80,13 +80,13 @@ split_frequencies = function(forest, max.depth=4) {
 #' @param forest The trained forest.
 #'
 #' @return A dataframe of nodes and interaction counts. 
-#' Note that 0 in the nodes columns means leaf node, and all other numbers starting from 1 
+#' Note that a value of 0 in the node1 and node2 columns means leaf node, and all other numbers starting from 1 
 #' indicates the variables. 
 #' @export
 interaction_frequencies = function(forest) {
   raw = compute_interaction_frequencies(forest)
   raw.dat=data.frame(matrix(unlist(raw), nrow=length(raw), byrow=T))
-  colnames(raw.dat)=c("leaf1","leaf2","count")
+  colnames(raw.dat)=c("node1","node2","count")
   raw.dat
 }
 
