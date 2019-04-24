@@ -87,7 +87,9 @@ split_frequencies = function(forest, max.depth=4) {
 #' @export
 interaction_frequencies = function(forest) {
   raw = compute_interaction_frequencies(forest)
-  raw
+  raw.dat=data.frame(matrix(unlist(raw), nrow=length(raw), byrow=T))
+  colnames(raw.dat)=c("leaf1","leaf2","count")
+  raw.dat
 }
 
 #' Calculate a simple measure of 'importance' for each feature.
