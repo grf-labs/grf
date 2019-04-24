@@ -10,7 +10,7 @@ Forest RcppUtilities::deserialize_forest(Rcpp::List forest_object) {
   size_t ci_group_size = forest_object["_ci_group_size"];
   size_t num_variables = forest_object["_num_variables"];
 
-  size_t num_trees = forest_object["num.trees"];
+  size_t num_trees = forest_object["_num_trees"];
   std::vector<std::shared_ptr<Tree>> trees(num_trees);
 
   Rcpp::List root_nodes = forest_object["_root_nodes"];
@@ -44,7 +44,7 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   result.push_back(forest.get_num_variables(), "_num_variables");
 
   size_t num_trees = forest.get_trees().size();
-  result.push_back(num_trees, "num.trees");
+  result.push_back(num_trees, "_num_trees");
 
   Rcpp::List root_nodes(num_trees);
   Rcpp::List child_nodes(num_trees);
