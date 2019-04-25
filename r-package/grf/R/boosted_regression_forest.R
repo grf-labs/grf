@@ -70,117 +70,117 @@
 #'
 #' @export
 boosted_regression_forest <- function(X, Y,
-                              sample.fraction = 0.5,
-                              mtry = NULL,
-                              num.trees = 500,
-                              num.threads = NULL,
-                              min.node.size = NULL,
-                              honesty = TRUE,
-                              honesty.fraction = NULL,
-                              ci.group.size = 2,
-                              alpha = NULL,
-                              imbalance.penalty = NULL,
-                              seed = NULL,
-                              clusters = NULL,
-                              samples_per_cluster = NULL,
-                              tune.parameters = FALSE,
-                              num.fit.trees = 10,
-                              num.fit.reps = 100,
-                              num.optimize.reps = 1000,
-                              num.steps = NULL,
-                              max.steps = 6,
-                              num.trees.tune = 10) {
-
-    boosted.forest = NULL
-    boosted.forest[["forests"]] = list()
-    forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction,
+                                      sample.fraction = 0.5,
+                                      mtry = NULL,
+                                      num.trees = 500,
+                                      num.threads = NULL,
+                                      min.node.size = NULL,
+                                      honesty = TRUE,
+                                      honesty.fraction = NULL,
+                                      ci.group.size = 2,
+                                      alpha = NULL,
+                                      imbalance.penalty = NULL,
+                                      seed = NULL,
+                                      clusters = NULL,
+                                      samples_per_cluster = NULL,
+                                      tune.parameters = FALSE,
+                                      num.fit.trees = 10,
+                                      num.fit.reps = 100,
+                                      num.optimize.reps = 1000,
+                                      num.steps = NULL,
+                                      max.steps = 6,
+                                      num.trees.tune = 10) {
+  
+  boosted.forest = NULL
+  boosted.forest[["forests"]] = list()
+  forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction,
                                 mtry = mtry, tune.parameters = tune.parameters,
-                                  num.trees = num.trees,
-                                  num.threads = num.threads,
-                                  min.node.size = min.node.size, honesty = honesty,
-                                  honesty.fraction = honesty.fraction,
-                                  seed = seed, ci.group.size = ci.group.size,
-                                  alpha = alpha,
-                                  imbalance.penalty = imbalance.penalty,
+                                num.trees = num.trees,
+                                num.threads = num.threads,
+                                min.node.size = min.node.size, honesty = honesty,
+                                honesty.fraction = honesty.fraction,
+                                seed = seed, ci.group.size = ci.group.size,
+                                alpha = alpha,
+                                imbalance.penalty = imbalance.penalty,
                                 clusters = clusters, samples_per_cluster = samples_per_cluster);
-    forest.Y.p <- predict(forest.Y)
-    #save tuned parameters for use on future boosting iterations
-    tunable.params <- forest.Y$tunable.params
-    Y.hat <- forest.Y.p$prediction
-    error.debiased <- forest.Y.p$debiased.error
-    boosted.forest$forests[[1]] <- forest.Y
-
-    if(!is.null(num.steps)) {
-        for (step in 2:num.steps) {
-            E.hat <- Y - Y.hat
-            forest.E <- regression_forest(X,E.hat, sample.fraction = tunable.params["sample.fraction"],
-                                        mtry = tunable.params["mtry"], tune.parameters = FALSE,
-                                          num.trees = num.trees,
-                                           num.threads = num.threads,
-                                           min.node.size = tunable.params["min.node.size"],
-                                           honesty = honesty,
-                                          honesty.fraction = honesty.fraction,
-                                           seed = seed, ci.group.size = ci.group.size,
-                                          alpha = tunable.params["alpha"],
-                                          imbalance.penalty = tunable.params["imbalance.penalty"],
-                                        clusters = clusters, samples_per_cluster = samples_per_cluster);
-            current.pred <- predict(forest.E)
-            Y.hat <- Y.hat + current.pred$predictions
-            error.debiased <- current.pred$debiased.error
-            boosted.forest[["forests"]][[step]] <- forest.E
-        }
+  forest.Y.p <- predict(forest.Y)
+  #save tuned parameters for use on future boosting iterations
+  tunable.params <- forest.Y$tunable.params
+  Y.hat <- forest.Y.p$prediction
+  error.debiased <- forest.Y.p$debiased.error
+  boosted.forest$forests[[1]] <- forest.Y
+  
+  if(!is.null(num.steps)) {
+    for (step in 2:num.steps) {
+      Y.resid <- Y - Y.hat
+      forest.E <- regression_forest(X,Y.resid, sample.fraction = tunable.params["sample.fraction"],
+                                    mtry = tunable.params["mtry"], tune.parameters = FALSE,
+                                    num.trees = num.trees,
+                                    num.threads = num.threads,
+                                    min.node.size = tunable.params["min.node.size"],
+                                    honesty = honesty,
+                                    honesty.fraction = honesty.fraction,
+                                    seed = seed, ci.group.size = ci.group.size,
+                                    alpha = tunable.params["alpha"],
+                                    imbalance.penalty = tunable.params["imbalance.penalty"],
+                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+      current.pred <- predict(forest.E)
+      Y.hat <- Y.hat + current.pred$predictions
+      error.debiased <- current.pred$debiased.error
+      boosted.forest[["forests"]][[step]] <- forest.E
     }
-    else {
-        step <- 2
-        tolerance <- 0.99
-        still_boosting <- TRUE
-        while(still_boosting & step <= max.steps) {
-            E.hat <- Y - Y.hat
-            forest.small <- regression_forest(X,E.hat,
-                                    sample.fraction = as.numeric(tunable.params["sample.fraction"]),
+  }
+  else {
+    step <- 2
+    tolerance <- 0.99
+    still_boosting <- TRUE
+    while(still_boosting & step <= max.steps) {
+      Y.resid <- Y - Y.hat
+      forest.small <- regression_forest(X,Y.resid,
+                                        sample.fraction = as.numeric(tunable.params["sample.fraction"]),
                                         mtry = as.numeric(tunable.params["mtry"]), tune.parameters = FALSE,
-                                          num.trees = num.trees.tune,
-                                           num.threads = num.threads,
-                                           min.node.size = as.numeric(tunable.params["min.node.size"]),
-                                           honesty = honesty,
-                                          honesty.fraction = honesty.fraction,
-                                           seed = seed, ci.group.size = ci.group.size,
-                                          alpha = as.numeric(tunable.params["alpha"]),
-                                          imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
+                                        num.trees = num.trees.tune,
+                                        num.threads = num.threads,
+                                        min.node.size = as.numeric(tunable.params["min.node.size"]),
+                                        honesty = honesty,
+                                        honesty.fraction = honesty.fraction,
+                                        seed = seed, ci.group.size = ci.group.size,
+                                        alpha = as.numeric(tunable.params["alpha"]),
+                                        imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
                                         clusters = clusters, samples_per_cluster = samples_per_cluster);
-            step.error.approx <- predict(forest.small)$debiased.error
-            if((mean(step.error.approx,na.rm=TRUE) < tolerance*mean(error.debiased,na.rm=TRUE))) {
-                forest.E <- regression_forest(X,E.hat,
-                                            sample.fraction = as.numeric(tunable.params["sample.fraction"]),
-                                            mtry = as.numeric(tunable.params["mtry"]),
-                                             tune.parameters = FALSE,
-                                              num.trees = num.trees,
-                                               num.threads = num.threads,
-                                               min.node.size = as.numeric(tunable.params["min.node.size"]),
-                                               honesty = honesty,
-                                              honesty.fraction = honesty.fraction,
-                                               seed = seed, ci.group.size = ci.group.size,
-                                              alpha = as.numeric(tunable.params["alpha"]),
-                                              imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
-                                            clusters = clusters, samples_per_cluster = samples_per_cluster);
-                current.pred <- predict(forest.E)
-                Y.hat <- Y.hat + current.pred$predictions
-                error.debiased <- current.pred$debiased.error
-                boosted.forest[["forests"]][[step]] <- forest.E
-
-            }
-            else{
-                still_boosting <- FALSE
-            }
-            step<-step+1
-        }
+      step.error.approx <- predict(forest.small)$debiased.error
+      if((mean(step.error.approx,na.rm=TRUE) < tolerance*mean(error.debiased,na.rm=TRUE))) {
+        forest.E <- regression_forest(X,Y.resid,
+                                      sample.fraction = as.numeric(tunable.params["sample.fraction"]),
+                                      mtry = as.numeric(tunable.params["mtry"]),
+                                      tune.parameters = FALSE,
+                                      num.trees = num.trees,
+                                      num.threads = num.threads,
+                                      min.node.size = as.numeric(tunable.params["min.node.size"]),
+                                      honesty = honesty,
+                                      honesty.fraction = honesty.fraction,
+                                      seed = seed, ci.group.size = ci.group.size,
+                                      alpha = as.numeric(tunable.params["alpha"]),
+                                      imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
+                                      clusters = clusters, samples_per_cluster = samples_per_cluster);
+        current.pred <- predict(forest.E)
+        Y.hat <- Y.hat + current.pred$predictions
+        error.debiased <- current.pred$debiased.error
+        boosted.forest[["forests"]][[step]] <- forest.E
+        
+      }
+      else{
+        still_boosting <- FALSE
+      }
+      step<-step+1
     }
-
-    boosted.forest[["predictions"]] <- Y.hat
-    boosted.forest[["debiased.error"]] <- error.debiased
-
-    class(boosted.forest) <- c("boosted_regression_forest")
-    boosted.forest
+  }
+  
+  boosted.forest[["predictions"]] <- Y.hat
+  boosted.forest[["debiased.error"]] <- error.debiased
+  
+  class(boosted.forest) <- c("boosted_regression_forest")
+  boosted.forest
 }
 
 #' Predict with a boosted regression forest.
@@ -219,30 +219,29 @@ boosted_regression_forest <- function(X, Y,
 #' @method predict boosted_regression_forest
 #' @export
 predict.boosted_regression_forest <- function(object,
-                                        newdata=NULL,
-                                        num.steps=NULL,
-                                      num.threads = NULL
-                                      ) {
-
-
-    # If not on new data, use pre-computed predictions
-    if (is.null(newdata)) {
-        return(data.frame(predictions=object$predictions
-             ,debiased.error=object$debiased.error))
+                                              newdata=NULL,
+                                              num.steps=NULL,
+                                              num.threads = NULL) {
+  
+  
+  # If not on new data, use pre-computed predictions
+  if (is.null(newdata)) {
+    return(data.frame(predictions=object$predictions
+                      ,debiased.error=object$debiased.error))
+  }
+  else {
+    forests <- object[["forests"]]
+    if (is.null(num.steps)) {
+      num.steps <- length(forests)
     }
-    else {
-        forests <- object[["forests"]]
-        if (is.null(num.steps)) {
-            num.steps <- length(forests)
-        }
-        num.steps <- min(length(forests),num.steps)
-        Y.hat <- predict(forests[[1]],newdata)$predictions
-        for (f in 2:num.steps) {
-            Y.hat <- Y.hat + predict(forests[[f]],newdata)$predictions
-        #    debiased.error <- forest.E$debiased.error
-        }
+    num.steps <- min(length(forests),num.steps)
+    Y.hat <- predict(forests[[1]],newdata)$predictions
+    for (f in 2:num.steps) {
+      Y.hat <- Y.hat + predict(forests[[f]],newdata)$predictions
+      #    debiased.error <- forest.E$debiased.error
     }
-
-    #not clear how you would get debiased error on new data or why predict returns this
-    data.frame(predictions=Y.hat)
+  }
+  
+  #not clear how you would get debiased error on new data or why predict returns this
+  data.frame(predictions=Y.hat)
 }
