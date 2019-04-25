@@ -140,7 +140,7 @@ boosted_regression_forest <- function(X, Y,
                                         imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
                                         clusters = clusters, samples_per_cluster = samples_per_cluster);
       step.error.approx <- predict(forest.small)$debiased.error
-      still_boosting <- mean(step.error.approx,na.rm=TRUE) < tolerance*mean(error.debiased,na.rm=TRUE)
+      still_boosting <- (mean(step.error.approx,na.rm=TRUE) < tolerance*mean(error.debiased,na.rm=TRUE))
     }
 
     if(still_boosting) {
