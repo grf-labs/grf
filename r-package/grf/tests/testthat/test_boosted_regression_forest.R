@@ -14,8 +14,8 @@ test_that("Boosted regression forest improves performance vs regular forest", {
   forest.Yhat <- predict(forest.regular)$predictions
   boost.Yhat <- predict(forest.boost)$predictions
 
-  mse.forest <- mean((Y-forest.Yhat)^2
-  mse.boost <- mean((Y- boost.Yhat))^2
+  mse.forest <- mean((Y-forest.Yhat)^2)
+  mse.boost <- mean((Y- boost.Yhat)^2)
   expect_true(mse.boost < mse.forest)
 })
 

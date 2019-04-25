@@ -110,13 +110,14 @@ boosted_regression_forest <- function(X, Y,
   current.pred <- predict(forest.Y)
   #save tuned parameters for use on future boosting iterations
   tunable.params <- forest.Y$tunable.params
-  Y.hat <- current.pred$prediction
+  Y.hat <- current.pred$predictions
   error.debiased <- current.pred$debiased.error
   boosted.forest[["forests"]][[1]] <- forest.Y
   boosted.forest[["debiased.errors"]][[1]] <- error.debiased
 
   still_boosting <- TRUE
   step <- 2
+
   while(still_boosting) {
     Y.resid <- Y - Y.hat
     #do termination checks
@@ -143,16 +144,16 @@ boosted_regression_forest <- function(X, Y,
     }
 
     if(still_boosting) {
-      forest.resid <- regression_forest(X,Y.resid, sample.fraction = tunable.params["sample.fraction"],
-                                  mtry = tunable.params["mtry"], tune.parameters = FALSE,
+      forest.resid <- regression_forest(X,Y.resid, sample.fraction = as.numeric(tunable.params["sample.fraction"]),
+                                  mtry = as.numeric(tunable.params["mtry"]), tune.parameters = FALSE,
                                   num.trees = num.trees,
                                   num.threads = num.threads,
-                                  min.node.size = tunable.params["min.node.size"],
+                                  min.node.size = as.numeric(tunable.params["min.node.size"]),
                                   honesty = honesty,
                                   honesty.fraction = honesty.fraction,
                                   seed = seed, ci.group.size = ci.group.size,
-                                  alpha = tunable.params["alpha"],
-                                  imbalance.penalty = tunable.params["imbalance.penalty"],
+                                  alpha = as.numeric(tunable.params["alpha"]),
+                                  imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
                                   clusters = clusters, samples_per_cluster = samples_per_cluster);
 
       current.pred <- predict(forest.resid)
