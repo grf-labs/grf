@@ -202,8 +202,7 @@ boosted_regression_forest <- function(X, Y,
 #'
 #' @method predict boosted_regression_forest
 #' @export
-predict.boosted_regression_forest <- function(object,
-                                              newdata=NULL,
+predict.boosted_regression_forest <- function(object, newdata=NULL,
                                               num.steps=NULL) {
 
   # If not on new data, use pre-computed predictions
@@ -212,13 +211,17 @@ predict.boosted_regression_forest <- function(object,
   }
   else {
     forests <- object[["forests"]]
-    if (is.null(num.steps)) {
+    if(is.null(num.steps)) {
       num.steps <- length(forests)
     }
-    num.steps <- min(length(forests),num.steps)
+    else {
+      num.steps <- min(num.steps,length(forests))
+    }
     Y.hat <- predict(forests[[1]],newdata)$predictions
-    for (f in 2:num.steps) {
-      Y.hat <- Y.hat + predict(forests[[f]],newdata)$predictions
+    if(num.steps > 1) {
+      for (f in 2:num.steps) {
+        Y.hat <- Y.hat + predict(forests[[f]],newdata)$predictions
+      }
     }
   }
 
