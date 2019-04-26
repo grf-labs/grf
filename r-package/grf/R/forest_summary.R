@@ -70,6 +70,8 @@ test_calibration = function(forest) {
           "as well as the mean forest prediction as regressors, along",
           "with heteroskedasticity-robust (HC3) SEs",
           sep="\n")
+  dimnames(blp.summary)[[2]][4] <- gsub("[|]", "", dimnames(blp.summary)[[2]][4])
+  blp.summary[,4] <- blp.summary[,4]/2
   blp.summary
 
 }
