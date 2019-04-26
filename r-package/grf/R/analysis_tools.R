@@ -32,7 +32,7 @@
 #'
 #' @export
 get_tree = function(forest, index) {
-	if (index < 1 || index > forest$num.trees) {
+	if (index < 1 || index > forest[["_num_trees"]]) {
 		stop(paste("The provided index,", index, "is not valid."))
 	}
 

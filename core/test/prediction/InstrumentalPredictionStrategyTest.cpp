@@ -50,7 +50,7 @@ TEST_CASE("instrumental variance estimates are positive", "[regression, predicti
 
   InstrumentalPredictionStrategy prediction_strategy;
   std::vector<double> variance = prediction_strategy.compute_variance(
-      averages, PredictionValues(leaf_values, 4, 5), 2);
+      averages, PredictionValues(leaf_values, 5), 2);
 
   REQUIRE(variance.size() == 1);
   REQUIRE(variance[0] > 0);
@@ -68,11 +68,11 @@ TEST_CASE("scaling outcome scales instrumental variance", "[instrumental, predic
   InstrumentalPredictionStrategy prediction_strategy;
   std::vector<double> first_variance = prediction_strategy.compute_variance(
       averages,
-      PredictionValues(leaf_values, 4, 5),
+      PredictionValues(leaf_values, 5),
       2);
   std::vector<double> second_variance = prediction_strategy.compute_variance(
       scaled_average,
-      PredictionValues(scaled_leaf_values, 4, 5),
+      PredictionValues(scaled_leaf_values, 5),
       2);
 
   REQUIRE(first_variance.size() == 1);
@@ -102,7 +102,7 @@ TEST_CASE("monte carlo errors are nonzero", "[instrumental, prediction]") {
   auto errors = prediction_strategy.compute_error(
     sample,
     average,
-    PredictionValues(leaf_values, leaf_values.size(), 3),
+    PredictionValues(leaf_values, 3),
     &data);
 
   double mc_error = errors[0].second;

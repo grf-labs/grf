@@ -15,7 +15,7 @@ print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
     num.samples= nrow(x$X.orig)
 
     cat("GRF forest object of type", main.class, "\n")
-    cat("Number of trees: ", x$num.trees, "\n")
+    cat("Number of trees: ", x[["_num_trees"]], "\n")
     cat("Number of training samples:", num.samples, "\n")
  
     cat("Variable importance:", "\n")

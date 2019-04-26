@@ -28,16 +28,26 @@ public:
   PredictionValues();
 
   PredictionValues(const std::vector<std::vector<double>>& values,
-                   size_t num_nodes,
                    size_t num_types);
 
 
   double get(size_t node, size_t type) const;
   const std::vector<double>& get_values(size_t node) const;
-
   double empty(size_t node) const;
+
+  /**
+   *  Returns all prediction values in this object. Values are
+   *  organized first by node, then by type.
+   */
+  const std::vector<std::vector<double>>& get_all_values() const;
   const size_t get_num_nodes() const;
   const size_t get_num_types() const;
+
+  /**
+   * Empties out all data in this object. Used to reduce memory
+   * usage when destructively iterating through a {@link Forest} object.
+   */
+  void clear();
 private:
   std::vector<std::vector<double>> values;
   size_t num_nodes;
