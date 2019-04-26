@@ -167,10 +167,11 @@ average_treatment_effect = function(forest,
     stop("Invalid target sample.")
   }
   
-  # Get estimates for the regress surfaces E[Y|X, W=0/1]
-  Y.hat.0 <- subset.Y.hat - subset.W.hat * tau.hat.pointwise
-  Y.hat.1 <- subset.Y.hat + (1 - subset.W.hat) * tau.hat.pointwise
   
+  Y.hats <- average_outcomes_X_W(forest, subset)
+  Y.hat.0 <- Y.hats$Y.hat.0
+  Y.hat.1 <- Y.hats$Y.hat.1
+
   if (method == "TMLE") {
     loaded <- requireNamespace("sandwich", quietly = TRUE)
     if (!loaded) {
@@ -293,4 +294,40 @@ average_treatment_effect = function(forest,
   tau.avg <- tau.avg.raw + dr.correction
   tau.se <- sqrt(sigma2.hat)
   return(c(estimate=tau.avg, std.err=tau.se))
+}
+
+
+#' Estimate average outcomes conditional on X and W given a trained causal forest
+#'
+#' @param forest The trained forest.
+#' @param subset Specifies subset of the training examples over which we
+#'               estimate the ATE. WARNING: For valid statistical performance,
+#'               the subset should be defined only using features Xi, not using
+#'               the treatment Wi or the outcome Yi.
+#' @return A list containing Y.hat.0 and Y.hat.1, the estimated W=0 and W=1 averages
+#' @export
+average_outcomes_X_W <- function(forest, subset=NULL){
+  
+  if (is.null(subset)) {
+    subset <- 1:length(forest$Y.hat)
+  }
+  
+  if (class(subset) == "logical" & length(subset) == length(forest$Y.hat)) {
+    subset <- which(subset)
+  }
+  
+  if (!all(subset %in% 1:length(forest$Y.hat))) {
+    stop(paste("If specified, subset must be a vector contained in 1:n,",
+               "or a boolean vector of length n."))
+  }
+  
+  subset.W.hat <- forest$W.hat[subset]
+  subset.Y.hat <- forest$Y.hat[subset]
+  tau.hat.pointwise <- predict(forest)$predictions[subset]
+  
+  # Get estimates for the regress surfaces E[Y|X, W=0/1]
+  Y.hat.0 <- subset.Y.hat - subset.W.hat * tau.hat.pointwise
+  Y.hat.1 <- subset.Y.hat + (1 - subset.W.hat) * tau.hat.pointwise
+  list(Y.hat.0 = Y.hat.0,
+       Y.hat.1 = Y.hat.1)
 }
