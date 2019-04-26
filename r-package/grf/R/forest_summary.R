@@ -8,7 +8,7 @@
 #' that the forest has captured heterogeneity in the underlying signal.
 #' The p-value of the `differential.forest.prediction` coefficient
 #' also acts as an omnibus test for the presence of heterogeneity: If the coefficient
-#' is significantly different from 0, then we can reject the null of
+#' is significantly greater than 0, then we can reject the null of
 #' no heterogeneity.
 #'
 #' @param forest The trained forest.
