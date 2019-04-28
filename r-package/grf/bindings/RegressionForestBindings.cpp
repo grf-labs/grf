@@ -43,6 +43,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
                             size_t ci_group_size,
                             double alpha,
                             double imbalance_penalty,
+                            bool compute_oob_predictions,
                             std::vector<size_t> clusters,
                             unsigned int samples_per_cluster) {
   ForestTrainer trainer = ForestTrainers::regression_trainer();
@@ -56,13 +57,16 @@ Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
-
   Forest forest = trainer.train(data, options);
-  Rcpp::List result = RcppUtilities::serialize_forest(forest);
-  result.push_back(options.get_tree_options().get_min_node_size(), "min.node.size");
+
+  std::vector<Prediction> predictions;
+  if (compute_oob_predictions) {
+    ForestPredictor predictor = ForestPredictors::regression_predictor(num_threads);
+    predictions = predictor.predict_oob(forest, data, false);
+  }
 
   delete data;
-  return result;
+  return RcppUtilities::create_forest_object(forest, predictions);
 }
 
 // [[Rcpp::export]]

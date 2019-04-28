@@ -138,25 +138,17 @@ regression_forest <- function(X, Y,
                                ci.group.size,
                                as.numeric(tunable.params["alpha"]),
                                as.numeric(tunable.params["imbalance.penalty"]),
+                               compute.oob.predictions,
                                clusters,
                                samples_per_cluster)
 
+    class(forest) <- c("regression_forest", "grf")
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
     forest[["sample.weights"]] <- sample.weights
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
-
-    class(forest) <- c("regression_forest", "grf")
-
-    if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
-        forest[["excess.error"]] <- oob.pred$excess.error
-    }
-
     forest
 }
 

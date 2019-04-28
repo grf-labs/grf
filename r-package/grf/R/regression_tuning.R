@@ -100,6 +100,7 @@ tune_regression_forest <- function(X, Y,
   num.params = length(tuning.params)
   fit.draws = matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params)
   colnames(fit.draws) = names(tuning.params)
+  compute.oob.predictions = TRUE
   
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
@@ -116,6 +117,7 @@ tune_regression_forest <- function(X, Y,
                                      ci.group.size,
                                      as.numeric(params["alpha"]),
                                      as.numeric(params["imbalance.penalty"]),
+                                     compute.oob.predictions,
                                      clusters,
                                      samples_per_cluster)
 
