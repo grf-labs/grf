@@ -184,8 +184,6 @@ Rcpp::List merge(const Rcpp::List forest_objects) {
  }
 
   Forest big_forest = Forest::merge(forest_ptrs);
-
-  Rcpp::List result = RcppUtilities::serialize_forest(big_forest);
-  return result;
+  return RcppUtilities::serialize_forest(big_forest);
 }
  

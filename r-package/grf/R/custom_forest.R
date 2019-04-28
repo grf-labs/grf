@@ -21,6 +21,7 @@
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Defaults to FALSE.
 #' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
@@ -48,10 +49,20 @@
 #' }
 #'
 #' @export
-custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL, 
-    num.trees = 2000, num.threads = NULL, min.node.size = NULL, honesty = TRUE,
-    honesty.fraction = NULL, alpha = 0.05, imbalance.penalty = 0.0, seed = NULL,
-    clusters = NULL, samples_per_cluster = NULL) {
+custom_forest <- function(X, Y,
+                          sample.fraction = 0.5,
+                          mtry = NULL, 
+                          num.trees = 2000,
+                          num.threads = NULL,
+                          min.node.size = NULL,
+                          honesty = TRUE,
+                          honesty.fraction = NULL,
+                          alpha = 0.05,
+                          imbalance.penalty = 0.0,
+                          compute.oob.predictions = FALSE,
+                          seed = NULL,
+                          clusters = NULL,
+                          samples_per_cluster = NULL) {
 
     validate_X(X)
     validate_observations(Y, X)
@@ -73,12 +84,11 @@ custom_forest <- function(X, Y, sample.fraction = 0.5, mtry = NULL,
 
     forest <- custom_train(data$default, data$sparse, outcome.index, mtry,num.trees, num.threads,
         min.node.size, sample.fraction, seed, honesty, coerce_honesty_fraction(honesty.fraction),
-        ci.group.size, alpha, imbalance.penalty, clusters, samples_per_cluster)
+        ci.group.size, alpha, imbalance.penalty, compute.oob.predictions, clusters, samples_per_cluster)
     
+    class(forest) <- c("custom_forest", "grf")
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
-
-    class(forest) <- c("custom_forest", "grf")
     forest
 }
 
