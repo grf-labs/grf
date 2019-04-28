@@ -12,8 +12,6 @@
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
-#'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
@@ -25,8 +23,6 @@
 #'                      be at least 2.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
-#' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
@@ -42,6 +38,10 @@
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
+#' @param num.threads Number of threads used in training. By default, the number of threads is set
+#'                    to the maximum hardware concurrency.
+#' @param seed The seed of the C++ random number generator.
 #'
 #' @return A trained local linear forest object.
 #'
@@ -58,21 +58,21 @@ ll_regression_forest <- function(X, Y,
                                 sample.fraction = 0.5,
                                 mtry = NULL,
                                 num.trees = 2000,
-                                num.threads = NULL,
                                 min.node.size = NULL,
                                 honesty = TRUE,
                                 honesty.fraction = NULL,
                                 ci.group.size = 1, 
                                 alpha = NULL,
                                 imbalance.penalty = NULL,
-                                compute.oob.predictions = FALSE,
-                                seed = NULL,
                                 clusters = NULL,
                                 samples_per_cluster = NULL,
                                 tune.parameters = FALSE,
                                 num.fit.trees = 10,
                                 num.fit.reps = 100,
-                                num.optimize.reps = 1000) {
+                                num.optimize.reps = 1000,
+                                compute.oob.predictions = FALSE,
+                                num.threads = NULL,
+                                seed = NULL) {
   validate_X(X)
   validate_observations(Y, X)
   
@@ -116,18 +116,18 @@ ll_regression_forest <- function(X, Y,
                              FALSE,
                              as.numeric(tunable.params["mtry"]),
                              num.trees,
-                             num.threads,
                              as.numeric(tunable.params["min.node.size"]),
                              as.numeric(tunable.params["sample.fraction"]),
-                             seed,
                              honesty,
                              coerce_honesty_fraction(honesty.fraction),
                              ci.group.size,
                              as.numeric(tunable.params["alpha"]),
                              as.numeric(tunable.params["imbalance.penalty"]),
-                             compute.oob.predictions,
                              clusters,
-                             samples_per_cluster)
+                             samples_per_cluster,
+                             compute.oob.predictions,
+                             num.threads,
+                             seed)
 
   class(forest) = c("ll_regression_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size

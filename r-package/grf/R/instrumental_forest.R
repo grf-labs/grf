@@ -25,8 +25,6 @@
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
-#'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
@@ -43,8 +41,6 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the instrument should be taken into account when
 #'                         determining the imbalance of a split (experimental).
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
-#' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
@@ -54,6 +50,10 @@
 #'                            smaller weight than others in training the forest, i.e., the contribution
 #'                            of a given cluster to the final forest scales with the minimum of
 #'                            the number of observations in the cluster and samples_per_cluster.
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
+#' @param num.threads Number of threads used in training. By default, the number of threads is set
+#'                    to the maximum hardware concurrency.
+#' @param seed The seed of the C++ random number generator.
 #'
 #' @return A trained instrumental forest object.
 #' @export
@@ -64,7 +64,6 @@ instrumental_forest <- function(X, Y, W, Z,
                                 sample.fraction = 0.5,
                                 mtry = NULL,
                                 num.trees = 2000,
-                                num.threads = NULL,
                                 min.node.size = NULL,
                                 honesty = TRUE,
                                 honesty.fraction = NULL,
@@ -73,10 +72,11 @@ instrumental_forest <- function(X, Y, W, Z,
                                 alpha = 0.05,
                                 imbalance.penalty = 0.0,
                                 stabilize.splits = TRUE,
-                                compute.oob.predictions = TRUE,
-                                seed = NULL,
                                 clusters = NULL,
-                                samples_per_cluster = NULL) {
+                                samples_per_cluster = NULL,
+                                compute.oob.predictions = TRUE,
+                                num.threads = NULL,
+                                seed = NULL) {
     validate_X(X)
     validate_observations(list(Y,W,Z), X)
 
@@ -135,11 +135,10 @@ instrumental_forest <- function(X, Y, W, Z,
     treatment.index <- ncol(X) + 2
     instrument.index <- ncol(X) + 3
     
-    forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
-        instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
-        coerce_honesty_fraction(honesty.fraction), ci.group.size, reduced.form.weight, alpha, 
-        imbalance.penalty, stabilize.splits, compute.oob.predictions, clusters, samples_per_cluster)
-
+    forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index, instrument.index,
+        mtry, num.trees,  min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction),
+        ci.group.size, reduced.form.weight, alpha,  imbalance.penalty, stabilize.splits,  clusters,
+        samples_per_cluster, compute.oob.predictions, num.threads, seed)
 
     class(forest) <- c("instrumental_forest", "grf")
     forest[["ci.group.size"]] <- ci.group.size

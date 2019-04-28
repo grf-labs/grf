@@ -23,8 +23,7 @@
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
 #' @param mtry Number of variables tried for each split.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
-#'                    automatically selects an appropriate amount.
+
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
@@ -35,11 +34,13 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
 #'                         determining the imbalance of a split (experimental).
-#' @param seed The seed of the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
 #'                            software will set this value to the size of the smallest cluster.#'
+#' @param num.threads Number of threads used in training. By default, the number of threads is set
+#'                    to the maximum hardware concurrency.
+#' @param seed The seed of the C++ random number generator.
 #'
 #' @return A list consisting of the optimal parameter values ('params') along with their debiased
 #'         error ('error').
@@ -75,12 +76,12 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                alpha = NULL,
                                imbalance.penalty = NULL,
                                stabilize.splits = TRUE,
-                               num.threads = NULL,
                                honesty = TRUE,
                                honesty.fraction = NULL,
-                               seed = NULL,
                                clusters = NULL,
-                               samples_per_cluster = NULL) {
+                               samples_per_cluster = NULL,
+                               num.threads = NULL,
+                               seed = NULL) {
   validate_X(X)
   if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
 
@@ -119,10 +120,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                        outcome.index, treatment.index, instrument.index,
                                        as.numeric(params["mtry"]),
                                        num.fit.trees,
-                                       num.threads,
                                        as.numeric(params["min.node.size"]),
                                        as.numeric(params["sample.fraction"]),
-                                       seed,
                                        honesty,
                                        coerce_honesty_fraction(honesty.fraction),
                                        ci.group.size,
@@ -130,9 +129,11 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                        as.numeric(params["alpha"]),
                                        as.numeric(params["imbalance.penalty"]),
                                        stabilize.splits,
-                                       compute.oob.predictions,
                                        clusters,
-                                       samples_per_cluster)
+                                       samples_per_cluster,
+                                       compute.oob.predictions,
+                                       num.threads,
+                                       seed)
     prediction = instrumental_predict_oob(small.forest, data$default, data$sparse,
         outcome.index, treatment.index, instrument.index, num.threads, FALSE)
     mean(prediction$debiased.error, na.rm = TRUE)

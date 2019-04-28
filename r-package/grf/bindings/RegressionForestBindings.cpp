@@ -34,18 +34,18 @@ Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
                             bool use_sample_weights,
                             unsigned int mtry,
                             unsigned int num_trees,
-                            unsigned int num_threads,
                             unsigned int min_node_size,
                             double sample_fraction,
-                            unsigned int seed,
                             bool honesty,
                             double honesty_fraction,
                             size_t ci_group_size,
                             double alpha,
                             double imbalance_penalty,
-                            bool compute_oob_predictions,
                             std::vector<size_t> clusters,
-                            unsigned int samples_per_cluster) {
+                            unsigned int samples_per_cluster,
+                            bool compute_oob_predictions,
+                            unsigned int num_threads,
+                            unsigned int seed) {
   ForestTrainer trainer = ForestTrainers::regression_trainer();
 
   Data* data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
