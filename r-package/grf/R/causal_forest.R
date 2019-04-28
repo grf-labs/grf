@@ -218,9 +218,11 @@ causal_forest <- function(X, Y, W,
                                  as.numeric(tunable.params["alpha"]),
                                  as.numeric(tunable.params["imbalance.penalty"]),
                                  stabilize.splits,
+                                 compute.oob.predictions,
                                  clusters,
                                  samples_per_cluster)
 
+    class(forest) <- c("causal_forest", "grf")
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
@@ -229,16 +231,6 @@ causal_forest <- function(X, Y, W,
     forest[["W.hat"]] <- W.hat
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
-
-    class(forest) <- c("causal_forest", "grf")
-
-    if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
-        forest[["excess.error"]] <- oob.pred$excess.error
-    }
-
     forest
 }
 

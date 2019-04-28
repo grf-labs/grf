@@ -138,8 +138,10 @@ instrumental_forest <- function(X, Y, W, Z,
     forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index,
         instrument.index, mtry, num.trees, num.threads, min.node.size, sample.fraction, seed, honesty,
         coerce_honesty_fraction(honesty.fraction), ci.group.size, reduced.form.weight, alpha, 
-        imbalance.penalty, stabilize.splits, clusters, samples_per_cluster)
+        imbalance.penalty, stabilize.splits, compute.oob.predictions, clusters, samples_per_cluster)
 
+
+    class(forest) <- c("instrumental_forest", "grf")
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
@@ -149,15 +151,6 @@ instrumental_forest <- function(X, Y, W, Z,
     forest[["W.hat"]] <- W.hat
     forest[["Z.hat"]] <- Z.hat
     forest[["clusters"]] <- clusters
-
-    class(forest) <- c("instrumental_forest", "grf")
-
-    if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
-    }
-
     forest
 }
 

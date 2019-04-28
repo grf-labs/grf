@@ -28,6 +28,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
                               double alpha,
                               double imbalance_penalty,
                               bool stabilize_splits,
+                              bool compute_oob_predictions,
                               std::vector<size_t> clusters,
                               unsigned int samples_per_cluster) {
   ForestTrainer trainer = ForestTrainers::instrumental_trainer(reduced_form_weight, stabilize_splits);
@@ -40,12 +41,16 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
-
   Forest forest = trainer.train(data, options);
-  Rcpp::List result = RcppUtilities::serialize_forest(forest);
+
+  std::vector<Prediction> predictions;
+  if (compute_oob_predictions) {
+    ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads);
+    predictions = predictor.predict_oob(forest, data, false);
+  }
 
   delete data;
-  return result;
+  return RcppUtilities::create_forest_object(forest, predictions);
 }
 
 // [[Rcpp::export]]

@@ -111,6 +111,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   num.params = length(tuning.params)
   fit.draws = matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params)
   colnames(fit.draws) = names(tuning.params)
+  compute.oob.predictions = TRUE
 
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
@@ -129,6 +130,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                        as.numeric(params["alpha"]),
                                        as.numeric(params["imbalance.penalty"]),
                                        stabilize.splits,
+                                       compute.oob.predictions,
                                        clusters,
                                        samples_per_cluster)
     prediction = instrumental_predict_oob(small.forest, data$default, data$sparse,
