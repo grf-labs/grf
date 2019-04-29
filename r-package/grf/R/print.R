@@ -80,5 +80,4 @@ print.grf_tree <- function(x, ...) {
 print.boosted_regression_forest <- function(x, ...) {
     cat("Boosted GRF object", "\n")
     cat("Number of forests: ",length(x$forests), "\n")
-    #print(x$forests)
 }

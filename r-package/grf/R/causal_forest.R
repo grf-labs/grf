@@ -18,6 +18,10 @@
 #'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest.
+#' @param orthog.boosting If TRUE, if Y.hat = NULL then E[Y|Xi] is estimated
+#'                 using boosted regression forests and if W.hat = NULL then E[W|Xi]
+#'                 is estimated using boosted regression forests. The number
+#'                 of steps is selected automatically.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
@@ -57,10 +61,7 @@
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
-#' @param boosting If TRUE, if Y.hat = NULL then E[Y|Xi] is estimated using boosted regression forests and
-#'                 and if W.hat = NULL then E[W|Xi] is estimated using boosted regression forests. The number
-#'                 of steps are selected automatically.
-
+#'
 #' @return A trained causal forest object.
 #'
 #' @examples \dontrun{
@@ -116,6 +117,7 @@
 causal_forest <- function(X, Y, W,
                           Y.hat = NULL,
                           W.hat = NULL,
+                          orthog.boosting = FALSE,
                           sample.fraction = 0.5,
                           mtry = NULL,
                           num.trees = 2000,
@@ -134,8 +136,7 @@ causal_forest <- function(X, Y, W,
                           tune.parameters = FALSE,
                           num.fit.trees = 200,
                           num.fit.reps = 50,
-                          num.optimize.reps = 1000,
-                          boosting = FALSE
+                          num.optimize.reps = 1000
                           ) {
     validate_X(X)
     validate_observations(list(Y,W), X)
@@ -147,13 +148,13 @@ causal_forest <- function(X, Y, W,
 
     reduced.form.weight <- 0
 
-    if (is.null(Y.hat) && !boosting) {
+    if (is.null(Y.hat) && !orthog.boosting) {
       forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       Y.hat <- predict(forest.Y)$predictions
-    } else if (is.null(Y.hat) && boosting) {
+    } else if (is.null(Y.hat) && orthog.boosting) {
       forest.Y <- boosted_regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
@@ -165,14 +166,14 @@ causal_forest <- function(X, Y, W,
       stop("Y.hat has incorrect length.")
     }
 
-    if (is.null(W.hat) & !boosting) {
+    if (is.null(W.hat) && !orthog.boosting) {
       forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples_per_cluster = samples_per_cluster);
       W.hat <- predict(forest.W)$predictions
 
-    } else if (is.null(W.hat) & boosting) {
+    } else if (is.null(W.hat) & orthog.boosting) {
       forest.W <- boosted_regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,

@@ -1,8 +1,9 @@
-#' Boosted regression forest
+#' Boosted regression forest (experimental)
 #'
 #' Trains a boosted regression forest that can be used to estimate
 #' the conditional mean function mu(x) = E[Y | X = x]. Selects
-#' number of boosting iterations based on cross-validation.
+#' number of boosting iterations based on cross-validation. This functionality
+#' is experimental and will likely change in future releases. 
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
@@ -42,12 +43,12 @@
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
-#' @param num.steps The number of boosting iterations. If NULL, selected by cross-validation
-#' @param tolerance If num.steps is NULL, the percentage of previous steps' error that must be estimated
+#' @param boost.steps The number of boosting iterations. If NULL, selected by cross-validation
+#' @param boost.tolerance If boost.steps is NULL, the percentage of previous steps' error that must be estimated
 #'                  by cross validation in order to take a new step, default 0.95
-#' @param max.steps The maximum number of boosting iterations to try when num.steps NULL
-#' @param num.trees.tune If num.steps is NULL, the number of trees used to test a new boosting step when tuning
-#'        num.steps
+#' @param boost.max.steps The maximum number of boosting iterations to try when boost.steps NULL
+#' @param boost.tune.trees If boost.steps is NULL, the number of trees used to test a new boosting step when tuning
+#'        boost.steps
 #'
 #' @return A trained regression forest object.
 #'
@@ -56,18 +57,18 @@
 #' n = 50; p = 10
 #' X = matrix(rnorm(n*p), n, p)
 #' Y = X[,1] * rnorm(n)
-#' r.b.forest = boosted_regression_forest(X, Y)
+#' boosted.forest = boosted_regression_forest(X, Y)
 #'
 #' # Predict using the forest.
 #' X.test = matrix(0, 101, p)
 #' X.test[,1] = seq(-2, 2, length.out = 101)
-#' r.pred = predict(r.b.forest, X.test)
+#' boost.pred = predict(boosted.forest, X.test)
 #'
 #' # Predict on out-of-bag training samples.
-#' r.pred = predict(r.b.forest)
+#' boost.pred = predict(boosted.forest)
 #'
 #' #Check how many boosting iterations were used
-#' print(length(r.b.forest$forests))
+#' print(length(boosted.forest$forests))
 #' }
 #'
 #' @export
@@ -89,10 +90,10 @@ boosted_regression_forest <- function(X, Y,
                                       num.fit.trees = 10,
                                       num.fit.reps = 100,
                                       num.optimize.reps = 1000,
-                                      num.steps = NULL,
-                                      tolerance = 0.95,
-                                      max.steps = 6,
-                                      num.trees.tune = 10) {
+                                      boost.steps = NULL,
+                                      boost.tolerance = 0.95,
+                                      boost.max.steps = 6,
+                                      boost.tune.trees = 10) {
 
   boosted.forest = NULL
   boosted.forest[["forests"]] = list()
@@ -121,16 +122,16 @@ boosted_regression_forest <- function(X, Y,
   while(still_boosting) {
     Y.resid <- Y - Y.hat
     #do termination checks
-    if(!is.null(num.steps)) {
-      still_boosting <- (step <=num.steps)
-    } else if(step>max.steps){
+    if(!is.null(boost.steps)) {
+      still_boosting <- (step <=boost.steps)
+    } else if(step>boost.max.steps){
       still_boosting <- FALSE
     } else {
       #do cross validation check
       forest.small <- regression_forest(X,Y.resid,
                                         sample.fraction = as.numeric(tunable.params["sample.fraction"]),
                                         mtry = as.numeric(tunable.params["mtry"]), tune.parameters = FALSE,
-                                        num.trees = num.trees.tune,
+                                        num.trees = boost.trees.tune,
                                         num.threads = num.threads,
                                         min.node.size = as.numeric(tunable.params["min.node.size"]),
                                         honesty = honesty,
@@ -140,7 +141,7 @@ boosted_regression_forest <- function(X, Y,
                                         imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
                                         clusters = clusters, samples_per_cluster = samples_per_cluster);
       step.error.approx <- predict(forest.small)$debiased.error
-      still_boosting <- (mean(step.error.approx,na.rm=TRUE) < tolerance*mean(error.debiased,na.rm=TRUE))
+      still_boosting <- (mean(step.error.approx,na.rm=TRUE) < boost.tolerance*mean(error.debiased,na.rm=TRUE))
     }
 
     if(still_boosting) {
@@ -179,7 +180,7 @@ boosted_regression_forest <- function(X, Y,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
-#' @param num.steps Number of boosting iterations to use for prediction. If blank, uses the full number of steps
+#' @param boost.steps Number of boosting iterations to use for prediction. If blank, uses the full number of steps
 #'        for the object given
 #' @return A vector of predictions.
 #'
@@ -203,7 +204,7 @@ boosted_regression_forest <- function(X, Y,
 #' @method predict boosted_regression_forest
 #' @export
 predict.boosted_regression_forest <- function(object, newdata=NULL,
-                                              num.steps=NULL) {
+                                              boost.steps=NULL) {
 
   # If not on new data, use pre-computed predictions
   if (is.null(newdata)) {
@@ -211,15 +212,15 @@ predict.boosted_regression_forest <- function(object, newdata=NULL,
   }
   else {
     forests <- object[["forests"]]
-    if(is.null(num.steps)) {
-      num.steps <- length(forests)
+    if(is.null(boost.steps)) {
+      boost.steps <- length(forests)
     }
     else {
-      num.steps <- min(num.steps,length(forests))
+      boost.steps <- min(boost.steps,length(forests))
     }
     Y.hat <- predict(forests[[1]],newdata)$predictions
-    if(num.steps > 1) {
-      for (f in 2:num.steps) {
+    if(boost.steps > 1) {
+      for (f in 2:boost.steps) {
         Y.hat <- Y.hat + predict(forests[[f]],newdata)$predictions
       }
     }
