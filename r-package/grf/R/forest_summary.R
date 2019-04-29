@@ -72,6 +72,7 @@ test_calibration = function(forest) {
           sep="\n")
   dimnames(blp.summary)[[2]][4] <- gsub("[|]", "", dimnames(blp.summary)[[2]][4])
   blp.summary[,4] <- blp.summary[,4]/2
+  blp.summary[,4] <- ifelse(sign(blp.summary[,3])<0, 1-blp.summary[,4],blp.summary[,4])
   blp.summary
 
 }
