@@ -184,16 +184,16 @@ regression_forest <- function(X, Y,
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return Vector of predictions, along with estimates of the error and 
+#' @return Vector of predictions, along with estimates of the error and
 #'         (optionally) its variance estimates. Column 'predictions' contains
-#'         estimates of E[Y|X=x]. The square-root of column 'variance.estimates' is the standard error 
-#          of these predictions. Column 'debiased.error' contains out-of-bag estimates of 
-#'         the test mean-squared error. Column 'excess.error' contains 
+#'         estimates of E[Y|X=x]. The square-root of column 'variance.estimates' is the standard error
+#          of these predictions. Column 'debiased.error' contains out-of-bag estimates of
+#'         the test mean-squared error. Column 'excess.error' contains
 #'         jackknife estimates of the Monte-carlo error. The sum of 'debiased.error' 
-#'         and 'excess.error' is the raw error attained by the current forest, and 
-#'         'debiased.error' alone is an estimate of the error attained by a forest with 
-#'         an infinite number of trees. We recommend that users grow 
-#'         enough forests to make the excess.error' negligible. 
+#'         and 'excess.error' is the raw error attained by the current forest, and
+#'         'debiased.error' alone is an estimate of the error attained by a forest with
+#'         an infinite number of trees. We recommend that users grow
+#'         enough forests to make the excess.error' negligible.
 #'
 #' @examples \dontrun{
 #' # Train a standard regression forest.
