@@ -47,7 +47,7 @@
 #' @param boost.error.reduction If boost.steps is NULL, the percentage of previous steps' error that must be estimated
 #'                  by cross validation in order to take a new step, default 0.95
 #' @param boost.max.steps The maximum number of boosting iterations to try when boost.steps NULL
-#' @param boost.tune.trees If boost.steps is NULL, the number of trees used to test a new boosting step when tuning
+#' @param boost.trees.tune If boost.steps is NULL, the number of trees used to test a new boosting step when tuning
 #'        boost.steps
 #'
 #' @return A boosted regression forest object. $error contains the mean debiased error for each step, and $forests
@@ -92,9 +92,9 @@ boosted_regression_forest <- function(X, Y,
                                       num.fit.reps = 100,
                                       num.optimize.reps = 1000,
                                       boost.steps = NULL,
-                                      boost.error.reduction = 0.95,
+                                      boost.error.reduction = 0.97,
                                       boost.max.steps = 5,
-                                      boost.tune.trees = 10) {
+                                      boost.trees.tune = 10) {
 
   boosted.forest = NULL
   boosted.forest[["forests"]] = list()
@@ -125,7 +125,7 @@ boosted_regression_forest <- function(X, Y,
     if(!is.null(boost.steps)) {
       if(step > boost.steps) {
         break;
-      } 
+      }
     } else if(step>boost.max.steps){
       break;
     } else {
@@ -143,7 +143,7 @@ boosted_regression_forest <- function(X, Y,
                                         imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
                                         clusters = clusters, samples_per_cluster = samples_per_cluster);
       step.error.approx <- predict(forest.small,num.threads=num.threads)$debiased.error
-      if (mean(step.error.approx,na.rm=TRUE) < boost.error.reduction*mean(error.debiased,na.rm=TRUE)){
+      if (!(mean(step.error.approx,na.rm=TRUE) <= boost.error.reduction*mean(error.debiased,na.rm=TRUE))){
         break;
       }
     }
