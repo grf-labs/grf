@@ -8,7 +8,7 @@
 #' that the forest has captured heterogeneity in the underlying signal.
 #' The p-value of the `differential.forest.prediction` coefficient
 #' also acts as an omnibus test for the presence of heterogeneity: If the coefficient
-#' is significantly different from 0, then we can reject the null of
+#' is significantly greater than 0, then we can reject the null of
 #' no heterogeneity.
 #'
 #' @param forest The trained forest.
@@ -68,8 +68,11 @@ test_calibration = function(forest) {
   attr(blp.summary, "method") <-
     paste("Best linear fit using forest predictions (on held-out data)",
           "as well as the mean forest prediction as regressors, along",
-          "with heteroskedasticity-robust (HC3) SEs",
+          "with one-sided heteroskedasticity-robust (HC3) SEs",
           sep="\n")
+  #convert to one-sided p-values
+  dimnames(blp.summary)[[2]][4] <- gsub("[|]", "", dimnames(blp.summary)[[2]][4])
+  blp.summary[,4] <- ifelse(blp.summary[,3]<0, 1-blp.summary[,4]/2,blp.summary[,4]/2)
   blp.summary
 
 }
