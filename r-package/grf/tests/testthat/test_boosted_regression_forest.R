@@ -57,10 +57,11 @@ test_that("OOB prediction is close to actual out of sample error", {
   Y <- mu + rnorm(n)
   test <- 2000:3000
   train <- 1:2000
-  forest.boost <- boosted_regression_forest(X[train,],Y[train],boost.steps=2)
-  OOB_error <- unlist(forest.boost$error)[length(forest.boost$error)]
+  forest.boost <- boosted_regression_forest(X[train,],Y[train])
+  OOB.error <- mean((forest.boost$predictions - Y[train])^2)
 
   test.pred <- predict(forest.boost,newdata=X[test,])$predictions
-  test_error <- mean((Y[test]- test.pred)^2)
-  expect_true(abs((test_error - OOB_error)/test_error) < 0.05)
+  test.error <- mean((Y[test]- test.pred)^2)
+
+  expect_true(abs((test.error - OOB.error)/test.error) < 0.05)
 })
