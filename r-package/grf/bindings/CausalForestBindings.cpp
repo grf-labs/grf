@@ -43,8 +43,7 @@ Rcpp::List causal_predict(Rcpp::List forest_object,
   train_data->set_instrument_index(instrument_index - 1);
   Data* data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
 
-  Forest forest = RcppUtilities::deserialize_forest(
-          forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
   ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
@@ -69,8 +68,7 @@ Rcpp::List causal_predict_oob(Rcpp::List forest_object,
   data->set_treatment_index(treatment_index - 1);
   data->set_instrument_index(instrument_index - 1);
 
-  Forest forest = RcppUtilities::deserialize_forest(
-          forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
   ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
@@ -100,7 +98,7 @@ Rcpp::List ll_causal_predict(Rcpp::List forest,
   train_data->set_treatment_index(treatment_index - 1);
   train_data->set_instrument_index(instrument_index - 1);
 
-  Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  Forest deserialized_forest = RcppUtilities::deserialize_forest(forest);
 
   ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, lambdas, use_unweighted_penalty,
                                                                  linear_correction_variables);
@@ -129,7 +127,7 @@ Rcpp::List ll_causal_predict_oob(Rcpp::List forest,
   data->set_treatment_index(treatment_index - 1);
   data->set_instrument_index(instrument_index - 1);
 
-  Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  Forest deserialized_forest = RcppUtilities::deserialize_forest(forest);
 
   ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, lambdas, use_unweighted_penalty,
                                                                  linear_correction_variables);

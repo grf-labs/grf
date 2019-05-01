@@ -29,8 +29,6 @@
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
-#'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
@@ -44,8 +42,6 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
 #'                         determining the imbalance of a split (experimental).
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
-#' @param seed The seed of the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
@@ -61,6 +57,10 @@
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
+#' @param num.threads Number of threads used in training. By default, the number of threads is set
+#'                    to the maximum hardware concurrency.
+#' @param seed The seed of the C++ random number generator.
 #'
 #' @return A trained causal forest object.
 #'
@@ -121,7 +121,6 @@ causal_forest <- function(X, Y, W,
                           sample.fraction = 0.5,
                           mtry = NULL,
                           num.trees = 2000,
-                          num.threads = NULL,
                           min.node.size = NULL,
                           honesty = TRUE,
                           honesty.fraction = NULL,
@@ -129,15 +128,15 @@ causal_forest <- function(X, Y, W,
                           alpha = NULL,
                           imbalance.penalty = NULL,
                           stabilize.splits = TRUE,
-                          compute.oob.predictions = TRUE,
-                          seed = NULL,
                           clusters = NULL,
                           samples_per_cluster = NULL,
                           tune.parameters = FALSE,
                           num.fit.trees = 200,
                           num.fit.reps = 50,
-                          num.optimize.reps = 1000
-                          ) {
+                          num.optimize.reps = 1000,
+                          compute.oob.predictions = TRUE,
+                          num.threads = NULL,
+                          seed = NULL) {
     validate_X(X)
     validate_observations(list(Y,W), X)
     num.threads <- validate_num_threads(num.threads)
@@ -224,10 +223,8 @@ causal_forest <- function(X, Y, W,
                                  outcome.index, treatment.index, instrument.index,
                                  as.numeric(tunable.params["mtry"]),
                                  num.trees,
-                                 num.threads,
                                  as.numeric(tunable.params["min.node.size"]),
                                  as.numeric(tunable.params["sample.fraction"]),
-                                 seed,
                                  honesty,
                                  coerce_honesty_fraction(honesty.fraction),
                                  ci.group.size,
@@ -236,8 +233,12 @@ causal_forest <- function(X, Y, W,
                                  as.numeric(tunable.params["imbalance.penalty"]),
                                  stabilize.splits,
                                  clusters,
-                                 samples_per_cluster)
+                                 samples_per_cluster,
+                                 compute.oob.predictions,
+                                 num.threads,
+                                 seed)
 
+    class(forest) <- c("causal_forest", "grf")
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
@@ -246,16 +247,6 @@ causal_forest <- function(X, Y, W,
     forest[["W.hat"]] <- W.hat
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
-
-    class(forest) <- c("causal_forest", "grf")
-
-    if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
-        forest[["excess.error"]] <- oob.pred$excess.error
-    }
-
     forest
 }
 
