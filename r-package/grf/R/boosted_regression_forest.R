@@ -76,7 +76,7 @@
 boosted_regression_forest <- function(X, Y,
                                       sample.fraction = 0.5,
                                       mtry = NULL,
-                                      num.trees = 500,
+                                      num.trees = 2000,
                                       num.threads = NULL,
                                       min.node.size = NULL,
                                       honesty = TRUE,
@@ -96,6 +96,7 @@ boosted_regression_forest <- function(X, Y,
                                       boost.max.steps = 5,
                                       boost.trees.tune = 10) {
 
+  boost.error.reduction <- validate_boost_error_reduction(boost.error.reduction)
   boosted.forest = NULL
   boosted.forest[["forests"]] = list()
   boosted.forest[["error"]] = list()
@@ -181,7 +182,7 @@ boosted_regression_forest <- function(X, Y,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order
-#' @param predict.steps Number of boosting iterations to use for prediction. If blank, uses the full number of steps
+#' @param boost.predict.steps Number of boosting iterations to use for prediction. If blank, uses the full number of steps
 #'        for the object given
 #' @param num.threads the number of threads used in prediction
 #' @return A vector of predictions.
@@ -206,7 +207,7 @@ boosted_regression_forest <- function(X, Y,
 #' @method predict boosted_regression_forest
 #' @export
 predict.boosted_regression_forest <- function(object, newdata=NULL,
-                                              predict.steps=NULL,
+                                              boost.predict.steps=NULL,
                                               num.threads=NULL) {
 
   # If not on new data, use pre-computed predictions
@@ -214,13 +215,13 @@ predict.boosted_regression_forest <- function(object, newdata=NULL,
     return(data.frame(predictions=object$predictions))
   } else {
     forests <- object[["forests"]]
-    if(is.null(predict.steps)) {
-      predict.steps <- length(forests)
+    if(is.null(boost.predict.steps)) {
+      boost.predict.steps <- length(forests)
     } else {
-      predict.steps <- min(predict.steps,length(forests))
+      boost.predict.steps <- min(boost.predict.steps,length(forests))
     }
     Y.hat <- 0
-    for (f in 1:predict.steps) {
+    for (f in 1:boost.predict.steps) {
       Y.hat <- Y.hat + predict(forests[[f]],newdata,num.threads=num.threads)$predictions
     }
   }
