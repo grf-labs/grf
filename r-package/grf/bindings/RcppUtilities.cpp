@@ -6,6 +6,15 @@
 #include "forest/ForestOptions.h"
 #include "RcppUtilities.h"
 
+Rcpp::List RcppUtilities::create_forest_object(Forest& forest,
+                                               const std::vector<Prediction>& predictions) {
+  Rcpp::List result = serialize_forest(forest);
+  if (!predictions.empty()) {
+    add_predictions(result, predictions);
+  }
+  return result;
+}
+
 Forest RcppUtilities::deserialize_forest(Rcpp::List forest_object) {
   size_t ci_group_size = forest_object["_ci_group_size"];
   size_t num_variables = forest_object["_num_variables"];
@@ -98,12 +107,17 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
 
 Rcpp::List RcppUtilities::create_prediction_object(const std::vector<Prediction>& predictions) {
   Rcpp::List result;
-  result.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
-  result.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");
-  result.push_back(RcppUtilities::create_error_matrix(predictions), "debiased.error");
-  result.push_back(RcppUtilities::create_excess_error_matrix(predictions), "excess.error");
+  add_predictions(result, predictions);
   return result;
 };
+
+void RcppUtilities::add_predictions(Rcpp::List& output,
+                                    const std::vector<Prediction>& predictions) {
+  output.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
+  output.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");
+  output.push_back(RcppUtilities::create_error_matrix(predictions), "debiased.error");
+  output.push_back(RcppUtilities::create_excess_error_matrix(predictions), "excess.error");
+}
 
 Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(const std::vector<Prediction>& predictions) {
   if (predictions.empty()) {

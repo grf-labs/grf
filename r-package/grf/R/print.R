@@ -17,7 +17,7 @@ print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
     cat("GRF forest object of type", main.class, "\n")
     cat("Number of trees: ", x[["_num_trees"]], "\n")
     cat("Number of training samples:", num.samples, "\n")
- 
+
     cat("Variable importance:", "\n")
     print(var.importance)
 }
@@ -68,4 +68,16 @@ print.grf_tree <- function(x, ...) {
         }
         cat(output, "\n")
     }
+}
+
+
+#' Print a boosted regression forest
+#' @param x The boosted forest to print.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @method print boosted_regression_forest
+#' @export
+print.boosted_regression_forest <- function(x, ...) {
+    cat("Boosted GRF object", "\n")
+    cat("Number of forests: ",length(x$forests), "\n")
 }
