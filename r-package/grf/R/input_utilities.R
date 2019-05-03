@@ -119,18 +119,18 @@ validate_clusters <- function(clusters, X) {
   clusters
 }
 
-validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
+validate_samples_per_cluster <- function(samples.per.cluster, clusters) {
   if (is.null(clusters) || length(clusters) == 0) {
     return(0)
   }
   cluster_size_counts <- table(clusters)
   min_size <- unname(cluster_size_counts[order(cluster_size_counts)][1])
-  if (is.null(samples_per_cluster)) {
-    samples_per_cluster <- min_size
-  } else if (samples_per_cluster <= 0) {
+  if (is.null(samples.per.cluster)) {
+    samples.per.cluster <- min_size
+  } else if (samples.per.cluster <= 0) {
     stop("samples_per_cluster must be positive")
   }
-  samples_per_cluster
+  samples.per.cluster
 }
 
 validate_honesty_fraction <- function(honesty.fraction, honesty) {

@@ -52,7 +52,7 @@ selected.idx = which(varimp > mean(varimp))
 cf = causal_forest(X[,selected.idx], Y, W,
                    Y.hat = Y.hat, W.hat = W.hat,
                    clusters = school.id,
-                   samples_per_cluster = 50,
+                   samples.per.cluster = 50,
                    tune.parameters = TRUE)
 tau.hat = predict(cf)$predictions
 
@@ -197,7 +197,7 @@ summary(aov(dr.score ~ factor(school.id)))
 cf.noprop = causal_forest(X[,selected.idx], Y, W,
                           Y.hat = Y.hat, W.hat = mean(W),
                           tune.parameters = TRUE,
-                          samples_per_cluster = 50,
+                          samples.per.cluster = 50,
                           clusters = school.id)
 tau.hat.noprop = predict(cf.noprop)$predictions
 

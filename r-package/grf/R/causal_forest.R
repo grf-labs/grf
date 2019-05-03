@@ -43,14 +43,14 @@
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
 #'                         determining the imbalance of a split (experimental).
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples_per_cluster,
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
 #'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples_per_cluster observations get relatively
+#'                            clusters with less than samples.per.cluster observations get relatively
 #'                            smaller weight than others in training the forest, i.e., the contribution
 #'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples_per_cluster.
+#'                            the number of observations in the cluster and samples.per.cluster.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
@@ -129,7 +129,7 @@ causal_forest <- function(X, Y, W,
                           imbalance.penalty = NULL,
                           stabilize.splits = TRUE,
                           clusters = NULL,
-                          samples_per_cluster = NULL,
+                          samples.per.cluster = NULL,
                           tune.parameters = FALSE,
                           num.fit.trees = 200,
                           num.fit.reps = 50,
@@ -139,10 +139,11 @@ causal_forest <- function(X, Y, W,
                           seed = NULL) {
     validate_X(X)
     validate_observations(list(Y,W), X)
+
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
-    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
     reduced.form.weight <- 0
@@ -151,7 +152,7 @@ causal_forest <- function(X, Y, W,
       forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+                                    clusters = clusters, samples.per.cluster = samples.per.cluster);
       Y.hat <- predict(forest.Y)$predictions
     } else if (is.null(Y.hat) && orthog.boosting) {
       forest.Y <- boosted_regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
@@ -169,7 +170,7 @@ causal_forest <- function(X, Y, W,
       forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+                                    clusters = clusters, samples.per.cluster = samples.per.cluster);
       W.hat <- predict(forest.W)$predictions
 
     } else if (is.null(W.hat) && orthog.boosting) {
@@ -200,7 +201,7 @@ causal_forest <- function(X, Y, W,
                                           honesty.fraction = honesty.fraction,
                                           seed = seed,
                                           clusters = clusters,
-                                          samples_per_cluster = samples_per_cluster)
+                                          samples.per.cluster = samples.per.cluster)
       tunable.params <- tuning.output$params
     } else {
       tunable.params <- c(
@@ -233,7 +234,7 @@ causal_forest <- function(X, Y, W,
                                  as.numeric(tunable.params["imbalance.penalty"]),
                                  stabilize.splits,
                                  clusters,
-                                 samples_per_cluster,
+                                 samples.per.cluster,
                                  compute.oob.predictions,
                                  num.threads,
                                  seed)
