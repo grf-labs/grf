@@ -218,26 +218,25 @@ causal_forest <- function(X, Y, W,
     data <- create_data_matrices(X, Y.centered, W.centered)
     outcome.index <- ncol(X) + 1
     treatment.index <- ncol(X) + 2
-    instrument.index <- treatment.index
 
-    forest <- instrumental_train(data$default, data$sparse,
-                                 outcome.index, treatment.index, instrument.index,
-                                 as.numeric(tunable.params["mtry"]),
-                                 num.trees,
-                                 as.numeric(tunable.params["min.node.size"]),
-                                 as.numeric(tunable.params["sample.fraction"]),
-                                 honesty,
-                                 coerce_honesty_fraction(honesty.fraction),
-                                 ci.group.size,
-                                 reduced.form.weight,
-                                 as.numeric(tunable.params["alpha"]),
-                                 as.numeric(tunable.params["imbalance.penalty"]),
-                                 stabilize.splits,
-                                 clusters,
-                                 samples.per.cluster,
-                                 compute.oob.predictions,
-                                 num.threads,
-                                 seed)
+    forest <- causal_train(data$default, data$sparse,
+                           outcome.index, treatment.index,
+                           as.numeric(tunable.params["mtry"]),
+                           num.trees,
+                           as.numeric(tunable.params["min.node.size"]),
+                           as.numeric(tunable.params["sample.fraction"]),
+                           honesty,
+                           coerce_honesty_fraction(honesty.fraction),
+                           ci.group.size,
+                           reduced.form.weight,
+                           as.numeric(tunable.params["alpha"]),
+                           as.numeric(tunable.params["imbalance.penalty"]),
+                           stabilize.splits,
+                           clusters,
+                           samples.per.cluster,
+                           compute.oob.predictions,
+                           num.threads,
+                           seed)
 
     class(forest) <- c("causal_forest", "grf")
     forest[["ci.group.size"]] <- ci.group.size
@@ -335,7 +334,6 @@ predict.causal_forest <- function(object, newdata = NULL,
 
     outcome.index <- ncol(X) + 1
     treatment.index <- ncol(X) + 2
-    instrument.index <- treatment.index
 
     num.threads <- validate_num_threads(num.threads)
 
@@ -353,22 +351,18 @@ predict.causal_forest <- function(object, newdata = NULL,
         data = create_data_matrices(newdata)
         if (!local.linear) {
             ret <- causal_predict(forest.short, train.data$default, train.data$sparse,
-                        outcome.index, treatment.index, instrument.index,
-                        data$default, data$sparse, num.threads, estimate.variance)
+                    outcome.index, treatment.index, data$default, data$sparse, num.threads, estimate.variance)
         } else {
             ret <- ll_causal_predict(forest.short, data$default, train.data$default, data$sparse, train.data$sparse,
-                        outcome.index, treatment.index, instrument.index,
-                        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
+                    outcome.index, treatment.index, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
         }
     } else {
         if (!local.linear) {
             ret <- causal_predict_oob(forest.short, train.data$default, train.data$sparse,
-                      outcome.index, treatment.index, instrument.index,
-                      num.threads, estimate.variance)
+                    outcome.index, treatment.index, num.threads, estimate.variance)
         } else {
             ret <- ll_causal_predict_oob(forest.short, train.data$default, train.data$sparse,
-                      outcome.index, treatment.index, instrument.index,
-                      ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
+                    outcome.index, treatment.index, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads)
         }
     }
 

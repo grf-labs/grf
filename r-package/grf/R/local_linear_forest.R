@@ -15,8 +15,8 @@
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
-#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
@@ -61,7 +61,7 @@ ll_regression_forest <- function(X, Y,
                                 min.node.size = NULL,
                                 honesty = TRUE,
                                 honesty.fraction = NULL,
-                                ci.group.size = 1, 
+                                ci.group.size = 1,
                                 alpha = NULL,
                                 imbalance.penalty = NULL,
                                 clusters = NULL,
@@ -75,7 +75,7 @@ ll_regression_forest <- function(X, Y,
                                 seed = NULL) {
   validate_X(X)
   validate_observations(Y, X)
-  
+
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)

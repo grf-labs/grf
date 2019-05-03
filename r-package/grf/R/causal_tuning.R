@@ -96,7 +96,6 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   data <- create_data_matrices(X, Y - Y.hat, W - W.hat)
   outcome.index <- ncol(X) + 1
   treatment.index <- ncol(X) + 2
-  instrument.index <- treatment.index
 
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
@@ -116,26 +115,26 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
 
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
-    small.forest <- instrumental_train(data$default, data$sparse,
-                                       outcome.index, treatment.index, instrument.index,
-                                       as.numeric(params["mtry"]),
-                                       num.fit.trees,
-                                       as.numeric(params["min.node.size"]),
-                                       as.numeric(params["sample.fraction"]),
-                                       honesty,
-                                       coerce_honesty_fraction(honesty.fraction),
-                                       ci.group.size,
-                                       reduced.form.weight,
-                                       as.numeric(params["alpha"]),
-                                       as.numeric(params["imbalance.penalty"]),
-                                       stabilize.splits,
-                                       clusters,
-                                       samples.per.cluster,
-                                       compute.oob.predictions,
-                                       num.threads,
-                                       seed)
-    prediction = instrumental_predict_oob(small.forest, data$default, data$sparse,
-        outcome.index, treatment.index, instrument.index, num.threads, FALSE)
+    small.forest <- causal_train(data$default, data$sparse,
+                                 outcome.index, treatment.index,
+                                 as.numeric(params["mtry"]),
+                                 num.fit.trees,
+                                 as.numeric(params["min.node.size"]),
+                                 as.numeric(params["sample.fraction"]),
+                                 honesty,
+                                 coerce_honesty_fraction(honesty.fraction),
+                                 ci.group.size,
+                                 reduced.form.weight,
+                                 as.numeric(params["alpha"]),
+                                 as.numeric(params["imbalance.penalty"]),
+                                 stabilize.splits,
+                                 clusters,
+                                 samples.per.cluster,
+                                 compute.oob.predictions,
+                                 num.threads,
+                                 seed)
+    prediction = causal_predict_oob(small.forest, data$default, data$sparse,
+        outcome.index, treatment.index, num.threads, FALSE)
     mean(prediction$debiased.error, na.rm = TRUE)
   })
 
