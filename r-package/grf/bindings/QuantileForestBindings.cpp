@@ -17,17 +17,17 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
                           size_t outcome_index,
                           unsigned int mtry,
                           unsigned int num_trees,
-                          int num_threads,
                           int min_node_size,
                           double sample_fraction,
-                          unsigned int seed,
                           bool honesty,
                           double honesty_fraction,
                           size_t ci_group_size,
                           double alpha,
                           double imbalance_penalty,
                           std::vector<size_t> clusters,
-                          unsigned int samples_per_cluster) {
+                          unsigned int samples_per_cluster,
+                          int num_threads,
+                          unsigned int seed) {
   ForestTrainer trainer = regression_splits
       ? ForestTrainers::regression_trainer()
       : ForestTrainers::quantile_trainer(quantiles);
@@ -38,12 +38,10 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
-
   Forest forest = trainer.train(data, options);
-  Rcpp::List result = RcppUtilities::serialize_forest(forest);
 
   delete data;
-  return result;
+  return RcppUtilities::create_forest_object(forest, std::vector<Prediction>());
 }
 
 // [[Rcpp::export]]
