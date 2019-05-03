@@ -297,16 +297,19 @@ average_treatment_effect = function(forest,
 }
 
 
-#' Estimate average outcomes conditional on X and W given a trained causal forest
+#' Estimate counterfactual outcomes conditional on X and W given a trained
+#' causal forest.  Returns a list containing Y.hat.0 and Y.hat.1, the
+#' estimates for the W=0 and W=1 treatment cases.
 #'
 #' @param forest The trained forest.
 #' @param subset Specifies subset of the training examples over which we
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
-#' @return A list containing Y.hat.0 and Y.hat.1, the estimated W=0 and W=1 averages
+#' @return A list containing Y.hat.0 and Y.hat.1, the estimates for the W=0 and W=1 
+#'         treatment cases.
 #' @export
-average_outcomes_X_W <- function(forest, subset=NULL){
+estimate_counterfactual_outcomes <- function(forest, subset=NULL){
   
   if (is.null(subset)) {
     subset <- 1:length(forest$Y.hat)
@@ -328,6 +331,5 @@ average_outcomes_X_W <- function(forest, subset=NULL){
   # Get estimates for the regress surfaces E[Y|X, W=0/1]
   Y.hat.0 <- subset.Y.hat - subset.W.hat * tau.hat.pointwise
   Y.hat.1 <- subset.Y.hat + (1 - subset.W.hat) * tau.hat.pointwise
-  list(Y.hat.0 = Y.hat.0,
-       Y.hat.1 = Y.hat.1)
+  list(Y.hat.0 = Y.hat.0, Y.hat.1 = Y.hat.1)
 }
