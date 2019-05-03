@@ -27,7 +27,7 @@
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
 #'                            software will set this value to the size of the smallest cluster.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
@@ -68,7 +68,7 @@ tune_regression_forest <- function(X, Y,
                                    honesty = TRUE,
                                    honesty.fraction = NULL,
                                    clusters = NULL,
-                                   samples_per_cluster = NULL,
+                                   samples.per.cluster = NULL,
                                    num.threads = NULL,
                                    seed = NULL) {
   validate_X(X)
@@ -77,7 +77,7 @@ tune_regression_forest <- function(X, Y,
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
-  samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   ci.group.size <- 1
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
@@ -117,7 +117,7 @@ tune_regression_forest <- function(X, Y,
                                      as.numeric(params["alpha"]),
                                      as.numeric(params["imbalance.penalty"]),
                                      clusters,
-                                     samples_per_cluster,
+                                     samples.per.cluster,
                                      compute.oob.predictions,
                                      num.threads,
                                      seed)
