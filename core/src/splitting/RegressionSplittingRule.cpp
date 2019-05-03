@@ -59,7 +59,7 @@ bool RegressionSplittingRule::find_best_split(size_t node,
   // Initialize the variables to track the best split variable.
   size_t best_var = 0;
   double best_value = 0;
-  double best_decrease = -1;
+  double best_decrease = 0.0;
 
   // For all possible split variables
   for (auto& var : possible_split_vars) {
@@ -75,7 +75,7 @@ bool RegressionSplittingRule::find_best_split(size_t node,
   }
 
   // Stop if no good split found
-  if (best_decrease < 0) {
+  if (best_decrease <= 0.0) {
     return true;
   }
 
