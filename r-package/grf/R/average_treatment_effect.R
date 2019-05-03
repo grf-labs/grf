@@ -168,9 +168,9 @@ average_treatment_effect = function(forest,
   }
   
   
-  Y.hats <- average_outcomes_X_W(forest, subset)
-  Y.hat.0 <- Y.hats$Y.hat.0
-  Y.hat.1 <- Y.hats$Y.hat.1
+  Y.hats <- estimate_counterfactual_outcomes(forest, subset)
+  Y.hat.0 <- Y.hats$`0`
+  Y.hat.1 <- Y.hats$`1`
 
   if (method == "TMLE") {
     loaded <- requireNamespace("sandwich", quietly = TRUE)
@@ -298,19 +298,19 @@ average_treatment_effect = function(forest,
 
 
 #' Estimate counterfactual outcomes conditional on X and W given a trained
-#' causal forest.  Returns a list containing Y.hat.0 and Y.hat.1, the
-#' estimates for the W=0 and W=1 treatment cases.
+#' causal forest.  Returns a list containing '0' and '1', the
+#' Y.hat estimates for the W=0 and W=1 treatment cases.
 #'
 #' @param forest The trained forest.
 #' @param subset Specifies subset of the training examples over which we
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
-#' @return A list containing Y.hat.0 and Y.hat.1, the estimates for the W=0 and W=1 
+#' @return A list containing '0' and '1', the estimates for the W=0 and W=1 
 #'         treatment cases.
 #' @export
 estimate_counterfactual_outcomes <- function(forest, subset=NULL){
-  
+
   if (is.null(subset)) {
     subset <- 1:length(forest$Y.hat)
   }
@@ -324,6 +324,11 @@ estimate_counterfactual_outcomes <- function(forest, subset=NULL){
                "or a boolean vector of length n."))
   }
   
+  if (!all(unique(forest$W.orig) == c(0,1))){
+    stop(paste("estimate_counterfactual_outcomes only implemented for ",
+               "binary treatments; !all(unique(forest$W.orig) == c(0,1))"))
+  }
+  
   subset.W.hat <- forest$W.hat[subset]
   subset.Y.hat <- forest$Y.hat[subset]
   tau.hat.pointwise <- predict(forest)$predictions[subset]
@@ -331,5 +336,5 @@ estimate_counterfactual_outcomes <- function(forest, subset=NULL){
   # Get estimates for the regress surfaces E[Y|X, W=0/1]
   Y.hat.0 <- subset.Y.hat - subset.W.hat * tau.hat.pointwise
   Y.hat.1 <- subset.Y.hat + (1 - subset.W.hat) * tau.hat.pointwise
-  list(Y.hat.0 = Y.hat.0, Y.hat.1 = Y.hat.1)
+  list('0' = Y.hat.0, '1' = Y.hat.1)
 }
