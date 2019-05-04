@@ -38,7 +38,6 @@
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -70,7 +69,6 @@ ll_regression_forest <- function(X, Y,
                                 num.fit.trees = 10,
                                 num.fit.reps = 100,
                                 num.optimize.reps = 1000,
-                                compute.oob.predictions = FALSE,
                                 num.threads = NULL,
                                 seed = NULL) {
   validate_X(X)
@@ -111,6 +109,7 @@ ll_regression_forest <- function(X, Y,
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
   sample.weight.index <- ncol(X) + 2
+  compute.oob.predictions = FALSE
 
   forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
                              FALSE,
