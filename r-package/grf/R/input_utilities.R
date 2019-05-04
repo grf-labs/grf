@@ -128,7 +128,7 @@ validate_samples_per_cluster <- function(samples.per.cluster, clusters) {
   if (is.null(samples.per.cluster)) {
     samples.per.cluster <- min_size
   } else if (samples.per.cluster <= 0) {
-    stop("samples_per_cluster must be positive")
+    stop("samples.per.cluster must be positive")
   }
   samples.per.cluster
 }
