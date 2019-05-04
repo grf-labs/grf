@@ -158,7 +158,7 @@ causal_forest <- function(X, Y, W,
       forest.Y <- boosted_regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+                                    clusters = clusters, samples.per.cluster = samples.per.cluster);
       Y.hat <- predict(forest.Y)$predictions
     } else if (length(Y.hat) == 1) {
       Y.hat <- rep(Y.hat, nrow(X))
@@ -177,7 +177,7 @@ causal_forest <- function(X, Y, W,
       forest.W <- boosted_regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                    clusters = clusters, samples_per_cluster = samples_per_cluster);
+                                    clusters = clusters, samples.per.cluster = samples.per.cluster);
       W.hat <- predict(forest.W)$predictions
     } else if (length(W.hat) == 1) {
       W.hat <- rep(W.hat, nrow(X))
