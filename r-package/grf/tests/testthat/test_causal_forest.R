@@ -156,7 +156,7 @@ test_that("predictions are invariant to scaling of the sample weights.", {
    # use forests trained with the same weights to get a sense of scale
 })
 
-test_that("IPWCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {
+test_that("IPCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {
    n = 1000
    p = 6
    e =
