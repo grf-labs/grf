@@ -171,19 +171,26 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     double sum_YZ = 0;
     double sum_WZ = 0;
 
+    double sum_weight = 0.0;
     for (auto& sample : leaf_samples[i]) {
-      sum_Y += data->get_outcome(sample);
-      sum_W += data->get_treatment(sample);
-      sum_Z += data->get_instrument(sample);
-      sum_YZ += data->get_outcome(sample) * data->get_instrument(sample);
-      sum_WZ += data->get_treatment(sample) * data->get_instrument(sample);
+      sum_Y +=  data->get_weight(sample) * data->get_outcome(sample);
+      sum_W +=  data->get_weight(sample) * data->get_treatment(sample);
+      sum_Z +=  data->get_weight(sample) * data->get_instrument(sample);
+      sum_YZ += data->get_weight(sample) * data->get_outcome(sample) * data->get_instrument(sample);
+      sum_WZ += data->get_weight(sample) * data->get_treatment(sample) * data->get_instrument(sample);
+      sum_weight += data->get_weight(sample);
     }
 
-    value[OUTCOME] = sum_Y / leaf_size;
-    value[TREATMENT] = sum_W / leaf_size;
-    value[INSTRUMENT] = sum_Z / leaf_size;
-    value[OUTCOME_INSTRUMENT] = sum_YZ / leaf_size;
-    value[TREATMENT_INSTRUMENT] = sum_WZ / leaf_size;
+    // if total weight is very small, treat the leaf as empty
+    if (std::abs(sum_weight) <= 1e-16) {
+      continue;
+    }
+
+    value[OUTCOME] = sum_Y / sum_weight;
+    value[TREATMENT] = sum_W / sum_weight;
+    value[INSTRUMENT] = sum_Z / sum_weight;
+    value[OUTCOME_INSTRUMENT] = sum_YZ / sum_weight;
+    value[TREATMENT_INSTRUMENT] = sum_WZ / sum_weight;
   }
   
   return PredictionValues(values, NUM_TYPES);

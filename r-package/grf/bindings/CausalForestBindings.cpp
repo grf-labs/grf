@@ -31,6 +31,8 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
                         Eigen::SparseMatrix<double> sparse_train_matrix,
                         size_t outcome_index,
                         size_t treatment_index,
+                        size_t sample_weight_index,
+                        bool use_sample_weights,
                         unsigned int mtry,
                         unsigned int num_trees,
                         unsigned int min_node_size,
@@ -53,6 +55,9 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
   data->set_outcome_index(outcome_index - 1);
   data->set_treatment_index(treatment_index - 1);
   data->set_instrument_index(treatment_index - 1);
+  if(use_sample_weights) {
+      data->set_weight_index(sample_weight_index - 1);
+  }
   data->sort();
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,

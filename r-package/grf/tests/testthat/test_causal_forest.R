@@ -125,12 +125,56 @@ test_that("local linear causal forests with large lambda are equivalent to causa
    p = 6
    X = matrix(rnorm(n*p), n, p)
    W = rbinom(n, 1, 0.5)
-   TAU = 2*X[,1] + X[,2]
-   Y = W * TAU + rnorm(n)
+   tau= 2*X[,1] + X[,2]
+   Y = W * tau + rnorm(n)
 
    forest = causal_forest(X, Y, W, num.trees = 400)
    preds.ll = predict(forest, X, linear.correction.variables = 1:ncol(X), ll.lambda = 1e5)$predictions
    preds.cf = predict(forest)$predictions
 
    expect_true(mean((preds.ll - preds.cf)^2) < 0.02)
+})
+
+
+test_that("predictions are invariant to scaling of the sample weights.", {
+   n = 1000
+   p = 6
+   X = matrix(rnorm(n*p), n, p)
+   e = 1/(1+exp(-3*X[,1]+3*X[,2]))
+   W = rbinom(n, 1, e)
+   tau = 2*X[,1] + X[,2]
+   Y = W * tau + rnorm(n)
+   e.cc = 1/(1+exp(-3*X[,1]))
+   sample.weights = 1/e.cc
+
+   forest.1 = causal_forest(X, Y, W, sample.weights = sample.weights)
+   forest.2 = causal_forest(X, Y, W, sample.weights = sample.weights)
+   forest.3 = causal_forest(X, Y, W, sample.weights = 40*sample.weights)
+   expect_true(mean(abs(forest.2$predictions - forest.1$predictions)) <
+            10*mean(abs(forest.3$predictions - forest.1$predictions)))
+   # forests are built with different random seeds, hence possibly poor agreement
+   # use forests trained with the same weights to get a sense of scale
+})
+
+test_that("IPWCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {
+   n = 1000
+   p = 6
+   e =
+   X = matrix(rnorm(n*p), n, p)
+   e = 1/(1+exp(-3*X[,1]+3*X[,2]))
+   W = rbinom(n, 1, e)
+   tau = 2*X[,1] + X[,2]
+   Y = W * tau + rnorm(n)
+
+   e.cc = 1/(1+exp(-3*X[,1]))
+   cc = as.logical(rbinom(n, 1, e.cc))
+   sample.weights = 1/e.cc
+
+   forest = causal_forest(X[cc,], Y[cc], W[cc])
+   boosted.forest = causal_forest(X[cc,], Y[cc], W[cc], orthog.boosting = TRUE)
+   weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc])
+   boosted.weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], orthog.boosting = TRUE)
+   mse = function(f) { sum((predict(f,X) - tau)^2) }
+   expect_true(mse(weighted.forest) < mse(forest))
+   expect_true(mse(boosted.weighted.forest)  < mse(boosted.forest))
 })

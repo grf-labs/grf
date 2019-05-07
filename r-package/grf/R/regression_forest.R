@@ -5,6 +5,10 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param sample.weights Weights defining the population on which we want our estimator of m(x) to perform well
+#'                       on average. If NULL, this is the population from which X1 ... Xn are sampled. Otherwise,
+#'                       it is a reweighted version, in which we observe Xi with probability proportional to
+#'                       sample.weights[i].
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.

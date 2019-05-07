@@ -21,8 +21,8 @@ merge <- function(forest_objects) {
     .Call('_grf_merge', PACKAGE = 'grf', forest_objects)
 }
 
-causal_train <- function(train_matrix, sparse_train_matrix, outcome_index, treatment_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed) {
-    .Call('_grf_causal_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, treatment_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed)
+causal_train <- function(train_matrix, sparse_train_matrix, outcome_index, treatment_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed) {
+    .Call('_grf_causal_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, treatment_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed)
 }
 
 causal_predict <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, treatment_index, test_matrix, sparse_test_matrix, num_threads, estimate_variance) {

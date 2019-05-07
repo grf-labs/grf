@@ -7,6 +7,10 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param sample.weights Weights defining the population on which we want our estimator of m(x) to perform well
+#'                       on average. If NULL, this is the population from which X1 ... Xn are sampled. Otherwise,
+#'                       it is a reweighted version, in which we observe Xi with probability proportional to
+#'                       sample.weights[i].
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
@@ -74,6 +78,7 @@
 #'
 #' @export
 boosted_regression_forest <- function(X, Y,
+                                      sample.weights = NULL,
                                       sample.fraction = 0.5,
                                       mtry = NULL,
                                       num.trees = 2000,
@@ -100,7 +105,8 @@ boosted_regression_forest <- function(X, Y,
   boosted.forest = NULL
   boosted.forest[["forests"]] = list()
   boosted.forest[["error"]] = list()
-  forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction,
+  forest.Y <- regression_forest(X, Y, sample.weights = sample.weights,
+                                sample.fraction = sample.fraction,
                                 mtry = mtry, tune.parameters = tune.parameters,
                                 num.trees = num.trees,
                                 num.threads = num.threads,
@@ -132,6 +138,7 @@ boosted_regression_forest <- function(X, Y,
     } else {
       #do cross validation check
       forest.small <- regression_forest(X,Y.resid,
+                                        sample.weights = sample.weights,
                                         sample.fraction = as.numeric(tunable.params["sample.fraction"]),
                                         mtry = as.numeric(tunable.params["mtry"]), tune.parameters = FALSE,
                                         num.trees = boost.trees.tune,
@@ -149,7 +156,8 @@ boosted_regression_forest <- function(X, Y,
       }
     }
 
-    forest.resid <- regression_forest(X,Y.resid, sample.fraction = as.numeric(tunable.params["sample.fraction"]),
+    forest.resid <- regression_forest(X,Y.resid, sample.weights = sample.weights,
+                                  sample.fraction = as.numeric(tunable.params["sample.fraction"]),
                                   mtry = as.numeric(tunable.params["mtry"]), tune.parameters = FALSE,
                                   num.trees = num.trees,
                                   num.threads = num.threads,

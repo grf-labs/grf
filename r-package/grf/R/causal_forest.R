@@ -18,6 +18,10 @@
 #'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest.
+#' @param sample.weights Weights defining the population on which we want our estimator of tau(x) to perform well
+#'                       on average. If NULL, this is the population from which X1 ... Xn are sampled. Otherwise,
+#'                       it is a reweighted version, in which we observe Xi with probability proportional to
+#'                       sample.weights[i].
 #' @param orthog.boosting If TRUE, if Y.hat = NULL then E[Y|Xi] is estimated
 #'                 using boosted regression forests and if W.hat = NULL then E[W|Xi]
 #'                 is estimated using boosted regression forests. The number
@@ -117,6 +121,7 @@
 causal_forest <- function(X, Y, W,
                           Y.hat = NULL,
                           W.hat = NULL,
+                          sample.weights = NULL,
                           orthog.boosting = FALSE,
                           sample.fraction = 0.5,
                           mtry = NULL,
@@ -138,6 +143,7 @@ causal_forest <- function(X, Y, W,
                           num.threads = NULL,
                           seed = NULL) {
     validate_X(X)
+    validate_sample_weights(sample.weights, X)
     validate_observations(list(Y,W), X)
 
     num.threads <- validate_num_threads(num.threads)
@@ -149,13 +155,13 @@ causal_forest <- function(X, Y, W,
     reduced.form.weight <- 0
 
     if (is.null(Y.hat) && !orthog.boosting) {
-      forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
+      forest.Y <- regression_forest(X, Y, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
       Y.hat <- predict(forest.Y)$predictions
     } else if (is.null(Y.hat) && orthog.boosting) {
-      forest.Y <- boosted_regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
+      forest.Y <- boosted_regression_forest(X, Y, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
@@ -167,14 +173,14 @@ causal_forest <- function(X, Y, W,
     }
 
     if (is.null(W.hat) && !orthog.boosting) {
-      forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
+      forest.W <- regression_forest(X, W, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
       W.hat <- predict(forest.W)$predictions
 
     } else if (is.null(W.hat) && orthog.boosting) {
-      forest.W <- boosted_regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
+      forest.W <- boosted_regression_forest(X, W, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
@@ -187,6 +193,7 @@ causal_forest <- function(X, Y, W,
 
     if (tune.parameters) {
       tuning.output <- tune_causal_forest(X, Y, W, Y.hat, W.hat,
+                                          sample.weights = sample.weights,
                                           num.fit.trees = num.fit.trees,
                                           num.fit.reps = num.fit.reps,
                                           num.optimize.reps = num.optimize.reps,
@@ -215,12 +222,14 @@ causal_forest <- function(X, Y, W,
     Y.centered = Y - Y.hat
     W.centered = W - W.hat
 
-    data <- create_data_matrices(X, Y.centered, W.centered)
+    data <- create_data_matrices(X, Y.centered, W.centered, sample.weights = sample.weights)
     outcome.index <- ncol(X) + 1
     treatment.index <- ncol(X) + 2
+    sample.weight.index <- ncol(X) + 3
 
     forest <- causal_train(data$default, data$sparse,
-                           outcome.index, treatment.index,
+                           outcome.index, treatment.index, sample.weight.index,
+                           !is.null(sample.weights),
                            as.numeric(tunable.params["mtry"]),
                            num.trees,
                            as.numeric(tunable.params["min.node.size"]),
@@ -247,6 +256,7 @@ causal_forest <- function(X, Y, W,
     forest[["W.hat"]] <- W.hat
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
+    forest[["sample.weights"]] <- sample.weights
     forest
 }
 
