@@ -37,6 +37,8 @@ tune_ll_causal_forest <- function(forest,
   X = forest[["X.orig"]]
   Y = forest[["Y.orig"]]
   W = forest[["W.orig"]]
+  Y.hat = forest[["Y.hat"]]
+  W.hat = forest[["W.hat"]]
   data = create_data_matrices(X, Y, W)
   outcome.index = ncol(X) + 1
   treatment.index = ncol(X) + 2
@@ -55,12 +57,9 @@ tune_ll_causal_forest <- function(forest,
       treatment.index, instrument.index, lambda.path, ll.weight.penalty, linear.correction.variables, num.threads)
   predictions = prediction.object$predictions
 
-  # Use R-learner to estimate tau
-  fit = rlearner::rboost(X, W, Y)
-  tau.est.rl = predict(fit)
-
   errors = apply(predictions, MARGIN = 2, FUN = function(row){
-    mean( (row - tau.est.rl)**2 )
+    # compute R-learner loss
+    mean( ((Y - Y.hat) - (W - W.hat)*row)**2 )
   })
 
   return(list(lambdas = lambda.path, errors = errors, oob.predictions = predictions,
