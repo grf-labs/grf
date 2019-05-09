@@ -257,15 +257,13 @@ causal_forest <- function(X, Y, W,
 #'                   we run a locally weighted linear regression on the included variables.
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
-#' @param ll.lambda Ridge penalty for local linear predictions
+#' @param ll.lambda Ridge penalty for local linear predictions. Defaults to NULL and will be cross-validated.
 #' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
 #'                  or penalize all covariates equally (FALSE). Penalizes equally by default.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
-#' @param tune.parameters Optional cross-validation tuning for local linear correction ridge
-#'                      penalty. Defaults to FALSE.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return Vector of predictions, along with estimates of the error and
@@ -308,11 +306,10 @@ causal_forest <- function(X, Y, W,
 #' @export
 predict.causal_forest <- function(object, newdata = NULL,
                                   linear.correction.variables = NULL,
-                                  ll.lambda = 0.1,
+                                  ll.lambda = NULL,
                                   ll.weight.penalty = FALSE,
                                   num.threads = NULL,
-                                  estimate.variance = FALSE,
-                                  tune.parameters = FALSE, ...) {
+                                  estimate.variance = FALSE, ...) {
 
     # If possible, use pre-computed predictions.
     if (is.null(newdata) & !estimate.variance & !is.null(object$predictions) & is.null(linear.correction.variables)) {
