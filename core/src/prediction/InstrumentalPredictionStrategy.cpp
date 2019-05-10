@@ -173,12 +173,13 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
 
     double sum_weight = 0.0;
     for (auto& sample : leaf_samples[i]) {
-      sum_Y +=  data->get_weight(sample) * data->get_outcome(sample);
-      sum_W +=  data->get_weight(sample) * data->get_treatment(sample);
-      sum_Z +=  data->get_weight(sample) * data->get_instrument(sample);
-      sum_YZ += data->get_weight(sample) * data->get_outcome(sample) * data->get_instrument(sample);
-      sum_WZ += data->get_weight(sample) * data->get_treatment(sample) * data->get_instrument(sample);
-      sum_weight += data->get_weight(sample);
+      auto weight = data->get_weight(sample);
+      sum_Y +=  weight * data->get_outcome(sample);
+      sum_W +=  weight * data->get_treatment(sample);
+      sum_Z +=  weight * data->get_instrument(sample);
+      sum_YZ += weight * data->get_outcome(sample) * data->get_instrument(sample);
+      sum_WZ += weight * data->get_treatment(sample) * data->get_instrument(sample);
+      sum_weight += weight;
     }
 
     // if total weight is very small, treat the leaf as empty
