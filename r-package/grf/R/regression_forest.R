@@ -12,8 +12,6 @@
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
-#'                    automatically selects an appropriate amount.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
@@ -25,23 +23,25 @@
 #'                      be at least 2.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
-#' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples_per_cluster,
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
 #'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples_per_cluster observations get relatively
+#'                            clusters with less than samples.per.cluster observations get relatively
 #'                            smaller weight than others in training the forest, i.e., the contribution
 #'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples_per_cluster.
+#'                            the number of observations in the cluster and samples.per.cluster.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
+#' @param num.threads Number of threads used in training. By default, the number of threads is set
+#'                    to the maximum hardware concurrency.
+#' @param seed The seed of the C++ random number generator.
 #'
 #' @return A trained regression forest object.
 #'
@@ -71,21 +71,21 @@ regression_forest <- function(X, Y,
                               sample.fraction = 0.5,
                               mtry = NULL,
                               num.trees = 2000,
-                              num.threads = NULL,
                               min.node.size = NULL,
                               honesty = TRUE,
                               honesty.fraction = NULL,
                               ci.group.size = 2,
                               alpha = NULL,
                               imbalance.penalty = NULL,
-                              compute.oob.predictions = TRUE,
-                              seed = NULL,
                               clusters = NULL,
-                              samples_per_cluster = NULL,
+                              samples.per.cluster = NULL,
                               tune.parameters = FALSE,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
-                              num.optimize.reps = 1000) {
+                              num.optimize.reps = 1000,
+                              compute.oob.predictions = TRUE,
+                              num.threads = NULL,
+                              seed = NULL) {
     validate_X(X)
     validate_sample_weights(sample.weights, X)
     validate_observations(Y, X)
@@ -93,7 +93,7 @@ regression_forest <- function(X, Y,
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
-    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
     if (tune.parameters) {
@@ -111,7 +111,7 @@ regression_forest <- function(X, Y,
                                               honesty.fraction = honesty.fraction,
                                               seed = seed,
                                               clusters = clusters,
-                                              samples_per_cluster = samples_per_cluster)
+                                              samples.per.cluster = samples.per.cluster)
       tunable.params <- tuning.output$params
     } else {
       tunable.params <- c(
@@ -129,34 +129,26 @@ regression_forest <- function(X, Y,
                                !is.null(sample.weights),
                                as.numeric(tunable.params["mtry"]),
                                num.trees,
-                               num.threads,
                                as.numeric(tunable.params["min.node.size"]),
                                as.numeric(tunable.params["sample.fraction"]),
-                               seed,
                                honesty,
                                coerce_honesty_fraction(honesty.fraction),
                                ci.group.size,
                                as.numeric(tunable.params["alpha"]),
                                as.numeric(tunable.params["imbalance.penalty"]),
                                clusters,
-                               samples_per_cluster)
+                               samples.per.cluster,
+                               compute.oob.predictions,
+                               num.threads,
+                               seed)
 
+    class(forest) <- c("regression_forest", "grf")
     forest[["ci.group.size"]] <- ci.group.size
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
     forest[["sample.weights"]] <- sample.weights
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
-
-    class(forest) <- c("regression_forest", "grf")
-
-    if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
-        forest[["excess.error"]] <- oob.pred$excess.error
-    }
-
     forest
 }
 
@@ -184,16 +176,16 @@ regression_forest <- function(X, Y,
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return Vector of predictions, along with estimates of the error and 
+#' @return Vector of predictions, along with estimates of the error and
 #'         (optionally) its variance estimates. Column 'predictions' contains
-#'         estimates of E[Y|X=x]. The square-root of column 'variance.estimates' is the standard error 
-#          of these predictions. Column 'debiased.error' contains out-of-bag estimates of 
-#'         the test mean-squared error. Column 'excess.error' contains 
-#'         jackknife estimates of the Monte-carlo error. The sum of 'debiased.error' 
-#'         and 'excess.error' is the raw error attained by the current forest, and 
-#'         'debiased.error' alone is an estimate of the error attained by a forest with 
-#'         an infinite number of trees. We recommend that users grow 
-#'         enough forests to make the excess.error' negligible. 
+#'         estimates of E[Y|X=x]. The square-root of column 'variance.estimates' is the standard error
+#          of these predictions. Column 'debiased.error' contains out-of-bag estimates of
+#'         the test mean-squared error. Column 'excess.error' contains
+#'         jackknife estimates of the Monte-carlo error. The sum of 'debiased.error'
+#'         and 'excess.error' is the raw error attained by the current forest, and
+#'         'debiased.error' alone is an estimate of the error attained by a forest with
+#'         an infinite number of trees. We recommend that users grow
+#'         enough forests to make the 'excess.error' negligible.
 #'
 #' @examples \dontrun{
 #' # Train a standard regression forest.

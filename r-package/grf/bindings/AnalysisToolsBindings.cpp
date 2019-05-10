@@ -30,8 +30,7 @@
 // [[Rcpp::export]]
 Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
                                               size_t max_depth) {
-  Forest forest = RcppUtilities::deserialize_forest(
-      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
   SplitFrequencyComputer computer;
   std::vector<std::vector<size_t>> split_frequencies = computer.compute(forest, max_depth);
@@ -77,8 +76,7 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
                                                    bool oob_prediction) {
   Data* train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   Data* data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
-  Forest forest = RcppUtilities::deserialize_forest(
-      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  Forest forest = RcppUtilities::deserialize_forest(forest_object);
   num_threads = ForestOptions::validate_num_threads(num_threads);
 
   TreeTraverser tree_traverser(num_threads);
@@ -132,8 +130,7 @@ Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::List deserialize_tree(Rcpp::List forest_object,
                             size_t tree_index) {
-  Forest forest = RcppUtilities::deserialize_forest(
-      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+  Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
   tree_index--; // Decrement since R is one-indexed.
   size_t num_trees = forest.get_trees().size();
@@ -200,17 +197,13 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::List merge(const Rcpp::List forest_objects) {
  std::vector<std::shared_ptr<Forest>> forest_ptrs;
- 
+
  for (auto& forest_obj : forest_objects) {
-   Forest deserialized_forest = RcppUtilities::deserialize_forest(
-     static_cast<Rcpp::List>(forest_obj)[RcppUtilities::SERIALIZED_FOREST_KEY]);
-   
+   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest_obj);
    forest_ptrs.push_back(std::make_shared<Forest>(deserialized_forest)); 
  }
 
- Forest big_forest = Forest::merge(forest_ptrs);
- Rcpp::List result = RcppUtilities::create_forest_object(big_forest);
-
- return result;
+  Forest big_forest = Forest::merge(forest_ptrs);
+  return RcppUtilities::serialize_forest(big_forest);
 }
  

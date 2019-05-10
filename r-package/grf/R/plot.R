@@ -79,7 +79,11 @@ export_graphviz <- function(tree){
 #'
 #' @method plot grf_tree
 #' @export
-plot.grf_tree <- function(x, ...){
+plot.grf_tree <- function(x, ...) {
+  if (!requireNamespace("DiagrammeR", quietly = TRUE)) {
+    stop("Package \"DiagrammeR\" must be installed to plot trees.")
+  }
+
   dot_file <- export_graphviz(x)
   DiagrammeR::grViz(dot_file)
 }

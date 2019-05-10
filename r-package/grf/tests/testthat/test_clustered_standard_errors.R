@@ -22,33 +22,33 @@ test_that("Clustered standard errors are greater than unclustered", {
                                         Y_cluster,
                                         ci.group.size = 4,
                                         clusters = clusters,
-                                        samples_per_cluster = 1)
+                                        samples.per.cluster = 1)
   preds_corrected.oob <- predict(forest_corrected, estimate.variance = TRUE)
 
   forest_no_cluster <- regression_forest(X,
                                          Y,
                                          ci.group.size = 4,
-                                         samples_per_cluster = 1)
+                                         samples.per.cluster = 1)
   preds_no_cluster.oob <- predict(forest_no_cluster, estimate.variance = TRUE)
 
   forest_uncorrected <- regression_forest(X_cluster,
                                           Y_cluster,
                                           ci.group.size = 4,
-                                          samples_per_cluster = 1)
+                                          samples.per.cluster = 1)
   preds_uncorrected.oob <- predict(forest_uncorrected, estimate.variance = TRUE)
 
   forest_corrected_no_clusters <- regression_forest(X,
                                                     Y,
                                                     ci.group.size = 4,
                                                     clusters = no_clusters,
-                                                    samples_per_cluster = 1)
+                                                    samples.per.cluster = 1)
   preds_corrected_no_cluster.oob <- predict(forest_corrected_no_clusters, estimate.variance = TRUE)
 
   mean_no_cluster <- mean(preds_no_cluster.oob$variance.estimates)
   mean_uncorrected <- mean(preds_uncorrected.oob$variance.estimates)
   mean_corrected <- mean(preds_corrected.oob$variance.estimates)
   mean_corrected_no_cluster <- mean(preds_corrected_no_cluster.oob$variance.estimates)
- 
+
   expect_equal(mean_no_cluster, mean_corrected, tolerance = 0.2 * mean_no_cluster)
   expect_equal(mean_no_cluster, mean_corrected_no_cluster, tolerance = 0.2 * mean_no_cluster)
   expect_true(mean_no_cluster > 2 * mean_uncorrected)
@@ -85,26 +85,26 @@ test_that("Clustered predictions are reasonable with unevenly sized clusters", {
                                         Y_cluster,
                                         ci.group.size = 1,
                                         clusters = clusters,
-                                        samples_per_cluster = 1)
+                                        samples.per.cluster = 1)
   preds_corrected.oob <- predict(forest_corrected, estimate.variance = FALSE)
 
   forest_no_cluster <- regression_forest(X,
                                          Y,
                                          ci.group.size = 1,
-                                         samples_per_cluster = 1)
+                                         samples.per.cluster = 1)
   preds_no_cluster.oob <- predict(forest_no_cluster, estimate.variance = FALSE)
 
   forest_uncorrected <- regression_forest(X_cluster,
                                           Y_cluster,
                                           ci.group.size = 1,
-                                          samples_per_cluster = 1)
+                                          samples.per.cluster = 1)
   preds_uncorrected.oob <- predict(forest_uncorrected, estimate.variance = FALSE)
 
   forest_corrected_no_clusters <- regression_forest(X,
                                                     Y,
                                                     ci.group.size = 1,
                                                     clusters = no_clusters,
-                                                    samples_per_cluster = 1)
+                                                    samples.per.cluster = 1)
   preds_corrected_no_cluster.oob <- predict(forest_corrected_no_clusters, estimate.variance = FALSE)
 
   mse_no_cluster <- mean((preds_no_cluster.oob$predictions - MU)^2)
