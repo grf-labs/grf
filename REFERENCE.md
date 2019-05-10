@@ -18,6 +18,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
   * [Cluster-Robust Estimation](#cluster-robust-estimation)
+  * [Sample Weights] (#sample-weighting)
 * [Troubleshooting](#troubleshooting)
 * [References](#references)
 
@@ -209,6 +210,30 @@ When clustering is enabled during training, all subsampling procedures operate o
 - To grow the tree, draw `samples_per_cluster` examples from each of the cluster IDs, and do the same when repopulating the leaves for honesty. In the event where `samples_per_cluster` is larger than the size of the cluster, we just select the whole cluster.
 
 Note that when clusters are provided, standard errors from `average_treatment_effect` and `average_partial_effect` estimation are also cluster-robust. Moreover, if clusters are specified, then each cluster gets equal weight. For example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall ATE is 0.5 (not 0.05).
+
+### Sample-Weighting
+
+When the distribution of data that you observe is not representative of the population you are interested in scientifically,
+it can be important to adjust for this. We pass `sample.weights` to specify that in our population of interest,
+we observe Xi with probability proportional to `sample.weights[i]``. By default, these weights are constant, meaning that
+our population of interest is the population from which X1 ... Xn are sampled. For causal validity, the weights we use
+should not be confounded with the potential outcomes --- typically this is done by having them be a function of Xi.
+One common example is inverse probability of complete case weighting to adjust for missing data, which allows us to work
+only the complete cases [the units with nothing missing] to estimate properties of the full data distribution [all units as if nothing were missing].
+
+When our estimand is a function of x, e.g. `r(x) = E[Y | X=x]` in `regression_forest` or `tau(x)=E[Y(1)-Y(0)| X=x]` in `causal_forest`,
+passing weights that are a function of x does not change our estimand. It instead prioritizes fit on our population of interest.
+In `regression_forest`, this means minimizing weighted mean squared error, i.e. mean squared error over the population
+specified by the sample weights. In `causal_forest`, this means minimizing weighted R-loss (Nie and Wager (2017), Equations 4/5).
+When our estimand is an average of such a function, as in `average_treatment_effect` and `average_partial_effect`, it does change
+the estimand. Our estimand will be the average treatment/partial effect over the population specified by our sample weights.
+
+Our current implementation does not use the sample weights when in our splitting rules. In terms of Equation 2 of the GRF
+paper, it replaces `alpha(X_i)` with `alpha(X_i)` = sample.weight[i] * alpha(X_i)` without changing `alpha` itself.
+This does make what we minimize an estimate of mean squared error / R-loss over the population specified by our sample weights.
+However, it is likely that we would learn better neighborhood weights `alpha' for the task of estimating this weighted loss
+if we used our sample weights in splitting as well, by sample-weighting the terms in Equation 4 of the GRF paper.
+Future implementations may do this.
 
 ## Troubleshooting
 
