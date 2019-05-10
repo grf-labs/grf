@@ -149,6 +149,8 @@ regression_forest <- function(X, Y,
     forest[["sample.weights"]] <- sample.weights
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
+    if (tune.parameters)
+      forest[["tuning.output"]] = tuning.output
     forest
 }
 
