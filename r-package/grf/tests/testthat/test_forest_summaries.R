@@ -39,13 +39,41 @@ test_that("causal forest calibration is reasonable with no heterogeneous effect"
   X = matrix(rnorm(n*p), n, p)
   W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
   Y = pmax(X[,2], 0) + W + rnorm(n)
-  
+
   cf = causal_forest(X, Y, W,
-                     W.hat = 0.25 + 0.5 * (X[,1] > 0),
-                     Y.hat = 0.25 + 0.5 * (X[,1] > 0) + pmax(X[,2], 0),
+  W.hat = 0.25 + 0.5 * (X[,1] > 0),
+  Y.hat = 0.25 + 0.5 * (X[,1] > 0) + pmax(X[,2], 0),
+  num.trees = 500)
+  tc = test_calibration(cf)
+
+  expect_true(abs(tc[1,1] - 1) <= 0.3)
+  expect_true(abs(tc[2,3]) <= 4)
+})
+
+test_that("causal forest calibration is reasonable with no heterogeneous effect with sample weights and clusters", {
+  p = 4
+  K = 100
+  cluster.sizes = pmax(20, round(40+3*rt(K, df=3)))
+  n = sum(cluster.sizes)
+  clust = rep(1:K, cluster.sizes)
+
+  X = matrix(rnorm(n*p), n, p)
+  W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
+  big = as.numeric(cluster.sizes[clust] >= median(cluster.sizes))
+  Y = pmax(X[,2], 0)*big + W + rnorm(n)
+
+  e.cc = 1/( 1+exp(-2*X[,1])  )
+  cc = as.logical(rbinom(n, 1, e.cc))
+  sample.weights = 1/e.cc
+
+  cf = causal_forest(X[cc,], Y[cc], W[cc],
+                     W.hat = 0.25 + 0.5 * (X[cc,1] > 0),
+                     Y.hat = 0.25 + 0.5 * (X[cc,1] > 0) + pmax(X[cc,2], 0) * big[cc],
+                     sample.weights = sample.weights[cc],
+                     clusters=clust[cc],
                      num.trees = 500)
   tc = test_calibration(cf)
-  
+
   expect_true(abs(tc[1,1] - 1) <= 0.3)
   expect_true(abs(tc[2,3]) <= 4)
 })

@@ -29,17 +29,8 @@
 #' @export
 test_calibration = function(forest) {
 
-  cluster.se <- length(forest$clusters) > 0
-  if (!cluster.se) {
-    clusters <- 1:length(forest$predictions)
-    observation.weight <- rep(1, length(forest$predictions))
-  } else {
-    clusters <- forest$clusters
-    clust.factor <- factor(clusters)
-    inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
-    observation.weight <- inverse.counts[as.numeric(clust.factor)]
-  }
-
+  clusters = if(length(forest$clusters) > 0) { forest$clusters } else { 1:length(forest$predictions) }
+  observation.weight = observation_weights_for_predictions(forest)
   if ("regression_forest" %in% class(forest)) {
     preds = predict(forest)$predictions
     mean.pred = weighted.mean(preds, observation.weight)
@@ -75,4 +66,21 @@ test_calibration = function(forest) {
   blp.summary[,4] <- ifelse(blp.summary[,3]<0, 1-blp.summary[,4]/2,blp.summary[,4]/2)
   blp.summary
 
+}
+
+
+observation_weights_for_predictions = function(forest) {
+  sample.weights = if(is.null(forest$sample.weights)) {
+    rep(1, length(forest$predictions))
+  } else {
+    forest$sample.weights * length(forest$predictions) / sum(forest$sample.weights)
+  }
+  if (length(forest$clusters) == 0) {
+    observation.weight <- sample.weights
+  } else {
+    clust.factor <- factor(forest$clusters)
+    inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
+    observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]
+  }
+  observation.weight
 }

@@ -86,16 +86,9 @@ average_treatment_effect = function(forest,
     stop(paste("If specified, subset must be a vector contained in 1:n,",
                "or a boolean vector of length n."))
   }
-  
-  if (!cluster.se) {
-    clusters <- 1:length(forest$Y.hat)
-    observation.weight <- rep(1, length(forest$Y.hat))
-  } else {
-    clusters <- forest$clusters
-    clust.factor <- factor(clusters)
-    inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
-    observation.weight <- inverse.counts[as.numeric(clust.factor)]
-  }
+
+  clusters = if(cluster.se) { forest$clusters } else { 1:length(forest$Y) }
+  observation.weight = observation_weights(forest)
 
   # Only use data selected via subsetting.
   subset.W.orig <- forest$W.orig[subset]
@@ -293,4 +286,20 @@ average_treatment_effect = function(forest,
   tau.avg <- tau.avg.raw + dr.correction
   tau.se <- sqrt(sigma2.hat)
   return(c(estimate=tau.avg, std.err=tau.se))
+}
+
+observation_weights = function(forest) {
+  sample.weights = if(is.null(forest$sample.weights)) {
+    rep(1, length(forest$Y.hat))
+  } else {
+    forest$sample.weights * length(forest$Y.hat) / sum(forest$sample.weights)
+  }
+  if (length(forest$clusters) == 0) {
+    observation.weight <- sample.weights
+  } else {
+    clust.factor <- factor(forest$clusters)
+    inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
+    observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]
+  }
+  observation.weight
 }
