@@ -113,12 +113,12 @@ print_tuning_params <- function(tuning.output, nq, p) {
 
   err = tuning.output$error
   params = tuning.output$params[colnames(grid)[-1]]
+  opt = formatC(c(err, params))
 
   cat("Optimal tuning parameters: \n")
-  print(noquote(formatC(params)))
-  cat("Error: ", formatC(err))
+  cat(paste0(names(opt), ": ", opt, "\n"))
 
-  cat("\n\nAverage error by ", nq, "-quantile:", sep="")
+  cat("Average error by ", nq, "-quantile:", sep="")
   for (i in out) {
     cat("\n")
     print(i)
