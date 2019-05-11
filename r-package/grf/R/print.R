@@ -106,7 +106,7 @@ print_tuning_params <- function(tuning.output, nq, p) {
     if (length(unique(q) < length(q)))
       q = unique(q)
     rank = cut(grid[, name], q, include.lowest=TRUE)
-    out = aggregate(grid[, name], by=list(rank), FUN=mean)
+    out = aggregate(grid[, "error"], by=list(rank), FUN=mean)
     colnames(out) = c(name, "error")
     out
   })
