@@ -49,7 +49,7 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
 
 // [[Rcpp::export]]
 Rcpp::List compute_interaction_frequencies(Rcpp::List forest_object) {
-    Forest forest = RcppUtilities::deserialize_forest(                                                      forest_object[RcppUtilities::SERIALIZED_FOREST_KEY]);
+    Forest forest = RcppUtilities::deserialize_forest(forest_object);
     SplitFrequencyComputer computer;
     std::map<std::vector<size_t>, size_t> split_frequencies = computer.compute_interaction(forest);
     
