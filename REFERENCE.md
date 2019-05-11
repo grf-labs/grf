@@ -159,7 +159,7 @@ Recall that causal forests assume that potential outcomes are independent of tre
 
 In GRF, we avoid this difficulty by 'orthogonalizing' our forest using Robinson's transformation (Robinson, 1988). Before running `causal_forest`, we compute estimates of the propensity scores `e(x) = E[W|X=x]` and marginal outcomes `m(x) = E[Y|X=x]` by training separate regression forests and performing out-of-bag prediction. We then compute the residual treatment `W - e(x)` and outcome `Y - m(x)`, and finally train a causal forest on these residuals. If propensity scores or marginal outcomes are known through prior means (as might be the case in a randomized trial) they can be specified through the training parameters `W.hat` and `Y.hat`. In this case, `causal_forest` will use these estimates instead of training separate regression forests.
 
-Empirically, we've found orthogonalization to be essential in obtaining accurate treatment effect estimates in observational studies. More details on the orthogonalization procedure in the context of forests can be found in section 6.1.1 of the GRF paper. For a broader discussion on Robinson's tranformation for conditional average treatment effect estimation, including formal results, please see Nie and Wager (2017). 
+Empirically, we've found orthogonalization to be essential in obtaining accurate treatment effect estimates in observational studies. More details on the orthogonalization procedure in the context of forests can be found in section 6.1.1 of the GRF paper. For a broader discussion on Robinson's tranformation for conditional average treatment effect estimation, including formal results, please see Nie and Wager (2017).
 
 ### Selecting Balanced Splits
 
@@ -201,7 +201,7 @@ The cross-validation procedure works as follows:
 
 ### Cluster-Robust Estimation
 
-For accurate predictions and variance estimates, it can be important to take into account for natural clusters in the data, as might occur if a dataset contains examples taken from the same household or small town. GRF provides support for cluster-robust forests by accounting for clusters in the subsampling process. To use this feature, the forest must be trained with the relevant cluster information by specifying the `clusters` and optionally `samples_per_cluster` parameters. Then, all subsequent calls to `predict` with will take clusters into account, including when estimating the variance of forest predictions. 
+For accurate predictions and variance estimates, it can be important to take into account for natural clusters in the data, as might occur if a dataset contains examples taken from the same household or small town. GRF provides support for cluster-robust forests by accounting for clusters in the subsampling process. To use this feature, the forest must be trained with the relevant cluster information by specifying the `clusters` and optionally `samples_per_cluster` parameters. Then, all subsequent calls to `predict` with will take clusters into account, including when estimating the variance of forest predictions.
 
 When clustering is enabled during training, all subsampling procedures operate on entire clusters as opposed to individual examples. Then, to determine the examples used for performing splitting and populating the leaves, `samples_per_cluster` examples are drawn from the selected clusters. By default, `sample_per_cluster` is equal to the size of the smallest cluster. Concretely, the cluster-robust training procedure proceeds as follows:
 - For each 'CI group' used in estimating variance, sample half of the clusters. Each CI group is then associated with a list of cluster IDs.
@@ -213,27 +213,11 @@ Note that when clusters are provided, standard errors from `average_treatment_ef
 
 ### Sample-Weighting
 
-When the distribution of data that you observe is not representative of the population you are interested in scientifically,
-it can be important to adjust for this. We pass `sample.weights` to specify that in our population of interest,
-we observe Xi with probability proportional to `sample.weights[i]``. By default, these weights are constant, meaning that
-our population of interest is the population from which X1 ... Xn are sampled. For causal validity, the weights we use
-should not be confounded with the potential outcomes --- typically this is done by having them be a function of Xi.
-One common example is inverse probability of complete case weighting to adjust for missing data, which allows us to work
-only the complete cases [the units with nothing missing] to estimate properties of the full data distribution [all units as if nothing were missing].
+When the distribution of data that you observe is not representative of the population you are interested in scientifically, it can be important to adjust for this. We pass `sample.weights` to specify that in our population of interest, we observe Xi with probability proportional to `sample.weights[i]``. By default, these weights are constant, meaning that our population of interest is the population from which X1 ... Xn are sampled. For causal validity, the weights we use should not be confounded with the potential outcomes --- typically this is done by having them be a function of Xi. One common example is inverse probability of complete case weighting to adjust for missing data, which allows us to work only the complete cases [the units with nothing missing] to estimate properties of the full data distribution [all units as if nothing were missing].
 
-When our estimand is a function of x, e.g. `r(x) = E[Y | X=x]` in `regression_forest` or `tau(x)=E[Y(1)-Y(0)| X=x]` in `causal_forest`,
-passing weights that are a function of x does not change our estimand. It instead prioritizes fit on our population of interest.
-In `regression_forest`, this means minimizing weighted mean squared error, i.e. mean squared error over the population
-specified by the sample weights. In `causal_forest`, this means minimizing weighted R-loss (Nie and Wager (2017), Equations 4/5).
-When our estimand is an average of such a function, as in `average_treatment_effect` and `average_partial_effect`, it does change
-the estimand. Our estimand will be the average treatment/partial effect over the population specified by our sample weights.
+When our estimand is a function of x, e.g. `r(x) = E[Y | X=x]` in `regression_forest` or `tau(x)=E[Y(1)-Y(0)| X=x]` in `causal_forest`, passing weights that are a function of x does not change our estimand. It instead prioritizes fit on our population of interest. In `regression_forest`, this means minimizing weighted mean squared error, i.e. mean squared error over the population specified by the sample weights. In `causal_forest`, this means minimizing weighted R-loss (Nie and Wager (2017), Equations 4/5). When our estimand is an average of such a function, as in `average_treatment_effect` and `average_partial_effect`, it does change the estimand. Our estimand will be the average treatment/partial effect over the population specified by our sample weights.
 
-Our current implementation does not use the sample weights when in our splitting rules. In terms of Equation 2 of the GRF
-paper, it replaces `alpha(X_i)` with `alpha(X_i)` = sample.weight[i] * alpha(X_i)` without changing `alpha` itself.
-This does make what we minimize an estimate of mean squared error / R-loss over the population specified by our sample weights.
-However, it is likely that we would learn better neighborhood weights `alpha' for the task of estimating this weighted loss
-if we used our sample weights in splitting as well, by sample-weighting the terms in Equation 4 of the GRF paper.
-Future implementations may do this.
+Our current implementation does not use the sample weights when in our splitting rules. In terms of Equation 2 of the GRF paper, it replaces `alpha(X_i)` with `alpha(X_i)` = sample.weight[i] * alpha(X_i)` without changing `alpha` itself. This does make what we minimize an estimate of mean squared error / R-loss over the population specified by our sample weights. However, it is likely that we would learn better neighborhood weights `alpha' for the task of estimating this weighted loss if we used our sample weights in splitting as well, by sample-weighting the terms in Equation 4 of the GRF paper. Future implementations may do this.
 
 ## Troubleshooting
 
@@ -267,11 +251,11 @@ While the algorithm in `regression_forest` is very similar to that of classic ra
 
 ## References
 
-Athey, Susan, Julie Tibshirani, and Stefan Wager. Generalized Random Forests. *Annals of Statistics (forthcoming)*, 2018. 
+Athey, Susan, Julie Tibshirani, and Stefan Wager. Generalized Random Forests. *Annals of Statistics (forthcoming)*, 2018.
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. Double/debiased machine learning for treatment and structural parameters. *The Econometrics Journal*, 2018.
 
-Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. *Cambridge University Press*, 2015. 
+Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. *Cambridge University Press*, 2015.
 
 Li, Fan, Kari Lock Morgan, and Alan M. Zaslavsky. Balancing covariates via propensity score weighting. *Journal of the American Statistical Association*, 2018.
 
