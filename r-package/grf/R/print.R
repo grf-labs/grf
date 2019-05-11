@@ -118,9 +118,8 @@ print_tuning_params <- function(tuning.output, nq, p) {
   cat("Optimal tuning parameters: \n")
   cat(paste0(names(opt), ": ", opt, "\n"))
 
-  cat("Average error by ", nq, "-quantile:", sep="")
+  cat("Average error by ", nq, "-quantile:\n", sep="")
   for (i in out) {
-    cat("\n")
-    print(i)
+    print(i, row.names = FALSE)
   }
 }
