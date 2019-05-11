@@ -26,6 +26,6 @@ get_params_from_draw <- function(X, draws) {
     else if (param == "imbalance.penalty")
       return (-log(draws[, param]))
     else
-    stop("Unrecognized parameter name provided: ", param)
+      stop("Unrecognized parameter name provided: ", param)
   }, FUN.VALUE = numeric(n))
 }
