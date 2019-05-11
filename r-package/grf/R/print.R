@@ -2,11 +2,13 @@
 #' @param x The tree to print.
 #' @param decay.exponent A tuning parameter that controls the importance of split depth.
 #' @param max.depth The maximum depth of splits to consider.
+#' @param tuning.quantiles Number of quantiles to display average error over for tuned parameters.
+#'                         Default: 0 (no output).
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @method print grf
 #' @export
-print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
+print.grf <- function(x, decay.exponent=2, max.depth=4, tuning.quantiles=0, ...) {
     var.importance = variable_importance(x, decay.exponent, max.depth)
     var.importance = c(round(var.importance, 3))
     names(var.importance) = 1:length(var.importance)
@@ -20,6 +22,13 @@ print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
 
     cat("Variable importance:", "\n")
     print(var.importance)
+
+    if (exists('tuning.output', x)) {
+      if (tuning.quantiles > 0) {
+        p = ncol(x$X.orig)
+        print_tuning_params(x$tuning.output, tuning.quantiles, p)
+      }
+    }
 }
 
 #' Print a GRF tree object.
@@ -80,4 +89,38 @@ print.grf_tree <- function(x, ...) {
 print.boosted_regression_forest <- function(x, ...) {
     cat("Boosted GRF object", "\n")
     cat("Number of forests: ",length(x$forests), "\n")
+}
+
+
+print_tuning_params <- function(tuning.output, nq, p) {
+  # Print average error for `nq`-quantiles of tuned parameters
+  # Extra branches for `mtry` and `min.node.size`
+  grid = tuning.output$grid
+
+  out = lapply(colnames(grid)[-1], function(name) {
+    m = nq
+    if (name == "mtry")
+      m = min(p - 1, nq)
+    probs = 0:m/m
+    q = quantile(grid[, name], probs = probs)
+    if (length(unique(q) < length(q)))
+      q = unique(q)
+    rank = cut(grid[, name], q, include.lowest=TRUE)
+    out = aggregate(grid[, name], by=list(rank), FUN=mean)
+    colnames(out) = c(name, "error")
+    out
+  })
+
+  err = tuning.output$error
+  params = tuning.output$params[colnames(grid)[-1]]
+
+  cat("Optimal tuning parameters: \n")
+  print(noquote(formatC(params)))
+  cat("Error: ", formatC(err))
+
+  cat("\n\nAverage error by ", nq, "-quantile:", sep="")
+  for (i in out) {
+    cat("\n")
+    print(i)
+  }
 }
