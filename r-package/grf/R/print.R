@@ -93,8 +93,9 @@ print.boosted_regression_forest <- function(x, ...) {
 
 
 print_tuning_params <- function(tuning.output, nq, p) {
-  # Print average error for `nq`-quantiles of tuned parameters
-  # Extra branches for `mtry` and `min.node.size`
+  # Print average error for nq-quantiles of tuned parameters
+  # Extra branches for mtry and min.node.size (e.g. cannot form quintiles
+  # for mtry if the number of variables is less than 5)
   grid = tuning.output$grid
 
   out = lapply(colnames(grid)[-1], function(name) {
