@@ -18,12 +18,8 @@
 #'              these are estimated using a separate regression forest.
 #' @param Z.hat Estimates of the instrument propensities E[Z | Xi]. If Z.hat = NULL,
 #'              these are estimated using a separate regression forest.
-#' @param sample.weights Weights that define our population of interest.
-#'                       If NULL, this is the population from which X1 ... Xn are sampled. Otherwise,
-#'                       it is a reweighted version, in which we observe Xi with probability proportional to
-#'                       sample.weights[i]. A typical use case is passing inverse probability of complete case
-#'                       weights so that we prioritize fit in regions of the covariate space with high probability
-#                        under the full data distribution, not distribution of uncensored units.
+#' @param sample.weights Weights given to each observation in estimation.
+#'                       If NULL, each observation receives equal weight.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.

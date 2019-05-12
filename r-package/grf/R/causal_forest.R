@@ -18,14 +18,10 @@
 #'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest.
-#' @param sample.weights Weights that define our population of interest.
-#'                       If NULL, this is the population from which X1 ... Xn are sampled. Otherwise,
-#'                       it is a reweighted version, in which we observe Xi with probability proportional to
-#'                       sample.weights[i]. A typical use case is passing inverse probability of complete case
-#'                       weights so that we estimate the ATE over the distribution of our full data,
-#'                       not the distribution of uncensored individuals, and prioritize fit of the HTE in
-#'                       regions of the covariate space with high probability under the full data distribution.
-#'                       Note: To avoid introducing confounding, weights should be independent of W given X.
+#' @param sample.weights Weights given to each sample in estimation.
+#'                       If NULL, each observation receives the same weight.
+#'                       Note: To avoid introducing confounding, weights should be
+#'                       independent of the potential outcomes given X.
 #' @param orthog.boosting If TRUE, if Y.hat = NULL then E[Y|Xi] is estimated
 #'                 using boosted regression forests and if W.hat = NULL then E[W|Xi]
 #'                 is estimated using boosted regression forests. The number

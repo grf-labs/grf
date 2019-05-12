@@ -5,12 +5,8 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
-#' @param sample.weights Weights that define our population of interest.
-#'                       If NULL, this is the population from which X1 ... Xn are sampled. Otherwise,
-#'                       it is a reweighted version, in which we observe Xi with probability proportional to
-#'                       sample.weights[i]. A typical use case is passing inverse probability of complete case
-#'                       weights so that we prioritize fit in regions of the covariate space with high probability
-#                        under the full data distribution, not distribution of uncensored units.
+#' @param sample.weights Weights given to an observation in estimation.
+#'                       If NULL, each observation is given the same weight.
 # Weights defining the population on which we want our estimator of m(x) to perform well
 #'                       on average. If NULL, this is the population from which X1 ... Xn are sampled. Otherwise,
 #'                       it is a reweighted version, in which we observe Xi with probability proportional to

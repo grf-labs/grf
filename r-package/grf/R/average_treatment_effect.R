@@ -290,9 +290,9 @@ average_treatment_effect = function(forest,
 
 observation_weights = function(forest) {
   sample.weights = if(is.null(forest$sample.weights)) {
-    rep(1, length(forest$Y.hat))
+    rep(1, length(forest$Y.orig))
   } else {
-    forest$sample.weights * length(forest$Y.hat) / sum(forest$sample.weights)
+    forest$sample.weights * length(forest$Y.orig) / sum(forest$sample.weights)
   }
   if (length(forest$clusters) == 0) {
     observation.weight <- sample.weights
