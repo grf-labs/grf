@@ -39,7 +39,7 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
 
   bool error;
   for(size_t r = 0; r < data->get_num_rows(); r++) {
-    double weight = 1.0 / (1.0 + exp(- data->get(1, r)));
+    double weight = 1.0 / (1.0 + exp(- data->get(r, 1)));
     data->set(weight_index, r, weight, error);
   }
 
