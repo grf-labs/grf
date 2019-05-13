@@ -153,17 +153,12 @@ test_that("predictions are invariant to scaling of the sample weights.", {
 })
 
 test_that("IPCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {
-   old.seed = .Random.seed
-
-   seed = 1
-   set.seed(seed)
-   n = 400
-   p = 6
-   e =
+   n = 800
+   p = 2
    X = matrix(rnorm(n*p), n, p)
-   e = 1/(1+exp(-2*X[,1]+3*X[,2]))
+   e = 1/(1+exp(-3*X[,1]+2*X[,2]))
    W = rbinom(n, 1, e)
-   tau = 2*X[,1] + X[,2]
+   tau = 20*X[,1] - X[,2]
    Y = W * tau + rnorm(n)
 
    e.cc = 1/(1+exp(-2*X[,1]))
@@ -171,59 +166,60 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
    sample.weights = 1/e.cc
 
    num.trees = 400
-   forest = causal_forest(X[cc,], Y[cc], W[cc], num.trees=num.trees, seed = seed)
-   boosted.forest = causal_forest(X[cc,], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees, seed = seed)
-   weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees, seed = seed)
-   boosted.weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], orthog.boosting = TRUE, num.trees = num.trees, seed = seed)
-   mse = function(f) { sum((predict(f,X) - tau)^2) }
-   expect_true(mse(weighted.forest) < .9 * mse(forest))
-   expect_true(mse(boosted.weighted.forest)  < .9 * mse(boosted.forest))
-
-   set.seed(old.seed)
+   forest = causal_forest(X[cc,], Y[cc], W[cc], num.trees=num.trees)
+   boosted.forest = causal_forest(X[cc,], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees)
+   weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees)
+   boosted.weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], orthog.boosting = TRUE, num.trees = num.trees)
+   mse = function(f) { mean((predict(f,X)$predictions - tau)^2) }
+   expect_true(mse(weighted.forest)/mse(forest) < .975)
+   expect_true(mse(boosted.weighted.forest)/ mse(boosted.forest) < .975)
 })
 
-test_that("Weighting is roughly equivalent to replication of samples.", {
-  old.seed = .Random.seed
-
-  seed = 1
-  set.seed(seed)
-  n = 400
+test_that("Weighting is roughly equivalent to replication of samples", {
+  n = 500
   p = 2
   num.trees = 1000
 
   X = matrix(rnorm(n*p), n, p)
   e.a = 1/(1+exp(+1*X[,1]+1*X[,2]))
   e.b = 1/(1+exp(-1*X[,1]-1*X[,2]))
-  tau.a = +1 + 2*X[,1] + X[,2]
-  tau.b = -1 + X[,1] - X[,2]
+  tau.a = +1000 + 2*X[,1] + X[,2]
+  tau.b = -1000 + X[,1] - X[,2]
   W.a = rbinom(n, 1, e.a)
   W.b = rbinom(n, 1, e.b)
   Y.a = W.a * tau.a + rnorm(n)
   Y.b = W.b * tau.b + rnorm(n)
 
-  X.rep = X[rep(1:n, 5),]
-  W.rep = c(W.a[rep(1:n,4)], W.b)
-  Y.rep = c(Y.a[rep(1:n,4)], Y.b)
-  sample.weights = c(rep(4,n), rep(1,n))
+  X.rep = X[rep(1:(n/2), 5),]
+  W.rep = c(W.a[rep(1:(n/2),4)], W.b[1:(n/2)])
+  Y.rep = c(Y.a[rep(1:(n/2),4)], Y.b[1:(n/2)])
+  sample.weights = c(rep(4,n/2), rep(1,n/2))
+  train = 1:(n/2)
+  test = (n/2 + 1):n
 
   ## regression forest for propensity score
-  forest.rep = regression_forest(X.rep, W.rep, num.trees=num.trees, seed = seed)
-  forest.weight = regression_forest(X[rep(1:n, 2),], c(W.a,W.b),
-    sample.weights=sample.weights, num.trees=num.trees, seed = seed)
-  p.rep = predict(forest.rep,X)$predictions
+  regression.forest.rep = regression_forest(X.rep, W.rep, num.trees=num.trees)
+  regression.forest.weight = regression_forest(X[rep(train, 2), ], c(W.a[train], W.b[train]),
+    sample.weights=sample.weights, num.trees=num.trees)
+  regression.forest.biased = regression_forest(X[rep(train, 2), ], c(W.a[train], W.b[train]),
+    num.trees=num.trees)
 
-  p.weight = predict(forest.weight,X)$predictions
-  expect_true(mean((p.rep - p.weight)^2)/ mean(p.rep^2) < .1)
-
+  z_scores = function(a,b) { # conservative. use a variance upper bound
+    abs(a$predictions-b$predictions) / sqrt(2*(a$variance + b$variance))
+  }
+  expect_true(mean(z_scores(predict(regression.forest.rep, X[test,], estimate.variance = TRUE),
+                            predict(regression.forest.weight, X[test,], estimate.variance = TRUE)) <= 1) >= .5)
+  expect_true(mean(z_scores(predict(regression.forest.rep, X[test,], estimate.variance = TRUE),
+                             predict(regression.forest.biased, X[test,], estimate.variance = TRUE)) >= 1) >= .5)
   ## causal forest
-  forest.rep = causal_forest(X.rep, Y.rep, W.rep, num.trees=num.trees, seed = seed)
-  forest.weight = causal_forest(X[rep(1:n, 2),], c(Y.a,Y.b), c(W.a,W.b),
-    sample.weights=sample.weights, num.trees=num.trees, seed = seed)
-
-  p.rep = predict(forest.rep,X)$predictions
-  p.weight = predict(forest.weight,X)$predictions
-  expect_true(mean((p.rep - p.weight)^2) / mean(p.rep^2) < .2)
-
-  set.seed(old.seed)
+  causal.forest.rep = causal_forest(X.rep, Y.rep, W.rep,
+    W.hat = predict(regression.forest.rep)$predictions, num.trees=num.trees)
+  causal.forest.weight = causal_forest(X[rep(train, 2),], c(Y.a[train],Y.b[train]), c(W.a[train],W.b[train]),
+    W.hat = predict(regression.forest.weight)$predictions, sample.weights=sample.weights, num.trees=num.trees)
+  causal.forest.biased = causal_forest(X[rep(train, 2),], c(Y.a[train],Y.b[train]), c(W.a[train],W.b[train]),
+    W.hat = predict(regression.forest.biased)$predictions, num.trees=num.trees)
+  expect_true(mean(z_scores(predict(causal.forest.rep, X[test,], estimate.variance = TRUE),
+                            predict(causal.forest.weight, X[test,], estimate.variance = TRUE)) <= 1) >= .5)
+  expect_true(mean(predict(causal.forest.rep, X[test,]) > 100 + predict(causal.forest.biased, X[test,])) >= .5)
 })
 

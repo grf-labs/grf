@@ -41,9 +41,9 @@ test_that("causal forest calibration is reasonable with no heterogeneous effect"
   Y = pmax(X[,2], 0) + W + rnorm(n)
 
   cf = causal_forest(X, Y, W,
-  W.hat = 0.25 + 0.5 * (X[,1] > 0),
-  Y.hat = 0.25 + 0.5 * (X[,1] > 0) + pmax(X[,2], 0),
-  num.trees = 500)
+                     W.hat = 0.25 + 0.5 * (X[,1] > 0),
+                     Y.hat = 0.25 + 0.5 * (X[,1] > 0) + pmax(X[,2], 0),
+                     num.trees = 500)
   tc = test_calibration(cf)
 
   expect_true(abs(tc[1,1] - 1) <= 0.3)

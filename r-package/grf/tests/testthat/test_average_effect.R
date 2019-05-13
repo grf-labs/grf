@@ -290,38 +290,66 @@ test_that("cluster robust average effects do weighting correctly", {
 })
 
 test_that("cluster robust average effects do weighting correctly with IPCC weights", {
-  t0 = 2
+  t0 = 2; t1 = 3
   K = 100
   p = 4
-  cluster.sizes = pmax(20, round(40+3*rt(K, df=3)))
+  cluster.sizes = pmax(20, round(40 + 40 * rt(K, df=3)))
   n = sum(cluster.sizes)
   clust = rep(1:K, cluster.sizes)
-  tau = 2 * t0 * as.numeric(cluster.sizes[clust] >= median(cluster.sizes))
 
   X = matrix(rnorm(n * p), n, p)
-  e = 1/(1+exp(-1*X[,1]+1*X[,2]))
+  e = 1/(1 + exp(-X[,1] + X[,2]))
   W = rbinom(n, 1, e)
-  Y = tau * W + 2 * rnorm(n)
+  tau = 2 * t0 * as.numeric(cluster.sizes[clust] >= median(cluster.sizes)) +
+        2 * t1 * as.numeric(X[,3] > 0)
+  Y = 2 * X[,1] + tau * W + 2 * rnorm(n)
 
-  e.cc = 1/( 1+exp(-X[,1]*(cluster.sizes[clust] >= median(cluster.sizes)))  )
+  # strictly speaking, we should add variance when comparing to this
+  # because the variances we report are for the conditional average and this is the population average.
+  true.ate = t0 + t1
+
+  e.cc = 0.2 + 0.6 * as.numeric(X[,3] > 0)
   cc = as.logical(rbinom(n, 1, e.cc))
   sample.weights = 1/e.cc
 
-  forest.causal = causal_forest(X[cc,], Y[cc], W[cc], clusters = clust[cc], num.trees = 400)
+  forest.weighted = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], clusters = clust[cc], num.trees = 400)
+  forest.unweighted = causal_forest(X[cc,], Y[cc], W[cc], clusters = clust[cc], num.trees = 400)
 
-  cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
-  expect_true(abs(cate.aipw[1] - mean(tau)) / (3 * cate.aipw[2]) <= 1)
+  cate.aipw = average_treatment_effect(forest.weighted, target.sample = "all", method = "AIPW")
+  biased.cate.aipw = average_treatment_effect(forest.unweighted, target.sample = "all", method = "AIPW")
+  expect_true(abs(cate.aipw[1] - true.ate) / (3 * cate.aipw[2]) <= 1)
+  expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.cate.aipw[2]) <= 1)
 
-  catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
-  expect_true(abs(catt.aipw[1] - mean(tau)) / (3 * catt.aipw[2]) <= 1)
+  catt.aipw = average_treatment_effect(forest.weighted, target.sample = "treated", method = "AIPW")
+  biased.catt.aipw = average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW")
+  expect_true(abs(catt.aipw[1] - true.ate) / (3 * catt.aipw[2]) <= 1)
+  expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.catt.aipw[2]) <= 1)
 
-  catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - mean(tau)) / (3 * catc.aipw[2]) <= 1)
+  catc.aipw = average_treatment_effect(forest.weighted, target.sample = "control", method = "AIPW")
+  biased.catc.aipw = average_treatment_effect(forest.unweighted, target.sample = "control", method = "AIPW")
+  expect_true(abs(catc.aipw[1] - true.ate) / (3 * catc.aipw[2]) <= 1)
+  expect_false(abs(biased.catc.aipw[1] - true.ate) / (3 * biased.catc.aipw[2]) <= 1)
 
-  cape = average_partial_effect(forest.causal, num.trees.for.variance = 200)
-  expect_true(abs(cape[1] - mean(tau)) / (3 * cape[2]) <= 1)
+  cape = average_partial_effect(forest.weighted, num.trees.for.variance = 200)
+  biased.cape = average_partial_effect(forest.unweighted, num.trees.for.variance = 200)
+  expect_true(abs(cape[1] - true.ate) / (3 * cape[2]) <= 1)
+  expect_false(abs(biased.cape[1] - true.ate) / (3 * biased.cape[2]) <= 1)
 
-  wate = average_treatment_effect(forest.causal, target.sample = "overlap")
-  expect_true(abs(wate[1] - mean(tau)) / (3 * wate[2]) <= 1)
+  wate = average_treatment_effect(forest.weighted, target.sample = "overlap")
+  biased.wate = average_treatment_effect(forest.unweighted, target.sample = "overlap")
+  expect_true(abs(wate[1] - true.ate) / (3 * wate[2]) <= 1)
+  expect_false(abs(biased.wate[1] - true.ate) / (3 * biased.wate[2]) <= 1)
+})
+
+test_that("average effect estimation doesn't error on data with a single feature", {
+  p = 1; n = 100
+
+  X = matrix(rnorm(n * p), n, p)
+  Y = rnorm(n)
+  W = rbinom(n, size=1, prob=0.5)
+
+  forest = causal_forest(X,Y,W)
+  average_partial_effect(forest)
+  expect_true(TRUE) # so we don't get a warning about an empty test
 })
 
