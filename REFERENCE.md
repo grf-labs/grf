@@ -18,7 +18,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
   * [Cluster-Robust Estimation](#cluster-robust-estimation)
-  * [Sample Weights] (#sample-weighting)
+  * [Sample Weighting](#sample-weighting)
 * [Troubleshooting](#troubleshooting)
 * [References](#references)
 
@@ -211,7 +211,7 @@ When clustering is enabled during training, all subsampling procedures operate o
 
 Note that when clusters are provided, standard errors from `average_treatment_effect` and `average_partial_effect` estimation are also cluster-robust. Moreover, if clusters are specified, then each cluster gets equal weight. For example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall ATE is 0.5 (not 0.05).
 
-### Sample-Weighting
+### Sample Weighting
 
 When the distribution of data that you observe is not representative of the population you are interested in scientifically, it can be important to adjust for this. We can pass `sample.weights` to specify that in our population of interest, we observe Xi with probability proportional to `sample.weights[i]`. By default, these weights are constant, meaning that our population of interest is the population from which X1 ... Xn are sampled. For causal validity, the weights we use should not be confounded with the potential outcomes --- typically this is done by having them be a function of Xi. One common example is inverse probability of complete case weighting to adjust for missing data, which allows us to work only the complete cases (the units with nothing missing) to estimate properties of the full data distribution (all units as if nothing were missing).
 
