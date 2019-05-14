@@ -18,6 +18,8 @@
 #'              these are estimated using a separate regression forest.
 #' @param Z.hat Estimates of the instrument propensities E[Z | Xi]. If Z.hat = NULL,
 #'              these are estimated using a separate regression forest.
+#' @param sample.weights Weights given to each observation in estimation.
+#'                       If NULL, each observation receives equal weight.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
@@ -61,6 +63,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 Y.hat = NULL,
                                 W.hat = NULL,
                                 Z.hat = NULL,
+                                sample.weights = NULL,
                                 sample.fraction = 0.5,
                                 mtry = NULL,
                                 num.trees = 2000,
@@ -78,6 +81,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 num.threads = NULL,
                                 seed = NULL) {
     validate_X(X)
+    validate_sample_weights(sample.weights, X)
     validate_observations(list(Y,W,Z), X)
 
     mtry <- validate_mtry(mtry, X)
@@ -94,7 +98,7 @@ instrumental_forest <- function(X, Y, W, Z,
     }
     
     if (is.null(Y.hat)) {
-      forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction, mtry = mtry, 
+      forest.Y <- regression_forest(X, Y, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
@@ -106,7 +110,7 @@ instrumental_forest <- function(X, Y, W, Z,
     }
     
     if (is.null(W.hat)) {
-      forest.W <- regression_forest(X, W, sample.fraction = sample.fraction, mtry = mtry, 
+      forest.W <- regression_forest(X, W, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
@@ -118,7 +122,7 @@ instrumental_forest <- function(X, Y, W, Z,
     }
     
     if (is.null(Z.hat)) {
-      forest.Z <- regression_forest(X, Z, sample.fraction = sample.fraction, mtry = mtry, 
+      forest.Z <- regression_forest(X, Z, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
                                     num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
@@ -129,13 +133,15 @@ instrumental_forest <- function(X, Y, W, Z,
       stop("Z.hat has incorrect length.")
     }
     
-    data <- create_data_matrices(X, Y - Y.hat, W - W.hat, Z - Z.hat)
+    data <- create_data_matrices(X, Y - Y.hat, W - W.hat, Z - Z.hat, sample.weights = sample.weights)
     
     outcome.index <- ncol(X) + 1
     treatment.index <- ncol(X) + 2
     instrument.index <- ncol(X) + 3
+    sample.weight.index <- ncol(X) + 4
     
-    forest <- instrumental_train(data$default, data$sparse, outcome.index, treatment.index, instrument.index,
+    forest <- instrumental_train(data$default, data$sparse,
+        outcome.index, treatment.index, instrument.index, sample.weight.index, !is.null(sample.weights),
         mtry, num.trees,  min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction),
         ci.group.size, reduced.form.weight, alpha,  imbalance.penalty, stabilize.splits,  clusters,
         samples.per.cluster, compute.oob.predictions, num.threads, seed)
@@ -150,6 +156,7 @@ instrumental_forest <- function(X, Y, W, Z,
     forest[["W.hat"]] <- W.hat
     forest[["Z.hat"]] <- Z.hat
     forest[["clusters"]] <- clusters
+    forest[['sample.weights']] <- sample.weights
     forest
 }
 
