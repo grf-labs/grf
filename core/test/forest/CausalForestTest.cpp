@@ -28,9 +28,9 @@
 TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[causal, forest]") {
   // Run the original forest.
   // we'll overwrite a covariate in the original data with sample weights so we needn't resize the data.
-  uint weight_index = 9;
-  uint outcome_index = 10;
-  uint treatment_index = 11;
+  size_t weight_index = 9;
+  size_t outcome_index = 10;
+  size_t treatment_index = 11;
   Data* data = load_data("test/forest/resources/causal_data.csv");
   data->set_weight_index(weight_index);
   data->set_outcome_index(outcome_index);
