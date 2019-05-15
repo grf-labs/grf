@@ -15,6 +15,10 @@
 #'              over treatment. See section 6.1.1 of the GRF paper for
 #'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi].
+#' @param sample.weights Weights defining the population on which we want our estimator of tau(x) to perform well
+#'                       on average. If NULL, this is the population from which X1 ... Xn are sampled. Otherwise,
+#'                       it is a reweighted version, in which we observe Xi with probability proportional to
+#'                       sample.weights[i].
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
@@ -67,6 +71,7 @@
 #'
 #' @export
 tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
+                               sample.weights = NULL,
                                num.fit.trees = 200,
                                num.fit.reps = 50,
                                num.optimize.reps = 1000,
@@ -83,7 +88,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                num.threads = NULL,
                                seed = NULL) {
   validate_X(X)
-  if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+  validate_sample_weights(sample.weights, X)
+  validate_observations(list(Y,W), X)
 
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
@@ -93,9 +99,10 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   reduced.form.weight <- 0
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
-  data <- create_data_matrices(X, Y - Y.hat, W - W.hat)
+  data <- create_data_matrices(X, Y - Y.hat, W - W.hat, sample.weights = sample.weights)
   outcome.index <- ncol(X) + 1
   treatment.index <- ncol(X) + 2
+  sample.weight.index <- ncol(X) + 3
 
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
@@ -116,7 +123,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- causal_train(data$default, data$sparse,
-                                 outcome.index, treatment.index,
+                                 outcome.index, treatment.index, sample.weight.index,
+                                 !is.null(sample.weights),
                                  as.numeric(params["mtry"]),
                                  num.fit.trees,
                                  as.numeric(params["min.node.size"]),
