@@ -248,7 +248,7 @@ causal_forest <- function(X, Y, W,
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
     if (tune.parameters)
-      forest[["tuning.output"]] = tuning.output
+      forest[["tuning.output"]] <- tuning.output
     forest
 }
 
