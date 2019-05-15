@@ -62,7 +62,7 @@
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
 #'
-#' @return A trained causal forest object.
+#' @return A trained causal forest object. Optional tuning output information is available in `tuning.output`.
 #'
 #' @examples \dontrun{
 #' # Train a causal forest.

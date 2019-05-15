@@ -43,7 +43,7 @@
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
 #'
-#' @return A trained regression forest object.
+#' @return A trained regression forest object. Optional tuning output information is available in `tuning.output`.
 #'
 #' @examples \dontrun{
 #' # Train a standard regression forest.

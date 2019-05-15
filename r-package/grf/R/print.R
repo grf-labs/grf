@@ -113,7 +113,7 @@ print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
   cat("Optimal tuning parameters: \n")
   cat(paste0(names(opt), ": ", opt, "\n"))
 
-  cat("Average error :\n", sep="")
+  cat("Average error by ", length(tuning.quantiles) - 1, "-quantile:\n", sep="")
   for (i in out) {
     cat("\n")
     print(i, row.names = FALSE)
