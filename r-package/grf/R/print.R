@@ -2,13 +2,11 @@
 #' @param x The tree to print.
 #' @param decay.exponent A tuning parameter that controls the importance of split depth.
 #' @param max.depth The maximum depth of splits to consider.
-#' @param tuning.quantiles Number of quantiles to display average error over for tuned parameters.
-#'                         Default: 0 (no output).
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @method print grf
 #' @export
-print.grf <- function(x, decay.exponent=2, max.depth=4, tuning.quantiles=0, ...) {
+print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
     var.importance = variable_importance(x, decay.exponent, max.depth)
     var.importance = c(round(var.importance, 3))
     names(var.importance) = 1:length(var.importance)
@@ -22,13 +20,6 @@ print.grf <- function(x, decay.exponent=2, max.depth=4, tuning.quantiles=0, ...)
 
     cat("Variable importance:", "\n")
     print(var.importance)
-
-    if (exists('tuning.output', x)) {
-      if (tuning.quantiles > 0) {
-        p = ncol(x$X.orig)
-        print_tuning_params(x$tuning.output, tuning.quantiles, p)
-      }
-    }
 }
 
 #' Print a GRF tree object.
@@ -92,18 +83,21 @@ print.boosted_regression_forest <- function(x, ...) {
 }
 
 
-print_tuning_params <- function(tuning.output, nq, p) {
-  # Print average error for nq-quantiles of tuned parameters
-  # Extra branches for mtry and min.node.size (e.g. cannot form quintiles
-  # for mtry if the number of variables is less than 5)
-  grid = tuning.output$grid
-
+#' Print tuning output.
+#' Displays average error for q-quantiles of tuned parameters.
+#' @param x The tuning output to print.
+#' @param tuning.quantiles vector of quantiles to display average error over.
+#'  Default: seq(0, 1, 0.2) (quintiles)
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @method print tuning_output
+#' @export
+print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
+  grid = x$grid
   out = lapply(colnames(grid)[-1], function(name) {
-    m = nq
-    if (name == "mtry")
-      m = min(p - 1, nq)
-    probs = 0:m/m
-    q = quantile(grid[, name], probs = probs)
+    q = quantile(grid[, name], probs = tuning.quantiles)
+    # Cannot form for example quintiles for mtry if the number of variables is
+    # less than 5, so here we just truncate the groups.
     if (length(unique(q) < length(q)))
       q = unique(q)
     rank = cut(grid[, name], q, include.lowest=TRUE)
@@ -112,15 +106,16 @@ print_tuning_params <- function(tuning.output, nq, p) {
     out
   })
 
-  err = tuning.output$error
-  params = tuning.output$params[colnames(grid)[-1]]
+  err = x$error
+  params = x$params[colnames(grid)[-1]]
   opt = formatC(c(err, params))
 
   cat("Optimal tuning parameters: \n")
   cat(paste0(names(opt), ": ", opt, "\n"))
 
-  cat("Average error by ", nq, "-quantile:\n", sep="")
+  cat("Average error :\n", sep="")
   for (i in out) {
+    cat("\n")
     print(i, row.names = FALSE)
   }
 }

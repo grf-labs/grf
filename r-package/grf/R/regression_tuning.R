@@ -150,6 +150,9 @@ tune_regression_forest <- function(X, Y,
   optimal.draw = which.min(grid[, "error"])
   optimal.param = grid[optimal.draw, ]
 
-  list(error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
-       grid = grid)
+  out = list(error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
+             grid = grid)
+  class(out) = c("tuning_output")
+
+  out
 }
