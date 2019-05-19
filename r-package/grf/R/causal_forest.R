@@ -45,7 +45,7 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
-#'                         determining the imbalance of a split (experimental).
+#'                         determining the imbalance of a split.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
