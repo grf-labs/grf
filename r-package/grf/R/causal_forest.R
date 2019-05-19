@@ -22,10 +22,9 @@
 #'                       If NULL, each observation receives the same weight.
 #'                       Note: To avoid introducing confounding, weights should be
 #'                       independent of the potential outcomes given X.
-#' @param orthog.boosting If TRUE, if Y.hat = NULL then E[Y|Xi] is estimated
-#'                 using boosted regression forests and if W.hat = NULL then E[W|Xi]
-#'                 is estimated using boosted regression forests. The number
-#'                 of steps is selected automatically.
+#' @param orthog.boosting (experimental) If TRUE, then when Y.hat = NULL or W.hat is NULL,
+#'                 the missing quantities are estimated using boosted regression forests.
+#'                 The number of boosting steps is selected automatically.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
