@@ -18,7 +18,7 @@
 #'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest.
-#' @param sample.weights Weights given to each sample in estimation.
+#' @param sample.weights (experimental) Weights given to each sample in estimation.
 #'                       If NULL, each observation receives the same weight.
 #'                       Note: To avoid introducing confounding, weights should be
 #'                       independent of the potential outcomes given X.

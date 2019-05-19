@@ -18,7 +18,7 @@
 #'              these are estimated using a separate regression forest.
 #' @param Z.hat Estimates of the instrument propensities E[Z | Xi]. If Z.hat = NULL,
 #'              these are estimated using a separate regression forest.
-#' @param sample.weights Weights given to each observation in estimation.
+#' @param sample.weights (experimental) Weights given to each observation in estimation.
 #'                       If NULL, each observation receives equal weight.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
