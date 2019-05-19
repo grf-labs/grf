@@ -31,3 +31,14 @@ test_that("printing a forest with one regressor is successful", {
   capture_output(print(q.tree))
   expect_true(TRUE)
  })
+
+ test_that("tuning output printing is successful", {
+  p = 4
+  n = 100
+  X = matrix(runif(n * p), n, p)
+  Y = runif(n)
+  W = rbinom(n, 1, 0.5)
+  tuned.forest = causal_forest(X, Y, W, num.trees = 100, tune.parameters = TRUE)
+  capture_output(print(tuned.forest$tuning.output))
+  expect_true(TRUE)
+ })

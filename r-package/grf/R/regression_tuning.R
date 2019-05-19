@@ -1,5 +1,5 @@
 #' Regression forest tuning
-#' 
+#'
 #' Finds the optimal parameters to be used in training a regression forest. This method
 #' currently tunes over min.node.size, mtry, sample.fraction, alpha, and imbalance.penalty.
 #' Please see the method 'regression_forest' for a description of the standard forest
@@ -23,8 +23,8 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
-#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
@@ -96,13 +96,13 @@ tune_regression_forest <- function(X, Y,
   if (length(tuning.params) == 0) {
     return(list("error"=NA, "params"=c(all.params)))
   }
-  
+
   # Train several mini-forests, and gather their debiased OOB error estimates.
   num.params = length(tuning.params)
   fit.draws = matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params)
   colnames(fit.draws) = names(tuning.params)
   compute.oob.predictions = TRUE
-  
+
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
@@ -127,7 +127,7 @@ tune_regression_forest <- function(X, Y,
     error = prediction$debiased.error
     mean(error, na.rm = TRUE)
   })
-  
+
   # Fit the 'dice kriging' model to these error estimates.
   # Note that in the 'km' call, the kriging package prints a large amount of information
   # about the fitting process. Here, capture its console output and discard it.
@@ -138,16 +138,21 @@ tune_regression_forest <- function(X, Y,
                                    response = debiased.errors,
                                    noise.var = variance.guess))
   kriging.model <- env$kriging.model
-  
+
   # To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
   optimize.draws = matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
   colnames(optimize.draws) = names(tuning.params)
   model.surface = predict(kriging.model, newdata=data.frame(optimize.draws), type = "SK")
-  
-  min.error = min(model.surface$mean)
-  optimal.draw = optimize.draws[which.min(model.surface$mean),]
-  tuned.params = get_params_from_draw(X, optimal.draw)
-  
-  list(error = min.error, params = c(fixed.params, tuned.params))
+
+  tuned.params = get_params_from_draw(X, optimize.draws)
+  grid = cbind(error=model.surface$mean, tuned.params)
+  optimal.draw = which.min(grid[, "error"])
+  optimal.param = grid[optimal.draw, ]
+
+  out = list(error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
+             grid = grid)
+  class(out) = c("tuning_output")
+
+  out
 }

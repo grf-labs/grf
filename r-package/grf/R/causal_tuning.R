@@ -163,9 +163,14 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   colnames(optimize.draws) = names(tuning.params)
   model.surface = predict(kriging.model, newdata=data.frame(optimize.draws), type = "SK")
 
-  min.error = min(model.surface$mean)
-  optimal.draw = optimize.draws[which.min(model.surface$mean),]
-  tuned.params = get_params_from_draw(X, optimal.draw)
+  tuned.params = get_params_from_draw(X, optimize.draws)
+  grid = cbind(error=model.surface$mean, tuned.params)
+  optimal.draw = which.min(grid[, "error"])
+  optimal.param = grid[optimal.draw, ]
 
-  list(error = min.error, params = c(fixed.params, tuned.params))
+  out = list(error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
+             grid = grid)
+  class(out) = c("tuning_output")
+
+  out
 }

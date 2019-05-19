@@ -45,7 +45,8 @@
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
 #'
-#' @return A trained regression forest object.
+#' @return A trained regression forest object. If tune.parameters is enabled,
+#'  then tuning information will be included through the `tuning.output` attribute.
 #'
 #' @examples \dontrun{
 #' # Train a standard regression forest.
@@ -151,6 +152,8 @@ regression_forest <- function(X, Y,
     forest[["sample.weights"]] <- sample.weights
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
+    if (tune.parameters)
+      forest[["tuning.output"]] <- tuning.output
     forest
 }
 

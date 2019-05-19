@@ -10,23 +10,22 @@ get_initial_params <- function(min.node.size,
     imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty))
 }
 
-get_params_from_draw <- function(X, draw) {
-  result = c()
-  for (param in names(draw)) {
-    if (param == "min.node.size") {
-      value = floor(2^(draw[param] * (log(nrow(X)) / log(2) - 4)))
-    } else if (param == "sample.fraction") {
-      value = 0.05 + 0.45 * draw[param]
-    } else if (param == "mtry") {
-      value = ceiling(min(ncol(X), sqrt(ncol(X)) + 20) * draw[param])
-    } else if (param == "alpha") {
-      value = draw[param]/4
-    } else if (param == "imbalance.penalty") {
-      value = -log(draw[param])
-    } else {
+get_params_from_draw <- function(X, draws) {
+  if (is.vector(draws))
+    draws = rbind(c(draws))
+  n = nrow(draws)
+  vapply(colnames(draws), function(param) {
+    if (param == "min.node.size")
+      return(floor(2^(draws[, param] * (log(nrow(X)) / log(2) - 4))))
+    else if (param == "sample.fraction")
+      return(0.05 + 0.45 * draws[, param])
+    else if (param == "mtry")
+      return(ceiling(min(ncol(X), sqrt(ncol(X)) + 20) * draws[, param]))
+    else if (param == "alpha")
+      return(draws[, param] / 4)
+    else if (param == "imbalance.penalty")
+      return (-log(draws[, param]))
+    else
       stop("Unrecognized parameter name provided: ", param)
-    }
-    result = c(result, value)
-  }
-  result
+  }, FUN.VALUE = numeric(n))
 }

@@ -81,3 +81,41 @@ print.boosted_regression_forest <- function(x, ...) {
     cat("Boosted GRF object", "\n")
     cat("Number of forests: ",length(x$forests), "\n")
 }
+
+
+#' Print tuning output.
+#' Displays average error for q-quantiles of tuned parameters.
+#' @param x The tuning output to print.
+#' @param tuning.quantiles vector of quantiles to display average error over.
+#'  Default: seq(0, 1, 0.2) (quintiles)
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @method print tuning_output
+#' @export
+print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
+  grid = x$grid
+  out = lapply(colnames(grid)[-1], function(name) {
+    q = quantile(grid[, name], probs = tuning.quantiles)
+    # Cannot form for example quintiles for mtry if the number of variables is
+    # less than 5, so here we just truncate the groups.
+    if (length(unique(q) < length(q)))
+      q = unique(q)
+    rank = cut(grid[, name], q, include.lowest=TRUE)
+    out = aggregate(grid[, "error"], by=list(rank), FUN=mean)
+    colnames(out) = c(name, "error")
+    out
+  })
+
+  err = x$error
+  params = x$params[colnames(grid)[-1]]
+  opt = formatC(c(err, params))
+
+  cat("Optimal tuning parameters: \n")
+  cat(paste0(names(opt), ": ", opt, "\n"))
+
+  cat("Average error by ", length(tuning.quantiles) - 1, "-quantile:\n", sep="")
+  for (i in out) {
+    cat("\n")
+    print(i, row.names = FALSE)
+  }
+}
