@@ -10,6 +10,8 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param sample.weights (experimental) Weights given to an observation in estimation.
+#'                       If NULL, each observation is given the same weight.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
@@ -30,7 +32,6 @@
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
 #'                            software will set this value to the size of the smallest cluster.
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
