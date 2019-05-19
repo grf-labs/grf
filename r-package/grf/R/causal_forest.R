@@ -18,14 +18,13 @@
 #'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest.
-#' @param sample.weights Weights given to each sample in estimation.
+#' @param sample.weights (experimental) Weights given to each sample in estimation.
 #'                       If NULL, each observation receives the same weight.
 #'                       Note: To avoid introducing confounding, weights should be
 #'                       independent of the potential outcomes given X.
-#' @param orthog.boosting If TRUE, if Y.hat = NULL then E[Y|Xi] is estimated
-#'                 using boosted regression forests and if W.hat = NULL then E[W|Xi]
-#'                 is estimated using boosted regression forests. The number
-#'                 of steps is selected automatically.
+#' @param orthog.boosting (experimental) If TRUE, then when Y.hat = NULL or W.hat is NULL,
+#'                 the missing quantities are estimated using boosted regression forests.
+#'                 The number of boosting steps is selected automatically.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
@@ -45,7 +44,7 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
-#'                         determining the imbalance of a split (experimental).
+#'                         determining the imbalance of a split.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size

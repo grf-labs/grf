@@ -5,7 +5,7 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
-#' @param sample.weights Weights given to an observation in estimation.
+#' @param sample.weights (experimental) Weights given to an observation in estimation.
 #'                       If NULL, each observation is given the same weight.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
