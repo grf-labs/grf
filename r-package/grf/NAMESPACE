@@ -17,6 +17,7 @@ S3method(predict,regression_forest)
 S3method(print,boosted_regression_forest)
 S3method(print,grf)
 S3method(print,grf_tree)
+S3method(print,tuning_output)
 
 export(average_treatment_effect)
 export(average_partial_effect)
