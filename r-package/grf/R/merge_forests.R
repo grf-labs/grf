@@ -54,7 +54,7 @@ merge_forests <- function(forest_list, compute.oob.predictions=TRUE) {
   big_forest
 }
 
-
+#' @importFrom methods is
 validate_forest_list <- function(forest_list) {
 
   if (length(forest_list) == 0) {

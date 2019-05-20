@@ -91,6 +91,7 @@ print.boosted_regression_forest <- function(x, ...) {
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @method print tuning_output
+#' @importFrom stats aggregate quantile
 #' @export
 print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
   grid = x$grid
