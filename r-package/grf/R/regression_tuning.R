@@ -54,6 +54,8 @@
 #'     imbalance.penalty = as.numeric(params["imbalance.penalty"]))
 #' }
 #'
+#' @importFrom stats runif
+#' @importFrom utils capture.output
 #' @export
 tune_regression_forest <- function(X, Y,
                                    sample.weights = NULL,

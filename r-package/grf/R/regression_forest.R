@@ -69,6 +69,7 @@
 #' }
 #'
 #' @export
+#' @useDynLib grf
 regression_forest <- function(X, Y,
                               sample.weights = NULL,
                               sample.fraction = 0.5,

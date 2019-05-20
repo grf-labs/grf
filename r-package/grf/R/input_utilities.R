@@ -217,6 +217,8 @@ coerce_honesty_fraction <- function(honesty.fraction) {
   honesty.fraction
 }
 
+#' @importFrom Matrix Matrix cBind
+#' @importFrom methods new
 create_data_matrices <- function(X, ..., sample.weights=NULL) {
   default.data <- matrix(nrow=0, ncol=0);
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
