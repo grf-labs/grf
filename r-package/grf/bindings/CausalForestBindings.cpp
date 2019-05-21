@@ -90,7 +90,7 @@ Rcpp::List ll_causal_predict(Rcpp::List forest,
                                  size_t treatment_index,
                                  size_t instrument_index,
                                  std::vector<double> lambdas,
-                                 bool use_unweighted_penalty,
+                                 bool use_weighted_penalty,
                                  std::vector<size_t> linear_correction_variables,
                                  unsigned int num_threads) {
   Data* test_data = RcppUtilities::convert_data(input_data, sparse_input_data);
@@ -102,7 +102,7 @@ Rcpp::List ll_causal_predict(Rcpp::List forest,
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, lambdas, use_unweighted_penalty,
+  ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, lambdas, use_weighted_penalty,
                                                                  linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict(deserialized_forest, train_data, test_data, false);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
@@ -120,7 +120,7 @@ Rcpp::List ll_causal_predict_oob(Rcpp::List forest,
                                      size_t treatment_index,
                                      size_t instrument_index,
                                      std::vector<double> lambdas,
-                                     bool use_unweighted_penalty,
+                                     bool use_weighted_penalty,
                                      std::vector<size_t> linear_correction_variables,
                                      unsigned int num_threads) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
@@ -131,7 +131,7 @@ Rcpp::List ll_causal_predict_oob(Rcpp::List forest,
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest[RcppUtilities::SERIALIZED_FOREST_KEY]);
 
-  ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, lambdas, use_unweighted_penalty,
+  ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, lambdas, use_weighted_penalty,
                                                                  linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data, false);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
