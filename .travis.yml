@@ -3,6 +3,12 @@ language: R
 latex: false
 cache: packages
 
+r_binary_packages:
+  - Rcpp
+  - devtools
+  - testthat
+  - roxygen2
+
 matrix:
   include:
     - compiler: gcc
@@ -26,9 +32,6 @@ matrix:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libopencv-dev valgrind
-
-install:
-  - Rscript -e "install.packages(c('Rcpp', 'devtools', 'testthat', 'roxygen2'))"
 
 script:
   - cd core
