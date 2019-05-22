@@ -17,6 +17,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Average Treatment Effects](#average-treatment-effects)
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
+  * [Boosting](#boosting-random-forests)
   * [Cluster-Robust Estimation](#cluster-robust-estimation)
   * [Sample Weighting](#sample-weighting)
 * [Troubleshooting](#troubleshooting)
@@ -199,6 +200,26 @@ The cross-validation procedure works as follows:
   - While the notion of error is straightforward for regression forests, it can be more subtle in the context of treatment effect estimation. For causal forests, we use a measure of error developed in Nie and Wager (2017) motivated by residual-on-residual regression (Robinson, 1988).
 - Finally, given the debiased error estimates for each set of parameters, we apply a smoothing function to determine the optimal parameter values.
 
+
+### Boosting Random Forests
+
+**Note:** this feature is currently marked 'experimental'. Its implementation may change in future releases.
+
+Ghosal and Hooker (2018), show how a boosting step can reduce bias in random forest predictions. We have included a  `boosted_regression_forest` feature, which trains a series of forests, each of which are trained on the OOB residuals from the previous step. `boosted_regression_forest` includes the same parameters as `regression_forest`, which are passed directly to the forest trained in each step. It also includes control over the step selection procedure:
+
+- If `boost.steps` is not specified, then a cross-validation procedure selects the number of boosting steps automatically, where the next step is only taken if the estimated OOB error for the next step, computed using a small forest of size `boost.trees.tune`, has an estimated OOB error reduction from  the previous step of more than `boost.error.reduction`. For computational considerations only up to `boost.max.steps` are considered.
+- `boost.steps` can also be specified by the user.
+
+`causal_forest` also provides a `orthog.boosting` flag, which, if set to `TRUE`, orthogonalizes  the causal forest using `boosted_regression_forest` instead of `tune_regression_forest` to estimate `e(x) = E[W|X=x]` and `m(x) = E[Y|X=x]`, with the number of steps set by cross-validation.
+
+Some additional considerations for using `predict` with boosted forests:
+
+- `estimate.variance` is not available for boosted forests.
+- OOB predictions are available for the training data, which combine the OOB predictions for the forests in each boosting step.
+
+We have found that boosting improves out of bag forest predictions most in scenarios where there is a strong signal to noise ratio.
+
+
 ### Cluster-Robust Estimation
 
 For accurate predictions and variance estimates, it can be important to take into account for natural clusters in the data, as might occur if a dataset contains examples taken from the same household or small town. GRF provides support for cluster-robust forests by accounting for clusters in the subsampling process. To use this feature, the forest must be trained with the relevant cluster information by specifying the `clusters` and optionally `samples_per_cluster` parameters. Then, all subsequent calls to `predict` with will take clusters into account, including when estimating the variance of forest predictions.
@@ -256,6 +277,8 @@ While the algorithm in `regression_forest` is very similar to that of classic ra
 Athey, Susan, Julie Tibshirani, and Stefan Wager. Generalized Random Forests. *Annals of Statistics (forthcoming)*, 2018.
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. Double/debiased machine learning for treatment and structural parameters. *The Econometrics Journal*, 2018.
+
+Ghosal, Indrayudh, and Giles Hooker. Boosting Random Forests to Reduce Bias; One-Step Boosted Forest and its Variance Estimate. *arXiv preprint arXiv:1803.08000*, 2018.
 
 Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. *Cambridge University Press*, 2015.
 
