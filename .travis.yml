@@ -4,7 +4,6 @@ latex: false
 cache: packages
 
 r_binary_packages:
-  - Rcpp
   - devtools
   - testthat
   - roxygen2
