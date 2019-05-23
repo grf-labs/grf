@@ -17,7 +17,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Average Treatment Effects](#average-treatment-effects)
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
-  * [Boosting](#boosting-random-forests)
+  * [Boosted Regression Forests](#boosted-regression-forests)
   * [Cluster-Robust Estimation](#cluster-robust-estimation)
   * [Sample Weighting](#sample-weighting)
 * [Troubleshooting](#troubleshooting)
@@ -200,31 +200,27 @@ The cross-validation procedure works as follows:
   - While the notion of error is straightforward for regression forests, it can be more subtle in the context of treatment effect estimation. For causal forests, we use a measure of error developed in Nie and Wager (2017) motivated by residual-on-residual regression (Robinson, 1988).
 - Finally, given the debiased error estimates for each set of parameters, we apply a smoothing function to determine the optimal parameter values.
 
+### Boosted Regression Forests
 
-### Boosting Random Forests
+**Note:** boosting is considered 'experimental', and its implementation may change in future releases.
 
-**Note:** this feature is currently marked 'experimental'. Its implementation may change in future releases.
+Ghosal and Hooker (2018) show how a boosting step can reduce bias in random forest predictions. We provide a `boosted_regression_forest` method which trains a series of forests, each of which are trained on the OOB residuals from the previous step. `boosted_regression_forest` includes the same parameters as `regression_forest`, which are passed directly to the forest trained in each step.
 
-Ghosal and Hooker (2018), show how a boosting step can reduce bias in random forest predictions. We have included a  `boosted_regression_forest` feature, which trains a series of forests, each of which are trained on the OOB residuals from the previous step. `boosted_regression_forest` includes the same parameters as `regression_forest`, which are passed directly to the forest trained in each step. `boosted_regression_forest` includes control over the step selection procedure. By default, the number of boosting steps is automatically chosen through a cross-validation procedure. This procedure works as follows:
-
-
+The `boosted_regression_forest` method also contains parameters to control the step selection procedure. By default, the number of boosting steps is automatically chosen through the following cross-validation procedure:
 - First, a single `regression_forest` is trained and added to the boosted forest.
-- To decide if another step should be taken, we train a small forest of size `boost.trees.tune`. Another step is taken if the estimated OOB error on the small forest reduces the OOB error from the previous step by more than `boost.error.reduction`.
-- If another step should be taken, then we train a full-sized `regression_forest` on the residuals and add it to the boosted forest.
-- This process continues until `boost.error.reduction` cannot be met when training the mini-forest, or if the total number of steps exceeds the limit `boost.max.steps`.
+- To decide if another step should be taken, we train a small forest of size `boost.trees.tune` on the OOB residuals. If it's estimated OOB error reduces the OOB error from the previous step by more than `boost.error.reduction`, then we will prepare for another step.
+- To take the next step, we train a full-sized `regression_forest` on the residuals and add it to the boosted forest.
+- This process continues until `boost.error.reduction` cannot be met when training the small forest, or if the total number of steps exceeds the limit `boost.max.steps`.
 
-If you would like to skip the cross-validation procedure and specify the number of steps directly, then you can pass the parameter `boost.steps`.
-
-For computational considerations, if `tune.parameters=TRUE`, then parameters are selected by the `regression_forest` procedure once in the first boosting step. The selected parameters are then applied to train the forests in any further steps.
+Alternatively, you can to skip the cross-validation procedure and specify the number of steps directly through the parameter `boost.steps`.
 
 By default, `causal_forest` uses `regression_forest` to perform orthogonalization (that is, estimating `e(x) = E[W|X=x]` and `m(x) = E[Y|X=x]`). If the `orthog.boosting` flag is enabled, then `boosted_regression_forest` will be used instead.
 
-Some additional considerations for using `predict` with boosted forests:
-
-- `estimate.variance` is not available for boosted forests.
+Some additional notes about the behavior of boosted regression forests:
+- For computational reasons, if `tune.parameters` is enabled, then parameters are chosen by the `regression_forest` procedure once in the first boosting step. The selected parameters are then applied to train the forests in any further steps.
+- The `estimate.variance` parameter is not available for boosted forests.
 - OOB predictions are available for the training data, which combine the OOB predictions for the forests in each boosting step.
-
-We have found that boosting improves out of bag forest predictions most in scenarios where there is a strong signal to noise ratio.
+- We have found that boosting improves out-of-bag forest predictions most in scenarios where there is a strong signal-to-noise ratio.
 
 ### Cluster-Robust Estimation
 
