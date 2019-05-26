@@ -37,7 +37,6 @@ script:
   - cd ../../core/
   - mkdir build && cd build
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
-  - cd .. && ./build/grf exclude:[characterization]
-  - valgrind --leak-check=full --error-exitcode=1 ./build/grf exclude:[characterization]
+  - cd .. && valgrind --leak-check=full --error-exitcode=1 ./build/grf exclude:[characterization]
   - cd ../r-package
   - Rscript build_package.R
