@@ -70,6 +70,7 @@
 #'
 #' @export
 #' @useDynLib grf
+#' @importFrom Rcpp evalCpp
 regression_forest <- function(X, Y,
                               sample.weights = NULL,
                               sample.fraction = 0.5,
