@@ -6,6 +6,12 @@ library(roxygen2)
 package.name <- "grf"
 package.src <- "grf/src"
 
+# If built for CRAN, exlude all test except ones with "cran" in the filename
+# by adding the following regex to .Rbuildignore.
+on_cran = isTRUE(r_env_vars()["NOT_CRAN"] == "false")
+if (on_cran)
+  write_union("grf/.Rbuildignore", "^tests/testthat/test_((?!cran).).*")
+
 # Copy Rcpp bindings and C++ source into the package src directory. Note that we
 # don't copy in third_party/Eigen, because for the R package build we provide
 # access to the library through RcppEigen.
