@@ -72,8 +72,8 @@ ll_regression_forest <- function(X, Y,
                                 num.threads = NULL,
                                 seed = NULL) {
   validate_X(X)
-  validate_observations(Y, X)
-
+  Y = validate_observations(Y, X)
+  
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)

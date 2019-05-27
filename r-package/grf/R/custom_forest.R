@@ -1,5 +1,5 @@
 #' Custom forest
-#' 
+#'
 #' Trains a custom forest model.
 #'
 #' @param X The covariates used in the regression.
@@ -14,8 +14,8 @@
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
-#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
@@ -51,7 +51,7 @@
 #' @export
 custom_forest <- function(X, Y,
                           sample.fraction = 0.5,
-                          mtry = NULL, 
+                          mtry = NULL,
                           num.trees = 2000,
                           min.node.size = NULL,
                           honesty = TRUE,
@@ -65,8 +65,8 @@ custom_forest <- function(X, Y,
                           seed = NULL) {
 
     validate_X(X)
-    validate_observations(Y, X)
-    
+    Y = validate_observations(Y, X)
+
     mtry <- validate_mtry(mtry, X)
     num.threads <- validate_num_threads(num.threads)
     min.node.size <- validate_min_node_size(min.node.size)
@@ -75,9 +75,9 @@ custom_forest <- function(X, Y,
     clusters <- validate_clusters(clusters, X)
     samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-    
+
     no.split.variables <- numeric(0)
-    
+
     data <- create_data_matrices(X, Y)
     outcome.index <- ncol(X) + 1
     ci.group.size <- 1
@@ -85,7 +85,7 @@ custom_forest <- function(X, Y,
     forest <- custom_train(data$default, data$sparse, outcome.index, mtry,num.trees, min.node.size,
         sample.fraction,  honesty, coerce_honesty_fraction(honesty.fraction), ci.group.size, alpha,
         imbalance.penalty, clusters, samples.per.cluster, num.threads, compute.oob.predictions, seed)
-    
+
     class(forest) <- c("custom_forest", "grf")
     forest[["X.orig"]] <- X
     forest[["Y.orig"]] <- Y
@@ -121,7 +121,7 @@ custom_forest <- function(X, Y,
 #'
 #' @method predict custom_forest
 #' @export
-predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {        
+predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
     forest.short <- object[-which(names(object) == "X.orig")]
 
     X <- object[["X.orig"]]

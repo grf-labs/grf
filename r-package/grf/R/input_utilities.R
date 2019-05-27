@@ -17,24 +17,26 @@ validate_X <- function(X) {
   }
 }
 
-validate_observations <- function(lv,X) {
-  if (!is.list(lv)){
-    lv <- list(lv)
+validate_observations <- function(V, X) {
+  if (is.matrix(V) && ncol(V) == 1) {
+    V = as.vector(V)
+  } else if (!is.vector(V)){
+    stop(paste( "Observations (W, Y, or Z) must be vectors."))
   }
 
-  lapply(lv, function(V) {
-    if (!is.vector(V) || (!is.numeric(V) && !is.logical(V))) {
-      stop(paste( "Observations (W, Y, or Z) must be numeric vectors. GRF does not",
-                  "currently support non-numeric or non-vector observations."))
-    }
+  if (!is.numeric(V) && !is.logical(V)) {
+    stop(paste( "Observations (W, Y, or Z) must be numeric. GRF does not ",
+                "currently support non-numeric observations."))
+  }
 
-    if (any(is.na(V))) {
-      stop("The vector of observations (W, Y, or Z) contains at least one NA.")
-    }
+  if (any(is.na(V))) {
+    stop("The vector of observations (W, Y, or Z) contains at least one NA.")
+  }
 
-    if (length(V) != nrow(X)) {
-      stop("length of observation (W, Y, or Z) does not equal nrow(X).") }
-  })
+  if (length(V) != nrow(X)) {
+    stop("length of observation (W, Y, or Z) does not equal nrow(X).")
+  }
+  V
 }
 
 validate_mtry <- function(mtry, X) {
@@ -226,6 +228,7 @@ create_data_matrices <- function(X, ..., sample.weights=NULL) {
   if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
     sparse.data <- cbind(X, ..., sample.weights)
   } else {
+    X <- as.matrix(X)
     default.data <- as.matrix(cbind(X, ..., sample.weights))
   }
 

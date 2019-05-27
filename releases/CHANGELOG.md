@@ -1,15 +1,37 @@
 # Changelog
-All notable changes to this project will be documented in this file.
+All notable changes to grf will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.10.3] - 2019-05-03
+
+### Breaking Changes
+- Fix two bugs in the termination criterion for tree splitting. **IMPORTANT:** these bug fixes may cause results to change compared to previous releases, even if the same random seed is used.
+  - Remove the purity condition on outcomes during splitting. For all tree types, we used to stop splitting if all outcomes in a leaf are the same. This behavior does not make sense for causal forests (which incorporates other observations besides the outcome), so it was removed. [#362](https://github.com/grf-labs/grf/pull/362).
+  - Stop splitting if the objective can no longer be improved. With this change, `causal_forest` may split slightly less aggressively. [#415](https://github.com/grf-labs/grf/pull/415)
+
+### Added
+- In out-of-bag prediction, return the Monte Carlo error alongside the debiased error. [#327](https://github.com/grf-labs/grf/pull/327)
+- Allow for passing a factor for the `cluster` parameter. [#329](https://github.com/grf-labs/grf/pull/329)
+- Support taking a union of forests through the `merge_forests` method. [#347](https://github.com/grf-labs/grf/pull/347)
+- Include a summary of the parameter tuning procedure in the forest object. [#419] (https://github.com/grf-labs/grf/pull/419)
+- Add experimental support for sample weighting to regression, causal, and instrumental forests. [#376](https://github.com/grf-labs/grf/pull/376), [#418](https://github.com/grf-labs/grf/pull/418)
+- Add a new forest type `boosted_regression_forest`, which applies boosting to regression forests. Allow boosting to be used during orthogonalization through the `orthog.boosting` parameter. [#388](https://github.com/grf-labs/grf/pull/388)
+
+### Fixed
+- Improve input data validation. [#354](https://github.com/grf-labs/grf/pull/354), [#378](https://github.com/grf-labs/grf/pull/378), [#430](https://github.com/grf-labs/grf/pull/430)
+- Improve the `test_calibration` function by switching to one-sided p-values. [#370](https://github.com/grf-labs/grf/pull/370)
+- For custom forests, fix a bug in OOB prediction where the train and tests datasets were switched. [#372](https://github.com/grf-labs/grf/pull/372)
+- Decrease memory usage during training and out-of-bag prediction. [#408](https://github.com/grf-labs/grf/pull/408), [#412](https://github.com/grf-labs/grf/pull/412)
+- Allow roxygen to autogenerate the `NAMESPACE` file. [#423](https://github.com/grf-labs/grf/pull/423), [#428](https://github.com/grf-labs/grf/pull/428)
+
 ## [0.10.2] - 2018-11-23
 ### Added
-- Add support for confidence intervals in local linear regression forests. 
+- Add support for confidence intervals in local linear regression forests.
 
 ### Changed
-- Allow samples_per_cluster to be larger than smallest cluster size. 
+- Allow samples_per_cluster to be larger than smallest cluster size.
 
 ### Fixed
 - Make sure average effect estimation doesn't error on data with a single feature.
@@ -81,7 +103,7 @@ causing poor performance for even moderately large numbers of features.
 ## [0.9.4] - 2017-11-25
 
 ### Changed
-- Update the default for mtry to sqrt(p) + 20. 
+- Update the default for mtry to sqrt(p) + 20.
 
 ### Fixed
 - Fix an issue where split_frequencies fails when p = 1.
