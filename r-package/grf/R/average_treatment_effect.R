@@ -318,9 +318,9 @@ estimate_counterfactual_outcomes <- function(forest, subset=NULL){
                "or a boolean vector of length n."))
   }
   
-  if (!all(unique(forest$W.orig) == c(0,1))){
+  if (!all(unique(forest$W.orig) %in% c(0,1))){
     stop(paste("estimate_counterfactual_outcomes only implemented for ",
-               "binary treatments; !all(unique(forest$W.orig) == c(0,1))"))
+               "binary treatments; !all(unique(forest$W.orig) %in% c(0,1))"))
   }
   
   subset.W.hat <- forest$W.hat[subset]
@@ -331,7 +331,6 @@ estimate_counterfactual_outcomes <- function(forest, subset=NULL){
   Y.hat.0 <- subset.Y.hat - subset.W.hat * tau.hat.pointwise
   Y.hat.1 <- subset.Y.hat + (1 - subset.W.hat) * tau.hat.pointwise
   list('0' = Y.hat.0, '1' = Y.hat.1)
-
 }
 
 observation_weights = function(forest) {
