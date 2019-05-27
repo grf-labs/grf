@@ -187,7 +187,7 @@ The `average_treatment_effect` function implements two types of doubly robust av
 
 ### Counterfactual Outcomes
 
-The `estimate_counterfactual_outcomes` function helps to estimate quantities of the form `E[Y|X=x, W=w]` by providing a list of vectors with estimates of the counterfactual outcomes.  The keys of the list are character representations of the treatments.
+The `estimate_counterfactual_outcomes` function helps to estimate quantities of the form `E[Y|X=x, W=w]` by providing a list of vectors with pointwise estimates of the counterfactual outcomes.  The keys of the list are character representations of the treatments.
 
 ```
 Y.hats <- estimate_counterfactual_outcomes(forest, subset)
