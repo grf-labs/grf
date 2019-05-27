@@ -75,7 +75,8 @@ tune_regression_forest <- function(X, Y,
                                    seed = NULL) {
   validate_X(X)
   validate_sample_weights(sample.weights, X)
-  if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+  Y = validate_observations(Y, X)
+
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
