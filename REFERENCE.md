@@ -185,6 +185,16 @@ The `average_treatment_effect` function implements two types of doubly robust av
 - `target.sample = "overlap"`: the overlap-weighted ATE `sum_{i = 1}^n e(Xi) (1 - e(Xi)) E[Y(1) - Y(0) | X = Xi] / sum_{i = 1}^n e(Xi) (1 - e(Xi))`,
   where `e(x) = P[W_i = 1 | X_i = x]`. This last estimand is recommended by Li et al. (2017) in case of poor overlap (i.e., when the treatment propensities e(x) may be very close to 0 or 1), as it doesn't involve dividing by estimated propensities.
 
+### Counterfactual Outcomes
+
+The `estimate_counterfactual_outcomes` function helps to estimate quantities of the form `E[Y|X=x, W=w]` by providing a list of vectors with estimates of the counterfactual outcomes.  The keys of the list are character representations of the treatments.
+
+```
+Y.hats <- estimate_counterfactual_outcomes(forest, subset)
+Y.hat.0 <- Y.hats$`0`
+Y.hat.1 <- Y.hats$`1`
+```
+
 ## Additional Features
 
 The following sections describe other features of GRF that may be of interest.
