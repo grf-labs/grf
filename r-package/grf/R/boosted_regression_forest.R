@@ -191,6 +191,8 @@ boosted_regression_forest <- function(X, Y,
 #' @param boost.predict.steps Number of boosting iterations to use for prediction. If blank, uses the full number of steps
 #'        for the object given
 #' @param num.threads the number of threads used in prediction
+#' @param ... Additional arguments (currently ignored).
+#'
 #' @return A vector of predictions.
 #'
 #' @examples \dontrun{
@@ -214,7 +216,8 @@ boosted_regression_forest <- function(X, Y,
 #' @export
 predict.boosted_regression_forest <- function(object, newdata=NULL,
                                               boost.predict.steps=NULL,
-                                              num.threads=NULL) {
+                                              num.threads=NULL,
+                                              ...) {
 
   # If not on new data, use pre-computed predictions
   if (is.null(newdata)) {
