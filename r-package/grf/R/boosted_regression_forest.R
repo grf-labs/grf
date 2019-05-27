@@ -7,6 +7,8 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param sample.weights Weights given to each observation in estimation.
+#'                       If NULL, each observation receives the same weight.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
@@ -29,14 +31,14 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples_per_cluster,
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
 #'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples_per_cluster observations get relatively
+#'                            clusters with less than samples.per.cluster observations get relatively
 #'                            smaller weight than others in training the forest, i.e., the contribution
 #'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples_per_cluster.
+#'                            the number of observations in the cluster and samples.per.cluster.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
@@ -74,6 +76,7 @@
 #'
 #' @export
 boosted_regression_forest <- function(X, Y,
+                                      sample.weights = NULL,
                                       sample.fraction = 0.5,
                                       mtry = NULL,
                                       num.trees = 2000,
@@ -86,7 +89,7 @@ boosted_regression_forest <- function(X, Y,
                                       imbalance.penalty = NULL,
                                       seed = NULL,
                                       clusters = NULL,
-                                      samples_per_cluster = NULL,
+                                      samples.per.cluster = NULL,
                                       tune.parameters = FALSE,
                                       num.fit.trees = 10,
                                       num.fit.reps = 100,
@@ -100,7 +103,8 @@ boosted_regression_forest <- function(X, Y,
   boosted.forest = NULL
   boosted.forest[["forests"]] = list()
   boosted.forest[["error"]] = list()
-  forest.Y <- regression_forest(X, Y, sample.fraction = sample.fraction,
+  forest.Y <- regression_forest(X, Y, sample.weights = sample.weights,
+                                sample.fraction = sample.fraction,
                                 mtry = mtry, tune.parameters = tune.parameters,
                                 num.trees = num.trees,
                                 num.threads = num.threads,
@@ -109,7 +113,7 @@ boosted_regression_forest <- function(X, Y,
                                 seed = seed, ci.group.size = ci.group.size,
                                 alpha = alpha,
                                 imbalance.penalty = imbalance.penalty,
-                                clusters = clusters, samples_per_cluster = samples_per_cluster);
+                                clusters = clusters, samples.per.cluster = samples.per.cluster);
   current.pred <- predict(forest.Y,num.threads=num.threads)
   #save tuned parameters for use on future boosting iterations
   tunable.params <- forest.Y$tunable.params
@@ -132,6 +136,7 @@ boosted_regression_forest <- function(X, Y,
     } else {
       #do cross validation check
       forest.small <- regression_forest(X,Y.resid,
+                                        sample.weights = sample.weights,
                                         sample.fraction = as.numeric(tunable.params["sample.fraction"]),
                                         mtry = as.numeric(tunable.params["mtry"]), tune.parameters = FALSE,
                                         num.trees = boost.trees.tune,
@@ -142,14 +147,15 @@ boosted_regression_forest <- function(X, Y,
                                         seed = seed, ci.group.size = ci.group.size,
                                         alpha = as.numeric(tunable.params["alpha"]),
                                         imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
-                                        clusters = clusters, samples_per_cluster = samples_per_cluster);
+                                        clusters = clusters, samples.per.cluster = samples.per.cluster);
       step.error.approx <- predict(forest.small,num.threads=num.threads)$debiased.error
       if (!(mean(step.error.approx,na.rm=TRUE) <= boost.error.reduction*mean(error.debiased,na.rm=TRUE))){
         break;
       }
     }
 
-    forest.resid <- regression_forest(X,Y.resid, sample.fraction = as.numeric(tunable.params["sample.fraction"]),
+    forest.resid <- regression_forest(X,Y.resid, sample.weights = sample.weights,
+                                  sample.fraction = as.numeric(tunable.params["sample.fraction"]),
                                   mtry = as.numeric(tunable.params["mtry"]), tune.parameters = FALSE,
                                   num.trees = num.trees,
                                   num.threads = num.threads,
@@ -159,7 +165,7 @@ boosted_regression_forest <- function(X, Y,
                                   seed = seed, ci.group.size = ci.group.size,
                                   alpha = as.numeric(tunable.params["alpha"]),
                                   imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
-                                  clusters = clusters, samples_per_cluster = samples_per_cluster);
+                                  clusters = clusters, samples.per.cluster = samples.per.cluster);
 
     current.pred <- predict(forest.resid,num.threads=num.threads)
     Y.hat <- Y.hat + current.pred$predictions

@@ -5,6 +5,8 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param sample.weights (experimental) Weights given to an observation in estimation.
+#'                       If NULL, each observation is given the same weight.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction.
@@ -24,14 +26,14 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples_per_cluster,
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
 #'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples_per_cluster observations get relatively
+#'                            clusters with less than samples.per.cluster observations get relatively
 #'                            smaller weight than others in training the forest, i.e., the contribution
 #'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples_per_cluster.
+#'                            the number of observations in the cluster and samples.per.cluster.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
@@ -43,7 +45,8 @@
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
 #'
-#' @return A trained regression forest object.
+#' @return A trained regression forest object. If tune.parameters is enabled,
+#'  then tuning information will be included through the `tuning.output` attribute.
 #'
 #' @examples \dontrun{
 #' # Train a standard regression forest.
@@ -66,6 +69,8 @@
 #' }
 #'
 #' @export
+#' @useDynLib grf
+#' @importFrom Rcpp evalCpp
 regression_forest <- function(X, Y,
                               sample.weights = NULL,
                               sample.fraction = 0.5,
@@ -78,7 +83,7 @@ regression_forest <- function(X, Y,
                               alpha = NULL,
                               imbalance.penalty = NULL,
                               clusters = NULL,
-                              samples_per_cluster = NULL,
+                              samples.per.cluster = NULL,
                               tune.parameters = FALSE,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
@@ -88,12 +93,12 @@ regression_forest <- function(X, Y,
                               seed = NULL) {
     validate_X(X)
     validate_sample_weights(sample.weights, X)
-    validate_observations(Y, X)
+    Y = validate_observations(Y, X)
 
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
     clusters <- validate_clusters(clusters, X)
-    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+    samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
     if (tune.parameters) {
@@ -111,7 +116,7 @@ regression_forest <- function(X, Y,
                                               honesty.fraction = honesty.fraction,
                                               seed = seed,
                                               clusters = clusters,
-                                              samples_per_cluster = samples_per_cluster)
+                                              samples.per.cluster = samples.per.cluster)
       tunable.params <- tuning.output$params
     } else {
       tunable.params <- c(
@@ -137,7 +142,7 @@ regression_forest <- function(X, Y,
                                as.numeric(tunable.params["alpha"]),
                                as.numeric(tunable.params["imbalance.penalty"]),
                                clusters,
-                               samples_per_cluster,
+                               samples.per.cluster,
                                compute.oob.predictions,
                                num.threads,
                                seed)
@@ -149,6 +154,8 @@ regression_forest <- function(X, Y,
     forest[["sample.weights"]] <- sample.weights
     forest[["clusters"]] <- clusters
     forest[["tunable.params"]] <- tunable.params
+    if (tune.parameters)
+      forest[["tuning.output"]] <- tuning.output
     forest
 }
 
@@ -181,11 +188,11 @@ regression_forest <- function(X, Y,
 #'         estimates of E[Y|X=x]. The square-root of column 'variance.estimates' is the standard error
 #          of these predictions. Column 'debiased.error' contains out-of-bag estimates of
 #'         the test mean-squared error. Column 'excess.error' contains
-#'         jackknife estimates of the Monte-carlo error. The sum of 'debiased.error' 
+#'         jackknife estimates of the Monte-carlo error. The sum of 'debiased.error'
 #'         and 'excess.error' is the raw error attained by the current forest, and
 #'         'debiased.error' alone is an estimate of the error attained by a forest with
 #'         an infinite number of trees. We recommend that users grow
-#'         enough forests to make the excess.error' negligible.
+#'         enough forests to make the 'excess.error' negligible.
 #'
 #' @examples \dontrun{
 #' # Train a standard regression forest.

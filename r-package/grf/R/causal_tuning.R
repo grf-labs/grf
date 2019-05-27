@@ -15,6 +15,10 @@
 #'              over treatment. See section 6.1.1 of the GRF paper for
 #'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi].
+#' @param sample.weights Weights defining the population on which we want our estimator of tau(x) to perform well
+#'                       on average. If NULL, this is the population from which X1 ... Xn are sampled. Otherwise,
+#'                       it is a reweighted version, in which we observe Xi with probability proportional to
+#'                       sample.weights[i].
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
@@ -35,7 +39,7 @@
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
 #'                         determining the imbalance of a split (experimental).
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
 #'                            software will set this value to the size of the smallest cluster.#'
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
@@ -65,8 +69,11 @@
 #'     imbalance.penalty = as.numeric(params["imbalance.penalty"])
 #' }
 #'
+#' @importFrom stats runif
+#' @importFrom utils capture.output
 #' @export
 tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
+                               sample.weights = NULL,
                                num.fit.trees = 200,
                                num.fit.reps = 50,
                                num.optimize.reps = 1000,
@@ -79,24 +86,26 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                honesty = TRUE,
                                honesty.fraction = NULL,
                                clusters = NULL,
-                               samples_per_cluster = NULL,
+                               samples.per.cluster = NULL,
                                num.threads = NULL,
                                seed = NULL) {
   validate_X(X)
-  if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+  validate_sample_weights(sample.weights, X)
+  Y = validate_observations(Y, X)
+  W = validate_observations(W, X)
 
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
-  samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   ci.group.size <- 1
   reduced.form.weight <- 0
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
-  data <- create_data_matrices(X, Y - Y.hat, W - W.hat)
+  data <- create_data_matrices(X, Y - Y.hat, W - W.hat, sample.weights = sample.weights)
   outcome.index <- ncol(X) + 1
   treatment.index <- ncol(X) + 2
-  instrument.index <- treatment.index
+  sample.weight.index <- ncol(X) + 3
 
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
@@ -116,26 +125,27 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
 
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
-    small.forest <- instrumental_train(data$default, data$sparse,
-                                       outcome.index, treatment.index, instrument.index,
-                                       as.numeric(params["mtry"]),
-                                       num.fit.trees,
-                                       as.numeric(params["min.node.size"]),
-                                       as.numeric(params["sample.fraction"]),
-                                       honesty,
-                                       coerce_honesty_fraction(honesty.fraction),
-                                       ci.group.size,
-                                       reduced.form.weight,
-                                       as.numeric(params["alpha"]),
-                                       as.numeric(params["imbalance.penalty"]),
-                                       stabilize.splits,
-                                       clusters,
-                                       samples_per_cluster,
-                                       compute.oob.predictions,
-                                       num.threads,
-                                       seed)
-    prediction = instrumental_predict_oob(small.forest, data$default, data$sparse,
-        outcome.index, treatment.index, instrument.index, num.threads, FALSE)
+    small.forest <- causal_train(data$default, data$sparse,
+                                 outcome.index, treatment.index, sample.weight.index,
+                                 !is.null(sample.weights),
+                                 as.numeric(params["mtry"]),
+                                 num.fit.trees,
+                                 as.numeric(params["min.node.size"]),
+                                 as.numeric(params["sample.fraction"]),
+                                 honesty,
+                                 coerce_honesty_fraction(honesty.fraction),
+                                 ci.group.size,
+                                 reduced.form.weight,
+                                 as.numeric(params["alpha"]),
+                                 as.numeric(params["imbalance.penalty"]),
+                                 stabilize.splits,
+                                 clusters,
+                                 samples.per.cluster,
+                                 compute.oob.predictions,
+                                 num.threads,
+                                 seed)
+    prediction = causal_predict_oob(small.forest, data$default, data$sparse,
+        outcome.index, treatment.index, num.threads, FALSE)
     mean(prediction$debiased.error, na.rm = TRUE)
   })
 
@@ -156,9 +166,14 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   colnames(optimize.draws) = names(tuning.params)
   model.surface = predict(kriging.model, newdata=data.frame(optimize.draws), type = "SK")
 
-  min.error = min(model.surface$mean)
-  optimal.draw = optimize.draws[which.min(model.surface$mean),]
-  tuned.params = get_params_from_draw(X, optimal.draw)
+  tuned.params = get_params_from_draw(X, optimize.draws)
+  grid = cbind(error=model.surface$mean, tuned.params)
+  optimal.draw = which.min(grid[, "error"])
+  optimal.param = grid[optimal.draw, ]
 
-  list(error = min.error, params = c(fixed.params, tuned.params))
+  out = list(error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
+             grid = grid)
+  class(out) = c("tuning_output")
+
+  out
 }

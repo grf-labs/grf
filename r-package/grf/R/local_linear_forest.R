@@ -15,8 +15,8 @@
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
-#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
@@ -24,21 +24,20 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples_per_cluster,
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
 #'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples_per_cluster observations get relatively
+#'                            clusters with less than samples.per.cluster observations get relatively
 #'                            smaller weight than others in training the forest, i.e., the contribution
 #'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples_per_cluster.
+#'                            the number of observations in the cluster and samples.per.cluster.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters.
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -61,25 +60,24 @@ ll_regression_forest <- function(X, Y,
                                 min.node.size = NULL,
                                 honesty = TRUE,
                                 honesty.fraction = NULL,
-                                ci.group.size = 1, 
+                                ci.group.size = 1,
                                 alpha = NULL,
                                 imbalance.penalty = NULL,
                                 clusters = NULL,
-                                samples_per_cluster = NULL,
+                                samples.per.cluster = NULL,
                                 tune.parameters = FALSE,
                                 num.fit.trees = 10,
                                 num.fit.reps = 100,
                                 num.optimize.reps = 1000,
-                                compute.oob.predictions = FALSE,
                                 num.threads = NULL,
                                 seed = NULL) {
   validate_X(X)
-  validate_observations(Y, X)
+  Y = validate_observations(Y, X)
   
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
-  samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
   if (tune.parameters) {
@@ -97,7 +95,7 @@ ll_regression_forest <- function(X, Y,
                                             honesty.fraction = honesty.fraction,
                                             seed = seed,
                                             clusters = clusters,
-                                            samples_per_cluster = samples_per_cluster)
+                                            samples.per.cluster = samples.per.cluster)
       tunable.params <- tuning.output$params
   } else {
     tunable.params <- c(
@@ -111,6 +109,7 @@ ll_regression_forest <- function(X, Y,
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
   sample.weight.index <- ncol(X) + 2
+  compute.oob.predictions = FALSE
 
   forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
                              FALSE,
@@ -124,7 +123,7 @@ ll_regression_forest <- function(X, Y,
                              as.numeric(tunable.params["alpha"]),
                              as.numeric(tunable.params["imbalance.penalty"]),
                              clusters,
-                             samples_per_cluster,
+                             samples.per.cluster,
                              compute.oob.predictions,
                              num.threads,
                              seed)

@@ -17,24 +17,26 @@ validate_X <- function(X) {
   }
 }
 
-validate_observations <- function(lv,X) {
-  if (!is.list(lv)){
-    lv <- list(lv)
+validate_observations <- function(V, X) {
+  if (is.matrix(V) && ncol(V) == 1) {
+    V = as.vector(V)
+  } else if (!is.vector(V)){
+    stop(paste( "Observations (W, Y, or Z) must be vectors."))
   }
 
-  lapply(lv, function(V) {
-    if (!is.vector(V) || (!is.numeric(V) && !is.logical(V))) {
-      stop(paste( "Observations (W, Y, or Z) must be numeric vectors. GRF does not",
-                  "currently support non-numeric or non-vector observations."))
-    }
+  if (!is.numeric(V) && !is.logical(V)) {
+    stop(paste( "Observations (W, Y, or Z) must be numeric. GRF does not ",
+                "currently support non-numeric observations."))
+  }
 
-    if (any(is.na(V))) {
-      stop("The vector of observations (W, Y, or Z) contains at least one NA.")
-    }
+  if (any(is.na(V))) {
+    stop("The vector of observations (W, Y, or Z) contains at least one NA.")
+  }
 
-    if (length(V) != nrow(X)) {
-      stop("length of observation (W, Y, or Z) does not equal nrow(X).") }
-  })
+  if (length(V) != nrow(X)) {
+    stop("length of observation (W, Y, or Z) does not equal nrow(X).")
+  }
+  V
 }
 
 validate_mtry <- function(mtry, X) {
@@ -119,18 +121,18 @@ validate_clusters <- function(clusters, X) {
   clusters
 }
 
-validate_samples_per_cluster <- function(samples_per_cluster, clusters) {
+validate_samples_per_cluster <- function(samples.per.cluster, clusters) {
   if (is.null(clusters) || length(clusters) == 0) {
     return(0)
   }
   cluster_size_counts <- table(clusters)
   min_size <- unname(cluster_size_counts[order(cluster_size_counts)][1])
-  if (is.null(samples_per_cluster)) {
-    samples_per_cluster <- min_size
-  } else if (samples_per_cluster <= 0) {
-    stop("samples_per_cluster must be positive")
+  if (is.null(samples.per.cluster)) {
+    samples.per.cluster <- min_size
+  } else if (samples.per.cluster <= 0) {
+    stop("samples.per.cluster must be positive")
   }
-  samples_per_cluster
+  samples.per.cluster
 }
 
 validate_honesty_fraction <- function(honesty.fraction, honesty) {
@@ -217,6 +219,8 @@ coerce_honesty_fraction <- function(honesty.fraction) {
   honesty.fraction
 }
 
+#' @importFrom Matrix Matrix cBind
+#' @importFrom methods new
 create_data_matrices <- function(X, ..., sample.weights=NULL) {
   default.data <- matrix(nrow=0, ncol=0);
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
