@@ -62,6 +62,7 @@
 average_treatment_effect = function(forest,
                                     target.sample=c("all", "treated", "control", "overlap"),
                                     method=c("AIPW", "TMLE"),
+                                    subset=NULL) {
 
   target.sample <- match.arg(target.sample)
   method <- match.arg(method)
