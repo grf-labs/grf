@@ -93,7 +93,7 @@ regression_forest <- function(X, Y,
                               seed = NULL) {
     validate_X(X)
     validate_sample_weights(sample.weights, X)
-    validate_observations(Y, X)
+    Y = validate_observations(Y, X)
 
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
