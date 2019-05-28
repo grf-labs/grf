@@ -5,39 +5,90 @@
 #include "commons/SparseData.h"
 #include "forest/ForestOptions.h"
 #include "RcppUtilities.h"
-#include "serialization/ForestSerializer.h"
 
-const std::string RcppUtilities::SERIALIZED_FOREST_KEY = "serialized.forest";
+Rcpp::List RcppUtilities::create_forest_object(Forest& forest,
+                                               const std::vector<Prediction>& predictions) {
+  Rcpp::List result = serialize_forest(forest);
+  if (!predictions.empty()) {
+    add_predictions(result, predictions);
+  }
+  return result;
+}
 
-Rcpp::List RcppUtilities::create_forest_object(const Forest& forest) {
+Forest RcppUtilities::deserialize_forest(Rcpp::List forest_object) {
+  size_t ci_group_size = forest_object["_ci_group_size"];
+  size_t num_variables = forest_object["_num_variables"];
+
+  size_t num_trees = forest_object["_num_trees"];
+  std::vector<std::shared_ptr<Tree>> trees(num_trees);
+
+  Rcpp::List root_nodes = forest_object["_root_nodes"];
+  Rcpp::List child_nodes = forest_object["_child_nodes"];
+  Rcpp::List leaf_samples = forest_object["_leaf_samples"];
+  Rcpp::List split_vars = forest_object["_split_vars"];
+  Rcpp::List split_values = forest_object["_split_values"];
+  Rcpp::List drawn_samples = forest_object["_drawn_samples"];
+
+  Rcpp::List prediction_values = forest_object["_pv_values"];
+  size_t num_types = forest_object["_pv_num_types"];
+
+  for (size_t t = 0; t < num_trees; t++) {
+    trees[t] = std::shared_ptr<Tree>(
+        new Tree(root_nodes.at(t),
+                 child_nodes.at(t),
+                 leaf_samples.at(t),
+                 split_vars.at(t),
+                 split_values.at(t),
+                 drawn_samples.at(t),
+                 PredictionValues(prediction_values.at(t), num_types)));
+  }
+
+  return Forest(trees, num_variables, ci_group_size);
+}
+
+Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   Rcpp::List result;
-  Rcpp::RawVector serialized_forest = RcppUtilities::serialize_forest(forest);
-  result.push_back(serialized_forest, RcppUtilities::SERIALIZED_FOREST_KEY);
-  result.push_back(forest.get_trees().size(), "num.trees");
+
+  result.push_back(forest.get_ci_group_size(), "_ci_group_size");
+  result.push_back(forest.get_num_variables(), "_num_variables");
+
+  size_t num_trees = forest.get_trees().size();
+  result.push_back(num_trees, "_num_trees");
+
+  Rcpp::List root_nodes(num_trees);
+  Rcpp::List child_nodes(num_trees);
+  Rcpp::List leaf_samples(num_trees);
+  Rcpp::List split_vars(num_trees);
+  Rcpp::List split_values(num_trees);
+  Rcpp::List drawn_samples(num_trees);
+  Rcpp::List prediction_values(num_trees);
+  size_t num_types = 0;
+
+  for (size_t t = 0; t < num_trees; t++) {
+    std::shared_ptr<Tree> tree = forest.get_trees().at(t);
+    root_nodes[t] = tree->get_root_node();
+    child_nodes[t] = tree->get_child_nodes();
+    leaf_samples[t] = tree->get_leaf_samples();
+    split_vars[t] = tree->get_split_vars();
+    split_values[t] = tree->get_split_values();
+    drawn_samples[t] = tree->get_drawn_samples();
+
+    prediction_values[t] = tree->get_prediction_values().get_all_values();
+    num_types = tree->get_prediction_values().get_num_types();
+
+    tree->clear();
+  }
+
+  result.push_back(root_nodes, "_root_nodes");
+  result.push_back(child_nodes, "_child_nodes");
+  result.push_back(leaf_samples, "_leaf_samples");
+  result.push_back(split_vars, "_split_vars");
+  result.push_back(split_values, "_split_values");
+  result.push_back(drawn_samples, "_drawn_samples");
+  result.push_back(prediction_values, "_pv_values");
+  result.push_back(num_types, "_pv_num_types");
   return result;
 };
-
-
-Rcpp::RawVector RcppUtilities::serialize_forest(const Forest& forest) {
-  ForestSerializer forest_serializer;
-  std::stringstream stream;
-  forest_serializer.serialize(stream, forest);
-
-  std::string contents = stream.str();
-
-  Rcpp::RawVector result(contents.size());
-  std::copy(contents.begin(), contents.end(), result.begin());
-  return result;
-}
-
-Forest RcppUtilities::deserialize_forest(Rcpp::RawVector input) {
-  ForestSerializer forest_serializer;
-
-  std::string contents(input.begin(), input.end());
-
-  std::stringstream stream(contents);
-  return forest_serializer.deserialize(stream);
-}
 
 Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
                                   Eigen::SparseMatrix<double>& sparse_input_data) {
@@ -56,12 +107,17 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
 
 Rcpp::List RcppUtilities::create_prediction_object(const std::vector<Prediction>& predictions) {
   Rcpp::List result;
-  result.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
-  result.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");
-  result.push_back(RcppUtilities::create_error_matrix(predictions), "debiased.error");
-  result.push_back(RcppUtilities::create_excess_error_matrix(predictions), "excess.error");
+  add_predictions(result, predictions);
   return result;
 };
+
+void RcppUtilities::add_predictions(Rcpp::List& output,
+                                    const std::vector<Prediction>& predictions) {
+  output.push_back(RcppUtilities::create_prediction_matrix(predictions), "predictions");
+  output.push_back(RcppUtilities::create_variance_matrix(predictions), "variance.estimates");
+  output.push_back(RcppUtilities::create_error_matrix(predictions), "debiased.error");
+  output.push_back(RcppUtilities::create_excess_error_matrix(predictions), "excess.error");
+}
 
 Rcpp::NumericMatrix RcppUtilities::create_prediction_matrix(const std::vector<Prediction>& predictions) {
   if (predictions.empty()) {

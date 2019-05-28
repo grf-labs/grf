@@ -74,7 +74,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     normalize_prediction_values(num_leaves, average_value);
     std::vector<double> point_prediction = strategy->predict(average_value);
 
-    PredictionValues prediction_values(leaf_values, num_trees, strategy->prediction_value_length());
+    PredictionValues prediction_values(leaf_values, strategy->prediction_value_length());
     std::vector<double> variance = estimate_variance
         ? strategy->compute_variance(average_value, prediction_values, forest.get_ci_group_size())
         : std::vector<double>();

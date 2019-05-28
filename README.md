@@ -29,6 +29,12 @@ Any published release can also be installed from source:
 install.packages("https://raw.github.com/grf-labs/grf/master/releases/grf_0.10.2.tar.gz", repos = NULL, type = "source")
 ```
 
+`conda` users can install from the [conda-forge](https://anaconda.org/conda-forge/r-grf) channel:
+
+```R
+conda install -c conda-forge r-grf
+```
+
 Note that to install from source, a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
 
 

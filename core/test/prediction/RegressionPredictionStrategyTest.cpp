@@ -43,7 +43,7 @@ TEST_CASE("regression variance estimates are positive", "[regression, prediction
 
   RegressionPredictionStrategy prediction_strategy;
   std::vector<double> variance = prediction_strategy.compute_variance(
-      averages, PredictionValues(leaf_values, 4, 1), 2);
+      averages, PredictionValues(leaf_values, 1), 2);
 
   REQUIRE(variance.size() == 1);
   REQUIRE(variance[0] > 0);
@@ -59,11 +59,11 @@ TEST_CASE("scaling outcome scales regression variance", "[regression, prediction
   RegressionPredictionStrategy prediction_strategy;
   std::vector<double> first_variance = prediction_strategy.compute_variance(
       averages,
-      PredictionValues(leaf_values, 4, 1)
+      PredictionValues(leaf_values, 1)
       , 2);
   std::vector<double> second_variance = prediction_strategy.compute_variance(
       scaled_average,
-      PredictionValues(scaled_leaf_values, 4, 1), 2);
+      PredictionValues(scaled_leaf_values, 1), 2);
 
   REQUIRE(first_variance.size() == 1);
   REQUIRE(second_variance.size() == 1);
@@ -85,7 +85,7 @@ TEST_CASE("debiased errors are smaller than raw errors", "[regression, predictio
     auto error = prediction_strategy.compute_error(
           sample,
           average,
-          PredictionValues(leaf_values, 4, 1),
+          PredictionValues(leaf_values, 1),
           &data).at(0);
     double debiased_error = error.first;
 

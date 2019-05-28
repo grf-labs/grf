@@ -1,5 +1,5 @@
 #' Regression forest tuning
-#' 
+#'
 #' Finds the optimal parameters to be used in training a regression forest. This method
 #' currently tunes over min.node.size, mtry, sample.fraction, alpha, and imbalance.penalty.
 #' Please see the method 'regression_forest' for a description of the standard forest
@@ -10,6 +10,8 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param sample.weights (experimental) Weights given to an observation in estimation.
+#'                       If NULL, each observation is given the same weight.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
@@ -22,17 +24,17 @@
 #' @param mtry Number of variables tried for each split.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
-#'                    automatically selects an appropriate amount.
 #' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
-#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds 
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and 
+#' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
+#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
-#' @param seed The seed for the C++ random number generator.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
 #'                            software will set this value to the size of the smallest cluster.
+#' @param num.threads Number of threads used in training. By default, the number of threads is set
+#'                    to the maximum hardware concurrency.
+#' @param seed The seed of the C++ random number generator.
 #'
 #' @return A list consisting of the optimal parameter values ('params') along with their debiased
 #'         error ('error').
@@ -53,6 +55,8 @@
 #'     imbalance.penalty = as.numeric(params["imbalance.penalty"]))
 #' }
 #'
+#' @importFrom stats runif
+#' @importFrom utils capture.output
 #' @export
 tune_regression_forest <- function(X, Y,
                                    sample.weights = NULL,
@@ -64,19 +68,20 @@ tune_regression_forest <- function(X, Y,
                                    mtry = NULL,
                                    alpha = NULL,
                                    imbalance.penalty = NULL,
-                                   num.threads = NULL,
                                    honesty = TRUE,
                                    honesty.fraction = NULL,
-                                   seed = NULL,
                                    clusters = NULL,
-                                   samples_per_cluster = NULL) {
+                                   samples.per.cluster = NULL,
+                                   num.threads = NULL,
+                                   seed = NULL) {
   validate_X(X)
   validate_sample_weights(sample.weights, X)
-  if(length(Y) != nrow(X)) { stop("Y has incorrect length.") }
+  Y = validate_observations(Y, X)
+
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
-  samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
+  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   ci.group.size <- 1
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
@@ -95,36 +100,38 @@ tune_regression_forest <- function(X, Y,
   if (length(tuning.params) == 0) {
     return(list("error"=NA, "params"=c(all.params)))
   }
-  
+
   # Train several mini-forests, and gather their debiased OOB error estimates.
   num.params = length(tuning.params)
   fit.draws = matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params)
   colnames(fit.draws) = names(tuning.params)
-  
+  compute.oob.predictions = TRUE
+
   debiased.errors = apply(fit.draws, 1, function(draw) {
     params = c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
                                      !is.null(sample.weights),
                                      as.numeric(params["mtry"]),
                                      num.fit.trees,
-                                     num.threads,
                                      as.numeric(params["min.node.size"]),
                                      as.numeric(params["sample.fraction"]),
-                                     seed,
                                      honesty,
                                      coerce_honesty_fraction(honesty.fraction),
                                      ci.group.size,
                                      as.numeric(params["alpha"]),
                                      as.numeric(params["imbalance.penalty"]),
                                      clusters,
-                                     samples_per_cluster)
+                                     samples.per.cluster,
+                                     compute.oob.predictions,
+                                     num.threads,
+                                     seed)
 
     prediction = regression_predict_oob(small.forest, data$default, data$sparse,
         outcome.index, num.threads, FALSE)
     error = prediction$debiased.error
     mean(error, na.rm = TRUE)
   })
-  
+
   # Fit the 'dice kriging' model to these error estimates.
   # Note that in the 'km' call, the kriging package prints a large amount of information
   # about the fitting process. Here, capture its console output and discard it.
@@ -135,16 +142,21 @@ tune_regression_forest <- function(X, Y,
                                    response = debiased.errors,
                                    noise.var = variance.guess))
   kriging.model <- env$kriging.model
-  
+
   # To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
   optimize.draws = matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
   colnames(optimize.draws) = names(tuning.params)
   model.surface = predict(kriging.model, newdata=data.frame(optimize.draws), type = "SK")
-  
-  min.error = min(model.surface$mean)
-  optimal.draw = optimize.draws[which.min(model.surface$mean),]
-  tuned.params = get_params_from_draw(X, optimal.draw)
-  
-  list(error = min.error, params = c(fixed.params, tuned.params))
+
+  tuned.params = get_params_from_draw(X, optimize.draws)
+  grid = cbind(error=model.surface$mean, tuned.params)
+  optimal.draw = which.min(grid[, "error"])
+  optimal.param = grid[optimal.draw, ]
+
+  out = list(error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
+             grid = grid)
+  class(out) = c("tuning_output")
+
+  out
 }

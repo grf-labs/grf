@@ -8,7 +8,7 @@
 #' that the forest has captured heterogeneity in the underlying signal.
 #' The p-value of the `differential.forest.prediction` coefficient
 #' also acts as an omnibus test for the presence of heterogeneity: If the coefficient
-#' is significantly different from 0, then we can reject the null of
+#' is significantly greater than 0, then we can reject the null of
 #' no heterogeneity.
 #'
 #' @param forest The trained forest.
@@ -29,17 +29,8 @@
 #' @export
 test_calibration = function(forest) {
 
-  cluster.se <- length(forest$clusters) > 0
-  if (!cluster.se) {
-    clusters <- 1:length(forest$predictions)
-    observation.weight <- rep(1, length(forest$predictions))
-  } else {
-    clusters <- forest$clusters
-    clust.factor <- factor(clusters)
-    inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
-    observation.weight <- inverse.counts[as.numeric(clust.factor)]
-  }
-
+  observation.weight = observation_weights(forest)
+  clusters = if(length(forest$clusters) > 0) { forest$clusters } else { 1:length(observation.weight) }
   if ("regression_forest" %in% class(forest)) {
     preds = predict(forest)$predictions
     mean.pred = weighted.mean(preds, observation.weight)
@@ -68,8 +59,12 @@ test_calibration = function(forest) {
   attr(blp.summary, "method") <-
     paste("Best linear fit using forest predictions (on held-out data)",
           "as well as the mean forest prediction as regressors, along",
-          "with heteroskedasticity-robust (HC3) SEs",
+          "with one-sided heteroskedasticity-robust (HC3) SEs",
           sep="\n")
+  #convert to one-sided p-values
+  dimnames(blp.summary)[[2]][4] <- gsub("[|]", "", dimnames(blp.summary)[[2]][4])
+  blp.summary[,4] <- ifelse(blp.summary[,3]<0, 1-blp.summary[,4]/2,blp.summary[,4]/2)
   blp.summary
 
 }
+

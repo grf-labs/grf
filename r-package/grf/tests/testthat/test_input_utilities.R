@@ -45,3 +45,12 @@ test_that("length(Y) != nrow(X) throws error", {
   Y = c(0,1,1)
   expect_error(validate_observations(Y,X))
 })
+
+test_that("an observation matrix with 1 column is accepted", {
+  X = matrix(c(0, 0, 1, 1, 2, 2), nrow=3, ncol=2)
+  Y = matrix(c(0,1,2), nrow=3, ncol=1)
+  colnames(Y) = "outcome"
+
+  Y = validate_observations(Y, X)
+  expect_true(is.vector(Y))
+})

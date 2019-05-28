@@ -1,5 +1,5 @@
 #' Estimate average treatment effects using a causal forest
-#' 
+#'
 #' Gets estimates of one of the following.
 #' \itemize{
 #'   \item The (conditional) average treatment effect (target.sample = all):
@@ -15,7 +15,7 @@
 #' This last estimand is recommended by Li, Morgan, and Zaslavsky (JASA, 2017)
 #' in case of poor overlap (i.e., when the propensities e(x) may be very close
 #' to 0 or 1), as it doesn't involve dividing by estimated propensities.
-#' 
+#'
 #' If clusters are specified, then each cluster gets equal weight. For example,
 #' if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there
 #' are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall
@@ -45,17 +45,19 @@
 #' c.pred = predict(c.forest, X.test)
 #' # Estimate the conditional average treatment effect on the full sample (CATE).
 #' average_treatment_effect(c.forest, target.sample = "all")
-#' 
+#'
 #' # Estimate the conditional average treatment effect on the treated sample (CATT).
 #' # We don't expect much difference between the CATE and the CATT in this example,
 #' # since treatment assignment was randomized.
 #' average_treatment_effect(c.forest, target.sample = "treated")
-#' 
+#'
 #' # Estimate the conditional average treatment effect on samples with positive X[,1].
 #' average_treatment_effect(c.forest, target.sample = "all", X[,1] > 0)
 #' }
 #'
 #' @return An estimate of the average treatment effect, along with standard error.
+#'
+#' @importFrom stats coef lm predict var weighted.mean
 #' @export
 average_treatment_effect = function(forest,
                                     target.sample=c("all", "treated", "control", "overlap"),
@@ -69,7 +71,7 @@ average_treatment_effect = function(forest,
   if (!("causal_forest" %in% class(forest))) {
     stop("Average effect estimation only implemented for causal_forest")
   }
-  
+
   if (cluster.se & method == "TMLE") {
     stop("TMLE has not yet been implemented with clustered observations.")
   }
@@ -86,16 +88,9 @@ average_treatment_effect = function(forest,
     stop(paste("If specified, subset must be a vector contained in 1:n,",
                "or a boolean vector of length n."))
   }
-  
-  if (!cluster.se) {
-    clusters <- 1:length(forest$Y.hat)
-    observation.weight <- rep(1, length(forest$Y.hat))
-  } else {
-    clusters <- forest$clusters
-    clust.factor <- factor(clusters)
-    inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
-    observation.weight <- inverse.counts[as.numeric(clust.factor)]
-  }
+
+  clusters = if(cluster.se) { forest$clusters } else { 1:length(forest$Y) }
+  observation.weight = observation_weights(forest)
 
   # Only use data selected via subsetting.
   subset.W.orig <- forest$W.orig[subset]
@@ -117,21 +112,21 @@ average_treatment_effect = function(forest,
     Y.residual <- subset.Y.orig - subset.Y.hat
     tau.ols <- lm(Y.residual ~ W.residual, weights = subset.weights)
     tau.est <- coef(summary(tau.ols))[2,1]
-    
+
     if (cluster.se) {
       tau.se <- sqrt(sandwich::vcovCL(tau.ols, cluster = subset.clusters)[2,2])
     } else {
       tau.se <- sqrt(sandwich::vcovHC(tau.ols)[2,2])
     }
-    
+
     return(c(estimate=tau.est, std.err=tau.se))
   }
-  
+
   if (!all(subset.W.orig %in% c(0, 1))) {
     stop(paste("Average treatment effect estimation only implemented for binary treatment.",
                "See `average_partial_effect` for continuous W."))
   }
-  
+
   if (min(subset.W.hat) <= 0.01 && max(subset.W.hat) >= 0.99) {
     rng = range(subset.W.hat)
     warning(paste0("Estimated treatment propensities take values between ",
@@ -150,10 +145,10 @@ average_treatment_effect = function(forest,
                    "effects for some treated units may not be well identified. ",
                    "In this case, using `target.sample=control` may be helpful."))
   }
-  
+
   control.idx <- which(subset.W.orig == 0)
   treated.idx <- which(subset.W.orig == 1)
-  
+
   # Compute naive average effect estimates (notice that this uses OOB)
   if (target.sample == "all") {
     tau.avg.raw <- weighted.mean(tau.hat.pointwise, subset.weights)
@@ -166,11 +161,11 @@ average_treatment_effect = function(forest,
   } else {
     stop("Invalid target sample.")
   }
-  
+
   # Get estimates for the regress surfaces E[Y|X, W=0/1]
   Y.hat.0 <- subset.Y.hat - subset.W.hat * tau.hat.pointwise
   Y.hat.1 <- subset.Y.hat + (1 - subset.W.hat) * tau.hat.pointwise
-  
+
   if (method == "TMLE") {
     loaded <- requireNamespace("sandwich", quietly = TRUE)
     if (!loaded) {
@@ -178,10 +173,10 @@ average_treatment_effect = function(forest,
       method = "AIPW"
     }
   }
-  
+
   # Now apply a doubly robust correction
   if (method == "AIPW") {
-    
+
     # Compute normalized inverse-propensity-type weights gamma
     if (target.sample == "all") {
       gamma.control.raw <- 1 / (1 - subset.W.hat[control.idx])
@@ -195,19 +190,19 @@ average_treatment_effect = function(forest,
     } else {
       stop("Invalid target sample.")
     }
-    
+
     gamma <- rep(0, length(subset.W.orig))
     gamma[control.idx] <- gamma.control.raw /
       sum(subset.weights[control.idx] * gamma.control.raw) *
       sum(subset.weights)
-    gamma[treated.idx] <- gamma.treated.raw / 
+    gamma[treated.idx] <- gamma.treated.raw /
       sum(subset.weights[treated.idx] * gamma.treated.raw) *
       sum(subset.weights)
-    
+
     dr.correction.all <- subset.W.orig * gamma * (subset.Y.orig - Y.hat.1) -
       (1 - subset.W.orig) * gamma * (subset.Y.orig - Y.hat.0)
     dr.correction <- weighted.mean(dr.correction.all, subset.weights)
-    
+
     if (cluster.se) {
       correction.clust <- Matrix::sparse.model.matrix(
         ~ factor(subset.clusters) + 0,
@@ -217,9 +212,9 @@ average_treatment_effect = function(forest,
     } else {
       sigma2.hat <- mean(dr.correction.all^2) / (length(dr.correction.all) - 1)
     }
-    
+
   } else if (method == "TMLE") {
-    
+
     if (target.sample == "all") {
       eps.tmle.robust.0 <-
         lm(B ~ A + 0, data=data.frame(A=1/(1 - subset.W.hat[subset.W.orig==0]),
@@ -285,12 +280,28 @@ average_treatment_effect = function(forest,
     } else {
       stop("Invalid target sample.")
     }
-    
+
   } else {
     stop("Invalid method.")
   }
-  
+
   tau.avg <- tau.avg.raw + dr.correction
   tau.se <- sqrt(sigma2.hat)
   return(c(estimate=tau.avg, std.err=tau.se))
+}
+
+observation_weights = function(forest) {
+  sample.weights = if(is.null(forest$sample.weights)) {
+    rep(1, length(forest$Y.orig))
+  } else {
+    forest$sample.weights * length(forest$Y.orig) / sum(forest$sample.weights)
+  }
+  if (length(forest$clusters) == 0) {
+    observation.weight <- sample.weights
+  } else {
+    clust.factor <- factor(forest$clusters)
+    inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
+    observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]
+  }
+  observation.weight
 }
