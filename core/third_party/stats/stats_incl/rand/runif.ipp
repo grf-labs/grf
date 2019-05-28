@@ -31,18 +31,20 @@ namespace internal
 template<typename T>
 statslib_inline
 T
-runif_compute(const T a_par, const T b_par, rand_engine_t& engine)
+runif_compute(const T min_value, const T max_value, rand_engine_t& eng)
 {
-    if (!unif_sanity_check(a_par,b_par)) {
+    if (!unif_sanity_check(min_value,max_value)) {
         return STLIM<T>::quiet_NaN();
     }
-    
-    // convert from [a,b) to (a,b)
 
-    T a_par_adj = std::nextafter(a_par, b_par);
-    std::uniform_real_distribution<T> unif_dist(a_par_adj, b_par);
-
-    return unif_dist(engine);
+    for(;;) {
+        T numerator = static_cast<T>(eng() - (eng.min)());
+        T divisor = static_cast<T>((eng.max)() - (eng.min)());
+        T result = numerator / divisor * (max_value - min_value) + min_value;
+        if(result < max_value) {
+            return result;
+        }
+    }
 }
 
 template<typename T1, typename T2, typename TC = common_return_t<T1,T2>>
