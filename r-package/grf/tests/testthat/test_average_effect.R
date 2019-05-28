@@ -9,7 +9,7 @@ test_that("average effects are translation invariant", {
 	W = rbinom(n, 1, 0.5)
 	Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)
 	Y.plus.1 = Y + 1
-	forest.causal = causal_forest(X, Y, W, num.trees = 100, ci.group.size = 4)
+	forest.causal = causal_forest(X, Y, W, num.trees = 200, ci.group.size = 4)
 	forest.causal.plus.1 = forest.causal
 	forest.causal.plus.1$Y.orig = forest.causal$Y.orig + 1
 	forest.causal.plus.1$Y.hat = forest.causal$Y.hat + 1
@@ -37,7 +37,7 @@ test_that("average effects are translation invariant", {
 	catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
 	catc.plus.1.tmle = average_treatment_effect(forest.causal.plus.1, target.sample = "control", method = "TMLE")
 	expect_equal(catc.tmle, catc.plus.1.tmle)
-	
+
 	cape = average_partial_effect(forest.causal)
 	cape.plus.1 = average_partial_effect(forest.causal.plus.1)
 	expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.006)
@@ -56,7 +56,7 @@ test_that("average treatment effect estimates are reasonable", {
   TAU = 4 * (X[,1] > 0)
   Y =  TAU * (W  - 0.5) + rnorm(n)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 500, ci.group.size = 1)
+  forest.causal = causal_forest(X, Y, W, num.trees = 700, ci.group.size = 1)
 
   cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - mean(TAU)) <= 0.2)
@@ -102,7 +102,7 @@ test_that("average treatment effect estimates are reasonable", {
   tau.overlap = sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
   expect_true(abs(wate[1] - tau.overlap) <= 0.2)
   expect_true(abs(wate[1] - tau.overlap) <= 3 * wate[2])
-  
+
   cate.aipw.pos = average_treatment_effect(forest.causal, target.sample = "all",
                                            method = "AIPW", subset = X[,1] > 0)
   cate.tmle.pos = average_treatment_effect(forest.causal, target.sample = "all",
@@ -253,40 +253,40 @@ test_that("cluster robust average effects are consistent", {
 })
 
 test_that("cluster robust average effects do weighting correctly", {
-  
+
   t0 = 2
   K = 400
   n = 11 * K
   p = 4
   clust = 1:n %% K + K * as.numeric(1:n >= K)
   tau = 2 * t0 * as.numeric(clust < K)
-  
+
   X = matrix(rnorm(n * p), n, p)
   W = rbinom(n, 1, 0.5)
   Y = tau * W + 2 * rnorm(n)
-  
+
   forest.causal = causal_forest(X, Y, W, clusters = clust, num.trees = 400)
-  
+
   cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - t0) / (3 * cate.aipw[2]) <= 1)
   expect_true(cate.aipw[2] <= 0.2)
-  
+
   catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
   expect_true(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]) <= 1)
   expect_true(catt.aipw[2] <= 0.2)
-  
+
   catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
   expect_true(abs(catc.aipw[1] - t0) / (3 * catc.aipw[2]) <= 1)
   expect_true(catc.aipw[2] <= 0.2)
-  
+
   cape = average_partial_effect(forest.causal, num.trees.for.variance = 200)
   expect_true(abs(cape[1] - t0) / (3 * cape[2]) <= 1)
   expect_true(cape[2] <= 0.2)
-  
+
   wate = average_treatment_effect(forest.causal, target.sample = "overlap")
   expect_true(abs(wate[1] - t0) / (3 * wate[2]) <= 1)
   expect_true(wate[2] <= 0.2)
-  
+
 })
 
 test_that("cluster robust average effects do weighting correctly with IPCC weights", {
@@ -352,4 +352,3 @@ test_that("average effect estimation doesn't error on data with a single feature
   average_partial_effect(forest)
   expect_true(TRUE) # so we don't get a warning about an empty test
 })
-
