@@ -16,6 +16,7 @@
 #include <unordered_map>
 
 #include "RandomSampler.h"
+#include "stats/stats.hpp"
 
 RandomSampler::RandomSampler(uint seed,
                              const SamplingOptions& options) :
@@ -163,8 +164,9 @@ void RandomSampler::draw_simple(std::vector<size_t>& result,
   for (size_t i = 0; i < num_samples; ++i) {
     size_t draw;
     do {
-      draw = unif_dist(random_number_generator);
-      for (auto& skip_value : skip) {
+      //draw = unif_dist(random_number_generator);
+        draw = static_cast<size_t>(stats::runif(0, max - skip.size(), random_number_generator));
+        for (auto& skip_value : skip) {
         if (draw >= skip_value) {
           ++draw;
         }
@@ -191,8 +193,9 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
 
   // Draw without replacement using Fisher Yates algorithm
   for (size_t i = result.size() - 1; i > 0; --i) {
-    std::uniform_int_distribution<size_t> distribution(0, i);
-    size_t j = distribution(random_number_generator);
+    //std::uniform_int_distribution<size_t> distribution(0, i);
+    //size_t j = distribution(random_number_generator);
+    size_t j = static_cast<size_t>(stats::runif(0, i+1, random_number_generator));
     std::swap(result[i], result[j]);
   }
 
@@ -222,6 +225,7 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
 }
 
 size_t RandomSampler::sample_poisson(size_t mean) {
-  std::poisson_distribution<size_t> distribution(mean);
-  return distribution(random_number_generator);
+//  std::poisson_distribution<size_t> distribution(mean);
+//  return distribution(random_number_generator);
+    return static_cast<size_t>(stats::rpois(mean, random_number_generator));
 }

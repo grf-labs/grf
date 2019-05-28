@@ -28,6 +28,8 @@
 #include <set>
 #include <vector>
 #include <unordered_map>
+#include "gcem/gcem.hpp"
+
 
 class RandomSampler {
 public:
