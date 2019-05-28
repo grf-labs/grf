@@ -53,7 +53,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
                               double sample_fraction,
                               std::vector<size_t>& subsamples) {
   std::vector<size_t> shuffled_sample(samples);
-  shuffle(shuffled_sample);
+  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
 
   uint subsample_size = (uint) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
@@ -67,7 +67,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
                               std::vector<size_t>& subsamples,
                               std::vector<size_t>& oob_samples) {
   std::vector<size_t> shuffled_sample(samples);
-  shuffle(shuffled_sample);
+  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
 
   auto subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
@@ -134,7 +134,7 @@ void RandomSampler::shuffle_and_split(std::vector<size_t>& samples,
 
   // Fill with 0..n_all-1 and shuffle
   std::iota(samples.begin(), samples.end(), 0);
-  shuffle(samples);
+  std::shuffle(samples.begin(), samples.end(), random_number_generator);
 
   samples.resize(size);
 }
@@ -192,8 +192,6 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
 
   // Draw without replacement using Fisher Yates algorithm
   for (size_t i = result.size() - 1; i > 0; --i) {
-    //std::uniform_int_distribution<size_t> distribution(0, i);
-    //size_t j = distribution(random_number_generator);
     auto j = static_cast<size_t>(stats::runif(0, i+1, random_number_generator));
     std::swap(result[i], result[j]);
   }
@@ -230,20 +228,17 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
   }
 }
 
-void RandomSampler::shuffle(std::vector<size_t> v) {
+void RandomSampler::shuffle(std::vector<size_t>& v) {
     auto first = v.begin();
     auto last = v.end();
     size_t j;
     for (auto i=(last-first)-1; i>0; --i) {
-        std::uniform_int_distribution<decltype(i)> d(0,i);
-        j = static_cast<size_t> stats::runif(0, i+1);
-        std::swap(first[i], first[j]);
+         j = static_cast<size_t>(stats::runif(0, i+1, random_number_generator));
+         std::swap(first[i], first[j]);
     }
 }
 
 
 size_t RandomSampler::sample_poisson(size_t mean) {
-//  std::poisson_distribution<size_t> distribution(mean);
-//  return distribution(random_number_generator);
     return static_cast<size_t>(stats::rpois(mean, random_number_generator));
 }

@@ -157,7 +157,7 @@ private:
    * In-house implementation of shuffle to ensure stability of random numbers.
    * @param vec Vector to shuffle (in-place).
    */
-  void shuffle(std::vector<size_t> v);
+  void shuffle(std::vector<size_t>& v);
 
   SamplingOptions options;
   std::mt19937_64 random_number_generator;
