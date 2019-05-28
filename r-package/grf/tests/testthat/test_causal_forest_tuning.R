@@ -79,13 +79,9 @@ test_that("output of tune local linear causal forest is consistent with predicti
 
   ll.min = tuning.results$lambdas[1]
   pred.ll.min = predict(forest, linear.correction.variables = 1:p, ll.lambda = ll.min)$predictions
-  #expect_true(max(abs(tuning.results$oob.predictions[,1] - pred.ll.min)) < 10^-6)
-
-  print(max(abs(tuning.results$oob.predictions[,1] - pred.ll.min)))
+  expect_true(max(abs(tuning.results$oob.predictions[,1] - pred.ll.min)) < 10^-6)
 
   ll.max = tuning.results$lambdas[length(tuning.results$lambdas)]
   pred.ll.max = predict(forest, linear.correction.variables = 1:p, ll.lambda = ll.max)$predictions
-  #expect_true(max(abs(tuning.results$oob.predictions[,length(tuning.results$lambdas)] - pred.ll.max)) < 10^-6)
-
-  print(max(abs(tuning.results$oob.predictions[,length(tuning.results$lambdas)] - pred.ll.max)))
+  expect_true(max(abs(tuning.results$oob.predictions[,length(tuning.results$lambdas)] - pred.ll.max)) < 10^-6)
   })

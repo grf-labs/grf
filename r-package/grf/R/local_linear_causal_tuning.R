@@ -39,7 +39,12 @@ tune_ll_causal_forest <- function(forest,
   W = forest[["W.orig"]]
   Y.hat = forest[["Y.hat"]]
   W.hat = forest[["W.hat"]]
-  data = create_data_matrices(X, Y, W)
+
+  Y.centered = Y - Y.hat
+  W.centered = W - W.hat
+
+  data <- create_data_matrices(X, Y.centered, W.centered)
+
   outcome.index = ncol(X) + 1
   treatment.index = ncol(X) + 2
   instrument.index = treatment.index
