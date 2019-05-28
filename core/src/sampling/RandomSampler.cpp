@@ -69,7 +69,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
   std::vector<size_t> shuffled_sample(samples);
   std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
 
-  size_t subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
+  auto subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
   oob_samples.resize(samples.size() - subsample_size);
 
@@ -164,7 +164,6 @@ void RandomSampler::draw_simple(std::vector<size_t>& result,
   for (size_t i = 0; i < num_samples; ++i) {
     size_t draw;
     do {
-      //draw = unif_dist(random_number_generator);
         draw = static_cast<size_t>(stats::runif(0, max - skip.size(), random_number_generator));
         for (auto& skip_value : skip) {
         if (draw >= skip_value) {
@@ -195,7 +194,7 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
   for (size_t i = result.size() - 1; i > 0; --i) {
     //std::uniform_int_distribution<size_t> distribution(0, i);
     //size_t j = distribution(random_number_generator);
-    size_t j = static_cast<size_t>(stats::runif(0, i+1, random_number_generator));
+    auto j = static_cast<size_t>(stats::runif(0, i+1, random_number_generator));
     std::swap(result[i], result[j]);
   }
 
@@ -207,20 +206,27 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
                                   size_t max,
                                   size_t num_samples,
                                   const std::vector<double>& weights) {
+
   result.reserve(num_samples);
 
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(max + 1, false);
+  double double_draw;
+  size_t int_draw = 0;
 
-  std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
+  std::vector<bool> chosen(weights.size(), false);
+
+  // Fill cdf
+  std::vector<double> cdf(weights.size(), 0);
+  std::partial_sum(weights.begin(), weights.end(), cdf.begin());
+
   for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
     do {
-      draw = weighted_dist(random_number_generator);
-    } while (temp[draw]);
-    temp[draw] = true;
-    result.push_back(draw);
+      // Draw a uniform number
+      double_draw = stats::runif(0, 1, random_number_generator) * cdf.back();
+      // Find its position on the cdf (inverse sampling)
+      int_draw = std::distance(cdf.begin(), std::lower_bound(cdf.begin(), cdf.end(), double_draw));
+    } while (chosen[int_draw]);
+    chosen[int_draw] = true;
+    result.emplace_back(int_draw);
   }
 }
 
