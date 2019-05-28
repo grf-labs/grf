@@ -59,7 +59,7 @@ tune_ll_causal_forest <- function(forest,
 
   # Find sequence of predictions by lambda
   prediction.object = ll_causal_predict_oob(forest.short, data$default, data$sparse, outcome.index,
-      treatment.index, instrument.index, lambda.path, ll.weight.penalty, linear.correction.variables, num.threads)
+      treatment.index, lambda.path, ll.weight.penalty, linear.correction.variables, num.threads)
   predictions = prediction.object$predictions
 
   errors = apply(predictions, MARGIN = 2, FUN = function(row){
