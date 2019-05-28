@@ -53,7 +53,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
                               double sample_fraction,
                               std::vector<size_t>& subsamples) {
   std::vector<size_t> shuffled_sample(samples);
-  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
+  shuffle(shuffled_sample);
 
   uint subsample_size = (uint) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
@@ -67,7 +67,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
                               std::vector<size_t>& subsamples,
                               std::vector<size_t>& oob_samples) {
   std::vector<size_t> shuffled_sample(samples);
-  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
+  shuffle(shuffled_sample);
 
   auto subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
@@ -134,8 +134,7 @@ void RandomSampler::shuffle_and_split(std::vector<size_t>& samples,
 
   // Fill with 0..n_all-1 and shuffle
   std::iota(samples.begin(), samples.end(), 0);
-  std::shuffle(samples.begin(), samples.end(), random_number_generator);
-
+  shuffle(samples);
   samples.resize(size);
 }
 
