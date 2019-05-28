@@ -56,7 +56,7 @@ test_that("average treatment effect estimates are reasonable", {
   TAU = 4 * (X[,1] > 0)
   Y =  TAU * (W  - 0.5) + rnorm(n)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 700, ci.group.size = 1)
+  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
 
   cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - mean(TAU)) <= 0.2)
