@@ -159,7 +159,6 @@ void RandomSampler::draw_simple(std::vector<size_t>& result,
   std::vector<bool> temp;
   temp.resize(max, false);
 
-  std::uniform_int_distribution<size_t> unif_dist(0, max - 1 - skip.size());
   for (size_t i = 0; i < num_samples; ++i) {
     size_t draw;
     do {
