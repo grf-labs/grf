@@ -53,7 +53,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
                               double sample_fraction,
                               std::vector<size_t>& subsamples) {
   std::vector<size_t> shuffled_sample(samples);
-  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
+  shuffle(shuffled_sample);
 
   uint subsample_size = (uint) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
@@ -67,7 +67,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
                               std::vector<size_t>& subsamples,
                               std::vector<size_t>& oob_samples) {
   std::vector<size_t> shuffled_sample(samples);
-  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
+  shuffle(shuffled_sample);
 
   auto subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
@@ -85,7 +85,7 @@ void RandomSampler::subsample_with_size(const std::vector<size_t>& samples,
                                         size_t subsample_size,
                                         std::vector<size_t>& subsamples) {
   std::vector<size_t> shuffled_sample(samples);
-  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
+  shuffle(shuffled_sample);
 
   subsamples.resize(subsample_size);
   std::copy(shuffled_sample.begin(),
@@ -134,7 +134,7 @@ void RandomSampler::shuffle_and_split(std::vector<size_t>& samples,
 
   // Fill with 0..n_all-1 and shuffle
   std::iota(samples.begin(), samples.end(), 0);
-  std::shuffle(samples.begin(), samples.end(), random_number_generator);
+  shuffle(samples);
 
   samples.resize(size);
 }
@@ -229,6 +229,18 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
     result.emplace_back(int_draw);
   }
 }
+
+void RandomSampler::shuffle(std::vector<size_t> v) {
+    auto first = v.begin();
+    auto last = v.end();
+    size_t j;
+    for (auto i=(last-first)-1; i>0; --i) {
+        std::uniform_int_distribution<decltype(i)> d(0,i);
+        j = static_cast<size_t> stats::runif(0, i+1);
+        std::swap(first[i], first[j]);
+    }
+}
+
 
 size_t RandomSampler::sample_poisson(size_t mean) {
 //  std::poisson_distribution<size_t> distribution(mean);
