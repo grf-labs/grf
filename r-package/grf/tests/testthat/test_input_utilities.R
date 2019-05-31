@@ -55,7 +55,7 @@ test_that("an observation matrix with 1 column is accepted", {
   expect_true(is.vector(Y))
 })
 
-test_that("create_data_matrices handles data.frame, matrix and sparse inputs equally", {
+test_that("create_data_matrices handles data.frame, matrix, sparse and NULL inputs equally", {
   
   Xm = matrix(rnorm(100), 20, 5)
   Xd = as.data.frame(Xm)
