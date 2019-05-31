@@ -144,7 +144,8 @@ causal_forest <- function(X, Y, W,
                           seed = NULL) {
     validate_X(X)
     validate_sample_weights(sample.weights, X)
-    validate_observations(list(Y,W), X)
+    Y = validate_observations(Y, X)
+    W = validate_observations(W, X)
 
     num.threads <- validate_num_threads(num.threads)
     seed <- validate_seed(seed)
@@ -277,7 +278,7 @@ causal_forest <- function(X, Y, W,
 #'                   we run a locally weighted linear regression on the included variables.
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
-#' @param ll.lambda Ridge penalty for local linear predictions
+#' @param ll.lambda Ridge penalty for local linear predictions. Defaults to NULL and will be cross-validated.
 #' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
 #'                  or penalize all covariates equally (FALSE). Penalizes equally by default.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
@@ -326,9 +327,10 @@ causal_forest <- function(X, Y, W,
 #' @export
 predict.causal_forest <- function(object, newdata = NULL,
                                   linear.correction.variables = NULL,
-                                  ll.lambda = 0.1,
+                                  ll.lambda = NULL,
                                   ll.weight.penalty = FALSE,
-                                  num.threads = NULL, estimate.variance = FALSE, ...) {
+                                  num.threads = NULL,
+                                  estimate.variance = FALSE, ...) {
 
     # If possible, use pre-computed predictions.
     if (is.null(newdata) & !estimate.variance & !is.null(object$predictions) & is.null(linear.correction.variables)) {
@@ -352,7 +354,13 @@ predict.causal_forest <- function(object, newdata = NULL,
     local.linear = !is.null(linear.correction.variables)
     if(local.linear){
         linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
-        ll.lambda = validate_ll_lambda(ll.lambda)
+
+        if (is.null(ll.lambda)) {
+            ll.regularization.path = tune_ll_causal_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
+            ll.lambda = ll.regularization.path$lambda.min
+        } else {
+            ll.lambda = validate_ll_lambda(ll.lambda)
+        }
 
         # subtract 1 to account for C++ indexing
         linear.correction.variables <- linear.correction.variables - 1

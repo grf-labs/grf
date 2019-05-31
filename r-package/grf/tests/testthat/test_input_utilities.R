@@ -1,28 +1,83 @@
 library(grf)
 
-test_that("forests handle matrix and data.frame inputs equally", {
-  
-  n = 100
-  p = 2
-  Xm = matrix(rnorm(n*p), n, p)
-  Xd = as.data.frame(Xm)
-  Y = rnorm(n)
-  W = rbinom(0.5, size=1, n=n)
-  Z = runif(n)
-  
-  # Matrix input
-  rfm = regression_forest(Xm, Y, num.trees=5, seed=1234)
-  cfm = causal_forest(Xm, Y, W, num.trees=5, seed=1234)
-  ifm = instrumental_forest(Xm, Y, W, Z, num.trees=5, seed=1234)
-  
-  # Data.frame input
-  rfd = regression_forest(Xd, Y, num.trees=5, seed=1234)
-  cfd = causal_forest(Xd, Y, W, num.trees=5, seed=1234)
-  ifd = instrumental_forest(Xd, Y, W, Z, num.trees=5, seed=1234)
-  
-  # Check that output is the same
-  expect_equal(predict(rfd)$predictions, predict(rfm)$predictions)
-  expect_equal(predict(cfd)$predictions, predict(cfm)$predictions)
-  expect_equal(predict(ifd)$predictions, predict(ifm)$predictions)
+library(testthat)
+set.seed(1234)
 
+test_that("non-vector observation throws error", {
+  X = matrix(c(1,1), nrow=1, ncol=2)
+  Y = matrix()
+  expect_error(validate_observations(Y,X))
+})
+
+test_that("factor Y throws error", {
+  X = matrix(c(1,1), nrow=1, ncol=2)
+  Y = c(1,2,3)
+  Y = as.factor(Y)
+  expect_error(validate_observations(Y,X))
+})
+
+test_that("character Y throws error", {
+  X = matrix(c(1,1), nrow=1, ncol=2)
+  Y = c(1,2,3)
+  Y = as.character(Y)
+  expect_error(validate_observations(Y,X))
+})
+
+test_that("X with NA throws error", {
+  X = matrix(c(NA,2), nrow=1, ncol=2)
+  expect_error(validate_X(X))
+})
+
+test_that("Y with NA throws error", {
+  X = matrix(c(1,1), nrow=1, ncol=2)
+  Y = c(NA,1,2)
+  expect_error(validate_observations(Y,X))
+})
+
+test_that("validate_observations processes list of vectors", {
+  X = matrix(c(1,1), nrow=1, ncol=2)
+  Y = c(1)
+  W = c(2,3)
+  expect_error(validate_observations(list(Y,W),X))
+})
+
+test_that("length(Y) != nrow(X) throws error", {
+  X = matrix(c(1,1), nrow=1, ncol=2)
+  Y = c(0,1,1)
+  expect_error(validate_observations(Y,X))
+})
+
+test_that("an observation matrix with 1 column is accepted", {
+  X = matrix(c(0, 0, 1, 1, 2, 2), nrow=3, ncol=2)
+  Y = matrix(c(0,1,2), nrow=3, ncol=1)
+  colnames(Y) = "outcome"
+  Y = validate_observations(Y, X)
+  expect_true(is.vector(Y))
+})
+
+test_that("create_data_matrices handles data.frame, matrix and sparse inputs equally", {
+  
+  Xm = matrix(rnorm(100), 20, 5)
+  Xd = as.data.frame(Xm)
+  Xs = Matrix(Xm, sparse = T)
+  Y = matrix(rnorm(20))
+  
+  data1_d = create_data_matrices(Xd)
+  data1_m = create_data_matrices(Xm)
+  data1_s = create_data_matrices(Xs)
+  data2_d = create_data_matrices(Xd, Y)
+  data2_m = create_data_matrices(Xm, Y)
+  data2_s = create_data_matrices(Xs, Y)
+  data3_d = create_data_matrices(Xd, Y, NULL)
+  data3_m = create_data_matrices(Xm, Y, NULL)
+  data3_s = create_data_matrices(Xs, Y, NULL)
+  
+  # Checking for equality of elements 
+  # (note expect_equal does not work here)
+  expect_true(all(data1_d$default == data1_m$default))
+  expect_true(all(data1_s$sparse == data1_m$default))
+  expect_true(all(data2_d$default == data2_m$default))
+  expect_true(all(data2_s$sparse == data2_m$default))
+  expect_true(all(data3_d$default == data3_m$default))
+  expect_true(all(data3_s$sparse == data3_m$default))
 })
