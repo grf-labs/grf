@@ -4,7 +4,7 @@ All notable changes to grf will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [0.10.3] - 2019-05-03
+## [0.10.3] - 2019-06-01
 
 ### Breaking Changes
 - Fix two bugs in the termination criterion for tree splitting. **IMPORTANT:** these bug fixes may cause results to change compared to previous releases, even if the same random seed is used.
@@ -15,9 +15,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - In out-of-bag prediction, return the Monte Carlo error alongside the debiased error. [#327](https://github.com/grf-labs/grf/pull/327)
 - Allow for passing a factor for the `cluster` parameter. [#329](https://github.com/grf-labs/grf/pull/329)
 - Support taking a union of forests through the `merge_forests` method. [#347](https://github.com/grf-labs/grf/pull/347)
-- Include a summary of the parameter tuning procedure in the forest object. [#419] (https://github.com/grf-labs/grf/pull/419)
+- Include a summary of the parameter tuning procedure in the forest object. [#419](https://github.com/grf-labs/grf/pull/419)
 - Add experimental support for sample weighting to regression, causal, and instrumental forests. [#376](https://github.com/grf-labs/grf/pull/376), [#418](https://github.com/grf-labs/grf/pull/418)
-- Add a new forest type `boosted_regression_forest`, which applies boosting to regression forests. Allow boosting to be used during orthogonalization through the `orthog.boosting` parameter. [#388](https://github.com/grf-labs/grf/pull/388)
+- Add an experimental new forest type `boosted_regression_forest`, which applies boosting to regression forests. Allow boosting to be used during orthogonalization through the `orthog.boosting` parameter. [#388](https://github.com/grf-labs/grf/pull/388)
 
 ### Fixed
 - Improve input data validation. [#354](https://github.com/grf-labs/grf/pull/354), [#378](https://github.com/grf-labs/grf/pull/378), [#430](https://github.com/grf-labs/grf/pull/430)
