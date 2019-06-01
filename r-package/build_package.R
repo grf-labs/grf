@@ -1,3 +1,7 @@
+# Build and test grf package
+# For a CRAN submission run
+# $ Rscript build_package.R --as-cran
+args <- commandArgs(TRUE)
 library(Rcpp)
 library(devtools)
 library(testthat)
@@ -8,9 +12,10 @@ package.src <- "grf/src"
 
 # If built for CRAN, exlude all test except ones with "cran" in the filename
 # by adding the following regex to .Rbuildignore.
-on_cran = isTRUE(r_env_vars()["NOT_CRAN"] == "false")
-if (on_cran)
+if (!is.na(args[1]) & args[1] == "--as-cran") {
+  print("Building for CRAN")
   write_union("grf/.Rbuildignore", "^tests/testthat/test_((?!cran).).*")
+}
 
 # Copy Rcpp bindings and C++ source into the package src directory. Note that we
 # don't copy in third_party/Eigen, because for the R package build we provide
