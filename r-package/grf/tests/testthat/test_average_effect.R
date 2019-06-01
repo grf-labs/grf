@@ -49,7 +49,7 @@ test_that("average effects are translation invariant", {
 
 test_that("average treatment effect estimates are reasonable", {
   p = 6
-  n = 1000
+  n = 2000
   X = matrix(2 * runif(n * p) - 1, n, p)
   eX = 0.25 + 0.5 * (X[,1] > 0)
   W = rbinom(n, 1, eX)
