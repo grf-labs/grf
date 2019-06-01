@@ -1,4 +1,5 @@
 library(grf)
+
 library(testthat)
 set.seed(1234)
 
@@ -50,7 +51,33 @@ test_that("an observation matrix with 1 column is accepted", {
   X = matrix(c(0, 0, 1, 1, 2, 2), nrow=3, ncol=2)
   Y = matrix(c(0,1,2), nrow=3, ncol=1)
   colnames(Y) = "outcome"
-
   Y = validate_observations(Y, X)
   expect_true(is.vector(Y))
+})
+
+test_that("create_data_matrices handles data.frame, matrix, sparse and NULL inputs equally", {
+  
+  Xm = matrix(rnorm(100), 20, 5)
+  Xd = as.data.frame(Xm)
+  Xs = Matrix(Xm, sparse = T)
+  Y = matrix(rnorm(20))
+  
+  data1_d = create_data_matrices(Xd)
+  data1_m = create_data_matrices(Xm)
+  data1_s = create_data_matrices(Xs)
+  data2_d = create_data_matrices(Xd, Y)
+  data2_m = create_data_matrices(Xm, Y)
+  data2_s = create_data_matrices(Xs, Y)
+  data3_d = create_data_matrices(Xd, Y, NULL)
+  data3_m = create_data_matrices(Xm, Y, NULL)
+  data3_s = create_data_matrices(Xs, Y, NULL)
+  
+  # Checking for equality of elements 
+  # (note expect_equal does not work here)
+  expect_true(all(data1_d$default == data1_m$default))
+  expect_true(all(data1_s$sparse == data1_m$default))
+  expect_true(all(data2_d$default == data2_m$default))
+  expect_true(all(data2_s$sparse == data2_m$default))
+  expect_true(all(data3_d$default == data3_m$default))
+  expect_true(all(data3_s$sparse == data3_m$default))
 })
