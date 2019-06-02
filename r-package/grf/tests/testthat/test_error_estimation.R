@@ -19,15 +19,15 @@ test_that("regression error estimates are reasonable", {
 	})
 	err.debiased.5 = mean(output.5.reps[1,])
 	mse.5 = mean(output.5.reps[2,])
-	
+
 	forest.200 = regression_forest(X, Y, num.trees = 200, ci.group.size = 1)
 	pred.200 = predict(forest.200)
 	err.debiased.200 = mean(pred.200$debiased.error, na.rm = TRUE)
 	mse.200 = mean((pred.200$predictions - Y)^2, na.rm = TRUE)
-	
+
 	expect_equal(err.debiased.200, mse.200, tolerance = 0.01 * sigma^2)
 	expect_equal(err.debiased.5, err.debiased.200, tolerance = 0.02 * sigma^2)
-	
+
 	expect_true(mse.5 - mse.200 >= sigma^2 / 10)
 })
 
@@ -35,7 +35,7 @@ test_that("causal error estimates are reasonable", {
   p = 3
   n = 2000
   sigma = 0.1
-  
+
   X = matrix(2 * runif(n * p) - 1, n, p)
   W = rbinom(n, 1, 0.1)
   TAU = (X[,1] > 0)
@@ -43,13 +43,13 @@ test_that("causal error estimates are reasonable", {
 
   W.forest = regression_forest(X, W, num.trees = 500, sample.fraction = 0.2)
   W.hat = predict(W.forest)$predictions
-  
+
   Y.forest = regression_forest(X, Y, num.trees = 500, sample.fraction = 0.2)
   Y.hat = predict(Y.forest)$predictions
-  
+
   Y.resid = Y - Y.hat
   W.resid = W - W.hat
-  
+
   output.10.reps = replicate(20, {
     cf.10 = causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = W.hat,
                           num.trees = 10, min.node.size = 1, stabilize.splits = TRUE)
@@ -59,7 +59,7 @@ test_that("causal error estimates are reasonable", {
   })
   raw.10 = mean(output.10.reps[1,])
   err.10 = mean(output.10.reps[2,])
-  
+
   output.20.reps = replicate(10, {
     cf.20 = causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = W.hat,
                           num.trees = 20, min.node.size = 1, stabilize.splits = TRUE)
@@ -69,19 +69,16 @@ test_that("causal error estimates are reasonable", {
   })
   raw.20 = mean(output.20.reps[1,])
   err.20 = mean(output.20.reps[2,])
-  
+
   cf.400 = causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = W.hat,
                          num.trees = 400, min.node.size = 1, stabilize.splits = TRUE)
   tau.hat.400 = predict(cf.400)
   raw.400 = mean((Y.resid - tau.hat.400$predictions * W.resid)^2)
   err.400 =  mean(tau.hat.400$debiased.error, na.rm = TRUE)
-  
-  # c(err.10, err.20, err.400) / sigma^2
-  # c(raw.10, raw.20, raw.400) / sigma^2
-  
+
   expect_equal(err.400, raw.400, tolerance = 0.1 * sigma^2)
   expect_equal(err.10, err.400, tolerance = 1.5 * sigma^2)
   expect_equal(err.20, err.400, tolerance = 0.5 * sigma^2)
-  # expect_true(raw.10 - err.400 > sigma^2)
+  expect_true(raw.10 - err.400 > sigma^2)
   expect_true(err.10 - err.400 < sigma^2)
 })
