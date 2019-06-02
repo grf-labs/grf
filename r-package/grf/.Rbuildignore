@@ -2,5 +2,4 @@
 ^\.Rproj\.user$
 ^bindings$
 
-^tests/testthat/test_((?!cran).).*
 ^tests/benchmarks
