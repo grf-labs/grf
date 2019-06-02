@@ -1,6 +1,11 @@
-# Build and test grf package
-# For a CRAN submission run
-# $ Rscript build_package.R --as-cran
+# Builds and tests the GRF package.
+#
+# To build the package for development:
+#   `Rscript build_package.R`
+#
+# To prepare a CRAN build:
+#   `Rscript build_package.R --as-cran`
+
 args <- commandArgs(TRUE)
 library(Rcpp)
 library(devtools)
@@ -12,8 +17,7 @@ package.src <- "grf/src"
 
 # If built for CRAN, exlude all test except ones with "cran" in the filename
 # by adding the following regex to .Rbuildignore.
-if (!is.na(args[1]) & args[1] == "--as-cran") {
-  print("Building for CRAN")
+if (!is.na(args[1]) && args[1] == "--as-cran") {
   write_union("grf/.Rbuildignore", "^tests/testthat/test_((?!cran).).*")
 }
 
