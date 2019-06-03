@@ -35,17 +35,19 @@
 #'
 #' @return A trained regression forest object.
 #'
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' # Train a custom forest.
-#' n = 50; p = 10
-#' X = matrix(rnorm(n*p), n, p)
-#' Y = X[,1] * rnorm(n)
-#' c.forest = custom_forest(X, Y)
+#' n <- 50
+#' p <- 10
+#' X <- matrix(rnorm(n * p), n, p)
+#' Y <- X[, 1] * rnorm(n)
+#' c.forest <- custom_forest(X, Y)
 #'
 #' # Predict using the forest.
-#' X.test = matrix(0, 101, p)
-#' X.test[,1] = seq(-2, 2, length.out = 101)
-#' c.pred = predict(c.forest, X.test)
+#' X.test <- matrix(0, 101, p)
+#' X.test[, 1] <- seq(-2, 2, length.out = 101)
+#' c.pred <- predict(c.forest, X.test)
 #' }
 #'
 #' @export
@@ -63,33 +65,34 @@ custom_forest <- function(X, Y,
                           compute.oob.predictions = TRUE,
                           num.threads = NULL,
                           seed = NULL) {
+  validate_X(X)
+  Y <- validate_observations(Y, X)
 
-    validate_X(X)
-    Y = validate_observations(Y, X)
+  mtry <- validate_mtry(mtry, X)
+  num.threads <- validate_num_threads(num.threads)
+  min.node.size <- validate_min_node_size(min.node.size)
+  sample.fraction <- validate_sample_fraction(sample.fraction)
+  seed <- validate_seed(seed)
+  clusters <- validate_clusters(clusters, X)
+  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
-    mtry <- validate_mtry(mtry, X)
-    num.threads <- validate_num_threads(num.threads)
-    min.node.size <- validate_min_node_size(min.node.size)
-    sample.fraction <- validate_sample_fraction(sample.fraction)
-    seed <- validate_seed(seed)
-    clusters <- validate_clusters(clusters, X)
-    samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
-    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
+  no.split.variables <- numeric(0)
 
-    no.split.variables <- numeric(0)
+  data <- create_data_matrices(X, Y)
+  outcome.index <- ncol(X) + 1
+  ci.group.size <- 1
 
-    data <- create_data_matrices(X, Y)
-    outcome.index <- ncol(X) + 1
-    ci.group.size <- 1
+  forest <- custom_train(
+    data$default, data$sparse, outcome.index, mtry, num.trees, min.node.size,
+    sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), ci.group.size, alpha,
+    imbalance.penalty, clusters, samples.per.cluster, num.threads, compute.oob.predictions, seed
+  )
 
-    forest <- custom_train(data$default, data$sparse, outcome.index, mtry,num.trees, min.node.size,
-        sample.fraction,  honesty, coerce_honesty_fraction(honesty.fraction), ci.group.size, alpha,
-        imbalance.penalty, clusters, samples.per.cluster, num.threads, compute.oob.predictions, seed)
-
-    class(forest) <- c("custom_forest", "grf")
-    forest[["X.orig"]] <- X
-    forest[["Y.orig"]] <- Y
-    forest
+  class(forest) <- c("custom_forest", "grf")
+  forest[["X.orig"]] <- X
+  forest[["Y.orig"]] <- Y
+  forest
 }
 
 #' Predict with a custom forest.
@@ -106,36 +109,40 @@ custom_forest <- function(X, Y,
 #'
 #' @return Vector of predictions.
 #'
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' # Train a custom forest.
-#' n = 50; p = 10
-#' X = matrix(rnorm(n*p), n, p)
-#' Y = X[,1] * rnorm(n)
-#' c.forest = custom_forest(X, Y)
+#' n <- 50
+#' p <- 10
+#' X <- matrix(rnorm(n * p), n, p)
+#' Y <- X[, 1] * rnorm(n)
+#' c.forest <- custom_forest(X, Y)
 #'
 #' # Predict using the forest.
-#' X.test = matrix(0, 101, p)
-#' X.test[,1] = seq(-2, 2, length.out = 101)
-#' c.pred = predict(c.forest, X.test)
+#' X.test <- matrix(0, 101, p)
+#' X.test[, 1] <- seq(-2, 2, length.out = 101)
+#' c.pred <- predict(c.forest, X.test)
 #' }
 #'
 #' @method predict custom_forest
 #' @export
 predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
-    forest.short <- object[-which(names(object) == "X.orig")]
+  forest.short <- object[-which(names(object) == "X.orig")]
 
-    X <- object[["X.orig"]]
-    train.data <- create_data_matrices(X, object[["Y.orig"]])
-    outcome.index <- ncol(X) + 1
+  X <- object[["X.orig"]]
+  train.data <- create_data_matrices(X, object[["Y.orig"]])
+  outcome.index <- ncol(X) + 1
 
-    num.threads <- validate_num_threads(num.threads)
+  num.threads <- validate_num_threads(num.threads)
 
-    if (!is.null(newdata)) {
-        validate_newdata(newdata, X)
-        data <- create_data_matrices(newdata)
-        custom_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
-            data$default, data$sparse, num.threads)
-    } else {
-        custom_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index, num.threads)
-    }
+  if (!is.null(newdata)) {
+    validate_newdata(newdata, X)
+    data <- create_data_matrices(newdata)
+    custom_predict(
+      forest.short, train.data$default, train.data$sparse, outcome.index,
+      data$default, data$sparse, num.threads
+    )
+  } else {
+    custom_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index, num.threads)
+  }
 }

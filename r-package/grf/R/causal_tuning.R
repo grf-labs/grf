@@ -49,24 +49,27 @@
 #' @return A list consisting of the optimal parameter values ('params') along with their debiased
 #'         error ('error').
 #'
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' # Find the optimal tuning parameters.
-#' n = 50; p = 10
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
-#' Y.hat = predict(regression_forest(X, Y))$predictions
-#' W.hat = rep(0.5, n)
-#' params = tune_causal_forest(X, Y, W, Y.hat, W.hat)$params
+#' n <- 50
+#' p <- 10
+#' X <- matrix(rnorm(n * p), n, p)
+#' W <- rbinom(n, 1, 0.5)
+#' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+#' Y.hat <- predict(regression_forest(X, Y))$predictions
+#' W.hat <- rep(0.5, n)
+#' params <- tune_causal_forest(X, Y, W, Y.hat, W.hat)$params
 #'
 #' # Use these parameters to train a regression forest.
-#' tuned.forest = causal_forest(X, Y, W,
-#'     Y.hat = Y.hat, W.hat = W.hat, num.trees = 1000,
-#'     min.node.size = as.numeric(params["min.node.size"]),
-#'     sample.fraction = as.numeric(params["sample.fraction"]),
-#'     mtry = as.numeric(params["mtry"]),
-#'     alpha = as.numeric(params["alpha"]),
-#'     imbalance.penalty = as.numeric(params["imbalance.penalty"]))
+#' tuned.forest <- causal_forest(X, Y, W,
+#'   Y.hat = Y.hat, W.hat = W.hat, num.trees = 1000,
+#'   min.node.size = as.numeric(params["min.node.size"]),
+#'   sample.fraction = as.numeric(params["sample.fraction"]),
+#'   mtry = as.numeric(params["mtry"]),
+#'   alpha = as.numeric(params["alpha"]),
+#'   imbalance.penalty = as.numeric(params["imbalance.penalty"])
+#' )
 #' }
 #'
 #' @importFrom stats runif
@@ -91,8 +94,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                seed = NULL) {
   validate_X(X)
   validate_sample_weights(sample.weights, X)
-  Y = validate_observations(Y, X)
-  W = validate_observations(W, X)
+  Y <- validate_observations(Y, X)
+  W <- validate_observations(W, X)
 
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
@@ -109,71 +112,79 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
 
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
-  all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
-  fixed.params = all.params[!is.na(all.params)]
-  tuning.params = all.params[is.na(all.params)]
+  all.params <- get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
+  fixed.params <- all.params[!is.na(all.params)]
+  tuning.params <- all.params[is.na(all.params)]
 
   if (length(tuning.params) == 0) {
-    return(list("error"=NA, "params"=c(all.params)))
+    return(list("error" = NA, "params" = c(all.params)))
   }
 
   # Train several mini-forests, and gather their debiased OOB error estimates.
-  num.params = length(tuning.params)
-  fit.draws = matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params)
-  colnames(fit.draws) = names(tuning.params)
-  compute.oob.predictions = TRUE
+  num.params <- length(tuning.params)
+  fit.draws <- matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params)
+  colnames(fit.draws) <- names(tuning.params)
+  compute.oob.predictions <- TRUE
 
-  debiased.errors = apply(fit.draws, 1, function(draw) {
-    params = c(fixed.params, get_params_from_draw(X, draw))
-    small.forest <- causal_train(data$default, data$sparse,
-                                 outcome.index, treatment.index, sample.weight.index,
-                                 !is.null(sample.weights),
-                                 as.numeric(params["mtry"]),
-                                 num.fit.trees,
-                                 as.numeric(params["min.node.size"]),
-                                 as.numeric(params["sample.fraction"]),
-                                 honesty,
-                                 coerce_honesty_fraction(honesty.fraction),
-                                 ci.group.size,
-                                 reduced.form.weight,
-                                 as.numeric(params["alpha"]),
-                                 as.numeric(params["imbalance.penalty"]),
-                                 stabilize.splits,
-                                 clusters,
-                                 samples.per.cluster,
-                                 compute.oob.predictions,
-                                 num.threads,
-                                 seed)
-    prediction = causal_predict_oob(small.forest, data$default, data$sparse,
-        outcome.index, treatment.index, num.threads, FALSE)
+  debiased.errors <- apply(fit.draws, 1, function(draw) {
+    params <- c(fixed.params, get_params_from_draw(X, draw))
+    small.forest <- causal_train(
+      data$default, data$sparse,
+      outcome.index, treatment.index, sample.weight.index,
+      !is.null(sample.weights),
+      as.numeric(params["mtry"]),
+      num.fit.trees,
+      as.numeric(params["min.node.size"]),
+      as.numeric(params["sample.fraction"]),
+      honesty,
+      coerce_honesty_fraction(honesty.fraction),
+      ci.group.size,
+      reduced.form.weight,
+      as.numeric(params["alpha"]),
+      as.numeric(params["imbalance.penalty"]),
+      stabilize.splits,
+      clusters,
+      samples.per.cluster,
+      compute.oob.predictions,
+      num.threads,
+      seed
+    )
+    prediction <- causal_predict_oob(
+      small.forest, data$default, data$sparse,
+      outcome.index, treatment.index, num.threads, FALSE
+    )
     mean(prediction$debiased.error, na.rm = TRUE)
   })
 
   # Fit the 'dice kriging' model to these error estimates.
   # Note that in the 'km' call, the kriging package prints a large amount of information
   # about the fitting process. Here, capture its console output and discard it.
-  variance.guess = rep(var(debiased.errors)/2, nrow(fit.draws))
-  env = new.env()
+  variance.guess <- rep(var(debiased.errors) / 2, nrow(fit.draws))
+  env <- new.env()
   capture.output(env$kriging.model <-
-                   DiceKriging::km(design = data.frame(fit.draws),
-                                   response = debiased.errors,
-                                   noise.var = variance.guess))
+    DiceKriging::km(
+      design = data.frame(fit.draws),
+      response = debiased.errors,
+      noise.var = variance.guess
+    ))
   kriging.model <- env$kriging.model
 
   # To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
-  optimize.draws = matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
-  colnames(optimize.draws) = names(tuning.params)
-  model.surface = predict(kriging.model, newdata=data.frame(optimize.draws), type = "SK")
+  optimize.draws <- matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
+  colnames(optimize.draws) <- names(tuning.params)
+  model.surface <- predict(kriging.model, newdata = data.frame(optimize.draws), type = "SK")
 
-  tuned.params = get_params_from_draw(X, optimize.draws)
-  grid = cbind(error=model.surface$mean, tuned.params)
-  optimal.draw = which.min(grid[, "error"])
-  optimal.param = grid[optimal.draw, ]
+  tuned.params <- get_params_from_draw(X, optimize.draws)
+  grid <- cbind(error = model.surface$mean, tuned.params)
+  optimal.draw <- which.min(grid[, "error"])
+  optimal.param <- grid[optimal.draw, ]
 
-  out = list(error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
-             grid = grid)
-  class(out) = c("tuning_output")
+  out <- list(
+    error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
+    grid = grid
+  )
+  class(out) <- c("tuning_output")
 
   out
 }

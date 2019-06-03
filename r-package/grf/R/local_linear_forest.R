@@ -44,36 +44,38 @@
 #'
 #' @return A trained local linear forest object.
 #'
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' # Train a standard regression forest.
-#' n = 50; p = 10
-#' X = matrix(rnorm(n*p), n, p)
-#' Y = X[,1] * rnorm(n)
-#' forest = ll_regression_forest(X, Y)
+#' n <- 50
+#' p <- 10
+#' X <- matrix(rnorm(n * p), n, p)
+#' Y <- X[, 1] * rnorm(n)
+#' forest <- ll_regression_forest(X, Y)
 #' }
 #'
 #' @export
 ll_regression_forest <- function(X, Y,
-                                sample.fraction = 0.5,
-                                mtry = NULL,
-                                num.trees = 2000,
-                                min.node.size = NULL,
-                                honesty = TRUE,
-                                honesty.fraction = NULL,
-                                ci.group.size = 1,
-                                alpha = NULL,
-                                imbalance.penalty = NULL,
-                                clusters = NULL,
-                                samples.per.cluster = NULL,
-                                tune.parameters = FALSE,
-                                num.fit.trees = 10,
-                                num.fit.reps = 100,
-                                num.optimize.reps = 1000,
-                                num.threads = NULL,
-                                seed = NULL) {
+                                 sample.fraction = 0.5,
+                                 mtry = NULL,
+                                 num.trees = 2000,
+                                 min.node.size = NULL,
+                                 honesty = TRUE,
+                                 honesty.fraction = NULL,
+                                 ci.group.size = 1,
+                                 alpha = NULL,
+                                 imbalance.penalty = NULL,
+                                 clusters = NULL,
+                                 samples.per.cluster = NULL,
+                                 tune.parameters = FALSE,
+                                 num.fit.trees = 10,
+                                 num.fit.reps = 100,
+                                 num.optimize.reps = 1000,
+                                 num.threads = NULL,
+                                 seed = NULL) {
   validate_X(X)
-  Y = validate_observations(Y, X)
-  
+  Y <- validate_observations(Y, X)
+
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
@@ -82,53 +84,57 @@ ll_regression_forest <- function(X, Y,
 
   if (tune.parameters) {
     tuning.output <- tune_regression_forest(X, Y,
-                                            num.fit.trees = num.fit.trees,
-                                            num.fit.reps = num.fit.reps,
-                                            num.optimize.reps = num.optimize.reps,
-                                            min.node.size = min.node.size,
-                                            sample.fraction = sample.fraction,
-                                            mtry = mtry,
-                                            alpha = alpha,
-                                            imbalance.penalty = imbalance.penalty,
-                                            num.threads = num.threads,
-                                            honesty = honesty,
-                                            honesty.fraction = honesty.fraction,
-                                            seed = seed,
-                                            clusters = clusters,
-                                            samples.per.cluster = samples.per.cluster)
-      tunable.params <- tuning.output$params
+      num.fit.trees = num.fit.trees,
+      num.fit.reps = num.fit.reps,
+      num.optimize.reps = num.optimize.reps,
+      min.node.size = min.node.size,
+      sample.fraction = sample.fraction,
+      mtry = mtry,
+      alpha = alpha,
+      imbalance.penalty = imbalance.penalty,
+      num.threads = num.threads,
+      honesty = honesty,
+      honesty.fraction = honesty.fraction,
+      seed = seed,
+      clusters = clusters,
+      samples.per.cluster = samples.per.cluster
+    )
+    tunable.params <- tuning.output$params
   } else {
     tunable.params <- c(
       min.node.size = validate_min_node_size(min.node.size),
       sample.fraction = validate_sample_fraction(sample.fraction),
       mtry = validate_mtry(mtry, X),
       alpha = validate_alpha(alpha),
-      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
+      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+    )
   }
 
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
   sample.weight.index <- ncol(X) + 2
-  compute.oob.predictions = FALSE
+  compute.oob.predictions <- FALSE
 
-  forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
-                             FALSE,
-                             as.numeric(tunable.params["mtry"]),
-                             num.trees,
-                             as.numeric(tunable.params["min.node.size"]),
-                             as.numeric(tunable.params["sample.fraction"]),
-                             honesty,
-                             coerce_honesty_fraction(honesty.fraction),
-                             ci.group.size,
-                             as.numeric(tunable.params["alpha"]),
-                             as.numeric(tunable.params["imbalance.penalty"]),
-                             clusters,
-                             samples.per.cluster,
-                             compute.oob.predictions,
-                             num.threads,
-                             seed)
+  forest <- regression_train(
+    data$default, data$sparse, outcome.index, sample.weight.index,
+    FALSE,
+    as.numeric(tunable.params["mtry"]),
+    num.trees,
+    as.numeric(tunable.params["min.node.size"]),
+    as.numeric(tunable.params["sample.fraction"]),
+    honesty,
+    coerce_honesty_fraction(honesty.fraction),
+    ci.group.size,
+    as.numeric(tunable.params["alpha"]),
+    as.numeric(tunable.params["imbalance.penalty"]),
+    clusters,
+    samples.per.cluster,
+    compute.oob.predictions,
+    num.threads,
+    seed
+  )
 
-  class(forest) = c("ll_regression_forest", "grf")
+  class(forest) <- c("ll_regression_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
@@ -163,69 +169,74 @@ ll_regression_forest <- function(X, Y,
 #'
 #' @return A vector of predictions.
 #'
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' # Train the forest.
-#' n = 50; p = 5
-#' X = matrix(rnorm(n*p), n, p)
-#' Y = X[,1] * rnorm(n)
-#' forest = ll_regression_forest(X, Y)
+#' n <- 50
+#' p <- 5
+#' X <- matrix(rnorm(n * p), n, p)
+#' Y <- X[, 1] * rnorm(n)
+#' forest <- ll_regression_forest(X, Y)
 #'
 #' # Predict using the forest.
-#' X.test = matrix(0, 101, p)
-#' X.test[,1] = seq(-2, 2, length.out = 101)
-#' predictions = predict(forest, X.test)
+#' X.test <- matrix(0, 101, p)
+#' X.test[, 1] <- seq(-2, 2, length.out = 101)
+#' predictions <- predict(forest, X.test)
 #'
 #' # Predict on out-of-bag training samples.
-#' predictions.oob = predict(forest)
+#' predictions.oob <- predict(forest)
 #' }
 #'
 #' @method predict ll_regression_forest
 #' @export
 predict.ll_regression_forest <- function(object, newdata = NULL,
-                                        linear.correction.variables = NULL,
-                                        ll.lambda = NULL,
-                                        ll.weight.penalty = FALSE,
-                                        num.threads = NULL,
-                                        estimate.variance = FALSE,
-                                        ...) {
-
-  forest.short = object[-which(names(object) == "X.orig")]
-  X = object[["X.orig"]]
+                                         linear.correction.variables = NULL,
+                                         ll.lambda = NULL,
+                                         ll.weight.penalty = FALSE,
+                                         num.threads = NULL,
+                                         estimate.variance = FALSE,
+                                         ...) {
+  forest.short <- object[-which(names(object) == "X.orig")]
+  X <- object[["X.orig"]]
   if (is.null(linear.correction.variables)) {
-    linear.correction.variables = 1:ncol(X)
+    linear.correction.variables <- 1:ncol(X)
   }
   # Validate and account for C++ indexing
-  linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
+  linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
 
   if (is.null(ll.lambda)) {
-    ll.regularization.path = tune_ll_regression_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
-    ll.lambda = ll.regularization.path$lambda.min
+    ll.regularization.path <- tune_ll_regression_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
+    ll.lambda <- ll.regularization.path$lambda.min
   } else {
-    ll.lambda = validate_ll_lambda(ll.lambda)
+    ll.lambda <- validate_ll_lambda(ll.lambda)
   }
 
-  num.threads = validate_num_threads(num.threads)
+  num.threads <- validate_num_threads(num.threads)
 
   # Subtract 1 to account for C++ indexing
-  linear.correction.variables = linear.correction.variables - 1
+  linear.correction.variables <- linear.correction.variables - 1
 
-  train.data = create_data_matrices(X, object[["Y.orig"]])
-  outcome.index = ncol(X) + 1
+  train.data <- create_data_matrices(X, object[["Y.orig"]])
+  outcome.index <- ncol(X) + 1
 
-  if (!is.null(newdata) ) {
+  if (!is.null(newdata)) {
     validate_newdata(newdata, X)
-    data = create_data_matrices(newdata)
-    ret = ll_regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
-        data$default, data$sparse,
-        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
+    data <- create_data_matrices(newdata)
+    ret <- ll_regression_predict(
+      forest.short, train.data$default, train.data$sparse, outcome.index,
+      data$default, data$sparse,
+      ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
+    )
   } else {
-     ret = ll_regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
-        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
+    ret <- ll_regression_predict_oob(
+      forest.short, train.data$default, train.data$sparse, outcome.index,
+      ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
+    )
   }
 
-  ret[["ll.lambda"]] = ll.lambda
+  ret[["ll.lambda"]] <- ll.lambda
 
   # Convert list to data frame.
-  empty = sapply(ret, function(elem) length(elem) == 0)
+  empty <- sapply(ret, function(elem) length(elem) == 0)
   do.call(cbind.data.frame, ret[!empty])
 }
