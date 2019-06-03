@@ -66,7 +66,7 @@
 #'     sample.fraction = as.numeric(params["sample.fraction"]),
 #'     mtry = as.numeric(params["mtry"]),
 #'     alpha = as.numeric(params["alpha"]),
-#'     imbalance.penalty = as.numeric(params["imbalance.penalty"])
+#'     imbalance.penalty = as.numeric(params["imbalance.penalty"]))
 #' }
 #'
 #' @importFrom stats runif
