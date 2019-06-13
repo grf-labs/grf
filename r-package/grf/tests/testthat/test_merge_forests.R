@@ -5,6 +5,8 @@ set.seed(1000)
 
 test_that("Merged regression forest attributes are sensible", {
   # Train regression forests
+  seed <- 1000
+  set.seed(seed)
   n = 50; p = 2
   X = matrix(rnorm(n*p), n, p)
   Y = X[,1] * rnorm(n)
@@ -23,6 +25,8 @@ test_that("Merged regression forest attributes are sensible", {
 
 test_that("Merged causal forest attributes are sensible", {
   # Train causal forests
+  seed <- 1000
+  set.seed(seed)
   n = 150; p = 3
   X = matrix(rnorm(n*p), n, p)
   Y = X[,1] * rnorm(n)
@@ -44,7 +48,8 @@ test_that("Merged causal forest attributes are sensible", {
 
 
 test_that("Merged causal forests give reasonable predictions", {
-
+  seed <- 1000
+  set.seed(seed)
   n = 50; p = 5
   X = matrix(rnorm(n*p), n, p)
   Y = X[,1] * rnorm(n)
@@ -75,6 +80,8 @@ test_that("Merged causal forests give reasonable predictions", {
 
 test_that("Incompatible forests are not mergeable", {
   # Train causal forests
+  seed <- 1000
+  set.seed(seed)
   n = 50; p = 2
   X = matrix(rnorm(n*p), n, p)
   Y = X[,1] * rnorm(n)

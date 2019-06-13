@@ -180,7 +180,9 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
 })
 
 test_that("Weighting is roughly equivalent to replication of samples", {
-  n = 500
+  seed <- 1000
+  set.seed(seed)
+  n = 1500
   p = 2
   num.trees = 1000
 

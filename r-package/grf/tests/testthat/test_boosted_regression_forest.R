@@ -4,7 +4,8 @@ seed <- 1000
 set.seed(seed)
 
 test_that("Boosted regression forest improves performance vs regular forest", {
-
+  seed <- 1000
+  set.seed(seed)
   n <- 200;
   p <- 6
   X <- matrix(runif(n * p), n, p)
@@ -16,12 +17,14 @@ test_that("Boosted regression forest improves performance vs regular forest", {
   forest.Yhat <- predict(forest.regular)$predictions
   boost.Yhat <- predict(forest.boost)$predictions
 
-  mse.forest <- mean((Y-forest.Yhat)^2)
-  mse.boost <- mean((Y- boost.Yhat)^2)
+  mse.forest <- mean((Y - forest.Yhat)^2)
+  mse.boost <- mean((Y - boost.Yhat)^2)
   expect_true(mse.boost < mse.forest)
 })
 
 test_that("Boosted forest takes user specified number of steps",  {
+  seed <- 1000
+  set.seed(seed)
   n <- 100; p <- 6
   X <- matrix(runif(n * p), n, p)
   mu <- 2 * X[,1] * X[,2] + 3 * X[,3] + 4 * X[,4]
@@ -44,6 +47,8 @@ test_that("Under cross-validation, errors decrease each step", {
 })
 
 test_that("boost.error.reduction validation works", {
+  seed <- 1000
+  set.seed(seed)
   n<-200; p<-6
   X <- matrix(runif(n * p), n, p)
   mu <- 2 * X[,1]^2 * X[,2] + 3 * X[,3] + 4 * X[,4]
@@ -52,6 +57,8 @@ test_that("boost.error.reduction validation works", {
 })
 
 test_that("OOB prediction is close to actual out of sample error", {
+  seed <- 1000
+  set.seed(seed)
   n <- 5000;
   p <- 6
   X <- matrix(runif(n * p), n, p)
