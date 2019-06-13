@@ -61,14 +61,14 @@ const Forest ForestTrainer::train(const Data* data,
   std::vector<std::shared_ptr<Tree>> trees;
   trees.reserve(num_trees);
 
-  for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
-    size_t start_index = thread_ranges[i];
-    size_t num_trees_batch = thread_ranges[i + 1] - start_index;
+  for (uint thread_number = 0; thread_number < thread_ranges.size() - 1; ++thread_number) {
+    size_t start_index = thread_ranges[thread_number];
+    size_t num_trees_batch = thread_ranges[thread_number + 1] - start_index;
 
     futures.push_back(std::async(std::launch::async,
                                  &ForestTrainer::train_batch,
                                  this,
-                                 i,
+                                 thread_number,
                                  num_trees_batch,
                                  data,
                                  options));
@@ -83,13 +83,13 @@ const Forest ForestTrainer::train(const Data* data,
 }
 
 std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
-    size_t start,
+    size_t thread_number,
     size_t num_trees,
     const Data* data,
     const ForestOptions& options) const {
   size_t ci_group_size = options.get_ci_group_size();
 
-  auto thread_seed = options.get_random_seed() + start;
+  auto thread_seed = options.get_random_seed() + thread_number;
   std::mt19937_64 random_number_generator(thread_seed);
   std::vector<std::shared_ptr<Tree>> trees;
 
