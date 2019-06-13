@@ -50,22 +50,18 @@ test_that("Merged causal forest attributes are sensible", {
 test_that("Merged causal forests give reasonable predictions", {
   seed <- 1000
   set.seed(seed)
-  n = 50; p = 5
+  n = 200; p = 15
   X = matrix(rnorm(n*p), n, p)
-  Y = X[,1] * rnorm(n)
-  W = X[,2] > 0
+  Y = X[,1] * X[,3] * X[,4] * rnorm(n) + X[,6] * X[,7] * rnorm(n)
+  W = X[,2] * X[,5] > 0
 
   # Train a causal forest.
-  num.trees = 40
-  c.forest1 = causal_forest(X, Y, W, num.trees = num.trees, seed = seed)
-  c.forest2 = causal_forest(X, Y, W, num.trees = num.trees, seed = seed + 1)
-  c.forest3 = causal_forest(X, Y, W, num.trees = num.trees, seed = seed + 2)
-  c.forest4 = causal_forest(X, Y, W, num.trees = num.trees, seed = seed + 3)
-  c.forest5 = causal_forest(X, Y, W, num.trees = num.trees, seed = seed + 4)
-  c.forest6 = causal_forest(X, Y, W, num.trees = num.trees, seed = seed + 5)
-  big.rf = merge_forests(list(c.forest1, c.forest2, c.forest3,
-                              c.forest4, c.forest5, c.forest6))
+  num.trees <- 100
+  num.forests <- 20
+  c.forests <- lapply(seq(num.forests), function(i) causal_forest(X, Y, W, num.trees = num.trees, seed = i))
+  big.rf = merge_forests(c.forests)
 
+  c.forest1 <- c.forests[[1]]
   preds = predict(c.forest1)
   excess.error = mean(preds$excess.error)
   error = mean(preds$debiased.error) + excess.error
