@@ -25,6 +25,8 @@
 #include "ForestTrainer.h"
 #include "stats/stats.hpp"
 
+
+
 ForestTrainer::ForestTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
                              std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
                              std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
@@ -59,14 +61,13 @@ const Forest ForestTrainer::train(const Data* data,
   std::vector<std::shared_ptr<Tree>> trees;
   trees.reserve(num_trees);
 
-  for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
-    size_t start_index = thread_ranges[i];
-    size_t num_trees_batch = thread_ranges[i + 1] - start_index;
+  for (uint thread_number = 0; thread_number < thread_ranges.size() - 1; ++thread_number) {
+    size_t num_trees_batch = thread_ranges[thread_number + 1] - thread_ranges[thread_number];
 
     futures.push_back(std::async(std::launch::async,
                                  &ForestTrainer::train_batch,
                                  this,
-                                 i,
+                                 thread_number,
                                  num_trees_batch,
                                  data,
                                  options));
@@ -81,13 +82,14 @@ const Forest ForestTrainer::train(const Data* data,
 }
 
 std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
-    size_t start,
     size_t num_trees,
+    size_t thread_number,
     const Data* data,
     const ForestOptions& options) const {
   size_t ci_group_size = options.get_ci_group_size();
-
-  std::mt19937_64 random_number_generator(options.get_random_seed() + start);
+  
+  size_t thread_seed = options.get_random_seed() + thread_number;
+  std::mt19937_64 random_number_generator(thread_seed);
   std::vector<std::shared_ptr<Tree>> trees;
 
   if (ci_group_size == 1) {

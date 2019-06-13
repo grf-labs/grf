@@ -42,7 +42,7 @@ public:
 private:
 
   std::vector<std::shared_ptr<Tree>> train_batch(
-      size_t start,
+      size_t thread_number,
       size_t num_trees,
       const Data* data,
       const ForestOptions& options) const;
