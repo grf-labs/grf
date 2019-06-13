@@ -1,6 +1,7 @@
 library(grf)
 
-set.seed(3141)
+seed <- 1000
+set.seed(seed)
 
 test_that("causal forests can split on the last parameter", {
     n = 1000
@@ -8,10 +9,10 @@ test_that("causal forests can split on the last parameter", {
     X = matrix(rnorm(n*p), n, p)
     W = rbinom(n, 1, 0.5)
     Y = W * (X[,1] + X[,6]) + rnorm(n)
-    
-    forest = causal_forest(X, Y, W, compute.oob.predictions = FALSE)
+
+    forest = causal_forest(X, Y, W, compute.oob.predictions = FALSE, seed = seed)
     split.freq = split_frequencies(forest, 10)
-    
+
     expect_gt(sum(split.freq[,6]), 0)
 })
 
@@ -21,24 +22,26 @@ test_that("causal forests have reasonable split frequencies", {
     X = matrix(rnorm(n*p), n, p)
     W = rbinom(n, 1, 0.2)
     Y = 1000 * (X[,p]) * (2 * W - 1) + rnorm(n)
-    
+
     # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
     # we add variance corrections, this should no longer be necessary.
-    ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=1.0, stabilize.splits=TRUE, min.node.size=2)
+    ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty = 1.0,
+                        stabilize.splits=TRUE, min.node.size = 2 , seed = seed)
     split.freq = split_frequencies(ccc, 4)
     expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })
 
 test_that("causal forests without stable splitting have reasonable split frequencies", {
-    n = 100
+
+    n = 120
     p = 7
     X = matrix(rnorm(n*p), n, p)
     W = rbinom(n, 1, 0.2)
     Y = 1000 * (X[,p]) * (2 * W - 1) + rnorm(n)
-    
+
     # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
     # we add variance corrections, this should no longer be necessary.
-    ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=1.0, stabilize.splits=FALSE, min.node.size=2)
+    ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=1.0, stabilize.splits=FALSE, min.node.size=2, seed = seed)
     split.freq = split_frequencies(ccc, 4)
     expect_true(split.freq[1,p] / sum(split.freq[1,]) > 2/3)
 })
@@ -47,10 +50,10 @@ test_that("causal forests with a positive imbalance.penalty have reasonable tree
     n <- 200
     p <- 5
     X <- matrix(rnorm(n * p), n, p)
-    W <- rbinom(p=0.5, size=1, n=n)
+    W <- rbinom(prob=0.5, size=1, n=n)
     Y <- 0.5 * X[,1] * (2*W - 1) + 0.1 * rnorm(n)
 
-    forest = causal_forest(X, Y, W, imbalance.penalty=0.001)
+    forest = causal_forest(X, Y, W, imbalance.penalty=0.001, seed = seed)
     split.freq = split_frequencies(forest)
     expect_true(sum(split.freq[3,]) > 0)
 })
@@ -62,9 +65,9 @@ test_that("causal forests with a very small imbalance.penalty behave similarly t
     W <- rbinom(n, 1, 0.5)
     Y <- X[,1] * (2 * W - 1) + 0.1 * rnorm(n)
 
-    forest = causal_forest(X, Y, W, imbalance.penalty=0.0)
-    forest.large.penalty = causal_forest(X, Y, W, imbalance.penalty=100.0)
-    forest.small.penalty = causal_forest(X, Y, W, imbalance.penalty=1e-6)
+    forest = causal_forest(X, Y, W, imbalance.penalty=0.0, seed = seed)
+    forest.large.penalty = causal_forest(X, Y, W, imbalance.penalty=100.0, seed = seed)
+    forest.small.penalty = causal_forest(X, Y, W, imbalance.penalty=1e-6, seed = seed)
 
     diff.large.penalty = abs(forest.large.penalty$debiased.error - forest$debiased.error)
     diff.small.penalty = abs(forest.small.penalty$debiased.error - forest$debiased.error)
@@ -74,13 +77,13 @@ test_that("causal forests with a very small imbalance.penalty behave similarly t
 test_that("causal forests behave reasonably with a low treatment probability", {
     n = 1000
     p = 5
-    
+
     X = matrix(rnorm(n * p), n, p)
     W = rbinom(n, 1, 0.1)
     tau = 0.1
     Y = X[,1] + X[,2] + tau * W + rnorm(n)
-    
-    forest = causal_forest(X, Y, W, stabilize.splits = TRUE)
+
+    forest = causal_forest(X, Y, W, stabilize.splits = TRUE, seed = seed)
     tau.hat = predict(forest)$predictions
     expect_true(sqrt(mean((tau.hat - tau)^2)) < 0.20)
 })
@@ -94,8 +97,8 @@ test_that("causal forests behave reasonably with small sample size", {
     Y = tau * (W - 0.5) + rnorm(n)
     forest = causal_forest(X, Y, W, stabilize.splits = TRUE,
                            min.node.size = 1, mtry = p,
-                           compute.oob.predictions = FALSE)
-    
+                           compute.oob.predictions = FALSE, seed = seed)
+
     X.test = matrix(rnorm(n * p), n, p)
     tau.test = 100 * (X.test[,1] > 0)
     tau.hat = predict(forest, X.test)$predictions
@@ -110,7 +113,7 @@ test_that("local linear causal forests work in a simple case", {
    TAU = 2*X[,1] + X[,2]
    Y = W * TAU + rnorm(n)
 
-   forest = causal_forest(X, Y, W, num.trees = 400)
+   forest = causal_forest(X, Y, W, num.trees = 400, seed = seed)
    preds.ll = predict(forest, X, linear.correction.variables = 1:2, ll.lambda = 0.01)
    error.ll = mean((preds.ll$predictions - TAU)^2)
 
@@ -128,7 +131,7 @@ test_that("local linear causal forests with large lambda are equivalent to causa
    tau= 2*X[,1] + X[,2]
    Y = W * tau + rnorm(n)
 
-   forest = causal_forest(X, Y, W, num.trees = 400)
+   forest = causal_forest(X, Y, W, num.trees = 400, seed = seed)
    preds.ll = predict(forest, X, linear.correction.variables = 1:ncol(X), ll.lambda = 1e5)$predictions
    preds.cf = predict(forest)$predictions
 
@@ -147,8 +150,8 @@ test_that("predictions are invariant to scaling of the sample weights.", {
    e.cc = 1/(1+exp(-2*X[,1]))
    sample.weights = 1/e.cc
 
-   forest.1 = causal_forest(X, Y, W, sample.weights = sample.weights, seed=1)
-   forest.2 = causal_forest(X, Y, W, sample.weights = 40*sample.weights, seed=1)
+   forest.1 = causal_forest(X, Y, W, sample.weights = sample.weights, seed=seed)
+   forest.2 = causal_forest(X, Y, W, sample.weights = 40*sample.weights, seed=seed)
    expect_true(all(abs(forest.2$predictions - forest.1$predictions) < 1e-10))
 })
 
@@ -166,10 +169,11 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
    sample.weights = 1/e.cc
 
    num.trees = 400
-   forest = causal_forest(X[cc,], Y[cc], W[cc], num.trees=num.trees)
-   boosted.forest = causal_forest(X[cc,], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees)
-   weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees)
-   boosted.weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], orthog.boosting = TRUE, num.trees = num.trees)
+   forest = causal_forest(X[cc,], Y[cc], W[cc], num.trees=num.trees, seed = seed)
+   boosted.forest = causal_forest(X[cc,], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees, seed = seed)
+   weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees, seed = seed)
+   boosted.weighted.forest = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc],
+                                           orthog.boosting = TRUE, num.trees = num.trees, seed = seed)
    mse = function(f) { mean((predict(f,X)$predictions - tau)^2) }
    expect_true(mse(weighted.forest)/mse(forest) < .975)
    expect_true(mse(boosted.weighted.forest)/ mse(boosted.forest) < .975)
@@ -198,11 +202,11 @@ test_that("Weighting is roughly equivalent to replication of samples", {
   test = (n/2 + 1):n
 
   ## regression forest for propensity score
-  regression.forest.rep = regression_forest(X.rep, W.rep, num.trees=num.trees)
+  regression.forest.rep = regression_forest(X.rep, W.rep, num.trees=num.trees, seed = seed)
   regression.forest.weight = regression_forest(X[rep(train, 2), ], c(W.a[train], W.b[train]),
-    sample.weights=sample.weights, num.trees=num.trees)
+    sample.weights=sample.weights, num.trees=num.trees, seed = seed)
   regression.forest.biased = regression_forest(X[rep(train, 2), ], c(W.a[train], W.b[train]),
-    num.trees=num.trees)
+    num.trees=num.trees, seed = seed)
 
   z_scores = function(a,b) { # conservative. use a variance upper bound
     abs(a$predictions-b$predictions) / sqrt(2*(a$variance + b$variance))
@@ -213,11 +217,11 @@ test_that("Weighting is roughly equivalent to replication of samples", {
                              predict(regression.forest.biased, X[test,], estimate.variance = TRUE)) >= 1) >= .5)
   ## causal forest
   causal.forest.rep = causal_forest(X.rep, Y.rep, W.rep,
-    W.hat = predict(regression.forest.rep)$predictions, num.trees=num.trees)
+    W.hat = predict(regression.forest.rep)$predictions, num.trees=num.trees, seed = seed)
   causal.forest.weight = causal_forest(X[rep(train, 2),], c(Y.a[train],Y.b[train]), c(W.a[train],W.b[train]),
-    W.hat = predict(regression.forest.weight)$predictions, sample.weights=sample.weights, num.trees=num.trees)
+    W.hat = predict(regression.forest.weight)$predictions, sample.weights=sample.weights, num.trees=num.trees, seed = seed)
   causal.forest.biased = causal_forest(X[rep(train, 2),], c(Y.a[train],Y.b[train]), c(W.a[train],W.b[train]),
-    W.hat = predict(regression.forest.biased)$predictions, num.trees=num.trees)
+    W.hat = predict(regression.forest.biased)$predictions, num.trees=num.trees, seed = seed)
   expect_true(mean(z_scores(predict(causal.forest.rep, X[test,], estimate.variance = TRUE),
                             predict(causal.forest.weight, X[test,], estimate.variance = TRUE)) <= 1) >= .5)
   expect_true(mean(predict(causal.forest.rep, X[test,]) > 100 + predict(causal.forest.biased, X[test,])) >= .5)

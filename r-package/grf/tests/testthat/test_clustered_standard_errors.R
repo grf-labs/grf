@@ -1,6 +1,7 @@
 library(grf)
 
-set.seed(4321)
+seed <- 1000
+set.seed(seed)
 
 test_that("Clustered standard errors are greater than unclustered", {
   n <- 200
@@ -22,26 +23,26 @@ test_that("Clustered standard errors are greater than unclustered", {
                                         Y_cluster,
                                         ci.group.size = 4,
                                         clusters = clusters,
-                                        samples.per.cluster = 1)
+                                        samples.per.cluster = 1, seed = seed)
   preds_corrected.oob <- predict(forest_corrected, estimate.variance = TRUE)
 
   forest_no_cluster <- regression_forest(X,
                                          Y,
                                          ci.group.size = 4,
-                                         samples.per.cluster = 1)
+                                         samples.per.cluster = 1, seed = seed)
   preds_no_cluster.oob <- predict(forest_no_cluster, estimate.variance = TRUE)
 
   forest_uncorrected <- regression_forest(X_cluster,
                                           Y_cluster,
                                           ci.group.size = 4,
-                                          samples.per.cluster = 1)
+                                          samples.per.cluster = 1, seed = seed)
   preds_uncorrected.oob <- predict(forest_uncorrected, estimate.variance = TRUE)
 
   forest_corrected_no_clusters <- regression_forest(X,
                                                     Y,
                                                     ci.group.size = 4,
                                                     clusters = no_clusters,
-                                                    samples.per.cluster = 1)
+                                                    samples.per.cluster = 1, seed = seed)
   preds_corrected_no_cluster.oob <- predict(forest_corrected_no_clusters, estimate.variance = TRUE)
 
   mean_no_cluster <- mean(preds_no_cluster.oob$variance.estimates)
@@ -85,13 +86,15 @@ test_that("Clustered predictions are reasonable with unevenly sized clusters", {
                                         Y_cluster,
                                         ci.group.size = 1,
                                         clusters = clusters,
-                                        samples.per.cluster = 1)
+                                        samples.per.cluster = 1,
+                                        seed = seed)
   preds_corrected.oob <- predict(forest_corrected, estimate.variance = FALSE)
 
   forest_no_cluster <- regression_forest(X,
                                          Y,
                                          ci.group.size = 1,
-                                         samples.per.cluster = 1)
+                                         samples.per.cluster = 1,
+                                         seed = seed)
   preds_no_cluster.oob <- predict(forest_no_cluster, estimate.variance = FALSE)
 
   forest_uncorrected <- regression_forest(X_cluster,
@@ -104,7 +107,8 @@ test_that("Clustered predictions are reasonable with unevenly sized clusters", {
                                                     Y,
                                                     ci.group.size = 1,
                                                     clusters = no_clusters,
-                                                    samples.per.cluster = 1)
+                                                    samples.per.cluster = 1,
+                                                    seed = seed)
   preds_corrected_no_cluster.oob <- predict(forest_corrected_no_clusters, estimate.variance = FALSE)
 
   mse_no_cluster <- mean((preds_no_cluster.oob$predictions - MU)^2)

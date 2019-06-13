@@ -1,6 +1,7 @@
 library(grf)
 
-set.seed(1234)
+seed <- 1000
+set.seed(seed)
 
 test_that("examining a tree gives reasonable results", {
 	p = 40
@@ -10,7 +11,8 @@ test_that("examining a tree gives reasonable results", {
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = rnorm(n) * (1 + (X[,i] > 0))
 
-	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632)
+	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p,
+	                      min.node.size = 10, sample.fraction=0.632, seed = seed)
 	quantile.tree = get_tree(qrf, 500)
 
 	num.nodes = length(quantile.tree$nodes)
@@ -33,7 +35,7 @@ test_that("leaf samples are indexed correctly", {
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = rnorm(n) * (1 + (X[,i] > 0))
 
-	qrf = quantile_forest(X, Y, sample.fraction=1.0, honesty=FALSE)
+	qrf = quantile_forest(X, Y, sample.fraction=1.0, honesty=FALSE, seed = seed)
 	quantile.tree = get_tree(qrf, 1)
 
 	samples = unlist(sapply(quantile.tree$nodes, function(node) node$samples))
@@ -44,26 +46,26 @@ test_that("leaf samples are indexed correctly", {
 test_that("draw samples are indexed correctly",{
   p = 40
   n = 500
-  
+
   i = 5
   X = matrix(2 * runif(n * p) - 1, n, p)
   Y = rnorm(n) * (1 + (X[,i] > 0))
-  
-  forest = regression_forest(X, Y)
+
+  forest = regression_forest(X, Y, seed = seed)
   forest.tree = get_tree(forest, 1)
-  
+
   leaf_nodes <- Filter(f = function(x) x$is_leaf, forest.tree$nodes)
-  
+
   # This should contain all in-bag data
   estimation_and_split_sample <- forest.tree$drawn_samples
-  
+
   # This is the estimation sample. It should be contained in the vector above
-  estimation_sample <- unlist(Map(f=function(x) x$samples, leaf_nodes)) 
-  
+  estimation_sample <- unlist(Map(f=function(x) x$samples, leaf_nodes))
+
   # This shouldn't contain anything...
   should_be_empty <- setdiff(estimation_sample, estimation_and_split_sample)
   expect_equal(length(should_be_empty), 0)
-  
+
 })
 
 
@@ -77,7 +79,8 @@ test_that("tree indexes are one-indexed", {
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = rnorm(n) * (1 + (X[,i] > 0))
 
-	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632)
+	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9),
+	                      mtry=p, min.node.size = 10, sample.fraction=0.632, seed = seed)
 
 	expect_error(get_tree(qrf, 0))
 	get_tree(qrf, n)
@@ -91,7 +94,8 @@ test_that("calculating variable importance gives reasonable results", {
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = rnorm(n) * (1 + (X[,i] > 0))
 
-	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry=p, min.node.size = 10, sample.fraction=0.632)
+	qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9),
+	                      mtry=p, min.node.size = 10, sample.fraction=0.632, seed = seed)
 
 	var.importance = variable_importance(qrf)
 
@@ -106,7 +110,7 @@ test_that("computing sample weights gives reasonable results", {
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = (X[,1] > 0) + 2 * rnorm(n)
 
-	rrf = regression_forest(X, Y, mtry=p)
+	rrf = regression_forest(X, Y, mtry=p, seed = seed)
 
 	sample.weights.oob = get_sample_weights(rrf)
 	expect_equal(nrow(sample.weights.oob), n)
