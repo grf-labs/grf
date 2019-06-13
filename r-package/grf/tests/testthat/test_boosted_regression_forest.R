@@ -21,7 +21,6 @@ test_that("Boosted regression forest improves performance vs regular forest", {
   expect_true(mse.boost < mse.forest)
 })
 
-
 test_that("Boosted forest takes user specified number of steps",  {
   n <- 100; p <- 6
   X <- matrix(runif(n * p), n, p)
@@ -63,8 +62,8 @@ test_that("OOB prediction is close to actual out of sample error", {
   forest.boost <- boosted_regression_forest(X[train,], Y[train], seed = seed)
   OOB.error <- mean((forest.boost$predictions - Y[train])^2)
 
-  test.pred <- predict(forest.boost,newdata=X[test,])$predictions
-  test.error <- mean((Y[test]- test.pred)^2)
+  test.pred <- predict(forest.boost, X[test,])$predictions
+  test.error <- mean((test.pred - Y[test])^2)
 
-  expect_true(abs((test.error - OOB.error)/test.error) < 0.05)
+  expect_true(abs(test.error - OOB.error) < 0.15)
 })
