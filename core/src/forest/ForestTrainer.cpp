@@ -66,7 +66,7 @@ const Forest ForestTrainer::train(const Data* data,
     futures.push_back(std::async(std::launch::async,
                                  &ForestTrainer::train_batch,
                                  this,
-                                 start_index,
+                                 i,
                                  num_trees_batch,
                                  data,
                                  options));
