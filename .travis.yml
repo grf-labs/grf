@@ -44,4 +44,7 @@ script:
   - cd ../r-package
   - Rscript build_package.R
   - cd grf
-  - Rscript -e 'lintr::lint_package()'
+  - |
+    Rscript -e "library(lintr);\
+                linters = with_defaults(line_length_linter(120), object_name_linter = NULL, default = default_linters);\
+                lint_package(linters = linters, exclusions = 'R/RcppExports.R')"
