@@ -52,7 +52,7 @@ selected.idx = which(varimp > mean(varimp))
 cf = causal_forest(X[,selected.idx], Y, W,
                    Y.hat = Y.hat, W.hat = W.hat,
                    clusters = school.id,
-                   samples.per.cluster = 50,
+                   samples_per_cluster = 50,
                    tune.parameters = TRUE)
 tau.hat = predict(cf)$predictions
 
