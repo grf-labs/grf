@@ -161,18 +161,18 @@ causal_forest <- function(X, Y, W,
 
   if (is.null(Y.hat) && !orthog.boosting) {
     forest.Y <- regression_forest(X, Y,
-      sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
+      tune.parameters = tune.parameters, num.trees = min(500, num.trees), num.threads = num.threads,
+      min.node.size = NULL, honesty = TRUE, honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     Y.hat <- predict(forest.Y)$predictions
   } else if (is.null(Y.hat) && orthog.boosting) {
     forest.Y <- boosted_regression_forest(X, Y,
-      sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
+      tune.parameters = tune.parameters, num.trees = min(500, num.trees), num.threads = num.threads,
+      min.node.size = NULL, honesty = TRUE, honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     Y.hat <- predict(forest.Y)$predictions
   } else if (length(Y.hat) == 1) {
@@ -183,18 +183,18 @@ causal_forest <- function(X, Y, W,
 
   if (is.null(W.hat) && !orthog.boosting) {
     forest.W <- regression_forest(X, W,
-      sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
+      tune.parameters = tune.parameters, num.trees = min(500, num.trees), num.threads = num.threads,
+      min.node.size = NULL, honesty = TRUE, honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     W.hat <- predict(forest.W)$predictions
   } else if (is.null(W.hat) && orthog.boosting) {
     forest.W <- boosted_regression_forest(X, W,
-      sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-      num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
+      tune.parameters = tune.parameters, num.trees = min(500, num.trees), num.threads = num.threads,
+      min.node.size = NULL, honesty = TRUE, honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == 1) {
@@ -376,7 +376,8 @@ predict.causal_forest <- function(object, newdata = NULL,
     linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
 
     if (is.null(ll.lambda)) {
-      ll.regularization.path <- tune_ll_causal_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
+      ll.regularization.path <- tune_ll_causal_forest(object, linear.correction.variables,
+                                                      ll.weight.penalty, num.threads)
       ll.lambda <- ll.regularization.path$lambda.min
     } else {
       ll.lambda <- validate_ll_lambda(ll.lambda)

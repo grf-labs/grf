@@ -194,8 +194,8 @@ boosted_regression_forest <- function(X, Y,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order
-#' @param boost.predict.steps Number of boosting iterations to use for prediction. If blank, uses the full number of steps
-#'        for the object given
+#' @param boost.predict.steps Number of boosting iterations to use for prediction. If blank, uses the full number of
+#'        steps for the object given
 #' @param num.threads the number of threads used in prediction
 #' @param ... Additional arguments (currently ignored).
 #'

@@ -197,7 +197,8 @@ test_that("sample weighting in the training of a regression forest improves its 
   expect_true(weighted.mse.forest.weighted < weighted.mse.forest)
 })
 
-test_that("inverse propensity weighting in the training of a regression forest with missing data improves its complete-data MSE.", {
+test_that("inverse propensity weighting in the training of a regression forest with missing data improves
+           its complete-data MSE.", {
   n <- 1000
   p <- 2
   X <- matrix(rnorm(n * p), n, p)
