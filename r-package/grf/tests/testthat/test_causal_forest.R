@@ -211,9 +211,11 @@ test_that("Weighting is roughly equivalent to replication of samples", {
     num.trees = num.trees
   )
 
-  z_scores <- function(a, b) { # conservative. use a variance upper bound
+  z_scores <- function(a, b) {
+    # conservative. use a variance upper bound
     abs(a$predictions - b$predictions) / sqrt(2 * (a$variance + b$variance))
   }
+
   expect_true(mean(z_scores(
     predict(regression.forest.rep, X[test, ], estimate.variance = TRUE),
     predict(regression.forest.weight, X[test, ], estimate.variance = TRUE)
