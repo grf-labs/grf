@@ -36,8 +36,11 @@ before_install:
   - sudo apt-get install -y libopencv-dev valgrind
 
 script:
+  # Preliminary code quality checks
+  - cd ..
+  - Rscript lint_package.R
   # Checks for core C++
-  - cd ../../core/
+  - cd ../core/
   - mkdir build && cd build
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
   - cd ..
@@ -45,4 +48,3 @@ script:
   # Checks for R package
   - cd ../r-package
   - Rscript build_package.R
-  - Rscript lint_package.R
