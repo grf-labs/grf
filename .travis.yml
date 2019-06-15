@@ -36,17 +36,13 @@ before_install:
   - sudo apt-get install -y libopencv-dev valgrind
 
 script:
+  # Checks for core C++
   - cd ../../core/
   - mkdir build && cd build
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
   - cd ..
   - valgrind --leak-check=full --error-exitcode=1 ./build/grf exclude:[characterization]
+  # Checks for R package
   - cd ../r-package
   - Rscript build_package.R
-  - cd grf
-  - |
-    Rscript -e "library(lintr);\
-                linters = with_defaults(line_length_linter(120), object_name_linter = NULL,\
-                                        commented_code_linter = NULL, object_usage_linter = NULL,\
-                                        default = default_linters);\
-                lint_package(linters = linters, exclusions = 'R/RcppExports.R')"
+  - Rscript lint_package.R
