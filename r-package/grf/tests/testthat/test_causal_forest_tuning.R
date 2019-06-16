@@ -48,7 +48,7 @@ test_that("local linear causal forest tuning returns lambda and decreases error"
    TAU = 2 * (X[,1] > 0)
    Y = W * TAU + rnorm(n)
 
-   forest = causal_forest(seed=1000,, X, Y, W, num.trees = 400)
+   forest = causal_forest(seed=1000, X, Y, W, num.trees = 400)
    tuning.results = tune_ll_causal_forest( forest)
    lambda = tuning.results$lambda.min
 

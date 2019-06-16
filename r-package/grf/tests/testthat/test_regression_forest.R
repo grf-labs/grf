@@ -31,16 +31,16 @@ test_that("changing honest.fraction behaves as expected", {
   k <- 10
   X <- matrix(runif(n*k), nrow=n, ncol=k)
   Y <- runif(n)
-  forest_1 <- grf::regression_forest(seed=1000,, X, Y, sample.fraction = sample_fraction_1,
+  forest_1 <- grf::regression_forest(seed=1000, X, Y, sample.fraction = sample_fraction_1,
                                    honesty = TRUE, honesty.fraction = honesty_fraction_1)
   samples <- extract_samples(get_tree(forest_1, 1))
 
   expect_equal(length(samples$split_sample), n * sample_fraction_1 * honesty_fraction_1)
   expect_equal(length(samples$estimation_sample), n * sample_fraction_1 * (1 - honesty_fraction_1))
-  expect_error(grf::regression_forest(seed=1000,, X, Y, sample.fraction = sample_fraction_2,
+  expect_error(grf::regression_forest(seed=1000, X, Y, sample.fraction = sample_fraction_2,
                                       honesty = TRUE, honesty.fraction = honesty_fraction_2),
                "The honesty fraction is too close to 1 or 0, as no observations will be sampled.")
-  expect_error(grf::regression_forest(seed=1000,, X, Y, sample.fraction = sample_fraction_3,
+  expect_error(grf::regression_forest(seed=1000, X, Y, sample.fraction = sample_fraction_3,
                                       honesty = TRUE, honesty.fraction = honesty_fraction_3),
                "The honesty fraction is too close to 1 or 0, as no observations will be sampled.")
 })
@@ -164,8 +164,8 @@ test_that("predictions are invariant to scaling of the sample weights.", {
     e = 1/(1+exp(-3*X[,1]))
     sample.weights = 1/e
 
-    forest.1 = regression_forest(seed=1000,, X, Y, sample.weights)
-    forest.2 = regression_forest(seed=1000,, X, Y, 1e-6*sample.weights)
+    forest.1 = regression_forest(seed=1000, X, Y, sample.weights)
+    forest.2 = regression_forest(seed=1000, X, Y, 1e-6*sample.weights)
     expect_true(max(abs(forest.1$predictions - forest.2$predictions)) < .1)
     # forests are built with different random seeds, hence possibly poor agreement
 })
@@ -194,8 +194,8 @@ test_that("inverse propensity weighting in the training of a regression forest w
     w = runif(n) <= e
     sample.weights <- 1/e[w]
 
-    forest = regression_forest(seed=1000,, X[w,], Y[w])
-    forest.weighted = regression_forest(seed=1000,, X[w,], Y[w], sample.weights)
+    forest = regression_forest(seed=1000, X[w,], Y[w])
+    forest.weighted = regression_forest(seed=1000, X[w,], Y[w], sample.weights)
     ipw.mse.forest = sum((predict(forest,X) - Y)^2)
     ipw.mse.forest.weighted = sum((predict(forest.weighted,X) - Y)^2)
     expect_true(ipw.mse.forest.weighted < ipw.mse.forest)

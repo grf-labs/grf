@@ -80,7 +80,7 @@ test_that("causal forests behave reasonably with a low treatment probability", {
     tau = 0.1
     Y = X[,1] + X[,2] + tau * W + rnorm(n)
 
-    forest = causal_forest(seed=1000,, X, Y, W, stabilize.splits = TRUE)
+    forest = causal_forest(seed=1000, X, Y, W, stabilize.splits = TRUE)
     tau.hat = predict(forest)$predictions
     expect_true(sqrt(mean((tau.hat - tau)^2)) < 0.20)
 })
@@ -147,8 +147,8 @@ test_that("predictions are invariant to scaling of the sample weights.", {
    e.cc = 1/(1+exp(-2*X[,1]))
    sample.weights = 1/e.cc
 
-   forest.1 = causal_forest(seed=1000,, X, Y, W, sample.weights = sample.weights)
-   forest.2 = causal_forest(seed=1000,, X, Y, W, sample.weights = 40*sample.weights)
+   forest.1 = causal_forest(seed=1000, X, Y, W, sample.weights = sample.weights)
+   forest.2 = causal_forest(seed=1000, X, Y, W, sample.weights = 40*sample.weights)
    expect_true(all(abs(forest.2$predictions - forest.1$predictions) < 1e-10))
 })
 
