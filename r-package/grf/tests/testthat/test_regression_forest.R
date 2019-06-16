@@ -3,16 +3,16 @@ library(grf)
 set.seed(1234)
 
 extract_samples <- function(tree) {
-  
+
   # Keep only leaf nodes
   leaf_nodes <- Filter(f = function(x) x$is_leaf, tree$nodes)
-  
+
   # Leaf nodes' 'samples' are estimation samples
   estimation_sample <- unlist(Map(f=function(x) x$samples, leaf_nodes))
-  
+
   # Split = Drawn - Samples
   split_sample <- base::setdiff(tree$drawn_samples, estimation_sample)
-  
+
   return(list(estimation_sample=estimation_sample,
               split_sample=split_sample))
 }
@@ -20,27 +20,27 @@ extract_samples <- function(tree) {
 test_that("changing honest.fraction behaves as expected", {
   sample_fraction_1 = 0.5
   honesty_fraction_1 = 0.25
-  
+
   sample_fraction_2 = 0.25
   honesty_fraction_2 = 0.1
-  
+
   sample_fraction_3 = 0.25
   honesty_fraction_3 = 0.9
-  
+
   n <- 16
   k <- 10
   X <- matrix(runif(n*k), nrow=n, ncol=k)
   Y <- runif(n)
-  forest_1 <- grf::regression_forest(X, Y, sample.fraction = sample_fraction_1, 
+  forest_1 <- grf::regression_forest(seed=1000, X, Y, sample.fraction = sample_fraction_1,
                                    honesty = TRUE, honesty.fraction = honesty_fraction_1)
   samples <- extract_samples(get_tree(forest_1, 1))
-  
+
   expect_equal(length(samples$split_sample), n * sample_fraction_1 * honesty_fraction_1)
   expect_equal(length(samples$estimation_sample), n * sample_fraction_1 * (1 - honesty_fraction_1))
-  expect_error(grf::regression_forest(X, Y, sample.fraction = sample_fraction_2, 
+  expect_error(grf::regression_forest(seed=1000, X, Y, sample.fraction = sample_fraction_2,
                                       honesty = TRUE, honesty.fraction = honesty_fraction_2),
                "The honesty fraction is too close to 1 or 0, as no observations will be sampled.")
-  expect_error(grf::regression_forest(X, Y, sample.fraction = sample_fraction_3, 
+  expect_error(grf::regression_forest(seed=1000, X, Y, sample.fraction = sample_fraction_3,
                                       honesty = TRUE, honesty.fraction = honesty_fraction_3),
                "The honesty fraction is too close to 1 or 0, as no observations will be sampled.")
 })
@@ -61,17 +61,17 @@ test_that("regression variance estimates are positive", {
     forest = regression_forest(X, Y, num.trees = 1000, ci.group.size = 4)
     preds.oob = predict(forest, estimate.variance=TRUE)
     preds = predict(forest, X.test, estimate.variance=TRUE)
-    
+
     expect_true(all(preds$variance.estimate > 0))
     expect_true(all(preds.oob$variance.estimate > 0))
-    
+
     error = preds$predictions - truth
     expect_true(mean(error^2) < 0.2)
-    
+
     truth.oob = (X[,1] > 0)
     error.oob = preds.oob$predictions - truth.oob
     expect_true(mean(error.oob^2) < 0.2)
-    
+
     Z.oob = error.oob / sqrt(preds.oob$variance.estimate)
     expect_true(mean(abs(Z.oob) > 1) < 0.5)
 })
@@ -164,9 +164,9 @@ test_that("predictions are invariant to scaling of the sample weights.", {
     e = 1/(1+exp(-3*X[,1]))
     sample.weights = 1/e
 
-    forest.1 = regression_forest(X, Y, sample.weights)
-    forest.2 = regression_forest(X, Y, 1e-6*sample.weights)
-    expect_true(max(abs(forest.1$predictions - forest.2$predictions)) < .1) 
+    forest.1 = regression_forest(seed=1000, X, Y, sample.weights)
+    forest.2 = regression_forest(seed=1000, X, Y, 1e-6*sample.weights)
+    expect_true(max(abs(forest.1$predictions - forest.2$predictions)) < .1)
     # forests are built with different random seeds, hence possibly poor agreement
 })
 
@@ -192,16 +192,11 @@ test_that("inverse propensity weighting in the training of a regression forest w
     Y <- abs(X[,1]) + 0.1 * rnorm(n)
     e = 1/(1+exp(-3*X[,1]))
     w = runif(n) <= e
-    sample.weights <- 1/e[w] 
-    
-    forest = regression_forest(X[w,], Y[w])
-    forest.weighted = regression_forest(X[w,], Y[w], sample.weights)
+    sample.weights <- 1/e[w]
+
+    forest = regression_forest(seed=1000, X[w,], Y[w])
+    forest.weighted = regression_forest(seed=1000, X[w,], Y[w], sample.weights)
     ipw.mse.forest = sum((predict(forest,X) - Y)^2)
     ipw.mse.forest.weighted = sum((predict(forest.weighted,X) - Y)^2)
     expect_true(ipw.mse.forest.weighted < ipw.mse.forest)
 })
-
-
-
-
-

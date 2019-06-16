@@ -16,6 +16,7 @@
 #include <unordered_map>
 
 #include "RandomSampler.h"
+#include "Distributions.h"
 
 RandomSampler::RandomSampler(uint seed,
                              const SamplingOptions& options) :
@@ -52,7 +53,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
                               double sample_fraction,
                               std::vector<size_t>& subsamples) {
   std::vector<size_t> shuffled_sample(samples);
-  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
+  shuffle(shuffled_sample);
 
   uint subsample_size = (uint) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
@@ -66,9 +67,9 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
                               std::vector<size_t>& subsamples,
                               std::vector<size_t>& oob_samples) {
   std::vector<size_t> shuffled_sample(samples);
-  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
+  shuffle(shuffled_sample);
 
-  size_t subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
+  auto subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
   oob_samples.resize(samples.size() - subsample_size);
 
@@ -84,7 +85,7 @@ void RandomSampler::subsample_with_size(const std::vector<size_t>& samples,
                                         size_t subsample_size,
                                         std::vector<size_t>& subsamples) {
   std::vector<size_t> shuffled_sample(samples);
-  std::shuffle(shuffled_sample.begin(), shuffled_sample.end(), random_number_generator);
+  shuffle(shuffled_sample);
 
   subsamples.resize(subsample_size);
   std::copy(shuffled_sample.begin(),
@@ -133,8 +134,7 @@ void RandomSampler::shuffle_and_split(std::vector<size_t>& samples,
 
   // Fill with 0..n_all-1 and shuffle
   std::iota(samples.begin(), samples.end(), 0);
-  std::shuffle(samples.begin(), samples.end(), random_number_generator);
-
+  shuffle(samples);
   samples.resize(size);
 }
 
@@ -159,12 +159,11 @@ void RandomSampler::draw_simple(std::vector<size_t>& result,
   std::vector<bool> temp;
   temp.resize(max, false);
 
-  std::uniform_int_distribution<size_t> unif_dist(0, max - 1 - skip.size());
   for (size_t i = 0; i < num_samples; ++i) {
     size_t draw;
     do {
-      draw = unif_dist(random_number_generator);
-      for (auto& skip_value : skip) {
+        draw = distributions::uniform_draw<size_t>(0, max - skip.size(), random_number_generator);
+        for (auto& skip_value : skip) {
         if (draw >= skip_value) {
           ++draw;
         }
@@ -191,8 +190,7 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
 
   // Draw without replacement using Fisher Yates algorithm
   for (size_t i = result.size() - 1; i > 0; --i) {
-    std::uniform_int_distribution<size_t> distribution(0, i);
-    size_t j = distribution(random_number_generator);
+    auto j = distributions::uniform_draw<size_t>(0, i+1, random_number_generator);
     std::swap(result[i], result[j]);
   }
 
@@ -204,24 +202,41 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
                                   size_t max,
                                   size_t num_samples,
                                   const std::vector<double>& weights) {
+
   result.reserve(num_samples);
 
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(max + 1, false);
+  double double_draw;
+  size_t int_draw = 0;
 
-  std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
+  std::vector<bool> chosen(weights.size(), false);
+
+  // Fill cdf
+  std::vector<double> cdf(weights.size(), 0);
+  std::partial_sum(weights.begin(), weights.end(), cdf.begin());
+
   for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
     do {
-      draw = weighted_dist(random_number_generator);
-    } while (temp[draw]);
-    temp[draw] = true;
-    result.push_back(draw);
+      // Draw a uniform number
+      double_draw = distributions::uniform_draw<double>(0, 1, random_number_generator) * cdf.back();
+      // Find its position on the cdf (inverse sampling)
+      int_draw = std::distance(cdf.begin(), std::lower_bound(cdf.begin(), cdf.end(), double_draw));
+    } while (chosen[int_draw]);
+    chosen[int_draw] = true;
+    result.emplace_back(int_draw);
   }
 }
 
+void RandomSampler::shuffle(std::vector<size_t>& v) {
+    auto first = v.begin();
+    auto last = v.end();
+    size_t j;
+    for (int i = last - first-1; i > 0; --i) {
+         j = distributions::uniform_draw<size_t>(0, i+1, random_number_generator);
+         std::swap(first[i], first[j]);
+    }
+}
+
+
 size_t RandomSampler::sample_poisson(size_t mean) {
-  std::poisson_distribution<size_t> distribution(mean);
-  return distribution(random_number_generator);
+    return distributions::poisson_draw<size_t>(mean, random_number_generator);
 }

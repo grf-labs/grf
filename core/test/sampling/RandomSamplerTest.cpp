@@ -16,9 +16,7 @@
  #-------------------------------------------------------------------------------*/
 #include <fstream>
 #include <map>
-#include <random>
 #include <unordered_set>
-
 #include "catch.hpp"
 #include "commons/DefaultData.h"
 #include "sampling/RandomSampler.h"
@@ -127,7 +125,7 @@ TEST_CASE("Draw without replacement 4", "[drawWithoutReplacement]") {
 
   SamplingOptions sampling_options;
   RandomSampler sampler(random_device(), sampling_options);
-  
+
   size_t max = 1000;
   std::set<size_t> skip = {7};
   size_t num_samples = 50;

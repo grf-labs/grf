@@ -8,10 +8,10 @@ test_that("causal forests can split on the last parameter", {
     X = matrix(rnorm(n*p), n, p)
     W = rbinom(n, 1, 0.5)
     Y = W * (X[,1] + X[,6]) + rnorm(n)
-    
-    forest = causal_forest(X, Y, W, compute.oob.predictions = FALSE)
+
+    forest = causal_forest(seed=1000, X, Y, W, compute.oob.predictions = FALSE)
     split.freq = split_frequencies(forest, 10)
-    
+
     expect_gt(sum(split.freq[,6]), 0)
 })
 
@@ -21,7 +21,7 @@ test_that("causal forests have reasonable split frequencies", {
     X = matrix(rnorm(n*p), n, p)
     W = rbinom(n, 1, 0.2)
     Y = 1000 * (X[,p]) * (2 * W - 1) + rnorm(n)
-    
+
     # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
     # we add variance corrections, this should no longer be necessary.
     ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=1.0, stabilize.splits=TRUE, min.node.size=2)
@@ -35,7 +35,7 @@ test_that("causal forests without stable splitting have reasonable split frequen
     X = matrix(rnorm(n*p), n, p)
     W = rbinom(n, 1, 0.2)
     Y = 1000 * (X[,p]) * (2 * W - 1) + rnorm(n)
-    
+
     # Note that we increase imbalance.penalty to ensure the test reliably passes. Once
     # we add variance corrections, this should no longer be necessary.
     ccc = causal_forest(X, Y, W, mtry = p, imbalance.penalty=1.0, stabilize.splits=FALSE, min.node.size=2)
@@ -74,13 +74,13 @@ test_that("causal forests with a very small imbalance.penalty behave similarly t
 test_that("causal forests behave reasonably with a low treatment probability", {
     n = 1000
     p = 5
-    
+
     X = matrix(rnorm(n * p), n, p)
     W = rbinom(n, 1, 0.1)
     tau = 0.1
     Y = X[,1] + X[,2] + tau * W + rnorm(n)
-    
-    forest = causal_forest(X, Y, W, stabilize.splits = TRUE)
+
+    forest = causal_forest(seed=1000, X, Y, W, stabilize.splits = TRUE)
     tau.hat = predict(forest)$predictions
     expect_true(sqrt(mean((tau.hat - tau)^2)) < 0.20)
 })
@@ -95,7 +95,7 @@ test_that("causal forests behave reasonably with small sample size", {
     forest = causal_forest(X, Y, W, stabilize.splits = TRUE,
                            min.node.size = 1, mtry = p,
                            compute.oob.predictions = FALSE)
-    
+
     X.test = matrix(rnorm(n * p), n, p)
     tau.test = 100 * (X.test[,1] > 0)
     tau.hat = predict(forest, X.test)$predictions
@@ -147,8 +147,8 @@ test_that("predictions are invariant to scaling of the sample weights.", {
    e.cc = 1/(1+exp(-2*X[,1]))
    sample.weights = 1/e.cc
 
-   forest.1 = causal_forest(X, Y, W, sample.weights = sample.weights, seed=1)
-   forest.2 = causal_forest(X, Y, W, sample.weights = 40*sample.weights, seed=1)
+   forest.1 = causal_forest(seed=1000, X, Y, W, sample.weights = sample.weights)
+   forest.2 = causal_forest(seed=1000, X, Y, W, sample.weights = 40*sample.weights)
    expect_true(all(abs(forest.2$predictions - forest.1$predictions) < 1e-10))
 })
 
@@ -222,4 +222,3 @@ test_that("Weighting is roughly equivalent to replication of samples", {
                             predict(causal.forest.weight, X[test,], estimate.variance = TRUE)) <= 1) >= .5)
   expect_true(mean(predict(causal.forest.rep, X[test,]) > 100 + predict(causal.forest.biased, X[test,])) >= .5)
 })
-

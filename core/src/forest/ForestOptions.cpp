@@ -15,7 +15,6 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 #include <thread>
-#include <random>
 #include "forest/ForestOptions.h"
 #include "tree/TreeOptions.h"
 

@@ -24,10 +24,11 @@
 #include "SamplingOptions.h"
 
 #include <cstddef>
-#include <random>
 #include <set>
 #include <vector>
 #include <unordered_map>
+#include "Distributions.h"
+
 
 class RandomSampler {
 public:
@@ -150,6 +151,12 @@ private:
                   size_t max,
                   const std::set<size_t>& skip,
                   size_t num_samples);
+
+    /**
+   * In-house implementation of shuffle to ensure stability of random numbers.
+   * @param vec Vector to shuffle (in-place).
+   */
+  void shuffle(std::vector<size_t>& v);
 
   SamplingOptions options;
   std::mt19937_64 random_number_generator;
