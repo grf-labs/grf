@@ -64,7 +64,7 @@ test_that("local linear forest tuning returns lambda and decreases prediction er
 
     forest = ll_regression_forest(seed=1000, X, Y)
 
-    lambda = tune_ll_regression_forest(seed=1000, forest)$lambda.min
+    lambda = tune_ll_regression_forest( forest)$lambda.min
     expect_true(is.numeric(lambda))
     expect_true(length(lambda) == 1)
 
@@ -205,7 +205,7 @@ test_that("output of tune local linear forest is consistent with prediction outp
 
   forest = ll_regression_forest(seed=1000, X, Y, num.trees = 400)
 
-  tune.out = tune_ll_regression_forest(seed=1000, forest)
+  tune.out = tune_ll_regression_forest( forest)
 
   ll.min = tune.out$lambdas[1]
   pred.ll.min = predict(forest, ll.lambda = ll.min)$predictions

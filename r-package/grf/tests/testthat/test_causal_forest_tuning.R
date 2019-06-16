@@ -49,7 +49,7 @@ test_that("local linear causal forest tuning returns lambda and decreases error"
    Y = W * TAU + rnorm(n)
 
    forest = causal_forest(seed=1000,, X, Y, W, num.trees = 400)
-   tuning.results = tune_ll_causal_forest(seed=1000, forest)
+   tuning.results = tune_ll_causal_forest( forest)
    lambda = tuning.results$lambda.min
 
    expect_true(is.numeric(lambda))
@@ -75,7 +75,7 @@ test_that("output of tune local linear causal forest is consistent with predicti
 
   forest = causal_forest(seed=1000, X, Y, W, num.trees = 400)
 
-  tuning.results = tune_ll_causal_forest(seed=1000, forest)
+  tuning.results = tune_ll_causal_forest( forest)
 
   ll.min = tuning.results$lambdas[1]
   pred.ll.min = predict(forest, linear.correction.variables = 1:p, ll.lambda = ll.min)$predictions
