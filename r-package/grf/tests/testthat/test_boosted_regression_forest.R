@@ -1,13 +1,13 @@
 library(grf)
-
-set.seed(1)
+library(testthat)
+set.seed(12345)
 
 test_that("Boosted regression forest improves performance vs regular forest", {
   n <- 500; p <- 6
   X <- matrix(runif(n * p), n, p)
   mu <- 2 * X[,1] * X[,2] + 3 * X[,3] + 4 * X[,4]
   Y <- mu + rnorm(n)
-  forest.regular <- regression_forest(X,Y)
+  forest.regular <- regression_forest(seed=1, X,Y)
   forest.boost <- boosted_regression_forest(X,Y)
 
   forest.Yhat <- predict(forest.regular)$predictions

@@ -7,11 +7,11 @@ test_that("regression forest tuning decreases prediction error", {
 	X.test = matrix(2 * runif(n * p) - 1, n, p)
 	truth = (X.test[,1] > 0)
 
-	forest = regression_forest(X, Y, num.trees = 400, tune.parameters = FALSE)
+	forest = regression_forest(seed=1, X, Y, num.trees = 400, tune.parameters = FALSE)
 	preds = predict(forest, X.test)
 	error = mean((preds$predictions - truth)^2)
 	
-	tuned.forest = regression_forest(X, Y, num.trees = 400, tune.parameters= TRUE)
+	tuned.forest = regression_forest(seed=1, X, Y, num.trees = 400, tune.parameters= TRUE)
 	tuned.preds = predict(tuned.forest, X.test)
 	tuned.error = mean((tuned.preds$predictions - truth)^2)
 	
