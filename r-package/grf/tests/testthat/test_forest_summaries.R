@@ -8,7 +8,7 @@ test_that("causal forest calibration is reasonable", {
     W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
     Y = pmax(X[,1], 0) * (W - 0.75) + rnorm(n)
 
-    cf = causal_forest(X, Y, W,
+    cf = causal_forest(seed=1000, X, Y, W,
                        W.hat = 0.25 + 0.5 * (X[,1] > 0),
                        Y.hat = pmax(X[,1], 0) * (0.5 * (X[,1] > 0) - 0.5),
                        num.trees = 500)
@@ -24,7 +24,7 @@ test_that("causal forest calibration is reasonable with no average effect", {
   W = rnorm(n, 1, 0.5)
   Y = sign(X[,1]) * (W - 0.5) + rnorm(n)
   
-  cf = causal_forest(X, Y, W,
+  cf = causal_forest(seed=1000, X, Y, W,
                      W.hat = 0.5,
                      Y.hat = 0,
                      num.trees = 500)
@@ -40,7 +40,7 @@ test_that("causal forest calibration is reasonable with no heterogeneous effect"
   W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
   Y = pmax(X[,2], 0) + W + rnorm(n)
 
-  cf = causal_forest(X, Y, W,
+  cf = causal_forest(seed=1000, X, Y, W,
                      W.hat = 0.25 + 0.5 * (X[,1] > 0),
                      Y.hat = 0.25 + 0.5 * (X[,1] > 0) + pmax(X[,2], 0),
                      num.trees = 500)
@@ -66,7 +66,7 @@ test_that("causal forest calibration is reasonable with no heterogeneous effect 
   cc = as.logical(rbinom(n, 1, e.cc))
   sample.weights = 1/e.cc
 
-  cf = causal_forest(X[cc,], Y[cc], W[cc],
+  cf = causal_forest(seed=1000, X[cc,], Y[cc], W[cc],
                      W.hat = 0.25 + 0.5 * (X[cc,1] > 0),
                      Y.hat = 0.25 + 0.5 * (X[cc,1] > 0) + pmax(X[cc,2], 0) * big[cc],
                      sample.weights = sample.weights[cc],
@@ -83,7 +83,7 @@ test_that("regression forest calibration is reasonable", {
   X = matrix(rnorm(n*p), n, p)
   Y = 5 + 5 * sign(X[,1]) + rnorm(n)
   
-  rf = regression_forest(X, Y)
+  rf = regression_forest(seed=1000, X, Y)
   tc = test_calibration(rf)
   
   expect_true(abs(tc[1,1] - 1) <= 0.1)
@@ -95,7 +95,7 @@ test_that("regression forest calibration is reasonable with no heterogeneous eff
   X = matrix(rnorm(n*p), n, p)
   Y = 5 + rnorm(n)
   
-  rf = regression_forest(X, Y)
+  rf = regression_forest(seed=1000, X, Y)
   tc = test_calibration(rf)
   
   expect_true(abs(tc[1,1] - 1) <= 0.1)
@@ -108,7 +108,7 @@ test_that("causal forest calibration works with clusters", {
   W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
   Y = pmax(X[,2], 0) + W + rnorm(n)
   
-  cf = causal_forest(X, Y, W,
+  cf = causal_forest(seed=1000, X, Y, W,
                      W.hat = 0.25 + 0.5 * (X[,1] > 0),
                      Y.hat = 0.25 + 0.5 * (X[,1] > 0) + pmax(X[,2], 0),
                      num.trees = 100)

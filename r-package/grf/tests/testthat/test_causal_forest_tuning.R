@@ -7,11 +7,11 @@ test_that("causal forest tuning decreases prediction error", {
     TAU = 0.1 * (X[,1] > 0)
     Y = TAU * (W  - 1/2) + 2 * rnorm(n)
 
-    forest = causal_forest(X, Y, W, num.trees = 400, min.node.size = 1, tune.parameters = FALSE)
+    forest = causal_forest(seed=1000, X, Y, W, num.trees = 400, min.node.size = 1, tune.parameters = FALSE)
     preds = predict(forest)
     error = mean((preds$predictions - TAU)^2)
 
-    tuned.forest = causal_forest(X, Y, W, num.trees = 400, tune.parameters = TRUE)
+    tuned.forest = causal_forest(seed=1000, X, Y, W, num.trees = 400, tune.parameters = TRUE)
     tuned.preds = predict(tuned.forest)
     tuned.error = mean((tuned.preds$predictions - TAU)^2)
 
@@ -30,7 +30,7 @@ test_that("causal forest tuning only cross-validates null parameters", {
     min.node.size = 5
     imbalance.penalty = 0.42
 
-    tune.output = tune_causal_forest(X, Y, W, 0, 0.5,
+    tune.output = tune_causal_forest(seed=1000, X, Y, W, 0, 0.5,
                                      min.node.size = min.node.size,
                                      imbalance.penalty = imbalance.penalty)
     tunable.params = tune.output$params
@@ -48,8 +48,8 @@ test_that("local linear causal forest tuning returns lambda and decreases error"
    TAU = 2 * (X[,1] > 0)
    Y = W * TAU + rnorm(n)
 
-   forest = causal_forest(seed=1000, X, Y, W, num.trees = 400)
-   tuning.results = tune_ll_causal_forest(forest)
+   forest = causal_forest(seed=1000,, X, Y, W, num.trees = 400)
+   tuning.results = tune_ll_causal_forest(seed=1000, forest)
    lambda = tuning.results$lambda.min
 
    expect_true(is.numeric(lambda))
@@ -73,9 +73,9 @@ test_that("output of tune local linear causal forest is consistent with predicti
   TAU = 2 * (X[,1] > 0)
   Y = W * TAU + rnorm(n)
 
-  forest = causal_forest(X, Y, W, num.trees = 400)
+  forest = causal_forest(seed=1000, X, Y, W, num.trees = 400)
 
-  tuning.results = tune_ll_causal_forest(forest)
+  tuning.results = tune_ll_causal_forest(seed=1000, forest)
 
   ll.min = tuning.results$lambdas[1]
   pred.ll.min = predict(forest, linear.correction.variables = 1:p, ll.lambda = ll.min)$predictions

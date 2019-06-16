@@ -22,7 +22,7 @@ test_that("instrumental forests give reasonable estimates", {
   X.test = matrix(rnorm(n.test * p), n.test, p)  
   tau.true = apply(X.test[,1:2], 1, function(xx) sum(pmax(0, xx)))
   
-  forest.iv = instrumental_forest(X, Y, W, Z, num.trees = 4000)
+  forest.iv = instrumental_forest(seed=1000, X, Y, W, Z, num.trees = 4000)
   
   preds.iv.oob = predict(forest.iv, estimate.variance=TRUE)
   preds.iv = predict(forest.iv, X.test, estimate.variance=TRUE)
@@ -70,8 +70,8 @@ test_that("instrumental forests with censoring and ipcc weights compare to fores
   X.test = matrix(rnorm(n.test * p), n.test, p)
   tau.true = apply(X.test[,1:2], 1, function(xx) sum(pmax(0, xx)))
 
-  forest.iv.full =   forest.iv.ipcc = instrumental_forest(X, Y, W, Z, num.trees = 4000)
-  forest.iv.ipcc = instrumental_forest(X[cc,], Y[cc], W[cc], Z[cc],
+  forest.iv.full =   forest.iv.ipcc = instrumental_forest(seed=1000, X, Y, W, Z, num.trees = 4000)
+  forest.iv.ipcc = instrumental_forest(seed=1000, X[cc,], Y[cc], W[cc], Z[cc],
     sample.weights = sample.weights[cc], num.trees = 4000)
 
   preds.iv.full = predict(forest.iv.full, X.test, estimate.variance=TRUE)

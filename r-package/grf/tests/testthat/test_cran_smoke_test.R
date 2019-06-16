@@ -6,7 +6,7 @@ test_that("regression forest split frequencies are reasonable", {
 	p = 6
 	X = matrix(rnorm(n*p), n, p)
 	Y = 1000 * (X[,1]) + rnorm(n)
-	rrr = regression_forest(X, Y, mtry = p)
+	rrr = regression_forest(seed=1000, X, Y, mtry = p)
 	freq = split_frequencies(rrr, 4)
 	expect_true(freq[1,1] / sum(freq[1,]) > 1/2)
 })
@@ -25,7 +25,7 @@ test_that("causal forests give reasonable estimates", {
     W = rbinom(n, 1, 0.5)
     Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)
 
-    forest.causal = causal_forest(X, Y, W, num.trees = 2000,
+    forest.causal = causal_forest(seed=1000, X, Y, W, num.trees = 2000,
                                   ci.group.size = 4, W.hat = 0.5,
                                   compute.oob.predictions = FALSE)
     preds.causal.oob = predict(forest.causal, estimate.variance=TRUE)

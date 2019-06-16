@@ -10,7 +10,7 @@ test_that("local linear prediction gives reasonable estimates", {
     MU = apply(X, FUN=f, MARGIN=1)
     Y = MU + rnorm(n)
 
-    forest = regression_forest(X, Y, num.trees = 500)
+    forest = regression_forest(seed=1000, X, Y, num.trees = 500)
     preds.grf.oob = predict(forest)
     preds.ll.oob = predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)
 
@@ -41,7 +41,7 @@ test_that("linear correction variables function as expected", {
     MU = apply(X, FUN=f, MARGIN=1)
     Y = MU + rnorm(n)
 
-    forest = regression_forest(X, Y, num.trees = 500)
+    forest = regression_forest(seed=1000, X, Y, num.trees = 500)
     preds = predict(forest, linear.correction.variables = 1:20)
     mse = mean((preds$predictions - MU)^2)
 
@@ -62,9 +62,9 @@ test_that("local linear forest tuning returns lambda and decreases prediction er
     truth = apply(X, FUN = mu, MARGIN = 1)
     Y = truth + sigma*rnorm(n)
 
-    forest = ll_regression_forest(X, Y)
+    forest = ll_regression_forest(seed=1000, X, Y)
 
-    lambda = tune_ll_regression_forest(forest)$lambda.min
+    lambda = tune_ll_regression_forest(seed=1000, forest)$lambda.min
     expect_true(is.numeric(lambda))
     expect_true(length(lambda) == 1)
 
@@ -88,10 +88,10 @@ test_that("default local linear forest predict and regression forest predict wit
     truth = apply(X, FUN = mu, MARGIN = 1)
     Y = truth + sigma*rnorm(n)
 
-    forest = regression_forest(X, Y)
+    forest = regression_forest(seed=1000, X, Y)
     preds = predict(forest, linear.correction.variables = 1:5, lambda = 0.1)$predictions
 
-    ll.forest = ll_regression_forest(X, Y)
+    ll.forest = ll_regression_forest(seed=1000, X, Y)
     ll.preds = predict(ll.forest, ll.lambda = 0.1)$predictions
 
     average.difference = mean((ll.preds - preds)**2)
@@ -110,7 +110,7 @@ test_that("local linear predict returns local linear predictions even without tu
     truth = apply(X, FUN = mu, MARGIN = 1)
     Y = truth + sigma*rnorm(n)
 
-    forest = ll_regression_forest(X, Y, num.trees = 50)
+    forest = ll_regression_forest(seed=1000, X, Y, num.trees = 50)
     preds = predict(forest)
 
     ll.indicator = !is.null(preds$ll.lambda)
@@ -128,7 +128,7 @@ test_that("local linear confidence intervals have reasonable coverage", {
     truth = mu(X[,1])
     Y = truth + sigma*rnorm(n)
 
-    forest = ll_regression_forest(X, Y, num.trees = 500, ci.group.size = 5)
+    forest = ll_regression_forest(seed=1000, X, Y, num.trees = 500, ci.group.size = 5)
     preds = predict(forest, linear.correction.variables = 1, ll.lambda = 1, estimate.variance = TRUE)
 
     expect_true(all(preds$variance.estimates > 0))
@@ -153,7 +153,7 @@ test_that("local linear confidence intervals match regression forest with large 
     truth = mu(X[,1])
     Y = truth + sigma*rnorm(n)
 
-    forest = regression_forest(X, Y, num.trees = 80, ci.group.size = 2)
+    forest = regression_forest(seed=1000, X, Y, num.trees = 80, ci.group.size = 2)
 
     preds.rf = predict(forest, estimate.variance = TRUE)
     preds.llf = predict(forest, linear.correction.variables = 1,
@@ -171,7 +171,7 @@ test_that("local linear predictions are correct without noise", {
   mu = rowSums(X)
   Y = mu
 
-  forest = regression_forest(X, Y, num.trees = 80, ci.group.size = 2)
+  forest = regression_forest(seed=1000, X, Y, num.trees = 80, ci.group.size = 2)
 
   preds.rf = predict(forest)$predictions
   preds.llf = predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
@@ -188,7 +188,7 @@ test_that("prediction with and without CIs are the same", {
   mu = 0.9 * exp(X[,1])
   Y = mu + rnorm(n)
 
-  forest = ll_regression_forest(X, Y, num.trees = 800, ci.group.size = 2)
+  forest = ll_regression_forest(seed=1000, X, Y, num.trees = 800, ci.group.size = 2)
 
   preds.rf = predict(forest, ll.lambda = 1, estimate.variance = FALSE)$predictions
   preds.rf2 = predict(forest, ll.lambda = 1, estimate.variance = TRUE)$predictions
@@ -203,9 +203,9 @@ test_that("output of tune local linear forest is consistent with prediction outp
   mu = 0.9 * exp(X[,1])
   Y = mu + rnorm(n)
 
-  forest = ll_regression_forest(X, Y, num.trees = 400)
+  forest = ll_regression_forest(seed=1000, X, Y, num.trees = 400)
 
-  tune.out = tune_ll_regression_forest(forest)
+  tune.out = tune_ll_regression_forest(seed=1000, forest)
 
   ll.min = tune.out$lambdas[1]
   pred.ll.min = predict(forest, ll.lambda = ll.min)$predictions

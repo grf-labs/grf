@@ -15,7 +15,7 @@ test_that("printing a forest with one regressor is successful", {
   n = 50; p = 1
   X = matrix(rnorm(n * p), n, p)
   Y = X[,1] * rnorm(n)
-  r.forest = regression_forest(X, Y)
+  r.forest = regression_forest(seed=1000, X, Y)
   capture_output(print(r.forest))
   expect_true(TRUE)
 })
@@ -39,7 +39,7 @@ test_that("printing a forest with one regressor is successful", {
   X = matrix(runif(n * p), n, p)
   Y = runif(n)
   W = rbinom(n, 1, 0.5)
-  tuned.forest = causal_forest(X, Y, W, num.trees = 100, tune.parameters = TRUE)
+  tuned.forest = causal_forest(seed=1000, X, Y, W, num.trees = 100, tune.parameters = TRUE)
   capture_output(print(tuned.forest$tuning.output))
   expect_true(TRUE)
  })

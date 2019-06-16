@@ -49,7 +49,7 @@ test_that("draw samples are indexed correctly",{
   X = matrix(2 * runif(n * p) - 1, n, p)
   Y = rnorm(n) * (1 + (X[,i] > 0))
   
-  forest = regression_forest(X, Y)
+  forest = regression_forest(seed=1000, X, Y)
   forest.tree = get_tree(forest, 1)
   
   leaf_nodes <- Filter(f = function(x) x$is_leaf, forest.tree$nodes)
@@ -106,7 +106,7 @@ test_that("computing sample weights gives reasonable results", {
 	X = matrix(2 * runif(n * p) - 1, n, p)
 	Y = (X[,1] > 0) + 2 * rnorm(n)
 
-	rrf = regression_forest(X, Y, mtry=p)
+	rrf = regression_forest(seed=1000, X, Y, mtry=p)
 
 	sample.weights.oob = get_sample_weights(rrf)
 	expect_equal(nrow(sample.weights.oob), n)

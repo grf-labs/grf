@@ -24,7 +24,7 @@ test_that("quantile forests with regression splitting are identical to regressio
                           mtry = p, min.node.size = 10, sample.fraction = 0.632)
 
     set.seed(1234)
-    rrf = regression_forest(X, Y, mtry = p, min.node.size = 10, sample.fraction = 0.632, ci.group.size = 1)
+    rrf = regression_forest(seed=1000, X, Y, mtry = p, min.node.size = 10, sample.fraction = 0.632, ci.group.size = 1)
 
     qrf.split.frequencies = split_frequencies(qrf, 4)
     rrf.split.frequencies = split_frequencies(rrf, 4)
