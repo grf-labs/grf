@@ -27,6 +27,7 @@ matrix:
           packages:
             - clang-3.7
       env: COMPILER=clang++-3.7
+      before_script: shopt -s expand_aliases && alias g++=clang++-3.7
 
 before_install:
   - cd r-package/grf
