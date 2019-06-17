@@ -2,16 +2,14 @@ library(grf)
 
 test_that("Boosted regression forest improves performance vs regular forest", {
 	set.seed(1000)
-  n <- 500; p <- 6
+  n <- 500; p <- 10
   X <- matrix(runif(n * p), n, p)
   mu <- 2 * X[,1] * X[,2] + 3 * X[,3] + 4 * X[,4]
   Y <- mu + rnorm(n)
   forest.regular <- regression_forest(seed=1000, X,Y)
   forest.boost <- boosted_regression_forest(seed=1000, X,Y)
-
   forest.Yhat <- predict(forest.regular)$predictions
   boost.Yhat <- predict(forest.boost)$predictions
-
   mse.forest <- mean((Y-forest.Yhat)^2)
   mse.boost <- mean((Y- boost.Yhat)^2)
   expect_true(mse.boost < mse.forest)

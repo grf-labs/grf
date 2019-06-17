@@ -3,7 +3,7 @@ library(grf)
 test_that("regression error estimates are reasonable", {
 	set.seed(1000)
 	p = 3
-	n = 2000
+	n = 4000
 	sigma = 1
 
 	X = matrix(2 * runif(n * p) - 1, n, p)
@@ -33,7 +33,7 @@ test_that("regression error estimates are reasonable", {
 test_that("causal error estimates are reasonable", {
 	set.seed(1000)
   p = 3
-  n = 2000
+  n = 2500
   sigma = 0.1
 
   X = matrix(2 * runif(n * p) - 1, n, p)

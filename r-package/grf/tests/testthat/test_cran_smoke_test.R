@@ -1,5 +1,4 @@
 library(grf)
-set.seed(1234)
 
 test_that("regression forest split frequencies are reasonable", {
   set.seed(1000)
@@ -14,7 +13,7 @@ test_that("regression forest split frequencies are reasonable", {
 
 test_that("causal forests give reasonable estimates", {
   	set.seed(1000)
-    p = 6
+    p = 3
     n = 1000
 
     ticks = 101

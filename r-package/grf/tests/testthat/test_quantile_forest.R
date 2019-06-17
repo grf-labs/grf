@@ -21,11 +21,9 @@ test_that("quantile forests with regression splitting are identical to regressio
     X = matrix(2 * runif(n * p) - 1, n, p)
     Y = rnorm(n) * (1 + 100 * (X[,i] > 0))
 
-    set.seed(1234)
-    qrf = quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = TRUE,
+    qrf = quantile_forest(seed=1000, X, Y, quantiles = c(0.1, 0.5, 0.9), regression.splitting = TRUE,
                           mtry = p, min.node.size = 10, sample.fraction = 0.632)
 
-    set.seed(1234)
     rrf = regression_forest(seed=1000, X, Y, mtry = p, min.node.size = 10, sample.fraction = 0.632, ci.group.size = 1)
 
     qrf.split.frequencies = split_frequencies(qrf, 4)

@@ -1,6 +1,5 @@
 library(grf)
 
-
 test_that("causal forest calibration is reasonable", {
     set.seed(1000)
     n = 800; p = 4
@@ -96,7 +95,7 @@ test_that("regression forest calibration is reasonable", {
 
 test_that("regression forest calibration is reasonable with no heterogeneous effect", {
   set.seed(1000)
-  n = 100; p = 4
+  n = 200; p = 4
   X = matrix(rnorm(n*p), n, p)
   Y = 5 + rnorm(n)
 

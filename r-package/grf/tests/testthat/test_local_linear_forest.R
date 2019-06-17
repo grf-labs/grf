@@ -1,7 +1,5 @@
 library(grf)
 
-set.seed(1234)
-
 test_that("local linear prediction gives reasonable estimates", {
     set.seed(1000)
     f = function(x){x[1] + 2*x[2] + 2*x[3]**2}
@@ -55,7 +53,7 @@ test_that("linear correction variables function as expected", {
 
 test_that("local linear forest tuning returns lambda and decreases prediction error", {
     set.seed(1000)
-    n = 400
+    n = 500
     p = 5
     sigma = 5
 

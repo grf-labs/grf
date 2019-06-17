@@ -1,12 +1,10 @@
 library(grf)
 
-set.seed(1234)
-
 test_that("instrumental forests give reasonable estimates", {
   set.seed(1000)
-  p = 6
+  p = 4
   n = 2000
-  n.test = 2000
+  n.test = 3000
 
   X = matrix(rnorm(n * p), n, p)
 

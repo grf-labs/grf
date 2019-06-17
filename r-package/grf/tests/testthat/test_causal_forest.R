@@ -1,7 +1,5 @@
 library(grf)
 
-set.seed(3141)
-
 test_that("causal forests can split on the last parameter", {
     set.seed(1000)
     n = 1000
@@ -33,7 +31,7 @@ test_that("causal forests have reasonable split frequencies", {
 
 test_that("causal forests without stable splitting have reasonable split frequencies", {
     set.seed(1000)
-    n = 100
+    n = 200
     p = 7
     X = matrix(rnorm(n*p), n, p)
     W = rbinom(n, 1, 0.2)
