@@ -3,6 +3,7 @@ library(grf)
 set.seed(3141)
 
 test_that("causal forests can split on the last parameter", {
+    set.seed(1000)
     n = 1000
     p = 6
     X = matrix(rnorm(n*p), n, p)
@@ -16,6 +17,7 @@ test_that("causal forests can split on the last parameter", {
 })
 
 test_that("causal forests have reasonable split frequencies", {
+    set.seed(1000)
     n = 100
     p = 7
     X = matrix(rnorm(n*p), n, p)
@@ -30,6 +32,7 @@ test_that("causal forests have reasonable split frequencies", {
 })
 
 test_that("causal forests without stable splitting have reasonable split frequencies", {
+    set.seed(1000)
     n = 100
     p = 7
     X = matrix(rnorm(n*p), n, p)
@@ -44,6 +47,7 @@ test_that("causal forests without stable splitting have reasonable split frequen
 })
 
 test_that("causal forests with a positive imbalance.penalty have reasonable tree depths", {
+    set.seed(1000)
     n <- 200
     p <- 5
     X <- matrix(rnorm(n * p), n, p)
@@ -56,6 +60,7 @@ test_that("causal forests with a positive imbalance.penalty have reasonable tree
 })
 
 test_that("causal forests with a very small imbalance.penalty behave similarly to unpenalized forests.", {
+    set.seed(1000)
     n <- 200
     p <- 5
     X <- matrix(rnorm(n * p), n, p)
@@ -72,6 +77,7 @@ test_that("causal forests with a very small imbalance.penalty behave similarly t
 })
 
 test_that("causal forests behave reasonably with a low treatment probability", {
+    set.seed(1000)
     n = 1000
     p = 5
 
@@ -86,6 +92,7 @@ test_that("causal forests behave reasonably with a low treatment probability", {
 })
 
 test_that("causal forests behave reasonably with small sample size", {
+    set.seed(1000)
     p = 5
     n = 50
     X = matrix(rnorm(n * p), n, p)
@@ -103,6 +110,7 @@ test_that("causal forests behave reasonably with small sample size", {
 })
 
 test_that("local linear causal forests work in a simple case", {
+    set.seed(1000)
    n = 1000
    p = 6
    X = matrix(rnorm(n*p), n, p)
@@ -121,6 +129,7 @@ test_that("local linear causal forests work in a simple case", {
 })
 
 test_that("local linear causal forests with large lambda are equivalent to causal forests", {
+   set.seed(1000)
    n = 1000
    p = 6
    X = matrix(rnorm(n*p), n, p)
@@ -137,6 +146,7 @@ test_that("local linear causal forests with large lambda are equivalent to causa
 
 
 test_that("predictions are invariant to scaling of the sample weights.", {
+   set.seed(1000)
    n = 100
    p = 6
    X = matrix(rnorm(n*p), n, p)
@@ -153,6 +163,7 @@ test_that("predictions are invariant to scaling of the sample weights.", {
 })
 
 test_that("IPCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {
+   set.seed(1000)
    n = 800
    p = 2
    X = matrix(rnorm(n*p), n, p)
@@ -176,6 +187,7 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
 })
 
 test_that("Weighting is roughly equivalent to replication of samples", {
+  set.seed(1000)
   n = 500
   p = 2
   num.trees = 1000

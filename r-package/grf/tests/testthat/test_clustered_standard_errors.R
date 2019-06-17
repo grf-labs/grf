@@ -3,6 +3,7 @@ library(grf)
 set.seed(4321)
 
 test_that("Clustered standard errors are greater than unclustered", {
+	set.seed(1000)
   n <- 200
   p <- 4
   cluster_size <- 10
@@ -64,6 +65,7 @@ test_that("Clustered standard errors are greater than unclustered", {
 })
 
 test_that("Clustered predictions are reasonable with unevenly sized clusters", {
+	set.seed(1000)
   n <- 200
   p <- 4
   cluster_size <- 10

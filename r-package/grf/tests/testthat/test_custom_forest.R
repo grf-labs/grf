@@ -1,6 +1,7 @@
 library(grf)
 
 test_that("custom forests behave as expected", {
+  set.seed(1000)
 	p = 40
 	n = 500
 
@@ -14,14 +15,15 @@ test_that("custom forests behave as expected", {
 })
 
 test_that("custom forest prediction is of correct size", {
+  set.seed(1000)
   p = 40
   n = 500
   X = matrix(2 * runif(n * p) - 1, n, p)
   Y = rnorm(n) * (1 + (X[,1] > 0))
-  
+
   n_test = 50
   X_test = matrix(2 * runif(n_test * p) - 1, n_test, p)
-  
+
   forest = custom_forest(seed=1000, X, Y)
   predictions = predict(forest, X_test)
   expect_length(predictions, n_test)

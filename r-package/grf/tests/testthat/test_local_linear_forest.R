@@ -3,6 +3,7 @@ library(grf)
 set.seed(1234)
 
 test_that("local linear prediction gives reasonable estimates", {
+    set.seed(1000)
     f = function(x){x[1] + 2*x[2] + 2*x[3]**2}
     n = 600
     p = 5
@@ -34,6 +35,7 @@ test_that("local linear prediction gives reasonable estimates", {
 })
 
 test_that("linear correction variables function as expected", {
+    set.seed(1000)
     f = function(x){x[1] + 2*x[2] + 2*x[3]**2}
     n = 400
     p = 20
@@ -52,6 +54,7 @@ test_that("linear correction variables function as expected", {
 })
 
 test_that("local linear forest tuning returns lambda and decreases prediction error", {
+    set.seed(1000)
     n = 400
     p = 5
     sigma = 5
@@ -78,6 +81,7 @@ test_that("local linear forest tuning returns lambda and decreases prediction er
 })
 
 test_that("default local linear forest predict and regression forest predict with local.linear = TRUE are the same", {
+    set.seed(1000)
     n = 400
     p = 5
     sigma = 1
@@ -100,6 +104,7 @@ test_that("default local linear forest predict and regression forest predict wit
 })
 
 test_that("local linear predict returns local linear predictions even without tuning parameters", {
+    set.seed(1000)
     n = 50
     p = 5
     sigma = 1
@@ -118,6 +123,7 @@ test_that("local linear predict returns local linear predictions even without tu
 })
 
 test_that("local linear confidence intervals have reasonable coverage", {
+    set.seed(1000)
     mu = function(x){log(1+exp(6*x))}
 
     n = 400
@@ -143,6 +149,7 @@ test_that("local linear confidence intervals have reasonable coverage", {
 
 
 test_that("local linear confidence intervals match regression forest with large lambda", {
+    set.seed(1000)
     mu = function(x){log(1+exp(6*x))}
 
     n = 80
@@ -164,6 +171,7 @@ test_that("local linear confidence intervals match regression forest with large 
 })
 
 test_that("local linear predictions are correct without noise", {
+  set.seed(1000)
   n = 80
   p = 2
 
@@ -181,6 +189,7 @@ test_that("local linear predictions are correct without noise", {
 })
 
 test_that("prediction with and without CIs are the same", {
+  set.seed(1000)
   n = 200
   p = 4
 
@@ -196,6 +205,7 @@ test_that("prediction with and without CIs are the same", {
 })
 
 test_that("output of tune local linear forest is consistent with prediction output", {
+  set.seed(1000)
   n = 200
   p = 4
 

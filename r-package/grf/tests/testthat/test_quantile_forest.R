@@ -1,6 +1,7 @@
 library(grf)
 
 test_that("quantile forests have reasonable split frequencies", {
+    set.seed(1000)
     p = 10
     n = 500
     i = 5
@@ -13,6 +14,7 @@ test_that("quantile forests have reasonable split frequencies", {
 })
 
 test_that("quantile forests with regression splitting are identical to regression forests", {
+    set.seed(1000)
     p = 10
     n = 500
     i = 5
@@ -32,6 +34,7 @@ test_that("quantile forests with regression splitting are identical to regressio
 })
 
 test_that("quantile forest predictions are positive given positive outcomes", {
+    set.seed(1000)
     p = 10
     n = 500
     i = 5
@@ -46,6 +49,7 @@ test_that("quantile forest predictions are positive given positive outcomes", {
 
 test_that("quantile forest predictions for 90th percentile are strongly positively correlated
                      with covariate strongly positively correlated with Y", {
+    set.seed(1000)
     p = 10
     n = 500
     i = 5

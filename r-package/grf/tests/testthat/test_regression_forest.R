@@ -1,7 +1,5 @@
 library(grf)
 
-set.seed(1234)
-
 extract_samples <- function(tree) {
 
   # Keep only leaf nodes
@@ -18,6 +16,7 @@ extract_samples <- function(tree) {
 }
 
 test_that("changing honest.fraction behaves as expected", {
+  set.seed(1000)
   sample_fraction_1 = 0.5
   honesty_fraction_1 = 0.25
 
@@ -46,6 +45,7 @@ test_that("changing honest.fraction behaves as expected", {
 })
 
 test_that("regression variance estimates are positive", {
+    set.seed(1000)
     p = 6
     n = 1000
 
@@ -77,6 +77,7 @@ test_that("regression variance estimates are positive", {
 })
 
 test_that("using a sparse data representation produces the same predictions", {
+    set.seed(1000)
     dim = 20
     X = diag(rnorm(dim), dim)
     sparse.X = as(X, "dgCMatrix")
@@ -92,6 +93,7 @@ test_that("using a sparse data representation produces the same predictions", {
 })
 
 test_that("OOB predictions contain debiased error estimates", {
+    set.seed(1000)
     p = 6
     n = 10
 
@@ -105,6 +107,7 @@ test_that("OOB predictions contain debiased error estimates", {
 })
 
 test_that("regression forests with a positive imbalance.penalty have reasonable tree depths", {
+    set.seed(1000)
     n = 100
     p = 10
     X = matrix(rnorm(n*p), n, p)
@@ -116,6 +119,7 @@ test_that("regression forests with a positive imbalance.penalty have reasonable 
 })
 
 test_that("regression forests with a very small imbalance.penalty behave similarly to unpenalized forests.", {
+    set.seed(1000)
     n <- 200
     p <- 5
     X <- matrix(rnorm(n * p), n, p)
@@ -131,6 +135,7 @@ test_that("regression forests with a very small imbalance.penalty behave similar
 })
 
 test_that("variance estimates are positive [with sample weights]", {
+    set.seed(1000)
     n <- 1000
     p <- 2
     X <- matrix(rnorm(n * p), n, p)
@@ -144,6 +149,7 @@ test_that("variance estimates are positive [with sample weights]", {
 })
 
 test_that("debiased errors are smaller than raw errors [with sample weights]", {
+    set.seed(1000)
     n <- 1000
     p <- 2
     X <- matrix(rnorm(n * p), n, p)
@@ -157,6 +163,7 @@ test_that("debiased errors are smaller than raw errors [with sample weights]", {
 })
 
 test_that("predictions are invariant to scaling of the sample weights.", {
+    set.seed(1000)
     n <- 1000
     p <- 2
     X <- matrix(rnorm(n * p), n, p)
@@ -171,6 +178,7 @@ test_that("predictions are invariant to scaling of the sample weights.", {
 })
 
 test_that("sample weighting in the training of a regression forest improves its sample-weighted MSE.", {
+    set.seed(1000)
     n <- 1000
     p <- 2
     X <- matrix(rnorm(n * p), n, p)
@@ -186,6 +194,7 @@ test_that("sample weighting in the training of a regression forest improves its 
 })
 
 test_that("inverse propensity weighting in the training of a regression forest with missing data improves its complete-data MSE.", {
+    set.seed(1000)
     n <- 1000
     p <- 2
     X <- matrix(rnorm(n * p), n, p)

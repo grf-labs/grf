@@ -1,4 +1,5 @@
 test_that("causal forest tuning decreases prediction error", {
+	  set.seed(1000)
     p = 4
     n = 1000
 
@@ -19,6 +20,7 @@ test_that("causal forest tuning decreases prediction error", {
 })
 
 test_that("causal forest tuning only cross-validates null parameters", {
+	  set.seed(1000)
     p = 6
     n = 100
 
@@ -40,6 +42,7 @@ test_that("causal forest tuning only cross-validates null parameters", {
 })
 
 test_that("local linear causal forest tuning returns lambda and decreases error", {
+	 set.seed(1000)
    p = 6
    n = 1000
 
@@ -65,6 +68,7 @@ test_that("local linear causal forest tuning returns lambda and decreases error"
 })
 
 test_that("output of tune local linear causal forest is consistent with prediction output", {
+	set.seed(1000)
   p = 4
   n = 200
 

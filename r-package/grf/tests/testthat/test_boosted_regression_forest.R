@@ -1,8 +1,7 @@
 library(grf)
 
-set.seed(1)
-
 test_that("Boosted regression forest improves performance vs regular forest", {
+	set.seed(1000)
   n <- 500; p <- 6
   X <- matrix(runif(n * p), n, p)
   mu <- 2 * X[,1] * X[,2] + 3 * X[,3] + 4 * X[,4]
@@ -19,6 +18,7 @@ test_that("Boosted regression forest improves performance vs regular forest", {
 })
 
 test_that("Boosted forest takes user specified number of steps",  {
+	set.seed(1000)
   n <- 100; p <- 6
   X <- matrix(runif(n * p), n, p)
   mu <- 2 * X[,1] * X[,2] + 3 * X[,3] + 4 * X[,4]
@@ -28,6 +28,7 @@ test_that("Boosted forest takes user specified number of steps",  {
 })
 
 test_that("boost.error.reduction validation works", {
+	set.seed(1000)
   n<-200; p<-6
   X <- matrix(runif(n * p), n, p)
   mu <- 2 * X[,1]^2 * X[,2] + 3 * X[,3] + 4 * X[,4]
@@ -36,6 +37,7 @@ test_that("boost.error.reduction validation works", {
 })
 
 test_that("OOB prediction is close to actual out of sample error", {
+	set.seed(1000)
   n<-4000; p<-6
   X <- matrix(runif(n * p), n, p)
   mu <- 2 * X[,1]^2 * X[,2] + 3 * X[,3] + 4 * X[,4]

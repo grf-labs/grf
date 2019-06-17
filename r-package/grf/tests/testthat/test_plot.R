@@ -1,5 +1,6 @@
 #' @importFrom utils capture.output
 test_that("basic quantile forest plotting is successful", {
+  set.seed(1000)
   p = 4
   n = 50
   i = 2
@@ -13,6 +14,7 @@ test_that("basic quantile forest plotting is successful", {
 })
 
 test_that("basic regression forest plotting is successful", {
+  set.seed(1000)
   p = 4
   n = 50
   i = 2
@@ -26,6 +28,7 @@ test_that("basic regression forest plotting is successful", {
 })
 
 test_that("large regression forest plotting is successful", {
+  set.seed(1000)
   p = 4
   n = 500
   i = 2

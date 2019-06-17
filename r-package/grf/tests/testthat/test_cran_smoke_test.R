@@ -2,6 +2,7 @@ library(grf)
 set.seed(1234)
 
 test_that("regression forest split frequencies are reasonable", {
+  set.seed(1000)
 	n = 100
 	p = 6
 	X = matrix(rnorm(n*p), n, p)
@@ -12,6 +13,7 @@ test_that("regression forest split frequencies are reasonable", {
 })
 
 test_that("causal forests give reasonable estimates", {
+  	set.seed(1000)
     p = 6
     n = 1000
 
@@ -20,7 +22,7 @@ test_that("causal forests give reasonable estimates", {
     xvals = seq(-1, 1, length.out = ticks)
     X.test[,1] = xvals
     truth = 2 * (xvals > 0)
-    
+
     X = matrix(2 * runif(n * p) - 1, n, p)
     W = rbinom(n, 1, 0.5)
     Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)

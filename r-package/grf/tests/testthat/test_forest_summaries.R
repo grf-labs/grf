@@ -1,8 +1,8 @@
 library(grf)
 
-set.seed(1234)
 
 test_that("causal forest calibration is reasonable", {
+    set.seed(1000)
     n = 800; p = 4
     X = matrix(rnorm(n*p), n, p)
     W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
@@ -13,28 +13,30 @@ test_that("causal forest calibration is reasonable", {
                        Y.hat = pmax(X[,1], 0) * (0.5 * (X[,1] > 0) - 0.5),
                        num.trees = 500)
     tc = test_calibration(cf)
-    
+
     expect_true(abs(tc[1,1] - 1) <= 0.4)
     expect_true(abs(tc[2,1] - 1) <= 0.4)
 })
 
 test_that("causal forest calibration is reasonable with no average effect", {
+  set.seed(1000)
   n = 800; p = 4
   X = matrix(rnorm(n*p), n, p)
   W = rnorm(n, 1, 0.5)
   Y = sign(X[,1]) * (W - 0.5) + rnorm(n)
-  
+
   cf = causal_forest(seed=1000, X, Y, W,
                      W.hat = 0.5,
                      Y.hat = 0,
                      num.trees = 500)
   tc = test_calibration(cf)
-  
+
   expect_true(abs(tc[1,3]) <= 3)
   expect_true(abs(tc[2,1] - 1) <= 0.3)
 })
 
 test_that("causal forest calibration is reasonable with no heterogeneous effect", {
+  set.seed(1000)
   n = 800; p = 4
   X = matrix(rnorm(n*p), n, p)
   W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
@@ -51,6 +53,7 @@ test_that("causal forest calibration is reasonable with no heterogeneous effect"
 })
 
 test_that("causal forest calibration is reasonable with no heterogeneous effect with sample weights and clusters", {
+  set.seed(1000)
   p = 4
   K = 100
   cluster.sizes = pmax(20, round(40+3*rt(K, df=3)))
@@ -79,41 +82,44 @@ test_that("causal forest calibration is reasonable with no heterogeneous effect 
 })
 
 test_that("regression forest calibration is reasonable", {
+  set.seed(1000)
   n = 100; p = 4
   X = matrix(rnorm(n*p), n, p)
   Y = 5 + 5 * sign(X[,1]) + rnorm(n)
-  
+
   rf = regression_forest(seed=1000, X, Y)
   tc = test_calibration(rf)
-  
+
   expect_true(abs(tc[1,1] - 1) <= 0.1)
   expect_true(abs(tc[2,1] - 1) <= 0.2)
 })
 
 test_that("regression forest calibration is reasonable with no heterogeneous effect", {
+  set.seed(1000)
   n = 100; p = 4
   X = matrix(rnorm(n*p), n, p)
   Y = 5 + rnorm(n)
-  
+
   rf = regression_forest(seed=1000, X, Y)
   tc = test_calibration(rf)
-  
+
   expect_true(abs(tc[1,1] - 1) <= 0.1)
   expect_true(abs(tc[2,3]) <= 4)
 })
 
 test_that("causal forest calibration works with clusters", {
+  set.seed(1000)
   n = 100; p = 4
   X = matrix(rnorm(n*p), n, p)
   W = rbinom(n, 1, 0.25 + 0.5 * (X[,1] > 0))
   Y = pmax(X[,2], 0) + W + rnorm(n)
-  
+
   cf = causal_forest(seed=1000, X, Y, W,
                      W.hat = 0.25 + 0.5 * (X[,1] > 0),
                      Y.hat = 0.25 + 0.5 * (X[,1] > 0) + pmax(X[,2], 0),
                      num.trees = 100)
   tc = test_calibration(cf)
-  
+
   cf.clust = cf
   cf.clust$W.orig = c(cf$W.orig[1:(n/2)], rep(cf$W.orig[n/2 + 1:(n/2)], 10))
   cf.clust$Y.orig = c(cf$Y.orig[1:(n/2)], rep(cf$Y.orig[n/2 + 1:(n/2)], 10))
@@ -124,6 +130,6 @@ test_that("causal forest calibration works with clusters", {
   cf.clust$excess.error = c(cf$excess.error[1:(n/2)], rep(cf$excess.error[n/2 + 1:(n/2)], 10))
   cf.clust$clusters = c(1:(n/2), rep(n/2 + 1:(n/2), 10))
   tc.clust = test_calibration(cf.clust)
-  
+
   expect_equal(tc[,1:3], tc.clust[,1:3])
 })

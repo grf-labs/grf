@@ -1,8 +1,7 @@
 library(grf)
 
-set.seed(1000)
-
 test_that("average effects are translation invariant", {
+	set.seed(1000)
 	p = 6
 	n = 200
 	X = matrix(2 * runif(n * p) - 1, n, p)
@@ -48,6 +47,7 @@ test_that("average effects are translation invariant", {
 })
 
 test_that("average treatment effect estimates are reasonable", {
+	set.seed(1000)
   p = 6
   n = 2000
   X = matrix(2 * runif(n * p) - 1, n, p)
@@ -121,6 +121,7 @@ test_that("average treatment effect estimates are reasonable", {
 })
 
 test_that("average partial effect estimates are reasonable", {
+	set.seed(1000)
   p = 6
   n = 1000
   X = matrix(2 * runif(n * p) - 1, n, p)
@@ -135,7 +136,7 @@ test_that("average partial effect estimates are reasonable", {
 })
 
 test_that("average treatment effects larger example works", {
-
+	set.seed(1000)
   n = 4000
   p = 10
 
@@ -168,7 +169,7 @@ test_that("average treatment effects larger example works", {
 })
 
 test_that("average partial effects larger example works", {
-
+	set.seed(1000)
   n = 4000
   p = 10
 
@@ -188,7 +189,7 @@ test_that("average partial effects larger example works", {
 })
 
 test_that("average treatment effect with overlap: larger example works", {
-
+	set.seed(1000)
   n = 4000
   p = 10
 
@@ -209,6 +210,7 @@ test_that("average treatment effect with overlap: larger example works", {
 })
 
 test_that("cluster robust average effects are consistent", {
+	set.seed(1000)
   p = 6
   n = 400
 
@@ -253,7 +255,7 @@ test_that("cluster robust average effects are consistent", {
 })
 
 test_that("cluster robust average effects do weighting correctly", {
-
+	set.seed(1000)
   t0 = 2
   K = 400
   n = 11 * K
@@ -290,6 +292,7 @@ test_that("cluster robust average effects do weighting correctly", {
 })
 
 test_that("cluster robust average effects do weighting correctly with IPCC weights", {
+	set.seed(1000)
   t0 = 2; t1 = 3
   K = 100
   p = 4
@@ -342,6 +345,7 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
 })
 
 test_that("average effect estimation doesn't error on data with a single feature", {
+	set.seed(1000)
   p = 1; n = 100
 
   X = matrix(rnorm(n * p), n, p)

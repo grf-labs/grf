@@ -1,4 +1,5 @@
 test_that("regression forest tuning decreases prediction error", {
+  set.seed(1000)
 	n = 5000
 	p = 2
 
@@ -10,15 +11,16 @@ test_that("regression forest tuning decreases prediction error", {
 	forest = regression_forest(seed=1000, X, Y, num.trees = 400, tune.parameters = FALSE)
 	preds = predict(forest, X.test)
 	error = mean((preds$predictions - truth)^2)
-	
+
 	tuned.forest = regression_forest(seed=1000, X, Y, num.trees = 400, tune.parameters= TRUE)
 	tuned.preds = predict(tuned.forest, X.test)
 	tuned.error = mean((tuned.preds$predictions - truth)^2)
-	
+
 	expect_true(tuned.error < error * 0.75)
 })
 
 test_that("regression forest tuning only cross-validates null parameters", {
+  set.seed(1000)
 	n = 5000
 	p = 2
 
