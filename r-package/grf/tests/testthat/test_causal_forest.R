@@ -1,6 +1,6 @@
 library(grf)
-
-set.seed(3141)
+library(testthat)
+set.seed(12345)
 
 test_that("causal forests can split on the last parameter", {
     n = 1000

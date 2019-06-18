@@ -1,4 +1,6 @@
 library(grf)
+library(testthat)
+set.seed(12345)
 
 test_that("Merged regression forest attributes are sensible", {
   # Train regression forests

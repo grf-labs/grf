@@ -1,6 +1,6 @@
 library(grf)
-
-set.seed(1234)
+library(testthat)
+set.seed(12345)
 
 test_that("regression error estimates are reasonable", {
 	p = 3

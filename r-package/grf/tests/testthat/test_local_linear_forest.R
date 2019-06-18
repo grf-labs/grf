@@ -1,6 +1,6 @@
 library(grf)
-
-set.seed(1234)
+library(testthat)
+set.seed(12345)
 
 test_that("local linear prediction gives reasonable estimates", {
     f = function(x){x[1] + 2*x[2] + 2*x[3]**2}

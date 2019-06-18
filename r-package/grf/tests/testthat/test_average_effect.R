@@ -1,6 +1,6 @@
 library(grf)
-
-set.seed(1000)
+library(testthat)
+set.seed(12345)
 
 test_that("average effects are translation invariant", {
 	p = 6

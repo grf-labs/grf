@@ -1,6 +1,6 @@
 library(grf)
-
-set.seed(1)
+library(testthat)
+set.seed(12345)
 
 test_that("Boosted regression forest improves performance vs regular forest", {
   n <- 500; p <- 6
