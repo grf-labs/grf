@@ -1,16 +1,13 @@
 library(grf)
-library(testthat)
-
 
 test_that("Merged regression forest attributes are sensible", {
-  set.seed(1000)
   # Train regression forests
   n = 50; p = 2
   X = matrix(rnorm(n*p), n, p)
   Y = X[,1] * rnorm(n)
   W = X[,2] > 0
-  r.forest1 = regression_forest(seed=1000, X, Y, compute.oob.predictions = FALSE, num.trees = 10)
-  r.forest2 = regression_forest(seed=1000, X, Y, compute.oob.predictions = FALSE, num.trees = 10)
+  r.forest1 = regression_forest(X, Y, compute.oob.predictions = FALSE, num.trees = 10)
+  r.forest2 = regression_forest(X, Y, compute.oob.predictions = FALSE, num.trees = 10)
 
   # Join the forests together.
   big.rf = merge_forests(list(r.forest1, r.forest2))
@@ -22,14 +19,13 @@ test_that("Merged regression forest attributes are sensible", {
 })
 
 test_that("Merged causal forest attributes are sensible", {
-  set.seed(1000)
   # Train causal forests
   n = 50; p = 2
   X = matrix(rnorm(n*p), n, p)
   Y = X[,1] * rnorm(n)
   W = X[,2] > 0
-  c.forest1 = causal_forest(seed=1000, X, Y, W, compute.oob.predictions = FALSE, num.trees = 10)
-  c.forest2 = causal_forest(seed=1000, X, Y, W, compute.oob.predictions = FALSE, num.trees = 10)
+  c.forest1 = causal_forest(X, Y, W, compute.oob.predictions = FALSE, num.trees = 10)
+  c.forest2 = causal_forest(X, Y, W, compute.oob.predictions = FALSE, num.trees = 10)
 
   # Join the forests together.
   big.rf = merge_forests(list(c.forest1, c.forest2))
@@ -45,17 +41,16 @@ test_that("Merged causal forest attributes are sensible", {
 
 
 test_that("Merged causal forests give reasonable predictions", {
-  set.seed(1000)
   n = 50; p = 2
   X = matrix(rnorm(n*p), n, p)
   Y = X[,1] * rnorm(n)
   W = X[,2] > 0
 
   # Train a causal forest.
-  c.forest1 = causal_forest(seed=1000, X, Y, W, num.trees = 100)
+  c.forest1 = causal_forest(X, Y, W, num.trees = 100)
 
   # Train another forest and merge it into the first.
-  c.forest2 = causal_forest(seed=1000, X, Y, W, num.trees = 100)
+  c.forest2 = causal_forest(X, Y, W, num.trees = 100)
   big.rf = merge_forests(list(c.forest1, c.forest2))
 
   preds = predict(c.forest1)
@@ -71,18 +66,17 @@ test_that("Merged causal forests give reasonable predictions", {
 })
 
 test_that("Incompatible forests are not mergeable", {
-  set.seed(1000)
   # Train causal forests
   n = 50; p = 2
   X = matrix(rnorm(n*p), n, p)
   Y = X[,1] * rnorm(n)
   W = X[,2] > 0
 
-  c.forest1 = causal_forest(seed=1000, X, Y, W, compute.oob.predictions = FALSE, num.trees = 10,
+  c.forest1 = causal_forest(X, Y, W, compute.oob.predictions = FALSE, num.trees = 10,
                             ci.group.size=3)
-  c.forest2 = causal_forest(seed=1000, X, Y, W, compute.oob.predictions = FALSE, num.trees = 10,
+  c.forest2 = causal_forest(X, Y, W, compute.oob.predictions = FALSE, num.trees = 10,
                             ci.group.size=4)
-  r.forest1 = regression_forest(seed=1000, X, Y, ci.group.size=3)
+  r.forest1 = regression_forest(X, Y, ci.group.size=3)
 
   #  Empty input
   expect_error(merge_forests(list()))

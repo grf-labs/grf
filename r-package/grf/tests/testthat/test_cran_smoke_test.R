@@ -1,19 +1,18 @@
 library(grf)
+set.seed(1234)
 
 test_that("regression forest split frequencies are reasonable", {
-  set.seed(1000)
 	n = 100
 	p = 6
 	X = matrix(rnorm(n*p), n, p)
 	Y = 1000 * (X[,1]) + rnorm(n)
-	rrr = regression_forest(seed=1000, X, Y, mtry = p)
+	rrr = regression_forest(X, Y, mtry = p)
 	freq = split_frequencies(rrr, 4)
 	expect_true(freq[1,1] / sum(freq[1,]) > 1/2)
 })
 
 test_that("causal forests give reasonable estimates", {
-  	set.seed(1000)
-    p = 3
+    p = 6
     n = 1000
 
     ticks = 101
@@ -21,12 +20,12 @@ test_that("causal forests give reasonable estimates", {
     xvals = seq(-1, 1, length.out = ticks)
     X.test[,1] = xvals
     truth = 2 * (xvals > 0)
-
+    
     X = matrix(2 * runif(n * p) - 1, n, p)
     W = rbinom(n, 1, 0.5)
     Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)
 
-    forest.causal = causal_forest(seed=1000, X, Y, W, num.trees = 2000,
+    forest.causal = causal_forest(X, Y, W, num.trees = 2000,
                                   ci.group.size = 4, W.hat = 0.5,
                                   compute.oob.predictions = FALSE)
     preds.causal.oob = predict(forest.causal, estimate.variance=TRUE)

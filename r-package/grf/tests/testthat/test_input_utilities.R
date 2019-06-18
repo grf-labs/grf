@@ -56,12 +56,12 @@ test_that("an observation matrix with 1 column is accepted", {
 })
 
 test_that("create_data_matrices handles data.frame, matrix, sparse and NULL inputs equally", {
-
+  
   Xm = matrix(rnorm(100), 20, 5)
   Xd = as.data.frame(Xm)
   Xs = Matrix(Xm, sparse = T)
   Y = matrix(rnorm(20))
-
+  
   data1_d = create_data_matrices(Xd)
   data1_m = create_data_matrices(Xm)
   data1_s = create_data_matrices(Xs)
@@ -71,8 +71,8 @@ test_that("create_data_matrices handles data.frame, matrix, sparse and NULL inpu
   data3_d = create_data_matrices(Xd, Y, NULL)
   data3_m = create_data_matrices(Xm, Y, NULL)
   data3_s = create_data_matrices(Xs, Y, NULL)
-
-  # Checking for equality of elements
+  
+  # Checking for equality of elements 
   # (note expect_equal does not work here)
   expect_true(all(data1_d$default == data1_m$default))
   expect_true(all(data1_s$sparse == data1_m$default))
