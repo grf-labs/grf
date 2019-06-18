@@ -65,7 +65,7 @@ const Forest ForestTrainer::train(const Data* data,
     futures.push_back(std::async(std::launch::async,
                                  &ForestTrainer::train_batch,
                                  this,
-                                 start_index,
+                                 i,  // start index
                                  num_trees_batch,
                                  data,
                                  options));
@@ -75,7 +75,6 @@ const Forest ForestTrainer::train(const Data* data,
     std::vector<std::shared_ptr<Tree>> thread_trees = future.get();
     trees.insert(trees.end(), thread_trees.begin(), thread_trees.end());
   }
-
   return Forest::create(trees, options, data);
 }
 
@@ -87,7 +86,6 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
   size_t ci_group_size = options.get_ci_group_size();
 
   std::mt19937_64 random_number_generator(options.get_random_seed() + start);
-  std::uniform_int_distribution<uint> udist;
   std::vector<std::shared_ptr<Tree>> trees;
 
   if (ci_group_size == 1) {
@@ -97,7 +95,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
   }
 
   for (size_t i = 0; i < num_trees; i++) {
-    uint tree_seed = udist(random_number_generator);
+    uint tree_seed = random_number_generator();
     RandomSampler sampler(tree_seed, options.get_sampling_options());
 
     if (ci_group_size == 1) {
