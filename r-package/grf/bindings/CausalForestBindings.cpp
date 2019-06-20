@@ -136,7 +136,8 @@ Rcpp::List ll_causal_predict(Rcpp::List forest,
                                  std::vector<double> lambdas,
                                  bool use_weighted_penalty,
                                  std::vector<size_t> linear_correction_variables,
-                                 unsigned int num_threads) {
+                                 unsigned int num_threads,
+                                 bool estimate_variance) {
   Data* test_data = RcppUtilities::convert_data(input_data, sparse_input_data);
   Data* train_data = RcppUtilities::convert_data(training_data, sparse_training_data);
 
@@ -148,7 +149,7 @@ Rcpp::List ll_causal_predict(Rcpp::List forest,
 
   ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, lambdas, use_weighted_penalty,
                                                                  linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict(deserialized_forest, train_data, test_data, false);
+  std::vector<Prediction> predictions = predictor.predict(deserialized_forest, train_data, test_data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   delete train_data;
@@ -165,7 +166,8 @@ Rcpp::List ll_causal_predict_oob(Rcpp::List forest,
                                      std::vector<double> lambdas,
                                      bool use_weighted_penalty,
                                      std::vector<size_t> linear_correction_variables,
-                                     unsigned int num_threads) {
+                                     unsigned int num_threads,
+                                     bool estimate_variance) {
   Data* data = RcppUtilities::convert_data(input_data, sparse_input_data);
 
   data->set_outcome_index(outcome_index - 1);
@@ -176,7 +178,7 @@ Rcpp::List ll_causal_predict_oob(Rcpp::List forest,
 
   ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads, lambdas, use_weighted_penalty,
                                                                  linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   delete data;

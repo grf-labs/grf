@@ -18,10 +18,12 @@
 
 #include <cstddef>
 #include <unordered_map>
+#include "Eigen/Dense"
 #include "commons/DefaultData.h"
 #include "prediction/Prediction.h"
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
+#include "ObjectiveBayesDebiaser.h"
 
 class LLCausalPredictionStrategy: public DefaultPredictionStrategy {
 public:
@@ -51,6 +53,7 @@ private:
     std::vector<double> lambdas;
     bool weight_penalty;
     std::vector<size_t> linear_correction_variables;
+    ObjectiveBayesDebiaser bayes_debiaser;
 };
 
 #endif //GRF_LLCAUSALPREDICTIONSTRATEGY_H

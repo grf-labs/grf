@@ -222,4 +222,3 @@ test_that("Weighting is roughly equivalent to replication of samples", {
                             predict(causal.forest.weight, X[test,], estimate.variance = TRUE)) <= 1) >= .5)
   expect_true(mean(predict(causal.forest.rep, X[test,]) > 100 + predict(causal.forest.biased, X[test,])) >= .5)
 })
-

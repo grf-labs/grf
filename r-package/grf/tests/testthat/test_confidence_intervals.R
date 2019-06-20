@@ -93,3 +93,19 @@ test_that("instrumental CIs are invariant to scaling Z", {
   kst = ks.test(error.standardized, error.standardized.iv)
   expect_true(kst$statistic <= 0.05)
 })
+
+test_that("LL causal CIs are reasonable", {
+   n = 1000
+   n.test = 1000
+   p = 6
+   X = matrix(rnorm(n*p), n, p)
+   W = rbinom(n, 1, 0.5)
+   TAU = 2*X[,1] + X[,2]
+   Y = W * TAU + 0.5 * rnorm(n)
+
+   forest = causal_forest(X, Y, W)
+   tau.hat = predict(forest, linear.correction.variables = 1:ncol(X), estimate.variance = TRUE)
+   error.standardized = (tau.hat$predictions - TAU) / sqrt(tau.hat$variance.estimates)
+
+   expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.16)
+})
