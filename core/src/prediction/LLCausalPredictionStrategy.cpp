@@ -175,7 +175,6 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
 
   size_t dim_X = 2 * num_variables + 2;
   Eigen::MatrixXd X (num_nonzero_weights, dim_X);
-  //Eigen::MatrixXd X_alone(num_nonzero_weights, num_variables + 1);
   Eigen::MatrixXd Y (num_nonzero_weights, 1);
   size_t treatment_index = num_variables + 1;
 
@@ -195,8 +194,6 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
       // X - x0 column
       X(i,j+1) = test_data->get(sampleID, current_predictor)
                  - original_data->get(index, current_predictor);
-      //X_alone(i,j+1) = test_data->get(sampleID, current_predictor)
-       //          - original_data->get(index, current_predictor);
 
       // (X - x0)*W column
       X(i, treatment_index + j + 1) = X(i, j+1) * treatment;
@@ -236,17 +233,16 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
 
   Eigen::VectorXd theta = M.ldlt().solve(X.transpose()*weights_vec.asDiagonal()*Y);
 
-  Eigen::VectorXd e_one = Eigen::VectorXd::Zero(dim_X);
-  e_one(0) = 1.0;
-  Eigen::VectorXd zeta = M.ldlt().solve(e_one);
+  Eigen::VectorXd e_trt = Eigen::VectorXd::Zero(dim_X);
+  e_trt(treatment_index) = 1.0;
+  Eigen::VectorXd zeta = M.ldlt().solve(e_trt);
 
-  //Eigen::VectorXd X_times_zeta = X_alone * zeta;
   Eigen::VectorXd X_times_zeta = X * zeta;
   Eigen::VectorXd local_prediction = X * theta;
   Eigen::VectorXd pseudo_residual = Eigen::VectorXd::Zero(num_nonzero_weights);
 
   for (size_t i = 0; i < num_nonzero_weights; i++) {
-    pseudo_residual(i) = X_times_zeta(i) * (Y(i) - local_prediction(i,1) - local_prediction(i, treatment_index));
+    pseudo_residual(i) = X_times_zeta(i) * (Y(i) - local_prediction(i,1) - X(i, treatment_index)*local_prediction(i, treatment_index));
   }
 
   double num_good_groups = 0;
