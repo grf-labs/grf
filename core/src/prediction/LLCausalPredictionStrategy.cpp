@@ -93,8 +93,10 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
       // X - x0 column
-      X(i,j+1) = test_data->get(sampleID, current_predictor)
-                 - original_data->get(index, current_predictor);
+      //X(i,j+1) = test_data->get(sampleID, current_predictor)
+      //           - original_data->get(index, current_predictor);
+      X(i,j+1) = original_data->get(index, current_predictor) -
+                    test_data->get(sampleID, current_predictor);
       // (X - x0)*W column
       X(i, treatment_index + j + 1) = X(i, j+1) * treatment;
     }
@@ -192,8 +194,8 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
       // X - x0 column
-      X(i,j+1) = test_data->get(sampleID, current_predictor)
-                 - original_data->get(index, current_predictor);
+      X(i,j+1) = original_data->get(index, current_predictor) -
+                 test_data->get(sampleID, current_predictor);
 
       // (X - x0)*W column
       X(i, treatment_index + j + 1) = X(i, j+1) * treatment;
