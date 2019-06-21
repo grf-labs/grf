@@ -107,7 +107,7 @@ test_that("LL causal CIs are reasonable", {
    tau.hat = predict(forest, linear.correction.variables = 1:ncol(X), estimate.variance = TRUE)
    error.standardized = (tau.hat$predictions - TAU) / sqrt(tau.hat$variance.estimates)
 
-   expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.16)
+   expect_lt(mean(abs(error.standardized) > qnorm(0.975)), 0.16)
 
    X.test = matrix(rnorm(n.test*p), n.test, p)
    TAU.test = 2*X.test[,1] + X.test[,2]
@@ -115,5 +115,5 @@ test_that("LL causal CIs are reasonable", {
    tau.hat.test = predict(forest, X.test, linear.correction.variables = 1:ncol(X), estimate.variance = TRUE)
    error.standardized.test = (tau.hat.test$predictions - TAU.test) / sqrt(tau.hat.test$variance.estimates)
 
-   expect_true(mean(abs(error.standardized.test) > qnorm(0.975)) <= 0.16)
+   expect_lt(mean(abs(error.standardized.test) > qnorm(0.975)), 0.16)
 })
