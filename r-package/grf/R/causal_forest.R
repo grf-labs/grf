@@ -152,18 +152,19 @@ causal_forest <- function(X, Y, W,
     clusters <- validate_clusters(clusters, X)
     samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
     honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
+    num.trees.orthog <- max(50, num.trees / 4)
 
     reduced.form.weight <- 0
 
     if (is.null(Y.hat) && !orthog.boosting) {
       forest.Y <- regression_forest(X, Y, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-                                    num.trees = max(50, num.trees / 4), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
       Y.hat <- predict(forest.Y)$predictions
     } else if (is.null(Y.hat) && orthog.boosting) {
       forest.Y <- boosted_regression_forest(X, Y, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-                                    num.trees = max(50, num.trees / 4), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
       Y.hat <- predict(forest.Y)$predictions
@@ -175,14 +176,14 @@ causal_forest <- function(X, Y, W,
 
     if (is.null(W.hat) && !orthog.boosting) {
       forest.W <- regression_forest(X, W, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-                                    num.trees = max(50, num.trees / 4), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
       W.hat <- predict(forest.W)$predictions
 
     } else if (is.null(W.hat) && orthog.boosting) {
       forest.W <- boosted_regression_forest(X, W, sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry, tune.parameters = tune.parameters,
-                                    num.trees = max(50, num.trees / 4), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
+                                    num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
                                     honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
                                     clusters = clusters, samples.per.cluster = samples.per.cluster);
       W.hat <- predict(forest.W)$predictions
