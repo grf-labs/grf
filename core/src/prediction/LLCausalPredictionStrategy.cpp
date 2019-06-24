@@ -39,7 +39,7 @@ LLCausalPredictionStrategy::LLCausalPredictionStrategy(std::vector<double> lambd
 std::vector<double> LLCausalPredictionStrategy::predict(
         size_t sampleID,
         const std::unordered_map<size_t, double>& weights_by_sampleID,
-        const Data *original_data,
+        const Data *train_data,
         const Data *test_data) {
 
   // Number of predictor variables to use in local linear regression step
@@ -84,7 +84,7 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
     // Index of next neighbor with nonzero weights
     size_t index = indices[i];
-    double treatment = original_data->get_treatment(index);
+    double treatment = train_data->get_treatment(index);
 
     // Intercept
     X(i, 0) = 1;
@@ -93,9 +93,7 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
       // X - x0 column
-      //X(i,j+1) = test_data->get(sampleID, current_predictor)
-      //           - original_data->get(index, current_predictor);
-      X(i,j+1) = original_data->get(index, current_predictor) -
+      X(i,j+1) = train_data->get(index, current_predictor) -
                     test_data->get(sampleID, current_predictor);
       // (X - x0)*W column
       X(i, treatment_index + j + 1) = X(i, j+1) * treatment;
@@ -105,13 +103,12 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     X(i, treatment_index) = treatment;
 
     // Outcome (just copied)
-    Y(i) = original_data->get_outcome(index);
+    Y(i) = train_data->get_outcome(index);
   }
 
   // find ridge regression predictions
   Eigen::MatrixXd M_unpenalized (dim_X, dim_X);
   M_unpenalized.noalias() = X.transpose() * weights_vec.asDiagonal() * X;
-  double normalization = M_unpenalized.trace() / dim_X;
 
   std::vector<double> predictions(num_lambdas);
   Eigen::MatrixXd M;
@@ -120,20 +117,20 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     double lambda = lambdas[i];
     M = M_unpenalized;
     if (!weight_penalty) {
+      double normalization = M_unpenalized.trace() / dim_X;
+
       // standard ridge penalty
-      for (size_t j = 1; j < treatment_index; ++j){
-        M(j,j) += lambda * normalization;
-      }
-      for(size_t j = treatment_index + 1; j < dim_X; ++j){
-        M(j,j) += lambda * normalization;
+      for(size_t j = 1; j < dim_X; ++j){
+        if(j != treatment_index){
+          M(j, j) += lambda * normalization;
+        }
       }
     } else {
       // covariance ridge penalty
-      for (size_t j = 1; j < treatment_index; ++j){
-        M(j,j) += lambda * M(j,j); // note that the weights are already normalized
-      }
-      for(size_t j = treatment_index + 1; j < dim_X; ++j){
-        M(j,j) += lambda * M(j,j);
+      for(size_t j = 1; j < dim_X; ++j){
+        if(j != treatment_index){
+          M(j, j) += lambda * M(j, j);
+        }
       }
     }
 
@@ -150,7 +147,7 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
         size_t sampleID,
         std::vector<std::vector<size_t>> samples_by_tree,
         std::unordered_map<size_t, double> weights_by_sampleID,
-        const Data* original_data,
+        const Data* train_data,
         const Data* test_data,
         size_t ci_group_size){
 
@@ -159,7 +156,7 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
   size_t num_variables = linear_correction_variables.size();
   size_t num_nonzero_weights = weights_by_sampleID.size();
 
-  std::vector<size_t> sample_index_map(original_data->get_num_rows());
+  std::vector<size_t> sample_index_map(train_data->get_num_rows());
   std::vector<size_t> indices(num_nonzero_weights);
 
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
@@ -184,17 +181,16 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
     // Index of next neighbor with nonzero weights
 
     size_t index = indices[i];
-    double treatment = original_data->get_treatment(index);
+    double treatment = train_data->get_treatment(index);
 
     // Intercept
     X(i, 0) = 1;
-    //X_alone(i, 0) = 1;
 
     // Regressors
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
       // X - x0 column
-      X(i,j+1) = original_data->get(index, current_predictor) -
+      X(i,j+1) = train_data->get(index, current_predictor) -
                  test_data->get(sampleID, current_predictor);
 
       // (X - x0)*W column
@@ -205,31 +201,30 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
     X(i, treatment_index) = treatment;
 
     // Outcome (just copied)
-    Y(i) = original_data->get_outcome(index);
+    Y(i) = train_data->get_outcome(index);
   }
 
   // find ridge regression predictions
   Eigen::MatrixXd M_unpenalized (dim_X, dim_X);
   M_unpenalized.noalias() = X.transpose() * weights_vec.asDiagonal() * X;
-  double normalization = M_unpenalized.trace() / dim_X;
 
   Eigen::MatrixXd M;
   M = M_unpenalized;
   if (!weight_penalty) {
+    double normalization = M_unpenalized.trace() / dim_X;
+
     // standard ridge penalty
-    for (size_t j = 1; j < treatment_index; ++j){
-      M(j,j) += lambda * normalization;
-    }
-    for(size_t j = treatment_index + 1; j < dim_X; ++j){
-      M(j,j) += lambda * normalization;
+    for(size_t j = 1; j < dim_X; ++j){
+      if(j != treatment_index){
+        M(j, j) += lambda * normalization;
+      }
     }
   } else {
     // covariance ridge penalty
-    for (size_t j = 1; j < treatment_index; ++j){
-      M(j,j) += lambda * M(j,j); // note that the weights are already normalized
-    }
-    for(size_t j = treatment_index + 1; j < dim_X; ++j){
-      M(j,j) += lambda * M(j,j);
+    for(size_t j = 1; j < dim_X; ++j){
+      if(j != treatment_index){
+        M(j, j) += lambda * M(j, j);
+      }
     }
   }
 

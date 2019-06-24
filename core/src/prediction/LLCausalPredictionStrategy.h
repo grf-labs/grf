@@ -48,7 +48,7 @@ public:
             size_t ci_group_size);
 
 private:
-    const Data *original_data;
+    const Data *train_data;
     const Data *test_data;
     std::vector<double> lambdas;
     bool weight_penalty;
