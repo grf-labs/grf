@@ -18,7 +18,7 @@ package.name <- "grf"
 package.src <- "grf/src"
 
 # Check code style consistency
-linters = with_defaults(
+linters <- with_defaults(
   line_length_linter(120), # Max line length = 120
   object_name_linter = NULL, # To allow variable.names + function_names
   commented_code_linter = NULL, # Misc. false positives
@@ -26,7 +26,7 @@ linters = with_defaults(
   spaces_left_parentheses_linter = NULL, # Misc. false positives
   default = default_linters);
 
-lint_res = lint_package(path = "grf/", linters = linters, exclusions = "grf/R/RcppExports.R")
+lint_res <- lint_package(path = "grf/", linters = linters, exclusions = "grf/R/RcppExports.R")
 lint_res
 
 if (length(lint_res) > 0) quit(status = 1)
