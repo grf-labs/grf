@@ -36,8 +36,6 @@ before_install:
   - sudo apt-get install -y libopencv-dev valgrind
 
 script:
-  # Make the build fail early
-  - set -e
   # Checks for core C++
   - cd ../../core/
   - mkdir build && cd build
