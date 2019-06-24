@@ -40,7 +40,7 @@ test_that("average effects are translation invariant", {
 
 	cape = average_partial_effect(forest.causal)
 	cape.plus.1 = average_partial_effect(forest.causal.plus.1)
-	expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.006)
+	expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.01)
 
 	wate = average_treatment_effect(forest.causal, target.sample = "overlap")
 	wate.plus.1 = average_treatment_effect(forest.causal.plus.1, target.sample = "overlap")
