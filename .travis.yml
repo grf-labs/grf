@@ -19,7 +19,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-4.9
-      env: COMPILER=g++-4.9
+      env:
+        - COMPILER=g++-4.9
+        - LINTR_COMMENT_BOT=false
     - compiler: clang
       addons:
         apt:
@@ -28,7 +30,9 @@ matrix:
             - llvm-toolchain-precise-3.7
           packages:
             - clang-3.7
-      env: COMPILER=clang++-3.7
+      env:
+        - COMPILER=clang++-3.7
+        - LINTR_COMMENT_BOT=false
 
 before_install:
   - cd r-package/grf

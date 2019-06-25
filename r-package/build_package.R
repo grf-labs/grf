@@ -6,7 +6,6 @@
 # To prepare a CRAN build:
 #   `Rscript build_package.R --as-cran`
 
-Sys.setenv(LINTR_COMMENT_BOT="false")
 args <- commandArgs(TRUE)
 library(Rcpp)
 library(devtools)
