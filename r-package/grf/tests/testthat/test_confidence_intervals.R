@@ -97,23 +97,21 @@ test_that("instrumental CIs are invariant to scaling Z", {
 test_that("LL causal CIs are reasonable", {
    n = 1000
    n.test = 1000
-   p = 6
+   p = 4
    X = matrix(rnorm(n*p), n, p)
    W = rbinom(n, 1, 0.5)
-   TAU = 2*X[,1] + X[,2]
+   TAU = 2*X[,1]
    Y = W * TAU + 0.5 * rnorm(n)
 
    forest = causal_forest(X, Y, W)
    tau.hat = predict(forest, linear.correction.variables = 1:ncol(X), estimate.variance = TRUE)
    error.standardized = (tau.hat$predictions - TAU) / sqrt(tau.hat$variance.estimates)
-
-   expect_lt(mean(abs(error.standardized) > qnorm(0.975)), 0.16)
+   expect_lt(mean(abs(error.standardized) > qnorm(0.975)), 0.05)
 
    X.test = matrix(rnorm(n.test*p), n.test, p)
-   TAU.test = 2*X.test[,1] + X.test[,2]
+   TAU.test = 2*X.test[,1]
 
    tau.hat.test = predict(forest, X.test, linear.correction.variables = 1:ncol(X), estimate.variance = TRUE)
    error.standardized.test = (tau.hat.test$predictions - TAU.test) / sqrt(tau.hat.test$variance.estimates)
-
-   expect_lt(mean(abs(error.standardized.test) > qnorm(0.975)), 0.16)
+   expect_lt(mean(abs(error.standardized.test) > qnorm(0.975)), 0.05)
 })
