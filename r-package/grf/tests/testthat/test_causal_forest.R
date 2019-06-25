@@ -171,8 +171,11 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
   forest <- causal_forest(X[cc, ], Y[cc], W[cc], num.trees = num.trees)
   boosted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees)
   weighted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees)
-  boosted.weighted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], sample.weights = sample.weights[cc],
-                                           orthog.boosting = TRUE, num.trees = num.trees)
+  boosted.weighted.forest <- causal_forest(
+    X[cc, ], Y[cc], W[cc],
+    sample.weights = sample.weights[cc],
+    orthog.boosting = TRUE, num.trees = num.trees
+  )
   mse <- function(f) {
     mean((predict(f, X)$predictions - tau)^2)
   }

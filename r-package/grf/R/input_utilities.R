@@ -172,7 +172,7 @@ validate_ll_vars <- function(linear.correction.variables, num.cols) {
   } else if (max(linear.correction.variables) > num.cols) {
     stop("Invalid range of correction variables.")
   } else if (!is.vector(linear.correction.variables) |
-             !all(linear.correction.variables == floor(linear.correction.variables))) {
+    !all(linear.correction.variables == floor(linear.correction.variables))) {
     stop("Linear correction variables must be a vector of integers.")
   }
   linear.correction.variables

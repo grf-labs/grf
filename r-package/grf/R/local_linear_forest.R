@@ -205,8 +205,10 @@ predict.ll_regression_forest <- function(object, newdata = NULL,
   linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
 
   if (is.null(ll.lambda)) {
-    ll.regularization.path <- tune_ll_regression_forest(object, linear.correction.variables,
-                                                        ll.weight.penalty, num.threads)
+    ll.regularization.path <- tune_ll_regression_forest(
+      object, linear.correction.variables,
+      ll.weight.penalty, num.threads
+    )
     ll.lambda <- ll.regularization.path$lambda.min
   } else {
     ll.lambda <- validate_ll_lambda(ll.lambda)
