@@ -19,7 +19,7 @@ get_params_from_draw <- function(X, draws) {
   n <- nrow(draws)
   vapply(colnames(draws), function(param) {
     if (param == "min.node.size") {
-      return(floor(2^(draws[, param] * (log(nrow(X)) / log(2) - 4))))
+      return(floor(2^(draws[, param] * (log(nrow(X)) / log(2) - 4)))) #nolint
     } else if (param == "sample.fraction") {
       return(0.05 + 0.45 * draws[, param])
     } else if (param == "mtry") {
