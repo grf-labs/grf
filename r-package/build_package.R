@@ -22,6 +22,7 @@ linters <- with_defaults(
   object_name_linter = NULL, # To allow variable.names + function_names
   commented_code_linter = NULL, # Misc. false positives
   object_usage_linter = NULL, # Misc. false positives
+  spaces_left_parentheses_linter = NULL, # Misc. false positives
   default = default_linters);
 
 lint_res <- lint_package(path = "grf/", linters = linters, exclusions = "grf/R/RcppExports.R")
