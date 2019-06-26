@@ -7,6 +7,8 @@ r_binary_packages:
   - devtools
   - testthat
   - roxygen2
+r_github_packages:
+  - jimhester/lintr
 
 matrix:
   include:
@@ -17,7 +19,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-4.9
-      env: COMPILER=g++-4.9
+      env:
+        - COMPILER=g++-4.9
+        - LINTR_COMMENT_BOT=false
     - compiler: clang
       addons:
         apt:
@@ -26,7 +30,9 @@ matrix:
             - llvm-toolchain-precise-3.7
           packages:
             - clang-3.7
-      env: COMPILER=clang++-3.7
+      env:
+        - COMPILER=clang++-3.7
+        - LINTR_COMMENT_BOT=false
 
 before_install:
   - cd r-package/grf
@@ -34,10 +40,12 @@ before_install:
   - sudo apt-get install -y libopencv-dev valgrind
 
 script:
+  # Checks for core C++
   - cd ../../core/
   - mkdir build && cd build
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
   - cd ..
   - valgrind --leak-check=full --error-exitcode=1 ./build/grf exclude:[characterization]
+  # Checks for R package
   - cd ../r-package
   - Rscript build_package.R

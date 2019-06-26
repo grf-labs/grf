@@ -6,20 +6,20 @@
 #'
 #' @method print grf
 #' @export
-print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
-    var.importance = variable_importance(x, decay.exponent, max.depth)
-    var.importance = c(round(var.importance, 3))
-    names(var.importance) = 1:length(var.importance)
+print.grf <- function(x, decay.exponent = 2, max.depth = 4, ...) {
+  var.importance <- variable_importance(x, decay.exponent, max.depth)
+  var.importance <- c(round(var.importance, 3))
+  names(var.importance) <- 1:length(var.importance)
 
-    main.class = class(x)[1]
-    num.samples= nrow(x$X.orig)
+  main.class <- class(x)[1]
+  num.samples <- nrow(x$X.orig)
 
-    cat("GRF forest object of type", main.class, "\n")
-    cat("Number of trees: ", x[["_num_trees"]], "\n")
-    cat("Number of training samples:", num.samples, "\n")
+  cat("GRF forest object of type", main.class, "\n")
+  cat("Number of trees: ", x[["_num_trees"]], "\n")
+  cat("Number of training samples:", num.samples, "\n")
 
-    cat("Variable importance:", "\n")
-    print(var.importance)
+  cat("Variable importance:", "\n")
+  print(var.importance)
 }
 
 #' Print a GRF tree object.
@@ -29,45 +29,45 @@ print.grf <- function(x, decay.exponent=2, max.depth=4, ...) {
 #' @method print grf_tree
 #' @export
 print.grf_tree <- function(x, ...) {
-    cat("GRF tree object", "\n")
-    cat("Number of training samples: ", x$num_samples, "\n")
-    cat("Variable splits:", "\n")
+  cat("GRF tree object", "\n")
+  cat("Number of training samples: ", x$num_samples, "\n")
+  cat("Variable splits:", "\n")
 
-    # Add the index of each node as an attribute for easy access.
-    nodes = lapply(1:length(x$nodes), function(i) {
-        node = x$nodes[[i]]
-        node$index = i
-        return(node)
-    })
+  # Add the index of each node as an attribute for easy access.
+  nodes <- lapply(1:length(x$nodes), function(i) {
+    node <- x$nodes[[i]]
+    node$index <- i
+    return(node)
+  })
 
-    # Perform DFS to print the nodes (mimicking a stack with a list).
-    frontier = nodes[1]
-    frontier[[1]]$depth = 0
-    while (length(frontier) > 0) {
-        # Pop the first node off the stack.
-        node = frontier[[1]]
-        frontier = frontier[-1]
+  # Perform DFS to print the nodes (mimicking a stack with a list).
+  frontier <- nodes[1]
+  frontier[[1]]$depth <- 0
+  while (length(frontier) > 0) {
+    # Pop the first node off the stack.
+    node <- frontier[[1]]
+    frontier <- frontier[-1]
 
-        output = paste(rep("  ", node$depth), collapse="")
-        output = paste(output, "(", node$index, ")", sep="")
+    output <- paste(rep("  ", node$depth), collapse = "")
+    output <- paste(output, "(", node$index, ")", sep = "")
 
-        if (node$is_leaf) {
-            output = paste(output, "* num_samples:", length(node$samples))
-        } else {
-            split.var = node$split_variable
-            split.var.name = x$columns[split.var]
-            output = paste(output, "split_variable:", split.var.name, " split_value:", signif(node$split_value))
+    if (node$is_leaf) {
+      output <- paste(output, "* num_samples:", length(node$samples))
+    } else {
+      split.var <- node$split_variable
+      split.var.name <- x$columns[split.var]
+      output <- paste(output, "split_variable:", split.var.name, " split_value:", signif(node$split_value))
 
-            left_child = nodes[node$left_child]
-            left_child[[1]]$depth = node$depth + 1
+      left_child <- nodes[node$left_child]
+      left_child[[1]]$depth <- node$depth + 1
 
-            right_child = nodes[node$right_child]
-            right_child[[1]]$depth = node$depth + 1
+      right_child <- nodes[node$right_child]
+      right_child[[1]]$depth <- node$depth + 1
 
-            frontier = c(left_child, right_child, frontier)
-        }
-        cat(output, "\n")
+      frontier <- c(left_child, right_child, frontier)
     }
+    cat(output, "\n")
+  }
 }
 
 
@@ -78,8 +78,8 @@ print.grf_tree <- function(x, ...) {
 #' @method print boosted_regression_forest
 #' @export
 print.boosted_regression_forest <- function(x, ...) {
-    cat("Boosted GRF object", "\n")
-    cat("Number of forests: ",length(x$forests), "\n")
+  cat("Boosted GRF object", "\n")
+  cat("Number of forests: ", length(x$forests), "\n")
 }
 
 
@@ -94,27 +94,28 @@ print.boosted_regression_forest <- function(x, ...) {
 #' @importFrom stats aggregate quantile
 #' @export
 print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
-  grid = x$grid
-  out = lapply(colnames(grid)[-1], function(name) {
-    q = quantile(grid[, name], probs = tuning.quantiles)
+  grid <- x$grid
+  out <- lapply(colnames(grid)[-1], function(name) {
+    q <- quantile(grid[, name], probs = tuning.quantiles)
     # Cannot form for example quintiles for mtry if the number of variables is
     # less than 5, so here we just truncate the groups.
-    if (length(unique(q) < length(q)))
-      q = unique(q)
-    rank = cut(grid[, name], q, include.lowest=TRUE)
-    out = aggregate(grid[, "error"], by=list(rank), FUN=mean)
-    colnames(out) = c(name, "error")
+    if (length(unique(q) < length(q))) {
+      q <- unique(q)
+    }
+    rank <- cut(grid[, name], q, include.lowest = TRUE)
+    out <- aggregate(grid[, "error"], by = list(rank), FUN = mean)
+    colnames(out) <- c(name, "error")
     out
   })
 
-  err = x$error
-  params = x$params[colnames(grid)[-1]]
-  opt = formatC(c(err, params))
+  err <- x$error
+  params <- x$params[colnames(grid)[-1]]
+  opt <- formatC(c(err, params))
 
   cat("Optimal tuning parameters: \n")
   cat(paste0(names(opt), ": ", opt, "\n"))
 
-  cat("Average error by ", length(tuning.quantiles) - 1, "-quantile:\n", sep="")
+  cat("Average error by ", length(tuning.quantiles) - 1, "-quantile:\n", sep = "")
   for (i in out) {
     cat("\n")
     print(i, row.names = FALSE)
