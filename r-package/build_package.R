@@ -25,7 +25,7 @@ linters <- with_defaults(
   spaces_left_parentheses_linter = NULL, # Misc. false positives
   default = default_linters);
 
-lint_res <- lint_package(path = "grf/", linters = linters, exclusions = "grf/R/RcppExports.R")
+lint_res <- lint_package(path = package.name, linters = linters, exclusions = file.path(package.name, "R/RcppExports.R"))
 lint_res
 
 if (length(lint_res) > 0) quit(status = 1)
