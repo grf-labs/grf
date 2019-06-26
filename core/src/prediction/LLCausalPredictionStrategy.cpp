@@ -239,7 +239,7 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
   Eigen::VectorXd pseudo_residual = Eigen::VectorXd::Zero(num_nonzero_weights);
 
   for (size_t i = 0; i < num_nonzero_weights; i++) {
-    pseudo_residual(i) = X_times_zeta(i) * (Y(i) - local_prediction(i,0) - X(i, treatment_index)*local_prediction(i, treatment_index));
+    pseudo_residual(i) = X_times_zeta(i) * (Y(i) - local_prediction(i));
   }
 
   double num_good_groups = 0;
