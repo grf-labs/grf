@@ -11,8 +11,6 @@ library(Rcpp)
 library(devtools)
 library(testthat)
 library(roxygen2)
-
-devtools::install_github("jimhester/lintr")
 library(lintr)
 
 package.name <- "grf"
