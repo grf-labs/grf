@@ -49,7 +49,6 @@ tune_ll_causal_forest <- function(forest,
 
   outcome.index <- ncol(X) + 1
   treatment.index <- ncol(X) + 2
-  instrument.index <- treatment.index
 
   # Validate variables
   num.threads <- validate_num_threads(num.threads)
@@ -60,9 +59,9 @@ tune_ll_causal_forest <- function(forest,
   linear.correction.variables <- linear.correction.variables - 1
 
   # Find sequence of predictions by lambda
-  prediction.object = ll_causal_predict_oob(forest.short, data$default, data$sparse, outcome.index,
+  prediction.object <- ll_causal_predict_oob(forest.short, data$default, data$sparse, outcome.index,
       treatment.index, lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, FALSE)
-  predictions = prediction.object$predictions
+  predictions <- prediction.object$predictions
 
   errors <- apply(predictions, MARGIN = 2, FUN = function(row) {
     # compute R-learner loss

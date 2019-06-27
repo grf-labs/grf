@@ -119,7 +119,7 @@ test_that("local linear causal forests work in a simple case", {
   preds.rf <- predict(forest, X)
   error.rf <- mean((preds.rf$predictions - TAU)^2)
 
-  expect_true(error.ll < 0.5 * error.rf)
+  expect_true(error.ll < 0.8 * error.rf)
 })
 
 test_that("local linear causal forests with large lambda are equivalent to causal forests", {
