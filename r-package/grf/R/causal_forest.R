@@ -386,36 +386,30 @@ predict.causal_forest <- function(object, newdata = NULL,
       ll.lambda <- validate_ll_lambda(ll.lambda)
     }
 
-    # subtract 1 to account for C++ indexing
+    # Subtract 1 to account for C++ indexing
     linear.correction.variables <- linear.correction.variables - 1
-  }
+   }
 
-  if (!is.null(newdata)) {
-    validate_newdata(newdata, object$X.orig)
-    data <- create_data_matrices(newdata)
-    if (!local.linear) {
-      ret <- causal_predict(
-        forest.short, train.data$default, train.data$sparse,
-        outcome.index, treatment.index, data$default, data$sparse, num.threads, estimate.variance
-      )
-    } else {
-      ret <- ll_causal_predict(
-        forest.short, data$default, train.data$default, data$sparse, train.data$sparse,
-        outcome.index, treatment.index, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads
-      )
-    }
-  } else {
-    if (!local.linear) {
-      ret <- causal_predict_oob(
-        forest.short, train.data$default, train.data$sparse,
-        outcome.index, treatment.index, num.threads, estimate.variance
-      )
-    } else {
-      ret <- ll_causal_predict_oob(
-        forest.short, train.data$default, train.data$sparse,
-        outcome.index, treatment.index, ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads
-      )
-    }
+   if (!is.null(newdata)) {
+       validate_newdata(newdata, object$X.orig)
+       data <- create_data_matrices(newdata)
+       if (!local.linear) {
+           ret <- causal_predict(forest.short, train.data$default, train.data$sparse,
+                   outcome.index, treatment.index, data$default, data$sparse, num.threads, estimate.variance)
+       } else {
+           ret <- ll_causal_predict(forest.short, data$default, train.data$default, data$sparse, train.data$sparse,
+                   outcome.index, treatment.index, ll.lambda, ll.weight.penalty, linear.correction.variables,
+                   num.threads, estimate.variance)
+       }
+   } else {
+       if (!local.linear) {
+           ret <- causal_predict_oob(forest.short, train.data$default, train.data$sparse,
+                   outcome.index, treatment.index, num.threads, estimate.variance)
+       } else {
+           ret <- ll_causal_predict_oob(forest.short, train.data$default, train.data$sparse,
+                   outcome.index, treatment.index, ll.lambda, ll.weight.penalty, linear.correction.variables,
+                   num.threads, estimate.variance)
+       }
   }
 
   # Convert list to data frame.
