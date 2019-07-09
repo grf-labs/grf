@@ -1,6 +1,6 @@
 #' Local linear forest tuning
 #'
-#' Finds the optimal ridge penalty for local linear prediction.
+#' Finds the optimal ridge penalty for local linear causal prediction.
 #'
 #' @param forest The forest used for prediction.
 #' @param linear.correction.variables Variables to use for local linear prediction. If left null,
@@ -15,29 +15,40 @@
 #' @examples
 #' \dontrun{
 #' # Find the optimal tuning parameters.
-#' n <- 500
+#' n <- 50
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)
-#' Y <- X[, 1] * rnorm(n)
-#' forest <- regression_forest(X, Y)
-#' tuned.lambda <- tune_ll_regression_forest(forest)
+#' W <- rbinom(n, 1, 0.5)
+#' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
 #'
-#' # Use this parameter to predict from a local linear forest.
+#' forest <- causal_forest(X, Y, W)
+#' tuned.lambda <- tune_ll_causal_forest(forest)
+#'
+#' # Use this parameter to predict from a local linear causal forest.
 #' predictions <- predict(forest, linear.correction.variables = 1:p, lambda = tuned.lambda)
 #' }
 #'
 #' @export
-tune_ll_regression_forest <- function(forest,
-                                      linear.correction.variables = NULL,
-                                      ll.weight.penalty = FALSE,
-                                      num.threads = NULL,
-                                      lambda.path = NULL) {
+tune_ll_causal_forest <- function(forest,
+                                  linear.correction.variables = NULL,
+                                  ll.weight.penalty = FALSE,
+                                  num.threads = NULL,
+                                  lambda.path = NULL) {
   forest.short <- forest[-which(names(forest) == "X.orig")]
 
   X <- forest[["X.orig"]]
   Y <- forest[["Y.orig"]]
-  data <- create_data_matrices(X, Y)
+  W <- forest[["W.orig"]]
+  Y.hat <- forest[["Y.hat"]]
+  W.hat <- forest[["W.hat"]]
+
+  Y.centered <- Y - Y.hat
+  W.centered <- W - W.hat
+
+  data <- create_data_matrices(X, Y.centered, W.centered)
+
   outcome.index <- ncol(X) + 1
+  treatment.index <- ncol(X) + 2
 
   # Validate variables
   num.threads <- validate_num_threads(num.threads)
@@ -47,20 +58,18 @@ tune_ll_regression_forest <- function(forest,
   # Subtract 1 to account for C++ indexing
   linear.correction.variables <- linear.correction.variables - 1
 
-  # Enforce no variance estimates in tuning
-  estimate.variance <- FALSE
-  prediction.object <- ll_regression_predict_oob(
-    forest.short, data$default, data$sparse, outcome.index,
-    lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
-  )
+  # Find sequence of predictions by lambda
+  prediction.object <- ll_causal_predict_oob(forest.short, data$default, data$sparse, outcome.index,
+      treatment.index, lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, FALSE)
+  predictions <- prediction.object$predictions
 
-  prediction.object <- prediction.object$predictions
-  errors <- apply(prediction.object, MARGIN = 2, FUN = function(row) {
-    mean((row - Y)**2)
+  errors <- apply(predictions, MARGIN = 2, FUN = function(row) {
+    # compute R-learner loss
+    mean(((Y - Y.hat) - (W - W.hat) * row)**2)
   })
 
   return(list(
-    lambdas = lambda.path, errors = errors, oob.predictions = prediction.object,
+    lambdas = lambda.path, errors = errors, oob.predictions = predictions,
     lambda.min = lambda.path[which.min(errors)]
   ))
 }

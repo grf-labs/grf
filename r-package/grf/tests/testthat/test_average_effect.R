@@ -3,115 +3,123 @@ library(grf)
 set.seed(1000)
 
 test_that("average effects are translation invariant", {
-	p = 6
-	n = 200
-	X = matrix(2 * runif(n * p) - 1, n, p)
-	W = rbinom(n, 1, 0.5)
-	Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)
-	Y.plus.1 = Y + 1
-	forest.causal = causal_forest(X, Y, W, num.trees = 100, ci.group.size = 4)
-	forest.causal.plus.1 = forest.causal
-	forest.causal.plus.1$Y.orig = forest.causal$Y.orig + 1
-	forest.causal.plus.1$Y.hat = forest.causal$Y.hat + 1
+  p <- 6
+  n <- 200
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  W <- rbinom(n, 1, 0.5)
+  Y <- (X[, 1] > 0) * (2 * W - 1) + 2 * rnorm(n)
+  Y.plus.1 <- Y + 1
+  forest.causal <- causal_forest(X, Y, W, num.trees = 200, ci.group.size = 4)
+  forest.causal.plus.1 <- forest.causal
+  forest.causal.plus.1$Y.orig <- forest.causal$Y.orig + 1
+  forest.causal.plus.1$Y.hat <- forest.causal$Y.hat + 1
 
-	cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
-	cate.plus.1.aipw = average_treatment_effect(forest.causal.plus.1, target.sample = "all", method = "AIPW")
-	expect_equal(cate.aipw, cate.plus.1.aipw)
+  cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
+  cate.plus.1.aipw <- average_treatment_effect(forest.causal.plus.1, target.sample = "all", method = "AIPW")
+  expect_equal(cate.aipw, cate.plus.1.aipw)
 
-	cate.tmle = average_treatment_effect(forest.causal, target.sample = "all", method = "TMLE")
-	cate.plus.1.tmle = average_treatment_effect(forest.causal.plus.1, target.sample = "all", method = "TMLE")
-	expect_equal(cate.tmle, cate.plus.1.tmle)
+  cate.tmle <- average_treatment_effect(forest.causal, target.sample = "all", method = "TMLE")
+  cate.plus.1.tmle <- average_treatment_effect(forest.causal.plus.1, target.sample = "all", method = "TMLE")
+  expect_equal(cate.tmle, cate.plus.1.tmle)
 
-	catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
-	catt.plus.1.aipw = average_treatment_effect(forest.causal.plus.1, target.sample = "treated", method = "AIPW")
-	expect_equal(catt.aipw, catt.plus.1.aipw)
+  catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
+  catt.plus.1.aipw <- average_treatment_effect(forest.causal.plus.1, target.sample = "treated", method = "AIPW")
+  expect_equal(catt.aipw, catt.plus.1.aipw)
 
-	catt.tmle = average_treatment_effect(forest.causal, target.sample = "treated", method = "TMLE")
-	catt.plus.1.tmle = average_treatment_effect(forest.causal.plus.1, target.sample = "treated", method = "TMLE")
-	expect_equal(catt.tmle, catt.plus.1.tmle)
+  catt.tmle <- average_treatment_effect(forest.causal, target.sample = "treated", method = "TMLE")
+  catt.plus.1.tmle <- average_treatment_effect(forest.causal.plus.1, target.sample = "treated", method = "TMLE")
+  expect_equal(catt.tmle, catt.plus.1.tmle)
 
-	catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
-	catc.plus.1.aipw = average_treatment_effect(forest.causal.plus.1, target.sample = "control", method = "AIPW")
-	expect_equal(catc.aipw, catc.plus.1.aipw)
+  catc.aipw <- average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
+  catc.plus.1.aipw <- average_treatment_effect(forest.causal.plus.1, target.sample = "control", method = "AIPW")
+  expect_equal(catc.aipw, catc.plus.1.aipw)
 
-	catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
-	catc.plus.1.tmle = average_treatment_effect(forest.causal.plus.1, target.sample = "control", method = "TMLE")
-	expect_equal(catc.tmle, catc.plus.1.tmle)
-	
-	cape = average_partial_effect(forest.causal)
-	cape.plus.1 = average_partial_effect(forest.causal.plus.1)
-	expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.006)
+  catc.tmle <- average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
+  catc.plus.1.tmle <- average_treatment_effect(forest.causal.plus.1, target.sample = "control", method = "TMLE")
+  expect_equal(catc.tmle, catc.plus.1.tmle)
 
-	wate = average_treatment_effect(forest.causal, target.sample = "overlap")
-	wate.plus.1 = average_treatment_effect(forest.causal.plus.1, target.sample = "overlap")
-	expect_true(abs(wate[1] - wate.plus.1[1]) <= 0.006)
+  cape <- average_partial_effect(forest.causal)
+  cape.plus.1 <- average_partial_effect(forest.causal.plus.1)
+  expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.01)
+
+  wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
+  wate.plus.1 <- average_treatment_effect(forest.causal.plus.1, target.sample = "overlap")
+  expect_true(abs(wate[1] - wate.plus.1[1]) <= 0.006)
 })
 
 test_that("average treatment effect estimates are reasonable", {
-  p = 6
-  n = 1000
-  X = matrix(2 * runif(n * p) - 1, n, p)
-  eX = 0.25 + 0.5 * (X[,1] > 0)
-  W = rbinom(n, 1, eX)
-  TAU = 4 * (X[,1] > 0)
-  Y =  TAU * (W  - 0.5) + rnorm(n)
+  p <- 6
+  n <- 2000
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  eX <- 0.25 + 0.5 * (X[, 1] > 0)
+  W <- rbinom(n, 1, eX)
+  TAU <- 4 * (X[, 1] > 0)
+  Y <- TAU * (W - 0.5) + rnorm(n)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 500, ci.group.size = 1)
+  forest.causal <- causal_forest(X, Y, W, num.trees = 500, ci.group.size = 1)
 
-  cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
+  cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - mean(TAU)) <= 0.2)
   expect_true(abs(cate.aipw[1] - mean(TAU)) <= 3 * cate.aipw[2])
 
-  cate.tmle = average_treatment_effect(forest.causal, target.sample = "all", method = "TMLE")
+  cate.tmle <- average_treatment_effect(forest.causal, target.sample = "all", method = "TMLE")
   expect_true(abs(cate.tmle[1] - mean(TAU)) <= 0.2)
   expect_true(abs(cate.tmle[1] - mean(TAU)) <= 3 * cate.tmle[2])
 
   expect_true(abs(cate.aipw[1] - cate.tmle[1]) <= 0.01)
   expect_true(abs(cate.aipw[2] - cate.tmle[2]) <= 0.01)
 
-  catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
-  expect_true(abs(catt.aipw[1] - mean(TAU[W==1])) <= 0.2)
-  expect_true(abs(catt.aipw[1] - mean(TAU[W==1])) <= 3 * catt.aipw[2])
+  catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
+  expect_true(abs(catt.aipw[1] - mean(TAU[W == 1])) <= 0.2)
+  expect_true(abs(catt.aipw[1] - mean(TAU[W == 1])) <= 3 * catt.aipw[2])
 
-  catt.tmle = average_treatment_effect(forest.causal, target.sample = "treated", method = "TMLE")
-  expect_true(abs(catt.tmle[1] - mean(TAU[W==1])) <= 0.2)
-  expect_true(abs(catt.tmle[1] - mean(TAU[W==1])) <= 3 * catt.tmle[2])
+  catt.tmle <- average_treatment_effect(forest.causal, target.sample = "treated", method = "TMLE")
+  expect_true(abs(catt.tmle[1] - mean(TAU[W == 1])) <= 0.2)
+  expect_true(abs(catt.tmle[1] - mean(TAU[W == 1])) <= 3 * catt.tmle[2])
 
   expect_true(abs(catt.aipw[1] - catt.tmle[1]) <= 0.05)
   expect_true(abs(catt.aipw[2] - catt.tmle[2]) <= 0.05)
 
-  catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 0.25)
-  expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 3 * catc.aipw[2])
+  catc.aipw <- average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
+  expect_true(abs(catc.aipw[1] - mean(TAU[W == 0])) <= 0.25)
+  expect_true(abs(catc.aipw[1] - mean(TAU[W == 0])) <= 3 * catc.aipw[2])
 
-  catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
-  expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 0.25)
-  expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 3 * catc.tmle[2])
+  catc.tmle <- average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
+  expect_true(abs(catc.tmle[1] - mean(TAU[W == 0])) <= 0.25)
+  expect_true(abs(catc.tmle[1] - mean(TAU[W == 0])) <= 3 * catc.tmle[2])
 
   expect_true(abs(catc.aipw[1] - catc.tmle[1]) <= 0.05)
   expect_true(abs(catc.aipw[2] - catc.tmle[2]) <= 0.05)
 
-  cape = average_partial_effect(forest.causal)
+  cape <- average_partial_effect(forest.causal)
   expect_true(abs(cape[1] - mean(TAU)) <= 0.2)
   expect_true(abs(cape[1] - mean(TAU)) <= 3 * cape[2])
 
   expect_true(abs(cate.aipw[1] - cape[1]) <= 0.05)
   expect_true(abs(cate.aipw[2] - cape[2]) <= 0.05)
 
-  wate = average_treatment_effect(forest.causal, target.sample = "overlap")
-  tau.overlap = sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
+  wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
+  tau.overlap <- sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
   expect_true(abs(wate[1] - tau.overlap) <= 0.2)
   expect_true(abs(wate[1] - tau.overlap) <= 3 * wate[2])
-  
-  cate.aipw.pos = average_treatment_effect(forest.causal, target.sample = "all",
-                                           method = "AIPW", subset = X[,1] > 0)
-  cate.tmle.pos = average_treatment_effect(forest.causal, target.sample = "all",
-                                           method = "TMLE", subset = X[,1] > 0)
-  cate.aipw.pos.treat = average_treatment_effect(forest.causal, target.sample = "treated",
-                                                 method = "AIPW", subset = which(X[,1] > 0))
-  cate.tmle.pos.control = average_treatment_effect(forest.causal, target.sample = "control",
-                                               method = "TMLE", subset = which(X[,1] > 0))
-  wate.pos = average_treatment_effect(forest.causal, target.sample = "overlap", subset = X[,1] > 0)
+
+  cate.aipw.pos <- average_treatment_effect(forest.causal,
+    target.sample = "all",
+    method = "AIPW", subset = X[, 1] > 0
+  )
+  cate.tmle.pos <- average_treatment_effect(forest.causal,
+    target.sample = "all",
+    method = "TMLE", subset = X[, 1] > 0
+  )
+  cate.aipw.pos.treat <- average_treatment_effect(forest.causal,
+    target.sample = "treated",
+    method = "AIPW", subset = which(X[, 1] > 0)
+  )
+  cate.tmle.pos.control <- average_treatment_effect(forest.causal,
+    target.sample = "control",
+    method = "TMLE", subset = which(X[, 1] > 0)
+  )
+  wate.pos <- average_treatment_effect(forest.causal, target.sample = "overlap", subset = X[, 1] > 0)
 
   expect_true(abs(cate.aipw.pos[1] - 4) < 0.2)
   expect_true(abs(cate.tmle.pos[1] - 4) < 0.2)
@@ -121,234 +129,237 @@ test_that("average treatment effect estimates are reasonable", {
 })
 
 test_that("average partial effect estimates are reasonable", {
-  p = 6
-  n = 1000
-  X = matrix(2 * runif(n * p) - 1, n, p)
-  eX = 0.25 + 0.5 * (X[,1] > 0)
-  W = rbinom(n, 1, eX) + rnorm(n)
-  TAU = 4 * (X[,1] > 0)
-  Y =  TAU * (W  - 0.5) + rnorm(n)
-  forest.causal = causal_forest(X, Y, W, num.trees = 500,
-                                ci.group.size = 1, clusters = rep(1:(n/2), 2))
-  cape.pos = average_partial_effect(forest.causal, subset = X[,1] > 0)
+  p <- 6
+  n <- 1000
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  eX <- 0.25 + 0.5 * (X[, 1] > 0)
+  W <- rbinom(n, 1, eX) + rnorm(n)
+  TAU <- 4 * (X[, 1] > 0)
+  Y <- TAU * (W - 0.5) + rnorm(n)
+  forest.causal <- causal_forest(X, Y, W,
+    num.trees = 500,
+    ci.group.size = 1, clusters = rep(1:(n / 2), 2)
+  )
+  cape.pos <- average_partial_effect(forest.causal, subset = X[, 1] > 0)
   expect_true(abs(cape.pos["estimate"] - 4) < 0.1)
 })
 
 test_that("average treatment effects larger example works", {
+  n <- 4000
+  p <- 10
 
-  n = 4000
-  p = 10
+  X <- matrix(runif(n * p), n, p)
+  E <- (0.4 + dbeta(X[, 2], 2, 4)) / 4
+  W <- rbinom(n, 1, E)
+  M <- 2 * X[, 2] - 1
+  TAU <- (1 + 1 / (1 + exp(-20 * (X[, 1] - 0.3)))) * (1 + 1 / (1 + exp(-20 * (X[, 2] - 0.3))))
+  Y <- M + (W - 0.5) * TAU + rnorm(n)
 
-  X = matrix(runif(n * p), n, p)
-  E = (0.4 + dbeta(X[,2], 2, 4)) / 4
-  W = rbinom(n, 1, E)
-  M = 2 * X[,2] - 1
-  TAU = (1 + 1/(1 + exp(-20 * (X[,1] - 0.3)))) * (1 + 1/(1 + exp(-20 * (X[,2] - 0.3))))
-  Y = M + (W - 0.5) * TAU + rnorm(n)
+  forest.causal <- causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
-
-  cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
+  cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - mean(TAU)) <= 3 * cate.aipw[2])
 
-  cate.tmle = average_treatment_effect(forest.causal, target.sample = "all", method = "TMLE")
+  cate.tmle <- average_treatment_effect(forest.causal, target.sample = "all", method = "TMLE")
   expect_true(abs(cate.tmle[1] - mean(TAU)) <= 3 * cate.tmle[2])
 
-  catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
-  expect_true(abs(catt.aipw[1] - mean(TAU[W==1])) <= 3 * catt.aipw[2])
+  catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
+  expect_true(abs(catt.aipw[1] - mean(TAU[W == 1])) <= 3 * catt.aipw[2])
 
-  catt.tmle = average_treatment_effect(forest.causal, target.sample = "treated", method = "TMLE")
-  expect_true(abs(catt.tmle[1] - mean(TAU[W==1])) <= 3 * catt.tmle[2])
+  catt.tmle <- average_treatment_effect(forest.causal, target.sample = "treated", method = "TMLE")
+  expect_true(abs(catt.tmle[1] - mean(TAU[W == 1])) <= 3 * catt.tmle[2])
 
-  catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - mean(TAU[W==0])) <= 3 * catc.aipw[2])
+  catc.aipw <- average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
+  expect_true(abs(catc.aipw[1] - mean(TAU[W == 0])) <= 3 * catc.aipw[2])
 
-  catc.tmle = average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
-  expect_true(abs(catc.tmle[1] - mean(TAU[W==0])) <= 3 * catc.tmle[2])
+  catc.tmle <- average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
+  expect_true(abs(catc.tmle[1] - mean(TAU[W == 0])) <= 3 * catc.tmle[2])
 })
 
 test_that("average partial effects larger example works", {
+  n <- 4000
+  p <- 10
 
-  n = 4000
-  p = 10
+  X <- matrix(runif(n * p), n, p)
+  E <- (0.4 + dbeta(X[, 2], 2, 4)) / 4
+  W <- rbinom(n, 1, E) + 0.2 * rnorm(n)
+  M <- 2 * X[, 2] - 1
+  TAU <- (1 + 1 / (1 + exp(-20 * (X[, 1] - 0.3)))) * (1 + 1 / (1 + exp(-20 * (X[, 2] - 0.3))))
+  Y <- M + (W - 0.5) * TAU + rnorm(n)
 
-  X = matrix(runif(n * p), n, p)
-  E = (0.4 + dbeta(X[,2], 2, 4)) / 4
-  W = rbinom(n, 1, E) + 0.2 * rnorm(n)
-  M = 2 * X[,2] - 1
-  TAU = (1 + 1/(1 + exp(-20 * (X[,1] - 0.3)))) * (1 + 1/(1 + exp(-20 * (X[,2] - 0.3))))
-  Y = M + (W - 0.5) * TAU + rnorm(n)
+  forest.causal <- causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
-
-  cape = average_partial_effect(forest.causal)
+  cape <- average_partial_effect(forest.causal)
   expect_true(abs(cape[1] - mean(TAU)) <= 0.2)
   expect_true(abs(cape[1] - mean(TAU)) <= 3 * cape[2])
-
 })
 
 test_that("average treatment effect with overlap: larger example works", {
+  n <- 4000
+  p <- 10
 
-  n = 4000
-  p = 10
+  X <- matrix(rnorm(n * (p)), n, p)
+  eX <- 1 / (1 + exp(-10 * X[, 2]))
+  W <- rbinom(n, 1, eX)
+  M <- X[, 2]
+  TAU <- (1 + X[, 2])^2
+  Y <- M + (W - 0.5) * TAU + rnorm(n)
 
-  X = matrix(rnorm(n * (p)), n, p)
-  eX = 1/(1 + exp(-10 * X[,2]))
-  W = rbinom(n, 1, eX)
-  M = X[,2]
-  TAU = (1 + X[,2])^2
-  Y = M + (W - 0.5) * TAU + rnorm(n)
+  forest.causal <- causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
-
-  wate = average_treatment_effect(forest.causal, target.sample = "overlap")
-  tau.overlap = sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
+  wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
+  tau.overlap <- sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
   expect_true(abs(wate[1] - tau.overlap) <= 0.2)
   expect_true(abs(wate[1] - tau.overlap) <= 3 * wate[2])
-
 })
 
 test_that("cluster robust average effects are consistent", {
-  p = 6
-  n = 400
+  p <- 6
+  n <- 400
 
-  X = matrix(2 * runif(n * p) - 1, n, p)
-  W = rbinom(n, 1, 0.5)
-  Y = (X[,1] > 0) * (2 * W  - 1) + 2 * rnorm(n)
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  W <- rbinom(n, 1, 0.5)
+  Y <- (X[, 1] > 0) * (2 * W - 1) + 2 * rnorm(n)
 
-  Xc = rbind(X, X, X, X)
-  Wc = c(W, W, W, W)
-  Yc = c(Y, Y, Y, Y)
-  clust = c(1:n, 1:n, 1:n, 1:n)
+  Xc <- rbind(X, X, X, X)
+  Wc <- c(W, W, W, W)
+  Yc <- c(Y, Y, Y, Y)
+  clust <- c(1:n, 1:n, 1:n, 1:n)
 
-  forest.causal = causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 4)
-  forest.causal.clust = causal_forest(Xc, Yc, Wc, num.trees = 1000,
-                                      ci.group.size = 4, clusters = clust,
-                                      samples.per.cluster = 7)
+  forest.causal <- causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 4)
+  forest.causal.clust <- causal_forest(Xc, Yc, Wc,
+    num.trees = 1000,
+    ci.group.size = 4, clusters = clust,
+    samples.per.cluster = 7
+  )
 
-  cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
-  cate.clust.aipw = average_treatment_effect(forest.causal.clust, target.sample = "all", method = "AIPW")
+  cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
+  cate.clust.aipw <- average_treatment_effect(forest.causal.clust, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - cate.clust.aipw[1]) <= 0.05)
   expect_true(abs(cate.aipw[2] - cate.clust.aipw[2]) <= 0.005)
 
-  catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
-  catt.clust.aipw = average_treatment_effect(forest.causal.clust, target.sample = "treated", method = "AIPW")
+  catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
+  catt.clust.aipw <- average_treatment_effect(forest.causal.clust, target.sample = "treated", method = "AIPW")
   expect_true(abs(catt.aipw[1] - catt.clust.aipw[1]) <= 0.05)
   expect_true(abs(catt.aipw[2] - catt.clust.aipw[2]) <= 0.005)
 
-  catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
-  catc.clust.aipw = average_treatment_effect(forest.causal.clust, target.sample = "control", method = "AIPW")
+  catc.aipw <- average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
+  catc.clust.aipw <- average_treatment_effect(forest.causal.clust, target.sample = "control", method = "AIPW")
   expect_true(abs(catc.aipw[1] - catc.clust.aipw[1]) <= 0.05)
   expect_true(abs(catc.aipw[2] - catc.clust.aipw[2]) <= 0.005)
 
-  cape = average_partial_effect(forest.causal, num.trees.for.variance = 200)
-  cape.clust = average_partial_effect(forest.causal.clust, num.trees.for.variance = 200)
+  cape <- average_partial_effect(forest.causal, num.trees.for.variance = 200)
+  cape.clust <- average_partial_effect(forest.causal.clust, num.trees.for.variance = 200)
   expect_true(abs(cape[1] - cape.clust[1]) <= 0.05)
   expect_true(abs(cape[2] - cape.clust[2]) <= 0.005)
 
-  wate = average_treatment_effect(forest.causal, target.sample = "overlap")
-  wate.clust = average_treatment_effect(forest.causal.clust, target.sample = "overlap")
+  wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
+  wate.clust <- average_treatment_effect(forest.causal.clust, target.sample = "overlap")
   expect_true(abs(wate[1] - wate.clust[1]) <= 0.05)
   expect_true(abs(wate[2] - wate.clust[2]) <= 0.005)
 })
 
 test_that("cluster robust average effects do weighting correctly", {
-  
-  t0 = 2
-  K = 400
-  n = 11 * K
-  p = 4
-  clust = 1:n %% K + K * as.numeric(1:n >= K)
-  tau = 2 * t0 * as.numeric(clust < K)
-  
-  X = matrix(rnorm(n * p), n, p)
-  W = rbinom(n, 1, 0.5)
-  Y = tau * W + 2 * rnorm(n)
-  
-  forest.causal = causal_forest(X, Y, W, clusters = clust, num.trees = 400)
-  
-  cate.aipw = average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
+  t0 <- 2
+  K <- 400
+  n <- 11 * K
+  p <- 4
+  clust <- 1:n %% K + K * as.numeric(1:n >= K)
+  tau <- 2 * t0 * as.numeric(clust < K)
+
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  Y <- tau * W + 2 * rnorm(n)
+
+  forest.causal <- causal_forest(X, Y, W, clusters = clust, num.trees = 400)
+
+  cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - t0) / (3 * cate.aipw[2]) <= 1)
   expect_true(cate.aipw[2] <= 0.2)
-  
-  catt.aipw = average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
+
+  catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
   expect_true(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]) <= 1)
   expect_true(catt.aipw[2] <= 0.2)
-  
-  catc.aipw = average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
+
+  catc.aipw <- average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
   expect_true(abs(catc.aipw[1] - t0) / (3 * catc.aipw[2]) <= 1)
   expect_true(catc.aipw[2] <= 0.2)
-  
-  cape = average_partial_effect(forest.causal, num.trees.for.variance = 200)
+
+  cape <- average_partial_effect(forest.causal, num.trees.for.variance = 200)
   expect_true(abs(cape[1] - t0) / (3 * cape[2]) <= 1)
   expect_true(cape[2] <= 0.2)
-  
-  wate = average_treatment_effect(forest.causal, target.sample = "overlap")
+
+  wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
   expect_true(abs(wate[1] - t0) / (3 * wate[2]) <= 1)
   expect_true(wate[2] <= 0.2)
-  
 })
 
 test_that("cluster robust average effects do weighting correctly with IPCC weights", {
-  t0 = 2; t1 = 3
-  K = 100
-  p = 4
-  cluster.sizes = pmax(20, round(40 + 40 * rt(K, df=3)))
-  n = sum(cluster.sizes)
-  clust = rep(1:K, cluster.sizes)
+  t0 <- 2
+  t1 <- 3
+  K <- 100
+  p <- 4
+  cluster.sizes <- pmax(20, round(40 + 40 * rt(K, df = 3)))
+  n <- sum(cluster.sizes)
+  clust <- rep(1:K, cluster.sizes)
 
-  X = matrix(rnorm(n * p), n, p)
-  e = 1/(1 + exp(-X[,1] + X[,2]))
-  W = rbinom(n, 1, e)
-  tau = 2 * t0 * as.numeric(cluster.sizes[clust] >= median(cluster.sizes)) +
-        2 * t1 * as.numeric(X[,3] > 0)
-  Y = 2 * X[,1] + tau * W + 2 * rnorm(n)
+  X <- matrix(rnorm(n * p), n, p)
+  e <- 1 / (1 + exp(-X[, 1] + X[, 2]))
+  W <- rbinom(n, 1, e)
+  tau <- 2 * t0 * as.numeric(cluster.sizes[clust] >= median(cluster.sizes)) +
+    2 * t1 * as.numeric(X[, 3] > 0)
+  Y <- 2 * X[, 1] + tau * W + 2 * rnorm(n)
 
   # strictly speaking, we should add variance when comparing to this
   # because the variances we report are for the conditional average and this is the population average.
-  true.ate = t0 + t1
+  true.ate <- t0 + t1
 
-  e.cc = 0.2 + 0.6 * as.numeric(X[,3] > 0)
-  cc = as.logical(rbinom(n, 1, e.cc))
-  sample.weights = 1/e.cc
+  e.cc <- 0.2 + 0.6 * as.numeric(X[, 3] > 0)
+  cc <- as.logical(rbinom(n, 1, e.cc))
+  sample.weights <- 1 / e.cc
 
-  forest.weighted = causal_forest(X[cc,], Y[cc], W[cc], sample.weights = sample.weights[cc], clusters = clust[cc], num.trees = 400)
-  forest.unweighted = causal_forest(X[cc,], Y[cc], W[cc], clusters = clust[cc], num.trees = 400)
+  forest.weighted <- causal_forest(
+    X[cc, ], Y[cc], W[cc],
+    sample.weights = sample.weights[cc],
+    clusters = clust[cc], num.trees = 400
+  )
+  forest.unweighted <- causal_forest(X[cc, ], Y[cc], W[cc], clusters = clust[cc], num.trees = 400)
 
-  cate.aipw = average_treatment_effect(forest.weighted, target.sample = "all", method = "AIPW")
-  biased.cate.aipw = average_treatment_effect(forest.unweighted, target.sample = "all", method = "AIPW")
+  cate.aipw <- average_treatment_effect(forest.weighted, target.sample = "all", method = "AIPW")
+  biased.cate.aipw <- average_treatment_effect(forest.unweighted, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - true.ate) / (3 * cate.aipw[2]) <= 1)
   expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.cate.aipw[2]) <= 1)
 
-  catt.aipw = average_treatment_effect(forest.weighted, target.sample = "treated", method = "AIPW")
-  biased.catt.aipw = average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW")
+  catt.aipw <- average_treatment_effect(forest.weighted, target.sample = "treated", method = "AIPW")
+  biased.catt.aipw <- average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW")
   expect_true(abs(catt.aipw[1] - true.ate) / (3 * catt.aipw[2]) <= 1)
   expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.catt.aipw[2]) <= 1)
 
-  catc.aipw = average_treatment_effect(forest.weighted, target.sample = "control", method = "AIPW")
-  biased.catc.aipw = average_treatment_effect(forest.unweighted, target.sample = "control", method = "AIPW")
+  catc.aipw <- average_treatment_effect(forest.weighted, target.sample = "control", method = "AIPW")
+  biased.catc.aipw <- average_treatment_effect(forest.unweighted, target.sample = "control", method = "AIPW")
   expect_true(abs(catc.aipw[1] - true.ate) / (3 * catc.aipw[2]) <= 1)
   expect_false(abs(biased.catc.aipw[1] - true.ate) / (3 * biased.catc.aipw[2]) <= 1)
 
-  cape = average_partial_effect(forest.weighted, num.trees.for.variance = 200)
-  biased.cape = average_partial_effect(forest.unweighted, num.trees.for.variance = 200)
+  cape <- average_partial_effect(forest.weighted, num.trees.for.variance = 200)
+  biased.cape <- average_partial_effect(forest.unweighted, num.trees.for.variance = 200)
   expect_true(abs(cape[1] - true.ate) / (3 * cape[2]) <= 1)
   expect_false(abs(biased.cape[1] - true.ate) / (3 * biased.cape[2]) <= 1)
 
-  wate = average_treatment_effect(forest.weighted, target.sample = "overlap")
-  biased.wate = average_treatment_effect(forest.unweighted, target.sample = "overlap")
+  wate <- average_treatment_effect(forest.weighted, target.sample = "overlap")
+  biased.wate <- average_treatment_effect(forest.unweighted, target.sample = "overlap")
   expect_true(abs(wate[1] - true.ate) / (3 * wate[2]) <= 1)
   expect_false(abs(biased.wate[1] - true.ate) / (3 * biased.wate[2]) <= 1)
 })
 
 test_that("average effect estimation doesn't error on data with a single feature", {
-  p = 1; n = 100
+  p <- 1
+  n <- 100
 
-  X = matrix(rnorm(n * p), n, p)
-  Y = rnorm(n)
-  W = rbinom(n, size=1, prob=0.5)
+  X <- matrix(rnorm(n * p), n, p)
+  Y <- rnorm(n)
+  W <- rbinom(n, size = 1, prob = 0.5)
 
-  forest = causal_forest(X,Y,W)
+  forest <- causal_forest(X, Y, W)
   average_partial_effect(forest)
   expect_true(TRUE) # so we don't get a warning about an empty test
 })

@@ -1,6 +1,6 @@
 Package: grf
 Title: Generalized Random Forests (Beta)
-Version: 0.10.2
+Version: 0.10.3
 Author: Julie Tibshirani [aut, cre],
     Susan Athey [aut],
     Rina Friedberg [ctb],

@@ -1,32 +1,36 @@
 validate_X <- function(X) {
-  if(inherits(X, "matrix") & !is.numeric(X)) {
-    stop(paste("The feature matrix X must be numeric. GRF does not",
-         "currently support non-numeric features. If factor variables",
-         "are required, we recommend one of the following: Either",
-         "represent the factor with a 1-vs-all expansion,",
-         "(e.g., using model.matrix(~. , data=X)), or then encode the factor",
-         "as a numeric via any natural ordering (e.g., if the factor is a month)."))
+  if (inherits(X, "matrix") & !is.numeric(X)) {
+    stop(paste(
+      "The feature matrix X must be numeric. GRF does not",
+      "currently support non-numeric features. If factor variables",
+      "are required, we recommend one of the following: Either",
+      "represent the factor with a 1-vs-all expansion,",
+      "(e.g., using model.matrix(~. , data=X)), or then encode the factor",
+      "as a numeric via any natural ordering (e.g., if the factor is a month)."
+    ))
   }
 
   if (inherits(X, "Matrix") & !(inherits(X, "dgCMatrix"))) {
-      stop("Currently only sparse data of class 'dgCMatrix' is supported.")
+    stop("Currently only sparse data of class 'dgCMatrix' is supported.")
   }
 
-  if (any(is.na(X))){
+  if (any(is.na(X))) {
     stop("The feature matrix X contains at least one NA.")
   }
 }
 
 validate_observations <- function(V, X) {
   if (is.matrix(V) && ncol(V) == 1) {
-    V = as.vector(V)
-  } else if (!is.vector(V)){
-    stop(paste( "Observations (W, Y, or Z) must be vectors."))
+    V <- as.vector(V)
+  } else if (!is.vector(V)) {
+    stop(paste("Observations (W, Y, or Z) must be vectors."))
   }
 
   if (!is.numeric(V) && !is.logical(V)) {
-    stop(paste( "Observations (W, Y, or Z) must be numeric. GRF does not ",
-                "currently support non-numeric observations."))
+    stop(paste(
+      "Observations (W, Y, or Z) must be numeric. GRF does not ",
+      "currently support non-numeric observations."
+    ))
   }
 
   if (any(is.na(V))) {
@@ -41,8 +45,8 @@ validate_observations <- function(V, X) {
 
 validate_mtry <- function(mtry, X) {
   if (is.null(mtry)) {
-    num.col = ncol(X)
-    default = ceiling(sqrt(num.col) + 20)
+    num.col <- ncol(X)
+    default <- ceiling(sqrt(num.col) + 20)
     return(min(default, num.col))
   } else if (!is.numeric(mtry) || mtry < 0) {
     stop("Error: Invalid value for mtry")
@@ -104,7 +108,7 @@ validate_seed <- function(seed) {
 
 validate_clusters <- function(clusters, X) {
   if (is.null(clusters) || length(clusters) == 0) {
-    return (vector(mode="numeric", length=0))
+    return(vector(mode = "numeric", length = 0))
   }
   if (mode(clusters) != "numeric") {
     stop("Clusters must be able to be coerced to a numeric vector.")
@@ -137,12 +141,12 @@ validate_samples_per_cluster <- function(samples.per.cluster, clusters) {
 
 validate_honesty_fraction <- function(honesty.fraction, honesty) {
   if (!honesty) {
-      if (is.null(honesty.fraction)) {
-        return(NULL)
-      }
-      else {
-        stop("honesty.fraction is not used when honesty = FALSE and should be NULL in this case.")
-      }
+    if (is.null(honesty.fraction)) {
+      return(NULL)
+    }
+    else {
+      stop("honesty.fraction is not used when honesty = FALSE and should be NULL in this case.")
+    }
   } else if (is.null(honesty.fraction)) {
     return(0.5)
   } else if (honesty.fraction > 0 && honesty.fraction < 1) {
@@ -153,22 +157,22 @@ validate_honesty_fraction <- function(honesty.fraction, honesty) {
 }
 
 validate_boost_error_reduction <- function(boost.error.reduction) {
-  if(boost.error.reduction <0 || boost.error.reduction >1 ) {
+  if (boost.error.reduction < 0 || boost.error.reduction > 1) {
     stop("boost.error.reduction must be between 0 and 1")
   }
   boost.error.reduction
-
 }
 
 validate_ll_vars <- function(linear.correction.variables, num.cols) {
   if (is.null(linear.correction.variables)) {
-    linear.correction.variables = 1:num.cols
+    linear.correction.variables <- 1:num.cols
   }
   if (min(linear.correction.variables) < 1) {
     stop("Linear correction variables must take positive integer values.")
   } else if (max(linear.correction.variables) > num.cols) {
     stop("Invalid range of correction variables.")
-  } else if (!is.vector(linear.correction.variables) | !all(linear.correction.variables == floor(linear.correction.variables))) {
+  } else if (!is.vector(linear.correction.variables) |
+    !all(linear.correction.variables == floor(linear.correction.variables))) {
     stop("Linear correction variables must be a vector of integers.")
   }
   linear.correction.variables
@@ -185,8 +189,8 @@ validate_ll_lambda <- function(lambda) {
 
 validate_ll_path <- function(lambda.path) {
   if (is.null(lambda.path)) {
-    lambda.path = c(0, 0.001, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1, 10)
-  } else if (min(lambda.path)<0) {
+    lambda.path <- c(0, 0.001, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1, 10)
+  } else if (min(lambda.path) < 0) {
     stop("Lambda values cannot be negative.")
   } else if (!is.numeric(lambda.path)) {
     stop("Lambda values must be numeric.")
@@ -201,19 +205,19 @@ validate_newdata <- function(newdata, X) {
   validate_X(newdata)
 }
 
-validate_sample_weights = function(sample.weights, X) {
-    if(!is.null(sample.weights)) {
-        if(length(sample.weights) != nrow(X)) {
-            stop("sample.weights has incorrect length")
-        }
-        if(any(sample.weights < 0)) {
-            stop("sample.weights must be nonnegative")
-        }
+validate_sample_weights <- function(sample.weights, X) {
+  if (!is.null(sample.weights)) {
+    if (length(sample.weights) != nrow(X)) {
+      stop("sample.weights has incorrect length")
     }
+    if (any(sample.weights < 0)) {
+      stop("sample.weights must be nonnegative")
+    }
+  }
 }
 
 coerce_honesty_fraction <- function(honesty.fraction) {
-  if(is.null(honesty.fraction)) {
+  if (is.null(honesty.fraction)) {
     return(0)
   }
   honesty.fraction
@@ -221,13 +225,14 @@ coerce_honesty_fraction <- function(honesty.fraction) {
 
 #' @importFrom Matrix Matrix cBind
 #' @importFrom methods new
-create_data_matrices <- function(X, ..., sample.weights=NULL) {
-  default.data <- matrix(nrow=0, ncol=0);
+create_data_matrices <- function(X, ..., sample.weights = NULL) {
+  default.data <- matrix(nrow = 0, ncol = 0)
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
 
   if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
     sparse.data <- cbind(X, ..., sample.weights)
   } else {
+    X <- as.matrix(X)
     default.data <- as.matrix(cbind(X, ..., sample.weights))
   }
 

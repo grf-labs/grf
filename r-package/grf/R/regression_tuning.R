@@ -10,6 +10,8 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param sample.weights (experimental) Weights given to an observation in estimation.
+#'                       If NULL, each observation is given the same weight.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
@@ -30,7 +32,6 @@
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
 #'                            software will set this value to the size of the smallest cluster.
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -38,20 +39,24 @@
 #' @return A list consisting of the optimal parameter values ('params') along with their debiased
 #'         error ('error').
 #'
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' # Find the optimal tuning parameters.
-#' n = 500; p = 10
-#' X = matrix(rnorm(n*p), n, p)
-#' Y = X[,1] * rnorm(n)
-#' params = tune_regression_forest(X, Y)$params
+#' n <- 500
+#' p <- 10
+#' X <- matrix(rnorm(n * p), n, p)
+#' Y <- X[, 1] * rnorm(n)
+#' params <- tune_regression_forest(X, Y)$params
 #'
 #' # Use these parameters to train a regression forest.
-#' tuned.forest = regression_forest(X, Y, num.trees = 1000,
-#'     min.node.size = as.numeric(params["min.node.size"]),
-#'     sample.fraction = as.numeric(params["sample.fraction"]),
-#'     mtry = as.numeric(params["mtry"]),
-#'     alpha = as.numeric(params["alpha"]),
-#'     imbalance.penalty = as.numeric(params["imbalance.penalty"]))
+#' tuned.forest <- regression_forest(X, Y,
+#'   num.trees = 1000,
+#'   min.node.size = as.numeric(params["min.node.size"]),
+#'   sample.fraction = as.numeric(params["sample.fraction"]),
+#'   mtry = as.numeric(params["mtry"]),
+#'   alpha = as.numeric(params["alpha"]),
+#'   imbalance.penalty = as.numeric(params["imbalance.penalty"])
+#' )
 #' }
 #'
 #' @importFrom stats runif
@@ -75,7 +80,7 @@ tune_regression_forest <- function(X, Y,
                                    seed = NULL) {
   validate_X(X)
   validate_sample_weights(sample.weights, X)
-  Y = validate_observations(Y, X)
+  Y <- validate_observations(Y, X)
 
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
@@ -84,78 +89,86 @@ tune_regression_forest <- function(X, Y,
   ci.group.size <- 1
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
-  data <- create_data_matrices(X, Y, sample.weights=sample.weights)
+  data <- create_data_matrices(X, Y, sample.weights = sample.weights)
   outcome.index <- ncol(X) + 1
   sample.weight.index <- ncol(X) + 2
   # if no sample weights are stored, sample.weight.index is ncol(data) + 1 and is ignored
 
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
-  all.params = get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
+  all.params <- get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
 
-  fixed.params = all.params[!is.na(all.params)]
-  tuning.params = all.params[is.na(all.params)]
+  fixed.params <- all.params[!is.na(all.params)]
+  tuning.params <- all.params[is.na(all.params)]
 
   if (length(tuning.params) == 0) {
-    return(list("error"=NA, "params"=c(all.params)))
+    return(list("error" = NA, "params" = c(all.params)))
   }
 
   # Train several mini-forests, and gather their debiased OOB error estimates.
-  num.params = length(tuning.params)
-  fit.draws = matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params)
-  colnames(fit.draws) = names(tuning.params)
-  compute.oob.predictions = TRUE
+  num.params <- length(tuning.params)
+  fit.draws <- matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params)
+  colnames(fit.draws) <- names(tuning.params)
+  compute.oob.predictions <- TRUE
 
-  debiased.errors = apply(fit.draws, 1, function(draw) {
-    params = c(fixed.params, get_params_from_draw(X, draw))
-    small.forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
-                                     !is.null(sample.weights),
-                                     as.numeric(params["mtry"]),
-                                     num.fit.trees,
-                                     as.numeric(params["min.node.size"]),
-                                     as.numeric(params["sample.fraction"]),
-                                     honesty,
-                                     coerce_honesty_fraction(honesty.fraction),
-                                     ci.group.size,
-                                     as.numeric(params["alpha"]),
-                                     as.numeric(params["imbalance.penalty"]),
-                                     clusters,
-                                     samples.per.cluster,
-                                     compute.oob.predictions,
-                                     num.threads,
-                                     seed)
+  debiased.errors <- apply(fit.draws, 1, function(draw) {
+    params <- c(fixed.params, get_params_from_draw(X, draw))
+    small.forest <- regression_train(
+      data$default, data$sparse, outcome.index, sample.weight.index,
+      !is.null(sample.weights),
+      as.numeric(params["mtry"]),
+      num.fit.trees,
+      as.numeric(params["min.node.size"]),
+      as.numeric(params["sample.fraction"]),
+      honesty,
+      coerce_honesty_fraction(honesty.fraction),
+      ci.group.size,
+      as.numeric(params["alpha"]),
+      as.numeric(params["imbalance.penalty"]),
+      clusters,
+      samples.per.cluster,
+      compute.oob.predictions,
+      num.threads,
+      seed
+    )
 
-    prediction = regression_predict_oob(small.forest, data$default, data$sparse,
-        outcome.index, num.threads, FALSE)
-    error = prediction$debiased.error
+    prediction <- regression_predict_oob(
+      small.forest, data$default, data$sparse,
+      outcome.index, num.threads, FALSE
+    )
+    error <- prediction$debiased.error
     mean(error, na.rm = TRUE)
   })
 
   # Fit the 'dice kriging' model to these error estimates.
   # Note that in the 'km' call, the kriging package prints a large amount of information
   # about the fitting process. Here, capture its console output and discard it.
-  variance.guess = rep(var(debiased.errors)/2, nrow(fit.draws))
-  env = new.env()
+  variance.guess <- rep(var(debiased.errors) / 2, nrow(fit.draws))
+  env <- new.env()
   capture.output(env$kriging.model <-
-                   DiceKriging::km(design = data.frame(fit.draws),
-                                   response = debiased.errors,
-                                   noise.var = variance.guess))
+    DiceKriging::km(
+      design = data.frame(fit.draws),
+      response = debiased.errors,
+      noise.var = variance.guess
+    ))
   kriging.model <- env$kriging.model
 
   # To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
-  optimize.draws = matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
-  colnames(optimize.draws) = names(tuning.params)
-  model.surface = predict(kriging.model, newdata=data.frame(optimize.draws), type = "SK")
+  optimize.draws <- matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
+  colnames(optimize.draws) <- names(tuning.params)
+  model.surface <- predict(kriging.model, newdata = data.frame(optimize.draws), type = "SK")
 
-  tuned.params = get_params_from_draw(X, optimize.draws)
-  grid = cbind(error=model.surface$mean, tuned.params)
-  optimal.draw = which.min(grid[, "error"])
-  optimal.param = grid[optimal.draw, ]
+  tuned.params <- get_params_from_draw(X, optimize.draws)
+  grid <- cbind(error = model.surface$mean, tuned.params)
+  optimal.draw <- which.min(grid[, "error"])
+  optimal.param <- grid[optimal.draw, ]
 
-  out = list(error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
-             grid = grid)
-  class(out) = c("tuning_output")
+  out <- list(
+    error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
+    grid = grid
+  )
+  class(out) <- c("tuning_output")
 
   out
 }
