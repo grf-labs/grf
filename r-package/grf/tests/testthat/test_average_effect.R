@@ -364,13 +364,13 @@ test_that("average effect estimation doesn't error on data with a single feature
   expect_true(TRUE) # so we don't get a warning about an empty test
 })
 
-test_that("estimate_counterfactual_outcomes yields all 1/0 when binary outcome == treatment", {
-  n = 50; p = 1
-  X = matrix(rnorm(n*p), n, p)
-  W = rbinom(n, 1, 0.5)
-  Y = W
-  c.forest = causal_forest(X, Y, W)
-  y.hats = estimate_counterfactual_outcomes(c.forest)
+test_that("est_counterfactual_outcomes yields all 1/0 when binary outcome == treatment", {
+  n <- 50; p <- 1
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  Y <- W
+  c.forest <- causal_forest(X, Y, W)
+  y.hats <- est_counterfactual_outcomes(c.forest)
 
   expect_true(all(y.hats$`0` == 0))
   expect_true(all(y.hats$`1` == 1))

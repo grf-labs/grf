@@ -180,8 +180,8 @@ average_treatment_effect <- function(forest,
   } else {
     stop("Invalid target sample.")
   }
-  
-  Y.hats <- estimate_counterfactual_outcomes(forest, subset)
+
+  Y.hats <- est_counterfactual_outcomes(forest, subset)
   Y.hat.0 <- Y.hats$`0`
   Y.hat.1 <- Y.hats$`1`
 
@@ -331,37 +331,37 @@ average_treatment_effect <- function(forest,
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
-#' @return A list containing '0' and '1', the estimates for the W=0 and W=1 
+#' @return A list containing '0' and '1', the estimates for the W=0 and W=1
 #'         treatment cases.
 #' @export
-estimate_counterfactual_outcomes <- function(forest, subset=NULL){
+est_counterfactual_outcomes <- function(forest, subset=NULL){
 
   if (is.null(subset)) {
     subset <- 1:length(forest$Y.hat)
   }
-  
+
   if (class(subset) == "logical" & length(subset) == length(forest$Y.hat)) {
     subset <- which(subset)
   }
-  
+
   if (!all(subset %in% 1:length(forest$Y.hat))) {
     stop(paste("If specified, subset must be a vector contained in 1:n,",
                "or a boolean vector of length n."))
   }
-  
-  if (!all(unique(forest$W.orig) %in% c(0,1))){
-    stop(paste("estimate_counterfactual_outcomes only implemented for ",
+
+  if (!all(unique(forest$W.orig) %in% c(0, 1))){
+    stop(paste("est_counterfactual_outcomes only implemented for ",
                "binary treatments; !all(unique(forest$W.orig) %in% c(0,1))"))
   }
-  
+
   subset.W.hat <- forest$W.hat[subset]
   subset.Y.hat <- forest$Y.hat[subset]
   tau.hat.pointwise <- predict(forest)$predictions[subset]
-  
+
   # Get estimates for the regress surfaces E[Y|X, W=0/1]
   Y.hat.0 <- subset.Y.hat - subset.W.hat * tau.hat.pointwise
   Y.hat.1 <- subset.Y.hat + (1 - subset.W.hat) * tau.hat.pointwise
-  list('0' = Y.hat.0, '1' = Y.hat.1)
+  list("0" = Y.hat.0, "1" = Y.hat.1)
 }
 
 observation_weights <- function(forest) {
@@ -379,4 +379,3 @@ observation_weights <- function(forest) {
   }
   observation.weight
 }
-
