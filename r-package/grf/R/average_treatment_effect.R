@@ -31,18 +31,20 @@
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
 #'
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' # Train a causal forest.
-#' n = 50; p = 10
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
-#' c.forest = causal_forest(X, Y, W)
+#' n <- 50
+#' p <- 10
+#' X <- matrix(rnorm(n * p), n, p)
+#' W <- rbinom(n, 1, 0.5)
+#' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+#' c.forest <- causal_forest(X, Y, W)
 #'
 #' # Predict using the forest.
-#' X.test = matrix(0, 101, p)
-#' X.test[,1] = seq(-2, 2, length.out = 101)
-#' c.pred = predict(c.forest, X.test)
+#' X.test <- matrix(0, 101, p)
+#' X.test[, 1] <- seq(-2, 2, length.out = 101)
+#' c.pred <- predict(c.forest, X.test)
 #' # Estimate the conditional average treatment effect on the full sample (CATE).
 #' average_treatment_effect(c.forest, target.sample = "all")
 #'
@@ -52,18 +54,17 @@
 #' average_treatment_effect(c.forest, target.sample = "treated")
 #'
 #' # Estimate the conditional average treatment effect on samples with positive X[,1].
-#' average_treatment_effect(c.forest, target.sample = "all", X[,1] > 0)
+#' average_treatment_effect(c.forest, target.sample = "all", X[, 1] > 0)
 #' }
 #'
 #' @return An estimate of the average treatment effect, along with standard error.
 #'
 #' @importFrom stats coef lm predict var weighted.mean
 #' @export
-average_treatment_effect = function(forest,
-                                    target.sample=c("all", "treated", "control", "overlap"),
-                                    method=c("AIPW", "TMLE"),
-                                    subset=NULL) {
-
+average_treatment_effect <- function(forest,
+                                     target.sample = c("all", "treated", "control", "overlap"),
+                                     method = c("AIPW", "TMLE"),
+                                     subset = NULL) {
   target.sample <- match.arg(target.sample)
   method <- match.arg(method)
   cluster.se <- length(forest$clusters) > 0
@@ -85,12 +86,18 @@ average_treatment_effect = function(forest,
   }
 
   if (!all(subset %in% 1:length(forest$Y.hat))) {
-    stop(paste("If specified, subset must be a vector contained in 1:n,",
-               "or a boolean vector of length n."))
+    stop(paste(
+      "If specified, subset must be a vector contained in 1:n,",
+      "or a boolean vector of length n."
+    ))
   }
 
-  clusters = if(cluster.se) { forest$clusters } else { 1:length(forest$Y) }
-  observation.weight = observation_weights(forest)
+  clusters <- if (cluster.se) {
+    forest$clusters
+  } else {
+    1:length(forest$Y)
+  }
+  observation.weight <- observation_weights(forest)
 
   # Only use data selected via subsetting.
   subset.W.orig <- forest$W.orig[subset]
@@ -111,39 +118,47 @@ average_treatment_effect = function(forest,
     W.residual <- subset.W.orig - subset.W.hat
     Y.residual <- subset.Y.orig - subset.Y.hat
     tau.ols <- lm(Y.residual ~ W.residual, weights = subset.weights)
-    tau.est <- coef(summary(tau.ols))[2,1]
+    tau.est <- coef(summary(tau.ols))[2, 1]
 
     if (cluster.se) {
-      tau.se <- sqrt(sandwich::vcovCL(tau.ols, cluster = subset.clusters)[2,2])
+      tau.se <- sqrt(sandwich::vcovCL(tau.ols, cluster = subset.clusters)[2, 2])
     } else {
-      tau.se <- sqrt(sandwich::vcovHC(tau.ols)[2,2])
+      tau.se <- sqrt(sandwich::vcovHC(tau.ols)[2, 2])
     }
 
-    return(c(estimate=tau.est, std.err=tau.se))
+    return(c(estimate = tau.est, std.err = tau.se))
   }
 
   if (!all(subset.W.orig %in% c(0, 1))) {
-    stop(paste("Average treatment effect estimation only implemented for binary treatment.",
-               "See `average_partial_effect` for continuous W."))
+    stop(paste(
+      "Average treatment effect estimation only implemented for binary treatment.",
+      "See `average_partial_effect` for continuous W."
+    ))
   }
 
   if (min(subset.W.hat) <= 0.01 && max(subset.W.hat) >= 0.99) {
-    rng = range(subset.W.hat)
-    warning(paste0("Estimated treatment propensities take values between ",
-                   round(rng[1], 3), " and ", round(rng[2], 3),
-                   " and in particular get very close to 0 and 1. ",
-                   "In this case, using `target.sample=overlap`, or filtering data as in ",
-                   "Crump, Hotz, Imbens, and Mitnik (Biometrika, 2009) may be helpful."))
+    rng <- range(subset.W.hat)
+    warning(paste0(
+      "Estimated treatment propensities take values between ",
+      round(rng[1], 3), " and ", round(rng[2], 3),
+      " and in particular get very close to 0 and 1. ",
+      "In this case, using `target.sample=overlap`, or filtering data as in ",
+      "Crump, Hotz, Imbens, and Mitnik (Biometrika, 2009) may be helpful."
+    ))
   } else if (min(subset.W.hat) <= 0.01 && target.sample != "treated") {
-    warning(paste0("Estimated treatment propensities go as low as ",
-                   round(min(subset.W.hat), 3), " which means that treatment ",
-                   "effects for some controls may not be well identified. ",
-                   "In this case, using `target.sample=treated` may be helpful."))
+    warning(paste0(
+      "Estimated treatment propensities go as low as ",
+      round(min(subset.W.hat), 3), " which means that treatment ",
+      "effects for some controls may not be well identified. ",
+      "In this case, using `target.sample=treated` may be helpful."
+    ))
   } else if (max(subset.W.hat) >= 0.99 && target.sample != "control") {
-    warning(paste0("Estimated treatment propensities go as high as ",
-                   round(max(subset.W.hat), 3), " which means that treatment ",
-                   "effects for some treated units may not be well identified. ",
-                   "In this case, using `target.sample=control` may be helpful."))
+    warning(paste0(
+      "Estimated treatment propensities go as high as ",
+      round(max(subset.W.hat), 3), " which means that treatment ",
+      "effects for some treated units may not be well identified. ",
+      "In this case, using `target.sample=control` may be helpful."
+    ))
   }
 
   control.idx <- which(subset.W.orig == 0)
@@ -153,11 +168,15 @@ average_treatment_effect = function(forest,
   if (target.sample == "all") {
     tau.avg.raw <- weighted.mean(tau.hat.pointwise, subset.weights)
   } else if (target.sample == "treated") {
-    tau.avg.raw <- weighted.mean(tau.hat.pointwise[treated.idx],
-                                 subset.weights[treated.idx])
+    tau.avg.raw <- weighted.mean(
+      tau.hat.pointwise[treated.idx],
+      subset.weights[treated.idx]
+    )
   } else if (target.sample == "control") {
-    tau.avg.raw <- weighted.mean(tau.hat.pointwise[control.idx],
-                                 subset.weights[control.idx])
+    tau.avg.raw <- weighted.mean(
+      tau.hat.pointwise[control.idx],
+      subset.weights[control.idx]
+    )
   } else {
     stop("Invalid target sample.")
   }
@@ -170,7 +189,7 @@ average_treatment_effect = function(forest,
     loaded <- requireNamespace("sandwich", quietly = TRUE)
     if (!loaded) {
       warning("To use TMLE, please install the package `sandwich`. Using AIPW instead.")
-      method = "AIPW"
+      method <- "AIPW"
     }
   }
 
@@ -206,92 +225,104 @@ average_treatment_effect = function(forest,
     if (cluster.se) {
       correction.clust <- Matrix::sparse.model.matrix(
         ~ factor(subset.clusters) + 0,
-        transpose = TRUE) %*% (dr.correction.all * subset.weights)
+        transpose = TRUE
+      ) %*% (dr.correction.all * subset.weights)
       sigma2.hat <- sum(correction.clust^2) / sum(subset.weights)^2 *
         length(correction.clust) / (length(correction.clust) - 1)
     } else {
       sigma2.hat <- mean(dr.correction.all^2) / (length(dr.correction.all) - 1)
     }
-
   } else if (method == "TMLE") {
-
     if (target.sample == "all") {
       eps.tmle.robust.0 <-
-        lm(B ~ A + 0, data=data.frame(A=1/(1 - subset.W.hat[subset.W.orig==0]),
-                                      B=subset.Y.orig[subset.W.orig==0]-Y.hat.0[subset.W.orig==0]))
+        lm(B ~ A + 0, data = data.frame(
+          A = 1 / (1 - subset.W.hat[subset.W.orig == 0]),
+          B = subset.Y.orig[subset.W.orig == 0] - Y.hat.0[subset.W.orig == 0]
+        ))
       eps.tmle.robust.1 <-
-        lm(B ~ A + 0, data=data.frame(A=1/subset.W.hat[subset.W.orig==1],
-                                      B=subset.Y.orig[subset.W.orig==1]-Y.hat.1[subset.W.orig==1]))
-      delta.tmle.robust.0 <- predict(eps.tmle.robust.0, newdata=data.frame(A=mean(1/(1 - subset.W.hat))))
-      delta.tmle.robust.1 <- predict(eps.tmle.robust.1, newdata=data.frame(A=mean(1/subset.W.hat)))
+        lm(B ~ A + 0, data = data.frame(
+          A = 1 / subset.W.hat[subset.W.orig == 1],
+          B = subset.Y.orig[subset.W.orig == 1] - Y.hat.1[subset.W.orig == 1]
+        ))
+      delta.tmle.robust.0 <- predict(eps.tmle.robust.0, newdata = data.frame(A = mean(1 / (1 - subset.W.hat))))
+      delta.tmle.robust.1 <- predict(eps.tmle.robust.1, newdata = data.frame(A = mean(1 / subset.W.hat)))
       dr.correction <- delta.tmle.robust.1 - delta.tmle.robust.0
       # use robust SE
       if (cluster.se) {
-        sigma2.hat <- sandwich::vcovCL(eps.tmle.robust.0, cluster = subset.clusters[subset.W.orig==0]) *
-          mean(1/(1 - subset.W.hat))^2 +
-          sandwich::vcovCL(eps.tmle.robust.1, cluster = subset.clusters[subset.W.orig==1]) *
-          mean(1/subset.W.hat)^2
+        sigma2.hat <- sandwich::vcovCL(eps.tmle.robust.0, cluster = subset.clusters[subset.W.orig == 0]) *
+          mean(1 / (1 - subset.W.hat))^2 +
+          sandwich::vcovCL(eps.tmle.robust.1, cluster = subset.clusters[subset.W.orig == 1]) *
+            mean(1 / subset.W.hat)^2
       } else {
-        sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * mean(1/(1 - subset.W.hat))^2 +
-          sandwich::vcovHC(eps.tmle.robust.1) * mean(1/subset.W.hat)^2
+        sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * mean(1 / (1 - subset.W.hat))^2 +
+          sandwich::vcovHC(eps.tmle.robust.1) * mean(1 / subset.W.hat)^2
       }
     } else if (target.sample == "treated") {
       eps.tmle.robust.0 <-
         lm(B ~ A + 0,
-           data=data.frame(A=subset.W.hat[subset.W.orig==0]/(1 - subset.W.hat[subset.W.orig==0]),
-                           B=subset.Y.orig[subset.W.orig==0]-Y.hat.0[subset.W.orig==0]))
-      new.center <- mean(subset.W.hat[subset.W.orig==1]/(1 - subset.W.hat[subset.W.orig==1]))
+          data = data.frame(
+            A = subset.W.hat[subset.W.orig == 0] / (1 - subset.W.hat[subset.W.orig == 0]),
+            B = subset.Y.orig[subset.W.orig == 0] - Y.hat.0[subset.W.orig == 0]
+          )
+        )
+      new.center <- mean(subset.W.hat[subset.W.orig == 1] / (1 - subset.W.hat[subset.W.orig == 1]))
       delta.tmle.robust.0 <- predict(eps.tmle.robust.0,
-                                     newdata=data.frame(A=new.center))
+        newdata = data.frame(A = new.center)
+      )
       dr.correction <- -delta.tmle.robust.0
       if (cluster.se) {
-        s.0 <- sandwich::vcovCL(eps.tmle.robust.0, cluster = subset.clusters[subset.W.orig==0]) *
+        s.0 <- sandwich::vcovCL(eps.tmle.robust.0, cluster = subset.clusters[subset.W.orig == 0]) *
           new.center^2
         delta.1 <- Matrix::sparse.model.matrix(
-          ~ factor(subset.clusters[subset.W.orig==1]) + 0,
-          transpose = TRUE) %*% (subset.Y.orig[subset.W.orig==1]-Y.hat.1[subset.W.orig==1])
-        s.1 <- sum(delta.1^2) / sum(subset.W.orig==1) / (sum(subset.W.orig==1) - 1)
+          ~ factor(subset.clusters[subset.W.orig == 1]) + 0,
+          transpose = TRUE
+        ) %*% (subset.Y.orig[subset.W.orig == 1] - Y.hat.1[subset.W.orig == 1])
+        s.1 <- sum(delta.1^2) / sum(subset.W.orig == 1) / (sum(subset.W.orig == 1) - 1)
         sigma2.hat <- s.0 + s.1
       } else {
         sigma2.hat <- sandwich::vcovHC(eps.tmle.robust.0) * new.center^2 +
-          var(subset.Y.orig[subset.W.orig==1]-Y.hat.1[subset.W.orig==1]) / sum(subset.W.orig==1)
+          var(subset.Y.orig[subset.W.orig == 1] - Y.hat.1[subset.W.orig == 1]) / sum(subset.W.orig == 1)
       }
     } else if (target.sample == "control") {
       eps.tmle.robust.1 <-
         lm(B ~ A + 0,
-           data=data.frame(A=(1 - subset.W.hat[subset.W.orig==1])/subset.W.hat[subset.W.orig==1],
-                           B=subset.Y.orig[subset.W.orig==1]-Y.hat.1[subset.W.orig==1]))
-      new.center <- mean((1 - subset.W.hat[subset.W.orig==0])/subset.W.hat[subset.W.orig==0])
+          data = data.frame(
+            A = (1 - subset.W.hat[subset.W.orig == 1]) / subset.W.hat[subset.W.orig == 1],
+            B = subset.Y.orig[subset.W.orig == 1] - Y.hat.1[subset.W.orig == 1]
+          )
+        )
+      new.center <- mean((1 - subset.W.hat[subset.W.orig == 0]) / subset.W.hat[subset.W.orig == 0])
       delta.tmle.robust.1 <- predict(eps.tmle.robust.1,
-                                     newdata=data.frame(A=new.center))
+        newdata = data.frame(A = new.center)
+      )
       dr.correction <- delta.tmle.robust.1
       if (cluster.se) {
         delta.0 <- Matrix::sparse.model.matrix(
-          ~ factor(subset.clusters[subset.W.orig==0]) + 0,
-          transpose = TRUE) %*% (subset.Y.orig[subset.W.orig==0]-Y.hat.0[subset.W.orig==0])
-        s.0 <- sum(delta.0^2) / sum(subset.W.orig==0) / (sum(subset.W.orig==0) - 1)
-        s.1 <- sandwich::vcovCL(eps.tmle.robust.1, cluster = subset.clusters[subset.W.orig==1]) *
+          ~ factor(subset.clusters[subset.W.orig == 0]) + 0,
+          transpose = TRUE
+        ) %*% (subset.Y.orig[subset.W.orig == 0] - Y.hat.0[subset.W.orig == 0])
+        s.0 <- sum(delta.0^2) / sum(subset.W.orig == 0) / (sum(subset.W.orig == 0) - 1)
+        s.1 <- sandwich::vcovCL(eps.tmle.robust.1, cluster = subset.clusters[subset.W.orig == 1]) *
           new.center^2
         sigma2.hat <- s.0 + s.1
       } else {
-        sigma2.hat <- var(subset.Y.orig[subset.W.orig==0]-Y.hat.0[subset.W.orig==0]) / sum(subset.W.orig==0) +
+        sigma2.hat <- var(subset.Y.orig[subset.W.orig == 0] - Y.hat.0[subset.W.orig == 0]) / sum(subset.W.orig == 0) +
           sandwich::vcovHC(eps.tmle.robust.1) * new.center^2
       }
     } else {
       stop("Invalid target sample.")
     }
-
   } else {
     stop("Invalid method.")
   }
 
   tau.avg <- tau.avg.raw + dr.correction
   tau.se <- sqrt(sigma2.hat)
-  return(c(estimate=tau.avg, std.err=tau.se))
+  return(c(estimate = tau.avg, std.err = tau.se))
 }
 
-observation_weights = function(forest) {
-  sample.weights = if(is.null(forest$sample.weights)) {
+observation_weights <- function(forest) {
+  sample.weights <- if (is.null(forest$sample.weights)) {
     rep(1, length(forest$Y.orig))
   } else {
     forest$sample.weights * length(forest$Y.orig) / sum(forest$sample.weights)
@@ -300,7 +331,7 @@ observation_weights = function(forest) {
     observation.weight <- sample.weights
   } else {
     clust.factor <- factor(forest$clusters)
-    inverse.counts <- 1/as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
+    inverse.counts <- 1 / as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
     observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]
   }
   observation.weight
