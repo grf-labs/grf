@@ -16,7 +16,7 @@
 #include <unordered_map>
 
 #include "RandomSampler.h"
-#include "Distributions.h"
+#include "Distributions/Distributions.h"
 
 RandomSampler::RandomSampler(uint seed,
                              const SamplingOptions& options) :

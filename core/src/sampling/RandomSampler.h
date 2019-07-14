@@ -27,7 +27,7 @@
 #include <set>
 #include <vector>
 #include <unordered_map>
-#include "Distributions.h"
+#include "Distributions/Distributions.h"
 
 
 class RandomSampler {
