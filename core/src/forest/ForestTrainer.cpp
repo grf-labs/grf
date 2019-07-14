@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "Distributions/Distributions.h"
 #include "commons/utility.h"
 #include "ForestTrainer.h"
 
@@ -87,7 +88,6 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
   size_t ci_group_size = options.get_ci_group_size();
 
   std::mt19937_64 random_number_generator(options.get_random_seed() + start);
-  std::uniform_int_distribution<uint> udist;
   std::vector<std::shared_ptr<Tree>> trees;
 
   if (ci_group_size == 1) {
@@ -97,7 +97,7 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
   }
 
   for (size_t i = 0; i < num_trees; i++) {
-    uint tree_seed = udist(random_number_generator);
+    uint tree_seed = (uint) random_number_generator();
     RandomSampler sampler(tree_seed, options.get_sampling_options());
 
     if (ci_group_size == 1) {
