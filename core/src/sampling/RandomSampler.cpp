@@ -69,7 +69,7 @@ void RandomSampler::subsample(const std::vector<size_t>& samples,
   std::vector<size_t> shuffled_sample(samples);
   shuffle(shuffled_sample);
 
-  auto subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
+  size_t subsample_size = (size_t) std::ceil(samples.size() * sample_fraction);
   subsamples.resize(subsample_size);
   oob_samples.resize(samples.size() - subsample_size);
 
