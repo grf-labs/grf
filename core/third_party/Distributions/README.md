@@ -7,4 +7,4 @@ These functions were adapted from `Boost`, version 1.70.0 (released April 12th, 
 
 Most of the code is simple copy-and-paste and the logic was kept the same as in the original `boost` code. However, 
 some variables were renamed for readability, and some free variables (e.g. `poisson_table`)
-are now defined within the function.) 
+are now defined within the function.
