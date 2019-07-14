@@ -46,6 +46,7 @@ binding.files <- list.files("grf/bindings", full.names = TRUE)
 file.copy(binding.files, package.src, recursive = FALSE)
 file.copy("../core/src", package.src, recursive = TRUE)
 file.copy("../core/third_party/optional", package.src, recursive = TRUE)
+file.copy("../core/third_party/Distributions", package.src, recursive = TRUE)
 
 # Auto-generate documentation files
 roxygen2::roxygenise(package.name)
