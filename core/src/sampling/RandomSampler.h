@@ -28,6 +28,10 @@
 #include <set>
 #include <vector>
 #include <unordered_map>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/poisson_distribution.hpp>
+
 
 class RandomSampler {
 public:
@@ -151,7 +155,15 @@ private:
                   const std::set<size_t>& skip,
                   size_t num_samples);
 
-  SamplingOptions options;
+  /**
+  * In-house implementation of shuffle to ensure stability of random numbers.
+  * Implementation copied from reference:
+  * http://www.cplusplus.com/reference/algorithm/shuffle/
+  * @param vec Vector to shuffle (in-place).
+  */
+  void shuffle(std::vector<size_t>& v);
+
+    SamplingOptions options;
   std::mt19937_64 random_number_generator;
 };
 

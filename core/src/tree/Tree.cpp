@@ -183,4 +183,3 @@ void Tree::clear() {
   drawn_samples.clear();
   prediction_values.clear();
 }
-
