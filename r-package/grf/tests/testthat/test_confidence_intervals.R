@@ -94,3 +94,55 @@ test_that("instrumental CIs are invariant to scaling Z", {
   kst <- ks.test(error.standardized, error.standardized.iv)
   expect_true(kst$statistic <= 0.05)
 })
+
+test_that("LL causal CIs are reasonable", {
+   n <- 1000
+   n.test <- 1000
+   p <- 4
+   X <- matrix(rnorm(n * p), n, p)
+   W <- rbinom(n, 1, 0.5)
+   TAU <- 2 * X[, 1]
+   Y <- W * TAU + 0.5 * rnorm(n)
+
+   forest <- causal_forest(X, Y, W)
+   tau.hat <- predict(forest, linear.correction.variables = 1:ncol(X), estimate.variance = TRUE)
+   error.standardized <- (tau.hat$predictions - TAU) / sqrt(tau.hat$variance.estimates)
+   expect_lt(mean(abs(error.standardized) > qnorm(0.975)), 0.05)
+
+   X.test <- matrix(rnorm(n.test * p), n.test, p)
+   TAU.test <- 2 * X.test[, 1]
+
+   tau.hat.test <- predict(forest, X.test, linear.correction.variables = 1:ncol(X), estimate.variance = TRUE)
+   error.standardized.test <- (tau.hat.test$predictions - TAU.test) / sqrt(tau.hat.test$variance.estimates)
+   expect_lt(mean(abs(error.standardized.test) > qnorm(0.975)), 0.05)
+})
+
+test_that("LL causal CIs are shorter than standard causal CIS", {
+   n <- 1000
+   p <- 6
+   X <- matrix(rnorm(n * p), n, p)
+   W <- rbinom(n, 1, 0.5)
+   TAU <- 2 * X[, 1] + X[, 2]
+   Y <- W * TAU + rnorm(n)
+
+   forest <- causal_forest(X, Y, W)
+   tau.hat.ll <- predict(forest, linear.correction.variables = 1:2, ll.lambda = 0.01, estimate.variance = TRUE)
+   tau.hat <- predict(forest, estimate.variance = TRUE)
+
+   preds <- tau.hat$predictions
+   vars <- tau.hat$variance.estimates
+   lowers <- preds - 1.96 * sqrt(vars)
+   uppers <- preds + 1.96 * sqrt(vars)
+   coverage.grf <- mean(lowers <= TAU & TAU <= uppers)
+   length.grf <- mean(abs(uppers - lowers))
+
+   preds.ll <- tau.hat.ll$predictions
+   vars.ll <- tau.hat.ll$variance.estimates
+   lowers.ll <- preds.ll - 1.96 * sqrt(vars.ll)
+   uppers.ll <- preds.ll + 1.96 * sqrt(vars.ll)
+   coverage.ll <- mean(lowers.ll <= TAU & TAU <= uppers.ll)
+   length.ll <- mean(abs(uppers.ll - lowers.ll))
+
+   expect_lt(coverage.grf / coverage.ll, 1)
+   expect_lt(length.ll / length.grf, 0.8)
+})
