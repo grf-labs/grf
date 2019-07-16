@@ -1,6 +1,7 @@
 *This folder has replication files for the paper "Local Linear Forests", by Friedberg, Tibshirani, Athey, and Wager.
 
 All selected settings for the algorithms here are described in the paper.
+Required R packages: BART, ggplot2, glmnet, grf, hte, xgboost. 
 
 Contained in this folder are:
 

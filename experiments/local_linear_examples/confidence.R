@@ -3,7 +3,6 @@
 ########################
 
 library(grf)
-library(BayesTree)
 library(glmnet)
 library(ggplot2)
 
@@ -71,8 +70,7 @@ friedman = function(x){
 full_results = sapply(ns, function(n){
   results = replicate(num_reps, {
     X = matrix(runif(n*p,0,1), nrow = n)
-    truth = apply(X, MARGIN = 1, FUN = friedman) 
-    #truth = mu(X[,1])
+    truth = apply(X, MARGIN = 1, FUN = friedman)
     Y = truth + sigma*rnorm(n)
     
     percent_llf = 0
