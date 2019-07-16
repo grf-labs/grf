@@ -46,7 +46,7 @@ simulation.run = function(n, p, sigma, num.reps = 100, ntest = 2000, num.trees =
     mod <- step(baseModel, scope = list(upper = upper, lower = baseModel), trace = 0)
     names.selected = names(mod$coefficients)[2:length(names(mod$coefficients))]
     selected = sapply(names.selected, function(item){
-      num = substring(item,2,length(item)+1)
+      num = substring(item,2)
       as.numeric(num)
     })
     selected = data.frame(selected)$selected
