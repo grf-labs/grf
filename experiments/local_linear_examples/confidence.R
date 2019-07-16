@@ -3,6 +3,8 @@
 ########################
 
 library(grf)
+library(BayesTree)
+library(glmnet)
 library(ggplot2)
 
 mu = function(x){
@@ -48,9 +50,6 @@ ggsave("grf-preds.pdf")
 ################################
 ## coverage, length, and RMSE ## 
 ################################
-
-library(BayesTree)
-library(glmnet)
 
 p = 5
 sigma = sqrt(20)

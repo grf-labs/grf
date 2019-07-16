@@ -128,4 +128,4 @@ full.results = t(apply(args, MARGIN = 1, FUN = function(arguments){
 full.results = cbind(args, round(full.results, 3))
 full.results
 
-write.csv(full.results,"Dropbox/Local Linear Forests/Simulations/for-repo-eventually/Results/friedman_roundnplusone.csv", row.names = FALSE)
+write.csv(full.results, "friedman_table.csv", row.names = FALSE)
