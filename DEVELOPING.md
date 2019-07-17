@@ -4,8 +4,7 @@ In addition to providing out-of-the-box forests for quantile regression and inst
 
 ### Working with the code
 
-The core forest implementation is written in C++, with an R interface powered by Rcpp. We recommend using a full-powered C++ IDE such as CLion, Xcode, or Visual Studio when working with the core code. To build the R package from source, cd into `r-package` and run `build_package.R`. Code style consistency is checked with the [lintr](https://github.com/jimhester/lintr) package, and in RStudio you can make sure the code is consistent with the R standard by clicking _Addins->Style_ (we recommend installing the latest version with `devtools::install_github("jimhester/lintr")`). Symlinks in the src directory point to
-the core C++ and R bindings, for Windows users we leave it to you to replace these with Windows appropriate symlinks.
+The core forest implementation is written in C++, with an R interface powered by Rcpp. We recommend using a full-powered C++ IDE such as CLion, Xcode, or Visual Studio when working with the core code. To build the R package from source, cd into `r-package` and run `build_package.R`. Code style consistency is checked with the [lintr](https://github.com/jimhester/lintr) package, and in RStudio you can make sure the code is consistent with the R standard by clicking _Addins->Style_ (we recommend installing the latest version with `devtools::install_github("jimhester/lintr")`). Symlinks in the src directory point to the core C++ and R bindings, for Windows users, one has to clone this repository with symlinks enabled: `git clone -c core.symlinks=true https://github.com/grf-labs/grf.git` (this command needs to be run as an administrator: right click Command Prompt -> Run as administrator)
 
 ### Code structure
 
