@@ -227,5 +227,6 @@ test_that("a non-pruned honest regression forest has lower MSE than a pruned hon
   mse.pruned <- mean((predict(f1)$predictions - Y)^2)
   mse.notpruned <- mean((predict(f2)$predictions - Y)^2)
 
-  expect_true(mse.notpruned < mse.pruned)
+  # Upper bound of 65 % is based on 10 000 repetitions of the above DGP
+  expect_true(mse.notpruned < 0.65 * mse.pruned)
 })
