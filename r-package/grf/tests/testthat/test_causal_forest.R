@@ -243,3 +243,37 @@ test_that("Weighting is roughly equivalent to replication of samples", {
   ) <= 1) >= .5)
   expect_true(mean(predict(causal.forest.rep, X[test, ]) > 100 + predict(causal.forest.biased, X[test, ])) >= .5)
 })
+
+test_that("A non-pruned honest causal forest contains trees with empty leafs,
+          and a pruned honest causal forest does not contain trees with empty leafs", {
+  n <- 100
+  p <- 4
+  num.trees <- 100
+  trees <- 1:num.trees
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  tau <- 2 * X[, 1] + X[, 2]
+  Y <- W * tau + rnorm(n)
+
+  cf_unpruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9, prune = FALSE, num.trees = num.trees)
+  cf_pruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9, prune = TRUE, num.trees = num.trees)
+
+  contains_empty_leafs <- function(forest, trees) {
+    empty <- lapply(trees, function(t) {
+      tree <- get_tree(forest, t)
+      printed.tree <- capture.output(print(tree))
+      has.empty.leafs <- any(grepl("num_samples: 0", printed.tree))
+      has.empty.leafs
+    })
+    empty
+  }
+
+  empty_unpruned <- contains_empty_leafs(cf_unpruned, trees)
+  any.unpruned.empty <- any(as.logical(empty_unpruned))
+
+  empty_pruned <- contains_empty_leafs(cf_pruned, trees)
+  any.pruned.empty <- any(as.logical(empty_pruned))
+
+  expect_true(any.unpruned.empty)
+  expect_true(!any.pruned.empty)
+})
