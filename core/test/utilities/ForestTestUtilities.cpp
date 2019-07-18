@@ -29,6 +29,7 @@ ForestOptions ForestTestUtilities::default_honest_options() {
 ForestOptions ForestTestUtilities::default_options(bool honesty,
                                                    size_t ci_group_size) {
   double honesty_fraction = 0.5;
+  bool prune = true;
   uint num_trees = 50;
   double sample_fraction = ci_group_size > 1 ? 0.35 : 0.7;
   uint mtry = 3;
@@ -42,5 +43,5 @@ ForestOptions ForestTestUtilities::default_options(bool honesty,
 
   return ForestOptions(num_trees,
           ci_group_size, sample_fraction, mtry, min_node_size, honesty, honesty_fraction,
-      alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
+      prune, alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
 }

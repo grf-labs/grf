@@ -21,6 +21,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
                           double sample_fraction,
                           bool honesty,
                           double honesty_fraction,
+                          bool prune,
                           size_t ci_group_size,
                           double alpha,
                           double imbalance_penalty,
@@ -37,7 +38,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
   data->sort();
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-      honesty_fraction, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
+      honesty_fraction, prune, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
   Forest forest = trainer.train(data, options);
 
   delete data;
