@@ -77,6 +77,7 @@ quantile_forest <- function(X, Y,
                             min.node.size = NULL,
                             honesty = TRUE,
                             honesty.fraction = NULL,
+                            prune = TRUE,
                             alpha = 0.05,
                             imbalance.penalty = 0.0,
                             clusters = NULL,
@@ -108,8 +109,8 @@ quantile_forest <- function(X, Y,
 
   forest <- quantile_train(
     quantiles, regression.splitting, data$default, data$sparse, outcome.index, mtry,
-    num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), ci.group.size,
-    alpha, imbalance.penalty, clusters, samples.per.cluster, num.threads, seed
+    num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), prune,
+    ci.group.size, alpha, imbalance.penalty, clusters, samples.per.cluster, num.threads, seed
   )
 
   class(forest) <- c("quantile_forest", "grf")

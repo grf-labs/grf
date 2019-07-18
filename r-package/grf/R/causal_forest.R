@@ -133,6 +133,7 @@ causal_forest <- function(X, Y, W,
                           min.node.size = NULL,
                           honesty = TRUE,
                           honesty.fraction = NULL,
+                          prune = TRUE,
                           ci.group.size = 2,
                           alpha = NULL,
                           imbalance.penalty = NULL,
@@ -164,7 +165,7 @@ causal_forest <- function(X, Y, W,
     forest.Y <- regression_forest(X, Y,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       tune.parameters = tune.parameters, num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL,
-      honesty = TRUE, honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha,
+      honesty = TRUE, honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
       imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     Y.hat <- predict(forest.Y)$predictions
@@ -172,7 +173,7 @@ causal_forest <- function(X, Y, W,
     forest.Y <- boosted_regression_forest(X, Y,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       tune.parameters = tune.parameters, num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL,
-      honesty = TRUE, honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha,
+      honesty = TRUE, honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
       imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     Y.hat <- predict(forest.Y)$predictions
@@ -186,15 +187,15 @@ causal_forest <- function(X, Y, W,
     forest.W <- regression_forest(X, W,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       tune.parameters = tune.parameters, num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL,
-      honesty = TRUE, honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha,
+      honesty = TRUE, honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
       imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     W.hat <- predict(forest.W)$predictions
   } else if (is.null(W.hat) && orthog.boosting) {
     forest.W <- boosted_regression_forest(X, W,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
-      tune.parameters = tune.parameters, num.trees = num.trees.orthog, num.threads = num.threads,
-      min.node.size = NULL, honesty = TRUE, honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha,
+      tune.parameters = tune.parameters, num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL,
+      honesty = TRUE, honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
       imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     W.hat <- predict(forest.W)$predictions
@@ -219,6 +220,7 @@ causal_forest <- function(X, Y, W,
       num.threads = num.threads,
       honesty = honesty,
       honesty.fraction = honesty.fraction,
+      prune = prune,
       seed = seed,
       clusters = clusters,
       samples.per.cluster = samples.per.cluster
@@ -252,6 +254,7 @@ causal_forest <- function(X, Y, W,
     as.numeric(tunable.params["sample.fraction"]),
     honesty,
     coerce_honesty_fraction(honesty.fraction),
+    prune,
     ci.group.size,
     reduced.form.weight,
     as.numeric(tunable.params["alpha"]),

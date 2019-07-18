@@ -70,6 +70,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 min.node.size = NULL,
                                 honesty = TRUE,
                                 honesty.fraction = NULL,
+                                prune = TRUE,
                                 ci.group.size = 2,
                                 reduced.form.weight = 0,
                                 alpha = 0.05,
@@ -103,8 +104,8 @@ instrumental_forest <- function(X, Y, W, Z,
     forest.Y <- regression_forest(X, Y,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     Y.hat <- predict(forest.Y)$predictions
   } else if (length(Y.hat) == 1) {
@@ -117,8 +118,8 @@ instrumental_forest <- function(X, Y, W, Z,
     forest.W <- regression_forest(X, W,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == 1) {
@@ -131,8 +132,8 @@ instrumental_forest <- function(X, Y, W, Z,
     forest.Z <- regression_forest(X, Z,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     Z.hat <- predict(forest.Z)$predictions
   } else if (length(Z.hat) == 1) {
@@ -152,7 +153,7 @@ instrumental_forest <- function(X, Y, W, Z,
     data$default, data$sparse,
     outcome.index, treatment.index, instrument.index, sample.weight.index, !is.null(sample.weights),
     mtry, num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction),
-    ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits, clusters,
+    prune, ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits, clusters,
     samples.per.cluster, compute.oob.predictions, num.threads, seed
   )
 
