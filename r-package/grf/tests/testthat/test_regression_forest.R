@@ -213,3 +213,19 @@ test_that("inverse propensity weighting in the training of a regression forest w
   ipw.mse.forest.weighted <- sum((predict(forest.weighted, X) - Y)^2)
   expect_true(ipw.mse.forest.weighted < ipw.mse.forest)
 })
+
+test_that("a non-pruned honest regression forest has lower MSE than a pruned honest regression forests
+          (on small data)", {
+  n <- 100
+  p <- 4
+  X <- matrix(rnorm(n * p), n, p)
+  Y <- abs(X[, 1]) + 0.1 * rnorm(n)
+
+  f1 <- regression_forest(X, Y, honesty = TRUE, honesty.fraction = 0.9, prune = TRUE)
+  f2 <- regression_forest(X, Y, honesty = TRUE, honesty.fraction = 0.9, prune = FALSE)
+
+  mse.pruned <- mean((predict(f1)$predictions - Y)^2)
+  mse.notpruned <- mean((predict(f2)$predictions - Y)^2)
+
+  expect_true(mse.notpruned < mse.pruned)
+})
