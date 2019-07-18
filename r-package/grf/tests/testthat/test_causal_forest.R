@@ -255,8 +255,8 @@ test_that("A non-pruned honest causal forest contains trees with empty leafs,
   tau <- 2 * X[, 1] + X[, 2]
   Y <- W * tau + rnorm(n)
 
-  cf_unpruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9, prune = FALSE, num.trees = num.trees)
-  cf_pruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9, prune = TRUE, num.trees = num.trees)
+  cf.unpruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9, prune = FALSE, num.trees = num.trees)
+  cf.pruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9, prune = TRUE, num.trees = num.trees)
 
   contains_empty_leafs <- function(forest, trees) {
     empty <- lapply(trees, function(t) {
@@ -268,11 +268,11 @@ test_that("A non-pruned honest causal forest contains trees with empty leafs,
     empty
   }
 
-  empty_unpruned <- contains_empty_leafs(cf_unpruned, trees)
-  any.unpruned.empty <- any(as.logical(empty_unpruned))
+  empty.unpruned <- contains_empty_leafs(cf.unpruned, trees)
+  any.unpruned.empty <- any(as.logical(empty.unpruned))
 
-  empty_pruned <- contains_empty_leafs(cf_pruned, trees)
-  any.pruned.empty <- any(as.logical(empty_pruned))
+  empty.pruned <- contains_empty_leafs(cf.pruned, trees)
+  any.pruned.empty <- any(as.logical(empty.pruned))
 
   expect_true(any.unpruned.empty)
   expect_true(!any.pruned.empty)
