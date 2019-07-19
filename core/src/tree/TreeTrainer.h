@@ -48,7 +48,7 @@ private:
   void repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
                              const Data* data,
                              const std::vector<size_t> &leaf_samples,
-                             const bool prune) const;
+                             const bool prune_empty_leaves) const;
 
   void create_split_variable_subset(std::vector<size_t>& result,
                                     RandomSampler& sampler,

@@ -90,7 +90,7 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
       PredictionValues()));
 
   if (!new_leaf_samples.empty()) {
-    repopulate_leaf_nodes(tree, data, new_leaf_samples, options.get_prune());
+    repopulate_leaf_nodes(tree, data, new_leaf_samples, options.get_prune_empty_leaves());
   }
 
   PredictionValues prediction_values;
@@ -105,7 +105,7 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
 void TreeTrainer::repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
                                         const Data* data,
                                         const std::vector<size_t>& leaf_samples,
-                                        const bool prune) const {
+                                        const bool prune_empty_leaves) const {
   size_t num_nodes = tree->get_leaf_samples().size();
   std::vector<std::vector<size_t>> new_leaf_nodes(num_nodes);
 
@@ -116,7 +116,7 @@ void TreeTrainer::repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
     new_leaf_nodes.at(leaf_node).push_back(sample);
   }
   tree->set_leaf_samples(new_leaf_nodes);
-  if (prune) {
+  if (prune_empty_leaves) {
     tree->prune_empty_leaves();
   }
 }
