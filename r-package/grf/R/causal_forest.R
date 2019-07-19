@@ -38,10 +38,10 @@
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
-#' @param prune (experimental) If true, prune the estimation sample tree such that no leaves are empty.
-#'              If false, keep the same tree as determined in the splits sample (internally, NaNs are returned for
-#'              trees with empty leaves). Setting this to false may improve performance on small/marginally
-#'              powered data, but requires more trees. Only applies if honesty is enabled.
+#' @param prune.empty.leaves (experimental) If true, prune.empty.leaves the estimation sample tree such that no leaves
+#'  are empty. If false, keep the same tree as determined in the splits sample (internally, NaNs are returned for
+#'  trees with empty leaves). Setting this to false may improve performance on small/marginally
+#'  powered data, but requires more trees. Only applies if honesty is enabled.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -137,7 +137,7 @@ causal_forest <- function(X, Y, W,
                           min.node.size = NULL,
                           honesty = TRUE,
                           honesty.fraction = NULL,
-                          prune = TRUE,
+                          prune.empty.leaves = TRUE,
                           ci.group.size = 2,
                           alpha = NULL,
                           imbalance.penalty = NULL,
@@ -169,16 +169,18 @@ causal_forest <- function(X, Y, W,
     forest.Y <- regression_forest(X, Y,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       tune.parameters = tune.parameters, num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL,
-      honesty = TRUE, honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
-      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty = TRUE, honesty.fraction = NULL, prune.empty.leaves = prune.empty.leaves, seed = seed, ci.group.size = 1,
+      alpha = alpha, imbalance.penalty = imbalance.penalty, clusters = clusters,
+      samples.per.cluster = samples.per.cluster
     )
     Y.hat <- predict(forest.Y)$predictions
   } else if (is.null(Y.hat) && orthog.boosting) {
     forest.Y <- boosted_regression_forest(X, Y,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       tune.parameters = tune.parameters, num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL,
-      honesty = TRUE, honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
-      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty = TRUE, honesty.fraction = NULL, prune.empty.leaves = prune.empty.leaves, seed = seed, ci.group.size = 1,
+      alpha = alpha, imbalance.penalty = imbalance.penalty, clusters = clusters,
+      samples.per.cluster = samples.per.cluster
     )
     Y.hat <- predict(forest.Y)$predictions
   } else if (length(Y.hat) == 1) {
@@ -191,16 +193,18 @@ causal_forest <- function(X, Y, W,
     forest.W <- regression_forest(X, W,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       tune.parameters = tune.parameters, num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL,
-      honesty = TRUE, honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
-      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty = TRUE, honesty.fraction = NULL, prune.empty.leaves = prune.empty.leaves, seed = seed, ci.group.size = 1,
+      alpha = alpha, imbalance.penalty = imbalance.penalty, clusters = clusters,
+      samples.per.cluster = samples.per.cluster
     )
     W.hat <- predict(forest.W)$predictions
   } else if (is.null(W.hat) && orthog.boosting) {
     forest.W <- boosted_regression_forest(X, W,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       tune.parameters = tune.parameters, num.trees = num.trees.orthog, num.threads = num.threads, min.node.size = NULL,
-      honesty = TRUE, honesty.fraction = NULL, prune = prune, seed = seed, ci.group.size = 1, alpha = alpha,
-      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty = TRUE, honesty.fraction = NULL, prune.empty.leaves = prune.empty.leaves, seed = seed, ci.group.size = 1,
+      alpha = alpha, imbalance.penalty = imbalance.penalty, clusters = clusters,
+      samples.per.cluster = samples.per.cluster
     )
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == 1) {
@@ -224,7 +228,7 @@ causal_forest <- function(X, Y, W,
       num.threads = num.threads,
       honesty = honesty,
       honesty.fraction = honesty.fraction,
-      prune = prune,
+      prune.empty.leaves = prune.empty.leaves,
       seed = seed,
       clusters = clusters,
       samples.per.cluster = samples.per.cluster
@@ -258,7 +262,7 @@ causal_forest <- function(X, Y, W,
     as.numeric(tunable.params["sample.fraction"]),
     honesty,
     coerce_honesty_fraction(honesty.fraction),
-    prune,
+    prune.empty.leaves,
     ci.group.size,
     reduced.form.weight,
     as.numeric(tunable.params["alpha"]),

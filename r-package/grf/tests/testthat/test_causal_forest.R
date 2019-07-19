@@ -255,8 +255,10 @@ test_that("A non-pruned honest causal forest contains trees with empty leafs,
   tau <- 2 * X[, 1] + X[, 2]
   Y <- W * tau + rnorm(n)
 
-  cf.unpruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9, prune = FALSE, num.trees = num.trees)
-  cf.pruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9, prune = TRUE, num.trees = num.trees)
+  cf.unpruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9,
+                               prune.empty.leaves = FALSE, num.trees = num.trees)
+  cf.pruned <- causal_forest(X, Y, W, honesty = TRUE, honesty.fraction = 0.9,
+                             prune.empty.leaves = TRUE, num.trees = num.trees)
 
   contains_empty_leafs <- function(forest, trees) {
     empty <- lapply(trees, function(t) {

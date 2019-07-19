@@ -34,10 +34,10 @@
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
-#' @param prune (experimental) If true, prune the estimation sample tree such that no leaves are empty.
-#'              If false, keep the same tree as determined in the splits sample (internally, NaNs are returned for
-#'              trees with empty leaves). Setting this to false may improve performance on small/marginally
-#'              powered data, but requires more trees. Only applies if honesty is enabled.
+#' @param prune.empty.leaves (experimental) If true, prune.empty.leaves the estimation sample tree such that no leaves
+#'  are empty. If false, keep the same tree as determined in the splits sample (internally, NaNs are returned for
+#'  trees with empty leaves). Setting this to false may improve performance on small/marginally
+#'  powered data, but requires more trees. Only applies if honesty is enabled.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
@@ -92,7 +92,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                stabilize.splits = TRUE,
                                honesty = TRUE,
                                honesty.fraction = NULL,
-                               prune = TRUE,
+                               prune.empty.leaves = TRUE,
                                clusters = NULL,
                                samples.per.cluster = NULL,
                                num.threads = NULL,
@@ -143,7 +143,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
       as.numeric(params["sample.fraction"]),
       honesty,
       coerce_honesty_fraction(honesty.fraction),
-      prune,
+      prune.empty.leaves,
       ci.group.size,
       reduced.form.weight,
       as.numeric(params["alpha"]),

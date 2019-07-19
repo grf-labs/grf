@@ -17,10 +17,10 @@
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
-#' @param prune (experimental) If true, prune the estimation sample tree such that no leaves are empty.
-#'              If false, keep the same tree as determined in the splits sample (internally, NaNs are returned for
-#'              trees with empty leaves). Setting this to false may improve performance on small/marginally
-#'              powered data, but requires more trees. Only applies if honesty is enabled.
+#' @param prune.empty.leaves (experimental) If true, prune.empty.leaves the estimation sample tree such that no leaves
+#'  are empty. If false, keep the same tree as determined in the splits sample (internally, NaNs are returned for
+#'  trees with empty leaves). Setting this to false may improve performance on small/marginally
+#'  powered data, but requires more trees. Only applies if honesty is enabled.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
@@ -62,7 +62,7 @@ custom_forest <- function(X, Y,
                           min.node.size = NULL,
                           honesty = TRUE,
                           honesty.fraction = NULL,
-                          prune = TRUE,
+                          prune.empty.leaves = TRUE,
                           alpha = 0.05,
                           imbalance.penalty = 0.0,
                           clusters = NULL,
@@ -90,7 +90,7 @@ custom_forest <- function(X, Y,
 
   forest <- custom_train(
     data$default, data$sparse, outcome.index, mtry, num.trees, min.node.size,
-    sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), prune, ci.group.size, alpha,
+    sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), prune.empty.leaves, ci.group.size, alpha,
     imbalance.penalty, clusters, samples.per.cluster, num.threads, compute.oob.predictions, seed
   )
 
