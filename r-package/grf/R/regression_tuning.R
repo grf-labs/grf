@@ -28,6 +28,10 @@
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
+#' @param prune.empty.leaves (experimental) If true, prunes the estimation sample tree such that no leaves
+#'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
+#'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
+#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default: TRUE.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
@@ -74,6 +78,7 @@ tune_regression_forest <- function(X, Y,
                                    imbalance.penalty = NULL,
                                    honesty = TRUE,
                                    honesty.fraction = NULL,
+                                   prune.empty.leaves = TRUE,
                                    clusters = NULL,
                                    samples.per.cluster = NULL,
                                    num.threads = NULL,
@@ -122,6 +127,7 @@ tune_regression_forest <- function(X, Y,
       as.numeric(params["sample.fraction"]),
       honesty,
       coerce_honesty_fraction(honesty.fraction),
+      prune.empty.leaves,
       ci.group.size,
       as.numeric(params["alpha"]),
       as.numeric(params["imbalance.penalty"]),
