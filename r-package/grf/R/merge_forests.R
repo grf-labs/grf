@@ -9,7 +9,7 @@
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
 #'        Note that even if OOB predictions have already been precomputed for the forests in 'forest_list',
 #'        those predictions are not used. Instead, a new set of oob predictions is computed anew using the
-#'        larger forest.
+#'        larger forest. Default is TRUE.
 #'
 #' @return A single forest containing all the trees in each forest in the input list.
 #'
