@@ -15,41 +15,45 @@
 #' @param Y.hat Estimates of the expected responses E[Y | Xi], marginalizing
 #'              over treatment. If Y.hat = NULL, these are estimated using
 #'              a separate regression forest. See section 6.1.1 of the GRF paper for
-#'              further discussion of this quantity.
+#'              further discussion of this quantity. Default is NULL.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
-#'              these are estimated using a separate regression forest.
+#'              these are estimated using a separate regression forest. Default is NULL.
 #' @param sample.weights (experimental) Weights given to each sample in estimation.
 #'                       If NULL, each observation receives the same weight.
 #'                       Note: To avoid introducing confounding, weights should be
-#'                       independent of the potential outcomes given X.
+#'                       independent of the potential outcomes given X. Default is NULL.
 #' @param orthog.boosting (experimental) If TRUE, then when Y.hat = NULL or W.hat is NULL,
 #'                 the missing quantities are estimated using boosted regression forests.
-#'                 The number of boosting steps is selected automatically.
+#'                 The number of boosting steps is selected automatically. Default is FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
-#'                        further be cut by a factor of honesty.fraction.
-#' @param mtry Number of variables tried for each split.
+#'                        further be cut by a factor of honesty.fraction. Default is 0.5.
+#' @param mtry Number of variables tried for each split. Default is
+#'             \eqn{\sqrt p + 20} where p is the number of variables.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
-#'                  getting accurate predictions.
+#'                  getting accurate predictions. Default is 2000.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
+#'                      Default is 5.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
-#'                         honesty.fraction = NULL), half of the data will be used for determining splits
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits.
+#'                         Default is 0.5.
 #' @param prune.empty.leaves (experimental) If true, prunes the estimation sample tree such that no leaves
 #'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
 #'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
-#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default: TRUE.
+#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default is TRUE.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
-#'                      be at least 2.
-#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
-#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
+#'                      be at least 2. Default is 2.
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
-#'                         determining the imbalance of a split.
+#'                         determining the imbalance of a split. Default is TRUE.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#'                 Default is NULL (ignored).
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
 #'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
@@ -57,14 +61,14 @@
 #'                            clusters with less than samples.per.cluster observations get relatively
 #'                            smaller weight than others in training the forest, i.e., the contribution
 #'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples.per.cluster.
+#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
-#'                        NULL parameters are set to defaults.
-#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
-#' @param num.fit.reps The number of forests used to fit the tuning model.
+#'                        NULL parameters are set to defaults. Default is FALSE.
+#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 200.
+#' @param num.fit.reps The number of forests used to fit the tuning model. Default is 50.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
-#'                          to select the optimal parameters.
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
+#'                          to select the optimal parameters. Default is 1000.
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
