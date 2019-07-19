@@ -2,9 +2,31 @@
 
 In addition to providing out-of-the-box forests for quantile regression and instrumental variables, grf provides a framework for creating forests tailored to new statistical tasks. Certain components around splitting and prediction can be swapped out, within the general infrastructure for growing and predicting on trees.
 
-### Working with the code
+## Contributing
 
-The core forest implementation is written in C++, with an R interface powered by Rcpp. We recommend using a full-powered C++ IDE such as CLion, Xcode, or Visual Studio when working with the core code. To build the R package from source, cd into `r-package` and run `build_package.R`. Code style consistency is checked with the [lintr](https://github.com/jimhester/lintr) package, and in RStudio you can make sure the code is consistent with the R standard by clicking _Addins->Style_ (we recommend installing the latest version with `devtools::install_github("jimhester/lintr")`). Symlinks in the src directory point to the core C++ and R bindings, for Windows users, one has to clone this repository with symlinks enabled: `git clone -c core.symlinks=true https://github.com/grf-labs/grf.git` (this command needs to be run as an administrator: right click Command Prompt -> Run as administrator)
+This repository follows the standard open source protocol and setup with git where there are an abundance of existing resources to get up to speed (see for example the
+contributing guidelines for well known packages in other languages, like Scikit-learn, Scipy, and pandas)
+
+Condensed greatly, the workflow is to fork this repository, check out a branch, commit your changes (forming an ideally legible commit history),
+then submitting a pull request explaining your contribution, ideally referring to the issue you created, or the issue you chose to work on.
+
+## Working with the code
+
+The core forest implementation is written in C++, with an R interface powered by Rcpp. We recommend using a full-powered C++ IDE such as CLion, Xcode, or Visual Studio when working with the core code.
+
+## R package
+
+To build the R package from source, cd into `r-package` and run `build_package.R`. Required development dependencies are listed there
+(note: it is recommended to install the latest [lintr](https://github.com/jimhester/lintr) package with `devtools::install_github("jimhester/lintr")`). This mimics the tests run when submitting a pull request.
+
+An alternative development workflow is to use the accompanying grf.Rproj and build and test the package with RStudio's build menu, which can be convenient
+for quickly iterating C++/R code changes.
+
+_Note for Windows users:_
+
+Symlinks in the src directory point to the core C++ and R bindings. On Windows one has to clone this repository with symlinks enabled: `git clone -c core.symlinks=true https://github.com/grf-labs/grf.git` (this command needs to be run as an administrator: right click _Command Prompt -> Run as administrator_). Caveat: the above RStudio workflow is not tested on Windows.
+
+## Core C++
 
 ### Code structure
 
