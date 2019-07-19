@@ -33,6 +33,10 @@
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
+#' @param prune.empty.leaves (experimental) If true, prunes the estimation sample tree such that no leaves
+#'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
+#'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
+#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default: TRUE.
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -70,6 +74,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 min.node.size = NULL,
                                 honesty = TRUE,
                                 honesty.fraction = NULL,
+                                prune.empty.leaves = TRUE,
                                 ci.group.size = 2,
                                 reduced.form.weight = 0,
                                 alpha = 0.05,
@@ -103,8 +108,8 @@ instrumental_forest <- function(X, Y, W, Z,
     forest.Y <- regression_forest(X, Y,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty.fraction = NULL, prune.empty.leaves = prune.empty.leaves, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     Y.hat <- predict(forest.Y)$predictions
   } else if (length(Y.hat) == 1) {
@@ -117,8 +122,8 @@ instrumental_forest <- function(X, Y, W, Z,
     forest.W <- regression_forest(X, W,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty.fraction = NULL, prune.empty.leaves = prune.empty.leaves, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == 1) {
@@ -131,8 +136,8 @@ instrumental_forest <- function(X, Y, W, Z,
     forest.Z <- regression_forest(X, Z,
       sample.weights = sample.weights, sample.fraction = sample.fraction, mtry = mtry,
       num.trees = min(500, num.trees), num.threads = num.threads, min.node.size = NULL, honesty = TRUE,
-      honesty.fraction = NULL, seed = seed, ci.group.size = 1, alpha = alpha, imbalance.penalty = imbalance.penalty,
-      clusters = clusters, samples.per.cluster = samples.per.cluster
+      honesty.fraction = NULL, prune.empty.leaves = prune.empty.leaves, seed = seed, ci.group.size = 1, alpha = alpha,
+      imbalance.penalty = imbalance.penalty, clusters = clusters, samples.per.cluster = samples.per.cluster
     )
     Z.hat <- predict(forest.Z)$predictions
   } else if (length(Z.hat) == 1) {
@@ -152,7 +157,7 @@ instrumental_forest <- function(X, Y, W, Z,
     data$default, data$sparse,
     outcome.index, treatment.index, instrument.index, sample.weight.index, !is.null(sample.weights),
     mtry, num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction),
-    ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits, clusters,
+    prune.empty.leaves, ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits, clusters,
     samples.per.cluster, compute.oob.predictions, num.threads, seed
   )
 

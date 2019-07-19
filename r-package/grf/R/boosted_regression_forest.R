@@ -24,6 +24,10 @@
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
 #'                         honesty.fraction = NULL), half of the data will be used for determining splits
+#' @param prune.empty.leaves (experimental) If true, prunes the estimation sample tree such that no leaves
+#'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
+#'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
+#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default: TRUE.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2.
@@ -86,6 +90,7 @@ boosted_regression_forest <- function(X, Y,
                                       min.node.size = NULL,
                                       honesty = TRUE,
                                       honesty.fraction = NULL,
+                                      prune.empty.leaves = TRUE,
                                       ci.group.size = 2,
                                       alpha = NULL,
                                       imbalance.penalty = NULL,
@@ -112,6 +117,7 @@ boosted_regression_forest <- function(X, Y,
     num.threads = num.threads,
     min.node.size = min.node.size, honesty = honesty,
     honesty.fraction = honesty.fraction,
+    prune.empty.leaves = prune.empty.leaves,
     seed = seed, ci.group.size = ci.group.size,
     alpha = alpha,
     imbalance.penalty = imbalance.penalty,
@@ -147,6 +153,7 @@ boosted_regression_forest <- function(X, Y,
         min.node.size = as.numeric(tunable.params["min.node.size"]),
         honesty = honesty,
         honesty.fraction = honesty.fraction,
+        prune.empty.leaves = prune.empty.leaves,
         seed = seed, ci.group.size = ci.group.size,
         alpha = as.numeric(tunable.params["alpha"]),
         imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
@@ -167,6 +174,7 @@ boosted_regression_forest <- function(X, Y,
       min.node.size = as.numeric(tunable.params["min.node.size"]),
       honesty = honesty,
       honesty.fraction = honesty.fraction,
+      prune.empty.leaves = prune.empty.leaves,
       seed = seed, ci.group.size = ci.group.size,
       alpha = as.numeric(tunable.params["alpha"]),
       imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
