@@ -39,7 +39,7 @@ if (!is.na(args[1]) && args[1] == "--as-cran") {
 roxygen2::roxygenise(package.name)
 
 # Run Rcpp and build the package.
-# Symlinks in `grf/src` points to the C++ bindings (`grf/bindings`) and core C++ (`core/src`).
+# Symlinks in `grf/src` point to the Rcpp bindings (`grf/bindings`) and core C++ (`core/src`).
 # Note: we don't link in third_party/Eigen, because for the R package build we provide
 # access to the library through RcppEigen.
 compileAttributes(package.name)

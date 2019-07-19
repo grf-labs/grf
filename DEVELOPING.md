@@ -4,7 +4,7 @@ In addition to providing out-of-the-box forests for quantile regression and inst
 
 ## Contributing
 
-This repository follows the standard open source protocol and setup with git where there are an abundance of existing resources to get up to speed (see for example the
+This repository follows the standard open source protocol and setup with git where there is an abundance of existing resources to get up to speed (see for example the
 contributing guidelines for well known packages in other languages, like Scikit-learn, Scipy, and pandas)
 
 Condensed greatly, the workflow is to fork this repository, check out a branch, commit your changes (forming an ideally legible commit history),
@@ -22,7 +22,7 @@ To build the R package from source, cd into `r-package` and run `build_package.R
 An alternative development workflow is to use the accompanying grf.Rproj and build and test the package with RStudio's build menu, which can be convenient
 for quickly iterating C++/R code changes.
 
-_Note for Windows users:_
+### Note for Windows users:
 
 Symlinks in the src directory point to the core C++ and R bindings. On Windows one has to clone this repository with symlinks enabled: `git clone -c core.symlinks=true https://github.com/grf-labs/grf.git` (this command needs to be run as an administrator: right click _Command Prompt -> Run as administrator_). Caveat: the above RStudio workflow is not tested on Windows.
 
