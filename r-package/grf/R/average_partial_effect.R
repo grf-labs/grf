@@ -18,7 +18,7 @@
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
-#' @param num.trees.for.variance Number of trees used to estimate Var[Wi | Xi = x].
+#' @param num.trees.for.variance Number of trees used to estimate Var[Wi | Xi = x]. Default is 500.
 #'
 #' @examples
 #' \dontrun{

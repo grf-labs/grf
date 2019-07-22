@@ -5,27 +5,35 @@
 #'
 #' @param X The covariates used in the quantile regression.
 #' @param Y The outcome.
-#' @param quantiles Vector of quantiles used to calibrate the forest.
+#' @param quantiles Vector of quantiles used to calibrate the forest. Default is (0.1, 0.5, 0.9).
 #' @param regression.splitting Whether to use regression splits when growing trees instead
 #'                             of specialized splits based on the quantiles (the default).
 #'                             Setting this flag to true corresponds to the approach to
-#'                             quantile forests from Meinshausen (2006).
+#'                             quantile forests from Meinshausen (2006). Default is FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
-#'                        further be cut by a factor of honesty.fraction.
-#' @param mtry Number of variables tried for each split.
+#'                        further be cut by a factor of honesty.fraction. Default is 0.5.
+#' @param mtry Number of variables tried for each split. Default is
+#'             \eqn{\sqrt p + 20} where p is the number of variables.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
-#'                  getting accurate predictions.
+#'                  getting accurate predictions. Default is 2000.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
+#'                      Default is 5.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
-#'                         honesty.fraction = NULL), half of the data will be used for determining splits
-#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
-#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits.
+#'                         Default is 0.5.
+#' @param prune.empty.leaves (experimental) If true, prunes the estimation sample tree such that no leaves
+#'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
+#'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
+#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default is TRUE.
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#'                 Default is NULL (ignored).
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
 #'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
@@ -33,7 +41,7 @@
 #'                            clusters with less than samples.per.cluster observations get relatively
 #'                            smaller weight than others in training the forest, i.e., the contribution
 #'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples.per.cluster.
+#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -77,6 +85,7 @@ quantile_forest <- function(X, Y,
                             min.node.size = NULL,
                             honesty = TRUE,
                             honesty.fraction = NULL,
+                            prune.empty.leaves = TRUE,
                             alpha = 0.05,
                             imbalance.penalty = 0.0,
                             clusters = NULL,
@@ -108,8 +117,8 @@ quantile_forest <- function(X, Y,
 
   forest <- quantile_train(
     quantiles, regression.splitting, data$default, data$sparse, outcome.index, mtry,
-    num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), ci.group.size,
-    alpha, imbalance.penalty, clusters, samples.per.cluster, num.threads, seed
+    num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), prune.empty.leaves,
+    ci.group.size, alpha, imbalance.penalty, clusters, samples.per.cluster, num.threads, seed
   )
 
   class(forest) <- c("quantile_forest", "grf")
