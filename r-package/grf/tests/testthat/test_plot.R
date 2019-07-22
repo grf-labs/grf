@@ -36,3 +36,37 @@ test_that("large regression forest plotting is successful", {
   capture_output(plot(r.tree))
   expect_true(TRUE)
 })
+
+test_that("trivial Y=1 quantile forest plotting with summary statistics is successful", {
+  p <- 4
+  n <- 50
+  i <- 2
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  Y <- rep(1, n)
+  D <- data.frame(X = X, Y = Y)
+  q.forest <- quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), num.trees = 50)
+  capture_output(plot(q.forest, 1))
+  expect_true(TRUE)
+})
+
+test_that("trivial Y~=0 quantile forest plotting with summary statistics is successful", {
+  p <- 4
+  n <- 50
+  i <- 2
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  Y <- rnorm(n, sd = 0.1)
+  D <- data.frame(X = X, Y = Y)
+  q.forest <- quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), num.trees = 50)
+  capture_output(plot(q.forest, 1))
+  expect_true(TRUE)
+})
+
+test_that("trivial Y~=W causal forest plotting with summary statistics is successful", {
+  n <- 2000; p <- 2
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  Y <- W + rnorm(n, sd = 0.1)
+  c.forest <- causal_forest(X, Y, W)
+  capture_output(plot(c.forest, 1))
+  expect_true(TRUE)
+})
