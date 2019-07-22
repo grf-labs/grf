@@ -23,8 +23,8 @@
 # clion files
 .idea/
 
-# copied src files
-grf/src/*
+# Generated files
+grf/src/RcppExports.cpp
 
 # documentation by roxygen
 *.Rd

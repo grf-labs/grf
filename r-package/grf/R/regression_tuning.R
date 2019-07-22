@@ -11,27 +11,35 @@
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
 #' @param sample.weights (experimental) Weights given to an observation in estimation.
-#'                       If NULL, each observation is given the same weight.
-#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
-#' @param num.fit.reps The number of forests used to fit the tuning model.
+#'                       If NULL, each observation is given the same weight. Default is NULL.
+#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 10.
+#' @param num.fit.reps The number of forests used to fit the tuning model. Default is 100.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
-#'                          to select the optimal parameters.
+#'                          to select the optimal parameters. Default is 1000.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
-#'                        further be cut by a factor of honesty.fraction.
+#'                        further be cut by a factor of honesty.fraction. Default is 0.5.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param mtry Number of variables tried for each split.
-#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
-#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
-#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used.
+#'                      Default is 5.
+#' @param mtry Number of variables tried for each split. Default is
+#'             \eqn{\sqrt p + 20} where p is the number of variables.
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
+#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used. Default is TRUE.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
-#'                         honesty.fraction = NULL), half of the data will be used for determining splits
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits.
+#'                         Default is 0.5.
+#' @param prune.empty.leaves (experimental) If true, prunes the estimation sample tree such that no leaves
+#'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
+#'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
+#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default is TRUE.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#'                 Default is NULL (ignored).
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
 #'                            each cluster. Must be less than the size of the smallest cluster. If set to NULL
-#'                            software will set this value to the size of the smallest cluster.
+#'                            software will set this value to the size of the smallest cluster. Default is NULL.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -74,6 +82,7 @@ tune_regression_forest <- function(X, Y,
                                    imbalance.penalty = NULL,
                                    honesty = TRUE,
                                    honesty.fraction = NULL,
+                                   prune.empty.leaves = TRUE,
                                    clusters = NULL,
                                    samples.per.cluster = NULL,
                                    num.threads = NULL,
@@ -122,6 +131,7 @@ tune_regression_forest <- function(X, Y,
       as.numeric(params["sample.fraction"]),
       honesty,
       coerce_honesty_fraction(honesty.fraction),
+      prune.empty.leaves,
       ci.group.size,
       as.numeric(params["alpha"]),
       as.numeric(params["imbalance.penalty"]),
