@@ -99,7 +99,7 @@ It's important to note that honesty may hurt performance when working with very 
 
 The `mtry` parameter determines the number of variables considered during each split. The value of `mtry` is often tuned as a way to improve the runtime of the algorithm, but can also have an impact on statistical performance.
 
-By default, `mtry` is taken as `max(sqrt(p + 20), p)`, where `p` is the number of variables (columns) in the dataset. This value can be adjusted by changing the parameter `mtry` during training. Selecting a tree split is often the most resource-intensive component of the algorithm. Setting a large value for `mtry` may therefore slow down training considerably.
+By default, `mtry` is taken as `min(sqrt(p) + 20, p)`, where `p` is the number of variables (columns) in the dataset. This value can be adjusted by changing the parameter `mtry` during training. Selecting a tree split is often the most resource-intensive component of the algorithm. Setting a large value for `mtry` may therefore slow down training considerably.
 
 To more closely match the theory in the GRF paper, the number of variables considered is actually drawn from a poisson distribution with mean equal to `mtry`. A new number is sampled from the distribution before every tree split.
 
