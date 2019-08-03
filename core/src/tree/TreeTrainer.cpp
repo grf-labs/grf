@@ -191,7 +191,7 @@ bool TreeTrainer::split_node_internal(size_t node,
                                       const Data* data,
                                       std::shared_ptr<SplittingRule> splitting_rule,
                                       const std::vector<size_t>& possible_split_vars,
-                                      std::vector<std::vector<size_t>>& samples,
+                                      const std::vector<std::vector<size_t>>& samples,
                                       std::vector<size_t>& split_vars,
                                       std::vector<double>& split_values,
                                       uint min_node_size) const {
