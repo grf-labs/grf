@@ -200,10 +200,10 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
   result.erase(result.begin() + num_samples, result.end());
 }
 
-void RandomSampler::draw_weighted(std::vector<size_t> &result,
+void RandomSampler::draw_weighted(std::vector<size_t>& result,
                                   size_t max,
                                   size_t num_samples,
-                                  const std::vector<double> &weights) {
+                                  const std::vector<double>& weights) {
     result.reserve(num_samples);
 
     double double_draw;
