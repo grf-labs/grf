@@ -175,11 +175,11 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
       tau.hat[!cc] = predict(f, X[!cc,])$predictions
       mean((tau.hat - tau)^2)
   }
-  
+
   forest <- causal_forest(X[cc, ], Y[cc], W[cc], num.trees = num.trees)
   weighted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees)
   expect_lt(mse(weighted.forest) / mse(forest), .9)
-  
+
   boosted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees)
   boosted.weighted.forest <- causal_forest(
       X[cc, ], Y[cc], W[cc],

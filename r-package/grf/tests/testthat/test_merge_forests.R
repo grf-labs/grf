@@ -43,26 +43,29 @@ test_that("Merged causal forest attributes are sensible", {
 
 
 test_that("Merged causal forests give reasonable predictions", {
-  n <- 50
-  p <- 2
+
+  n <- 1000
+  p <- 3
   X <- matrix(rnorm(n * p), n, p)
-  Y <- X[, 1] * rnorm(n)
   W <- X[, 2] > 0
+  Tau <- X[, 3]
+  Y <- X[, 1] * rnorm(n) + W * X[, 2]
+  num.trees <- 30
 
   # Train a causal forest.
-  c.forest1 <- causal_forest(X, Y, W, num.trees = 100)
+  c.forest1 <- causal_forest(X, Y, W, num.trees = num.trees, min.node.size = 1)
 
-  # Train another forest and merge it into the first.
-  c.forest2 <- causal_forest(X, Y, W, num.trees = 100)
-  big.rf <- merge_forests(list(c.forest1, c.forest2))
+  # Train another forest of equal size.
+  c.forests <- lapply(seq(10), function(x) causal_forest(X, Y, W, num.trees = num.trees, min.node.size = 1))
+  big.rf <- merge_forests(c.forests)
 
   preds <- predict(c.forest1)
-  excess.error <- mean(preds$excess.error)
-  error <- mean(preds$debiased.error) + excess.error
+  excess.error <- mean(preds$excess.error, na.rm = TRUE)
+  error <- mean((Tau - preds$predictions)^2, na.rm = TRUE)
 
   big.preds <- predict(big.rf)
   big.excess.error <- mean(big.preds$excess.error)
-  big.error <- mean(big.preds$debiased.error) + big.excess.error
+  big.error <- mean((Tau - big.preds$predictions)^2, na.rm = TRUE)
 
   expect_lt(big.error, error)
   expect_lt(big.excess.error, excess.error)
