@@ -8,7 +8,7 @@
 #' called with min.node.size = 10 and alpha = 0.7, then those parameter values will be treated
 #' as fixed, and only sample.fraction and imbalance.penalty will be tuned.
 #'
-#' @param X The covariates used in the regression.
+#' @param X The covariates used in the regression.s
 #' @param Y The outcome.
 #' @param sample.weights (experimental) Weights given to an observation in estimation.
 #'                       If NULL, each observation is given the same weight. Default is NULL.

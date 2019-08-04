@@ -94,30 +94,47 @@ print.boosted_regression_forest <- function(x, ...) {
 #' @importFrom stats aggregate quantile
 #' @export
 print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
-  grid <- x$grid
-  out <- lapply(colnames(grid)[-1], function(name) {
-    q <- quantile(grid[, name], probs = tuning.quantiles)
-    # Cannot form for example quintiles for mtry if the number of variables is
-    # less than 5, so here we just truncate the groups.
-    if (length(unique(q) < length(q))) {
-      q <- unique(q)
-    }
-    rank <- cut(grid[, name], q, include.lowest = TRUE)
-    out <- aggregate(grid[, "error"], by = list(rank), FUN = mean)
-    colnames(out) <- c(name, "error")
-    out
-  })
 
-  err <- x$error
-  params <- x$params[colnames(grid)[-1]]
-  opt <- formatC(c(err, params))
+  if (x$status == "failure") {
+    cat("Tuning status: failure.\n")
+    cat("This indicates tuning was attempted but failed, and we fell back to default parameters: \n\n")
+    params <- x$params
+    cat(paste0(names(params), ": ", params, "\n"))
+  } else if (x$status == "default") {
+    cat("Tuning status: default.\n")
+    cat("This indicates tuning was not attempted, and we used default parameters: \n\n")
+    params <- x$params
+    cat(paste0(names(params), ": ", params, "\n"))
+  } else if (x$status == "tuned") {
+    cat("Tuning status: tuned.\n")
+    cat("This indicates tuning was successful. \n\n")
+    grid <- x$grid
+    out <- lapply(colnames(grid)[-1], function(name) {
+      q <- quantile(grid[, name], probs = tuning.quantiles)
+      # Cannot form for example quintiles for mtry if the number of variables is
+      # less than 5, so here we just truncate the groups.
+      if (length(unique(q) < length(q))) {
+        q <- unique(q)
+      }
+      rank <- cut(grid[, name], q, include.lowest = TRUE)
+      out <- aggregate(grid[, "error"], by = list(rank), FUN = mean)
+      colnames(out) <- c(name, "error")
+      out
+    })
 
-  cat("Optimal tuning parameters: \n")
-  cat(paste0(names(opt), ": ", opt, "\n"))
+    cat(paste0("Predicted debiased error: ", x$error, "\n\n"))
 
-  cat("Average error by ", length(tuning.quantiles) - 1, "-quantile:\n", sep = "")
-  for (i in out) {
+    cat("Tuned parameters: \n")
+    cat(paste0(names(x$params), ": ", x$params, "\n"))
     cat("\n")
-    print(i, row.names = FALSE)
+
+    cat("Average error by ", length(tuning.quantiles) - 1, "-quantile:\n", sep = "")
+    for (i in out) {
+      cat("\n")
+      print(i, row.names = FALSE)
+    }
+  } else {
+    stop(paste0("Error while reading tuning output. ",
+                "Parameter 'status' must be one of 'failure', 'default', or 'tuned'"))
   }
 }

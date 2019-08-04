@@ -33,3 +33,9 @@ get_params_from_draw <- function(X, draws) {
     }
   }, FUN.VALUE = numeric(n))
 }
+
+get_tuning_output <- function(status, params, error = NA, grid = NA) {
+  out <- list(status = status, params = params, error = error, grid = grid)
+  class(out) <- c("tuning_output")
+  out
+}

@@ -218,25 +218,32 @@ causal_forest <- function(X, Y, W,
   }
 
   if (tune.parameters) {
-    tuning.output <- tune_causal_forest(X, Y, W, Y.hat, W.hat,
-      sample.weights = sample.weights,
-      num.fit.trees = num.fit.trees,
-      num.fit.reps = num.fit.reps,
-      num.optimize.reps = num.optimize.reps,
-      min.node.size = min.node.size,
-      sample.fraction = sample.fraction,
-      mtry = mtry,
-      alpha = alpha,
-      imbalance.penalty = imbalance.penalty,
-      stabilize.splits = stabilize.splits,
-      num.threads = num.threads,
-      honesty = honesty,
-      honesty.fraction = honesty.fraction,
-      prune.empty.leaves = prune.empty.leaves,
-      seed = seed,
-      clusters = clusters,
-      samples.per.cluster = samples.per.cluster
-    )
+    tuning.output <- tryCatch({
+      tune_causal_forest(X, Y, W, Y.hat, W.hat,
+        sample.weights = sample.weights,
+        num.fit.trees = num.fit.trees,
+        num.fit.reps = num.fit.reps,
+        num.optimize.reps = num.optimize.reps,
+        min.node.size = min.node.size,
+        sample.fraction = sample.fraction,
+        mtry = mtry,
+        alpha = alpha,
+        imbalance.penalty = imbalance.penalty,
+        stabilize.splits = stabilize.splits,
+        num.threads = num.threads,
+        honesty = honesty,
+        honesty.fraction = honesty.fraction,
+        prune.empty.leaves = prune.empty.leaves,
+        seed = seed,
+        clusters = clusters,
+        samples.per.cluster = samples.per.cluster
+      )
+    }, error = function(e) {
+      warning(paste0("Reverting to pre-tuning parameters because of the following ",
+                     "unexpected error during causal forest tuning:\n", e))
+      out <- get_tuning_output(params = pre.tuning.parameters, status = "failure")
+      out
+    })
     tunable.params <- tuning.output$params
   } else {
     tunable.params <- c(

@@ -111,26 +111,39 @@ regression_forest <- function(X, Y,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-
+  pre.tuning.parameters <- c(
+    min.node.size = validate_min_node_size(min.node.size),
+    sample.fraction = validate_sample_fraction(sample.fraction),
+    mtry = validate_mtry(mtry, X),
+    alpha = validate_alpha(alpha),
+    imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+  )
   if (tune.parameters) {
-    tuning.output <- tune_regression_forest(X, Y,
-      sample.weights = sample.weights,
-      num.fit.trees = num.fit.trees,
-      num.fit.reps = num.fit.reps,
-      num.optimize.reps = num.optimize.reps,
-      min.node.size = min.node.size,
-      sample.fraction = sample.fraction,
-      mtry = mtry,
-      alpha = alpha,
-      imbalance.penalty = imbalance.penalty,
-      num.threads = num.threads,
-      honesty = honesty,
-      honesty.fraction = honesty.fraction,
-      prune.empty.leaves = prune.empty.leaves,
-      seed = seed,
-      clusters = clusters,
-      samples.per.cluster = samples.per.cluster
-    )
+    tuning.output <- tryCatch({
+      tune_regression_forest(X, Y,
+        sample.weights = sample.weights,
+        num.fit.trees = num.fit.trees,
+        num.fit.reps = num.fit.reps,
+        num.optimize.reps = num.optimize.reps,
+        min.node.size = min.node.size,
+        sample.fraction = sample.fraction,
+        mtry = mtry,
+        alpha = alpha,
+        imbalance.penalty = imbalance.penalty,
+        num.threads = num.threads,
+        honesty = honesty,
+        honesty.fraction = honesty.fraction,
+        prune.empty.leaves = prune.empty.leaves,
+        seed = seed,
+        clusters = clusters,
+        samples.per.cluster = samples.per.cluster
+      )
+    }, error = function(e) {
+      warning(paste0("Reverting to pre-tuning parameters because of the following ",
+                     "unexpected error during regression forest tuning:\n", e))
+      out <- get_tuning_output(params = pre.tuning.parameters, status = "failure")
+      out
+    })
     tunable.params <- tuning.output$params
   } else {
     tunable.params <- c(
@@ -141,6 +154,7 @@ regression_forest <- function(X, Y,
       imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
     )
   }
+
 
   data <- create_data_matrices(X, Y, sample.weights = sample.weights)
   outcome.index <- ncol(X) + 1
