@@ -155,32 +155,38 @@ test_that("predictions are invariant to scaling of the sample weights.", {
 })
 
 test_that("IPCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {
-  n <- 800
-  p <- 2
+  n <- 1000
+  p <- 6
   X <- matrix(rnorm(n * p), n, p)
-  e <- 1 / (1 + exp(-3 * X[, 1] + 2 * X[, 2]))
+  e <- 1 / (1 + exp(-X[, 1] + 2 * X[, 2]))
   W <- rbinom(n, 1, e)
-  tau <- 20 * X[, 1] - X[, 2]
+  tau <- 2 * (X[, 1] > 0 & X[,5] > 0) -
+      0.5 * (X[, 2] > 0) - 0.5 * (X[, 3] > 0) - 0.5 * (X[, 4] > 0)
   Y <- W * tau + rnorm(n)
 
-  e.cc <- 1 / (1 + exp(-2 * X[, 1]))
+  e.cc <- 1 - 0.9 * (X[, 1] > 0 & X[,5] > 0)
   cc <- as.logical(rbinom(n, 1, e.cc))
   sample.weights <- 1 / e.cc
 
-  num.trees <- 400
-  forest <- causal_forest(X[cc, ], Y[cc], W[cc], num.trees = num.trees)
-  boosted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees)
-  weighted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees)
-  boosted.weighted.forest <- causal_forest(
-    X[cc, ], Y[cc], W[cc],
-    sample.weights = sample.weights[cc],
-    orthog.boosting = TRUE, num.trees = num.trees
-  )
+  num.trees <- 500
   mse <- function(f) {
-    mean((predict(f, X)$predictions - tau)^2)
+      tau.hat = rep(NA, n)
+      tau.hat[cc] = predict(f)$predictions
+      tau.hat[!cc] = predict(f, X[!cc,])$predictions
+      mean((tau.hat - tau)^2)
   }
-  expect_true(mse(weighted.forest) / mse(forest) < .975)
-  expect_true(mse(boosted.weighted.forest) / mse(boosted.forest) < .975)
+  
+  forest <- causal_forest(X[cc, ], Y[cc], W[cc], num.trees = num.trees)
+  weighted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees)
+  expect_true(mse(weighted.forest) / mse(forest) < .9)
+  
+  boosted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees)
+  boosted.weighted.forest <- causal_forest(
+      X[cc, ], Y[cc], W[cc],
+      sample.weights = sample.weights[cc],
+      orthog.boosting = TRUE, num.trees = num.trees
+  )
+  expect_true(mse(boosted.weighted.forest) / mse(boosted.forest) < .9)
 })
 
 test_that("Weighting is roughly equivalent to replication of samples", {
