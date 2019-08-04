@@ -4,7 +4,7 @@
 #'
 #' @param forest The forest used for prediction.
 #' @param linear.correction.variables Variables to use for local linear prediction. If left null,
-#'          all variables are used.
+#'          all variables are used. Default is NULL.
 #' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
 #'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software

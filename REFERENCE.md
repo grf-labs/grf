@@ -99,7 +99,7 @@ It's important to note that honesty may hurt performance when working with very 
 
 The `mtry` parameter determines the number of variables considered during each split. The value of `mtry` is often tuned as a way to improve the runtime of the algorithm, but can also have an impact on statistical performance.
 
-By default, `mtry` is taken as `max(sqrt(p + 20), p)`, where `p` is the number of variables (columns) in the dataset. This value can be adjusted by changing the parameter `mtry` during training. Selecting a tree split is often the most resource-intensive component of the algorithm. Setting a large value for `mtry` may therefore slow down training considerably.
+By default, `mtry` is taken as `min(sqrt(p) + 20, p)`, where `p` is the number of variables (columns) in the dataset. This value can be adjusted by changing the parameter `mtry` during training. Selecting a tree split is often the most resource-intensive component of the algorithm. Setting a large value for `mtry` may therefore slow down training considerably.
 
 To more closely match the theory in the GRF paper, the number of variables considered is actually drawn from a poisson distribution with mean equal to `mtry`. A new number is sampled from the distribution before every tree split.
 
@@ -237,8 +237,8 @@ Some additional notes about the behavior of boosted regression forests:
 For accurate predictions and variance estimates, it can be important to take into account for natural clusters in the data, as might occur if a dataset contains examples taken from the same household or small town. GRF provides support for cluster-robust forests by accounting for clusters in the subsampling process. To use this feature, the forest must be trained with the relevant cluster information by specifying the `clusters` and optionally `samples_per_cluster` parameters. Then, all subsequent calls to `predict` with will take clusters into account, including when estimating the variance of forest predictions.
 
 When clustering is enabled during training, all subsampling procedures operate on entire clusters as opposed to individual examples. Then, to determine the examples used for performing splitting and populating the leaves, `samples_per_cluster` examples are drawn from the selected clusters. By default, `sample_per_cluster` is equal to the size of the smallest cluster. Concretely, the cluster-robust training procedure proceeds as follows:
-- For each 'CI group' used in estimating variance, sample half of the clusters. Each CI group is then associated with a list of cluster IDs.
-- Within this half-sample of cluster IDs, sample `sample.fraction` of the clusters. Each tree is now associated with a list of cluster IDs.
+- If `estimate.variance` is enabled, sample half of the clusters. Each 'tree group' is associated with this half-sample of clusters (as described in the 'Variance Estimates' section). If we are not computing variance estimates, then keep the full sample instead.
+- Within this set of cluster IDs, sample `sample.fraction` of the clusters. Each tree is now associated with a list of cluster IDs.
 - If honesty is enabled, split these cluster IDs in half, so that one half can be used for growing the tree, and the other half is used in repopulating the leaves.
 - To grow the tree, draw `samples_per_cluster` examples from each of the cluster IDs, and do the same when repopulating the leaves for honesty. In the event where `samples_per_cluster` is larger than the size of the cluster, we just select the whole cluster.
 

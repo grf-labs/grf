@@ -14,7 +14,6 @@ library(roxygen2)
 library(lintr)
 
 package.name <- "grf"
-package.src <- "grf/src"
 
 # Check code style consistency
 linters <- with_defaults(
@@ -36,21 +35,13 @@ if (!is.na(args[1]) && args[1] == "--as-cran") {
   write_union("grf/.Rbuildignore", "^tests/testthat/test_((?!cran).).*")
 }
 
-# Copy Rcpp bindings and C++ source into the package src directory. Note that we
-# don't copy in third_party/Eigen, because for the R package build we provide
-# access to the library through RcppEigen.
-unlink(package.src, recursive = TRUE)
-dir.create(package.src)
-
-binding.files <- list.files("grf/bindings", full.names = TRUE)
-file.copy(binding.files, package.src, recursive = FALSE)
-file.copy("../core/src", package.src, recursive = TRUE)
-file.copy("../core/third_party/optional", package.src, recursive = TRUE)
-
 # Auto-generate documentation files
 roxygen2::roxygenise(package.name)
 
 # Run Rcpp and build the package.
+# Symlinks in `grf/src` point to the Rcpp bindings (`grf/bindings`) and core C++ (`core/src`).
+# Note: we don't link in third_party/Eigen, because for the R package build we provide
+# access to the library through RcppEigen.
 compileAttributes(package.name)
 clean_dll(package.name)
 build(package.name)
