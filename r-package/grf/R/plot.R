@@ -10,6 +10,7 @@ create_dot_body <- function(tree, index = 1, forest = NULL) {
   # Leaf case: print label only
   if (node$is_leaf) {
     num_samples <- length(node$samples)
+    lss_text <- ""
     if(!is.null(forest)){
       lss <- leaf_stats(forest, node$samples)
       lss_text <- paste("\n", paste(lss[, 1], lss[, 2], sep = " = ", collapse = "\n"))
