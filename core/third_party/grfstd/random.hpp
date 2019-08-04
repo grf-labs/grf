@@ -16,7 +16,7 @@ namespace grfstd {
 
 
 // Precondition:  __x != 0
-    inline _LIBCPP_INLINE_VISIBILITY
+    inline 
     unsigned __clz(unsigned __x) {
 #ifndef _LIBCPP_COMPILER_MSVC
         return static_cast<unsigned>(__builtin_clz(__x));
@@ -32,7 +32,7 @@ namespace grfstd {
 #endif
     }
 
-    inline _LIBCPP_INLINE_VISIBILITY
+    inline 
     unsigned long __clz(unsigned long __x) {
 #ifndef _LIBCPP_COMPILER_MSVC
         return static_cast<unsigned long>(__builtin_clzl(__x));
@@ -42,7 +42,7 @@ namespace grfstd {
 #endif
     }
 
-    inline _LIBCPP_INLINE_VISIBILITY
+    inline 
     unsigned long long __clz(unsigned long long __x) {
 #ifndef _LIBCPP_COMPILER_MSVC
         return static_cast<unsigned long long>(__builtin_clzll(__x));
@@ -119,12 +119,12 @@ namespace grfstd {
         static const _Working_result_type _Rp = _Engine::_Max - _Engine::_Min
                                           + _Working_result_type(1);
 #else
-        static _LIBCPP_CONSTEXPR const _Working_result_type _Rp = _Engine::max() - _Engine::min()
+        static const _Working_result_type _Rp = _Engine::max() - _Engine::min()
                                                                   + _Working_result_type(1);
 #endif
-        static _LIBCPP_CONSTEXPR const size_t __m = __log2<_Working_result_type, _Rp>::value;
-        static _LIBCPP_CONSTEXPR const size_t _WDt = std::numeric_limits<_Working_result_type>::digits;
-        static _LIBCPP_CONSTEXPR const size_t _EDt = std::numeric_limits<_Engine_result_type>::digits;
+        static const size_t __m = __log2<_Working_result_type, _Rp>::value;
+        static const size_t _WDt = std::numeric_limits<_Working_result_type>::digits;
+        static const size_t _EDt = std::numeric_limits<_Engine_result_type>::digits;
 
     public:
         // constructors and seeding functions
@@ -306,11 +306,11 @@ namespace grfstd {
 #if _LIBCPP_STD_VER <= 14 || defined(_LIBCPP_ENABLE_CXX17_REMOVED_RANDOM_SHUFFLE) \
  || defined(_LIBCPP_BUILDING_LIBRARY)
 
-    class _LIBCPP_TYPE_VIS __rs_default;
+    class  __rs_default;
 
-    _LIBCPP_FUNC_VIS __rs_default __rs_get();
+     __rs_default __rs_get();
 
-    class _LIBCPP_TYPE_VIS __rs_default {
+    class  __rs_default {
         static unsigned __c_;
 
         __rs_default();
@@ -327,14 +327,14 @@ namespace grfstd {
 
         result_type operator()();
 
-        static _LIBCPP_CONSTEXPR result_type min() { return _Min; }
+        static result_type min() { return _Min; }
 
-        static _LIBCPP_CONSTEXPR result_type max() { return _Max; }
+        static result_type max() { return _Max; }
 
-        friend _LIBCPP_FUNC_VIS __rs_default __rs_get();
+        friend  __rs_default __rs_get();
     };
 
-    _LIBCPP_FUNC_VIS __rs_default __rs_get();
+     __rs_default __rs_get();
 
     template<class _RandomAccessIterator>
     void
@@ -377,7 +377,7 @@ namespace grfstd {
 
     template<class _PopulationIterator, class _SampleIterator, class _Distance,
             class _UniformRandomNumberGenerator>
-    _LIBCPP_INLINE_VISIBILITY
+
     _SampleIterator __sample(_PopulationIterator __first,
                              _PopulationIterator __last, _SampleIterator __output_iter,
                              _Distance __n,
@@ -389,51 +389,11 @@ namespace grfstd {
             __output_iter[__k] = *__first;
         _Distance __sz = __k;
         for (; __first != __last; ++__first, (void) ++__k) {
-            _Distance __r = _VSTD::uniform_int_distribution<_Distance>(0, __k)(__g);
+            _Distance __r = uniform_int_distribution<_Distance>(0, __k)(__g);
             if (__r < __sz)
                 __output_iter[__r] = *__first;
         }
-        return __output_iter + _VSTD::min(__n, __k);
-    }
-
-    template<class _PopulationIterator, class _SampleIterator, class _Distance,
-            class _UniformRandomNumberGenerator>
-    _LIBCPP_INLINE_VISIBILITY
-    _SampleIterator __sample(_PopulationIterator __first,
-                             _PopulationIterator __last, _SampleIterator __output_iter,
-                             _Distance __n,
-                             _UniformRandomNumberGenerator &__g,
-                             std::forward_iterator_tag) {
-        _Distance __unsampled_sz = _VSTD::distance(__first, __last);
-        for (__n = _VSTD::min(__n, __unsampled_sz); __n != 0; ++__first) {
-            _Distance __r =
-                    _VSTD::uniform_int_distribution<_Distance>(0, --__unsampled_sz)(__g);
-            if (__r < __n) {
-                *__output_iter++ = *__first;
-                --__n;
-            }
-        }
-        return __output_iter;
-    }
-
-    template<class _PopulationIterator, class _SampleIterator, class _Distance,
-            class _UniformRandomNumberGenerator>
-    _LIBCPP_INLINE_VISIBILITY
-    _SampleIterator __sample(_PopulationIterator __first,
-                             _PopulationIterator __last, _SampleIterator __output_iter,
-                             _Distance __n, _UniformRandomNumberGenerator &__g) {
-        typedef typename std::iterator_traits<_PopulationIterator>::iterator_category
-                _PopCategory;
-        typedef typename std::iterator_traits<_PopulationIterator>::difference_type
-                _Difference;
-        static_assert(std::__is_forward_iterator<_PopulationIterator>::value ||
-                      std::__is_random_access_iterator<_SampleIterator>::value,
-                      "SampleIterator must meet the requirements of RandomAccessIterator");
-        typedef typename std::common_type<_Distance, _Difference>::type _CommonType;
-        _LIBCPP_ASSERT(__n >= 0, "N must be a positive number.");
-        return _VSTD::__sample(
-                __first, __last, __output_iter, _CommonType(__n),
-                __g, _PopCategory());
+        return __output_iter + std::min(__n, __k);
     }
 
 
@@ -465,12 +425,12 @@ namespace grfstd {
 // poisson distribution
 
     template<class _IntType = int>
-    class _LIBCPP_TEMPLATE_VIS poisson_distribution {
+    class  poisson_distribution {
     public:
         // types
         typedef _IntType result_type;
 
-        class _LIBCPP_TEMPLATE_VIS param_type {
+        class  param_type {
             double __mean_;
             double __s_;
             double __d_;
@@ -487,13 +447,13 @@ namespace grfstd {
 
             explicit param_type(double __mean = 1.0);
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             double mean() const { return __mean_; }
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator==(const param_type &__x, const param_type &__y) { return __x.__mean_ == __y.__mean_; }
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
 
             friend class poisson_distribution;
@@ -504,44 +464,44 @@ namespace grfstd {
 
     public:
         // constructors and reset functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         explicit poisson_distribution(double __mean = 1.0) : __p_(__mean) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         explicit poisson_distribution(const param_type &__p) : __p_(__p) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void reset() {}
 
         // generating functions
         template<class _URNG>
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
         result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         double mean() const { return __p_.mean(); }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         param_type param() const { return __p_; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void param(const param_type &__p) { __p_ = __p; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type min() const { return 0; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type max() const { return std::numeric_limits<result_type>::max(); }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator==(const poisson_distribution &__x,
                         const poisson_distribution &__y) { return __x.__p_ == __y.__p_; }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator!=(const poisson_distribution &__x,
                         const poisson_distribution &__y) { return !(__x == __y); }
     };
@@ -580,34 +540,34 @@ namespace grfstd {
 // uniform_real_distribution
 
     template<class _RealType = double>
-    class _LIBCPP_TEMPLATE_VIS uniform_real_distribution {
+    class  uniform_real_distribution {
     public:
         // types
         typedef _RealType result_type;
 
-        class _LIBCPP_TEMPLATE_VIS param_type {
+        class  param_type {
             result_type __a_;
             result_type __b_;
         public:
             typedef uniform_real_distribution distribution_type;
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             explicit param_type(result_type __a = 0,
                                 result_type __b = 1)
                     : __a_(__a), __b_(__b) {}
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             result_type a() const { return __a_; }
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             result_type b() const { return __b_; }
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator==(const param_type &__x, const param_type &__y) {
                 return __x.__a_ == __y.__a_ && __x.__b_ == __y.__b_;
             }
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
         };
 
@@ -616,48 +576,48 @@ namespace grfstd {
 
     public:
         // constructors and reset functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         explicit uniform_real_distribution(result_type __a = 0, result_type __b = 1)
                 : __p_(param_type(__a, __b)) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         explicit uniform_real_distribution(const param_type &__p) : __p_(__p) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void reset() {}
 
         // generating functions
         template<class _URNG>
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
-        _LIBCPP_INLINE_VISIBILITY result_type operator()(_URNG &__g, const param_type &__p);
+         result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type a() const { return __p_.a(); }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type b() const { return __p_.b(); }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         param_type param() const { return __p_; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void param(const param_type &__p) { __p_ = __p; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type min() const { return a(); }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type max() const { return b(); }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator==(const uniform_real_distribution &__x,
                         const uniform_real_distribution &__y) { return __x.__p_ == __y.__p_; }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator!=(const uniform_real_distribution &__x,
                         const uniform_real_distribution &__y) { return !(__x == __y); }
     };
@@ -676,33 +636,33 @@ namespace grfstd {
 // normal_distribution
 
     template<class _RealType = double>
-    class _LIBCPP_TEMPLATE_VIS normal_distribution {
+    class  normal_distribution {
     public:
         // types
         typedef _RealType result_type;
 
-        class _LIBCPP_TEMPLATE_VIS param_type {
+        class  param_type {
             result_type __mean_;
             result_type __stddev_;
         public:
             typedef normal_distribution distribution_type;
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             explicit param_type(result_type __mean = 0, result_type __stddev = 1)
                     : __mean_(__mean), __stddev_(__stddev) {}
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             result_type mean() const { return __mean_; }
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             result_type stddev() const { return __stddev_; }
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator==(const param_type &__x, const param_type &__y) {
                 return __x.__mean_ == __y.__mean_ && __x.__stddev_ == __y.__stddev_;
             }
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
         };
 
@@ -713,52 +673,52 @@ namespace grfstd {
 
     public:
         // constructors and reset functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         explicit normal_distribution(result_type __mean = 0, result_type __stddev = 1)
                 : __p_(param_type(__mean, __stddev)), _V_hot_(false) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         explicit normal_distribution(const param_type &__p)
                 : __p_(__p), _V_hot_(false) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void reset() { _V_hot_ = false; }
 
         // generating functions
         template<class _URNG>
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
         result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type mean() const { return __p_.mean(); }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type stddev() const { return __p_.stddev(); }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         param_type param() const { return __p_; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void param(const param_type &__p) { __p_ = __p; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type min() const { return -std::numeric_limits<result_type>::infinity(); }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type max() const { return std::numeric_limits<result_type>::infinity(); }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator==(const normal_distribution &__x,
                         const normal_distribution &__y) {
             return __x.__p_ == __y.__p_ && __x._V_hot_ == __y._V_hot_ &&
                    (!__x._V_hot_ || __x._V_ == __y._V_);
         }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator!=(const normal_distribution &__x,
                         const normal_distribution &__y) { return !(__x == __y); }
 
@@ -796,26 +756,26 @@ namespace grfstd {
 // exponential_distribution
 
     template<class _RealType = double>
-    class _LIBCPP_TEMPLATE_VIS exponential_distribution {
+    class  exponential_distribution {
     public:
         // types
         typedef _RealType result_type;
 
-        class _LIBCPP_TEMPLATE_VIS param_type {
+        class  param_type {
             result_type __lambda_;
         public:
             typedef exponential_distribution distribution_type;
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             explicit param_type(result_type __lambda = 1) : __lambda_(__lambda) {}
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             result_type lambda() const { return __lambda_; }
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator==(const param_type &__x, const param_type &__y) { return __x.__lambda_ == __y.__lambda_; }
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
         };
 
@@ -824,45 +784,45 @@ namespace grfstd {
 
     public:
         // constructors and reset functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         explicit exponential_distribution(result_type __lambda = 1)
                 : __p_(param_type(__lambda)) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         explicit exponential_distribution(const param_type &__p) : __p_(__p) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void reset() {}
 
         // generating functions
         template<class _URNG>
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
         result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type lambda() const { return __p_.lambda(); }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         param_type param() const { return __p_; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void param(const param_type &__p) { __p_ = __p; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type min() const { return 0; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type max() const { return std::numeric_limits<result_type>::infinity(); }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator==(const exponential_distribution &__x,
                         const exponential_distribution &__y) { return __x.__p_ == __y.__p_; }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator!=(const exponential_distribution &__x,
                         const exponential_distribution &__y) { return !(__x == __y); }
     };
@@ -962,27 +922,27 @@ namespace grfstd {
 // discrete_distribution
 
     template<class _IntType = int>
-    class _LIBCPP_TEMPLATE_VIS discrete_distribution {
+    class  discrete_distribution {
     public:
         // types
         typedef _IntType result_type;
 
-        class _LIBCPP_TEMPLATE_VIS param_type {
+        class  param_type {
             std::vector<double> __p_;
         public:
             typedef discrete_distribution distribution_type;
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             param_type() {}
 
             template<class _InputIterator>
-            _LIBCPP_INLINE_VISIBILITY
+            
             param_type(_InputIterator __f, _InputIterator __l)
                     : __p_(__f, __l) { __init(); }
 
 #ifndef _LIBCPP_CXX03_LANG
 
-            _LIBCPP_INLINE_VISIBILITY
+            
             param_type(std::initializer_list<double> __wl)
                     : __p_(__wl.begin(), __wl.end()) { __init(); }
 
@@ -994,10 +954,10 @@ namespace grfstd {
 
             std::vector<double> probabilities() const;
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator==(const param_type &__x, const param_type &__y) { return __x.__p_ == __y.__p_; }
 
-            friend _LIBCPP_INLINE_VISIBILITY
+            friend 
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
 
         private:
@@ -1012,64 +972,64 @@ namespace grfstd {
 
     public:
         // constructor and reset functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         discrete_distribution() {}
 
         template<class _InputIterator>
-        _LIBCPP_INLINE_VISIBILITY
+        
         discrete_distribution(_InputIterator __f, _InputIterator __l)
                 : __p_(__f, __l) {}
 
 #ifndef _LIBCPP_CXX03_LANG
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         discrete_distribution(std::initializer_list<double> __wl)
                 : __p_(__wl) {}
 
 #endif  // _LIBCPP_CXX03_LANG
 
         template<class _UnaryOperation>
-        _LIBCPP_INLINE_VISIBILITY
+        
         discrete_distribution(size_t __nw, double __xmin, double __xmax,
                               _UnaryOperation __fw)
                 : __p_(__nw, __xmin, __xmax, __fw) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         explicit discrete_distribution(const param_type &__p)
                 : __p_(__p) {}
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void reset() {}
 
         // generating functions
         template<class _URNG>
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
         result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        _LIBCPP_INLINE_VISIBILITY
+        
         std::vector<double> probabilities() const { return __p_.probabilities(); }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         param_type param() const { return __p_; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         void param(const param_type &__p) { __p_ = __p; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type min() const { return 0; }
 
-        _LIBCPP_INLINE_VISIBILITY
+        
         result_type max() const { return __p_.__p_.size(); }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator==(const discrete_distribution &__x,
                         const discrete_distribution &__y) { return __x.__p_ == __y.__p_; }
 
-        friend _LIBCPP_INLINE_VISIBILITY
+        friend 
         bool operator!=(const discrete_distribution &__x,
                         const discrete_distribution &__y) { return !(__x == __y); }
 
