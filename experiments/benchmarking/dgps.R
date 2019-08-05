@@ -18,7 +18,7 @@
 #'
 #' The following rescaled data is returned
 #' m = m / sd(m) * sigma.m
-#' tau = tau / sd(tau)* sigma.tau
+#' tau = tau / sd(tau) * sigma.tau
 #' V = V / mean(V) * sigma.noise^2
 #' W = rbinom(e)
 #' Y = m + (W - e) * tau + sqrt(V) + rnorm(n)
@@ -47,6 +47,13 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
   if (p < minp) {
     msg <- paste0("Selected dgp ", dgp, " requires a minimum of ", minp, " variables.")
     stop(msg)
+  }
+
+  if (dgp == "kunzel") {
+    if (!("MASS" %in% installed.packages())) {
+      msg <- paste0("Selected dgp ", dgp, " requires the MASS library.")
+      stop(msg)
+    }
   }
 
   # Create data
