@@ -52,10 +52,10 @@ test_that("Merged causal forests give reasonable predictions", {
   num.trees <- 25
 
   # Train a causal forest.
-  c.forest1 <- causal_forest(X, Y, W, num.trees = num.trees, alpha=0, min.node.size = 1)
+  c.forest1 <- causal_forest(X, Y, W, num.trees = num.trees, alpha = 0, min.node.size = 1)
 
   # Train another sequence of forests of equal size, then merge them.
-  c.forests <- lapply(seq(100), function(x) causal_forest(X, Y, W, alpha=0, num.trees = num.trees, min.node.size = 1))
+  c.forests <- lapply(seq(100), function(x) causal_forest(X, Y, W, alpha = 0, num.trees = num.trees, min.node.size = 1))
   big.rf <- merge_forests(c.forests)
 
   # The merged forest should have smaller error
@@ -68,7 +68,7 @@ test_that("Merged causal forests give reasonable predictions", {
   big.error <- mean((Tau - big.preds$predictions)^2, na.rm = TRUE)
 
   expect_lt(big.error / error, 0.95)
-  expect_lt(big.excess.error/excess.error, 0.5)
+  expect_lt(big.excess.error / excess.error, 0.5)
 })
 
 test_that("Incompatible forests are not mergeable", {
