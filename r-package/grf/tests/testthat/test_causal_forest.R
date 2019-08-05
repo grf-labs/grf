@@ -26,7 +26,7 @@ test_that("causal forests have reasonable split frequencies", {
   # we add variance corrections, this should no longer be necessary.
   ccc <- causal_forest(X, Y, W, mtry = p, imbalance.penalty = 1.0, stabilize.splits = TRUE, min.node.size = 2)
   split.freq <- split_frequencies(ccc, 4)
-  expect_true(split.freq[1, p] / sum(split.freq[1, ]) > 2 / 3)
+  expect_gt(split.freq[1, p] / sum(split.freq[1, ]), 2 / 3)
 })
 
 test_that("causal forests without stable splitting have reasonable split frequencies", {
@@ -40,7 +40,7 @@ test_that("causal forests without stable splitting have reasonable split frequen
   # we add variance corrections, this should no longer be necessary.
   ccc <- causal_forest(X, Y, W, mtry = p, imbalance.penalty = 1.0, stabilize.splits = FALSE, min.node.size = 2)
   split.freq <- split_frequencies(ccc, 4)
-  expect_true(split.freq[1, p] / sum(split.freq[1, ]) > 2 / 3)
+  expect_gt(split.freq[1, p] / sum(split.freq[1, ]), 2 / 3)
 })
 
 test_that("causal forests with a positive imbalance.penalty have reasonable tree depths", {
@@ -52,7 +52,7 @@ test_that("causal forests with a positive imbalance.penalty have reasonable tree
 
   forest <- causal_forest(X, Y, W, imbalance.penalty = 0.001)
   split.freq <- split_frequencies(forest)
-  expect_true(sum(split.freq[3, ]) > 0)
+  expect_gt(sum(split.freq[3, ]), 0)
 })
 
 test_that("causal forests with a very small imbalance.penalty behave similarly to unpenalized forests.", {
@@ -68,7 +68,7 @@ test_that("causal forests with a very small imbalance.penalty behave similarly t
 
   diff.large.penalty <- abs(forest.large.penalty$debiased.error - forest$debiased.error)
   diff.small.penalty <- abs(forest.small.penalty$debiased.error - forest$debiased.error)
-  expect_true(mean(diff.small.penalty) < 0.10 * mean(diff.large.penalty))
+  expect_lt(mean(diff.small.penalty), 0.10 * mean(diff.large.penalty))
 })
 
 test_that("causal forests behave reasonably with a low treatment probability", {
@@ -82,7 +82,7 @@ test_that("causal forests behave reasonably with a low treatment probability", {
 
   forest <- causal_forest(X, Y, W, stabilize.splits = TRUE)
   tau.hat <- predict(forest)$predictions
-  expect_true(sqrt(mean((tau.hat - tau)^2)) < 0.20)
+  expect_lt(sqrt(mean((tau.hat - tau)^2)), 0.20)
 })
 
 test_that("causal forests behave reasonably with small sample size", {
@@ -101,7 +101,7 @@ test_that("causal forests behave reasonably with small sample size", {
   X.test <- matrix(rnorm(n * p), n, p)
   tau.test <- 100 * (X.test[, 1] > 0)
   tau.hat <- predict(forest, X.test)$predictions
-  expect_true(sqrt(mean((tau.hat - tau.test)^2)) / 100 < 1 / 3)
+  expect_lt(sqrt(mean((tau.hat - tau.test)^2)) / 100, 1 / 3)
 })
 
 test_that("local linear causal forests work in a simple case", {
@@ -119,7 +119,7 @@ test_that("local linear causal forests work in a simple case", {
   preds.rf <- predict(forest, X)
   error.rf <- mean((preds.rf$predictions - TAU)^2)
 
-  expect_true(error.ll < 0.8 * error.rf)
+  expect_lt(error.ll, 0.8 * error.rf)
 })
 
 test_that("local linear causal forests with large lambda are equivalent to causal forests", {
@@ -134,7 +134,7 @@ test_that("local linear causal forests with large lambda are equivalent to causa
   preds.ll <- predict(forest, X, linear.correction.variables = 1:ncol(X), ll.lambda = 1e5)$predictions
   preds.cf <- predict(forest)$predictions
 
-  expect_true(mean((preds.ll - preds.cf)^2) < 0.02)
+  expect_lt(mean((preds.ll - preds.cf)^2), 0.02)
 })
 
 
@@ -178,7 +178,7 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
   
   forest <- causal_forest(X[cc, ], Y[cc], W[cc], num.trees = num.trees)
   weighted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees)
-  expect_true(mse(weighted.forest) / mse(forest) < .9)
+  expect_lt(mse(weighted.forest) / mse(forest), .9)
   
   boosted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees)
   boosted.weighted.forest <- causal_forest(
@@ -186,7 +186,7 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
       sample.weights = sample.weights[cc],
       orthog.boosting = TRUE, num.trees = num.trees
   )
-  expect_true(mse(boosted.weighted.forest) / mse(boosted.forest) < .9)
+  expect_lt(mse(boosted.weighted.forest) / mse(boosted.forest), .9)
 })
 
 test_that("Weighting is roughly equivalent to replication of samples", {
