@@ -25,9 +25,7 @@ linters <- with_defaults(
   default = default_linters);
 
 lint_res <- lint_package(path = package.name, linters = linters, exclusions = file.path(package.name, "R/RcppExports.R"))
-lint_res
-
-if (length(lint_res) > 0) quit(status = 1)
+print(lint_res)
 
 # If built for CRAN, exlude all test except ones with "cran" in the filename
 # by adding the following regex to .Rbuildignore.
