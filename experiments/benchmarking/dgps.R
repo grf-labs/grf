@@ -24,7 +24,7 @@
 #' Y = m + (W - e) * tau + sqrt(V) + rnorm(n)
 #'
 #' @param n The number of observations
-#' @param p The number of covariates (note: the minium varies by DGP)
+#' @param p The number of covariates (note: the minimum varies by DGP)
 #' @param sigma.m The standard deviation of the unconditional mean of Y. Default=1.
 #' @param sigma.tau The standard deviation of the treatment effect. Default=0.1.
 #' @param sigma.noise The conditional variance of Y. Default=1.
