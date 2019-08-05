@@ -41,9 +41,9 @@
 gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
                      dgp = c("simple", "aw1", "aw2", "aw3", "ai1", "ai2", "kunzel"),
                      ...) {
-  .minp <- c(3, 2, 2, 1, 2, 6, 2)
-  dgp <- match.arg(dgp) # check later with  no named...
-  minp <- .minp[which(.DGPS == dgp)]
+  .minp <- c(simple=3, aw1=2, aw2=2, aw3=1, ai1=2, ai2=6, kunzel=2)
+  dgp <- match.arg(dgp)
+  minp <- .minp[dgp]
   if (p < minp) {
     msg <- paste0("Selected dgp ", dgp, " requires a minimum of ", minp, " variables.")
     stop(msg)
@@ -118,7 +118,6 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
   }
   V <- V / mean(V) * sigma.noise^2
   Y <- m + (W - e) * tau + sqrt(V) * rnorm(n)
-  mean(Y)
   out <- list(X = X, Y = Y, W = W, tau = tau, m = m, e = e, dgp = dgp)
 
   out
