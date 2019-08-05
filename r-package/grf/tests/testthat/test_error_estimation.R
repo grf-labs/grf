@@ -28,7 +28,7 @@ test_that("regression error estimates are reasonable", {
   mse.200 <- mean((pred.200$predictions - Y)^2, na.rm = TRUE)
 
   expect_equal(err.debiased.200, mse.200, tolerance = 0.01 * sigma^2)
-  expect_equal(err.debiased.5, err.debiased.200, tolerance = 0.02 * sigma^2)
+  expect_equal(err.debiased.5, err.debiased.200, tolerance = 0.025 * sigma^2)
 
   expect_true(mse.5 - mse.200 >= sigma^2 / 10)
 })
