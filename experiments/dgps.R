@@ -35,8 +35,9 @@
 #'
 #' @examples
 #' gen_data(100, 5, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1, dgp = "simple")
+#' @note:
+#' To add an additonal DGP, fill in the template below and add an entry to `dgp` and `.minp`.
 #'
-#' Note: To add an additonal DGP, fill in the template below and add an entry to `dgp` and `.minp`.
 gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
                      dgp = c("simple", "aw1", "aw2", "aw3", "ai1", "ai2", "kunzel"),
                      ...) {
