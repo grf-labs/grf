@@ -160,19 +160,19 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
   X <- matrix(rnorm(n * p), n, p)
   e <- 1 / (1 + exp(-X[, 1] + 2 * X[, 2]))
   W <- rbinom(n, 1, e)
-  tau <- 2 * (X[, 1] > 0 & X[,5] > 0) -
+  tau <- 2 * (X[, 1] > 0 & X[, 5] > 0) -
       0.5 * (X[, 2] > 0) - 0.5 * (X[, 3] > 0) - 0.5 * (X[, 4] > 0)
   Y <- W * tau + rnorm(n)
 
-  e.cc <- 1 - 0.9 * (X[, 1] > 0 & X[,5] > 0)
+  e.cc <- 1 - 0.9 * (X[, 1] > 0 & X[, 5] > 0)
   cc <- as.logical(rbinom(n, 1, e.cc))
   sample.weights <- 1 / e.cc
 
   num.trees <- 500
   mse <- function(f) {
-      tau.hat = rep(NA, n)
-      tau.hat[cc] = predict(f)$predictions
-      tau.hat[!cc] = predict(f, X[!cc,])$predictions
+      tau.hat <- rep(NA, n)
+      tau.hat[cc] <- predict(f)$predictions
+      tau.hat[!cc] <- predict(f, X[!cc, ])$predictions
       mean((tau.hat - tau)^2)
   }
 
