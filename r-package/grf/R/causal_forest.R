@@ -159,7 +159,7 @@ causal_forest <- function(X, Y, W,
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   W <- validate_observations(W, X)
-  
+
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
