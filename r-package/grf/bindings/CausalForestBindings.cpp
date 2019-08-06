@@ -39,6 +39,7 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
                         double sample_fraction,
                         bool honesty,
                         double honesty_fraction,
+                        bool prune_empty_leaves,
                         size_t ci_group_size,
                         double reduced_form_weight,
                         double alpha,
@@ -61,7 +62,7 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
   data->sort();
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-                        honesty_fraction, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
+                        honesty_fraction, prune_empty_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
   Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;

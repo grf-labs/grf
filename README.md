@@ -11,7 +11,7 @@ This package is currently in beta, and we expect to make continual improvements 
 
 ### Authors
 
-This package is written and maintained by Julie Tibshirani (jtibs@cs.stanford.edu), Susan Athey, and Stefan Wager.
+This package is written and maintained by Julie Tibshirani, Susan Athey, and Stefan Wager.
 
 The repository first started as a fork of the [ranger](https://github.com/imbs-hl/ranger) repository -- we owe a great deal of thanks to the ranger authors for their useful and free package.
 
@@ -26,7 +26,7 @@ install.packages("grf")
 Any published release can also be installed from source:
 
 ```R
-install.packages("https://raw.github.com/grf-labs/grf/master/releases/grf_0.10.2.tar.gz", repos = NULL, type = "source")
+install.packages("https://raw.github.com/grf-labs/grf/master/releases/grf_0.10.3.tar.gz", repos = NULL, type = "source")
 ```
 
 `conda` users can install from the [conda-forge](https://anaconda.org/conda-forge/r-grf) channel:

@@ -1,9 +1,3 @@
-set.seed(1234)
-
-rm(list = ls())
-
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
 library(grf)
 library(glmnet)
 

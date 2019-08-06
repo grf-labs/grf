@@ -47,7 +47,8 @@ private:
 
   void repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
                              const Data* data,
-                             const std::vector<size_t> &leaf_samples) const;
+                             const std::vector<size_t> &leaf_samples,
+                             const bool prune_empty_leaves) const;
 
   void create_split_variable_subset(std::vector<size_t>& result,
                                     RandomSampler& sampler,
@@ -68,7 +69,7 @@ private:
                            const Data* data,
                            std::shared_ptr<SplittingRule> splitting_rule,
                            const std::vector<size_t>& possible_split_vars,
-                           std::vector<std::vector<size_t>>& samples,
+                           const std::vector<std::vector<size_t>>& samples,
                            std::vector<size_t>& split_vars,
                            std::vector<double>& split_values,
                            uint min_node_size) const ;
