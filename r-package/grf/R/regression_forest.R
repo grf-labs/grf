@@ -146,15 +146,8 @@ regression_forest <- function(X, Y,
     })
     tunable.params <- tuning.output$params
   } else {
-    tunable.params <- c(
-      min.node.size = validate_min_node_size(min.node.size),
-      sample.fraction = validate_sample_fraction(sample.fraction),
-      mtry = validate_mtry(mtry, X),
-      alpha = validate_alpha(alpha),
-      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
-    )
+    tunable.params <- pre.tuning.parameters
   }
-
 
   data <- create_data_matrices(X, Y, sample.weights = sample.weights)
   outcome.index <- ncol(X) + 1

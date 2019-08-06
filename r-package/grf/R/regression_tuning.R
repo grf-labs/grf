@@ -120,7 +120,7 @@ tune_regression_forest <- function(X, Y,
   colnames(fit.draws) <- names(tuning.params)
   compute.oob.predictions <- TRUE
 
-  debiased.errors <- apply(fit.draws, 1, function(draw) {
+  small.forest.errors <- apply(fit.draws, 1, function(draw) {
     params <- c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- regression_train(
       data$default, data$sparse, outcome.index, sample.weight.index,
@@ -153,12 +153,12 @@ tune_regression_forest <- function(X, Y,
   # Fit the 'dice kriging' model to these error estimates.
   # Note that in the 'km' call, the kriging package prints a large amount of information
   # about the fitting process. Here, capture its console output and discard it.
-  variance.guess <- rep(var(debiased.errors) / 2, nrow(fit.draws))
+  variance.guess <- rep(var(small.forest.errors) / 2, nrow(fit.draws))
   env <- new.env()
   capture.output(env$kriging.model <-
     DiceKriging::km(
       design = data.frame(fit.draws),
-      response = debiased.errors,
+      response = small.forest.errors,
       noise.var = variance.guess
     ))
   kriging.model <- env$kriging.model

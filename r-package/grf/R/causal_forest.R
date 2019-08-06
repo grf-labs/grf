@@ -159,7 +159,7 @@ causal_forest <- function(X, Y, W,
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   W <- validate_observations(W, X)
-
+  
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
@@ -216,7 +216,12 @@ causal_forest <- function(X, Y, W,
   } else if (length(W.hat) != nrow(X)) {
     stop("W.hat has incorrect length.")
   }
-
+  pre.tuning.parameters <- c(
+    min.node.size = validate_min_node_size(min.node.size),
+    sample.fraction = validate_sample_fraction(sample.fraction),
+    mtry = validate_mtry(mtry, X),
+    alpha = validate_alpha(alpha),
+    imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
   if (tune.parameters) {
     tuning.output <- tryCatch({
       tune_causal_forest(X, Y, W, Y.hat, W.hat,
@@ -246,13 +251,7 @@ causal_forest <- function(X, Y, W,
     })
     tunable.params <- tuning.output$params
   } else {
-    tunable.params <- c(
-      min.node.size = validate_min_node_size(min.node.size),
-      sample.fraction = validate_sample_fraction(sample.fraction),
-      mtry = validate_mtry(mtry, X),
-      alpha = validate_alpha(alpha),
-      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
-    )
+    tunable.params <- pre.tuning.parameters
   }
 
   Y.centered <- Y - Y.hat
