@@ -158,10 +158,10 @@ tune_regression_forest <- function(X, Y,
     mean(error, na.rm = TRUE)
   })
 
-  if (all(is.na(small.forest.errors))) {
+  if (any(is.na(small.forest.errors))) {
     warning(paste0(
       "Could not tune causal forest because all small forest error estimates were NA.\n",
-      "Consider increasing argument num.fit.trees."
+      "Consider increasing tuning argument num.fit.trees."
     ))
     out <- get_tuning_output(params = c(all.params), status = "failure")
     return(out)

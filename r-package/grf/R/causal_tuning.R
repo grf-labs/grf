@@ -104,7 +104,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   W <- validate_observations(W, X)
-
+  
   num.threads <- validate_num_threads(num.threads)
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
@@ -112,12 +112,12 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   ci.group.size <- 1
   reduced.form.weight <- 0
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-
+  
   data <- create_data_matrices(X, Y - Y.hat, W - W.hat, sample.weights = sample.weights)
   outcome.index <- ncol(X) + 1
   treatment.index <- ncol(X) + 2
   sample.weight.index <- ncol(X) + 3
-
+  
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
   all.params <- get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
@@ -131,17 +131,17 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
   )
   default.params[!is.na(all.params)] <- all.params[!is.na(all.params)]
-
+  
   if (length(tuning.params) == 0) {
     return(list("error" = NA, "params" = c(all.params)))
   }
-
+  
   # Train several mini-forests, and gather their debiased OOB error estimates.
   num.params <- length(tuning.params)
   fit.draws <- matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params)
   colnames(fit.draws) <- names(tuning.params)
   compute.oob.predictions <- TRUE
-
+  
   small.forest.errors <- apply(fit.draws, 1, function(draw) {
     params <- c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- causal_train(
@@ -172,16 +172,16 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     )
     mean(prediction$debiased.error, na.rm = TRUE)
   })
-
-  if (all(is.na(small.forest.errors))) {
+  
+  if (any(is.na(small.forest.errors))) {
     warning(paste0(
-      "Could not tune causal forest because all small forest error estimates were NA.\n",
-      "Consider increasing argument num.fit.trees."
+      "Could not tune causal forest because some small forest error estimates were NA.\n",
+      "Consider increasing tuning argument num.fit.trees."
     ))
     out <- get_tuning_output(params = c(default.params), status = "failure")
     return(out)
   }
-
+  
   if (sd(small.forest.errors) / mean(small.forest.errors) < 1e-10) {
     warning(paste0(
       "Could not tune causal forest because small forest errors were nearly constant.\n",
@@ -190,7 +190,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     out <- get_tuning_output(params = c(default.params), status = "failure")
     return(out)
   }
-
+  
   # Fit the 'dice kriging' model to these error estimates.
   # Note that in the 'km' call, the kriging package prints a large amount of information
   # about the fitting process. Here, capture its console output and discard it.
@@ -216,18 +216,18 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     out <- get_tuning_output(params = default.parameters, status = "failure")
     return(out)
   }
-
+  
   # To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
   optimize.draws <- matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
   colnames(optimize.draws) <- names(tuning.params)
   model.surface <- predict(kriging.model, newdata = data.frame(optimize.draws), type = "SK")$mean
   tuned.params <- get_params_from_draw(X, optimize.draws)
-
+  
   grid <- cbind(error = c(model.surface), tuned.params)
   small.forest.optimal.draw <- which.min(grid[, "error"])
   small.forest.optimal.params <- grid[small.forest.optimal.draw, -1]
-
+  
   # To avoid the possibility of selection bias, re-train a moderately-sized forest
   # at the value chosen by the method above
   retrained.forest.params <- c(fixed.params, grid[small.forest.optimal.draw, -1])
@@ -254,19 +254,19 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     num.threads,
     seed
   )
-
+  
   retrained.forest.prediction <- causal_predict_oob(
     retrained.forest, data$default, data$sparse,
     outcome.index, treatment.index, num.threads, FALSE
   )
-
+  
   retrained.forest.error <- mean(retrained.forest.prediction$debiased.error, na.rm = TRUE)
-
-
+  
+  
   # Train a forest with default parameters, and check its predicted error.
   # This improves our chances of not doing worse than default
   num.default.forest.trees <- num.fit.trees * 4
-
+  
   default.forest <- causal_train(
     data$default, data$sparse,
     outcome.index, treatment.index, sample.weight.index,
@@ -289,14 +289,14 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     num.threads,
     seed
   )
-
+  
   default.forest.prediction <- causal_predict_oob(
     default.forest, data$default, data$sparse,
     outcome.index, treatment.index, num.threads, FALSE
   )
-
+  
   default.forest.error <- mean(default.forest.prediction$debiased.error, na.rm = TRUE)
-
+  
   # Now compare predicted errors: default parameters vs retrained parameter
   if (default.forest.error < retrained.forest.error)
   {
@@ -314,6 +314,6 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
       status = "tuned"
     )
   }
-
+  
   out
 }
