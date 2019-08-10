@@ -214,8 +214,9 @@ test_that("average treatment effect with overlap: larger example works", {
 })
 
 test_that("cluster robust average effects are consistent", {
-  p <- 6
-  n <- 400
+
+  p <- 3
+  n <- 800
 
   X <- matrix(2 * runif(n * p) - 1, n, p)
   W <- rbinom(n, 1, 0.5)
@@ -226,12 +227,11 @@ test_that("cluster robust average effects are consistent", {
   Yc <- c(Y, Y, Y, Y)
   clust <- c(1:n, 1:n, 1:n, 1:n)
 
-  forest.causal <- causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 4)
+  forest.causal <- causal_forest(X, Y, W, num.trees = 2000, ci.group.size = 4)
   forest.causal.clust <- causal_forest(Xc, Yc, Wc,
-    num.trees = 1000,
-    ci.group.size = 4, clusters = clust,
-    samples.per.cluster = 7
-  )
+                                      num.trees = 2000,
+                                      ci.group.size = 4, clusters = clust,
+                                      samples.per.cluster = 7)
 
   cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   cate.clust.aipw <- average_treatment_effect(forest.causal.clust, target.sample = "all", method = "AIPW")
