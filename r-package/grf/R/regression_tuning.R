@@ -8,7 +8,7 @@
 #' called with min.node.size = 10 and alpha = 0.7, then those parameter values will be treated
 #' as fixed, and only sample.fraction and imbalance.penalty will be tuned.
 #'
-#' @param X The covariates used in the regression.s
+#' @param X The covariates used in the regression.
 #' @param Y The outcome.
 #' @param sample.weights (experimental) Weights given to an observation in estimation.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
@@ -167,7 +167,7 @@ tune_regression_forest <- function(X, Y,
     return(out)
   }
 
-  if (sd(small.forest.errors) < 1e-10) {
+  if (sd(small.forest.errors) / mean(small.forest.errors) < 1e-10) {
     warning(paste0(
       "Could not tune causal forest because small forest errors were nearly constant.\n",
       "Consider increasing argument num.fit.trees."

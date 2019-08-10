@@ -182,7 +182,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     return(out)
   }
 
-  if (sd(small.forest.errors) < 1e-10) {
+  if (sd(small.forest.errors) / mean(small.forest.errors) < 1e-10) {
     warning(paste0(
       "Could not tune causal forest because small forest errors were nearly constant.\n",
       "Consider increasing argument num.fit.trees."
