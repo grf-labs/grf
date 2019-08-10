@@ -2,7 +2,7 @@
 
 ## What are these files?
 
-They are copies of `random` and `algorithm` headers from the llvm standard library. You can find copies [here](https://github.com/llvm-mirror/libcxx/blob/master/include/).
+They are copies of `random` and `algorithm` headers from the [llvm](https://github.com/llvm-mirror/libcxx/blob/master/include/) standard library.
 
 
 ## Motivation
@@ -11,11 +11,10 @@ Users complained about stability of random numbers across machines when setting 
 
 As [pointed out](https://github.com/grf-labs/grf/issues/379#issuecomment-480641123) by @jtibshrani:
 
-```
- the mersenne twister has the same implementation across platforms, the other random methods may differ from compiler to compiler
-```
+> the mersenne twister has the same implementation across platforms, the other random methods may differ from compiler to compiler
 
-In PR [#469](https://github.com/grf-labs/grf/pull/469), @halflearned included this copy of the relevant headers, and ensured random number generation is done in a consistent way across compilers.
+
+In PR [#469](https://github.com/grf-labs/grf/pull/469), @halflearned included this reduced copy of the relevant headers, ensuring random number generation is done in a consistent way across compilers.
 
 
 ## How to reproduce
@@ -35,6 +34,8 @@ Extract only the relevant classes and functions from `random.hpp`:
 + `normal_distribution`
 + `exponential_distribution`
 + `discrete_distribution`
+
+From each class, remove all methods associated with `operator<<`.
 
 Find and remove the following `_LIBCPP` macros:
 + `_LIBCPP_BEGIN_NAMESPACE_STD`
