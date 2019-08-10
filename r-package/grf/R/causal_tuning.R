@@ -123,6 +123,14 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   all.params <- get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
   fixed.params <- all.params[!is.na(all.params)]
   tuning.params <- all.params[is.na(all.params)]
+  default.params <- c(
+    min.node.size = validate_min_node_size(min.node.size),
+    sample.fraction = validate_sample_fraction(sample.fraction),
+    mtry = validate_mtry(mtry, X),
+    alpha = validate_alpha(alpha),
+    imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+  )
+  default.params[!is.na(all.params)] <- all.params[!is.na(all.params)]
 
   if (length(tuning.params) == 0) {
     return(list("error" = NA, "params" = c(all.params)))
@@ -166,16 +174,20 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   })
 
   if (all(is.na(small.forest.errors))) {
-    warning(paste0("Could not tune causal forest because all small forest error estimates were NA.\n",
-                   "Consider increasing argument num.fit.trees."))
-    out <- get_tuning_output(params = c(all.params), status = "failure")
+    warning(paste0(
+      "Could not tune causal forest because all small forest error estimates were NA.\n",
+      "Consider increasing argument num.fit.trees."
+    ))
+    out <- get_tuning_output(params = c(default.params), status = "failure")
     return(out)
   }
 
   if (sd(small.forest.errors) < 1e-10) {
-    warning(paste0("Could not tune causal forest because small forest errors were nearly constant.\n",
-                   "Consider increasing argument num.fit.trees."))
-    out <- get_tuning_output(params = c(all.params), status = "failure")
+    warning(paste0(
+      "Could not tune causal forest because small forest errors were nearly constant.\n",
+      "Consider increasing argument num.fit.trees."
+    ))
+    out <- get_tuning_output(params = c(default.params), status = "failure")
     return(out)
   }
 
@@ -183,21 +195,25 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   # Note that in the 'km' call, the kriging package prints a large amount of information
   # about the fitting process. Here, capture its console output and discard it.
   variance.guess <- rep(var(small.forest.errors) / 2, nrow(fit.draws))
-  kriging.model <- tryCatch({
-    capture.output(
-      DiceKriging::km(
-        design = data.frame(fit.draws),
-        response = small.forest.errors,
-        noise.var = variance.guess
-      ))
+  kriging.model <- tryCatch(
+    {
+      capture.output(
+        model <- DiceKriging::km(
+          design = data.frame(fit.draws),
+          response = small.forest.errors,
+          noise.var = variance.guess
+        )
+      )
+      model
     },
     error = function(e) {
-      warning(paste0("Dicekriging threw the following error: \n", e)
-      NA
-  })
-  if (is.na(kriging.model)) {
+      warning(paste0("Dicekriging threw the following error during causal tuning: \n", e))
+      return(NULL)
+    }
+  )
+  if (is.null(kriging.model)) {
     warning("Tuning was attempted but failed. Reverting to default parameters.")
-    out <- get_tuning_output(params = pre.tuning.parameters, status = "failure")
+    out <- get_tuning_output(params = default.parameters, status = "failure")
     return(out)
   }
 
@@ -216,44 +232,39 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   # at the value chosen by the method above
   retrained.forest.params <- c(fixed.params, grid[small.forest.optimal.draw, -1])
   retrained.forest.num.trees <- num.fit.trees * 4
-  retrained.forest <- causal_train(data$default, data$sparse,
-                                  outcome.index, treatment.index, sample.weight.index,
-                                  !is.null(sample.weights),
-                                  retrained.forest.params["mtry"],
-                                  retrained.forest.num.trees,
-                                  retrained.forest.params["min.node.size"],
-                                  retrained.forest.params["sample.fraction"],
-                                  honesty,
-                                  coerce_honesty_fraction(honesty.fraction),
-                                  prune.empty.leaves,
-                                  ci.group.size,
-                                  reduced.form.weight,
-                                  retrained.forest.params["alpha"],
-                                  retrained.forest.params["imbalance.penalty"],
-                                  stabilize.splits,
-                                  clusters,
-                                  samples.per.cluster,
-                                  compute.oob.predictions,
-                                  num.threads,
-                                  seed)
+  retrained.forest <- causal_train(
+    data$default, data$sparse,
+    outcome.index, treatment.index, sample.weight.index,
+    !is.null(sample.weights),
+    retrained.forest.params["mtry"],
+    retrained.forest.num.trees,
+    retrained.forest.params["min.node.size"],
+    retrained.forest.params["sample.fraction"],
+    honesty,
+    coerce_honesty_fraction(honesty.fraction),
+    prune.empty.leaves,
+    ci.group.size,
+    reduced.form.weight,
+    retrained.forest.params["alpha"],
+    retrained.forest.params["imbalance.penalty"],
+    stabilize.splits,
+    clusters,
+    samples.per.cluster,
+    compute.oob.predictions,
+    num.threads,
+    seed
+  )
 
   retrained.forest.prediction <- causal_predict_oob(
     retrained.forest, data$default, data$sparse,
-    outcome.index, treatment.index, num.threads, FALSE)
+    outcome.index, treatment.index, num.threads, FALSE
+  )
 
   retrained.forest.error <- mean(retrained.forest.prediction$debiased.error, na.rm = TRUE)
 
 
   # Train a forest with default parameters, and check its predicted error.
   # This improves our chances of not doing worse than default
-  default.params <- c(
-    min.node.size = validate_min_node_size(min.node.size),
-    sample.fraction = validate_sample_fraction(sample.fraction),
-    mtry = validate_mtry(mtry, X),
-    alpha = validate_alpha(alpha),
-    imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
-  )
-  default.params[!is.na(all.params)] <- all.params[!is.na(all.params)]
   num.default.forest.trees <- num.fit.trees * 4
 
   default.forest <- causal_train(
@@ -276,25 +287,32 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     samples.per.cluster,
     compute.oob.predictions,
     num.threads,
-    seed)
+    seed
+  )
 
   default.forest.prediction <- causal_predict_oob(
     default.forest, data$default, data$sparse,
-    outcome.index, treatment.index, num.threads, FALSE)
+    outcome.index, treatment.index, num.threads, FALSE
+  )
 
   default.forest.error <- mean(default.forest.prediction$debiased.error, na.rm = TRUE)
 
   # Now compare predicted errors: default parameters vs retrained parameter
-  if (default.forest.error < retrained.forest.error) {
-    out <- get_tuning_output(error = default.forest.error,
-                             params = default.params,
-                             grid = NA,
-                             status = "default")
+  if (default.forest.error < retrained.forest.error)
+  {
+    out <- get_tuning_output(
+      error = default.forest.error,
+      params = default.params,
+      grid = NA,
+      status = "default"
+    )
   } else {
-    out <- get_tuning_output(error = retrained.forest.error,
-                             params = retrained.forest.params,
-                             grid = grid,
-                             status = "tuned")
+    out <- get_tuning_output(
+      error = retrained.forest.error,
+      params = retrained.forest.params,
+      grid = grid,
+      status = "tuned"
+    )
   }
 
   out
