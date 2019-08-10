@@ -5,159 +5,177 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param sample.weights (experimental) Weights given to an observation in estimation.
+#'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
-#'                        further be cut by a factor of honesty.fraction.
-#' @param mtry Number of variables tried for each split.
+#'                        further be cut by a factor of honesty.fraction. Default is 0.5.
+#' @param mtry Number of variables tried for each split. Default is
+#'             \eqn{\sqrt p + 20} where p is the number of variables.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
-#'                  getting accurate predictions.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
-#'                    automatically selects an appropriate amount.
+#'                  getting accurate predictions. Default is 2000.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting).
+#'                      Default is 5.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
-#'                         honesty.fraction = NULL), half of the data will be used for determining splits
+#'                         honesty.fraction = NULL), half of the data will be used for determining splits.
+#'                         Default is 0.5.
+#' @param prune.empty.leaves (experimental) If true, prunes the estimation sample tree such that no leaves
+#'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
+#'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
+#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default is TRUE.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
-#'                      be at least 2.
-#' @param alpha A tuning parameter that controls the maximum imbalance of a split.
-#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized.
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
-#' @param seed The seed for the C++ random number generator.
+#'                      be at least 2. Default is 2.
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#' @param samples_per_cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples_per_cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples_per_cluster,
+#'                 Default is NULL (ignored).
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
 #'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples_per_cluster observations get relatively
+#'                            clusters with less than samples.per.cluster observations get relatively
 #'                            smaller weight than others in training the forest, i.e., the contribution
 #'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples_per_cluster.
+#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
-#'                        NULL parameters are set to defaults.
-#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
-#' @param num.fit.reps The number of forests used to fit the tuning model.
+#'                        NULL parameters are set to defaults. Default is FALSE.
+#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 10.
+#' @param num.fit.reps The number of forests used to fit the tuning model. Default is 100.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
-#'                          to select the optimal parameters.
+#'                          to select the optimal parameters. Default is 1000.
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
+#' @param num.threads Number of threads used in training. By default, the number of threads is set
+#'                    to the maximum hardware concurrency.
+#' @param seed The seed of the C++ random number generator.
 #'
-#' @return A trained regression forest object.
+#' @return A trained regression forest object. If tune.parameters is enabled,
+#'  then tuning information will be included through the `tuning.output` attribute.
 #'
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' # Train a standard regression forest.
-#' n = 50; p = 10
-#' X = matrix(rnorm(n*p), n, p)
-#' Y = X[,1] * rnorm(n)
-#' r.forest = regression_forest(X, Y)
+#' n <- 50
+#' p <- 10
+#' X <- matrix(rnorm(n * p), n, p)
+#' Y <- X[, 1] * rnorm(n)
+#' r.forest <- regression_forest(X, Y)
 #'
 #' # Predict using the forest.
-#' X.test = matrix(0, 101, p)
-#' X.test[,1] = seq(-2, 2, length.out = 101)
-#' r.pred = predict(r.forest, X.test)
+#' X.test <- matrix(0, 101, p)
+#' X.test[, 1] <- seq(-2, 2, length.out = 101)
+#' r.pred <- predict(r.forest, X.test)
 #'
 #' # Predict on out-of-bag training samples.
-#' r.pred = predict(r.forest)
+#' r.pred <- predict(r.forest)
 #'
 #' # Predict with confidence intervals; growing more trees is now recommended.
-#' r.forest = regression_forest(X, Y, num.trees = 100)
-#' r.pred = predict(r.forest, X.test, estimate.variance = TRUE)
+#' r.forest <- regression_forest(X, Y, num.trees = 100)
+#' r.pred <- predict(r.forest, X.test, estimate.variance = TRUE)
 #' }
 #'
 #' @export
+#' @useDynLib grf
+#' @importFrom Rcpp evalCpp
 regression_forest <- function(X, Y,
                               sample.weights = NULL,
                               sample.fraction = 0.5,
                               mtry = NULL,
                               num.trees = 2000,
-                              num.threads = NULL,
                               min.node.size = NULL,
                               honesty = TRUE,
                               honesty.fraction = NULL,
+                              prune.empty.leaves = TRUE,
                               ci.group.size = 2,
                               alpha = NULL,
                               imbalance.penalty = NULL,
-                              compute.oob.predictions = TRUE,
-                              seed = NULL,
                               clusters = NULL,
-                              samples_per_cluster = NULL,
+                              samples.per.cluster = NULL,
                               tune.parameters = FALSE,
                               num.fit.trees = 10,
                               num.fit.reps = 100,
-                              num.optimize.reps = 1000) {
-    validate_X(X)
-    validate_sample_weights(sample.weights, X)
-    validate_observations(Y, X)
+                              num.optimize.reps = 1000,
+                              compute.oob.predictions = TRUE,
+                              num.threads = NULL,
+                              seed = NULL) {
+  validate_X(X)
+  validate_sample_weights(sample.weights, X)
+  Y <- validate_observations(Y, X)
 
-    num.threads <- validate_num_threads(num.threads)
-    seed <- validate_seed(seed)
-    clusters <- validate_clusters(clusters, X)
-    samples_per_cluster <- validate_samples_per_cluster(samples_per_cluster, clusters)
-    honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
+  num.threads <- validate_num_threads(num.threads)
+  seed <- validate_seed(seed)
+  clusters <- validate_clusters(clusters, X)
+  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
-    if (tune.parameters) {
-      tuning.output <- tune_regression_forest(X, Y, sample.weights = sample.weights,
-                                              num.fit.trees = num.fit.trees,
-                                              num.fit.reps = num.fit.reps,
-                                              num.optimize.reps = num.optimize.reps,
-                                              min.node.size = min.node.size,
-                                              sample.fraction = sample.fraction,
-                                              mtry = mtry,
-                                              alpha = alpha,
-                                              imbalance.penalty = imbalance.penalty,
-                                              num.threads = num.threads,
-                                              honesty = honesty,
-                                              honesty.fraction = honesty.fraction,
-                                              seed = seed,
-                                              clusters = clusters,
-                                              samples_per_cluster = samples_per_cluster)
-      tunable.params <- tuning.output$params
-    } else {
-      tunable.params <- c(
-        min.node.size = validate_min_node_size(min.node.size),
-        sample.fraction = validate_sample_fraction(sample.fraction),
-        mtry = validate_mtry(mtry, X),
-        alpha = validate_alpha(alpha),
-        imbalance.penalty = validate_imbalance_penalty(imbalance.penalty))
-    }
+  if (tune.parameters) {
+    tuning.output <- tune_regression_forest(X, Y,
+      sample.weights = sample.weights,
+      num.fit.trees = num.fit.trees,
+      num.fit.reps = num.fit.reps,
+      num.optimize.reps = num.optimize.reps,
+      min.node.size = min.node.size,
+      sample.fraction = sample.fraction,
+      mtry = mtry,
+      alpha = alpha,
+      imbalance.penalty = imbalance.penalty,
+      num.threads = num.threads,
+      honesty = honesty,
+      honesty.fraction = honesty.fraction,
+      prune.empty.leaves = prune.empty.leaves,
+      seed = seed,
+      clusters = clusters,
+      samples.per.cluster = samples.per.cluster
+    )
+    tunable.params <- tuning.output$params
+  } else {
+    tunable.params <- c(
+      min.node.size = validate_min_node_size(min.node.size),
+      sample.fraction = validate_sample_fraction(sample.fraction),
+      mtry = validate_mtry(mtry, X),
+      alpha = validate_alpha(alpha),
+      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+    )
+  }
 
-    data <- create_data_matrices(X, Y, sample.weights=sample.weights)
-    outcome.index <- ncol(X) + 1
-    sample.weight.index <- ncol(X) + 2;
-    forest <- regression_train(data$default, data$sparse, outcome.index, sample.weight.index,
-                               !is.null(sample.weights),
-                               as.numeric(tunable.params["mtry"]),
-                               num.trees,
-                               num.threads,
-                               as.numeric(tunable.params["min.node.size"]),
-                               as.numeric(tunable.params["sample.fraction"]),
-                               seed,
-                               honesty,
-                               coerce_honesty_fraction(honesty.fraction),
-                               ci.group.size,
-                               as.numeric(tunable.params["alpha"]),
-                               as.numeric(tunable.params["imbalance.penalty"]),
-                               clusters,
-                               samples_per_cluster)
+  data <- create_data_matrices(X, Y, sample.weights = sample.weights)
+  outcome.index <- ncol(X) + 1
+  sample.weight.index <- ncol(X) + 2
+  forest <- regression_train(
+    data$default, data$sparse, outcome.index, sample.weight.index,
+    !is.null(sample.weights),
+    as.numeric(tunable.params["mtry"]),
+    num.trees,
+    as.numeric(tunable.params["min.node.size"]),
+    as.numeric(tunable.params["sample.fraction"]),
+    honesty,
+    coerce_honesty_fraction(honesty.fraction),
+    prune.empty.leaves,
+    ci.group.size,
+    as.numeric(tunable.params["alpha"]),
+    as.numeric(tunable.params["imbalance.penalty"]),
+    clusters,
+    samples.per.cluster,
+    compute.oob.predictions,
+    num.threads,
+    seed
+  )
 
-    forest[["ci.group.size"]] <- ci.group.size
-    forest[["X.orig"]] <- X
-    forest[["Y.orig"]] <- Y
-    forest[["sample.weights"]] <- sample.weights
-    forest[["clusters"]] <- clusters
-    forest[["tunable.params"]] <- tunable.params
-
-    class(forest) <- c("regression_forest", "grf")
-
-    if (compute.oob.predictions) {
-        oob.pred <- predict(forest)
-        forest[["predictions"]] <- oob.pred$predictions
-        forest[["debiased.error"]] <- oob.pred$debiased.error
-        forest[["excess.error"]] <- oob.pred$excess.error
-    }
-
-    forest
+  class(forest) <- c("regression_forest", "grf")
+  forest[["ci.group.size"]] <- ci.group.size
+  forest[["X.orig"]] <- X
+  forest[["Y.orig"]] <- Y
+  forest[["sample.weights"]] <- sample.weights
+  forest[["clusters"]] <- clusters
+  forest[["tunable.params"]] <- tunable.params
+  if (tune.parameters) {
+    forest[["tuning.output"]] <- tuning.output
+  }
+  forest
 }
 
 #' Predict with a regression forest
@@ -184,35 +202,37 @@ regression_forest <- function(X, Y,
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return Vector of predictions, along with estimates of the error and 
+#' @return Vector of predictions, along with estimates of the error and
 #'         (optionally) its variance estimates. Column 'predictions' contains
-#'         estimates of E[Y|X=x]. The square-root of column 'variance.estimates' is the standard error 
-#          of these predictions. Column 'debiased.error' contains out-of-bag estimates of 
-#'         the test mean-squared error. Column 'excess.error' contains 
-#'         jackknife estimates of the Monte-carlo error. The sum of 'debiased.error' 
-#'         and 'excess.error' is the raw error attained by the current forest, and 
-#'         'debiased.error' alone is an estimate of the error attained by a forest with 
-#'         an infinite number of trees. We recommend that users grow 
-#'         enough forests to make the excess.error' negligible. 
+#'         estimates of E[Y|X=x]. The square-root of column 'variance.estimates' is the standard error
+#          of these predictions. Column 'debiased.error' contains out-of-bag estimates of
+#'         the test mean-squared error. Column 'excess.error' contains
+#'         jackknife estimates of the Monte-carlo error. The sum of 'debiased.error'
+#'         and 'excess.error' is the raw error attained by the current forest, and
+#'         'debiased.error' alone is an estimate of the error attained by a forest with
+#'         an infinite number of trees. We recommend that users grow
+#'         enough forests to make the 'excess.error' negligible.
 #'
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' # Train a standard regression forest.
-#' n = 50; p = 10
-#' X = matrix(rnorm(n*p), n, p)
-#' Y = X[,1] * rnorm(n)
-#' r.forest = regression_forest(X, Y)
+#' n <- 50
+#' p <- 10
+#' X <- matrix(rnorm(n * p), n, p)
+#' Y <- X[, 1] * rnorm(n)
+#' r.forest <- regression_forest(X, Y)
 #'
 #' # Predict using the forest.
-#' X.test = matrix(0, 101, p)
-#' X.test[,1] = seq(-2, 2, length.out = 101)
-#' r.pred = predict(r.forest, X.test)
+#' X.test <- matrix(0, 101, p)
+#' X.test[, 1] <- seq(-2, 2, length.out = 101)
+#' r.pred <- predict(r.forest, X.test)
 #'
 #' # Predict on out-of-bag training samples.
-#' r.pred = predict(r.forest)
+#' r.pred <- predict(r.forest)
 #'
 #' # Predict with confidence intervals; growing more trees is now recommended.
-#' r.forest = regression_forest(X, Y, num.trees = 100)
-#' r.pred = predict(r.forest, X.test, estimate.variance = TRUE)
+#' r.forest <- regression_forest(X, Y, num.trees = 100)
+#' r.pred <- predict(r.forest, X.test, estimate.variance = TRUE)
 #' }
 #'
 #' @method predict regression_forest
@@ -224,60 +244,72 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       num.threads = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
+  local.linear <- !is.null(linear.correction.variables)
 
-    local.linear = !is.null(linear.correction.variables)
+  # If possible, use pre-computed predictions.
+  if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
+    return(data.frame(
+      predictions = object$predictions,
+      debiased.error = object$debiased.error,
+      excess.error = object$excess.error
+    ))
+  }
 
-    # If possible, use pre-computed predictions.
-    if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
-        return(data.frame(predictions=object$predictions,
-                          debiased.error=object$debiased.error,
-                          excess.error=object$excess.error))
-    }
+  num.threads <- validate_num_threads(num.threads)
 
-    num.threads = validate_num_threads(num.threads)
+  forest.short <- object[-which(names(object) == "X.orig")]
+  X <- object[["X.orig"]]
+  train.data <- create_data_matrices(X, object[["Y.orig"]])
+  outcome.index <- ncol(X) + 1
 
-    forest.short = object[-which(names(object) == "X.orig")]
-    X = object[["X.orig"]]
-    train.data = create_data_matrices(X, object[["Y.orig"]])
-    outcome.index = ncol(X) + 1
+  if (local.linear) {
+    linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
 
-    if (local.linear) {
-        linear.correction.variables = validate_ll_vars(linear.correction.variables, ncol(X))
-
-        if (is.null(ll.lambda)) {
-            ll.regularization.path = tune_ll_regression_forest(object, linear.correction.variables, ll.weight.penalty, num.threads)
-            ll.lambda = ll.regularization.path$lambda.min
-        } else {
-            ll.lambda = validate_ll_lambda(ll.lambda)
-        }
-
-        # subtract 1 to account for C++ indexing
-        linear.correction.variables <- linear.correction.variables - 1
-    }
-
-    if (!is.null(newdata) ) {
-        data = create_data_matrices(newdata)
-        validate_newdata(newdata, X)
-        if (!local.linear) {
-            ret = regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
-                data$default, data$sparse, num.threads, estimate.variance)
-        } else {
-            ret = ll_regression_predict(forest.short, train.data$default, train.data$sparse, outcome.index,
-                data$default, data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
-                num.threads, estimate.variance)
-        }
+    if (is.null(ll.lambda)) {
+      ll.regularization.path <- tune_ll_regression_forest(
+        object, linear.correction.variables,
+        ll.weight.penalty, num.threads
+      )
+      ll.lambda <- ll.regularization.path$lambda.min
     } else {
-        data = create_data_matrices(X)
-        if (!local.linear) {
-            ret = regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
-                num.threads, estimate.variance)
-        } else {
-            ret = ll_regression_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index,
-                ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
-        }
+      ll.lambda <- validate_ll_lambda(ll.lambda)
     }
 
-    # Convert list to data frame.
-    empty = sapply(ret, function(elem) length(elem) == 0)
-    do.call(cbind.data.frame, ret[!empty])
+    # subtract 1 to account for C++ indexing
+    linear.correction.variables <- linear.correction.variables - 1
+  }
+
+  if (!is.null(newdata)) {
+    data <- create_data_matrices(newdata)
+    validate_newdata(newdata, X)
+    if (!local.linear) {
+      ret <- regression_predict(
+        forest.short, train.data$default, train.data$sparse, outcome.index,
+        data$default, data$sparse, num.threads, estimate.variance
+      )
+    } else {
+      ret <- ll_regression_predict(
+        forest.short, train.data$default, train.data$sparse, outcome.index,
+        data$default, data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
+        num.threads, estimate.variance
+      )
+    }
+  } else {
+    data <- create_data_matrices(X)
+    if (!local.linear) {
+      ret <- regression_predict_oob(
+        forest.short, train.data$default, train.data$sparse, outcome.index,
+        num.threads, estimate.variance
+      )
+    } else {
+      ret <- ll_regression_predict_oob(
+        forest.short, train.data$default, train.data$sparse, outcome.index,
+        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
+      )
+    }
+  }
+
+  # Convert list to data frame.
+  empty <- sapply(ret, function(elem) length(elem) == 0)
+  do.call(cbind.data.frame, ret[!empty])
 }

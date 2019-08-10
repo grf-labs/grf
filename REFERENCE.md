@@ -17,7 +17,9 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Average Treatment Effects](#average-treatment-effects)
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
+  * [Boosted Regression Forests](#boosted-regression-forests)
   * [Cluster-Robust Estimation](#cluster-robust-estimation)
+  * [Sample Weighting](#sample-weighting)
 * [Troubleshooting](#troubleshooting)
 * [References](#references)
 
@@ -97,7 +99,7 @@ It's important to note that honesty may hurt performance when working with very 
 
 The `mtry` parameter determines the number of variables considered during each split. The value of `mtry` is often tuned as a way to improve the runtime of the algorithm, but can also have an impact on statistical performance.
 
-By default, `mtry` is taken as `max(sqrt(p + 20), p)`, where `p` is the number of variables (columns) in the dataset. This value can be adjusted by changing the parameter `mtry` during training. Selecting a tree split is often the most resource-intensive component of the algorithm. Setting a large value for `mtry` may therefore slow down training considerably.
+By default, `mtry` is taken as `min(sqrt(p) + 20, p)`, where `p` is the number of variables (columns) in the dataset. This value can be adjusted by changing the parameter `mtry` during training. Selecting a tree split is often the most resource-intensive component of the algorithm. Setting a large value for `mtry` may therefore slow down training considerably.
 
 To more closely match the theory in the GRF paper, the number of variables considered is actually drawn from a poisson distribution with mean equal to `mtry`. A new number is sampled from the distribution before every tree split.
 
@@ -158,7 +160,7 @@ Recall that causal forests assume that potential outcomes are independent of tre
 
 In GRF, we avoid this difficulty by 'orthogonalizing' our forest using Robinson's transformation (Robinson, 1988). Before running `causal_forest`, we compute estimates of the propensity scores `e(x) = E[W|X=x]` and marginal outcomes `m(x) = E[Y|X=x]` by training separate regression forests and performing out-of-bag prediction. We then compute the residual treatment `W - e(x)` and outcome `Y - m(x)`, and finally train a causal forest on these residuals. If propensity scores or marginal outcomes are known through prior means (as might be the case in a randomized trial) they can be specified through the training parameters `W.hat` and `Y.hat`. In this case, `causal_forest` will use these estimates instead of training separate regression forests.
 
-Empirically, we've found orthogonalization to be essential in obtaining accurate treatment effect estimates in observational studies. More details on the orthogonalization procedure in the context of forests can be found in section 6.1.1 of the GRF paper. For a broader discussion on Robinson's tranformation for conditional average treatment effect estimation, including formal results, please see Nie and Wager (2017). 
+Empirically, we've found orthogonalization to be essential in obtaining accurate treatment effect estimates in observational studies. More details on the orthogonalization procedure in the context of forests can be found in section 6.1.1 of the GRF paper. For a broader discussion on Robinson's tranformation for conditional average treatment effect estimation, including formal results, please see Nie and Wager (2017).
 
 ### Selecting Balanced Splits
 
@@ -198,17 +200,49 @@ The cross-validation procedure works as follows:
   - While the notion of error is straightforward for regression forests, it can be more subtle in the context of treatment effect estimation. For causal forests, we use a measure of error developed in Nie and Wager (2017) motivated by residual-on-residual regression (Robinson, 1988).
 - Finally, given the debiased error estimates for each set of parameters, we apply a smoothing function to determine the optimal parameter values.
 
+### Boosted Regression Forests
+
+**Note:** boosting is considered 'experimental', and its implementation may change in future releases.
+
+Ghosal and Hooker (2018) show how a boosting step can reduce bias in random forest predictions. We provide a `boosted_regression_forest` method which trains a series of forests, each of which are trained on the OOB residuals from the previous step. `boosted_regression_forest` includes the same parameters as `regression_forest`, which are passed directly to the forest trained in each step.
+
+The `boosted_regression_forest` method also contains parameters to control the step selection procedure. By default, the number of boosting steps is automatically chosen through the following cross-validation procedure:
+- First, a single `regression_forest` is trained and added to the boosted forest.
+- To decide if another step should be taken, we train a small forest of size `boost.trees.tune` on the OOB residuals. If it's estimated OOB error reduces the OOB error from the previous step by more than `boost.error.reduction`, then we will prepare for another step.
+- To take the next step, we train a full-sized `regression_forest` on the residuals and add it to the boosted forest.
+- This process continues until `boost.error.reduction` cannot be met when training the small forest, or if the total number of steps exceeds the limit `boost.max.steps`.
+
+Alternatively, you can to skip the cross-validation procedure and specify the number of steps directly through the parameter `boost.steps`.
+
+By default, `causal_forest` uses `regression_forest` to perform orthogonalization (that is, estimating `e(x) = E[W|X=x]` and `m(x) = E[Y|X=x]`). If the `orthog.boosting` flag is enabled, then `boosted_regression_forest` will be used instead.
+
+Some additional notes about the behavior of boosted regression forests:
+- For computational reasons, if `tune.parameters` is enabled, then parameters are chosen by the `regression_forest` procedure once in the first boosting step. The selected parameters are then applied to train the forests in any further steps.
+- The `estimate.variance` parameter is not available for boosted forests.
+- OOB predictions are available for the training data, which combine the OOB predictions for the forests in each boosting step.
+- We have found that boosting improves out-of-bag forest predictions most in scenarios where there is a strong signal-to-noise ratio.
+
 ### Cluster-Robust Estimation
 
-For accurate predictions and variance estimates, it can be important to take into account for natural clusters in the data, as might occur if a dataset contains examples taken from the same household or small town. GRF provides support for cluster-robust forests by accounting for clusters in the subsampling process. To use this feature, the forest must be trained with the relevant cluster information by specifying the `clusters` and optionally `samples_per_cluster` parameters. Then, all subsequent calls to `predict` with will take clusters into account, including when estimating the variance of forest predictions. 
+For accurate predictions and variance estimates, it can be important to take into account for natural clusters in the data, as might occur if a dataset contains examples taken from the same household or small town. GRF provides support for cluster-robust forests by accounting for clusters in the subsampling process. To use this feature, the forest must be trained with the relevant cluster information by specifying the `clusters` and optionally `samples_per_cluster` parameters. Then, all subsequent calls to `predict` with will take clusters into account, including when estimating the variance of forest predictions.
 
 When clustering is enabled during training, all subsampling procedures operate on entire clusters as opposed to individual examples. Then, to determine the examples used for performing splitting and populating the leaves, `samples_per_cluster` examples are drawn from the selected clusters. By default, `sample_per_cluster` is equal to the size of the smallest cluster. Concretely, the cluster-robust training procedure proceeds as follows:
-- For each 'CI group' used in estimating variance, sample half of the clusters. Each CI group is then associated with a list of cluster IDs.
-- Within this half-sample of cluster IDs, sample `sample.fraction` of the clusters. Each tree is now associated with a list of cluster IDs.
+- If `estimate.variance` is enabled, sample half of the clusters. Each 'tree group' is associated with this half-sample of clusters (as described in the 'Variance Estimates' section). If we are not computing variance estimates, then keep the full sample instead.
+- Within this set of cluster IDs, sample `sample.fraction` of the clusters. Each tree is now associated with a list of cluster IDs.
 - If honesty is enabled, split these cluster IDs in half, so that one half can be used for growing the tree, and the other half is used in repopulating the leaves.
 - To grow the tree, draw `samples_per_cluster` examples from each of the cluster IDs, and do the same when repopulating the leaves for honesty. In the event where `samples_per_cluster` is larger than the size of the cluster, we just select the whole cluster.
 
 Note that when clusters are provided, standard errors from `average_treatment_effect` and `average_partial_effect` estimation are also cluster-robust. Moreover, if clusters are specified, then each cluster gets equal weight. For example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall ATE is 0.5 (not 0.05).
+
+### Sample Weighting
+
+**Note:** this feature is currently marked 'experimental'. Its implementation may change in future releases.
+
+When the distribution of data that you observe is not representative of the population you are interested in scientifically, it can be important to adjust for this. We can pass `sample.weights` to specify that in our population of interest, we observe Xi with probability proportional to `sample.weights[i]`. By default, these weights are constant, meaning that our population of interest is the population from which X1 ... Xn are sampled. For causal validity, the weights we use should not be confounded with the potential outcomes --- typically this is done by having them be a function of Xi. One common example is inverse probability of complete case weighting to adjust for missing data, which allows us to work only the complete cases (the units with nothing missing) to estimate properties of the full data distribution (all units as if nothing were missing).
+
+The impact these weights have depends on what we are estimating. When our estimand is a function of x, e.g. `r(x) = E[Y | X=x]` in `regression_forest` or `tau(x)=E[Y(1)-Y(0)| X=x]` in `causal_forest`, passing weights that are a function of x does not change our estimand. It instead prioritizes fit on our population of interest. In `regression_forest`, this means minimizing weighted mean squared error, i.e. mean squared error over the population specified by the sample weights. In `causal_forest`, this means minimizing weighted R-loss (Nie and Wager (2017), Equations 4/5). When our estimand is an average of such a function, as in `average_treatment_effect` and `average_partial_effect`, it does change the estimand. Our estimand will be the average treatment/partial effect over the population specified by our sample weights.
+
+Our current implementation does not use the sample weights during tree splitting. In terms of Equation 2 of the GRF paper, it replaces `alpha(X_i)` with `alpha(X_i) = sample.weight[i] * alpha(X_i)` without changing `alpha` itself. This does make what we minimize an estimate of mean squared error / R-loss over the population specified by our sample weights. However, it is likely that we would learn better neighborhood weights `alpha` for the task of estimating this weighted loss if we used our sample weights in splitting as well, by sample-weighting the terms in Equation 4 of the GRF paper.
 
 ## Troubleshooting
 
@@ -242,11 +276,13 @@ While the algorithm in `regression_forest` is very similar to that of classic ra
 
 ## References
 
-Athey, Susan, Julie Tibshirani, and Stefan Wager. Generalized Random Forests. *Annals of Statistics (forthcoming)*, 2018. 
+Athey, Susan, Julie Tibshirani, and Stefan Wager. Generalized Random Forests. *Annals of Statistics (forthcoming)*, 2018.
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. Double/debiased machine learning for treatment and structural parameters. *The Econometrics Journal*, 2018.
 
-Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. *Cambridge University Press*, 2015. 
+Ghosal, Indrayudh, and Giles Hooker. Boosting Random Forests to Reduce Bias; One-Step Boosted Forest and its Variance Estimate. *arXiv preprint arXiv:1803.08000*, 2018.
+
+Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. *Cambridge University Press*, 2015.
 
 Li, Fan, Kari Lock Morgan, and Alan M. Zaslavsky. Balancing covariates via propensity score weighting. *Journal of the American Statistical Association*, 2018.
 

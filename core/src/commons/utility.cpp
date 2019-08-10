@@ -20,16 +20,9 @@
 #include <sstream>
 #include <unordered_set>
 #include <unordered_map>
-#include <algorithm>
 #include <random>
-#include <stdexcept>
-#include <string>
-#include <utility>
-#include <vector>
 
 #include "utility.h"
-#include "globals.h"
-#include "DefaultData.h"
 #include "SparseData.h"
 
 void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_parts) {
@@ -64,83 +57,6 @@ void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_pa
   // Add short ranges
   for (uint i = start + cut_pos * part_length_long; i <= end + 1; i = i + part_length_short) {
     result.push_back(i);
-  }
-}
-
-void read_vector_from_file(std::vector<double>& result, std::string filename) {
-
-  // Open input file
-  std::ifstream input_file;
-  input_file.open(filename);
-  if (!input_file.good()) {
-    throw std::runtime_error("Could not open file: " + filename);
-  }
-
-  // Read the first line, ignore the rest
-  std::string line;
-  getline(input_file, line);
-  std::stringstream line_stream(line);
-  double token;
-  while (line_stream >> token) {
-    result.push_back(token);
-  }
-  input_file.close();
-}
-
-std::string beautify_time(uint seconds) {
-  std::string result;
-
-  // Add seconds, minutes, hours, days if larger than zero
-  uint out_seconds = (uint) seconds % 60;
-  result = std::to_string(out_seconds) + " seconds";
-  uint out_minutes = (seconds / 60) % 60;
-  if (seconds / 60 == 0) {
-    return result;
-  } else if (out_minutes == 1) {
-    result = "1 minute, " + result;
-  } else {
-    result = std::to_string(out_minutes) + " minutes, " + result;
-  }
-  uint out_hours = (seconds / 3600) % 24;
-  if (seconds / 3600 == 0) {
-    return result;
-  } else if (out_hours == 1) {
-    result = "1 hour, " + result;
-  } else {
-    result = std::to_string(out_hours) + " hours, " + result;
-  }
-  uint out_days = (seconds / 86400);
-  if (out_days == 0) {
-    return result;
-  } else if (out_days == 1) {
-    result = "1 day, " + result;
-  } else {
-    result = std::to_string(out_days) + " days, " + result;
-  }
-  return result;
-}
-
-size_t round_to_next_multiple(size_t value, uint multiple) {
-
-  if (multiple == 0) {
-    return value;
-  }
-
-  int remainder = value % multiple;
-  if (remainder == 0) {
-    return value;
-  }
-
-  return value + multiple - remainder;
-}
-
-void split_string(std::vector<std::string>& result, std::string input, char split_char) {
-
-  std::istringstream ss(input);
-  std::string token;
-
-  while (std::getline(ss, token, split_char)) {
-    result.push_back(token);
   }
 }
 

@@ -171,22 +171,30 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     double sum_YZ = 0;
     double sum_WZ = 0;
 
+    double sum_weight = 0.0;
     for (auto& sample : leaf_samples[i]) {
-      sum_Y += data->get_outcome(sample);
-      sum_W += data->get_treatment(sample);
-      sum_Z += data->get_instrument(sample);
-      sum_YZ += data->get_outcome(sample) * data->get_instrument(sample);
-      sum_WZ += data->get_treatment(sample) * data->get_instrument(sample);
+      auto weight = data->get_weight(sample);
+      sum_Y +=  weight * data->get_outcome(sample);
+      sum_W +=  weight * data->get_treatment(sample);
+      sum_Z +=  weight * data->get_instrument(sample);
+      sum_YZ += weight * data->get_outcome(sample) * data->get_instrument(sample);
+      sum_WZ += weight * data->get_treatment(sample) * data->get_instrument(sample);
+      sum_weight += weight;
     }
 
-    value[OUTCOME] = sum_Y / leaf_size;
-    value[TREATMENT] = sum_W / leaf_size;
-    value[INSTRUMENT] = sum_Z / leaf_size;
-    value[OUTCOME_INSTRUMENT] = sum_YZ / leaf_size;
-    value[TREATMENT_INSTRUMENT] = sum_WZ / leaf_size;
+    // if total weight is very small, treat the leaf as empty
+    if (std::abs(sum_weight) <= 1e-16) {
+      continue;
+    }
+
+    value[OUTCOME] = sum_Y / sum_weight;
+    value[TREATMENT] = sum_W / sum_weight;
+    value[INSTRUMENT] = sum_Z / sum_weight;
+    value[OUTCOME_INSTRUMENT] = sum_YZ / sum_weight;
+    value[TREATMENT_INSTRUMENT] = sum_WZ / sum_weight;
   }
   
-  return PredictionValues(values, num_leaves, NUM_TYPES);
+  return PredictionValues(values, NUM_TYPES);
 }
 
 std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_error(
