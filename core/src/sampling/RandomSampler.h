@@ -22,8 +22,8 @@
 #include "commons/globals.h"
 #include "commons/utility.h"
 #include "SamplingOptions.h"
-#include "grfstd/random.hpp"
-#include "grfstd/algorithm.hpp"
+#include "random/random.hpp"
+#include "random/algorithm.hpp"
 
 #include <cstddef>
 #include <random>

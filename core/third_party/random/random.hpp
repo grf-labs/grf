@@ -12,11 +12,11 @@
 #ifndef _LIBGRF_RANDOM
 #define _LIBGRF_RANDOM
 
-namespace grfstd {
+namespace nonstd {
 
 
 // Precondition:  __x != 0
-    inline 
+    inline
     unsigned __clz(unsigned __x) {
 #ifndef _LIBCPP_COMPILER_MSVC
         return static_cast<unsigned>(__builtin_clz(__x));
@@ -32,7 +32,7 @@ namespace grfstd {
 #endif
     }
 
-    inline 
+    inline
     unsigned long __clz(unsigned long __x) {
 #ifndef _LIBCPP_COMPILER_MSVC
         return static_cast<unsigned long>(__builtin_clzl(__x));
@@ -42,7 +42,7 @@ namespace grfstd {
 #endif
     }
 
-    inline 
+    inline
     unsigned long long __clz(unsigned long long __x) {
 #ifndef _LIBCPP_COMPILER_MSVC
         return static_cast<unsigned long long>(__builtin_clzll(__x));
@@ -447,13 +447,13 @@ namespace grfstd {
 
             explicit param_type(double __mean = 1.0);
 
-            
+
             double mean() const { return __mean_; }
 
-            friend 
+            friend
             bool operator==(const param_type &__x, const param_type &__y) { return __x.__mean_ == __y.__mean_; }
 
-            friend 
+            friend
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
 
             friend class poisson_distribution;
@@ -464,44 +464,44 @@ namespace grfstd {
 
     public:
         // constructors and reset functions
-        
+
         explicit poisson_distribution(double __mean = 1.0) : __p_(__mean) {}
 
-        
+
         explicit poisson_distribution(const param_type &__p) : __p_(__p) {}
 
-        
+
         void reset() {}
 
         // generating functions
         template<class _URNG>
-        
+
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
         result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        
+
         double mean() const { return __p_.mean(); }
 
-        
+
         param_type param() const { return __p_; }
 
-        
+
         void param(const param_type &__p) { __p_ = __p; }
 
-        
+
         result_type min() const { return 0; }
 
-        
+
         result_type max() const { return std::numeric_limits<result_type>::max(); }
 
-        friend 
+        friend
         bool operator==(const poisson_distribution &__x,
                         const poisson_distribution &__y) { return __x.__p_ == __y.__p_; }
 
-        friend 
+        friend
         bool operator!=(const poisson_distribution &__x,
                         const poisson_distribution &__y) { return !(__x == __y); }
     };
@@ -551,23 +551,23 @@ namespace grfstd {
         public:
             typedef uniform_real_distribution distribution_type;
 
-            
+
             explicit param_type(result_type __a = 0,
                                 result_type __b = 1)
                     : __a_(__a), __b_(__b) {}
 
-            
+
             result_type a() const { return __a_; }
 
-            
+
             result_type b() const { return __b_; }
 
-            friend 
+            friend
             bool operator==(const param_type &__x, const param_type &__y) {
                 return __x.__a_ == __y.__a_ && __x.__b_ == __y.__b_;
             }
 
-            friend 
+            friend
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
         };
 
@@ -576,48 +576,48 @@ namespace grfstd {
 
     public:
         // constructors and reset functions
-        
+
         explicit uniform_real_distribution(result_type __a = 0, result_type __b = 1)
                 : __p_(param_type(__a, __b)) {}
 
-        
+
         explicit uniform_real_distribution(const param_type &__p) : __p_(__p) {}
 
-        
+
         void reset() {}
 
         // generating functions
         template<class _URNG>
-        
+
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
          result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        
+
         result_type a() const { return __p_.a(); }
 
-        
+
         result_type b() const { return __p_.b(); }
 
-        
+
         param_type param() const { return __p_; }
 
-        
+
         void param(const param_type &__p) { __p_ = __p; }
 
-        
+
         result_type min() const { return a(); }
 
-        
+
         result_type max() const { return b(); }
 
-        friend 
+        friend
         bool operator==(const uniform_real_distribution &__x,
                         const uniform_real_distribution &__y) { return __x.__p_ == __y.__p_; }
 
-        friend 
+        friend
         bool operator!=(const uniform_real_distribution &__x,
                         const uniform_real_distribution &__y) { return !(__x == __y); }
     };
@@ -647,22 +647,22 @@ namespace grfstd {
         public:
             typedef normal_distribution distribution_type;
 
-            
+
             explicit param_type(result_type __mean = 0, result_type __stddev = 1)
                     : __mean_(__mean), __stddev_(__stddev) {}
 
-            
+
             result_type mean() const { return __mean_; }
 
-            
+
             result_type stddev() const { return __stddev_; }
 
-            friend 
+            friend
             bool operator==(const param_type &__x, const param_type &__y) {
                 return __x.__mean_ == __y.__mean_ && __x.__stddev_ == __y.__stddev_;
             }
 
-            friend 
+            friend
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
         };
 
@@ -673,52 +673,52 @@ namespace grfstd {
 
     public:
         // constructors and reset functions
-        
+
         explicit normal_distribution(result_type __mean = 0, result_type __stddev = 1)
                 : __p_(param_type(__mean, __stddev)), _V_hot_(false) {}
 
-        
+
         explicit normal_distribution(const param_type &__p)
                 : __p_(__p), _V_hot_(false) {}
 
-        
+
         void reset() { _V_hot_ = false; }
 
         // generating functions
         template<class _URNG>
-        
+
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
         result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        
+
         result_type mean() const { return __p_.mean(); }
 
-        
+
         result_type stddev() const { return __p_.stddev(); }
 
-        
+
         param_type param() const { return __p_; }
 
-        
+
         void param(const param_type &__p) { __p_ = __p; }
 
-        
+
         result_type min() const { return -std::numeric_limits<result_type>::infinity(); }
 
-        
+
         result_type max() const { return std::numeric_limits<result_type>::infinity(); }
 
-        friend 
+        friend
         bool operator==(const normal_distribution &__x,
                         const normal_distribution &__y) {
             return __x.__p_ == __y.__p_ && __x._V_hot_ == __y._V_hot_ &&
                    (!__x._V_hot_ || __x._V_ == __y._V_);
         }
 
-        friend 
+        friend
         bool operator!=(const normal_distribution &__x,
                         const normal_distribution &__y) { return !(__x == __y); }
 
@@ -766,16 +766,16 @@ namespace grfstd {
         public:
             typedef exponential_distribution distribution_type;
 
-            
+
             explicit param_type(result_type __lambda = 1) : __lambda_(__lambda) {}
 
-            
+
             result_type lambda() const { return __lambda_; }
 
-            friend 
+            friend
             bool operator==(const param_type &__x, const param_type &__y) { return __x.__lambda_ == __y.__lambda_; }
 
-            friend 
+            friend
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
         };
 
@@ -784,45 +784,45 @@ namespace grfstd {
 
     public:
         // constructors and reset functions
-        
+
         explicit exponential_distribution(result_type __lambda = 1)
                 : __p_(param_type(__lambda)) {}
 
-        
+
         explicit exponential_distribution(const param_type &__p) : __p_(__p) {}
 
-        
+
         void reset() {}
 
         // generating functions
         template<class _URNG>
-        
+
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
         result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        
+
         result_type lambda() const { return __p_.lambda(); }
 
-        
+
         param_type param() const { return __p_; }
 
-        
+
         void param(const param_type &__p) { __p_ = __p; }
 
-        
+
         result_type min() const { return 0; }
 
-        
+
         result_type max() const { return std::numeric_limits<result_type>::infinity(); }
 
-        friend 
+        friend
         bool operator==(const exponential_distribution &__x,
                         const exponential_distribution &__y) { return __x.__p_ == __y.__p_; }
 
-        friend 
+        friend
         bool operator!=(const exponential_distribution &__x,
                         const exponential_distribution &__y) { return !(__x == __y); }
     };
@@ -932,17 +932,17 @@ namespace grfstd {
         public:
             typedef discrete_distribution distribution_type;
 
-            
+
             param_type() {}
 
             template<class _InputIterator>
-            
+
             param_type(_InputIterator __f, _InputIterator __l)
                     : __p_(__f, __l) { __init(); }
 
 #ifndef _LIBCPP_CXX03_LANG
 
-            
+
             param_type(std::initializer_list<double> __wl)
                     : __p_(__wl.begin(), __wl.end()) { __init(); }
 
@@ -954,10 +954,10 @@ namespace grfstd {
 
             std::vector<double> probabilities() const;
 
-            friend 
+            friend
             bool operator==(const param_type &__x, const param_type &__y) { return __x.__p_ == __y.__p_; }
 
-            friend 
+            friend
             bool operator!=(const param_type &__x, const param_type &__y) { return !(__x == __y); }
 
         private:
@@ -972,64 +972,64 @@ namespace grfstd {
 
     public:
         // constructor and reset functions
-        
+
         discrete_distribution() {}
 
         template<class _InputIterator>
-        
+
         discrete_distribution(_InputIterator __f, _InputIterator __l)
                 : __p_(__f, __l) {}
 
 #ifndef _LIBCPP_CXX03_LANG
 
-        
+
         discrete_distribution(std::initializer_list<double> __wl)
                 : __p_(__wl) {}
 
 #endif  // _LIBCPP_CXX03_LANG
 
         template<class _UnaryOperation>
-        
+
         discrete_distribution(size_t __nw, double __xmin, double __xmax,
                               _UnaryOperation __fw)
                 : __p_(__nw, __xmin, __xmax, __fw) {}
 
-        
+
         explicit discrete_distribution(const param_type &__p)
                 : __p_(__p) {}
 
-        
+
         void reset() {}
 
         // generating functions
         template<class _URNG>
-        
+
         result_type operator()(_URNG &__g) { return (*this)(__g, __p_); }
 
         template<class _URNG>
         result_type operator()(_URNG &__g, const param_type &__p);
 
         // property functions
-        
+
         std::vector<double> probabilities() const { return __p_.probabilities(); }
 
-        
+
         param_type param() const { return __p_; }
 
-        
+
         void param(const param_type &__p) { __p_ = __p; }
 
-        
+
         result_type min() const { return 0; }
 
-        
+
         result_type max() const { return __p_.__p_.size(); }
 
-        friend 
+        friend
         bool operator==(const discrete_distribution &__x,
                         const discrete_distribution &__y) { return __x.__p_ == __y.__p_; }
 
-        friend 
+        friend
         bool operator!=(const discrete_distribution &__x,
                         const discrete_distribution &__y) { return !(__x == __y); }
 
@@ -1094,5 +1094,5 @@ namespace grfstd {
     }
 
 
-} // namespace grfstd
+} // namespace random
 # endif

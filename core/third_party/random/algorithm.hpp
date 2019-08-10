@@ -2,13 +2,12 @@
 #include <cmath>
 #include <algorithm>
 #include <iterator>
-#include "grfstd/random.hpp"
-
+#include "random/random.hpp"
 
 #ifndef _GRFSTD_ALGORITHM
 #define _GRFSTD_ALGORITHM
 
-namespace grfstd {
+namespace nonstd {
 
         template<class _RandomAccessIterator, class _UniformRandomNumberGenerator>
         void shuffle(_RandomAccessIterator __first, _RandomAccessIterator __last,
@@ -19,7 +18,7 @@ namespace grfstd {
 #endif
         {
             typedef typename std::iterator_traits<_RandomAccessIterator>::difference_type difference_type;
-            typedef grfstd::uniform_int_distribution<ptrdiff_t> _Dp;
+            typedef nonstd::uniform_int_distribution<ptrdiff_t> _Dp;
             typedef typename _Dp::param_type _Pp;
             difference_type __d = __last - __first;
             if (__d > 1) {
@@ -34,5 +33,3 @@ namespace grfstd {
 }
 
 #endif  // _GRFSTD_ALGORITHM
-
-
