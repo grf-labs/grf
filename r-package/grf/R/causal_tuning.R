@@ -183,14 +183,23 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   # Note that in the 'km' call, the kriging package prints a large amount of information
   # about the fitting process. Here, capture its console output and discard it.
   variance.guess <- rep(var(small.forest.errors) / 2, nrow(fit.draws))
-  env <- new.env()
-  capture.output(env$kriging.model <-
-    DiceKriging::km(
-      design = data.frame(fit.draws),
-      response = small.forest.errors,
-      noise.var = variance.guess
-    ))
-  kriging.model <- env$kriging.model
+  kriging.model <- tryCatch({
+    capture.output(
+      DiceKriging::km(
+        design = data.frame(fit.draws),
+        response = small.forest.errors,
+        noise.var = variance.guess
+      ))
+    },
+    error = function(e) {
+      warning(paste0("Dicekriging threw the following error: \n", e)
+      NA
+  })
+  if (is.na(kriging.model)) {
+    warning("Tuning was attempted but failed. Reverting to default parameters.")
+    out <- get_tuning_output(params = pre.tuning.parameters, status = "failure")
+    return(out)
+  }
 
   # To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
