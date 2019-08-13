@@ -67,8 +67,9 @@ size = ", num_samples, '"];')
 #' Export a tree in DOT format.
 #' This function generates a GraphViz representation of the tree,
 #' which is then written into `dot_string`.
+#' Can be used to save the plot with the following command: cat(DiagrammeRsvg::export_svg(DiagrammeR::grViz(dot_string)), file=path)
 #' @param tree the tree to convert
-#' @keyword internal
+#' @export
 export_graphviz <- function(tree) {
   header <- "digraph nodes { \n node [shape=box] ;"
   footer <- "}"
