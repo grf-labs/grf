@@ -109,6 +109,14 @@ tune_regression_forest <- function(X, Y,
 
   fixed.params <- all.params[!is.na(all.params)]
   tuning.params <- all.params[is.na(all.params)]
+  default.params <- c(
+    min.node.size = validate_min_node_size(min.node.size),
+    sample.fraction = validate_sample_fraction(sample.fraction),
+    mtry = validate_mtry(mtry, X),
+    alpha = validate_alpha(alpha),
+    imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+  )
+  default.params[!is.na(all.params)] <- all.params[!is.na(all.params)]
 
   if (length(tuning.params) == 0) {
     return(list("error" = NA, "params" = c(all.params)))
@@ -120,7 +128,7 @@ tune_regression_forest <- function(X, Y,
   colnames(fit.draws) <- names(tuning.params)
   compute.oob.predictions <- TRUE
 
-  debiased.errors <- apply(fit.draws, 1, function(draw) {
+  small.forest.errors <- apply(fit.draws, 1, function(draw) {
     params <- c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- regression_train(
       data$default, data$sparse, outcome.index, sample.weight.index,
@@ -150,35 +158,139 @@ tune_regression_forest <- function(X, Y,
     mean(error, na.rm = TRUE)
   })
 
+  if (any(is.na(small.forest.errors))) {
+    warning(paste0(
+      "Could not tune causal forest because all small forest error estimates were NA.\n",
+      "Consider increasing tuning argument num.fit.trees."
+    ))
+    out <- get_tuning_output(params = c(all.params), status = "failure")
+    return(out)
+  }
+
+  if (sd(small.forest.errors) / mean(small.forest.errors) < 1e-10) {
+    warning(paste0(
+      "Could not tune causal forest because small forest errors were nearly constant.\n",
+      "Consider increasing argument num.fit.trees."
+    ))
+    out <- get_tuning_output(params = c(all.params), status = "failure")
+    return(out)
+  }
+
   # Fit the 'dice kriging' model to these error estimates.
   # Note that in the 'km' call, the kriging package prints a large amount of information
-  # about the fitting process. Here, capture its console output and discard it.
-  variance.guess <- rep(var(debiased.errors) / 2, nrow(fit.draws))
-  env <- new.env()
-  capture.output(env$kriging.model <-
-    DiceKriging::km(
-      design = data.frame(fit.draws),
-      response = debiased.errors,
-      noise.var = variance.guess
-    ))
-  kriging.model <- env$kriging.model
+  # about the fitting process. Heres, capture its console output and discard it.
+  variance.guess <- rep(var(small.forest.errors) / 2, nrow(fit.draws))
+  kriging.model <- tryCatch(
+    {
+      capture.output(
+        model <- DiceKriging::km(
+          design = data.frame(fit.draws),
+          response = small.forest.errors,
+          noise.var = variance.guess
+        )
+      )
+      model
+    },
+    error = function(e) {
+      warning(paste0("Dicekriging threw the following error during regression tuning: \n", e))
+      return(NULL)
+    }
+  )
+  if (is.null(kriging.model)) {
+    warning("Tuning was attempted but failed. Reverting to default parameters.")
+    out <- get_tuning_output(params = default.parameters, status = "failure")
+    return(out)
+  }
 
   # To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
   optimize.draws <- matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
   colnames(optimize.draws) <- names(tuning.params)
-  model.surface <- predict(kriging.model, newdata = data.frame(optimize.draws), type = "SK")
-
+  model.surface <- predict(kriging.model, newdata = data.frame(optimize.draws), type = "SK")$mean
   tuned.params <- get_params_from_draw(X, optimize.draws)
-  grid <- cbind(error = model.surface$mean, tuned.params)
-  optimal.draw <- which.min(grid[, "error"])
-  optimal.param <- grid[optimal.draw, ]
 
-  out <- list(
-    error = optimal.param[1], params = c(fixed.params, optimal.param[-1]),
-    grid = grid
+  grid <- cbind(error = c(model.surface), tuned.params)
+  small.forest.optimal.draw <- which.min(grid[, "error"])
+  small.forest.optimal.params <- grid[small.forest.optimal.draw, -1]
+
+  # To avoid the possibility of selection bias, re-train a moderately-sized forest
+  # at the value chosen by the method above
+  retrained.forest.params <- c(fixed.params, grid[small.forest.optimal.draw, -1])
+  retrained.forest.num.trees <- num.fit.trees * 4
+  retrained.forest <- regression_train(
+    data$default, data$sparse, outcome.index, sample.weight.index,
+    !is.null(sample.weights),
+    as.numeric(retrained.forest.params["mtry"]),
+    num.fit.trees,
+    as.numeric(retrained.forest.params["min.node.size"]),
+    as.numeric(retrained.forest.params["sample.fraction"]),
+    honesty,
+    coerce_honesty_fraction(honesty.fraction),
+    prune.empty.leaves,
+    ci.group.size,
+    as.numeric(retrained.forest.params["alpha"]),
+    as.numeric(retrained.forest.params["imbalance.penalty"]),
+    clusters,
+    samples.per.cluster,
+    compute.oob.predictions,
+    num.threads,
+    seed
   )
-  class(out) <- c("tuning_output")
+
+  retrained.forest.prediction <- regression_predict_oob(
+    retrained.forest, data$default, data$sparse,
+    outcome.index, num.threads, FALSE
+  )
+
+  retrained.forest.error <- mean(retrained.forest.prediction$debiased.error, na.rm = TRUE)
+
+  # Train a forest with default parameters, and check its predicted error.
+  # This improves our chances of not doing worse than default
+  num.default.forest.trees <- num.fit.trees * 4
+
+  default.forest <- regression_train(
+    data$default, data$sparse, outcome.index, sample.weight.index,
+    !is.null(sample.weights),
+    as.numeric(default.params["mtry"]),
+    num.fit.trees,
+    as.numeric(default.params["min.node.size"]),
+    as.numeric(default.params["sample.fraction"]),
+    honesty,
+    coerce_honesty_fraction(honesty.fraction),
+    prune.empty.leaves,
+    ci.group.size,
+    as.numeric(default.params["alpha"]),
+    as.numeric(default.params["imbalance.penalty"]),
+    clusters,
+    samples.per.cluster,
+    compute.oob.predictions,
+    num.threads,
+    seed
+  )
+
+  default.forest.prediction <- regression_predict_oob(
+      default.forest, data$default, data$sparse,
+      outcome.index, num.threads, FALSE
+  )
+
+  default.forest.error <- mean(default.forest.prediction$debiased.error, na.rm = TRUE)
+
+  # Now compare predicted errors: default parameters vs retrained parameter
+  if (default.forest.error < retrained.forest.error) {
+    out <- get_tuning_output(
+      error = default.forest.error,
+      params = default.params,
+      grid = NA,
+      status = "default"
+    )
+  } else {
+    out <- get_tuning_output(
+      error = retrained.forest.error,
+      params = retrained.forest.params,
+      grid = grid,
+      status = "tuned"
+    )
+  }
 
   out
 }
