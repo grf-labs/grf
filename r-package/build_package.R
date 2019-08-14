@@ -15,18 +15,6 @@ library(lintr)
 
 package.name <- "grf"
 
-# Check code style consistency
-linters <- with_defaults(
-  line_length_linter(120), # Max line length = 120
-  object_name_linter = NULL, # To allow variable.names + function_names
-  commented_code_linter = NULL, # Misc. false positives
-  object_usage_linter = NULL, # Misc. false positives
-  spaces_left_parentheses_linter = NULL, # Misc. false positives
-  default = default_linters);
-
-lint_res <- lint_package(path = package.name, linters = linters, exclusions = file.path(package.name, "R/RcppExports.R"))
-print(lint_res)
-
 # If built for CRAN, exlude all test except ones with "cran" in the filename
 # by adding the following regex to .Rbuildignore.
 if (!is.na(args[1]) && args[1] == "--as-cran") {
