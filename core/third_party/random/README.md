@@ -9,7 +9,7 @@ They are copies of `random` and `algorithm` headers from the [llvm](https://gith
 
 Users complained about stability of random numbers across machines when setting seed across different platforms. See issue [#379](https://github.com/grf-labs/grf/issues/379).
 
-As [pointed out](https://github.com/grf-labs/grf/issues/379#issuecomment-480641123) by @jtibshrani:
+As [pointed out](https://github.com/grf-labs/grf/issues/379#issuecomment-480641123) by @jtibshirani:
 
 > the mersenne twister has the same implementation across platforms, the other random methods may differ from compiler to compiler
 
@@ -45,7 +45,7 @@ Find and remove the following `_LIBCPP` macros:
 + `_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER`
 + `_LIBCPP_INLINE_VISIBILITY`
 + `_LIBCPP_MSVCRT`
-+ `_LIBCPP_POP_MACROS`s
++ `_LIBCPP_POP_MACROS`
 + `_LIBCPP_PUSH_MACROS`
 + `_LIBCPP_RANDOM`
 + `_LIBCPP_TEMPLATE_VIS`
