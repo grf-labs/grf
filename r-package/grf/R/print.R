@@ -94,7 +94,6 @@ print.boosted_regression_forest <- function(x, ...) {
 #' @importFrom stats aggregate quantile
 #' @export
 print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
-
   if (x$status == "failure") {
     cat("Tuning status: failure.\n")
     cat("This indicates tuning was attempted but failed due to an error, and we fell back to default parameters: \n\n")
@@ -102,13 +101,13 @@ print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
     cat(paste0(names(params), ": ", params, "\n"))
   } else if (x$status == "default") {
     cat("Tuning status: default.\n")
-    cat("This indicates tuning was attempted.\n")
+    cat("This indicates tuning was attempted. ")
     cat("However, we could not find parameters that were expected to perform better than default: \n\n")
     params <- x$params
     cat(paste0(names(params), ": ", params, "\n"))
   } else if (x$status == "tuned") {
     cat("Tuning status: tuned.\n")
-    cat("This indicates tuning was successful. \n\n")
+    cat("This indicates tuning found parameters that are expected to perform better than default. \n\n")
     grid <- x$grid
     out <- lapply(colnames(grid)[-1], function(name) {
       q <- quantile(grid[, name], probs = tuning.quantiles)
