@@ -81,13 +81,14 @@ export_graphviz <- function(tree) {
 
 #' Plot a GRF tree object.
 #' 
-#' If you would like to save the plots, you can do so by installing the DiagrammeRsvg package and running the command: 
-#' tree.plot = plot(tree)
-#' cat(DiagrammeRsvg::export_svg(tree.plot), file='plot.svg')
 #' @param x The tree to plot
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @method plot grf_tree
+#' @examples 
+#' If you would like to save the plots, you can do so by installing the DiagrammeRsvg package and running the command: 
+#' tree.plot = plot(tree)
+#' cat(DiagrammeRsvg::export_svg(tree.plot), file='plot.svg')
 #' @export
 plot.grf_tree <- function(x, ...) {
   if (!requireNamespace("DiagrammeR", quietly = TRUE)) {
