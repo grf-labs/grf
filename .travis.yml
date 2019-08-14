@@ -7,8 +7,6 @@ r_binary_packages:
   - devtools
   - testthat
   - roxygen2
-r_github_packages:
-  - jimhester/lintr
 
 matrix:
   include:
@@ -64,7 +62,6 @@ matrix:
         - valgrind --leak-check=full --error-exitcode=1 ./build/grf exclude:[characterization]
 
     - name: "grf R package"
-      env: LINTR_COMMENT_BOT=false
       before_install:
         - cd r-package/grf
       script:

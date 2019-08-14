@@ -16,8 +16,7 @@ The core forest implementation is written in C++, with an R interface powered by
 
 ## R package
 
-To build the R package from source, cd into `r-package` and run `build_package.R`. Required development dependencies are listed there
-(note: it is recommended to install the latest [lintr](https://github.com/jimhester/lintr) package with `devtools::install_github("jimhester/lintr")`). This mimics the tests run when submitting a pull request.
+To build the R package from source, cd into `r-package` and run `build_package.R`. Required development dependencies are listed there. This mimics the tests run when submitting a pull request.
 
 An alternative development workflow is to use the accompanying grf.Rproj and build and test the package with RStudio's build menu, which can be convenient
 for quickly iterating C++/R code changes.
