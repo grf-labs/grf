@@ -119,7 +119,7 @@ test_that("LL causal CIs are reasonable", {
 
 test_that("LL causal CIs are shorter than standard causal CIS", {
    n <- 1000
-   p <- 6
+   p <- 4
    X <- matrix(rnorm(n * p), n, p)
    W <- rbinom(n, 1, 0.5)
    TAU <- 2 * X[, 1] + X[, 2]
