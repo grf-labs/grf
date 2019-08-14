@@ -11,7 +11,6 @@ library(Rcpp)
 library(devtools)
 library(testthat)
 library(roxygen2)
-library(lintr)
 
 package.name <- "grf"
 
