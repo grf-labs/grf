@@ -50,6 +50,16 @@ get_tree <- function(forest, index) {
       paste("X", i, sep = ".")
     }
   })
+  
+  # for each node, calculate the leaf stats
+  tree$nodes <- lapply(tree$nodes, 
+                            function(n){
+                              if(n$is_leaf){
+                                n$leaf_stats <- leaf_stats(forest, n$samples)
+                              }
+                              n
+                              }
+                            )
 
   tree
 }

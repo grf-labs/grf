@@ -4,16 +4,15 @@
 #' @param tree the tree to convert
 #' @param index the index of the current node
 #' @keyword internal
-create_dot_body <- function(tree, index = 1, forest = NULL) {
+create_dot_body <- function(tree, index = 1) {
   node <- tree$nodes[[index]]
 
   # Leaf case: print label only
   if (node$is_leaf) {
     num_samples <- length(node$samples)
     lss_text <- ""
-    if(!is.null(forest)){
-      lss <- leaf_stats(forest, node$samples)
-      lss_text <- paste("\n", paste(lss[, 1], lss[, 2], sep = " = ", collapse = "\n"))
+    if(!is.null(node$leaf_stats)){
+      lss_text <- paste("\n", paste(node$leaf_stats$label, node$leaf_stats$value, sep = " = ", collapse = "\n"))
     }
     line_label <- paste(index - 1, ' [shape=box,style=filled,color=".7 .3 1.0" , label="leaf node', "
 size = ", num_samples, lss_text, '"];')
@@ -55,12 +54,12 @@ size = ", num_samples, lss_text, '"];')
   )
 
   left_child_lines <- ifelse(!is.null(node$left_child),
-    create_dot_body(tree, index = node$left_child, forest = forest),
+    create_dot_body(tree, index = node$left_child),
     NULL
   )
 
   right_child_lines <- ifelse(!is.null(node$right_child),
-    create_dot_body(tree, index = node$right_child, forest = forest),
+    create_dot_body(tree, index = node$right_child),
     NULL
   )
 
@@ -75,10 +74,10 @@ size = ", num_samples, lss_text, '"];')
 #' @param tree the tree to convert
 #' @param forest the forest the tree is from
 #' @keyword internal
-export_graphviz <- function(tree, forest = NULL) {
+export_graphviz <- function(tree) {
   header <- "digraph nodes { \n node [shape=box] ;"
   footer <- "}"
-  body <- create_dot_body(tree, forest = forest)
+  body <- create_dot_body(tree)
 
   dot_string <- paste(header, body, footer, sep = "\n")
 
@@ -100,26 +99,21 @@ plot.grf_tree <- function(x, ...) {
   DiagrammeR::grViz(dot_file)
 }
 
-#' Plot the GRF tree at tree_index of GRF forest.
-#' @param forest The GRF forest
-#' @param tree_index The index of the tree to plot
+leaf_stats <- function(forest, samples) UseMethod("leaf_stats")
+
+
+#' A default leaf_stats for forests classes without a leaf_stats method
+#' that always returns NULL.
+#' @param forest Any forest
+#' @param samples The samples to include in the calculations.
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @method plot grf
-#' @export
-plot.grf <- function(forest, tree_index, ...) {
-  if (!requireNamespace("DiagrammeR", quietly = TRUE)) {
-    stop("Package \"DiagrammeR\" must be installed to plot trees.")
-  }
-  if(is.null(tree_index)){
-    stop("tree_index is a required argument")
-  }
-  t <- get_tree(forest, tree_index)
-  dot_file <- export_graphviz(t, forest = forest)
-  DiagrammeR::grViz(dot_file)
+#' @return NULL
+#'
+#' @method leaf_stats default
+leaf_stats.default <- function(forest, samples, ...){
+  return(NULL)
 }
-
-leaf_stats <- function(forest, samples) UseMethod("leaf_stats")
 
 #' Calculate summary stats given a set of samples for quantile forests.
 #' @param forest The GRF forest
@@ -129,7 +123,6 @@ leaf_stats <- function(forest, samples) UseMethod("leaf_stats")
 #' @return A label, value dataframe containing summary stats
 #'
 #' @method leaf_stats quantile_forest
-#' @export
 leaf_stats.quantile_forest <- function(forest, samples, ...){
   funcs <- c(
     function(forest, samples){
@@ -154,7 +147,6 @@ leaf_stats.quantile_forest <- function(forest, samples, ...){
 #' @return A label, value dataframe containing summary stats
 #'
 #' @method leaf_stats causal_forest
-#' @export
 leaf_stats.causal_forest <- function(forest, samples, ...){
   funcs <- c(
     function(forest, samples){
@@ -188,8 +180,6 @@ leaf_stats.causal_forest <- function(forest, samples, ...){
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A label, value dataframe containing summary stats
-#'
-#' @export
 calc_leaf_stats <- function(forest, samples, funcs){
   res <- setNames(data.frame(matrix(ncol = 2, nrow = 0)), c("label", "value"))
   for(func in funcs){

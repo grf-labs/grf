@@ -45,7 +45,7 @@ test_that("trivial Y=1 quantile forest plotting with summary statistics is succe
   Y <- rep(1, n)
   D <- data.frame(X = X, Y = Y)
   q.forest <- quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), num.trees = 50)
-  capture_output(plot(q.forest, 1))
+  capture_output(plot(get_tree(q.forest, 1)))
   expect_true(TRUE)
 })
 
@@ -57,7 +57,7 @@ test_that("trivial Y~=0 quantile forest plotting with summary statistics is succ
   Y <- rnorm(n, sd = 0.1)
   D <- data.frame(X = X, Y = Y)
   q.forest <- quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), num.trees = 50)
-  capture_output(plot(q.forest, 1))
+  capture_output(plot(get_tree(q.forest, 1)))
   expect_true(TRUE)
 })
 
@@ -67,6 +67,6 @@ test_that("trivial Y~=W causal forest plotting with summary statistics is succes
   W <- rbinom(n, 1, 0.5)
   Y <- W + rnorm(n, sd = 0.1)
   c.forest <- causal_forest(X, Y, W)
-  capture_output(plot(c.forest, 1))
+  capture_output(plot(get_tree(c.forest, 1)))
   expect_true(TRUE)
 })
