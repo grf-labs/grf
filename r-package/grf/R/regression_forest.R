@@ -110,7 +110,6 @@ regression_forest <- function(X, Y,
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
-  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
   if (tune.parameters) {
     tuning.output <- tune_regression_forest(X, Y,
@@ -138,7 +137,8 @@ regression_forest <- function(X, Y,
       sample.fraction = validate_sample_fraction(sample.fraction),
       mtry = validate_mtry(mtry, X),
       alpha = validate_alpha(alpha),
-      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
+      honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty)
     )
   }
 
@@ -153,7 +153,7 @@ regression_forest <- function(X, Y,
     as.numeric(tunable.params["min.node.size"]),
     as.numeric(tunable.params["sample.fraction"]),
     honesty,
-    coerce_honesty_fraction(honesty.fraction),
+    as.numeric(tunable.params["honesty.fraction"]),
     prune.empty.leaves,
     ci.group.size,
     as.numeric(tunable.params["alpha"]),

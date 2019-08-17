@@ -94,7 +94,7 @@ custom_forest <- function(X, Y,
 
   forest <- custom_train(
     data$default, data$sparse, outcome.index, mtry, num.trees, min.node.size,
-    sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), prune.empty.leaves, ci.group.size, alpha,
+    sample.fraction, honesty, honesty.fraction, prune.empty.leaves, ci.group.size, alpha,
     imbalance.penalty, clusters, samples.per.cluster, num.threads, compute.oob.predictions, seed
   )
 

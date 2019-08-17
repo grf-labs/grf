@@ -244,7 +244,8 @@ causal_forest <- function(X, Y, W,
       sample.fraction = validate_sample_fraction(sample.fraction),
       mtry = validate_mtry(mtry, X),
       alpha = validate_alpha(alpha),
-      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
+      honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty)
     )
   }
 
@@ -265,7 +266,7 @@ causal_forest <- function(X, Y, W,
     as.numeric(tunable.params["min.node.size"]),
     as.numeric(tunable.params["sample.fraction"]),
     honesty,
-    coerce_honesty_fraction(honesty.fraction),
+    as.numeric(tunable.params["honesty.fraction"]),
     prune.empty.leaves,
     ci.group.size,
     reduced.form.weight,

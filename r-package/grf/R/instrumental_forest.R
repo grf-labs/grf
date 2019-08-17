@@ -160,7 +160,7 @@ instrumental_forest <- function(X, Y, W, Z,
   forest <- instrumental_train(
     data$default, data$sparse,
     outcome.index, treatment.index, instrument.index, sample.weight.index, !is.null(sample.weights),
-    mtry, num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction),
+    mtry, num.trees, min.node.size, sample.fraction, honesty, honesty.fraction,
     prune.empty.leaves, ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits, clusters,
     samples.per.cluster, compute.oob.predictions, num.threads, seed
   )

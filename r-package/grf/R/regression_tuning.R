@@ -96,7 +96,6 @@ tune_regression_forest <- function(X, Y,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   ci.group.size <- 1
-  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
   data <- create_data_matrices(X, Y, sample.weights = sample.weights)
   outcome.index <- ncol(X) + 1
@@ -105,7 +104,8 @@ tune_regression_forest <- function(X, Y,
 
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
-  all.params <- get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
+  all.params <- get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty,
+                                   honesty, honesty.fraction)
 
   fixed.params <- all.params[!is.na(all.params)]
   tuning.params <- all.params[is.na(all.params)]
@@ -114,7 +114,8 @@ tune_regression_forest <- function(X, Y,
     sample.fraction = validate_sample_fraction(sample.fraction),
     mtry = validate_mtry(mtry, X),
     alpha = validate_alpha(alpha),
-    imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+    imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
+    honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty)
   )
   default.params[!is.na(all.params)] <- all.params[!is.na(all.params)]
 
@@ -138,7 +139,7 @@ tune_regression_forest <- function(X, Y,
       as.numeric(params["min.node.size"]),
       as.numeric(params["sample.fraction"]),
       honesty,
-      coerce_honesty_fraction(honesty.fraction),
+      as.numeric(params["honesty.fraction"]),
       prune.empty.leaves,
       ci.group.size,
       as.numeric(params["alpha"]),
@@ -225,7 +226,7 @@ tune_regression_forest <- function(X, Y,
     as.numeric(retrained.forest.params["min.node.size"]),
     as.numeric(retrained.forest.params["sample.fraction"]),
     honesty,
-    coerce_honesty_fraction(honesty.fraction),
+    as.numeric(retrained.forest.params["honesty.fraction"]),
     prune.empty.leaves,
     ci.group.size,
     as.numeric(retrained.forest.params["alpha"]),
@@ -256,7 +257,7 @@ tune_regression_forest <- function(X, Y,
     as.numeric(default.params["min.node.size"]),
     as.numeric(default.params["sample.fraction"]),
     honesty,
-    coerce_honesty_fraction(honesty.fraction),
+    as.numeric(default.params["sample.fraction"]),
     prune.empty.leaves,
     ci.group.size,
     as.numeric(default.params["alpha"]),

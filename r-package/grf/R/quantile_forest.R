@@ -117,7 +117,7 @@ quantile_forest <- function(X, Y,
 
   forest <- quantile_train(
     quantiles, regression.splitting, data$default, data$sparse, outcome.index, mtry,
-    num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), prune.empty.leaves,
+    num.trees, min.node.size, sample.fraction, honesty, honesty.fraction, prune.empty.leaves,
     ci.group.size, alpha, imbalance.penalty, clusters, samples.per.cluster, num.threads, seed
   )
 
