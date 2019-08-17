@@ -151,6 +151,13 @@ validate_honesty_fraction <- function(honesty.fraction, honesty) {
   }
 }
 
+validate_prune_empty_leaves <- function(prune.empty.leaves) {
+  if (is.null(prune.empty.leaves)) {
+    return(TRUE)
+  }
+  prune.empty.leaves
+}
+
 validate_boost_error_reduction <- function(boost.error.reduction) {
   if (boost.error.reduction < 0 || boost.error.reduction > 1) {
     stop("boost.error.reduction must be between 0 and 1")

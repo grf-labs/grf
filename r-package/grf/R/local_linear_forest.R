@@ -70,7 +70,7 @@ ll_regression_forest <- function(X, Y,
                                  min.node.size = NULL,
                                  honesty = TRUE,
                                  honesty.fraction = NULL,
-                                 prune.empty.leaves = TRUE,
+                                 prune.empty.leaves = NULL,
                                  ci.group.size = 1,
                                  alpha = NULL,
                                  imbalance.penalty = NULL,
@@ -116,7 +116,8 @@ ll_regression_forest <- function(X, Y,
       mtry = validate_mtry(mtry, X),
       alpha = validate_alpha(alpha),
       imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
-      honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty)
+      honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty),
+      prune.empty.leaves = validate_prune_empty_leaves(prune.empty.leaves)
     )
   }
 
@@ -134,7 +135,7 @@ ll_regression_forest <- function(X, Y,
     as.numeric(tunable.params["sample.fraction"]),
     honesty,
     as.numeric(tunable.params["honesty.fraction"]),
-    prune.empty.leaves,
+    as.numeric(tunable.params["prune.empty.leaves"]),
     ci.group.size,
     as.numeric(tunable.params["alpha"]),
     as.numeric(tunable.params["imbalance.penalty"]),

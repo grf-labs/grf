@@ -66,7 +66,7 @@ custom_forest <- function(X, Y,
                           min.node.size = NULL,
                           honesty = TRUE,
                           honesty.fraction = NULL,
-                          prune.empty.leaves = TRUE,
+                          prune.empty.leaves = NULL,
                           alpha = 0.05,
                           imbalance.penalty = 0.0,
                           clusters = NULL,
@@ -85,6 +85,7 @@ custom_forest <- function(X, Y,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
+  prune.empty.leaves = validate_prune_empty_leaves(prune.empty.leaves)
 
   no.split.variables <- numeric(0)
 
