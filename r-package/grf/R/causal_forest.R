@@ -165,7 +165,7 @@ causal_forest <- function(X, Y, W,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-  prune.empty.leaves = validate_prune_empty_leaves(prune.empty.leaves)
+  prune.empty.leaves <- validate_prune_empty_leaves(prune.empty.leaves)
   num.trees.orthog <- max(50, num.trees / 4)
 
   reduced.form.weight <- 0
