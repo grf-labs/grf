@@ -52,15 +52,14 @@ get_tree <- function(forest, index) {
   })
   
   # for each node, calculate the leaf stats
-  tree$nodes <- lapply(tree$nodes, 
-                            function(n){
-                              if(n$is_leaf){
-                                n$leaf_stats <- leaf_stats(forest, n$samples)
-                              }
-                              n
-                              }
-                            )
-
+  tree$nodes <- lapply(tree$nodes, function(node) {
+    if (node$is_leaf) {
+      node$leaf_stats <- leaf_stats(forest, node$samples)
+    }
+    node
+  })
+  
+  
   tree
 }
 
