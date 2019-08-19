@@ -12,7 +12,7 @@ create_dot_body <- function(tree, index = 1) {
     num_samples <- length(node$samples)
     leaf_stats_text <- ""
     if(!is.null(node$leaf_stats)){
-      leaf_stats_text <- paste("\n", paste(node$leaf_stats$label, node$leaf_stats$value, sep = " = ", collapse = "\n"))
+      leaf_stats_text <- paste("\n", paste(names(node$leaf_stats), unname(node$leaf_stats), sep = " = ", collapse = "\n"))
     }
     line_label <- paste(index - 1, ' [shape=box,style=filled,color=".7 .3 1.0" , label="size = ',
                         num_samples, leaf_stats_text, '"];')
@@ -123,42 +123,12 @@ leaf_stats.default <- function(forest, samples, ...){
 #'
 #' @method leaf_stats causal_forest
 leaf_stats.causal_forest <- function(forest, samples, ...){
-  funcs <- c(
-    function(forest, samples){
-      label <- "average_W"
-      res <- round(mean(forest$W.orig[samples]), 2)
-      return(data.frame(label = label, value = res))
-    },
-    function(forest, samples){
-      label <- "average_W_hat"
-      res <- round(mean(forest$W.hat[samples]), 2)
-      return(data.frame(label = label, value = res))
-    },
-    function(forest, samples){
-      label <- "average_Y"
-      res <- round(mean(forest$Y.orig[samples]), 2)
-      return(data.frame(label = label, value = res))
-    },
-    function(forest, samples){
-      label <- "average_Y_hat"
-      res <- round(mean(forest$Y.hat[samples]), 2)
-      return(data.frame(label = label, value = res))
-    }
-  )
-  return(calc_leaf_stats(forest, samples, funcs))
-}
-
-#' Helper function to calculate an arbitrary set of summary stats.
-#' @param forest The GRF forest
-#' @param samples The samples to include in the calculations
-#' @param funcs A vector of functions that return label,value dataframes
-#' @param ... Additional arguments (currently ignored).
-#'
-#' @return A label, value dataframe containing summary stats
-calc_leaf_stats <- function(forest, samples, funcs){
-  res <- setNames(data.frame(matrix(ncol = 2, nrow = 0)), c("label", "value"))
-  for(func in funcs){
-    res <- rbind(res, func(forest, samples))
-  }
-  return(res)
+  leaf_stats <- c()
+  label <- "average_W"
+  res <- round(mean(forest$W.orig[samples]), 2)
+  leaf_stats <- c(leaf_stats, setNames(c(res),c(label)))
+  label <- "average_Y"
+  res <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats <- c(leaf_stats, setNames(c(res),c(label)))
+  return(leaf_stats)
 }
