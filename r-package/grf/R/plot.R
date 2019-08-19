@@ -114,21 +114,59 @@ leaf_stats.default <- function(forest, samples, ...){
   return(NULL)
 }
 
+#' Calculate summary stats given a set of samples for regression forests.
+#' @param forest The GRF forest
+#' @param samples The samples to include in the calculations.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @return A named vector containing summary stats
+#'
+#' @method leaf_stats regression_forest
+leaf_stats.regression_forest <- function(forest, samples, ...){
+  leaf_stats <- c()
+  label <- "avg Y"
+  res <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats <- c(leaf_stats, setNames(c(res),c(label)))
+  return(leaf_stats)
+}
+
 #' Calculate summary stats given a set of samples for causal forests.
 #' @param forest The GRF forest
 #' @param samples The samples to include in the calculations.
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return A label, value dataframe containing summary stats
+#' @return A named vector containing summary stats
 #'
 #' @method leaf_stats causal_forest
 leaf_stats.causal_forest <- function(forest, samples, ...){
   leaf_stats <- c()
-  label <- "average_W"
+  label <- "avg Y"
+  res <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats <- c(leaf_stats, setNames(c(res),c(label)))
+  label <- "avg W"
   res <- round(mean(forest$W.orig[samples]), 2)
   leaf_stats <- c(leaf_stats, setNames(c(res),c(label)))
-  label <- "average_Y"
+  return(leaf_stats)
+}
+
+#' Calculate summary stats given a set of samples for instrumental forests.
+#' @param forest The GRF forest
+#' @param samples The samples to include in the calculations.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @return A named vector containing summary stats
+#'
+#' @method leaf_stats instrumental_forest
+leaf_stats.instrumental_forest <- function(forest, samples, ...){
+  leaf_stats <- c()
+  label <- "avg Y"
   res <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats <- c(leaf_stats, setNames(c(res),c(label)))
+  label <- "avg W"
+  res <- round(mean(forest$W.orig[samples]), 2)
+  leaf_stats <- c(leaf_stats, setNames(c(res),c(label)))
+  label <- "avg Z"
+  res <- round(mean(forest$Z.orig[samples]), 2)
   leaf_stats <- c(leaf_stats, setNames(c(res),c(label)))
   return(leaf_stats)
 }
