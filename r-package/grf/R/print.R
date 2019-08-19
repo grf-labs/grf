@@ -52,7 +52,10 @@ print.grf_tree <- function(x, ...) {
     output <- paste(output, "(", node$index, ")", sep = "")
 
     if (node$is_leaf) {
-      output <- paste(output, "* num_samples:", length(node$samples))
+      if(!is.null(node$leaf_stats)){
+        leaf_stats_text <- paste(paste(node$leaf_stats$label, node$leaf_stats$value, sep = ": ", collapse = " "))
+      }
+      output <- paste(output, "* num_samples:", length(node$samples), leaf_stats_text)
     } else {
       split.var <- node$split_variable
       split.var.name <- x$columns[split.var]
