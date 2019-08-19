@@ -123,3 +123,62 @@ test_that("computing sample weights gives reasonable results", {
   row.sums <- apply(sample.weights, 1, sum)
   expect_true(all(row.sums - 1.0 < 1e-10))
 })
+
+test_that("regression forest leaf nodes contains 'avg Y' only", {
+  n <- 50
+  p <- 1
+  X <- matrix(rnorm(n * p), n, p)
+  Y <- X[, 1] * rnorm(n)
+  r.forest <- regression_forest(X, Y)
+  r.tree <- get_tree(r.forest,1)
+  for(n in r.tree$nodes){
+    if(n$is_leaf){
+      expect_false(is.null(names(n$leaf_stats)))
+      expect_true(all(names(n$leaf_stats) == c("avg Y")))
+    }
+  }
+})
+
+test_that("causal forest leaf nodes contains 'avg Y' and 'avg W' only", {
+  p <- 4
+  n <- 100
+  X <- matrix(runif(n * p), n, p)
+  Y <- runif(n)
+  W <- rbinom(n, 1, 0.5)
+  c.forest <- causal_forest(X, Y, W, num.trees = 100)
+  c.tree <- get_tree(c.forest,1)
+  for(n in c.tree$nodes){
+    if(n$is_leaf){
+      expect_false(is.null(names(n$leaf_stats)))
+      expect_true(all(names(n$leaf_stats) == c("avg Y", "avg W")))
+    }
+  }
+})
+
+test_that("causal forest leaf nodes contains 'avg Y', 'avg W', and 'avg Z' only", {
+  p <- 6
+  n <- 200
+
+  X <- matrix(rnorm(n * p), n, p)
+  
+  eps <- rnorm(n)
+  Z <- rbinom(n, 1, 2 / 3)
+  filter <- rbinom(n, 1, 1 / (1 + exp(-1 * eps)))
+  W <- Z * filter
+  
+  tau <- apply(X[, 1:2], 1, function(xx) sum(pmax(0, xx)))
+  mu <- apply(X[, 2 + 1:2], 1, function(xx) sum(pmax(0, xx)))
+  
+  Y <- (2 * W - 1) / 2 * tau + mu + eps
+  
+  iv.forest <- instrumental_forest(X, Y, W, Z, num.trees = 100)
+  iv.tree <- get_tree(iv.forest,1)
+
+  for(n in iv.tree$nodes){
+    if(n$is_leaf){
+      expect_false(is.null(names(n$leaf_stats)))
+      expect_true(all(names(n$leaf_stats) == c("avg Y", "avg W", "avg Z")))
+    }
+  }
+})
+
