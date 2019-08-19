@@ -72,7 +72,6 @@ size = ", num_samples, lss_text, '"];')
 #' This function generates a GraphViz representation of the tree,
 #' which is then written into `dot_string`.
 #' @param tree the tree to convert
-#' @param forest the forest the tree is from
 #' @keyword internal
 export_graphviz <- function(tree) {
   header <- "digraph nodes { \n node [shape=box] ;"
