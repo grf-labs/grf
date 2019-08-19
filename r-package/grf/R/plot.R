@@ -114,30 +114,6 @@ leaf_stats.default <- function(forest, samples, ...){
   return(NULL)
 }
 
-#' Calculate summary stats given a set of samples for quantile forests.
-#' @param forest The GRF forest
-#' @param samples The samples to include in the calculations.
-#' @param ... Additional arguments (currently ignored).
-#'
-#' @return A label, value dataframe containing summary stats
-#'
-#' @method leaf_stats quantile_forest
-leaf_stats.quantile_forest <- function(forest, samples, ...){
-  funcs <- c(
-    function(forest, samples){
-      label <- "average_X"
-      res <- round(mean(forest$X.orig[samples]), 2)
-      return(data.frame(label = label, value = res))
-    },
-    function(forest, samples){
-      label <- "average_Y"
-      res <- round(mean(forest$Y.orig[samples]), 2)
-      return(data.frame(label = label, value = res))
-    }
-  )
-  return(calc_leaf_stats(forest, samples, funcs))
-}
-
 #' Calculate summary stats given a set of samples for causal forests.
 #' @param forest The GRF forest
 #' @param samples The samples to include in the calculations.
