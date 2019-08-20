@@ -8,6 +8,7 @@ library(xgboost)
 library(ggplot2)
 library(dplyr)
 library(splines)
+library(rlearner)
 
 # load the data 
 load("cps1976_2018.RData")
@@ -49,7 +50,7 @@ mse.sample.sizes = data.frame(t(sapply(sample.sizes, function(size){
 
   results = data.frame(t(sapply(1:num.reps, function(i){
     index.train = sample(1:nrow(data), size = size, replace = FALSE)
-    index.test = sample(1:nrow(data), size = size.test, replace = FALSE)
+    index.test = sample((1:nrow(data))[-index.train], size = size.test, replace = FALSE)
     
     X = data[index.train, covariates]
     Y = data$incwage[index.train]
