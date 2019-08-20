@@ -2,32 +2,12 @@ library(grf)
 library(glmnet)
 library(BART) 
 library(xgboost) 
+library(rlearner)
 
 set.seed(1234)
 
 ff = function(x){
   return(10*sin(pi*x[1]*x[2]) + 20*((x[3] - 0.5)**2) + 10*x[4] + 5*x[5])
-}
-
-boosting.cv = function(dtrain, Y){
-  
-  # cross-validate on a reasonable grid 
-  etas = seq(0, 0.3, by = 0.1)
-  nrounds = c(50, 100, 500, 1000)
-  max_depth = seq(2, 8, by = 2)
-  
-  args.cv = expand.grid(e = etas, n = nrounds, d = max_depth)
-  results = t(apply(args.cv, MARGIN = 1, FUN = function(arguments){
-    model.xgb = xgboost(dtrain, nrounds = arguments[2], 
-                        params = list(objective = "reg:linear"),
-                        eval_metric = "rmse",
-                        eta = arguments[1], 
-                        max_depth = arguments[3])
-    xgb.preds = predict(model.xgb, newdata = dtrain)
-    mean((xgb.preds - Y)**2)
-  }))
-  best.index = which.min(results)
-  return(args.cv[best.index,])
 }
 
 simulation.run = function(n, p, sigma, num.reps = 100, ntest = 2000, num.trees = 2000){
@@ -58,7 +38,8 @@ simulation.run = function(n, p, sigma, num.reps = 100, ntest = 2000, num.trees =
     
     # use lasso to select linear correction variables
     lasso.mod = cv.glmnet(X, Y, alpha = 1)
-    lasso.coef = predict(lasso.mod, type = "nonzero")
+    lasso.coef = as.numeric(predict(lasso.mod, type = "nonzero"))
+    # if lasso chose no variables, use all for LL correction
     if(!is.null(dim(lasso.coef))){
       selected = lasso.coef[,1]
     } else {
@@ -87,19 +68,12 @@ simulation.run = function(n, p, sigma, num.reps = 100, ntest = 2000, num.trees =
     lasso.rf.preds = predict(rf, newdata = X.test)$predictions + predict(lasso.mod, newx = X.test, s = "lambda.min")
     lasso.rf.mse = mean((lasso.rf.preds-truth)**2)
     
-    bart.mod = wbart(X, Y, X.test, nskip = 5, ndpost = 5)
+    bart.mod = wbart(X, Y, X.test)
     bart.preds = bart.mod$yhat.test.mean
     bart.mse = mean((bart.preds-truth)**2)
     
-    dtrain = xgb.DMatrix(X, label = Y)
-    cv.variables = as.numeric(boosting.cv(dtrain, Y))
-    eta = cv.variables[1]
-    nrounds = cv.variables[2]
-    max_depth = cv.variables[3]
-    
-    model.xgb = xgboost(dtrain, nrounds = nrounds, params = list(objective = "reg:linear"),
-                        eval_metric = "rmse", eta = eta, max_depth = max_depth)
-    xgb.preds = predict(model.xgb, newdata = X.test)
+    boost.cv.fit = cvboost(as.matrix(X), Y)
+    xgb.preds = predict(boost.cv.fit, as.matrix(X.test))
     xg.mse = mean((xgb.preds - truth)**2)
     
     c(llf.stepwise.mse, llf.oracle, rf.mse, rf.adapt.mse, lasso.rf.mse, bart.mse, xg.mse, llf.lasso.mse)
