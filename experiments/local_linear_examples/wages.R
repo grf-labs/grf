@@ -47,18 +47,18 @@ size.test = 10000
 sample.sizes = c(2000, 5000, 10000, 50000)
 
 mse.sample.sizes = data.frame(t(sapply(sample.sizes, function(size){
-
+  index.train = sample(1:nrow(data), size = size, replace = FALSE)
+  
+  X = data[index.train, covariates]
+  Y = data$incwage[index.train]
+  
+  X = X[complete.cases(X),]
+  Y = Y[complete.cases(X)]
+  
   results = data.frame(t(sapply(1:num.reps, function(i){
-    index.train = sample(1:nrow(data), size = size, replace = FALSE)
+    print(i)
+    
     index.test = sample((1:nrow(data))[-index.train], size = size.test, replace = FALSE)
-    
-    X = data[index.train, covariates]
-    Y = data$incwage[index.train]
-    
-    X = X[complete.cases(X),]
-    Y = Y[complete.cases(X)]
-    
-    forest = regression_forest(as.matrix(X), Y, honesty = TRUE, tune.parameters = TRUE)
     
     X.test = data[index.test, covariates]
     truth = data$incwage[index.test]
@@ -66,13 +66,15 @@ mse.sample.sizes = data.frame(t(sapply(sample.sizes, function(size){
     X.test = X.test[complete.cases(X.test),]
     truth = truth[complete.cases(X.test)]
     
+    forest = regression_forest(as.matrix(X), Y, honesty = TRUE, tune.parameters = TRUE)
+    
     ll.lambda = tune_ll_regression_forest(forest, linear.correction.variables = continuous.covariates, 
-                                          ll.weight.penalty = TRUE)$lambda.min
-    llf.lasso.preds = predict(forest, as.matrix(X.test), 
+                                          ll.weight.penalty = T)$lambda.min
+    llf.preds = predict(forest, as.matrix(X.test), 
                               linear.correction.variables = continuous.covariates,
                               ll.lambda = ll.lambda, 
-                              ll.weight.penalty = TRUE)$predictions
-    llf.mse = mean((llf.lasso.preds - truth)**2)
+                              ll.weight.penalty = T)$predictions
+    llf.mse = mean((llf.preds - truth)**2)
     
     rf.preds = predict(forest, as.matrix(X.test))$predictions 
     rf.mse = mean((rf.preds - truth)**2)
@@ -106,124 +108,9 @@ mse.sample.sizes = data.frame(t(sapply(sample.sizes, function(size){
   as.numeric(c(mses, sds))
 })))
 
-colnames(mse.sample.sizes) = c("OLS", "Lasso", "RF", "LLF", "XG", "BART",
-                               "OLS.sd", "Lasso.sd", "RF.sd", "LLF.sd", "XG.sd", "BART.sd")
+colnames(mse.sample.sizes) = c("OLS", "LLF", "RF", "Lasso", "XG", "BART",
+                               "OLS.sd", "LLF.sd", "RF.sd", "Lasso.sd", "XG.sd", "BART.sd")
 
 mse.sample.sizes$size = sample.sizes
 
 write.csv(mse.sample.sizes,"wages_sample_sizes.csv", row.names = FALSE)
-
-############################
-## CALIBRATION AND IMAGES ##
-############################
-
-train.index = sample(nrow(data), size = floor(nrow(data)/2))
-train = data[train.index,]
-test = data[-train.index,]
-
-subsets = c("age", "race", "educ", "famsize")
-range.dummies = c("age.r", "race.r", "educ.r", "famsize.r")
-test$age.r = test$age < 20 | test$age > 85
-test$race.r = test$race > 200
-test$educ.r = test$educ > 111
-test$famsize.r = test$famsize > 6
-
-methods = c("lasso", "llf", "ols", "rf")
-
-forest.fit = regression_forest(train[,covariates], train$incwage, tune.parameters = T)
-ols.mod = lm(incwage ~ ., data = train[,c(covariates, "incwage")])
-mm = model.matrix( ~.^2, data = train[,covariates])
-lasso.mod = cv.glmnet(mm, train$incwage, alpha = 1)
-
-# generate plots for sparse regions and find corresponding t-statistics
-t_statistics = data.frame(t(sapply(1:length(subsets), function(i){
-  
-  test.subset = subsets[i]
-  range.subset = range.dummies[i]
-  testdata = test[test[,range.subset] == T,]
-  
-  names = sapply(methods, function(method){
-    paste(paste(method, test.subset, sep = "_"), "jpeg", sep = ".")
-  })
-  
-  rf.preds = predict(forest.fit, testdata[,covariates])$predictions
-  
-  tl = tune_ll_regression_forest(forest.fit, linear.correction.variables = continuous.covariates,
-                                 ll.weight.penalty = TRUE)$lambda.min
-  llf.preds = predict(forest.fit, testdata[,covariates], linear.correction.variables = continuous.covariates,
-                      ll.lambda = tl, ll.weight.penalty = TRUE)$predictions
-  
-  ols.preds = predict(ols.mod, newdata = testdata)
-  
-  mmtest = model.matrix( ~.^2, data=testdata[,covariates])
-  lasso.preds = predict(lasso.mod, newx = mmtest, lambda= lasso.mod$lambda.min)
-  
-  dt = data.frame("Wages" = testdata$incwage,
-                  "LLF" = llf.preds,
-                  "RF" = rf.preds,
-                  "OLS" = ols.preds,
-                  "Lasso" = lasso.preds)
-  colnames(dt)[5] = "Lasso"
-  
-  spline.fit = lm(dt$Wages ~ ns(dt$Lasso, df = 3))
-  dt$spline = spline.fit$fitted.values
-  ggplot(dt, aes(x = Lasso, y = Wages)) + geom_point(cex = 1) + 
-    ylab("Observed log wages") + xlab("Predicted log wages") + 
-    geom_line(aes(x = Lasso, y = spline), color = "red", lty = 1, lwd = 1.5) + 
-    geom_abline(color = "Darkgray", intercept = 0, slope = 1, lty = 2, lwd = 1.5) + 
-    theme_bw() +
-    theme(axis.text=element_text(size=16),axis.title=element_text(size=16)) + 
-    xlim(c(range(dt$Lasso, dt$Wages))) + ylim(c(range(dt$Lasso, dt$Wages)))
-  ggsave(names[1])
-  
-  spline.fit = lm(dt$Wages ~ ns(dt$LLF, df = 3))
-  dt$spline = spline.fit$fitted.values
-  ggplot(dt, aes(x = LLF, y = Wages)) + geom_point(cex = 1) + 
-    ylab("Observed log wages") + xlab("Predicted log wages") + 
-    geom_line(aes(x = LLF, y = spline), color = "red", lty = 1, lwd = 1.5) + 
-    geom_abline(color = "Darkgray", intercept = 0, slope = 1, lty = 2, lwd = 1.5) + 
-    theme_bw() +
-    theme(axis.text=element_text(size=16),axis.title=element_text(size=16)) + 
-    xlim(c(range(dt$LLF, dt$Wages))) + ylim(c(range(dt$LLF, dt$Wages)))
-  ggsave(names[2])
-  
-  spline.fit = lm(dt$Wages ~ ns(dt$RF, df = 3))
-  dt$spline = spline.fit$fitted.values
-  ggplot(dt, aes(x = RF, y = Wages)) + geom_point(cex = 1) + 
-    ylab("Observed log wages") + xlab("Predicted log wages") + 
-    geom_line(aes(x = RF, y = spline), color = "red", lty = 1, lwd = 1.5) + 
-    geom_abline(color = "Darkgray", intercept = 0, slope = 1, lty = 2, lwd = 1.5) + 
-    theme_bw() +
-    theme(axis.text=element_text(size=16),axis.title=element_text(size=16)) + 
-    xlim(c(range(dt$RF, dt$Wages))) + ylim(c(range(dt$RF, dt$Wages)))
-  ggsave(names[3])
-  
-  spline.fit = lm(dt$Wages ~ ns(dt$OLS, df = 3))
-  dt$spline = spline.fit$fitted.values
-  ggplot(dt, aes(x = OLS, y = Wages)) + geom_point(cex = 1) + 
-    ylab("Observed log wages") + xlab("Predicted log wages") + 
-    geom_line(aes(x = OLS, y = spline), color = "red", lty = 1, lwd = 1.5) + 
-    geom_abline(color = "Darkgray", intercept = 0, slope = 1, lty = 2, lwd = 1.5) + 
-    theme_bw() +
-    theme(axis.text=element_text(size=16),axis.title=element_text(size=16)) + 
-    xlim(c(range(dt$OLS, dt$Wages))) + ylim(c(range(dt$OLS, dt$Wages)))
-  ggsave(names[4])
-  
-  # squared differences: 
-  ols.sds = (ols.preds - testdata$incwage)**2
-  llf.sds = (llf.preds- testdata$incwage)**2
-  lasso.sds = (lasso.preds - testdata$incwage)**2
-  rf.sds = (rf.preds - testdata$incwage)**2
-  
-  # corresponding paired t-statistics: 
-  t.ols = mean(ols.sds - llf.sds)/(sd(ols.sds - llf.sds)/sqrt(nrow(testdata)))
-  t.lasso = mean(lasso.sds - llf.sds)/(sd(lasso.sds - llf.sds)/sqrt(nrow(testdata)))
-  t.rf = mean(rf.sds - llf.sds)/(sd(rf.sds - llf.sds)/sqrt(nrow(testdata)))
-  
-  c(t.ols, t.lasso, t.rf)
-})))
-
-colnames(t_statistics) = c("OLS", "Lasso", "RF")
-rownames(t_statistics) = subsets
-
-write.csv(t_statistics,"t_statistics.csv", row.names = TRUE)
