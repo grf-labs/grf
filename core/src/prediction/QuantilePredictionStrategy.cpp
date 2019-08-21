@@ -52,7 +52,11 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
   std::sort(samples_and_values.begin(),
             samples_and_values.end(),
             [](std::pair<size_t, double> first_pair, std::pair<size_t, double> second_pair) {
-              return first_pair.second < second_pair.second;
+              // Note: we add a tie-breaker here to ensure that this sort consistently produces the
+              // same element ordering. Otherwise, different runs of the algorithm could result in
+              // different quantile predictions on the same data.
+              return first_pair.second < second_pair.second
+                  || (first_pair.second == second_pair.second && first_pair.first < second_pair.first);
             });
 
   std::vector<double> quantile_cutoffs;
