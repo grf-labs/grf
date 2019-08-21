@@ -1,27 +1,28 @@
-#' Estimate the average (conditional local average) treatment effect using a causal forest.
+#' Estimate the average (conditional) local average treatment effect using a causal forest.
 #'
 #' Given an outcome Y, treatment W and instrument Z, the (conditional) local
 #' average treatment effect is tau(x) = Cov[Y, Z | X = x] / Cov[W, Z | X = x].
-#' This is the quantity that is estimated in an instrumental forest.
+#' This is the quantity that is estimated with an instrumental forest.
 #' It can be intepreted causally in various ways. Given a homogeneity
 #' assumption, tau(x) is simply the CATE at x. When W is binary
 #' and there are no "defiers", Imbens and Angrist (1994) show that tau(x) can
 #' be interpreted as an average treatment effect on compliers. This function
 #' is about estimating tau = E[tau(X)] which, extending standard nomenclature,
-#' should perhaps be called the Average Conditional Local Averate Treatment
+#' should perhaps be called the Average (Conditional) Local Averate Treatment
 #' Effect (ACLATE).
 #' 
 #' We estimate the ACLATE using a doubly robust estimator. See Chernozhukov
 #' et al. (2016) for a discussion, and Section 5.2 of Athey and Wager (2017)
 #' for an example using forests.
 #'
-#' If clusters are specified, then each cluster gets equal weight. For example,
-#' if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there
-#' are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall
-#' ATE is 0.5 (not 0.05).
+#' If clusters are specified for the forest, then each cluster gets equal weight.
+#' For example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1,
+#' and there are 10 clusters with 19 units each and per-cluster ATE = 0, then the
+#' overall ATE is 0.5 (not 0.05).
 #'
 #' @param forest The trained forest.
-#' @param compliance.score An estimate of the causal effect of Z on W.
+#' @param compliance.score An estimate of the causal effect of Z on W, for
+#'                         each sample i = 1, ..., n.
 #' @param subset Specifies subset of the training examples over which we
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
@@ -37,34 +38,8 @@
 #' estimation." arXiv preprint arXiv:1608.00033 (2016).
 #' @references Imbens, Guido W., and Joshua D. Angrist. "Identification and
 #' Estimation of Local Average Treatment Effects." Econometrica 62.2 (1994): 467-475.
-#' 
-#' @examples
-#' \dontrun{
-#' # Train a causal forest.
-#' n <- 50
-#' p <- 10
-#' X <- matrix(rnorm(n * p), n, p)
-#' W <- rbinom(n, 1, 0.5)
-#' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
-#' c.forest <- causal_forest(X, Y, W)
 #'
-#' # Predict using the forest.
-#' X.test <- matrix(0, 101, p)
-#' X.test[, 1] <- seq(-2, 2, length.out = 101)
-#' c.pred <- predict(c.forest, X.test)
-#' # Estimate the conditional average treatment effect on the full sample (CATE).
-#' average_treatment_effect(c.forest, target.sample = "all")
-#'
-#' # Estimate the conditional average treatment effect on the treated sample (CATT).
-#' # We don't expect much difference between the CATE and the CATT in this example,
-#' # since treatment assignment was randomized.
-#' average_treatment_effect(c.forest, target.sample = "treated")
-#'
-#' # Estimate the conditional average treatment effect on samples with positive X[,1].
-#' average_treatment_effect(c.forest, target.sample = "all", X[, 1] > 0)
-#' }
-#'
-#' @return An estimate of the average treatment effect, along with standard error.
+#' @return An estimate of the average (C)LATE, along with standard error.
 #'
 #' @importFrom stats coef lm predict var weighted.mean
 #' @export
@@ -109,8 +84,8 @@ average_late <- function(forest,
   }
   observation.weight <- observation_weights(forest)
   
-  # A compliance forest is a causal forest with "outcome" W and
-  # "treatment" Z.
+  # The compliance forest estimates the effect of the "treatment" Z
+  # on the "outcome" W.
   if (is.null(compliance.score)) {
       compliance.forest <- causal_forest(forest$X.orig,
                                          Y=forest$W.orig,
@@ -141,7 +116,7 @@ average_late <- function(forest,
       round(rng[1], 3), " and ", round(rng[2], 3),
       " and in particular get very close to 0 or 1. ",
       "Poor overlap may hurt perfmance for average conditional local average",
-      "treatment effect estimation"
+      "treatment effect estimation."
     ))
   }
   
