@@ -95,7 +95,7 @@ average_treatment_effect <- function(forest,
   clusters <- if (cluster.se) {
     forest$clusters
   } else {
-    1:length(forest$Y)
+    1:length(forest$Y.orig)
   }
   observation.weight <- observation_weights(forest)
 
