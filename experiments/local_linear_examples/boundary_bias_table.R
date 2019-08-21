@@ -70,7 +70,7 @@ simulation.run = function(n, p, sigma, num.reps = 100, ntest = 2000){
     bart.preds = bart.mod$yhat.test.mean
     bart.mse = mean((bart.preds-truth)**2)
     
-    boost.cv.fit = cvboost(as.matrix(X), Y)
+    boost.cv.fit = rlearner::cvboost(as.matrix(X), Y)
     xgb.preds = predict(boost.cv.fit, as.matrix(X.test))
     xg.mse = mean((xgb.preds - truth)**2)
     
