@@ -134,7 +134,7 @@ test_that("regression forest leaf nodes contains 'avg Y' only", {
   for(n in r.tree$nodes){
     if(n$is_leaf){
       expect_false(is.null(names(n$leaf_stats)))
-      expect_true(all(names(n$leaf_stats) == c("avg Y")))
+      expect_setequal(names(n$leaf_stats), c("avg Y"))
     }
   }
 })
@@ -150,12 +150,12 @@ test_that("causal forest leaf nodes contains 'avg Y' and 'avg W' only", {
   for(n in c.tree$nodes){
     if(n$is_leaf){
       expect_false(is.null(names(n$leaf_stats)))
-      expect_true(all(names(n$leaf_stats) == c("avg Y", "avg W")))
+      expect_setequal(names(n$leaf_stats), c("avg Y", "avg W"))
     }
   }
 })
 
-test_that("causal forest leaf nodes contains 'avg Y', 'avg W', and 'avg Z' only", {
+test_that("instrumental forest leaf nodes contains 'avg Y', 'avg W', and 'avg Z' only", {
   p <- 6
   n <- 200
 
@@ -177,7 +177,7 @@ test_that("causal forest leaf nodes contains 'avg Y', 'avg W', and 'avg Z' only"
   for(n in iv.tree$nodes){
     if(n$is_leaf){
       expect_false(is.null(names(n$leaf_stats)))
-      expect_true(all(names(n$leaf_stats) == c("avg Y", "avg W", "avg Z")))
+      expect_setequal(names(n$leaf_stats), c("avg Y", "avg W", "avg Z"))
     }
   }
 })
