@@ -50,7 +50,16 @@ get_tree <- function(forest, index) {
       paste("X", i, sep = ".")
     }
   })
-
+  
+  # for each node, calculate the leaf stats
+  tree$nodes <- lapply(tree$nodes, function(node) {
+    if (node$is_leaf) {
+      node$leaf_stats <- leaf_stats(forest, node$samples)
+    }
+    node
+  })
+  
+  
   tree
 }
 
@@ -157,4 +166,65 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
   } else {
     compute_weights_oob(forest.short, train.data$default, train.data$sparse, num.threads)
   }
+}
+
+leaf_stats <- function(forest, samples) UseMethod("leaf_stats")
+
+#' A default leaf_stats for forests classes without a leaf_stats method
+#' that always returns NULL.
+#' @param forest Any forest
+#' @param samples The samples to include in the calculations.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @return NULL
+#'
+#' @method leaf_stats default
+leaf_stats.default <- function(forest, samples, ...){
+  return(NULL)
+}
+
+#' Calculate summary stats given a set of samples for regression forests.
+#' @param forest The GRF forest
+#' @param samples The samples to include in the calculations.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @return A named vector containing summary stats
+#'
+#' @method leaf_stats regression_forest
+leaf_stats.regression_forest <- function(forest, samples, ...){
+  leaf_stats <- c()
+  leaf_stats["avg Y"] <- round(mean(forest$Y.orig[samples]), 2)
+  return(leaf_stats)
+}
+
+#' Calculate summary stats given a set of samples for causal forests.
+#' @param forest The GRF forest
+#' @param samples The samples to include in the calculations.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @return A named vector containing summary stats
+#'
+#' @method leaf_stats causal_forest
+leaf_stats.causal_forest <- function(forest, samples, ...){
+  leaf_stats <- c()
+  leaf_stats["avg Y"] <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats["avg W"] <- round(mean(forest$W.orig[samples]), 2)
+  return(leaf_stats)
+}
+
+#' Calculate summary stats given a set of samples for instrumental forests.
+#' @param forest The GRF forest
+#' @param samples The samples to include in the calculations.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @return A named vector containing summary stats
+#'
+#' @method leaf_stats instrumental_forest
+leaf_stats.instrumental_forest <- function(forest, samples, ...){
+  
+  leaf_stats <- c()
+  leaf_stats["avg Y"] <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats["avg W"] <- round(mean(forest$W.orig[samples]), 2)
+  leaf_stats["avg Z"] <- round(mean(forest$Z.orig[samples]), 2)
+  return(leaf_stats)
 }

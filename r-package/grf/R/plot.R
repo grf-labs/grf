@@ -10,8 +10,12 @@ create_dot_body <- function(tree, index = 1) {
   # Leaf case: print label only
   if (node$is_leaf) {
     num_samples <- length(node$samples)
-    line_label <- paste(index - 1, ' [shape=box,style=filled,color=".7 .3 1.0" , label="leaf node', "
-size = ", num_samples, '"];')
+    leaf_stats_text <- ""
+    if(!is.null(node$leaf_stats)){
+      leaf_stats_text <- paste("\n", paste(names(node$leaf_stats), unname(node$leaf_stats), sep = " = ", collapse = "\n"))
+    }
+    line_label <- paste(index - 1, ' [shape=box,style=filled,color=".7 .3 1.0" , label="size = ',
+                        num_samples, leaf_stats_text, '"];')
     return(line_label)
   }
 
