@@ -78,7 +78,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 min.node.size = NULL,
                                 honesty = TRUE,
                                 honesty.fraction = NULL,
-                                prune.empty.leaves = TRUE,
+                                prune.empty.leaves = NULL,
                                 ci.group.size = 2,
                                 reduced.form.weight = 0,
                                 alpha = 0.05,
@@ -103,6 +103,7 @@ instrumental_forest <- function(X, Y, W, Z,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
+  prune.empty.leaves <- validate_prune_empty_leaves(prune.empty.leaves)
 
   if (!is.numeric(reduced.form.weight) | reduced.form.weight < 0 | reduced.form.weight > 1) {
     stop("Error: Invalid value for reduced.form.weight. Please give a value in [0,1].")
@@ -160,7 +161,7 @@ instrumental_forest <- function(X, Y, W, Z,
   forest <- instrumental_train(
     data$default, data$sparse,
     outcome.index, treatment.index, instrument.index, sample.weight.index, !is.null(sample.weights),
-    mtry, num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction),
+    mtry, num.trees, min.node.size, sample.fraction, honesty, honesty.fraction,
     prune.empty.leaves, ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits, clusters,
     samples.per.cluster, compute.oob.predictions, num.threads, seed
   )

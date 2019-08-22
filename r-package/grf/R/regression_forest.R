@@ -44,7 +44,7 @@
 #'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults. Default is FALSE.
-#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 10.
+#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 50.
 #' @param num.fit.reps The number of forests used to fit the tuning model. Default is 100.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters. Default is 1000.
@@ -89,14 +89,14 @@ regression_forest <- function(X, Y,
                               min.node.size = NULL,
                               honesty = TRUE,
                               honesty.fraction = NULL,
-                              prune.empty.leaves = TRUE,
+                              prune.empty.leaves = NULL,
                               ci.group.size = 2,
                               alpha = NULL,
                               imbalance.penalty = NULL,
                               clusters = NULL,
                               samples.per.cluster = NULL,
                               tune.parameters = FALSE,
-                              num.fit.trees = 10,
+                              num.fit.trees = 50,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000,
                               compute.oob.predictions = TRUE,
@@ -110,7 +110,6 @@ regression_forest <- function(X, Y,
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
-  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
   if (tune.parameters) {
     tuning.output <- tune_regression_forest(X, Y,
@@ -138,7 +137,9 @@ regression_forest <- function(X, Y,
       sample.fraction = validate_sample_fraction(sample.fraction),
       mtry = validate_mtry(mtry, X),
       alpha = validate_alpha(alpha),
-      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
+      honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty),
+      prune.empty.leaves = validate_prune_empty_leaves(prune.empty.leaves)
     )
   }
 
@@ -153,8 +154,8 @@ regression_forest <- function(X, Y,
     as.numeric(tunable.params["min.node.size"]),
     as.numeric(tunable.params["sample.fraction"]),
     honesty,
-    coerce_honesty_fraction(honesty.fraction),
-    prune.empty.leaves,
+    as.numeric(tunable.params["honesty.fraction"]),
+    as.numeric(tunable.params["prune.empty.leaves"]),
     ci.group.size,
     as.numeric(tunable.params["alpha"]),
     as.numeric(tunable.params["imbalance.penalty"]),

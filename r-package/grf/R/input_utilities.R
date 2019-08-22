@@ -141,12 +141,7 @@ validate_samples_per_cluster <- function(samples.per.cluster, clusters) {
 
 validate_honesty_fraction <- function(honesty.fraction, honesty) {
   if (!honesty) {
-    if (is.null(honesty.fraction)) {
-      return(NULL)
-    }
-    else {
-      stop("honesty.fraction is not used when honesty = FALSE and should be NULL in this case.")
-    }
+      return(0)
   } else if (is.null(honesty.fraction)) {
     return(0.5)
   } else if (honesty.fraction > 0 && honesty.fraction < 1) {
@@ -154,6 +149,13 @@ validate_honesty_fraction <- function(honesty.fraction, honesty) {
   } else {
     stop("honesty.fraction must be a positive real number less than 1.")
   }
+}
+
+validate_prune_empty_leaves <- function(prune.empty.leaves) {
+  if (is.null(prune.empty.leaves)) {
+    return(TRUE)
+  }
+  prune.empty.leaves
 }
 
 validate_boost_error_reduction <- function(boost.error.reduction) {
@@ -214,13 +216,6 @@ validate_sample_weights <- function(sample.weights, X) {
       stop("sample.weights must be nonnegative")
     }
   }
-}
-
-coerce_honesty_fraction <- function(honesty.fraction) {
-  if (is.null(honesty.fraction)) {
-    return(0)
-  }
-  honesty.fraction
 }
 
 #' @importFrom Matrix Matrix cBind
