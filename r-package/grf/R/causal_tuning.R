@@ -95,7 +95,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                stabilize.splits = TRUE,
                                honesty = TRUE,
                                honesty.fraction = NULL,
-                               prune.empty.leaves = TRUE,
+                               prune.empty.leaves = NULL,
                                clusters = NULL,
                                samples.per.cluster = NULL,
                                num.threads = NULL,
@@ -111,7 +111,6 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   ci.group.size <- 1
   reduced.form.weight <- 0
-  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
 
   data <- create_data_matrices(X, Y - Y.hat, W - W.hat, sample.weights = sample.weights)
   outcome.index <- ncol(X) + 1
@@ -120,7 +119,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
 
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
-  all.params <- get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty)
+  all.params <- get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty,
+                                   honesty, honesty.fraction, prune.empty.leaves)
   fixed.params <- all.params[!is.na(all.params)]
   tuning.params <- all.params[is.na(all.params)]
   default.params <- c(
@@ -128,7 +128,9 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     sample.fraction = validate_sample_fraction(sample.fraction),
     mtry = validate_mtry(mtry, X),
     alpha = validate_alpha(alpha),
-    imbalance.penalty = validate_imbalance_penalty(imbalance.penalty)
+    imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
+    honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty),
+    prune.empty.leaves = validate_prune_empty_leaves(prune.empty.leaves)
   )
   default.params[!is.na(all.params)] <- all.params[!is.na(all.params)]
 
@@ -153,8 +155,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
       as.numeric(params["min.node.size"]),
       as.numeric(params["sample.fraction"]),
       honesty,
-      coerce_honesty_fraction(honesty.fraction),
-      prune.empty.leaves,
+      as.numeric(params["honesty.fraction"]),
+      as.numeric(params["prune.empty.leaves"]),
       ci.group.size,
       reduced.form.weight,
       as.numeric(params["alpha"]),
@@ -241,8 +243,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     retrained.forest.params["min.node.size"],
     retrained.forest.params["sample.fraction"],
     honesty,
-    coerce_honesty_fraction(honesty.fraction),
-    prune.empty.leaves,
+    retrained.forest.params["honesty.fraction"],
+    retrained.forest.params["prune.empty.leaves"],
     ci.group.size,
     reduced.form.weight,
     retrained.forest.params["alpha"],
@@ -276,8 +278,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     default.params["min.node.size"],
     default.params["sample.fraction"],
     honesty,
-    coerce_honesty_fraction(honesty.fraction),
-    prune.empty.leaves,
+    default.params["honesty.fraction"],
+    default.params["prune.empty.leaves"],
     ci.group.size,
     reduced.form.weight,
     default.params["alpha"],

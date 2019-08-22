@@ -117,6 +117,11 @@ print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
         q <- unique(q)
       }
       rank <- cut(grid[, name], q, include.lowest = TRUE)
+      # If the cut is only a single level, the variable is binary and we can
+      # aggregate by that directly.
+      if (length(levels(rank)) == 1) {
+        rank = grid[, name]
+      }
       out <- aggregate(grid[, "error"], by = list(rank), FUN = mean)
       colnames(out) <- c(name, "error")
       out

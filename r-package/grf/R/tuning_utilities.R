@@ -2,13 +2,19 @@ get_initial_params <- function(min.node.size,
                                sample.fraction,
                                mtry,
                                alpha,
-                               imbalance.penalty) {
+                               imbalance.penalty,
+                               honesty,
+                               honesty.fraction,
+                               prune.empty.leaves) {
   c(
     min.node.size = if (is.null(min.node.size)) NA else validate_min_node_size(min.node.size),
     sample.fraction = if (is.null(sample.fraction)) NA else validate_sample_fraction(sample.fraction),
     mtry = if (is.null(mtry)) NA else validate_mtry(mtry),
     alpha = if (is.null(alpha)) NA else validate_alpha(alpha),
-    imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty)
+    imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty),
+    honesty.fraction = if (is.null(honesty.fraction) && honesty) NA else
+     validate_honesty_fraction(honesty.fraction, honesty),
+    prune.empty.leaves = if (is.null(prune.empty.leaves) && honesty) NA else validate_prune_empty_leaves(prune.empty.leaves)
   )
 }
 
@@ -28,6 +34,10 @@ get_params_from_draw <- function(X, draws) {
       return(draws[, param] / 4)
     } else if (param == "imbalance.penalty") {
       return(-log(draws[, param]))
+    } else if (param == "honesty.fraction") {
+      return(0.5 + (0.8 - 0.5) * draws[, param]) # honesty.fraction in U(0.5, 0.8)
+    } else if (param == "prune.empty.leaves") {
+      return(ifelse(draws[, param] < 0.5, TRUE, FALSE))
     } else {
       stop("Unrecognized parameter name provided: ", param)
     }

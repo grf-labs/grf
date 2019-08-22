@@ -85,7 +85,7 @@ quantile_forest <- function(X, Y,
                             min.node.size = NULL,
                             honesty = TRUE,
                             honesty.fraction = NULL,
-                            prune.empty.leaves = TRUE,
+                            prune.empty.leaves = NULL,
                             alpha = 0.05,
                             imbalance.penalty = 0.0,
                             clusters = NULL,
@@ -109,6 +109,7 @@ quantile_forest <- function(X, Y,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
+  prune.empty.leaves <- validate_prune_empty_leaves(prune.empty.leaves)
 
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1
@@ -117,7 +118,7 @@ quantile_forest <- function(X, Y,
 
   forest <- quantile_train(
     quantiles, regression.splitting, data$default, data$sparse, outcome.index, mtry,
-    num.trees, min.node.size, sample.fraction, honesty, coerce_honesty_fraction(honesty.fraction), prune.empty.leaves,
+    num.trees, min.node.size, sample.fraction, honesty, honesty.fraction, prune.empty.leaves,
     ci.group.size, alpha, imbalance.penalty, clusters, samples.per.cluster, num.threads, seed
   )
 
