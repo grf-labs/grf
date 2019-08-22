@@ -23,8 +23,5 @@
 # clion files
 .idea/
 
-# Generated files
-grf/src/RcppExports.cpp
-
 # documentation by roxygen
 *.Rd

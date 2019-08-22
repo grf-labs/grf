@@ -17,9 +17,7 @@ ll.forest = local_linear_forest(X, Y)
 
 # lasso to select local linear correction variables
 lasso.mod = cv.glmnet(X, Y, alpha=1)
-selected = which(coef(lasso.mod) != 0)
-# remove intercept and adjust indexes correspondingly
-selected = selected[2:length(selected)] - 1
+selected = as.numeric(predict(lasso.mod, type = "nonzero"))
 preds.llf = predict(ll.forest, linear.correction.variables = selected, tune.lambda = TRUE)$predictions
 
 ticks = seq(-1, 1, length = 2000)
