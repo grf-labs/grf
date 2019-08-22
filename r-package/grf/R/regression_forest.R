@@ -44,7 +44,7 @@
 #'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
 #'                        NULL parameters are set to defaults. Default is FALSE.
-#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 10.
+#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 50.
 #' @param num.fit.reps The number of forests used to fit the tuning model. Default is 100.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'                          to select the optimal parameters. Default is 1000.
@@ -96,7 +96,7 @@ regression_forest <- function(X, Y,
                               clusters = NULL,
                               samples.per.cluster = NULL,
                               tune.parameters = FALSE,
-                              num.fit.trees = 10,
+                              num.fit.trees = 50,
                               num.fit.reps = 100,
                               num.optimize.reps = 1000,
                               compute.oob.predictions = TRUE,
