@@ -274,6 +274,24 @@ For further discussion of the overlap assumption, please see Imbens and Rubin (2
 
 While the algorithm in `regression_forest` is very similar to that of classic random forests, it has several notable differences, including 'honesty', group tree training for variance estimates, and restrictions during splitting to avoid imbalanced child nodes. These features can cause the predictions of the algorithm to be different, and also lead to a slower training procedure than other packages. We welcome GitHub issues that shows cases where GRF does notably worse than other packages (either in statistical or computational performance), as this will help us choose better defaults for the algorithm, or potentially point to a bug.
 
+
+### Forests predict different values depending on the platform even though the seed is the same
+
+When it comes to cross-platform predictions, the output of `grf` forest will depend on a few factors beyond the forest seed.
+
+One such factor is the compiler that was used to build `grf`. Different compilers may have optimization procedures that perform more or less aggressive floating-point optimizations, and these could lead to slightly different forest splits if the data requires numerical precision. If your data contains variables have more than 8 significant digits, please consider rounding these variables, or multiplying them by a constant.
+
+Another factor is how the forest construction is distributed across different threads. Right now, our forest splitting algorithm can give different results depending on the number of threads that were used to build the forest.
+
+We recommend that the user try to satisfy the following three conditions to ensure that results are the same across different platforms.
+
++ Set arguments `seed` and `num.threads` to the same number
++ Compile `grf` with either `gcc` or `clang` compilers (at the moment we do not provide support for this functionality for Windows-based compilers such as the MSVC compiler)
++ The data is rounded to 8 digits (if it cannot be rounded, multiply it by a constant)
+
+If you still do not see consistent cross-platform results after ensuring the three conditions above, please submit an issue.
+
+
 ## References
 
 Athey, Susan, Julie Tibshirani, and Stefan Wager. Generalized Random Forests. *Annals of Statistics (forthcoming)*, 2018.
