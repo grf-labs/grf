@@ -15,7 +15,7 @@ print.grf <- function(x, decay.exponent = 2, max.depth = 4, ...) {
   num.samples <- nrow(x$X.orig)
 
   cat("GRF forest object of type", main.class, "\n")
-  cat("Number of trees: ", x[["_num_trees"]], "\n")
+  cat("Number of trees:", x[["_num_trees"]], "\n")
   cat("Number of training samples:", num.samples, "\n")
 
   cat("Variable importance:", "\n")
@@ -30,7 +30,7 @@ print.grf <- function(x, decay.exponent = 2, max.depth = 4, ...) {
 #' @export
 print.grf_tree <- function(x, ...) {
   cat("GRF tree object", "\n")
-  cat("Number of training samples: ", x$num_samples, "\n")
+  cat("Number of training samples:", x$num_samples, "\n")
   cat("Variable splits:", "\n")
 
   # Add the index of each node as an attribute for easy access.
@@ -56,7 +56,7 @@ print.grf_tree <- function(x, ...) {
       if(!is.null(node$leaf_stats)){
         leaf_stats_text <- paste(paste(names(node$leaf_stats), unname(node$leaf_stats), sep = ": ", collapse = " "))
       }
-      output <- paste(output, "* num_samples:", length(node$samples), leaf_stats_text)
+      output <- paste(output, "* num_samples:", length(node$samples), "", leaf_stats_text)
     } else {
       split.var <- node$split_variable
       split.var.name <- x$columns[split.var]

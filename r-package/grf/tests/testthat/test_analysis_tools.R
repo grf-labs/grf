@@ -124,7 +124,7 @@ test_that("computing sample weights gives reasonable results", {
   expect_true(all(row.sums - 1.0 < 1e-10))
 })
 
-test_that("regression forest leaf nodes contains 'avg Y' only", {
+test_that("regression forest leaf nodes contains 'avg_Y' only", {
   n <- 50
   p <- 1
   X <- matrix(rnorm(n * p), n, p)
@@ -134,12 +134,12 @@ test_that("regression forest leaf nodes contains 'avg Y' only", {
   for(n in r.tree$nodes){
     if(n$is_leaf){
       expect_false(is.null(names(n$leaf_stats)))
-      expect_setequal(names(n$leaf_stats), c("avg Y"))
+      expect_setequal(names(n$leaf_stats), c("avg_Y"))
     }
   }
 })
 
-test_that("causal forest leaf nodes contains 'avg Y' and 'avg W' only", {
+test_that("causal forest leaf nodes contains 'avg_Y' and 'avg_W' only", {
   p <- 4
   n <- 100
   X <- matrix(runif(n * p), n, p)
@@ -150,35 +150,34 @@ test_that("causal forest leaf nodes contains 'avg Y' and 'avg W' only", {
   for(n in c.tree$nodes){
     if(n$is_leaf){
       expect_false(is.null(names(n$leaf_stats)))
-      expect_setequal(names(n$leaf_stats), c("avg Y", "avg W"))
+      expect_setequal(names(n$leaf_stats), c("avg_Y", "avg_W"))
     }
   }
 })
 
-test_that("instrumental forest leaf nodes contains 'avg Y', 'avg W', and 'avg Z' only", {
+test_that("instrumental forest leaf nodes contains 'avg_Y', 'avg_W', and 'avg_Z' only", {
   p <- 6
   n <- 200
 
   X <- matrix(rnorm(n * p), n, p)
-  
+
   eps <- rnorm(n)
   Z <- rbinom(n, 1, 2 / 3)
   filter <- rbinom(n, 1, 1 / (1 + exp(-1 * eps)))
   W <- Z * filter
-  
+
   tau <- apply(X[, 1:2], 1, function(xx) sum(pmax(0, xx)))
   mu <- apply(X[, 2 + 1:2], 1, function(xx) sum(pmax(0, xx)))
-  
+
   Y <- (2 * W - 1) / 2 * tau + mu + eps
-  
+
   iv.forest <- instrumental_forest(X, Y, W, Z, num.trees = 100)
   iv.tree <- get_tree(iv.forest,1)
 
   for(n in iv.tree$nodes){
     if(n$is_leaf){
       expect_false(is.null(names(n$leaf_stats)))
-      expect_setequal(names(n$leaf_stats), c("avg Y", "avg W", "avg Z"))
+      expect_setequal(names(n$leaf_stats), c("avg_Y", "avg_W", "avg_Z"))
     }
   }
 })
-

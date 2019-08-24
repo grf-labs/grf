@@ -50,7 +50,7 @@ get_tree <- function(forest, index) {
       paste("X", i, sep = ".")
     }
   })
-  
+
   # for each node, calculate the leaf stats
   tree$nodes <- lapply(tree$nodes, function(node) {
     if (node$is_leaf) {
@@ -58,8 +58,8 @@ get_tree <- function(forest, index) {
     }
     node
   })
-  
-  
+
+
   tree
 }
 
@@ -193,7 +193,7 @@ leaf_stats.default <- function(forest, samples, ...){
 #' @method leaf_stats regression_forest
 leaf_stats.regression_forest <- function(forest, samples, ...){
   leaf_stats <- c()
-  leaf_stats["avg Y"] <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats["avg_Y"] <- round(mean(forest$Y.orig[samples]), 2)
   return(leaf_stats)
 }
 
@@ -207,8 +207,8 @@ leaf_stats.regression_forest <- function(forest, samples, ...){
 #' @method leaf_stats causal_forest
 leaf_stats.causal_forest <- function(forest, samples, ...){
   leaf_stats <- c()
-  leaf_stats["avg Y"] <- round(mean(forest$Y.orig[samples]), 2)
-  leaf_stats["avg W"] <- round(mean(forest$W.orig[samples]), 2)
+  leaf_stats["avg_Y"] <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats["avg_W"] <- round(mean(forest$W.orig[samples]), 2)
   return(leaf_stats)
 }
 
@@ -221,10 +221,10 @@ leaf_stats.causal_forest <- function(forest, samples, ...){
 #'
 #' @method leaf_stats instrumental_forest
 leaf_stats.instrumental_forest <- function(forest, samples, ...){
-  
+
   leaf_stats <- c()
-  leaf_stats["avg Y"] <- round(mean(forest$Y.orig[samples]), 2)
-  leaf_stats["avg W"] <- round(mean(forest$W.orig[samples]), 2)
-  leaf_stats["avg Z"] <- round(mean(forest$Z.orig[samples]), 2)
+  leaf_stats["avg_Y"] <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats["avg_W"] <- round(mean(forest$W.orig[samples]), 2)
+  leaf_stats["avg_Z"] <- round(mean(forest$Z.orig[samples]), 2)
   return(leaf_stats)
 }
