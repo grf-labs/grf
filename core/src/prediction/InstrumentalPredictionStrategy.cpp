@@ -31,11 +31,11 @@ const std::size_t InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT = 4;
 
 const std::size_t NUM_TYPES = 5;
 
-size_t InstrumentalPredictionStrategy::prediction_length() {
+size_t InstrumentalPredictionStrategy::prediction_length() const {
     return 1;
 }
 
-std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<double>& average) {
+std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<double>& average) const {
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
 
@@ -45,7 +45,7 @@ std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<do
 std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    size_t ci_group_size) {
+    size_t ci_group_size) const {
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT)
      - average.at(OUTCOME) * average.at(INSTRUMENT);
@@ -145,13 +145,13 @@ std::vector<double> InstrumentalPredictionStrategy::compute_variance(
   return { variance_estimate };
 }
 
-size_t InstrumentalPredictionStrategy::prediction_value_length() {
+size_t InstrumentalPredictionStrategy::prediction_value_length() const {
   return NUM_TYPES;
 }
 
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_samples,
-    const Data* data) {
+    const Data* data) const {
   size_t num_leaves = leaf_samples.size();
 
   std::vector<std::vector<double>> values(num_leaves);
@@ -201,7 +201,7 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    const Data* data) {
+    const Data* data) const {
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);

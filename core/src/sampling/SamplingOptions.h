@@ -36,7 +36,7 @@ public:
   /**
    * A map from each cluster ID to the set of sample IDs it contains.
    */
-  const std::vector<std::vector<size_t>>& get_clusters();
+  const std::vector<std::vector<size_t>>& get_clusters() const;
 
   /**
    * The number of samples that should be drawn from each cluster when

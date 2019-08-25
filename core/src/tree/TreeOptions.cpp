@@ -33,11 +33,11 @@ TreeOptions::TreeOptions(uint mtry,
   alpha(alpha),
   imbalance_penalty(imbalance_penalty) {}
 
-uint TreeOptions::get_mtry() const  {
+uint TreeOptions::get_mtry() const {
   return mtry;
 }
 
-uint TreeOptions::get_min_node_size() const  {
+uint TreeOptions::get_min_node_size() const {
   return min_node_size;
 }
 

@@ -31,7 +31,7 @@
 class SplitFrequencyComputer {
 public:
   std::vector<std::vector<size_t>> compute(const Forest& forest,
-                                           size_t max_depth);
+                                           size_t max_depth) const;
 };
 
 

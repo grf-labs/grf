@@ -18,7 +18,7 @@
 #include "commons/DefaultData.h"
 #include "forest/Forest.h"
 
-Forest Forest::create(std::vector<std::shared_ptr<Tree>> trees,
+Forest Forest::create(const std::vector<std::shared_ptr<Tree>>& trees,
                       const ForestOptions& forest_options,
                       const Data* data) {
   size_t num_independent_variables = data->get_num_cols() -

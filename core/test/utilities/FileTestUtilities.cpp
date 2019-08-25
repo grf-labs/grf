@@ -18,7 +18,7 @@
 #include <fstream>
 #include "FileTestUtilities.h"
 
-std::vector<std::vector<double>> FileTestUtilities::read_csv_file(std::string file_name) {
+std::vector<std::vector<double>> FileTestUtilities::read_csv_file(const std::string& file_name) {
   std::ifstream file;
   file.open(file_name, std::ios::binary);
 
@@ -49,7 +49,8 @@ std::vector<std::vector<double>> FileTestUtilities::read_csv_file(std::string fi
   return result;
 }
 
-void FileTestUtilities::write_csv_file(std::string file_name, std::vector<std::vector<double>> contents) {
+void FileTestUtilities::write_csv_file(const std::string& file_name,
+                                       const std::vector<std::vector<double>>& contents) {
   std::ofstream file;
   file.open(file_name, std::ios::binary);
 

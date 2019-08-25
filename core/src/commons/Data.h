@@ -36,9 +36,9 @@ public:
 
   void sort();
 
-  bool load_from_file(std::string filename);
-  bool load_from_whitespace_file(std::ifstream& input_file, std::string first_line);
-  bool load_from_other_file(std::ifstream& input_file, std::string first_line, char seperator);
+  bool load_from_file(const std::string& filename);
+  bool load_from_whitespace_file(std::ifstream& input_file, const std::string& first_line);
+  bool load_from_other_file(std::ifstream& input_file, const std::string& first_line, char seperator);
 
   void set_outcome_index(size_t index);
   void set_treatment_index(size_t index);

@@ -37,7 +37,7 @@ class RelabelingStrategy {
 public:
   virtual std::unordered_map<size_t, double> relabel(
       const std::vector<size_t>& samples,
-      const Data* data) = 0;
+      const Data* data) const = 0;
 };
 
 

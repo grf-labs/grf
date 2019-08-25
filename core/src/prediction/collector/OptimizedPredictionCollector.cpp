@@ -26,7 +26,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                                           bool estimate_variance,
-                                                                          bool estimate_error) {
+                                                                          bool estimate_error) const {
   size_t num_trees = forest.get_trees().size();
   size_t num_samples = data->get_num_rows();
   bool record_leaf_values = estimate_variance || estimate_error;
@@ -100,7 +100,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
 
 void OptimizedPredictionCollector::add_prediction_values(size_t node,
     const PredictionValues& prediction_values,
-    std::vector<double>& combined_average) {
+    std::vector<double>& combined_average) const {
   if (combined_average.empty()) {
     combined_average.resize(prediction_values.get_num_types());
   }
@@ -111,13 +111,14 @@ void OptimizedPredictionCollector::add_prediction_values(size_t node,
 }
 
 void OptimizedPredictionCollector::normalize_prediction_values(size_t num_leaves,
-    std::vector<double>& combined_average) {
+                                                               std::vector<double>& combined_average) const {
   for (double& value : combined_average) {
     value /= num_leaves;
   }
 }
 
-void OptimizedPredictionCollector::validate_prediction(size_t sample, Prediction prediction) {
+void OptimizedPredictionCollector::validate_prediction(size_t sample,
+                                                       const Prediction& prediction) const {
   size_t prediction_length = strategy->prediction_length();
   if (prediction.size() != prediction_length) {
     throw std::runtime_error("Prediction for sample " + std::to_string(sample) +

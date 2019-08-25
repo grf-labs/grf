@@ -28,7 +28,7 @@
 class SplittingRuleFactory {
 public:
   virtual std::shared_ptr<SplittingRule> create(const Data* data,
-                                                const TreeOptions& options) = 0;
+                                                const TreeOptions& options) const = 0;
 };
 
 #endif //GRF_SPLITTINGRULEFACTORY_H

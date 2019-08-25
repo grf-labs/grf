@@ -39,8 +39,8 @@ void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_pa
 
 bool equal_doubles(double first, double second, double epsilon);
 
-Data* load_data(std::string file_name);
+Data* load_data(const std::string& file_name);
 
-Data* load_sparse_data(std::string file_name);
+Data* load_sparse_data(const std::string& file_name);
 
 #endif /* GRF_UTILITY_H_ */
