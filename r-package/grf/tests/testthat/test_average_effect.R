@@ -408,3 +408,4 @@ test_that("average conditional local average treatment effect estimation is reas
     expect_equal(as.numeric(tau.x1p["estimate"]), mean(tau[X[,1] > 0]), tol = 0.3)
     expect_lt(abs(tau.x1p["estimate"] - mean(tau[X[,1] > 0])) / tau.x1p["std.err"], 3)
 })
+

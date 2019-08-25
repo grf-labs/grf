@@ -21,12 +21,13 @@
 #' overall ATE is 0.5 (not 0.05).
 #'
 #' @param forest The trained forest.
-#' @param compliance.score An estimate of the causal effect of Z on W, for
-#'                         each sample i = 1, ..., n.
+#' @param compliance.score An estimate of the causal effect of Z on W,
+#'                         i.e., Delta(X) = E[W | X, Z = 1] - E[W | X, Z = 0],
+#'                         for each sample i = 1, ..., n.
 #' @param subset Specifies subset of the training examples over which we
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
-#'               the treatment Wi or the outcome Yi.
+#'               the instrument Zi, treatment Wi or outcome Yi.
 #'
 #' @references Aronow, Peter M., and Allison Carnegie. "Beyond LATE: Estimation
 #' of the average treatment effect with an instrumental variable." Political
@@ -115,15 +116,15 @@ average_late <- function(forest,
       "Estimated treatment propensities take values between ",
       round(rng[1], 3), " and ", round(rng[2], 3),
       " and in particular get very close to 0 or 1. ",
-      "Poor overlap may hurt perfmance for average conditional local average",
+      "Poor overlap may hurt perfmance for average conditional local average ",
       "treatment effect estimation."
     ))
   }
   
   if (min(subset.compliance.score) <= 0.01 * sd(subset.W.orig)) {
       warning(paste0(
-          "The instrument appears to be weak, with some compliance scores as",
-          "low as", round(min(subset.compliance.score), 4)
+          "The instrument appears to be weak, with some compliance scores as ",
+          "low as ", round(min(subset.compliance.score), 4)
       ))
   }
   
