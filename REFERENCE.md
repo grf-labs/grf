@@ -277,19 +277,11 @@ While the algorithm in `regression_forest` is very similar to that of classic ra
 
 ### Forests predict different values depending on the platform even though the seed is the same
 
-When it comes to cross-platform predictions, the output of `grf` forest will depend on a few factors beyond the forest seed.
+Overall, GRF is designed to produce the same estimates across platforms when using a consistent value for the random seed through the training option seed. However, there are still some cases where GRF can produce different estimates across platforms. When it comes to cross-platform predictions, the output of GRF will depend on a few factors beyond the forest seed.
 
-One such factor is the compiler that was used to build `grf`. Different compilers may have optimization procedures that perform more or less aggressive floating-point optimizations, and these could lead to slightly different forest splits if the data requires numerical precision. If your data contains variables have more than 8 significant digits, please consider rounding these variables, or multiplying them by a constant.
+One such factor is the compiler that was used to build GRF. Different compilers may different default behavior around floating-point rounding, and these could lead to slightly different forest splits if the data requires numerical precision. Another factor is how the forest construction is distributed across different threads. Right now, our forest splitting algorithm can give different results depending on the number of threads that were used to build the forest.
 
-Another factor is how the forest construction is distributed across different threads. Right now, our forest splitting algorithm can give different results depending on the number of threads that were used to build the forest.
-
-We recommend that the user try to satisfy the following three conditions to ensure that results are the same across different platforms.
-
-+ Set arguments `seed` and `num.threads` to the same number
-+ Compile `grf` with either `gcc` or `clang` compilers (at the moment we do not provide support for this functionality for Windows-based compilers such as the MSVC compiler)
-+ The data is rounded to 8 digits (if it cannot be rounded, multiply it by a constant)
-
-If you still do not see consistent cross-platform results after ensuring the three conditions above, please submit an issue.
+Therefore, in order to ensure that cross-platforms that arguments `seed` and `num.threads` are the same in both platforms. If you still do not see consistent cross-platform results after ensuring the three conditions above, please submit a Github issue.
 
 
 ## References
