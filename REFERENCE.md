@@ -281,7 +281,7 @@ Overall, GRF is designed to produce the same estimates across platforms when usi
 
 One such factor is the compiler that was used to build GRF. Different compilers may different default behavior around floating-point rounding, and these could lead to slightly different forest splits if the data requires numerical precision. Another factor is how the forest construction is distributed across different threads. Right now, our forest splitting algorithm can give different results depending on the number of threads that were used to build the forest.
 
-Therefore, in order to ensure that equal results across platforms, we recommend that users make sure that both arguments `seed` and `num.threads` are the same in both platforms. If results are still not consistent, please submit a Github issue.
+Therefore, in order to ensure consistent results, we recommend that users make sure arguments `seed` and `num.threads` are the same across platforms. Also, please note that we have not done extensive testing on Windows platforms, although we do not expect random number generation issues there to be different from Linux/Mac. Regardless of the platform, if results are still not consistent, please help us by submitting a Github issue.
 
 
 ## References
