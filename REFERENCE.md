@@ -262,7 +262,7 @@ Our current implementation does not use the sample weights during tree splitting
 ### GRF isn't working well on a small dataset.
 
 If you observe poor performance on a dataset with a small number of examples, there are two changes worth looking into:
-- Adjusting honesty parameters during training. Wen honesty is enabled, the training subsample is further split in half before performing splitting. This may not leave enough information for the algorithm to determine high-quality splits. The section above on the `honesty` parameter gives guidance on how to mitigate the issue.
+- Adjusting honesty parameters during training. When honesty is enabled, the training subsample is further split in half before performing splitting. This may not leave enough information for the algorithm to determine high-quality splits. The section above on the `honesty` parameter gives guidance on how to mitigate the issue.
 - Skipping the variance estimate computation by setting `ci.group.size` to 1 during training, then increasing `sample.fraction`. Because of how variance estimation is implemented, `sample.fraction` cannot be greater than 0.5 when it is enabled. If variance estimates are not needed, it may help to disable this computation and use a larger subsample size for training.
 
 ### The variance estimates are jumpy or very large.
