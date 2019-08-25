@@ -95,7 +95,7 @@ average_treatment_effect <- function(forest,
   clusters <- if (cluster.se) {
     forest$clusters
   } else {
-    1:length(forest$Y)
+    1:length(forest$Y.orig)
   }
   observation.weight <- observation_weights(forest)
 
@@ -319,20 +319,4 @@ average_treatment_effect <- function(forest,
   tau.avg <- tau.avg.raw + dr.correction
   tau.se <- sqrt(sigma2.hat)
   return(c(estimate = tau.avg, std.err = tau.se))
-}
-
-observation_weights <- function(forest) {
-  sample.weights <- if (is.null(forest$sample.weights)) {
-    rep(1, length(forest$Y.orig))
-  } else {
-    forest$sample.weights * length(forest$Y.orig) / sum(forest$sample.weights)
-  }
-  if (length(forest$clusters) == 0) {
-    observation.weight <- sample.weights
-  } else {
-    clust.factor <- factor(forest$clusters)
-    inverse.counts <- 1 / as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
-    observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]
-  }
-  observation.weight
 }

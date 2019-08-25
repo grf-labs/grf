@@ -33,7 +33,7 @@ matrix:
         - mkdir build && cd build
         - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
         - cd ..
-        - valgrind --leak-check=full --error-exitcode=1 ./build/grf exclude:[characterization]
+        - valgrind --leak-check=full --error-exitcode=1 ./build/grf
 
     - name: "core grf C++: clang"
       compiler: clang
@@ -59,7 +59,7 @@ matrix:
         - mkdir build && cd build
         - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
         - cd ..
-        - valgrind --leak-check=full --error-exitcode=1 ./build/grf exclude:[characterization]
+        - valgrind --leak-check=full --error-exitcode=1 ./build/grf
 
     - name: "grf R package"
       before_install:

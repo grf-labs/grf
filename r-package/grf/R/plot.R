@@ -3,15 +3,19 @@
 #' If it is a non-leaf node: show its splitting variable and splitting value
 #' @param tree the tree to convert
 #' @param index the index of the current node
-#' @keyword internal
+#' @keywords internal
 create_dot_body <- function(tree, index = 1) {
   node <- tree$nodes[[index]]
 
   # Leaf case: print label only
   if (node$is_leaf) {
     num_samples <- length(node$samples)
-    line_label <- paste(index - 1, ' [shape=box,style=filled,color=".7 .3 1.0" , label="leaf node', "
-size = ", num_samples, '"];')
+    leaf_stats_text <- ""
+    if(!is.null(node$leaf_stats)){
+      leaf_stats_text <- paste("\n", paste(names(node$leaf_stats), unname(node$leaf_stats), sep = " = ", collapse = "\n"))
+    }
+    line_label <- paste(index - 1, ' [shape=box,style=filled,color=".7 .3 1.0" , label="size = ',
+                        num_samples, leaf_stats_text, '"];')
     return(line_label)
   }
 
@@ -68,7 +72,7 @@ size = ", num_samples, '"];')
 #' This function generates a GraphViz representation of the tree,
 #' which is then written into `dot_string`.
 #' @param tree the tree to convert
-#' @keyword internal
+#' @keywords internal
 export_graphviz <- function(tree) {
   header <- "digraph nodes { \n node [shape=box] ;"
   footer <- "}"
