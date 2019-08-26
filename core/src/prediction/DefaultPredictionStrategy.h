@@ -15,8 +15,8 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_PREDICTIONSTRATEGY_H
-#define GRF_PREDICTIONSTRATEGY_H
+#ifndef GRF_DEFAULTPREDICTIONSTRATEGY_H
+#define GRF_DEFAULTPREDICTIONSTRATEGY_H
 
 #include <unordered_map>
 #include <vector>
@@ -82,4 +82,4 @@ public:
       size_t ci_group_size) = 0;
 };
 
-#endif //GRF_PREDICTIONSTRATEGY_H
+#endif //GRF_DEFAULTPREDICTIONSTRATEGY_H

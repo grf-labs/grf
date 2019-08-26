@@ -15,8 +15,8 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_VARIABLEIMPORTANCECOMPUTER_H
-#define GRF_VARIABLEIMPORTANCECOMPUTER_H
+#ifndef GRF_SPLITFREQUENCYCOMPUTER_H
+#define GRF_SPLITFREQUENCYCOMPUTER_H
 
 
 #include "forest/Forest.h"
@@ -35,4 +35,4 @@ public:
 };
 
 
-#endif //GRF_VARIABLEIMPORTANCECOMPUTER_H
+#endif //GRF_SPLITFREQUENCYCOMPUTER_H
