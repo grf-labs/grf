@@ -15,8 +15,8 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_LEAFNODEFINDER_H
-#define GRF_LEAFNODEFINDER_H
+#ifndef GRF_TREETRAVERSER_H
+#define GRF_TREETRAVERSER_H
 
 #include "forest/Forest.h"
 
@@ -49,4 +49,4 @@ private:
 };
 
 
-#endif //GRF_LEAFNODEFINDER_H
+#endif //GRF_TREETRAVERSER_H

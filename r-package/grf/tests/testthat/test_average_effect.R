@@ -304,7 +304,7 @@ test_that("cluster robust average effects do weighting correctly", {
   compliance.score <- rep(1, n)
   aclate <- average_late(forest.instrumental, compliance.score)
   expect_equal(cate.aipw["estimate"], aclate["estimate"], tol = 0.01)
-  expect_equal(cate.aipw["std.err"], aclate["std.err"], tol = 0.001)
+  expect_equal(cate.aipw["std.err"], aclate["std.err"], tol = 0.002)
 })
 
 test_that("cluster robust average effects do weighting correctly with IPCC weights", {
