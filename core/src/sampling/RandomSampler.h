@@ -15,8 +15,8 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_BOOTSTRAPSAMPLER_H
-#define GRF_BOOTSTRAPSAMPLER_H
+#ifndef GRF_RANDOMSAMPLER_H
+#define GRF_RANDOMSAMPLER_H
 
 
 #include "commons/globals.h"
@@ -158,4 +158,4 @@ private:
 };
 
 
-#endif //GRF_BOOTSTRAPSAMPLER_H
+#endif //GRF_RANDOMSAMPLER_H
