@@ -150,7 +150,7 @@ test_that("causal forest leaf nodes contains 'avg_Y' and 'avg_W' only", {
   for(n in c.tree$nodes){
     if(n$is_leaf){
       expect_false(is.null(names(n$leaf_stats)))
-      expect_setequal(names(n$leaf_stats), c("avg_Y", "avg_W"))
+      expect_setequal(names(n$leaf_stats), c("avg_Y", "avg_W", "ate"))
     }
   }
 })

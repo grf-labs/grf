@@ -208,6 +208,7 @@ leaf_stats.regression_forest <- function(forest, samples, ...){
 leaf_stats.causal_forest <- function(forest, samples, ...){
   leaf_stats <- c()
   leaf_stats["avg_Y"] <- round(mean(forest$Y.orig[samples]), 2)
+  leaf_stats["ate"] <- round(mean(forest$Y.orig[samples][forest$W.orig[samples] == 1]-forest$Y.orig[samples][forest$W.orig[samples] == 0]), 2)
   leaf_stats["avg_W"] <- round(mean(forest$W.orig[samples]), 2)
   return(leaf_stats)
 }
