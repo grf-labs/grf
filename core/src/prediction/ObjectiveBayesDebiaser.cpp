@@ -24,7 +24,7 @@
 
 double ObjectiveBayesDebiaser::debias(double var_between,
                                       double group_noise,
-                                      double num_good_groups) {
+                                      double num_good_groups) const {
   
   // Let S denote the true between-groups variance, and assume that
   // group_noise is measured exactly; our method-of-moments estimate is

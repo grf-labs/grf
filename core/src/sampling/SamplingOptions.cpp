@@ -57,6 +57,6 @@ unsigned int SamplingOptions::get_samples_per_cluster() const {
   return num_samples_per_cluster;
 }
 
-const std::vector<std::vector<size_t>>& SamplingOptions::get_clusters() {
+const std::vector<std::vector<size_t>>& SamplingOptions::get_clusters() const {
   return clusters;
 }

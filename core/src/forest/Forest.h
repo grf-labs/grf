@@ -26,7 +26,7 @@
 
 class Forest {
 public:
-  static Forest create(std::vector<std::shared_ptr<Tree>> trees,
+  static Forest create(const std::vector<std::shared_ptr<Tree>>& trees,
                        const ForestOptions& forest_options,
                        const Data* data);
 

@@ -19,7 +19,7 @@
 
 std::unordered_map<size_t, double> NoopRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data* data) {
+    const Data* data) const {
 
   std::unordered_map<size_t, double> relabeled_observations;
   for (size_t sample : samples) {

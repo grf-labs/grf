@@ -24,10 +24,6 @@
 #include "commons/Data.h"
 #include "prediction/LLCausalPredictionStrategy.h"
 
-size_t LLCausalPredictionStrategy::prediction_length() {
-  return lambdas.size();
-}
-
 LLCausalPredictionStrategy::LLCausalPredictionStrategy(std::vector<double> lambdas,
                                                    bool weight_penalty,
                                                    std::vector<size_t> linear_correction_variables):
@@ -36,11 +32,15 @@ LLCausalPredictionStrategy::LLCausalPredictionStrategy(std::vector<double> lambd
         linear_correction_variables(linear_correction_variables){
 };
 
+size_t LLCausalPredictionStrategy::prediction_length() const {
+  return lambdas.size();
+}
+
 std::vector<double> LLCausalPredictionStrategy::predict(
         size_t sampleID,
         const std::unordered_map<size_t, double>& weights_by_sampleID,
         const Data *train_data,
-        const Data *test_data) {
+        const Data *test_data) const {
 
   // Number of predictor variables to use in local linear regression step
   size_t num_variables = linear_correction_variables.size();
@@ -149,7 +149,7 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
         std::unordered_map<size_t, double> weights_by_sampleID,
         const Data* train_data,
         const Data* test_data,
-        size_t ci_group_size){
+        size_t ci_group_size) const {
 
   double lambda = lambdas[0];
 

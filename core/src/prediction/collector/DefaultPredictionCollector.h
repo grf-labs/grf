@@ -34,10 +34,10 @@ public:
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                               const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                               bool estimate_variance,
-                                              bool estimate_error);
+                                              bool estimate_error) const;
 
 private:
-  void validate_prediction(size_t sample, Prediction prediction);
+  void validate_prediction(size_t sample, const Prediction& prediction) const;
 
   std::shared_ptr<DefaultPredictionStrategy> strategy;
   SampleWeightComputer weight_computer;

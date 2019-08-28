@@ -40,7 +40,7 @@ TEST_CASE("custom forests predict 0 by default", "[custom, forest]") {
 
   // Check the dummy predictions look as expected.
   REQUIRE(predictions.size() == data->get_num_rows());
-  for (Prediction prediction : predictions) {
+  for (const Prediction& prediction : predictions) {
     double value = prediction.get_predictions()[0];
     REQUIRE(equal_doubles(value, 0.0, 1e-10));
   }

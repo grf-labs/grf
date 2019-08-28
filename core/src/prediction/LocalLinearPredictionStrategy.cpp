@@ -24,10 +24,6 @@
 #include "commons/Data.h"
 #include "prediction/LocalLinearPredictionStrategy.h"
 
-size_t LocalLinearPredictionStrategy::prediction_length() {
-  return lambdas.size();
-}
-
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(std::vector<double> lambdas,
                                                              bool weight_penalty,
                                                              std::vector<size_t> linear_correction_variables):
@@ -36,11 +32,15 @@ LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(std::vector<double>
         linear_correction_variables(linear_correction_variables){
 };
 
+size_t LocalLinearPredictionStrategy::prediction_length() const {
+  return lambdas.size();
+}
+
 std::vector<double> LocalLinearPredictionStrategy::predict(
     size_t sampleID,
     const std::unordered_map<size_t, double>& weights_by_sampleID,
     const Data* train_data,
-    const Data* data) {
+    const Data* data) const {
   size_t num_variables = linear_correction_variables.size();
   size_t num_nonzero_weights = weights_by_sampleID.size();
 
@@ -107,7 +107,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     std::unordered_map<size_t, double> weights_by_sampleID,
     const Data* train_data,
     const Data* data,
-    size_t ci_group_size) {
+    size_t ci_group_size) const {
 
   double lambda = lambdas[0];
 

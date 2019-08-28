@@ -25,7 +25,7 @@ class CustomRelabelingStrategy: public RelabelingStrategy {
 public:
   std::unordered_map<size_t, double> relabel(
       const std::vector<size_t>& samples,
-      const Data* data);
+      const Data* data) const;
 };
 
 

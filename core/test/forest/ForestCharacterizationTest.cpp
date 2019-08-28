@@ -53,7 +53,8 @@ bool equal_predictions(const std::vector<Prediction>& actual_predictions,
   return true;
 }
 
-void update_predictions_file(const std::string file_name, std::vector<Prediction> predictions) {
+void update_predictions_file(const std::string& file_name,
+                             const std::vector<Prediction>& predictions) {
   std::vector<std::vector<double>> values;
   for (auto& prediction : predictions) {
     values.push_back(prediction.get_predictions());

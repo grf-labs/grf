@@ -34,7 +34,7 @@ class InstrumentalSplittingRuleFactory: public SplittingRuleFactory {
 public:
   InstrumentalSplittingRuleFactory();
   std::shared_ptr<SplittingRule> create(const Data* data,
-                                        const TreeOptions& options);
+                                        const TreeOptions& options) const;
 private:
   DISALLOW_COPY_AND_ASSIGN(InstrumentalSplittingRuleFactory);
 };

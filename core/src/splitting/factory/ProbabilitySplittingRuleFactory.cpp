@@ -24,7 +24,7 @@ ProbabilitySplittingRuleFactory::ProbabilitySplittingRuleFactory(size_t num_clas
     num_classes(num_classes) {}
 
 std::shared_ptr<SplittingRule> ProbabilitySplittingRuleFactory::create(const Data* data,
-                                                                       const TreeOptions& options) {
+                                                                       const TreeOptions& options) const {
   return std::shared_ptr<SplittingRule>(new ProbabilitySplittingRule(
       data, num_classes, options.get_alpha(), options.get_imbalance_penalty()));
 }
