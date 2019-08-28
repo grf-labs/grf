@@ -15,8 +15,8 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_STANDARDPREDICTOR_H
-#define GRF_STANDARDPREDICTOR_H
+#ifndef GRF_OPTIMIZEDPREDICTIONCOLLECTOR_H
+#define GRF_OPTIMIZEDPREDICTIONCOLLECTOR_H
 
 
 #include "forest/Forest.h"
@@ -49,4 +49,4 @@ private:
 };
 
 
-#endif //GRF_STANDARDPREDICTOR_H
+#endif //GRF_OPTIMIZEDPREDICTIONCOLLECTOR_H
