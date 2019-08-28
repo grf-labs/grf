@@ -25,7 +25,7 @@
 #include "utility.h"
 
 DefaultData::DefaultData() :
-    DefaultData(NULL, 0, 0) {}
+    DefaultData(nullptr, 0, 0) {}
 
 DefaultData::DefaultData(double* data,
                          size_t num_rows,

@@ -24,7 +24,7 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
-class RegressionPredictionStrategy: public OptimizedPredictionStrategy {
+class RegressionPredictionStrategy final: public OptimizedPredictionStrategy {
 public:
   size_t prediction_value_length() const;
 

@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include "commons/DefaultData.h"
 
-class RegressionSplittingRule: public SplittingRule {
+class RegressionSplittingRule final: public SplittingRule {
 public:
   RegressionSplittingRule(const Data* data,
                           double alpha,

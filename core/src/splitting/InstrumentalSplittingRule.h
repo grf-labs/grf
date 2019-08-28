@@ -22,7 +22,7 @@
 #include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 
-class InstrumentalSplittingRule: public SplittingRule {
+class InstrumentalSplittingRule final: public SplittingRule {
 public:
   InstrumentalSplittingRule(const Data* data,
                             uint min_node_size,

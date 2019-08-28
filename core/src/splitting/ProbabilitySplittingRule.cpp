@@ -37,10 +37,10 @@ ProbabilitySplittingRule::ProbabilitySplittingRule(const Data* data,
 }
 
 ProbabilitySplittingRule::~ProbabilitySplittingRule() {
-  if (counter != 0) {
+  if (counter != nullptr) {
     delete[] counter;
   }
-  if (counter_per_class != 0) {
+  if (counter_per_class != nullptr) {
     delete[] counter_per_class;
   }
 }

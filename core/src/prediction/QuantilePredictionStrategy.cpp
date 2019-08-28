@@ -37,10 +37,9 @@ std::vector<double> QuantilePredictionStrategy::predict(
     const Data* train_data,
     const Data* data) const {
   std::vector<std::pair<size_t, double>> samples_and_values;
-  for (auto it = weights_by_sample.begin(); it != weights_by_sample.end(); it++) {
-    size_t sample = it->first;
-    samples_and_values.push_back(std::pair<size_t, double>(
-        sample, train_data->get_outcome(sample)));
+  for (const auto& entry : weights_by_sample) {
+    size_t sample = entry.first;
+    samples_and_values.emplace_back(sample, train_data->get_outcome(sample));
   }
 
   return compute_quantile_cutoffs(weights_by_sample, samples_and_values);
@@ -63,9 +62,9 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
   auto quantile_it = quantiles.begin();
   double cumulative_weight = 0.0;
 
-  for (auto it = samples_and_values.begin(); it != samples_and_values.end(); ++it) {
-    size_t sample = it->first;
-    double value = it->second;
+  for (const auto& entry : samples_and_values) {
+    size_t sample = entry.first;
+    double value = entry.second;
 
     cumulative_weight += weights_by_sample.at(sample);
     while (quantile_it != quantiles.end() && cumulative_weight >= *quantile_it) {

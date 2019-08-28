@@ -78,8 +78,7 @@ TEST_CASE("regression forests give reasonable variance estimates", "[regression,
   ForestPredictor predictor = ForestPredictors::regression_predictor(4);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, true);
 
-  for (size_t i = 0; i < predictions.size(); i++) {
-    Prediction prediction = predictions[i];
+  for (const Prediction& prediction : predictions) {
     REQUIRE(prediction.contains_variance_estimates());
 
     double variance_estimate = prediction.get_variance_estimates()[0];

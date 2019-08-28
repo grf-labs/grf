@@ -27,7 +27,7 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
-class InstrumentalPredictionStrategy: public OptimizedPredictionStrategy {
+class InstrumentalPredictionStrategy final: public OptimizedPredictionStrategy {
 public:
   static const std::size_t OUTCOME;
   static const std::size_t TREATMENT;

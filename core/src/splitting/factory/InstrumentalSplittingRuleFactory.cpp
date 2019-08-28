@@ -18,8 +18,6 @@
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/InstrumentalSplittingRule.h"
 
-InstrumentalSplittingRuleFactory::InstrumentalSplittingRuleFactory() {}
-
 std::shared_ptr<SplittingRule> InstrumentalSplittingRuleFactory::create(const Data* data,
                                                                         const TreeOptions& options) const {
   return std::shared_ptr<SplittingRule>(new InstrumentalSplittingRule(data,

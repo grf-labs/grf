@@ -22,7 +22,7 @@
 #include "forest/Forest.h"
 #include "prediction/collector/PredictionCollector.h"
 
-class OptimizedPredictionCollector: public PredictionCollector {
+class OptimizedPredictionCollector final: public PredictionCollector {
 public:
   OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy);
 

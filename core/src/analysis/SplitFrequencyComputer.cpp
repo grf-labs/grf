@@ -15,8 +15,6 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <math.h>
-
 #include "SplitFrequencyComputer.h"
 
 std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& forest,

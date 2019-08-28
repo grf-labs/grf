@@ -120,7 +120,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
     {
       size_t i = 0;
-      for (auto& it : weights_by_sampleID) {
+      for (const auto& it : weights_by_sampleID) {
         size_t index = it.first;
         double weight = it.second;
         indices[i] = index;
@@ -193,8 +193,8 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t b = group * ci_group_size + j;
       double psi_1 = 0;
-      for(size_t k = 0; k < samples_by_tree[b].size(); ++ k){
-        psi_1 += pseudo_residual(sample_index_map[samples_by_tree[b][k]]);
+      for (size_t sample : samples_by_tree[b]){
+        psi_1 += pseudo_residual(sample_index_map[sample]);
       }
       psi_1 /= samples_by_tree[b].size();
       psi_squared += psi_1 * psi_1;
