@@ -24,7 +24,7 @@
 #include "prediction/collector/SampleWeightComputer.h"
 #include "prediction/DefaultPredictionStrategy.h"
 
-class DefaultPredictionCollector: public PredictionCollector {
+class DefaultPredictionCollector final: public PredictionCollector {
 public:
   DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy);
 

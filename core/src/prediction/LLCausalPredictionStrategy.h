@@ -25,7 +25,7 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
-class LLCausalPredictionStrategy: public DefaultPredictionStrategy {
+class LLCausalPredictionStrategy final: public DefaultPredictionStrategy {
 public:
     LLCausalPredictionStrategy(std::vector<double> lambdas,
                                bool weight_penalty,

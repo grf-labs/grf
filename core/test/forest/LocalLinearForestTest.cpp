@@ -140,8 +140,7 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
   ForestPredictor predictor = ForestPredictors::ll_regression_predictor(4, lambda, false, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, true);
 
-  for (size_t i = 0; i < predictions.size(); i++) {
-    Prediction prediction = predictions[i];
+  for (const Prediction& prediction : predictions) {
     REQUIRE(prediction.contains_variance_estimates());
 
     double variance_estimate = prediction.get_variance_estimates()[0];

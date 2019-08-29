@@ -26,7 +26,7 @@
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
 
-class QuantilePredictionStrategy: public DefaultPredictionStrategy {
+class QuantilePredictionStrategy final: public DefaultPredictionStrategy {
 public:
   QuantilePredictionStrategy(std::vector<double> quantiles);
 

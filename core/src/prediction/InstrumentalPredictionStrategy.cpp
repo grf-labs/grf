@@ -209,7 +209,6 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
 
   double outcome = data->get_outcome(sample);
   double treatment = data->get_treatment(sample);
-  double instrument = data->get_instrument(sample);
 
   // To justify the squared residual below as an error criterion in the case of CATE estimation
   // with an unconfounded treatment assignment, see Nie and Wager (2017).

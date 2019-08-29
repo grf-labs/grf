@@ -18,10 +18,6 @@
 #include "commons/utility.h"
 #include "ObjectiveBayesDebiaser.h"
 
-#include <algorithm>
-#include <cmath>
-#include <math.h>
-
 double ObjectiveBayesDebiaser::debias(double var_between,
                                       double group_noise,
                                       double num_good_groups) const {

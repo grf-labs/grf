@@ -113,22 +113,22 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   std::vector<double> predictions(num_lambdas);
   Eigen::MatrixXd M;
 
-  for( size_t i = 0; i < num_lambdas; ++i){
+  for (size_t i = 0; i < num_lambdas; ++i){
     double lambda = lambdas[i];
     M = M_unpenalized;
     if (!weight_penalty) {
       double normalization = M_unpenalized.trace() / dim_X;
 
       // standard ridge penalty
-      for(size_t j = 1; j < dim_X; ++j){
-        if(j != treatment_index){
+      for (size_t j = 1; j < dim_X; ++j){
+        if (j != treatment_index){
           M(j, j) += lambda * normalization;
         }
       }
     } else {
       // covariance ridge penalty
-      for(size_t j = 1; j < dim_X; ++j){
-        if(j != treatment_index){
+      for (size_t j = 1; j < dim_X; ++j){
+        if (j != treatment_index){
           M(j, j) += lambda * M(j, j);
         }
       }
@@ -264,8 +264,8 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t b = group * ci_group_size + j;
       double psi_1 = 0;
-      for(size_t k = 0; k < samples_by_tree[b].size(); ++ k){
-        psi_1 += pseudo_residual(sample_index_map[samples_by_tree[b][k]]);
+      for (size_t sample : samples_by_tree[b]) {
+        psi_1 += pseudo_residual(sample_index_map[sample]);
       }
       psi_1 /= samples_by_tree[b].size();
       psi_squared += psi_1 * psi_1;

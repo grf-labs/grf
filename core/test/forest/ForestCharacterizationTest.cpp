@@ -56,7 +56,8 @@ bool equal_predictions(const std::vector<Prediction>& actual_predictions,
 void update_predictions_file(const std::string& file_name,
                              const std::vector<Prediction>& predictions) {
   std::vector<std::vector<double>> values;
-  for (auto& prediction : predictions) {
+  values.reserve(predictions.size());
+  for (const auto& prediction : predictions) {
     values.push_back(prediction.get_predictions());
   }
   FileTestUtilities::write_csv_file(file_name, values);

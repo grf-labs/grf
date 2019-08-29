@@ -44,6 +44,7 @@ std::vector<double> get_relabeled_outcomes(double observations[], size_t num_sam
   }
 
   std::vector<double> relabeled_outcomes;
+  relabeled_outcomes.reserve(samples.size());
   for (auto& sample : samples) {
     relabeled_outcomes.push_back(relabeled_observations.at(sample));
   }
