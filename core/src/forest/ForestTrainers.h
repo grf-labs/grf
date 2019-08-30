@@ -22,17 +22,14 @@
 
 namespace grf {
 
-class ForestTrainers {
-public:
-  static ForestTrainer instrumental_trainer(double reduced_form_weight,
-                                            bool stabilize_splits);
+ForestTrainer instrumental_trainer(double reduced_form_weight,
+                                   bool stabilize_splits);
 
-  static ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
+ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
 
-  static ForestTrainer regression_trainer();
+ForestTrainer regression_trainer();
 
-  static ForestTrainer custom_trainer();
-};
+ForestTrainer custom_trainer();
 
 } // namespace grf
 

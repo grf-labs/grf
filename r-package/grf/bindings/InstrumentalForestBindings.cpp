@@ -36,7 +36,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
                               bool compute_oob_predictions,
                               unsigned int num_threads,
                               unsigned int seed) {
-  ForestTrainer trainer = ForestTrainers::instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
 
   Data* data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index - 1);
@@ -53,7 +53,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
-    ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads);
+    ForestPredictor predictor = instrumental_predictor(num_threads);
     predictions = predictor.predict_oob(forest, data, false);
   }
 
@@ -80,7 +80,7 @@ Rcpp::List instrumental_predict(Rcpp::List forest_object,
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
-  ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads);
+  ForestPredictor predictor = instrumental_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
@@ -105,7 +105,7 @@ Rcpp::List instrumental_predict_oob(Rcpp::List forest_object,
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
-  ForestPredictor predictor = ForestPredictors::instrumental_predictor(num_threads);
+  ForestPredictor predictor = instrumental_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 

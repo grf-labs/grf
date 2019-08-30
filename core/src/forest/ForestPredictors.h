@@ -22,27 +22,24 @@
 
 namespace grf {
 
-class ForestPredictors {
-public:
-  static ForestPredictor custom_predictor(uint num_threads);
+ForestPredictor custom_predictor(uint num_threads);
 
-  static ForestPredictor instrumental_predictor(uint num_threads);
+ForestPredictor instrumental_predictor(uint num_threads);
 
-  static ForestPredictor quantile_predictor(uint num_threads,
-                                            const std::vector<double>& quantiles);
+ForestPredictor quantile_predictor(uint num_threads,
+                                   const std::vector<double>& quantiles);
 
-  static ForestPredictor regression_predictor(uint num_threads);
+ForestPredictor regression_predictor(uint num_threads);
 
-  static ForestPredictor ll_regression_predictor(uint num_threads,
-                                                std::vector<double> lambdas,
-                                                bool weight_penalty,
-                                                std::vector<size_t> linear_correction_variables);
+ForestPredictor ll_regression_predictor(uint num_threads,
+                                        std::vector<double> lambdas,
+                                        bool weight_penalty,
+                                        std::vector<size_t> linear_correction_variables);
 
-  static ForestPredictor ll_causal_predictor(uint num_threads,
-                                             std::vector<double> lambdas,
-                                             bool weight_penalty,
-                                             std::vector<size_t> linear_correction_variables);
-};
+ForestPredictor ll_causal_predictor(uint num_threads,
+                                   std::vector<double> lambdas,
+                                   bool weight_penalty,
+                                   std::vector<size_t> linear_correction_variables);
 
 } // namespace grf
 

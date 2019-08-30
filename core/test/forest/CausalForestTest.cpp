@@ -44,11 +44,11 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
     data->set(weight_index, r, weight, error);
   }
 
-  ForestTrainer trainer = ForestTrainers::instrumental_trainer(0, true);
+  ForestTrainer trainer = instrumental_trainer(0, true);
   ForestOptions options = ForestTestUtilities::default_honest_options();
 
   Forest forest = trainer.train(data, options);
-  ForestPredictor predictor = ForestPredictors::instrumental_predictor(4);
+  ForestPredictor predictor = instrumental_predictor(4);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
 
   // Scale weights by n and re-run the forest.
@@ -58,7 +58,7 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
   }
 
   Forest shifted_forest = trainer.train(data, options);
-  ForestPredictor shifted_predictor = ForestPredictors::instrumental_predictor(4);
+  ForestPredictor shifted_predictor = instrumental_predictor(4);
   std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
 
   REQUIRE(predictions.size() == shifted_predictions.size());
