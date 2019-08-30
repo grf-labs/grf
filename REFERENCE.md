@@ -83,9 +83,12 @@ The `sample.fraction` parameter is a number in the range (0, 1] that controls th
 
 #### `num.trees`
 
-The parameter `num.trees` controls how many trees are grown during training, and defaults to 2000. Generally, obtaining high-quality confidence intervals requires growing more trees than are needed for accurate predictions.
+The parameter `num.trees` controls how many trees are grown during training, and defaults to 2000. Generally, obtaining tighter confidence intervals requires growing more trees than are needed for accurate predictions, and we recommend that users grow trees in proportion to the number of number of observations. If the number of trees in a forest is too small, the confidence intervals can be too wide, and therefore too conservative.
 
 Tree training is parallelized across several threads in an effort to improve performance. By default, all available cores are used, but the number of threads can be set directly through `num.threads`.
+
+It is also possible to grow forests separately or iteratively, and then merge them into a larger forest (see [Merging forests](#merging-forests) below).
+
 
 #### `honesty`, `honesty.fraction`, `prune.empty.leaves`
 
@@ -166,7 +169,7 @@ Recall that causal forests assume that potential outcomes are independent of tre
 
 In GRF, we avoid this difficulty by 'orthogonalizing' our forest using Robinson's transformation (Robinson, 1988). Before running `causal_forest`, we compute estimates of the propensity scores `e(x) = E[W|X=x]` and marginal outcomes `m(x) = E[Y|X=x]` by training separate regression forests and performing out-of-bag prediction. We then compute the residual treatment `W - e(x)` and outcome `Y - m(x)`, and finally train a causal forest on these residuals. If propensity scores or marginal outcomes are known through prior means (as might be the case in a randomized trial) they can be specified through the training parameters `W.hat` and `Y.hat`. In this case, `causal_forest` will use these estimates instead of training separate regression forests.
 
-Empirically, we've found orthogonalization to be essential in obtaining accurate treatment effect estimates in observational studies. More details on the orthogonalization procedure in the context of forests can be found in section 6.1.1 of the GRF paper. For a broader discussion on Robinson's tranformation for conditional average treatment effect estimation, including formal results, please see Nie and Wager (2017).
+Empirically, we've found orthogonalization to be essential in obtaining accurate treatment effect estimates in observational studies. More details on the orthogonalization procedure in the context of forests can be found in section 6.1.1 of the GRF paper. For a broader discussion on Robinson's transformation for conditional average treatment effect estimation, including formal results, please see Nie and Wager (2017).
 
 ### Selecting Balanced Splits
 
@@ -212,6 +215,13 @@ The cross-validation procedure works as follows:
 - Finally, given the debiased error estimates for each set of parameters, we apply a smoothing function to determine the optimal parameter values.
 
 Note that `honesty.fraction` and `prune.empty.leaves` are only considered for tuning when `honesty = TRUE` (its default value). Parameter tuning does not try different options of `honesty` itself.
+
+### Merging forests
+
+GRF allows users to grow their forests separately and then create a single forest using the function `merge_forests`.
+
+The main motivation for this functionality is that, in order to ensure valid predictions, we recommend that users grow as many trees as necessary to ensure that the values in `excess.error` are negligible relative to `variance.estimates`. However, it is often difficult to know how many trees are necessary for this condition to be met. In that case, users can iteratively grow forests and check if `excess.error` is small enough.
+
 
 ### Boosted Regression Forests
 
@@ -267,7 +277,7 @@ If you observe poor performance on a dataset with a small number of examples, th
 
 ### The variance estimates are jumpy or very large.
 
-In this case, it would be good to try growing a larger number of trees. Obtaining good variance estimates often requires growing more trees than it takes to only obtain accurate predictions.
+In this case, it would be good to try growing a larger number of trees. Obtaining good variance estimates often requires growing more trees than it takes to only obtain accurate predictions. See the discussion in [`num.trees`](#num-trees) and [Merging forests](#merging-forests).
 
 ### The causal forest method is producing nonsensical results.
 
