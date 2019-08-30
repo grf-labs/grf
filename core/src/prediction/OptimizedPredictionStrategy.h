@@ -38,7 +38,9 @@
 class OptimizedPredictionStrategy {
 public:
 
- /**
+  virtual ~OptimizedPredictionStrategy() = default;
+
+  /**
   * The number of values in a prediction, e.g. 1 for regression,
   * or the number of quantiles for quantile forests.
   */

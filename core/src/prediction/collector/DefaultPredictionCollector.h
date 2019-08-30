@@ -26,7 +26,7 @@
 
 class DefaultPredictionCollector final: public PredictionCollector {
 public:
-  DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy);
+  DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy);
 
   std::vector<Prediction> collect_predictions(const Forest& forest,
                                               Data* train_data,
@@ -39,7 +39,7 @@ public:
 private:
   void validate_prediction(size_t sample, const Prediction& prediction) const;
 
-  std::shared_ptr<DefaultPredictionStrategy> strategy;
+  std::unique_ptr<DefaultPredictionStrategy> strategy;
   SampleWeightComputer weight_computer;
 };
 

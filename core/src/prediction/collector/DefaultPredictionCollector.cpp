@@ -17,8 +17,8 @@
 
 #include "prediction/collector/DefaultPredictionCollector.h"
 
-DefaultPredictionCollector::DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy):
-    strategy(strategy) {}
+DefaultPredictionCollector::DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy):
+    strategy(std::move(strategy)) {}
 
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,

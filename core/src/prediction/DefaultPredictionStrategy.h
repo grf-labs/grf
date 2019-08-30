@@ -36,6 +36,8 @@
 class DefaultPredictionStrategy {
 public:
 
+  virtual ~DefaultPredictionStrategy() = default;
+
   /**
    * The number of values in a prediction, e.g. 1 for regression
    * or the number of quantiles for quantile forests.

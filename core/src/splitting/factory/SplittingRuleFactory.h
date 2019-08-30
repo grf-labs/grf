@@ -27,7 +27,10 @@
 
 class SplittingRuleFactory {
 public:
-  virtual std::shared_ptr<SplittingRule> create(const Data* data,
+
+  virtual ~SplittingRuleFactory() = default;
+
+  virtual std::unique_ptr<SplittingRule> create(const Data* data,
                                                 const TreeOptions& options) const = 0;
 };
 

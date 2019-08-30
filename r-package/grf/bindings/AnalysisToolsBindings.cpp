@@ -176,14 +176,14 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
 
 // [[Rcpp::export]]
 Rcpp::List merge(const Rcpp::List forest_objects) {
- std::vector<std::shared_ptr<Forest>> forest_ptrs;
+ std::vector<Forest> forests;
 
  for (auto& forest_obj : forest_objects) {
    Forest deserialized_forest = RcppUtilities::deserialize_forest(forest_obj);
-   forest_ptrs.push_back(std::make_shared<Forest>(deserialized_forest)); 
+   forests.push_back(std::move(deserialized_forest));
  }
 
-  Forest big_forest = Forest::merge(forest_ptrs);
+  Forest big_forest = Forest::merge(forests);
   return RcppUtilities::serialize_forest(big_forest);
 }
  

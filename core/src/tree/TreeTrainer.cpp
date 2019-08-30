@@ -21,12 +21,12 @@
 #include "commons/DefaultData.h"
 #include "tree/TreeTrainer.h"
 
-TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
-                         std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
-                         std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
-    relabeling_strategy(relabeling_strategy),
-    splitting_rule_factory(splitting_rule_factory),
-    prediction_strategy(prediction_strategy) {}
+TreeTrainer::TreeTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
+                         std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
+                         std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy) :
+    relabeling_strategy(std::move(relabeling_strategy)),
+    splitting_rule_factory(std::move(splitting_rule_factory)),
+    prediction_strategy(std::move(prediction_strategy)) {}
 
 std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
                                          RandomSampler& sampler,
@@ -54,7 +54,7 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
     sampler.sample_from_clusters(clusters, nodes[0]);
   }
 
-  std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(
+  std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(
       data, options);
 
   size_t num_open_nodes = 1;
@@ -139,7 +139,7 @@ void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
 
 bool TreeTrainer::split_node(size_t node,
                              const Data* data,
-                             const std::shared_ptr<SplittingRule>& splitting_rule,
+                             const std::unique_ptr<SplittingRule>& splitting_rule,
                              RandomSampler& sampler,
                              std::vector<std::vector<size_t>>& child_nodes,
                              std::vector<std::vector<size_t>>& samples,
@@ -189,7 +189,7 @@ bool TreeTrainer::split_node(size_t node,
 
 bool TreeTrainer::split_node_internal(size_t node,
                                       const Data* data,
-                                      const std::shared_ptr<SplittingRule>& splitting_rule,
+                                      const std::unique_ptr<SplittingRule>& splitting_rule,
                                       const std::vector<size_t>& possible_split_vars,
                                       const std::vector<std::vector<size_t>>& samples,
                                       std::vector<size_t>& split_vars,
