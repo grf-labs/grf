@@ -53,8 +53,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
       const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
       size_t node = leaf_nodes.at(sample);
 
-      std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
-      const PredictionValues& prediction_values = tree->get_prediction_values();
+      const Tree& tree = forest.get_trees()[tree_index];
+      const PredictionValues& prediction_values = tree.get_prediction_values();
 
       if (!prediction_values.empty(node)) {
         num_leaves++;
@@ -69,7 +69,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
       std::vector<double> nan(strategy->prediction_length(), NAN);
-      predictions.emplace_back(Prediction(nan, nan, nan, nan));
+      predictions.emplace_back(nan, nan, nan, nan);
       continue;
     }
 

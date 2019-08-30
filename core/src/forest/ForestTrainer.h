@@ -43,19 +43,19 @@ public:
 
 private:
 
-  std::vector<std::shared_ptr<Tree>> train_batch(
+  std::vector<Tree> train_batch(
       size_t start,
       size_t num_trees,
       const Data* data,
       const ForestOptions& options) const;
 
-  std::shared_ptr<Tree> train_tree(const Data* data,
+  Tree train_tree(const Data* data,
+                  RandomSampler& sampler,
+                  const ForestOptions& options) const;
+
+  std::vector<Tree> train_ci_group(const Data* data,
                                    RandomSampler& sampler,
                                    const ForestOptions& options) const;
-
-  std::vector<std::shared_ptr<Tree>> train_ci_group(const Data* data,
-                                                    RandomSampler& sampler,
-                                                    const ForestOptions& options) const;
 
   TreeTrainer tree_trainer;
 };

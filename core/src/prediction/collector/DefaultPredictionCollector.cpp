@@ -53,8 +53,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
         const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
         size_t node = leaf_nodes.at(sample);
 
-        std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
-        std::vector<std::vector<size_t>> leaf_samples = tree->get_leaf_samples();
+        const Tree& tree = forest.get_trees()[tree_index];
+        std::vector<std::vector<size_t>> leaf_samples = tree.get_leaf_samples();
         samples_by_tree.push_back(leaf_samples.at(node));
       }
     }

@@ -54,11 +54,9 @@ TEST_CASE("split frequency computation works as expected", "[analysis, unit]") {
       {0, 0, 0, 2, 1}, // depth 2
       {0, 0, 0, 0, 1}}; // depth 3
 
-  std::vector<std::shared_ptr<Tree>> trees;
-  trees.push_back(std::shared_ptr<Tree>(new Tree(0, first_child_nodes,
-      {{0}}, first_split_vars, {0}, {0}, PredictionValues())));
-  trees.push_back(std::shared_ptr<Tree>(new Tree(0, second_child_nodes,
-      {{1}}, second_split_vars, {1}, {1}, PredictionValues())));
+  std::vector<Tree> trees;
+  trees.push_back(Tree(0, first_child_nodes, {{0}}, first_split_vars, {0}, {0}, PredictionValues()));
+  trees.push_back(Tree(0, second_child_nodes, {{1}}, second_split_vars, {1}, {1}, PredictionValues()));
 
   size_t num_variables = 5;
   size_t ci_group_size = 2;
@@ -91,9 +89,8 @@ TEST_CASE("split frequency computation respects max depth", "[analysis, unit]") 
       {1, 1, 0, 0, 0}, // depth 1
       {0, 0, 0, 2, 1}}; // depth 2
 
-  std::vector<std::shared_ptr<Tree>> trees;
-  trees.push_back(std::shared_ptr<Tree>(new Tree(0, child_nodes,
-      {{0}}, split_vars, {0}, {0}, PredictionValues())));
+  std::vector<Tree> trees;
+  trees.push_back(Tree(0, child_nodes, {{0}}, split_vars, {0}, {0}, PredictionValues()));
 
   size_t num_variables = 5;
   size_t ci_group_size = 2;

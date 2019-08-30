@@ -28,23 +28,36 @@ namespace grf {
 
 class Forest {
 public:
-  static Forest create(const std::vector<std::shared_ptr<Tree>>& trees,
+  static Forest create(const std::vector<Tree>& trees,
                        const ForestOptions& forest_options,
                        const Data* data);
 
-  Forest(const std::vector<std::shared_ptr<Tree>>& trees,
+  Forest(const std::vector<Tree>& trees,
          size_t num_variables,
          size_t ci_group_size);
 
-  const std::vector<std::shared_ptr<Tree>>& get_trees() const;
+  const std::vector<Tree>& get_trees() const;
+
+  /**
+   * A method intended for internal use that allows the list of
+   * trees to be modified.
+   */
+  std::vector<Tree>& get_trees_();
 
   const size_t get_num_variables() const;
   const size_t get_ci_group_size() const;
 
-  static Forest merge(const std::vector<Forest>& forests);
+  /**
+   * Merges the given forests into a single forest. The new forest
+   * will contain all the trees from the smaller forests.
+   *
+   * NOTE: this is a destructive operation -- the original forests cannot
+   * be used after they are merged together.
+   */
+  static Forest merge(std::vector<Forest>& forests);
   
 private:
-  std::vector<std::shared_ptr<Tree>> trees;
+  std::vector<Tree> trees;
   size_t num_variables;
   size_t ci_group_size;
 };
