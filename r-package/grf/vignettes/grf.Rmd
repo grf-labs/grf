@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-seed(123)
+set.seed(123)
 ```
 
 ```{r setup}
