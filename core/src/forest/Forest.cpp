@@ -33,17 +33,17 @@ Forest::Forest(const std::vector<std::shared_ptr<Tree>>& trees,
   num_variables(num_variables),
   ci_group_size(ci_group_size) {}
 
-Forest Forest::merge(const std::vector<std::shared_ptr<Forest>>& forests) {
+Forest Forest::merge(const std::vector<Forest>& forests) {
 
   std::vector<std::shared_ptr<Tree>> all_trees;
-  const size_t num_variables = forests[0]->get_num_variables();
-  const size_t ci_group_size = forests[0]->get_ci_group_size();
+  const size_t num_variables = forests.at(0).get_num_variables();
+  const size_t ci_group_size = forests.at(0).get_ci_group_size();
 
-  for (auto& forest : forests) {
-    auto& trees = forest->get_trees();
+  for (const auto& forest : forests) {
+    auto& trees = forest.get_trees();
     all_trees.insert(all_trees.end(), trees.begin(), trees.end());
 
-    if (forest->get_ci_group_size() != ci_group_size) {
+    if (forest.get_ci_group_size() != ci_group_size) {
       throw std::runtime_error("All forests being merged must have the same ci_group_size.");
     }
   }

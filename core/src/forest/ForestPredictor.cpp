@@ -21,17 +21,17 @@
 #include "commons/utility.h"
 
 ForestPredictor::ForestPredictor(uint num_threads,
-                                 std::shared_ptr<DefaultPredictionStrategy> strategy) :
+                                 std::unique_ptr<DefaultPredictionStrategy> strategy) :
     tree_traverser(num_threads) {
-  this->prediction_collector = std::shared_ptr<PredictionCollector>(
-        new DefaultPredictionCollector(strategy));
+  this->prediction_collector = std::unique_ptr<PredictionCollector>(
+        new DefaultPredictionCollector(std::move(strategy)));
 }
 
 ForestPredictor::ForestPredictor(uint num_threads,
-                                 std::shared_ptr<OptimizedPredictionStrategy> strategy) :
+                                 std::unique_ptr<OptimizedPredictionStrategy> strategy) :
     tree_traverser(num_threads) {
-  this->prediction_collector = std::shared_ptr<PredictionCollector>(
-      new OptimizedPredictionCollector(strategy));
+  this->prediction_collector = std::unique_ptr<PredictionCollector>(
+      new OptimizedPredictionCollector(std::move(strategy)));
 }
 
 

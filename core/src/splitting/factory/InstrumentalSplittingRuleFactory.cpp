@@ -18,9 +18,9 @@
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/InstrumentalSplittingRule.h"
 
-std::shared_ptr<SplittingRule> InstrumentalSplittingRuleFactory::create(const Data* data,
+std::unique_ptr<SplittingRule> InstrumentalSplittingRuleFactory::create(const Data* data,
                                                                         const TreeOptions& options) const {
-  return std::shared_ptr<SplittingRule>(new InstrumentalSplittingRule(data,
+  return std::unique_ptr<SplittingRule>(new InstrumentalSplittingRule(data,
       options.get_min_node_size(),
       options.get_alpha(),
       options.get_imbalance_penalty()));

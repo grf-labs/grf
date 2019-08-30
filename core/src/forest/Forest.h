@@ -39,7 +39,7 @@ public:
   const size_t get_num_variables() const;
   const size_t get_ci_group_size() const;
 
-  static Forest merge(const std::vector<std::shared_ptr<Forest>>& forests);
+  static Forest merge(const std::vector<Forest>& forests);
   
 private:
   std::vector<std::shared_ptr<Tree>> trees;
