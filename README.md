@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/grf-labs/grf.svg?branch=master)](https://travis-ci.org/grf-labs/grf)
+[![Build Status](https://travis-ci.com/grf-labs/grf.svg?branch=master)](https://travis-ci.com/grf-labs/grf)
 ![CRAN Downloads overall](http://cranlogs.r-pkg.org/badges/grand-total/grf)
 
 # grf: generalized random forests
@@ -7,11 +7,7 @@ A pluggable package for forest-based statistical estimation and inference. GRF c
 
 In addition, GRF supports 'honest' estimation (where one subset of the data is used for choosing splits, and another for populating the leaves of the tree), and confidence intervals for least-squares regression and treatment effect estimation.
 
-This package is currently in beta, and we expect to make continual improvements to its performance and usability. For a practical description of the GRF algorithm, including explanations of model parameters and troubleshooting suggestions, please see the [GRF reference](REFERENCE.md).
-
-### Authors
-
-This package is written and maintained by Julie Tibshirani, Susan Athey, and Stefan Wager.
+This package is currently in beta, and we expect to make continual improvements to its performance and usability. For a practical description of the GRF algorithm, including explanations of model parameters and troubleshooting suggestions, please see the [GRF reference](REFERENCE.md). It may also be helpful to browse the [Github issues labelled 'question'](https://github.com/grf-labs/grf/issues?q=is%3Aissue+is%3Aopen+label%3Aquestion) to see common questions and answers around usage.
 
 The repository first started as a fork of the [ranger](https://github.com/imbs-hl/ranger) repository -- we owe a great deal of thanks to the ranger authors for their useful and free package.
 
@@ -124,5 +120,5 @@ In addition to providing out-of-the-box forests for quantile regression and caus
 ### References
 
 Susan Athey, Julie Tibshirani and Stefan Wager.
-<b>Generalized Random Forests</b>, <i>Annals of Statistics</i>, forthcoming.
+<b>Generalized Random Forests</b>, <i>Annals of Statistics</i> 47.2 (2019): 1148-1178.
 [<a href="https://arxiv.org/abs/1610.01271">arxiv</a>]
