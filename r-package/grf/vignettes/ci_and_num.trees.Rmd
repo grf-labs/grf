@@ -1,0 +1,48 @@
+---
+title: "Confidence intervals and the number of trees"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ci_and_num.trees}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(grf)
+```
+
+The following example demonstrates how the number of trees affects the variance estimates.
+
+```{r}
+n <- 2000
+p <- 10
+X <- matrix(rnorm(n * p), n, p)
+X.test <- matrix(0, 101, p)
+X.test[, 1] <- seq(-2, 2, length.out = 101)
+
+W <- rbinom(n, 1, 0.4 + 0.2 * (X[, 1] > 0))
+Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+
+num.trees.grid <- c(10, 20, 30, 40, 100, 500, 1000, 2000, 3000, 4000)
+median.variances <- c()
+for (num.trees in num.trees.grid) {
+  tau.forest <- causal_forest(X, Y, W, num.trees = num.trees)
+  hn <- median(predict(tau.forest, estimate.variance = TRUE)$variance.estimates, na.rm = TRUE)
+  median.variances <- c(median.variances, hn)
+  print(hn)
+}
+plot(
+  x = num.trees.grid,
+  y = median.variances,
+  main = "Median prediction variances",
+  xlab = "num.trees"
+)
+lines(num.trees.grid, median.variances)
+```

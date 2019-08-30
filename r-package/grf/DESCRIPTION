@@ -16,7 +16,8 @@ Description: A pluggable package for forest-based statistical estimation and inf
     GRF currently provides methods for non-parametric least-squares regression,
     quantile regression, and treatment effect estimation (optionally using instrumental
     variables). This package is currently in beta, and we expect to make continual
-    improvements to its performance and usability.
+    improvements to its performance and usability. For usage examples please consult
+    the accompanying vignettes, and the package documentation.
 Depends:
     R (>= 3.3.0)
 License: GPL-3
