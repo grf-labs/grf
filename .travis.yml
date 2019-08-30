@@ -3,10 +3,17 @@ language: R
 latex: false
 cache: packages
 
+branches:
+  only:
+    - master
+
 r_binary_packages:
   - devtools
   - testthat
   - roxygen2
+
+r_packages:
+  - pkgdown
 
 matrix:
   include:
@@ -67,3 +74,11 @@ matrix:
       script:
         - cd ..
         - Rscript build_package.R
+      before_deploy:
+        - cd grf
+        - Rscript -e 'pkgdown::build_site()'
+      deploy:
+        provider: pages
+        local_dir: docs/
+        skip_cleanup: true
+        github-token: $GH_TOKEN

@@ -1,0 +1,76 @@
+url: https://github.com/grf-labs/grf
+navbar:
+  type: default
+  right:
+  - icon: fa-github fa-lg
+    href: https://github.com/grf-labs/grf
+
+## Function reference
+# Different forest types
+reference:
+  - title: Causal forest
+    contents:
+      - causal_forest
+      - tune_causal_forest
+      - tune_ll_causal_forest
+      - predict.causal_forest
+
+  - title: Instrumental forest
+    contents:
+      - instrumental_forest
+      - predict.instrumental_forest
+
+  - title: Regression forest
+    contents:
+      - regression_forest
+      - tune_regression_forest
+      - predict.regression_forest
+
+  - title: Local linear regression forest
+    contents:
+      - ll_regression_forest
+      - tune_ll_regression_forest
+      - predict.ll_regression_forest
+
+  - title: Boosted regression forest
+    contents:
+      - boosted_regression_forest
+      - predict.boosted_regression_forest
+
+  - title: Quantile forest
+    contents:
+      - quantile_forest
+      - predict.quantile_forest
+
+  - title: Custom forest
+    contents:
+      - custom_forest
+      - predict.custom_forest
+
+# Treatment effects
+  - title: Treatment effect estimation
+    desc: Functions for estimating various treatment effects.
+    contents:
+      - average_late
+      - average_partial_effect
+      - average_treatment_effect
+
+# Utilities and various
+  - title: Analysis tools
+    desc: Functions for extracting further information from fitted forest objects.
+    contents:
+      - get_sample_weights
+      - get_tree
+      - merge_forests
+      - split_frequencies
+      - starts_with("leaf_stats")
+      - test_calibration
+      - variable_importance
+  - title: Various
+    contents:
+      - grf
+      - plot.grf_tree
+      - print.boosted_regression_forest
+      - print.grf
+      - print.grf_tree
+      - print.tuning_output
