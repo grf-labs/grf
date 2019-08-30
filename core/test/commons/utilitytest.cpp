@@ -22,6 +22,8 @@
 #include "catch.hpp"
 #include "commons/utility.h"
 
+using namespace grf;
+
 TEST_CASE("Split 0..9 in 1 part", "[equalSplit]") {
   std::vector<uint> test;
   split_sequence(test, 0, 9, 1);

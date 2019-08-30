@@ -18,6 +18,8 @@
 #include "catch.hpp"
 #include "tree/Tree.h"
 
+using namespace grf;
+
 TEST_CASE("pruning behaves as expected", "[tree, unit]") {
   /*
    * This test case starts with the following tree structure, with all leaves

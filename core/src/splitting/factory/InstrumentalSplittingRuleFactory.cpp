@@ -18,6 +18,8 @@
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/InstrumentalSplittingRule.h"
 
+namespace grf {
+
 std::unique_ptr<SplittingRule> InstrumentalSplittingRuleFactory::create(const Data* data,
                                                                         const TreeOptions& options) const {
   return std::unique_ptr<SplittingRule>(new InstrumentalSplittingRule(data,
@@ -25,3 +27,5 @@ std::unique_ptr<SplittingRule> InstrumentalSplittingRuleFactory::create(const Da
       options.get_alpha(),
       options.get_imbalance_penalty()));
 }
+
+} // namespace grf

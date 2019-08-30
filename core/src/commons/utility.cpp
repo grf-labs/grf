@@ -23,6 +23,8 @@
 #include "utility.h"
 #include "SparseData.h"
 
+namespace grf {
+
 void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_parts) {
 
   result.reserve(num_parts + 1);
@@ -84,3 +86,5 @@ Data* load_sparse_data(const std::string& file_name) {
   data->sort();
   return data;
 }
+
+} // namespace grf

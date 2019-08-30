@@ -20,6 +20,8 @@
 
 #include "DefaultPredictionStrategy.h"
 
+namespace grf {
+
 class CustomPredictionStrategy final: public DefaultPredictionStrategy {
 public:
 
@@ -39,5 +41,6 @@ public:
       size_t ci_group_size) const;
 };
 
+} // namespace grf
 
 #endif //GRF_CUSTOMPREDICTIONSTRATEGY_H

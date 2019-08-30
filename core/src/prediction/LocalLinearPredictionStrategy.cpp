@@ -24,6 +24,8 @@
 #include "commons/Data.h"
 #include "prediction/LocalLinearPredictionStrategy.h"
 
+namespace grf {
+
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(std::vector<double> lambdas,
                                                              bool weight_penalty,
                                                              std::vector<size_t> linear_correction_variables):
@@ -223,3 +225,5 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
 
   return { var_debiased };
 }
+
+} // namespace grf

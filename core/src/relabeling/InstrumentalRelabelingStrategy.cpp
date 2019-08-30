@@ -18,6 +18,8 @@
 #include "commons/utility.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 
+namespace grf {
+
 InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy():
   reduced_form_weight(0) {}
 
@@ -82,3 +84,5 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
   }
   return relabeled_outcomes;
 }
+
+} // namespace grf

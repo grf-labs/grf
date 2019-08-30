@@ -6,6 +6,8 @@
 #include "forest/ForestOptions.h"
 #include "RcppUtilities.h"
 
+using namespace grf;
+
 Rcpp::List RcppUtilities::create_forest_object(Forest& forest,
                                                const std::vector<Prediction>& predictions) {
   Rcpp::List result = serialize_forest(forest);

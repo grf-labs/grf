@@ -20,6 +20,8 @@
 
 #include "forest/ForestTrainer.h"
 
+namespace grf {
+
 class ForestTrainers {
 public:
   static ForestTrainer instrumental_trainer(double reduced_form_weight,
@@ -32,5 +34,6 @@ public:
   static ForestTrainer custom_trainer();
 };
 
+} // namespace grf
 
 #endif //GRF_FORESTTRAINERS_H

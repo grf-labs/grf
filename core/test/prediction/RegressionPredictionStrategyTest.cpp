@@ -24,6 +24,8 @@
 
 #include "catch.hpp"
 
+using namespace grf;
+
 TEST_CASE("flipping signs of outcome flips predictions", "[regression, prediction]") {
   std::vector<double> averages = {1.1251472};
   std::vector<double> flipped_averages = {-1.1251472};

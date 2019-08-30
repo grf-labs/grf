@@ -9,6 +9,8 @@
 #include "forest/ForestTrainers.h"
 #include "RcppUtilities.h"
 
+using namespace grf;
+
 // [[Rcpp::export]]
 Rcpp::List quantile_train(std::vector<double> quantiles,
                           bool regression_splits,

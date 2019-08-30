@@ -24,6 +24,7 @@
 
 #include "catch.hpp"
 
+using namespace grf;
 
 TEST_CASE("custom forests predict 0 by default", "[custom, forest]") {
   // Train an honest custom forest.

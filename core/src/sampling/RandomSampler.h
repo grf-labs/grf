@@ -31,6 +31,8 @@
 #include <vector>
 #include <unordered_map>
 
+namespace grf {
+
 class RandomSampler {
 public:
   RandomSampler(uint seed,
@@ -157,5 +159,6 @@ private:
   std::mt19937_64 random_number_generator;
 };
 
+} // namespace grf
 
 #endif //GRF_RANDOMSAMPLER_H

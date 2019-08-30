@@ -25,6 +25,8 @@
 
 #include "commons/globals.h"
 
+namespace grf {
+
 class TreeOptions {
 public:
   TreeOptions(uint mtry,
@@ -71,5 +73,7 @@ private:
   double alpha;
   double imbalance_penalty;
 };
+
+} // namespace grf
 
 #endif //GRF_TREEOPTIONS_H

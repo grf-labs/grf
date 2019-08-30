@@ -20,6 +20,8 @@
 #include "analysis/SplitFrequencyComputer.h"
 #include "forest/Forest.h"
 
+using namespace grf;
+
 TEST_CASE("split frequency computation works as expected", "[analysis, unit]") {
   /*
    * This test case creates the following two trees. The values below represent

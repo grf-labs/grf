@@ -28,6 +28,8 @@
 #include "tree/Tree.h"
 #include "tree/TreeOptions.h"
 
+namespace grf {
+
 class TreeTrainer {
 public:
   TreeTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
@@ -47,7 +49,7 @@ private:
 
   void repopulate_leaf_nodes(const std::shared_ptr<Tree>& tree,
                              const Data* data,
-                             const std::vector<size_t> &leaf_samples,
+                             const std::vector<size_t>& leaf_samples,
                              const bool prune_empty_leaves) const;
 
   void create_split_variable_subset(std::vector<size_t>& result,
@@ -80,5 +82,7 @@ private:
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory;
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy;
 };
+
+} // namespace grf
 
 #endif //GRF_TREETRAINER_H

@@ -32,6 +32,8 @@
 #include <set>
 #include <thread>
 
+namespace grf {
+
 class ForestTrainer {
 public:
   ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
@@ -58,5 +60,6 @@ private:
   TreeTrainer tree_trainer;
 };
 
+} // namespace grf
 
 #endif //GRF_FORESTTRAINER_H

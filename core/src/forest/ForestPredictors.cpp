@@ -24,6 +24,8 @@
 #include "prediction/LLCausalPredictionStrategy.h"
 #include "ForestOptions.h"
 
+namespace grf {
+
 ForestPredictor ForestPredictors::custom_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::unique_ptr<DefaultPredictionStrategy> prediction_strategy(new CustomPredictionStrategy());
@@ -68,3 +70,5 @@ ForestPredictor ForestPredictors::ll_causal_predictor(uint num_threads,
           new LLCausalPredictionStrategy(lambdas, weight_penalty, linear_correction_variables));
   return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
+
+} // namespace grf

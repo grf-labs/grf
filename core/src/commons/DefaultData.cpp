@@ -24,6 +24,8 @@
 #include "DefaultData.h"
 #include "utility.h"
 
+namespace grf {
+
 DefaultData::DefaultData() :
     DefaultData(nullptr, 0, 0) {}
 
@@ -52,3 +54,5 @@ void DefaultData::reserve_memory() {
 void DefaultData::set(size_t col, size_t row, double value, bool& error) {
   data[col * num_rows + row] = value;
 }
+
+} // namespace grf

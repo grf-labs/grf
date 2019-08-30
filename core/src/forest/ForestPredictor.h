@@ -35,6 +35,8 @@
 #include <thread>
 #include <future>
 
+namespace grf {
+
 class ForestPredictor {
 public:
   ForestPredictor(uint num_threads,
@@ -63,5 +65,6 @@ private:
   std::unique_ptr<PredictionCollector> prediction_collector;
 };
 
+} // namespace grf
 
 #endif //GRF_FORESTPREDICTOR_H

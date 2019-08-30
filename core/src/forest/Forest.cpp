@@ -18,6 +18,8 @@
 #include "commons/DefaultData.h"
 #include "forest/Forest.h"
 
+namespace grf {
+
 Forest Forest::create(const std::vector<std::shared_ptr<Tree>>& trees,
                       const ForestOptions& forest_options,
                       const Data* data) {
@@ -62,3 +64,5 @@ const size_t Forest::get_num_variables() const {
 const size_t Forest::get_ci_group_size() const {
   return ci_group_size;
 }
+
+} // namespace grf

@@ -23,6 +23,8 @@
 #include "commons/globals.h"
 #include "splitting/factory/SplittingRuleFactory.h"
 
+namespace grf {
+
 /**
  * A factory that produces standard classification splitting rules.
  *
@@ -40,5 +42,7 @@ private:
 
   DISALLOW_COPY_AND_ASSIGN(ProbabilitySplittingRuleFactory);
 };
+
+} // namespace grf
 
 #endif //GRF_PROBABILITYSPLITTINGRULEFACTORY_H

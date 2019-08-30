@@ -28,6 +28,8 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
+namespace grf {
+
 class LocalLinearPredictionStrategy final: public DefaultPredictionStrategy {
 
 public:
@@ -62,5 +64,7 @@ private:
     std::vector<size_t> linear_correction_variables;
     ObjectiveBayesDebiaser bayes_debiaser;
 };
+
+} // namespace grf
 
 #endif //GRF_LOCALLINEARPREDICTIONSTRATEGY_H

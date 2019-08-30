@@ -26,6 +26,8 @@
 #include "prediction/Prediction.h"
 #include "prediction/PredictionValues.h"
 
+namespace grf {
+
 /**
  * A prediction strategy defines how predictions are computed over test samples.
  *
@@ -107,5 +109,6 @@ public:
       const Data* data) const = 0;
 };
 
+} // namespace grf
 
 #endif //GRF_OPTIMIZEDPREDICTIONSTRATEGY_H

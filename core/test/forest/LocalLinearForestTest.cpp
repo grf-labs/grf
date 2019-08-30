@@ -21,6 +21,8 @@
 
 #include "catch.hpp"
 
+using namespace grf;
+
 TEST_CASE("LLF gives reasonable prediction on friedman data", "[local linear], [forest]") {
   Data* data = load_data("test/forest/resources/friedman.csv");
   data->set_outcome_index(10);

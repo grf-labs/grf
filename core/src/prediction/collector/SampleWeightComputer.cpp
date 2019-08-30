@@ -19,6 +19,8 @@
 
 #include "tree/Tree.h"
 
+namespace grf {
+
 std::unordered_map<size_t, double> SampleWeightComputer::compute_weights(size_t sample,
                                                                          const Forest& forest,
                                                                          const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
@@ -64,3 +66,5 @@ void SampleWeightComputer::normalize_sample_weights(std::unordered_map<size_t, d
     entry.second/= total_weight;
   }
 }
+
+} // namespace grf

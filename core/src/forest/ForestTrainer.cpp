@@ -25,6 +25,9 @@
 #include "ForestTrainer.h"
 #include "random/random.hpp"
 
+
+namespace grf {
+
 ForestTrainer::ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
                              std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
                              std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy) :
@@ -139,3 +142,5 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(const Data* dat
   }
   return trees;
 }
+
+} // namespace grf

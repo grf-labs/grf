@@ -24,6 +24,8 @@
 #include "prediction/collector/SampleWeightComputer.h"
 #include "prediction/DefaultPredictionStrategy.h"
 
+namespace grf {
+
 class DefaultPredictionCollector final: public PredictionCollector {
 public:
   DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy);
@@ -43,5 +45,6 @@ private:
   SampleWeightComputer weight_computer;
 };
 
+} // namespace grf
 
 #endif //GRF_DEFAULTPREDICTIONCOLLECTOR_H

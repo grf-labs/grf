@@ -26,6 +26,7 @@
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
 
+namespace grf {
 
 ForestTrainer ForestTrainers::instrumental_trainer(double reduced_form_weight,
                                                    bool stabilize_splits) {
@@ -69,3 +70,5 @@ ForestTrainer ForestTrainers::custom_trainer() {
                        std::move(splitting_rule_factory),
                        nullptr);
 }
+
+} // namespace grf

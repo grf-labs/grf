@@ -24,6 +24,8 @@
 
 #include "catch.hpp"
 
+using namespace grf;
+
 TEST_CASE("forests don't crash when there are fewer trees than threads", "[forest]") {
   ForestTrainer trainer = ForestTrainers::regression_trainer();
   Data* data = load_data("test/forest/resources/gaussian_data.csv");

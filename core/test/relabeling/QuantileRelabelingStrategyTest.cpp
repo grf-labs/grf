@@ -23,6 +23,8 @@
 #include "relabeling/RelabelingStrategy.h"
 #include "relabeling/QuantileRelabelingStrategy.h"
 
+using namespace grf;
+
 TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
   double outcomes[] = {-9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                        -5.62082, -9.05911, 3.57729, 3.58593, 8.69386};

@@ -24,6 +24,7 @@
 
 #include "catch.hpp"
 
+using namespace grf;
 
 TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[causal, forest]") {
   // Run the original forest.

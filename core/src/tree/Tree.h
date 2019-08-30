@@ -27,6 +27,8 @@
 #include "prediction/PredictionValues.h"
 #include "splitting/SplittingRule.h"
 
+namespace grf {
+
 class Tree {
 public:
   Tree(size_t root_node,
@@ -155,5 +157,7 @@ private:
 
   PredictionValues prediction_values;
 };
+
+} // namespace grf
 
 #endif /* GRF_TREE_H_ */

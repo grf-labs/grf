@@ -18,6 +18,8 @@
 
 #include "RandomSampler.h"
 
+namespace grf {
+
 RandomSampler::RandomSampler(uint seed,
                              const SamplingOptions& options) :
     options(options) {
@@ -226,3 +228,5 @@ size_t RandomSampler::sample_poisson(size_t mean) {
   nonstd::poisson_distribution<size_t> distribution(mean);
   return distribution(random_number_generator);
 }
+
+} // namespace grf

@@ -20,6 +20,8 @@
 
 #include "forest/ForestPredictor.h"
 
+namespace grf {
+
 class ForestPredictors {
 public:
   static ForestPredictor custom_predictor(uint num_threads);
@@ -42,5 +44,6 @@ public:
                                              std::vector<size_t> linear_correction_variables);
 };
 
+} // namespace grf
 
 #endif //GRF_FORESTPREDICTORS_H

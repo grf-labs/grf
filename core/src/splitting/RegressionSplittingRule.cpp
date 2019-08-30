@@ -19,6 +19,8 @@
 
 #include "RegressionSplittingRule.h"
 
+namespace grf {
+
 RegressionSplittingRule::RegressionSplittingRule(const Data* data,
                                                  double alpha,
                                                  double imbalance_penalty):
@@ -216,3 +218,5 @@ void RegressionSplittingRule::find_best_split_value_large_q(size_t node,
     }
   }
 }
+
+} // namespace grf

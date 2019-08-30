@@ -23,6 +23,8 @@
 
 #include "catch.hpp"
 
+using namespace grf;
+
 TEST_CASE("using a sparse data representation produces the same predictions", "[data]") {
   Data* data = load_data("test/forest/resources/gaussian_data.csv");
   data->set_outcome_index(10);

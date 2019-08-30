@@ -19,6 +19,8 @@
 #include <string>
 #include "prediction/RegressionPredictionStrategy.h"
 
+namespace grf {
+
 const size_t RegressionPredictionStrategy::OUTCOME = 0;
 
 size_t RegressionPredictionStrategy::prediction_length() const {
@@ -109,7 +111,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
       continue;
     }
 
-    std::vector<double> &averages = values[i];
+    std::vector<double>& averages = values[i];
     averages.resize(1);
     averages[OUTCOME] = sum / weight;
   }
@@ -151,3 +153,4 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
   return { output };
 }
 
+} // namespace grf

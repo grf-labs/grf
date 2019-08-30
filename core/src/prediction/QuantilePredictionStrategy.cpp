@@ -23,6 +23,8 @@
 #include "commons/DefaultData.h"
 #include "prediction/QuantilePredictionStrategy.h"
 
+namespace grf {
+
 QuantilePredictionStrategy::QuantilePredictionStrategy(std::vector<double> quantiles):
     quantiles(quantiles) {
 };
@@ -89,3 +91,5 @@ std::vector<double> QuantilePredictionStrategy::compute_variance(
     size_t ci_group_size) const {
   return { 0.0 };
 }
+
+} // namespace grf

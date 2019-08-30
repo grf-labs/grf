@@ -18,6 +18,8 @@
 #include "commons/utility.h"
 #include "ObjectiveBayesDebiaser.h"
 
+namespace grf {
+
 double ObjectiveBayesDebiaser::debias(double var_between,
                                       double group_noise,
                                       double num_good_groups) const {
@@ -49,3 +51,5 @@ double ObjectiveBayesDebiaser::debias(double var_between,
   double bayes_correction = initial_se * numerator / denominator;
   return initial_estimate + bayes_correction;
 }
+
+} // namespace grf
