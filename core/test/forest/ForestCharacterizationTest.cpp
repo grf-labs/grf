@@ -223,4 +223,3 @@ TEST_CASE("local linear regression forest predictions have not changed",
 
   delete data;
 }
-

@@ -76,4 +76,3 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
   REQUIRE(equal_doubles(delta / predictions.size(), 0, 1e-1));
   delete data;
 }
-

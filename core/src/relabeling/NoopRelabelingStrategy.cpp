@@ -32,3 +32,4 @@ std::unordered_map<size_t, double> NoopRelabelingStrategy::relabel(
 }
 
 } // namespace grf
+
