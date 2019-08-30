@@ -44,7 +44,7 @@ ForestTrainer ForestTrainers::quantile_trainer(const std::vector<double>& quanti
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(
       new ProbabilitySplittingRuleFactory(quantiles.size() + 1));
 
-  return ForestTrainer(relabeling_strategy, splitting_rule_factory, NULL);
+  return ForestTrainer(relabeling_strategy, splitting_rule_factory, nullptr);
 }
 
 ForestTrainer ForestTrainers::regression_trainer() {
@@ -59,5 +59,5 @@ ForestTrainer ForestTrainers::custom_trainer() {
   std::shared_ptr<RelabelingStrategy> relabeling_strategy(new CustomRelabelingStrategy());
   std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
 
-  return ForestTrainer(relabeling_strategy, splitting_rule_factory, NULL);
+  return ForestTrainer(relabeling_strategy, splitting_rule_factory, nullptr);
 }

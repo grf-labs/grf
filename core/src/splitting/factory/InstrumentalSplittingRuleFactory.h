@@ -30,9 +30,9 @@
  * assignment or instrument. The exact penalty used  depends on the value
  * of {@link TreeOptions#get_split_penalty}.
  */
-class InstrumentalSplittingRuleFactory: public SplittingRuleFactory {
+class InstrumentalSplittingRuleFactory final: public SplittingRuleFactory {
 public:
-  InstrumentalSplittingRuleFactory();
+  InstrumentalSplittingRuleFactory() = default;
   std::shared_ptr<SplittingRule> create(const Data* data,
                                         const TreeOptions& options) const;
 private:

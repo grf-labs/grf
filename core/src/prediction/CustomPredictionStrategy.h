@@ -20,7 +20,7 @@
 
 #include "DefaultPredictionStrategy.h"
 
-class CustomPredictionStrategy: public DefaultPredictionStrategy {
+class CustomPredictionStrategy final: public DefaultPredictionStrategy {
 public:
 
   size_t prediction_length() const;

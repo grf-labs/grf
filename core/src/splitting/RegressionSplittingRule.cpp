@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <math.h>
 
 #include "RegressionSplittingRule.h"
 
@@ -32,10 +31,10 @@ RegressionSplittingRule::RegressionSplittingRule(const Data* data,
 }
 
 RegressionSplittingRule::~RegressionSplittingRule() {
-  if (counter != 0) {
+  if (counter != nullptr) {
     delete[] counter;
   }
-  if (sums != 0) {
+  if (sums != nullptr) {
     delete[] sums;
   }
 }

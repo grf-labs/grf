@@ -28,6 +28,7 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
     const Data* data) const {
 
   std::vector<double> sorted_outcomes;
+  sorted_outcomes.reserve(samples.size());
   for (size_t sample : samples) {
     sorted_outcomes.push_back(data->get_outcome(sample));
   }

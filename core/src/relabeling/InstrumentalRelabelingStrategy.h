@@ -24,7 +24,7 @@
 #include "tree/Tree.h"
 #include "relabeling/RelabelingStrategy.h"
 
-class InstrumentalRelabelingStrategy: public RelabelingStrategy {
+class InstrumentalRelabelingStrategy final: public RelabelingStrategy {
 public:
   InstrumentalRelabelingStrategy();
 

@@ -20,7 +20,7 @@
 
 #include "relabeling/RelabelingStrategy.h"
 
-class NoopRelabelingStrategy: public RelabelingStrategy {
+class NoopRelabelingStrategy final: public RelabelingStrategy {
 public:
   std::unordered_map<size_t, double> relabel(
       const std::vector<size_t>& samples,

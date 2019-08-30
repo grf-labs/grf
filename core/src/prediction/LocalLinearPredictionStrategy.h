@@ -28,7 +28,7 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
-class LocalLinearPredictionStrategy: public DefaultPredictionStrategy {
+class LocalLinearPredictionStrategy final: public DefaultPredictionStrategy {
 
 public:
     LocalLinearPredictionStrategy(std::vector<double> lambdas,

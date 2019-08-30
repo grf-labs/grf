@@ -23,7 +23,7 @@
 #include "commons/globals.h"
 #include "splitting/SplittingRule.h"
 
-class ProbabilitySplittingRule: public SplittingRule {
+class ProbabilitySplittingRule final: public SplittingRule {
 public:
   ProbabilitySplittingRule(const Data* data,
                            size_t num_classes,

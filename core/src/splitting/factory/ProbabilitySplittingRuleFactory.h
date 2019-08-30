@@ -29,7 +29,7 @@
  * In addition to performing standard regression splits, this rule applies
  * a penalty to avoid splits too close to the edge of the node's data.
  */
-class ProbabilitySplittingRuleFactory: public SplittingRuleFactory {
+class ProbabilitySplittingRuleFactory final: public SplittingRuleFactory {
 public:
   ProbabilitySplittingRuleFactory(size_t num_classes);
   std::shared_ptr<SplittingRule> create(const Data* data,
