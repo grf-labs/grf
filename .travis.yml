@@ -76,6 +76,7 @@ matrix:
         - Rscript build_package.R
       before_deploy:
         - cd grf
+        - cp ../../README.md .
         - Rscript -e 'pkgdown::build_site()'
       deploy:
         provider: pages
