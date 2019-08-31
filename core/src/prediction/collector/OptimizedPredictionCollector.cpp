@@ -17,8 +17,8 @@
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
 
-OptimizedPredictionCollector::OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy):
-    strategy(strategy) {}
+OptimizedPredictionCollector::OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy):
+    strategy(std::move(strategy)) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
                                                                           Data* train_data,

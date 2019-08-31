@@ -36,7 +36,7 @@ std::vector<double> get_relabeled_outcomes(double observations[], size_t num_sam
     samples.push_back(i);
   }
 
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
   auto relabeled_observations = relabeling_strategy->relabel(samples, &data);
 
   if (relabeled_observations.empty()) {

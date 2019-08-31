@@ -25,12 +25,12 @@
 #include "ForestTrainer.h"
 #include "random/random.hpp"
 
-ForestTrainer::ForestTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
-                             std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
-                             std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
-    tree_trainer(relabeling_strategy,
-                 splitting_rule_factory,
-                 prediction_strategy) {}
+ForestTrainer::ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
+                             std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
+                             std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy) :
+    tree_trainer(std::move(relabeling_strategy),
+                 std::move(splitting_rule_factory),
+                 std::move(prediction_strategy)) {}
 
 const Forest ForestTrainer::train(const Data* data,
                                   const ForestOptions& options) const {

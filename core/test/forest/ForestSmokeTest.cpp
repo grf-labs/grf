@@ -65,11 +65,7 @@ TEST_CASE("basic forest merges work", "[regression, forest]") {
   Forest forest2 = trainer.train(data, options);
   Forest forest3 = trainer.train(data, options);
 
-  std::shared_ptr<Forest> forest_ptr1 = std::make_shared<Forest>(forest1);
-  std::shared_ptr<Forest> forest_ptr2 = std::make_shared<Forest>(forest2);
-  std::shared_ptr<Forest> forest_ptr3 = std::make_shared<Forest>(forest3);
-
-  std::vector<std::shared_ptr<Forest>> forests{ forest_ptr1, forest_ptr2, forest_ptr3 };
+  std::vector<Forest> forests = { forest1, forest2, forest3 };
 
   Forest big_forest = Forest::merge(forests);
 
@@ -99,8 +95,7 @@ TEST_CASE("forests with different ci_group_size cannot be merged", "[regression,
   ForestOptions options_with_ci = ForestTestUtilities::default_options(false, 2);
   Forest forest_with_ci = trainer.train(data, options_with_ci);
 
-  std::vector<std::shared_ptr<Forest>> forests = { std::make_shared<Forest>(forest),
-                                                   std::make_shared<Forest>(forest_with_ci) };
+  std::vector<Forest> forests = { forest, forest_with_ci };
 
   try {
     Forest big_forest = Forest::merge(forests);

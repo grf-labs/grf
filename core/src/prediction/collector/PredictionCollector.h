@@ -22,6 +22,9 @@
 
 class PredictionCollector {
 public:
+
+  virtual ~PredictionCollector() = default;
+
   virtual std::vector<Prediction> collect_predictions(const Forest& forest,
                                                       Data* train_data,
                                                       Data* data,
