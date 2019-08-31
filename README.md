@@ -7,7 +7,7 @@ A pluggable package for forest-based statistical estimation and inference. GRF c
 
 In addition, GRF supports 'honest' estimation (where one subset of the data is used for choosing splits, and another for populating the leaves of the tree), and confidence intervals for least-squares regression and treatment effect estimation.
 
-This package is currently in beta, and we expect to make continual improvements to its performance and usability. For a practical description of the GRF algorithm, including explanations of model parameters and troubleshooting suggestions, please see the [GRF reference](REFERENCE.md). It may also be helpful to browse the [Github issues labelled 'question'](https://github.com/grf-labs/grf/issues?q=label%3Aquestion) to see common questions and answers around usage.
+For a practical description of the GRF algorithm, including explanations of model parameters and troubleshooting suggestions, please see the [GRF reference](REFERENCE.md). It may also be helpful to browse the [Github issues labelled 'question'](https://github.com/grf-labs/grf/issues?q=label%3Aquestion) to see common questions and answers around usage. The R package documentation is at https://grf-labs.github.io/grf.
 
 The repository first started as a fork of the [ranger](https://github.com/imbs-hl/ranger) repository -- we owe a great deal of thanks to the ranger authors for their useful and free package.
 
@@ -27,7 +27,7 @@ install.packages("https://raw.github.com/grf-labs/grf/master/releases/grf_0.10.3
 
 `conda` users can install from the [conda-forge](https://anaconda.org/conda-forge/r-grf) channel:
 
-```R
+```
 conda install -c conda-forge r-grf
 ```
 
@@ -36,14 +36,9 @@ Note that to install from source, a compiler that implements C++11 is required (
 
 ### Usage Examples
 
-See the package [website](https://grf-labs.github.io/grf) for
-
-* An [introductory example](https://grf-labs.github.io/grf/articles/grf.html) with accompanying vignettes
-* A [reference manual](https://grf-labs.github.io/grf/reference/index.html)
-
 The following script demonstrates how to use GRF for heterogeneous treatment effect estimation. For examples
 of how to use types of forest, as for quantile regression and causal effect estimation using instrumental
-variables, please consult the R documentation on the relevant forest methods (quantile_forest, instrumental_forest, etc.).
+variables, please consult the R [documentation](https://grf-labs.github.io/grf/reference/index.html) on the relevant forest methods (quantile_forest, instrumental_forest, etc.).
 
 ```R
 library(grf)

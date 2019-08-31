@@ -1,5 +1,5 @@
 Package: grf
-Title: Generalized Random Forests (Beta)
+Title: Generalized Random Forests
 Version: 0.10.3
 Authors@R:c(
     person("Julie", "Tibshirani", role = c("aut", "cre"), email = "jtibs@cs.stanford.edu"),
@@ -15,9 +15,7 @@ Maintainer: Julie Tibshirani <jtibs@cs.stanford.edu>
 Description: A pluggable package for forest-based statistical estimation and inference.
     GRF currently provides methods for non-parametric least-squares regression,
     quantile regression, and treatment effect estimation (optionally using instrumental
-    variables). This package is currently in beta, and we expect to make continual
-    improvements to its performance and usability. For usage examples please consult
-    the accompanying vignettes, and the package documentation.
+    variables).
 Depends:
     R (>= 3.3.0)
 License: GPL-3
