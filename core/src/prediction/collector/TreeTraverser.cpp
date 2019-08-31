@@ -20,6 +20,8 @@
 
 #include <future>
 
+namespace grf {
+
 TreeTraverser::TreeTraverser(uint num_threads) :
     num_threads(num_threads) {}
 
@@ -101,8 +103,8 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_node_batch(
 }
 
 std::vector<bool> TreeTraverser::get_valid_samples(size_t num_samples,
-                                                     std::shared_ptr<Tree> tree,
-                                                     bool oob_prediction) const {
+                                                   const std::shared_ptr<Tree>& tree,
+                                                   bool oob_prediction) const {
   std::vector<bool> valid_samples(num_samples, true);
   if (oob_prediction) {
     for (size_t sample : tree->get_drawn_samples()) {
@@ -111,3 +113,5 @@ std::vector<bool> TreeTraverser::get_valid_samples(size_t num_samples,
   }
   return valid_samples;
 }
+
+} // namespace grf

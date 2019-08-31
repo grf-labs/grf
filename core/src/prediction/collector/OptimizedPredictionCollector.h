@@ -22,9 +22,11 @@
 #include "forest/Forest.h"
 #include "prediction/collector/PredictionCollector.h"
 
-class OptimizedPredictionCollector: public PredictionCollector {
+namespace grf {
+
+class OptimizedPredictionCollector final: public PredictionCollector {
 public:
-  OptimizedPredictionCollector(std::shared_ptr<OptimizedPredictionStrategy> strategy);
+  OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy);
 
   std::vector<Prediction> collect_predictions(const Forest& forest,
                                               Data* train_data,
@@ -32,20 +34,22 @@ public:
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                               const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                               bool estimate_variance,
-                                              bool estimate_error);
+                                              bool estimate_error) const;
 
 private:
   void add_prediction_values(size_t node,
                              const PredictionValues& prediction_values,
-                             std::vector<double>& combined_average);
+                             std::vector<double>& combined_average) const;
 
   void normalize_prediction_values(size_t num_leaves,
-                                   std::vector<double>& combined_average);
+                                   std::vector<double>& combined_average) const;
 
-  void validate_prediction(size_t sample, Prediction prediction);
+  void validate_prediction(size_t sample,
+                           const Prediction& prediction) const;
 
-  std::shared_ptr<OptimizedPredictionStrategy> strategy;
+  std::unique_ptr<OptimizedPredictionStrategy> strategy;
 };
 
+} // namespace grf
 
 #endif //GRF_OPTIMIZEDPREDICTIONCOLLECTOR_H

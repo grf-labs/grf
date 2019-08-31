@@ -15,16 +15,16 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <math.h>
-
 #include "SplitFrequencyComputer.h"
 
+namespace grf {
+
 std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& forest,
-                                                                 size_t max_depth) {
+                                                                 size_t max_depth) const {
   size_t num_variables = forest.get_num_variables();
   std::vector<std::vector<size_t>> result(max_depth, std::vector<size_t>(num_variables));
 
-  for (std::shared_ptr<Tree> tree : forest.get_trees()) {
+  for (const auto& tree : forest.get_trees()) {
     const std::vector<std::vector<size_t>>& child_nodes = tree->get_child_nodes();
 
     size_t depth = 0;
@@ -51,3 +51,5 @@ std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& f
   }
   return result;
 }
+
+} // namespace grf

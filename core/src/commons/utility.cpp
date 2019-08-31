@@ -15,7 +15,6 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <math.h>
 #include <iostream>
 #include <sstream>
 #include <unordered_set>
@@ -23,6 +22,8 @@
 
 #include "utility.h"
 #include "SparseData.h"
+
+namespace grf {
 
 void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_parts) {
 
@@ -66,7 +67,7 @@ bool equal_doubles(double first, double second, double epsilon) {
   return std::abs(first - second) < epsilon;
 }
 
-Data* load_data(std::string file_name) {
+Data* load_data(const std::string& file_name) {
   Data* data = new DefaultData();
   bool rounding_error = data->load_from_file(file_name);
   if (rounding_error) {
@@ -76,7 +77,7 @@ Data* load_data(std::string file_name) {
   return data;
 }
 
-Data* load_sparse_data(std::string file_name) {
+Data* load_sparse_data(const std::string& file_name) {
   Data* data = new SparseData();
   bool rounding_error = data->load_from_file(file_name);
   if (rounding_error) {
@@ -85,3 +86,5 @@ Data* load_sparse_data(std::string file_name) {
   data->sort();
   return data;
 }
+
+} // namespace grf

@@ -26,6 +26,8 @@
 #include "prediction/Prediction.h"
 #include "prediction/PredictionValues.h"
 
+namespace grf {
+
 /**
  * A prediction strategy defines how predictions are computed over test samples.
  *
@@ -38,11 +40,13 @@
 class OptimizedPredictionStrategy {
 public:
 
- /**
+  virtual ~OptimizedPredictionStrategy() = default;
+
+  /**
   * The number of values in a prediction, e.g. 1 for regression,
   * or the number of quantiles for quantile forests.
   */
-  virtual size_t prediction_length() = 0;
+  virtual size_t prediction_length() const = 0;
 
   /**
   * Computes a prediction for a single test sample.
@@ -50,7 +54,7 @@ public:
   * average_prediction_values: the 'prediction values' computed during
   *     training, averaged across all leaves this test sample landed in.
   */
-  virtual std::vector<double> predict(const std::vector<double>& average_prediction_values) = 0;
+  virtual std::vector<double> predict(const std::vector<double>& average_prediction_values) const = 0;
 
  /**
   * Computes a prediction variance estimate for a single test sample.
@@ -66,14 +70,14 @@ public:
   virtual std::vector<double> compute_variance(
       const std::vector<double>& average_prediction_values,
       const PredictionValues& leaf_prediction_values,
-      size_t ci_group_size) = 0;
+      size_t ci_group_size) const = 0;
 
  /**
   * The number of types of precomputed prediction values. For regression
   * this is 1 (the average outcome), whereas for instrumental forests this
   * is larger, as it includes the average treatment, average instrument etc.
   */
-  virtual size_t prediction_value_length() = 0;
+  virtual size_t prediction_value_length() const = 0;
 
  /**
   * This method is called during training on each tree to precompute
@@ -84,7 +88,7 @@ public:
   */
   virtual PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_samples,
-      const Data* data) = 0;
+      const Data* data) const = 0;
 
  /**
   * Computes a pair of estimates for (out-of-bag debiased error, monte-carlo error) for a single sample.
@@ -102,8 +106,9 @@ public:
       size_t sample,
       const std::vector<double>& average,
       const PredictionValues& leaf_values,
-      const Data* data) = 0;
+      const Data* data) const = 0;
 };
 
+} // namespace grf
 
 #endif //GRF_OPTIMIZEDPREDICTIONSTRATEGY_H

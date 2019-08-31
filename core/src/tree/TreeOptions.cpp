@@ -17,6 +17,7 @@
 
 #include "tree/TreeOptions.h"
 
+namespace grf {
 
 TreeOptions::TreeOptions(uint mtry,
                          uint min_node_size,
@@ -33,11 +34,11 @@ TreeOptions::TreeOptions(uint mtry,
   alpha(alpha),
   imbalance_penalty(imbalance_penalty) {}
 
-uint TreeOptions::get_mtry() const  {
+uint TreeOptions::get_mtry() const {
   return mtry;
 }
 
-uint TreeOptions::get_min_node_size() const  {
+uint TreeOptions::get_min_node_size() const {
   return min_node_size;
 }
 
@@ -60,3 +61,5 @@ double TreeOptions::get_alpha() const {
 double TreeOptions::get_imbalance_penalty() const {
   return imbalance_penalty;
 }
+
+} // namespace grf

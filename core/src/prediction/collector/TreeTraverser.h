@@ -20,6 +20,8 @@
 
 #include "forest/Forest.h"
 
+namespace grf {
+
 class TreeTraverser {
 public:
   TreeTraverser(uint num_threads);
@@ -42,11 +44,12 @@ private:
       bool oob_prediction) const;
 
   std::vector<bool> get_valid_samples(size_t num_samples,
-                                      std::shared_ptr<Tree> tree,
+                                      const std::shared_ptr<Tree>& tree,
                                       bool oob_prediction) const;
 
   uint num_threads;
 };
 
+} // namespace grf
 
 #endif //GRF_TREETRAVERSER_H

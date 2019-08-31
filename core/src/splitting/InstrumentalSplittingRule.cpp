@@ -16,9 +16,10 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <math.h>
 
 #include "InstrumentalSplittingRule.h"
+
+namespace grf {
 
 InstrumentalSplittingRule::InstrumentalSplittingRule(const Data* data,
                                                      uint min_node_size,
@@ -37,19 +38,19 @@ InstrumentalSplittingRule::InstrumentalSplittingRule(const Data* data,
 }
 
 InstrumentalSplittingRule::~InstrumentalSplittingRule() {
-  if (counter != 0) {
+  if (counter != nullptr) {
     delete[] counter;
   }
-  if (sums != 0) {
+  if (sums != nullptr) {
     delete[] sums;
   }
-  if (sums_z != 0) {
+  if (sums_z != nullptr) {
     delete[] sums_z;
   }
-  if (sums_z_squared != 0) {
+  if (sums_z_squared != nullptr) {
     delete[] sums_z_squared;
   }
-  if (num_small_z != 0) {
+  if (num_small_z != nullptr) {
     delete[] num_small_z;
   }
 }
@@ -327,3 +328,5 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
     }
   }
 }
+
+} // namespace grf

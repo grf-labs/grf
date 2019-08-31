@@ -23,7 +23,9 @@
 #include "commons/globals.h"
 #include "splitting/SplittingRule.h"
 
-class ProbabilitySplittingRule: public SplittingRule {
+namespace grf {
+
+class ProbabilitySplittingRule final: public SplittingRule {
 public:
   ProbabilitySplittingRule(const Data* data,
                            size_t num_classes,
@@ -68,5 +70,7 @@ private:
 
   DISALLOW_COPY_AND_ASSIGN(ProbabilitySplittingRule);
 };
+
+} // namespace grf
 
 #endif //GRF_PROBABILITYSPLITTINGRULE_H

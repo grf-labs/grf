@@ -26,38 +26,49 @@
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
 
+namespace grf {
 
-ForestTrainer ForestTrainers::instrumental_trainer(double reduced_form_weight,
-                                                   bool stabilize_splits) {
+ForestTrainer instrumental_trainer(double reduced_form_weight,
+                                   bool stabilize_splits) {
 
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy(reduced_form_weight));
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory = stabilize_splits
-          ? std::shared_ptr<SplittingRuleFactory>(new InstrumentalSplittingRuleFactory())
-          : std::shared_ptr<SplittingRuleFactory>(new RegressionSplittingRuleFactory());
-  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy(reduced_form_weight));
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory = stabilize_splits
+          ? std::unique_ptr<SplittingRuleFactory>(new InstrumentalSplittingRuleFactory())
+          : std::unique_ptr<SplittingRuleFactory>(new RegressionSplittingRuleFactory());
+  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
 
-  return ForestTrainer(relabeling_strategy, splitting_rule_factory, prediction_strategy);
+  return ForestTrainer(std::move(relabeling_strategy),
+                       std::move(splitting_rule_factory),
+                       std::move(prediction_strategy));
 }
-
-ForestTrainer ForestTrainers::quantile_trainer(const std::vector<double>& quantiles) {
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new QuantileRelabelingStrategy(quantiles));
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(
+  
+ForestTrainer quantile_trainer(const std::vector<double>& quantiles) {
+    std::unique_ptr<RelabelingStrategy> relabeling_strategy(new QuantileRelabelingStrategy(quantiles));
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(
       new ProbabilitySplittingRuleFactory(quantiles.size() + 1));
 
-  return ForestTrainer(relabeling_strategy, splitting_rule_factory, NULL);
+  return ForestTrainer(std::move(relabeling_strategy),
+                       std::move(splitting_rule_factory),
+                       nullptr);
 }
 
-ForestTrainer ForestTrainers::regression_trainer() {
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
-  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
+ForestTrainer regression_trainer() {
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
+  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
 
-  return ForestTrainer(relabeling_strategy, splitting_rule_factory, prediction_strategy);
+  return ForestTrainer(std::move(relabeling_strategy),
+                       std::move(splitting_rule_factory),
+                       std::move(prediction_strategy));
 }
 
-ForestTrainer ForestTrainers::custom_trainer() {
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new CustomRelabelingStrategy());
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
+ForestTrainer custom_trainer() {
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new CustomRelabelingStrategy());
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
 
-  return ForestTrainer(relabeling_strategy, splitting_rule_factory, NULL);
+  return ForestTrainer(std::move(relabeling_strategy),
+                       std::move(splitting_rule_factory),
+                       nullptr);
 }
+
+} // namespace grf

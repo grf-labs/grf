@@ -18,13 +18,11 @@
 #include "commons/utility.h"
 #include "ObjectiveBayesDebiaser.h"
 
-#include <algorithm>
-#include <cmath>
-#include <math.h>
+namespace grf {
 
 double ObjectiveBayesDebiaser::debias(double var_between,
                                       double group_noise,
-                                      double num_good_groups) {
+                                      double num_good_groups) const {
   
   // Let S denote the true between-groups variance, and assume that
   // group_noise is measured exactly; our method-of-moments estimate is
@@ -53,3 +51,5 @@ double ObjectiveBayesDebiaser::debias(double var_between,
   double bayes_correction = initial_se * numerator / denominator;
   return initial_estimate + bayes_correction;
 }
+
+} // namespace grf

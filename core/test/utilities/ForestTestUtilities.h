@@ -20,6 +20,7 @@
 
 #include "forest/ForestTrainer.h"
 
+using namespace grf;
 
 class ForestTestUtilities {
 public:

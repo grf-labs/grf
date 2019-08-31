@@ -25,6 +25,8 @@
 #include "relabeling/RelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 
+using namespace grf;
+
 std::vector<double> get_relabeled_outcomes(double observations[], size_t num_samples) {
   DefaultData data(observations, num_samples, 3);
   data.set_outcome_index(0);
@@ -36,7 +38,7 @@ std::vector<double> get_relabeled_outcomes(double observations[], size_t num_sam
     samples.push_back(i);
   }
 
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
   auto relabeled_observations = relabeling_strategy->relabel(samples, &data);
 
   if (relabeled_observations.empty()) {
@@ -44,6 +46,7 @@ std::vector<double> get_relabeled_outcomes(double observations[], size_t num_sam
   }
 
   std::vector<double> relabeled_outcomes;
+  relabeled_outcomes.reserve(samples.size());
   for (auto& sample : samples) {
     relabeled_outcomes.push_back(relabeled_observations.at(sample));
   }

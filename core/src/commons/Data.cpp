@@ -22,11 +22,13 @@
 
 #include "Data.h"
 
+namespace grf {
+
 Data::Data() :
     num_rows(0),
     num_cols(0),
     external_data(true),
-    index_data(0),
+    index_data(nullptr),
     max_num_unique_values(0),
     outcome_index(),
     treatment_index(),
@@ -34,12 +36,12 @@ Data::Data() :
     weight_index() {}
 
 Data::~Data() {
-  if (index_data != 0) {
+  if (index_data != nullptr) {
     delete[] index_data;
   }
 }
 
-bool Data::load_from_file(std::string filename) {
+bool Data::load_from_file(const std::string& filename) {
   bool result;
 
   // Open input file
@@ -65,9 +67,9 @@ bool Data::load_from_file(std::string filename) {
   input_file.open(filename);
 
   // Find out if comma, semicolon or whitespace seperated and call appropriate method
-  if (first_line.find(",") != std::string::npos) {
+  if (first_line.find(',') != std::string::npos) {
     result = load_from_other_file(input_file, first_line, ',');
-  } else if (first_line.find(";") != std::string::npos) {
+  } else if (first_line.find(';') != std::string::npos) {
     result = load_from_other_file(input_file, first_line, ';');
   } else {
     result = load_from_whitespace_file(input_file, first_line);
@@ -78,11 +80,12 @@ bool Data::load_from_file(std::string filename) {
   return result;
 }
 
-bool Data::load_from_whitespace_file(std::ifstream& input_file, std::string first_line) {
+bool Data::load_from_whitespace_file(std::ifstream& input_file,
+                                     const std::string& first_line) {
   // Read the first line to determine the number of columns.
   std::string dummy_token;
   std::stringstream first_line_stream(first_line);
-  while (first_line_stream >> dummy_token)  {
+  while (first_line_stream >> dummy_token) {
     num_cols++;
   }
 
@@ -110,7 +113,9 @@ bool Data::load_from_whitespace_file(std::ifstream& input_file, std::string firs
   return error;
 }
 
-bool Data::load_from_other_file(std::ifstream& input_file, std::string first_line, char seperator) {
+bool Data::load_from_other_file(std::ifstream& input_file,
+                                const std::string& first_line,
+                                char seperator) {
   // Read the first line to determine the number of columns.
   std::string dummy_token;
   std::stringstream first_line_stream(first_line);
@@ -156,14 +161,14 @@ void Data::set_instrument_index(size_t index) {
 }
 
 void Data::set_weight_index(size_t index) {
-    this->weight_index = index;
-    disallowed_split_variables.insert(index);
+  this->weight_index = index;
+  disallowed_split_variables.insert(index);
 }
 
 void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const {
   all_values.reserve(samples.size());
-  for (size_t i = 0; i < samples.size(); ++i) {
-    all_values.push_back(get(samples[i], var));
+  for (size_t sample : samples) {
+    all_values.push_back(get(sample, var));
   }
   std::sort(all_values.begin(), all_values.end());
   all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
@@ -190,7 +195,8 @@ void Data::sort() {
 
     // Get index of unique value
     for (size_t row = 0; row < num_rows; ++row) {
-      size_t idx = std::lower_bound(unique_values.begin(), unique_values.end(), get(row, col)) - unique_values.begin();
+      size_t idx =
+          std::lower_bound(unique_values.begin(), unique_values.end(), get(row, col)) - unique_values.begin();
       index_data[col * num_rows + row] = idx;
     }
 
@@ -235,7 +241,7 @@ double Data::get_instrument(size_t row) const {
 }
 
 double Data::get_weight(size_t row) const {
-  if(weight_index.has_value()) {
+  if (weight_index.has_value()) {
     return get(row, weight_index.value());
   } else {
     return 1.0;
@@ -245,3 +251,5 @@ double Data::get_weight(size_t row) const {
 const std::set<size_t>& Data::get_disallowed_split_variables() const {
   return disallowed_split_variables;
 }
+
+} // namespace grf

@@ -21,8 +21,10 @@
 #include "SparseData.h"
 #include "utility.h"
 
+namespace grf {
+
 SparseData::SparseData():
-  SparseData(NULL, 0, 0) {}
+  SparseData(nullptr, 0, 0) {}
 
 SparseData::SparseData(Eigen::SparseMatrix<double>* data,
                        size_t num_rows,
@@ -49,3 +51,5 @@ void SparseData::reserve_memory() {
 void SparseData::set(size_t col, size_t row, double value, bool& error) {
   data->coeffRef(row, col) = value;
 }
+
+} // namespace grf

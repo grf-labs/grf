@@ -20,15 +20,17 @@
 
 #include "DefaultPredictionStrategy.h"
 
-class CustomPredictionStrategy: public DefaultPredictionStrategy {
+namespace grf {
+
+class CustomPredictionStrategy final: public DefaultPredictionStrategy {
 public:
 
-  size_t prediction_length();
+  size_t prediction_length() const;
 
   std::vector<double> predict(size_t sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Data* train_data,
-    const Data* data);
+    const Data* data) const;
 
   std::vector<double> compute_variance(
       size_t sampleD,
@@ -36,8 +38,9 @@ public:
       std::unordered_map<size_t, double> weights_by_sampleID,
       const Data* train_data,
       const Data* data,
-      size_t ci_group_size);
+      size_t ci_group_size) const;
 };
 
+} // namespace grf
 
 #endif //GRF_CUSTOMPREDICTIONSTRATEGY_H

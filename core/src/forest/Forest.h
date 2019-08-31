@@ -24,9 +24,11 @@
 #include "tree/TreeTrainer.h"
 #include "tree/Tree.h"
 
+namespace grf {
+
 class Forest {
 public:
-  static Forest create(std::vector<std::shared_ptr<Tree>> trees,
+  static Forest create(const std::vector<std::shared_ptr<Tree>>& trees,
                        const ForestOptions& forest_options,
                        const Data* data);
 
@@ -39,12 +41,14 @@ public:
   const size_t get_num_variables() const;
   const size_t get_ci_group_size() const;
 
-  static Forest merge(const std::vector<std::shared_ptr<Forest>>& forests);
+  static Forest merge(const std::vector<Forest>& forests);
   
 private:
   std::vector<std::shared_ptr<Tree>> trees;
   size_t num_variables;
   size_t ci_group_size;
 };
+
+} // namespace grf
 
 #endif /* GRF_FOREST_H_ */

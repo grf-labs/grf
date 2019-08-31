@@ -24,11 +24,17 @@
 #include "splitting/SplittingRule.h"
 #include "tree/TreeOptions.h"
 
+namespace grf {
 
 class SplittingRuleFactory {
 public:
-  virtual std::shared_ptr<SplittingRule> create(const Data* data,
-                                                const TreeOptions& options) = 0;
+
+  virtual ~SplittingRuleFactory() = default;
+
+  virtual std::unique_ptr<SplittingRule> create(const Data* data,
+                                                const TreeOptions& options) const = 0;
 };
+
+} // namespace grf
 
 #endif //GRF_SPLITTINGRULEFACTORY_H

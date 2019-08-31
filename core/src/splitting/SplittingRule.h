@@ -21,6 +21,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace grf {
+
 class SplittingRule {
 public:
   virtual ~SplittingRule() {}
@@ -31,6 +33,8 @@ public:
                                std::vector<size_t>& split_vars,
                                std::vector<double>& split_values) = 0;
 };
+
+} // namespace grf
 
 #endif //GRF_SPLITTINGRULE_H
 

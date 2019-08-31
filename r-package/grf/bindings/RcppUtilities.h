@@ -5,6 +5,8 @@
 #include "Eigen/Sparse"
 #include "forest/ForestTrainer.h"
 
+using namespace grf;
+
 class RcppUtilities {
 public:
 

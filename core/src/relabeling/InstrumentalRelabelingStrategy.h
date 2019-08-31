@@ -24,7 +24,9 @@
 #include "tree/Tree.h"
 #include "relabeling/RelabelingStrategy.h"
 
-class InstrumentalRelabelingStrategy: public RelabelingStrategy {
+namespace grf {
+
+class InstrumentalRelabelingStrategy final: public RelabelingStrategy {
 public:
   InstrumentalRelabelingStrategy();
 
@@ -32,12 +34,14 @@ public:
 
   std::unordered_map<size_t, double> relabel(
       const std::vector<size_t>& samples,
-      const Data* data);
+      const Data* data) const;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalRelabelingStrategy);
 
 private:
   double reduced_form_weight;
 };
+
+} // namespace grf
 
 #endif //GRF_INSTRUMENTALRELABELINGSTRATEGY_H

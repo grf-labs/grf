@@ -22,49 +22,52 @@
 #include "prediction/RegressionPredictionStrategy.h"
 #include "prediction/LocalLinearPredictionStrategy.h"
 #include "prediction/LLCausalPredictionStrategy.h"
-#include "ForestOptions.h"
 
-ForestPredictor ForestPredictors::custom_predictor(uint num_threads) {
+namespace grf {
+
+ForestPredictor custom_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new CustomPredictionStrategy());
-  return ForestPredictor(num_threads, prediction_strategy);
+  std::unique_ptr<DefaultPredictionStrategy> prediction_strategy(new CustomPredictionStrategy());
+  return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
 
-ForestPredictor ForestPredictors::instrumental_predictor(uint num_threads) {
+ForestPredictor instrumental_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
-  return ForestPredictor(num_threads, prediction_strategy);
+  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
+  return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
 
-ForestPredictor ForestPredictors::quantile_predictor(uint num_threads,
-                                                     const std::vector<double>& quantiles) {
+ForestPredictor quantile_predictor(uint num_threads,
+                                   const std::vector<double>& quantiles) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
-  return ForestPredictor(num_threads, prediction_strategy);
+  std::unique_ptr<DefaultPredictionStrategy> prediction_strategy(new QuantilePredictionStrategy(quantiles));
+  return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
 
-ForestPredictor ForestPredictors::regression_predictor(uint num_threads) {
+ForestPredictor regression_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
-  return ForestPredictor(num_threads, prediction_strategy);
+  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
+  return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
 
-ForestPredictor ForestPredictors::ll_regression_predictor(uint num_threads,
-                                                         std::vector<double> lambdas,
-                                                         bool weight_penalty,
-                                                         std::vector<size_t> linear_correction_variables) {
+ForestPredictor ll_regression_predictor(uint num_threads,
+                                        std::vector<double> lambdas,
+                                        bool weight_penalty,
+                                        std::vector<size_t> linear_correction_variables) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(
+  std::unique_ptr<DefaultPredictionStrategy> prediction_strategy(
       new LocalLinearPredictionStrategy(lambdas, weight_penalty, linear_correction_variables));
-  return ForestPredictor(num_threads, prediction_strategy);
+  return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
 
-ForestPredictor ForestPredictors::ll_causal_predictor(uint num_threads,
-                                                          std::vector<double> lambdas,
-                                                          bool weight_penalty,
-                                                          std::vector<size_t> linear_correction_variables) {
+ForestPredictor ll_causal_predictor(uint num_threads,
+                                    std::vector<double> lambdas,
+                                    bool weight_penalty,
+                                    std::vector<size_t> linear_correction_variables) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::shared_ptr<DefaultPredictionStrategy> prediction_strategy(
+  std::unique_ptr<DefaultPredictionStrategy> prediction_strategy(
           new LLCausalPredictionStrategy(lambdas, weight_penalty, linear_correction_variables));
-  return ForestPredictor(num_threads, prediction_strategy);
+  return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
+
+} // namespace grf

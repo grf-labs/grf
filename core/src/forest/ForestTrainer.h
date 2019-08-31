@@ -32,11 +32,13 @@
 #include <set>
 #include <thread>
 
+namespace grf {
+
 class ForestTrainer {
 public:
-  ForestTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
-                std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
-                std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy);
+  ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
+                std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
+                std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy);
   const Forest train(const Data* data, const ForestOptions& options) const;
 
 private:
@@ -58,5 +60,6 @@ private:
   TreeTrainer tree_trainer;
 };
 
+} // namespace grf
 
 #endif //GRF_FORESTTRAINER_H

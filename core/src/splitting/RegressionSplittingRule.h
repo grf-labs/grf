@@ -23,7 +23,9 @@
 #include <unordered_map>
 #include "commons/DefaultData.h"
 
-class RegressionSplittingRule: public SplittingRule {
+namespace grf {
+
+class RegressionSplittingRule final: public SplittingRule {
 public:
   RegressionSplittingRule(const Data* data,
                           double alpha,
@@ -70,5 +72,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRule);
 };
 
+} // namespace grf
 
 #endif //GRF_REGRESSIONSPLITTINGRULE_H

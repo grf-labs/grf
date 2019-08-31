@@ -18,15 +18,18 @@
 #ifndef GRF_OBJECTBAYESDEBIASER_H
 #define GRF_OBJECTBAYESDEBIASER_H
 
+namespace grf {
 
 class ObjectiveBayesDebiaser {
 public:
   double debias(double var_between,
                 double group_noise,
-                double num_good_groups);
+                double num_good_groups) const;
 private:
   const double ONE_over_SQRT_TWO_PI = 0.3989422804;
   const double ONE_over_SQRT_TWO = 0.70710678118;
 };
+
+} // namespace grf
 
 #endif //GRF_OBJECTBAYESDEBIASER_H

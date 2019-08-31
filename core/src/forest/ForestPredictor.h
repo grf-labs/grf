@@ -35,13 +35,15 @@
 #include <thread>
 #include <future>
 
+namespace grf {
+
 class ForestPredictor {
 public:
   ForestPredictor(uint num_threads,
-                  std::shared_ptr<DefaultPredictionStrategy> strategy);
+                  std::unique_ptr<DefaultPredictionStrategy> strategy);
 
   ForestPredictor(uint num_threads,
-                  std::shared_ptr<OptimizedPredictionStrategy> strategy);
+                  std::unique_ptr<OptimizedPredictionStrategy> strategy);
 
   std::vector<Prediction> predict(const Forest& forest,
                                   Data* train_data,
@@ -60,8 +62,9 @@ private:
 
 private:
   TreeTraverser tree_traverser;
-  std::shared_ptr<PredictionCollector> prediction_collector;
+  std::unique_ptr<PredictionCollector> prediction_collector;
 };
 
+} // namespace grf
 
 #endif //GRF_FORESTPREDICTOR_H

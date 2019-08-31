@@ -25,41 +25,58 @@
 #include "globals.h"
 #include "optional/optional.hpp"
 
+namespace grf {
+
 class Data {
 public:
   Data();
+
   virtual ~Data();
 
   virtual void reserve_memory() = 0;
+
   virtual double get(size_t row, size_t col) const = 0;
+
   virtual void set(size_t col, size_t row, double value, bool& error) = 0;
 
   void sort();
 
-  bool load_from_file(std::string filename);
-  bool load_from_whitespace_file(std::ifstream& input_file, std::string first_line);
-  bool load_from_other_file(std::ifstream& input_file, std::string first_line, char seperator);
+  bool load_from_file(const std::string& filename);
+
+  bool load_from_whitespace_file(std::ifstream& input_file, const std::string& first_line);
+
+  bool load_from_other_file(std::ifstream& input_file, const std::string& first_line, char seperator);
 
   void set_outcome_index(size_t index);
+
   void set_treatment_index(size_t index);
+
   void set_instrument_index(size_t index);
+
   void set_weight_index(size_t index);
 
   void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const;
 
   size_t get_index(size_t row, size_t col) const;
+
   double get_unique_data_value(size_t var, size_t index) const;
+
   size_t get_num_unique_data_values(size_t var) const;
 
   size_t get_num_cols() const;
+
   size_t get_num_rows() const;
+
   size_t get_max_num_unique_values() const;
 
   double get_outcome(size_t row) const;
+
   double get_treatment(size_t row) const;
+
   double get_instrument(size_t row) const;
 
   double get_weight(size_t row) const;
+
   const std::set<size_t>& get_disallowed_split_variables() const;
 
 protected:
@@ -82,4 +99,5 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Data);
 };
 
+} // namespace grf
 #endif /* GRF_DATA_H_ */

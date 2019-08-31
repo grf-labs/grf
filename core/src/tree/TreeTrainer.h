@@ -28,11 +28,13 @@
 #include "tree/Tree.h"
 #include "tree/TreeOptions.h"
 
+namespace grf {
+
 class TreeTrainer {
 public:
-  TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
-              std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
-              std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy);
+  TreeTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
+              std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
+              std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy);
 
   std::shared_ptr<Tree> train(const Data* data,
                               RandomSampler& sampler,
@@ -45,9 +47,9 @@ private:
                          std::vector<size_t>& split_vars,
                          std::vector<double>& split_values) const;
 
-  void repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
+  void repopulate_leaf_nodes(const std::shared_ptr<Tree>& tree,
                              const Data* data,
-                             const std::vector<size_t> &leaf_samples,
+                             const std::vector<size_t>& leaf_samples,
                              const bool prune_empty_leaves) const;
 
   void create_split_variable_subset(std::vector<size_t>& result,
@@ -57,7 +59,7 @@ private:
 
   bool split_node(size_t node,
                   const Data* data,
-                  std::shared_ptr<SplittingRule> splitting_rule,
+                  const std::unique_ptr<SplittingRule>& splitting_rule,
                   RandomSampler& sampler,
                   std::vector<std::vector<size_t>>& child_nodes,
                   std::vector<std::vector<size_t>>& samples,
@@ -67,7 +69,7 @@ private:
 
   bool split_node_internal(size_t node,
                            const Data* data,
-                           std::shared_ptr<SplittingRule> splitting_rule,
+                           const std::unique_ptr<SplittingRule>& splitting_rule,
                            const std::vector<size_t>& possible_split_vars,
                            const std::vector<std::vector<size_t>>& samples,
                            std::vector<size_t>& split_vars,
@@ -76,9 +78,11 @@ private:
 
   std::set<size_t> disallowed_split_variables;
 
-  std::shared_ptr<RelabelingStrategy> relabeling_strategy;
-  std::shared_ptr<SplittingRuleFactory> splitting_rule_factory;
-  std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy;
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy;
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory;
+  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy;
 };
+
+} // namespace grf
 
 #endif //GRF_TREETRAINER_H

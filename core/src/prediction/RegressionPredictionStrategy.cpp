@@ -19,20 +19,22 @@
 #include <string>
 #include "prediction/RegressionPredictionStrategy.h"
 
+namespace grf {
+
 const size_t RegressionPredictionStrategy::OUTCOME = 0;
 
-size_t RegressionPredictionStrategy::prediction_length() {
+size_t RegressionPredictionStrategy::prediction_length() const {
     return 1;
 }
 
-std::vector<double> RegressionPredictionStrategy::predict(const std::vector<double>& average) {
+std::vector<double> RegressionPredictionStrategy::predict(const std::vector<double>& average) const {
   return { average.at(OUTCOME) };
 }
 
 std::vector<double> RegressionPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    size_t ci_group_size) {
+    size_t ci_group_size) const {
 
   double average_outcome = average.at(OUTCOME);
 
@@ -81,13 +83,13 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
 }
 
 
-size_t RegressionPredictionStrategy::prediction_value_length() {
+size_t RegressionPredictionStrategy::prediction_value_length() const {
   return 1;
 }
 
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_samples,
-    const Data* data) {
+    const Data* data) const {
   size_t num_leaves = leaf_samples.size();
   std::vector<std::vector<double>> values(num_leaves);
 
@@ -109,7 +111,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
       continue;
     }
 
-    std::vector<double> &averages = values[i];
+    std::vector<double>& averages = values[i];
     averages.resize(1);
     averages[OUTCOME] = sum / weight;
   }
@@ -121,7 +123,7 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    const Data* data) {
+    const Data* data) const {
   double outcome = data->get_outcome(sample);
 
   double error = average.at(OUTCOME) - outcome;
@@ -151,3 +153,4 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
   return { output };
 }
 
+} // namespace grf

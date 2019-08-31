@@ -24,9 +24,7 @@
 #include "commons/Data.h"
 #include "prediction/LLCausalPredictionStrategy.h"
 
-size_t LLCausalPredictionStrategy::prediction_length() {
-  return lambdas.size();
-}
+namespace grf {
 
 LLCausalPredictionStrategy::LLCausalPredictionStrategy(std::vector<double> lambdas,
                                                    bool weight_penalty,
@@ -36,11 +34,15 @@ LLCausalPredictionStrategy::LLCausalPredictionStrategy(std::vector<double> lambd
         linear_correction_variables(linear_correction_variables){
 };
 
+size_t LLCausalPredictionStrategy::prediction_length() const {
+  return lambdas.size();
+}
+
 std::vector<double> LLCausalPredictionStrategy::predict(
         size_t sampleID,
         const std::unordered_map<size_t, double>& weights_by_sampleID,
-        const Data *train_data,
-        const Data *test_data) {
+        const Data* train_data,
+        const Data* test_data) const {
 
   // Number of predictor variables to use in local linear regression step
   size_t num_variables = linear_correction_variables.size();
@@ -113,22 +115,22 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   std::vector<double> predictions(num_lambdas);
   Eigen::MatrixXd M;
 
-  for( size_t i = 0; i < num_lambdas; ++i){
+  for (size_t i = 0; i < num_lambdas; ++i){
     double lambda = lambdas[i];
     M = M_unpenalized;
     if (!weight_penalty) {
       double normalization = M_unpenalized.trace() / dim_X;
 
       // standard ridge penalty
-      for(size_t j = 1; j < dim_X; ++j){
-        if(j != treatment_index){
+      for (size_t j = 1; j < dim_X; ++j){
+        if (j != treatment_index){
           M(j, j) += lambda * normalization;
         }
       }
     } else {
       // covariance ridge penalty
-      for(size_t j = 1; j < dim_X; ++j){
-        if(j != treatment_index){
+      for (size_t j = 1; j < dim_X; ++j){
+        if (j != treatment_index){
           M(j, j) += lambda * M(j, j);
         }
       }
@@ -149,7 +151,7 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
         std::unordered_map<size_t, double> weights_by_sampleID,
         const Data* train_data,
         const Data* test_data,
-        size_t ci_group_size){
+        size_t ci_group_size) const {
 
   double lambda = lambdas[0];
 
@@ -264,8 +266,8 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t b = group * ci_group_size + j;
       double psi_1 = 0;
-      for(size_t k = 0; k < samples_by_tree[b].size(); ++ k){
-        psi_1 += pseudo_residual(sample_index_map[samples_by_tree[b][k]]);
+      for (size_t sample : samples_by_tree[b]) {
+        psi_1 += pseudo_residual(sample_index_map[sample]);
       }
       psi_1 /= samples_by_tree[b].size();
       psi_squared += psi_1 * psi_1;
@@ -294,3 +296,5 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
 
   return { var_debiased };
 }
+
+} // namespace grf

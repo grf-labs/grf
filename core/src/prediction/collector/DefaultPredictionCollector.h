@@ -24,9 +24,11 @@
 #include "prediction/collector/SampleWeightComputer.h"
 #include "prediction/DefaultPredictionStrategy.h"
 
-class DefaultPredictionCollector: public PredictionCollector {
+namespace grf {
+
+class DefaultPredictionCollector final: public PredictionCollector {
 public:
-  DefaultPredictionCollector(std::shared_ptr<DefaultPredictionStrategy> strategy);
+  DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy);
 
   std::vector<Prediction> collect_predictions(const Forest& forest,
                                               Data* train_data,
@@ -34,14 +36,15 @@ public:
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                               const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                               bool estimate_variance,
-                                              bool estimate_error);
+                                              bool estimate_error) const;
 
 private:
-  void validate_prediction(size_t sample, Prediction prediction);
+  void validate_prediction(size_t sample, const Prediction& prediction) const;
 
-  std::shared_ptr<DefaultPredictionStrategy> strategy;
+  std::unique_ptr<DefaultPredictionStrategy> strategy;
   SampleWeightComputer weight_computer;
 };
 
+} // namespace grf
 
 #endif //GRF_DEFAULTPREDICTIONCOLLECTOR_H

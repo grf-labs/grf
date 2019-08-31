@@ -16,9 +16,10 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <math.h>
 
 #include "RegressionSplittingRule.h"
+
+namespace grf {
 
 RegressionSplittingRule::RegressionSplittingRule(const Data* data,
                                                  double alpha,
@@ -32,10 +33,10 @@ RegressionSplittingRule::RegressionSplittingRule(const Data* data,
 }
 
 RegressionSplittingRule::~RegressionSplittingRule() {
-  if (counter != 0) {
+  if (counter != nullptr) {
     delete[] counter;
   }
-  if (sums != 0) {
+  if (sums != nullptr) {
     delete[] sums;
   }
 }
@@ -217,3 +218,5 @@ void RegressionSplittingRule::find_best_split_value_large_q(size_t node,
     }
   }
 }
+
+} // namespace grf

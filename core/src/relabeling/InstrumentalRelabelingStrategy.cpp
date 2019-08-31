@@ -18,6 +18,8 @@
 #include "commons/utility.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 
+namespace grf {
+
 InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy():
   reduced_form_weight(0) {}
 
@@ -26,7 +28,7 @@ InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(double reduced_fo
 
 std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data* data) {
+    const Data* data) const {
 
   // Prepare the relevant averages.
   size_t num_samples = samples.size();
@@ -82,3 +84,5 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
   }
   return relabeled_outcomes;
 }
+
+} // namespace grf

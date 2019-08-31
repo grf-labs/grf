@@ -24,6 +24,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace grf {
+
 /**
  * Produces a relabelled set of outcomes for a set of training samples. These outcomes
  * will then be used in calculating a standard regression (or classification) split.
@@ -35,10 +37,14 @@
  */
 class RelabelingStrategy {
 public:
+
+  virtual ~RelabelingStrategy() = default;
+
   virtual std::unordered_map<size_t, double> relabel(
       const std::vector<size_t>& samples,
-      const Data* data) = 0;
+      const Data* data) const = 0;
 };
 
+} // namespace grf
 
 #endif //GRF_RELABELINGSTRATEGY_H

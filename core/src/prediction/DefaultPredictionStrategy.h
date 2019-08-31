@@ -27,6 +27,8 @@
 #include "prediction/Prediction.h"
 #include "prediction/PredictionValues.h"
 
+namespace grf {
+
 /**
  * A prediction strategy defines how predictions are computed over test samples.
  * This strategy is given a weighted list of training sample IDs that share a leaf
@@ -36,11 +38,13 @@
 class DefaultPredictionStrategy {
 public:
 
+  virtual ~DefaultPredictionStrategy() = default;
+
   /**
    * The number of values in a prediction, e.g. 1 for regression
    * or the number of quantiles for quantile forests.
    */
-  virtual size_t prediction_length() = 0;
+  virtual size_t prediction_length() const = 0;
 
   /**
    * Computes a prediction for a single test sample.
@@ -56,7 +60,7 @@ public:
   virtual std::vector<double> predict(size_t sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Data* train_data,
-    const Data* data) = 0;
+    const Data* data) const = 0;
 
   /**
    * Computes a prediction variance estimate for a single test sample.
@@ -79,7 +83,9 @@ public:
       std::unordered_map<size_t, double> weights_by_sampleID,
       const Data* train_data,
       const Data* data,
-      size_t ci_group_size) = 0;
+      size_t ci_group_size) const = 0;
 };
+
+} // namespace grf
 
 #endif //GRF_DEFAULTPREDICTIONSTRATEGY_H

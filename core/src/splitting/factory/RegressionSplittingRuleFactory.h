@@ -21,20 +21,23 @@
 
 #include "splitting/factory/SplittingRuleFactory.h"
 
+namespace grf {
+
 /**
  * A factory that produces standard regression splitting rules.
  *
  * In addition to performing standard regression splits, this rule applies
  * a penalty to avoid splits too close to the edge of the node's data.
  */
-class RegressionSplittingRuleFactory: public SplittingRuleFactory {
+class RegressionSplittingRuleFactory final: public SplittingRuleFactory {
 public:
-  RegressionSplittingRuleFactory();
-  std::shared_ptr<SplittingRule> create(const Data* data,
-                                        const TreeOptions& options);
+  RegressionSplittingRuleFactory() = default;
+  std::unique_ptr<SplittingRule> create(const Data* data,
+                                        const TreeOptions& options) const;
 private:
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRuleFactory);
 };
 
+} // namespace grf
 
 #endif //GRF_REGRESSIONSPLITTINGRULEFACTORY_H

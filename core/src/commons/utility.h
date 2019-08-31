@@ -28,6 +28,8 @@
 #include "globals.h"
 #include "DefaultData.h"
 
+namespace grf {
+
 /**
  * Split sequence start..end in num_parts parts with sizes as equal as possible.
  * @param result Result vector of size num_parts+1. Ranges for the parts are then result[0]..result[1]-1, result[1]..result[2]-1, ..
@@ -39,8 +41,10 @@ void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_pa
 
 bool equal_doubles(double first, double second, double epsilon);
 
-Data* load_data(std::string file_name);
+Data* load_data(const std::string& file_name);
 
-Data* load_sparse_data(std::string file_name);
+Data* load_sparse_data(const std::string& file_name);
+
+} // namespace grf
 
 #endif /* GRF_UTILITY_H_ */

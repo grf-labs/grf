@@ -25,19 +25,20 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
-class LLCausalPredictionStrategy: public DefaultPredictionStrategy {
+namespace grf {
+
+class LLCausalPredictionStrategy final: public DefaultPredictionStrategy {
 public:
     LLCausalPredictionStrategy(std::vector<double> lambdas,
                                bool weight_penalty,
                                std::vector<size_t> linear_correction_variables);
 
-    size_t prediction_value_length();
+    size_t prediction_length() const;
 
-    size_t prediction_length();
     std::vector<double> predict(size_t sampleID,
                                 const std::unordered_map<size_t, double>& weights_by_sampleID,
-                                const Data *original_data,
-                                const Data *test_data);
+                                const Data* original_data,
+                                const Data* test_data) const;
 
     std::vector<double> compute_variance(
             size_t sampleID,
@@ -45,15 +46,15 @@ public:
             std::unordered_map<size_t, double> weights_by_sampleID,
             const Data* train_data,
             const Data* data,
-            size_t ci_group_size);
+            size_t ci_group_size) const;
 
 private:
-    const Data *train_data;
-    const Data *test_data;
     std::vector<double> lambdas;
     bool weight_penalty;
     std::vector<size_t> linear_correction_variables;
     ObjectiveBayesDebiaser bayes_debiaser;
 };
+
+} // namespace grf
 
 #endif //GRF_LLCAUSALPREDICTIONSTRATEGY_H

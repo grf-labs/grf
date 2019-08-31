@@ -21,12 +21,14 @@
 #include "commons/DefaultData.h"
 #include "tree/TreeTrainer.h"
 
-TreeTrainer::TreeTrainer(std::shared_ptr<RelabelingStrategy> relabeling_strategy,
-                         std::shared_ptr<SplittingRuleFactory> splitting_rule_factory,
-                         std::shared_ptr<OptimizedPredictionStrategy> prediction_strategy) :
-    relabeling_strategy(relabeling_strategy),
-    splitting_rule_factory(splitting_rule_factory),
-    prediction_strategy(prediction_strategy) {}
+namespace grf {
+
+TreeTrainer::TreeTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
+                         std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
+                         std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy) :
+    relabeling_strategy(std::move(relabeling_strategy)),
+    splitting_rule_factory(std::move(splitting_rule_factory)),
+    prediction_strategy(std::move(prediction_strategy)) {}
 
 std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
                                          RandomSampler& sampler,
@@ -37,8 +39,8 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
   std::vector<size_t> split_vars;
   std::vector<double> split_values;
 
-  child_nodes.push_back(std::vector<size_t>());
-  child_nodes.push_back(std::vector<size_t>());
+  child_nodes.emplace_back();
+  child_nodes.emplace_back();
   create_empty_node(child_nodes, nodes, split_vars, split_values);
 
   std::vector<size_t> new_leaf_samples;
@@ -54,7 +56,7 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
     sampler.sample_from_clusters(clusters, nodes[0]);
   }
 
-  std::shared_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(
+  std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(
       data, options);
 
   size_t num_open_nodes = 1;
@@ -94,7 +96,7 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
   }
 
   PredictionValues prediction_values;
-  if (prediction_strategy != NULL) {
+  if (prediction_strategy != nullptr) {
     prediction_values = prediction_strategy->precompute_prediction_values(tree->get_leaf_samples(), data);
   }
   tree->set_prediction_values(prediction_values);
@@ -102,7 +104,7 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
   return tree;
 }
 
-void TreeTrainer::repopulate_leaf_nodes(std::shared_ptr<Tree> tree,
+void TreeTrainer::repopulate_leaf_nodes(const std::shared_ptr<Tree>& tree,
                                         const Data* data,
                                         const std::vector<size_t>& leaf_samples,
                                         const bool prune_empty_leaves) const {
@@ -139,7 +141,7 @@ void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
 
 bool TreeTrainer::split_node(size_t node,
                              const Data* data,
-                             std::shared_ptr<SplittingRule> splitting_rule,
+                             const std::unique_ptr<SplittingRule>& splitting_rule,
                              RandomSampler& sampler,
                              std::vector<std::vector<size_t>>& child_nodes,
                              std::vector<std::vector<size_t>>& samples,
@@ -189,7 +191,7 @@ bool TreeTrainer::split_node(size_t node,
 
 bool TreeTrainer::split_node_internal(size_t node,
                                       const Data* data,
-                                      std::shared_ptr<SplittingRule> splitting_rule,
+                                      const std::unique_ptr<SplittingRule>& splitting_rule,
                                       const std::vector<size_t>& possible_split_vars,
                                       const std::vector<std::vector<size_t>>& samples,
                                       std::vector<size_t>& split_vars,
@@ -223,7 +225,9 @@ void TreeTrainer::create_empty_node(std::vector<std::vector<size_t>>& child_node
                                     std::vector<double>& split_values) const {
   child_nodes[0].push_back(0);
   child_nodes[1].push_back(0);
-  samples.push_back(std::vector<size_t>());
+  samples.emplace_back();
   split_vars.push_back(0);
   split_values.push_back(0);
 }
+
+} // namespace grf

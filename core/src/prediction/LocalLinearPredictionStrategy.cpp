@@ -24,9 +24,7 @@
 #include "commons/Data.h"
 #include "prediction/LocalLinearPredictionStrategy.h"
 
-size_t LocalLinearPredictionStrategy::prediction_length() {
-  return lambdas.size();
-}
+namespace grf {
 
 LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(std::vector<double> lambdas,
                                                              bool weight_penalty,
@@ -36,11 +34,15 @@ LocalLinearPredictionStrategy::LocalLinearPredictionStrategy(std::vector<double>
         linear_correction_variables(linear_correction_variables){
 };
 
+size_t LocalLinearPredictionStrategy::prediction_length() const {
+  return lambdas.size();
+}
+
 std::vector<double> LocalLinearPredictionStrategy::predict(
     size_t sampleID,
     const std::unordered_map<size_t, double>& weights_by_sampleID,
     const Data* train_data,
-    const Data* data) {
+    const Data* data) const {
   size_t num_variables = linear_correction_variables.size();
   size_t num_nonzero_weights = weights_by_sampleID.size();
 
@@ -107,7 +109,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     std::unordered_map<size_t, double> weights_by_sampleID,
     const Data* train_data,
     const Data* data,
-    size_t ci_group_size) {
+    size_t ci_group_size) const {
 
   double lambda = lambdas[0];
 
@@ -120,7 +122,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
     {
       size_t i = 0;
-      for (auto& it : weights_by_sampleID) {
+      for (const auto& it : weights_by_sampleID) {
         size_t index = it.first;
         double weight = it.second;
         indices[i] = index;
@@ -193,8 +195,8 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t b = group * ci_group_size + j;
       double psi_1 = 0;
-      for(size_t k = 0; k < samples_by_tree[b].size(); ++ k){
-        psi_1 += pseudo_residual(sample_index_map[samples_by_tree[b][k]]);
+      for (size_t sample : samples_by_tree[b]){
+        psi_1 += pseudo_residual(sample_index_map[sample]);
       }
       psi_1 /= samples_by_tree[b].size();
       psi_squared += psi_1 * psi_1;
@@ -223,3 +225,5 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
 
   return { var_debiased };
 }
+
+} // namespace grf

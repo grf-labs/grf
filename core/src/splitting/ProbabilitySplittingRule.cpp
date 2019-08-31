@@ -21,6 +21,8 @@
 
 #include "ProbabilitySplittingRule.h"
 
+namespace grf {
+
 ProbabilitySplittingRule::ProbabilitySplittingRule(const Data* data,
                                                    size_t num_classes,
                                                    double alpha,
@@ -37,10 +39,10 @@ ProbabilitySplittingRule::ProbabilitySplittingRule(const Data* data,
 }
 
 ProbabilitySplittingRule::~ProbabilitySplittingRule() {
-  if (counter != 0) {
+  if (counter != nullptr) {
     delete[] counter;
   }
-  if (counter_per_class != 0) {
+  if (counter_per_class != nullptr) {
     delete[] counter_per_class;
   }
 }
@@ -255,3 +257,5 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(size_t node, size_t
   }
   delete[] class_counts_left;
 }
+
+} // namespace grf

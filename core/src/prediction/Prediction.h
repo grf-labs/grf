@@ -21,6 +21,8 @@
 #include <cstddef>
 #include <vector>
 
+namespace grf {
+
 class Prediction {
 public:
   Prediction(const std::vector<double>& predictions);
@@ -45,5 +47,6 @@ private:
   std::vector<double> excess_error_estimates;
 };
 
+} // namespace grf
 
 #endif //GRF_PREDICTION_H
