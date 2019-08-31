@@ -40,10 +40,9 @@ public:
   void reserve_memory();
   void set(size_t col, size_t row, double value, bool& error);
 
-protected:
+private:
   double* data;
 
-private:
   DISALLOW_COPY_AND_ASSIGN(DefaultData);
 };
 

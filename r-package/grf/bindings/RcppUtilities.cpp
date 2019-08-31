@@ -4,6 +4,7 @@
 #include "commons/DefaultData.h"
 #include "commons/SparseData.h"
 #include "forest/ForestOptions.h"
+#include "RcppData.h"
 #include "RcppUtilities.h"
 
 using namespace grf;
@@ -98,7 +99,7 @@ Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
   if (input_data.nrow() > 0) {
     size_t num_rows = input_data.nrow();
     size_t num_cols = input_data.ncol();
-    data = new DefaultData(input_data.begin(), num_rows, num_cols);
+    data = new RcppData(input_data, num_rows, num_cols);
   } else {
     size_t num_rows = sparse_input_data.rows();
     size_t num_cols = sparse_input_data.cols();

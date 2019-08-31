@@ -15,36 +15,30 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_SPARSEDATA_H
-#define GRF_SPARSEDATA_H
+#ifndef GRF_RCPPDATA_H
+#define GRF_RCPPDATA_H
 
+#include <Rcpp.h>
 
-#include "Data.h"
-#include "Eigen/Sparse"
+#include "commons/Data.h"
+#include "commons/utility.h"
 
-namespace grf {
+using namespace grf;
 
-class SparseData: public Data {
+class RcppData final: public Data {
 public:
-  SparseData();
-
-  SparseData(Eigen::SparseMatrix<double>* data,
-             size_t num_rows,
-             size_t num_cols);
-
-  virtual ~SparseData();
+  RcppData(Rcpp::NumericMatrix& data, size_t num_rows, size_t num_cols);
 
   double get(size_t row, size_t col) const;
 
   void reserve_memory();
+
   void set(size_t col, size_t row, double value, bool& error);
 
 private:
-  Eigen::SparseMatrix<double>* data;
+  Rcpp::NumericMatrix data;
 
-  DISALLOW_COPY_AND_ASSIGN(SparseData);
+  DISALLOW_COPY_AND_ASSIGN(RcppData);
 };
 
-} // namespace grf
-
-#endif //GRF_SPARSEDATA_H
+#endif //GRF_RCPPDATA_H
