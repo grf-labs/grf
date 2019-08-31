@@ -22,6 +22,8 @@
 #include "Data.h"
 #include "Eigen/Sparse"
 
+namespace grf {
+
 class SparseData: public Data {
 public:
   SparseData();
@@ -44,5 +46,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(SparseData);
 };
 
+} // namespace grf
 
 #endif //GRF_SPARSEDATA_H

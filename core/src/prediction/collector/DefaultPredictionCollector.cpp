@@ -17,6 +17,8 @@
 
 #include "prediction/collector/DefaultPredictionCollector.h"
 
+namespace grf {
+
 DefaultPredictionCollector::DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy):
     strategy(std::move(strategy)) {}
 
@@ -78,3 +80,5 @@ void DefaultPredictionCollector::validate_prediction(size_t sample,
                              " did not have the expected length.");
   }
 }
+
+} // namespace grf

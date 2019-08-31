@@ -21,6 +21,8 @@
 #include "tree/Tree.h"
 #include "commons/utility.h"
 
+namespace grf {
+
 Tree::Tree(size_t root_node,
            const std::vector<std::vector<size_t>>& child_nodes,
            const std::vector<std::vector<size_t>>& leaf_samples,
@@ -184,3 +186,4 @@ void Tree::clear() {
   prediction_values.clear();
 }
 
+} // namespace grf

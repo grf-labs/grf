@@ -20,6 +20,8 @@
 
 #include "relabeling/QuantileRelabelingStrategy.h"
 
+namespace grf {
+
 QuantileRelabelingStrategy::QuantileRelabelingStrategy(const std::vector<double>& quantiles) :
     quantiles(quantiles) {}
 
@@ -59,3 +61,5 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
   }
   return relabeled_observations;
 }
+
+} // namespace grf

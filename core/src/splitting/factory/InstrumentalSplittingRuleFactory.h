@@ -21,6 +21,8 @@
 
 #include "splitting/factory/SplittingRuleFactory.h"
 
+namespace grf {
+
 /**
  * An experimental factory that produces splitting rules specialized
  * for instrumental forests.
@@ -39,5 +41,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(InstrumentalSplittingRuleFactory);
 };
 
+} // namespace grf
 
 #endif //GRF_INSTRUMENTALSPLITTINGRULEFACTORY_H

@@ -21,6 +21,8 @@
 
 #include "forest/Forest.h"
 
+namespace grf {
+
 /**
  * Computes a matrix of split depth by variable ID, where each value is
  * the number of times the variable was split on at that depth.
@@ -34,5 +36,6 @@ public:
                                            size_t max_depth) const;
 };
 
+} // namespace grf
 
 #endif //GRF_SPLITFREQUENCYCOMPUTER_H

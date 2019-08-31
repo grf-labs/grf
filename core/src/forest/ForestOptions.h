@@ -23,6 +23,7 @@
 #include "sampling/SamplingOptions.h"
 #include "tree/TreeOptions.h"
 
+namespace grf {
 
 class ForestOptions {
 public:
@@ -65,5 +66,6 @@ private:
   uint random_seed;
 };
 
+} // namespace grf
 
 #endif //GRF_FORESTOPTIONS_H

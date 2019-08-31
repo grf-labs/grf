@@ -20,6 +20,8 @@
 
 #include "forest/Forest.h"
 
+namespace grf {
+
 class TreeTraverser {
 public:
   TreeTraverser(uint num_threads);
@@ -48,5 +50,6 @@ private:
   uint num_threads;
 };
 
+} // namespace grf
 
 #endif //GRF_TREETRAVERSER_H

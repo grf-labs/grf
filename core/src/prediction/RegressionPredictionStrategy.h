@@ -24,6 +24,8 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
+namespace grf {
+
 class RegressionPredictionStrategy final: public OptimizedPredictionStrategy {
 public:
   size_t prediction_value_length() const;
@@ -51,5 +53,6 @@ private:
   ObjectiveBayesDebiaser bayes_debiaser;
 };
 
+} // namespace grf
 
 #endif //GRF_REGRESSIONPREDICTIONSTRATEGY_H

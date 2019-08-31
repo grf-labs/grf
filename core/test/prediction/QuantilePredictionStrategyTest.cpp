@@ -25,6 +25,8 @@
 
 #include "catch.hpp"
 
+using namespace grf;
+
 TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
   std::unordered_map<size_t, double> weights_by_sample = {
       {0, 0.0}, {1, 0.1}, {2, 0.2}, {3, 0.1}, {4, 0.1},

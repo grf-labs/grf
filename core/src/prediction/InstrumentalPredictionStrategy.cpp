@@ -23,6 +23,8 @@
 #include "commons/utility.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
 
+namespace grf {
+
 const std::size_t InstrumentalPredictionStrategy::OUTCOME = 0;
 const std::size_t InstrumentalPredictionStrategy::TREATMENT = 1;
 const std::size_t InstrumentalPredictionStrategy::INSTRUMENT = 2;
@@ -259,3 +261,4 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
 
 }
 
+} // namespace grf

@@ -26,6 +26,8 @@
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
 
+namespace grf {
+
 class QuantilePredictionStrategy final: public DefaultPredictionStrategy {
 public:
   QuantilePredictionStrategy(std::vector<double> quantiles);
@@ -52,5 +54,6 @@ private:
   std::vector<double> quantiles;
 };
 
+} // namespace grf
 
 #endif //GRF_QUANTILEPREDICTIONSTRATEGY_H

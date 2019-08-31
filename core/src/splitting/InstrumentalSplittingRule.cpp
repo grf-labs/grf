@@ -19,6 +19,8 @@
 
 #include "InstrumentalSplittingRule.h"
 
+namespace grf {
+
 InstrumentalSplittingRule::InstrumentalSplittingRule(const Data* data,
                                                      uint min_node_size,
                                                      double alpha,
@@ -326,3 +328,5 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
     }
   }
 }
+
+} // namespace grf

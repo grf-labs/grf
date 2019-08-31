@@ -24,18 +24,19 @@
 
 #include "catch.hpp"
 
+using namespace grf;
 
 TEST_CASE("custom forests predict 0 by default", "[custom, forest]") {
   // Train an honest custom forest.
   Data* data = load_data("test/forest/resources/gaussian_data.csv");
   data->set_outcome_index(10);
 
-  ForestTrainer trainer = ForestTrainers::custom_trainer();
+  ForestTrainer trainer = custom_trainer();
   ForestOptions options = ForestTestUtilities::default_honest_options();
   Forest forest = trainer.train(data, options);
 
   // Predict on the same data.
-  ForestPredictor predictor = ForestPredictors::custom_predictor(4);
+  ForestPredictor predictor = custom_predictor(4);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
 
   // Check the dummy predictions look as expected.

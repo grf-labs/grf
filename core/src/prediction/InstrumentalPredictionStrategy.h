@@ -27,6 +27,8 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
+namespace grf {
+
 class InstrumentalPredictionStrategy final: public OptimizedPredictionStrategy {
 public:
   static const std::size_t OUTCOME;
@@ -57,5 +59,7 @@ public:
 private:
   ObjectiveBayesDebiaser bayes_debiaser;
 };
+
+} // namespace grf
 
 #endif //GRF_INSTRUMENTALPREDICTIONSTRATEGY_H

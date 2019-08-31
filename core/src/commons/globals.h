@@ -5,9 +5,12 @@
     TypeName(const TypeName&);             \
     void operator=(const TypeName&)
 
+namespace grf {
+
 typedef unsigned int uint;
 
 static const uint DEFAULT_NUM_THREADS = 0;
 static const double Q_THRESHOLD = 0.02;
 
+} // namespace grf
 #endif /* GRF_GLOBALS_H_ */

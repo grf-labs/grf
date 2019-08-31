@@ -24,6 +24,8 @@
 #include "Data.h"
 #include "globals.h"
 
+namespace grf {
+
 class DefaultData: public Data {
 public:
   DefaultData();
@@ -44,5 +46,7 @@ protected:
 private:
   DISALLOW_COPY_AND_ASSIGN(DefaultData);
 };
+
+} // namespace grf
 
 #endif /* GRF_DEFAULTDATA_H_ */

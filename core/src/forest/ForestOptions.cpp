@@ -19,6 +19,8 @@
 #include "forest/ForestOptions.h"
 #include "tree/TreeOptions.h"
 
+namespace grf {
+
 ForestOptions::ForestOptions(uint num_trees,
                              size_t ci_group_size,
                              double sample_fraction,
@@ -94,3 +96,5 @@ uint ForestOptions::validate_num_threads(uint num_threads) {
     throw std::runtime_error("A negative number of threads was provided.");
   }
 }
+
+} // namespace grf

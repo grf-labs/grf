@@ -17,6 +17,8 @@
 
 #include "prediction/Prediction.h"
 
+namespace grf {
+
 Prediction::Prediction(const std::vector<double>& predictions):
   predictions(predictions),
   variance_estimates(0),
@@ -59,3 +61,5 @@ const bool Prediction::contains_error_estimates() const {
 const size_t Prediction::size() const {
   return predictions.size();
 }
+
+} // namespace grf

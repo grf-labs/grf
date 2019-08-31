@@ -17,6 +17,8 @@
 
 #include "SplitFrequencyComputer.h"
 
+namespace grf {
+
 std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& forest,
                                                                  size_t max_depth) const {
   size_t num_variables = forest.get_num_variables();
@@ -49,3 +51,5 @@ std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& f
   }
   return result;
 }
+
+} // namespace grf

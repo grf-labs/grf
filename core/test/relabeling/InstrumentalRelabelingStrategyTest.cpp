@@ -25,6 +25,8 @@
 #include "relabeling/RelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 
+using namespace grf;
+
 std::vector<double> get_relabeled_outcomes(double observations[], size_t num_samples) {
   DefaultData data(observations, num_samples, 3);
   data.set_outcome_index(0);

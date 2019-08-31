@@ -22,6 +22,8 @@
 #include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 
+namespace grf {
+
 class InstrumentalSplittingRule final: public SplittingRule {
 public:
   InstrumentalSplittingRule(const Data* data,
@@ -82,5 +84,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(InstrumentalSplittingRule);
 };
 
+} // namespace grf
 
 #endif //GRF_INSTRUMENTALSPLITTINGRULE_H

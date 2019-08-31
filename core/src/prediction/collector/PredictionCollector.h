@@ -20,6 +20,8 @@
 
 #include "forest/Forest.h"
 
+namespace grf {
+
 class PredictionCollector {
 public:
 
@@ -33,5 +35,7 @@ public:
                                                       bool estimate_variance,
                                                       bool estimate_error) const = 0;
 };
+
+} // namespace grf
 
 #endif //GRF_PREDICTIONCOLLECTOR_H

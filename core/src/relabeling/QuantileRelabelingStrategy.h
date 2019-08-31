@@ -22,6 +22,8 @@
 #include "tree/Tree.h"
 #include "relabeling/RelabelingStrategy.h"
 
+namespace grf {
+
 class QuantileRelabelingStrategy final: public RelabelingStrategy {
 public:
   QuantileRelabelingStrategy(const std::vector<double>& quantiles);
@@ -32,5 +34,6 @@ private:
   std::vector<double> quantiles;
 };
 
+} // namespace grf
 
 #endif //GRF_QUANTILERELABELINGSTRATEGY_H

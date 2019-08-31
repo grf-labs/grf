@@ -24,6 +24,8 @@
 #include "tree/Tree.h"
 #include "relabeling/RelabelingStrategy.h"
 
+namespace grf {
+
 class InstrumentalRelabelingStrategy final: public RelabelingStrategy {
 public:
   InstrumentalRelabelingStrategy();
@@ -39,5 +41,7 @@ public:
 private:
   double reduced_form_weight;
 };
+
+} // namespace grf
 
 #endif //GRF_INSTRUMENTALRELABELINGSTRATEGY_H

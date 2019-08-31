@@ -17,6 +17,8 @@
 
 #include "CustomPredictionStrategy.h"
 
+namespace grf {
+
 size_t CustomPredictionStrategy::prediction_length() const {
   return 1;
 }
@@ -37,3 +39,5 @@ std::vector<double> CustomPredictionStrategy::compute_variance(
     size_t ci_group_size) const {
   return { 0.0 };
 }
+
+} // namespace grf

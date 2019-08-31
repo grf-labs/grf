@@ -21,6 +21,8 @@
 #include "commons/DefaultData.h"
 #include "tree/TreeTrainer.h"
 
+namespace grf {
+
 TreeTrainer::TreeTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
                          std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
                          std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy) :
@@ -227,3 +229,5 @@ void TreeTrainer::create_empty_node(std::vector<std::vector<size_t>>& child_node
   split_vars.push_back(0);
   split_values.push_back(0);
 }
+
+} // namespace grf

@@ -20,17 +20,17 @@
 
 #include "forest/ForestTrainer.h"
 
-class ForestTrainers {
-public:
-  static ForestTrainer instrumental_trainer(double reduced_form_weight,
-                                            bool stabilize_splits);
+namespace grf {
 
-  static ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
+ForestTrainer instrumental_trainer(double reduced_form_weight,
+                                   bool stabilize_splits);
 
-  static ForestTrainer regression_trainer();
+ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
 
-  static ForestTrainer custom_trainer();
-};
+ForestTrainer regression_trainer();
 
+ForestTrainer custom_trainer();
+
+} // namespace grf
 
 #endif //GRF_FORESTTRAINERS_H

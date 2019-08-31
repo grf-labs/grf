@@ -27,6 +27,8 @@
 #include "prediction/Prediction.h"
 #include "prediction/PredictionValues.h"
 
+namespace grf {
+
 /**
  * A prediction strategy defines how predictions are computed over test samples.
  * This strategy is given a weighted list of training sample IDs that share a leaf
@@ -83,5 +85,7 @@ public:
       const Data* data,
       size_t ci_group_size) const = 0;
 };
+
+} // namespace grf
 
 #endif //GRF_DEFAULTPREDICTIONSTRATEGY_H

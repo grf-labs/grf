@@ -20,6 +20,8 @@
 
 #include "relabeling/RelabelingStrategy.h"
 
+namespace grf {
+
 class NoopRelabelingStrategy final: public RelabelingStrategy {
 public:
   std::unordered_map<size_t, double> relabel(
@@ -27,5 +29,6 @@ public:
       const Data* data) const;
 };
 
+} // namespace grf
 
 #endif //GRF_NOOPRELABELINGSTRATEGY_H

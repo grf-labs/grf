@@ -17,6 +17,8 @@
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
 
+namespace grf {
+
 OptimizedPredictionCollector::OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy):
     strategy(std::move(strategy)) {}
 
@@ -125,3 +127,5 @@ void OptimizedPredictionCollector::validate_prediction(size_t sample,
                              " did not have the expected length.");
   }
 }
+
+} // namespace grf

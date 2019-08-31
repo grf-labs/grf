@@ -22,6 +22,8 @@
 #include "forest/Forest.h"
 #include "prediction/collector/PredictionCollector.h"
 
+namespace grf {
+
 class OptimizedPredictionCollector final: public PredictionCollector {
 public:
   OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy);
@@ -48,5 +50,6 @@ private:
   std::unique_ptr<OptimizedPredictionStrategy> strategy;
 };
 
+} // namespace grf
 
 #endif //GRF_OPTIMIZEDPREDICTIONCOLLECTOR_H

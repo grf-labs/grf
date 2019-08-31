@@ -21,6 +21,8 @@
 
 #include "splitting/factory/SplittingRuleFactory.h"
 
+namespace grf {
+
 /**
  * A factory that produces standard regression splitting rules.
  *
@@ -36,5 +38,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRuleFactory);
 };
 
+} // namespace grf
 
 #endif //GRF_REGRESSIONSPLITTINGRULEFACTORY_H
