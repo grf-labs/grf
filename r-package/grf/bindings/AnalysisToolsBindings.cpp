@@ -120,15 +120,15 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
     throw std::runtime_error("The provided tree index is not valid.");
   }
 
-  std::shared_ptr<Tree> tree = forest.get_trees().at(tree_index);
-  const std::vector<std::vector<size_t>>& child_nodes = tree->get_child_nodes();
-  const std::vector<std::vector<size_t>>& leaf_samples = tree->get_leaf_samples();
+  const Tree& tree = forest.get_trees().at(tree_index);
+  const std::vector<std::vector<size_t>>& child_nodes = tree.get_child_nodes();
+  const std::vector<std::vector<size_t>>& leaf_samples = tree.get_leaf_samples();
 
-  const std::vector<size_t>& split_vars = tree->get_split_vars();
-  const std::vector<double>& split_values = tree->get_split_values();
+  const std::vector<size_t>& split_vars = tree.get_split_vars();
+  const std::vector<double>& split_values = tree.get_split_values();
 
   std::queue<size_t> frontier;
-  frontier.push(tree->get_root_node());
+  frontier.push(tree.get_root_node());
   size_t node_index = 1;
 
   std::vector<Rcpp::List> node_objects;
@@ -138,7 +138,7 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
     size_t node = frontier.front();
     Rcpp::List node_object;
 
-    if (tree->is_leaf(node)) {
+    if (tree.is_leaf(node)) {
       node_object.push_back(true, "is_leaf");
 
       std::vector<size_t> samples;
@@ -165,7 +165,7 @@ Rcpp::List deserialize_tree(Rcpp::List forest_object,
     node_objects.push_back(node_object);
   }
 
-  std::vector<size_t> drawn_samples(tree->get_drawn_samples());
+  std::vector<size_t> drawn_samples(tree.get_drawn_samples());
   for (size_t& index : drawn_samples) index += 1; //R is 1-indexed.
 
 

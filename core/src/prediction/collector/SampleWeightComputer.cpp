@@ -36,8 +36,8 @@ std::unordered_map<size_t, double> SampleWeightComputer::compute_weights(size_t 
     const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
     size_t node = leaf_nodes.at(sample);
 
-    std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
-    const std::vector<size_t>& samples = tree->get_leaf_samples()[node];
+    const Tree& tree = forest.get_trees()[tree_index];
+    const std::vector<size_t>& samples = tree.get_leaf_samples()[node];
     if (!samples.empty()) {
       add_sample_weights(samples, weights_by_sample);
     }
