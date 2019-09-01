@@ -27,19 +27,12 @@ namespace grf {
 Data::Data() :
     num_rows(0),
     num_cols(0),
-    external_data(true),
-    index_data(nullptr),
+    index_data(),
     max_num_unique_values(0),
     outcome_index(),
     treatment_index(),
     instrument_index(),
     weight_index() {}
-
-Data::~Data() {
-  if (index_data != nullptr) {
-    delete[] index_data;
-  }
-}
 
 bool Data::load_from_file(const std::string& filename) {
   bool result;
@@ -75,7 +68,6 @@ bool Data::load_from_file(const std::string& filename) {
     result = load_from_whitespace_file(input_file, first_line);
   }
 
-  external_data = false;
   input_file.close();
   return result;
 }
@@ -180,7 +172,7 @@ size_t Data::get_index(size_t row, size_t col) const {
 
 void Data::sort() {
   // Reserve memory
-  index_data = new size_t[num_cols * num_rows];
+  index_data.resize(num_cols * num_rows);
 
   // For all columns, get unique values and save index for each observation
   for (size_t col = 0; col < num_cols; ++col) {

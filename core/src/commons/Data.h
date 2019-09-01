@@ -31,7 +31,7 @@ class Data {
 public:
   Data();
 
-  virtual ~Data();
+  virtual ~Data() = default;
 
   virtual void reserve_memory() = 0;
 
@@ -83,9 +83,7 @@ protected:
   size_t num_rows;
   size_t num_cols;
 
-  bool external_data;
-
-  size_t* index_data;
+  std::vector<size_t> index_data;
   std::vector<std::vector<double>> unique_data_values;
   size_t max_num_unique_values;
 

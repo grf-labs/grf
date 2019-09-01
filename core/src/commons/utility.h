@@ -18,15 +18,16 @@
 #ifndef GRF_UTILITY_H_
 #define GRF_UTILITY_H_
 
-#include <vector>
-#include <iostream>
-#include <fstream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <memory>
 #include <unordered_set>
 #include <unordered_map>
+#include <vector>
 
+#include "Data.h"
 #include "globals.h"
-#include "DefaultData.h"
 
 namespace grf {
 
@@ -41,9 +42,9 @@ void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_pa
 
 bool equal_doubles(double first, double second, double epsilon);
 
-Data* load_data(const std::string& file_name);
+std::unique_ptr<Data> load_data(const std::string& file_name);
 
-Data* load_sparse_data(const std::string& file_name);
+std::unique_ptr<Data> load_sparse_data(const std::string& file_name);
 
 } // namespace grf
 

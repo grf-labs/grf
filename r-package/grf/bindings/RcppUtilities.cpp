@@ -18,7 +18,7 @@ Rcpp::List RcppUtilities::create_forest_object(Forest& forest,
   return result;
 }
 
-Forest RcppUtilities::deserialize_forest(Rcpp::List forest_object) {
+Forest RcppUtilities::deserialize_forest(const Rcpp::List& forest_object) {
   size_t ci_group_size = forest_object["_ci_group_size"];
   size_t num_variables = forest_object["_num_variables"];
 
@@ -93,17 +93,18 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   return result;
 };
 
-Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
-                                  Eigen::SparseMatrix<double>& sparse_input_data) {
-  Data* data;
+std::unique_ptr<Data> RcppUtilities::convert_data(Rcpp::NumericMatrix& input_data,
+                                                  Eigen::SparseMatrix<double>& sparse_input_data) {
+  std::unique_ptr<Data> data;
   if (input_data.nrow() > 0) {
     size_t num_rows = input_data.nrow();
     size_t num_cols = input_data.ncol();
-    data = new RcppData(input_data, num_rows, num_cols);
+    data = std::unique_ptr<Data>(new RcppData(input_data, num_rows, num_cols));
   } else {
     size_t num_rows = sparse_input_data.rows();
     size_t num_cols = sparse_input_data.cols();
-    data = new SparseData(&sparse_input_data, num_rows, num_cols);
+
+    data = std::unique_ptr<Data>(new SparseData(sparse_input_data, num_rows, num_cols));
   }
   return data;
 }

@@ -30,7 +30,7 @@ class Forest {
 public:
   static Forest create(const std::vector<Tree>& trees,
                        const ForestOptions& forest_options,
-                       const Data* data);
+                       const Data& data);
 
   Forest(const std::vector<Tree>& trees,
          size_t num_variables,

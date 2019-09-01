@@ -23,33 +23,30 @@
 
 namespace grf {
 
-SparseData::SparseData():
-  SparseData(nullptr, 0, 0) {}
+SparseData::SparseData() {
+  this->data = Eigen::SparseMatrix<double>();
+  this->num_rows = 0;
+  this->num_cols = 0;
+}
 
-SparseData::SparseData(Eigen::SparseMatrix<double>* data,
+SparseData::SparseData(Eigen::SparseMatrix<double>& data,
                        size_t num_rows,
-                       size_t num_cols):
-    data(data) {
+                       size_t num_cols) {
+  this->data.swap(data);
   this->num_rows = num_rows;
   this->num_cols = num_cols;
 }
 
-SparseData::~SparseData() {
-  if (!external_data) {
-    delete data;
-  }
-}
-
 double SparseData::get(size_t row, size_t col) const {
-  return data->coeff(row, col);
+  return data.coeff(row, col);
 }
 
 void SparseData::reserve_memory() {
-  data = new Eigen::SparseMatrix<double>(num_rows, num_cols);
+  data.resize(num_rows, num_cols);
 }
 
 void SparseData::set(size_t col, size_t row, double value, bool& error) {
-  data->coeffRef(row, col) = value;
+  data.coeffRef(row, col) = value;
 }
 
 } // namespace grf

@@ -25,10 +25,13 @@ namespace grf {
 ProbabilitySplittingRuleFactory::ProbabilitySplittingRuleFactory(size_t num_classes):
     num_classes(num_classes) {}
 
-std::unique_ptr<SplittingRule> ProbabilitySplittingRuleFactory::create(const Data* data,
+std::unique_ptr<SplittingRule> ProbabilitySplittingRuleFactory::create(const Data& data,
                                                                        const TreeOptions& options) const {
   return std::unique_ptr<SplittingRule>(new ProbabilitySplittingRule(
-      data, num_classes, options.get_alpha(), options.get_imbalance_penalty()));
+      data.get_max_num_unique_values(),
+      num_classes,
+      options.get_alpha(),
+      options.get_imbalance_penalty()));
 }
 
 } // namespace grf
