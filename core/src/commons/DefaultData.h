@@ -26,24 +26,22 @@
 
 namespace grf {
 
-class DefaultData: public Data {
+class DefaultData final: public Data {
 public:
   DefaultData();
 
-  DefaultData(double* data,
+  DefaultData(const std::vector<double>& data,
       size_t num_rows,
       size_t num_cols);
-  virtual ~DefaultData();
 
   double get(size_t row, size_t col) const;
 
   void reserve_memory();
   void set(size_t col, size_t row, double value, bool& error);
 
-protected:
-  double* data;
-
 private:
+  std::vector<double> data;
+
   DISALLOW_COPY_AND_ASSIGN(DefaultData);
 };
 

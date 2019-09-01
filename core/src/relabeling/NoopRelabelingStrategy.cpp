@@ -21,11 +21,11 @@ namespace grf {
 
 std::unordered_map<size_t, double> NoopRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data* data) const {
+    const Data& data) const {
 
   std::unordered_map<size_t, double> relabeled_observations;
   for (size_t sample : samples) {
-    double outcome = data->get_outcome(sample);
+    double outcome = data.get_outcome(sample);
     relabeled_observations[sample] = outcome;
   }
   return relabeled_observations;

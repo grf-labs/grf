@@ -77,7 +77,7 @@ TEST_CASE("debiased errors are smaller than raw errors", "[regression, predictio
   std::vector<double> average = {2.725};
   std::vector<std::vector<double>> leaf_values = {{3.2}, {4.5}, {6.7}, {-3.5}};
 
-  double outcomes[] = {6.4, 9.0, 13.4, -7.0};
+  std::vector<double> outcomes = {6.4, 9.0, 13.4, -7.0};
   DefaultData data(outcomes, 4, 1);
   data.set_outcome_index(0);
 
@@ -88,7 +88,7 @@ TEST_CASE("debiased errors are smaller than raw errors", "[regression, predictio
           sample,
           average,
           PredictionValues(leaf_values, 1),
-          &data).at(0);
+          data).at(0);
     double debiased_error = error.first;
 
     // Raw error

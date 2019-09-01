@@ -59,8 +59,8 @@ public:
    */
   virtual std::vector<double> predict(size_t sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
-    const Data* train_data,
-    const Data* data) const = 0;
+    const Data& train_data,
+    const Data& data) const = 0;
 
   /**
    * Computes a prediction variance estimate for a single test sample.
@@ -81,8 +81,8 @@ public:
       size_t sample,
       std::vector<std::vector<size_t>> samples_by_tree,
       std::unordered_map<size_t, double> weights_by_sampleID,
-      const Data* train_data,
-      const Data* data,
+      const Data& train_data,
+      const Data& data,
       size_t ci_group_size) const = 0;
 };
 

@@ -23,14 +23,14 @@ OptimizedPredictionCollector::OptimizedPredictionCollector(std::unique_ptr<Optim
     strategy(std::move(strategy)) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
-                                                                          Data* train_data,
-                                                                          Data* data,
+                                                                          const Data& train_data,
+                                                                          const Data& data,
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                                           bool estimate_variance,
                                                                           bool estimate_error) const {
   size_t num_trees = forest.get_trees().size();
-  size_t num_samples = data->get_num_rows();
+  size_t num_samples = data.get_num_rows();
   bool record_leaf_values = estimate_variance || estimate_error;
 
   std::vector<Prediction> predictions;

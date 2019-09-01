@@ -22,9 +22,9 @@ namespace grf {
 
 Forest Forest::create(const std::vector<Tree>& trees,
                       const ForestOptions& forest_options,
-                      const Data* data) {
-  size_t num_independent_variables = data->get_num_cols() -
-      data->get_disallowed_split_variables().size();
+                      const Data& data) {
+  size_t num_independent_variables = data.get_num_cols() -
+      data.get_disallowed_split_variables().size();
   return Forest(trees, num_independent_variables, forest_options.get_ci_group_size());
 }
 

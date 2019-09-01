@@ -27,12 +27,12 @@ QuantileRelabelingStrategy::QuantileRelabelingStrategy(const std::vector<double>
 
 std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data* data) const {
+    const Data& data) const {
 
   std::vector<double> sorted_outcomes;
   sorted_outcomes.reserve(samples.size());
   for (size_t sample : samples) {
-    sorted_outcomes.push_back(data->get_outcome(sample));
+    sorted_outcomes.push_back(data.get_outcome(sample));
   }
   std::sort(sorted_outcomes.begin(), sorted_outcomes.end());
 
@@ -52,7 +52,7 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
   // Assign a class to each response based on what quantile it belongs to.
   std::unordered_map<size_t, double> relabeled_observations;
   for (size_t sample : samples) {
-    double outcome = data->get_outcome(sample);
+    double outcome = data.get_outcome(sample);
     auto quantile = std::lower_bound(quantile_cutoffs.begin(),
                                      quantile_cutoffs.end(),
                                      outcome);

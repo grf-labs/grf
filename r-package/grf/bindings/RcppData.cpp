@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------------
-  This file is part of generalized random forest (grf).
+  This file is part of generalized-random-forest.
 
   grf is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,29 +15,24 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "CustomPredictionStrategy.h"
+#include "RcppData.h"
 
-namespace grf {
+using namespace grf;
 
-size_t CustomPredictionStrategy::prediction_length() const {
-  return 1;
+RcppData::RcppData(Rcpp::NumericMatrix& data, size_t num_rows, size_t num_cols) {
+  this->data = data;
+  this->num_rows = num_rows;
+  this->num_cols = num_cols;
 }
 
-std::vector<double> CustomPredictionStrategy::predict(size_t sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
-    const Data& train_data,
-    const Data& data) const {
-  return { 0.0 };
+double RcppData::get(size_t row, size_t col) const {
+  return data[col * num_rows + row];
 }
 
-std::vector<double> CustomPredictionStrategy::compute_variance(
-    size_t sample,
-    std::vector<std::vector<size_t>> samples_by_tree,
-    std::unordered_map<size_t, double> weights_by_sampleID,
-    const Data& train_data,
-    const Data& data,
-    size_t ci_group_size) const {
-  return { 0.0 };
+void RcppData::reserve_memory() {
+  // Nothing to do.
 }
 
-} // namespace grf
+void RcppData::set(size_t col, size_t row, double value, bool &error) {
+  data[col * num_rows + row] = value;
+}

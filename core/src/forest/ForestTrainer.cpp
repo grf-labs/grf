@@ -35,9 +35,9 @@ ForestTrainer::ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_stra
                  std::move(splitting_rule_factory),
                  std::move(prediction_strategy)) {}
 
-const Forest ForestTrainer::train(const Data* data,
+const Forest ForestTrainer::train(const Data& data,
                                   const ForestOptions& options) const {
-  size_t num_samples = data->get_num_rows();
+  size_t num_samples = data.get_num_rows();
   uint num_trees = options.get_num_trees();
 
   // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
@@ -71,7 +71,7 @@ const Forest ForestTrainer::train(const Data* data,
                                  this,
                                  start_index,
                                  num_trees_batch,
-                                 data,
+                                 std::ref(data),
                                  options));
   }
 
@@ -83,10 +83,10 @@ const Forest ForestTrainer::train(const Data* data,
   return Forest::create(trees, options, data);
 }
 
-std::vector<Tree>ForestTrainer::train_batch(
+std::vector<Tree> ForestTrainer::train_batch(
     size_t start,
     size_t num_trees,
-    const Data* data,
+    const Data& data,
     const ForestOptions& options) const {
   size_t ci_group_size = options.get_ci_group_size();
 
@@ -117,21 +117,21 @@ std::vector<Tree>ForestTrainer::train_batch(
   return trees;
 }
 
-Tree ForestTrainer::train_tree(const Data* data,
+Tree ForestTrainer::train_tree(const Data& data,
                                RandomSampler& sampler,
                                const ForestOptions& options) const {
   std::vector<size_t> clusters;
-  sampler.sample_clusters(data->get_num_rows(), options.get_sample_fraction(), clusters);
+  sampler.sample_clusters(data.get_num_rows(), options.get_sample_fraction(), clusters);
   return tree_trainer.train(data, sampler, clusters, options.get_tree_options());
 }
 
-std::vector<Tree> ForestTrainer::train_ci_group(const Data* data,
+std::vector<Tree> ForestTrainer::train_ci_group(const Data& data,
                                                 RandomSampler& sampler,
                                                 const ForestOptions& options) const {
   std::vector<Tree> trees;
 
   std::vector<size_t> clusters;
-  sampler.sample_clusters(data->get_num_rows(), 0.5, clusters);
+  sampler.sample_clusters(data.get_num_rows(), 0.5, clusters);
 
   double sample_fraction = options.get_sample_fraction();
   for (size_t i = 0; i < options.get_ci_group_size(); ++i) {

@@ -87,13 +87,14 @@ TEST_CASE("monte carlo errors are nonzero", "[instrumental, prediction]") {
   std::vector<std::vector<double>> leaf_values = {
     {2, 1, 1, 2, 1, 2}, {4, 2, 2, 4, 2, 1}, {-4, -3, 5, -6, -1, 0},
     {2, 0, 1, 4, 1, 0}, {2, 0, 1, 4, 1, 3}, {2, 0, 1, 3, 4, 1}
- };
-  double outcomes[] = {6.4, 1.0, 1.4, 1.0, 0.0, 1.6,
-                       1.4, 2.0, 2.4, 2.0, 1.0, 5.5,
-                       2.4, 3.0, 3.4, 3.0, 2.0, 4.4,
-                       3.4, 2.0, 3.4, 4.0, 3.0, 3.3,
-                       4.4, 3.0, 14.4, 5.0, 4.0, 2.2,
-                       3.4, 9.0, 16.4, 6.0, 5.0, 1.1};
+  };
+
+  std::vector<double> outcomes = {6.4, 1.0, 1.4, 1.0, 0.0, 1.6,
+                                  1.4, 2.0, 2.4, 2.0, 1.0, 5.5,
+                                  2.4, 3.0, 3.4, 3.0, 2.0, 4.4,
+                                  3.4, 2.0, 3.4, 4.0, 3.0, 3.3,
+                                  4.4, 3.0, 14.4, 5.0, 4.0, 2.2,
+                                  3.4, 9.0, 16.4, 6.0, 5.0, 1.1};
   DefaultData data(outcomes, 6, 6);
   data.set_outcome_index(0);
   data.set_instrument_index(1);
@@ -105,7 +106,7 @@ TEST_CASE("monte carlo errors are nonzero", "[instrumental, prediction]") {
     sample,
     average,
     PredictionValues(leaf_values, 3),
-    &data);
+    data);
 
   double mc_error = errors[0].second;
 

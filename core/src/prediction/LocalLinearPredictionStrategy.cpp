@@ -41,8 +41,8 @@ size_t LocalLinearPredictionStrategy::prediction_length() const {
 std::vector<double> LocalLinearPredictionStrategy::predict(
     size_t sampleID,
     const std::unordered_map<size_t, double>& weights_by_sampleID,
-    const Data* train_data,
-    const Data* data) const {
+    const Data& train_data,
+    const Data& data) const {
   size_t num_variables = linear_correction_variables.size();
   size_t num_nonzero_weights = weights_by_sampleID.size();
 
@@ -64,10 +64,10 @@ std::vector<double> LocalLinearPredictionStrategy::predict(
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
-      X(i,j+1) = train_data->get(indices[i],current_predictor)
-                 - data->get(sampleID, current_predictor);
+      X(i,j+1) = train_data.get(indices[i],current_predictor)
+                 - data.get(sampleID, current_predictor);
     }
-    Y(i) = train_data->get_outcome(indices[i]);
+    Y(i) = train_data.get_outcome(indices[i]);
     X(i, 0) = 1;
   }
 
@@ -107,8 +107,8 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     size_t sampleID,
     std::vector<std::vector<size_t>> samples_by_tree,
     std::unordered_map<size_t, double> weights_by_sampleID,
-    const Data* train_data,
-    const Data* data,
+    const Data& train_data,
+    const Data& data,
     size_t ci_group_size) const {
 
   double lambda = lambdas[0];
@@ -116,7 +116,7 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
   size_t num_variables = linear_correction_variables.size();
   size_t num_nonzero_weights = weights_by_sampleID.size();
 
-  std::vector<size_t> sample_index_map(train_data->get_num_rows());
+  std::vector<size_t> sample_index_map(train_data.get_num_rows());
   std::vector<size_t> indices(num_nonzero_weights);
 
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
@@ -138,10 +138,10 @@ std::vector<double> LocalLinearPredictionStrategy::compute_variance(
     X(i, 0) = 1;
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
-      X(i,j+1) = train_data->get(indices[i],current_predictor)
-                 - data->get(sampleID, current_predictor);
+      X(i,j+1) = train_data.get(indices[i],current_predictor)
+                 - data.get(sampleID, current_predictor);
     }
-    Y(i) = train_data->get_outcome(indices[i]);
+    Y(i) = train_data.get_outcome(indices[i]);
   }
 
   // find ridge regression predictions

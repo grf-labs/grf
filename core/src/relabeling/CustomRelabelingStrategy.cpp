@@ -21,7 +21,7 @@ namespace grf {
 
 std::unordered_map<size_t, double> CustomRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data* data) const {
+    const Data& data) const {
   return std::unordered_map<size_t, double>();
 }
 

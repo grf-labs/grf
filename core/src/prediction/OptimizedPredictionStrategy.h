@@ -88,7 +88,7 @@ public:
   */
   virtual PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_samples,
-      const Data* data) const = 0;
+      const Data& data) const = 0;
 
  /**
   * Computes a pair of estimates for (out-of-bag debiased error, monte-carlo error) for a single sample.
@@ -106,7 +106,7 @@ public:
       size_t sample,
       const std::vector<double>& average,
       const PredictionValues& leaf_values,
-      const Data* data) const = 0;
+      const Data& data) const = 0;
 };
 
 } // namespace grf
