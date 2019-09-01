@@ -32,9 +32,10 @@ public:
 
   InstrumentalRelabelingStrategy(double reduced_form_weight);
 
-  std::vector<double> relabel(
+  bool relabel(
       const std::vector<size_t>& samples,
-      const Data& data) const;
+      const Data& data,
+      std::vector<double>& responses_by_sample) const;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalRelabelingStrategy);
 

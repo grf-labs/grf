@@ -26,9 +26,10 @@ InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy():
 InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(double reduced_form_weight):
   reduced_form_weight(reduced_form_weight) {}
 
-std::vector<double> InstrumentalRelabelingStrategy::relabel(
+bool InstrumentalRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data& data) const {
+    const Data& data,
+    std::vector<double>& responses_by_sample) const {
 
   // Prepare the relevant averages.
   size_t num_samples = samples.size();
@@ -65,14 +66,12 @@ std::vector<double> InstrumentalRelabelingStrategy::relabel(
   }
 
   if (equal_doubles(denominator, 0.0, 1.0e-10)) {
-    return std::vector<double>(); // Signals that we should not perform a split.
+    return true;
   }
 
   double local_average_treatment_effect = numerator / denominator;
 
   // Create the new outcomes.
-  std::vector<double> relabeled_outcomes(data.get_num_rows());
-
   for (size_t sample : samples) {
     double response = data.get_outcome(sample);
     double treatment = data.get_treatment(sample);
@@ -80,9 +79,9 @@ std::vector<double> InstrumentalRelabelingStrategy::relabel(
     double regularized_instrument = (1 - reduced_form_weight) * instrument + reduced_form_weight * treatment;
 
     double residual = (response - average_outcome) - local_average_treatment_effect * (treatment - average_treatment);
-    relabeled_outcomes[sample] = (regularized_instrument - average_regularized_instrument) * residual;
+    responses_by_sample[sample] = (regularized_instrument - average_regularized_instrument) * residual;
   }
-  return relabeled_outcomes;
+  return false;
 }
 
 } // namespace grf

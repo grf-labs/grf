@@ -39,9 +39,10 @@ std::vector<double> get_relabeled_outcomes(std::vector<double> observations, siz
   }
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
-  auto relabeled_observations = relabeling_strategy->relabel(samples, data);
 
-  if (relabeled_observations.empty()) {
+  std::vector<double> relabeled_observations(num_samples);
+  bool stop = relabeling_strategy->relabel(samples, data, relabeled_observations);
+  if (stop) {
     return std::vector<double>();
   }
 

@@ -19,10 +19,11 @@
 
 namespace grf {
 
-std::vector<double> CustomRelabelingStrategy::relabel(
+bool CustomRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data& data) const {
-  return std::vector<double>();
+    const Data& data,
+    std::vector<double>& responses_by_sample) const {
+  return true;
 }
 
 } // namespace grf

@@ -19,16 +19,16 @@
 
 namespace grf {
 
-std::vector<double> NoopRelabelingStrategy::relabel(
+bool NoopRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data& data) const {
+    const Data& data,
+    std::vector<double>& responses_by_sample) const {
 
-  std::vector<double> relabeled_observations(data.get_num_rows());
   for (size_t sample : samples) {
     double outcome = data.get_outcome(sample);
-    relabeled_observations[sample] = outcome;
+    responses_by_sample[sample] = outcome;
   }
-  return relabeled_observations;
+  return false;
 }
 
 } // namespace grf

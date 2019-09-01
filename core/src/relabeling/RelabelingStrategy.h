@@ -28,20 +28,22 @@ namespace grf {
 /**
  * Produces a relabelled set of outcomes for a set of training samples. These outcomes
  * will then be used in calculating a standard regression (or classification) split.
- *
- * samples: the subset of samples to relabel.
- * data: the training data matrix.
- *
- * returns: a map from sample ID to a relabelled outcome.
  */
 class RelabelingStrategy {
 public:
 
   virtual ~RelabelingStrategy() = default;
 
-  virtual std::vector<double> relabel(
-      const std::vector<size_t>& samples,
-      const Data& data) const = 0;
+ /**
+   * samples: the subset of samples to relabel.
+   * data: the training data matrix.
+   * responses_by_sample: the output of the method, containing a map from sample ID to relabelled response.
+   *
+   * returns: a boolean that will be 'true' if splitting should stop early.
+   */
+  virtual bool relabel(const std::vector<size_t>& samples,
+                       const Data& data,
+                       std::vector<double>& responses_by_sample) const = 0;
 };
 
 } // namespace grf

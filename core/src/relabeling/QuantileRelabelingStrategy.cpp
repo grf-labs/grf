@@ -23,9 +23,10 @@ namespace grf {
 QuantileRelabelingStrategy::QuantileRelabelingStrategy(const std::vector<double>& quantiles) :
     quantiles(quantiles) {}
 
-std::vector<double> QuantileRelabelingStrategy::relabel(
+bool QuantileRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data& data) const {
+    const Data& data,
+    std::vector<double>& responses_by_sample) const {
 
   std::vector<double> sorted_outcomes;
   sorted_outcomes.reserve(samples.size());
@@ -48,16 +49,15 @@ std::vector<double> QuantileRelabelingStrategy::relabel(
                          quantile_cutoffs.end());
 
   // Assign a class to each response based on what quantile it belongs to.
-  std::vector<double> relabeled_observations(data.get_num_rows());
   for (size_t sample : samples) {
     double outcome = data.get_outcome(sample);
     auto quantile = std::lower_bound(quantile_cutoffs.begin(),
                                      quantile_cutoffs.end(),
                                      outcome);
     long quantile_index = quantile - quantile_cutoffs.begin();
-    relabeled_observations[sample] = (uint) quantile_index;
+    responses_by_sample[sample] = (uint) quantile_index;
   }
-  return relabeled_observations;
+  return false;
 }
 
 } // namespace grf
