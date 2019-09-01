@@ -67,7 +67,7 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
   double sum_node_z = 0.0;
   double sum_node_z_squared = 0.0;
   for (auto& sample : samples[node]) {
-    sum_node += responses_by_sample.at(sample);
+    sum_node += responses_by_sample[sample];
 
     double z = data.get_instrument(sample);
     sum_node_z += z;
@@ -131,7 +131,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
                                                               const std::vector<double>& responses_by_sample,
                                                               const std::vector<std::vector<size_t>>& samples) {
   std::vector<double> possible_split_values;
-  data.get_all_values(possible_split_values, samples.at(node), var);
+  data.get_all_values(possible_split_values, samples[node], var);
 
   // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {
@@ -155,7 +155,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
   // Sum in right child and possible split
   for (auto& sample : samples[node]) {
     double value = data.get(sample, var);
-    double label = responses_by_sample.at(sample);
+    double label = responses_by_sample[sample];
     double z = data.get_instrument(sample);
 
     // Count samples until split_value reached
@@ -256,7 +256,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
     size_t i = data.get_index(sample, var);
     double z = data.get_instrument(sample);
 
-    sums[i] += responses_by_sample.at(sample);
+    sums[i] += responses_by_sample[sample];
     ++counter[i];
 
     sums_z[i] += z;

@@ -41,7 +41,7 @@ bool QuantileRelabelingStrategy::relabel(
   // Calculate the outcome value cutoffs for each quantile.
   for (double quantile : quantiles) {
     size_t outcome_index = (size_t) std::ceil(num_samples * quantile) - 1;
-    quantile_cutoffs.push_back(sorted_outcomes.at(outcome_index));
+    quantile_cutoffs.push_back(sorted_outcomes[outcome_index]);
   }
 
   // Remove duplicate cutoffs.

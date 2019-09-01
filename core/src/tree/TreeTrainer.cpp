@@ -110,8 +110,8 @@ void TreeTrainer::repopulate_leaf_nodes(Tree& tree,
   std::vector<size_t> leaf_nodes = tree.find_leaf_nodes(data, leaf_samples);
 
   for (auto& sample : leaf_samples) {
-    size_t leaf_node = leaf_nodes.at(sample);
-    new_leaf_nodes.at(leaf_node).push_back(sample);
+    size_t leaf_node = leaf_nodes[sample];
+    new_leaf_nodes[leaf_node].push_back(sample);
   }
   tree.set_leaf_samples(new_leaf_nodes);
   if (prune_empty_leaves) {

@@ -57,7 +57,7 @@ bool ProbabilitySplittingRule::find_best_split(const Data& data,
   size_t* class_counts = new size_t[num_classes]();
   for (size_t i = 0; i < size_node; ++i) {
     size_t sample = samples[node][i];
-    uint sample_class = (uint) std::round(responses_by_sample.at(sample));
+    uint sample_class = (uint) std::round(responses_by_sample[sample]);
     ++class_counts[sample_class];
   }
 
@@ -128,7 +128,7 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
   // Count samples in right child per class and possbile split
   for (auto& sample : samples[node]) {
     double value = data.get(sample, var);
-    uint sample_class = responses_by_sample.at(sample);
+    uint sample_class = responses_by_sample[sample];
 
     // Count samples until split_value reached
     for (size_t i = 0; i < num_splits; ++i) {
@@ -201,7 +201,7 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(const Data& data,
   // Count values
   for (auto& sample : samples[node]) {
     size_t index = data.get_index(sample, var);
-    size_t sample_class = responses_by_sample.at(sample);
+    size_t sample_class = responses_by_sample[sample];
 
     ++counter[index];
     ++counter_per_class[index * num_classes + sample_class];
