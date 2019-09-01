@@ -24,7 +24,7 @@ namespace grf {
 
 class NoopRelabelingStrategy final: public RelabelingStrategy {
 public:
-  std::unordered_map<size_t, double> relabel(
+  std::vector<double> relabel(
       const std::vector<size_t>& samples,
       const Data& data) const;
 };

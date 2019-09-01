@@ -15,7 +15,6 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <unordered_map>
 #include "splitting/SplittingRule.h"
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/ProbabilitySplittingRule.h"

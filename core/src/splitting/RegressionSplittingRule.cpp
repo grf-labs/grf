@@ -42,7 +42,7 @@ RegressionSplittingRule::~RegressionSplittingRule() {
 bool RegressionSplittingRule::find_best_split(const Data& data,
                                               size_t node,
                                               const std::vector<size_t>& possible_split_vars,
-                                              const std::unordered_map<size_t, double>& labels_by_sample,
+                                              const std::vector<double>& responses_by_sample,
                                               const std::vector<std::vector<size_t>>& samples,
                                               std::vector<size_t>& split_vars,
                                               std::vector<double>& split_values) {
@@ -53,7 +53,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   // Precompute the sum of outcomes in this node.
   double sum_node = 0.0;
   for (auto& sample : samples[node]) {
-    sum_node += labels_by_sample.at(sample);
+    sum_node += responses_by_sample.at(sample);
   }
 
   // Initialize the variables to track the best split variable.
@@ -67,10 +67,10 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
     double q = (double) size_node / (double) data.get_num_unique_data_values(var);
     if (q < Q_THRESHOLD) {
       find_best_split_value_small_q(data, node, var, sum_node, size_node, min_child_size,
-                                    best_value, best_var, best_decrease, labels_by_sample, samples);
+                                    best_value, best_var, best_decrease, responses_by_sample, samples);
     } else {
       find_best_split_value_large_q(data, node, var, sum_node, size_node, min_child_size,
-                                    best_value, best_var, best_decrease, labels_by_sample, samples);
+                                    best_value, best_var, best_decrease, responses_by_sample, samples);
     }
   }
 
@@ -92,7 +92,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
                                                             size_t min_child_size,
                                                             double& best_value, size_t& best_var,
                                                             double& best_decrease,
-                                                            const std::unordered_map<size_t, double>& labels_by_sample,
+                                                            const std::vector<double>& responses_by_sample,
                                                             const std::vector<std::vector<size_t>>& samples) {
   std::vector<double> possible_split_values;
   data.get_all_values(possible_split_values, samples.at(node), var);
@@ -117,7 +117,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
   // Sum in right child and possible split
   for (auto& sample : samples[node]) {
     double value = data.get(sample, var);
-    double response = labels_by_sample.at(sample);
+    double response = responses_by_sample.at(sample);
 
     // Count samples until split_value reached
     for (size_t i = 0; i < num_splits; ++i) {
@@ -171,7 +171,7 @@ void RegressionSplittingRule::find_best_split_value_large_q(const Data& data,
                                                             double& best_value,
                                                             size_t& best_var,
                                                             double& best_decrease,
-                                                            const std::unordered_map<size_t, double>& responses_by_sample,
+                                                            const std::vector<double>& responses_by_sample,
                                                             const std::vector<std::vector<size_t>>& samples) {
   // Set counters to 0
   size_t num_unique = data.get_num_unique_data_values(var);

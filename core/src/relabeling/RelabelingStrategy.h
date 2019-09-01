@@ -21,7 +21,6 @@
 
 #include "commons/DefaultData.h"
 #include "commons/Data.h"
-#include <unordered_map>
 #include <vector>
 
 namespace grf {
@@ -40,7 +39,7 @@ public:
 
   virtual ~RelabelingStrategy() = default;
 
-  virtual std::unordered_map<size_t, double> relabel(
+  virtual std::vector<double> relabel(
       const std::vector<size_t>& samples,
       const Data& data) const = 0;
 };

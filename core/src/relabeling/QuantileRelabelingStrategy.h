@@ -27,7 +27,7 @@ namespace grf {
 class QuantileRelabelingStrategy final: public RelabelingStrategy {
 public:
   QuantileRelabelingStrategy(const std::vector<double>& quantiles);
-  std::unordered_map<size_t, double> relabel(
+  std::vector<double> relabel(
       const std::vector<size_t>& samples,
       const Data& data) const;
 private:

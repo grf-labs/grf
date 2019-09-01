@@ -17,7 +17,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <unordered_map>
 
 #include "ProbabilitySplittingRule.h"
 
@@ -48,7 +47,7 @@ ProbabilitySplittingRule::~ProbabilitySplittingRule() {
 bool ProbabilitySplittingRule::find_best_split(const Data& data,
                                                size_t node,
                                                const std::vector<size_t>& possible_split_vars,
-                                               const std::unordered_map<size_t, double>& labels_by_sample,
+                                               const std::vector<double>& responses_by_sample,
                                                const std::vector<std::vector<size_t>>& samples,
                                                std::vector<size_t>& split_vars,
                                                std::vector<double>& split_values) {
@@ -58,7 +57,7 @@ bool ProbabilitySplittingRule::find_best_split(const Data& data,
   size_t* class_counts = new size_t[num_classes]();
   for (size_t i = 0; i < size_node; ++i) {
     size_t sample = samples[node][i];
-    uint sample_class = (uint) std::round(labels_by_sample.at(sample));
+    uint sample_class = (uint) std::round(responses_by_sample.at(sample));
     ++class_counts[sample_class];
   }
 
@@ -73,10 +72,10 @@ bool ProbabilitySplittingRule::find_best_split(const Data& data,
     double q = (double) size_node / (double) data.get_num_unique_data_values(var);
     if (q < Q_THRESHOLD) {
       find_best_split_value_small_q(data, node, var, num_classes, class_counts, size_node, min_child_size,
-                                    best_value, best_var, best_decrease, labels_by_sample, samples);
+                                    best_value, best_var, best_decrease, responses_by_sample, samples);
     } else {
       find_best_split_value_large_q(data, node, var, num_classes, class_counts, size_node, min_child_size,
-                                    best_value, best_var, best_decrease, labels_by_sample, samples);
+                                    best_value, best_var, best_decrease, responses_by_sample, samples);
     }
   }
 
@@ -103,7 +102,7 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
                                                              double& best_value,
                                                              size_t& best_var,
                                                              double& best_decrease,
-                                                             const std::unordered_map<size_t, double>& labels_by_sample,
+                                                             const std::vector<double>& responses_by_sample,
                                                              const std::vector<std::vector<size_t>>& samples) {
 
   // Create possible split values
@@ -129,7 +128,7 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
   // Count samples in right child per class and possbile split
   for (auto& sample : samples[node]) {
     double value = data.get(sample, var);
-    uint sample_class = labels_by_sample.at(sample);
+    uint sample_class = responses_by_sample.at(sample);
 
     // Count samples until split_value reached
     for (size_t i = 0; i < num_splits; ++i) {
@@ -192,7 +191,7 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(const Data& data,
                                                              double& best_value,
                                                              size_t& best_var,
                                                              double& best_decrease,
-                                                             const std::unordered_map<size_t, double>& responses_by_sample,
+                                                             const std::vector<double>& responses_by_sample,
                                                              const std::vector<std::vector<size_t>>& samples) {
   // Set counters to 0
   size_t num_unique = data.get_num_unique_data_values(var);

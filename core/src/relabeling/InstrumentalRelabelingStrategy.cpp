@@ -26,7 +26,7 @@ InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy():
 InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(double reduced_form_weight):
   reduced_form_weight(reduced_form_weight) {}
 
-std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
+std::vector<double> InstrumentalRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
     const Data& data) const {
 
@@ -65,13 +65,13 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
   }
 
   if (equal_doubles(denominator, 0.0, 1.0e-10)) {
-    return std::unordered_map<size_t, double>(); // Signals that we should not perform a split.
+    return std::vector<double>(); // Signals that we should not perform a split.
   }
 
   double local_average_treatment_effect = numerator / denominator;
 
   // Create the new outcomes.
-  std::unordered_map<size_t, double> relabeled_outcomes;
+  std::vector<double> relabeled_outcomes(data.get_num_rows());
 
   for (size_t sample : samples) {
     double response = data.get_outcome(sample);

@@ -16,8 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <unordered_map>
-
 #include "relabeling/QuantileRelabelingStrategy.h"
 
 namespace grf {
@@ -25,7 +23,7 @@ namespace grf {
 QuantileRelabelingStrategy::QuantileRelabelingStrategy(const std::vector<double>& quantiles) :
     quantiles(quantiles) {}
 
-std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
+std::vector<double> QuantileRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
     const Data& data) const {
 
@@ -50,7 +48,7 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
                          quantile_cutoffs.end());
 
   // Assign a class to each response based on what quantile it belongs to.
-  std::unordered_map<size_t, double> relabeled_observations;
+  std::vector<double> relabeled_observations(data.get_num_rows());
   for (size_t sample : samples) {
     double outcome = data.get_outcome(sample);
     auto quantile = std::lower_bound(quantile_cutoffs.begin(),
