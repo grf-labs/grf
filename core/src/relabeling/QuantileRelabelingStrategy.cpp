@@ -28,10 +28,10 @@ bool QuantileRelabelingStrategy::relabel(
     const Data& data,
     std::vector<double>& responses_by_sample) const {
 
-  std::vector<double> sorted_outcomes;
-  sorted_outcomes.reserve(samples.size());
-  for (size_t sample : samples) {
-    sorted_outcomes.push_back(data.get_outcome(sample));
+  std::vector<double> sorted_outcomes(samples.size());
+  for (size_t i = 0; i < samples.size(); i++) {
+    size_t sample = samples[i];
+    sorted_outcomes[i] = data.get_outcome(sample);
   }
   std::sort(sorted_outcomes.begin(), sorted_outcomes.end());
 

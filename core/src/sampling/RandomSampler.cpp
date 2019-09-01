@@ -155,7 +155,7 @@ void RandomSampler::draw_simple(std::vector<size_t>& result,
                                 size_t max,
                                 const std::set<size_t>& skip,
                                 size_t num_samples) {
-  result.reserve(num_samples);
+  result.resize(num_samples);
 
   // Set all to not selected
   std::vector<bool> temp;
@@ -173,7 +173,7 @@ void RandomSampler::draw_simple(std::vector<size_t>& result,
       }
     } while (temp[draw]);
     temp[draw] = true;
-    result.push_back(draw);
+    result[i] = draw;
   }
 }
 
@@ -206,7 +206,7 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
                                   size_t max,
                                   size_t num_samples,
                                   const std::vector<double>& weights) {
-  result.reserve(num_samples);
+  result.resize(num_samples);
 
   // Set all to not selected
   std::vector<bool> temp;
@@ -219,7 +219,7 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
       draw = weighted_dist(random_number_generator);
     } while (temp[draw]);
     temp[draw] = true;
-    result.push_back(draw);
+    result[i] = draw;
   }
 }
 
