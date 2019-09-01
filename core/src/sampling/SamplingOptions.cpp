@@ -16,8 +16,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include "SamplingOptions.h"
-
-#include <unordered_set>
+#include <unordered_map>
 #include "commons/globals.h"
 
 namespace grf {

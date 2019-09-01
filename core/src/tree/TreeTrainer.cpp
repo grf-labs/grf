@@ -61,6 +61,7 @@ Tree TreeTrainer::train(const Data& data,
 
   size_t num_open_nodes = 1;
   size_t i = 0;
+  std::vector<double> responses_by_sample(data.get_num_rows());
   while (num_open_nodes > 0) {
     bool is_leaf_node = split_node(i,
                                    data,
@@ -70,6 +71,7 @@ Tree TreeTrainer::train(const Data& data,
                                    nodes,
                                    split_vars,
                                    split_values,
+                                   responses_by_sample,
                                    options);
     if (is_leaf_node) {
       --num_open_nodes;
@@ -108,8 +110,8 @@ void TreeTrainer::repopulate_leaf_nodes(Tree& tree,
   std::vector<size_t> leaf_nodes = tree.find_leaf_nodes(data, leaf_samples);
 
   for (auto& sample : leaf_samples) {
-    size_t leaf_node = leaf_nodes.at(sample);
-    new_leaf_nodes.at(leaf_node).push_back(sample);
+    size_t leaf_node = leaf_nodes[sample];
+    new_leaf_nodes[leaf_node].push_back(sample);
   }
   tree.set_leaf_samples(new_leaf_nodes);
   if (prune_empty_leaves) {
@@ -141,6 +143,7 @@ bool TreeTrainer::split_node(size_t node,
                              std::vector<std::vector<size_t>>& samples,
                              std::vector<size_t>& split_vars,
                              std::vector<double>& split_values,
+                             std::vector<double>& responses_by_sample,
                              const TreeOptions& options) const {
 
   std::vector<size_t> possible_split_vars;
@@ -153,6 +156,7 @@ bool TreeTrainer::split_node(size_t node,
                                   samples,
                                   split_vars,
                                   split_values,
+                                  responses_by_sample,
                                   options.get_min_node_size());
   if (stop) {
     return true;
@@ -190,6 +194,7 @@ bool TreeTrainer::split_node_internal(size_t node,
                                       const std::vector<std::vector<size_t>>& samples,
                                       std::vector<size_t>& split_vars,
                                       std::vector<double>& split_values,
+                                      std::vector<double>& responses_by_sample,
                                       uint min_node_size) const {
   // Check node size, stop if maximum reached
   if (samples[node].size() <= min_node_size) {
@@ -197,16 +202,16 @@ bool TreeTrainer::split_node_internal(size_t node,
     return true;
   }
 
-  std::unordered_map<size_t, double> responses_by_sample = relabeling_strategy->relabel(
-      samples[node], data);
+  std::fill(responses_by_sample.begin(), responses_by_sample.end(), 0.0);
+  bool stop = relabeling_strategy->relabel(samples[node], data, responses_by_sample);
 
-  if (responses_by_sample.empty() || splitting_rule->find_best_split(data,
-                                                                     node,
-                                                                     possible_split_vars,
-                                                                     responses_by_sample,
-                                                                     samples,
-                                                                     split_vars,
-                                                                     split_values)) {
+  if (stop || splitting_rule->find_best_split(data,
+                                              node,
+                                              possible_split_vars,
+                                              responses_by_sample,
+                                              samples,
+                                              split_vars,
+                                              split_values)) {
     split_values[node] = -1.0;
     return true;
   }

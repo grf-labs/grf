@@ -16,8 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <unordered_map>
-
 #include "relabeling/QuantileRelabelingStrategy.h"
 
 namespace grf {
@@ -25,14 +23,15 @@ namespace grf {
 QuantileRelabelingStrategy::QuantileRelabelingStrategy(const std::vector<double>& quantiles) :
     quantiles(quantiles) {}
 
-std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
+bool QuantileRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data& data) const {
+    const Data& data,
+    std::vector<double>& responses_by_sample) const {
 
-  std::vector<double> sorted_outcomes;
-  sorted_outcomes.reserve(samples.size());
-  for (size_t sample : samples) {
-    sorted_outcomes.push_back(data.get_outcome(sample));
+  std::vector<double> sorted_outcomes(samples.size());
+  for (size_t i = 0; i < samples.size(); i++) {
+    size_t sample = samples[i];
+    sorted_outcomes[i] = data.get_outcome(sample);
   }
   std::sort(sorted_outcomes.begin(), sorted_outcomes.end());
 
@@ -42,7 +41,7 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
   // Calculate the outcome value cutoffs for each quantile.
   for (double quantile : quantiles) {
     size_t outcome_index = (size_t) std::ceil(num_samples * quantile) - 1;
-    quantile_cutoffs.push_back(sorted_outcomes.at(outcome_index));
+    quantile_cutoffs.push_back(sorted_outcomes[outcome_index]);
   }
 
   // Remove duplicate cutoffs.
@@ -50,16 +49,15 @@ std::unordered_map<size_t, double> QuantileRelabelingStrategy::relabel(
                          quantile_cutoffs.end());
 
   // Assign a class to each response based on what quantile it belongs to.
-  std::unordered_map<size_t, double> relabeled_observations;
   for (size_t sample : samples) {
     double outcome = data.get_outcome(sample);
     auto quantile = std::lower_bound(quantile_cutoffs.begin(),
                                      quantile_cutoffs.end(),
                                      outcome);
     long quantile_index = quantile - quantile_cutoffs.begin();
-    relabeled_observations[sample] = (uint) quantile_index;
+    responses_by_sample[sample] = (uint) quantile_index;
   }
-  return relabeled_observations;
+  return false;
 }
 
 } // namespace grf

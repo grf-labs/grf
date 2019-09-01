@@ -25,9 +25,10 @@ namespace grf {
 
 class CustomRelabelingStrategy final: public RelabelingStrategy {
 public:
-  std::unordered_map<size_t, double> relabel(
+  bool relabel(
       const std::vector<size_t>& samples,
-      const Data& data) const;
+      const Data& data,
+      std::vector<double>& responses_by_sample) const;
 };
 
 } // namespace grf

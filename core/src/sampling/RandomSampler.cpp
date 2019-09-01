@@ -13,7 +13,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <unordered_map>
 #include <random>
 
 #include "RandomSampler.h"
@@ -102,7 +101,7 @@ void RandomSampler::sample_from_clusters(const std::vector<size_t>& clusters,
   } else {
     const std::vector<std::vector<size_t>>& samples_by_cluster = options.get_clusters();
     for (size_t cluster : clusters) {
-      const std::vector<size_t>& cluster_samples = samples_by_cluster.at(cluster);
+      const std::vector<size_t>& cluster_samples = samples_by_cluster[cluster];
 
       // Draw samples_per_cluster observations from each cluster. If the cluster is
       // smaller than the samples_per_cluster parameter, just use the whole cluster.
@@ -123,7 +122,7 @@ void RandomSampler::get_samples_in_clusters(const std::vector<size_t>& clusters,
     samples = clusters;
   } else {
     for (size_t cluster : clusters) {
-      const std::vector<size_t>& cluster_samples = options.get_clusters().at(cluster);
+      const std::vector<size_t>& cluster_samples = options.get_clusters()[cluster];
       samples.insert(samples.end(), cluster_samples.begin(), cluster_samples.end());
     }
   }
@@ -156,7 +155,7 @@ void RandomSampler::draw_simple(std::vector<size_t>& result,
                                 size_t max,
                                 const std::set<size_t>& skip,
                                 size_t num_samples) {
-  result.reserve(num_samples);
+  result.resize(num_samples);
 
   // Set all to not selected
   std::vector<bool> temp;
@@ -174,7 +173,7 @@ void RandomSampler::draw_simple(std::vector<size_t>& result,
       }
     } while (temp[draw]);
     temp[draw] = true;
-    result.push_back(draw);
+    result[i] = draw;
   }
 }
 
@@ -207,7 +206,7 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
                                   size_t max,
                                   size_t num_samples,
                                   const std::vector<double>& weights) {
-  result.reserve(num_samples);
+  result.resize(num_samples);
 
   // Set all to not selected
   std::vector<bool> temp;
@@ -220,7 +219,7 @@ void RandomSampler::draw_weighted(std::vector<size_t>& result,
       draw = weighted_dist(random_number_generator);
     } while (temp[draw]);
     temp[draw] = true;
-    result.push_back(draw);
+    result[i] = draw;
   }
 }
 

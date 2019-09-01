@@ -158,9 +158,10 @@ void Data::set_weight_index(size_t index) {
 }
 
 void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const {
-  all_values.reserve(samples.size());
-  for (size_t sample : samples) {
-    all_values.push_back(get(sample, var));
+  all_values.resize(samples.size());
+  for (size_t i = 0; i < samples.size(); i++) {
+    size_t sample = samples[i];
+    all_values[i] = get(sample, var);
   }
   std::sort(all_values.begin(), all_values.end());
   all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());

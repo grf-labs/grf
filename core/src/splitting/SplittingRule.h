@@ -18,7 +18,6 @@
 #ifndef GRF_SPLITTINGRULE_H
 #define GRF_SPLITTINGRULE_H
 
-#include <unordered_map>
 #include <vector>
 
 #include "commons/Data.h"
@@ -31,7 +30,7 @@ public:
   virtual bool find_best_split(const Data& data,
                                size_t node,
                                const std::vector<size_t>& possible_split_vars,
-                               const std::unordered_map<size_t, double>& labels_by_sample,
+                               const std::vector<double>& responses_by_sample,
                                const std::vector<std::vector<size_t>>& samples,
                                std::vector<size_t>& split_vars,
                                std::vector<double>& split_values) = 0;
