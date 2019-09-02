@@ -192,14 +192,13 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
   );
 
   // Draw without replacement using Fisher Yates algorithm
-  for (size_t i = result.size() - 1; i > 0; --i) {
-    nonstd::uniform_int_distribution<size_t> distribution(0, i);
-    size_t j = distribution(random_number_generator);
+  nonstd::uniform_real_distribution<double> distribution(0.0, 1.0);
+  for (size_t i = 0; i < num_samples; ++i) {
+    size_t j = i + distribution(random_number_generator) * (max - skip.size() - i);
     std::swap(result[i], result[j]);
   }
 
-  // Retain only num_samples
-  result.erase(result.begin() + num_samples, result.end());
+  result.resize(num_samples);
 }
 
 void RandomSampler::draw_weighted(std::vector<size_t>& result,
