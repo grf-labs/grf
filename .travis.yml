@@ -82,6 +82,7 @@ matrix:
         - cd grf
         - cp ../../README.md .
         - cp ../../REFERENCE.md .
+        - cp ../../DEVELOPING.md .
         - cp ../../releases/CHANGELOG.md .
         - Rscript -e 'pkgdown::build_site()'
       deploy:

@@ -6,15 +6,16 @@ navbar:
     href: articles/grf.html
   - text: "Reference"
     href: reference/index.html
-  - text: "Algorithm reference"
-    href: REFERENCE.html
   - text: "Articles"
     menu:
       - text: "Confidence intervals and the number of trees"
         href: articles/ci_and_num.trees.html
+  - text: "Algorithm reference"
+    href: REFERENCE.html
+  - text: "Developing"
+    href: DEVELOPING.html
   - text: "Changelog"
     href: CHANGELOG.html
-
   right:
   - icon: fa-github fa-lg
     href: https://github.com/grf-labs/grf
