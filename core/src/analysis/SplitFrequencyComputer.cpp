@@ -17,26 +17,28 @@
 
 #include "SplitFrequencyComputer.h"
 
+namespace grf {
+
 std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& forest,
                                                                  size_t max_depth) const {
   size_t num_variables = forest.get_num_variables();
   std::vector<std::vector<size_t>> result(max_depth, std::vector<size_t>(num_variables));
 
   for (const auto& tree : forest.get_trees()) {
-    const std::vector<std::vector<size_t>>& child_nodes = tree->get_child_nodes();
+    const std::vector<std::vector<size_t>>& child_nodes = tree.get_child_nodes();
 
     size_t depth = 0;
-    std::vector<size_t> level = {tree->get_root_node()};
+    std::vector<size_t> level = {tree.get_root_node()};
 
     while (level.size() > 0 && depth < max_depth) {
       std::vector<size_t> next_level;
 
       for (size_t node : level) {
-        if (tree->is_leaf(node)) {
+        if (tree.is_leaf(node)) {
           continue;
         }
 
-        size_t variable = tree->get_split_vars().at(node);
+        size_t variable = tree.get_split_vars().at(node);
         result[depth][variable]++;
 
         next_level.push_back(child_nodes[0][node]);
@@ -49,3 +51,5 @@ std::vector<std::vector<size_t>> SplitFrequencyComputer::compute(const Forest& f
   }
   return result;
 }
+
+} // namespace grf

@@ -17,11 +17,12 @@
 
 #include <iostream>
 #include <sstream>
-#include <unordered_set>
-#include <unordered_map>
 
 #include "utility.h"
+#include "DefaultData.h"
 #include "SparseData.h"
+
+namespace grf {
 
 void split_sequence(std::vector<uint>& result, uint start, uint end, uint num_parts) {
 
@@ -65,8 +66,8 @@ bool equal_doubles(double first, double second, double epsilon) {
   return std::abs(first - second) < epsilon;
 }
 
-Data* load_data(const std::string& file_name) {
-  Data* data = new DefaultData();
+std::unique_ptr<Data> load_data(const std::string& file_name) {
+  std::unique_ptr<Data> data = std::unique_ptr<Data>(new DefaultData());
   bool rounding_error = data->load_from_file(file_name);
   if (rounding_error) {
     throw std::runtime_error("A rounding error occurred while loading data from file.");
@@ -75,8 +76,8 @@ Data* load_data(const std::string& file_name) {
   return data;
 }
 
-Data* load_sparse_data(const std::string& file_name) {
-  Data* data = new SparseData();
+std::unique_ptr<Data> load_sparse_data(const std::string& file_name) {
+    std::unique_ptr<Data> data = std::unique_ptr<Data>(new SparseData());
   bool rounding_error = data->load_from_file(file_name);
   if (rounding_error) {
     throw std::runtime_error("A rounding error occurred while loading data from file.");
@@ -84,3 +85,5 @@ Data* load_sparse_data(const std::string& file_name) {
   data->sort();
   return data;
 }
+
+} // namespace grf

@@ -215,7 +215,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   )
   if (is.null(kriging.model)) {
     warning("Tuning was attempted but failed. Reverting to default parameters.")
-    out <- get_tuning_output(params = default.parameters, status = "failure")
+    out <- get_tuning_output(params = c(default.params), status = "failure")
     return(out)
   }
 

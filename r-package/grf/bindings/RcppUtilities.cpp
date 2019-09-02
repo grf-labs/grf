@@ -4,7 +4,10 @@
 #include "commons/DefaultData.h"
 #include "commons/SparseData.h"
 #include "forest/ForestOptions.h"
+#include "RcppData.h"
 #include "RcppUtilities.h"
+
+using namespace grf;
 
 Rcpp::List RcppUtilities::create_forest_object(Forest& forest,
                                                const std::vector<Prediction>& predictions) {
@@ -15,12 +18,13 @@ Rcpp::List RcppUtilities::create_forest_object(Forest& forest,
   return result;
 }
 
-Forest RcppUtilities::deserialize_forest(Rcpp::List forest_object) {
+Forest RcppUtilities::deserialize_forest(const Rcpp::List& forest_object) {
   size_t ci_group_size = forest_object["_ci_group_size"];
   size_t num_variables = forest_object["_num_variables"];
 
   size_t num_trees = forest_object["_num_trees"];
-  std::vector<std::shared_ptr<Tree>> trees(num_trees);
+  std::vector<Tree> trees;
+  trees.reserve(num_trees);
 
   Rcpp::List root_nodes = forest_object["_root_nodes"];
   Rcpp::List child_nodes = forest_object["_child_nodes"];
@@ -33,14 +37,13 @@ Forest RcppUtilities::deserialize_forest(Rcpp::List forest_object) {
   size_t num_types = forest_object["_pv_num_types"];
 
   for (size_t t = 0; t < num_trees; t++) {
-    trees[t] = std::shared_ptr<Tree>(
-        new Tree(root_nodes.at(t),
-                 child_nodes.at(t),
-                 leaf_samples.at(t),
-                 split_vars.at(t),
-                 split_values.at(t),
-                 drawn_samples.at(t),
-                 PredictionValues(prediction_values.at(t), num_types)));
+    trees.emplace_back(root_nodes.at(t),
+                       child_nodes.at(t),
+                       leaf_samples.at(t),
+                       split_vars.at(t),
+                       split_values.at(t),
+                       drawn_samples.at(t),
+                       PredictionValues(prediction_values.at(t), num_types));
   }
 
   return Forest(trees, num_variables, ci_group_size);
@@ -65,18 +68,18 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   size_t num_types = 0;
 
   for (size_t t = 0; t < num_trees; t++) {
-    std::shared_ptr<Tree> tree = forest.get_trees().at(t);
-    root_nodes[t] = tree->get_root_node();
-    child_nodes[t] = tree->get_child_nodes();
-    leaf_samples[t] = tree->get_leaf_samples();
-    split_vars[t] = tree->get_split_vars();
-    split_values[t] = tree->get_split_values();
-    drawn_samples[t] = tree->get_drawn_samples();
+    Tree& tree = forest.get_trees_().at(t);
+    root_nodes[t] = tree.get_root_node();
+    child_nodes[t] = tree.get_child_nodes();
+    leaf_samples[t] = tree.get_leaf_samples();
+    split_vars[t] = tree.get_split_vars();
+    split_values[t] = tree.get_split_values();
+    drawn_samples[t] = tree.get_drawn_samples();
 
-    prediction_values[t] = tree->get_prediction_values().get_all_values();
-    num_types = tree->get_prediction_values().get_num_types();
+    prediction_values[t] = tree.get_prediction_values().get_all_values();
+    num_types = tree.get_prediction_values().get_num_types();
 
-    tree->clear();
+    tree.clear();
   }
 
   result.push_back(root_nodes, "_root_nodes");
@@ -90,17 +93,18 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   return result;
 };
 
-Data* RcppUtilities::convert_data(Rcpp::NumericMatrix input_data,
-                                  Eigen::SparseMatrix<double>& sparse_input_data) {
-  Data* data;
+std::unique_ptr<Data> RcppUtilities::convert_data(Rcpp::NumericMatrix& input_data,
+                                                  Eigen::SparseMatrix<double>& sparse_input_data) {
+  std::unique_ptr<Data> data;
   if (input_data.nrow() > 0) {
     size_t num_rows = input_data.nrow();
     size_t num_cols = input_data.ncol();
-    data = new DefaultData(input_data.begin(), num_rows, num_cols);
+    data = std::unique_ptr<Data>(new RcppData(input_data, num_rows, num_cols));
   } else {
     size_t num_rows = sparse_input_data.rows();
     size_t num_cols = sparse_input_data.cols();
-    data = new SparseData(&sparse_input_data, num_rows, num_cols);
+
+    data = std::unique_ptr<Data>(new SparseData(sparse_input_data, num_rows, num_cols));
   }
   return data;
 }

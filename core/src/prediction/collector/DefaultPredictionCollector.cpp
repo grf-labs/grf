@@ -17,19 +17,21 @@
 
 #include "prediction/collector/DefaultPredictionCollector.h"
 
+namespace grf {
+
 DefaultPredictionCollector::DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy):
     strategy(std::move(strategy)) {}
 
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
-    Data* train_data,
-    Data* data,
+    const Data& train_data,
+    const Data& data,
     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
     bool estimate_variance,
     bool estimate_error) const {
 
-  size_t num_samples = data->get_num_rows();
+  size_t num_samples = data.get_num_rows();
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
 
@@ -51,8 +53,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
         const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
         size_t node = leaf_nodes.at(sample);
 
-        std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
-        std::vector<std::vector<size_t>> leaf_samples = tree->get_leaf_samples();
+        const Tree& tree = forest.get_trees()[tree_index];
+        std::vector<std::vector<size_t>> leaf_samples = tree.get_leaf_samples();
         samples_by_tree.push_back(leaf_samples.at(node));
       }
     }
@@ -78,3 +80,5 @@ void DefaultPredictionCollector::validate_prediction(size_t sample,
                              " did not have the expected length.");
   }
 }
+
+} // namespace grf

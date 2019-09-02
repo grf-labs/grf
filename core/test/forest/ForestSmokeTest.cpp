@@ -24,9 +24,11 @@
 
 #include "catch.hpp"
 
+using namespace grf;
+
 TEST_CASE("forests don't crash when there are fewer trees than threads", "[forest]") {
-  ForestTrainer trainer = ForestTrainers::regression_trainer();
-  Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  ForestTrainer trainer = regression_trainer();
+  std::unique_ptr<Data> data = load_data("test/forest/resources/gaussian_data.csv");
   data->set_outcome_index(10);
 
   uint mtry = 3;
@@ -47,23 +49,22 @@ TEST_CASE("forests don't crash when there are fewer trees than threads", "[fores
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty, honesty_fraction,
           prune, alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
 
-  Forest forest = trainer.train(data, options);
-  ForestPredictor predictor = ForestPredictors::regression_predictor(4);
-  predictor.predict_oob(forest, data, true);
-  delete data;
+  Forest forest = trainer.train(*data, options);
+  ForestPredictor predictor = regression_predictor(4);
+  predictor.predict_oob(forest, *data, true);
 }
 
 
 TEST_CASE("basic forest merges work", "[regression, forest]") {
-  Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  std::unique_ptr<Data> data = load_data("test/forest/resources/gaussian_data.csv");
   data->set_outcome_index(10);
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer();
+  ForestTrainer trainer = regression_trainer();
   ForestOptions options = ForestTestUtilities::default_options(false, 2);
 
-  Forest forest1 = trainer.train(data, options);
-  Forest forest2 = trainer.train(data, options);
-  Forest forest3 = trainer.train(data, options);
+  Forest forest1 = trainer.train(*data, options);
+  Forest forest2 = trainer.train(*data, options);
+  Forest forest3 = trainer.train(*data, options);
 
   std::vector<Forest> forests = { forest1, forest2, forest3 };
 
@@ -75,25 +76,23 @@ TEST_CASE("basic forest merges work", "[regression, forest]") {
   REQUIRE(big_forest.get_num_variables() == forest1.get_num_variables());
   REQUIRE(big_forest.get_ci_group_size() == forest1.get_ci_group_size());
 
-  ForestPredictor predictor = ForestPredictors::regression_predictor(4);
-  std::vector<Prediction> predictions = predictor.predict_oob(big_forest, data, false);
+  ForestPredictor predictor = regression_predictor(4);
+  std::vector<Prediction> predictions = predictor.predict_oob(big_forest, *data, false);
 
   REQUIRE(predictions.size() == data->get_num_rows());
-
-  delete data;
 }
 
 TEST_CASE("forests with different ci_group_size cannot be merged", "[regression, forest]") {
-  Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  std::unique_ptr<Data> data = load_data("test/forest/resources/gaussian_data.csv");
   data->set_outcome_index(10);
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer();
+  ForestTrainer trainer = regression_trainer();
 
   ForestOptions options = ForestTestUtilities::default_options(false, 1);
-  Forest forest = trainer.train(data, options);
+  Forest forest = trainer.train(*data, options);
 
   ForestOptions options_with_ci = ForestTestUtilities::default_options(false, 2);
-  Forest forest_with_ci = trainer.train(data, options_with_ci);
+  Forest forest_with_ci = trainer.train(*data, options_with_ci);
 
   std::vector<Forest> forests = { forest, forest_with_ci };
 
@@ -103,6 +102,4 @@ TEST_CASE("forests with different ci_group_size cannot be merged", "[regression,
   } catch (const std::runtime_error& e) {
     // Expected exception.
   }
-
-  delete data;
 }

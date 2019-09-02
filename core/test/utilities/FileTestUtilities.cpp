@@ -65,4 +65,3 @@ void FileTestUtilities::write_csv_file(const std::string& file_name,
   }
   file.close();
 }
-

@@ -23,6 +23,8 @@
 #include <string>
 #include <map>
 
+namespace grf {
+
 class PredictionValues {
 public:
   PredictionValues();
@@ -54,5 +56,6 @@ private:
   size_t num_types;
 };
 
+} // namespace grf
 
 #endif //GRF_PREDICTIONVALUES_H

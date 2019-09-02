@@ -19,6 +19,8 @@
 #include <string>
 #include "prediction/RegressionPredictionStrategy.h"
 
+namespace grf {
+
 const size_t RegressionPredictionStrategy::OUTCOME = 0;
 
 size_t RegressionPredictionStrategy::prediction_length() const {
@@ -87,7 +89,7 @@ size_t RegressionPredictionStrategy::prediction_value_length() const {
 
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_samples,
-    const Data* data) const {
+    const Data& data) const {
   size_t num_leaves = leaf_samples.size();
   std::vector<std::vector<double>> values(num_leaves);
 
@@ -100,8 +102,8 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     double sum = 0.0;
     double weight = 0.0;
     for (auto& sample : leaf_node) {
-      sum += data->get_weight(sample) * data->get_outcome(sample);
-      weight  += data->get_weight(sample);
+      sum += data.get_weight(sample) * data.get_outcome(sample);
+      weight  += data.get_weight(sample);
     }
 
     // if total weight is very small, treat the leaf as empty
@@ -109,7 +111,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
       continue;
     }
 
-    std::vector<double> &averages = values[i];
+    std::vector<double>& averages = values[i];
     averages.resize(1);
     averages[OUTCOME] = sum / weight;
   }
@@ -121,8 +123,8 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    const Data* data) const {
-  double outcome = data->get_outcome(sample);
+    const Data& data) const {
+  double outcome = data.get_outcome(sample);
 
   double error = average.at(OUTCOME) - outcome;
   double mse = error * error;
@@ -151,3 +153,4 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
   return { output };
 }
 
+} // namespace grf

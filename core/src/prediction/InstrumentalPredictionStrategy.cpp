@@ -23,6 +23,8 @@
 #include "commons/utility.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
 
+namespace grf {
+
 const std::size_t InstrumentalPredictionStrategy::OUTCOME = 0;
 const std::size_t InstrumentalPredictionStrategy::TREATMENT = 1;
 const std::size_t InstrumentalPredictionStrategy::INSTRUMENT = 2;
@@ -151,7 +153,7 @@ size_t InstrumentalPredictionStrategy::prediction_value_length() const {
 
 PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     const std::vector<std::vector<size_t>>& leaf_samples,
-    const Data* data) const {
+    const Data& data) const {
   size_t num_leaves = leaf_samples.size();
 
   std::vector<std::vector<double>> values(num_leaves);
@@ -173,12 +175,12 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
 
     double sum_weight = 0.0;
     for (auto& sample : leaf_samples[i]) {
-      auto weight = data->get_weight(sample);
-      sum_Y +=  weight * data->get_outcome(sample);
-      sum_W +=  weight * data->get_treatment(sample);
-      sum_Z +=  weight * data->get_instrument(sample);
-      sum_YZ += weight * data->get_outcome(sample) * data->get_instrument(sample);
-      sum_WZ += weight * data->get_treatment(sample) * data->get_instrument(sample);
+      auto weight = data.get_weight(sample);
+      sum_Y +=  weight * data.get_outcome(sample);
+      sum_W +=  weight * data.get_treatment(sample);
+      sum_Z +=  weight * data.get_instrument(sample);
+      sum_YZ += weight * data.get_outcome(sample) * data.get_instrument(sample);
+      sum_WZ += weight * data.get_treatment(sample) * data.get_instrument(sample);
       sum_weight += weight;
     }
 
@@ -201,14 +203,14 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
-    const Data* data) const {
+    const Data& data) const {
 
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
   double treatment_effect_estimate = instrument_effect_numerator / first_stage_numerator;
 
-  double outcome = data->get_outcome(sample);
-  double treatment = data->get_treatment(sample);
+  double outcome = data.get_outcome(sample);
+  double treatment = data.get_treatment(sample);
 
   // To justify the squared residual below as an error criterion in the case of CATE estimation
   // with an unconfounded treatment assignment, see Nie and Wager (2017).
@@ -259,3 +261,4 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
 
 }
 
+} // namespace grf

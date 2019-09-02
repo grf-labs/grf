@@ -20,17 +20,19 @@
 
 #include "forest/Forest.h"
 
+namespace grf {
+
 class TreeTraverser {
 public:
   TreeTraverser(uint num_threads);
 
   std::vector<std::vector<size_t>> get_leaf_nodes(
       const Forest& forest,
-      Data* data,
+      const Data& data,
       bool oob_prediction) const;
 
   std::vector<std::vector<bool>> get_valid_trees_by_sample(const Forest& forest,
-                                                           Data* data,
+                                                           const Data& data,
                                                            bool oob_prediction) const;
 
 private:
@@ -38,15 +40,16 @@ private:
       size_t start,
       size_t num_trees,
       const Forest& forest,
-      Data* data,
+      const Data& data,
       bool oob_prediction) const;
 
   std::vector<bool> get_valid_samples(size_t num_samples,
-                                      const std::shared_ptr<Tree>& tree,
+                                      const Tree& tree,
                                       bool oob_prediction) const;
 
   uint num_threads;
 };
 
+} // namespace grf
 
 #endif //GRF_TREETRAVERSER_H

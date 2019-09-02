@@ -24,9 +24,11 @@
 #include "commons/Data.h"
 #include "prediction/LLCausalPredictionStrategy.h"
 
+namespace grf {
+
 LLCausalPredictionStrategy::LLCausalPredictionStrategy(std::vector<double> lambdas,
-                                                   bool weight_penalty,
-                                                   std::vector<size_t> linear_correction_variables):
+                                                       bool weight_penalty,
+                                                       std::vector<size_t> linear_correction_variables):
         lambdas(lambdas),
         weight_penalty(weight_penalty),
         linear_correction_variables(linear_correction_variables){
@@ -39,8 +41,8 @@ size_t LLCausalPredictionStrategy::prediction_length() const {
 std::vector<double> LLCausalPredictionStrategy::predict(
         size_t sampleID,
         const std::unordered_map<size_t, double>& weights_by_sampleID,
-        const Data *train_data,
-        const Data *test_data) const {
+        const Data& train_data,
+        const Data& test_data) const {
 
   // Number of predictor variables to use in local linear regression step
   size_t num_variables = linear_correction_variables.size();
@@ -84,7 +86,7 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   for (size_t i = 0; i < num_nonzero_weights; ++i) {
     // Index of next neighbor with nonzero weights
     size_t index = indices[i];
-    double treatment = train_data->get_treatment(index);
+    double treatment = train_data.get_treatment(index);
 
     // Intercept
     X(i, 0) = 1;
@@ -93,8 +95,8 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
       // X - x0 column
-      X(i,j+1) = train_data->get(index, current_predictor) -
-                    test_data->get(sampleID, current_predictor);
+      X(i,j+1) = train_data.get(index, current_predictor) -
+                    test_data.get(sampleID, current_predictor);
       // (X - x0)*W column
       X(i, treatment_index + j + 1) = X(i, j+1) * treatment;
     }
@@ -103,7 +105,7 @@ std::vector<double> LLCausalPredictionStrategy::predict(
     X(i, treatment_index) = treatment;
 
     // Outcome (just copied)
-    Y(i) = train_data->get_outcome(index);
+    Y(i) = train_data.get_outcome(index);
   }
 
   // find ridge regression predictions
@@ -147,8 +149,8 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
         size_t sampleID,
         std::vector<std::vector<size_t>> samples_by_tree,
         std::unordered_map<size_t, double> weights_by_sampleID,
-        const Data* train_data,
-        const Data* test_data,
+        const Data& train_data,
+        const Data& test_data,
         size_t ci_group_size) const {
 
   double lambda = lambdas[0];
@@ -156,7 +158,7 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
   size_t num_variables = linear_correction_variables.size();
   size_t num_nonzero_weights = weights_by_sampleID.size();
 
-  std::vector<size_t> sample_index_map(train_data->get_num_rows());
+  std::vector<size_t> sample_index_map(train_data.get_num_rows());
   std::vector<size_t> indices(num_nonzero_weights);
 
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
@@ -181,7 +183,7 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
     // Index of next neighbor with nonzero weights
 
     size_t index = indices[i];
-    double treatment = train_data->get_treatment(index);
+    double treatment = train_data.get_treatment(index);
 
     // Intercept
     X(i, 0) = 1;
@@ -190,8 +192,8 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = linear_correction_variables[j];
       // X - x0 column
-      X(i,j+1) = train_data->get(index, current_predictor) -
-                 test_data->get(sampleID, current_predictor);
+      X(i,j+1) = train_data.get(index, current_predictor) -
+                 test_data.get(sampleID, current_predictor);
 
       // (X - x0)*W column
       X(i, treatment_index + j + 1) = X(i, j+1) * treatment;
@@ -201,7 +203,7 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
     X(i, treatment_index) = treatment;
 
     // Outcome (just copied)
-    Y(i) = train_data->get_outcome(index);
+    Y(i) = train_data.get_outcome(index);
   }
 
   // find ridge regression predictions
@@ -294,3 +296,5 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
 
   return { var_debiased };
 }
+
+} // namespace grf

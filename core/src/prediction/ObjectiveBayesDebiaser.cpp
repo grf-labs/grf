@@ -14,9 +14,12 @@
   You should have received a copy of the GNU General Public License
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
+#include <cmath>
 
 #include "commons/utility.h"
 #include "ObjectiveBayesDebiaser.h"
+
+namespace grf {
 
 double ObjectiveBayesDebiaser::debias(double var_between,
                                       double group_noise,
@@ -49,3 +52,5 @@ double ObjectiveBayesDebiaser::debias(double var_between,
   double bayes_correction = initial_se * numerator / denominator;
   return initial_estimate + bayes_correction;
 }
+
+} // namespace grf

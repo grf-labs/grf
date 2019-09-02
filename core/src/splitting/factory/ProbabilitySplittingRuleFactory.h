@@ -23,6 +23,8 @@
 #include "commons/globals.h"
 #include "splitting/factory/SplittingRuleFactory.h"
 
+namespace grf {
+
 /**
  * A factory that produces standard classification splitting rules.
  *
@@ -32,7 +34,7 @@
 class ProbabilitySplittingRuleFactory final: public SplittingRuleFactory {
 public:
   ProbabilitySplittingRuleFactory(size_t num_classes);
-  std::unique_ptr<SplittingRule> create(const Data* data,
+  std::unique_ptr<SplittingRule> create(const Data& data,
                                         const TreeOptions& options) const;
 
 private:
@@ -40,5 +42,7 @@ private:
 
   DISALLOW_COPY_AND_ASSIGN(ProbabilitySplittingRuleFactory);
 };
+
+} // namespace grf
 
 #endif //GRF_PROBABILITYSPLITTINGRULEFACTORY_H

@@ -20,12 +20,14 @@
 
 #include <future>
 
+namespace grf {
+
 TreeTraverser::TreeTraverser(uint num_threads) :
     num_threads(num_threads) {}
 
 std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
     const Forest& forest,
-    Data* data,
+    const Data& data,
     bool oob_prediction) const {
   size_t num_trees = forest.get_trees().size();
 
@@ -48,7 +50,7 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
                                  start_index,
                                  num_trees_batch,
                                  forest,
-                                 data,
+                                 std::ref(data),
                                  oob_prediction));
   }
 
@@ -63,15 +65,15 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
 };
 
 std::vector<std::vector<bool>> TreeTraverser::get_valid_trees_by_sample(const Forest& forest,
-                                                                        Data* data,
+                                                                        const Data& data,
                                                                         bool oob_prediction) const {
   size_t num_trees = forest.get_trees().size();
-  size_t num_samples = data->get_num_rows();
+  size_t num_samples = data.get_num_rows();
 
   std::vector<std::vector<bool>> result(num_samples, std::vector<bool>(num_trees, true));
   if (oob_prediction) {
     for (size_t tree_idx = 0; tree_idx < num_trees; ++tree_idx) {
-      for (size_t sample : forest.get_trees()[tree_idx]->get_drawn_samples()) {
+      for (size_t sample : forest.get_trees()[tree_idx].get_drawn_samples()) {
         result[sample][tree_idx] = false;
       }
     }
@@ -83,17 +85,17 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_node_batch(
     size_t start,
     size_t num_trees,
     const Forest& forest,
-    Data* data,
+    const Data& data,
     bool oob_prediction) const {
 
-  size_t num_samples = data->get_num_rows();
+  size_t num_samples = data.get_num_rows();
   std::vector<std::vector<size_t>> all_leaf_nodes(num_trees);
 
   for (size_t i = 0; i < num_trees; ++i) {
-    std::shared_ptr<Tree> tree = forest.get_trees()[start + i];
+    const Tree& tree = forest.get_trees()[start + i];
 
     std::vector<bool> valid_samples = get_valid_samples(num_samples, tree, oob_prediction);
-    std::vector<size_t> leaf_nodes = tree->find_leaf_nodes(data, valid_samples);
+    std::vector<size_t> leaf_nodes = tree.find_leaf_nodes(data, valid_samples);
     all_leaf_nodes[i] = leaf_nodes;
   }
 
@@ -101,13 +103,15 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_node_batch(
 }
 
 std::vector<bool> TreeTraverser::get_valid_samples(size_t num_samples,
-                                                   const std::shared_ptr<Tree>& tree,
+                                                   const Tree& tree,
                                                    bool oob_prediction) const {
   std::vector<bool> valid_samples(num_samples, true);
   if (oob_prediction) {
-    for (size_t sample : tree->get_drawn_samples()) {
+    for (size_t sample : tree.get_drawn_samples()) {
       valid_samples[sample] = false;
     }
   }
   return valid_samples;
 }
+
+} // namespace grf

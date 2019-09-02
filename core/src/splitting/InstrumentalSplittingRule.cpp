@@ -19,15 +19,15 @@
 
 #include "InstrumentalSplittingRule.h"
 
-InstrumentalSplittingRule::InstrumentalSplittingRule(const Data* data,
+namespace grf {
+
+InstrumentalSplittingRule::InstrumentalSplittingRule(size_t max_num_unique_values,
                                                      uint min_node_size,
                                                      double alpha,
                                                      double imbalance_penalty):
-    data(data),
     min_node_size(min_node_size),
     alpha(alpha),
     imbalance_penalty(imbalance_penalty) {
-  size_t max_num_unique_values = data->get_max_num_unique_values();
   this->counter = new size_t[max_num_unique_values];
   this->sums = new double[max_num_unique_values];
   this->num_small_z = new size_t[max_num_unique_values];
@@ -53,9 +53,10 @@ InstrumentalSplittingRule::~InstrumentalSplittingRule() {
   }
 }
 
-bool InstrumentalSplittingRule::find_best_split(size_t node,
+bool InstrumentalSplittingRule::find_best_split(const Data& data,
+                                                size_t node,
                                                 const std::vector<size_t>& possible_split_vars,
-                                                const std::unordered_map<size_t, double>& labels_by_sample,
+                                                const std::vector<double>& responses_by_sample,
                                                 const std::vector<std::vector<size_t>>& samples,
                                                 std::vector<size_t>& split_vars,
                                                 std::vector<double>& split_values) {
@@ -66,9 +67,9 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
   double sum_node_z = 0.0;
   double sum_node_z_squared = 0.0;
   for (auto& sample : samples[node]) {
-    sum_node += labels_by_sample.at(sample);
+    sum_node += responses_by_sample[sample];
 
-    double z = data->get_instrument(sample);
+    double z = data.get_instrument(sample);
     sum_node_z += z;
     sum_node_z_squared += z * z;
   }
@@ -79,7 +80,7 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
   double mean_z_node = sum_node_z / num_samples;
   size_t num_node_small_z = 0;
   for (auto& sample : samples[node]) {
-    double z = data->get_instrument(sample);
+    double z = data.get_instrument(sample);
     if (z < mean_z_node) {
       num_node_small_z++;
     }
@@ -92,15 +93,15 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
 
   for (auto& var : possible_split_vars) {
     // Use faster method for both cases
-    double q = (double) num_samples / (double) data->get_num_unique_data_values(var);
+    double q = (double) num_samples / (double) data.get_num_unique_data_values(var);
     if (q < Q_THRESHOLD) {
-      find_best_split_value_small_q(node, var, num_samples, sum_node, mean_z_node, num_node_small_z,
+      find_best_split_value_small_q(data, node, var, num_samples, sum_node, mean_z_node, num_node_small_z,
                                     sum_node_z, sum_node_z_squared, min_child_size, best_value,
-                                    best_var, best_decrease, labels_by_sample, samples);
+                                    best_var, best_decrease, responses_by_sample, samples);
     } else {
-      find_best_split_value_large_q(node, var, num_samples, sum_node, mean_z_node, num_node_small_z,
+      find_best_split_value_large_q(data, node, var, num_samples, sum_node, mean_z_node, num_node_small_z,
                                     sum_node_z, sum_node_z_squared, min_child_size, best_value,
-                                    best_var, best_decrease, labels_by_sample, samples);
+                                    best_var, best_decrease, responses_by_sample, samples);
     }
   }
 
@@ -115,7 +116,8 @@ bool InstrumentalSplittingRule::find_best_split(size_t node,
   return false;
 }
 
-void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_t var,
+void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
+                                                              size_t node, size_t var,
                                                               size_t num_samples,
                                                               double sum_node,
                                                               double mean_node_z,
@@ -126,10 +128,10 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
                                                               double& best_value,
                                                               size_t& best_var,
                                                               double& best_decrease,
-                                                              const std::unordered_map<size_t, double>& labels_by_sample,
+                                                              const std::vector<double>& responses_by_sample,
                                                               const std::vector<std::vector<size_t>>& samples) {
   std::vector<double> possible_split_values;
-  data->get_all_values(possible_split_values, samples.at(node), var);
+  data.get_all_values(possible_split_values, samples[node], var);
 
   // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {
@@ -152,9 +154,9 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
 
   // Sum in right child and possible split
   for (auto& sample : samples[node]) {
-    double value = data->get(sample, var);
-    double label = labels_by_sample.at(sample);
-    double z = data->get_instrument(sample);
+    double value = data.get(sample, var);
+    double label = responses_by_sample[sample];
+    double z = data.get_instrument(sample);
 
     // Count samples until split_value reached
     for (size_t i = 0; i < num_splits; ++i) {
@@ -227,7 +229,8 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(size_t node, size_
   }
 }
 
-void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
+void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
+                                                              size_t node,
                                                               size_t var,
                                                               size_t num_samples,
                                                               double sum_node,
@@ -239,10 +242,10 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
                                                               double& best_value,
                                                               size_t& best_var,
                                                               double& best_decrease,
-                                                              const std::unordered_map<size_t, double>& responses_by_sample,
+                                                              const std::vector<double>& responses_by_sample,
                                                               const std::vector<std::vector<size_t>>& samples) {
   // Set counters to 0
-  size_t num_unique = data->get_num_unique_data_values(var);
+  size_t num_unique = data.get_num_unique_data_values(var);
   std::fill(counter, counter + num_unique, 0);
   std::fill(sums, sums + num_unique, 0);
   std::fill(num_small_z, num_small_z + num_unique, 0);
@@ -250,10 +253,10 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
   std::fill(sums_z_squared, sums_z_squared + num_unique, 0);
 
   for (auto& sample : samples[node]) {
-    size_t i = data->get_index(sample, var);
-    double z = data->get_instrument(sample);
+    size_t i = data.get_index(sample, var);
+    double z = data.get_instrument(sample);
 
-    sums[i] += responses_by_sample.at(sample);
+    sums[i] += responses_by_sample[sample];
     ++counter[i];
 
     sums_z[i] += z;
@@ -320,9 +323,11 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(size_t node,
 
     // Save this split if it is the best seen so fa.
     if (decrease > best_decrease) {
-      best_value = data->get_unique_data_value(var, i);
+      best_value = data.get_unique_data_value(var, i);
       best_var = var;
       best_decrease = decrease;
     }
   }
 }
+
+} // namespace grf

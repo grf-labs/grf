@@ -20,10 +20,11 @@
 
 
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "commons/globals.h"
+
+namespace grf {
 
 class SamplingOptions {
 public:
@@ -49,5 +50,7 @@ private:
   uint num_samples_per_cluster;
   std::vector<std::vector<size_t>> clusters;
 };
+
+} // namespace grf
 
 #endif //GRF_SAMPLINGOPTIONS_H

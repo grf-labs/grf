@@ -27,6 +27,8 @@
 #include "prediction/PredictionValues.h"
 #include "ObjectiveBayesDebiaser.h"
 
+namespace grf {
+
 class InstrumentalPredictionStrategy final: public OptimizedPredictionStrategy {
 public:
   static const std::size_t OUTCOME;
@@ -38,7 +40,7 @@ public:
   size_t prediction_value_length() const;
   PredictionValues precompute_prediction_values(
       const std::vector<std::vector<size_t>>& leaf_samples,
-      const Data* data) const;
+      const Data& data) const;
 
   size_t prediction_length() const;
 
@@ -48,14 +50,16 @@ public:
                           const PredictionValues& leaf_values,
                           size_t ci_group_size) const;
 
-  std::vector<std::pair<double, double>>  compute_error(
+  std::vector<std::pair<double, double>> compute_error(
       size_t sample,
       const std::vector<double>& average,
       const PredictionValues& leaf_values,
-      const Data* data) const;
+      const Data& data) const;
 
 private:
   ObjectiveBayesDebiaser bayes_debiaser;
 };
+
+} // namespace grf
 
 #endif //GRF_INSTRUMENTALPREDICTIONSTRATEGY_H

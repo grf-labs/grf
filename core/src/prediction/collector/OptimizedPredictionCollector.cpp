@@ -17,18 +17,20 @@
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
 
+namespace grf {
+
 OptimizedPredictionCollector::OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy):
     strategy(std::move(strategy)) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
-                                                                          Data* train_data,
-                                                                          Data* data,
+                                                                          const Data& train_data,
+                                                                          const Data& data,
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                                           bool estimate_variance,
                                                                           bool estimate_error) const {
   size_t num_trees = forest.get_trees().size();
-  size_t num_samples = data->get_num_rows();
+  size_t num_samples = data.get_num_rows();
   bool record_leaf_values = estimate_variance || estimate_error;
 
   std::vector<Prediction> predictions;
@@ -51,8 +53,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
       const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
       size_t node = leaf_nodes.at(sample);
 
-      std::shared_ptr<Tree> tree = forest.get_trees()[tree_index];
-      const PredictionValues& prediction_values = tree->get_prediction_values();
+      const Tree& tree = forest.get_trees()[tree_index];
+      const PredictionValues& prediction_values = tree.get_prediction_values();
 
       if (!prediction_values.empty(node)) {
         num_leaves++;
@@ -67,7 +69,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
       std::vector<double> nan(strategy->prediction_length(), NAN);
-      predictions.emplace_back(Prediction(nan, nan, nan, nan));
+      predictions.emplace_back(nan, nan, nan, nan);
       continue;
     }
 
@@ -125,3 +127,5 @@ void OptimizedPredictionCollector::validate_prediction(size_t sample,
                              " did not have the expected length.");
   }
 }
+
+} // namespace grf

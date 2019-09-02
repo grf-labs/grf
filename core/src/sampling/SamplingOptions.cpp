@@ -16,9 +16,10 @@
  #-------------------------------------------------------------------------------*/
 
 #include "SamplingOptions.h"
-
-#include <unordered_set>
+#include <unordered_map>
 #include "commons/globals.h"
+
+namespace grf {
 
 SamplingOptions::SamplingOptions():
     sample_weights(0),
@@ -60,3 +61,5 @@ unsigned int SamplingOptions::get_samples_per_cluster() const {
 const std::vector<std::vector<size_t>>& SamplingOptions::get_clusters() const {
   return clusters;
 }
+
+} // namespace grf

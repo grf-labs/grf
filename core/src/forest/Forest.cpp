@@ -18,30 +18,33 @@
 #include "commons/DefaultData.h"
 #include "forest/Forest.h"
 
-Forest Forest::create(const std::vector<std::shared_ptr<Tree>>& trees,
+namespace grf {
+
+Forest Forest::create(const std::vector<Tree>& trees,
                       const ForestOptions& forest_options,
-                      const Data* data) {
-  size_t num_independent_variables = data->get_num_cols() -
-      data->get_disallowed_split_variables().size();
+                      const Data& data) {
+  size_t num_independent_variables = data.get_num_cols() -
+      data.get_disallowed_split_variables().size();
   return Forest(trees, num_independent_variables, forest_options.get_ci_group_size());
 }
 
-Forest::Forest(const std::vector<std::shared_ptr<Tree>>& trees,
+Forest::Forest(const std::vector<Tree>& trees,
                size_t num_variables,
                size_t ci_group_size):
-  trees(trees),
+  trees(std::move(trees)),
   num_variables(num_variables),
   ci_group_size(ci_group_size) {}
 
-Forest Forest::merge(const std::vector<Forest>& forests) {
-
-  std::vector<std::shared_ptr<Tree>> all_trees;
+Forest Forest::merge(std::vector<Forest>& forests) {
+  std::vector<Tree> all_trees;
   const size_t num_variables = forests.at(0).get_num_variables();
   const size_t ci_group_size = forests.at(0).get_ci_group_size();
 
-  for (const auto& forest : forests) {
-    auto& trees = forest.get_trees();
-    all_trees.insert(all_trees.end(), trees.begin(), trees.end());
+  for (auto& forest : forests) {
+    auto& trees = forest.get_trees_();
+    all_trees.insert(all_trees.end(),
+                     std::make_move_iterator(trees.begin()),
+                     std::make_move_iterator(trees.end()));
 
     if (forest.get_ci_group_size() != ci_group_size) {
       throw std::runtime_error("All forests being merged must have the same ci_group_size.");
@@ -51,7 +54,11 @@ Forest Forest::merge(const std::vector<Forest>& forests) {
   return Forest(all_trees, num_variables, ci_group_size);
 }
 
-const std::vector<std::shared_ptr<Tree>>& Forest::get_trees() const {
+const std::vector<Tree>& Forest::get_trees() const {
+  return trees;
+}
+
+std::vector<Tree>& Forest::get_trees_() {
   return trees;
 }
 
@@ -62,3 +69,5 @@ const size_t Forest::get_num_variables() const {
 const size_t Forest::get_ci_group_size() const {
   return ci_group_size;
 }
+
+} // namespace grf

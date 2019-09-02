@@ -21,6 +21,8 @@
 #include "commons/DefaultData.h"
 #include "tree/TreeTrainer.h"
 
+namespace grf {
+
 TreeTrainer::TreeTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
                          std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
                          std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy) :
@@ -28,10 +30,10 @@ TreeTrainer::TreeTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy
     splitting_rule_factory(std::move(splitting_rule_factory)),
     prediction_strategy(std::move(prediction_strategy)) {}
 
-std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
-                                         RandomSampler& sampler,
-                                         const std::vector<size_t>& clusters,
-                                         const TreeOptions& options) const {
+Tree TreeTrainer::train(const Data& data,
+                        RandomSampler& sampler,
+                        const std::vector<size_t>& clusters,
+                        const TreeOptions& options) const {
   std::vector<std::vector<size_t>> child_nodes;
   std::vector<std::vector<size_t>> nodes;
   std::vector<size_t> split_vars;
@@ -59,6 +61,7 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
 
   size_t num_open_nodes = 1;
   size_t i = 0;
+  std::vector<double> responses_by_sample(data.get_num_rows());
   while (num_open_nodes > 0) {
     bool is_leaf_node = split_node(i,
                                    data,
@@ -68,6 +71,7 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
                                    nodes,
                                    split_vars,
                                    split_values,
+                                   responses_by_sample,
                                    options);
     if (is_leaf_node) {
       --num_open_nodes;
@@ -81,13 +85,7 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
   std::vector<size_t> drawn_samples;
   sampler.get_samples_in_clusters(clusters, drawn_samples);
 
-  auto tree = std::shared_ptr<Tree>(new Tree(0,
-      child_nodes,
-      nodes,
-      split_vars,
-      split_values,
-      drawn_samples,
-      PredictionValues()));
+  Tree tree(0, child_nodes, nodes, split_vars, split_values, drawn_samples, PredictionValues());
 
   if (!new_leaf_samples.empty()) {
     repopulate_leaf_nodes(tree, data, new_leaf_samples, options.get_prune_empty_leaves());
@@ -95,56 +93,57 @@ std::shared_ptr<Tree> TreeTrainer::train(const Data* data,
 
   PredictionValues prediction_values;
   if (prediction_strategy != nullptr) {
-    prediction_values = prediction_strategy->precompute_prediction_values(tree->get_leaf_samples(), data);
+    prediction_values = prediction_strategy->precompute_prediction_values(tree.get_leaf_samples(), data);
   }
-  tree->set_prediction_values(prediction_values);
+  tree.set_prediction_values(prediction_values);
 
   return tree;
 }
 
-void TreeTrainer::repopulate_leaf_nodes(const std::shared_ptr<Tree>& tree,
-                                        const Data* data,
+void TreeTrainer::repopulate_leaf_nodes(Tree& tree,
+                                        const Data& data,
                                         const std::vector<size_t>& leaf_samples,
                                         const bool prune_empty_leaves) const {
-  size_t num_nodes = tree->get_leaf_samples().size();
+  size_t num_nodes = tree.get_leaf_samples().size();
   std::vector<std::vector<size_t>> new_leaf_nodes(num_nodes);
 
-  std::vector<size_t> leaf_nodes = tree->find_leaf_nodes(data, leaf_samples);
+  std::vector<size_t> leaf_nodes = tree.find_leaf_nodes(data, leaf_samples);
 
   for (auto& sample : leaf_samples) {
-    size_t leaf_node = leaf_nodes.at(sample);
-    new_leaf_nodes.at(leaf_node).push_back(sample);
+    size_t leaf_node = leaf_nodes[sample];
+    new_leaf_nodes[leaf_node].push_back(sample);
   }
-  tree->set_leaf_samples(new_leaf_nodes);
+  tree.set_leaf_samples(new_leaf_nodes);
   if (prune_empty_leaves) {
-    tree->prune_empty_leaves();
+    tree.prune_empty_leaves();
   }
 }
 
 void TreeTrainer::create_split_variable_subset(std::vector<size_t>& result,
                                                RandomSampler& sampler,
-                                               const Data* data,
+                                               const Data& data,
                                                uint mtry) const {
 
   // Randomly select an mtry for this tree based on the overall setting.
-  size_t num_independent_variables = data->get_num_cols() - data->get_disallowed_split_variables().size();
+  size_t num_independent_variables = data.get_num_cols() - data.get_disallowed_split_variables().size();
   size_t mtry_sample = sampler.sample_poisson(mtry);
   size_t split_mtry = std::max<size_t>(std::min<size_t>(mtry_sample, num_independent_variables), 1uL);
 
   sampler.draw(result,
-               data->get_num_cols(),
-               data->get_disallowed_split_variables(),
+               data.get_num_cols(),
+               data.get_disallowed_split_variables(),
                split_mtry);
 }
 
 bool TreeTrainer::split_node(size_t node,
-                             const Data* data,
+                             const Data& data,
                              const std::unique_ptr<SplittingRule>& splitting_rule,
                              RandomSampler& sampler,
                              std::vector<std::vector<size_t>>& child_nodes,
                              std::vector<std::vector<size_t>>& samples,
                              std::vector<size_t>& split_vars,
                              std::vector<double>& split_values,
+                             std::vector<double>& responses_by_sample,
                              const TreeOptions& options) const {
 
   std::vector<size_t> possible_split_vars;
@@ -157,6 +156,7 @@ bool TreeTrainer::split_node(size_t node,
                                   samples,
                                   split_vars,
                                   split_values,
+                                  responses_by_sample,
                                   options.get_min_node_size());
   if (stop) {
     return true;
@@ -176,7 +176,7 @@ bool TreeTrainer::split_node(size_t node,
   // For each sample in node, assign to left or right child
   // Ordered: left is <= splitval and right is > splitval
   for (auto& sample : samples[node]) {
-    if (data->get(sample, split_var) <= split_value) {
+    if (data.get(sample, split_var) <= split_value) {
       samples[left_child_node].push_back(sample);
     } else {
       samples[right_child_node].push_back(sample);
@@ -188,12 +188,13 @@ bool TreeTrainer::split_node(size_t node,
 }
 
 bool TreeTrainer::split_node_internal(size_t node,
-                                      const Data* data,
+                                      const Data& data,
                                       const std::unique_ptr<SplittingRule>& splitting_rule,
                                       const std::vector<size_t>& possible_split_vars,
                                       const std::vector<std::vector<size_t>>& samples,
                                       std::vector<size_t>& split_vars,
                                       std::vector<double>& split_values,
+                                      std::vector<double>& responses_by_sample,
                                       uint min_node_size) const {
   // Check node size, stop if maximum reached
   if (samples[node].size() <= min_node_size) {
@@ -201,15 +202,16 @@ bool TreeTrainer::split_node_internal(size_t node,
     return true;
   }
 
-  std::unordered_map<size_t, double> responses_by_sample = relabeling_strategy->relabel(
-      samples[node], data);
+  std::fill(responses_by_sample.begin(), responses_by_sample.end(), 0.0);
+  bool stop = relabeling_strategy->relabel(samples[node], data, responses_by_sample);
 
-  if (responses_by_sample.empty() || splitting_rule->find_best_split(node,
-                                                                     possible_split_vars,
-                                                                     responses_by_sample,
-                                                                     samples,
-                                                                     split_vars,
-                                                                     split_values)) {
+  if (stop || splitting_rule->find_best_split(data,
+                                              node,
+                                              possible_split_vars,
+                                              responses_by_sample,
+                                              samples,
+                                              split_vars,
+                                              split_values)) {
     split_values[node] = -1.0;
     return true;
   }
@@ -227,3 +229,5 @@ void TreeTrainer::create_empty_node(std::vector<std::vector<size_t>>& child_node
   split_vars.push_back(0);
   split_values.push_back(0);
 }
+
+} // namespace grf

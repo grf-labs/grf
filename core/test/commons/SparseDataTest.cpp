@@ -23,24 +23,26 @@
 
 #include "catch.hpp"
 
+using namespace grf;
+
 TEST_CASE("using a sparse data representation produces the same predictions", "[data]") {
-  Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  std::unique_ptr<Data> data = load_data("test/forest/resources/gaussian_data.csv");
   data->set_outcome_index(10);
 
-  Data* sparse_data = load_sparse_data("test/forest/resources/gaussian_data.csv");
+  std::unique_ptr<Data> sparse_data = load_sparse_data("test/forest/resources/gaussian_data.csv");
   sparse_data->set_outcome_index(10);
 
-  ForestTrainer trainer = ForestTrainers::regression_trainer();
-  ForestPredictor predictor = ForestPredictors::regression_predictor(4);
+  ForestTrainer trainer = regression_trainer();
+  ForestPredictor predictor = regression_predictor(4);
   ForestOptions options = ForestTestUtilities::default_options();
 
   // Train and predict using the default data format.
-  Forest forest = trainer.train(data, options);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
+  Forest forest = trainer.train(*data, options);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
 
   // Train and predict using the sparse data format.
-  Forest sparse_forest = trainer.train(sparse_data, options);
-  std::vector<Prediction> sparse_predictions = predictor.predict_oob(sparse_forest, sparse_data, false);
+  Forest sparse_forest = trainer.train(*sparse_data, options);
+  std::vector<Prediction> sparse_predictions = predictor.predict_oob(sparse_forest, *sparse_data, false);
 
   // Check that the predictions are the same.
   REQUIRE(predictions.size() == sparse_predictions.size());
@@ -52,7 +54,4 @@ TEST_CASE("using a sparse data representation produces the same predictions", "[
     double sparse_value = sparse_prediction.get_predictions()[0];
     REQUIRE(equal_doubles(value, sparse_value, 1e-5));
   }
-
-  delete data;
-  delete sparse_data;
 }

@@ -21,8 +21,10 @@
 
 #include "catch.hpp"
 
+using namespace grf;
+
 TEST_CASE("LLF gives reasonable prediction on friedman data", "[local linear], [forest]") {
-  Data* data = load_data("test/forest/resources/friedman.csv");
+  std::unique_ptr<Data> data = load_data("test/forest/resources/friedman.csv");
   data->set_outcome_index(10);
   std::vector<size_t> linear_correction_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   std::vector<double> lambda = {0.1};
@@ -45,40 +47,38 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local linear], [
       num_trees, ci_group_size, sample_fraction,
       mtry, min_node_size, honesty, honesty_fraction, prune,
       alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
-  ForestTrainer trainer = ForestTrainers::regression_trainer();
-  Forest forest = trainer.train(data, options);
+  ForestTrainer trainer = regression_trainer();
+  Forest forest = trainer.train(*data, options);
 
-  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(
+  ForestPredictor predictor = ll_regression_predictor(
       num_threads, lambda, false, linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
 
   const std::vector<double>& p = predictions[0].get_predictions();
 
-
   REQUIRE(equal_doubles(14.9163, p[0], 3.0));
-  delete data;
 }
 
 TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
   uint outcome_index = 10;
-  Data* data = load_data("test/forest/resources/small_gaussian_data.csv");
+  std::unique_ptr<Data> data = load_data("test/forest/resources/small_gaussian_data.csv");
   data->set_outcome_index(outcome_index);
 
   std::vector<size_t> linear_correction_variables = {1, 4, 7};
   std::vector<double> lambda = {0.1};
 
   // Run the original forest.
-  ForestTrainer trainer = ForestTrainers::regression_trainer();
+  ForestTrainer trainer = regression_trainer();
   ForestOptions options = ForestTestUtilities::default_honest_options();
-  Forest forest = trainer.train(data, options);
+  Forest forest = trainer.train(*data, options);
 
   uint num_threads = 1;
   size_t ci_group_size = 1;
 
-  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(num_threads,
+  ForestPredictor predictor = ll_regression_predictor(num_threads,
       lambda, false, linear_correction_variables);
 
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
 
   // Shift each outcome by 1, and re-run the forest.
   bool error;
@@ -87,10 +87,10 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
     data->set(outcome_index, r, outcome + 1, error);
   }
 
-  Forest shifted_forest = trainer.train(data, options);
-  ForestPredictor shifted_predictor = ForestPredictors::ll_regression_predictor(num_threads,
+  Forest shifted_forest = trainer.train(*data, options);
+  ForestPredictor shifted_predictor = ll_regression_predictor(num_threads,
       lambda, false, linear_correction_variables);
-  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, *data, false);
 
   REQUIRE(predictions.size() == shifted_predictions.size());
   double delta = 0.0;
@@ -105,11 +105,10 @@ TEST_CASE("LLF predictions vary linearly with Y", "[local linear], [forest]") {
   }
 
   REQUIRE(equal_doubles(delta / predictions.size(), 1, 1e-1));
-  delete data;
 }
 
 TEST_CASE("local linear forests give reasonable variance estimates", "[regression, forest]") {
-  Data* data = load_data("test/forest/resources/gaussian_data.csv");
+  std::unique_ptr<Data> data = load_data("test/forest/resources/gaussian_data.csv");
   data->set_outcome_index(10);
 
   double alpha = 0.10;
@@ -134,11 +133,11 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
       num_trees, ci_group_size, sample_fraction,
       mtry, min_node_size, honesty, honesty_fraction, prune,
       alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
-  ForestTrainer trainer = ForestTrainers::regression_trainer();
-  Forest forest = trainer.train(data, options);
+  ForestTrainer trainer = regression_trainer();
+  Forest forest = trainer.train(*data, options);
 
-  ForestPredictor predictor = ForestPredictors::ll_regression_predictor(4, lambda, false, linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, true);
+  ForestPredictor predictor = ll_regression_predictor(4, lambda, false, linear_correction_variables);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, true);
 
   for (const Prediction& prediction : predictions) {
     REQUIRE(prediction.contains_variance_estimates());
@@ -146,12 +145,10 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
     double variance_estimate = prediction.get_variance_estimates()[0];
     REQUIRE(variance_estimate > 0);
   }
-
-  delete data;
 }
 
 TEST_CASE("LLF causal predictions are unaffected by shifts in Y", "[local linear], [forest]") {
-  Data* data = load_data("test/forest/resources/causal_data_ll.csv");
+  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data_ll.csv");
 
   uint outcome_index = 10;
   uint treatment_index = 11;
@@ -166,17 +163,17 @@ TEST_CASE("LLF causal predictions are unaffected by shifts in Y", "[local linear
   double reduced_form_weight = 0.0;
   bool stabilize_splits = false;
 
-  ForestTrainer trainer = ForestTrainers::instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
   ForestOptions options = ForestTestUtilities::default_options();
 
-  Forest forest = trainer.train(data, options);
+  Forest forest = trainer.train(*data, options);
 
   uint num_threads = 1;
 
-  ForestPredictor predictor = ForestPredictors::ll_causal_predictor(num_threads,
+  ForestPredictor predictor = ll_causal_predictor(num_threads,
       lambda, false, linear_correction_variables);
 
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
 
   // Shift each outcome by 1, and re-run the forest.
   bool error;
@@ -185,10 +182,10 @@ TEST_CASE("LLF causal predictions are unaffected by shifts in Y", "[local linear
     data->set(outcome_index, r, outcome + 1, error);
   }
 
-  Forest shifted_forest = trainer.train(data, options);
-  ForestPredictor shifted_predictor = ForestPredictors::ll_causal_predictor(num_threads,
+  Forest shifted_forest = trainer.train(*data, options);
+  ForestPredictor shifted_predictor = ll_causal_predictor(num_threads,
       lambda, false, linear_correction_variables);
-  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, *data, false);
 
   REQUIRE(predictions.size() == shifted_predictions.size());
   double delta = 0.0;
@@ -203,5 +200,4 @@ TEST_CASE("LLF causal predictions are unaffected by shifts in Y", "[local linear
   }
 
   REQUIRE(delta / predictions.size() < 1e-1);
-  delete data;
 }

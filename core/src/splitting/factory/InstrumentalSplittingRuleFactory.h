@@ -21,6 +21,8 @@
 
 #include "splitting/factory/SplittingRuleFactory.h"
 
+namespace grf {
+
 /**
  * An experimental factory that produces splitting rules specialized
  * for instrumental forests.
@@ -33,11 +35,12 @@
 class InstrumentalSplittingRuleFactory final: public SplittingRuleFactory {
 public:
   InstrumentalSplittingRuleFactory() = default;
-  std::unique_ptr<SplittingRule> create(const Data* data,
+  std::unique_ptr<SplittingRule> create(const Data& data,
                                         const TreeOptions& options) const;
 private:
   DISALLOW_COPY_AND_ASSIGN(InstrumentalSplittingRuleFactory);
 };
 
+} // namespace grf
 
 #endif //GRF_INSTRUMENTALSPLITTINGRULEFACTORY_H

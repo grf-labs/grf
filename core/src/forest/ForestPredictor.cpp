@@ -20,6 +20,8 @@
 #include "prediction/collector/DefaultPredictionCollector.h"
 #include "commons/utility.h"
 
+namespace grf {
+
 ForestPredictor::ForestPredictor(uint num_threads,
                                  std::unique_ptr<DefaultPredictionStrategy> strategy) :
     tree_traverser(num_threads) {
@@ -36,21 +38,21 @@ ForestPredictor::ForestPredictor(uint num_threads,
 
 
 std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
-                                                 Data* train_data,
-                                                 Data* data,
+                                                 const Data& train_data,
+                                                 const Data& data,
                                                  bool estimate_variance) const {
   return predict(forest, train_data, data, estimate_variance, false);
 }
 
 std::vector<Prediction> ForestPredictor::predict_oob(const Forest& forest,
-                                                     Data* data,
+                                                     const Data& data,
                                                      bool estimate_variance) const {
   return predict(forest, data, data, estimate_variance, true);
 }
 
 std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
-                                                 Data* train_data,
-                                                 Data* data,
+                                                 const Data& train_data,
+                                                 const Data& data,
                                                  bool estimate_variance,
                                                  bool oob_prediction) const {
   if (estimate_variance && forest.get_ci_group_size() <= 1) {
@@ -65,3 +67,5 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
       leaf_nodes_by_tree, trees_by_sample,
       estimate_variance, oob_prediction);
 }
+
+} // namespace grf

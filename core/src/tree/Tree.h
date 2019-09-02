@@ -27,6 +27,8 @@
 #include "prediction/PredictionValues.h"
 #include "splitting/SplittingRule.h"
 
+namespace grf {
+
 class Tree {
 public:
   Tree(size_t root_node,
@@ -47,7 +49,7 @@ public:
    * vector's length will be equal to the total number of test samples, and the index for each
    * requested sample ID will contain the corresponding node ID. All other values will be 0.
    */
-  std::vector<size_t> find_leaf_nodes(const Data* data,
+  std::vector<size_t> find_leaf_nodes(const Data& data,
                                       const std::vector<size_t>& samples) const;
 
   /**
@@ -62,7 +64,7 @@ public:
    * vector's length will be equal to the total number of test samples, and the index for each
    * requested sample ID will contain the corresponding node ID. All other values will be 0.
    */
-  std::vector<size_t> find_leaf_nodes(const Data* data,
+  std::vector<size_t> find_leaf_nodes(const Data& data,
                                       const std::vector<bool>& valid_samples) const;
   /**
    * Removes all empty leaf nodes.
@@ -140,7 +142,7 @@ public:
   void clear();
 
 private:
-  size_t find_leaf_node(const Data* data,
+  size_t find_leaf_node(const Data& data,
                         size_t sample) const;
   void prune_node(size_t& node);
   bool is_empty_leaf(size_t node) const;
@@ -155,5 +157,7 @@ private:
 
   PredictionValues prediction_values;
 };
+
+} // namespace grf
 
 #endif /* GRF_TREE_H_ */

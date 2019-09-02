@@ -22,13 +22,15 @@
 #include "forest/Forest.h"
 #include "prediction/collector/PredictionCollector.h"
 
+namespace grf {
+
 class OptimizedPredictionCollector final: public PredictionCollector {
 public:
   OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy);
 
   std::vector<Prediction> collect_predictions(const Forest& forest,
-                                              Data* train_data,
-                                              Data* data,
+                                              const Data& train_data,
+                                              const Data& data,
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                               const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                               bool estimate_variance,
@@ -48,5 +50,6 @@ private:
   std::unique_ptr<OptimizedPredictionStrategy> strategy;
 };
 
+} // namespace grf
 
 #endif //GRF_OPTIMIZEDPREDICTIONCOLLECTOR_H

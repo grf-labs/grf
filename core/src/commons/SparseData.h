@@ -22,27 +22,29 @@
 #include "Data.h"
 #include "Eigen/Sparse"
 
-class SparseData: public Data {
+namespace grf {
+
+class SparseData final: public Data {
 public:
   SparseData();
 
-  SparseData(Eigen::SparseMatrix<double>* data,
+  SparseData(Eigen::SparseMatrix<double>& data,
              size_t num_rows,
              size_t num_cols);
 
-  virtual ~SparseData();
+  ~SparseData() = default;
 
   double get(size_t row, size_t col) const;
 
   void reserve_memory();
   void set(size_t col, size_t row, double value, bool& error);
 
-protected:
-  Eigen::SparseMatrix<double>* data;
-
 private:
+  Eigen::SparseMatrix<double> data;
+
   DISALLOW_COPY_AND_ASSIGN(SparseData);
 };
 
+} // namespace grf
 
 #endif //GRF_SPARSEDATA_H

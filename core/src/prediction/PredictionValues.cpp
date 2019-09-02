@@ -17,6 +17,8 @@
 
 #include "prediction/PredictionValues.h"
 
+namespace grf {
+
 PredictionValues::PredictionValues():
   num_nodes(0),
   num_types(0) {}
@@ -58,3 +60,5 @@ void PredictionValues::clear() {
   num_types = 0;
   values.clear();
 }
+
+} // namespace grf

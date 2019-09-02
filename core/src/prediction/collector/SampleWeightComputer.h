@@ -23,6 +23,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace grf {
+
 class SampleWeightComputer {
 public:
   std::unordered_map<size_t, double> compute_weights(size_t sample,
@@ -36,5 +38,7 @@ private:
 
   void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sample) const;
 };
+
+} // namespace grf
 
 #endif //GRF_SAMPLEWEIGHTCOMPUTER_H

@@ -25,6 +25,9 @@
 #include "ForestTrainer.h"
 #include "random/random.hpp"
 
+
+namespace grf {
+
 ForestTrainer::ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
                              std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
                              std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy) :
@@ -32,9 +35,9 @@ ForestTrainer::ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_stra
                  std::move(splitting_rule_factory),
                  std::move(prediction_strategy)) {}
 
-const Forest ForestTrainer::train(const Data* data,
+const Forest ForestTrainer::train(const Data& data,
                                   const ForestOptions& options) const {
-  size_t num_samples = data->get_num_rows();
+  size_t num_samples = data.get_num_rows();
   uint num_trees = options.get_num_trees();
 
   // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
@@ -53,10 +56,10 @@ const Forest ForestTrainer::train(const Data* data,
   std::vector<uint> thread_ranges;
   split_sequence(thread_ranges, 0, num_groups - 1, options.get_num_threads());
 
-  std::vector<std::future<std::vector<std::shared_ptr<Tree>>>> futures;
+  std::vector<std::future<std::vector<Tree>>> futures;
   futures.reserve(thread_ranges.size());
 
-  std::vector<std::shared_ptr<Tree>> trees;
+  std::vector<Tree> trees;
   trees.reserve(num_trees);
 
   for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
@@ -68,28 +71,28 @@ const Forest ForestTrainer::train(const Data* data,
                                  this,
                                  start_index,
                                  num_trees_batch,
-                                 data,
+                                 std::ref(data),
                                  options));
   }
 
   for (auto& future : futures) {
-    std::vector<std::shared_ptr<Tree>> thread_trees = future.get();
+    std::vector<Tree> thread_trees = future.get();
     trees.insert(trees.end(), thread_trees.begin(), thread_trees.end());
   }
 
   return Forest::create(trees, options, data);
 }
 
-std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
+std::vector<Tree> ForestTrainer::train_batch(
     size_t start,
     size_t num_trees,
-    const Data* data,
+    const Data& data,
     const ForestOptions& options) const {
   size_t ci_group_size = options.get_ci_group_size();
 
   std::mt19937_64 random_number_generator(options.get_random_seed() + start);
   nonstd::uniform_int_distribution<uint> udist;
-  std::vector<std::shared_ptr<Tree>> trees;
+  std::vector<Tree> trees;
 
   if (ci_group_size == 1) {
     trees.reserve(num_trees);
@@ -102,40 +105,43 @@ std::vector<std::shared_ptr<Tree>> ForestTrainer::train_batch(
     RandomSampler sampler(tree_seed, options.get_sampling_options());
 
     if (ci_group_size == 1) {
-      std::shared_ptr<Tree> tree = train_tree(data, sampler, options);
-      trees.push_back(tree);
+      Tree tree = train_tree(data, sampler, options);
+      trees.push_back(std::move(tree));
     } else {
-      std::vector<std::shared_ptr<Tree>> group = train_ci_group(data, sampler, options);
-      trees.insert(trees.end(), group.begin(), group.end());
+      std::vector<Tree> group = train_ci_group(data, sampler, options);
+      trees.insert(trees.end(),
+                   std::make_move_iterator(group.begin()),
+                   std::make_move_iterator(group.end()));
     }
   }
   return trees;
 }
 
-std::shared_ptr<Tree> ForestTrainer::train_tree(const Data* data,
-                                                RandomSampler& sampler,
-                                                const ForestOptions& options) const {
+Tree ForestTrainer::train_tree(const Data& data,
+                               RandomSampler& sampler,
+                               const ForestOptions& options) const {
   std::vector<size_t> clusters;
-  sampler.sample_clusters(data->get_num_rows(), options.get_sample_fraction(), clusters);
+  sampler.sample_clusters(data.get_num_rows(), options.get_sample_fraction(), clusters);
   return tree_trainer.train(data, sampler, clusters, options.get_tree_options());
 }
 
-std::vector<std::shared_ptr<Tree>> ForestTrainer::train_ci_group(const Data* data,
-                                                                 RandomSampler& sampler,
-                                                                 const ForestOptions& options) const {
-  std::vector<std::shared_ptr<Tree>> trees;
+std::vector<Tree> ForestTrainer::train_ci_group(const Data& data,
+                                                RandomSampler& sampler,
+                                                const ForestOptions& options) const {
+  std::vector<Tree> trees;
 
   std::vector<size_t> clusters;
-  sampler.sample_clusters(data->get_num_rows(), 0.5, clusters);
+  sampler.sample_clusters(data.get_num_rows(), 0.5, clusters);
 
   double sample_fraction = options.get_sample_fraction();
   for (size_t i = 0; i < options.get_ci_group_size(); ++i) {
     std::vector<size_t> cluster_subsample;
     sampler.subsample(clusters, sample_fraction * 2, cluster_subsample);
 
-    std::shared_ptr<Tree> tree = tree_trainer.train(data,
-        sampler, cluster_subsample, options.get_tree_options());
-    trees.push_back(tree);
+    Tree tree = tree_trainer.train(data, sampler, cluster_subsample, options.get_tree_options());
+    trees.push_back(std::move(tree));
   }
   return trees;
 }
+
+} // namespace grf

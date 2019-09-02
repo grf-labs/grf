@@ -17,14 +17,19 @@
 
 #include "relabeling/NoopRelabelingStrategy.h"
 
-std::unordered_map<size_t, double> NoopRelabelingStrategy::relabel(
-    const std::vector<size_t>& samples,
-    const Data* data) const {
+namespace grf {
 
-  std::unordered_map<size_t, double> relabeled_observations;
+bool NoopRelabelingStrategy::relabel(
+    const std::vector<size_t>& samples,
+    const Data& data,
+    std::vector<double>& responses_by_sample) const {
+
   for (size_t sample : samples) {
-    double outcome = data->get_outcome(sample);
-    relabeled_observations[sample] = outcome;
+    double outcome = data.get_outcome(sample);
+    responses_by_sample[sample] = outcome;
   }
-  return relabeled_observations;
+  return false;
 }
+
+} // namespace grf
+
