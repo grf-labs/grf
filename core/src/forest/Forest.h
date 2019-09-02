@@ -28,21 +28,21 @@ namespace grf {
 
 class Forest {
 public:
-  static Forest create(const std::vector<Tree>& trees,
-                       const ForestOptions& forest_options,
-                       const Data& data);
+  Forest(std::vector<std::unique_ptr<Tree>>& trees,
+         const ForestOptions& forest_options,
+         const Data& data);
 
-  Forest(const std::vector<Tree>& trees,
+  Forest(std::vector<std::unique_ptr<Tree>>& trees,
          size_t num_variables,
          size_t ci_group_size);
 
-  const std::vector<Tree>& get_trees() const;
+  const std::vector<std::unique_ptr<Tree>>& get_trees() const;
 
   /**
    * A method intended for internal use that allows the list of
    * trees to be modified.
    */
-  std::vector<Tree>& get_trees_();
+  std::vector<std::unique_ptr<Tree>>& get_trees_();
 
   const size_t get_num_variables() const;
   const size_t get_ci_group_size() const;
@@ -57,9 +57,10 @@ public:
   static Forest merge(std::vector<Forest>& forests);
   
 private:
-  std::vector<Tree> trees;
+  std::vector<std::unique_ptr<Tree>> trees;
   size_t num_variables;
   size_t ci_group_size;
+  //DISALLOW_COPY_AND_ASSIGN(Forest);
 };
 
 } // namespace grf

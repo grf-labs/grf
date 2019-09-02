@@ -176,14 +176,4 @@ bool Tree::is_empty_leaf(size_t node) const  {
   return is_leaf(node) && leaf_samples[node].empty();
 }
 
-void Tree::clear() {
-  root_node = 0;
-  child_nodes.clear();
-  leaf_samples.clear();
-  split_vars.clear();
-  split_values.clear();
-  drawn_samples.clear();
-  prediction_values.clear();
-}
-
 } // namespace grf

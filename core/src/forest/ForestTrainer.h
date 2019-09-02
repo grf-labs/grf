@@ -39,24 +39,27 @@ public:
   ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
                 std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
                 std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy);
-  const Forest train(const Data& data,
-                     const ForestOptions& options) const;
+
+  Forest train(const Data& data, const ForestOptions& options) const;
 
 private:
 
-  std::vector<Tree> train_batch(
+  std::vector<std::unique_ptr<Tree>> train_trees(const Data& data,
+                                                 const ForestOptions& options) const;
+
+  std::vector<std::unique_ptr<Tree>> train_batch(
       size_t start,
       size_t num_trees,
       const Data& data,
       const ForestOptions& options) const;
 
-  Tree train_tree(const Data& data,
-                  RandomSampler& sampler,
-                  const ForestOptions& options) const;
-
-  std::vector<Tree> train_ci_group(const Data& data,
+  std::unique_ptr<Tree> train_tree(const Data& data,
                                    RandomSampler& sampler,
                                    const ForestOptions& options) const;
+
+  std::vector<std::unique_ptr<Tree>> train_ci_group(const Data& data,
+                                                    RandomSampler& sampler,
+                                                    const ForestOptions& options) const;
 
   TreeTrainer tree_trainer;
 };

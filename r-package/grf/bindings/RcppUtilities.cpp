@@ -23,7 +23,7 @@ Forest RcppUtilities::deserialize_forest(const Rcpp::List& forest_object) {
   size_t num_variables = forest_object["_num_variables"];
 
   size_t num_trees = forest_object["_num_trees"];
-  std::vector<Tree> trees;
+  std::vector<std::unique_ptr<Tree>> trees;
   trees.reserve(num_trees);
 
   Rcpp::List root_nodes = forest_object["_root_nodes"];
@@ -37,13 +37,14 @@ Forest RcppUtilities::deserialize_forest(const Rcpp::List& forest_object) {
   size_t num_types = forest_object["_pv_num_types"];
 
   for (size_t t = 0; t < num_trees; t++) {
-    trees.emplace_back(root_nodes.at(t),
-                       child_nodes.at(t),
-                       leaf_samples.at(t),
-                       split_vars.at(t),
-                       split_values.at(t),
-                       drawn_samples.at(t),
-                       PredictionValues(prediction_values.at(t), num_types));
+    trees.emplace_back(new Tree(
+                         root_nodes.at(t),
+                         child_nodes.at(t),
+                         leaf_samples.at(t),
+                         split_vars.at(t),
+                         split_values.at(t),
+                         drawn_samples.at(t),
+                         PredictionValues(prediction_values.at(t), num_types)));
   }
 
   return Forest(trees, num_variables, ci_group_size);
@@ -68,18 +69,16 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   size_t num_types = 0;
 
   for (size_t t = 0; t < num_trees; t++) {
-    Tree& tree = forest.get_trees_().at(t);
-    root_nodes[t] = tree.get_root_node();
-    child_nodes[t] = tree.get_child_nodes();
-    leaf_samples[t] = tree.get_leaf_samples();
-    split_vars[t] = tree.get_split_vars();
-    split_values[t] = tree.get_split_values();
-    drawn_samples[t] = tree.get_drawn_samples();
+    std::unique_ptr<Tree> tree = std::move(forest.get_trees_().at(t));
+    root_nodes[t] = tree->get_root_node();
+    child_nodes[t] = tree->get_child_nodes();
+    leaf_samples[t] = tree->get_leaf_samples();
+    split_vars[t] = tree->get_split_vars();
+    split_values[t] = tree->get_split_values();
+    drawn_samples[t] = tree->get_drawn_samples();
 
-    prediction_values[t] = tree.get_prediction_values().get_all_values();
-    num_types = tree.get_prediction_values().get_num_types();
-
-    tree.clear();
+    prediction_values[t] = tree->get_prediction_values().get_all_values();
+    num_types = tree->get_prediction_values().get_num_types();
   }
 
   result.push_back(root_nodes, "_root_nodes");

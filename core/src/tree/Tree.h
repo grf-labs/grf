@@ -135,12 +135,6 @@ public:
    */
   void set_prediction_values(const PredictionValues& prediction_values);
 
-  /**
-   * Empties out all internal data in this tree. Used to reduce memory
-   * usage when destructively iterating through a {@link Forest} object.
-   */
-  void clear();
-
 private:
   size_t find_leaf_node(const Data& data,
                         size_t sample) const;

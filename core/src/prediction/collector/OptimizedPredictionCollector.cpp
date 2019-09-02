@@ -53,8 +53,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
       const std::vector<size_t>& leaf_nodes = leaf_nodes_by_tree.at(tree_index);
       size_t node = leaf_nodes.at(sample);
 
-      const Tree& tree = forest.get_trees()[tree_index];
-      const PredictionValues& prediction_values = tree.get_prediction_values();
+      const std::unique_ptr<Tree>& tree = forest.get_trees()[tree_index];
+      const PredictionValues& prediction_values = tree->get_prediction_values();
 
       if (!prediction_values.empty(node)) {
         num_leaves++;

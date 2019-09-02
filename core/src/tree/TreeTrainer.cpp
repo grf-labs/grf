@@ -30,10 +30,10 @@ TreeTrainer::TreeTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy
     splitting_rule_factory(std::move(splitting_rule_factory)),
     prediction_strategy(std::move(prediction_strategy)) {}
 
-Tree TreeTrainer::train(const Data& data,
-                        RandomSampler& sampler,
-                        const std::vector<size_t>& clusters,
-                        const TreeOptions& options) const {
+std::unique_ptr<Tree> TreeTrainer::train(const Data& data,
+                                         RandomSampler& sampler,
+                                         const std::vector<size_t>& clusters,
+                                         const TreeOptions& options) const {
   std::vector<std::vector<size_t>> child_nodes;
   std::vector<std::vector<size_t>> nodes;
   std::vector<size_t> split_vars;
@@ -85,7 +85,8 @@ Tree TreeTrainer::train(const Data& data,
   std::vector<size_t> drawn_samples;
   sampler.get_samples_in_clusters(clusters, drawn_samples);
 
-  Tree tree(0, child_nodes, nodes, split_vars, split_values, drawn_samples, PredictionValues());
+  std::unique_ptr<Tree> tree(new Tree(0, child_nodes, nodes,
+      split_vars, split_values, drawn_samples, PredictionValues()));
 
   if (!new_leaf_samples.empty()) {
     repopulate_leaf_nodes(tree, data, new_leaf_samples, options.get_prune_empty_leaves());
@@ -93,29 +94,29 @@ Tree TreeTrainer::train(const Data& data,
 
   PredictionValues prediction_values;
   if (prediction_strategy != nullptr) {
-    prediction_values = prediction_strategy->precompute_prediction_values(tree.get_leaf_samples(), data);
+    prediction_values = prediction_strategy->precompute_prediction_values(tree->get_leaf_samples(), data);
   }
-  tree.set_prediction_values(prediction_values);
+  tree->set_prediction_values(prediction_values);
 
   return tree;
 }
 
-void TreeTrainer::repopulate_leaf_nodes(Tree& tree,
+void TreeTrainer::repopulate_leaf_nodes(const std::unique_ptr<Tree>& tree,
                                         const Data& data,
                                         const std::vector<size_t>& leaf_samples,
                                         const bool prune_empty_leaves) const {
-  size_t num_nodes = tree.get_leaf_samples().size();
+  size_t num_nodes = tree->get_leaf_samples().size();
   std::vector<std::vector<size_t>> new_leaf_nodes(num_nodes);
 
-  std::vector<size_t> leaf_nodes = tree.find_leaf_nodes(data, leaf_samples);
+  std::vector<size_t> leaf_nodes = tree->find_leaf_nodes(data, leaf_samples);
 
   for (auto& sample : leaf_samples) {
     size_t leaf_node = leaf_nodes[sample];
     new_leaf_nodes[leaf_node].push_back(sample);
   }
-  tree.set_leaf_samples(new_leaf_nodes);
+  tree->set_leaf_samples(new_leaf_nodes);
   if (prune_empty_leaves) {
-    tree.prune_empty_leaves();
+    tree->prune_empty_leaves();
   }
 }
 
