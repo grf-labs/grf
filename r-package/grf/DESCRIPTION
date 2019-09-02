@@ -11,7 +11,6 @@ Authors@R:c(
     person("Marvin", "Wright", role = "ctb")
     )
 BugReports: https://github.com/grf-labs/grf/issues
-Maintainer: Julie Tibshirani <jtibs@cs.stanford.edu>
 Description: A pluggable package for forest-based statistical estimation and inference.
     GRF currently provides methods for non-parametric least-squares regression,
     quantile regression, and treatment effect estimation (optionally using instrumental
@@ -31,8 +30,5 @@ RoxygenNote: 6.1.1
 Suggests:
     DiagrammeR,
     testthat,
-    knitr,
-    rmarkdown
 SystemRequirements: GNU make
 URL: https://github.com/grf-labs/grf
-VignetteBuilder: knitr

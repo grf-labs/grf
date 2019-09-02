@@ -14,6 +14,8 @@ r_binary_packages:
 
 r_packages:
   - pkgdown
+  - knitr
+  - rmarkdown
 
 matrix:
   include:
