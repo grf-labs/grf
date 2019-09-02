@@ -81,6 +81,7 @@ matrix:
       before_deploy:
         - cd grf
         - cp ../../README.md .
+        - cp ../../REFERENCE.md .
         - cp ../../releases/CHANGELOG.md .
         - Rscript -e 'pkgdown::build_site()'
       deploy:
