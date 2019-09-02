@@ -11,11 +11,12 @@ r_binary_packages:
   - devtools
   - testthat
   - roxygen2
+  # Vignettes:
+  - knitr
+  - rmarkdown
 
 r_packages:
   - pkgdown
-  - knitr
-  - rmarkdown
 
 matrix:
   include:
