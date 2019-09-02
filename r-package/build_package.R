@@ -29,7 +29,7 @@ roxygen2::roxygenise(package.name)
 # access to the library through RcppEigen.
 compileAttributes(package.name)
 clean_dll(package.name)
-build(package.name, vignettes = FALSE)
+build(package.name)
 
 # Test installation and run some smoke tests.
 install(package.name)
