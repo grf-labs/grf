@@ -87,6 +87,6 @@ matrix:
         - Rscript -e 'pkgdown::build_site()'
       deploy:
         provider: pages
-        local_dir: docs/
+        local_dir: r-package/grf/docs/
         skip_cleanup: true
         github-token: $GH_TOKEN
