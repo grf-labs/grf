@@ -8,6 +8,17 @@ navbar:
 ## Function reference
 # Different forest types
 reference:
+  - title: Regression forest
+    contents:
+      - regression_forest
+      - tune_regression_forest
+      - predict.regression_forest
+
+  - title: Quantile forest
+    contents:
+      - quantile_forest
+      - predict.quantile_forest
+
   - title: Causal forest
     contents:
       - causal_forest
@@ -20,12 +31,6 @@ reference:
       - instrumental_forest
       - predict.instrumental_forest
 
-  - title: Regression forest
-    contents:
-      - regression_forest
-      - tune_regression_forest
-      - predict.regression_forest
-
   - title: Local linear regression forest
     contents:
       - ll_regression_forest
@@ -36,16 +41,6 @@ reference:
     contents:
       - boosted_regression_forest
       - predict.boosted_regression_forest
-
-  - title: Quantile forest
-    contents:
-      - quantile_forest
-      - predict.quantile_forest
-
-  - title: Custom forest
-    contents:
-      - custom_forest
-      - predict.custom_forest
 
 # Treatment effects
   - title: Treatment effect estimation
@@ -61,14 +56,13 @@ reference:
     contents:
       - get_sample_weights
       - get_tree
+      - starts_with("leaf_stats")
       - merge_forests
       - split_frequencies
-      - starts_with("leaf_stats")
       - test_calibration
       - variable_importance
-  - title: Various
+  - title: Plotting and Printing
     contents:
-      - grf
       - plot.grf_tree
       - print.boosted_regression_forest
       - print.grf
