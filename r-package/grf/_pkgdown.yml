@@ -2,7 +2,7 @@ url: https://github.com/grf-labs/grf
 navbar:
   type: default
   left:
-  - text: "Intro"
+  - text: "Get started"
     href: articles/grf.html
   - text: "Reference"
     href: reference/index.html
