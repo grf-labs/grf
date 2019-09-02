@@ -3,3 +3,6 @@
 ^bindings$
 
 ^tests/benchmarks
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

@@ -3,10 +3,20 @@ language: R
 latex: false
 cache: packages
 
+branches:
+  only:
+    - master
+
 r_binary_packages:
   - devtools
   - testthat
   - roxygen2
+  # Vignettes
+  - knitr
+  - rmarkdown
+
+r_packages:
+  - pkgdown
 
 matrix:
   include:
@@ -67,3 +77,16 @@ matrix:
       script:
         - cd ..
         - Rscript build_package.R
+      # Render the examples under vignettes/ and build the package documentation.
+      before_deploy:
+        - cd grf
+        - cp ../../README.md .
+        - cp ../../REFERENCE.md .
+        - cp ../../DEVELOPING.md .
+        - cp ../../releases/CHANGELOG.md .
+        - Rscript -e 'pkgdown::build_site()'
+      deploy:
+        provider: pages
+        local_dir: docs/
+        skip_cleanup: true
+        github-token: $GH_TOKEN
