@@ -83,6 +83,7 @@
 #' }
 #'
 #' @importFrom stats runif
+#' @importFrom stats sd
 #' @importFrom utils capture.output
 #' @export
 tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,

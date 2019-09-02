@@ -71,6 +71,7 @@
 #' }
 #'
 #' @importFrom stats runif
+#' @importFrom stats sd
 #' @importFrom utils capture.output
 #' @export
 tune_regression_forest <- function(X, Y,
