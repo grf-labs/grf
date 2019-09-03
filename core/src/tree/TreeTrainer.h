@@ -36,10 +36,10 @@ public:
               std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
               std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy);
 
-  Tree train(const Data& data,
-             RandomSampler& sampler,
-             const std::vector<size_t>& clusters,
-             const TreeOptions& options) const;
+  std::unique_ptr<Tree> train(const Data& data,
+                              RandomSampler& sampler,
+                              const std::vector<size_t>& clusters,
+                              const TreeOptions& options) const;
 
 private:
   void create_empty_node(std::vector<std::vector<size_t>>& child_nodes,
@@ -47,7 +47,7 @@ private:
                          std::vector<size_t>& split_vars,
                          std::vector<double>& split_values) const;
 
-  void repopulate_leaf_nodes(Tree& tree,
+  void repopulate_leaf_nodes(const std::unique_ptr<Tree>& tree,
                              const Data& data,
                              const std::vector<size_t>& leaf_samples,
                              const bool prune_empty_leaves) const;

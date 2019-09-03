@@ -20,23 +20,26 @@
 
 namespace grf {
 
-Forest Forest::create(const std::vector<Tree>& trees,
-                      const ForestOptions& forest_options,
-                      const Data& data) {
-  size_t num_independent_variables = data.get_num_cols() -
-      data.get_disallowed_split_variables().size();
-  return Forest(trees, num_independent_variables, forest_options.get_ci_group_size());
+Forest::Forest(std::vector<std::unique_ptr<Tree>>& trees,
+               size_t num_variables,
+               size_t ci_group_size) {
+  this->trees.insert(this->trees.end(),
+                     std::make_move_iterator(trees.begin()),
+                     std::make_move_iterator(trees.end()));
+  this->num_variables = num_variables;
+  this->ci_group_size = ci_group_size;
 }
 
-Forest::Forest(const std::vector<Tree>& trees,
-               size_t num_variables,
-               size_t ci_group_size):
-  trees(std::move(trees)),
-  num_variables(num_variables),
-  ci_group_size(ci_group_size) {}
+Forest::Forest(Forest&& forest) {
+  this->trees.insert(this->trees.end(),
+                     std::make_move_iterator(forest.trees.begin()),
+                     std::make_move_iterator(forest.trees.end()));
+  this->num_variables = forest.num_variables;
+  this->ci_group_size = forest.ci_group_size;
+}
 
 Forest Forest::merge(std::vector<Forest>& forests) {
-  std::vector<Tree> all_trees;
+  std::vector<std::unique_ptr<Tree>> all_trees;
   const size_t num_variables = forests.at(0).get_num_variables();
   const size_t ci_group_size = forests.at(0).get_ci_group_size();
 
@@ -54,11 +57,11 @@ Forest Forest::merge(std::vector<Forest>& forests) {
   return Forest(all_trees, num_variables, ci_group_size);
 }
 
-const std::vector<Tree>& Forest::get_trees() const {
+const std::vector<std::unique_ptr<Tree>>& Forest::get_trees() const {
   return trees;
 }
 
-std::vector<Tree>& Forest::get_trees_() {
+std::vector<std::unique_ptr<Tree>>& Forest::get_trees_() {
   return trees;
 }
 
