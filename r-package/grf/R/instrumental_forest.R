@@ -32,14 +32,17 @@
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #'                      Default is 5.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
+#'  For a detailed description of honesty, honesty.fraction, prune.empty.leaves, and recommendations for
+#'  parameter tuning, see the grf
+#'  \href{https://grf-labs.github.io/grf/REFERENCE.html#honesty-honesty-fraction-prune-empty-leaves}{algorithm reference}.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
-#'                         honesty.fraction = NULL), half of the data will be used for determining splits.
-#'                         Default is 0.5.
-#' @param prune.empty.leaves (experimental) If true, prunes the estimation sample tree such that no leaves
+#'                         to set J1 in the notation of the paper. Default is 0.5 (i.e. half of the data is used for
+#'                         determining splits).
+#' @param prune.empty.leaves If true, prunes the estimation sample tree such that no leaves
 #'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
 #'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
-#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default is TRUE.
+#'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
+#'  Only applies if honesty is enabled. Default is TRUE.
 #' @param ci.group.size The forst will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 2.
