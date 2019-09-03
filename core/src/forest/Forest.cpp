@@ -21,16 +21,6 @@
 namespace grf {
 
 Forest::Forest(std::vector<std::unique_ptr<Tree>>& trees,
-              const ForestOptions& forest_options,
-               const Data& data) {
-  this->trees.insert(this->trees.end(),
-                     std::make_move_iterator(trees.begin()),
-                     std::make_move_iterator(trees.end()));
-  this->num_variables = data.get_num_cols() - data.get_disallowed_split_variables().size();
-  this->ci_group_size = forest_options.get_ci_group_size();
-}
-
-Forest::Forest(std::vector<std::unique_ptr<Tree>>& trees,
                size_t num_variables,
                size_t ci_group_size) {
   this->trees.insert(this->trees.end(),
@@ -38,6 +28,14 @@ Forest::Forest(std::vector<std::unique_ptr<Tree>>& trees,
                      std::make_move_iterator(trees.end()));
   this->num_variables = num_variables;
   this->ci_group_size = ci_group_size;
+}
+
+Forest::Forest(Forest&& forest) {
+  this->trees.insert(this->trees.end(),
+                     std::make_move_iterator(forest.trees.begin()),
+                     std::make_move_iterator(forest.trees.end()));
+  this->num_variables = forest.num_variables;
+  this->ci_group_size = forest.ci_group_size;
 }
 
 Forest Forest::merge(std::vector<Forest>& forests) {

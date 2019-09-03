@@ -29,12 +29,10 @@ namespace grf {
 class Forest {
 public:
   Forest(std::vector<std::unique_ptr<Tree>>& trees,
-         const ForestOptions& forest_options,
-         const Data& data);
-
-  Forest(std::vector<std::unique_ptr<Tree>>& trees,
          size_t num_variables,
          size_t ci_group_size);
+
+  Forest(Forest&& forest);
 
   const std::vector<std::unique_ptr<Tree>>& get_trees() const;
 
@@ -60,7 +58,7 @@ private:
   std::vector<std::unique_ptr<Tree>> trees;
   size_t num_variables;
   size_t ci_group_size;
-  //DISALLOW_COPY_AND_ASSIGN(Forest);
+  DISALLOW_COPY_AND_ASSIGN(Forest);
 };
 
 } // namespace grf

@@ -37,7 +37,10 @@ ForestTrainer::ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_stra
 
 Forest ForestTrainer::train(const Data& data, const ForestOptions& options) const {
   std::vector<std::unique_ptr<Tree>> trees = train_trees(data, options);
-  return Forest(trees, options, data);
+
+  size_t num_variables = data.get_num_cols() - data.get_disallowed_split_variables().size();
+  size_t ci_group_size = options.get_ci_group_size();
+  return Forest(trees, num_variables, ci_group_size);
 }
 
 std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
