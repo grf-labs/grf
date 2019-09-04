@@ -4,11 +4,30 @@ All notable changes to grf will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.10.4] - 2019-09-01
+
+### Changed (breaking)
+**IMPORTANT** These changes might cause small differences in results compared to previous releases, even if the same random seed is used.
+- Ensure forest estimates are consistent across platforms. [#469](https://github.com/grf-labs/grf/pull/469), [#492](https://github.com/grf-labs/grf/pull/492)
+- The number of trees used for orthogonalization was changed from `min(500, num.trees)` to `max(50, num.trees / 4)`. [#439](https://github.com/grf-labs/grf/pull/439)
+- Solidify the parameter tuning procedure. If the optimization procedure fails, or if the selected parameters perform worse than defaults, we now return default parameters instead. [#455](https://github.com/grf-labs/grf/pull/455)
+- Introduce parameters `honesty.fraction` and `prune.empty.leaves` to help mitigate the effect of honesty on small datasets, and tune over them when `tune.parameters=TRUE`. [#456](https://github.com/grf-labs/grf/pull/456), [#484](https://github.com/grf-labs/grf/pull/484)
+
+### Added
+- Add variance estimates for local linear forests. [#442](https://github.com/grf-labs/grf/pull/442)
+- Include information about leaf samples in plotting and printing. [#460](https://github.com/grf-labs/grf/pull/460)
+- Add example of saving a plot with DiagrammeRsvg. [#478](https://github.com/grf-labs/grf/pull/478)
+- Support average effect estimates for instrumental forests (ACLATE). [#490](https://github.com/grf-labs/grf/pull/490)
+
+### Fixed
+- Performance improvements to forest training. [#514](https://github.com/grf-labs/grf/pull/514)
+
 ## [0.10.3] - 2019-06-01
 
-### Breaking Changes
-- Fix two bugs in the termination criterion for tree splitting. **IMPORTANT:** these bug fixes may cause results to change compared to previous releases, even if the same random seed is used.
-  - Remove the purity condition on outcomes during splitting. For all tree types, we used to stop splitting if all outcomes in a leaf are the same. This behavior does not make sense for causal forests (which incorporates other observations besides the outcome), so it was removed. [#362](https://github.com/grf-labs/grf/pull/362).
+### Changed (breaking)
+**IMPORTANT** These changes might cause small differences in results compared to previous releases, even if the same random seed is used.
+- Fix two bugs in the termination criterion for tree splitting.
+  - Remove the purity condition on outcomes during splitting. For all tree types, we used to stop splitting if all outcomes in a leaf are the same. This behavior does not make sense for causal forests (which incorporates other observations besides the outcome), so it was removed. [#362](https://github.com/grf-labs/grf/pull/362)
   - Stop splitting if the objective can no longer be improved. With this change, `causal_forest` may split slightly less aggressively. [#415](https://github.com/grf-labs/grf/pull/415)
 
 ### Added
