@@ -235,10 +235,10 @@ create_data_matrices <- function(X, ..., sample.weights = NULL) {
 }
 
 observation_weights <- function(forest) {
-  if (is.null(forest$sample.weights)) {
-    sample.weights <- rep(1, length(forest$Y.orig))
+  sample.weights <- if (is.null(forest$sample.weights)) {
+    rep(1, length(forest$Y.orig))
   } else {
-    sample.weights <- forest$sample.weights * length(forest$Y.orig) / sum(forest$sample.weights)
+    forest$sample.weights * length(forest$Y.orig) / sum(forest$sample.weights)
   }
   if (length(forest$clusters) == 0) {
     observation.weight <- sample.weights
