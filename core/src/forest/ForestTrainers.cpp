@@ -25,6 +25,7 @@
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
+#include "splitting/factory/EnergySplittingRuleFactory.h"
 
 namespace grf {
 
@@ -62,9 +63,10 @@ ForestTrainer regression_trainer() {
                        std::move(prediction_strategy));
 }
 
+// modif
 ForestTrainer custom_trainer() {
-  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new CustomRelabelingStrategy());
-  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new EnergySplittingRuleFactory());
 
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
