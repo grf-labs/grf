@@ -86,7 +86,7 @@
 #' @importFrom Rcpp evalCpp
 regression_forest <- function(X, Y,
                               sample.weights = NULL,
-                              sample.fraction = 0.5,
+                              sample.fraction = NULL,
                               mtry = NULL,
                               num.trees = 2000,
                               min.node.size = NULL,

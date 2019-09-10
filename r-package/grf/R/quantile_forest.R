@@ -82,7 +82,7 @@
 quantile_forest <- function(X, Y,
                             quantiles = c(0.1, 0.5, 0.9),
                             regression.splitting = FALSE,
-                            sample.fraction = 0.5,
+                            sample.fraction = NULL,
                             mtry = NULL,
                             num.trees = 2000,
                             min.node.size = NULL,
