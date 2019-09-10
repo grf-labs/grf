@@ -100,6 +100,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                honesty = TRUE,
                                honesty.fraction = NULL,
                                prune.empty.leaves = NULL,
+                               ci.group.size = 2,
                                clusters = NULL,
                                samples.per.cluster = NULL,
                                num.threads = NULL,
@@ -113,7 +114,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
-  ci.group.size <- 1
+  ci.group.size.fit <- 1
   reduced.form.weight <- 0
 
   data <- create_data_matrices(X, Y - Y.hat, W - W.hat, sample.weights = sample.weights)
@@ -161,7 +162,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
       honesty,
       as.numeric(params["honesty.fraction"]),
       as.numeric(params["prune.empty.leaves"]),
-      ci.group.size,
+      ci.group.size.fit,
       reduced.form.weight,
       as.numeric(params["alpha"]),
       as.numeric(params["imbalance.penalty"]),
@@ -249,7 +250,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     honesty,
     retrained.forest.params["honesty.fraction"],
     retrained.forest.params["prune.empty.leaves"],
-    ci.group.size,
+    ci.group.size.fit,
     reduced.form.weight,
     retrained.forest.params["alpha"],
     retrained.forest.params["imbalance.penalty"],
@@ -284,7 +285,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     honesty,
     default.params["honesty.fraction"],
     default.params["prune.empty.leaves"],
-    ci.group.size,
+    ci.group.size.fit,
     reduced.form.weight,
     default.params["alpha"],
     default.params["imbalance.penalty"],

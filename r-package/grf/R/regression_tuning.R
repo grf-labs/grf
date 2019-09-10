@@ -87,6 +87,7 @@ tune_regression_forest <- function(X, Y,
                                    honesty = TRUE,
                                    honesty.fraction = NULL,
                                    prune.empty.leaves = NULL,
+                                   ci.group.size = 2,
                                    clusters = NULL,
                                    samples.per.cluster = NULL,
                                    num.threads = NULL,
@@ -99,7 +100,7 @@ tune_regression_forest <- function(X, Y,
   seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
-  ci.group.size <- 1
+  ci.group.size.fit <- 1
 
   data <- create_data_matrices(X, Y, sample.weights = sample.weights)
   outcome.index <- ncol(X) + 1
@@ -146,7 +147,7 @@ tune_regression_forest <- function(X, Y,
       honesty,
       as.numeric(params["honesty.fraction"]),
       as.numeric(params["prune.empty.leaves"]),
-      ci.group.size,
+      ci.group.size.fit,
       as.numeric(params["alpha"]),
       as.numeric(params["imbalance.penalty"]),
       clusters,
@@ -233,7 +234,7 @@ tune_regression_forest <- function(X, Y,
     honesty,
     as.numeric(retrained.forest.params["honesty.fraction"]),
     as.numeric(retrained.forest.params["prune.empty.leaves"]),
-    ci.group.size,
+    ci.group.size.fit,
     as.numeric(retrained.forest.params["alpha"]),
     as.numeric(retrained.forest.params["imbalance.penalty"]),
     clusters,
@@ -264,7 +265,7 @@ tune_regression_forest <- function(X, Y,
     honesty,
     as.numeric(default.params["sample.fraction"]),
     as.numeric(default.params["prune.empty.leaves"]),
-    ci.group.size,
+    ci.group.size.fit,
     as.numeric(default.params["alpha"]),
     as.numeric(default.params["imbalance.penalty"]),
     clusters,

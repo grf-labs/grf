@@ -236,6 +236,7 @@ causal_forest <- function(X, Y, W,
       honesty = honesty,
       honesty.fraction = honesty.fraction,
       prune.empty.leaves = prune.empty.leaves,
+      ci.group.size = ci.group.size,
       seed = seed,
       clusters = clusters,
       samples.per.cluster = samples.per.cluster
