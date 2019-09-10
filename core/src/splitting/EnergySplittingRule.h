@@ -21,7 +21,7 @@
 #include "commons/DefaultData.h"
 #include "splitting/SplittingRule.h"
 #include "tree/Tree.h"
-#include "segtree.h"
+#include "splitting/segtree.h"
 
 namespace grf {
 

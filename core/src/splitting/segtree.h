@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <vector>
 #include <cmath>
-#include "node.h"
+#include "splitting/node.h"
 //using namespace std;
 
 

@@ -1,4 +1,4 @@
-#include "segtree.h"
+#include "splitting/segtree.h"
 
 namespace grf {
 

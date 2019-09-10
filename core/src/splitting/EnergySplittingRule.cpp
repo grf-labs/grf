@@ -17,7 +17,7 @@
 
 #include <algorithm>
 
-#include "EnergySplittingRule.h"
+#include "splitting/EnergySplittingRule.h"
 
 namespace grf {
 
