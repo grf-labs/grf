@@ -27,8 +27,8 @@ get_params_from_draw <- function(X, draws, ci.group.size) {
     if (param == "min.node.size") {
       return(floor(2^(draws[, param] * (log(nrow(X)) / log(2) - 4))))
     } else if (param == "sample.fraction") {
-      # If confidence itervals enabled: sample.fraction ~ U(0.05, 0.5). If not then ~ U(0.5, 0.8)
-      return(if (ci.group.size > 1) 0.05 + 0.45 * draws[, param] else 0.5 + 0.3 * draws[, param])
+      # If confidence itervals enabled: sample.fraction ~ U(0.1, 0.5). If not then ~ U(0.5, 0.8)
+      return(if (ci.group.size > 1) 0.1 + 0.4 * draws[, param] else 0.5 + 0.3 * draws[, param])
     } else if (param == "mtry") {
       return(ceiling(min(ncol(X), sqrt(ncol(X)) + 20) * draws[, param]))
     } else if (param == "alpha") {
