@@ -230,6 +230,7 @@ void EnergySplittingRule::find_best_split_value_large_q(const Data& data,
     //double sum_right = sum_node - sum_left;
     //double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
     double decrease = seg_tree.energy();
+    std::cout << decrease << std::endl;
     // Penalize splits that are too close to the edges of the data.
     //double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
     //decrease -= penalty;
