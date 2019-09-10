@@ -18,7 +18,7 @@ get_initial_params <- function(min.node.size,
   )
 }
 
-get_params_from_draw <- function(X, draws) {
+get_params_from_draw <- function(X, draws, ci.group.size) {
   if (is.vector(draws)) {
     draws <- rbind(c(draws))
   }
@@ -27,7 +27,8 @@ get_params_from_draw <- function(X, draws) {
     if (param == "min.node.size") {
       return(floor(2^(draws[, param] * (log(nrow(X)) / log(2) - 4))))
     } else if (param == "sample.fraction") {
-      return(0.05 + 0.45 * draws[, param])
+      # If confidence itervals enabled: sample.fraction ~ U(0.05, 0.5). If not then ~ U(0.5, 0.8)
+      return(if (ci.group.size > 1) 0.05 + 0.45 * draws[, param] else 0.5 + 0.3 * draws[, param])
     } else if (param == "mtry") {
       return(ceiling(min(ncol(X), sqrt(ncol(X)) + 20) * draws[, param]))
     } else if (param == "alpha") {
@@ -35,7 +36,7 @@ get_params_from_draw <- function(X, draws) {
     } else if (param == "imbalance.penalty") {
       return(-log(draws[, param]))
     } else if (param == "honesty.fraction") {
-      return(0.5 + (0.8 - 0.5) * draws[, param]) # honesty.fraction in U(0.5, 0.8)
+      return(0.5 + 0.3 * draws[, param]) # honesty.fraction in U(0.5, 0.8)
     } else if (param == "prune.empty.leaves") {
       return(ifelse(draws[, param] < 0.5, TRUE, FALSE))
     } else {

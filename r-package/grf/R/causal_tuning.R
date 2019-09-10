@@ -149,7 +149,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   compute.oob.predictions <- TRUE
 
   small.forest.errors <- apply(fit.draws, 1, function(draw) {
-    params <- c(fixed.params, get_params_from_draw(X, draw))
+    params <- c(fixed.params, get_params_from_draw(X, draw, ci.group.size))
     small.forest <- causal_train(
       data$default, data$sparse,
       outcome.index, treatment.index, sample.weight.index,
@@ -228,7 +228,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   optimize.draws <- matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params)
   colnames(optimize.draws) <- names(tuning.params)
   model.surface <- predict(kriging.model, newdata = data.frame(optimize.draws), type = "SK")$mean
-  tuned.params <- get_params_from_draw(X, optimize.draws)
+  tuned.params <- get_params_from_draw(X, optimize.draws, ci.group.size)
 
   grid <- cbind(error = c(model.surface), tuned.params)
   small.forest.optimal.draw <- which.min(grid[, "error"])
