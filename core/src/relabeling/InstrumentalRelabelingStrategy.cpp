@@ -26,9 +26,10 @@ InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy():
 InstrumentalRelabelingStrategy::InstrumentalRelabelingStrategy(double reduced_form_weight):
   reduced_form_weight(reduced_form_weight) {}
 
-std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
+bool InstrumentalRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
-    const Data* data) const {
+    const Data& data,
+    std::vector<double>& responses_by_sample) const {
 
   // Prepare the relevant averages.
   size_t num_samples = samples.size();
@@ -38,9 +39,9 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
   double total_instrument = 0.0;
 
   for (size_t sample : samples) {
-    total_outcome += data->get_outcome(sample);
-    total_treatment += data->get_treatment(sample);
-    total_instrument += data->get_instrument(sample);
+    total_outcome += data.get_outcome(sample);
+    total_treatment += data.get_treatment(sample);
+    total_instrument += data.get_instrument(sample);
   }
 
   double average_outcome = total_outcome / num_samples;
@@ -54,9 +55,9 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
   double denominator = 0.0;
 
   for (size_t sample : samples) {
-    double outcome = data->get_outcome(sample);
-    double treatment = data->get_treatment(sample);
-    double instrument = data->get_instrument(sample);
+    double outcome = data.get_outcome(sample);
+    double treatment = data.get_treatment(sample);
+    double instrument = data.get_instrument(sample);
     double regularized_instrument = (1 - reduced_form_weight) * instrument
                                     + reduced_form_weight * treatment;
 
@@ -65,24 +66,22 @@ std::unordered_map<size_t, double> InstrumentalRelabelingStrategy::relabel(
   }
 
   if (equal_doubles(denominator, 0.0, 1.0e-10)) {
-    return std::unordered_map<size_t, double>(); // Signals that we should not perform a split.
+    return true;
   }
 
   double local_average_treatment_effect = numerator / denominator;
 
   // Create the new outcomes.
-  std::unordered_map<size_t, double> relabeled_outcomes;
-
   for (size_t sample : samples) {
-    double response = data->get_outcome(sample);
-    double treatment = data->get_treatment(sample);
-    double instrument = data->get_instrument(sample);
+    double response = data.get_outcome(sample);
+    double treatment = data.get_treatment(sample);
+    double instrument = data.get_instrument(sample);
     double regularized_instrument = (1 - reduced_form_weight) * instrument + reduced_form_weight * treatment;
 
     double residual = (response - average_outcome) - local_average_treatment_effect * (treatment - average_treatment);
-    relabeled_outcomes[sample] = (regularized_instrument - average_regularized_instrument) * residual;
+    responses_by_sample[sample] = (regularized_instrument - average_regularized_instrument) * residual;
   }
-  return relabeled_outcomes;
+  return false;
 }
 
 } // namespace grf

@@ -36,12 +36,12 @@ size_t QuantilePredictionStrategy::prediction_length() const {
 std::vector<double> QuantilePredictionStrategy::predict(
     size_t prediction_sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
-    const Data* train_data,
-    const Data* data) const {
+    const Data& train_data,
+    const Data& data) const {
   std::vector<std::pair<size_t, double>> samples_and_values;
   for (const auto& entry : weights_by_sample) {
     size_t sample = entry.first;
-    samples_and_values.emplace_back(sample, train_data->get_outcome(sample));
+    samples_and_values.emplace_back(sample, train_data.get_outcome(sample));
   }
 
   return compute_quantile_cutoffs(weights_by_sample, samples_and_values);
@@ -84,10 +84,10 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
 
 std::vector<double> QuantilePredictionStrategy::compute_variance(
     size_t sampleID,
-    std::vector<std::vector<size_t>> samples_by_tree,
-    std::unordered_map<size_t, double> weights_by_sampleID,
-    const Data* train_data,
-    const Data* data,
+    const std::vector<std::vector<size_t>>& samples_by_tree,
+    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const Data& train_data,
+    const Data& data,
     size_t ci_group_size) const {
   return { 0.0 };
 }

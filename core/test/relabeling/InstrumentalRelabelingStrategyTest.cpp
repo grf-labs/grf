@@ -27,7 +27,7 @@
 
 using namespace grf;
 
-std::vector<double> get_relabeled_outcomes(double observations[], size_t num_samples) {
+std::vector<double> get_relabeled_outcomes(std::vector<double> observations, size_t num_samples) {
   DefaultData data(observations, num_samples, 3);
   data.set_outcome_index(0);
   data.set_treatment_index(1);
@@ -39,9 +39,10 @@ std::vector<double> get_relabeled_outcomes(double observations[], size_t num_sam
   }
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
-  auto relabeled_observations = relabeling_strategy->relabel(samples, &data);
 
-  if (relabeled_observations.empty()) {
+  std::vector<double> relabeled_observations(num_samples);
+  bool stop = relabeling_strategy->relabel(samples, data, relabeled_observations);
+  if (stop) {
     return std::vector<double>();
   }
 
@@ -54,12 +55,12 @@ std::vector<double> get_relabeled_outcomes(double observations[], size_t num_sam
 }
 
 TEST_CASE("flipping signs of treatment does not affect relabeled outcomes", "[instrumental, relabeling]") {
-  double observations[] = {
+  std::vector<double> observations = {
       -9.99984, -7.36924, 5.11211, -0.826997, 0.655345, -5.62082, -9.05911, 3.57729, 3.58593, 8.69386, // outcomes
       1, 0, 0, 0, 1, 0, 1, 0, 0, 0, // treatment
       0, 0, 1, 1, 1, 0, 1, 0, 1, 0 }; // instrument
 
-  double flipped_observations[] = {
+  std::vector<double> flipped_observations = {
       -9.99984, -7.36924, 5.11211, -0.826997, 0.655345, -5.62082, -9.05911, 3.57729, 3.58593, 8.69386, // outcomes
       0, 1, 1, 1, 0, 1, 0, 1, 1, 1, // treatment
       0, 0, 1, 1, 1, 0, 1, 0, 1, 0 }; // instrument
@@ -82,12 +83,12 @@ TEST_CASE("scaling instrument scales relabeled outcomes", "[instrumental, relabe
   std::vector<double> instrument = {0, 0, 1, 1, 1, 0, 1, 0, 1, 0};
   std::vector<double> scaled_instrument = {0, 0, 3, 3, 3, 0, 3, 0, 3, 0};
 
-  double observations[] = {
+  std::vector<double> observations = {
       -9.99984, -7.36924, 5.11211, -0.826997, 0.655345, -5.62082, -9.05911, 3.57729, 3.58593, 8.69386, // outcomes
       1, 0, 0, 0, 1, 0, 1, 0, 0, 0, // treatment
       0, 0, 1, 1, 1, 0, 1, 0, 1, 0 }; // instrument
 
-  double scaled_observations[] = {
+  std::vector<double> scaled_observations = {
       -9.99984, -7.36924, 5.11211, -0.826997, 0.655345, -5.62082, -9.05911, 3.57729, 3.58593, 8.69386, // outcomes
       1, 0, 0, 0, 1, 0, 1, 0, 0, 0, // treatment
       0, 0, 3, 3, 3, 0, 3, 0, 3, 0 }; // scaled instrument
@@ -105,7 +106,7 @@ TEST_CASE("scaling instrument scales relabeled outcomes", "[instrumental, relabe
 }
 
 TEST_CASE("constant treatment leads to no splitting", "[instrumental, relabeling]") {
-  double observations[] = {
+  std::vector<double> observations = {
       -9.99984, -7.36924, 5.11211, -0.826997, 0.655345, -5.62082, -9.05911, 3.57729, 3.58593, 8.69386, // outcomes
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // treatment
       0, 0, 1, 1, 1, 0, 1, 0, 1, 0 }; // instrument
@@ -115,7 +116,7 @@ TEST_CASE("constant treatment leads to no splitting", "[instrumental, relabeling
 }
 
 TEST_CASE("constant instrument leads to no splitting", "[instrumental, relabeling]") {
-  double observations[] = {
+  std::vector<double> observations = {
       -9.99984, -7.36924, 5.11211, -0.826997, 0.655345, -5.62082, -9.05911, 3.57729, 3.58593, 8.69386, // outcomes
       0, 0, 1, 1, 0, 0, 1, 0, 1, 0, // treatment
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; // instrument

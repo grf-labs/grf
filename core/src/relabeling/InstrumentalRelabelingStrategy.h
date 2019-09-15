@@ -18,11 +18,11 @@
 #ifndef GRF_INSTRUMENTALRELABELINGSTRATEGY_H
 #define GRF_INSTRUMENTALRELABELINGSTRATEGY_H
 
-#include <unordered_map>
 #include <vector>
+
 #include "commons/Data.h"
-#include "tree/Tree.h"
 #include "relabeling/RelabelingStrategy.h"
+#include "tree/Tree.h"
 
 namespace grf {
 
@@ -32,9 +32,10 @@ public:
 
   InstrumentalRelabelingStrategy(double reduced_form_weight);
 
-  std::unordered_map<size_t, double> relabel(
+  bool relabel(
       const std::vector<size_t>& samples,
-      const Data* data) const;
+      const Data& data,
+      std::vector<double>& responses_by_sample) const;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalRelabelingStrategy);
 

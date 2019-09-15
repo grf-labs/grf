@@ -292,7 +292,7 @@ test_that("cluster robust average effects do weighting correctly", {
   wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
   expect_true(abs(wate[1] - t0) / (3 * wate[2]) <= 1)
   expect_true(wate[2] <= 0.2)
-  
+
   # An IV forest with W = Z should behave just like a causal forest
   # with treatment W.
   forest.instrumental <- instrumental_forest(X, Y, W, W,
@@ -303,7 +303,7 @@ test_that("cluster robust average effects do weighting correctly", {
                                              num.trees = 400)
   compliance.score <- rep(1, n)
   aclate <- average_late(forest.instrumental, compliance.score)
-  expect_equal(cate.aipw["estimate"], aclate["estimate"], tol = 0.01)
+  expect_equal(cate.aipw["estimate"], aclate["estimate"], tol = 0.03)
   expect_equal(cate.aipw["std.err"], aclate["std.err"], tol = 0.002)
 })
 
@@ -378,34 +378,33 @@ test_that("average effect estimation doesn't error on data with a single feature
 })
 
 test_that("average conditional local average treatment effect estimation is reasonable", {
-    p <- 10
-    n <- 1000
-    
-    X <- matrix(2 * runif(n * p) - 1, n, p)
-    A <- rnorm(n)
-    Z <- rbinom(n, 1, 0.5)
-    W <- A + Z * (1 + (X[,2] > 0))
-    tau <- X[,1] > 0
-    Y <- 2 * (X[,1] <= 0) * A + tau * W + (1 + (sqrt(3) - 1) * (X[,1] > 0)) * rnorm(n)
-    
-    forest.iv <- instrumental_forest(X, Y, W, Z, num.trees = 250)
-    compliance.forest <- causal_forest(forest.iv$X.orig,
-                                       Y=forest.iv$W.orig,
-                                       W=forest.iv$Z.orig,
-                                       Y.hat=forest.iv$W.hat,
-                                       W.hat=forest.iv$Z.hat,
-                                       sample.weights = forest.iv$sample.weights,
-                                       num.trees = 250)
-    compliance.score <- predict(compliance.forest)$predictions
-    
-    tau.hat <- average_late(forest.iv, compliance.score=compliance.score)
-    tau.x1p <- average_late(forest.iv, compliance.score=compliance.score,
-                            subset = X[,1] > 0)
-    
-    expect_equal(as.numeric(tau.hat["estimate"]), mean(tau), tol = 0.2)
-    expect_lt(abs(tau.hat["estimate"] - mean(tau)) / tau.hat["std.err"], 3)
-    
-    expect_equal(as.numeric(tau.x1p["estimate"]), mean(tau[X[,1] > 0]), tol = 0.3)
-    expect_lt(abs(tau.x1p["estimate"] - mean(tau[X[,1] > 0])) / tau.x1p["std.err"], 3)
-})
+  p <- 10
+  n <- 1000
 
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  A <- rnorm(n)
+  Z <- rbinom(n, 1, 0.5)
+  W <- A + Z * (1 + (X[,2] > 0))
+  tau <- X[,1] > 0
+  Y <- 2 * (X[,1] <= 0) * A + tau * W + (1 + (sqrt(3) - 1) * (X[,1] > 0)) * rnorm(n)
+
+  forest.iv <- instrumental_forest(X, Y, W, Z, num.trees = 250)
+  compliance.forest <- causal_forest(forest.iv$X.orig,
+                                     Y=forest.iv$W.orig,
+                                     W=forest.iv$Z.orig,
+                                     Y.hat=forest.iv$W.hat,
+                                     W.hat=forest.iv$Z.hat,
+                                     sample.weights = forest.iv$sample.weights,
+                                     num.trees = 250)
+  compliance.score <- predict(compliance.forest)$predictions
+
+  tau.hat <- average_late(forest.iv, compliance.score=compliance.score)
+  tau.x1p <- average_late(forest.iv, compliance.score=compliance.score,
+                          subset = X[,1] > 0)
+
+  expect_equal(as.numeric(tau.hat["estimate"]), mean(tau), tol = 0.2)
+  expect_lt(abs(tau.hat["estimate"] - mean(tau)) / tau.hat["std.err"], 3)
+
+  expect_equal(as.numeric(tau.x1p["estimate"]), mean(tau[X[,1] > 0]), tol = 0.3)
+  expect_lt(abs(tau.x1p["estimate"] - mean(tau[X[,1] > 0])) / tau.x1p["std.err"], 3)
+})

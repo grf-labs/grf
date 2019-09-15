@@ -9,6 +9,8 @@
 .Rhistory
 *.RData
 *.Rout
+inst/doc
+docs/
 
 # compiled object files
 *.so

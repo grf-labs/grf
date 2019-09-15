@@ -16,7 +16,7 @@ The core forest implementation is written in C++, with an R interface powered by
 
 ## R package
 
-To build the R package from source, cd into `r-package` and run `build_package.R`. Required development dependencies are listed there. This mimics the tests run when submitting a pull request.
+To build the R package from source, cd into `r-package` and run `build_package.R`. Required development dependencies are listed there. This mimics the tests run when submitting a pull request. Additional online package documentation is built on Travis with [pkgdown](https://pkgdown.r-lib.org/). Usage examples in the form of R Markdown files under _grf\vignettes_ are built and rendered and the R method reference (along with the package articles) is displayed according to the layout defined in _pkgdown.yml_. To build the site locally run `pkgdown::build_site()` from the R package directory.
 
 An alternative development workflow is to use the accompanying grf.Rproj and build and test the package with RStudio's build menu, which can be convenient
 for quickly iterating C++/R code changes.
@@ -29,7 +29,7 @@ Symlinks in the src directory point to the core C++ and R bindings. On Windows o
 
 ### Code structure
 
-![GRF Architecture Diagram](https://github.com/grf-labs/grf/blob/master/diagrams/arch_diagram.png)
+![GRF Architecture Diagram](https://raw.githubusercontent.com/grf-labs/grf/master/diagrams/arch_diagram.png)
 
 The forest implementation is composed of two top-level components, [ForestTrainer](https://github.com/grf-labs/grf/blob/master/core/src/forest/ForestTrainer.h) and [ForestPredictor](https://github.com/grf-labs/grf/blob/master/core/src/forest/ForestPredictor.h).
 

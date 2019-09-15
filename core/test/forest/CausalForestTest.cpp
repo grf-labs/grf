@@ -28,11 +28,11 @@ using namespace grf;
 
 TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[causal, forest]") {
   // Run the original forest.
-  // we'll overwrite a covariate in the original data with sample weights so we needn't resize the data.
+  // we'll overwrite a covariate in the original data with sample weights so we needn't resize the data->
   size_t weight_index = 9;
   size_t outcome_index = 10;
   size_t treatment_index = 11;
-  Data* data = load_data("test/forest/resources/causal_data.csv");
+  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
   data->set_weight_index(weight_index);
   data->set_outcome_index(outcome_index);
   data->set_treatment_index(treatment_index);
@@ -47,9 +47,9 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
   ForestTrainer trainer = instrumental_trainer(0, true);
   ForestOptions options = ForestTestUtilities::default_honest_options();
 
-  Forest forest = trainer.train(data, options);
+  Forest forest = trainer.train(*data, options);
   ForestPredictor predictor = instrumental_predictor(4);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
 
   // Scale weights by n and re-run the forest.
   for (size_t r = 0; r < data->get_num_rows(); r++) {
@@ -57,9 +57,9 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
     data->set(weight_index, r, weight, error);
   }
 
-  Forest shifted_forest = trainer.train(data, options);
+  Forest shifted_forest = trainer.train(*data, options);
   ForestPredictor shifted_predictor = instrumental_predictor(4);
-  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, *data, false);
 
   REQUIRE(predictions.size() == shifted_predictions.size());
   double delta = 0.0;
@@ -74,5 +74,4 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
   }
 
   REQUIRE(equal_doubles(delta / predictions.size(), 0, 1e-1));
-  delete data;
 }

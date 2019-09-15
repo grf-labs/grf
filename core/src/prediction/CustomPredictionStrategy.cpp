@@ -25,17 +25,17 @@ size_t CustomPredictionStrategy::prediction_length() const {
 
 std::vector<double> CustomPredictionStrategy::predict(size_t sample,
     const std::unordered_map<size_t, double>& weights_by_sample,
-    const Data* train_data,
-    const Data* data) const {
+    const Data& train_data,
+    const Data& data) const {
   return { 0.0 };
 }
 
 std::vector<double> CustomPredictionStrategy::compute_variance(
     size_t sample,
-    std::vector<std::vector<size_t>> samples_by_tree,
-    std::unordered_map<size_t, double> weights_by_sampleID,
-    const Data* train_data,
-    const Data* data,
+    const std::vector<std::vector<size_t>>& samples_by_tree,
+    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const Data& train_data,
+    const Data& data,
     size_t ci_group_size) const {
   return { 0.0 };
 }

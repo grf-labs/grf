@@ -26,15 +26,18 @@
 #'             \eqn{\sqrt p + 20} where p is the number of variables.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
-#' @param honesty Whether or not honest splitting (i.e., sub-sample splitting) should be used. Default is TRUE.
+#' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
+#'  For a detailed description of honesty, honesty.fraction, prune.empty.leaves, and recommendations for
+#'  parameter tuning, see the grf
+#'  \href{https://grf-labs.github.io/grf/REFERENCE.html#honesty-honesty-fraction-prune-empty-leaves}{algorithm reference}.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
-#'                         to set J1 in the notation of the paper. When using the defaults (honesty = TRUE and
-#'                         honesty.fraction = NULL), half of the data will be used for determining splits.
-#'                         Default is 0.5.
-#' @param prune.empty.leaves (experimental) If true, prunes the estimation sample tree such that no leaves
+#'                         to set J1 in the notation of the paper. Default is 0.5 (i.e. half of the data is used for
+#'                         determining splits).
+#' @param prune.empty.leaves If true, prunes the estimation sample tree such that no leaves
 #'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
 #'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
-#'  small/marginally powered data, but requires more trees. Only applies if honesty is enabled. Default is TRUE.
+#'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
+#'  Only applies if honesty is enabled. Default is TRUE.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
 #' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
@@ -68,6 +71,7 @@
 #' }
 #'
 #' @importFrom stats runif
+#' @importFrom stats sd
 #' @importFrom utils capture.output
 #' @export
 tune_regression_forest <- function(X, Y,
@@ -200,7 +204,7 @@ tune_regression_forest <- function(X, Y,
   )
   if (is.null(kriging.model)) {
     warning("Tuning was attempted but failed. Reverting to default parameters.")
-    out <- get_tuning_output(params = default.parameters, status = "failure")
+    out <- get_tuning_output(params = c(default.params), status = "failure")
     return(out)
   }
 
