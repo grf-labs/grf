@@ -38,7 +38,46 @@ get_tree <- function(forest, index) {
     stop(paste("The provided index,", index, "is not valid."))
   }
 
-  tree <- deserialize_tree(forest, index)
+  # Convert internal grf representation to adjacency list.
+  # +1 from C++ to R index.
+  root <- forest$`_root_nodes`[[index]] + 1
+  left <- forest$`_child_nodes`[[index]][[1]]
+  right <- forest$`_child_nodes`[[index]][[2]]
+  split_vars <- forest$`_split_vars`[[index]]
+  split_values <- forest$`_split_values`[[index]]
+  leaf_samples <- forest$`_leaf_samples`[[index]]
+  drawn_samples <- forest$`_drawn_samples`[[index]] + 1
+
+  nodes <- list()
+  frontier <- root
+  i <- 0
+  node.index <- 1
+  while (length(frontier) > 0) {
+    node <- frontier[1]
+    frontier <- frontier[-1]
+    i <- i + 1
+    if (left[[node]] == 0 && right[[node]] == 0) {
+      nodes[[i]] <- list(
+        is_leaf = TRUE,
+        samples = leaf_samples[[node]] + 1
+      )
+    } else {
+      nodes[[i]] <- list(
+        is_leaf = FALSE,
+        split_variable = split_vars[node] + 1,
+        split_value = split_values[node],
+        left_child = node.index + 1,
+        right_child = node.index + 2
+      )
+      node.index <- node.index + 2
+      frontier <- c(left[node] + 1, right[node] + 1, frontier)
+    }
+  }
+
+  tree <- list()
+  tree$num_samples <- length(drawn_samples)
+  tree$drawn_samples <- drawn_samples
+  tree$nodes <- nodes
   class(tree) <- "grf_tree"
 
   columns <- colnames(forest$X.orig)
