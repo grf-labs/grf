@@ -40,13 +40,13 @@ get_tree <- function(forest, index) {
 
   # Convert internal grf representation to adjacency list.
   # +1 from C++ to R index.
-  root <- forest$`_root_nodes`[[index]] + 1
-  left <- forest$`_child_nodes`[[index]][[1]]
-  right <- forest$`_child_nodes`[[index]][[2]]
-  split_vars <- forest$`_split_vars`[[index]]
-  split_values <- forest$`_split_values`[[index]]
-  leaf_samples <- forest$`_leaf_samples`[[index]]
-  drawn_samples <- forest$`_drawn_samples`[[index]] + 1
+  root <- forest[["_root_nodes"]][[index]] + 1
+  left <- forest[["_child_nodes"]][[index]][[1]]
+  right <- forest[["_child_nodes"]][[index]][[2]]
+  split_vars <- forest[["_split_vars"]][[index]]
+  split_values <- forest[["_split_values"]][[index]]
+  leaf_samples <- forest[["_leaf_samples"]][[index]]
+  drawn_samples <- forest[["_drawn_samples"]][[index]] + 1
 
   nodes <- list()
   frontier <- root
