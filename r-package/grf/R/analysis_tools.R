@@ -98,7 +98,6 @@ get_tree <- function(forest, index) {
     node
   })
 
-
   tree
 }
 
