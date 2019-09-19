@@ -78,7 +78,6 @@ get_tree <- function(forest, index) {
   tree$num_samples <- length(drawn_samples)
   tree$drawn_samples <- drawn_samples
   tree$nodes <- nodes
-  class(tree) <- "grf_tree"
 
   columns <- colnames(forest$X.orig)
   indices <- 1:ncol(forest$X.orig)
@@ -98,6 +97,7 @@ get_tree <- function(forest, index) {
     node
   })
 
+  class(tree) <- "grf_tree"
   tree
 }
 
