@@ -33,7 +33,7 @@ public:
               uint min_node_size,
               bool honesty,
               double honesty_fraction,
-              bool prune_empty_leaves,
+              bool honesty_prune_leaves,
               double alpha,
               double imbalance_penalty);
 
@@ -41,16 +41,16 @@ public:
   uint get_min_node_size() const;
 
   /**
-  * get_honesty(), get_honesty_fraction(), get_prune_empty_leaves() are all related:
+  * get_honesty(), get_honesty_fraction(), get_honesty_prune_leaves() are all related:
   * if honesty is false, the latter two have no effect, if it is true,
   * get_honesty_fraction is the fraction used to determine splits, and
-  * if prune_empty_leaves is true, the resulting honest tree is pruned such that the
+  * if honesty_prune_leaves is true, the resulting honest tree is pruned such that the
   * tree in the estimation sample does not contain any empty leafs. If false,
   * the resulting tree may contain empty leafs, which are skipped at prediction.
   */
   bool get_honesty() const;
   double get_honesty_fraction() const;
-  bool get_prune_empty_leaves() const;
+  bool get_honesty_prune_leaves() const;
 
   /**
    * The minimum fraction of samples that are allowed to be on either
@@ -69,7 +69,7 @@ private:
   uint min_node_size;
   bool honesty;
   double honesty_fraction;
-  bool prune_empty_leaves;
+  bool honesty_prune_leaves;
   double alpha;
   double imbalance_penalty;
 };

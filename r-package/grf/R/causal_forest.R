@@ -249,7 +249,7 @@ causal_forest <- function(X, Y, W,
       alpha = validate_alpha(alpha),
       imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
       honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty),
-      honesty.prune.leaves = validate_prune_empty_leaves(honesty.prune.leaves)
+      honesty.prune.leaves = validate_honesty_prune_leaves(honesty.prune.leaves)
     )
   }
 

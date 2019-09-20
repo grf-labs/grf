@@ -14,7 +14,7 @@ get_initial_params <- function(min.node.size,
     imbalance.penalty = if (is.null(imbalance.penalty)) NA else validate_imbalance_penalty(imbalance.penalty),
     honesty.fraction = if (is.null(honesty.fraction) && honesty) NA else
      validate_honesty_fraction(honesty.fraction, honesty),
-    honesty.prune.leaves = if (is.null(honesty.prune.leaves) && honesty) NA else validate_prune_empty_leaves(honesty.prune.leaves)
+    honesty.prune.leaves = if (is.null(honesty.prune.leaves) && honesty) NA else validate_honesty_prune_leaves(honesty.prune.leaves)
   )
 }
 

@@ -151,7 +151,7 @@ validate_honesty_fraction <- function(honesty.fraction, honesty) {
   }
 }
 
-validate_prune_empty_leaves <- function(honesty.prune.leaves) {
+validate_honesty_prune_leaves <- function(honesty.prune.leaves) {
   if (is.null(honesty.prune.leaves)) {
     return(TRUE)
   }

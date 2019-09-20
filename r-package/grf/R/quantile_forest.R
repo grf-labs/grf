@@ -112,7 +112,7 @@ quantile_forest <- function(X, Y,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-  honesty.prune.leaves <- validate_prune_empty_leaves(honesty.prune.leaves)
+  honesty.prune.leaves <- validate_honesty_prune_leaves(honesty.prune.leaves)
 
   data <- create_data_matrices(X, Y)
   outcome.index <- ncol(X) + 1

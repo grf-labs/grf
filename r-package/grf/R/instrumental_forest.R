@@ -106,7 +106,7 @@ instrumental_forest <- function(X, Y, W, Z,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-  honesty.prune.leaves <- validate_prune_empty_leaves(honesty.prune.leaves)
+  honesty.prune.leaves <- validate_honesty_prune_leaves(honesty.prune.leaves)
 
   if (!is.numeric(reduced.form.weight) | reduced.form.weight < 0 | reduced.form.weight > 1) {
     stop("Error: Invalid value for reduced.form.weight. Please give a value in [0,1].")
