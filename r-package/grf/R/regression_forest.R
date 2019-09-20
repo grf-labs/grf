@@ -19,13 +19,13 @@
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #'                      Default is 5.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
-#'  For a detailed description of honesty, honesty.fraction, prune.empty.leaves, and recommendations for
+#'  For a detailed description of honesty, honesty.fraction, honesty.prune.leaves, and recommendations for
 #'  parameter tuning, see the grf
 #'  \href{https://grf-labs.github.io/grf/REFERENCE.html#honesty-honesty-fraction-prune-empty-leaves}{algorithm reference}.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. Default is 0.5 (i.e. half of the data is used for
 #'                         determining splits).
-#' @param prune.empty.leaves If true, prunes the estimation sample tree such that no leaves
+#' @param honesty.prune.leaves If true, prunes the estimation sample tree such that no leaves
 #'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
 #'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
 #'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
@@ -92,7 +92,7 @@ regression_forest <- function(X, Y,
                               min.node.size = NULL,
                               honesty = TRUE,
                               honesty.fraction = NULL,
-                              prune.empty.leaves = NULL,
+                              honesty.prune.leaves = NULL,
                               ci.group.size = 2,
                               alpha = NULL,
                               imbalance.penalty = NULL,
@@ -128,7 +128,7 @@ regression_forest <- function(X, Y,
       num.threads = num.threads,
       honesty = honesty,
       honesty.fraction = honesty.fraction,
-      prune.empty.leaves = prune.empty.leaves,
+      honesty.prune.leaves = honesty.prune.leaves,
       seed = seed,
       clusters = clusters,
       samples.per.cluster = samples.per.cluster
@@ -142,7 +142,7 @@ regression_forest <- function(X, Y,
       alpha = validate_alpha(alpha),
       imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
       honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty),
-      prune.empty.leaves = validate_prune_empty_leaves(prune.empty.leaves)
+      honesty.prune.leaves = validate_prune_empty_leaves(honesty.prune.leaves)
     )
   }
 
@@ -158,7 +158,7 @@ regression_forest <- function(X, Y,
     as.numeric(tunable.params["sample.fraction"]),
     honesty,
     as.numeric(tunable.params["honesty.fraction"]),
-    as.numeric(tunable.params["prune.empty.leaves"]),
+    as.numeric(tunable.params["honesty.prune.leaves"]),
     ci.group.size,
     as.numeric(tunable.params["alpha"]),
     as.numeric(tunable.params["imbalance.penalty"]),

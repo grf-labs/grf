@@ -221,8 +221,8 @@ test_that("a non-pruned honest regression forest has lower MSE than a pruned hon
   X <- matrix(rnorm(n * p), n, p)
   Y <- abs(X[, 1]) + 0.1 * rnorm(n)
 
-  f1 <- regression_forest(X, Y, honesty = TRUE, honesty.fraction = 0.9, prune.empty.leaves = TRUE)
-  f2 <- regression_forest(X, Y, honesty = TRUE, honesty.fraction = 0.9, prune.empty.leaves = FALSE)
+  f1 <- regression_forest(X, Y, honesty = TRUE, honesty.fraction = 0.9, honesty.prune.leaves = TRUE)
+  f2 <- regression_forest(X, Y, honesty = TRUE, honesty.fraction = 0.9, honesty.prune.leaves = FALSE)
 
   mse.pruned <- mean((predict(f1)$predictions - Y)^2)
   mse.notpruned <- mean((predict(f2)$predictions - Y)^2)

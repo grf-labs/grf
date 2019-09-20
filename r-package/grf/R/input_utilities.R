@@ -151,11 +151,11 @@ validate_honesty_fraction <- function(honesty.fraction, honesty) {
   }
 }
 
-validate_prune_empty_leaves <- function(prune.empty.leaves) {
-  if (is.null(prune.empty.leaves)) {
+validate_prune_empty_leaves <- function(honesty.prune.leaves) {
+  if (is.null(honesty.prune.leaves)) {
     return(TRUE)
   }
-  prune.empty.leaves
+  honesty.prune.leaves
 }
 
 validate_boost_error_reduction <- function(boost.error.reduction) {

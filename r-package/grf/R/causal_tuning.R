@@ -32,13 +32,13 @@
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #'                      Default is 5.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
-#'  For a detailed description of honesty, honesty.fraction, prune.empty.leaves, and recommendations for
+#'  For a detailed description of honesty, honesty.fraction, honesty.prune.leaves, and recommendations for
 #'  parameter tuning, see the grf
 #'  \href{https://grf-labs.github.io/grf/REFERENCE.html#honesty-honesty-fraction-prune-empty-leaves}{algorithm reference}.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. Default is 0.5 (i.e. half of the data is used for
 #'                         determining splits).
-#' @param prune.empty.leaves If true, prunes the estimation sample tree such that no leaves
+#' @param honesty.prune.leaves If true, prunes the estimation sample tree such that no leaves
 #'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
 #'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
 #'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
@@ -99,7 +99,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                stabilize.splits = TRUE,
                                honesty = TRUE,
                                honesty.fraction = NULL,
-                               prune.empty.leaves = NULL,
+                               honesty.prune.leaves = NULL,
                                clusters = NULL,
                                samples.per.cluster = NULL,
                                num.threads = NULL,
@@ -124,7 +124,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
   all.params <- get_initial_params(min.node.size, sample.fraction, mtry, alpha, imbalance.penalty,
-                                   honesty, honesty.fraction, prune.empty.leaves)
+                                   honesty, honesty.fraction, honesty.prune.leaves)
   fixed.params <- all.params[!is.na(all.params)]
   tuning.params <- all.params[is.na(all.params)]
   default.params <- c(
@@ -134,7 +134,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     alpha = validate_alpha(alpha),
     imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
     honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty),
-    prune.empty.leaves = validate_prune_empty_leaves(prune.empty.leaves)
+    honesty.prune.leaves = validate_prune_empty_leaves(honesty.prune.leaves)
   )
   default.params[!is.na(all.params)] <- all.params[!is.na(all.params)]
 
@@ -160,7 +160,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
       as.numeric(params["sample.fraction"]),
       honesty,
       as.numeric(params["honesty.fraction"]),
-      as.numeric(params["prune.empty.leaves"]),
+      as.numeric(params["honesty.prune.leaves"]),
       ci.group.size,
       reduced.form.weight,
       as.numeric(params["alpha"]),
@@ -248,7 +248,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     retrained.forest.params["sample.fraction"],
     honesty,
     retrained.forest.params["honesty.fraction"],
-    retrained.forest.params["prune.empty.leaves"],
+    retrained.forest.params["honesty.prune.leaves"],
     ci.group.size,
     reduced.form.weight,
     retrained.forest.params["alpha"],
@@ -283,7 +283,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
     default.params["sample.fraction"],
     honesty,
     default.params["honesty.fraction"],
-    default.params["prune.empty.leaves"],
+    default.params["honesty.prune.leaves"],
     ci.group.size,
     reduced.form.weight,
     default.params["alpha"],

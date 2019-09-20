@@ -87,19 +87,19 @@ The parameter `num.trees` controls how many trees are grown during training, and
 
 Tree training is parallelized across several threads in an effort to improve performance. By default, all available cores are used, but the number of threads can be set directly through `num.threads`.
 
-#### `honesty`, `honesty.fraction`, `prune.empty.leaves`
+#### `honesty`, `honesty.fraction`, `honesty.prune.leaves`
 
 By default, 'honest' forests are trained. The motivation behind honesty is to reduce bias in tree predictions, by using different subsamples for constructing the tree and for making predictions. Honesty is a well-explored idea in the academic literature on random forests, but is not yet common in software implementations. This section gives an algorithmic explanation of honesty; for a more formal overview, please see section 2.4 of Wager and Athey (2018).
 
 In a classic random forest, a single subsample is used both to choose a tree's splits, and for the leaf node examples used in making predictions. In contrast, honest forests randomly split this subsample in half, and use only the first half when performing splitting. The second half is then used to populate the tree's leaf nodes: each new example is 'pushed down' the tree, and added to the leaf in which it falls. In a sense, the leaf nodes are 'repopulated' after splitting using a fresh set of examples.
 
-After repopulating a tree's leaves using the second half-sample, it is possible that some leaves end up empty. With empty leaves, a tree is not able to handle certain test examples and needs to be skipped when computing those predictions. By default, empty leaves are pruned away after training so that each tree is able to handle all test points. GRF's behavior with respect to empty leaves can be controlled through the parameter `prune.empty.leaves`.
+After repopulating a tree's leaves using the second half-sample, it is possible that some leaves end up empty. With empty leaves, a tree is not able to handle certain test examples and needs to be skipped when computing those predictions. By default, empty leaves are pruned away after training so that each tree is able to handle all test points. GRF's behavior with respect to empty leaves can be controlled through the parameter `honesty.prune.leaves`.
 
 It's important to note that honesty may hurt performance when working with very small datasets. In this set-up, the subsample used to determine tree splits is already small, and honesty further cuts this subsample in half, so there may no longer be enough information to choose high-quality splits. There are a couple options for mitigating the cost of honesty in small samples:
-- The parameter `honesty.fraction` allows for increasing the fraction of samples used in selecting tree splits. For example, an honesty fraction of 0.7 directs GRF to use 70% of the tree subsample for splitting, and the other 30% to populate the leaf nodes. If GRF is not working well on a small sample, we've found empirically that it can help to increase `honesty.fraction` and set `prune.empty.leaves` to `FALSE`. With these settings, it may also be necessary to increase the number of trees grown in training through `num.trees`.
+- The parameter `honesty.fraction` allows for increasing the fraction of samples used in selecting tree splits. For example, an honesty fraction of 0.7 directs GRF to use 70% of the tree subsample for splitting, and the other 30% to populate the leaf nodes. If GRF is not working well on a small sample, we've found empirically that it can help to increase `honesty.fraction` and set `honesty.prune.leaves` to `FALSE`. With these settings, it may also be necessary to increase the number of trees grown in training through `num.trees`.
 - Alternatively, honesty can be completely disabled during training by setting the parameter `honesty` to `FALSE`.
 
-When automatically tuning parameters through `tune.parameters`, GRF will try varying `honesty.fraction` between 0.5 and 0.8, and consider both options for `prune.empty.leaves`. More information on automatic parameter selection can be found in the 'Parameter Tuning' section below.
+When automatically tuning parameters through `tune.parameters`, GRF will try varying `honesty.fraction` between 0.5 and 0.8, and consider both options for `honesty.prune.leaves`. More information on automatic parameter selection can be found in the 'Parameter Tuning' section below.
 
 #### `mtry`
 
@@ -199,7 +199,7 @@ The following sections describe other features of GRF that may be of interest.
 
 The accuracy of a forest can be sensitive to several training parameters:
 - the core options tree-growing options `min.node.size`, `sample.fraction`, and `mtry`
-- the parameters that control honesty behavior `honesty.fraction` and `prune.empty.leaves`
+- the parameters that control honesty behavior `honesty.fraction` and `honesty.prune.leaves`
 - the split balance parameters `alpha` and `imbalance.penalty`
 
 GRF provides a cross-validation procedure to select values of these parameters to use in training. To enable this tuning during training, the option `tune.parameters = TRUE` can be passed to main forest method. The cross-validation methods can also be called directly through `tune_regression_forest` and`tune_causal_forest`. Parameter tuning is currently disabled by default.
@@ -211,7 +211,7 @@ The cross-validation procedure works as follows:
   - While the notion of error is straightforward for regression forests, it can be more subtle in the context of treatment effect estimation. For causal forests, we use a measure of error developed in Nie and Wager (2017) motivated by residual-on-residual regression (Robinson, 1988).
 - Finally, given the debiased error estimates for each set of parameters, we apply a smoothing function to determine the optimal parameter values.
 
-Note that `honesty.fraction` and `prune.empty.leaves` are only considered for tuning when `honesty = TRUE` (its default value). Parameter tuning does not try different options of `honesty` itself.
+Note that `honesty.fraction` and `honesty.prune.leaves` are only considered for tuning when `honesty = TRUE` (its default value). Parameter tuning does not try different options of `honesty` itself.
 
 ### Boosted Regression Forests
 
