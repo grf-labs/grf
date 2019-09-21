@@ -48,7 +48,7 @@ TEST_CASE("pruning behaves as expected", "[tree, unit]") {
       {{}, {}, {}, {}, {}, {}, {42, 43}, {44}, {}, {}, {}}};
   Tree tree(0, child_nodes, leaf_nodes, {0}, {0}, {0}, PredictionValues());
 
-  tree.prune_empty_leaves();
+  tree.honesty_prune_leaves();
 
   std::vector<std::vector<size_t>> expected_child_nodes =
       {{0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
@@ -68,10 +68,10 @@ TEST_CASE("pruning is idempotent", "[tree, unit]") {
       {{}, {}, {}, {}, {}, {}, {42, 43}, {44}, {}, {}, {}}};
   Tree tree(0, child_nodes, leaf_nodes, {0}, {0}, {0}, PredictionValues());
 
-  tree.prune_empty_leaves();
+  tree.honesty_prune_leaves();
   const std::vector<std::vector<size_t>>& expected_child_nodes = tree.get_child_nodes();
 
-  tree.prune_empty_leaves();
+  tree.honesty_prune_leaves();
   const std::vector<std::vector<size_t>>& actual_child_nodes = tree.get_child_nodes();
 
   for (size_t node = 0; node < leaf_nodes.size(); node++) {

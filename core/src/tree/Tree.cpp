@@ -128,7 +128,7 @@ size_t Tree::find_leaf_node(const Data& data,
   return node;
 };
 
-void Tree::prune_empty_leaves() {
+void Tree::honesty_prune_leaves() {
   size_t num_nodes = leaf_samples.size();
   for (size_t n = num_nodes; n > root_node; n--) {
     size_t node = n - 1;
