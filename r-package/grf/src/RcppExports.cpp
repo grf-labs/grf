@@ -48,18 +48,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// deserialize_tree
-Rcpp::List deserialize_tree(Rcpp::List forest_object, size_t tree_index);
-RcppExport SEXP _grf_deserialize_tree(SEXP forest_objectSEXP, SEXP tree_indexSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type forest_object(forest_objectSEXP);
-    Rcpp::traits::input_parameter< size_t >::type tree_index(tree_indexSEXP);
-    rcpp_result_gen = Rcpp::wrap(deserialize_tree(forest_object, tree_index));
-    return rcpp_result_gen;
-END_RCPP
-}
 // merge
 Rcpp::List merge(const Rcpp::List forest_objects);
 RcppExport SEXP _grf_merge(SEXP forest_objectsSEXP) {
@@ -486,7 +474,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_grf_compute_split_frequencies", (DL_FUNC) &_grf_compute_split_frequencies, 2},
     {"_grf_compute_weights", (DL_FUNC) &_grf_compute_weights, 6},
     {"_grf_compute_weights_oob", (DL_FUNC) &_grf_compute_weights_oob, 4},
-    {"_grf_deserialize_tree", (DL_FUNC) &_grf_deserialize_tree, 2},
     {"_grf_merge", (DL_FUNC) &_grf_merge, 1},
     {"_grf_causal_train", (DL_FUNC) &_grf_causal_train, 23},
     {"_grf_causal_predict", (DL_FUNC) &_grf_causal_predict, 9},

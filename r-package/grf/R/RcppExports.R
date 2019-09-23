@@ -13,10 +13,6 @@ compute_weights_oob <- function(forest_object, test_matrix, sparse_test_matrix, 
     .Call('_grf_compute_weights_oob', PACKAGE = 'grf', forest_object, test_matrix, sparse_test_matrix, num_threads)
 }
 
-deserialize_tree <- function(forest_object, tree_index) {
-    .Call('_grf_deserialize_tree', PACKAGE = 'grf', forest_object, tree_index)
-}
-
 merge <- function(forest_objects) {
     .Call('_grf_merge', PACKAGE = 'grf', forest_objects)
 }
