@@ -73,7 +73,7 @@ public:
    * This procedure prunes those nodes, so that each node is either a non-empty leaf, or
    * has two non-empty subtrees for children.
    */
-  void prune_empty_leaves();
+  void honesty_prune_leaves();
 
   /**
    * The ID of the root node for this tree. Note that this is usually 0, but may not always
