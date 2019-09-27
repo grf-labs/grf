@@ -256,15 +256,11 @@ causal_forest <- function(X, Y, W,
   Y.centered <- Y - Y.hat
   W.centered <- W - W.hat
 
-  data <- create_data_matrices(X, Y.centered, W.centered, sample.weights = sample.weights)
-  outcome.index <- ncol(X) + 1
-  treatment.index <- ncol(X) + 2
-  sample.weight.index <- ncol(X) + 3
-
+  data <- create_data_matrices(X, outcome = Y.centered, treatment = W.centered, sample.weights = sample.weights)
   forest <- causal_train(
-    data$default, data$sparse,
-    outcome.index, treatment.index, sample.weight.index,
-    !is.null(sample.weights),
+    data$train_matrix, data$sparse_train_matrix,
+    data$outcome_index, data$treatment_index, data$sample_weight_index,
+    data$use_sample_weights,
     as.numeric(tunable.params["mtry"]),
     num.trees,
     as.numeric(tunable.params["min.node.size"]),
@@ -385,10 +381,7 @@ predict.causal_forest <- function(object, newdata = NULL,
   X <- object[["X.orig"]]
   Y.centered <- object[["Y.orig"]] - object[["Y.hat"]]
   W.centered <- object[["W.orig"]] - object[["W.hat"]]
-  train.data <- create_data_matrices(X, Y.centered, W.centered)
-
-  outcome.index <- ncol(X) + 1
-  treatment.index <- ncol(X) + 2
+  train.data <- create_data_matrices(X, outcome = Y.centered, treatment = W.centered)
 
   num.threads <- validate_num_threads(num.threads)
 
@@ -414,21 +407,22 @@ predict.causal_forest <- function(object, newdata = NULL,
        validate_newdata(newdata, object$X.orig)
        data <- create_data_matrices(newdata)
        if (!local.linear) {
-           ret <- causal_predict(forest.short, train.data$default, train.data$sparse,
-                   outcome.index, treatment.index, data$default, data$sparse, num.threads, estimate.variance)
+           ret <- causal_predict(forest.short, train.data$train_matrix, train.data$sparse_train_matrix,
+                   train.data$outcome_index, train.data$treatment_index, data$train_matrix,
+                   data$sparse_train_matrix, num.threads, estimate.variance)
        } else {
-           ret <- ll_causal_predict(forest.short, data$default, train.data$default, data$sparse, train.data$sparse,
-                   outcome.index, treatment.index, ll.lambda, ll.weight.penalty, linear.correction.variables,
-                   num.threads, estimate.variance)
+           ret <- ll_causal_predict(forest.short, data$train_matrix, train.data$train_matrix, data$sparse_train_matrix,
+                   train.data$sparse_train_matrix, train.data$outcome_index, train.data$treatment_index,
+                   ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
        }
    } else {
        if (!local.linear) {
-           ret <- causal_predict_oob(forest.short, train.data$default, train.data$sparse,
-                   outcome.index, treatment.index, num.threads, estimate.variance)
+           ret <- causal_predict_oob(forest.short, train.data$train_matrix, train.data$sparse_train_matrix,
+                   train.data$outcome_index, train.data$treatment_index, num.threads, estimate.variance)
        } else {
-           ret <- ll_causal_predict_oob(forest.short, train.data$default, train.data$sparse,
-                   outcome.index, treatment.index, ll.lambda, ll.weight.penalty, linear.correction.variables,
-                   num.threads, estimate.variance)
+           ret <- ll_causal_predict_oob(forest.short, train.data$train_matrix, train.data$sparse_train_matrix,
+                   train.data$outcome_index, train.data$treatment_index, ll.lambda, ll.weight.penalty,
+                   linear.correction.variables, num.threads, estimate.variance)
        }
   }
 

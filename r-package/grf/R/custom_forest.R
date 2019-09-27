@@ -92,12 +92,11 @@ custom_forest <- function(X, Y,
 
   no.split.variables <- numeric(0)
 
-  data <- create_data_matrices(X, Y)
-  outcome.index <- ncol(X) + 1
+  data <- create_data_matrices(X, outcome = Y)
   ci.group.size <- 1
 
   forest <- custom_train(
-    data$default, data$sparse, outcome.index, mtry, num.trees, min.node.size,
+    data$train_matrix, data$sparse_train_matrix, data$outcome_index, mtry, num.trees, min.node.size,
     sample.fraction, honesty, honesty.fraction, honesty.prune.leaves, ci.group.size, alpha,
     imbalance.penalty, clusters, samples.per.cluster, num.threads, compute.oob.predictions, seed
   )
@@ -144,7 +143,6 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
 
   X <- object[["X.orig"]]
   train.data <- create_data_matrices(X, object[["Y.orig"]])
-  outcome.index <- ncol(X) + 1
 
   num.threads <- validate_num_threads(num.threads)
 
@@ -152,10 +150,10 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
     validate_newdata(newdata, X)
     data <- create_data_matrices(newdata)
     custom_predict(
-      forest.short, train.data$default, train.data$sparse, outcome.index,
-      data$default, data$sparse, num.threads
+      forest.short, train.data$train_matrix, train.data$sparse_train_matrix, train.data$outcome_index,
+      data$train_matrix, data$sparse_train_matrix, num.threads
     )
   } else {
-    custom_predict_oob(forest.short, train.data$default, train.data$sparse, outcome.index, num.threads)
+    custom_predict_oob(forest.short, train.data$train_matrix, train.data$sparse_train_matrix, train.data$outcome_index, num.threads)
   }
 }

@@ -101,10 +101,7 @@ tune_regression_forest <- function(X, Y,
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   ci.group.size <- 1
 
-  data <- create_data_matrices(X, Y, sample.weights = sample.weights)
-  outcome.index <- ncol(X) + 1
-  sample.weight.index <- ncol(X) + 2
-  # if no sample weights are stored, sample.weight.index is ncol(data) + 1 and is ignored
+  data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
 
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
@@ -137,8 +134,9 @@ tune_regression_forest <- function(X, Y,
   small.forest.errors <- apply(fit.draws, 1, function(draw) {
     params <- c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- regression_train(
-      data$default, data$sparse, outcome.index, sample.weight.index,
-      !is.null(sample.weights),
+      data$train_matrix, data$sparse_train_matrix,
+      data$outcome_index, data$sample_weight_index,
+      data$use_sample_weights,
       as.numeric(params["mtry"]),
       num.fit.trees,
       as.numeric(params["min.node.size"]),
@@ -157,8 +155,8 @@ tune_regression_forest <- function(X, Y,
     )
 
     prediction <- regression_predict_oob(
-      small.forest, data$default, data$sparse,
-      outcome.index, num.threads, FALSE
+      small.forest, data$train_matrix, data$sparse_train_matrix,
+      data$outcome_index, num.threads, FALSE
     )
     error <- prediction$debiased.error
     mean(error, na.rm = TRUE)
@@ -224,8 +222,9 @@ tune_regression_forest <- function(X, Y,
   retrained.forest.params <- c(fixed.params, grid[small.forest.optimal.draw, -1])
   retrained.forest.num.trees <- num.fit.trees * 4
   retrained.forest <- regression_train(
-    data$default, data$sparse, outcome.index, sample.weight.index,
-    !is.null(sample.weights),
+    data$train_matrix, data$sparse_train_matrix,
+    data$outcome_index, data$sample_weight_index,
+    data$use_sample_weights,
     as.numeric(retrained.forest.params["mtry"]),
     num.fit.trees,
     as.numeric(retrained.forest.params["min.node.size"]),
@@ -244,8 +243,8 @@ tune_regression_forest <- function(X, Y,
   )
 
   retrained.forest.prediction <- regression_predict_oob(
-    retrained.forest, data$default, data$sparse,
-    outcome.index, num.threads, FALSE
+    retrained.forest, data$train_matrix, data$sparse_train_matrix,
+    data$outcome_index, num.threads, FALSE
   )
 
   retrained.forest.error <- mean(retrained.forest.prediction$debiased.error, na.rm = TRUE)
@@ -255,8 +254,9 @@ tune_regression_forest <- function(X, Y,
   num.default.forest.trees <- num.fit.trees * 4
 
   default.forest <- regression_train(
-    data$default, data$sparse, outcome.index, sample.weight.index,
-    !is.null(sample.weights),
+    data$train_matrix, data$sparse_train_matrix,
+    data$outcome_index, data$sample_weight_index,
+    data$use_sample_weights,
     as.numeric(default.params["mtry"]),
     num.fit.trees,
     as.numeric(default.params["min.node.size"]),
@@ -275,8 +275,8 @@ tune_regression_forest <- function(X, Y,
   )
 
   default.forest.prediction <- regression_predict_oob(
-      default.forest, data$default, data$sparse,
-      outcome.index, num.threads, FALSE
+      default.forest, data$train_matrix, data$sparse_train_matrix,
+      data$outcome_index, num.threads, FALSE
   )
 
   default.forest.error <- mean(default.forest.prediction$debiased.error, na.rm = TRUE)
