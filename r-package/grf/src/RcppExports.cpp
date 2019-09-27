@@ -48,18 +48,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// deserialize_tree
-Rcpp::List deserialize_tree(Rcpp::List forest_object, size_t tree_index);
-RcppExport SEXP _grf_deserialize_tree(SEXP forest_objectSEXP, SEXP tree_indexSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type forest_object(forest_objectSEXP);
-    Rcpp::traits::input_parameter< size_t >::type tree_index(tree_indexSEXP);
-    rcpp_result_gen = Rcpp::wrap(deserialize_tree(forest_object, tree_index));
-    return rcpp_result_gen;
-END_RCPP
-}
 // merge
 Rcpp::List merge(const Rcpp::List forest_objects);
 RcppExport SEXP _grf_merge(SEXP forest_objectsSEXP) {
@@ -72,8 +60,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // causal_train
-Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t treatment_index, size_t sample_weight_index, bool use_sample_weights, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool prune_empty_leaves, size_t ci_group_size, double reduced_form_weight, double alpha, double imbalance_penalty, bool stabilize_splits, std::vector<size_t> clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
-RcppExport SEXP _grf_causal_train(SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP treatment_indexSEXP, SEXP sample_weight_indexSEXP, SEXP use_sample_weightsSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP prune_empty_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP reduced_form_weightSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP stabilize_splitsSEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
+Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t treatment_index, size_t sample_weight_index, bool use_sample_weights, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, size_t ci_group_size, double reduced_form_weight, double alpha, double imbalance_penalty, bool stabilize_splits, std::vector<size_t> clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
+RcppExport SEXP _grf_causal_train(SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP treatment_indexSEXP, SEXP sample_weight_indexSEXP, SEXP use_sample_weightsSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP reduced_form_weightSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP stabilize_splitsSEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -89,7 +77,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sample_fraction(sample_fractionSEXP);
     Rcpp::traits::input_parameter< bool >::type honesty(honestySEXP);
     Rcpp::traits::input_parameter< double >::type honesty_fraction(honesty_fractionSEXP);
-    Rcpp::traits::input_parameter< bool >::type prune_empty_leaves(prune_empty_leavesSEXP);
+    Rcpp::traits::input_parameter< bool >::type honesty_prune_leaves(honesty_prune_leavesSEXP);
     Rcpp::traits::input_parameter< size_t >::type ci_group_size(ci_group_sizeSEXP);
     Rcpp::traits::input_parameter< double >::type reduced_form_weight(reduced_form_weightSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
@@ -100,7 +88,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type compute_oob_predictions(compute_oob_predictionsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(causal_train(train_matrix, sparse_train_matrix, outcome_index, treatment_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, prune_empty_leaves, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed));
+    rcpp_result_gen = Rcpp::wrap(causal_train(train_matrix, sparse_train_matrix, outcome_index, treatment_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -183,8 +171,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // custom_train
-Rcpp::List custom_train(Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool prune_empty_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
-RcppExport SEXP _grf_custom_train(SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP prune_empty_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
+Rcpp::List custom_train(Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
+RcppExport SEXP _grf_custom_train(SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -197,7 +185,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sample_fraction(sample_fractionSEXP);
     Rcpp::traits::input_parameter< bool >::type honesty(honestySEXP);
     Rcpp::traits::input_parameter< double >::type honesty_fraction(honesty_fractionSEXP);
-    Rcpp::traits::input_parameter< bool >::type prune_empty_leaves(prune_empty_leavesSEXP);
+    Rcpp::traits::input_parameter< bool >::type honesty_prune_leaves(honesty_prune_leavesSEXP);
     Rcpp::traits::input_parameter< size_t >::type ci_group_size(ci_group_sizeSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< double >::type imbalance_penalty(imbalance_penaltySEXP);
@@ -206,7 +194,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type compute_oob_predictions(compute_oob_predictionsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(custom_train(train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, prune_empty_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed));
+    rcpp_result_gen = Rcpp::wrap(custom_train(train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -243,8 +231,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // instrumental_train
-Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t treatment_index, size_t instrument_index, size_t sample_weight_index, bool use_sample_weights, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool prune_empty_leaves, size_t ci_group_size, double reduced_form_weight, double alpha, double imbalance_penalty, bool stabilize_splits, std::vector<size_t> clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
-RcppExport SEXP _grf_instrumental_train(SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP treatment_indexSEXP, SEXP instrument_indexSEXP, SEXP sample_weight_indexSEXP, SEXP use_sample_weightsSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP prune_empty_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP reduced_form_weightSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP stabilize_splitsSEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
+Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t treatment_index, size_t instrument_index, size_t sample_weight_index, bool use_sample_weights, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, size_t ci_group_size, double reduced_form_weight, double alpha, double imbalance_penalty, bool stabilize_splits, std::vector<size_t> clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
+RcppExport SEXP _grf_instrumental_train(SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP treatment_indexSEXP, SEXP instrument_indexSEXP, SEXP sample_weight_indexSEXP, SEXP use_sample_weightsSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP reduced_form_weightSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP stabilize_splitsSEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -261,7 +249,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sample_fraction(sample_fractionSEXP);
     Rcpp::traits::input_parameter< bool >::type honesty(honestySEXP);
     Rcpp::traits::input_parameter< double >::type honesty_fraction(honesty_fractionSEXP);
-    Rcpp::traits::input_parameter< bool >::type prune_empty_leaves(prune_empty_leavesSEXP);
+    Rcpp::traits::input_parameter< bool >::type honesty_prune_leaves(honesty_prune_leavesSEXP);
     Rcpp::traits::input_parameter< size_t >::type ci_group_size(ci_group_sizeSEXP);
     Rcpp::traits::input_parameter< double >::type reduced_form_weight(reduced_form_weightSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
@@ -272,7 +260,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type compute_oob_predictions(compute_oob_predictionsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(instrumental_train(train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, prune_empty_leaves, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed));
+    rcpp_result_gen = Rcpp::wrap(instrumental_train(train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -315,8 +303,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // quantile_train
-Rcpp::List quantile_train(std::vector<double> quantiles, bool regression_splits, Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, unsigned int mtry, unsigned int num_trees, int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool prune_empty_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, int num_threads, unsigned int seed);
-RcppExport SEXP _grf_quantile_train(SEXP quantilesSEXP, SEXP regression_splitsSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP prune_empty_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
+Rcpp::List quantile_train(std::vector<double> quantiles, bool regression_splits, Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, unsigned int mtry, unsigned int num_trees, int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, int num_threads, unsigned int seed);
+RcppExport SEXP _grf_quantile_train(SEXP quantilesSEXP, SEXP regression_splitsSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -331,7 +319,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sample_fraction(sample_fractionSEXP);
     Rcpp::traits::input_parameter< bool >::type honesty(honestySEXP);
     Rcpp::traits::input_parameter< double >::type honesty_fraction(honesty_fractionSEXP);
-    Rcpp::traits::input_parameter< bool >::type prune_empty_leaves(prune_empty_leavesSEXP);
+    Rcpp::traits::input_parameter< bool >::type honesty_prune_leaves(honesty_prune_leavesSEXP);
     Rcpp::traits::input_parameter< size_t >::type ci_group_size(ci_group_sizeSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< double >::type imbalance_penalty(imbalance_penaltySEXP);
@@ -339,7 +327,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< unsigned int >::type samples_per_cluster(samples_per_clusterSEXP);
     Rcpp::traits::input_parameter< int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(quantile_train(quantiles, regression_splits, train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, prune_empty_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, num_threads, seed));
+    rcpp_result_gen = Rcpp::wrap(quantile_train(quantiles, regression_splits, train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, num_threads, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -378,8 +366,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // regression_train
-Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t sample_weight_index, bool use_sample_weights, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool prune_empty_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
-RcppExport SEXP _grf_regression_train(SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP sample_weight_indexSEXP, SEXP use_sample_weightsSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP prune_empty_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
+Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t sample_weight_index, bool use_sample_weights, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
+RcppExport SEXP _grf_regression_train(SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP sample_weight_indexSEXP, SEXP use_sample_weightsSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -394,7 +382,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sample_fraction(sample_fractionSEXP);
     Rcpp::traits::input_parameter< bool >::type honesty(honestySEXP);
     Rcpp::traits::input_parameter< double >::type honesty_fraction(honesty_fractionSEXP);
-    Rcpp::traits::input_parameter< bool >::type prune_empty_leaves(prune_empty_leavesSEXP);
+    Rcpp::traits::input_parameter< bool >::type honesty_prune_leaves(honesty_prune_leavesSEXP);
     Rcpp::traits::input_parameter< size_t >::type ci_group_size(ci_group_sizeSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< double >::type imbalance_penalty(imbalance_penaltySEXP);
@@ -403,7 +391,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type compute_oob_predictions(compute_oob_predictionsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(regression_train(train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, prune_empty_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed));
+    rcpp_result_gen = Rcpp::wrap(regression_train(train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -486,7 +474,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_grf_compute_split_frequencies", (DL_FUNC) &_grf_compute_split_frequencies, 2},
     {"_grf_compute_weights", (DL_FUNC) &_grf_compute_weights, 6},
     {"_grf_compute_weights_oob", (DL_FUNC) &_grf_compute_weights_oob, 4},
-    {"_grf_deserialize_tree", (DL_FUNC) &_grf_deserialize_tree, 2},
     {"_grf_merge", (DL_FUNC) &_grf_merge, 1},
     {"_grf_causal_train", (DL_FUNC) &_grf_causal_train, 23},
     {"_grf_causal_predict", (DL_FUNC) &_grf_causal_predict, 9},
