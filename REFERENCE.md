@@ -221,7 +221,7 @@ Note that `honesty.fraction` and `honesty.prune.leaves` are only considered for 
 ### Merging Forests
 
 In order to ensure valid predictions and tight confidence intervals, users may need to grow a large number of trees. However, it is hard to know exactly how many trees to grow in advance. That is why
-GRF allows users to grow their forests separately and then create a single forest using the function `merge_forests`. This functionality allows users to sequentially grow small forests, merge them into a large forest, and check if they have attained the desired level of `excess.error` or tight enough confidence intervals. 
+GRF allows users to grow their forests separately and then create a single forest using the function `merge_forests`. This functionality allows users to sequentially grow small forests, merge them into a large forest, and check if they have attained the desired level of `excess.error` or tight enough confidence intervals.
 
 
 ### Boosted Regression Forests
@@ -278,7 +278,7 @@ If you observe poor performance on a dataset with a small number of examples, th
 
 ### The variance estimates are jumpy or very large.
 
-In this case, it would be good to try growing a larger number of trees. Obtaining good variance estimates often requires growing more trees than it takes to only obtain accurate predictions. See the discussion under [`num.trees`](#num-trees) and [Merging Forests](#merging-forests).
+In this case, it would be good to try growing a larger number of trees. Obtaining good variance estimates often requires growing more trees than it takes to only obtain accurate predictions. See the discussion under [`num.trees`](#numtrees) and [Merging Forests](#merging-forests).
 
 ### The causal forest method is producing nonsensical results.
 
