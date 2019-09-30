@@ -49,7 +49,7 @@ tune_ll_regression_forest <- function(forest,
   # Enforce no variance estimates in tuning
   estimate.variance <- FALSE
   prediction.object <- ll_regression_predict_oob(
-    forest.short, data$train_matrix, data$sparse_train_matrix, data$outcome_index,
+    forest.short, data$train.matrix, data$sparse.train.matrix, data$outcome.index,
     lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
   )
 

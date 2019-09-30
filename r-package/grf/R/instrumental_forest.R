@@ -157,9 +157,9 @@ instrumental_forest <- function(X, Y, W, Z,
   data <- create_data_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
                                instrument = Z - Z.hat, sample.weights = sample.weights)
   forest <- instrumental_train(
-    data$train_matrix, data$sparse_train_matrix,
-    data$outcome_index, data$treatment_index, data$instrument_index, data$sample_weight_index,
-    data$use_sample_weights,
+    data$train.matrix, data$sparse.train.matrix,
+    data$outcome.index, data$treatment.index, data$instrument.index, data$sample.weight.index,
+    data$use.sample.weights,
     mtry, num.trees, min.node.size, sample.fraction, honesty, honesty.fraction,
     honesty.prune.leaves, ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits, clusters,
     samples.per.cluster, compute.oob.predictions, num.threads, seed
@@ -226,14 +226,14 @@ predict.instrumental_forest <- function(object, newdata = NULL,
     validate_newdata(newdata, object$X.orig)
     data <- create_data_matrices(newdata)
     ret <- instrumental_predict(
-      forest.short, train.data$train_matrix, train.data$sparse_train_matrix,
-      train.data$outcome_index, train.data$treatment_index, train.data$instrument_index,
-      data$train_matrix, data$sparse_train_matrix, num.threads, estimate.variance
+      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+      train.data$outcome.index, train.data$treatment.index, train.data$instrument.index,
+      data$train.matrix, data$sparse.train.matrix, num.threads, estimate.variance
     )
   } else {
     ret <- instrumental_predict_oob(
-      forest.short, train.data$train_matrix, train.data$sparse_train_matrix,
-      train.data$outcome_index, train.data$treatment_index, train.data$instrument_index,
+      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+      train.data$outcome.index, train.data$treatment.index, train.data$instrument.index,
       num.threads, estimate.variance
     )
   }

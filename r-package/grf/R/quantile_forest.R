@@ -118,7 +118,7 @@ quantile_forest <- function(X, Y,
   ci.group.size <- 1
 
   forest <- quantile_train(
-    quantiles, regression.splitting, data$train_matrix, data$sparse_train_matrix, data$outcome_index, mtry,
+    quantiles, regression.splitting, data$train.matrix, data$sparse.train.matrix, data$outcome.index, mtry,
     num.trees, min.node.size, sample.fraction, honesty, honesty.fraction, honesty.prune.leaves,
     ci.group.size, alpha, imbalance.penalty, clusters, samples.per.cluster, num.threads, seed
   )
@@ -188,13 +188,13 @@ predict.quantile_forest <- function(object,
     validate_newdata(newdata, object$X.orig)
     data <- create_data_matrices(newdata)
     quantile_predict(
-      forest.short, quantiles, train.data$train_matrix, train.data$sparse_train_matrix,
-      train.data$outcome_index, data$train_matrix, data$sparse_train_matrix, num.threads
+      forest.short, quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
+      train.data$outcome.index, data$train.matrix, data$sparse.train.matrix, num.threads
     )
   } else {
     quantile_predict_oob(
-      forest.short, quantiles, train.data$train_matrix, train.data$sparse_train_matrix,
-      train.data$outcome_index, num.threads
+      forest.short, quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
+      train.data$outcome.index, num.threads
     )
   }
 }

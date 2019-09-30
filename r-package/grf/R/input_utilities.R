@@ -227,23 +227,23 @@ create_data_matrices <- function(X, outcome = NULL, treatment = NULL,
   out <- list()
   i <- 1
   if (!is.null(outcome)) {
-    out[["outcome_index"]] <- ncol(X) + i
+    out[["outcome.index"]] <- ncol(X) + i
   }
   if (!is.null(treatment)) {
     i <- i + 1
-    out[["treatment_index"]] <- ncol(X) + i
+    out[["treatment.index"]] <- ncol(X) + i
   }
   if (!is.null(instrument)) {
     i <- i + 1
-    out[["instrument_index"]] <- ncol(X) + i
+    out[["instrument.index"]] <- ncol(X) + i
   }
   if (!isFALSE(sample.weights)) {
     i <- i + 1
-    out[["sample_weight_index"]] <- ncol(X) + i
+    out[["sample.weight.index"]] <- ncol(X) + i
     if (is.null(sample.weights)) {
-      out[["use_sample_weights"]] <- FALSE
+      out[["use.sample.weights"]] <- FALSE
     } else {
-      out[["use_sample_weights"]] <- TRUE
+      out[["use.sample.weights"]] <- TRUE
     }
   } else {
     sample.weights = NULL
@@ -255,8 +255,8 @@ create_data_matrices <- function(X, outcome = NULL, treatment = NULL,
     X <- as.matrix(X)
     default.data <- as.matrix(cbind(X, outcome, treatment, instrument, sample.weights))
   }
-  out[["train_matrix"]] <- default.data
-  out[["sparse_train_matrix"]] <- sparse.data
+  out[["train.matrix"]] <- default.data
+  out[["sparse.train.matrix"]] <- sparse.data
 
   out
 }

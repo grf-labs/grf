@@ -128,9 +128,9 @@ ll_regression_forest <- function(X, Y,
   compute.oob.predictions <- FALSE
 
   forest <- regression_train(
-    data$train_matrix, data$sparse_train_matrix,
-    data$outcome_index, data$sample_weight_index,
-    data$use_sample_weights,
+    data$train.matrix, data$sparse.train.matrix,
+    data$outcome.index, data$sample.weight.index,
+    data$use.sample.weights,
     as.numeric(tunable.params["mtry"]),
     num.trees,
     as.numeric(tunable.params["min.node.size"]),
@@ -239,13 +239,13 @@ predict.ll_regression_forest <- function(object, newdata = NULL,
     validate_newdata(newdata, X)
     data <- create_data_matrices(newdata)
     ret <- ll_regression_predict(
-      forest.short, train.data$train_matrix, train.data$sparse_train_matrix, train.data$outcome_index,
-      data$train_matrix, data$sparse_train_matrix,
+      forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+      data$train.matrix, data$sparse.train.matrix,
       ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
     )
   } else {
     ret <- ll_regression_predict_oob(
-      forest.short, train.data$train_matrix, train.data$sparse_train_matrix, train.data$outcome_index,
+      forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
       ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
     )
   }
