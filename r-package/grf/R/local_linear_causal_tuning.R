@@ -47,9 +47,6 @@ tune_ll_causal_forest <- function(forest,
 
   data <- create_data_matrices(X, Y.centered, W.centered)
 
-  outcome.index <- ncol(X) + 1
-  treatment.index <- ncol(X) + 2
-
   # Validate variables
   num.threads <- validate_num_threads(num.threads)
   linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
@@ -59,8 +56,8 @@ tune_ll_causal_forest <- function(forest,
   linear.correction.variables <- linear.correction.variables - 1
 
   # Find sequence of predictions by lambda
-  prediction.object <- ll_causal_predict_oob(forest.short, data$default, data$sparse, outcome.index,
-      treatment.index, lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, FALSE)
+  prediction.object <- ll_causal_predict_oob(forest.short, data$train.matrix, data$sparse.train.matrix,
+      data$outcome.index, data$treatment.index, lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, FALSE)
   predictions <- prediction.object$predictions
 
   errors <- apply(predictions, MARGIN = 2, FUN = function(row) {

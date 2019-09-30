@@ -146,12 +146,11 @@ regression_forest <- function(X, Y,
     )
   }
 
-  data <- create_data_matrices(X, Y, sample.weights = sample.weights)
-  outcome.index <- ncol(X) + 1
-  sample.weight.index <- ncol(X) + 2
+  data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
   forest <- regression_train(
-    data$default, data$sparse, outcome.index, sample.weight.index,
-    !is.null(sample.weights),
+    data$train.matrix, data$sparse.train.matrix,
+    data$outcome.index, data$sample.weight.index,
+    data$use.sample.weights,
     as.numeric(tunable.params["mtry"]),
     num.trees,
     as.numeric(tunable.params["min.node.size"]),
@@ -263,8 +262,7 @@ predict.regression_forest <- function(object, newdata = NULL,
 
   forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
-  train.data <- create_data_matrices(X, object[["Y.orig"]])
-  outcome.index <- ncol(X) + 1
+  train.data <- create_data_matrices(X, outcome = object[["Y.orig"]])
 
   if (local.linear) {
     linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
@@ -288,13 +286,13 @@ predict.regression_forest <- function(object, newdata = NULL,
     validate_newdata(newdata, X)
     if (!local.linear) {
       ret <- regression_predict(
-        forest.short, train.data$default, train.data$sparse, outcome.index,
-        data$default, data$sparse, num.threads, estimate.variance
+        forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+        data$train.matrix, data$sparse.train.matrix, num.threads, estimate.variance
       )
     } else {
       ret <- ll_regression_predict(
-        forest.short, train.data$default, train.data$sparse, outcome.index,
-        data$default, data$sparse, ll.lambda, ll.weight.penalty, linear.correction.variables,
+        forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+        data$train.matrix, data$sparse.train.matrix, ll.lambda, ll.weight.penalty, linear.correction.variables,
         num.threads, estimate.variance
       )
     }
@@ -302,12 +300,12 @@ predict.regression_forest <- function(object, newdata = NULL,
     data <- create_data_matrices(X)
     if (!local.linear) {
       ret <- regression_predict_oob(
-        forest.short, train.data$default, train.data$sparse, outcome.index,
+        forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
         num.threads, estimate.variance
       )
     } else {
       ret <- ll_regression_predict_oob(
-        forest.short, train.data$default, train.data$sparse, outcome.index,
+        forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
         ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
       )
     }

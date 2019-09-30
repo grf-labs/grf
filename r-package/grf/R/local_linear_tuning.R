@@ -36,8 +36,7 @@ tune_ll_regression_forest <- function(forest,
 
   X <- forest[["X.orig"]]
   Y <- forest[["Y.orig"]]
-  data <- create_data_matrices(X, Y)
-  outcome.index <- ncol(X) + 1
+  data <- create_data_matrices(X, outcome = Y)
 
   # Validate variables
   num.threads <- validate_num_threads(num.threads)
@@ -50,7 +49,7 @@ tune_ll_regression_forest <- function(forest,
   # Enforce no variance estimates in tuning
   estimate.variance <- FALSE
   prediction.object <- ll_regression_predict_oob(
-    forest.short, data$default, data$sparse, outcome.index,
+    forest.short, data$train.matrix, data$sparse.train.matrix, data$outcome.index,
     lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
   )
 

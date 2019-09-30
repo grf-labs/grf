@@ -154,16 +154,12 @@ instrumental_forest <- function(X, Y, W, Z,
     stop("Z.hat has incorrect length.")
   }
 
-  data <- create_data_matrices(X, Y - Y.hat, W - W.hat, Z - Z.hat, sample.weights = sample.weights)
-
-  outcome.index <- ncol(X) + 1
-  treatment.index <- ncol(X) + 2
-  instrument.index <- ncol(X) + 3
-  sample.weight.index <- ncol(X) + 4
-
+  data <- create_data_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
+                               instrument = Z - Z.hat, sample.weights = sample.weights)
   forest <- instrumental_train(
-    data$default, data$sparse,
-    outcome.index, treatment.index, instrument.index, sample.weight.index, !is.null(sample.weights),
+    data$train.matrix, data$sparse.train.matrix,
+    data$outcome.index, data$treatment.index, data$instrument.index, data$sample.weight.index,
+    data$use.sample.weights,
     mtry, num.trees, min.node.size, sample.fraction, honesty, honesty.fraction,
     honesty.prune.leaves, ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits, clusters,
     samples.per.cluster, compute.oob.predictions, num.threads, seed
@@ -224,24 +220,20 @@ predict.instrumental_forest <- function(object, newdata = NULL,
   W.centered <- object[["W.orig"]] - object[["W.hat"]]
   Z.centered <- object[["Z.orig"]] - object[["Z.hat"]]
 
-  train.data <- create_data_matrices(X, Y.centered, W.centered, Z.centered)
-
-  outcome.index <- ncol(X) + 1
-  treatment.index <- ncol(X) + 2
-  instrument.index <- ncol(X) + 3
+  train.data <- create_data_matrices(X, outcome = Y.centered, treatment = W.centered, instrument = Z.centered)
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig)
     data <- create_data_matrices(newdata)
     ret <- instrumental_predict(
-      forest.short, train.data$default, train.data$sparse,
-      outcome.index, treatment.index, instrument.index,
-      data$default, data$sparse, num.threads, estimate.variance
+      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+      train.data$outcome.index, train.data$treatment.index, train.data$instrument.index,
+      data$train.matrix, data$sparse.train.matrix, num.threads, estimate.variance
     )
   } else {
     ret <- instrumental_predict_oob(
-      forest.short, train.data$default, train.data$sparse,
-      outcome.index, treatment.index, instrument.index,
+      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+      train.data$outcome.index, train.data$treatment.index, train.data$instrument.index,
       num.threads, estimate.variance
     )
   }

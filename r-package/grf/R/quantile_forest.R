@@ -114,13 +114,11 @@ quantile_forest <- function(X, Y,
   honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
   honesty.prune.leaves <- validate_honesty_prune_leaves(honesty.prune.leaves)
 
-  data <- create_data_matrices(X, Y)
-  outcome.index <- ncol(X) + 1
-
+  data <- create_data_matrices(X, outcome = Y)
   ci.group.size <- 1
 
   forest <- quantile_train(
-    quantiles, regression.splitting, data$default, data$sparse, outcome.index, mtry,
+    quantiles, regression.splitting, data$train.matrix, data$sparse.train.matrix, data$outcome.index, mtry,
     num.trees, min.node.size, sample.fraction, honesty, honesty.fraction, honesty.prune.leaves,
     ci.group.size, alpha, imbalance.penalty, clusters, samples.per.cluster, num.threads, seed
   )
@@ -184,20 +182,19 @@ predict.quantile_forest <- function(object,
   forest.short <- object[-which(names(object) == "X.orig")]
 
   X <- object[["X.orig"]]
-  train.data <- create_data_matrices(X, object[["Y.orig"]])
-  outcome.index <- ncol(X) + 1
+  train.data <- create_data_matrices(X, outcome = object[["Y.orig"]])
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig)
     data <- create_data_matrices(newdata)
     quantile_predict(
-      forest.short, quantiles, train.data$default, train.data$sparse, outcome.index,
-      data$default, data$sparse, num.threads
+      forest.short, quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
+      train.data$outcome.index, data$train.matrix, data$sparse.train.matrix, num.threads
     )
   } else {
     quantile_predict_oob(
-      forest.short, quantiles, train.data$default, train.data$sparse,
-      outcome.index, num.threads
+      forest.short, quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
+      train.data$outcome.index, num.threads
     )
   }
 }

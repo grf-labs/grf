@@ -198,11 +198,11 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
   if (!is.null(newdata)) {
     data <- create_data_matrices(newdata)
     compute_weights(
-      forest.short, train.data$default, train.data$sparse,
-      data$default, data$sparse, num.threads
+      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+      data$train.matrix, data$sparse.train.matrix, num.threads
     )
   } else {
-    compute_weights_oob(forest.short, train.data$default, train.data$sparse, num.threads)
+    compute_weights_oob(forest.short, train.data$train.matrix, train.data$sparse.train.matrix, num.threads)
   }
 }
 

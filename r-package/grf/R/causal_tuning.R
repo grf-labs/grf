@@ -117,9 +117,6 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   reduced.form.weight <- 0
 
   data <- create_data_matrices(X, Y - Y.hat, W - W.hat, sample.weights = sample.weights)
-  outcome.index <- ncol(X) + 1
-  treatment.index <- ncol(X) + 2
-  sample.weight.index <- ncol(X) + 3
 
   # Separate out the tuning parameters with supplied values, and those that were
   # left as 'NULL'. We will only tune those parameters that the user didn't supply.
@@ -151,9 +148,9 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   small.forest.errors <- apply(fit.draws, 1, function(draw) {
     params <- c(fixed.params, get_params_from_draw(X, draw))
     small.forest <- causal_train(
-      data$default, data$sparse,
-      outcome.index, treatment.index, sample.weight.index,
-      !is.null(sample.weights),
+      data$train.matrix, data$sparse.train.matrix,
+      data$outcome.index, data$treatment.index, data$sample.weight.index,
+      data$use.sample.weights,
       as.numeric(params["mtry"]),
       num.fit.trees,
       as.numeric(params["min.node.size"]),
@@ -173,8 +170,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
       seed
     )
     prediction <- causal_predict_oob(
-      small.forest, data$default, data$sparse,
-      outcome.index, treatment.index, num.threads, FALSE
+      small.forest, data$train.matrix, data$sparse.train.matrix,
+      data$outcome.index, data$treatment.index, num.threads, FALSE
     )
     mean(prediction$debiased.error, na.rm = TRUE)
   })
@@ -239,9 +236,9 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   retrained.forest.params <- c(fixed.params, grid[small.forest.optimal.draw, -1])
   retrained.forest.num.trees <- num.fit.trees * 4
   retrained.forest <- causal_train(
-    data$default, data$sparse,
-    outcome.index, treatment.index, sample.weight.index,
-    !is.null(sample.weights),
+    data$train.matrix, data$sparse.train.matrix,
+    data$outcome.index, data$treatment.index, data$sample.weight.index,
+    data$use.sample.weights,
     retrained.forest.params["mtry"],
     retrained.forest.num.trees,
     retrained.forest.params["min.node.size"],
@@ -262,8 +259,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   )
 
   retrained.forest.prediction <- causal_predict_oob(
-    retrained.forest, data$default, data$sparse,
-    outcome.index, treatment.index, num.threads, FALSE
+    retrained.forest, data$train.matrix, data$sparse.train.matrix,
+    data$outcome.index, data$treatment.index, num.threads, FALSE
   )
 
   retrained.forest.error <- mean(retrained.forest.prediction$debiased.error, na.rm = TRUE)
@@ -274,9 +271,9 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   num.default.forest.trees <- num.fit.trees * 4
 
   default.forest <- causal_train(
-    data$default, data$sparse,
-    outcome.index, treatment.index, sample.weight.index,
-    !is.null(sample.weights),
+    data$train.matrix, data$sparse.train.matrix,
+    data$outcome.index, data$treatment.index, data$sample.weight.index,
+    data$use.sample.weights,
     default.params["mtry"],
     num.default.forest.trees,
     default.params["min.node.size"],
@@ -297,8 +294,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   )
 
   default.forest.prediction <- causal_predict_oob(
-    default.forest, data$default, data$sparse,
-    outcome.index, treatment.index, num.threads, FALSE
+    default.forest, data$train.matrix, data$sparse.train.matrix,
+    data$outcome.index, data$treatment.index, num.threads, FALSE
   )
 
   default.forest.error <- mean(default.forest.prediction$debiased.error, na.rm = TRUE)
