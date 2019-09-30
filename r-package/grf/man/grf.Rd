@@ -8,11 +8,11 @@ In addition, GRF supports 'honest' estimation (where one subset of the data is u
 
 Some helpful links for getting started:
 
-* The R package documentation contains usage examples and method reference (https://grf-labs.github.io/grf).
+* The R package documentation contains usage examples and method reference (\url{https://grf-labs.github.io/grf}).
 
-* The GRF reference gives a detailed description of the GRF algorithm and includes troubleshooting suggestions: (https://github.com/grf-labs/grf/blob/master/REFERENCE.md).
+* The GRF reference gives a detailed description of the GRF algorithm and includes troubleshooting suggestions (\url{https://grf-labs.github.io/grf/REFERENCE.html}).
 
-* For community questions and answers around usage, see Github issues labelled 'question' (https://github.com/grf-labs/grf/issues?q=label\%3Aquestion).
+* For community questions and answers around usage, see Github issues labelled 'question' (\url{https://github.com/grf-labs/grf/issues?q=label\%3Aquestion}).
 }
 
 \examples{
