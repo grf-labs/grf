@@ -131,7 +131,7 @@ validate_samples_per_cluster <- function(samples.per.cluster, clusters) {
   }
   cluster_size_counts <- table(clusters)
   min_size <- unname(cluster_size_counts[order(cluster_size_counts)][1])
-  if (is.null(samples.per.cluster)) {
+  if (samples.per.cluster == 0) {
     samples.per.cluster <- min_size
   } else if (samples.per.cluster <= 0) {
     stop("samples.per.cluster must be positive")
@@ -275,4 +275,9 @@ observation_weights <- function(forest) {
     observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]
   }
   observation.weight
+}
+
+do.call.grf = function(what, args, quote = FALSE, envir = parent.frame()) {
+  names(args) = gsub("\\.", "_", names(args))
+  do.call(what, args, quote, envir)
 }

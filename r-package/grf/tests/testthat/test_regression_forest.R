@@ -150,7 +150,7 @@ test_that("variance estimates are positive [with sample weights]", {
   e <- 1 / (1 + exp(-3 * X[, 1]))
   sample.weights <- 1 / e
 
-  forest.weighted <- regression_forest(X, Y, sample.weights)
+  forest.weighted <- regression_forest(X, Y, sample.weights = sample.weights)
   mu.forest <- predict(forest.weighted, X, estimate.variance = TRUE)
   expect_true(all(mu.forest$variance.estimates > 0))
 })
@@ -163,7 +163,7 @@ test_that("debiased errors are smaller than raw errors [with sample weights]", {
   e <- 1 / (1 + exp(-3 * X[, 1]))
   sample.weights <- 1 / e
 
-  forest <- regression_forest(X, Y, sample.weights)
+  forest <- regression_forest(X, Y, sample.weights = sample.weights)
   preds <- predict(forest)
   expect_true(all(preds$debiased.error^2 < preds$error^2))
 })
@@ -176,8 +176,8 @@ test_that("predictions are invariant to scaling of the sample weights.", {
   e <- 1 / (1 + exp(-3 * X[, 1]))
   sample.weights <- 1 / e
 
-  forest.1 <- regression_forest(X, Y, sample.weights)
-  forest.2 <- regression_forest(X, Y, 1e-6 * sample.weights)
+  forest.1 <- regression_forest(X, Y, sample.weights = sample.weights)
+  forest.2 <- regression_forest(X, Y, sample.weights = 1e-6 * sample.weights)
   expect_true(max(abs(forest.1$predictions - forest.2$predictions)) < .1)
   # forests are built with different random seeds, hence possibly poor agreement
 })
@@ -191,7 +191,7 @@ test_that("sample weighting in the training of a regression forest improves its 
   sample.weights <- 1 / e
 
   forest <- regression_forest(X, Y)
-  forest.weighted <- regression_forest(X, Y, sample.weights)
+  forest.weighted <- regression_forest(X, Y, sample.weights = sample.weights)
   weighted.mse.forest <- sum(sample.weights * (forest$predictions - Y)^2)
   weighted.mse.forest.weighted <- sum(sample.weights * (forest.weighted$predictions - Y)^2)
   expect_true(weighted.mse.forest.weighted < weighted.mse.forest)
@@ -208,7 +208,7 @@ test_that("inverse propensity weighting in the training of a regression forest w
   sample.weights <- 1 / e[w]
 
   forest <- regression_forest(X[w, ], Y[w])
-  forest.weighted <- regression_forest(X[w, ], Y[w], sample.weights)
+  forest.weighted <- regression_forest(X[w, ], Y[w], sample.weights = sample.weights)
   ipw.mse.forest <- sum((predict(forest, X) - Y)^2)
   ipw.mse.forest.weighted <- sum((predict(forest.weighted, X) - Y)^2)
   expect_true(ipw.mse.forest.weighted < ipw.mse.forest)
