@@ -18,6 +18,24 @@ test_that("causal forest tuning decreases prediction error", {
   expect_true(tuned.error < error * 0.75)
 })
 
+test_that("causal forest forest tuning tunes each parameter", {
+  p <- 4
+  n <- 100
+
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  W <- rbinom(n, 1, 0.5)
+  TAU <- 0.1 * (X[, 1] > 0)
+  Y <- TAU * (W - 1 / 2) + 2 * rnorm(n)
+  tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
+                    "honesty.prune.leaves", "alpha", "imbalance.penalty")
+  for (param in tunable.params) {
+    capture_output(tuned.forest <- causal_forest(X, Y, W, W.hat = 0, Y.hat = 0,
+                                                 num.trees = 100, tune.parameters = param,
+                                                 tune.num.trees = 10, tune.num.reps = 10))
+    expect_true(param == names(tuned.forest$tuning.output$params))
+  }
+})
+
 test_that("local linear causal forest tuning returns lambda and decreases error", {
   p <- 6
   n <- 1000

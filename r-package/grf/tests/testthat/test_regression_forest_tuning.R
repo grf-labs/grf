@@ -17,3 +17,17 @@ test_that("regression forest tuning decreases prediction error", {
 
   expect_true(tuned.error < error * 0.75)
 })
+
+test_that("regression forest tuning tunes each parameter", {
+  n <- 100
+  p <- 2
+
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  Y <- (X[, 1] > 0) + rnorm(n)
+  tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
+                    "honesty.prune.leaves", "alpha", "imbalance.penalty")
+  for (param in tunable.params) {
+    tuned.forest <- regression_forest(X, Y, num.trees = 100, tune.parameters = param)
+    expect_true(param == names(tuned.forest$tuning.output$params))
+  }
+})
