@@ -133,6 +133,7 @@ regression_forest <- function(X, Y,
               num.threads = num.threads,
               seed = seed)
 
+  tuning.output <- NULL
   if (tune.parameters[1L] != "none") {
     if (tune.parameters[1L] == "all") {
       tune.parameters <- all.tunable.params
@@ -160,9 +161,7 @@ regression_forest <- function(X, Y,
   forest[["sample.weights"]] <- sample.weights
   forest[["clusters"]] <- clusters
   forest[["tunable.params"]] <- args[all.tunable.params]
-  if (tune.parameters[1L] != "none") {
-    forest[["tuning.output"]] <- tuning.output
-  }
+  forest[["tuning.output"]] <- tuning.output
 
   forest
 }

@@ -233,6 +233,7 @@ causal_forest <- function(X, Y, W,
               seed = seed,
               reduced.form.weight = 0)
 
+  tuning.output <- NULL
   if (tune.parameters[1L] != "none") {
     if (tune.parameters[1L] == "all") {
       tune.parameters <- all.tunable.params
@@ -263,9 +264,7 @@ causal_forest <- function(X, Y, W,
   forest[["clusters"]] <- clusters
   forest[["sample.weights"]] <- sample.weights
   forest[["tunable.params"]] <- args[all.tunable.params]
-  if (tune.parameters[1L] != "none") {
-    forest[["tuning.output"]] <- tuning.output
-  }
+  forest[["tuning.output"]] <- tuning.output
 
   forest
 }
