@@ -277,6 +277,11 @@ observation_weights <- function(forest) {
   observation.weight
 }
 
+# Call the grf Rcpp bindings (argument_names) with R argument.names
+#
+# All the bindings argument names (C++) have underscores: sample_weights, train_matrix, etc.
+# On the R side each variable name is written as sample.weights, train.matrix, etc.
+# This function simply replaces the underscores in the passed argument names with dots.
 do.call.grf = function(what, args, quote = FALSE, envir = parent.frame()) {
   names(args) = gsub("\\.", "_", names(args))
   do.call(what, args, quote, envir)

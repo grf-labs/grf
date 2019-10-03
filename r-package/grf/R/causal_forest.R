@@ -168,8 +168,8 @@ causal_forest <- function(X, Y, W,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
 
-  tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
-                      "honesty.prune.leaves", "alpha", "imbalance.penalty")
+  all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
+                          "honesty.prune.leaves", "alpha", "imbalance.penalty")
 
   args.orthog <- list(X = X,
                      num.trees = max(50, num.trees / 4),
@@ -235,12 +235,12 @@ causal_forest <- function(X, Y, W,
 
   if (tune.parameters[1L] != "none") {
     if (tune.parameters[1L] == "all") {
-      tune.parameters <- tunable.params
-      if (!honesty) {
-        tune.parameters <- tune.parameters[!grepl("honesty", tune.parameters)]
-      }
+      tune.parameters <- all.tunable.params
     } else {
-      tune.parameters <- unique(match.arg(tune.parameters, tunable.params, several.ok = TRUE))
+      tune.parameters <- unique(match.arg(tune.parameters, all.tunable.params, several.ok = TRUE))
+    }
+    if (!honesty) {
+      tune.parameters <- tune.parameters[!grepl("honesty", tune.parameters)]
     }
     tuning.output <- tune_forest(X, data, args, tune.parameters,
                                 forest.type = "causal_forest",
@@ -262,8 +262,8 @@ causal_forest <- function(X, Y, W,
   forest[["W.hat"]] <- W.hat
   forest[["clusters"]] <- clusters
   forest[["sample.weights"]] <- sample.weights
-  forest[["tunable.params"]] <- args[tunable.params]
-  if (exists("tuning.output")) {
+  forest[["tunable.params"]] <- args[all.tunable.params]
+  if (tune.parameters[1L] != "none") {
     forest[["tuning.output"]] <- tuning.output
   }
 

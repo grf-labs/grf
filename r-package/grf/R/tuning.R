@@ -62,7 +62,7 @@ tune_forest <- function(X,
 
   if (any(is.na(small.forest.errors))) {
     warning(paste0(
-      "Could not tune causal forest because some small forest error estimates were NA.\n",
+      "Could not tune ", forest.type, " because some small forest error estimates were NA.\n",
       "Consider increasing tuning argument num.fit.trees."))
     out <- get_tuning_output(params = c(tune.parameters.defaults), status = "failure")
     return(out)
@@ -70,7 +70,7 @@ tune_forest <- function(X,
 
   if (sd(small.forest.errors) == 0 || sd(small.forest.errors) / mean(small.forest.errors) < 1e-10) {
     warning(paste0(
-      "Could not tune causal forest because small forest errors were nearly constant.\n",
+      "Could not tune ", forest.type, " because small forest errors were nearly constant.\n",
       "Consider increasing argument num.fit.trees."))
     out <- get_tuning_output(params = c(tune.parameters.defaults), status = "failure")
     return(out)
@@ -89,12 +89,12 @@ tune_forest <- function(X,
     model
   },
   error = function(e) {
-    warning(paste0("Dicekriging threw the following error during regression tuning: \n", e))
+    warning(paste0("Dicekriging threw the following error during ", forest.type, " tuning: \n", e))
     return(NULL)
   })
 
   if (is.null(kriging.model)) {
-    warning("Tuning was attempted but failed. Reverting to default parameters.")
+    warning(paste0(forest.type, " tuning was attempted but failed. Reverting to default parameters."))
     out <- get_tuning_output(params = c(tune.parameters.defaults), status = "failure")
     return(out)
   }

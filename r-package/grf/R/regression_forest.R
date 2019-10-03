@@ -115,8 +115,8 @@ regression_forest <- function(X, Y,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
 
-  tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
-                      "honesty.prune.leaves", "alpha", "imbalance.penalty")
+  all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
+                          "honesty.prune.leaves", "alpha", "imbalance.penalty")
 
   data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
   args <- list(clusters = clusters,
@@ -135,12 +135,12 @@ regression_forest <- function(X, Y,
 
   if (tune.parameters[1L] != "none") {
     if (tune.parameters[1L] == "all") {
-      tune.parameters <- tunable.params
-      if (!honesty) {
-        tune.parameters <- tune.parameters[!grepl("honesty", tune.parameters)]
-      }
+      tune.parameters <- all.tunable.params
     } else {
-      tune.parameters <- unique(match.arg(tune.parameters, tunable.params, several.ok = TRUE))
+      tune.parameters <- unique(match.arg(tune.parameters, all.tunable.params, several.ok = TRUE))
+    }
+    if (!honesty) {
+      tune.parameters <- tune.parameters[!grepl("honesty", tune.parameters)]
     }
     tuning.output <- tune_forest(X, data, args, tune.parameters,
                                 forest.type = "regression_forest",
@@ -159,8 +159,8 @@ regression_forest <- function(X, Y,
   forest[["Y.orig"]] <- Y
   forest[["sample.weights"]] <- sample.weights
   forest[["clusters"]] <- clusters
-  forest[["tunable.params"]] <- args[tunable.params]
-  if (exists("tuning.output")) {
+  forest[["tunable.params"]] <- args[all.tunable.params]
+  if (tune.parameters[1L] != "none") {
     forest[["tuning.output"]] <- tuning.output
   }
 
