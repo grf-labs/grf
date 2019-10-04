@@ -72,16 +72,16 @@ custom_forest <- function(X, Y,
                           honesty.prune.leaves = TRUE,
                           alpha = 0.05,
                           imbalance.penalty = 0.0,
-                          clusters = numeric(),
-                          samples.per.cluster = 0,
+                          clusters = NULL,
+                          samples.per.cluster = NULL,
                           compute.oob.predictions = TRUE,
-                          num.threads = 0,
+                          num.threads = NULL,
                           seed = runif(1, 0, .Machine$integer.max)) {
   validate_X(X)
   Y <- validate_observations(Y, X)
-
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  num.threads <- validate_num_threads(num.threads)
 
   no.split.variables <- numeric(0)
 

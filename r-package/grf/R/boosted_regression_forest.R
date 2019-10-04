@@ -91,8 +91,8 @@
 boosted_regression_forest <- function(X, Y,
                                       num.trees = 2000,
                                       sample.weights = NULL,
-                                      clusters = numeric(),
-                                      samples.per.cluster = 0,
+                                      clusters = NULL,
+                                      samples.per.cluster = NULL,
                                       sample.fraction = 0.5,
                                       mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                                       min.node.size = 5,
@@ -110,7 +110,7 @@ boosted_regression_forest <- function(X, Y,
                                       boost.error.reduction = 0.97,
                                       boost.max.steps = 5,
                                       boost.trees.tune = 10,
-                                      num.threads = 0,
+                                      num.threads = NULL,
                                       seed = runif(1, 0, .Machine$integer.max)) {
   boost.error.reduction <- validate_boost_error_reduction(boost.error.reduction)
   boosted.forest <- NULL

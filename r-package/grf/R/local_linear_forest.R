@@ -68,8 +68,8 @@
 #' @export
 ll_regression_forest <- function(X, Y,
                                  num.trees = 2000,
-                                 clusters = numeric(),
-                                 samples.per.cluster = 0,
+                                 clusters = NULL,
+                                 samples.per.cluster = NULL,
                                  sample.fraction = 0.5,
                                  mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                                  min.node.size = 5,
@@ -83,7 +83,7 @@ ll_regression_forest <- function(X, Y,
                                  tune.num.trees = 10,
                                  tune.num.reps = 100,
                                  tune.num.draws = 1000,
-                                 num.threads = 0,
+                                 num.threads = NULL,
                                  seed = runif(1, 0, .Machine$integer.max)) {
 
   forest <- regression_forest(X, Y,

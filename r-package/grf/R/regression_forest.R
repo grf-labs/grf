@@ -55,7 +55,7 @@
 #' @param tune.num.draws The number of random parameter values considered when using the model
 #'                          to select the optimal parameters. Default is 1000.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
-#' @param num.threads Number of threads used in training. By default (0), the number of threads is set
+#' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
 #'
@@ -91,8 +91,8 @@
 regression_forest <- function(X, Y,
                               num.trees = 2000,
                               sample.weights = NULL,
-                              clusters = numeric(),
-                              samples.per.cluster = 0,
+                              clusters = NULL,
+                              samples.per.cluster = NULL,
                               sample.fraction = 0.5,
                               mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                               min.node.size = 5,
@@ -107,13 +107,14 @@ regression_forest <- function(X, Y,
                               tune.num.reps = 100,
                               tune.num.draws = 1000,
                               compute.oob.predictions = TRUE,
-                              num.threads = 0,
+                              num.threads = NULL,
                               seed = runif(1, 0, .Machine$integer.max)) {
   validate_X(X)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  num.threads <- validate_num_threads(num.threads)
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
                           "honesty.prune.leaves", "alpha", "imbalance.penalty")

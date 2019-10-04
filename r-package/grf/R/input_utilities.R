@@ -77,7 +77,7 @@ validate_samples_per_cluster <- function(samples.per.cluster, clusters) {
   }
   cluster_size_counts <- table(clusters)
   min_size <- unname(cluster_size_counts[order(cluster_size_counts)][1])
-  if (samples.per.cluster == 0) {
+  if (is.null(samples.per.cluster)) {
     samples.per.cluster <- min_size
   } else if (samples.per.cluster <= 0) {
     stop("samples.per.cluster must be positive")
