@@ -104,7 +104,6 @@ quantile_forest <- function(X, Y,
   validate_X(X)
   Y <- validate_observations(Y, X)
 
-  seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
 
