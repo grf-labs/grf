@@ -252,7 +252,7 @@ causal_forest <- function(X, Y, W,
 
   args[["num.trees"]] <- num.trees
   args[["compute.oob.predictions"]] <- compute.oob.predictions
-  forest <- do.call.grf(causal_train, c(data, args))
+  forest <- do.call.rcpp(causal_train, c(data, args))
 
   class(forest) <- c("causal_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
