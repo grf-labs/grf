@@ -25,12 +25,12 @@ tune_forest <- function(X,
   forest.type <- match.arg(forest.type)
 
   if (forest.type == "regression_forest") {
-    fit <- regression_train
+    train <- regression_train
     predict_oob <- regression_predict_oob
     predict.data.args <- c("train.matrix", "sparse.train.matrix", "outcome.index")
     defaults <- formals(regression_forest)
   } else if (forest.type == "causal_forest") {
-    fit <- causal_train
+    train <- causal_train
     predict_oob <- causal_predict_oob
     predict.data.args <- c("train.matrix", "sparse.train.matrix", "outcome.index", "treatment.index")
     defaults <- formals(causal_forest)
@@ -53,7 +53,7 @@ tune_forest <- function(X,
 
   small.forest.errors <- apply(fit.draws, 1, function(draw) {
     draw.parameters <- get_params_from_draw(nrow.X, ncol.X, draw)
-    small.forest <- do.call.rcpp(fit, c(data, fit.parameters, draw.parameters))
+    small.forest <- do.call.rcpp(train, c(data, fit.parameters, draw.parameters))
     prediction <- do.call.rcpp(predict_oob, c(list(forest_object = small.forest), predict_oob.args))
     error <- prediction$debiased.error
 
@@ -112,13 +112,13 @@ tune_forest <- function(X,
   # at the value chosen by the method above
   fit.parameters[["num.trees"]] <- num.fit.trees * 4
   retrained.forest.params <- grid[small.forest.optimal.draw, -1]
-  retrained.forest <- do.call.rcpp(fit, c(data, fit.parameters, retrained.forest.params))
+  retrained.forest <- do.call.rcpp(train, c(data, fit.parameters, retrained.forest.params))
   retrained.forest.prediction <- do.call.rcpp(predict_oob, c(list(forest_object = retrained.forest), predict_oob.args))
   retrained.forest.error <- mean(retrained.forest.prediction$debiased.error, na.rm = TRUE)
 
   # 4. Train a forest with default parameters, and check its predicted error.
   # This improves our chances of not doing worse than default
-  default.forest <- do.call.rcpp(fit, c(data, fit.parameters, tune.parameters.defaults))
+  default.forest <- do.call.rcpp(train, c(data, fit.parameters, tune.parameters.defaults))
   default.forest.prediction <- do.call.rcpp(predict_oob, c(list(forest_object = default.forest), predict_oob.args))
   default.forest.error <- mean(default.forest.prediction$debiased.error, na.rm = TRUE)
 
