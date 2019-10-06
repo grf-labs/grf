@@ -39,6 +39,9 @@
 #'  Only applies if honesty is enabled. Default is TRUE.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
+#' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
+#'                      In order to provide confidence intervals, ci.group.size must
+#'                      be at least 2. Default is 2.
 #' @param tune.parameters A vector of parameter names to tune.
 #'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
 #'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
@@ -88,6 +91,7 @@ tune_regression_forest <- function(X, Y,
                                   honesty.prune.leaves = TRUE,
                                   alpha = 0.05,
                                   imbalance.penalty = 0,
+                                  ci.group.size = 2,
                                   tune.parameters = "none",
                                   tune.num.trees = 50,
                                   tune.num.reps = 100,
@@ -125,6 +129,7 @@ tune_regression_forest <- function(X, Y,
                honesty.prune.leaves = honesty.prune.leaves,
                alpha = alpha,
                imbalance.penalty = imbalance.penalty,
+               ci.group.size = ci.group.size,
                num.threads = num.threads,
                seed = seed)
 

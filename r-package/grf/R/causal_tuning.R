@@ -44,6 +44,9 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
 #'                         determining the imbalance of a split. Default is TRUE.
+#' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
+#'                      In order to provide confidence intervals, ci.group.size must
+#'                      be at least 2. Default is 2.
 #' @param tune.parameters A vector of parameter names to tune.
 #'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
 #'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
@@ -97,6 +100,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                               alpha = 0.05,
                               imbalance.penalty = 0,
                               stabilize.splits = TRUE,
+                              ci.group.size = 2,
                               tune.parameters = "none",
                               tune.num.trees = 50,
                               tune.num.reps = 100,
@@ -139,6 +143,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                alpha = alpha,
                stabilize.splits = stabilize.splits,
                imbalance.penalty = imbalance.penalty,
+               ci.group.size = ci.group.size,
                num.threads = num.threads,
                seed = seed,
                reduced.form.weight = 0)
