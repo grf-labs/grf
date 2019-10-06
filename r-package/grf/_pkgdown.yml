@@ -26,6 +26,7 @@ reference:
   - title: Regression forest
     contents:
       - regression_forest
+      - tune_regression_forest
       - predict.regression_forest
 
   - title: Quantile forest
@@ -36,6 +37,7 @@ reference:
   - title: Causal forest
     contents:
       - causal_forest
+      - tune_causal_forest
       - tune_ll_causal_forest
       - predict.causal_forest
 
