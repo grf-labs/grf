@@ -218,43 +218,49 @@ causal_forest <- function(X, Y, W,
   W.centered <- W - W.hat
   data <- create_data_matrices(X, outcome = Y.centered, treatment = W.centered,
                               sample.weights = sample.weights)
-  args <- list(clusters = clusters,
-              samples.per.cluster = samples.per.cluster,
-              sample.fraction = sample.fraction,
-              mtry = mtry,
-              min.node.size = min.node.size,
-              honesty = honesty,
-              honesty.fraction = honesty.fraction,
-              honesty.prune.leaves = honesty.prune.leaves,
-              alpha = alpha,
-              imbalance.penalty = imbalance.penalty,
-              stabilize.splits = stabilize.splits,
-              ci.group.size = ci.group.size,
-              num.threads = num.threads,
-              seed = seed,
-              reduced.form.weight = 0)
+  args <- list(num.trees = num.trees,
+               clusters = clusters,
+               samples.per.cluster = samples.per.cluster,
+               sample.fraction = sample.fraction,
+               mtry = mtry,
+               min.node.size = min.node.size,
+               honesty = honesty,
+               honesty.fraction = honesty.fraction,
+               honesty.prune.leaves = honesty.prune.leaves,
+               alpha = alpha,
+               imbalance.penalty = imbalance.penalty,
+               stabilize.splits = stabilize.splits,
+               ci.group.size = ci.group.size,
+               compute.oob.predictions = compute.oob.predictions,
+               num.threads = num.threads,
+               seed = seed,
+               reduced.form.weight = 0)
 
   tuning.output <- NULL
-  if (!identical(tune.parameters, "none")) {
-    if (identical(tune.parameters, "all")) {
-      tune.parameters <- all.tunable.params
-    } else {
-      tune.parameters <- unique(match.arg(tune.parameters, all.tunable.params, several.ok = TRUE))
-    }
-    if (!honesty) {
-      tune.parameters <- tune.parameters[!grepl("honesty", tune.parameters)]
-    }
-    tuning.output <- tune_forest(X, data, args, tune.parameters,
-                                forest.type = "causal_forest",
-                                tune.num.trees, tune.num.reps, tune.num.draws)
-
+  if (!identical(tune.parameters, "none")){
+    tuning.output <- tune_causal_forest(X, Y, W, Y.hat, W.hat,
+                                        sample.weights = sample.weights,
+                                        clusters = clusters,
+                                        samples.per.cluster = samples.per.cluster,
+                                        sample.fraction = sample.fraction,
+                                        mtry = mtry,
+                                        min.node.size = min.node.size,
+                                        honesty = honesty,
+                                        honesty.fraction = honesty.fraction,
+                                        honesty.prune.leaves = honesty.prune.leaves,
+                                        alpha = alpha,
+                                        imbalance.penalty = imbalance.penalty,
+                                        stabilize.splits = stabilize.splits,
+                                        tune.parameters = tune.parameters,
+                                        tune.num.trees = tune.num.trees,
+                                        tune.num.reps = tune.num.reps,
+                                        tune.num.draws = tune.num.draws,
+                                        num.threads = num.threads,
+                                        seed = seed)
     args <- modifyList(args, as.list(tuning.output[["params"]]))
   }
 
-  args[["num.trees"]] <- num.trees
-  args[["compute.oob.predictions"]] <- compute.oob.predictions
   forest <- do.call.rcpp(causal_train, c(data, args))
-
   class(forest) <- c("causal_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X

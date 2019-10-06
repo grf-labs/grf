@@ -1,50 +1,43 @@
 #' Tune a forests
 #'
-#' Finds the optimal parameters to be used in training a regression or causal forest.
+#' Finds the optimal parameters to be used in training a forest.
 #'
 #' @param data The data arguments (output from create_data_matrices) for the forest.
+#' @param nrow.X The number of observations.
+#' @param ncol.X The number of variables.
 #' @param args The remaining call arguments for the forest.
 #' @param tune.parameters The vector of parameter names to tune.
-#' @param forest.type forest.type The type of forest to tune.
+#' @param tune.parameters.defaults The grf default values for the vector of parameter names to tune.
 #' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'  to select the optimal parameters.
+#' @param train The grf forest training function.
+#' @param predict_oob The grf forest oob prediction function.
+#' @param predict.data.args The names of the arguments in data passed to predict_oob.
 #'
 #' @return tuning output
+#'
+#' @export
 #' @importFrom stats sd runif
 #' @importFrom utils capture.output
-tune_forest <- function(X,
-                        data,
+tune_forest <- function(data,
+                        nrow.X,
+                        ncol.X,
                         args,
                         tune.parameters,
-                        forest.type = c("regression_forest", "causal_forest"),
-                        num.fit.trees = 10,
-                        num.fit.reps = 100,
-                        num.optimize.reps = 1000) {
-  forest.type <- match.arg(forest.type)
-
-  if (forest.type == "regression_forest") {
-    train <- regression_train
-    predict_oob <- regression_predict_oob
-    predict.data.args <- c("train.matrix", "sparse.train.matrix", "outcome.index")
-    defaults <- formals(regression_forest)
-  } else if (forest.type == "causal_forest") {
-    train <- causal_train
-    predict_oob <- causal_predict_oob
-    predict.data.args <- c("train.matrix", "sparse.train.matrix", "outcome.index", "treatment.index")
-    defaults <- formals(causal_forest)
-  }
+                        tune.parameters.defaults,
+                        num.fit.trees,
+                        num.fit.reps,
+                        num.optimize.reps,
+                        train,
+                        predict_oob,
+                        predict.data.args) {
   predict_oob.args <- c(data[predict.data.args], num.threads = args[["num.threads"]], estimate.variance = FALSE)
-  tune.parameters.defaults <- defaults[names(defaults) %in% tune.parameters]
   fit.parameters <- args[!names(args) %in% tune.parameters]
-
   fit.parameters[["num.trees"]] <- num.fit.trees
   fit.parameters[["ci.group.size"]] <- 1
   fit.parameters[["compute.oob.predictions"]] <- TRUE
-
-  nrow.X <- nrow(X)
-  ncol.X <- ncol(X)
 
   # 1. Train several mini-forests, and gather their debiased OOB error estimates.
   num.params <- length(tune.parameters)
@@ -62,7 +55,7 @@ tune_forest <- function(X,
 
   if (any(is.na(small.forest.errors))) {
     warning(paste0(
-      "Could not tune ", forest.type, " because some small forest error estimates were NA.\n",
+      "Could not tune forest because some small forest error estimates were NA.\n",
       "Consider increasing tuning argument num.fit.trees."))
     out <- get_tuning_output(params = c(tune.parameters.defaults), status = "failure")
     return(out)
@@ -70,7 +63,7 @@ tune_forest <- function(X,
 
   if (sd(small.forest.errors) == 0 || sd(small.forest.errors) / mean(small.forest.errors) < 1e-10) {
     warning(paste0(
-      "Could not tune ", forest.type, " because small forest errors were nearly constant.\n",
+      "Could not tune forest because small forest errors were nearly constant.\n",
       "Consider increasing argument num.fit.trees."))
     out <- get_tuning_output(params = c(tune.parameters.defaults), status = "failure")
     return(out)
@@ -89,12 +82,12 @@ tune_forest <- function(X,
     model
   },
   error = function(e) {
-    warning(paste0("Dicekriging threw the following error during ", forest.type, " tuning: \n", e))
+    warning(paste0("Dicekriging threw the following error during forest tuning: \n", e))
     return(NULL)
   })
 
   if (is.null(kriging.model)) {
-    warning(paste0(forest.type, " tuning was attempted but failed. Reverting to default parameters."))
+    warning(paste0("Forest tuning was attempted but failed. Reverting to default parameters."))
     out <- get_tuning_output(params = c(tune.parameters.defaults), status = "failure")
     return(out)
   }
