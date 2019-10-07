@@ -65,7 +65,7 @@
 #' @examples
 #' \dontrun{
 #' # Train a standard regression forest.
-#' n <- 50
+#' n <- 500
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)
 #' Y <- X[, 1] * rnorm(n)
@@ -150,7 +150,7 @@ regression_forest <- function(X, Y,
                                             honesty.prune.leaves = honesty.prune.leaves,
                                             alpha = alpha,
                                             imbalance.penalty = imbalance.penalty,
-                                            ci.group.size,
+                                            ci.group.size = ci.group.size,
                                             tune.parameters = tune.parameters,
                                             tune.num.trees = tune.num.trees,
                                             tune.num.reps = tune.num.reps,

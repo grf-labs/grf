@@ -85,7 +85,7 @@
 #' @examples
 #' \dontrun{
 #' # Train a causal forest.
-#' n <- 50
+#' n <- 500
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)

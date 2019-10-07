@@ -46,7 +46,7 @@
 #'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
 #'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
 #'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is false these parameters are not tuned.
-#'  Default is "none" (no parameters are tuned).
+#'  Default is "all".
 #' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 50.
 #' @param tune.num.reps The number of forests used to fit the tuning model. Default is 100.
 #' @param tune.num.draws The number of random parameter values considered when using the model
@@ -92,7 +92,7 @@ tune_regression_forest <- function(X, Y,
                                   alpha = 0.05,
                                   imbalance.penalty = 0,
                                   ci.group.size = 2,
-                                  tune.parameters = "none",
+                                  tune.parameters = "all",
                                   tune.num.trees = 50,
                                   tune.num.reps = 100,
                                   tune.num.draws = 1000,

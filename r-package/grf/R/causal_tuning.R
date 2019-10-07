@@ -51,7 +51,7 @@
 #'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
 #'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
 #'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is false these parameters are not tuned.
-#'  Default is "none" (no parameters are tuned).
+#'  Default is "all".
 #' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 50.
 #' @param tune.num.reps The number of forests used to fit the tuning model. Default is 100.
 #' @param tune.num.draws The number of random parameter values considered when using the model
@@ -66,7 +66,7 @@
 #' @examples
 #' \dontrun{
 #' # Find the optimal tuning parameters.
-#' n <- 50
+#' n <- 500
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
@@ -101,7 +101,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                               imbalance.penalty = 0,
                               stabilize.splits = TRUE,
                               ci.group.size = 2,
-                              tune.parameters = "none",
+                              tune.parameters = "all",
                               tune.num.trees = 50,
                               tune.num.reps = 100,
                               tune.num.draws = 1000,
