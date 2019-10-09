@@ -16,6 +16,7 @@
  #-------------------------------------------------------------------------------*/
 #include <thread>
 #include <random>
+#include <stdexcept>
 #include "forest/ForestOptions.h"
 #include "tree/TreeOptions.h"
 
