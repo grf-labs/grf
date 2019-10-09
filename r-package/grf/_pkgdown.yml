@@ -6,7 +6,7 @@ navbar:
     href: articles/grf.html
   - text: "Reference"
     href: reference/index.html
-  - text: "Articles"
+  - text: "Examples"
     menu:
       - text: "Confidence intervals and the number of trees"
         href: articles/ci_and_num.trees.html
