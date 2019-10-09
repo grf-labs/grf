@@ -10,6 +10,8 @@ navbar:
     menu:
       - text: "Confidence intervals and the number of trees"
         href: articles/ci_and_num.trees.html
+      - text: "Sample weighting"
+        href: articles/sample_weighting_examples.html
   - text: "Algorithm reference"
     href: REFERENCE.html
   - text: "Developing"
