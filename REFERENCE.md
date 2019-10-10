@@ -332,4 +332,4 @@ Robinson, Peter M. Root-n-consistent semiparametric regression. *Econometrica*, 
 
 Van Der Laan, Mark J., and Daniel Rubin. Targeted maximum likelihood learning. *The International Journal of Biostatistics*, 2006.
 
-Wager, S., & Athey, S. (2018). Estimation and inference of heterogeneous treatment effects using random forests. *Journal of the American Statistical Association*, 2018.
+Wager, S., and Athey, S. Estimation and inference of heterogeneous treatment effects using random forests. *Journal of the American Statistical Association*, 2018.
