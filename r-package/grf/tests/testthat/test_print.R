@@ -40,7 +40,7 @@ test_that("tuning output printing is successful", {
   X <- matrix(runif(n * p), n, p)
   Y <- runif(n)
   W <- rbinom(n, 1, 0.5)
-  tuned.forest <- causal_forest(X, Y, W, num.trees = 100, tune.parameters = TRUE)
+  tuned.forest <- causal_forest(X, Y, W, num.trees = 100, tune.parameters = "all")
   capture_output(print(tuned.forest$tuning.output))
   expect_true(TRUE)
 })

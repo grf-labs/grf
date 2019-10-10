@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iterator>
+#include <stdexcept>
 #include <sstream>
 
 #include "Data.h"
