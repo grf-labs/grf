@@ -314,7 +314,7 @@ Also, please note that we have not done extensive testing on Windows platforms, 
 
 ## References
 
-Athey, Susan, Julie Tibshirani, and Stefan Wager. Generalized Random Forests. *Annals of Statistics (forthcoming)*, 2018.
+Susan Athey, Julie Tibshirani and Stefan Wager. Generalized Random Forests, *Annals of Statistics*, 2019. ([arxiv](https://arxiv.org/abs/1610.01271))
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. Double/debiased machine learning for treatment and structural parameters. *The Econometrics Journal*, 2018.
 
@@ -332,4 +332,4 @@ Robinson, Peter M. Root-n-consistent semiparametric regression. *Econometrica*, 
 
 Van Der Laan, Mark J., and Daniel Rubin. Targeted maximum likelihood learning. *The International Journal of Biostatistics*, 2006.
 
-Wager, Stefan, and Susan Athey. Estimation and Inference of Heterogeneous Treatment Effects using Random Forests. *Journal of the American Statistical Association (forthcoming)*, 2018.
+Wager, S., & Athey, S. (2018). Estimation and inference of heterogeneous treatment effects using random forests. *Journal of the American Statistical Association*, 2018.
