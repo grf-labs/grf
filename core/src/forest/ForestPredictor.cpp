@@ -15,6 +15,8 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
+#include <stdexcept>
+
 #include "forest/ForestPredictor.h"
 #include "prediction/collector/OptimizedPredictionCollector.h"
 #include "prediction/collector/DefaultPredictionCollector.h"
