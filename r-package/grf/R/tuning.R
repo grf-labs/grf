@@ -18,7 +18,6 @@
 #'
 #' @return tuning output
 #'
-#' @export
 #' @importFrom stats sd runif
 #' @importFrom utils capture.output
 tune_forest <- function(data,
