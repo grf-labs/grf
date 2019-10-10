@@ -2,7 +2,7 @@
 title: "Categorical inputs"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{ci_and_num.trees}
+  %\VignetteIndexEntry{categorical_inputs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

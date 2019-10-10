@@ -10,6 +10,8 @@ navbar:
     menu:
       - text: "Confidence intervals and the number of trees"
         href: articles/ci_and_num.trees.html
+      - text: "Categorical inputs"
+        href: articles/categorical_inputs.html
   - text: "Algorithm reference"
     href: REFERENCE.html
   - text: "Developing"
