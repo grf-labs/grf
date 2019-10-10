@@ -71,7 +71,7 @@ make_causal_forest <- function(stabilize.splits, min.node.size,
 
 res.untuned.unstab <- sapply(1:5, function(setup) {
   evaluate_method(function(X, Y, W) {
-    cf <- causal_forest(X, Y, W, tune.parameters = FALSE, stabilize.splits = FALSE)
+    cf <- causal_forest(X, Y, W, tune.parameters = "none", stabilize.splits = FALSE)
     cf.pred <- predict(cf)
     cf.pred$predictions
   }, setup)
@@ -80,7 +80,7 @@ res.untuned.unstab
 
 res.tuned.unstab <- sapply(1:5, function(setup) {
   evaluate_method(function(X, Y, W) {
-    cf <- causal_forest(X, Y, W, tune.parameters = TRUE, stabilize.splits = FALSE)
+    cf <- causal_forest(X, Y, W, tune.parameters = "all", stabilize.splits = FALSE)
     cf.pred <- predict(cf)
     cf.pred$predictions
   }, setup)
@@ -89,7 +89,7 @@ res.tuned.unstab
 
 res.untuned.stab <- sapply(1:5, function(setup) {
   evaluate_method(function(X, Y, W) {
-    cf <- causal_forest(X, Y, W, min.node.size = 5, tune.parameters = FALSE, stabilize.splits = TRUE)
+    cf <- causal_forest(X, Y, W, min.node.size = 5, tune.parameters = "none", stabilize.splits = TRUE)
     cf.pred <- predict(cf)
     cf.pred$predictions
   }, setup)
@@ -98,7 +98,7 @@ res.untuned.stab
 
 res.tuned.stab <- sapply(1:5, function(setup) {
   evaluate_method(function(X, Y, W) {
-    cf <- causal_forest(X, Y, W, tune.parameters = TRUE, stabilize.splits = TRUE)
+    cf <- causal_forest(X, Y, W, tune.parameters = "all", stabilize.splits = TRUE)
     cf.pred <- predict(cf)
     cf.pred$predictions
   }, setup)

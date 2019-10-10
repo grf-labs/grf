@@ -64,31 +64,24 @@
 #' @export
 custom_forest <- function(X, Y,
                           sample.fraction = 0.5,
-                          mtry = NULL,
+                          mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                           num.trees = 2000,
-                          min.node.size = NULL,
+                          min.node.size = 5,
                           honesty = TRUE,
-                          honesty.fraction = NULL,
-                          honesty.prune.leaves = NULL,
+                          honesty.fraction = 0.5,
+                          honesty.prune.leaves = TRUE,
                           alpha = 0.05,
                           imbalance.penalty = 0.0,
                           clusters = NULL,
                           samples.per.cluster = NULL,
                           compute.oob.predictions = TRUE,
                           num.threads = NULL,
-                          seed = NULL) {
+                          seed = runif(1, 0, .Machine$integer.max)) {
   validate_X(X)
   Y <- validate_observations(Y, X)
-
-  mtry <- validate_mtry(mtry, X)
-  num.threads <- validate_num_threads(num.threads)
-  min.node.size <- validate_min_node_size(min.node.size)
-  sample.fraction <- validate_sample_fraction(sample.fraction)
-  seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
-  honesty.fraction <- validate_honesty_fraction(honesty.fraction, honesty)
-  honesty.prune.leaves <- validate_honesty_prune_leaves(honesty.prune.leaves)
+  num.threads <- validate_num_threads(num.threads)
 
   no.split.variables <- numeric(0)
 
