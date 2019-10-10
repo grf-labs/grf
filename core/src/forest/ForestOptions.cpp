@@ -14,9 +14,11 @@
   You should have received a copy of the GNU General Public License
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
+ 
 #include <thread>
 #include <random>
 #include <stdexcept>
+
 #include "forest/ForestOptions.h"
 #include "tree/TreeOptions.h"
 
