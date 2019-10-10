@@ -5,16 +5,26 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param num.trees Number of trees grown in the forest. Note: Getting accurate
+#'                  confidence intervals generally requires more trees than
+#'                  getting accurate predictions. Default is 2000.
 #' @param sample.weights (experimental) Weights given to an observation in estimation.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
+#' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#'                 Default is NULL (ignored).
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
+#'                            the whole cluster is used every time the cluster is drawn. Note that
+#'                            clusters with less than samples.per.cluster observations get relatively
+#'                            smaller weight than others in training the forest, i.e., the contribution
+#'                            of a given cluster to the final forest scales with the minimum of
+#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction. Default is 0.5.
 #' @param mtry Number of variables tried for each split. Default is
 #'             \eqn{\sqrt p + 20} where p is the number of variables.
-#' @param num.trees Number of trees grown in the forest. Note: Getting accurate
-#'                  confidence intervals generally requires more trees than
-#'                  getting accurate predictions. Default is 2000.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
 #'                      Default is 5.
@@ -30,26 +40,19 @@
 #'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
 #'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
 #'  Only applies if honesty is enabled. Default is TRUE.
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
+#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 2.
-#' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
-#' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
-#' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#'                 Default is NULL (ignored).
-#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
-#'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples.per.cluster observations get relatively
-#'                            smaller weight than others in training the forest, i.e., the contribution
-#'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
-#' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if false
-#'                        NULL parameters are set to defaults. Default is FALSE.
-#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 50.
-#' @param num.fit.reps The number of forests used to fit the tuning model. Default is 100.
-#' @param num.optimize.reps The number of random parameter values considered when using the model
+#' @param tune.parameters A vector of parameter names to tune.
+#'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
+#'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
+#'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is false these parameters are not tuned.
+#'  Default is "none" (no parameters are tuned).
+#' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 50.
+#' @param tune.num.reps The number of forests used to fit the tuning model. Default is 100.
+#' @param tune.num.draws The number of random parameter values considered when using the model
 #'                          to select the optimal parameters. Default is 1000.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
@@ -62,7 +65,7 @@
 #' @examples
 #' \dontrun{
 #' # Train a standard regression forest.
-#' n <- 50
+#' n <- 500
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)
 #' Y <- X[, 1] * rnorm(n)
@@ -84,100 +87,89 @@
 #' @export
 #' @useDynLib grf
 #' @importFrom Rcpp evalCpp
+#' @importFrom utils modifyList
 regression_forest <- function(X, Y,
-                              sample.weights = NULL,
-                              sample.fraction = 0.5,
-                              mtry = NULL,
                               num.trees = 2000,
-                              min.node.size = NULL,
-                              honesty = TRUE,
-                              honesty.fraction = NULL,
-                              honesty.prune.leaves = NULL,
-                              ci.group.size = 2,
-                              alpha = NULL,
-                              imbalance.penalty = NULL,
+                              sample.weights = NULL,
                               clusters = NULL,
                               samples.per.cluster = NULL,
-                              tune.parameters = FALSE,
-                              num.fit.trees = 50,
-                              num.fit.reps = 100,
-                              num.optimize.reps = 1000,
+                              sample.fraction = 0.5,
+                              mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
+                              min.node.size = 5,
+                              honesty = TRUE,
+                              honesty.fraction = 0.5,
+                              honesty.prune.leaves = TRUE,
+                              alpha = 0.05,
+                              imbalance.penalty = 0,
+                              ci.group.size = 2,
+                              tune.parameters = "none",
+                              tune.num.trees = 50,
+                              tune.num.reps = 100,
+                              tune.num.draws = 1000,
                               compute.oob.predictions = TRUE,
                               num.threads = NULL,
-                              seed = NULL) {
+                              seed = runif(1, 0, .Machine$integer.max)) {
   validate_X(X)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
-
-  num.threads <- validate_num_threads(num.threads)
-  seed <- validate_seed(seed)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  num.threads <- validate_num_threads(num.threads)
 
-  if (tune.parameters) {
-    tuning.output <- tune_regression_forest(X, Y,
-      sample.weights = sample.weights,
-      num.fit.trees = num.fit.trees,
-      num.fit.reps = num.fit.reps,
-      num.optimize.reps = num.optimize.reps,
-      min.node.size = min.node.size,
-      sample.fraction = sample.fraction,
-      mtry = mtry,
-      alpha = alpha,
-      imbalance.penalty = imbalance.penalty,
-      num.threads = num.threads,
-      honesty = honesty,
-      honesty.fraction = honesty.fraction,
-      honesty.prune.leaves = honesty.prune.leaves,
-      seed = seed,
-      clusters = clusters,
-      samples.per.cluster = samples.per.cluster
-    )
-    tunable.params <- tuning.output$params
-  } else {
-    tunable.params <- c(
-      min.node.size = validate_min_node_size(min.node.size),
-      sample.fraction = validate_sample_fraction(sample.fraction),
-      mtry = validate_mtry(mtry, X),
-      alpha = validate_alpha(alpha),
-      imbalance.penalty = validate_imbalance_penalty(imbalance.penalty),
-      honesty.fraction = validate_honesty_fraction(honesty.fraction, honesty),
-      honesty.prune.leaves = validate_honesty_prune_leaves(honesty.prune.leaves)
-    )
-  }
+  all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
+                          "honesty.prune.leaves", "alpha", "imbalance.penalty")
 
   data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
-  forest <- regression_train(
-    data$train.matrix, data$sparse.train.matrix,
-    data$outcome.index, data$sample.weight.index,
-    data$use.sample.weights,
-    as.numeric(tunable.params["mtry"]),
-    num.trees,
-    as.numeric(tunable.params["min.node.size"]),
-    as.numeric(tunable.params["sample.fraction"]),
-    honesty,
-    as.numeric(tunable.params["honesty.fraction"]),
-    as.numeric(tunable.params["honesty.prune.leaves"]),
-    ci.group.size,
-    as.numeric(tunable.params["alpha"]),
-    as.numeric(tunable.params["imbalance.penalty"]),
-    clusters,
-    samples.per.cluster,
-    compute.oob.predictions,
-    num.threads,
-    seed
-  )
+  args <- list(num.trees = num.trees,
+               clusters = clusters,
+               samples.per.cluster = samples.per.cluster,
+               sample.fraction = sample.fraction,
+               mtry = mtry,
+               min.node.size = min.node.size,
+               honesty = honesty,
+               honesty.fraction = honesty.fraction,
+               honesty.prune.leaves = honesty.prune.leaves,
+               alpha = alpha,
+               imbalance.penalty = imbalance.penalty,
+               ci.group.size = ci.group.size,
+               compute.oob.predictions = compute.oob.predictions,
+               num.threads = num.threads,
+               seed = seed)
 
+  tuning.output <- NULL
+  if (!identical(tune.parameters, "none")){
+    tuning.output <- tune_regression_forest(X, Y,
+                                            sample.weights = sample.weights,
+                                            clusters = clusters,
+                                            samples.per.cluster = samples.per.cluster,
+                                            sample.fraction = sample.fraction,
+                                            mtry = mtry,
+                                            min.node.size = min.node.size,
+                                            honesty = honesty,
+                                            honesty.fraction = honesty.fraction,
+                                            honesty.prune.leaves = honesty.prune.leaves,
+                                            alpha = alpha,
+                                            imbalance.penalty = imbalance.penalty,
+                                            ci.group.size = ci.group.size,
+                                            tune.parameters = tune.parameters,
+                                            tune.num.trees = tune.num.trees,
+                                            tune.num.reps = tune.num.reps,
+                                            tune.num.draws = tune.num.draws,
+                                            num.threads = num.threads,
+                                            seed = seed)
+    args <- modifyList(args, as.list(tuning.output[["params"]]))
+  }
+
+  forest <- do.call.rcpp(regression_train, c(data, args))
   class(forest) <- c("regression_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["sample.weights"]] <- sample.weights
   forest[["clusters"]] <- clusters
-  forest[["tunable.params"]] <- tunable.params
-  if (tune.parameters) {
-    forest[["tuning.output"]] <- tuning.output
-  }
+  forest[["tunable.params"]] <- args[all.tunable.params]
+  forest[["tuning.output"]] <- tuning.output
+
   forest
 }
 

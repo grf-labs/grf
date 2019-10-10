@@ -9,7 +9,7 @@ X = matrix(runif(n*p, -1, 1), nrow = n)
 Y = mu(X[,1]) + sigma*rnorm(n)
 
 # random forest predictions
-forest = regression_forest(X, Y, tune.parameters = TRUE)
+forest = regression_forest(X, Y, tune.parameters = "all")
 preds.rf = predict(forest)$predictions
 
 # local linear forest predictions
