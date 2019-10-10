@@ -18,6 +18,10 @@ r_binary_packages:
 r_packages:
   - pkgdown
 
+r_github_packages:
+  # Needed for the vignette
+  - grf-labs/sufrep
+
 matrix:
   include:
     - name: "core grf C++: gcc"

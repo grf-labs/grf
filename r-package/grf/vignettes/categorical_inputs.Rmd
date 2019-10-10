@@ -1,0 +1,78 @@
+---
+title: "Categorical inputs"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ci_and_num.trees}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+set.seed(123)
+```
+
+```{r setup}
+library(grf)
+library(sufrep)
+```
+
+The following example illustrates how to deal with categorical variables.
+
+Let's pretend we would like to estimate mileage per gallon (`mpg`) from number of cylinders (`cyl`),
+quarter-mile time (`qsec`), and car maker name (`maker`, created below).
+
+```{r dataset}
+# Create a categorical column with maker name
+df <- within(mtcars, {
+  # E.g. 'Mazda RX4' --> 'Mazda'
+  maker <- factor(sapply(rownames(mtcars), function(x) strsplit(x, " ")[[1]][1]))
+})
+
+x <- c("cyl", "qsec") # Continuous variables
+g <- c("maker")       # Categorical variable
+
+head(df[c(x, g)])
+```
+
+This code would raise an error, because data is not numerical.
+
+```{r problem}
+# rf <- regression_forest(X, Y)
+```
+
+We can consider three approaches here.
+
++ Simply assign integers to each category: convert 'AMC' to 1, 'Cadillac' to 2, etc.
++ One-hot encode the categories
++ Use a _sufficient representation_ method (see the `sufrep` package for details)
+
+```{r solutions}
+# Solution 1: Transform variable into numbers
+X1 <- within(df[c(x, g)], maker <- as.numeric(maker))
+rf1 <- regression_forest(X1, df$mpg)
+
+
+# Solution 2: One-hot encoding
+X2 <- model.matrix(~ 0 + ., df[c(x, g)])
+rf2 <- regression_forest(X2, df$mpg)
+
+
+# Solution 3: "Means" encoding
+encoder <- make_encoder(df[x], df$maker, method="means")
+X3 <- encoder(df[x], df$maker)
+rf3 <- regression_forest(X3, df$mpg)
+```
+
+Different approaches can yield different forest performance.
+
+```{r mses}
+mse1 <- mean(rf1$debiased.error)
+mse2 <- mean(rf2$debiased.error)
+mse3 <- mean(rf3$debiased.error)
+
+print(c(mse1, mse2, mse3))
+```
