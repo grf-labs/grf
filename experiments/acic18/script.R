@@ -53,7 +53,7 @@ cf = causal_forest(X[,selected.idx], Y, W,
                    Y.hat = Y.hat, W.hat = W.hat,
                    clusters = school.id,
                    samples.per.cluster = 50,
-                   tune.parameters = TRUE)
+                   tune.parameters = "all")
 tau.hat = predict(cf)$predictions
 
 
@@ -151,7 +151,7 @@ dev.off()
 
 cf.noclust = causal_forest(X[,selected.idx], Y, W,
                            Y.hat = Y.hat, W.hat = W.hat,
-                           tune.parameters = TRUE)
+                           tune.parameters = "all")
 
 ATE.noclust = average_treatment_effect(cf.noclust)
 paste("95% CI for the ATE:", round(ATE.noclust[1], 3),
@@ -172,7 +172,7 @@ for (foldid in 1:nfold) {
   infold = school.id %in% school.levels[cluster.folds == foldid]
   cf.fold = causal_forest(X[!infold, selected.idx], Y[!infold], W[!infold],
                           Y.hat = Y.hat[!infold], W.hat = W.hat[!infold],
-                          tune.parameters = TRUE)
+                          tune.parameters = "all")
   pred.fold = predict(cf.fold, X[infold, selected.idx])$predictions
   tau.hat.crossfold[infold] = pred.fold
 }
@@ -196,7 +196,7 @@ summary(aov(dr.score ~ factor(school.id)))
 
 cf.noprop = causal_forest(X[,selected.idx], Y, W,
                           Y.hat = Y.hat, W.hat = mean(W),
-                          tune.parameters = TRUE,
+                          tune.parameters = "all",
                           samples.per.cluster = 50,
                           clusters = school.id)
 tau.hat.noprop = predict(cf.noprop)$predictions
@@ -356,7 +356,3 @@ points(1:76, sort(school.pred), col = 4, pch = 16)
 legend("topleft", c("school mean CATE", "CATE w/o clustering"), pch = c(16, 1), col = c(4, 1), cex = 1.5)
 par = pardef
 dev.off()
-
-
-
-
