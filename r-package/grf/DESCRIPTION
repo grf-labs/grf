@@ -31,9 +31,6 @@ Imports:
 RoxygenNote: 6.1.1
 Suggests:
     DiagrammeR,
-    testthat,
-    sufrep
-Remotes:
-    grf-labs/sufrep
+    testthat
 SystemRequirements: GNU make
 URL: https://github.com/grf-labs/grf
