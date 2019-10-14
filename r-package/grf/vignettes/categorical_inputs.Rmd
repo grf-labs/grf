@@ -17,12 +17,10 @@ set.seed(123)
 
 In this example, we will illustrate several ways of dealing with categorical variables when using grf.
 
+One of the approaches below relies on `grf`'s sister package [`sufrep`](https://github.com/grf-labs/sufrep). Let's install and load it first.
+
 ```{r setup}
 library(grf)
-```
-
-One of the approaches below relies on `grf`'s sister package [`sufrep`](https://github.com/grf-labs/sufrep). Let's install and load it first.
-```r
 devtools::install_github("grf-labs/sufrep")
 library(sufrep)
 ```
