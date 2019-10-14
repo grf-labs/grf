@@ -8,6 +8,8 @@ navbar:
     href: reference/index.html
   - text: "Examples"
     menu:
+      - text: "Categorical inputs"
+        href: articles/categorical_inputs.html
       - text: "Confidence intervals and the number of trees"
         href: articles/ci_and_num.trees.html
       - text: "Sample weighting"

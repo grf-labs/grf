@@ -20,6 +20,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Boosted Regression Forests](#boosted-regression-forests)
   * [Cluster-Robust Estimation](#cluster-robust-estimation)
   * [Sample Weighting](#sample-weighting)
+  * [Categorical Inputs](#categorical-inputs)
 * [Troubleshooting](#troubleshooting)
 * [References](#references)
 
@@ -267,6 +268,18 @@ When the distribution of data that you observe is not representative of the popu
 The impact these weights have depends on what we are estimating. When our estimand is a function of x, e.g. `r(x) = E[Y | X=x]` in `regression_forest` or `tau(x)=E[Y(1)-Y(0)| X=x]` in `causal_forest`, passing weights that are a function of x does not change our estimand. It instead prioritizes fit on our population of interest. In `regression_forest`, this means minimizing weighted mean squared error, i.e. mean squared error over the population specified by the sample weights. In `causal_forest`, this means minimizing weighted R-loss (Nie and Wager (2017), Equations 4/5). When our estimand is an average of such a function, as in `average_treatment_effect` and `average_partial_effect`, it does change the estimand. Our estimand will be the average treatment/partial effect over the population specified by our sample weights.
 
 Our current implementation does not use the sample weights during tree splitting. In terms of Equation 2 of the GRF paper, it replaces `alpha(X_i)` with `alpha(X_i) = sample.weight[i] * alpha(X_i)` without changing `alpha` itself. This does make what we minimize an estimate of mean squared error / R-loss over the population specified by our sample weights. However, it is likely that we would learn better neighborhood weights `alpha` for the task of estimating this weighted loss if we used our sample weights in splitting as well, by sample-weighting the terms in Equation 4 of the GRF paper.
+
+
+### Categorical inputs
+
+GRF can only handle numerical inputs. If your data has a column with categorical values, here are some ways in which you can proceed.
+
+If there is a natural way to order the categories, then simply encode them as integers according to this ordering. For instance, an individual's educational attainment could be encoded as 1 for "primary", 2 for "secondary", 3 for "undergraduate", and so on. This representation will make it easy for forests to split individuals into lower and higher education groups. Moreover, even if your variable does not have an obvious ordering at first sight, you may want to be a little creative in imposing an artificial ordering that is relevant to your statistical problem. For example, numbering contiguous geographical areas sequentially can often help forests make splits that group nearby areas together. If geographical proximity is important, the forest performance will likely increase.
+
+However, sometimes the category has no reasonable ordering. In that case, one common option is to create one-hot encoded vectors (also know as dummy vectors), replacing the column with several binary columns indicating the category to which each observation belongs. Unfortunately, this sort of representation can be wasteful, because each binary column will likely not carry a lot of information. When the number of categories is large, you might want to use a more sophisticated representation method such as feature hashing. Alternatively, we recommend users try our sister package [`sufrep`](https://github.com/grf-labs/sufrep), which implements several categorical variable representation methods. It is currently in beta version, so please feel free to submit github issues for bugs or additional feature requests.
+
+Finally, please bear in mind that in general the statistical performance of any statistical algorithm will depend on how the data is represented. Therefore, it may be worthwhile to spend some time thinking about how to encode your variables before starting the actual analysis.
+
 
 ## Troubleshooting
 

@@ -1,0 +1,92 @@
+---
+title: "Categorical inputs"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{categorical_inputs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+set.seed(123)
+```
+
+In this example, we will illustrate several ways of dealing with categorical variables when using grf.
+
+```{r setup}
+library(grf)
+```
+
+One of the approaches below relies on `grf`'s sister package [`sufrep`](https://github.com/grf-labs/sufrep). Let's install and load it first.
+```r
+devtools::install_github("grf-labs/sufrep")
+library(sufrep)
+```
+
+Let's pretend we would like to estimate mileage per gallon (`mpg`) from number of cylinders (`cyl`),
+quarter-mile time (`qsec`), and car brand name (`brand`, created below).
+
+```{r dataset}
+# Create a categorical column with brand name
+df <- within(mtcars, {
+  # E.g. 'Mazda RX4' --> 'Mazda'
+  brand <- factor(sapply(rownames(mtcars), function(x) strsplit(x, " ")[[1]][1]))
+})
+
+x <- c("cyl", "qsec") # Continuous variables
+g <- c("brand")       # Categorical variable
+
+head(df[c(x, g)])
+```
+
+This code would raise an error, because data is not numerical.
+
+```{r problem}
+# rf <- regression_forest(X=df[c(x, g)], Y=df$mpg)
+
+# You would see the error:
+# Error in (function (train_matrix, sparse_train_matrix, outcome_index, :
+#  Not compatible with requested type: [type=character; target=double].
+```
+
+We can consider three approaches here.
+
++ Simply assign integers to each category (convert 'AMC' to 1, 'Cadillac' to 2, etc.)
++ One-hot encode the categories (as many binary columns as there are categories)
++ Use a _sufficient representation_ of the category. Here we will use the `means` method from the [`sufrep`](https://github.com/grf-labs/sufrep) package.
+
+The last method involves substituting the `brand` column by averages of the continuous columns `cyl` and `qsec`, grouped by category. If you are curious about why that works, or would like to know more about sufficient representations, please check out our `sufrep` paper ([ArXiv](https://arxiv.org/abs/1908.09874v1)).
+
+```{r solutions}
+# Solution 1: Transform variable into numbers
+X1 <- within(df[c(x, g)], brand <- as.numeric(brand))
+rf1 <- regression_forest(X1, df$mpg)
+
+
+# Solution 2: One-hot encoding
+X2 <- model.matrix(~ 0 + ., df[c(x, g)])
+rf2 <- regression_forest(X2, df$mpg)
+
+
+# Solution 3: 'Means' encoding using the 'sufrep' package
+encoder <- make_encoder(df[x], df$brand, method="means")
+X3 <- encoder(df[x], df$brand)
+rf3 <- regression_forest(X3, df$mpg)
+```
+
+Different approaches can yield different forest performance.
+
+```{r mses}
+mse1 <- mean(rf1$debiased.error)
+mse2 <- mean(rf2$debiased.error)
+mse3 <- mean(rf3$debiased.error)
+
+print("MSE when representing categorical variables as...")
+print(paste0("Integers: ", mse1))
+print(paste0("One-hot vectors: ", mse2))
+print(paste0("'Means' encoding [sufrep]: ", mse3))
+```
