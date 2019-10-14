@@ -15,14 +15,17 @@ knitr::opts_chunk$set(
 set.seed(123)
 ```
 
+In this example, we will illustrate several ways of dealing with categorical variables when using grf.
+
 ```{r setup}
 library(grf)
+```
 
+One of the approaches below relies on `grf`'s sister package [`sufrep`](https://github.com/grf-labs/sufrep). Let's install and load it first.
+```r
 devtools::install_github("grf-labs/sufrep")
 library(sufrep)
 ```
-
-The following example illustrates how to deal with categorical variables.
 
 Let's pretend we would like to estimate mileage per gallon (`mpg`) from number of cylinders (`cyl`),
 quarter-mile time (`qsec`), and car brand name (`brand`, created below).
@@ -52,11 +55,13 @@ This code would raise an error, because data is not numerical.
 
 We can consider three approaches here.
 
-+ Simply assign integers to each category: convert 'AMC' to 1, 'Cadillac' to 2, etc.
-+ One-hot encode the categories
-+ Use a _sufficient representation_ method (see the `sufrep` package for details)
-```{r solutions}
++ Simply assign integers to each category (convert 'AMC' to 1, 'Cadillac' to 2, etc.)
++ One-hot encode the categories (as many binary columns as there are categories)
++ Use a _sufficient representation_ of the category. Here we will use the `means` method from the [`sufrep`](https://github.com/grf-labs/sufrep) package.
 
+The last method involves substituting the `brand` column by averages of the continuous columns `cyl` and `qsec`, grouped by category. If you are curious about why that works, or would like to know more about sufficient representations, please check out our `sufrep` paper ([ArXiv](https://arxiv.org/abs/1908.09874v1)).
+
+```{r solutions}
 # Solution 1: Transform variable into numbers
 X1 <- within(df[c(x, g)], brand <- as.numeric(brand))
 rf1 <- regression_forest(X1, df$mpg)
@@ -67,8 +72,8 @@ X2 <- model.matrix(~ 0 + ., df[c(x, g)])
 rf2 <- regression_forest(X2, df$mpg)
 
 
-# Solution 3: "Means" encoding using 'sufrep' package
-encoder <- sufrep::make_encoder(df[x], df$brand, method="means")
+# Solution 3: 'Means' encoding using the 'sufrep' package
+encoder <- make_encoder(df[x], df$brand, method="means")
 X3 <- encoder(df[x], df$brand)
 rf3 <- regression_forest(X3, df$mpg)
 ```
