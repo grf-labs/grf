@@ -1,5 +1,5 @@
 validate_X <- function(X) {
-  if ((inherits(X, "matrix") || inherits(X, "data.frame")) && !is.numeric(as.matrix(X))) {
+  if (inherits(X, c("matrix", "data.frame")) && !is.numeric(as.matrix(X))) {
     stop(paste(
       "The feature matrix X must be numeric. GRF does not",
       "currently support non-numeric features. If factor variables",
@@ -7,7 +7,7 @@ validate_X <- function(X) {
       "represent the factor with a 1-vs-all expansion,",
       "(e.g., using model.matrix(~. , data=X)), or then encode the factor",
       "as a numeric via any natural ordering (e.g., if the factor is a month).",
-      "For more on grf and categorical variables see the online vignette:",
+      "For more on GRF and categorical variables see the online vignette:",
       "https://grf-labs.github.io/grf/articles/categorical_inputs.html"
     ))
   }
