@@ -73,17 +73,22 @@ validate_clusters <- function(clusters, X) {
   clusters
 }
 
-validate_samples_per_cluster <- function(samples.per.cluster, clusters) {
+validate_clusters_subsample <- function(clusters.subsample, clusters) {
   if (is.null(clusters) || length(clusters) == 0) {
     return(0)
   }
   cluster_size_counts <- table(clusters)
-  min_size <- unname(cluster_size_counts[order(cluster_size_counts)][1])
-  if (is.null(samples.per.cluster)) {
+  cluster_sizes <- unname(cluster_size_counts[order(cluster_size_counts)])
+  min_size <- cluster_sizes[1]
+  max_size <- cluster_sizes[length(cluster_sizes)]
+  if (clusters.subsample == TRUE) {
     samples.per.cluster <- min_size
-  } else if (samples.per.cluster <= 0) {
-    stop("samples.per.cluster must be positive")
+  } else if (clusters.subsample == FALSE) {
+    samples.per.cluster <- max_size
+  } else {
+    stop("clusters.subsample must be either TRUE or FALSE")
   }
+
   samples.per.cluster
 }
 
