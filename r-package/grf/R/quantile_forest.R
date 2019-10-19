@@ -15,14 +15,8 @@
 #'                             quantile forests from Meinshausen (2006). Default is FALSE.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
-#'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples.per.cluster observations get relatively
-#'                            smaller weight than others in training the forest, i.e., the contribution
-#'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
+#' @param clusters.subsample Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
+#'   sample the full clusters (FALSE). Default is FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction. Default is 0.5.
@@ -84,7 +78,7 @@ quantile_forest <- function(X, Y,
                             quantiles = c(0.1, 0.5, 0.9),
                             regression.splitting = FALSE,
                             clusters = NULL,
-                            samples.per.cluster = NULL,
+                            clusters.subsample = FALSE,
                             sample.fraction = 0.5,
                             mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                             min.node.size = 5,
@@ -104,7 +98,7 @@ quantile_forest <- function(X, Y,
   validate_X(X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  samples.per.cluster <- validate_clusters_subsample(clusters.subsample, clusters)
   num.threads <- validate_num_threads(num.threads)
 
   data <- create_data_matrices(X, outcome = Y)

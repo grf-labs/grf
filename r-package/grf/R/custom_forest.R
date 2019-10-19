@@ -31,14 +31,8 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
-#'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples.per.cluster observations get relatively
-#'                            smaller weight than others in training the forest, i.e., the contribution
-#'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
+#' @param clusters.subsample Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
+#'   sample the full clusters (FALSE). Default is FALSE.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency
@@ -73,14 +67,14 @@ custom_forest <- function(X, Y,
                           alpha = 0.05,
                           imbalance.penalty = 0.0,
                           clusters = NULL,
-                          samples.per.cluster = NULL,
+                          clusters.subsample = FALSE,
                           compute.oob.predictions = TRUE,
                           num.threads = NULL,
                           seed = runif(1, 0, .Machine$integer.max)) {
   validate_X(X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  samples.per.cluster <- validate_clusters_subsample(clusters.subsample, clusters)
   num.threads <- validate_num_threads(num.threads)
 
   no.split.variables <- numeric(0)
