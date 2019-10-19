@@ -1,6 +1,6 @@
 library(grf)
 
-set.seed(4321)
+set.seed(4)
 
 test_that("Clustered standard errors are greater than unclustered", {
   n <- 200
