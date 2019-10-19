@@ -230,8 +230,7 @@ test_that("cluster robust average effects are consistent", {
   forest.causal <- causal_forest(X, Y, W, num.trees = 2000, ci.group.size = 4)
   forest.causal.clust <- causal_forest(Xc, Yc, Wc,
                                       num.trees = 2000,
-                                      ci.group.size = 4, clusters = clust,
-                                      samples.per.cluster = 7)
+                                      ci.group.size = 4, clusters = clust)
 
   cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   cate.clust.aipw <- average_treatment_effect(forest.causal.clust, target.sample = "all", method = "AIPW")

@@ -21,30 +21,26 @@ test_that("Clustered standard errors are greater than unclustered", {
   forest_corrected <- regression_forest(X_cluster,
     Y_cluster,
     ci.group.size = 4,
-    clusters = clusters,
-    samples.per.cluster = 1
+    clusters = clusters
   )
   preds_corrected.oob <- predict(forest_corrected, estimate.variance = TRUE)
 
   forest_no_cluster <- regression_forest(X,
     Y,
-    ci.group.size = 4,
-    samples.per.cluster = 1
+    ci.group.size = 4
   )
   preds_no_cluster.oob <- predict(forest_no_cluster, estimate.variance = TRUE)
 
   forest_uncorrected <- regression_forest(X_cluster,
     Y_cluster,
-    ci.group.size = 4,
-    samples.per.cluster = 1
+    ci.group.size = 4
   )
   preds_uncorrected.oob <- predict(forest_uncorrected, estimate.variance = TRUE)
 
   forest_corrected_no_clusters <- regression_forest(X,
     Y,
     ci.group.size = 4,
-    clusters = no_clusters,
-    samples.per.cluster = 1
+    clusters = no_clusters
   )
   preds_corrected_no_cluster.oob <- predict(forest_corrected_no_clusters, estimate.variance = TRUE)
 
@@ -89,30 +85,26 @@ test_that("Clustered predictions are reasonable with unevenly sized clusters", {
   forest_corrected <- regression_forest(X_cluster,
     Y_cluster,
     ci.group.size = 1,
-    clusters = clusters,
-    samples.per.cluster = 1
+    clusters = clusters
   )
   preds_corrected.oob <- predict(forest_corrected, estimate.variance = FALSE)
 
   forest_no_cluster <- regression_forest(X,
     Y,
-    ci.group.size = 1,
-    samples.per.cluster = 1
+    ci.group.size = 1
   )
   preds_no_cluster.oob <- predict(forest_no_cluster, estimate.variance = FALSE)
 
   forest_uncorrected <- regression_forest(X_cluster,
     Y_cluster,
-    ci.group.size = 1,
-    samples.per.cluster = 1
+    ci.group.size = 1
   )
   preds_uncorrected.oob <- predict(forest_uncorrected, estimate.variance = FALSE)
 
   forest_corrected_no_clusters <- regression_forest(X,
     Y,
     ci.group.size = 1,
-    clusters = no_clusters,
-    samples.per.cluster = 1
+    clusters = no_clusters
   )
   preds_corrected_no_cluster.oob <- predict(forest_corrected_no_clusters, estimate.variance = FALSE)
 
