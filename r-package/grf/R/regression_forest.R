@@ -48,7 +48,7 @@
 #' @param tune.parameters A vector of parameter names to tune.
 #'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
 #'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
-#'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE these parameters are not tuned.
+#'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE the honesty.* parameters are not tuned.
 #'  Default is "none" (no parameters are tuned).
 #' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 50.
 #' @param tune.num.reps The number of forests used to fit the tuning model. Default is 100.
