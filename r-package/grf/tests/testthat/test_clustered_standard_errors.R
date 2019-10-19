@@ -85,7 +85,8 @@ test_that("Clustered predictions are reasonable with unevenly sized clusters", {
   forest_corrected <- regression_forest(X_cluster,
     Y_cluster,
     ci.group.size = 1,
-    clusters = clusters
+    clusters = clusters,
+    clusters.subsample = TRUE
   )
   preds_corrected.oob <- predict(forest_corrected, estimate.variance = FALSE)
 
@@ -104,7 +105,8 @@ test_that("Clustered predictions are reasonable with unevenly sized clusters", {
   forest_corrected_no_clusters <- regression_forest(X,
     Y,
     ci.group.size = 1,
-    clusters = no_clusters
+    clusters = no_clusters,
+    clusters.subsample = TRUE
   )
   preds_corrected_no_cluster.oob <- predict(forest_corrected_no_clusters, estimate.variance = FALSE)
 
