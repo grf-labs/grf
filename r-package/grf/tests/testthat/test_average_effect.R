@@ -270,7 +270,7 @@ test_that("cluster robust average effects do weighting correctly", {
   W <- rbinom(n, 1, 0.5)
   Y <- tau * W + 2 * rnorm(n)
 
-  forest.causal <- causal_forest(X, Y, W, clusters = clust, num.trees = 400)
+  forest.causal <- causal_forest(X, Y, W, clusters = clust, clusters.subsample = TRUE, num.trees = 400)
 
   cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - t0) / (3 * cate.aipw[2]) <= 1)
@@ -299,6 +299,7 @@ test_that("cluster robust average effects do weighting correctly", {
                                              W.hat = forest.causal$W.hat,
                                              Z.hat = forest.causal$Z.hat,
                                              clusters = clust,
+                                             clusters.subsample = TRUE,
                                              num.trees = 400)
   compliance.score <- rep(1, n)
   aclate <- average_late(forest.instrumental, compliance.score)
