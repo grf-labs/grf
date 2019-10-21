@@ -50,16 +50,30 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   size_t size_node = samples[node].size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
-  // Precompute the sum of outcomes in this node.
-  double sum_node = 0.0;
-  for (auto& sample : samples[node]) {
-    sum_node += responses_by_sample[sample];
-  }
-
   // Initialize the variables to track the best split variable.
   size_t best_var = 0;
   double best_value = 0;
   double best_decrease = 0.0;
+
+  // Precompute the sum of outcomes in this node and
+  // check if node is pure and set split value to estimate and stop if pure
+  double sum_node = 0.0;
+  bool pure = true;
+  double pure_value = responses_by_sample[samples[node][0]];
+  for (auto& sample : samples[node]) {
+    double value = responses_by_sample[sample];
+    sum_node += value;
+    if(value != pure_value) {
+      pure = false;
+    }
+    pure_value = value;
+  }
+
+  if (pure) {
+    split_vars[node] = best_var;
+    split_values[node] = pure_value;
+    return true;
+  }
 
   // For all possible split variables
   for (auto& var : possible_split_vars) {
