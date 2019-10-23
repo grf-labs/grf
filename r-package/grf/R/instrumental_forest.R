@@ -63,6 +63,15 @@
 #' @param reduced.form.weight Whether splits should be regularized towards a naive
 #'                            splitting criterion that ignores the instrument (and
 #'                            instead emulates a causal forest).
+#' @param tune.parameters A vector of parameter names to tune.
+#'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
+#'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
+#'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE the honesty.* parameters are not tuned.
+#'  Default is "none" (no parameters are tuned).
+#' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 200.
+#' @param tune.num.reps The number of forests used to fit the tuning model. Default is 50.
+#' @param tune.num.draws The number of random parameter values considered when using the model
+#'                          to select the optimal parameters. Default is 1000.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
@@ -89,6 +98,10 @@ instrumental_forest <- function(X, Y, W, Z,
                                 stabilize.splits = TRUE,
                                 ci.group.size = 2,
                                 reduced.form.weight = 0,
+                                tune.parameters = "none",
+                                tune.num.trees = 200,
+                                tune.num.reps = 50,
+                                tune.num.draws = 1000,
                                 compute.oob.predictions = TRUE,
                                 num.threads = NULL,
                                 seed = runif(1, 0, .Machine$integer.max)) {
@@ -105,6 +118,9 @@ instrumental_forest <- function(X, Y, W, Z,
     stop("Error: Invalid value for reduced.form.weight. Please give a value in [0,1].")
   }
 
+  all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
+                          "honesty.prune.leaves", "alpha", "imbalance.penalty")
+
   args.orthog = list(X = X,
                      num.trees = min(500, num.trees),
                      sample.weights = sample.weights,
@@ -119,6 +135,7 @@ instrumental_forest <- function(X, Y, W, Z,
                      alpha = alpha,
                      imbalance.penalty = imbalance.penalty,
                      ci.group.size = 1,
+                     tune.parameters = tune.parameters,
                      num.threads = num.threads,
                      seed = seed)
 
@@ -151,15 +168,51 @@ instrumental_forest <- function(X, Y, W, Z,
 
   data <- create_data_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
                                instrument = Z - Z.hat, sample.weights = sample.weights)
-  forest <- instrumental_train(
-    data$train.matrix, data$sparse.train.matrix,
-    data$outcome.index, data$treatment.index, data$instrument.index, data$sample.weight.index,
-    data$use.sample.weights,
-    mtry, num.trees, min.node.size, sample.fraction, honesty, honesty.fraction,
-    honesty.prune.leaves, ci.group.size, reduced.form.weight, alpha, imbalance.penalty, stabilize.splits, clusters,
-    samples.per.cluster, compute.oob.predictions, num.threads, seed
-  )
+  args <- list(num.trees = num.trees,
+              clusters = clusters,
+              samples.per.cluster = samples.per.cluster,
+              sample.fraction = sample.fraction,
+              mtry = mtry,
+              min.node.size = min.node.size,
+              honesty = honesty,
+              honesty.fraction = honesty.fraction,
+              honesty.prune.leaves = honesty.prune.leaves,
+              alpha = alpha,
+              imbalance.penalty = imbalance.penalty,
+              stabilize.splits = stabilize.splits,
+              ci.group.size = ci.group.size,
+              reduced.form.weight = reduced.form.weight,
+              compute.oob.predictions = compute.oob.predictions,
+              num.threads = num.threads,
+              seed = seed)
 
+  tuning.output <- NULL
+  if (!identical(tune.parameters, "none")){
+    tuning.output <- tune_instrumental_forest(X, Y, W, Z, Y.hat, W.hat, Z.hat,
+                                              sample.weights = sample.weights,
+                                              clusters = clusters,
+                                              samples.per.cluster = samples.per.cluster,
+                                              sample.fraction = sample.fraction,
+                                              mtry = mtry,
+                                              min.node.size = min.node.size,
+                                              honesty = honesty,
+                                              honesty.fraction = honesty.fraction,
+                                              honesty.prune.leaves = honesty.prune.leaves,
+                                              alpha = alpha,
+                                              imbalance.penalty = imbalance.penalty,
+                                              stabilize.splits = stabilize.splits,
+                                              ci.group.size = ci.group.size,
+                                              reduced.form.weight = reduced.form.weight,
+                                              tune.parameters = tune.parameters,
+                                              tune.num.trees = tune.num.trees,
+                                              tune.num.reps = tune.num.reps,
+                                              tune.num.draws = tune.num.draws,
+                                              num.threads = num.threads,
+                                              seed = seed)
+    args <- modifyList(args, as.list(tuning.output[["params"]]))
+  }
+
+  forest <- do.call.rcpp(instrumental_train, c(data, args))
   class(forest) <- c("instrumental_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
@@ -171,6 +224,9 @@ instrumental_forest <- function(X, Y, W, Z,
   forest[["Z.hat"]] <- Z.hat
   forest[["clusters"]] <- clusters
   forest[["sample.weights"]] <- sample.weights
+  forest[["tunable.params"]] <- args[all.tunable.params]
+  forest[["tuning.output"]] <- tuning.output
+
   forest
 }
 
