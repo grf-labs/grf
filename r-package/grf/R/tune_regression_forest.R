@@ -32,7 +32,7 @@ FALSE#' Regression forest tuning
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. Default is 0.5 (i.e. half of the data is used for
 #'                         determining splits).
-#' @param honesty.prune.leaves If true, prunes the estimation sample tree such that no leaves
+#' @param honesty.prune.leaves If TRUE, prunes the estimation sample tree such that no leaves
 #'  are empty. If FALSE, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
 #'  tree is skipped and does not contribute to the estimate). Setting this to FALSE may improve performance on
 #'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
