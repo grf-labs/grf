@@ -121,6 +121,17 @@ average_late <- function(forest,
     ))
   }
 
+  if (all(forest$subset.W.hat %in% c(0, 1)) && min(subset.W.hat) <= 0.01 || max(subset.W.hat) >= 0.99) {
+    rng <- range(subset.W.hat)
+    warning(paste0(
+      "Estimated treatment propensities take values between ",
+      round(rng[1], 3), " and ", round(rng[2], 3),
+      " and in particular get very close to 0 or 1. ",
+      "Poor overlap may hurt perfmance for average conditional local average ",
+      "treatment effect estimation."
+    ))
+  }
+  
   if (min(subset.compliance.score) <= 0.01 * sd(subset.W.orig)) {
       warning(paste0(
           "The instrument appears to be weak, with some compliance scores as ",
