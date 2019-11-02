@@ -139,7 +139,7 @@ average_late <- function(forest,
     ))
   }
   
-  if (abs(min(subset.compliance.score) <= 0.01 * sd(subset.W.orig)) {
+  if (abs(min(subset.compliance.score)) <= 0.01 * sd(subset.W.orig)) {
       warning(paste0(
           "The instrument appears to be weak, with some compliance scores as ",
           "low as ", round(min(subset.compliance.score), 4)
