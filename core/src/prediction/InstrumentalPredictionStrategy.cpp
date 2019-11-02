@@ -209,9 +209,9 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
     const PredictionValues& leaf_values,
     const Data& data) const {
 
-  double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
+  double reduced_form_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
   double reduced_form_denominator = average.at(INSTRUMENT_INSTRUMENT) - average.at(INSTRUMENT) * average.at(INSTRUMENT);
-  double reduced_form_estimate = instrument_effect_numerator / reduced_form_denominator;
+  double reduced_form_estimate = reduced_form_numerator / reduced_form_denominator;
 
   double outcome = data.get_outcome(sample);
   double instrument = data.get_instrument(sample);
@@ -248,9 +248,9 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
     double outcome_instrument_loto = (num_trees *  average.at(OUTCOME_INSTRUMENT) - leaf_value.at(OUTCOME_INSTRUMENT)) / (num_trees - 1);
     double instrument_instrument_loto = (num_trees *  average.at(INSTRUMENT_INSTRUMENT) - leaf_value.at(INSTRUMENT_INSTRUMENT)) / (num_trees - 1);
 
-    double instrument_effect_numerator_loto = outcome_instrument_loto - outcome_loto * instrument_loto;
+    double reduced_form_numerator_loto = outcome_instrument_loto - outcome_loto * instrument_loto;
     double reduced_form_denominator_loto = instrument_instrument_loto - instrument_loto * instrument_loto;
-    double reduced_form_estimate_loto = instrument_effect_numerator_loto / reduced_form_denominator_loto;
+    double reduced_form_estimate_loto = reduced_form_numerator_loto / reduced_form_denominator_loto;
 
     double residual_loto = outcome - (instrument - instrument_loto) * reduced_form_estimate_loto - outcome_loto;
     error_bias += (residual_loto - residual) * (residual_loto - residual);
