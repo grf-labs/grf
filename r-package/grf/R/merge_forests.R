@@ -7,10 +7,9 @@
 #'                        allowed to differ across forests.
 #'
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed.
-#'        Even if OOB predictions have already been precomputed for the forests in 'forest_list',
+#'        Note that even if OOB predictions have already been precomputed for the forests in 'forest_list',
 #'        those predictions are not used. Instead, a new set of oob predictions is computed anew using the
-#'        larger forest. NOTE: OOB predictions only make sense for forests grown on the same data.
-#'        Default is TRUE.
+#'        larger forest. Default is TRUE.
 #'
 #' @return A single forest containing all the trees in each forest in the input list.
 #'
@@ -31,8 +30,7 @@
 #' @export
 merge_forests <- function(forest_list, compute.oob.predictions = TRUE) {
   validate_forest_list(forest_list)
-  largest.X <- which.max(lapply(forest_list, function(x) {nrow(x$X.orig)}))
-  first_forest <- forest_list[[largest.X]]
+  first_forest <- forest_list[[1]]
 
   big_forest <- merge(forest_list)
 
