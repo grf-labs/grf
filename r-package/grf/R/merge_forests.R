@@ -75,8 +75,9 @@ validate_forest_list <- function(forest_list) {
     ))
   }
 
-  variables <- unique(lapply(forest_list, function(x) {ncol(x$X.orig)}))
-  if (length(variables) != 1) {
-    stop("All forests in 'forest_list' must be trained with the same covariates.")
+  n.cols <- unique(lapply(forest_list, function(x) {ncol(x$X.orig)}))
+  n.obs <- unique(lapply(forest_list, function(x) {nrow(x$X.orig)}))
+  if (length(n.cols) != 1 || length(n.obs) != 1) {
+    stop("All forests in 'forest_list' must be trained on the same data.")
   }
 }
