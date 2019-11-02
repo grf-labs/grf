@@ -212,7 +212,7 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(const Data& data,
 
   // Compute decrease of impurity for each split
   for (size_t i = 0; i < num_unique - 1; ++i) {
-    // Skip this split if the left child is empty.
+    // Continue if nothing here
     if (counter[i] == 0) {
       continue;
     }

@@ -62,7 +62,7 @@ average_late <- function(forest,
           "only implemented for binary instruments."
       ))
   }
-
+  
   if (is.null(subset)) {
     subset <- 1:length(forest$Y.hat)
   }
@@ -111,17 +111,17 @@ average_late <- function(forest,
   subset.weights <- observation.weight[subset]
 
   if (min(subset.Z.hat) <= 0.01 || max(subset.Z.hat) >= 0.99) {
-    rng <- range(subset.W.hat)
+    rng <- range(subset.Z.hat)
     warning(paste0(
-      "Estimated treatment propensities take values between ",
+      "Estimated instrument propensities take values between ",
       round(rng[1], 3), " and ", round(rng[2], 3),
       " and in particular get very close to 0 or 1. ",
       "Poor overlap may hurt perfmance for average conditional local average ",
       "treatment effect estimation."
     ))
   }
-
-  if (min(subset.compliance.score) <= 0.01 * sd(subset.W.orig)) {
+  
+  if (abs(min(subset.compliance.score)) <= 0.01 * sd(subset.W.orig)) {
       warning(paste0(
           "The instrument appears to be weak, with some compliance scores as ",
           "low as ", round(min(subset.compliance.score), 4)
