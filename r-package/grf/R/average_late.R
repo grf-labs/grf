@@ -63,13 +63,6 @@ average_late <- function(forest,
       ))
   }
   
-  if (!all(forest$subset.W.orig %in% c(0, 1))) {
-    stop(paste(
-      "Average conditional local average treatment effect estimation",
-      "only implemented for binary treatments"
-    ))
-  }
-
   if (is.null(subset)) {
     subset <- 1:length(forest$Y.hat)
   }
@@ -121,17 +114,6 @@ average_late <- function(forest,
     rng <- range(subset.Z.hat)
     warning(paste0(
       "Estimated instrument propensities take values between ",
-      round(rng[1], 3), " and ", round(rng[2], 3),
-      " and in particular get very close to 0 or 1. ",
-      "Poor overlap may hurt perfmance for average conditional local average ",
-      "treatment effect estimation."
-    ))
-  }
-
-  if (all(forest$subset.W.hat %in% c(0, 1)) && min(subset.W.hat) <= 0.01 || max(subset.W.hat) >= 0.99) {
-    rng <- range(subset.W.hat)
-    warning(paste0(
-      "Estimated treatment propensities take values between ",
       round(rng[1], 3), " and ", round(rng[2], 3),
       " and in particular get very close to 0 or 1. ",
       "Poor overlap may hurt perfmance for average conditional local average ",
