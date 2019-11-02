@@ -18,7 +18,7 @@ Description: A pluggable package for forest-based statistical estimation and inf
     quantile regression, and treatment effect estimation (optionally using instrumental
     variables).
 Depends:
-    R (>= 3.3.0)
+    R (>= 3.5.0)
 License: GPL-3
 LinkingTo: Rcpp, RcppEigen
 Imports:
