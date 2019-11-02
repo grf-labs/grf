@@ -62,6 +62,13 @@ average_late <- function(forest,
           "only implemented for binary instruments."
       ))
   }
+  
+  if (!all(forest$subset.W.orig %in% c(0, 1))) {
+    stop(paste(
+      "Average conditional local average treatment effect estimation",
+      "only implemented for binary treatments"
+    ))
+  }
 
   if (is.null(subset)) {
     subset <- 1:length(forest$Y.hat)
@@ -132,7 +139,7 @@ average_late <- function(forest,
     ))
   }
   
-  if (abs(min(subset.compliance.score)) <= 0.01 * sd(subset.W.orig)) {
+  if (abs(min(subset.compliance.score) <= 0.01 * sd(subset.W.orig)) {
       warning(paste0(
           "The instrument appears to be weak, with some compliance scores as ",
           "low as ", round(min(subset.compliance.score), 4)
