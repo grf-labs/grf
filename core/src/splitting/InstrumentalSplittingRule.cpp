@@ -274,6 +274,11 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
 
   // Compute decrease of impurity for each possible split.
   for (size_t i = 0; i < num_unique - 1; ++i) {
+    // Continue if nothing here
+    if (counter[i] == 0) {
+      continue;
+    }
+
     n_left += counter[i];
     num_left_small_z += num_small_z[i];
     sum_left += sums[i];
