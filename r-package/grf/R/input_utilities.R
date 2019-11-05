@@ -78,12 +78,10 @@ validate_clusters_subsample <- function(clusters.subsample, clusters) {
     return(0)
   }
   cluster_size_counts <- table(clusters)
-  min_size <- min(cluster_size_counts)
-  max_size <- max(cluster_size_counts)
   if (clusters.subsample == TRUE) {
-    samples.per.cluster <- min_size
+    samples.per.cluster <- min(cluster_size_counts)
   } else if (clusters.subsample == FALSE) {
-    samples.per.cluster <- max_size
+    samples.per.cluster <- max(cluster_size_counts)
   } else {
     stop("clusters.subsample must be either TRUE or FALSE")
   }
