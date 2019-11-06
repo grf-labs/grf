@@ -18,7 +18,6 @@
 #ifndef GRF_OPTIMIZEDPREDICTIONSTRATEGY_H
 #define GRF_OPTIMIZEDPREDICTIONSTRATEGY_H
 
-#include <unordered_map>
 #include <vector>
 
 #include "commons/globals.h"
