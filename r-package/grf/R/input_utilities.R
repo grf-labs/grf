@@ -199,12 +199,19 @@ observation_weights <- function(forest) {
     forest$sample.weights * length(forest$Y.orig) / sum(forest$sample.weights)
   }
   if (length(forest$clusters) == 0) {
-    observation.weight <- sample.weights
-  } else {
-    clust.factor <- factor(forest$clusters)
-    inverse.counts <- 1 / as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
-    observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]
+  observation.weight <- sample.weights
   }
+  if (length(forest$clusters) != 0 && is.null(forest$sample.weights)) {
+    observation.weight <- sample.weights
+    if (forest$clusters.subsample) {
+      clust.factor <- factor(forest$clusters)
+      inverse.counts <- 1 / as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
+      observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]
+    }
+  } else {
+    observation.weight <- sample.weights
+  }
+
   observation.weight
 }
 
