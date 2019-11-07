@@ -114,6 +114,7 @@ quantile_forest <- function(X, Y,
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["clusters"]] <- clusters
+  forest[["clusters.subsample"]] <- clusters.subsample
   forest
 }
 

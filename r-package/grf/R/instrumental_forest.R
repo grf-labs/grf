@@ -164,6 +164,7 @@ instrumental_forest <- function(X, Y, W, Z,
   forest[["W.hat"]] <- W.hat
   forest[["Z.hat"]] <- Z.hat
   forest[["clusters"]] <- clusters
+  forest[["clusters.subsample"]] <- clusters.subsample
   forest[["sample.weights"]] <- sample.weights
   forest
 }

@@ -264,6 +264,7 @@ causal_forest <- function(X, Y, W,
   forest[["Y.hat"]] <- Y.hat
   forest[["W.hat"]] <- W.hat
   forest[["clusters"]] <- clusters
+  forest[["clusters.subsample"]] <- clusters.subsample
   forest[["sample.weights"]] <- sample.weights
   forest[["tunable.params"]] <- args[all.tunable.params]
   forest[["tuning.output"]] <- tuning.output

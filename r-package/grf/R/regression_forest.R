@@ -161,6 +161,7 @@ regression_forest <- function(X, Y,
   forest[["Y.orig"]] <- Y
   forest[["sample.weights"]] <- sample.weights
   forest[["clusters"]] <- clusters
+  forest[["clusters.subsample"]] <- clusters.subsample
   forest[["tunable.params"]] <- args[all.tunable.params]
   forest[["tuning.output"]] <- tuning.output
 
