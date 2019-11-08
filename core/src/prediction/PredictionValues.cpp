@@ -39,7 +39,7 @@ const std::vector<double>& PredictionValues::get_values(std::size_t node) const 
   return values.at(node);
 }
 
-double PredictionValues::empty(std::size_t node) const {
+bool PredictionValues::empty(std::size_t node) const {
   return values.at(node).empty();
 }
 
