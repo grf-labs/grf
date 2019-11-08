@@ -95,4 +95,13 @@ test_that("Incompatible forests are not mergeable", {
   expect_error(merge_forests(list(c.forest1, r.forest1)))
   # Incompatible ci.group.size
   expect_error(merge_forests(list(c.forest1, c.forest2)))
+
+  # Forests trained on data sets of different sizes are not mergeable
+  r.forest1 <- regression_forest(X, Y, compute.oob.predictions = FALSE, num.trees = 10)
+  r.forest2 <- regression_forest(X[, 1, drop = FALSE], Y, compute.oob.predictions = FALSE, num.trees = 10)
+  expect_error(merge_forests(list(r.forest1, r.forest2)))
+
+  r.forest1 <- regression_forest(X[1:20, ], Y[1:20], compute.oob.predictions = FALSE, num.trees = 10)
+  r.forest1 <- regression_forest(X, Y, compute.oob.predictions = FALSE, num.trees = 10)
+  expect_error(merge_forests(list(r.forest1, r.forest2)))
 })

@@ -29,9 +29,9 @@
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. Default is 0.5 (i.e. half of the data is used for
 #'                         determining splits).
-#' @param honesty.prune.leaves If true, prunes the estimation sample tree such that no leaves
-#'  are empty. If false, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
-#'  tree is skipped and does not contribute to the estimate). Setting this to false may improve performance on
+#' @param honesty.prune.leaves If TRUE, prunes the estimation sample tree such that no leaves
+#'  are empty. If FALSE, keep the same tree as determined in the splits sample (if an empty leave is encountered, that
+#'  tree is skipped and does not contribute to the estimate). Setting this to FALSE may improve performance on
 #'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
 #'  Only applies if honesty is enabled. Default is TRUE.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
@@ -44,7 +44,7 @@
 #' @param tune.parameters A vector of parameter names to tune.
 #'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
 #'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
-#'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is false these parameters are not tuned.
+#'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE the honesty.* parameters are not tuned.
 #'  Default is "all".
 #' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 50.
 #' @param tune.num.reps The number of forests used to fit the tuning model. Default is 100.
@@ -96,8 +96,8 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                               stabilize.splits = TRUE,
                               ci.group.size = 2,
                               tune.parameters = "all",
-                              tune.num.trees = 50,
-                              tune.num.reps = 100,
+                              tune.num.trees = 200,
+                              tune.num.reps = 50,
                               tune.num.draws = 1000,
                               num.threads = NULL,
                               seed = runif(1, 0, .Machine$integer.max)) {

@@ -131,6 +131,8 @@ split_frequencies <- function(forest, max.depth = 4) {
 
 #' Calculate a simple measure of 'importance' for each feature.
 #'
+#' A simple weighted sum of how many times feature i was split on at each depth in the forest.
+#'
 #' @param forest The trained forest.
 #' @param decay.exponent A tuning parameter that controls the importance of split depth.
 #' @param max.depth Maximum depth of splits to consider.

@@ -45,10 +45,6 @@ This code would raise an error, because data is not numerical.
 
 ```{r problem}
 # rf <- regression_forest(X=df[c(x, g)], Y=df$mpg)
-
-# You would see the error:
-# Error in (function (train_matrix, sparse_train_matrix, outcome_index, :
-#  Not compatible with requested type: [type=character; target=double].
 ```
 
 We can consider three approaches here.
