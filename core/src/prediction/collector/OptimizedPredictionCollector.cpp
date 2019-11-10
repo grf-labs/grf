@@ -88,7 +88,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions_batch(
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
 
-  for (size_t sample = start; sample < num_samples; ++sample) {
+  for (size_t sample = start; sample < num_samples + start; ++sample) {
     std::vector<double> average_value;
     std::vector<std::vector<double>> leaf_values;
     if (record_leaf_values) {
