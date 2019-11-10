@@ -26,14 +26,14 @@ namespace grf {
 
 ForestPredictor::ForestPredictor(uint num_threads,
                                  std::unique_ptr<DefaultPredictionStrategy> strategy) :
-    tree_traverser(num_threads) {
+    tree_traverser(num_threads), num_threads(num_threads) {
   this->prediction_collector = std::unique_ptr<PredictionCollector>(
         new DefaultPredictionCollector(std::move(strategy)));
 }
 
 ForestPredictor::ForestPredictor(uint num_threads,
                                  std::unique_ptr<OptimizedPredictionStrategy> strategy) :
-    tree_traverser(num_threads) {
+    tree_traverser(num_threads), num_threads(num_threads) {
   this->prediction_collector = std::unique_ptr<PredictionCollector>(
       new OptimizedPredictionCollector(std::move(strategy)));
 }
@@ -67,7 +67,7 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
 
   return prediction_collector->collect_predictions(forest, train_data, data,
       leaf_nodes_by_tree, trees_by_sample,
-      estimate_variance, oob_prediction);
+      estimate_variance, oob_prediction, this->num_threads);
 }
 
 } // namespace grf

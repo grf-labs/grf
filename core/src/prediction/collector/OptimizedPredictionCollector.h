@@ -34,9 +34,20 @@ public:
                                               const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                               const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                               bool estimate_variance,
-                                              bool estimate_error) const;
+                                              bool estimate_error,
+                                              uint num_threads) const;
 
 private:
+  std::vector<Prediction> collect_predictions_batch(const Forest& forest,
+                                                    const Data& train_data,
+                                                    const Data& data,
+                                                    const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                    const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                                    bool estimate_variance,
+                                                    bool estimate_error,
+                                                    size_t start,
+                                                    size_t num_samples) const;
+
   void add_prediction_values(size_t node,
                              const PredictionValues& prediction_values,
                              std::vector<double>& combined_average) const;

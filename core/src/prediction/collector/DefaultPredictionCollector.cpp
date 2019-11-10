@@ -31,7 +31,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
     bool estimate_variance,
-    bool estimate_error) const {
+    bool estimate_error,
+    uint num_threads) const {
 
   size_t num_samples = data.get_num_rows();
   std::vector<Prediction> predictions;
