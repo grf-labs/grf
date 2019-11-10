@@ -17,7 +17,6 @@
 
 #include <future>
 #include <stdexcept>
-#include <thread>
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
 #include "commons/utility.h"
