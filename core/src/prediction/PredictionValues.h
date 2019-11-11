@@ -35,7 +35,7 @@ public:
 
   double get(size_t node, size_t type) const;
   const std::vector<double>& get_values(size_t node) const;
-  double empty(size_t node) const;
+  bool empty(size_t node) const;
 
   /**
    *  Returns all prediction values in this object. Values are

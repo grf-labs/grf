@@ -20,7 +20,7 @@
 
 
 #include <cstddef>
-#include <unordered_map>
+
 #include "commons/DefaultData.h"
 #include "prediction/Prediction.h"
 #include "prediction/OptimizedPredictionStrategy.h"
