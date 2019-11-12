@@ -1,4 +1,4 @@
-FALSE#' Regression forest tuning
+#' Regression forest tuning
 #'
 #' Trains a regression forest that can be used to estimate
 #' the conditional mean function mu(x) = E[Y | X = x]
