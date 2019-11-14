@@ -38,7 +38,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
   std::vector<uint> thread_ranges;
   split_sequence(thread_ranges, 0, num_samples - 1, num_threads);
 
-  std::vector<std::future<std::unique_ptr<std::vector<Prediction>>>> futures;
+  std::vector<std::future<std::vector<Prediction>>> futures;
   futures.reserve(thread_ranges.size());
 
   std::vector<Prediction> predictions;
@@ -63,30 +63,29 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
   }
 
   for (auto& future : futures) {
-    auto thread_predictions = future.get();
+    std::vector<Prediction> thread_predictions = future.get();
     predictions.insert(predictions.end(),
-                       std::make_move_iterator(thread_predictions->begin()),
-                       std::make_move_iterator(thread_predictions->end()));
+                       std::make_move_iterator(thread_predictions.begin()),
+                       std::make_move_iterator(thread_predictions.end()));
   }
 
   return predictions;
 }
 
-std::unique_ptr<std::vector<Prediction>>
-OptimizedPredictionCollector::collect_predictions_batch(const Forest& forest,
-                                                        const Data& train_data,
-                                                        const Data& data,
-                                                        const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                                        const std::vector<std::vector<bool>>& valid_trees_by_sample,
-                                                        bool estimate_variance,
-                                                        bool estimate_error,
-                                                        size_t start,
-                                                        size_t num_samples) const {
+std::vector<Prediction> OptimizedPredictionCollector::collect_predictions_batch(const Forest& forest,
+                                                                                const Data& train_data,
+                                                                                const Data& data,
+                                                                                const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                                                const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                                                                bool estimate_variance,
+                                                                                bool estimate_error,
+                                                                                size_t start,
+                                                                                size_t num_samples) const {
   size_t num_trees = forest.get_trees().size();
   bool record_leaf_values = estimate_variance || estimate_error;
 
-  std::unique_ptr<std::vector<Prediction>> predictions(new std::vector<Prediction>);
-  predictions->reserve(num_samples);
+  std::vector<Prediction> predictions;
+  predictions.reserve(num_samples);
 
   for (size_t sample = start; sample < num_samples + start; ++sample) {
     std::vector<double> average_value;
@@ -121,7 +120,7 @@ OptimizedPredictionCollector::collect_predictions_batch(const Forest& forest,
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
       std::vector<double> nan(strategy->prediction_length(), NAN);
-      predictions->emplace_back(nan, nan, nan, nan);
+      predictions.emplace_back(nan, nan, nan, nan);
       continue;
     }
 
@@ -147,7 +146,7 @@ OptimizedPredictionCollector::collect_predictions_batch(const Forest& forest,
     Prediction prediction(point_prediction, variance, mse, mce);
 
     validate_prediction(sample, prediction);
-    predictions->push_back(prediction);
+    predictions.push_back(prediction);
   }
   return predictions;
 }
