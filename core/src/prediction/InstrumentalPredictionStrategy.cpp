@@ -30,8 +30,9 @@ const std::size_t InstrumentalPredictionStrategy::TREATMENT = 1;
 const std::size_t InstrumentalPredictionStrategy::INSTRUMENT = 2;
 const std::size_t InstrumentalPredictionStrategy::OUTCOME_INSTRUMENT = 3;
 const std::size_t InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT = 4;
+const std::size_t InstrumentalPredictionStrategy::INSTRUMENT_INSTRUMENT = 5;
 
-const std::size_t NUM_TYPES = 5;
+const std::size_t NUM_TYPES = 6;
 
 size_t InstrumentalPredictionStrategy::prediction_length() const {
     return 1;
@@ -172,6 +173,7 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     double sum_Z = 0;
     double sum_YZ = 0;
     double sum_WZ = 0;
+    double sum_ZZ = 0;
 
     double sum_weight = 0.0;
     for (auto& sample : leaf_samples[i]) {
@@ -181,6 +183,7 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
       sum_Z +=  weight * data.get_instrument(sample);
       sum_YZ += weight * data.get_outcome(sample) * data.get_instrument(sample);
       sum_WZ += weight * data.get_treatment(sample) * data.get_instrument(sample);
+      sum_ZZ += weight * data.get_instrument(sample) * data.get_instrument(sample);
       sum_weight += weight;
     }
 
@@ -194,8 +197,9 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     value[INSTRUMENT] = sum_Z / sum_weight;
     value[OUTCOME_INSTRUMENT] = sum_YZ / sum_weight;
     value[TREATMENT_INSTRUMENT] = sum_WZ / sum_weight;
+    value[INSTRUMENT_INSTRUMENT] = sum_ZZ / sum_weight;
   }
-  
+
   return PredictionValues(values, NUM_TYPES);
 }
 
@@ -205,16 +209,16 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
     const PredictionValues& leaf_values,
     const Data& data) const {
 
-  double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
-  double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
-  double treatment_effect_estimate = instrument_effect_numerator / first_stage_numerator;
+  double reduced_form_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
+  double reduced_form_denominator = average.at(INSTRUMENT_INSTRUMENT) - average.at(INSTRUMENT) * average.at(INSTRUMENT);
+  double reduced_form_estimate = reduced_form_numerator / reduced_form_denominator;
 
   double outcome = data.get_outcome(sample);
-  double treatment = data.get_treatment(sample);
+  double instrument = data.get_instrument(sample);
 
   // To justify the squared residual below as an error criterion in the case of CATE estimation
   // with an unconfounded treatment assignment, see Nie and Wager (2017).
-  double residual = outcome - (treatment - average.at(TREATMENT)) * treatment_effect_estimate - average.at(OUTCOME);
+  double residual = outcome - (instrument - average.at(INSTRUMENT)) * reduced_form_estimate - average.at(OUTCOME);
   double error_raw = residual * residual;
 
   // Estimates the Monte Carlo bias of the raw error via the jackknife estimate of variance.
@@ -240,14 +244,15 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
     }
     const std::vector<double>& leaf_value = leaf_values.get_values(n);
     double outcome_loto = (num_trees *  average.at(OUTCOME) - leaf_value.at(OUTCOME)) / (num_trees - 1);
-    double treatment_loto = (num_trees *  average.at(TREATMENT) - leaf_value.at(TREATMENT)) / (num_trees - 1);
     double instrument_loto = (num_trees *  average.at(INSTRUMENT) - leaf_value.at(INSTRUMENT)) / (num_trees - 1);
     double outcome_instrument_loto = (num_trees *  average.at(OUTCOME_INSTRUMENT) - leaf_value.at(OUTCOME_INSTRUMENT)) / (num_trees - 1);
-    double treatment_instrument_loto = (num_trees *  average.at(TREATMENT_INSTRUMENT) - leaf_value.at(TREATMENT_INSTRUMENT)) / (num_trees - 1);
-    double instrument_effect_numerator_loto = outcome_instrument_loto - outcome_loto * instrument_loto;
-    double first_stage_numerator_loto = treatment_instrument_loto - treatment_loto * instrument_loto;
-    double treatment_effect_estimate_loto = instrument_effect_numerator_loto / first_stage_numerator_loto;
-    double residual_loto = outcome - (treatment - treatment_loto) * treatment_effect_estimate_loto - outcome_loto;
+    double instrument_instrument_loto = (num_trees *  average.at(INSTRUMENT_INSTRUMENT) - leaf_value.at(INSTRUMENT_INSTRUMENT)) / (num_trees - 1);
+
+    double reduced_form_numerator_loto = outcome_instrument_loto - outcome_loto * instrument_loto;
+    double reduced_form_denominator_loto = instrument_instrument_loto - instrument_loto * instrument_loto;
+    double reduced_form_estimate_loto = reduced_form_numerator_loto / reduced_form_denominator_loto;
+
+    double residual_loto = outcome - (instrument - instrument_loto) * reduced_form_estimate_loto - outcome_loto;
     error_bias += (residual_loto - residual) * (residual_loto - residual);
   }
 
