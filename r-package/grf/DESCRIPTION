@@ -1,7 +1,7 @@
 Package: grf
 Title: Generalized Random Forests
 Version: 0.10.4
-Authors@R:c(
+Authors@R: c(
     person("Julie", "Tibshirani", role = c("aut", "cre"), email = "jtibs@cs.stanford.edu"),
     person("Susan", "Athey", role = "aut"),
     person("Rina", "Friedberg", role = "ctb"),
@@ -28,7 +28,7 @@ Imports:
     methods,
     Rcpp (>= 0.12.15),
     sandwich (>= 2.4-0)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.0
 Suggests:
     DiagrammeR,
     testthat
