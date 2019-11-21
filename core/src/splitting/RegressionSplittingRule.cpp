@@ -64,9 +64,6 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   // For all possible split variables
   for (auto& var : possible_split_vars) {
     // Use faster method for both cases
-    // (tradeoff between nlog(n) and N)
-    // Small q: sorts the data in the node, O(nlog n)
-    // Large q: uses data pre-sorted at the forest initialization, O(N)
     double q = (double) size_node / (double) data.get_num_unique_data_values(var);
     if (q < Q_THRESHOLD) {
       find_best_split_value_small_q(data, node, var, sum_node, size_node, min_child_size,
@@ -197,7 +194,7 @@ void RegressionSplittingRule::find_best_split_value_large_q(const Data& data,
     if (counter[i] == 0) {
       continue;
     }
-
+    
     n_left += counter[i];
     sum_left += sums[i];
 
