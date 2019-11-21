@@ -203,7 +203,6 @@ bool TreeTrainer::split_node_internal(size_t node,
     return true;
   }
 
-  std::fill(responses_by_sample.begin(), responses_by_sample.end(), 0.0);
   bool stop = relabeling_strategy->relabel(samples[node], data, responses_by_sample);
 
   if (stop || splitting_rule->find_best_split(data,
