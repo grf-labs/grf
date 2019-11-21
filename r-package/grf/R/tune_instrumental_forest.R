@@ -1,16 +1,27 @@
-#' Regression forest tuning
+#' Instrumental forest tuning
 #'
-#' Trains a regression forest that can be used to estimate
-#' the conditional mean function mu(x) = E[Y | X = x]
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param W The treatment assignment (may be binary or real).
+#' @param Z The instrument (may be binary or real).
+#' @param Y.hat Estimates of the expected responses E[Y | Xi], marginalizing
+#'              over treatment. See section 6.1.1 of the GRF paper for
+#'              further discussion of this quantity.
+#' @param W.hat Estimates of the treatment propensities E[W | Xi].
+#' @param Z.hat Estimates of the instrument propensities E[Z | Xi].
 #' @param sample.weights (experimental) Weights given to an observation in estimation.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param clusters.subsample Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
-#'   sample the full clusters (FALSE). Default is FALSE.
+#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
+#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
+#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
+#'                            the whole cluster is used every time the cluster is drawn. Note that
+#'                            clusters with less than samples.per.cluster observations get relatively
+#'                            smaller weight than others in training the forest, i.e., the contribution
+#'                            of a given cluster to the final forest scales with the minimum of
+#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction. Default is 0.5.
@@ -33,9 +44,14 @@
 #'  Only applies if honesty is enabled. Default is TRUE.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
+#' @param stabilize.splits Whether or not the treatment should be taken into account when
+#'                         determining the imbalance of a split. Default is TRUE.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 2.
+#' @param reduced.form.weight Whether splits should be regularized towards a naive
+#'                            splitting criterion that ignores the instrument (and
+#'                            instead emulates a causal forest).
 #' @param tune.parameters A vector of parameter names to tune.
 #'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
 #'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
@@ -55,48 +71,48 @@
 #' @examples
 #' \dontrun{
 #' # Find the optimal tuning parameters.
-#' n <- 500
-#' p <- 10
-#' X <- matrix(rnorm(n * p), n, p)
-#' Y <- X[, 1] * rnorm(n)
-#' params <- tune_regression_forest(X, Y)$params
-#'
-#' # Use these parameters to train a regression forest.
-#' tuned.forest <- regression_forest(X, Y,
-#'   num.trees = 1000,
-#'   min.node.size = as.numeric(params["min.node.size"]),
-#'   sample.fraction = as.numeric(params["sample.fraction"]),
-#'   mtry = as.numeric(params["mtry"]),
-#'   alpha = as.numeric(params["alpha"]),
-#'   imbalance.penalty = as.numeric(params["imbalance.penalty"])
-#' )
-#' }
-#'
+#' n <- 3000; p <- 5
+#' X <- matrix(rbinom(n*p, 1, 0.5), n, p)
+#' Z <- rbinom(n, 1, 0.5)
+#' Q <- rbinom(n, 1, 0.5)
+#' T <- Q * Z
+#' eps <- rnorm(n)
+#' TAU <- X[,1] / 2
+#' Y <- rowSums(X[,1:3]) + TAU * T + Q + eps
+#' Y.hat <- predict(regression_forest(X, Y, num.trees = 500))$predictions
+#' W.hat <- predict(regression_forest(X, T, num.trees = 500))$predictions
+#' Z.hat <- predict(regression_forest(X, Z, num.trees = 500))$predictions
+#' tuned.iv.forest <- instrumental_forest(X, Y, T, Z, Y.hat, W.hat, Z.hat, tune.parameters = "all")
+#'}
 #' @export
-tune_regression_forest <- function(X, Y,
-                                  sample.weights = NULL,
-                                  clusters = NULL,
-                                  clusters.subsample = FALSE,
-                                  sample.fraction = 0.5,
-                                  mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
-                                  min.node.size = 5,
-                                  honesty = TRUE,
-                                  honesty.fraction = 0.5,
-                                  honesty.prune.leaves = TRUE,
-                                  alpha = 0.05,
-                                  imbalance.penalty = 0,
-                                  ci.group.size = 2,
-                                  tune.parameters = "all",
-                                  tune.num.trees = 50,
-                                  tune.num.reps = 100,
-                                  tune.num.draws = 1000,
-                                  num.threads = NULL,
-                                  seed = runif(1, 0, .Machine$integer.max)) {
+tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat,
+                                    sample.weights = NULL,
+                                    clusters = NULL,
+                                    samples.per.cluster = NULL,
+                                    sample.fraction = 0.5,
+                                    mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
+                                    min.node.size = 5,
+                                    honesty = TRUE,
+                                    honesty.fraction = 0.5,
+                                    honesty.prune.leaves = TRUE,
+                                    alpha = 0.05,
+                                    imbalance.penalty = 0,
+                                    stabilize.splits = TRUE,
+                                    ci.group.size = 2,
+                                    reduced.form.weight = 0,
+                                    tune.parameters = "all",
+                                    tune.num.trees = 200,
+                                    tune.num.reps = 50,
+                                    tune.num.draws = 1000,
+                                    num.threads = NULL,
+                                    seed = runif(1, 0, .Machine$integer.max)) {
   validate_X(X)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
+  W <- validate_observations(W, X)
+  Z <- validate_observations(Z, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_clusters_subsample(clusters.subsample, clusters)
+  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
   num.threads <- validate_num_threads(num.threads)
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
@@ -110,7 +126,8 @@ tune_regression_forest <- function(X, Y,
                              alpha = 0.05,
                              imbalance.penalty = 0)
 
-  data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
+  data <- create_data_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
+                              instrument = Z - Z.hat, sample.weights = sample.weights)
   nrow.X <- nrow(X)
   ncol.X <- ncol(X)
   args <- list(clusters = clusters,
@@ -122,8 +139,10 @@ tune_regression_forest <- function(X, Y,
                honesty.fraction = honesty.fraction,
                honesty.prune.leaves = honesty.prune.leaves,
                alpha = alpha,
+               stabilize.splits = stabilize.splits,
                imbalance.penalty = imbalance.penalty,
                ci.group.size = ci.group.size,
+               reduced.form.weight = reduced.form.weight,
                num.threads = num.threads,
                seed = seed)
 
@@ -137,9 +156,9 @@ tune_regression_forest <- function(X, Y,
   }
 
   tune.parameters.defaults <- default.parameters[tune.parameters]
-  train <- regression_train
-  predict_oob <- regression_predict_oob
-  predict.data.args <- c("train.matrix", "sparse.train.matrix", "outcome.index")
+  train <- instrumental_train
+  predict_oob <- instrumental_predict_oob
+  predict.data.args <- c("train.matrix", "sparse.train.matrix", "outcome.index", "treatment.index", "instrument.index")
 
   tuning.output <- tune_forest(data = data,
                                nrow.X = nrow.X,

@@ -103,12 +103,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
   std::mt19937_64 random_number_generator(options.get_random_seed() + start);
   nonstd::uniform_int_distribution<uint> udist;
   std::vector<std::unique_ptr<Tree>> trees;
-
-  if (ci_group_size == 1) {
-    trees.reserve(num_trees);
-  } else {
-    trees.reserve(num_trees * ci_group_size);
-  }
+  trees.reserve(num_trees * ci_group_size);
 
   for (size_t i = 0; i < num_trees; i++) {
     uint tree_seed = udist(random_number_generator);

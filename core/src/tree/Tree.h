@@ -19,7 +19,6 @@
 #define GRF_TREE_H_
 
 #include <vector>
-#include <iostream>
 
 #include "commons/globals.h"
 #include "commons/DefaultData.h"

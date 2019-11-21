@@ -109,10 +109,10 @@
 #' W <- rbinom(n, 1, 1 / (1 + exp(-X[, 1] - X[, 2])))
 #' Y <- pmax(X[, 2] + X[, 3], 0) + rowMeans(X[, 4:6]) / 2 + W * TAU + rnorm(n)
 #'
-#' forest.W <- regression_forest(X, W, tune.parameters = TRUE)
+#' forest.W <- regression_forest(X, W, tune.parameters = "all")
 #' W.hat <- predict(forest.W)$predictions
 #'
-#' forest.Y <- regression_forest(X, Y, tune.parameters = TRUE)
+#' forest.Y <- regression_forest(X, Y, tune.parameters = "all")
 #' Y.hat <- predict(forest.Y)$predictions
 #'
 #' forest.Y.varimp <- variable_importance(forest.Y)
@@ -124,7 +124,7 @@
 #'
 #' tau.forest <- causal_forest(X[, selected.vars], Y, W,
 #'   W.hat = W.hat, Y.hat = Y.hat,
-#'   tune.parameters = TRUE
+#'   tune.parameters = "all"
 #' )
 #' tau.hat <- predict(tau.forest)$predictions
 #' }

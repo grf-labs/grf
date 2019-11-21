@@ -208,16 +208,18 @@ The accuracy of a forest can be sensitive to several training parameters:
 - the parameters that control honesty behavior `honesty.fraction` and `honesty.prune.leaves`
 - the split balance parameters `alpha` and `imbalance.penalty`
 
-GRF provides a cross-validation procedure to select values of these parameters to use in training. To enable this tuning during training, the option `tune.parameters = TRUE` can be passed to main forest method. The cross-validation methods can also be called directly through `tune_regression_forest` and`tune_causal_forest`. Parameter tuning is currently disabled by default.
+GRF provides a cross-validation procedure to select values of these parameters to use in training. To enable this tuning during training, the option `tune.parameters = "all"` can be passed to main forest method. The cross-validation methods can also be called directly through `tune_regression_forest` and `tune_causal_forest`. Parameter tuning is currently disabled by default.
 
 The cross-validation procedure works as follows:
-- Draw a number of random points in the space of possible parameter values. By default, 100 distinct sets of parameter values are chosen.
+- Draw a number of random points in the space of possible parameter values. By default, 100 distinct sets of parameter values are chosen (`tune.num.reps`).
 - For each set of parameter values, train a forest with these values and compute the out-of-bag error. There are a couple important points to note about this error measure, outlined below. The exact procedure for computing the error can be found in the C++ methods that implement`OptimizedPredictionStrategy#compute_debiased_error`.
-  - For tuning to be computationally tractable, we only train 'mini forests' composed of 10 trees. With such a small number of trees, the out-of-bag error gives a biased estimate of the final forest error. We therefore debias the error through a simple variance decomposition.
+  - For tuning to be computationally tractable, we only train 'mini forests' composed of 50 trees (`tune.num.trees`). With such a small number of trees, the out-of-bag error gives a biased estimate of the final forest error. We therefore debias the error through a simple variance decomposition.
   - While the notion of error is straightforward for regression forests, it can be more subtle in the context of treatment effect estimation. For causal forests, we use a measure of error developed in Nie and Wager (2017) motivated by residual-on-residual regression (Robinson, 1988).
-- Finally, given the debiased error estimates for each set of parameters, we apply a smoothing function to determine the optimal parameter values.
+- Finally, given the debiased error estimates for each set of parameters, we apply a smoothing function to determine the optimal parameter values. The optimal parameters are the ones minimizing the predicted smoothed error on a new random draw of possible parameter values (of size `tune.num.draws`).
 
 Note that `honesty.fraction` and `honesty.prune.leaves` are only considered for tuning when `honesty = TRUE` (its default value). Parameter tuning does not try different options of `honesty` itself.
+
+Tuning can be sensitive. Tuning only a subset of the parameters (with for example `tune.parameters = c("min.node.size", "honesty.prune.leaves")` may give better performance than trying to find the optimum for all. On smaller data, increasing `tune.num.trees` may not necessarily increase training time drastically and could result in more stable results.
 
 ### Merging Forests
 

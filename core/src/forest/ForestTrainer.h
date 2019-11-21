@@ -18,6 +18,8 @@
 #ifndef GRF_FORESTTRAINER_H
 #define GRF_FORESTTRAINER_H
 
+#include <memory>
+
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
 #include "splitting/factory/SplittingRuleFactory.h"
@@ -26,11 +28,6 @@
 #include "tree/TreeTrainer.h"
 #include "forest/Forest.h"
 #include "ForestOptions.h"
-
-#include <future>
-#include <memory>
-#include <set>
-#include <thread>
 
 namespace grf {
 
