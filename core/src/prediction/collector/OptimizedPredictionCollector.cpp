@@ -23,8 +23,8 @@
 
 namespace grf {
 
-OptimizedPredictionCollector::OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy):
-    strategy(std::move(strategy)) {}
+OptimizedPredictionCollector::OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy, uint num_threads):
+    strategy(std::move(strategy)), num_threads(num_threads) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
                                                                           const Data& train_data,
@@ -32,8 +32,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                                           bool estimate_variance,
-                                                                          bool estimate_error,
-                                                                          uint num_threads) const {
+                                                                          bool estimate_error) const {
   size_t num_samples = data.get_num_rows();
   std::vector<uint> thread_ranges;
   split_sequence(thread_ranges, 0, num_samples - 1, num_threads);
