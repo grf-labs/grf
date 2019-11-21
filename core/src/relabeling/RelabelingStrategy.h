@@ -38,6 +38,8 @@ public:
    * samples: the subset of samples to relabel.
    * data: the training data matrix.
    * responses_by_sample: the output of the method, containing a map from sample ID to relabelled response.
+   *  Note: for performance reasons (avoiding clearing out the vector after each split) this vector may
+   *  contain garbage values for indices outside of the given set of sample IDs.
    *
    * returns: a boolean that will be 'true' if splitting should stop early.
    */
