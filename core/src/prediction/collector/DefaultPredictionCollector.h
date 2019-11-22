@@ -39,6 +39,16 @@ public:
                                               bool estimate_error) const;
 
 private:
+  std::vector<Prediction> collect_predictions_batch(const Forest& forest,
+                                                    const Data& train_data,
+                                                    const Data& data,
+                                                    const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                    const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                                    bool estimate_variance,
+                                                    bool estimate_error,
+                                                    size_t start,
+                                                    size_t num_samples) const;
+
   void validate_prediction(size_t sample, const Prediction& prediction) const;
 
   std::unique_ptr<DefaultPredictionStrategy> strategy;
