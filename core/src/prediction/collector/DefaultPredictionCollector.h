@@ -28,7 +28,7 @@ namespace grf {
 
 class DefaultPredictionCollector final: public PredictionCollector {
 public:
-  DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy);
+  DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy, uint num_threads);
 
   std::vector<Prediction> collect_predictions(const Forest& forest,
                                               const Data& train_data,
@@ -43,6 +43,7 @@ private:
 
   std::unique_ptr<DefaultPredictionStrategy> strategy;
   SampleWeightComputer weight_computer;
+  uint num_threads;
 };
 
 } // namespace grf

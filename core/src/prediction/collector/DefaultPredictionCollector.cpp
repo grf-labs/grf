@@ -21,8 +21,9 @@
 
 namespace grf {
 
-DefaultPredictionCollector::DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy):
-    strategy(std::move(strategy)) {}
+DefaultPredictionCollector::DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy,
+                                                       uint num_threads):
+    strategy(std::move(strategy)), num_threads(num_threads) {}
 
 std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const Forest& forest,
