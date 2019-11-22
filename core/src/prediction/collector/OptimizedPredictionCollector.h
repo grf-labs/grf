@@ -26,7 +26,7 @@ namespace grf {
 
 class OptimizedPredictionCollector final: public PredictionCollector {
 public:
-  OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy);
+  OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy, uint num_threads);
 
   std::vector<Prediction> collect_predictions(const Forest& forest,
                                               const Data& train_data,
@@ -37,6 +37,16 @@ public:
                                               bool estimate_error) const;
 
 private:
+  std::vector<Prediction> collect_predictions_batch(const Forest& forest,
+                                                    const Data& train_data,
+                                                    const Data& data,
+                                                    const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                    const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                                    bool estimate_variance,
+                                                    bool estimate_error,
+                                                    size_t start,
+                                                    size_t num_samples) const;
+
   void add_prediction_values(size_t node,
                              const PredictionValues& prediction_values,
                              std::vector<double>& combined_average) const;
@@ -48,6 +58,7 @@ private:
                            const Prediction& prediction) const;
 
   std::unique_ptr<OptimizedPredictionStrategy> strategy;
+  uint num_threads;
 };
 
 } // namespace grf
