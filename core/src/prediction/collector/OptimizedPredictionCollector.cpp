@@ -15,14 +15,16 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
+#include <future>
 #include <stdexcept>
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
+#include "commons/utility.h"
 
 namespace grf {
 
-OptimizedPredictionCollector::OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy):
-    strategy(std::move(strategy)) {}
+OptimizedPredictionCollector::OptimizedPredictionCollector(std::unique_ptr<OptimizedPredictionStrategy> strategy, uint num_threads):
+    strategy(std::move(strategy)), num_threads(num_threads) {}
 
 std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const Forest& forest,
                                                                           const Data& train_data,
@@ -31,14 +33,60 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                                           bool estimate_variance,
                                                                           bool estimate_error) const {
-  size_t num_trees = forest.get_trees().size();
   size_t num_samples = data.get_num_rows();
+  std::vector<uint> thread_ranges;
+  split_sequence(thread_ranges, 0, num_samples - 1, num_threads);
+
+  std::vector<std::future<std::vector<Prediction>>> futures;
+  futures.reserve(thread_ranges.size());
+
+  std::vector<Prediction> predictions;
+  predictions.reserve(num_samples);
+
+  for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
+    size_t start_index = thread_ranges[i];
+    size_t num_samples_batch = thread_ranges[i + 1] - start_index;
+
+    futures.push_back(std::async(std::launch::async,
+                                 &OptimizedPredictionCollector::collect_predictions_batch,
+                                 this,
+                                 std::ref(forest),
+                                 std::ref(train_data),
+                                 std::ref(data),
+                                 std::ref(leaf_nodes_by_tree),
+                                 std::ref(valid_trees_by_sample),
+                                 estimate_variance,
+                                 estimate_error,
+                                 start_index,
+                                 num_samples_batch));
+  }
+
+  for (auto& future : futures) {
+    std::vector<Prediction> thread_predictions = future.get();
+    predictions.insert(predictions.end(),
+                       std::make_move_iterator(thread_predictions.begin()),
+                       std::make_move_iterator(thread_predictions.end()));
+  }
+
+  return predictions;
+}
+
+std::vector<Prediction> OptimizedPredictionCollector::collect_predictions_batch(const Forest& forest,
+                                                                                const Data& train_data,
+                                                                                const Data& data,
+                                                                                const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                                                const std::vector<std::vector<bool>>& valid_trees_by_sample,
+                                                                                bool estimate_variance,
+                                                                                bool estimate_error,
+                                                                                size_t start,
+                                                                                size_t num_samples) const {
+  size_t num_trees = forest.get_trees().size();
   bool record_leaf_values = estimate_variance || estimate_error;
 
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
 
-  for (size_t sample = 0; sample < num_samples; ++sample) {
+  for (size_t sample = start; sample < num_samples + start; ++sample) {
     std::vector<double> average_value;
     std::vector<std::vector<double>> leaf_values;
     if (record_leaf_values) {
