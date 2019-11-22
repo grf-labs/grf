@@ -35,12 +35,12 @@ public:
   /**
    * Finds the best split at a given node in the tree.
    *
-   * Is called repeatedly to build a tree in a DFS or BFS fashion.
+   * Is called repeatedly to build a tree in a breadth-first fashion.
    *
    * @param data: the data matrix containing all test samples.
    * @param node: the node id in the tree.
-   * @param possible_split_vars: a vector of valid sample IDs.
-   * @param responses_by_sample: a vector of transformed outcomes.
+   * @param possible_split_vars: a vector of valid covariate IDs.
+   * @param responses_by_sample: a map from sample ID to response.
    * @param samples: a vector of samples at the given node.
    * @param split_vars: the output of the method, the best split variable, stored at node.
    * @param split_values: the output of the method, the best split value, stored at node.
@@ -57,7 +57,7 @@ public:
    * An expensive computation in finding the best split is sorting all the values in order to place samples
    * on the left or right of the split.
    * `small_q` sorts the data in the node when it is called, which has time complexity O(nj log nj), then
-   * iterates over all nj point calculating the decrease in impurity.
+   * iterates over all nj points calculating the decrease in impurity.
    * `large_q` accesses a global sort order for all Nj points created at the initalization of forest training.
    * To find the best split at the nj points in the node, a full scan
    * over all Nj points is done, getting the proper position of the sample. This is dominated by O(Nj).
