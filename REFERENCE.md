@@ -15,6 +15,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Orthogonalization](#orthogonalization)
   * [Selecting Balanced Splits](#selecting-balanced-splits)
   * [Average Treatment Effects](#average-treatment-effects)
+  * [Best Linear Projection of the CATE](#best-linear-projection-of-the-CATE)
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
   * [Boosted Regression Forests](#boosted-regression-forests)
