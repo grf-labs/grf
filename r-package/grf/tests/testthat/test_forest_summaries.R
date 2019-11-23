@@ -138,3 +138,37 @@ test_that("causal forest calibration works with clusters", {
 
   expect_equal(tc[, 1:3], tc.clust[, 1:3])
 })
+
+test_that("best linear projection is reasonable", {
+  n <- 2000
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.25 + 0.5 * (X[, 1] > 0))
+  S <- rbinom(n, 1, 0.5)
+  Y <- S * pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+  forest <- causal_forest(X, Y, W, num.trees = 300)
+
+  # hard-code true regression coefficients
+  beta0.true <- 0.2 # approximation to mean(pmax(Z, 0))/2
+  beta1.true <- 0.25 # cov(pmax(Z, 0), Z)/2
+
+  blp.all <- best_linear_projection(forest, X[,1:2])
+  expect_equal(blp.all[1,1], beta0.true, tol = 0.1)
+  expect_equal(blp.all[2,1], beta1.true, tol = 0.1)
+  expect_equal(blp.all[3,1], 0, tol = 0.1)
+
+  blp.s <- best_linear_projection(forest, X[,1:2], subset = (S == 1))
+  expect_equal(blp.s[1,1], beta0.true * 2, tol = 0.2)
+  expect_equal(blp.s[2,1], beta1.true * 2, tol = 0.2)
+  expect_equal(blp.s[3,1], 0, tol = 0.2)
+
+  std.errs <- c((blp.all[1,1] - beta0.true) / blp.all[1,2],
+               (blp.all[2,1] - beta1.true) / blp.all[2,2],
+               (blp.all[3,1] - 0) / blp.all[3,2],
+               (blp.s[1,1] - beta0.true * 2) / blp.s[1,2],
+               (blp.s[2,1] - beta1.true * 2) / blp.s[2,2],
+               (blp.s[3,1] - 0) / blp.s[3,2])
+  
+  expect_lt(mean(abs(std.errs)), 2.5)
+  expect_gt(mean(abs(std.errs)), 0.25)
+})
