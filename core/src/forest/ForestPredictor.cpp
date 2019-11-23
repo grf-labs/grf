@@ -35,7 +35,7 @@ ForestPredictor::ForestPredictor(uint num_threads,
                                  std::unique_ptr<OptimizedPredictionStrategy> strategy) :
     tree_traverser(num_threads) {
   this->prediction_collector = std::unique_ptr<PredictionCollector>(
-      new OptimizedPredictionCollector(std::move(strategy)));
+      new OptimizedPredictionCollector(std::move(strategy), num_threads));
 }
 
 

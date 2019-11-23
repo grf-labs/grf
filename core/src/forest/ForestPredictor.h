@@ -53,6 +53,7 @@ public:
   std::vector<Prediction> predict_oob(const Forest& forest,
                                       const Data& data,
                                       bool estimate_variance) const;
+
 private:
   std::vector<Prediction> predict(const Forest& forest,
                                   const Data& train_data,
