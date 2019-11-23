@@ -15,6 +15,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Orthogonalization](#orthogonalization)
   * [Selecting Balanced Splits](#selecting-balanced-splits)
   * [Average Treatment Effects](#average-treatment-effects)
+  * [Best Linear Projection of the CATE](#best-linear-projection-of-the-CATE)
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
   * [Boosted Regression Forests](#boosted-regression-forests)
@@ -196,6 +197,16 @@ The `average_treatment_effect` function implements two types of doubly robust av
 - `target.sample = "control"`: the ATE on the control examples, `sum_{W_i = 0} E[Y(1) - Y(0) | X = X_i] / |{i : W_i = 0}|`.
 - `target.sample = "overlap"`: the overlap-weighted ATE `sum_{i = 1}^n e(Xi) (1 - e(Xi)) E[Y(1) - Y(0) | X = Xi] / sum_{i = 1}^n e(Xi) (1 - e(Xi))`,
   where `e(x) = P[W_i = 1 | X_i = x]`. This last estimand is recommended by Li et al. (2017) in case of poor overlap (i.e., when the treatment propensities e(x) may be very close to 0 or 1), as it doesn't involve dividing by estimated propensities.
+
+### Best Linear Projection of the CATE
+
+Sometimes, it is helpful to have a more expressive summary of the CATE function `tau(x) = E[Y(1) - Y(0) | X = x]` than the average treatment effect. One useful summary of this type is the "best linear projection" of tau(x) onto a set of features A, i.e., the population solution to the linear model
+
+`tau(X) ~ beta0 + A * beta`
+
+Qualitatively, these betas can be used to assess the association of the CATE function with the features A. The features A could, for example, be a subset of the features X used to train the forest. Note that, if the features A are mean zero, the intercept beta0 corresponds to the average treatment effect.
+
+The function `best_linear_projection` provides estimates of the coefficients beta in the above model. Note that this function does not simply regress the CATE estimates tau.hat(Xi) given by the causal forest against Ai. Instead, we use a doubly robust estimator that generalizes the augmented inverse-propensity weighted estimator for the average treatment effect described above.
 
 ## Additional Features
 
