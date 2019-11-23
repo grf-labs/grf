@@ -107,14 +107,14 @@ test_that("LL causal CIs are reasonable", {
    forest <- causal_forest(X, Y, W)
    tau.hat <- predict(forest, linear.correction.variables = 1:ncol(X), estimate.variance = TRUE)
    error.standardized <- (tau.hat$predictions - TAU) / sqrt(tau.hat$variance.estimates)
-   expect_lt(mean(abs(error.standardized) > qnorm(0.975)), 0.05)
+   expect_lt(mean(abs(error.standardized) > qnorm(0.975)), 0.1)
 
    X.test <- matrix(rnorm(n.test * p), n.test, p)
    TAU.test <- 2 * X.test[, 1]
 
    tau.hat.test <- predict(forest, X.test, linear.correction.variables = 1:ncol(X), estimate.variance = TRUE)
    error.standardized.test <- (tau.hat.test$predictions - TAU.test) / sqrt(tau.hat.test$variance.estimates)
-   expect_lt(mean(abs(error.standardized.test) > qnorm(0.975)), 0.05)
+   expect_lt(mean(abs(error.standardized.test) > qnorm(0.975)), 0.1)
 })
 
 test_that("LL causal CIs are shorter than standard causal CIS", {
