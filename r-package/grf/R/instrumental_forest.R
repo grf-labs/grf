@@ -112,7 +112,7 @@ instrumental_forest <- function(X, Y, W, Z,
   W <- validate_observations(W, X)
   Z <- validate_observations(Z, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
 
   if (!is.numeric(reduced.form.weight) | reduced.form.weight < 0 | reduced.form.weight > 1) {

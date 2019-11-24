@@ -113,7 +113,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
   Y <- validate_observations(Y, X)
   W <- validate_observations(W, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",

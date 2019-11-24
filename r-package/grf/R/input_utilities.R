@@ -73,17 +73,20 @@ validate_clusters <- function(clusters, X) {
   clusters
 }
 
-validate_equalize_cluster_weights <- function(equalize.cluster.weights, clusters) {
+validate_equalize_cluster_weights <- function(equalize.cluster.weights, clusters, sample.weights) {
   if (is.null(clusters) || length(clusters) == 0) {
     return(0)
   }
   cluster_size_counts <- table(clusters)
   if (equalize.cluster.weights == TRUE) {
     samples.per.cluster <- min(cluster_size_counts)
+    if (!is.null(sample.weights)) {
+      stop("If equalize.cluster.weights is TRUE, sample.weights must be NULL.")
+    }
   } else if (equalize.cluster.weights == FALSE) {
     samples.per.cluster <- max(cluster_size_counts)
   } else {
-    stop("equalize.cluster.weights must be either TRUE or FALSE")
+    stop("equalize.cluster.weights must be either TRUE or FALSE.")
   }
 
   samples.per.cluster
