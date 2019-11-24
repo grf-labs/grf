@@ -31,8 +31,15 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param equalize.cluster.weights Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
-#'   sample the full clusters (FALSE). Default is FALSE.
+#' @param equalize.cluster.weights If FALSE, each unit is given the same weight (so that bigger
+#'  clusters get more weight). If TRUE, each cluster is given equal weight in the forest. In this case,
+#'  during training, each tree uses the same number of observations from each drawn cluster: If the
+#'  smallest cluster has K units, then when we sample a cluster during training, we only give a random
+#'  K elements of the cluster to the tree-growing procedure. When estimating average treatment effects,
+#'  each observation is given weight 1/cluster size, so that the total weight of each cluster is the
+#'  same. Note that, if this argument is FALSE, sample weights may also be directly adjusted via the
+#'  sample.weights argument. If this argument is TRUE, sample.weights must be set to NULL. Default is
+#'  FALSE.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency
