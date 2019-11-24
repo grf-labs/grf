@@ -14,7 +14,7 @@
 #'                       If NULL, each observation receives the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param clusters.subsample Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
+#' @param equalize.cluster.weights Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
 #'   sample the full clusters (FALSE). Default is FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
@@ -86,7 +86,7 @@ boosted_regression_forest <- function(X, Y,
                                       num.trees = 2000,
                                       sample.weights = NULL,
                                       clusters = NULL,
-                                      clusters.subsample = FALSE,
+                                      equalize.cluster.weights = FALSE,
                                       sample.fraction = 0.5,
                                       mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                                       min.node.size = 5,
@@ -123,7 +123,7 @@ boosted_regression_forest <- function(X, Y,
     seed = seed, ci.group.size = ci.group.size,
     alpha = alpha,
     imbalance.penalty = imbalance.penalty,
-    clusters = clusters, clusters.subsample = clusters.subsample
+    clusters = clusters, equalize.cluster.weights = equalize.cluster.weights
   )
   current.pred <- predict(forest.Y, num.threads = num.threads)
   # save tuned parameters for use on future boosting iterations
@@ -159,7 +159,7 @@ boosted_regression_forest <- function(X, Y,
         seed = seed, ci.group.size = ci.group.size,
         alpha = as.numeric(tunable.params["alpha"]),
         imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
-        clusters = clusters, clusters.subsample = clusters.subsample
+        clusters = clusters, equalize.cluster.weights = equalize.cluster.weights
       )
       step.error.approx <- predict(forest.small, num.threads = num.threads)$debiased.error
       if (!(mean(step.error.approx, na.rm = TRUE) <= boost.error.reduction * mean(error.debiased, na.rm = TRUE))) {
@@ -180,7 +180,7 @@ boosted_regression_forest <- function(X, Y,
       seed = seed, ci.group.size = ci.group.size,
       alpha = as.numeric(tunable.params["alpha"]),
       imbalance.penalty = as.numeric(tunable.params["imbalance.penalty"]),
-      clusters = clusters, clusters.subsample = clusters.subsample
+      clusters = clusters, equalize.cluster.weights = equalize.cluster.weights
     )
 
     current.pred <- predict(forest.resid, num.threads = num.threads)

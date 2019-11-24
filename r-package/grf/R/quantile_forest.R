@@ -15,7 +15,7 @@
 #'                             quantile forests from Meinshausen (2006). Default is FALSE.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param clusters.subsample Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
+#' @param equalize.cluster.weights Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
 #'   sample the full clusters (FALSE). Default is FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
@@ -78,7 +78,7 @@ quantile_forest <- function(X, Y,
                             quantiles = c(0.1, 0.5, 0.9),
                             regression.splitting = FALSE,
                             clusters = NULL,
-                            clusters.subsample = FALSE,
+                            equalize.cluster.weights = FALSE,
                             sample.fraction = 0.5,
                             mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                             min.node.size = 5,
@@ -98,7 +98,7 @@ quantile_forest <- function(X, Y,
   validate_X(X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_clusters_subsample(clusters.subsample, clusters)
+  samples.per.cluster <- validate_clusters_subsample(equalize.cluster.weights, clusters)
   num.threads <- validate_num_threads(num.threads)
 
   data <- create_data_matrices(X, outcome = Y)
@@ -114,7 +114,7 @@ quantile_forest <- function(X, Y,
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["clusters"]] <- clusters
-  forest[["clusters.subsample"]] <- clusters.subsample
+  forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest
 }
 

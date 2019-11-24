@@ -73,17 +73,17 @@ validate_clusters <- function(clusters, X) {
   clusters
 }
 
-validate_clusters_subsample <- function(clusters.subsample, clusters) {
+validate_clusters_subsample <- function(equalize.cluster.weights, clusters) {
   if (is.null(clusters) || length(clusters) == 0) {
     return(0)
   }
   cluster_size_counts <- table(clusters)
-  if (clusters.subsample == TRUE) {
+  if (equalize.cluster.weights == TRUE) {
     samples.per.cluster <- min(cluster_size_counts)
-  } else if (clusters.subsample == FALSE) {
+  } else if (equalize.cluster.weights == FALSE) {
     samples.per.cluster <- max(cluster_size_counts)
   } else {
-    stop("clusters.subsample must be either TRUE or FALSE")
+    stop("equalize.cluster.weights must be either TRUE or FALSE")
   }
 
   samples.per.cluster
@@ -203,7 +203,7 @@ observation_weights <- function(forest) {
   }
   if (length(forest$clusters) != 0 && is.null(forest$sample.weights)) {
     observation.weight <- sample.weights
-    if (forest$clusters.subsample) {
+    if (forest$equalize.cluster.weights) {
       clust.factor <- factor(forest$clusters)
       inverse.counts <- 1 / as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
       observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]

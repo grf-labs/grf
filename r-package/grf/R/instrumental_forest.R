@@ -25,7 +25,7 @@
 #'                       If NULL, each observation receives equal weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param clusters.subsample Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
+#' @param equalize.cluster.weights Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
 #'   sample the full clusters (FALSE). Default is FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
@@ -80,7 +80,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 num.trees = 2000,
                                 sample.weights = NULL,
                                 clusters = NULL,
-                                clusters.subsample = FALSE,
+                                equalize.cluster.weights = FALSE,
                                 sample.fraction = 0.5,
                                 mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                                 min.node.size = 5,
@@ -105,7 +105,7 @@ instrumental_forest <- function(X, Y, W, Z,
   W <- validate_observations(W, X)
   Z <- validate_observations(Z, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_clusters_subsample(clusters.subsample, clusters)
+  samples.per.cluster <- validate_clusters_subsample(equalize.cluster.weights, clusters)
   num.threads <- validate_num_threads(num.threads)
 
   if (!is.numeric(reduced.form.weight) | reduced.form.weight < 0 | reduced.form.weight > 1) {
@@ -119,7 +119,7 @@ instrumental_forest <- function(X, Y, W, Z,
                      num.trees = min(500, num.trees),
                      sample.weights = sample.weights,
                      clusters = clusters,
-                     clusters.subsample = clusters.subsample,
+                     equalize.cluster.weights = equalize.cluster.weights,
                      sample.fraction = sample.fraction,
                      mtry = mtry,
                      min.node.size = 5,
@@ -217,7 +217,7 @@ instrumental_forest <- function(X, Y, W, Z,
   forest[["W.hat"]] <- W.hat
   forest[["Z.hat"]] <- Z.hat
   forest[["clusters"]] <- clusters
-  forest[["clusters.subsample"]] <- clusters.subsample
+  forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["sample.weights"]] <- sample.weights
   forest[["tunable.params"]] <- args[all.tunable.params]
   forest[["tuning.output"]] <- tuning.output

@@ -27,7 +27,7 @@
 #'                       independent of the potential outcomes given X. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param clusters.subsample Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
+#' @param equalize.cluster.weights Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
 #'   sample the full clusters (FALSE). Default is FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
@@ -136,7 +136,7 @@ causal_forest <- function(X, Y, W,
                           num.trees = 2000,
                           sample.weights = NULL,
                           clusters = NULL,
-                          clusters.subsample = FALSE,
+                          equalize.cluster.weights = FALSE,
                           sample.fraction = 0.5,
                           mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                           min.node.size = 5,
@@ -160,7 +160,7 @@ causal_forest <- function(X, Y, W,
   Y <- validate_observations(Y, X)
   W <- validate_observations(W, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_clusters_subsample(clusters.subsample, clusters)
+  samples.per.cluster <- validate_clusters_subsample(equalize.cluster.weights, clusters)
   num.threads <- validate_num_threads(num.threads)
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
@@ -170,7 +170,7 @@ causal_forest <- function(X, Y, W,
                      num.trees = max(50, num.trees / 4),
                      sample.weights = sample.weights,
                      clusters = clusters,
-                     clusters.subsample = clusters.subsample,
+                     equalize.cluster.weights = equalize.cluster.weights,
                      sample.fraction = sample.fraction,
                      mtry = mtry,
                      min.node.size = 5,
@@ -235,7 +235,7 @@ causal_forest <- function(X, Y, W,
     tuning.output <- tune_causal_forest(X, Y, W, Y.hat, W.hat,
                                         sample.weights = sample.weights,
                                         clusters = clusters,
-                                        clusters.subsample = clusters.subsample,
+                                        equalize.cluster.weights = equalize.cluster.weights,
                                         sample.fraction = sample.fraction,
                                         mtry = mtry,
                                         min.node.size = min.node.size,
@@ -264,7 +264,7 @@ causal_forest <- function(X, Y, W,
   forest[["Y.hat"]] <- Y.hat
   forest[["W.hat"]] <- W.hat
   forest[["clusters"]] <- clusters
-  forest[["clusters.subsample"]] <- clusters.subsample
+  forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["sample.weights"]] <- sample.weights
   forest[["tunable.params"]] <- args[all.tunable.params]
   forest[["tuning.output"]] <- tuning.output

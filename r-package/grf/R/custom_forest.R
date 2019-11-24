@@ -31,7 +31,7 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param clusters.subsample Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
+#' @param equalize.cluster.weights Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
 #'   sample the full clusters (FALSE). Default is FALSE.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
@@ -67,14 +67,14 @@ custom_forest <- function(X, Y,
                           alpha = 0.05,
                           imbalance.penalty = 0.0,
                           clusters = NULL,
-                          clusters.subsample = FALSE,
+                          equalize.cluster.weights = FALSE,
                           compute.oob.predictions = TRUE,
                           num.threads = NULL,
                           seed = runif(1, 0, .Machine$integer.max)) {
   validate_X(X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_clusters_subsample(clusters.subsample, clusters)
+  samples.per.cluster <- validate_clusters_subsample(equalize.cluster.weights, clusters)
   num.threads <- validate_num_threads(num.threads)
 
   no.split.variables <- numeric(0)

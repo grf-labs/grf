@@ -10,7 +10,7 @@
 #'                  getting accurate predictions. Default is 2000.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param clusters.subsample Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
+#' @param equalize.cluster.weights Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
 #'   sample the full clusters (FALSE). Default is FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
@@ -63,7 +63,7 @@
 ll_regression_forest <- function(X, Y,
                                  num.trees = 2000,
                                  clusters = NULL,
-                                 clusters.subsample = FALSE,
+                                 equalize.cluster.weights = FALSE,
                                  sample.fraction = 0.5,
                                  mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                                  min.node.size = 5,
@@ -84,7 +84,7 @@ ll_regression_forest <- function(X, Y,
                               num.trees = num.trees,
                               sample.weights = NULL,
                               clusters = clusters,
-                              clusters.subsample = clusters.subsample,
+                              equalize.cluster.weights = equalize.cluster.weights,
                               sample.fraction = sample.fraction,
                               mtry = mtry,
                               min.node.size = min.node.size,
