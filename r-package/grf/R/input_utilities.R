@@ -73,7 +73,7 @@ validate_clusters <- function(clusters, X) {
   clusters
 }
 
-validate_clusters_subsample <- function(equalize.cluster.weights, clusters) {
+validate_equalize_cluster_weights <- function(equalize.cluster.weights, clusters) {
   if (is.null(clusters) || length(clusters) == 0) {
     return(0)
   }

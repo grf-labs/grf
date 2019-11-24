@@ -98,7 +98,7 @@ quantile_forest <- function(X, Y,
   validate_X(X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_clusters_subsample(equalize.cluster.weights, clusters)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters)
   num.threads <- validate_num_threads(num.threads)
 
   data <- create_data_matrices(X, outcome = Y)

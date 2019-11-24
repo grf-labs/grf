@@ -14,14 +14,8 @@
 #'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'                 Default is NULL (ignored).
-#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
-#'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples.per.cluster observations get relatively
-#'                            smaller weight than others in training the forest, i.e., the contribution
-#'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
+#' @param equalize.cluster.weights Whether to subsample from the clusters according to the minimum cluster size (TRUE) or
+#'   sample the full clusters (FALSE). Default is FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction. Default is 0.5.
@@ -88,7 +82,7 @@
 tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat,
                                     sample.weights = NULL,
                                     clusters = NULL,
-                                    samples.per.cluster = NULL,
+                                    equalize.cluster.weights = FALSE,
                                     sample.fraction = 0.5,
                                     mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                                     min.node.size = 5,
@@ -112,7 +106,7 @@ tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat,
   W <- validate_observations(W, X)
   Z <- validate_observations(Z, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters)
   num.threads <- validate_num_threads(num.threads)
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
