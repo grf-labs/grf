@@ -70,6 +70,12 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
   size_t num_samples = data->get_num_rows();
   size_t num_neighbors = train_data->get_num_rows();
 
+  // From http://eigen.tuxfamily.org/dox/group__TutorialSparse.html:
+  // Filling a sparse matrix effectively
+  typedef Eigen::Triplet<double> T;
+  std::vector<T> tripletList;
+  tripletList.reserve(num_neighbors);
+  // tripletList.reserve(num_samples);
   Eigen::SparseMatrix<double> result(num_samples, num_neighbors);
 
   for (size_t sample = 0; sample < num_samples; sample++) {
@@ -78,11 +84,11 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
     for (auto it = weights.begin(); it != weights.end(); it++) {
       size_t neighbor = it->first;
       double weight = it->second;
-      result.insert(sample, neighbor) = weight;
+      tripletList.push_back(T(sample, neighbor, weight));
     }
   }
+  result.setFromTriplets(tripletList.begin(), tripletList.end());
 
-  result.makeCompressed();
   return result;
 }
 
