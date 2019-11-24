@@ -275,7 +275,7 @@ test_that("cluster robust average effects do weighting correctly", {
   cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - t0) / (3 * cate.aipw[2]) <= 1)
   expect_true(cate.aipw[2] <= 0.2)
-  
+
   # The best linear projection with NULL covariates should match the ATE estimate via AIPW.
   # The reason the numbers don't match exactly is that the function `average_treatment_effect`
   # does a Hajek-style correction to renormalize propensities for the treated and control
@@ -342,7 +342,7 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   forest.weighted <- causal_forest(
     X[cc, ], Y[cc], W[cc],
     sample.weights = sample.weights[cc],
-    clusters = clust[cc], equalize.cluster.weights = TRUE, num.trees = 400
+    clusters = clust[cc], equalize.cluster.weights = FALSE, num.trees = 400
   )
   forest.unweighted <- causal_forest(X[cc, ], Y[cc], W[cc], clusters = clust[cc],
                                      equalize.cluster.weights = TRUE,  num.trees = 400)
@@ -351,7 +351,7 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   biased.cate.aipw <- average_treatment_effect(forest.unweighted, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - true.ate) / (3 * cate.aipw[2]) <= 1)
   expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.cate.aipw[2]) <= 1)
-  
+
   # The best linear projection with NULL covariates should match the ATE estimate via AIPW.
   # The reason the numbers don't match exactly is that the function `average_treatment_effect`
   # does a Hajek-style correction to renormalize propensities for the treated and control
