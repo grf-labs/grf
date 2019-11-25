@@ -48,6 +48,7 @@ reference:
   - title: Instrumental forest
     contents:
       - instrumental_forest
+      - tune_instrumental_forest
       - predict.instrumental_forest
 
   - title: Local linear regression forest
@@ -68,6 +69,7 @@ reference:
       - average_late
       - average_partial_effect
       - average_treatment_effect
+      - best_linear_projection
 
 # Utilities and various
   - title: Analysis tools
