@@ -82,7 +82,7 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
     for (auto it = weights.begin(); it != weights.end(); it++) {
       size_t neighbor = it->first;
       double weight = it->second;
-      triplet_list.emplace_back(Eigen::Triplet<double>(sample, neighbor, weight));
+      triplet_list.emplace_back(sample, neighbor, weight);
     }
   }
   result.setFromTriplets(triplet_list.begin(), triplet_list.end());
