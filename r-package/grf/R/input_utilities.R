@@ -198,15 +198,14 @@ create_data_matrices <- function(X, outcome = NULL, treatment = NULL,
 observation_weights <- function(forest) {
   # Case 1: No sample.weights
   if (is.null(forest$sample.weights)) {
-    if (length(forest$clusters) == 0) {
+    if (length(forest$clusters) == 0 || !forest$equalize.cluster.weights) {
       raw.weights <- rep(1, length(forest$Y.orig))
     } else {
-      # If clustering with no sample.weights provided, give each observation weight 1/cluster size, so that
-      # the total weight of each cluster is the same.
-      sample.weights <- rep(1, length(forest$Y.orig))
+      # If clustering with no sample.weights provided and equalize.cluster.weights = TRUE, then
+      # give each observation weight 1/cluster size, so that the total weight of each cluster is the same.
       clust.factor <- factor(forest$clusters)
       inverse.counts <- 1 / as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
-      raw.weights <- sample.weights * inverse.counts[as.numeric(clust.factor)]
+      raw.weights <- inverse.counts[as.numeric(clust.factor)]
     }
   }
 
@@ -215,7 +214,7 @@ observation_weights <- function(forest) {
     if (length(forest$clusters) == 0 || !forest$equalize.cluster.weights) {
       raw.weights <- forest$sample.weights
     } else {
-      stop("Invalid forest: sample.weights is not allowed when equalize.cluster.weights = TRUE")
+      stop("Specifying non-null sample.weights is not allowed when equalize.cluster.weights = TRUE")
     }
   }
 
