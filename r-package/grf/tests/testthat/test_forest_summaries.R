@@ -70,13 +70,16 @@ test_that("causal forest calibration is reasonable with no heterogeneous effect 
 
   e.cc <- 1 / (1 + exp(-2 * X[, 1]))
   cc <- as.logical(rbinom(n, 1, e.cc))
-  sample.weights <- 1 / e.cc
+  ipcc.sample.weights <- 1 / e.cc
+  clust.sample.weights <- 1 / cluster.sizes[clust]
+  sample.weights <- ipcc.sample.weights * clust.sample.weights
 
   cf <- causal_forest(X[cc, ], Y[cc], W[cc],
     W.hat = 0.25 + 0.5 * (X[cc, 1] > 0),
     Y.hat = 0.25 + 0.5 * (X[cc, 1] > 0) + pmax(X[cc, 2], 0) * big[cc],
     sample.weights = sample.weights[cc],
     clusters = clust[cc],
+    equalize.cluster.weights = FALSE,
     num.trees = 500
   )
   tc <- test_calibration(cf)
@@ -134,6 +137,7 @@ test_that("causal forest calibration works with clusters", {
   cf.clust$debiased.error <- c(cf$debiased.error[1:(n / 2)], rep(cf$debiased.error[n / 2 + 1:(n / 2)], 10))
   cf.clust$excess.error <- c(cf$excess.error[1:(n / 2)], rep(cf$excess.error[n / 2 + 1:(n / 2)], 10))
   cf.clust$clusters <- c(1:(n / 2), rep(n / 2 + 1:(n / 2), 10))
+  cf.clust$equalize.cluster.weights <- TRUE
   tc.clust <- test_calibration(cf.clust)
 
   expect_equal(tc[, 1:3], tc.clust[, 1:3])
@@ -168,7 +172,7 @@ test_that("best linear projection is reasonable", {
                (blp.s[1,1] - beta0.true * 2) / blp.s[1,2],
                (blp.s[2,1] - beta1.true * 2) / blp.s[2,2],
                (blp.s[3,1] - 0) / blp.s[3,2])
-  
+
   expect_lt(mean(abs(std.errs)), 2.5)
   expect_gt(mean(abs(std.errs)), 0.25)
 })
