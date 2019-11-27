@@ -271,7 +271,7 @@ Concretely, the cluster-robust training procedure proceeds as follows:
 - If honesty is enabled, split these cluster IDs in half, so that one half can be used for growing the tree, and the other half is used in repopulating the leaves.
 - To grow the tree, draw `samples_per_cluster` examples from each of the cluster IDs, and do the same when repopulating the leaves for honesty.
 
-Note that when clusters are provided, standard errors from `average_treatment_effect` and `average_partial_effect` estimation are also cluster-robust. Moreover, if clusters are specified, then each cluster gets equal weight. For example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall ATE is 0.5 (not 0.05).
+Note that when clusters are provided, standard errors from `average_treatment_effect` and `average_partial_effect` estimation are also cluster-robust. Moreover, If clusters are specified, then each unit gets equal weight by default. For example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall ATE is 0.05 (additional sample.weights allow for custom weighting). If equalize.cluster.weights = TRUE each cluster gets equal weight and the overall ATE is 0.5.
 
 ### Sample Weighting
 
