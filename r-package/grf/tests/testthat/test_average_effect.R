@@ -91,12 +91,19 @@ test_that("average treatment effect estimates are reasonable", {
   expect_true(abs(catc.aipw[1] - catc.tmle[1]) <= 0.05)
   expect_true(abs(catc.aipw[2] - catc.tmle[2]) <= 0.05)
 
-  cape <- average_partial_effect(forest.causal)
-  expect_true(abs(cape[1] - mean(TAU)) <= 0.2)
-  expect_true(abs(cape[1] - mean(TAU)) <= 3 * cape[2])
+  cape.nocal <- average_partial_effect(forest.causal, calibrate.weights = FALSE)
+  expect_true(abs(cape.nocal[1] - mean(TAU)) <= 0.2)
+  expect_true(abs(cape.nocal[1] - mean(TAU)) <= 3 * cape.nocal[2])
 
-  expect_true(abs(cate.aipw[1] - cape[1]) <= 0.05)
-  expect_true(abs(cate.aipw[2] - cape[2]) <= 0.05)
+  expect_true(abs(cate.aipw[1] - cape.nocal[1]) <= 0.05)
+  expect_true(abs(cate.aipw[2] - cape.nocal[2]) <= 0.05)
+
+  cape.cal <- average_partial_effect(forest.causal, calibrate.weights = TRUE)
+  expect_true(abs(cape.cal[1] - mean(TAU)) <= 0.2)
+  expect_true(abs(cape.cal[1] - mean(TAU)) <= 3 * cape.cal[2])
+
+  expect_true(abs(cate.aipw[1] - cape.cal[1]) <= 0.05)
+  expect_true(abs(cate.aipw[2] - cape.cal[2]) <= 0.05)
 
   wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
   tau.overlap <- sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
@@ -360,10 +367,10 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   # groups, whereas `best_linear_projection` does not.
   cate.aipw.blp <- best_linear_projection(forest.weighted, A = NULL)
   expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1], tol = 0.03)
-  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.02)
+  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.03)
   biased.cate.aipw.blp <- best_linear_projection(forest.unweighted, A = NULL)
   expect_equal(as.numeric(biased.cate.aipw[1]), biased.cate.aipw.blp[1,1], tol = 0.03)
-  expect_equal(as.numeric(biased.cate.aipw[2]), biased.cate.aipw.blp[1,2], tol = 0.02)
+  expect_equal(as.numeric(biased.cate.aipw[2]), biased.cate.aipw.blp[1,2], tol = 0.03)
 
   catt.aipw <- average_treatment_effect(forest.weighted, target.sample = "treated", method = "AIPW")
   biased.catt.aipw <- average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW")

@@ -74,7 +74,8 @@ average_partial_effect <- function(forest,
   subset.Y.hat <- forest$Y.hat[subset]
   tau.hat <- predict(forest)$predictions[subset]
   subset.clusters <- clusters[subset]
-  subset.weights <- observation.weight[subset]
+  subset.weights.raw <- observation.weight[subset]
+  subset.weights <- subset.weights.raw / mean(subset.weights.raw)
 
   # This is a simple plugin estimate of the APE.
   cape.plugin <- weighted.mean(tau.hat, subset.weights)
@@ -118,8 +119,8 @@ average_partial_effect <- function(forest,
       ~ factor(subset.clusters) + 0,
       transpose = TRUE
     ) %*% (debiasing.weights * plugin.residual)
-    cape.se <- sqrt(sum(debiasing.clust^2) / length(debiasing.clust) /
-      (length(debiasing.clust) - 1))
+    cape.se <- sqrt(sum(debiasing.clust^2) / length(subset.W.orig)^2 * 
+      length(debiasing.clust) / (length(debiasing.clust) - 1))
   }
 
   return(c(estimate = cape.estimate, std.err = cape.se))
