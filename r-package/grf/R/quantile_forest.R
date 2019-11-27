@@ -14,7 +14,7 @@
 #'                             Setting this flag to true corresponds to the approach to
 #'                             quantile forests from Meinshausen (2006). Default is FALSE.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#'                 Default is NULL (ignored).
+#'  Default is NULL (ignored).
 #' @param equalize.cluster.weights If FALSE, each unit is given the same weight (so that bigger
 #'  clusters get more weight). If TRUE, each cluster is given equal weight in the forest. In this case,
 #'  during training, each tree uses the same number of observations from each drawn cluster: If the

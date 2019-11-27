@@ -30,7 +30,7 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#'                 Default is NULL (ignored).
+#'  Default is NULL (ignored).
 #' @param equalize.cluster.weights If FALSE, each unit is given the same weight (so that bigger
 #'  clusters get more weight). If TRUE, each cluster is given equal weight in the forest. In this case,
 #'  during training, each tree uses the same number of observations from each drawn cluster: If the
