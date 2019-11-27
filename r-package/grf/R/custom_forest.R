@@ -30,15 +30,16 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#'                 Default is NULL (ignored).
-#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
-#'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples.per.cluster observations get relatively
-#'                            smaller weight than others in training the forest, i.e., the contribution
-#'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
+#'  Default is NULL (ignored).
+#' @param equalize.cluster.weights If FALSE, each unit is given the same weight (so that bigger
+#'  clusters get more weight). If TRUE, each cluster is given equal weight in the forest. In this case,
+#'  during training, each tree uses the same number of observations from each drawn cluster: If the
+#'  smallest cluster has K units, then when we sample a cluster during training, we only give a random
+#'  K elements of the cluster to the tree-growing procedure. When estimating average treatment effects,
+#'  each observation is given weight 1/cluster size, so that the total weight of each cluster is the
+#'  same. Note that, if this argument is FALSE, sample weights may also be directly adjusted via the
+#'  sample.weights argument. If this argument is TRUE, sample.weights must be set to NULL. Default is
+#'  FALSE.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency
@@ -73,14 +74,14 @@ custom_forest <- function(X, Y,
                           alpha = 0.05,
                           imbalance.penalty = 0.0,
                           clusters = NULL,
-                          samples.per.cluster = NULL,
+                          equalize.cluster.weights = FALSE,
                           compute.oob.predictions = TRUE,
                           num.threads = NULL,
                           seed = runif(1, 0, .Machine$integer.max)) {
   validate_X(X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
 
   no.split.variables <- numeric(0)

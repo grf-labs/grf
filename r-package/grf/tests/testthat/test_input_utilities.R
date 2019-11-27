@@ -80,3 +80,11 @@ test_that("create_data_matrices handles data.frame, matrix, sparse and NULL inpu
   expect_true(all(data3_d$default == data3_m$default))
   expect_true(all(data3_s$sparse == data3_m$default))
 })
+
+test_that("providing sample.weights when equalize.cluster.weights is TRUE is not accepted", {
+  equalize.cluster.weights <- TRUE
+  clusters = c(1, 1, 2, 2)
+  sample.weights = c(2, 2, 1, 1)
+
+  expect_error(validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights))
+})

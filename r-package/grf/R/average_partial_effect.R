@@ -6,10 +6,12 @@
 #' Note that for a binary unconfounded treatment, the
 #' average partial effect matches the average treatment effect.
 #'
-#' If clusters are specified, then each cluster gets equal weight. For example,
-#' if there are 10 clusters with 1 unit each and per-cluster APE = 1, and there
-#' are 10 clusters with 19 units each and per-cluster APE = 0, then the overall
-#' APE is 0.5 (not 0.05).
+#' If clusters are specified, then each unit gets equal weight by default. For
+#' example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1,
+#' and there are 10 clusters with 19 units each and per-cluster ATE = 0, then
+#' the overall ATE is 0.05 (additional sample.weights allow for custom
+#' weighting). If equalize.cluster.weights = TRUE each cluster gets equal weight
+#' and the overall ATE is 0.5. 
 #'
 #' @param forest The trained forest.
 #' @param calibrate.weights Whether to force debiasing weights to match expected
@@ -74,7 +76,8 @@ average_partial_effect <- function(forest,
   subset.Y.hat <- forest$Y.hat[subset]
   tau.hat <- predict(forest)$predictions[subset]
   subset.clusters <- clusters[subset]
-  subset.weights <- observation.weight[subset]
+  subset.weights.raw <- observation.weight[subset]
+  subset.weights <- subset.weights.raw / mean(subset.weights.raw)
 
   # This is a simple plugin estimate of the APE.
   cape.plugin <- weighted.mean(tau.hat, subset.weights)
@@ -118,8 +121,8 @@ average_partial_effect <- function(forest,
       ~ factor(subset.clusters) + 0,
       transpose = TRUE
     ) %*% (debiasing.weights * plugin.residual)
-    cape.se <- sqrt(sum(debiasing.clust^2) / length(debiasing.clust) /
-      (length(debiasing.clust) - 1))
+    cape.se <- sqrt(sum(debiasing.clust^2) / length(subset.W.orig)^2 *
+      length(debiasing.clust) / (length(debiasing.clust) - 1))
   }
 
   return(c(estimate = cape.estimate, std.err = cape.se))

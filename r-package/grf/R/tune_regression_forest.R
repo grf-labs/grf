@@ -8,15 +8,16 @@
 #' @param sample.weights (experimental) Weights given to an observation in estimation.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
-#'                 Default is NULL (ignored).
-#' @param samples.per.cluster If sampling by cluster, the number of observations to be sampled from
-#'                            each cluster when training a tree. If NULL, we set samples.per.cluster to the size
-#'                            of the smallest cluster. If some clusters are smaller than samples.per.cluster,
-#'                            the whole cluster is used every time the cluster is drawn. Note that
-#'                            clusters with less than samples.per.cluster observations get relatively
-#'                            smaller weight than others in training the forest, i.e., the contribution
-#'                            of a given cluster to the final forest scales with the minimum of
-#'                            the number of observations in the cluster and samples.per.cluster. Default is NULL.
+#'  Default is NULL (ignored).
+#' @param equalize.cluster.weights If FALSE, each unit is given the same weight (so that bigger
+#'  clusters get more weight). If TRUE, each cluster is given equal weight in the forest. In this case,
+#'  during training, each tree uses the same number of observations from each drawn cluster: If the
+#'  smallest cluster has K units, then when we sample a cluster during training, we only give a random
+#'  K elements of the cluster to the tree-growing procedure. When estimating average treatment effects,
+#'  each observation is given weight 1/cluster size, so that the total weight of each cluster is the
+#'  same. Note that, if this argument is FALSE, sample weights may also be directly adjusted via the
+#'  sample.weights argument. If this argument is TRUE, sample.weights must be set to NULL. Default is
+#'  FALSE.
 #' @param sample.fraction Fraction of the data used to build each tree.
 #'                        Note: If honesty = TRUE, these subsamples will
 #'                        further be cut by a factor of honesty.fraction. Default is 0.5.
@@ -82,7 +83,7 @@
 tune_regression_forest <- function(X, Y,
                                   sample.weights = NULL,
                                   clusters = NULL,
-                                  samples.per.cluster = NULL,
+                                  equalize.cluster.weights = FALSE,
                                   sample.fraction = 0.5,
                                   mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
                                   min.node.size = 5,
@@ -102,7 +103,7 @@ tune_regression_forest <- function(X, Y,
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_samples_per_cluster(samples.per.cluster, clusters)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",

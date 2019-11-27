@@ -73,17 +73,22 @@ validate_clusters <- function(clusters, X) {
   clusters
 }
 
-validate_samples_per_cluster <- function(samples.per.cluster, clusters) {
+validate_equalize_cluster_weights <- function(equalize.cluster.weights, clusters, sample.weights) {
   if (is.null(clusters) || length(clusters) == 0) {
     return(0)
   }
   cluster_size_counts <- table(clusters)
-  min_size <- unname(cluster_size_counts[order(cluster_size_counts)][1])
-  if (is.null(samples.per.cluster)) {
-    samples.per.cluster <- min_size
-  } else if (samples.per.cluster <= 0) {
-    stop("samples.per.cluster must be positive")
+  if (equalize.cluster.weights == TRUE) {
+    samples.per.cluster <- min(cluster_size_counts)
+    if (!is.null(sample.weights)) {
+      stop("If equalize.cluster.weights is TRUE, sample.weights must be NULL.")
+    }
+  } else if (equalize.cluster.weights == FALSE) {
+    samples.per.cluster <- max(cluster_size_counts)
+  } else {
+    stop("equalize.cluster.weights must be either TRUE or FALSE.")
   }
+
   samples.per.cluster
 }
 
@@ -191,19 +196,29 @@ create_data_matrices <- function(X, outcome = NULL, treatment = NULL,
 }
 
 observation_weights <- function(forest) {
-  sample.weights <- if (is.null(forest$sample.weights)) {
-    rep(1, length(forest$Y.orig))
-  } else {
-    forest$sample.weights * length(forest$Y.orig) / sum(forest$sample.weights)
+  # Case 1: No sample.weights
+  if (is.null(forest$sample.weights)) {
+    if (length(forest$clusters) == 0 || !forest$equalize.cluster.weights) {
+      raw.weights <- rep(1, length(forest$Y.orig))
+    } else {
+      # If clustering with no sample.weights provided and equalize.cluster.weights = TRUE, then
+      # give each observation weight 1/cluster size, so that the total weight of each cluster is the same.
+      clust.factor <- factor(forest$clusters)
+      inverse.counts <- 1 / as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
+      raw.weights <- inverse.counts[as.numeric(clust.factor)]
+    }
   }
-  if (length(forest$clusters) == 0) {
-    observation.weight <- sample.weights
-  } else {
-    clust.factor <- factor(forest$clusters)
-    inverse.counts <- 1 / as.numeric(Matrix::colSums(Matrix::sparse.model.matrix(~ clust.factor + 0)))
-    observation.weight <- sample.weights * inverse.counts[as.numeric(clust.factor)]
+
+  # Case 2: sample.weights provided
+  if (!is.null(forest$sample.weights)) {
+    if (length(forest$clusters) == 0 || !forest$equalize.cluster.weights) {
+      raw.weights <- forest$sample.weights
+    } else {
+      stop("Specifying non-null sample.weights is not allowed when equalize.cluster.weights = TRUE")
+    }
   }
-  observation.weight
+
+  return (raw.weights / sum(raw.weights))
 }
 
 # Call the grf Rcpp bindings (argument_names) with R argument.names

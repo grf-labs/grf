@@ -16,10 +16,12 @@
 #' in case of poor overlap (i.e., when the propensities e(x) may be very close
 #' to 0 or 1), as it doesn't involve dividing by estimated propensities.
 #'
-#' If clusters are specified, then each cluster gets equal weight. For example,
-#' if there are 10 clusters with 1 unit each and per-cluster ATE = 1, and there
-#' are 10 clusters with 19 units each and per-cluster ATE = 0, then the overall
-#' ATE is 0.5 (not 0.05).
+#' If clusters are specified, then each unit gets equal weight by default. For
+#' example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1,
+#' and there are 10 clusters with 19 units each and per-cluster ATE = 0, then
+#' the overall ATE is 0.05 (additional sample.weights allow for custom
+#' weighting). If equalize.cluster.weights = TRUE each cluster gets equal weight
+#' and the overall ATE is 0.5. 
 #'
 #' @param forest The trained forest.
 #' @param target.sample Which sample to aggregate treatment effects over.
