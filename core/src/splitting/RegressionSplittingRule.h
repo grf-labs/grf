@@ -80,6 +80,7 @@ private:
   void find_best_split_value_small_q(const Data& data,
                                      size_t node,
                                      size_t var,
+                                     double weight_sum_node,
                                      double sum_node,
                                      size_t size_node,
                                      size_t min_child_size,
@@ -91,6 +92,7 @@ private:
   void find_best_split_value_large_q(const Data& data,
                                      size_t node,
                                      size_t var,
+                                     double weight_sum_node,
                                      double sum_node,
                                      size_t size_node,
                                      size_t mind_child_size,
@@ -102,9 +104,11 @@ private:
 
   size_t* counter;
   double* sums;
+  double* weight_sums;
 
   double alpha;
   double imbalance_penalty;
+  bool weighted;
 
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRule);
 };

@@ -29,6 +29,7 @@ InstrumentalSplittingRule::InstrumentalSplittingRule(size_t max_num_unique_value
     alpha(alpha),
     imbalance_penalty(imbalance_penalty) {
   this->counter = new size_t[max_num_unique_values];
+  this->weight_sums = new double[max_num_unique_values];
   this->sums = new double[max_num_unique_values];
   this->num_small_z = new size_t[max_num_unique_values];
   this->sums_z = new double[max_num_unique_values];
@@ -38,6 +39,9 @@ InstrumentalSplittingRule::InstrumentalSplittingRule(size_t max_num_unique_value
 InstrumentalSplittingRule::~InstrumentalSplittingRule() {
   if (counter != nullptr) {
     delete[] counter;
+  }
+  if (weight_sums != nullptr) {
+    delete[] weight_sums;
   }
   if (sums != nullptr) {
     delete[] sums;
@@ -63,15 +67,18 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
   size_t num_samples = samples[node].size();
 
   // Precompute relevant quantities for this node.
+  double weight_sum_node = 0.0;
   double sum_node = 0.0;
   double sum_node_z = 0.0;
   double sum_node_z_squared = 0.0;
   for (auto& sample : samples[node]) {
-    sum_node += responses_by_sample[sample];
-
+    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
+    weight_sum_node += sample_weight;
+    sum_node += sample_weight * responses_by_sample[sample];
+    
     double z = data.get_instrument(sample);
-    sum_node_z += z;
-    sum_node_z_squared += z * z;
+    sum_node_z += sample_weight * z;
+    sum_node_z_squared += sample_weight * z * z;
   }
 
   double size_node = sum_node_z_squared - sum_node_z * sum_node_z / (double) num_samples;
@@ -94,12 +101,13 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
   for (auto& var : possible_split_vars) {
     // Use faster method for both cases
     double q = (double) num_samples / (double) data.get_num_unique_data_values(var);
-    if (q < Q_THRESHOLD) {
-      find_best_split_value_small_q(data, node, var, num_samples, sum_node, mean_z_node, num_node_small_z,
+    if (q < Q_THRESHOLD || data.get_weight(0) > 0) { // always use small-q splitting method with weights; the other isn't implemented
+
+        find_best_split_value_small_q(data, node, var, weight_sum_node, num_samples, sum_node, mean_z_node, num_node_small_z,
                                     sum_node_z, sum_node_z_squared, min_child_size, best_value,
                                     best_var, best_decrease, responses_by_sample, samples);
     } else {
-      find_best_split_value_large_q(data, node, var, num_samples, sum_node, mean_z_node, num_node_small_z,
+      find_best_split_value_large_q(data, node, var, weight_sum_node, num_samples, sum_node, mean_z_node, num_node_small_z,
                                     sum_node_z, sum_node_z_squared, min_child_size, best_value,
                                     best_var, best_decrease, responses_by_sample, samples);
     }
@@ -119,6 +127,7 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
 void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
                                                               size_t node, size_t var,
                                                               size_t num_samples,
+                                                              double weight_sum_node,
                                                               double sum_node,
                                                               double mean_node_z,
                                                               size_t num_node_small_z,
@@ -143,9 +152,11 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
 
   // Initialize with 0m if not in memory efficient mode, use pre-allocated space
   size_t num_splits = possible_split_values.size();
+  double* weight_sums_right = weight_sums;
   double* sums_right = sums;
   size_t* n_right = counter;
 
+  std::fill(weight_sums_right, weight_sums_right + num_splits, 0);
   std::fill(sums_right, sums_right + num_splits, 0);
   std::fill(n_right, n_right + num_splits, 0);
   std::fill(num_small_z, num_small_z + num_splits, 0);
@@ -154,6 +165,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
 
   // Sum in right child and possible split
   for (auto& sample : samples[node]) {
+    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
     double value = data.get(sample, var);
     double label = responses_by_sample[sample];
     double z = data.get_instrument(sample);
@@ -162,9 +174,10 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     for (size_t i = 0; i < num_splits; ++i) {
       if (value > possible_split_values[i]) {
         ++n_right[i];
-        sums_right[i] += label;
-        sums_z[i] += z;
-        sums_z_squared[i] += z * z;
+        weight_sums_right[i] += sample_weight;
+        sums_right[i] += sample_weight * label;
+        sums_z[i] += sample_weight * z;
+        sums_z_squared[i] += sample_weight * z * z;
         if (z < mean_node_z) {
           ++num_small_z[i];
         }
@@ -195,6 +208,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     }
 
     // Calculate relevant quantities for the right child.
+    double weight_sum_right = weight_sums_right[i];
     double sum_right = sums_right[i];
     double sum_right_z = sums_z[i];
     double sum_right_z_squared = sums_z_squared[i];
@@ -206,6 +220,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     }
 
     // Calculate relevant quantities for the left child.
+    double weight_sum_left = weight_sum_node - weight_sum_right;
     double sum_left = sum_node - sum_right;
     double sum_left_z = sum_node_z - sum_right_z;
     double sum_left_z_squared = sum_node_z_squared - sum_right_z_squared;
@@ -217,7 +232,9 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     }
 
     // Calculate the decrease in impurity.
-    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right[i];
+    double mean_left = sum_left / weight_sum_left;
+    double mean_right = sum_right / weight_sum_right;
+    double decrease = (mean_right - mean_left) * (mean_right - mean_left) * (weight_sum_right * weight_sum_left) / weight_sum_node; 
     decrease -= imbalance_penalty * (1.0 / size_left + 1.0 / size_right);
 
     // Save this split if it is the best seen so fa.
@@ -233,6 +250,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
                                                               size_t node,
                                                               size_t var,
                                                               size_t num_samples,
+                                                              double weight_sum_node,
                                                               double sum_node,
                                                               double mean_node_z,
                                                               size_t num_node_small_z,

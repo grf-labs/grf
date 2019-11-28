@@ -28,6 +28,7 @@ RegressionSplittingRule::RegressionSplittingRule(size_t max_num_unique_values,
     imbalance_penalty(imbalance_penalty) {
   this->counter = new size_t[max_num_unique_values];
   this->sums = new double[max_num_unique_values];
+  this->weight_sums = new double[max_num_unique_values];
 }
 
 RegressionSplittingRule::~RegressionSplittingRule() {
@@ -36,6 +37,9 @@ RegressionSplittingRule::~RegressionSplittingRule() {
   }
   if (sums != nullptr) {
     delete[] sums;
+  }
+  if(weight_sums != nullptr) {
+    delete[] weight_sums;
   }
 }
 
@@ -52,8 +56,11 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
 
   // Precompute the sum of outcomes in this node.
   double sum_node = 0.0;
+  double weight_sum_node = 0.0;
   for (auto& sample : samples[node]) {
-    sum_node += responses_by_sample[sample];
+    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
+    weight_sum_node += sample_weight;
+    sum_node += sample_weight * responses_by_sample[sample];
   }
 
   // Initialize the variables to track the best split variable.
@@ -65,11 +72,11 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   for (auto& var : possible_split_vars) {
     // Use faster method for both cases
     double q = (double) size_node / (double) data.get_num_unique_data_values(var);
-    if (q < Q_THRESHOLD) {
-      find_best_split_value_small_q(data, node, var, sum_node, size_node, min_child_size,
-                                    best_value, best_var, best_decrease, responses_by_sample, samples);
+    if(q < Q_THRESHOLD || data.get_weight(0) > 0) { // always use small-q splitting method with weights; the other isn't implemented
+        find_best_split_value_small_q(data, node, var, weight_sum_node, sum_node, size_node, min_child_size,
+                                best_value, best_var, best_decrease, responses_by_sample, samples);
     } else {
-      find_best_split_value_large_q(data, node, var, sum_node, size_node, min_child_size,
+      find_best_split_value_large_q(data, node, var, weight_sum_node, sum_node, size_node, min_child_size,
                                     best_value, best_var, best_decrease, responses_by_sample, samples);
     }
   }
@@ -87,6 +94,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
 
 void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
                                                             size_t node, size_t var,
+                                                            double weight_sum_node,
                                                             double sum_node,
                                                             size_t size_node,
                                                             size_t min_child_size,
@@ -108,14 +116,18 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
   // Initialize with 0m if not in memory efficient mode, use pre-allocated space
   size_t num_splits = possible_split_values.size();
   double* sums_right;
+  double* weight_sums_right;
   size_t* n_right;
   sums_right = sums;
+  weight_sums_right = weight_sums;
   n_right = counter;
+  std::fill(weight_sums, weight_sums + num_splits, 0);
   std::fill(sums_right, sums_right + num_splits, 0);
   std::fill(n_right, n_right + num_splits, 0);
 
   // Sum in right child and possible split
   for (auto& sample : samples[node]) {
+    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
     double value = data.get(sample, var);
     double response = responses_by_sample[sample];
 
@@ -123,7 +135,8 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
     for (size_t i = 0; i < num_splits; ++i) {
       if (value > possible_split_values[i]) {
         ++n_right[i];
-        sums_right[i] += response;
+        weight_sums_right[i] += sample_weight;
+        sums_right[i] += sample_weight * response;
       } else {
         break;
       }
@@ -144,9 +157,13 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
       break;
     }
 
+    double weight_sum_right = weight_sums_right[i];
+    double weight_sum_left = weight_sum_node - weight_sum_right;
     double sum_right = sums_right[i];
     double sum_left = sum_node - sum_right;
-    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right[i];
+    double mean_left = sum_left / weight_sum_left;
+    double mean_right = sum_right / weight_sum_right;
+    double decrease = (mean_right - mean_left) * (mean_right - mean_left) * (weight_sum_right * weight_sum_left) / weight_sum_node; 
 
     // Penalize splits that are too close to the edges of the data.
     double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right[i]);
@@ -165,6 +182,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
 void RegressionSplittingRule::find_best_split_value_large_q(const Data& data,
                                                             size_t node,
                                                             size_t var,
+                                                            double weight_sum_node,
                                                             double sum_node,
                                                             size_t size_node,
                                                             size_t min_child_size,
