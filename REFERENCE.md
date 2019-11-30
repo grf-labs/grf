@@ -214,6 +214,8 @@ The following sections describe other features of GRF that may be of interest.
 
 ### Parameter Tuning
 
+**Note:** tuning for `instrumental_forest` is considered 'experimental', and its implementation may change in future releases.
+
 The accuracy of a forest can be sensitive to several training parameters:
 - the core options tree-growing options `min.node.size`, `sample.fraction`, and `mtry`
 - the parameters that control honesty behavior `honesty.fraction` and `honesty.prune.leaves`
