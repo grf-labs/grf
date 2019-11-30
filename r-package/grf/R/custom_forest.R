@@ -37,9 +37,7 @@
 #'  smallest cluster has K units, then when we sample a cluster during training, we only give a random
 #'  K elements of the cluster to the tree-growing procedure. When estimating average treatment effects,
 #'  each observation is given weight 1/cluster size, so that the total weight of each cluster is the
-#'  same. Note that, if this argument is FALSE, sample weights may also be directly adjusted via the
-#'  sample.weights argument. If this argument is TRUE, sample.weights must be set to NULL. Default is
-#'  FALSE.
+#'  same.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency
@@ -81,7 +79,7 @@ custom_forest <- function(X, Y,
   validate_X(X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, NULL)
   num.threads <- validate_num_threads(num.threads)
 
   no.split.variables <- numeric(0)
