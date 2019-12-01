@@ -1,8 +1,28 @@
 # Changelog
-All notable changes to grf will be documented in this file.
+All notable changes to `grf` will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## [1.0.0] - 2019-11-29
+
+### Changed (breaking)
+**IMPORTANT** These changes might cause small differences in results compared to previous releases, even if the same random seed is used.
+- Rename `prune.empty.leaves` to `honesty.prune.leaves`. [#529](https://github.com/grf-labs/grf/pull/529)
+- Simplify the forest tuning API. Previously, tuning was enabled during forest training by setting the option `tune.parameters=TRUE`. All relevant parameters were tuned by default, except for those that were explicitly passed to the forest (like `min.node.size=100`). Now the option `tune.parameters` directly takes a list of parameters to tune, for example `tune.parameters=c("min.node.size", "mtry")`, or `tune.parameters="all"`. [#534](https://github.com/grf-labs/grf/pull/534)
+- Change how data points are weighted in cluster-robust estimation. Previously, each cluster was given equal weight when training the forest and computing estimates. Now, each point is weighted equally regardless of its cluster size. This behavior can be controlled through a new option `equalize.cluster.weights`, which defaults to `FALSE` but can be set to `TRUE` to match the old behavior of weighting clusters equally. The old option `samples.per.cluster` has been removed. [#545](https://github.com/grf-labs/grf/pull/545).
+
+### Added
+- Improve the performance of `get_tree`. [#528](https://github.com/grf-labs/grf/pull/528)
+- Add support for tuning instrumental forests (currently marked 'experimental'). [#547](https://github.com/grf-labs/grf/pull/547)
+- Introduce optimizations to tree splitting. These improvements lead to a small speed-up in forest training. [#560](https://github.com/grf-labs/grf/pull/560), [#561](https://github.com/grf-labs/grf/pull/561)
+- Add `best_linear_projection`, a doubly robust estimate of the best linear projection of the conditional average treatment effect onto a set of covariates. [#574](https://github.com/grf-labs/grf/pull/574)
+- Speed up forest prediction by introducing additional parallelization. [#566](https://github.com/grf-labs/grf/pull/566), [#576](https://github.com/grf-labs/grf/pull/576)
+
+### Fixed
+- Allow the data matrix `X` to be a data frame. [#540](https://github.com/grf-labs/grf/pull/540)
+- When merging forests, validate that all forests were trained on the same data. [#543](https://github.com/grf-labs/grf/pull/543)
+- Fix a major performance issue in `get_sample_weights`. [#578](https://github.com/grf-labs/grf/pull/578)
 
 ## [0.10.4] - 2019-09-01
 
@@ -64,7 +84,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add the method `test_calibration`, which performs an omnibus test for presence of heterogeneity via calibration.
 - For local linear regression forests, add support for selecting the value of `ll.lambda` through cross-validation.
 - Introduce a training option `honesty.fraction` that can be used to specify the fraction of data that should be used in selecting splits vs. performing estimation. Note that this parameter is only relevant when honesty is enabled (the default).
-- Start a practical guide to the GRF algorithm (https://github.com/grf-labs/grf/blob/master/REFERENCE.md).
+- Start a practical guide to the `grf` algorithm (https://github.com/grf-labs/grf/blob/master/REFERENCE.md).
 - In `average_treatment_effect` and `average_partial_effect`, add an option `subset` to support estimating the treatment effect over a subsample of the data.
 
 ### Fixed
