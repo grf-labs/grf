@@ -70,7 +70,7 @@ get_tree <- function(forest, index) {
         right_child = node.index + 2
       )
       node.index <- node.index + 2
-      frontier <- c(left[node] + 1, right[node] + 1, frontier)
+      frontier <- c(frontier, left[node] + 1, right[node] + 1)
     }
   }
 
