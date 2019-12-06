@@ -181,3 +181,28 @@ test_that("instrumental forest leaf nodes contains 'avg_Y', 'avg_W', and 'avg_Z'
     }
   }
 })
+
+test_that("result of get_tree is consistent with internal tree representation (child_nodes and leaf_samples)", {
+  n <- 100
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  Y <- abs(X[, 1]) + rnorm(n)
+
+  # The following index check only make sense when the tree is not pruned (honesty = FALSE)
+  rf <- regression_forest(X, Y, num.trees = 1, ci.group.size = 1, honesty = FALSE)
+
+  child.nodes <- rf[["_child_nodes"]][[1]]
+  leaf.samples <- rf[["_leaf_samples"]][[1]]
+  tree <- get_tree(rf, 1)
+
+  for (i in 1:length(tree$nodes)) {
+    node <- tree$nodes[[i]]
+    if (node$is_leaf) {
+      expect_false(child.nodes[[1]][i] == 1)
+      expect_false(child.nodes[[2]][i] == 1)
+      expect_equal(length(node$samples), length(leaf.samples[[i]]))
+    } else {
+      expect_equal(length(leaf.samples[[i]]), 0)
+    }
+  }
+})
