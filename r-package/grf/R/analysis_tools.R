@@ -170,7 +170,7 @@ variable_importance <- function(forest, decay.exponent = 2, max.depth = 4) {
 #' @param newdata Points at which predictions should be made. If NULL,
 #'                makes out-of-bag predictions on the training set instead
 #'                (i.e., provides predictions at Xi using only trees that did
-#'                not use the i-th training example).#' @param max.depth Maximum depth of splits to consider.
+#'                not use the i-th training example).
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @return A sparse matrix where each row represents a test sample, and each column is a sample in the
