@@ -135,7 +135,7 @@ validate_ll_path <- function(lambda.path) {
 }
 
 validate_newdata <- function(newdata, X) {
-  if (ncol(newdata) != ncol(X)) {
+  if (NCOL(newdata) != ncol(X)) {
     stop("newdata must have the same number of columns as the training matrix.")
   }
   validate_X(newdata)
