@@ -1,5 +1,14 @@
 validate_X <- function(X) {
-  if (inherits(X, c("matrix", "data.frame")) && !is.numeric(as.matrix(X))) {
+  valid.classes <- c("matrix", "data.frame", "dgCMatrix")
+
+  if (!inherits(X, valid.classes)) {
+    stop(paste(
+      "Currently the only supported data input types are:",
+      "`matrix`, `data.frame`, `dgCMatrix`"
+    ))
+  }
+
+  if (!is.numeric(as.matrix(X))) {
     stop(paste(
       "The feature matrix X must be numeric. GRF does not",
       "currently support non-numeric features. If factor variables",
@@ -10,10 +19,6 @@ validate_X <- function(X) {
       "For more on GRF and categorical variables see the online vignette:",
       "https://grf-labs.github.io/grf/articles/categorical_inputs.html"
     ))
-  }
-
-  if (inherits(X, "Matrix") && !(inherits(X, "dgCMatrix"))) {
-    stop("Currently only sparse data of class 'dgCMatrix' is supported.")
   }
 
   if (any(is.na(X))) {
@@ -135,10 +140,10 @@ validate_ll_path <- function(lambda.path) {
 }
 
 validate_newdata <- function(newdata, X) {
-  if (NCOL(newdata) != ncol(X)) {
+  validate_X(newdata)
+  if (ncol(newdata) != ncol(X)) {
     stop("newdata must have the same number of columns as the training matrix.")
   }
-  validate_X(newdata)
 }
 
 validate_sample_weights <- function(sample.weights, X) {
