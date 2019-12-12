@@ -13,8 +13,6 @@
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'  to select the optimal parameters.
 #' @param train The grf forest training function.
-#' @param predict_oob The grf forest oob prediction function.
-#' @param predict.data.args The names of the arguments in data passed to predict_oob.
 #'
 #' @return tuning output
 #'
@@ -29,10 +27,7 @@ tune_forest <- function(data,
                         num.fit.trees,
                         num.fit.reps,
                         num.optimize.reps,
-                        train,
-                        predict_oob,
-                        predict.data.args) {
-  predict_oob.args <- c(data[predict.data.args], num.threads = args[["num.threads"]], estimate.variance = FALSE)
+                        train) {
   fit.parameters <- args[!names(args) %in% tune.parameters]
   fit.parameters[["num.trees"]] <- num.fit.trees
   fit.parameters[["ci.group.size"]] <- 1
