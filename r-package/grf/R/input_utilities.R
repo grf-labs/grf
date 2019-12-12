@@ -8,7 +8,7 @@ validate_X <- function(X) {
     ))
   }
 
-  if (!is.numeric(as.matrix(X))) {
+  if (!inherits(X, "dgCMatrix") && !is.numeric(as.matrix(X))) {
     stop(paste(
       "The feature matrix X must be numeric. GRF does not",
       "currently support non-numeric features. If factor variables",
