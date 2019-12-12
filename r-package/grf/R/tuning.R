@@ -46,9 +46,7 @@ tune_forest <- function(data,
   small.forest.errors <- apply(fit.draws, 1, function(draw) {
     draw.parameters <- get_params_from_draw(nrow.X, ncol.X, draw)
     small.forest <- do.call.rcpp(train, c(data, fit.parameters, draw.parameters))
-    prediction <- do.call.rcpp(predict_oob, c(list(forest_object = small.forest), predict_oob.args))
-    error <- prediction$debiased.error
-
+    error <- small.forest$debiased.error
     mean(error, na.rm = TRUE)
   })
 
@@ -105,14 +103,12 @@ tune_forest <- function(data,
   fit.parameters[["num.trees"]] <- num.fit.trees * 4
   retrained.forest.params <- grid[small.forest.optimal.draw, -1]
   retrained.forest <- do.call.rcpp(train, c(data, fit.parameters, retrained.forest.params))
-  retrained.forest.prediction <- do.call.rcpp(predict_oob, c(list(forest_object = retrained.forest), predict_oob.args))
-  retrained.forest.error <- mean(retrained.forest.prediction$debiased.error, na.rm = TRUE)
+  retrained.forest.error <- mean(retrained.forest$debiased.error, na.rm = TRUE)
 
   # 4. Train a forest with default parameters, and check its predicted error.
   # This improves our chances of not doing worse than default
   default.forest <- do.call.rcpp(train, c(data, fit.parameters, tune.parameters.defaults))
-  default.forest.prediction <- do.call.rcpp(predict_oob, c(list(forest_object = default.forest), predict_oob.args))
-  default.forest.error <- mean(default.forest.prediction$debiased.error, na.rm = TRUE)
+  default.forest.error <- mean(default.forest$debiased.error, na.rm = TRUE)
 
   if (default.forest.error < retrained.forest.error) {
     out <- get_tuning_output(
