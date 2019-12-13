@@ -160,8 +160,6 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
 
   tune.parameters.defaults <- default.parameters[tune.parameters]
   train <- causal_train
-  predict_oob <- causal_predict_oob
-  predict.data.args <- c("train.matrix", "sparse.train.matrix", "outcome.index", "treatment.index")
 
   tuning.output <- tune_forest(data = data,
                                nrow.X = nrow.X,
@@ -172,9 +170,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                                num.fit.trees = tune.num.trees,
                                num.fit.reps = tune.num.reps,
                                num.optimize.reps = tune.num.draws,
-                               train = train,
-                               predict_oob = predict_oob,
-                               predict.data.args = predict.data.args)
+                               train = train)
 
   tuning.output
 }

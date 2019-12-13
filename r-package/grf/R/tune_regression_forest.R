@@ -145,8 +145,6 @@ tune_regression_forest <- function(X, Y,
 
   tune.parameters.defaults <- default.parameters[tune.parameters]
   train <- regression_train
-  predict_oob <- regression_predict_oob
-  predict.data.args <- c("train.matrix", "sparse.train.matrix", "outcome.index")
 
   tuning.output <- tune_forest(data = data,
                                nrow.X = nrow.X,
@@ -157,9 +155,7 @@ tune_regression_forest <- function(X, Y,
                                num.fit.trees = tune.num.trees,
                                num.fit.reps = tune.num.reps,
                                num.optimize.reps = tune.num.draws,
-                               train = train,
-                               predict_oob = predict_oob,
-                               predict.data.args = predict.data.args)
+                               train = train)
 
   tuning.output
 }
