@@ -158,8 +158,6 @@ tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat,
 
   tune.parameters.defaults <- default.parameters[tune.parameters]
   train <- instrumental_train
-  predict_oob <- instrumental_predict_oob
-  predict.data.args <- c("train.matrix", "sparse.train.matrix", "outcome.index", "treatment.index", "instrument.index")
 
   tuning.output <- tune_forest(data = data,
                                nrow.X = nrow.X,
@@ -170,9 +168,7 @@ tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat,
                                num.fit.trees = tune.num.trees,
                                num.fit.reps = tune.num.reps,
                                num.optimize.reps = tune.num.draws,
-                               train = train,
-                               predict_oob = predict_oob,
-                               predict.data.args = predict.data.args)
+                               train = train)
 
   tuning.output
 }
