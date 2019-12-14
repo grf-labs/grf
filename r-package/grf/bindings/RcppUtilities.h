@@ -20,9 +20,9 @@ public:
    * be used once it has been passed to the method.
    */
   static Rcpp::List create_forest_object(Forest& forest,
-                                         const std::vector<Prediction>& predictions);
+                                         const std::vector<Prediction>& predictions=std::vector<Prediction>());
 
-  static Rcpp::List serialize_forest(Forest& forest);
+  static Rcpp::List serialize_forest(SEXP forest_xptr);
   static Forest deserialize_forest(const Rcpp::List& forest_object);
 
   static std::unique_ptr<Data> convert_data(Rcpp::NumericMatrix& input_data,
