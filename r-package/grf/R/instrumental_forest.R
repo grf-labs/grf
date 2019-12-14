@@ -214,6 +214,7 @@ instrumental_forest <- function(X, Y, W, Z,
   }
 
   forest <- do.call.rcpp(instrumental_train, c(data, args))
+  forest[["_forest"]] <- ForestPtr$new(xptr = forest[["_forest"]])
   class(forest) <- c("instrumental_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
@@ -266,7 +267,6 @@ predict.instrumental_forest <- function(object, newdata = NULL,
   }
 
   num.threads <- validate_num_threads(num.threads)
-  forest.short <- object[-which(names(object) == "X.orig")]
 
   X <- object[["X.orig"]]
   Y.centered <- object[["Y.orig"]] - object[["Y.hat"]]
@@ -279,13 +279,13 @@ predict.instrumental_forest <- function(object, newdata = NULL,
     validate_newdata(newdata, object$X.orig)
     data <- create_data_matrices(newdata)
     ret <- instrumental_predict(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+      get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix,
       train.data$outcome.index, train.data$treatment.index, train.data$instrument.index,
       data$train.matrix, data$sparse.train.matrix, num.threads, estimate.variance
     )
   } else {
     ret <- instrumental_predict_oob(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+      get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix,
       train.data$outcome.index, train.data$treatment.index, train.data$instrument.index,
       num.threads, estimate.variance
     )

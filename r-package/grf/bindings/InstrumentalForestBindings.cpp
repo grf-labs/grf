@@ -61,7 +61,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List instrumental_predict(Rcpp::List forest_object,
+Rcpp::List instrumental_predict(SEXP forest_xptr,
                                 Rcpp::NumericMatrix train_matrix,
                                 Eigen::SparseMatrix<double> sparse_train_matrix,
                                 size_t outcome_index,
@@ -77,17 +77,17 @@ Rcpp::List instrumental_predict(Rcpp::List forest_object,
   train_data->set_instrument_index(instrument_index - 1);
   std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
 
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = instrumental_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict(*forest, *train_data, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   return result;
 }
 
 // [[Rcpp::export]]
-Rcpp::List instrumental_predict_oob(Rcpp::List forest_object,
+Rcpp::List instrumental_predict_oob(SEXP forest_xptr,
                                     Rcpp::NumericMatrix train_matrix,
                                     Eigen::SparseMatrix<double> sparse_train_matrix,
                                     size_t outcome_index,
@@ -100,10 +100,10 @@ Rcpp::List instrumental_predict_oob(Rcpp::List forest_object,
   data->set_treatment_index(treatment_index - 1);
   data->set_instrument_index(instrument_index - 1);
 
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = instrumental_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict_oob(*forest, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   return result;
