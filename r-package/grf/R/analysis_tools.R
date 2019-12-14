@@ -81,7 +81,7 @@ get_tree <- function(forest, index) {
 #'
 #' @export
 split_frequencies <- function(forest, max.depth = 4) {
-  raw <- compute_split_frequencies(forest, max.depth)
+  raw <- compute_split_frequencies(get_xptr(forest), max.depth)
   feature.indices <- 1:ncol(forest$X.orig)
   raw[, feature.indices, drop = FALSE]
 }
@@ -151,7 +151,6 @@ variable_importance <- function(forest, decay.exponent = 2, max.depth = 4) {
 get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
   num.threads <- validate_num_threads(num.threads)
 
-  forest.short <- forest[-which(names(forest) == "X.orig")]
   X <- forest[["X.orig"]]
   train.data <- create_data_matrices(X)
 
@@ -159,11 +158,11 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
     data <- create_data_matrices(newdata)
     validate_newdata(newdata, X)
     compute_weights(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+      get_xptr(forest), train.data$train.matrix, train.data$sparse.train.matrix,
       data$train.matrix, data$sparse.train.matrix, num.threads
     )
   } else {
-    compute_weights_oob(forest.short, train.data$train.matrix, train.data$sparse.train.matrix, num.threads)
+    compute_weights_oob(get_xptr(forest), train.data$train.matrix, train.data$sparse.train.matrix, num.threads)
   }
 }
 
