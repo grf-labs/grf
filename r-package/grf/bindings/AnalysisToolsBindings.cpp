@@ -111,14 +111,70 @@ Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List merge(const Rcpp::List forest_objects) {
- std::vector<Forest> forests;
+Rcpp::List deserialize_tree(SEXP forest_xptr,
+                            size_t tree_index) {
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
- for (auto& forest_obj : forest_objects) {
-   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest_obj);
-   forests.push_back(std::move(deserialized_forest));
- }
+  tree_index--; // Decrement since R is one-indexed.
+  size_t num_trees = (*forest).get_trees().size();
+  if (tree_index < 0 || tree_index >= num_trees) {
+    throw std::runtime_error("The provided tree index is not valid.");
+  }
 
-  Forest big_forest = Forest::merge(forests);
-  return RcppUtilities::serialize_forest(big_forest);
+  const std::unique_ptr<Tree>& tree = (*forest).get_trees().at(tree_index);
+  const std::vector<std::vector<size_t>>& child_nodes = tree->get_child_nodes();
+  const std::vector<std::vector<size_t>>& leaf_samples = tree->get_leaf_samples();
+
+  const std::vector<size_t>& split_vars = tree->get_split_vars();
+  const std::vector<double>& split_values = tree->get_split_values();
+
+  std::queue<size_t> frontier;
+  frontier.push(tree->get_root_node());
+  size_t node_index = 1;
+
+  std::vector<Rcpp::List> node_objects;
+
+  // Note that since R is 1-indexed, we add '1' below to array indices.
+  while (frontier.size() > 0) {
+    size_t node = frontier.front();
+    Rcpp::List node_object;
+
+    if (tree->is_leaf(node)) {
+      node_object.push_back(true, "is_leaf");
+
+      std::vector<size_t> samples;
+      samples.reserve(leaf_samples.at(node).size());
+      for (size_t index : leaf_samples.at(node)) {
+        samples.push_back(index + 1); // R is 1-indexed.
+      }
+      node_object.push_back(samples, "samples");
+    } else {
+      node_object.push_back(false, "is_leaf");
+      node_object.push_back(split_vars.at(node) + 1, "split_variable"); // R is 1-indexed.
+      node_object.push_back(split_values.at(node), "split_value");
+
+      node_object.push_back(node_index + 1, "left_child");
+      frontier.push(child_nodes[0][node]);
+      node_index++;
+
+      node_object.push_back(node_index + 1, "right_child");
+      frontier.push(child_nodes[1][node]);
+      node_index++;
+    }
+
+    frontier.pop();
+    node_objects.push_back(node_object);
+  }
+
+  std::vector<size_t> drawn_samples(tree->get_drawn_samples());
+  for (size_t& index : drawn_samples) index += 1; //R is 1-indexed.
+
+
+  Rcpp::List result;
+  result.push_back(drawn_samples.size(), "num_samples");
+  result.push_back(drawn_samples, "drawn_samples");
+  result.push_back(node_objects, "nodes");
+  return result;
+}
+
 }
