@@ -226,3 +226,39 @@ leaf_stats.instrumental_forest <- function(forest, samples, ...){
   leaf_stats["avg_Z"] <- round(mean(forest$Z.orig[samples]), 2)
   return(leaf_stats)
 }
+
+#' Save a grf forest
+#' @param forest The grf forest
+#' @param file 	A connection or the name of the file where the R object is saved to or read from.
+#' @param ... Additional arguments passed to saveRDS
+#'
+#' @export
+save_grf <- function(forest, file = "", ...) {
+  serialized.forest <- internal_save(get_xptr(forest))
+  forest[["_serialized.forest"]] <- serialized.forest
+
+  saveRDS(forest, file = file, ...)
+}
+
+#' Load a grf forest
+#' @param file 	A connection or the name of the file where the R object is saved to or read from.
+#' @param ... Additional arguments passed to readRDS
+#'
+#' @return A grf forest object
+#'
+#' @export
+load_grf <- function(file, ...) {
+  forest <- readRDS(file, ...)
+  if (!inherits(forest, "grf")) {
+    stop("This is not a valid grf object")
+  }
+  if (is.null(forest[["_serialized.forest"]])) {
+    stop("This is not a version > 1.0.1 grf object")
+  }
+
+  forest.xptr <- internal_load(forest[["_serialized.forest"]])
+  forest[["_serialized.forest"]] <- NULL
+  forest[["_forest"]] <- ForestPtr$new(xptr = forest.xptr[["_forest"]])
+
+  forest
+}

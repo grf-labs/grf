@@ -202,4 +202,13 @@ Rcpp::List merge(const Rcpp::List forest_xptr_list) {
   return RcppUtilities::create_forest_object(big_forest);
 }
 
+// [[Rcpp::export]]
+Rcpp::List internal_save(SEXP forest_xptr) {
+  return RcppUtilities::serialize_forest(forest_xptr);
+}
+
+// [[Rcpp::export]]
+Rcpp::List internal_load(const Rcpp::List& forest_object) {
+  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  return RcppUtilities::create_forest_object(forest);
 }
