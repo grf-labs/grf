@@ -55,7 +55,7 @@ public:
 
   void set_weight_index(size_t index);
 
-  void get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const;
+  std::vector<size_t> get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const;
 
   size_t get_index(size_t row, size_t col) const;
 
