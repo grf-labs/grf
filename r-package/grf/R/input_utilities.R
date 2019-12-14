@@ -235,3 +235,30 @@ do.call.rcpp = function(what, args, quote = FALSE, envir = parent.frame()) {
   names(args) = gsub("\\.", "_", names(args))
   do.call(what, args, quote, envir)
 }
+
+# Forest XPtr accessor and deleter
+ForestPtr <- setRefClass("ForestPtr", fields = list(xptr = "externalptr"))
+ForestPtr$methods(
+  ptr = function() {
+    # Is it a null pointer
+    if(identical(xptr, new("externalptr"))) {
+      stop(paste(
+        "Invalid grf forest. Note:",
+        "\n1) To save and load a grf forest, use the functions `grf_save`, `grf_load`.",
+        "\n2) After merging forests, the merged forests are invalidated."
+      ))
+    }
+    xptr
+  },
+  clear = function() {
+    xptr <<- new("externalptr")
+  }
+)
+
+get_xptr <- function(forest) {
+  forest[["_forest"]]$ptr()
+}
+
+clear_xptr <- function(forest) {
+  forest[["_forest"]]$clear()
+}
