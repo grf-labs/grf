@@ -263,6 +263,7 @@ causal_forest <- function(X, Y, W,
   }
 
   forest <- do.call.rcpp(causal_train, c(data, args))
+  forest[["_forest"]] <- ForestPtr$new(xptr = forest[["_forest"]])
   class(forest) <- c("causal_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
@@ -359,8 +360,6 @@ predict.causal_forest <- function(object, newdata = NULL,
     ))
   }
 
-  forest.short <- object[-which(names(object) == "X.orig")]
-
   X <- object[["X.orig"]]
   Y.centered <- object[["Y.orig"]] - object[["Y.hat"]]
   W.centered <- object[["W.orig"]] - object[["W.hat"]]
@@ -390,20 +389,20 @@ predict.causal_forest <- function(object, newdata = NULL,
        validate_newdata(newdata, object$X.orig)
        data <- create_data_matrices(newdata)
        if (!local.linear) {
-           ret <- causal_predict(forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+           ret <- causal_predict(get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix,
                    train.data$outcome.index, train.data$treatment.index, data$train.matrix,
                    data$sparse.train.matrix, num.threads, estimate.variance)
        } else {
-           ret <- ll_causal_predict(forest.short, data$train.matrix, train.data$train.matrix, data$sparse.train.matrix,
+           ret <- ll_causal_predict(get_xptr(object), data$train.matrix, train.data$train.matrix, data$sparse.train.matrix,
                    train.data$sparse.train.matrix, train.data$outcome.index, train.data$treatment.index,
                    ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
        }
    } else {
        if (!local.linear) {
-           ret <- causal_predict_oob(forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+           ret <- causal_predict_oob(get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix,
                    train.data$outcome.index, train.data$treatment.index, num.threads, estimate.variance)
        } else {
-           ret <- ll_causal_predict_oob(forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
+           ret <- ll_causal_predict_oob(get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix,
                    train.data$outcome.index, train.data$treatment.index, ll.lambda, ll.weight.penalty,
                    linear.correction.variables, num.threads, estimate.variance)
        }

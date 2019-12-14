@@ -34,8 +34,6 @@ tune_ll_causal_forest <- function(forest,
                                   ll.weight.penalty = FALSE,
                                   num.threads = NULL,
                                   lambda.path = NULL) {
-  forest.short <- forest[-which(names(forest) == "X.orig")]
-
   X <- forest[["X.orig"]]
   Y <- forest[["Y.orig"]]
   W <- forest[["W.orig"]]
@@ -56,7 +54,7 @@ tune_ll_causal_forest <- function(forest,
   linear.correction.variables <- linear.correction.variables - 1
 
   # Find sequence of predictions by lambda
-  prediction.object <- ll_causal_predict_oob(forest.short, data$train.matrix, data$sparse.train.matrix,
+  prediction.object <- ll_causal_predict_oob(get_xptr(forest), data$train.matrix, data$sparse.train.matrix,
       data$outcome.index, data$treatment.index, lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, FALSE)
   predictions <- prediction.object$predictions
 
