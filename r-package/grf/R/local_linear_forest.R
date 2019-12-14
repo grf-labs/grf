@@ -167,7 +167,6 @@ predict.ll_regression_forest <- function(object, newdata = NULL,
                                          num.threads = NULL,
                                          estimate.variance = FALSE,
                                          ...) {
-  forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
   if (is.null(linear.correction.variables)) {
     linear.correction.variables <- 1:ncol(X)
@@ -196,13 +195,13 @@ predict.ll_regression_forest <- function(object, newdata = NULL,
     validate_newdata(newdata, X)
     data <- create_data_matrices(newdata)
     ret <- ll_regression_predict(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+      get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
       data$train.matrix, data$sparse.train.matrix,
       ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
     )
   } else {
     ret <- ll_regression_predict_oob(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+      get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
       ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
     )
   }

@@ -162,6 +162,7 @@ regression_forest <- function(X, Y,
   }
 
   forest <- do.call.rcpp(regression_train, c(data, args))
+  forest[["_forest"]] <- ForestPtr$new(xptr = forest[["_forest"]])
   class(forest) <- c("regression_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
@@ -254,7 +255,6 @@ predict.regression_forest <- function(object, newdata = NULL,
 
   num.threads <- validate_num_threads(num.threads)
 
-  forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
   train.data <- create_data_matrices(X, outcome = object[["Y.orig"]])
 
@@ -280,12 +280,12 @@ predict.regression_forest <- function(object, newdata = NULL,
     validate_newdata(newdata, X)
     if (!local.linear) {
       ret <- regression_predict(
-        forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+        get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
         data$train.matrix, data$sparse.train.matrix, num.threads, estimate.variance
       )
     } else {
       ret <- ll_regression_predict(
-        forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+        get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
         data$train.matrix, data$sparse.train.matrix, ll.lambda, ll.weight.penalty, linear.correction.variables,
         num.threads, estimate.variance
       )
@@ -294,12 +294,12 @@ predict.regression_forest <- function(object, newdata = NULL,
     data <- create_data_matrices(X)
     if (!local.linear) {
       ret <- regression_predict_oob(
-        forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+        get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
         num.threads, estimate.variance
       )
     } else {
       ret <- ll_regression_predict_oob(
-        forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+        get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
         ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
       )
     }
