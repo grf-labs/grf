@@ -94,6 +94,7 @@ custom_forest <- function(X, Y,
   )
 
   class(forest) <- c("custom_forest", "grf")
+  forest[["_forest"]] <- ForestPtr$new(xptr = forest[["_forest"]])
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest
@@ -131,8 +132,6 @@ custom_forest <- function(X, Y,
 #' @method predict custom_forest
 #' @export
 predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
-  forest.short <- object[-which(names(object) == "X.orig")]
-
   X <- object[["X.orig"]]
   train.data <- create_data_matrices(X, object[["Y.orig"]])
 
@@ -142,10 +141,10 @@ predict.custom_forest <- function(object, newdata = NULL, num.threads = NULL, ..
     validate_newdata(newdata, X)
     data <- create_data_matrices(newdata)
     custom_predict(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
+      get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
       data$train.matrix, data$sparse.train.matrix, num.threads
     )
   } else {
-    custom_predict_oob(forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index, num.threads)
+    custom_predict_oob(get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index, num.threads)
   }
 }

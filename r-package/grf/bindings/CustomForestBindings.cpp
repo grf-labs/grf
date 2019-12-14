@@ -65,7 +65,7 @@ Rcpp::List custom_train(Rcpp::NumericMatrix train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
+Rcpp::NumericMatrix custom_predict(SEXP forest_xptr,
                                    Rcpp::NumericMatrix train_matrix,
                                    Eigen::SparseMatrix<double> sparse_train_matrix,
                                    size_t outcome_index,
@@ -76,17 +76,17 @@ Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
   train_data->set_outcome_index(outcome_index - 1);
   std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
 
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = custom_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, false);
+  std::vector<Prediction> predictions = predictor.predict(*forest, *train_data, *data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   return result;
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix custom_predict_oob(Rcpp::List forest_object,
+Rcpp::NumericMatrix custom_predict_oob(SEXP forest_xptr,
                                        Rcpp::NumericMatrix train_matrix,
                                        Eigen::SparseMatrix<double> sparse_train_matrix,
                                        size_t outcome_index,
@@ -95,10 +95,10 @@ Rcpp::NumericMatrix custom_predict_oob(Rcpp::List forest_object,
   data->set_outcome_index(outcome_index);
   data->sort();
 
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = custom_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(*forest, *data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   return result;
