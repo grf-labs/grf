@@ -107,51 +107,44 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
 
   // Create possible split values
   std::vector<double> possible_split_values;
-  data.get_all_values(possible_split_values, samples[node], var);
+  std::vector<size_t> sorted_samples = data.get_all_values(possible_split_values, samples[node], var);
 
   // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {
     return;
   }
 
-  // Remove largest value because no split possible
-  possible_split_values.pop_back();
-
   // Initialize with 0, if not in memory efficient mode, use pre-allocated space
-  size_t num_splits = possible_split_values.size();
-  size_t* class_counts_right = counter_per_class;
-  size_t* n_right = counter;
+  size_t num_splits = possible_split_values.size() - 1;
 
-  std::fill(class_counts_right, class_counts_right + num_splits * num_classes, 0);
-  std::fill(n_right, n_right + num_splits, 0);
+  std::fill(counter_per_class, counter_per_class + num_splits * num_classes, 0);
+  std::fill(counter, counter + num_splits, 0);
 
-  // Count samples in right child per class and possbile split
-  for (auto& sample : samples[node]) {
-    double value = data.get(sample, var);
+  size_t split_index = 0;
+  for (size_t i = 0; i < size_node - 1; i++) {
+    size_t sample = sorted_samples[i];
+    size_t next_sample = sorted_samples[i + 1];
     uint sample_class = responses_by_sample[sample];
 
-    // Count samples until split_value reached
-    for (size_t i = 0; i < num_splits; ++i) {
-      if (value > possible_split_values[i]) {
-        ++n_right[i];
-        ++class_counts_right[i * num_classes + sample_class];
-      } else {
-        break;
-      }
+    ++counter[split_index];
+    ++counter_per_class[split_index * num_classes + sample_class];
+
+    // if the next sample value is different then move on to the next bucket
+    if (data.get(sample, var) < data.get(next_sample, var)) {
+      ++split_index;
     }
   }
 
-  // Compute decrease of impurity for each possible split
-  for (size_t i = 0; i < num_splits; ++i) {
+  size_t n_left = 0;
+  size_t* class_counts_left = new size_t[num_classes]();
 
-    // Skip this split if the left child is too small.
-    size_t n_left = size_node - n_right[i];
-    if (n_left < min_child_size) {
-      continue;
-    }
+  // Compute decrease of impurity for each split
+  for (size_t i = 0; i < num_splits; ++i) {
+    n_left += counter[i];
 
     // Stop if the right child is too small.
-    if (n_right[i] < min_child_size) {
+    size_t n_right = size_node - n_left;
+    if (n_right < min_child_size) {
       break;
     }
 
@@ -159,18 +152,23 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
     double sum_left = 0;
     double sum_right = 0;
     for (size_t j = 0; j < num_classes; ++j) {
-      size_t class_count_right = class_counts_right[i * num_classes + j];
-      size_t class_count_left = class_counts[j] - class_count_right;
+      class_counts_left[j] += counter_per_class[i * num_classes + j];
+      size_t class_count_right = class_counts[j] - class_counts_left[j];
 
+      sum_left += class_counts_left[j] * class_counts_left[j];
       sum_right += class_count_right * class_count_right;
-      sum_left += class_count_left * class_count_left;
+    }
+
+    // Skip to the next value if the left child is too small.
+    if (n_left < min_child_size) {
+        continue;
     }
 
     // Decrease of impurity
-    double decrease = sum_left / (double) n_left + sum_right / (double) n_right[i];
+    double decrease = sum_right / (double) n_right + sum_left / (double) n_left;
 
     // Penalize splits that are too close to the edges of the data.
-    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right[i]);
+    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
     decrease -= penalty;
 
     // If better than before, use this
@@ -180,6 +178,7 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
       best_decrease = decrease;
     }
   }
+  delete[] class_counts_left;
 }
 
 void ProbabilitySplittingRule::find_best_split_value_large_q(const Data& data,
