@@ -116,6 +116,7 @@ quantile_forest <- function(X, Y,
   )
 
   class(forest) <- c("quantile_forest", "grf")
+  forest[["_forest"]] <- ForestPtr$new(xptr = forest[["_forest"]])
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["clusters"]] <- clusters
@@ -172,8 +173,6 @@ predict.quantile_forest <- function(object,
 
   num.threads <- validate_num_threads(num.threads)
 
-  forest.short <- object[-which(names(object) == "X.orig")]
-
   X <- object[["X.orig"]]
   train.data <- create_data_matrices(X, outcome = object[["Y.orig"]])
 
@@ -181,12 +180,12 @@ predict.quantile_forest <- function(object,
     validate_newdata(newdata, object$X.orig)
     data <- create_data_matrices(newdata)
     quantile_predict(
-      forest.short, quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
+      get_xptr(object), quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
       train.data$outcome.index, data$train.matrix, data$sparse.train.matrix, num.threads
     )
   } else {
     quantile_predict_oob(
-      forest.short, quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
+      get_xptr(object), quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
       train.data$outcome.index, num.threads
     )
   }

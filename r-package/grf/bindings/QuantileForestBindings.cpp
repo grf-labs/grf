@@ -47,7 +47,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
+Rcpp::NumericMatrix quantile_predict(SEXP forest_xptr,
                                      std::vector<double> quantiles,
                                      Rcpp::NumericMatrix train_matrix,
                                      Eigen::SparseMatrix<double> sparse_train_matrix,
@@ -59,17 +59,17 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
   std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
   train_data->set_outcome_index(outcome_index - 1);
 
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = quantile_predictor(num_threads, quantiles);
-  std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, false);
+  std::vector<Prediction> predictions = predictor.predict(*forest, *train_data, *data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   return result;
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix quantile_predict_oob(Rcpp::List forest_object,
+Rcpp::NumericMatrix quantile_predict_oob(SEXP forest_xptr,
                                          std::vector<double> quantiles,
                                          Rcpp::NumericMatrix train_matrix,
                                          Eigen::SparseMatrix<double> sparse_train_matrix,
@@ -78,10 +78,10 @@ Rcpp::NumericMatrix quantile_predict_oob(Rcpp::List forest_object,
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index - 1);
 
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = quantile_predictor(num_threads, quantiles);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(*forest, *data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
 
   return result;
