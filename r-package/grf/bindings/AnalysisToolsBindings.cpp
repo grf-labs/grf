@@ -177,4 +177,29 @@ Rcpp::List deserialize_tree(SEXP forest_xptr,
   return result;
 }
 
+// [[Rcpp::export]]
+Rcpp::List merge(const Rcpp::List forest_xptr_list) {
+  // copy-pastes from rather than calls Forest::Merge because
+  // Forest::Merge doesn't know about the type Rcpp::XPtr
+  std::vector<std::unique_ptr<Tree>> all_trees;
+
+  auto forest = Rcpp::as< Rcpp::XPtr<Forest> > (forest_xptr_list.at(0));
+  const size_t num_variables = forest->get_num_variables();
+  const size_t ci_group_size = forest->get_ci_group_size();
+
+  for (auto& opaque_forest : forest_xptr_list) {
+    auto forest = Rcpp::as< Rcpp::XPtr<Forest> > (opaque_forest);
+    auto& trees = (*forest).get_trees_();
+    all_trees.insert(all_trees.end(),
+                     std::make_move_iterator(trees.begin()),
+                     std::make_move_iterator(trees.end()));
+    if (forest->get_ci_group_size() != ci_group_size) {
+      throw std::runtime_error("All forests being merged must have the same ci_group_size.");
+    }
+  }
+
+  Forest big_forest = Forest(all_trees, num_variables, ci_group_size);
+  return RcppUtilities::create_forest_object(big_forest);
+}
+
 }

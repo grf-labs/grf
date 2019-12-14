@@ -1,5 +1,8 @@
 #' Merges a list of forests that were grown using the same data into one large forest.
 #'
+#' NOTE: Merging forests invalidates the individual R forest objects leaving only the resulting big
+#'  merged forest in a valid state.
+#'
 #' @param forest_list A `list` of forests to be concatenated.
 #'                        All forests must be of the same type, and the type must be a subclass of `grf`.
 #'                        In addition, all forests must have the same 'ci.group.size'.
@@ -32,7 +35,9 @@ merge_forests <- function(forest_list, compute.oob.predictions = TRUE) {
   validate_forest_list(forest_list)
   first_forest <- forest_list[[1]]
 
-  big_forest <- merge(forest_list)
+  big_forest <- merge(lapply(forest_list, get_xptr))
+  big_forest[["_forest"]] <- ForestPtr$new(xptr = big_forest[["_forest"]])
+  lapply(forest_list, clear_xptr) # Invalidate previous forests.
 
   # Make sure the new forest contains the necessary saved components like 'X.orig'.
   class(big_forest) <- class(first_forest)

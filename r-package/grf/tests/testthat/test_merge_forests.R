@@ -17,6 +17,11 @@ test_that("Merged regression forest attributes are sensible", {
   expect_true(is(big.rf, "grf"))
   expect_equal(r.forest1[["_num_trees"]] + r.forest2[["_num_trees"]], big.rf[["_num_trees"]])
   expect_equal(class(r.forest1), class(big.rf))
+
+  # Trying to use the previous forests results in an error message as they are invalidated
+  # by clear_xptr().
+  expect_error(print(r.forest1))
+  expect_error(print(r.forest2))
 })
 
 test_that("Merged causal forest attributes are sensible", {
