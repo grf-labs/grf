@@ -131,7 +131,8 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
                                                               const std::vector<double>& responses_by_sample,
                                                               const std::vector<std::vector<size_t>>& samples) {
   std::vector<double> possible_split_values;
-  std::vector<size_t> sorted_samples = data.get_all_values(possible_split_values, samples[node], var);
+  std::vector<size_t> sorted_samples;
+  data.get_all_values(possible_split_values, sorted_samples, samples[node], var);
 
   // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {

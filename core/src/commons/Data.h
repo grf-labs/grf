@@ -55,7 +55,18 @@ public:
 
   void set_weight_index(size_t index);
 
-  std::vector<size_t> get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const;
+  /**
+   * Sorts and gets the unique values in `samples` at variable `var`.
+   *
+   * @param all_values: the unique values in sorted order (filled in place).
+   * @param sorted_samples: the sample IDs in sorted order (filled in place).
+   * @param samples: the samples to sort.
+   * @param var: the feature variable.
+   *
+   * If all the values in `samples` is unique, then `all_values` and `sorted_samples`
+   * have the same length.
+   */
+  void get_all_values(std::vector<double>& all_values, std::vector<size_t>& sorted_samples, const std::vector<size_t>& samples, size_t var) const;
 
   size_t get_index(size_t row, size_t col) const;
 

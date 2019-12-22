@@ -97,7 +97,8 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
   // possible_split_values: the sorted unique split values. Length: num_splits (equal to size_node - 1 if all unique)
   // sorted_samples: the node samples in increasing order (may contain duplicated Xij). Length: size_node
   std::vector<double> possible_split_values;
-  std::vector<size_t> sorted_samples = data.get_all_values(possible_split_values, samples[node], var);
+  std::vector<size_t> sorted_samples;
+  data.get_all_values(possible_split_values, sorted_samples, samples[node], var);
 
   // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {
