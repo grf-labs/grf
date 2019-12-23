@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <numeric>
 #include <iterator>
 #include <stdexcept>
 #include <sstream>
@@ -158,13 +159,29 @@ void Data::set_weight_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
-void Data::get_all_values(std::vector<double>& all_values, const std::vector<size_t>& samples, size_t var) const {
+void Data::get_all_values(std::vector<double>& all_values,
+                          std::vector<size_t>& sorted_samples,
+                          const std::vector<size_t>& samples,
+                          size_t var) const {
   all_values.resize(samples.size());
   for (size_t i = 0; i < samples.size(); i++) {
     size_t sample = samples[i];
     all_values[i] = get(sample, var);
   }
-  std::sort(all_values.begin(), all_values.end());
+
+  sorted_samples.resize(samples.size());
+  std::vector<size_t> index(samples.size());
+   // fill with [0, 1,..., samples.size() - 1]
+  std::iota(index.begin(), index.end(), 0);
+  // sort index based on the split values (argsort)
+  std::sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs)
+    {return all_values[lhs] < all_values[rhs];});
+
+  for (size_t i = 0; i < samples.size(); i++) {
+    sorted_samples[i] = samples[index[i]];
+    all_values[i] = get(sorted_samples[i], var);
+  }
+
   all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
 }
 

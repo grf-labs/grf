@@ -41,19 +41,21 @@ test_that("changing honest.fraction behaves as expected", {
 
   expect_equal(length(samples$split_sample), n * sample_fraction_1 * honesty_fraction_1)
   expect_equal(length(samples$estimation_sample), n * sample_fraction_1 * (1 - honesty_fraction_1))
+  # Checking for the runtime_error:
+  # "The honesty fraction is too close to 1 or 0, as no observations will be sampled."
   expect_error(
     grf::regression_forest(X, Y,
       sample.fraction = sample_fraction_2,
       honesty = TRUE, honesty.fraction = honesty_fraction_2
     ),
-    "The honesty fraction is too close to 1 or 0, as no observations will be sampled."
+    class = "std::runtime_error"
   )
   expect_error(
     grf::regression_forest(X, Y,
       sample.fraction = sample_fraction_3,
       honesty = TRUE, honesty.fraction = honesty_fraction_3
     ),
-    "The honesty fraction is too close to 1 or 0, as no observations will be sampled."
+    class = "std::runtime_error"
   )
 })
 

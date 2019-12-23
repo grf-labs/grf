@@ -72,7 +72,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   for (auto& var : possible_split_vars) {
     // Use faster method for both cases
     double q = (double) size_node / (double) data.get_num_unique_data_values(var);
-    if(q < Q_THRESHOLD) { 
+    if(q < Q_THRESHOLD) {
         find_best_split_value_small_q(data, node, var, weight_sum_node, sum_node, size_node, min_child_size,
                                       best_value, best_var, best_decrease, responses_by_sample, samples);
     } else {
@@ -102,69 +102,68 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
                                                             double& best_decrease,
                                                             const std::vector<double>& responses_by_sample,
                                                             const std::vector<std::vector<size_t>>& samples) {
+  // possible_split_values: the sorted unique split values. Length: num_splits (equal to size_node - 1 if all unique)
+  // sorted_samples: the node samples in increasing order (may contain duplicated Xij). Length: size_node
   std::vector<double> possible_split_values;
-  data.get_all_values(possible_split_values, samples[node], var); 
+  std::vector<size_t> sorted_samples;
+  data.get_all_values(possible_split_values, sorted_samples, samples[node], var);
+
   // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {
     return;
   }
 
-  // Remove largest value because no split possible
-  possible_split_values.pop_back();
-
   // Initialize with 0m if not in memory efficient mode, use pre-allocated space
-  size_t num_splits = possible_split_values.size();
-  double* sums_right;
-  double* weight_sums_right;
-  size_t* n_right;
-  sums_right = sums;
-  weight_sums_right = weight_sums;
-  n_right = counter;
+  size_t num_splits = possible_split_values.size() - 1; // -1: we do not split at the last value
   std::fill(weight_sums, weight_sums + num_splits, 0);
-  std::fill(sums_right, sums_right + num_splits, 0);
-  std::fill(n_right, n_right + num_splits, 0);
+  std::fill(counter, counter + num_splits, 0);
+  std::fill(sums, sums + num_splits, 0);
 
-  // Sum in right child and possible split
-  for (auto& sample : samples[node]) {
-    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
-    double value = data.get(sample, var);
+  // Fill counter and sums buckets
+  size_t split_index = 0;
+  for (size_t i = 0; i < size_node - 1; i++) {
+    size_t sample = sorted_samples[i];
+    size_t next_sample = sorted_samples[i + 1];
     double response = responses_by_sample[sample];
+    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
 
-    // Count samples until split_value reached
-    for (size_t i = 0; i < num_splits; ++i) {
-      if (value > possible_split_values[i]) {
-        ++n_right[i];
-        weight_sums_right[i] += sample_weight;
-        sums_right[i] += sample_weight * response;
-      } else {
-        break;
-      }
+    weight_sums[split_index] += sample_weight;
+    sums[split_index] += sample_weight * response;
+    ++counter[split_index];
+
+    // if the next sample value is different then move on to the next bucket
+    if (data.get(sample, var) < data.get(next_sample, var)) {
+      ++split_index;
     }
   }
 
+  size_t n_left = 0;
+  double weight_sum_left = 0;
+  double sum_left = 0;
+
   // Compute decrease of impurity for each possible split
   for (size_t i = 0; i < num_splits; ++i) {
+    n_left += counter[i];
+    weight_sum_left += weight_sums[i];
+    sum_left += sums[i];
 
     // Skip this split if one child is too small.
-    size_t n_left = size_node - n_right[i];
     if (n_left < min_child_size) {
       continue;
     }
 
     // Stop if the right child is too small.
-    if (n_right[i] < min_child_size) {
+    size_t n_right = size_node - n_left;
+    if (n_right < min_child_size) {
       break;
     }
-        
 
-    double weight_sum_right = weight_sums_right[i];
-    double weight_sum_left = weight_sum_node - weight_sum_right;
-    double sum_right = sums_right[i];
-    double sum_left = sum_node - sum_right;
+    double weight_sum_right = weight_sum_node - weight_sum_left;
+    double sum_right = sum_node - sum_left;
     double decrease = (sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right) * size_node / weight_sum_node;
-   
+
     // Penalize splits that are too close to the edges of the data.
-    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right[i]);
+    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
     decrease -= penalty;
 
 
@@ -212,7 +211,7 @@ void RegressionSplittingRule::find_best_split_value_large_q(const Data& data,
     if (counter[i] == 0) {
       continue;
     }
-    
+
     n_left += counter[i];
     weight_sum_left += weight_sums[i];
     sum_left += sums[i];
