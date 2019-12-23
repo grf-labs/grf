@@ -102,11 +102,11 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
     // Use faster method for both cases
     double q = (double) num_samples / (double) data.get_num_unique_data_values(var);
     if(q < Q_THRESHOLD) {
-        find_best_split_value_small_q(data, node, var, num_samples, weight_sum_node, sum_node, mean_z_node, num_node_small_z,
+      find_best_split_value_small_q(data, node, var, num_samples, weight_sum_node, sum_node, mean_z_node, num_node_small_z,
                                     sum_node_z, sum_node_z_squared, min_child_size, best_value,
                                     best_var, best_decrease, responses_by_sample, samples);
     } else {
-        find_best_split_value_large_q(data, node, var, num_samples, weight_sum_node, sum_node, mean_z_node, num_node_small_z,
+      find_best_split_value_large_q(data, node, var, num_samples, weight_sum_node, sum_node, mean_z_node, num_node_small_z,
                                     sum_node_z, sum_node_z_squared, min_child_size, best_value,
                                     best_var, best_decrease, responses_by_sample, samples);
     }
@@ -232,7 +232,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     }
 
     // Calculate the decrease in impurity.
-    double decrease = (sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right) * num_samples / weight_sum_node;
+    double decrease = (sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right);
     // Penalize splits that are too close to the edges of the data.
     decrease -= imbalance_penalty * (1.0 / size_left + 1.0 / size_right);
 
@@ -343,7 +343,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
     }
 
     // Calculate the decrease in impurity.
-    double decrease = (sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right) * num_samples / weight_sum_node;
+    double decrease = (sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right);
     // Penalize splits that are too close to the edges of the data.
     decrease -= imbalance_penalty * (1.0 / size_left + 1.0 / size_right);
 
