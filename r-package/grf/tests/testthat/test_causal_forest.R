@@ -137,6 +137,22 @@ test_that("local linear causal forests with large lambda are equivalent to causa
   expect_lt(mean((preds.ll - preds.cf)^2), 0.02)
 })
 
+test_that("predictions are invariant to scaling of the sample weights.", {
+  n <- 100
+  p <- 6
+  X <- matrix(rnorm(n * p), n, p)
+  e <- 1 / (1 + exp(-2 * X[, 1] + 3 * X[, 2]))
+  W <- rbinom(n, 1, e)
+  tau <- 2 * X[, 1] + X[, 2]
+  Y <- W * tau + rnorm(n)
+  e.cc <- 1 / (1 + exp(-2 * X[, 1]))
+  sample.weights <- 1 / e.cc
+
+  forest.1 <- causal_forest(X, Y, W, sample.weights = sample.weights, seed = 1)
+  forest.2 <- causal_forest(X, Y, W, sample.weights = 64 * sample.weights, seed = 1)
+  expect_true(all(abs(forest.2$predictions - forest.1$predictions) < 1e-10))
+})
+
 test_that("IPCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {
   n <- 1000
   p <- 6
