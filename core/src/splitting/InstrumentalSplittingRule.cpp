@@ -81,10 +81,10 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
     sum_node_z_squared += sample_weight * z * z;
   }
 
-  double size_node = sum_node_z_squared - sum_node_z * sum_node_z / (double) num_samples;
+  double size_node = sum_node_z_squared - sum_node_z * sum_node_z / weight_sum_node;
   double min_child_size = size_node * alpha;
 
-  double mean_z_node = sum_node_z / num_samples;
+  double mean_z_node = sum_node_z / weight_sum_node;
   size_t num_node_small_z = 0;
   for (auto& sample : samples[node]) {
     double z = data.get_instrument(sample);
@@ -213,7 +213,8 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     }
 
     // Calculate relevant quantities for the left child.
-    double size_left = n_left * (sum_left_z_squared/weight_sum_left - sum_left_z * sum_left_z / (weight_sum_left * weight_sum_left));
+    // double size_left = n_left * (sum_left_z_squared/weight_sum_left - sum_left_z * sum_left_z / (weight_sum_left * weight_sum_left));
+    double size_left = (sum_left_z_squared - sum_left_z * sum_left_z / weight_sum_left);
     // Skip this split if the left child's variance is too small: size_left = n_left * variance
     if (size_left < min_child_size || (imbalance_penalty > 0.0 && size_left == 0)) {
       continue;
@@ -224,7 +225,8 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     double sum_right = sum_node - sum_left;
     double sum_right_z_squared = sum_node_z_squared - sum_left_z_squared;
     double sum_right_z = sum_node_z - sum_left_z;
-    double size_right = n_right * (sum_right_z_squared/weight_sum_right - sum_right_z * sum_right_z / (weight_sum_right * weight_sum_right));
+    // double size_right = n_right * (sum_right_z_squared/weight_sum_right - sum_right_z * sum_right_z / (weight_sum_right * weight_sum_right));
+    double size_right = (sum_right_z_squared - sum_right_z * sum_right_z / weight_sum_right);
 
     // Skip this split if the right child's variance is too small.
     if (size_right < min_child_size || (imbalance_penalty > 0.0 && size_right == 0)) {
@@ -324,7 +326,8 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
     }
 
     // Calculate relevant quantities for the left child.
-    double size_left = n_left * (sum_left_z_squared/weight_sum_left - sum_left_z * sum_left_z / (weight_sum_left * weight_sum_left));
+    // double size_left = n_left * (sum_left_z_squared/weight_sum_left - sum_left_z * sum_left_z / (weight_sum_left * weight_sum_left));
+    double size_left = (sum_left_z_squared - sum_left_z * sum_left_z / weight_sum_left);
     // Skip this split if the left child's variance is too small: size_left = n_left * variance
     if (size_left < min_child_size || (imbalance_penalty > 0.0 && size_left == 0)) {
       continue;
@@ -335,7 +338,8 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
     double sum_right = sum_node - sum_left;
     double sum_right_z_squared = sum_node_z_squared - sum_left_z_squared;
     double sum_right_z = sum_node_z - sum_left_z;
-    double size_right = n_right * (sum_right_z_squared/weight_sum_right - sum_right_z * sum_right_z / (weight_sum_right * weight_sum_right));
+    // double size_right = n_right * (sum_right_z_squared/weight_sum_right - sum_right_z * sum_right_z / (weight_sum_right * weight_sum_right));
+    double size_right = (sum_right_z_squared - sum_right_z * sum_right_z / weight_sum_right);
 
     // Skip this split if the right child's variance is too small.
     if (size_right < min_child_size || (imbalance_penalty > 0.0 && size_right == 0)) {
