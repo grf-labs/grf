@@ -15,24 +15,21 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_FORESTTRAINERS_H
-#define GRF_FORESTTRAINERS_H
-
-#include "forest/ForestTrainer.h"
+#include "relabeling/LLRelabelingStrategy.h"
 
 namespace grf {
 
-ForestTrainer instrumental_trainer(double reduced_form_weight,
-                                   bool stabilize_splits);
+bool LLRelabelingStrategy::relabel(
+    const std::vector<size_t>& samples,
+    const Data& data,
+    std::vector<double>& responses_by_sample) const {
 
-ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
-
-ForestTrainer regression_trainer();
-
-ForestTrainer local_linear_trainer();
-
-ForestTrainer custom_trainer();
+    for (size_t sample : samples) {
+      double outcome = data.get_outcome(sample);
+      responses_by_sample[sample] = outcome;
+    }
+    return false;
+  }
 
 } // namespace grf
 
-#endif //GRF_FORESTTRAINERS_H

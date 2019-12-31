@@ -288,8 +288,8 @@ test_that("cluster robust average effects do weighting correctly", {
   # does a Hajek-style correction to renormalize propensities for the treated and control
   # groups, whereas `best_linear_projection` does not.
   cate.aipw.blp <- best_linear_projection(forest.causal, A = NULL)
-  expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1], tol = 0.001)
-  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.001)
+  expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1], tol = 0.005)
+  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.005)
 
   catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
   expect_true(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]) <= 1)
