@@ -19,6 +19,7 @@
 #include <unordered_set>
 #include <fstream>
 
+#include "commons/utility.h"
 #include "catch.hpp"
 #include "relabeling/RelabelingStrategy.h"
 #include "relabeling/LLRelabelingStrategy.h"
