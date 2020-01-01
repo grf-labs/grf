@@ -125,6 +125,12 @@ test_that("local linear predict returns local linear predictions even without tu
 
   ll.indicator <- !is.null(preds$ll.lambda)
   expect_true(ll.indicator)
+
+  forest <- ll_regression_forest(X, Y, num.trees = 50, ll.splits = TRUE)
+  preds <- predict(forest)
+
+  ll.indicator <- !is.null(preds$ll.lambda)
+  expect_true(ll.indicator)
 })
 
 test_that("local linear confidence intervals have reasonable coverage", {
@@ -196,6 +202,10 @@ test_that("local linear predictions are correct without noise", {
 
   expect_true(mean((preds.llf - mu)^2) < 10^-10)
   expect_true(mean((preds.rf - mu)^2) > 10^-2)
+
+  forest <- ll_regression_forest(X, Y, num.trees = 80, ll.splits = TRUE, ci.group.size = 2)
+  preds.llf.splits <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
+  expect_true(mean((preds.llf.splits - mu)^2) < 10^-10)
 })
 
 test_that("prediction with and without CIs are the same", {
@@ -234,9 +244,26 @@ test_that("output of tune local linear forest is consistent with prediction outp
   expect_true(max(abs(tune.out$oob.predictions[, length(tune.out$lambdas)] - pred.ll.max)) < 10^-6)
 })
 
+test_that("local linear forests with local linear splits include variance estimates", {
+  n <- 200
+  p <- 4
+
+  X <- matrix(runif(n * p, -1, 1), nrow = n)
+  X.test <- matrix(runif(n * p, -1, 1), nrow = n)
+  mu <- 0.9 * exp(X[, 1])
+  Y <- mu + rnorm(n)
+
+  forest <- ll_regression_forest(X, Y, num.trees = 800, ll.splits = TRUE, ci.group.size = 2)
+  preds.oob <- predict(forest, estimate.variance = TRUE)
+  preds.test <- predict(forest, X.test, estimate.variance = TRUE)
+
+  expect_equal(n, length(preds.oob$variance.estimates))
+  expect_equal(n, length(preds.test$variance.estimates))
+})
+
 test_that("local linear splits improve predictions in a simple case", {
    f <- function(x) {
-      4 * x[1] + 4 * x[2] + 2 * x[3]**2 + 2 * x[4]**3
+      10 * x[1] + 5 * x[2] + 2 * x[3]**2 + 2 * x[4]**3
    }
    n <- 600
    p <- 5
@@ -253,5 +280,5 @@ test_that("local linear splits improve predictions in a simple case", {
    mse.grf.splits.oob <- mean((preds.grf.splits.oob$predictions - MU)^2)
    mse.ll.splits.oob <- mean((preds.ll.splits.oob$predictions - MU)^2)
 
-   expect_true(mse.ll.splits.oob < mse.grf.splits.oob / 1.2)
+   expect_true(mse.ll.splits.oob / mse.grf.splits.oob < 0.9)
 })
