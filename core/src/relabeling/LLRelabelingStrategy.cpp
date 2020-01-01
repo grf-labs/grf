@@ -80,4 +80,3 @@ bool LLRelabelingStrategy::relabel(
   }
 
 } // namespace grf
-
