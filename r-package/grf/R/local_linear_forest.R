@@ -5,6 +5,12 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param ll.splits Optional choice to make forest splits based on ridge residuals as opposed to standard
+#'                  CART splits. Defaults to FALSE.
+#' @param ll.split.weight.penalty If using local linear splits, user can specify whether or not to use a
+#'                                covariance ridge penalty, analogously to the prediction case. Defaults to FALSE.
+#' @param ll.split.lambda Ridge penalty for splitting. Defaults to 0.1.
+#' @param ll.split.variables Linear correction variables for splitting. Defaults to all variables.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
