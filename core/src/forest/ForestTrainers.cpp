@@ -63,8 +63,10 @@ ForestTrainer regression_trainer() {
                        std::move(prediction_strategy));
 }
 
-ForestTrainer local_linear_trainer() {
-  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new LLRelabelingStrategy());
+ForestTrainer local_linear_trainer(double split_lambda,
+                                   bool weight_penalty,
+                                   std::vector<size_t> ll_split_variables) {
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new LLRelabelingStrategy(split_lambda, weight_penalty, ll_split_variables));
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
 

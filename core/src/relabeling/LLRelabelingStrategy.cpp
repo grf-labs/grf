@@ -19,14 +19,62 @@
 
 namespace grf {
 
+LLRelabelingStrategy::LLRelabelingStrategy(double split_lambda,
+                                           bool weight_penalty,
+                                           std::vector<size_t> ll_split_variables):
+  split_lambda(split_lambda),
+  weight_penalty(weight_penalty),
+  ll_split_variables(ll_split_variables){
+};
+
 bool LLRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
     const Data& data,
     std::vector<double>& responses_by_sample) const {
 
-    for (size_t sample : samples) {
-      double outcome = data.get_outcome(sample);
-      responses_by_sample[sample] = outcome;
+  size_t num_variables = ll_split_variables.size();
+  size_t num_data_points = samples.size();
+
+  Eigen::MatrixXd X (num_data_points, num_variables+1);
+  Eigen::MatrixXd Y (num_data_points, 1);
+  for (size_t i = 0; i < num_data_points; ++i) {
+    for (size_t j = 0; j < num_variables; ++j){
+      size_t current_predictor = ll_split_variables[j];
+      X(i,j+1) = data.get(samples[i],current_predictor);
+    }
+    Y(i) = data.get_outcome(samples[i]);
+    X(i, 0) = 1;
+  }
+
+  // find ridge regression predictions
+  Eigen::MatrixXd M_unpenalized(num_variables+1, num_variables+1);
+  M_unpenalized.noalias() = X.transpose()*X;
+
+  Eigen::MatrixXd M = M_unpenalized;
+  // M = M_unpenalized;
+
+  if (!weight_penalty) {
+    // standard ridge penalty
+    double normalization = M.trace() / (num_variables + 1);
+    for (size_t j = 1; j < num_variables + 1; ++j){
+      M(j,j) += split_lambda * normalization;
+    }
+  } else {
+    // covariance ridge penalty
+    for (size_t j = 1; j < num_variables+1; ++j){
+      M(j,j) += split_lambda * M(j,j); // note that the weights are already normalized
+    }
+  }
+
+  Eigen::MatrixXd local_coefficients = M.ldlt().solve(X.transpose()*Y);
+  Eigen::MatrixXd leaf_predictions = X.transpose()*local_coefficients;
+
+  size_t i = 0;
+  for (size_t sample : samples) {
+      double prediction_sample = leaf_predictions(i);
+      double residual = prediction_sample - data.get_outcome(sample);
+      responses_by_sample[sample] = residual;
+      i++;
     }
     return false;
   }

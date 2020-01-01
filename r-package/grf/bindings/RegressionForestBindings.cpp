@@ -116,6 +116,9 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
                             Eigen::SparseMatrix<double> sparse_train_matrix,
                             size_t outcome_index,
                             size_t sample_weight_index,
+                            double split_lambda,
+                            bool weight_penalty,
+                            std::vector<size_t> ll_split_variables,
                             bool use_sample_weights,
                             unsigned int mtry,
                             unsigned int num_trees,
@@ -132,7 +135,7 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
                             bool compute_oob_predictions,
                             unsigned int num_threads,
                             unsigned int seed) {
-  ForestTrainer trainer = local_linear_trainer();
+  ForestTrainer trainer = local_linear_trainer(split_lambda, weight_penalty, ll_split_variables);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index - 1);

@@ -68,7 +68,10 @@
 #'
 #' @export
 ll_regression_forest <- function(X, Y,
+                                ll.splits = FALSE,
                                 ll.split.weight.penalty = FALSE,
+                                ll.split.lambda = 0.1,
+                                ll.split.variables = NULL,
                                 num.trees = 2000,
                                 sample.weights = NULL,
                                 clusters = NULL,
@@ -96,11 +99,14 @@ ll_regression_forest <- function(X, Y,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
+  ll.split.variables <- validate_ll_vars(ll.split.variables, ncol(X))
+  ll.split.lambda <- validate_ll_lambda(ll.split.lambda)
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
                           "honesty.prune.leaves", "alpha", "imbalance.penalty")
 
   data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
+
   args <- list(num.trees = num.trees,
                clusters = clusters,
                samples.per.cluster = samples.per.cluster,
@@ -116,6 +122,11 @@ ll_regression_forest <- function(X, Y,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed)
+  if (ll.splits){
+    args <- c(args, list(weight.penalty = ll.split.weight.penalty,
+                         split.lambda = ll.split.lambda,
+                         ll.split.variables = ll.split.variables))
+  }
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")){
@@ -141,7 +152,7 @@ ll_regression_forest <- function(X, Y,
     args <- modifyList(args, as.list(tuning.output[["params"]]))
   }
 
-  if(ll.split.weight.penalty){
+  if (ll.splits){
     forest <- do.call.rcpp(ll_regression_train, c(data, args))
   } else {
     forest <- do.call.rcpp(regression_train, c(data, args))

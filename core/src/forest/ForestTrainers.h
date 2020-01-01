@@ -29,7 +29,9 @@ ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
 
 ForestTrainer regression_trainer();
 
-ForestTrainer local_linear_trainer();
+ForestTrainer local_linear_trainer(double split_lambda,
+                                   bool weight_penalty,
+                                   std::vector<size_t> ll_split_variables);
 
 ForestTrainer custom_trainer();
 

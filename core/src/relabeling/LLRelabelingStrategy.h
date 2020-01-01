@@ -19,15 +19,23 @@
 #define GRF_LLRELABELINGSTRATEGY_H
 
 #include "relabeling/RelabelingStrategy.h"
+#include "Eigen/Dense"
 
 namespace grf {
 
 class LLRelabelingStrategy final: public RelabelingStrategy {
 public:
+  LLRelabelingStrategy(double split_lambda,
+                       bool weight_penalty,
+                       std::vector<size_t> ll_split_variables);
   bool relabel(
       const std::vector<size_t>& samples,
       const Data& data,
       std::vector<double>& responses_by_sample) const;
+private:
+    double split_lambda;
+    bool weight_penalty;
+    std::vector<size_t> ll_split_variables;
 };
 
 } // namespace grf
