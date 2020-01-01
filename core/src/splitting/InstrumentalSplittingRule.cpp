@@ -131,84 +131,75 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
                                                               const std::vector<double>& responses_by_sample,
                                                               const std::vector<std::vector<size_t>>& samples) {
   std::vector<double> possible_split_values;
-  data.get_all_values(possible_split_values, samples[node], var);
+  std::vector<size_t> sorted_samples;
+  data.get_all_values(possible_split_values, sorted_samples, samples[node], var);
 
   // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {
     return;
   }
 
-  // Remove largest value because no split possible
-  possible_split_values.pop_back();
-
   // Initialize with 0m if not in memory efficient mode, use pre-allocated space
-  size_t num_splits = possible_split_values.size();
-  double* sums_right = sums;
-  size_t* n_right = counter;
+  size_t num_splits = possible_split_values.size() - 1;
 
-  std::fill(sums_right, sums_right + num_splits, 0);
-  std::fill(n_right, n_right + num_splits, 0);
+  std::fill(counter, counter + num_splits, 0);
+  std::fill(sums, sums + num_splits, 0);
   std::fill(num_small_z, num_small_z + num_splits, 0);
   std::fill(sums_z, sums_z + num_splits, 0);
   std::fill(sums_z_squared, sums_z_squared + num_splits, 0);
 
-  // Sum in right child and possible split
-  for (auto& sample : samples[node]) {
-    double value = data.get(sample, var);
-    double label = responses_by_sample[sample];
+  size_t split_index = 0;
+  for (size_t i = 0; i < num_samples - 1; i++) {
+    size_t sample = sorted_samples[i];
+    size_t next_sample = sorted_samples[i + 1];
     double z = data.get_instrument(sample);
 
-    // Count samples until split_value reached
-    for (size_t i = 0; i < num_splits; ++i) {
-      if (value > possible_split_values[i]) {
-        ++n_right[i];
-        sums_right[i] += label;
-        sums_z[i] += z;
-        sums_z_squared[i] += z * z;
-        if (z < mean_node_z) {
-          ++num_small_z[i];
-        }
-      } else {
-        break;
-      }
+    sums[split_index] += responses_by_sample[sample];
+    ++counter[split_index];
+
+    sums_z[split_index] += z;
+    sums_z_squared[split_index] += z * z;
+    if (z < mean_node_z) {
+      ++num_small_z[split_index];
+    }
+
+    // if the next sample value is different then move on to the next bucket
+    if (data.get(sample, var) < data.get(next_sample, var)) {
+      ++split_index;
     }
   }
 
+  size_t n_left = 0;
+  double sum_left = 0;
+  double sum_left_z = 0.0;
+  double sum_left_z_squared = 0.0;
+  size_t num_left_small_z = 0;
+
   // Compute decrease of impurity for each possible split.
   for (size_t i = 0; i < num_splits; ++i) {
-    size_t n_left = num_samples - n_right[i];
-
-    // Stop if the right child does not contain enough z
-    // values below and above the parent's mean.
-    size_t num_right_small_z = num_small_z[i];
-    size_t num_right_large_z = n_right[i] - num_right_small_z;
-    if (num_right_small_z < min_node_size || num_right_large_z < min_node_size) {
-      break;
-    }
+    n_left += counter[i];
+    num_left_small_z += num_small_z[i];
+    sum_left += sums[i];
+    sum_left_z += sums_z[i];
+    sum_left_z_squared += sums_z_squared[i];
 
     // Skip this split if the left child does not contain enough
     // z values below and above the parent's mean.
-    size_t num_left_small_z = num_node_small_z - num_right_small_z;
     size_t num_left_large_z = n_left - num_left_small_z;
     if (num_left_small_z < min_node_size || num_left_large_z < min_node_size) {
       continue;
     }
 
-    // Calculate relevant quantities for the right child.
-    double sum_right = sums_right[i];
-    double sum_right_z = sums_z[i];
-    double sum_right_z_squared = sums_z_squared[i];
-    double size_right = sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right[i];
-
-    // Skip this split if the right child's variance is too small.
-    if (size_right < min_child_size || (imbalance_penalty > 0.0 && size_right == 0)) {
-      continue;
+    // Stop if the right child does not contain enough z values below
+    // and above the parent's mean.
+    size_t n_right = num_samples - n_left;
+    size_t num_right_small_z = num_node_small_z - num_left_small_z;
+    size_t num_right_large_z = n_right - num_right_small_z;
+    if (num_right_small_z < min_node_size || num_right_large_z < min_node_size) {
+      break;
     }
 
     // Calculate relevant quantities for the left child.
-    double sum_left = sum_node - sum_right;
-    double sum_left_z = sum_node_z - sum_right_z;
-    double sum_left_z_squared = sum_node_z_squared - sum_right_z_squared;
     double size_left = sum_left_z_squared - sum_left_z * sum_left_z / (double) n_left;
 
     // Skip this split if the left child's variance is too small.
@@ -216,8 +207,21 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
       continue;
     }
 
+    // Calculate relevant quantities for the left child.
+    double sum_right_z_squared = sum_node_z_squared - sum_left_z_squared;
+    double sum_right_z = sum_node_z - sum_left_z;
+    double size_right = sum_right_z_squared - sum_right_z * sum_right_z / (double) n_right;
+
+    // Skip this split if the right child's variance is too small.
+    if (size_right < min_child_size || (imbalance_penalty > 0.0 && size_right == 0)) {
+      continue;
+    }
+
     // Calculate the decrease in impurity.
-    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right[i];
+    double sum_right = sum_node - sum_left;
+    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
+
+    // Penalize splits that are too close to the edges of the data.
     decrease -= imbalance_penalty * (1.0 / size_left + 1.0 / size_right);
 
     // Save this split if it is the best seen so fa.
