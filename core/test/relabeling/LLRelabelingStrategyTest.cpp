@@ -36,7 +36,7 @@ TEST_CASE("simple local linear relabeling", "[ll_regression, relabeling]") {
 
   data->set_outcome_index(10);
   std::vector<size_t> ll_split_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  std::vector<double> split_lambda = {0.1};
+  double split_lambda = 0.1;
   bool weight_penalty = false;
 
   size_t num_samples = 2000;
