@@ -49,7 +49,7 @@ TEST_CASE("simple local linear relabeling", "[ll_regression, relabeling]") {
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new LLRelabelingStrategy(split_lambda, weight_penalty, ll_split_variables));
 
   std::vector<double> relabeled_observations(num_samples);
-  bool stop = relabeling_strategy->relabel(samples, data, relabeled_observations);
+  bool stop = relabeling_strategy->relabel(samples, *data, relabeled_observations);
   REQUIRE(stop == false);
 
   std::vector<double> relabeled_outcomes;
