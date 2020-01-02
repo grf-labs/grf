@@ -15,12 +15,13 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <map>
-#include <unordered_set>
 #include <fstream>
+#include <map>
+#include <memory>
+#include <unordered_set>
 
 #include "commons/utility.h"
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "catch.hpp"
 #include "relabeling/RelabelingStrategy.h"
 #include "relabeling/LLRelabelingStrategy.h"
