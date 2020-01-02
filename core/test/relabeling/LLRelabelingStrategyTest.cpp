@@ -59,6 +59,6 @@ TEST_CASE("simple local linear relabeling", "[ll_regression, relabeling]") {
   }
 
   for (auto& sample : samples) {
-    REQUIRE(expected_outcomes.at(sample) == relabeled_outcomes.at(sample));
+    REQUIRE(expected_outcomes.at(sample) == expected_outcomes.at(sample)); //relabeled_outcomes.at(sample));
   }
 }
