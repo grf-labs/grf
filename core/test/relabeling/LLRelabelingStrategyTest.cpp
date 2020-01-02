@@ -20,6 +20,7 @@
 #include <fstream>
 
 #include "commons/utility.h"
+#include "commons/DefaultData.h"
 #include "catch.hpp"
 #include "relabeling/RelabelingStrategy.h"
 #include "relabeling/LLRelabelingStrategy.h"
