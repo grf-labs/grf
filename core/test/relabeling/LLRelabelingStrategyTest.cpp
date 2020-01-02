@@ -39,15 +39,17 @@ TEST_CASE("simple local linear relabeling", "[ll_regression, relabeling]") {
   std::vector<double> split_lambda = {0.1};
   bool weight_penalty = false;
 
+  size_t num_samples = 2000;
+
   std::vector<size_t> samples;
-  for (size_t i = 0; i < data.get_num_rows(); ++i) {
+  for (size_t i = 0; i < num_samples; ++i) {
     samples.push_back(i);
   }
 
-  LLRelabelingStrategy relabeling_strategy(split_lambda, weight_penalty, ll_split_variables);
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new LLRelabelingStrategy(split_lambda, weight_penalty, ll_split_variables));
 
-  std::vector<double> relabeled_observations(data.get_num_rows());
-  bool stop = relabeling_strategy.relabel(samples, data, relabeled_observations);
+  std::vector<double> relabeled_observations(num_samples);
+  bool stop = relabeling_strategy->relabel(samples, data, relabeled_observations);
   REQUIRE(stop == false);
 
   std::vector<double> relabeled_outcomes;
