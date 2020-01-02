@@ -31,8 +31,9 @@ using namespace grf;
 
 TEST_CASE("simple local linear relabeling", "[ll_regression, relabeling]") {
   std::unique_ptr<Data> data = load_data("test/forest/resources/friedman.csv");
-  std::vector<double> expected_outcomes = FileTestUtilities::read_csv_file(
+  std::vector<std::vector<double>> ll_relabeled_outcomes = FileTestUtilities::read_csv_file(
           "test/forest/resources/ll_relabeled_outcomes.csv");
+  std::vector<double> expected_outcomes = ll_relabeled_outcomes(0);
 
   data->set_outcome_index(10);
   std::vector<size_t> ll_split_variables = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
