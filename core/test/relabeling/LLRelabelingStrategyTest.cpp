@@ -58,5 +58,5 @@ TEST_CASE("simple local linear relabeling", "[ll_regression, relabeling]") {
     relabeled_outcomes.push_back(relabeled_observations.at(sample));
   }
 
-  REQUIRE(relabeled_outcomes.size() == expected_outcomes.size())
+  REQUIRE(relabeled_outcomes.size() == expected_outcomes.size());
 }
