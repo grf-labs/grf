@@ -25,6 +25,7 @@
 #include "catch.hpp"
 #include "relabeling/RelabelingStrategy.h"
 #include "relabeling/LLRelabelingStrategy.h"
+#include "utilities/ForestTestUtilities.h"
 
 using namespace grf;
 
