@@ -95,7 +95,6 @@ ll_regression_forest <- function(X, Y,
                                 tune.num.trees = 50,
                                 tune.num.reps = 100,
                                 tune.num.draws = 1000,
-                                compute.oob.predictions = TRUE,
                                 num.threads = NULL,
                                 seed = runif(1, 0, .Machine$integer.max)) {
 
@@ -125,7 +124,7 @@ ll_regression_forest <- function(X, Y,
                alpha = alpha,
                imbalance.penalty = imbalance.penalty,
                ci.group.size = ci.group.size,
-               compute.oob.predictions = compute.oob.predictions,
+               compute.oob.predictions = FALSE,
                num.threads = num.threads,
                seed = seed)
   if (ll.splits){
