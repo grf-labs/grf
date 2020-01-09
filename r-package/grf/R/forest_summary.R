@@ -177,7 +177,7 @@ best_linear_projection <- function(forest, A = NULL, subset = NULL) {
   
   if (!is.null(A)) {
     if (nrow(A) == length(forest$Y.orig)) {
-      A.subset <- A[subset,]
+      A.subset <- A[subset,,drop=FALSE]
     } else if (nrow(A) == length(subset)) {
       A.subset <- A
     } else {
