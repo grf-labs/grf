@@ -15,7 +15,7 @@ Rcpp::List RcppUtilities::create_forest_object(Forest& forest,
 
   Rcpp::XPtr<Forest> forest_xptr(new Forest(std::move(forest)));
   result.push_back(forest_xptr, "_forest");
-  result.push_back((*forest_xptr).get_trees().size(), "_num_trees");
+  result.push_back(forest_xptr->get_trees().size(), "_num_trees");
 
   if (!predictions.empty()) {
     add_predictions(result, predictions);
@@ -59,10 +59,10 @@ Rcpp::List RcppUtilities::serialize_forest(SEXP forest_xptr) {
   Rcpp::XPtr<Forest> forest(forest_xptr);
   Rcpp::List result;
 
-  result.push_back((*forest).get_ci_group_size(), "_ci_group_size");
-  result.push_back((*forest).get_num_variables(), "_num_variables");
+  result.push_back(forest->get_ci_group_size(), "_ci_group_size");
+  result.push_back(forest->get_num_variables(), "_num_variables");
 
-  size_t num_trees = (*forest).get_trees().size();
+  size_t num_trees = forest->get_trees().size();
   result.push_back(num_trees, "_num_trees");
 
   Rcpp::List root_nodes(num_trees);
@@ -75,7 +75,7 @@ Rcpp::List RcppUtilities::serialize_forest(SEXP forest_xptr) {
   size_t num_types = 0;
 
   for (size_t t = 0; t < num_trees; t++) {
-    const std::unique_ptr<Tree>& tree = (*forest).get_trees().at(t);
+    const std::unique_ptr<Tree>& tree = forest->get_trees().at(t);
     root_nodes[t] = tree->get_root_node();
     child_nodes[t] = tree->get_child_nodes();
     leaf_samples[t] = tree->get_leaf_samples();

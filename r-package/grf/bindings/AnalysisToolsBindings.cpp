@@ -37,7 +37,7 @@ Rcpp::NumericMatrix compute_split_frequencies(SEXP forest_xptr,
   SplitFrequencyComputer computer;
   std::vector<std::vector<size_t>> split_frequencies = computer.compute(*forest, max_depth);
 
-  size_t num_variables = (*forest).get_num_variables();
+  size_t num_variables = forest->get_num_variables();
   Rcpp::NumericMatrix result(max_depth, num_variables);
   for (size_t depth = 0; depth < split_frequencies.size(); depth++) {
     const std::vector<size_t>& frequencies = split_frequencies.at(depth);
@@ -116,12 +116,12 @@ Rcpp::List deserialize_tree(SEXP forest_xptr,
   Rcpp::XPtr<Forest> forest(forest_xptr);
 
   tree_index--; // Decrement since R is one-indexed.
-  size_t num_trees = (*forest).get_trees().size();
+  size_t num_trees = forest->get_trees().size();
   if (tree_index < 0 || tree_index >= num_trees) {
     throw std::runtime_error("The provided tree index is not valid.");
   }
 
-  const std::unique_ptr<Tree>& tree = (*forest).get_trees().at(tree_index);
+  const std::unique_ptr<Tree>& tree = forest->get_trees().at(tree_index);
   const std::vector<std::vector<size_t>>& child_nodes = tree->get_child_nodes();
   const std::vector<std::vector<size_t>>& leaf_samples = tree->get_leaf_samples();
 
@@ -189,7 +189,7 @@ Rcpp::List merge(const Rcpp::List forest_xptr_list) {
 
   for (auto& opaque_forest : forest_xptr_list) {
     auto forest = Rcpp::as< Rcpp::XPtr<Forest> > (opaque_forest);
-    auto& trees = (*forest).get_trees_();
+    auto& trees = forest->get_trees_();
     all_trees.insert(all_trees.end(),
                      std::make_move_iterator(trees.begin()),
                      std::make_move_iterator(trees.end()));
