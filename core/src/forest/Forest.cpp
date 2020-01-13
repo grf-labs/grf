@@ -40,25 +40,6 @@ Forest::Forest(Forest&& forest) {
   this->ci_group_size = forest.ci_group_size;
 }
 
-Forest Forest::merge(std::vector<Forest>& forests) {
-  std::vector<std::unique_ptr<Tree>> all_trees;
-  const size_t num_variables = forests.at(0).get_num_variables();
-  const size_t ci_group_size = forests.at(0).get_ci_group_size();
-
-  for (auto& forest : forests) {
-    auto& trees = forest.get_trees_();
-    all_trees.insert(all_trees.end(),
-                     std::make_move_iterator(trees.begin()),
-                     std::make_move_iterator(trees.end()));
-
-    if (forest.get_ci_group_size() != ci_group_size) {
-      throw std::runtime_error("All forests being merged must have the same ci_group_size.");
-    }
-  }
-
-  return Forest(all_trees, num_variables, ci_group_size);
-}
-
 const std::vector<std::unique_ptr<Tree>>& Forest::get_trees() const {
   return trees;
 }

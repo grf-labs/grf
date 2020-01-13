@@ -45,15 +45,6 @@ public:
   const size_t get_num_variables() const;
   const size_t get_ci_group_size() const;
 
-  /**
-   * Merges the given forests into a single forest. The new forest
-   * will contain all the trees from the smaller forests.
-   *
-   * NOTE: this is a destructive operation -- the original forests cannot
-   * be used after they are merged together.
-   */
-  static Forest merge(std::vector<Forest>& forests);
-  
 private:
   std::vector<std::unique_ptr<Tree>> trees;
   size_t num_variables;

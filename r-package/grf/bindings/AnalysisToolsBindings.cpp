@@ -179,8 +179,6 @@ Rcpp::List deserialize_tree(SEXP forest_xptr,
 
 // [[Rcpp::export]]
 Rcpp::List merge(const Rcpp::List forest_xptr_list) {
-  // copy-pastes from rather than calls Forest::Merge because
-  // Forest::Merge doesn't know about the type Rcpp::XPtr
   std::vector<std::unique_ptr<Tree>> all_trees;
 
   auto forest = Rcpp::as< Rcpp::XPtr<Forest> > (forest_xptr_list.at(0));
