@@ -5,7 +5,7 @@ save_and_load = function(forest) {
   load_grf("forest.Rds")
 }
 
-identical_predictions = function(forest.a, forest.b, X.new=NULL) {
+identical_predictions = function(forest.a, forest.b, X.new = NULL) {
   if(is.null(X.new)) { expect_true(all(predict(forest.a) == predict(forest.b))) }
   else { expect_true(all(predict(forest.a, X.new) == predict(forest.b, X.new))) }
 }
@@ -26,6 +26,7 @@ test_that("not using grf_save/grf_load results in an error", {
   saveRDS(forest, file = "wrong.save.Rds")
   forest = readRDS("wrong.save.Rds")
   expect_error(predict(forest, X.new))
+  unlink("wrong.save.Rds")
 })
 
 test_that("regression forests make the same predictions before and after save/load.", {
@@ -38,6 +39,7 @@ test_that("regression forests make the same predictions before and after save/lo
   forest = regression_forest(X, Y, num.trees = 200)
   identical_predictions(forest, save_and_load(forest))
   identical_predictions(forest, save_and_load(forest), X.new)
+  unlink("forest.Rds")
 })
 
 test_that("local linear forests make the same predictions before and after save/load.", {
@@ -50,6 +52,7 @@ test_that("local linear forests make the same predictions before and after save/
   forest = ll_regression_forest(X, Y, num.trees = 200)
   identical_predictions(forest, save_and_load(forest))
   identical_predictions(forest, save_and_load(forest), X.new)
+  unlink("forest.Rds")
 })
 
 test_that("quantile forests make the same predictions before and after save/load", {
@@ -62,6 +65,7 @@ test_that("quantile forests make the same predictions before and after save/load
 
   forest = quantile_forest(X, Y, num.trees = 200)
   identical_predictions(forest, save_and_load(forest), X.new)
+  unlink("forest.Rds")
 })
 
 test_that("causal forests make the same predictions before and after save/load", {
@@ -73,6 +77,7 @@ test_that("causal forests make the same predictions before and after save/load",
 
   forest = causal_forest(X, Y, W, num.trees = 200)
   identical_predictions(forest, save_and_load(forest))
+  unlink("forest.Rds")
 })
 
 test_that("instrumental forests make the same predictions before and after save/load", {
@@ -89,4 +94,5 @@ test_that("instrumental forests make the same predictions before and after save/
 
   forest = instrumental_forest(X, Y, W, Z, num.trees = 200)
   identical_predictions(forest, save_and_load(forest))
+  unlink("forest.Rds")
 })
