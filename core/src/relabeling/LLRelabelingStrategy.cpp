@@ -21,9 +21,13 @@ namespace grf {
 
 LLRelabelingStrategy::LLRelabelingStrategy(double split_lambda,
                                            bool weight_penalty,
+                                           std::vector<double> overall_beta,
+                                           size_t ll_split_cutoff,
                                            std::vector<size_t> ll_split_variables):
   split_lambda(split_lambda),
   weight_penalty(weight_penalty),
+  overall_beta(overall_beta),
+  ll_split_cutoff(ll_split_cutoff),
   ll_split_variables(ll_split_variables){
 };
 
@@ -46,28 +50,38 @@ bool LLRelabelingStrategy::relabel(
     X(i, 0) = 1;
   }
 
-  // find ridge regression predictions
-  Eigen::MatrixXd M_unpenalized(num_variables+1, num_variables+1);
-  M_unpenalized.noalias() = X.transpose()*X;
+  Eigen::MatrixXd leaf_predictions (num_data_points, 1);
 
-  Eigen::MatrixXd M = M_unpenalized;
-  // M = M_unpenalized;
+  if (num_data_points < ll_split_cutoff) {
+    // use overall beta for ridge predictions
 
-  if (!weight_penalty) {
-    // standard ridge penalty
-    double normalization = M.trace() / (num_variables + 1);
-    for (size_t j = 1; j < num_variables + 1; ++j){
-      M(j,j) += split_lambda * normalization;
+    Eigen::MatrixXd eigen_beta (num_variables+1, 1);
+    for(size_t j = 0; j < num_variables + 1; ++ j){
+      eigen_beta(j) = overall_beta[j];
     }
+    leaf_predictions = X*eigen_beta;
   } else {
-    // covariance ridge penalty
-    for (size_t j = 1; j < num_variables+1; ++j){
-      M(j,j) += split_lambda * M(j,j); // note that the weights are already normalized
-    }
-  }
+    // find ridge regression predictions
+    Eigen::MatrixXd M_unpenalized(num_variables+1, num_variables+1);
+    M_unpenalized.noalias() = X.transpose()*X;
+    Eigen::MatrixXd M = M_unpenalized;
 
-  Eigen::MatrixXd local_coefficients = M.ldlt().solve(X.transpose()*Y);
-  Eigen::MatrixXd leaf_predictions = X.transpose()*local_coefficients;
+    if (!weight_penalty) {
+      // standard ridge penalty
+      double normalization = M.trace() / (num_variables + 1);
+      for (size_t j = 1; j < num_variables + 1; ++j){
+        M(j,j) += split_lambda * normalization;
+      }
+    } else {
+      // covariance ridge penalty
+      for (size_t j = 1; j < num_variables+1; ++j){
+        M(j,j) += split_lambda * M(j,j); // note that the weights are already normalized
+      }
+    }
+
+    Eigen::MatrixXd local_coefficients = M.ldlt().solve(X.transpose()*Y);
+    leaf_predictions = X*local_coefficients;
+  }
 
   size_t i = 0;
   for (size_t sample : samples) {

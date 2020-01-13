@@ -31,6 +31,8 @@ ForestTrainer regression_trainer();
 
 ForestTrainer local_linear_trainer(double split_lambda,
                                    bool weight_penalty,
+                                   std::vector<double> overall_beta,
+                                   size_t ll_split_cutoff,
                                    std::vector<size_t> ll_split_variables);
 
 ForestTrainer custom_trainer();

@@ -263,22 +263,22 @@ test_that("local linear forests with local linear splits include variance estima
 
 test_that("local linear splits improve predictions in a simple case", {
    f <- function(x) {
-      10 * x[1] + 5 * x[2] + 2 * x[3]**2 + 2 * x[4]**3
+      10*sin(pi*x[1]*x[2]) + 20*((x[3] - 0.5)**2) + 10*x[4] + 5*x[5]
    }
-   n <- 600
-   p <- 5
+   n <- 2000
+   p <- 20
    X <- matrix(runif(n * p, 0, 1), n, p)
    MU <- apply(X, FUN = f, MARGIN = 1)
    Y <- MU + rnorm(n)
 
    forest <- regression_forest(X, Y, num.trees = 500)
-   preds.grf.splits.oob <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)
+   preds.grf.splits.oob <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0.1)
 
    ll.forest <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE)
-   preds.ll.splits.oob <- predict(ll.forest, linear.correction.variables = 1:p, ll.lambda = 0)
+   preds.ll.splits.oob <- predict(ll.forest, linear.correction.variables = 1:p, ll.lambda = 0.1)
 
    mse.grf.splits.oob <- mean((preds.grf.splits.oob$predictions - MU)^2)
    mse.ll.splits.oob <- mean((preds.ll.splits.oob$predictions - MU)^2)
 
-   expect_true(mse.ll.splits.oob / mse.grf.splits.oob < 0.9)
+   expect_true(mse.ll.splits.oob / mse.grf.splits.oob < 0.95)
 })

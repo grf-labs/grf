@@ -27,6 +27,8 @@ class LLRelabelingStrategy final: public RelabelingStrategy {
 public:
   LLRelabelingStrategy(double split_lambda,
                        bool weight_penalty,
+                       std::vector<double> overall_beta,
+                       size_t ll_split_cutoff,
                        std::vector<size_t> ll_split_variables);
   bool relabel(
       const std::vector<size_t>& samples,
@@ -35,6 +37,8 @@ public:
 private:
     double split_lambda;
     bool weight_penalty;
+    std::vector<double> overall_beta;
+    size_t ll_split_cutoff;
     std::vector<size_t> ll_split_variables;
 };
 
