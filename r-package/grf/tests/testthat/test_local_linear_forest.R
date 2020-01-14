@@ -262,13 +262,11 @@ test_that("local linear forests with local linear splits include variance estima
 })
 
 test_that("local linear splits improve predictions in a simple case", {
-   f <- function(x) {
-      10*sin(pi*x[1]*x[2]) + 20*((x[3] - 0.5)**2) + 10*x[4] + 5*x[5]
-   }
-   n <- 2000
-   p <- 20
-   X <- matrix(runif(n * p, 0, 1), n, p)
-   MU <- apply(X, FUN = f, MARGIN = 1)
+   n = 600
+   p = 5
+
+   X <- matrix(rnorm(n * p, 0, 1), nrow = n)
+   MU <- X[,1] + X[,2] + X[,3]*X[,4]
    Y <- MU + rnorm(n)
 
    forest <- regression_forest(X, Y, num.trees = 500)
@@ -280,5 +278,5 @@ test_that("local linear splits improve predictions in a simple case", {
    mse.grf.splits.oob <- mean((preds.grf.splits.oob$predictions - MU)^2)
    mse.ll.splits.oob <- mean((preds.ll.splits.oob$predictions - MU)^2)
 
-   expect_true(mse.ll.splits.oob / mse.grf.splits.oob < 0.95)
+   expect_true(mse.ll.splits.oob / mse.grf.splits.oob < 0.9)
 })
