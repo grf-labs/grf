@@ -244,7 +244,7 @@ test_that("output of tune local linear forest is consistent with prediction outp
   expect_true(max(abs(tune.out$oob.predictions[, length(tune.out$lambdas)] - pred.ll.max)) < 10^-6)
 })
 
-test_that("local linear forests with local linear splits include variance estimates", {
+test_that("local linear forests with local linear splits are numeric and include variance estimates", {
   n <- 200
   p <- 4
 
@@ -257,13 +257,34 @@ test_that("local linear forests with local linear splits include variance estima
   preds.oob <- predict(forest, estimate.variance = TRUE)
   preds.test <- predict(forest, X.test, estimate.variance = TRUE)
 
+  expect_true(is.numeric(preds.oob$predictions))
+  expect_true(is.numeric(preds.test$predictions))
+
   expect_equal(n, length(preds.oob$variance.estimates))
   expect_equal(n, length(preds.test$variance.estimates))
 })
 
+test_that("local linear splits reduce early splits on linear trends", {
+   n <- 200
+   p <- 6
+
+   X <- matrix(runif(n * p, -1, 1), nrow = n)
+   mu <- 0.9 * exp(X[, 1]) + 2 * X[,6]
+   Y <- mu + rnorm(n)
+
+   ll.forest <- ll_regression_forest(X, Y, ll.splits = TRUE)
+   ll.split.freq <- split_frequencies(ll.forest, 1)
+
+   forest = regression_forest(X, Y)
+   split.freq <- split_frequencies(forest, 1)
+
+   expect_true(split.freq[1,1] < ll.split.freq[1,1] / 2)
+   expect_true(split.freq[1,6] > ll.split.freq[1,6] * 2)
+})
+
 test_that("local linear splits improve predictions in a simple case", {
-   n = 600
-   p = 5
+   n <- 600
+   p <- 5
 
    X <- matrix(rnorm(n * p, 0, 1), nrow = n)
    MU <- X[,1] + X[,2] + X[,3]*X[,4]
@@ -279,4 +300,23 @@ test_that("local linear splits improve predictions in a simple case", {
    mse.ll.splits.oob <- mean((preds.ll.splits.oob$predictions - MU)^2)
 
    expect_true(mse.ll.splits.oob / mse.grf.splits.oob < 0.9)
+})
+
+test_that("local linear split regulating works in a simple case", {
+   n <- 2000
+   p <- 5
+
+   X <- matrix(runif(n * p, -1, 1), nrow = n)
+   mu <- 0.9 * exp(X[, 1]) + 2 * X[,2] + 2 * X[,3] * X[,4]
+   Y <- mu + rnorm(n)
+
+   forest.regulate <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE, ll.split.regulate = TRUE)
+   forest <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE, ll.split.regulate = FALSE)
+
+   preds.regulate <- predict(forest.regulate)$predictions
+   preds <- predict(forest)$predictions
+
+   mse.preds.regulate <- mean((preds.regulate - mu)^2)
+   mse.preds <- mean((preds - mu)^2)
+   expect_true(mse.preds.regulate / mse.preds < 0.5)
 })
