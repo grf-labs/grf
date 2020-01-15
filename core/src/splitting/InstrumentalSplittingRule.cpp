@@ -101,7 +101,7 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
   for (auto& var : possible_split_vars) {
     // Use faster method for both cases
     double q = (double) num_samples / (double) data.get_num_unique_data_values(var);
-    if(q < Q_THRESHOLD) {
+    if (q < Q_THRESHOLD) {
       find_best_split_value_small_q(data, node, var, num_samples, weight_sum_node, sum_node, mean_z_node, num_node_small_z,
                                     sum_node_z, sum_node_z_squared, min_child_size, best_value,
                                     best_var, best_decrease, responses_by_sample, samples);
@@ -213,9 +213,8 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     }
 
     // Calculate relevant quantities for the left child.
-    // double size_left = n_left * (sum_left_z_squared/weight_sum_left - sum_left_z * sum_left_z / (weight_sum_left * weight_sum_left));
     double size_left = (sum_left_z_squared - sum_left_z * sum_left_z / weight_sum_left);
-    // Skip this split if the left child's variance is too small: size_left = n_left * variance
+    // Skip this split if the left child's variance is too small.
     if (size_left < min_child_size || (imbalance_penalty > 0.0 && size_left == 0)) {
       continue;
     }
@@ -225,8 +224,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     double sum_right = sum_node - sum_left;
     double sum_right_z_squared = sum_node_z_squared - sum_left_z_squared;
     double sum_right_z = sum_node_z - sum_left_z;
-    // double size_right = n_right * (sum_right_z_squared/weight_sum_right - sum_right_z * sum_right_z / (weight_sum_right * weight_sum_right));
-    double size_right = (sum_right_z_squared - sum_right_z * sum_right_z / weight_sum_right);
+    double size_right = sum_right_z_squared - sum_right_z * sum_right_z / weight_sum_right;
 
     // Skip this split if the right child's variance is too small.
     if (size_right < min_child_size || (imbalance_penalty > 0.0 && size_right == 0)) {
@@ -234,7 +232,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     }
 
     // Calculate the decrease in impurity.
-    double decrease = (sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right);
+    double decrease = sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right;
     // Penalize splits that are too close to the edges of the data.
     decrease -= imbalance_penalty * (1.0 / size_left + 1.0 / size_right);
 
@@ -326,9 +324,8 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
     }
 
     // Calculate relevant quantities for the left child.
-    // double size_left = n_left * (sum_left_z_squared/weight_sum_left - sum_left_z * sum_left_z / (weight_sum_left * weight_sum_left));
-    double size_left = (sum_left_z_squared - sum_left_z * sum_left_z / weight_sum_left);
-    // Skip this split if the left child's variance is too small: size_left = n_left * variance
+    double size_left = sum_left_z_squared - sum_left_z * sum_left_z / weight_sum_left;
+    // Skip this split if the left child's variance is too small.
     if (size_left < min_child_size || (imbalance_penalty > 0.0 && size_left == 0)) {
       continue;
     }
@@ -338,8 +335,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
     double sum_right = sum_node - sum_left;
     double sum_right_z_squared = sum_node_z_squared - sum_left_z_squared;
     double sum_right_z = sum_node_z - sum_left_z;
-    // double size_right = n_right * (sum_right_z_squared/weight_sum_right - sum_right_z * sum_right_z / (weight_sum_right * weight_sum_right));
-    double size_right = (sum_right_z_squared - sum_right_z * sum_right_z / weight_sum_right);
+    double size_right = sum_right_z_squared - sum_right_z * sum_right_z / weight_sum_right;
 
     // Skip this split if the right child's variance is too small.
     if (size_right < min_child_size || (imbalance_penalty > 0.0 && size_right == 0)) {
@@ -347,7 +343,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
     }
 
     // Calculate the decrease in impurity.
-    double decrease = (sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right);
+    double decrease = sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right;
     // Penalize splits that are too close to the edges of the data.
     decrease -= imbalance_penalty * (1.0 / size_left + 1.0 / size_right);
 
