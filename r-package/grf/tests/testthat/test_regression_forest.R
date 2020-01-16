@@ -216,33 +216,6 @@ test_that("inverse propensity weighting in the training of a regression forest w
   expect_true(ipw.mse.forest.weighted < ipw.mse.forest)
 })
 
-test_that("Sample weighting improves weighted MSE and sample
-          weighted splitting improves on sample weighting alone", {
-  out = sapply(1:100, function(seed) {
-      set.seed(seed)
-      digits = 1
-      n <- 5000
-      p <- 2
-      X <- round(matrix(rnorm(n * p), n, p),digits)
-      Y <- abs(X[, 1]) + 0.1 * rnorm(n)
-      e <- 1 / (1 + exp(-2 * X[, 1]))
-      sample.weights <- round(1 / e, digits)
-      num.trees <- 50
-
-      forest.1 <- regression_forest(X, Y, num.trees = num.trees, seed=seed)
-      forest.2 <- regression_forest(X, Y, sample.weights = -sample.weights, num.trees=num.trees, seed=seed)
-      forest.3 <- regression_forest(X, Y, sample.weights = sample.weights, num.trees=num.trees, seed=seed)
-      forest.4 <- regression_forest(X, Y, sample.weights = sample.weights/sum(sample.weights), num.trees=num.trees, seed=seed)
-      weighted.mse = function(forest) { mean(sample.weights * (forest$predictions - Y)^2) }
-      c(weighted.mse(forest.2)/weighted.mse(forest.1), weighted.mse(forest.3)/weighted.mse(forest.2), weighted.mse(forest.4)/weighted.mse(forest.3))
-  })
-
-  mse.ratios = rowMeans(out)
-  expect_lt(mse.ratios[1], .85)
-  expect_lt(mse.ratios[2],  .95)
-  expect_lt(mse.ratios[3], 1.01)
-})
-
 test_that("a non-pruned honest regression forest has lower MSE than a pruned honest regression forests
           (on small data)", {
   n <- 100
