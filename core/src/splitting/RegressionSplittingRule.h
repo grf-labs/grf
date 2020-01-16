@@ -108,7 +108,6 @@ private:
 
   double alpha;
   double imbalance_penalty;
-  bool weighted;
 
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRule);
 };

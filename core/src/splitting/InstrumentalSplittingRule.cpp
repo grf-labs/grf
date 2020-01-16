@@ -72,7 +72,7 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
   double sum_node_z = 0.0;
   double sum_node_z_squared = 0.0;
   for (auto& sample : samples[node]) {
-    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
+    double sample_weight = data.get_weight(sample);
     weight_sum_node += sample_weight;
     sum_node += sample_weight * responses_by_sample[sample];
 
@@ -162,7 +162,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     size_t sample = sorted_samples[i];
     size_t next_sample = sorted_samples[i + 1];
     double z = data.get_instrument(sample);
-    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
+    double sample_weight = data.get_weight(sample);
 
     weight_sums[split_index] += sample_weight;
     sums[split_index] += sample_weight * responses_by_sample[sample];
@@ -273,7 +273,7 @@ void InstrumentalSplittingRule::find_best_split_value_large_q(const Data& data,
   for (auto& sample : samples[node]) {
     size_t i = data.get_index(sample, var);
     double z = data.get_instrument(sample);
-    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
+    double sample_weight = data.get_weight(sample);
 
     weight_sums[i] += sample_weight;
     sums[i] += sample_weight * responses_by_sample[sample];

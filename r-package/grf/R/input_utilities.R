@@ -152,7 +152,7 @@ validate_sample_weights <- function(sample.weights, X) {
       stop("sample.weights has incorrect length")
     }
     if (any(sample.weights < 0)) {
-     stop("sample.weights must be nonnegative")
+      stop("sample.weights must be nonnegative")
     }
   }
 }

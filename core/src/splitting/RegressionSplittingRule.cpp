@@ -58,7 +58,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   double sum_node = 0.0;
   double weight_sum_node = 0.0;
   for (auto& sample : samples[node]) {
-    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
+    double sample_weight = data.get_weight(sample);
     weight_sum_node += sample_weight;
     sum_node += sample_weight * responses_by_sample[sample];
   }
@@ -125,7 +125,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
     size_t sample = sorted_samples[i];
     size_t next_sample = sorted_samples[i + 1];
     double response = responses_by_sample[sample];
-    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
+    double sample_weight = data.get_weight(sample);
 
     weight_sums[split_index] += sample_weight;
     sums[split_index] += sample_weight * response;
@@ -194,7 +194,7 @@ void RegressionSplittingRule::find_best_split_value_large_q(const Data& data,
   std::fill(weight_sums, weight_sums + num_unique, 0);
   std::fill(sums, sums + num_unique, 0);
   for (auto& sample : samples[node]) {
-    double sample_weight = data.get_weight(0) > 0 ? data.get_weight(sample) : 1.0;
+    double sample_weight = data.get_weight(sample);
     size_t index = data.get_index(sample, var);
     weight_sums[index] += sample_weight;
     sums[index] += sample_weight * responses_by_sample[sample];
