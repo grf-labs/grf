@@ -140,13 +140,13 @@ validate_ll_path <- function(lambda.path) {
 }
 
 validate_ll_cutoff <- function(ll.split.cutoff, ll.split.regulate, num.rows) {
-   if(ll.split.regulate == FALSE){
-    ll.split.cutoff = 0
-   } else if(is.null(ll.split.cutoff)){
-     ll.split.cutoff = floor(sqrt(num.rows))
-   } else if(!is.numeric(ll.split.cutoff) | length(ll.split.cutoff) > 1){
+   if (ll.split.regulate == FALSE) {
+    ll.split.cutoff <- 0
+   } else if (is.null(ll.split.cutoff)) {
+     ll.split.cutoff <- floor(sqrt(num.rows))
+   } else if (!is.numeric(ll.split.cutoff) | length(ll.split.cutoff) > 1) {
      stop("LL split cutoff must be NULL or a scalar")
-   } else if(ll.split.cutoff < 0 | ll.split.cutoff > num.rows){
+   } else if (ll.split.cutoff < 0 | ll.split.cutoff > num.rows) {
      stop("Invalid range for LL split cutoff")
    }
    ll.split.cutoff

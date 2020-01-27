@@ -152,11 +152,6 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
   Forest forest = trainer.train(*data, options);
 
   std::vector<Prediction> predictions;
-  if (compute_oob_predictions) {
-    ForestPredictor predictor = regression_predictor(num_threads);
-    predictions = predictor.predict_oob(forest, *data, false);
-  }
-
   return RcppUtilities::create_forest_object(forest, predictions);
 }
 
