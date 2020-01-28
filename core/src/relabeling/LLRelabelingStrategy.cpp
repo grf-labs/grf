@@ -62,9 +62,8 @@ bool LLRelabelingStrategy::relabel(
     leaf_predictions = X * eigen_beta;
   } else {
     // find ridge regression predictions
-    Eigen::MatrixXd M_unpenalized(num_variables + 1, num_variables + 1);
-    M_unpenalized.noalias() = X.transpose() * X;
-    Eigen::MatrixXd M = M_unpenalized;
+    Eigen::MatrixXd M(num_variables + 1, num_variables + 1);
+    M.noalias() = X.transpose() * X;
 
     if (!weight_penalty) {
       // standard ridge penalty

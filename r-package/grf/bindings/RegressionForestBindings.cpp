@@ -134,7 +134,6 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
                             double imbalance_penalty,
                             std::vector<size_t> clusters,
                             unsigned int samples_per_cluster,
-                            bool compute_oob_predictions,
                             unsigned int num_threads,
                             unsigned int seed) {
   ForestTrainer trainer = local_linear_trainer(split_lambda, weight_penalty, overall_beta,

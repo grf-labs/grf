@@ -11,10 +11,11 @@
 #'                                covariance ridge penalty, analogously to the prediction case. Defaults to FALSE.
 #' @param ll.split.lambda Ridge penalty for splitting. Defaults to 0.1.
 #' @param ll.split.variables Linear correction variables for splitting. Defaults to all variables.
-#' @param ll.split.regulate Option to use regression coefficients from the full dataset for LL splitting once leaves
-#'                          get sufficiently small. Defaults to TRUE.
-#' @param ll.split.cutoff Sample size after which we use the overall beta for ll.split.regulate. Defaults to
-#'                        the square root of the number of samples.
+#' @param ll.split.regulate Defaults to TRUE.
+#' @param ll.split.cutoff Enables the option to use regression coefficients from the full dataset for LL splitting
+#'                        once leaves get sufficiently small. Leaf size after which we use the overall beta.
+#'                        Defaults to the square root of the number of samples. If desired, users can enforce no
+#'                        regulation (i.e., using the leaf betas at each step) by setting this parameter to zero.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
@@ -82,7 +83,6 @@ ll_regression_forest <- function(X, Y,
                                 ll.split.weight.penalty = FALSE,
                                 ll.split.lambda = 0.1,
                                 ll.split.variables = NULL,
-                                ll.split.regulate = TRUE,
                                 ll.split.cutoff = NULL,
                                 num.trees = 2000,
                                 sample.weights = NULL,
@@ -110,9 +110,10 @@ ll_regression_forest <- function(X, Y,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
+
   ll.split.variables <- validate_ll_vars(ll.split.variables, ncol(X))
   ll.split.lambda <- validate_ll_lambda(ll.split.lambda)
-  ll.split.cutoff <- validate_ll_cutoff(ll.split.cutoff, ll.split.regulate, nrow(X))
+  ll.split.cutoff <- validate_ll_cutoff(ll.split.cutoff, nrow(X))
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
                           "honesty.prune.leaves", "alpha", "imbalance.penalty")
@@ -131,10 +132,9 @@ ll_regression_forest <- function(X, Y,
                alpha = alpha,
                imbalance.penalty = imbalance.penalty,
                ci.group.size = ci.group.size,
-               compute.oob.predictions = FALSE,
                num.threads = num.threads,
                seed = seed)
-  if (ll.splits){
+  if (ll.splits & ll.split.cutoff > 0) {
     # find overall beta
     J = diag(ncol(X) + 1)
     J[1,1] = 0
@@ -147,6 +147,15 @@ ll_regression_forest <- function(X, Y,
                          ll.split.variables = ll.split.variables,
                          ll.split.cutoff = ll.split.cutoff,
                          overall.beta = overall.beta))
+  } else if (ll.splits) {
+    # update arguments with LLF parameters
+    args <- c(args, list(weight.penalty = ll.split.weight.penalty,
+                         split.lambda = ll.split.lambda,
+                         ll.split.variables = ll.split.variables,
+                         ll.split.cutoff = ll.split.cutoff,
+                         overall.beta = vector(mode = "numeric", length = 0)))
+  } else {
+    args <- c(args, compute.oob.predictions = FALSE)
   }
 
   tuning.output <- NULL
@@ -173,7 +182,7 @@ ll_regression_forest <- function(X, Y,
     args <- modifyList(args, as.list(tuning.output[["params"]]))
   }
 
-  if (ll.splits){
+  if (ll.splits) {
     forest <- do.call.rcpp(ll_regression_train, c(data, args))
   } else {
     forest <- do.call.rcpp(regression_train, c(data, args))

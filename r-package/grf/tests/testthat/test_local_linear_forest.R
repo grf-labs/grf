@@ -310,8 +310,8 @@ test_that("local linear split regulating works in a simple case", {
    mu <- 0.9 * exp(X[, 1]) + 2 * X[,2] + 2 * X[,3] * X[,4]
    Y <- mu + rnorm(n)
 
-   forest.regulate <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE, ll.split.regulate = TRUE)
-   forest <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE, ll.split.regulate = FALSE)
+   forest.regulate <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE)
+   forest <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE, ll.split.cutoff = 0)
 
    preds.regulate <- predict(forest.regulate)$predictions
    preds <- predict(forest)$predictions
