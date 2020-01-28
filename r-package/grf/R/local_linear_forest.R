@@ -11,7 +11,6 @@
 #'                                covariance ridge penalty, analogously to the prediction case. Defaults to FALSE.
 #' @param ll.split.lambda Ridge penalty for splitting. Defaults to 0.1.
 #' @param ll.split.variables Linear correction variables for splitting. Defaults to all variables.
-#' @param ll.split.regulate Defaults to TRUE.
 #' @param ll.split.cutoff Enables the option to use regression coefficients from the full dataset for LL splitting
 #'                        once leaves get sufficiently small. Leaf size after which we use the overall beta.
 #'                        Defaults to the square root of the number of samples. If desired, users can enforce no
@@ -134,12 +133,12 @@ ll_regression_forest <- function(X, Y,
                ci.group.size = ci.group.size,
                num.threads = num.threads,
                seed = seed)
-  if (ll.splits & ll.split.cutoff > 0) {
+  if (ll.splits && ll.split.cutoff > 0) {
     # find overall beta
-    J = diag(ncol(X) + 1)
-    J[1,1] = 0
-    D = cbind(1, X)
-    overall.beta = solve(t(D) %*% D + ll.split.lambda*J) %*% t(D) %*% Y
+    J <- diag(ncol(X) + 1)
+    J[1,1] <- 0
+    D <- cbind(1, X)
+    overall.beta <- solve(t(D) %*% D + ll.split.lambda*J) %*% t(D) %*% Y
 
     # update arguments with LLF parameters
     args <- c(args, list(weight.penalty = ll.split.weight.penalty,
