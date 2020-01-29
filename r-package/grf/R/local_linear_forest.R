@@ -55,7 +55,8 @@
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 1.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if FALSE
-#'                        NULL parameters are set to defaults. Default is FALSE.
+#'                        NULL parameters are set to defaults. Default is FALSE. Currently, local linear tuning
+#'                        does not take local linear splits into account.
 #' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 10.
 #' @param tune.num.reps The number of forests used to fit the tuning model. Default is 100.
 #' @param tune.num.draws The number of random parameter values considered when using the model
@@ -138,7 +139,7 @@ ll_regression_forest <- function(X, Y,
     J <- diag(ncol(X) + 1)
     J[1,1] <- 0
     D <- cbind(1, X)
-    overall.beta <- solve(t(D) %*% D + ll.split.lambda*J) %*% t(D) %*% Y
+    overall.beta <- solve(t(D) %*% D + ll.split.lambda * J) %*% t(D) %*% Y
 
     # update arguments with LLF parameters
     args <- c(args, list(weight.penalty = ll.split.weight.penalty,
