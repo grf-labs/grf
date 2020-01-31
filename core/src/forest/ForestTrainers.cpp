@@ -20,6 +20,7 @@
 #include "prediction/RegressionPredictionStrategy.h"
 #include "relabeling/CustomRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
+#include "relabeling/LLRelabelingStrategy.h"
 #include "relabeling/NoopRelabelingStrategy.h"
 #include "relabeling/QuantileRelabelingStrategy.h"
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
@@ -54,6 +55,21 @@ ForestTrainer quantile_trainer(const std::vector<double>& quantiles) {
 
 ForestTrainer regression_trainer() {
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
+  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
+
+  return ForestTrainer(std::move(relabeling_strategy),
+                       std::move(splitting_rule_factory),
+                       std::move(prediction_strategy));
+}
+
+ForestTrainer local_linear_trainer(double split_lambda,
+                                   bool weight_penalty,
+                                   std::vector<double> overall_beta,
+                                   size_t ll_split_cutoff,
+                                   std::vector<size_t> ll_split_variables) {
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new LLRelabelingStrategy(split_lambda, weight_penalty, overall_beta,
+                                                                                   ll_split_cutoff, ll_split_variables));
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
 
