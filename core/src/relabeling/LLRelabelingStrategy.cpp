@@ -44,10 +44,10 @@ bool LLRelabelingStrategy::relabel(
   for (size_t i = 0; i < num_data_points; ++i) {
     for (size_t j = 0; j < num_variables; ++j){
       size_t current_predictor = ll_split_variables[j];
-      X(i,j + 1) = data.get(samples[i],current_predictor);
+      X(i, j + 1) = data.get(samples[i],current_predictor);
     }
     Y(i) = data.get_outcome(samples[i]);
-    X(i,0) = 1;
+    X(i, 0) = 1;
   }
 
   Eigen::MatrixXd leaf_predictions (num_data_points, 1);
@@ -56,7 +56,7 @@ bool LLRelabelingStrategy::relabel(
     // use overall beta for ridge predictions
 
     Eigen::MatrixXd eigen_beta (num_variables + 1, 1);
-    for(size_t j = 0; j < num_variables + 1; ++ j){
+    for(size_t j = 0; j < num_variables + 1; ++j){
       eigen_beta(j) = overall_beta[j];
     }
     leaf_predictions = X * eigen_beta;
@@ -69,12 +69,12 @@ bool LLRelabelingStrategy::relabel(
       // standard ridge penalty
       double normalization = M.trace() / (num_variables + 1);
       for (size_t j = 1; j < num_variables + 1; ++j){
-        M(j,j) += split_lambda * normalization;
+        M(j, j) += split_lambda * normalization;
       }
     } else {
       // covariance ridge penalty
       for (size_t j = 1; j < num_variables + 1; ++j){
-        M(j,j) += split_lambda * M(j,j); // note that the weights are already normalized
+        M(j, j) += split_lambda * M(j,j); // note that the weights are already normalized
       }
     }
 

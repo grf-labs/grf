@@ -278,8 +278,8 @@ test_that("local linear splits reduce early splits on linear trends", {
    forest = regression_forest(X, Y)
    split.freq <- split_frequencies(forest, 1)
 
-   expect_true(split.freq[1,1] < ll.split.freq[1,1] / 2)
-   expect_true(split.freq[1,6] > ll.split.freq[1,6] * 2)
+   expect_true(split.freq[1,1] < ll.split.freq[1,1] / 3)
+   expect_true(split.freq[1,6] > ll.split.freq[1,6] * 3)
 })
 
 test_that("local linear splits improve predictions in a simple case", {
