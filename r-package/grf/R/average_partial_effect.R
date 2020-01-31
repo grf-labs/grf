@@ -99,8 +99,14 @@ average_partial_effect <- function(forest,
   # Modify debiasing weights gamma to make this true, i.e., compute
   # argmin {||gamma - gamma.original||_2^2 : A'gamma = b}
   if (calibrate.weights) {
-    A <- cbind(1, subset.W.orig, subset.W.hat) / sum(subset.weights)
-    b <- c(0, 1, 0)
+    # Don't attempt to balance W.hat if it has too little variation.
+    if (sd(subset.W.hat) > 0.01 * sd(subset.W.orig)) {
+      A <- cbind(1, subset.W.orig, subset.W.hat) / sum(subset.weights)
+      b <- c(0, 1, 0)
+    } else {
+      A <- cbind(1, subset.W.orig) / sum(subset.weights)
+      b <- c(0, 1)
+    }
     bias <- t(A) %*% debiasing.weights - b
     lambda <- solve(t(A) %*% A, bias)
     correction <- A %*% lambda

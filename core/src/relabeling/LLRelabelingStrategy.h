@@ -15,28 +15,33 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_FORESTTRAINERS_H
-#define GRF_FORESTTRAINERS_H
+#ifndef GRF_LLRELABELINGSTRATEGY_H
+#define GRF_LLRELABELINGSTRATEGY_H
 
-#include "forest/ForestTrainer.h"
+#include "relabeling/RelabelingStrategy.h"
+#include "Eigen/Dense"
 
 namespace grf {
 
-ForestTrainer instrumental_trainer(double reduced_form_weight,
-                                   bool stabilize_splits);
-
-ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
-
-ForestTrainer regression_trainer();
-
-ForestTrainer local_linear_trainer(double split_lambda,
-                                   bool weight_penalty,
-                                   std::vector<double> overall_beta,
-                                   size_t ll_split_cutoff,
-                                   std::vector<size_t> ll_split_variables);
-
-ForestTrainer custom_trainer();
+class LLRelabelingStrategy final: public RelabelingStrategy {
+public:
+  LLRelabelingStrategy(double split_lambda,
+                       bool weight_penalty,
+                       std::vector<double> overall_beta,
+                       size_t ll_split_cutoff,
+                       std::vector<size_t> ll_split_variables);
+  bool relabel(
+      const std::vector<size_t>& samples,
+      const Data& data,
+      std::vector<double>& responses_by_sample) const;
+private:
+    double split_lambda;
+    bool weight_penalty;
+    std::vector<double> overall_beta;
+    size_t ll_split_cutoff;
+    std::vector<size_t> ll_split_variables;
+};
 
 } // namespace grf
 
-#endif //GRF_FORESTTRAINERS_H
+#endif //GRF_LLRELABELINGSTRATEGY_H

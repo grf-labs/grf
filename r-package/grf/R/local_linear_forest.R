@@ -5,6 +5,16 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
+#' @param ll.splits Optional choice to make forest splits based on ridge residuals as opposed to standard
+#'                  CART splits. Defaults to FALSE.
+#' @param ll.split.weight.penalty If using local linear splits, user can specify whether or not to use a
+#'                                covariance ridge penalty, analogously to the prediction case. Defaults to FALSE.
+#' @param ll.split.lambda Ridge penalty for splitting. Defaults to 0.1.
+#' @param ll.split.variables Linear correction variables for splitting. Defaults to all variables.
+#' @param ll.split.cutoff Enables the option to use regression coefficients from the full dataset for LL splitting
+#'                        once leaves get sufficiently small. Leaf size after which we use the overall beta.
+#'                        Defaults to the square root of the number of samples. If desired, users can enforce no
+#'                        regulation (i.e., using the leaf betas at each step) by setting this parameter to zero.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
@@ -45,7 +55,8 @@
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 1.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if FALSE
-#'                        NULL parameters are set to defaults. Default is FALSE.
+#'                        NULL parameters are set to defaults. Default is FALSE. Currently, local linear tuning
+#'                        does not take local linear splits into account.
 #' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 10.
 #' @param tune.num.reps The number of forests used to fit the tuning model. Default is 100.
 #' @param tune.num.draws The number of random parameter values considered when using the model
@@ -68,48 +79,124 @@
 #'
 #' @export
 ll_regression_forest <- function(X, Y,
-                                 num.trees = 2000,
-                                 clusters = NULL,
-                                 equalize.cluster.weights = FALSE,
-                                 sample.fraction = 0.5,
-                                 mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
-                                 min.node.size = 5,
-                                 honesty = TRUE,
-                                 honesty.fraction = 0.5,
-                                 honesty.prune.leaves = TRUE,
-                                 alpha = 0.05,
-                                 imbalance.penalty = 0,
-                                 ci.group.size = 1,
-                                 tune.parameters = "none",
-                                 tune.num.trees = 10,
-                                 tune.num.reps = 100,
-                                 tune.num.draws = 1000,
-                                 num.threads = NULL,
-                                 seed = runif(1, 0, .Machine$integer.max)) {
+                                ll.splits = FALSE,
+                                ll.split.weight.penalty = FALSE,
+                                ll.split.lambda = 0.1,
+                                ll.split.variables = NULL,
+                                ll.split.cutoff = NULL,
+                                num.trees = 2000,
+                                sample.weights = NULL,
+                                clusters = NULL,
+                                equalize.cluster.weights = FALSE,
+                                sample.fraction = 0.5,
+                                mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
+                                min.node.size = 5,
+                                honesty = TRUE,
+                                honesty.fraction = 0.5,
+                                honesty.prune.leaves = TRUE,
+                                alpha = 0.05,
+                                imbalance.penalty = 0,
+                                ci.group.size = 2,
+                                tune.parameters = "none",
+                                tune.num.trees = 50,
+                                tune.num.reps = 100,
+                                tune.num.draws = 1000,
+                                num.threads = NULL,
+                                seed = runif(1, 0, .Machine$integer.max)) {
 
-  forest <- regression_forest(X, Y,
-                              num.trees = num.trees,
-                              sample.weights = NULL,
-                              clusters = clusters,
-                              equalize.cluster.weights = equalize.cluster.weights,
-                              sample.fraction = sample.fraction,
-                              mtry = mtry,
-                              min.node.size = min.node.size,
-                              honesty = honesty,
-                              honesty.fraction = honesty.fraction,
-                              honesty.prune.leaves = honesty.prune.leaves,
-                              alpha = alpha,
-                              imbalance.penalty = imbalance.penalty,
-                              ci.group.size = ci.group.size,
-                              tune.parameters = tune.parameters,
-                              tune.num.trees = tune.num.trees,
-                              tune.num.reps = tune.num.reps,
-                              tune.num.draws = tune.num.draws,
-                              compute.oob.predictions = FALSE,
-                              num.threads = num.threads,
-                              seed = seed)
-  forest[["tuning.output"]] <- NULL
+  validate_X(X)
+  validate_sample_weights(sample.weights, X)
+  Y <- validate_observations(Y, X)
+  clusters <- validate_clusters(clusters, X)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
+  num.threads <- validate_num_threads(num.threads)
+
+  ll.split.variables <- validate_ll_vars(ll.split.variables, ncol(X))
+  ll.split.lambda <- validate_ll_lambda(ll.split.lambda)
+  ll.split.cutoff <- validate_ll_cutoff(ll.split.cutoff, nrow(X))
+
+  all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
+                          "honesty.prune.leaves", "alpha", "imbalance.penalty")
+
+  data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
+
+  args <- list(num.trees = num.trees,
+               clusters = clusters,
+               samples.per.cluster = samples.per.cluster,
+               sample.fraction = sample.fraction,
+               mtry = mtry,
+               min.node.size = min.node.size,
+               honesty = honesty,
+               honesty.fraction = honesty.fraction,
+               honesty.prune.leaves = honesty.prune.leaves,
+               alpha = alpha,
+               imbalance.penalty = imbalance.penalty,
+               ci.group.size = ci.group.size,
+               num.threads = num.threads,
+               seed = seed)
+  if (ll.splits && ll.split.cutoff > 0) {
+    # find overall beta
+    J <- diag(ncol(X) + 1)
+    J[1,1] <- 0
+    D <- cbind(1, X)
+    overall.beta <- solve(t(D) %*% D + ll.split.lambda * J) %*% t(D) %*% Y
+
+    # update arguments with LLF parameters
+    args <- c(args, list(weight.penalty = ll.split.weight.penalty,
+                         split.lambda = ll.split.lambda,
+                         ll.split.variables = ll.split.variables,
+                         ll.split.cutoff = ll.split.cutoff,
+                         overall.beta = overall.beta))
+  } else if (ll.splits) {
+    # update arguments with LLF parameters
+    args <- c(args, list(weight.penalty = ll.split.weight.penalty,
+                         split.lambda = ll.split.lambda,
+                         ll.split.variables = ll.split.variables,
+                         ll.split.cutoff = ll.split.cutoff,
+                         overall.beta = vector(mode = "numeric", length = 0)))
+  } else {
+    args <- c(args, compute.oob.predictions = FALSE)
+  }
+
+  tuning.output <- NULL
+  if (!identical(tune.parameters, "none")){
+    tuning.output <- tune_regression_forest(X, Y,
+                                            sample.weights = sample.weights,
+                                            clusters = clusters,
+                                            equalize.cluster.weights = equalize.cluster.weights,
+                                            sample.fraction = sample.fraction,
+                                            mtry = mtry,
+                                            min.node.size = min.node.size,
+                                            honesty = honesty,
+                                            honesty.fraction = honesty.fraction,
+                                            honesty.prune.leaves = honesty.prune.leaves,
+                                            alpha = alpha,
+                                            imbalance.penalty = imbalance.penalty,
+                                            ci.group.size = ci.group.size,
+                                            tune.parameters = tune.parameters,
+                                            tune.num.trees = tune.num.trees,
+                                            tune.num.reps = tune.num.reps,
+                                            tune.num.draws = tune.num.draws,
+                                            num.threads = num.threads,
+                                            seed = seed)
+    args <- modifyList(args, as.list(tuning.output[["params"]]))
+  }
+
+  if (ll.splits) {
+    forest <- do.call.rcpp(ll_regression_train, c(data, args))
+  } else {
+    forest <- do.call.rcpp(regression_train, c(data, args))
+  }
+
   class(forest) <- c("ll_regression_forest", "grf")
+  forest[["ci.group.size"]] <- ci.group.size
+  forest[["X.orig"]] <- X
+  forest[["Y.orig"]] <- Y
+  forest[["sample.weights"]] <- sample.weights
+  forest[["clusters"]] <- clusters
+  forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
+  forest[["tunable.params"]] <- args[all.tunable.params]
+  forest[["tuning.output"]] <- tuning.output
 
   forest
 }

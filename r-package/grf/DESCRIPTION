@@ -28,7 +28,7 @@ Imports:
     methods,
     Rcpp (>= 0.12.15),
     sandwich (>= 2.4-0)
-RoxygenNote: 7.0.1
+RoxygenNote: 7.0.2
 Suggests:
     DiagrammeR,
     testthat
