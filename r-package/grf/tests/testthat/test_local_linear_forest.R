@@ -125,6 +125,12 @@ test_that("local linear predict returns local linear predictions even without tu
 
   ll.indicator <- !is.null(preds$ll.lambda)
   expect_true(ll.indicator)
+
+  forest <- ll_regression_forest(X, Y, num.trees = 50, ll.splits = TRUE)
+  preds <- predict(forest)
+
+  ll.indicator <- !is.null(preds$ll.lambda)
+  expect_true(ll.indicator)
 })
 
 test_that("local linear confidence intervals have reasonable coverage", {
@@ -196,6 +202,10 @@ test_that("local linear predictions are correct without noise", {
 
   expect_true(mean((preds.llf - mu)^2) < 10^-10)
   expect_true(mean((preds.rf - mu)^2) > 10^-2)
+
+  forest <- ll_regression_forest(X, Y, num.trees = 80, ll.splits = TRUE, ci.group.size = 2)
+  preds.llf.splits <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
+  expect_true(mean((preds.llf.splits - mu)^2) < 10^-10)
 })
 
 test_that("prediction with and without CIs are the same", {
@@ -232,4 +242,81 @@ test_that("output of tune local linear forest is consistent with prediction outp
   ll.max <- tune.out$lambdas[length(tune.out$lambdas)]
   pred.ll.max <- predict(forest, ll.lambda = ll.max)$predictions
   expect_true(max(abs(tune.out$oob.predictions[, length(tune.out$lambdas)] - pred.ll.max)) < 10^-6)
+})
+
+test_that("local linear forests with local linear splits are numeric and include variance estimates", {
+  n <- 200
+  p <- 4
+
+  X <- matrix(runif(n * p, -1, 1), nrow = n)
+  X.test <- matrix(runif(n * p, -1, 1), nrow = n)
+  mu <- 0.9 * exp(X[, 1])
+  Y <- mu + rnorm(n)
+
+  forest <- ll_regression_forest(X, Y, num.trees = 800, ll.splits = TRUE, ci.group.size = 2)
+  preds.oob <- predict(forest, estimate.variance = TRUE)
+  preds.test <- predict(forest, X.test, estimate.variance = TRUE)
+
+  expect_true(is.numeric(preds.oob$predictions))
+  expect_true(is.numeric(preds.test$predictions))
+
+  expect_equal(n, length(preds.oob$variance.estimates))
+  expect_equal(n, length(preds.test$variance.estimates))
+})
+
+test_that("local linear splits reduce early splits on linear trends", {
+   n <- 200
+   p <- 6
+
+   X <- matrix(runif(n * p, -1, 1), nrow = n)
+   mu <- 0.9 * exp(X[, 1]) + 2 * X[,6]
+   Y <- mu + rnorm(n)
+
+   ll.forest <- ll_regression_forest(X, Y, ll.splits = TRUE)
+   ll.split.freq <- split_frequencies(ll.forest, 1)
+
+   forest = regression_forest(X, Y)
+   split.freq <- split_frequencies(forest, 1)
+
+   expect_true(split.freq[1,1] < ll.split.freq[1,1] / 3)
+   expect_true(split.freq[1,6] > ll.split.freq[1,6] * 3)
+})
+
+test_that("local linear splits improve predictions in a simple case", {
+   n <- 600
+   p <- 5
+
+   X <- matrix(rnorm(n * p, 0, 1), nrow = n)
+   MU <- X[,1] + X[,2] + X[,3]*X[,4]
+   Y <- MU + rnorm(n)
+
+   forest <- regression_forest(X, Y, num.trees = 500)
+   preds.grf.splits.oob <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0.1)
+
+   ll.forest <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE)
+   preds.ll.splits.oob <- predict(ll.forest, linear.correction.variables = 1:p, ll.lambda = 0.1)
+
+   mse.grf.splits.oob <- mean((preds.grf.splits.oob$predictions - MU)^2)
+   mse.ll.splits.oob <- mean((preds.ll.splits.oob$predictions - MU)^2)
+
+   expect_true(mse.ll.splits.oob / mse.grf.splits.oob < 0.9)
+})
+
+test_that("local linear split regulating works in a simple case", {
+   n <- 2000
+   p <- 5
+
+   X <- matrix(runif(n * p, -1, 1), nrow = n)
+   mu <- 0.9 * exp(X[, 1]) + 2 * X[,2] + 2 * X[,3] * X[,4]
+   Y <- mu + rnorm(n)
+
+   forest.regulate <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE)
+   forest <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE, ll.split.cutoff = 0)
+
+   preds.regulate <- predict(forest.regulate)$predictions
+   preds <- predict(forest)$predictions
+
+   mse.preds.regulate <- mean((preds.regulate - mu)^2)
+   mse.preds <- mean((preds - mu)^2)
+   expect_true(mse.preds.regulate / mse.preds < 0.5)
 })

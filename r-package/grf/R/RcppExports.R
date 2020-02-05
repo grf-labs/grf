@@ -97,6 +97,10 @@ regression_predict_oob <- function(forest_xptr, train_matrix, sparse_train_matri
     .Call('_grf_regression_predict_oob', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, num_threads, estimate_variance)
 }
 
+ll_regression_train <- function(train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, split_lambda, weight_penalty, ll_split_variables, ll_split_cutoff, overall_beta, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, num_threads, seed) {
+    .Call('_grf_ll_regression_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, split_lambda, weight_penalty, ll_split_variables, ll_split_cutoff, overall_beta, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, num_threads, seed)
+}
+
 ll_regression_predict <- function(forest_xptr, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
     .Call('_grf_ll_regression_predict', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance)
 }
