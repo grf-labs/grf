@@ -1,6 +1,7 @@
 #' Writes each node information
 #' If it is a leaf node: show it in different color, show number of samples, show leaf id
 #' If it is a non-leaf node: show its splitting variable and splitting value
+#' The edge arrow is filled according to which direction the NaNs are sent
 #' @param tree the tree to convert
 #' @param index the index of the current node
 #' @keywords internal
@@ -21,31 +22,38 @@ create_dot_body <- function(tree, index = 1) {
 
   # Non-leaf case: print label, child edges
   if (!is.null(node$left_child)) {
+    nan.left <- node$nan_left
+    arrowhead <- ifelse(nan.left, 'arrowhead=normal];', 'arrowhead=empty];')
     edge <- paste(index - 1, "->", node$left_child - 1)
     if (index == 1) {
-      edge_info_left <- paste(edge, '[labeldistance=2.5, labelangle=45, headlabel="True"];')
+      edge_info_left <- paste(edge, '[labeldistance=2.5, labelangle=45, headlabel="True",')
     }
     else {
-      edge_info_left <- paste(edge, " ;")
+      edge_info_left <- paste(edge, '[')
     }
+    edge_info_left <- paste(edge_info_left, arrowhead)
   }
   else {
     edge_info_right <- NULL
   }
 
   if (!is.null(node$right_child)) {
+    nan.left <- node$nan_left
+    arrowhead <- ifelse(nan.left, 'arrowhead=empty];', 'arrowhead=normal];')
     edge <- paste(index - 1, "->", node$right_child - 1)
     if (index == 1) {
-      edge_info_right <- paste(edge, '[labeldistance=2.5, labelangle=-45, headlabel="False"]')
+      edge_info_right <- paste(edge, '[labeldistance=2.5, labelangle=-45, headlabel="False",')
     } else {
-      edge_info_right <- paste(edge, " ;")
+      edge_info_right <- paste(edge, '[')
     }
+    edge_info_right <- paste(edge_info_right, arrowhead)
   } else {
     edge_info_right <- NULL
   }
 
   variable_name <- tree$columns[node$split_variable]
-  node_info <- paste(index - 1, '[label="', variable_name, "<=", round(node$split_value, 2), '"] ;')
+  split_value <- node$split_value
+  node_info <- paste(index - 1, '[label="', variable_name, ifelse(is.nan(split_value),"=", "<="), round(split_value, 2), '"] ;')
 
   this_lines <- paste(node_info,
     edge_info_left,
@@ -84,6 +92,9 @@ export_graphviz <- function(tree) {
 }
 
 #' Plot a GRF tree object.
+#'
+#' The direction NaNs are sent are indicated with the arrow fill. A filled arrow indicates
+#' the NaN direction.
 #' @param x The tree to plot
 #' @param ... Additional arguments (currently ignored).
 #'

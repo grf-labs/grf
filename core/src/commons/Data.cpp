@@ -16,6 +16,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <numeric>
 #include <iterator>
@@ -89,11 +90,11 @@ bool Data::load_from_whitespace_file(std::ifstream& input_file,
   std::string line;
   size_t row = 0;
   while (getline(input_file, line)) {
-    double token;
+    std::string token;
     std::stringstream line_stream(line);
     size_t column = 0;
     while (line_stream >> token) {
-      set(column, row, token, error);
+      set(column, row, std::stod(token), error);
       ++column;
     }
     if (column > num_cols) {
@@ -174,22 +175,39 @@ void Data::get_all_values(std::vector<double>& all_values,
    // fill with [0, 1,..., samples.size() - 1]
   std::iota(index.begin(), index.end(), 0);
   // sort index based on the split values (argsort)
-  std::sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs)
-    {return all_values[lhs] < all_values[rhs];});
+  // the NAN comparison places all NaNs at the beginning
+  std::stable_sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs) {
+    // the case "NaN < 4.42"
+    if (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs])) {
+      return true;
+    } else {
+      return all_values[lhs] < all_values[rhs];
+    }
+  });
 
   for (size_t i = 0; i < samples.size(); i++) {
     sorted_samples[i] = samples[index[i]];
     all_values[i] = get(sorted_samples[i], var);
   }
 
-  all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
+  all_values.erase(unique(all_values.begin(), all_values.end(), [&](const double& lhs, const double& rhs) {
+    if (std::isnan(lhs) && std::isnan(rhs)) {
+      return true;
+    } else {
+      return lhs == rhs;
+    }
+  }), all_values.end());
 }
 
 size_t Data::get_index(size_t row, size_t col) const {
   return index_data[col * num_rows + row];
 }
 
+// sort is only needed for the biqQ splitting rule. This sweep sets the
+// member `has_nan` to true if a NaN is encountered, in which case only the
+// smallQ splitting rule will be called.
 void Data::sort() {
+  has_nan = false;
   // Reserve memory
   index_data.resize(num_cols * num_rows);
 
@@ -200,6 +218,9 @@ void Data::sort() {
     std::vector<double> unique_values(num_rows);
     for (size_t row = 0; row < num_rows; ++row) {
       unique_values[row] = get(row, col);
+      if (std::isnan(unique_values[row])) {
+        has_nan = true;
+      }
     }
     std::sort(unique_values.begin(), unique_values.end());
     unique_values.erase(unique(unique_values.begin(), unique_values.end()), unique_values.end());
@@ -261,6 +282,10 @@ double Data::get_weight(size_t row) const {
 
 const std::set<size_t>& Data::get_disallowed_split_variables() const {
   return disallowed_split_variables;
+}
+
+bool Data::contains_nan() const {
+  return has_nan;
 }
 
 } // namespace grf

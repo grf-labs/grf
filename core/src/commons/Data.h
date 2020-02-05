@@ -90,9 +90,12 @@ public:
 
   const std::set<size_t>& get_disallowed_split_variables() const;
 
+  bool contains_nan() const;
+
 protected:
   size_t num_rows;
   size_t num_cols;
+  bool has_nan;
 
   std::vector<size_t> index_data;
   std::vector<std::vector<double>> unique_data_values;

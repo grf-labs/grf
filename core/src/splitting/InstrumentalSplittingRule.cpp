@@ -59,7 +59,8 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
                                                 const std::vector<double>& responses_by_sample,
                                                 const std::vector<std::vector<size_t>>& samples,
                                                 std::vector<size_t>& split_vars,
-                                                std::vector<double>& split_values) {
+                                                std::vector<double>& split_values,
+                                                std::vector<bool>& nan_left) {
   size_t num_samples = samples[node].size();
 
   // Precompute relevant quantities for this node.

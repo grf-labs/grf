@@ -47,6 +47,7 @@ get_tree <- function(forest, index) {
   split_values <- forest[["_split_values"]][[index]]
   leaf_samples <- forest[["_leaf_samples"]][[index]]
   drawn_samples <- forest[["_drawn_samples"]][[index]] + 1
+  nan_left <- forest[["_nan_left"]][[index]]
 
   nodes <- list()
   frontier <- root
@@ -66,6 +67,7 @@ get_tree <- function(forest, index) {
         is_leaf = FALSE,
         split_variable = split_vars[node] + 1,
         split_value = split_values[node],
+        nan_left = nan_left[node],
         left_child = node.index + 1,
         right_child = node.index + 2
       )

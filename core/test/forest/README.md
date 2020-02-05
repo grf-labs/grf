@@ -33,3 +33,15 @@ n = 50
 p = 11
 X = matrix(rnorm(n * p), n , p)
 ```
+
+```
+# regression_data_MIA.csv
+n <- 1000
+p <- 5
+X <- matrix(round(rnorm(n * p), 2), n, p)
+# Add some discrete values
+X[1:250, 3] <- sample(10:20, 250, replace = TRUE)
+Y <- round(X[, 1] * rnorm(n), 2)
+nmissing <- 150
+X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
+```

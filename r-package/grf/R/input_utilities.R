@@ -21,9 +21,9 @@ validate_X <- function(X) {
     ))
   }
 
-  if (any(is.na(X))) {
-    stop("The feature matrix X contains at least one NA.")
-  }
+  # if (any(is.na(X))) {
+    # stop("The feature matrix X contains at least one NA.")
+  # }
 }
 
 validate_observations <- function(V, X) {

@@ -232,3 +232,61 @@ test_that("a non-pruned honest regression forest has lower MSE than a pruned hon
   # Upper bound of 65 % is based on 10 000 repetitions of the above DGP
   expect_true(mse.notpruned < 0.65 * mse.pruned)
 })
+
+test_that("regression_forest works as expected with missing values", {
+  n <- 1000
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  Y <- X[, 1] * rnorm(n)
+
+  nmissing <- sample(c(1, 150, 500, 1000), size = 1)
+  X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
+
+  # MIA with data duplication
+  Xl <- X
+  Xr <- X
+  Xl[is.nan(Xl)] <- -1e9
+  Xr[is.nan(Xr)] <- 1e9
+  X.mia <- cbind(Xl, Xr)
+
+  X.test <- matrix(rnorm(n * p), n * 2, p)
+  X.test[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
+  Xlt <- X.test
+  Xrt <- X.test
+  Xlt[is.nan(Xlt)] <- -1e9
+  Xrt[is.nan(Xrt)] <- 1e9
+  X.mia.test <- cbind(Xlt, Xrt)
+
+  rf.mia <- regression_forest(X.mia, Y, seed = 123)
+  rf <- regression_forest(X, Y, seed = 123)
+
+  mse.oob.diff <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
+  mse.diff <- mean((predict(rf.mia, X.mia)$pred - predict(rf, X)$pred)^2)
+  mse.test.diff <- mean((predict(rf.mia, X.mia.test)$pred - predict(rf, X.test)$pred)^2)
+
+  diff.mse.oob <- mean((predict(rf.mia)$pred - Y)^2) - mean((predict(rf)$pred - Y)^2)
+  diff.mse <- mean((predict(rf.mia, X.mia)$pred - Y)^2) - mean((predict(rf, X)$pred - Y)^2)
+  diff.mse.test <- mean((predict(rf.mia, X.mia.test)$pred - Y)^2) - mean((predict(rf, X.test)$pred - Y)^2)
+
+  expect_equal(mse.oob.diff, 0, tol = 0.001)
+  expect_equal(mse.diff, 0, tol = 0.001)
+  expect_equal(mse.test.diff, 0, tol = 0.001)
+
+  expect_equal(diff.mse.oob, 0, tol = 0.01)
+  expect_equal(diff.mse, 0, tol = 0.01)
+  expect_equal(diff.mse.test, 0, tol = 0.01)
+
+  # All NaNs
+  X[, ] <- NaN
+
+  Xl <- X
+  Xr <- X
+  Xl[is.nan(Xl)] <- -1e9
+  Xr[is.nan(Xr)] <- 1e9
+  X.mia <- cbind(Xl, Xr)
+
+  rf.mia <- regression_forest(X.mia, Y, seed = 123)
+  rf <- regression_forest(X, Y, seed = 123)
+  mse.oob.diff.allnan <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
+  expect_equal(mse.oob.diff.allnan, 0, tol = 0.0001)
+})

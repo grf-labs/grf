@@ -45,7 +45,8 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
                                               const std::vector<double>& responses_by_sample,
                                               const std::vector<std::vector<size_t>>& samples,
                                               std::vector<size_t>& split_vars,
-                                              std::vector<double>& split_values) {
+                                              std::vector<double>& split_values,
+                                              std::vector<bool>& nan_left) {
 
   size_t size_node = samples[node].size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
@@ -60,14 +61,15 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   size_t best_var = 0;
   double best_value = 0;
   double best_decrease = 0.0;
+  bool nan_goes_left = true;
 
   // For all possible split variables
   for (auto& var : possible_split_vars) {
     // Use faster method for both cases
     double q = (double) size_node / (double) data.get_num_unique_data_values(var);
-    if (q < Q_THRESHOLD) {
+    if (q < Q_THRESHOLD || data.contains_nan()) {
       find_best_split_value_small_q(data, node, var, sum_node, size_node, min_child_size,
-                                    best_value, best_var, best_decrease, responses_by_sample, samples);
+                                    best_value, best_var, best_decrease, nan_goes_left, responses_by_sample, samples);
     } else {
       find_best_split_value_large_q(data, node, var, sum_node, size_node, min_child_size,
                                     best_value, best_var, best_decrease, responses_by_sample, samples);
@@ -82,6 +84,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   // Save best values
   split_vars[node] = best_var;
   split_values[node] = best_value;
+  nan_left[node] = nan_goes_left;
   return false;
 }
 
@@ -91,7 +94,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
                                                             size_t size_node,
                                                             size_t min_child_size,
                                                             double& best_value, size_t& best_var,
-                                                            double& best_decrease,
+                                                            double& best_decrease, bool& nan_goes_left,
                                                             const std::vector<double>& responses_by_sample,
                                                             const std::vector<std::vector<size_t>>& samples) {
   // possible_split_values: the sorted unique split values. Length: num_splits (equal to size_node - 1 if all unique)
@@ -109,18 +112,30 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
   size_t num_splits = possible_split_values.size() - 1; // -1: we do not split at the last value
   std::fill(counter, counter + num_splits, 0);
   std::fill(sums, sums + num_splits, 0);
+  size_t n_missing = 0;
+  double sum_missing = 0;
 
   // Fill counter and sums buckets
   size_t split_index = 0;
   for (size_t i = 0; i < size_node - 1; i++) {
     size_t sample = sorted_samples[i];
     size_t next_sample = sorted_samples[i + 1];
-    double response = responses_by_sample[sample];
-    sums[split_index] += response;
-    ++counter[split_index];
+    double sample_value = data.get(sample, var);
+    if (std::isnan(sample_value)) {
+      sum_missing += responses_by_sample[sample];
+      ++n_missing;
+    } else {
+      sums[split_index] += responses_by_sample[sample];
+      ++counter[split_index];
+    }
 
     // if the next sample value is different then move on to the next bucket
-    if (data.get(sample, var) < data.get(next_sample, var)) {
+    double next_sample_value = data.get(next_sample, var);
+    // only need to account for the case: (..., NaN, Xij, ...) when split_index should be incremented
+    // (all logical operators with NaN evaluates to false by default)
+    if (std::isnan(sample_value) != std::isnan(next_sample_value)) { // XoR
+      ++split_index;
+    } else if (sample_value < next_sample_value) {
       ++split_index;
     }
   }
@@ -128,35 +143,51 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
   size_t n_left = 0;
   double sum_left = 0;
 
-  // Compute decrease of impurity for each possible split
-  for (size_t i = 0; i < num_splits; ++i) {
-    n_left += counter[i];
-    sum_left += sums[i];
-
-    // Skip this split if one child is too small.
-    if (n_left < min_child_size) {
-      continue;
-    }
-
-    // Stop if the right child is too small.
-    size_t n_right = size_node - n_left;
-    if (n_right < min_child_size) {
+  for (int j = 0; j < 2; ++j) {
+    if (n_missing > 0)  {
+      // j = 0 sends NaN left, j = 1 sends NaN right
+      // It is not necessarry to adjust n_right or sum_right as the the missing
+      // part is included in the total sum.
+      n_left = j == 0 ? n_missing : 0;
+      sum_left = j == 0 ? sum_missing : 0;
+    } else if (j > 0) {
       break;
     }
 
-    double sum_right = sum_node - sum_left;
-    double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
+    for (size_t i = 0; i < num_splits; ++i) {
+      // not necessarry to evaluate sending R when splitting on NaN (i=0)
+      if (i == 0 && j != 0) {
+        continue;
+      }
 
-    // Penalize splits that are too close to the edges of the data.
-    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
-    decrease -= penalty;
+      n_left += counter[i];
+      sum_left += sums[i];
 
+      // Skip this split if one child is too small.
+      if (n_left < min_child_size) {
+        continue;
+      }
 
-    // If better than before, use this
-    if (decrease > best_decrease) {
-      best_value = possible_split_values[i];
-      best_var = var;
-      best_decrease = decrease;
+      // Stop if the right child is too small.
+      size_t n_right = size_node - n_left;
+      if (n_right < min_child_size) {
+        break;
+      }
+
+      double sum_right = sum_node - sum_left;
+      double decrease = sum_left * sum_left / (double) n_left + sum_right * sum_right / (double) n_right;
+
+      // Penalize splits that are too close to the edges of the data.
+      double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
+      decrease -= penalty;
+
+      // If better than before, use this
+      if (decrease > best_decrease) {
+        best_value = possible_split_values[i];
+        best_var = var;
+        best_decrease = decrease;
+        nan_goes_left = j == 0 ? true : false;
+      }
     }
   }
 }

@@ -23,10 +23,10 @@ test_that("character Y throws error", {
   expect_error(validate_observations(Y, X))
 })
 
-test_that("X with NA throws error", {
-  X <- matrix(c(NA, 2), nrow = 1, ncol = 2)
-  expect_error(validate_X(X))
-})
+# test_that("X with NA throws error", {
+  # X <- matrix(c(NA, 2), nrow = 1, ncol = 2)
+  # expect_error(validate_X(X))
+# })
 
 test_that("Y with NA throws error", {
   X <- matrix(c(1, 1), nrow = 1, ncol = 2)
