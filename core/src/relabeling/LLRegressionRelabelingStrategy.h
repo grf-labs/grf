@@ -35,8 +35,8 @@ public:
       const Data& data,
       std::vector<double>& responses_by_sample) const;
 private:
-    const double split_lambda;
-    const bool weight_penalty;
+    double split_lambda;
+    bool weight_penalty;
     const std::vector<double> overall_beta;
     size_t ll_split_cutoff;
     std::vector<size_t> ll_split_variables;

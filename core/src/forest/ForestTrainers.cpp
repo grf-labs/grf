@@ -63,8 +63,8 @@ ForestTrainer regression_trainer() {
                        std::move(prediction_strategy));
 }
 
-ForestTrainer ll_regression_trainer(const double split_lambda,
-                                   const bool weight_penalty,
+ForestTrainer ll_regression_trainer(double split_lambda,
+                                   bool weight_penalty,
                                    const std::vector<double> overall_beta,
                                    size_t ll_split_cutoff,
                                    std::vector<size_t> ll_split_variables) {

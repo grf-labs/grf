@@ -19,8 +19,8 @@
 
 namespace grf {
 
-LLRegressionRelabelingStrategy::LLRegressionRelabelingStrategy(const double split_lambda,
-                                                               const bool weight_penalty,
+LLRegressionRelabelingStrategy::LLRegressionRelabelingStrategy(double split_lambda,
+                                                               bool weight_penalty,
                                                                const std::vector<double> overall_beta,
                                                                size_t ll_split_cutoff,
                                                                std::vector<size_t> ll_split_variables):
