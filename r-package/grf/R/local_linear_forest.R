@@ -5,8 +5,8 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
-#' @param ll.splits Optional choice to make forest splits based on ridge residuals as opposed to standard
-#'                  CART splits. Defaults to FALSE.
+#' @param enable.ll.split Optional choice to make forest splits based on ridge residuals as opposed to standard
+#'                  CART splits. Defaults to FALSE as this is still an experimental feature.
 #' @param ll.split.weight.penalty If using local linear splits, user can specify whether or not to use a
 #'                                covariance ridge penalty, analogously to the prediction case. Defaults to FALSE.
 #' @param ll.split.lambda Ridge penalty for splitting. Defaults to 0.1.
@@ -79,7 +79,7 @@
 #'
 #' @export
 ll_regression_forest <- function(X, Y,
-                                ll.splits = FALSE,
+                                enable.ll.split = FALSE,
                                 ll.split.weight.penalty = FALSE,
                                 ll.split.lambda = 0.1,
                                 ll.split.variables = NULL,
@@ -134,7 +134,7 @@ ll_regression_forest <- function(X, Y,
                ci.group.size = ci.group.size,
                num.threads = num.threads,
                seed = seed)
-  if (ll.splits && ll.split.cutoff > 0) {
+  if (enable.ll.split && ll.split.cutoff > 0) {
     # find overall beta
     J <- diag(ncol(X) + 1)
     J[1,1] <- 0
@@ -147,7 +147,7 @@ ll_regression_forest <- function(X, Y,
                          ll.split.variables = ll.split.variables,
                          ll.split.cutoff = ll.split.cutoff,
                          overall.beta = overall.beta))
-  } else if (ll.splits) {
+  } else if (enable.ll.split) {
     # update arguments with LLF parameters
     args <- c(args, list(weight.penalty = ll.split.weight.penalty,
                          split.lambda = ll.split.lambda,
@@ -182,7 +182,7 @@ ll_regression_forest <- function(X, Y,
     args <- modifyList(args, as.list(tuning.output[["params"]]))
   }
 
-  if (ll.splits) {
+  if (enable.ll.split) {
     forest <- do.call.rcpp(ll_regression_train, c(data, args))
   } else {
     forest <- do.call.rcpp(regression_train, c(data, args))
