@@ -157,7 +157,7 @@ test_that("local linear confidence intervals have reasonable coverage", {
     lower = preds$predictions - 1.96 * sqrt(preds$variance.estimates)
   )
 
-  percent_llf <- mean(df$lower <= truth && truth <= df$upper)
+  percent_llf <- mean(df$lower <= truth & truth <= df$upper)
   expect_true(percent_llf > 0.8)
 })
 
