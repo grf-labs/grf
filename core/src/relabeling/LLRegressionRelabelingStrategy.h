@@ -27,7 +27,7 @@ class LLRegressionRelabelingStrategy final: public RelabelingStrategy {
 public:
   LLRegressionRelabelingStrategy(double split_lambda,
                                  bool weight_penalty,
-                                 std::vector<double> overall_beta,
+                                 const std::vector<double>& overall_beta,
                                  size_t ll_split_cutoff,
                                  std::vector<size_t> ll_split_variables);
   bool relabel(
@@ -37,7 +37,7 @@ public:
 private:
     double split_lambda;
     bool weight_penalty;
-    const std::vector<double> overall_beta;
+    const std::vector<double>& overall_beta;
     size_t ll_split_cutoff;
     std::vector<size_t> ll_split_variables;
 };

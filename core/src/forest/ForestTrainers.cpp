@@ -65,7 +65,7 @@ ForestTrainer regression_trainer() {
 
 ForestTrainer ll_regression_trainer(double split_lambda,
                                    bool weight_penalty,
-                                   const std::vector<double> overall_beta,
+                                   const std::vector<double>& overall_beta,
                                    size_t ll_split_cutoff,
                                    std::vector<size_t> ll_split_variables) {
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new LLRegressionRelabelingStrategy(split_lambda, weight_penalty, overall_beta,
