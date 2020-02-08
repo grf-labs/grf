@@ -217,7 +217,7 @@ test_that("inverse propensity weighting in the training of a regression forest w
 })
 
 test_that("sample weighting is identical to replicating samples", {
-  # To make these forests comparable sample.fraction has to 1 to draw the same samples
+  # To make these forests comparable sample.fraction has to be 1 to draw the same samples
   # and min.node.size 1 for the split stopping condition to be the same.
   n <- 500
   p <- 10
