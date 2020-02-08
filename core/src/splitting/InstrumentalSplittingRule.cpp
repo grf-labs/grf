@@ -213,7 +213,7 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     }
 
     // Calculate relevant quantities for the left child.
-    double size_left = (sum_left_z_squared - sum_left_z * sum_left_z / weight_sum_left);
+    double size_left = sum_left_z_squared - sum_left_z * sum_left_z / weight_sum_left;
     // Skip this split if the left child's variance is too small.
     if (size_left < min_child_size || (imbalance_penalty > 0.0 && size_left == 0)) {
       continue;
