@@ -156,7 +156,7 @@ TEST_CASE("causal forest predictions with stable splitting have not changed", "[
   REQUIRE(equal_predictions(predictions, expected_predictions));
 }
 
-TEST_CASE("causal forest predictions with sample weights have not changed", "[causal], [characterization]") {
+TEST_CASE("causal forest predictions with sample weights and stable splitting have not changed", "[causal], [characterization]") {
   std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
   size_t weight_index = 9;
   data->set_weight_index(weight_index);
@@ -173,7 +173,7 @@ TEST_CASE("causal forest predictions with sample weights have not changed", "[ca
   }
 
   double reduced_form_weight = 0.0;
-  bool stabilize_splits = false;
+  bool stabilize_splits = true;
 
   ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
   ForestOptions options = ForestTestUtilities::default_options();
