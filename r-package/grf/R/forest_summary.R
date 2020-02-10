@@ -83,10 +83,10 @@ test_calibration <- function(forest) {
 
 #' Estimate the best linear projection of a conditional average treatment effect
 #' using a causal forest.
-#' 
+#'
 #' Let tau(Xi) = E[Y(1) - Y(0) | X = Xi] be the CATE, and Ai be a vector of user-provided
 #' covariates. This function provides a (doubly robust) fit to the linear model
-#' 
+#'
 #' tau(Xi) ~ beta_0 + Ai * beta
 #'
 #' Procedurally, we do so be regressing doubly robust scores derived from the causal
@@ -115,42 +115,42 @@ test_calibration <- function(forest) {
 #' forest <- causal_forest(X, Y, W)
 #' best_linear_projection(forest, X[,1:2])
 #' }
-#' 
+#'
 #' @return An estimate of the best linear projection, along with coefficient standard errors.
 #'
 #' @importFrom stats lm
-#' 
+#'
 #' @export
 best_linear_projection <- function(forest, A = NULL, subset = NULL) {
-  
+
   cluster.se <- length(forest$clusters) > 0
-  
+
   if (!("causal_forest" %in% class(forest))) {
     stop("`best_linear_projection` is only implemented for `causal_forest`")
   }
-  
+
   if (is.null(subset)) {
     subset <- 1:length(forest$Y.hat)
   }
-  
+
   if (class(subset) == "logical" & length(subset) == length(forest$Y.hat)) {
     subset <- which(subset)
   }
-  
+
   if (!all(subset %in% 1:length(forest$Y.hat))) {
     stop(paste(
       "If specified, subset must be a vector contained in 1:n,",
       "or a boolean vector of length n."
     ))
   }
-  
+
   clusters <- if (cluster.se) {
     forest$clusters
   } else {
     1:length(forest$Y.orig)
   }
   observation.weight <- observation_weights(forest)
-  
+
   # Only use data selected via subsetting.
   subset.W.orig <- forest$W.orig[subset]
   subset.W.hat <- forest$W.hat[subset]
@@ -159,7 +159,7 @@ best_linear_projection <- function(forest, A = NULL, subset = NULL) {
   tau.hat.pointwise <- predict(forest)$predictions[subset]
   subset.clusters <- clusters[subset]
   subset.weights <- observation.weight[subset]
-  
+
   if (min(subset.W.hat) <= 0.01 && max(subset.W.hat) >= 0.99) {
     rng <- range(subset.W.hat)
     warning(paste0(
@@ -168,13 +168,13 @@ best_linear_projection <- function(forest, A = NULL, subset = NULL) {
       " and in particular get very close to 0 and 1."
     ))
   }
-  
+
   # Compute doubly robust scores
   mu.w.hat <- subset.Y.hat + (subset.W.orig - subset.W.hat) * tau.hat.pointwise
-  Gamma.hat <- tau.hat.pointwise + 
+  Gamma.hat <- tau.hat.pointwise +
     (subset.W.orig - subset.W.hat) / (subset.W.hat * (1 - subset.W.hat)) *
     (subset.Y.orig - mu.w.hat)
-  
+
   if (!is.null(A)) {
     if (nrow(A) == length(forest$Y.orig)) {
       A.subset <- A[subset,]
@@ -190,7 +190,7 @@ best_linear_projection <- function(forest, A = NULL, subset = NULL) {
   } else {
     DF <- data.frame(target = Gamma.hat)
   }
-  
+
   blp.ols <- lm(target ~ ., weights = subset.weights, data = DF)
   blp.summary <- lmtest::coeftest(blp.ols,
                                   vcov = sandwich::vcovCL,
@@ -201,7 +201,6 @@ best_linear_projection <- function(forest, A = NULL, subset = NULL) {
     paste("Best linear projection of the conditional average treatment effect.",
           "Confidence intervals are cluster- and heteroskedasticity-robust (HC3)",
           sep="\n")
-  
+
   blp.summary
 }
-
