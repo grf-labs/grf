@@ -250,42 +250,6 @@ test_that("Weighting is roughly equivalent to replication of samples", {
   expect_true(mean(predict(causal.forest.rep, X[test, ]) > 100 + predict(causal.forest.biased, X[test, ])) >= .5)
 })
 
-test_that("sample weighting is practically identical to replicating samples", {
-  # To make these forests comparable sample.fraction has to be 1 to draw the same samples
-  # and min.node.size 1 for the split stopping condition to be approximately the same.
-  # The grown trees will not be identical due to count constraints not being taken
-  # into account the same way with sample weights.
-  # Aggregates like average predictions should be very close though.
-  n <- 1000
-  p <- 10
-  X <- matrix(rnorm(n * p), n, p)
-  W <- rbinom(n, 1, 0.5)
-  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
-  rf.weighted <- causal_forest(X, Y, W, 0, 0.5, sample.weights = rep(2, n),
-                               num.trees = 500,
-                               sample.fraction = 1,
-                               min.node.size = 1,
-                               honesty = FALSE,
-                               ci.group.size = 1,
-                               seed = 123)
-
-  XX <- rbind(X, X)
-  YY <- c(Y, Y)
-  WW <- c(W, W)
-  rf.duplicated.data <- causal_forest(XX, YY, WW, 0, 0.5,
-                                      num.trees = 500,
-                                      sample.fraction = 1,
-                                      min.node.size = 1,
-                                      honesty = FALSE,
-                                      ci.group.size = 1,
-                                      seed = 123)
-
-  avg.tau.weighted <- mean(predict(rf.weighted, XX)$pred)
-  avg.tau.duplicated <- mean(predict(rf.duplicated.data, XX)$pred)
-
-  expect_equal(avg.tau.weighted, avg.tau.duplicated, tol = 0.01)
-})
-
 test_that("A non-pruned honest causal forest contains trees with empty leafs,
           and a pruned honest causal forest does not contain trees with empty leafs", {
   n <- 100
