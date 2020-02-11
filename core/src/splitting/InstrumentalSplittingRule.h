@@ -46,6 +46,7 @@ private:
                                      size_t node,
                                      size_t var,
                                      size_t num_samples,
+                                     double weight_sum_node,
                                      double sum_node,
                                      double mean_node_z,
                                      size_t num_node_small_z,
@@ -61,6 +62,7 @@ private:
                                      size_t node,
                                      size_t var,
                                      size_t num_samples,
+                                     double weight_sum_node,
                                      double sum_node,
                                      double mean_node_z,
                                      size_t num_node_small_z,
@@ -74,6 +76,7 @@ private:
                                      const std::vector<std::vector<size_t>>& samples);
 
   size_t* counter;
+  double* weight_sums;
   double* sums;
   size_t* num_small_z;
   double* sums_z;

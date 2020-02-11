@@ -216,6 +216,35 @@ test_that("inverse propensity weighting in the training of a regression forest w
   expect_true(ipw.mse.forest.weighted < ipw.mse.forest)
 })
 
+test_that("sample weighting is identical to replicating samples", {
+  # To make these forests comparable sample.fraction has to be 1 to draw the same samples
+  # and min.node.size 1 for the split stopping condition to be the same.
+  n <- 500
+  p <- 10
+  X <- matrix(rnorm(n * p), n, p)
+  Y <- X[, 1] * rnorm(n)
+  rf.weighted <- regression_forest(X, Y, sample.weights = rep(2, n),
+                                   num.trees = 500,
+                                   sample.fraction = 1,
+                                   min.node.size = 1,
+                                   honesty = FALSE,
+                                   ci.group.size = 1,
+                                   seed = 123)
+
+  XX <- rbind(X, X)
+  YY <- c(Y, Y)
+  rf.duplicated.data <- regression_forest(XX, YY,
+                                          num.trees = 500,
+                                          sample.fraction = 1,
+                                          min.node.size = 1,
+                                          honesty = FALSE,
+                                          ci.group.size = 1,
+                                          seed = 123)
+  diff.abs <- abs(predict(rf.weighted, XX)$predictions - predict(rf.duplicated.data, XX)$predictions)
+
+  expect_equal(all(diff.abs == 0), TRUE)
+})
+
 test_that("a non-pruned honest regression forest has lower MSE than a pruned honest regression forests
           (on small data)", {
   n <- 100

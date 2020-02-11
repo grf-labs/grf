@@ -283,9 +283,6 @@ When the distribution of data that you observe is not representative of the popu
 
 The impact these weights have depends on what we are estimating. When our estimand is a function of x, e.g. `r(x) = E[Y | X=x]` in `regression_forest` or `tau(x)=E[Y(1)-Y(0)| X=x]` in `causal_forest`, passing weights that are a function of x does not change our estimand. It instead prioritizes fit on our population of interest. In `regression_forest`, this means minimizing weighted mean squared error, i.e. mean squared error over the population specified by the sample weights. In `causal_forest`, this means minimizing weighted R-loss (Nie and Wager (2017), Equations 4/5). When our estimand is an average of such a function, as in `average_treatment_effect` and `average_partial_effect`, it does change the estimand. Our estimand will be the average treatment/partial effect over the population specified by our sample weights.
 
-Our current implementation does not use the sample weights during tree splitting. In terms of Equation 2 of the GRF paper, it replaces `alpha(X_i)` with `alpha(X_i) = sample.weight[i] * alpha(X_i)` without changing `alpha` itself. This does make what we minimize an estimate of mean squared error / R-loss over the population specified by our sample weights. However, it is likely that we would learn better neighborhood weights `alpha` for the task of estimating this weighted loss if we used our sample weights in splitting as well, by sample-weighting the terms in Equation 4 of the GRF paper.
-
-
 ### Categorical inputs
 
 GRF can only handle numerical inputs. If your data has a column with categorical values, here are some ways in which you can proceed.
