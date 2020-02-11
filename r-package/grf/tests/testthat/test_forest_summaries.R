@@ -152,7 +152,7 @@ test_that("best linear projection is reasonable", {
   Y <- S * pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
   seed = runif(1, 0, .Machine$integer.max)
   forest <- causal_forest(X, Y, W, num.trees = 300, seed = seed)
-  forest.shifted.W <- causal_forest(X, Y, W + 1, num.trees = 300)
+  forest.shifted.W <- causal_forest(X, Y, W + 1, num.trees = 300, seed = seed)
   forest.2W <- causal_forest(X, Y, W * 2, num.trees = 300, seed = seed)
 
   # hard-code true regression coefficients
