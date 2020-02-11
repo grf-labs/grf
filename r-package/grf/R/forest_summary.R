@@ -94,12 +94,19 @@ test_calibration <- function(forest) {
 #' or they may be distince The case of the null model tau(Xi) ~ beta_0 is equivalent
 #' to fitting an average treatment effect via AIPW.
 #'
+#' In the event the treatment is continous the inverse-propensity weight component of the
+#' double robust scores are replaced with a component based on a forest based
+#' estimate of Var[Wi | Xi = x].
+#'
 #' @param forest The trained forest.
 #' @param A The covariates we want to project the CATE onto.
 #' @param subset Specifies subset of the training examples over which we
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
+#' @param num.trees.for.variance Number of trees used to estimate Var[Wi | Xi = x]. Default is 500.
+#'                               (continous treatment only)
+#' @param seed The seed of the C++ random number generator in the forest used for estimating Var[Wi | Xi = x].
 #'
 #' @references Chernozhukov, Victor, and Vira Semenova. "Simultaneous inference for
 #'             Best Linear Predictor of the Conditional Average Treatment Effect and
@@ -121,7 +128,11 @@ test_calibration <- function(forest) {
 #' @importFrom stats lm
 #'
 #' @export
-best_linear_projection <- function(forest, A = NULL, subset = NULL) {
+best_linear_projection <- function(forest,
+                                   A = NULL,
+                                   subset = NULL,
+                                   num.trees.for.variance = 500,
+                                   seed = runif(1, 0, .Machine$integer.max)) {
 
   cluster.se <- length(forest$clusters) > 0
 
@@ -152,28 +163,49 @@ best_linear_projection <- function(forest, A = NULL, subset = NULL) {
   observation.weight <- observation_weights(forest)
 
   # Only use data selected via subsetting.
+  subset.X.orig <- forest$X.orig[subset, , drop = FALSE]
   subset.W.orig <- forest$W.orig[subset]
   subset.W.hat <- forest$W.hat[subset]
   subset.Y.orig <- forest$Y.orig[subset]
   subset.Y.hat <- forest$Y.hat[subset]
   tau.hat.pointwise <- predict(forest)$predictions[subset]
   subset.clusters <- clusters[subset]
-  subset.weights <- observation.weight[subset]
+  subset.weights.raw <- observation.weight[subset]
+  subset.weights <- subset.weights.raw / mean(subset.weights.raw)
 
-  if (min(subset.W.hat) <= 0.01 && max(subset.W.hat) >= 0.99) {
-    rng <- range(subset.W.hat)
-    warning(paste0(
-      "Estimated treatment propensities take values between ",
-      round(rng[1], 3), " and ", round(rng[2], 3),
-      " and in particular get very close to 0 and 1."
-    ))
+  discrete.W <- all(subset.W.orig %in% c(0, 1))
+
+  if (discrete.W) {
+    if (min(subset.W.hat) <= 0.01 && max(subset.W.hat) >= 0.99) {
+      rng <- range(subset.W.hat)
+      warning(paste0(
+        "Estimated treatment propensities take values between ",
+        round(rng[1], 3), " and ", round(rng[2], 3),
+        " and in particular get very close to 0 and 1."
+      ))
+    }
+    IPW <- (subset.W.orig - subset.W.hat) / (subset.W.hat * (1 - subset.W.hat))
+    weights <- IPW
+  } else {
+    # Estimate the variance of W given X
+    # Details: https://github.com/grf-labs/grf/issues/608#issuecomment-582747602
+    variance.forest <- regression_forest(subset.X.orig,
+                                        (subset.W.orig - subset.W.hat)^2,
+                                        clusters = subset.clusters,
+                                        num.trees = num.trees.for.variance,
+                                        ci.group.size = 1,
+                                        seed = seed)
+    V.hat <- predict(variance.forest)$predictions
+    debiasing.weights <- subset.weights * (subset.W.orig - subset.W.hat) / V.hat
+    weights <- debiasing.weights
+    # TO ADD: calibrate weights?
   }
 
   # Compute doubly robust scores
   mu.w.hat <- subset.Y.hat + (subset.W.orig - subset.W.hat) * tau.hat.pointwise
-  Gamma.hat <- tau.hat.pointwise +
-    (subset.W.orig - subset.W.hat) / (subset.W.hat * (1 - subset.W.hat)) *
-    (subset.Y.orig - mu.w.hat)
+  mu.w.hat.residual <- subset.Y.orig - mu.w.hat
+  correction <- weights * mu.w.hat.residual
+  Gamma.hat <- tau.hat.pointwise + correction
 
   if (!is.null(A)) {
     if (nrow(A) == length(forest$Y.orig)) {
