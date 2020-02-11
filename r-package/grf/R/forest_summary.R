@@ -173,9 +173,9 @@ best_linear_projection <- function(forest,
   subset.weights.raw <- observation.weight[subset]
   subset.weights <- subset.weights.raw / mean(subset.weights.raw)
 
-  discrete.W <- all(subset.W.orig %in% c(0, 1))
+  binary.W <- all(subset.W.orig %in% c(0, 1))
 
-  if (discrete.W) {
+  if (binary.W) {
     if (min(subset.W.hat) <= 0.01 && max(subset.W.hat) >= 0.99) {
       rng <- range(subset.W.hat)
       warning(paste0(
