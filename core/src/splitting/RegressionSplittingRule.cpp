@@ -38,7 +38,7 @@ RegressionSplittingRule::~RegressionSplittingRule() {
   if (sums != nullptr) {
     delete[] sums;
   }
-  if(weight_sums != nullptr) {
+  if (weight_sums != nullptr) {
     delete[] weight_sums;
   }
 }
