@@ -15,15 +15,15 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "relabeling/LLRelabelingStrategy.h"
+#include "relabeling/LLRegressionRelabelingStrategy.h"
 
 namespace grf {
 
-LLRelabelingStrategy::LLRelabelingStrategy(double split_lambda,
-                                           bool weight_penalty,
-                                           std::vector<double> overall_beta,
-                                           size_t ll_split_cutoff,
-                                           std::vector<size_t> ll_split_variables):
+LLRegressionRelabelingStrategy::LLRegressionRelabelingStrategy(double split_lambda,
+                                                               bool weight_penalty,
+                                                               const std::vector<double>& overall_beta,
+                                                               size_t ll_split_cutoff,
+                                                               std::vector<size_t> ll_split_variables):
   split_lambda(split_lambda),
   weight_penalty(weight_penalty),
   overall_beta(overall_beta),
@@ -31,7 +31,7 @@ LLRelabelingStrategy::LLRelabelingStrategy(double split_lambda,
   ll_split_variables(ll_split_variables){
 };
 
-bool LLRelabelingStrategy::relabel(
+bool LLRegressionRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
     const Data& data,
     std::vector<double>& responses_by_sample) const {
