@@ -137,7 +137,6 @@ test_that("local linear causal forests with large lambda are equivalent to causa
   expect_lt(mean((preds.ll - preds.cf)^2), 0.02)
 })
 
-
 test_that("predictions are invariant to scaling of the sample weights.", {
   n <- 100
   p <- 6
@@ -150,7 +149,8 @@ test_that("predictions are invariant to scaling of the sample weights.", {
   sample.weights <- 1 / e.cc
 
   forest.1 <- causal_forest(X, Y, W, sample.weights = sample.weights, seed = 1)
-  forest.2 <- causal_forest(X, Y, W, sample.weights = 40 * sample.weights, seed = 1)
+  # The multiple is a power of 2 to avoid rounding errors.
+  forest.2 <- causal_forest(X, Y, W, sample.weights = 64 * sample.weights, seed = 1)
   expect_true(all(abs(forest.2$predictions - forest.1$predictions) < 1e-10))
 })
 
