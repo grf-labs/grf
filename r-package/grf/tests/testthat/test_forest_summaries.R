@@ -187,12 +187,18 @@ test_that("best linear projection is reasonable", {
   expect_equal(blp.all[, "Estimate"]/2, blp.2W[, "Estimate"], tol = 0.05)
 })
 
-test_that("best linear projection works with a single covariate", {
+test_that("best linear projection works with edge case input types", {
   n <- 200
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
   W <- rbinom(n, 1, 0.25 + 0.5 * (X[, 1] > 0))
   Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
   forest <- causal_forest(X, Y, W, num.trees = 50)
-  best_linear_projection(forest, X[, 1])
+  forest.clustered <- causal_forest(X, Y, W, num.trees = 50, clusters = c(rep(1, 100), rep(2, 100)))
+
+  # a single covariate
+  blp.single.covariate <- best_linear_projection(forest, X[, 1])
+  # a forest trained with clusters, and subset equal to only one of the clusters
+  blp.single.cluster <- best_linear_projection(forest, X[, 1], subset = which(forest.clustered$clusters == 1))
+  expect_equal(1, 1)
 })

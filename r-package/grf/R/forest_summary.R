@@ -133,9 +133,6 @@ best_linear_projection <- function(forest,
                                    subset = NULL,
                                    num.trees.for.variance = 500,
                                    seed = runif(1, 0, .Machine$integer.max)) {
-
-  cluster.se <- length(forest$clusters) > 0
-
   if (!("causal_forest" %in% class(forest))) {
     stop("`best_linear_projection` is only implemented for `causal_forest`")
   }
@@ -154,6 +151,8 @@ best_linear_projection <- function(forest,
       "or a boolean vector of length n."
     ))
   }
+
+  cluster.se <- length(forest$clusters) > 0 && length(unique(forest$clusters[subset])) > 1
 
   clusters <- if (cluster.se) {
     forest$clusters
