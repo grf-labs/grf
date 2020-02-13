@@ -89,12 +89,12 @@ test_calibration <- function(forest) {
 #'
 #' tau(Xi) ~ beta_0 + Ai * beta
 #'
-#' Procedurally, we do so be regressing doubly robust scores derived from the causal
+#' Procedurally, we do so by regressing doubly robust scores derived from the causal
 #' forest against the Ai. Note the covariates Ai may consist of a subset of the Xi,
-#' or they may be distince The case of the null model tau(Xi) ~ beta_0 is equivalent
+#' or they may be distinct The case of the null model tau(Xi) ~ beta_0 is equivalent
 #' to fitting an average treatment effect via AIPW.
 #'
-#' In the event the treatment is continous the inverse-propensity weight component of the
+#' In the event the treatment is continuous the inverse-propensity weight component of the
 #' double robust scores are replaced with a component based on a forest based
 #' estimate of Var[Wi | Xi = x].
 #'
@@ -105,7 +105,7 @@ test_calibration <- function(forest) {
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
 #' @param num.trees.for.variance Number of trees used to estimate Var[Wi | Xi = x]. Default is 500.
-#'                               (continous treatment only)
+#'                               (continuous treatment only)
 #' @param seed The seed of the C++ random number generator in the forest used for estimating Var[Wi | Xi = x].
 #'
 #' @references Chernozhukov, Victor, and Vira Semenova. "Simultaneous inference for
@@ -198,7 +198,6 @@ best_linear_projection <- function(forest,
     V.hat <- predict(variance.forest)$predictions
     debiasing.weights <- subset.weights * (subset.W.orig - subset.W.hat) / V.hat
     weights <- debiasing.weights
-    # TO ADD: calibrate weights?
   }
 
   # Compute doubly robust scores

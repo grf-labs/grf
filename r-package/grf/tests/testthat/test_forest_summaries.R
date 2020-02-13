@@ -164,17 +164,17 @@ test_that("best linear projection is reasonable", {
   expect_equal(blp.all[2,1], beta1.true, tol = 0.1)
   expect_equal(blp.all[3,1], 0, tol = 0.1)
 
-  blp.s <- best_linear_projection(forest, X[,1:2], subset = (S == 1))
-  expect_equal(blp.s[1,1], beta0.true * 2, tol = 0.2)
-  expect_equal(blp.s[2,1], beta1.true * 2, tol = 0.2)
-  expect_equal(blp.s[3,1], 0, tol = 0.2)
+  blp.subset <- best_linear_projection(forest, X[,1:2], subset = (S == 1))
+  expect_equal(blp.subset[1,1], beta0.true * 2, tol = 0.2)
+  expect_equal(blp.subset[2,1], beta1.true * 2, tol = 0.2)
+  expect_equal(blp.subset[3,1], 0, tol = 0.2)
 
   std.errs <- c((blp.all[1,1] - beta0.true) / blp.all[1,2],
                (blp.all[2,1] - beta1.true) / blp.all[2,2],
                (blp.all[3,1] - 0) / blp.all[3,2],
-               (blp.s[1,1] - beta0.true * 2) / blp.s[1,2],
-               (blp.s[2,1] - beta1.true * 2) / blp.s[2,2],
-               (blp.s[3,1] - 0) / blp.s[3,2])
+               (blp.subset[1,1] - beta0.true * 2) / blp.subset[1,2],
+               (blp.subset[2,1] - beta1.true * 2) / blp.subset[2,2],
+               (blp.subset[3,1] - 0) / blp.subset[3,2])
 
   expect_lt(mean(abs(std.errs)), 2.5)
   expect_gt(mean(abs(std.errs)), 0.25)
