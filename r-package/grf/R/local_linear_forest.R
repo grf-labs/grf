@@ -5,8 +5,8 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
-#' @param enable.ll.split Optional choice to make forest splits based on ridge residuals as opposed to standard
-#'                  CART splits. Defaults to FALSE as this is still an experimental feature.
+#' @param enable.ll.split (experimental) Optional choice to make forest splits based on ridge residuals as opposed to 
+#'                        standard CART splits. Defaults to FALSE.
 #' @param ll.split.weight.penalty If using local linear splits, user can specify whether or not to use a
 #'                                covariance ridge penalty, analogously to the prediction case. Defaults to FALSE.
 #' @param ll.split.lambda Ridge penalty for splitting. Defaults to 0.1.
