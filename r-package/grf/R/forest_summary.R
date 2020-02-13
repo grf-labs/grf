@@ -208,8 +208,9 @@ best_linear_projection <- function(forest,
   Gamma.hat <- tau.hat.pointwise + correction
 
   if (!is.null(A)) {
+    A <- as.matrix(A)
     if (nrow(A) == length(forest$Y.orig)) {
-      A.subset <- A[subset,]
+      A.subset <- A[subset, , drop = FALSE]
     } else if (nrow(A) == length(subset)) {
       A.subset <- A
     } else {

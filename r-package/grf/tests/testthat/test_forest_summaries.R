@@ -186,3 +186,13 @@ test_that("best linear projection is reasonable", {
   blp.2W <- best_linear_projection(forest.2W, X[,1:2])
   expect_equal(blp.all[, "Estimate"]/2, blp.2W[, "Estimate"], tol = 0.05)
 })
+
+test_that("best linear projection works with a single covariate", {
+  n <- 200
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.25 + 0.5 * (X[, 1] > 0))
+  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+  forest <- causal_forest(X, Y, W, num.trees = 50)
+  best_linear_projection(forest, X[, 1])
+})
