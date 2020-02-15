@@ -34,7 +34,7 @@ public:
                                const std::vector<std::vector<size_t>>& samples,
                                std::vector<size_t>& split_vars,
                                std::vector<double>& split_values,
-                               std::vector<bool>& nan_left) = 0;
+                               std::vector<bool>& send_missing_left) = 0;
 };
 
 } // namespace grf

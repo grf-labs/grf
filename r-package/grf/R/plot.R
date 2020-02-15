@@ -22,7 +22,7 @@ create_dot_body <- function(tree, index = 1) {
 
   # Non-leaf case: print label, child edges
   if (!is.null(node$left_child)) {
-    nan.left <- node$nan_left
+    nan.left <- node$send_missing_left
     arrowhead <- ifelse(nan.left, 'arrowhead=normal];', 'arrowhead=empty];')
     edge <- paste(index - 1, "->", node$left_child - 1)
     if (index == 1) {
@@ -38,7 +38,7 @@ create_dot_body <- function(tree, index = 1) {
   }
 
   if (!is.null(node$right_child)) {
-    nan.left <- node$nan_left
+    nan.left <- node$send_missing_left
     arrowhead <- ifelse(nan.left, 'arrowhead=empty];', 'arrowhead=normal];')
     edge <- paste(index - 1, "->", node$right_child - 1)
     if (index == 1) {

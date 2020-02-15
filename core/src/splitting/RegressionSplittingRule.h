@@ -75,7 +75,7 @@ public:
                        const std::vector<std::vector<size_t>>& samples,
                        std::vector<size_t>& split_vars,
                        std::vector<double>& split_values,
-                       std::vector<bool>& nan_left);
+                       std::vector<bool>& send_missing_left);
 
 private:
   void find_best_split_value_small_q(const Data& data,
@@ -88,7 +88,7 @@ private:
                                      double& best_value,
                                      size_t& best_var,
                                      double& best_decrease,
-                                     bool& nan_goes_left,
+                                     bool& best_send_missing_left,
                                      const std::vector<double>& responses_by_sample,
                                      const std::vector<std::vector<size_t>>& samples);
   void find_best_split_value_large_q(const Data& data,

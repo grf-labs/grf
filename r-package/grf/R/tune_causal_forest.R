@@ -108,7 +108,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
                               tune.num.draws = 1000,
                               num.threads = NULL,
                               seed = runif(1, 0, .Machine$integer.max)) {
-  validate_X(X)
+  validate_X(X, allow.nan = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   W <- validate_observations(W, X)

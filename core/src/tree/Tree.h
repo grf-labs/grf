@@ -36,7 +36,7 @@ public:
        const std::vector<size_t>& split_vars,
        const std::vector<double>& split_values,
        const std::vector<size_t>& drawn_samples,
-       const std::vector<bool>& nan_left,
+       const std::vector<bool>& send_missing_left,
        const PredictionValues& prediction_values);
 
   /**
@@ -116,7 +116,7 @@ public:
    * If a tree is grown without missing values in X, these are all true
    * by default.
    */
-  const std::vector<bool>& get_nan_left() const;
+  const std::vector<bool>& get_send_missing_left() const;
 
   /**
    * Optional summary values about the samples in each leaf. Note that this will only
@@ -154,7 +154,7 @@ private:
   std::vector<size_t> split_vars;
   std::vector<double> split_values;
   std::vector<size_t> drawn_samples;
-  std::vector<bool> nan_left;
+  std::vector<bool> send_missing_left;
 
   PredictionValues prediction_values;
 };

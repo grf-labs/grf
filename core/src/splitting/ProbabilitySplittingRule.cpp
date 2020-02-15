@@ -51,7 +51,7 @@ bool ProbabilitySplittingRule::find_best_split(const Data& data,
                                                const std::vector<std::vector<size_t>>& samples,
                                                std::vector<size_t>& split_vars,
                                                std::vector<double>& split_values,
-                                               std::vector<bool>& nan_left) {
+                                               std::vector<bool>& send_missing_left) {
   size_t size_node = samples[node].size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
@@ -66,14 +66,15 @@ bool ProbabilitySplittingRule::find_best_split(const Data& data,
   size_t best_var = 0;
   double best_value = 0;
   double best_decrease = 0.0;
+  bool best_send_missing_left = true;
 
   // For all possible split variables
   for (size_t var : possible_split_vars) {
     // Use faster method for both cases
     double q = (double) size_node / (double) data.get_num_unique_data_values(var);
-    if (q < Q_THRESHOLD) {
+    if (q < Q_THRESHOLD || data.contains_nan()) {
       find_best_split_value_small_q(data, node, var, num_classes, class_counts, size_node, min_child_size,
-                                    best_value, best_var, best_decrease, responses_by_sample, samples);
+                                    best_value, best_var, best_decrease, best_send_missing_left, responses_by_sample, samples);
     } else {
       find_best_split_value_large_q(data, node, var, num_classes, class_counts, size_node, min_child_size,
                                     best_value, best_var, best_decrease, responses_by_sample, samples);
@@ -91,6 +92,7 @@ bool ProbabilitySplittingRule::find_best_split(const Data& data,
   // Save best values
   split_vars[node] = best_var;
   split_values[node] = best_value;
+  send_missing_left[node] = best_send_missing_left;
   return false;
 }
 
@@ -103,6 +105,7 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
                                                              double& best_value,
                                                              size_t& best_var,
                                                              double& best_decrease,
+                                                             bool& best_send_missing_left,
                                                              const std::vector<double>& responses_by_sample,
                                                              const std::vector<std::vector<size_t>>& samples) {
   std::vector<double> possible_split_values;
@@ -119,66 +122,90 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
 
   std::fill(counter_per_class, counter_per_class + num_splits * num_classes, 0);
   std::fill(counter, counter + num_splits, 0);
+  size_t n_missing = 0;
+  size_t* class_counts_missing = new size_t[num_classes]();
 
   size_t split_index = 0;
   for (size_t i = 0; i < size_node - 1; i++) {
     size_t sample = sorted_samples[i];
     size_t next_sample = sorted_samples[i + 1];
+    double sample_value = data.get(sample, var);
     uint sample_class = responses_by_sample[sample];
 
-    ++counter[split_index];
-    ++counter_per_class[split_index * num_classes + sample_class];
+    if (std::isnan(sample_value)) {
+      ++class_counts_missing[sample_class];
+      ++n_missing;
+    } else {
+      ++counter[split_index];
+      ++counter_per_class[split_index * num_classes + sample_class];
+    }
 
     // if the next sample value is different then move on to the next bucket
-    if (data.get(sample, var) < data.get(next_sample, var)) {
+    double next_sample_value = data.get(next_sample, var);
+    if (std::isnan(sample_value) != std::isnan(next_sample_value)) {
+      ++split_index;
+    } else if (sample_value < next_sample_value) {
       ++split_index;
     }
   }
 
   size_t n_left = 0;
   size_t* class_counts_left = new size_t[num_classes]();
+  size_t* class_counts_left_orig_ptr = class_counts_left;
 
   // Compute decrease of impurity for each split
-  for (size_t i = 0; i < num_splits; ++i) {
-    n_left += counter[i];
-
-    // Stop if the right child is too small.
-    size_t n_right = size_node - n_left;
-    if (n_right < min_child_size) {
+  for (int j = 0; j < 2; ++j) {
+    if (n_missing > 0)  {
+      // j = 0 sends NaN left, j = 1 sends NaN right
+      n_left = j == 0 ? n_missing : 0;
+      class_counts_left = j == 0 ? class_counts_missing : class_counts_left_orig_ptr;
+    } else if (j > 0) {
       break;
     }
 
-    // Sum of squares
-    double sum_left = 0;
-    double sum_right = 0;
-    for (size_t j = 0; j < num_classes; ++j) {
-      class_counts_left[j] += counter_per_class[i * num_classes + j];
-      size_t class_count_right = class_counts[j] - class_counts_left[j];
+    for (size_t i = 0; i < num_splits; ++i) {
+      n_left += counter[i];
 
-      sum_left += class_counts_left[j] * class_counts_left[j];
-      sum_right += class_count_right * class_count_right;
-    }
+      // Stop if the right child is too small.
+      size_t n_right = size_node - n_left;
+      if (n_right < min_child_size) {
+        break;
+      }
 
-    // Skip to the next value if the left child is too small.
-    if (n_left < min_child_size) {
-        continue;
-    }
+      // Sum of squares
+      double sum_left = 0;
+      double sum_right = 0;
+      for (size_t cls = 0; cls < num_classes; ++cls) {
+        class_counts_left[cls] += counter_per_class[i * num_classes + cls];
+        size_t class_count_right = class_counts[cls] - class_counts_left[cls];
 
-    // Decrease of impurity
-    double decrease = sum_right / (double) n_right + sum_left / (double) n_left;
+        sum_left += class_counts_left[cls] * class_counts_left[cls];
+        sum_right += class_count_right * class_count_right;
+      }
 
-    // Penalize splits that are too close to the edges of the data.
-    double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
-    decrease -= penalty;
+      // Skip to the next value if the left child is too small.
+      if (n_left < min_child_size) {
+          continue;
+      }
 
-    // If better than before, use this
-    if (decrease > best_decrease) {
-      best_value = possible_split_values[i];
-      best_var = var;
-      best_decrease = decrease;
+      // Decrease of impurity
+      double decrease = sum_right / (double) n_right + sum_left / (double) n_left;
+
+      // Penalize splits that are too close to the edges of the data.
+      double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);
+      decrease -= penalty;
+
+      // If better than before, use this
+      if (decrease > best_decrease) {
+        best_value = possible_split_values[i];
+        best_var = var;
+        best_decrease = decrease;
+        best_send_missing_left = j == 0 ? true : false;
+      }
     }
   }
   delete[] class_counts_left;
+  delete[] class_counts_missing;
 }
 
 void ProbabilitySplittingRule::find_best_split_value_large_q(const Data& data,
@@ -227,11 +254,11 @@ void ProbabilitySplittingRule::find_best_split_value_large_q(const Data& data,
     // Sum of squares
     double sum_left = 0;
     double sum_right = 0;
-    for (size_t j = 0; j < num_classes; ++j) {
-      class_counts_left[j] += counter_per_class[i * num_classes + j];
-      size_t class_count_right = class_counts[j] - class_counts_left[j];
+    for (size_t cls = 0; cls < num_classes; ++cls) {
+      class_counts_left[cls] += counter_per_class[i * num_classes + cls];
+      size_t class_count_right = class_counts[cls] - class_counts_left[cls];
 
-      sum_left += class_counts_left[j] * class_counts_left[j];
+      sum_left += class_counts_left[cls] * class_counts_left[cls];
       sum_right += class_count_right * class_count_right;
     }
 

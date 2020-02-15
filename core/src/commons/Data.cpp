@@ -175,15 +175,20 @@ void Data::get_all_values(std::vector<double>& all_values,
    // fill with [0, 1,..., samples.size() - 1]
   std::iota(index.begin(), index.end(), 0);
   // sort index based on the split values (argsort)
-  // the NAN comparison places all NaNs at the beginning
-  std::stable_sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs) {
-    // the case "NaN < 4.42"
-    if (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs])) {
-      return true;
-    } else {
-      return all_values[lhs] < all_values[rhs];
-    }
-  });
+  if (contains_nan()) {
+    // the NaN comparison places all NaNs at the beginning
+    // this will be slightly slower if there are no NaNs, thus the branch
+    std::stable_sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs) {
+      if (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs])) {
+        return true;
+      } else {
+        return all_values[lhs] < all_values[rhs];
+      }
+    });
+  } else {
+    std::sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs)
+      {return all_values[lhs] < all_values[rhs];});
+  }
 
   for (size_t i = 0; i < samples.size(); i++) {
     sorted_samples[i] = samples[index[i]];
@@ -203,9 +208,6 @@ size_t Data::get_index(size_t row, size_t col) const {
   return index_data[col * num_rows + row];
 }
 
-// sort is only needed for the biqQ splitting rule. This sweep sets the
-// member `has_nan` to true if a NaN is encountered, in which case only the
-// smallQ splitting rule will be called.
 void Data::sort() {
   has_nan = false;
   // Reserve memory

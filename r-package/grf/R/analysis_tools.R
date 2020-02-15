@@ -47,7 +47,7 @@ get_tree <- function(forest, index) {
   split_values <- forest[["_split_values"]][[index]]
   leaf_samples <- forest[["_leaf_samples"]][[index]]
   drawn_samples <- forest[["_drawn_samples"]][[index]] + 1
-  nan_left <- forest[["_nan_left"]][[index]]
+  send_missing_left <- forest[["_send_missing_left"]][[index]]
 
   nodes <- list()
   frontier <- root
@@ -67,7 +67,7 @@ get_tree <- function(forest, index) {
         is_leaf = FALSE,
         split_variable = split_vars[node] + 1,
         split_value = split_values[node],
-        nan_left = nan_left[node],
+        send_missing_left = send_missing_left[node],
         left_child = node.index + 1,
         right_child = node.index + 2
       )
@@ -202,7 +202,7 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
 
   if (!is.null(newdata)) {
     data <- create_data_matrices(newdata)
-    validate_newdata(newdata, X)
+    validate_newdata(newdata, X, allow.nan = TRUE)
     compute_weights(
       forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
       data$train.matrix, data$sparse.train.matrix, num.threads

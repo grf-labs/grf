@@ -1,4 +1,4 @@
-validate_X <- function(X) {
+validate_X <- function(X, allow.nan = FALSE) {
   valid.classes <- c("matrix", "data.frame", "dgCMatrix")
 
   if (!inherits(X, valid.classes)) {
@@ -21,9 +21,9 @@ validate_X <- function(X) {
     ))
   }
 
-  # if (any(is.na(X))) {
-    # stop("The feature matrix X contains at least one NA.")
-  # }
+  if (!allow.nan && any(is.na(X))) {
+    stop("The feature matrix X contains at least one NA.")
+  }
 }
 
 validate_observations <- function(V, X) {
@@ -150,8 +150,8 @@ validate_ll_cutoff <- function(ll.split.cutoff,  num.rows) {
    ll.split.cutoff
 }
 
-validate_newdata <- function(newdata, X) {
-  validate_X(newdata)
+validate_newdata <- function(newdata, X, allow.nan = FALSE) {
+  validate_X(newdata, allow.nan = allow.nan)
   if (ncol(newdata) != ncol(X)) {
     stop("newdata must have the same number of columns as the training matrix.")
   }

@@ -110,7 +110,7 @@ regression_forest <- function(X, Y,
                               compute.oob.predictions = TRUE,
                               num.threads = NULL,
                               seed = runif(1, 0, .Machine$integer.max)) {
-  validate_X(X)
+  validate_X(X, allow.nan = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
@@ -242,6 +242,7 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
   local.linear <- !is.null(linear.correction.variables)
+  allow.nan <- !local.linear
 
   # If possible, use pre-computed predictions.
   if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
@@ -277,7 +278,7 @@ predict.regression_forest <- function(object, newdata = NULL,
 
   if (!is.null(newdata)) {
     data <- create_data_matrices(newdata)
-    validate_newdata(newdata, X)
+    validate_newdata(newdata, X, allow.nan = allow.nan)
     if (!local.linear) {
       ret <- regression_predict(
         forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,

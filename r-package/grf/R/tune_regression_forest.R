@@ -99,7 +99,7 @@ tune_regression_forest <- function(X, Y,
                                   tune.num.draws = 1000,
                                   num.threads = NULL,
                                   seed = runif(1, 0, .Machine$integer.max)) {
-  validate_X(X)
+  validate_X(X, allow.nan = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)

@@ -92,6 +92,33 @@ TEST_CASE("quantile forest predictions have not changed", "[quantile], [characte
   REQUIRE(equal_predictions(predictions, expected_predictions));
 }
 
+TEST_CASE("quantile forest predictions with NaNs have not changed", "[NaN], [quantile], [characterization]") {
+  std::vector<double> quantiles({0.25, 0.5, 0.75});
+  std::unique_ptr<Data> data = load_data("test/forest/resources/quantile_data_MIA.csv");
+  data->set_outcome_index(10);
+
+  ForestTrainer trainer = quantile_trainer(quantiles);
+  ForestOptions options = ForestTestUtilities::default_options();
+  Forest forest = trainer.train(*data, options);
+
+  ForestPredictor predictor = quantile_predictor(4, quantiles);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/quantile_oob_predictions_MIA.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/quantile_predictions_MIA.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/quantile_oob_predictions_MIA.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/quantile_predictions_MIA.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+}
+
 TEST_CASE("causal forest predictions have not changed", "[causal], [characterization]") {
   std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
   data->set_outcome_index(10);
@@ -195,6 +222,38 @@ TEST_CASE("causal forest predictions with sample weights and stable splitting ha
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/causal_predictions_sample_weights.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+}
+
+TEST_CASE("causal forest predictions with NaNs and stable splitting have not changed", "[NaN], [causal], [characterization]") {
+  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data_MIA.csv");
+  data->set_outcome_index(10);
+  data->set_treatment_index(11);
+  data->set_instrument_index(11);
+
+  double reduced_form_weight = 0.0;
+  bool stabilize_splits = true;
+
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestOptions options = ForestTestUtilities::default_options();
+
+  Forest forest = trainer.train(*data, options);
+
+  ForestPredictor predictor = instrumental_predictor(4);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/stable_causal_oob_predictions_MIA.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/stable_causal_predictions_MIA.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/stable_causal_oob_predictions_MIA.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/stable_causal_predictions_MIA.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 }
 

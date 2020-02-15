@@ -50,7 +50,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
                                               const std::vector<std::vector<size_t>>& samples,
                                               std::vector<size_t>& split_vars,
                                               std::vector<double>& split_values,
-                                              std::vector<bool>& nan_left) {
+                                              std::vector<bool>& send_missing_left) {
 
   size_t size_node = samples[node].size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
@@ -68,7 +68,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   size_t best_var = 0;
   double best_value = 0;
   double best_decrease = 0.0;
-  bool nan_goes_left = true;
+  bool best_send_missing_left = true;
 
   // For all possible split variables
   for (auto& var : possible_split_vars) {
@@ -76,7 +76,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
     double q = (double) size_node / (double) data.get_num_unique_data_values(var);
     if (q < Q_THRESHOLD || data.contains_nan()) {
       find_best_split_value_small_q(data, node, var, weight_sum_node, sum_node, size_node, min_child_size,
-                                    best_value, best_var, best_decrease, nan_goes_left, responses_by_sample, samples);
+                                    best_value, best_var, best_decrease, best_send_missing_left, responses_by_sample, samples);
     } else {
       find_best_split_value_large_q(data, node, var, weight_sum_node, sum_node, size_node, min_child_size,
                                     best_value, best_var, best_decrease, responses_by_sample, samples);
@@ -91,7 +91,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   // Save best values
   split_vars[node] = best_var;
   split_values[node] = best_value;
-  nan_left[node] = nan_goes_left;
+  send_missing_left[node] = best_send_missing_left;
   return false;
 }
 
@@ -102,7 +102,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
                                                             size_t size_node,
                                                             size_t min_child_size,
                                                             double& best_value, size_t& best_var,
-                                                            double& best_decrease, bool& nan_goes_left,
+                                                            double& best_decrease, bool& best_send_missing_left,
                                                             const std::vector<double>& responses_by_sample,
                                                             const std::vector<std::vector<size_t>>& samples) {
   // possible_split_values: the sorted unique split values. Length: num_splits (equal to size_node - 1 if all unique)
@@ -142,7 +142,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
       weight_sums[split_index] += sample_weight;
       sums[split_index] += sample_weight * response;
       ++counter[split_index];
-     }
+    }
 
     // if the next sample value is different then move on to the next bucket
     double next_sample_value = data.get(next_sample, var);
@@ -175,7 +175,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
     for (size_t i = 0; i < num_splits; ++i) {
       // not necessarry to evaluate sending right when splitting on NaN (i=0 and j=1)
       if (i == 0 && j != 0) {
-       continue;
+        continue;
       }
 
       n_left += counter[i];
@@ -207,7 +207,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
         best_value = possible_split_values[i];
         best_var = var;
         best_decrease = decrease;
-        nan_goes_left = j == 0 ? true : false;
+        best_send_missing_left = j == 0 ? true : false;
       }
     }
   }
