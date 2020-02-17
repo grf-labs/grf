@@ -96,7 +96,8 @@ test_calibration <- function(forest) {
 #'
 #' In the event the treatment is continuous the inverse-propensity weight component of the
 #' double robust scores are replaced with a component based on a forest based
-#' estimate of Var[Wi | Xi = x].
+#' estimate of Var[Wi | Xi = x]. These weights can also be passed manually by specifying
+#' debiasing.weights.
 #'
 #' @param forest The trained forest.
 #' @param A The covariates we want to project the CATE onto.
@@ -104,9 +105,12 @@ test_calibration <- function(forest) {
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
+#' @param debiasing.weights A vector of length n of debiasing weights. If NULL (default)
+#'                          and the treatment is binary, then inverse-propensity weighting is used,
+#'                          otherwise, if the treatment is continuous, these are estimated by a variance
+#'                          forest.
 #' @param num.trees.for.variance Number of trees used to estimate Var[Wi | Xi = x]. Default is 500.
-#'                               (continuous treatment only)
-#' @param seed The seed of the C++ random number generator in the forest used for estimating Var[Wi | Xi = x].
+#'                               (only applies with continuous treatment and debiasing.weights = NULL)
 #'
 #' @references Chernozhukov, Victor, and Vira Semenova. "Simultaneous inference for
 #'             Best Linear Predictor of the Conditional Average Treatment Effect and
@@ -131,8 +135,8 @@ test_calibration <- function(forest) {
 best_linear_projection <- function(forest,
                                    A = NULL,
                                    subset = NULL,
-                                   num.trees.for.variance = 500,
-                                   seed = runif(1, 0, .Machine$integer.max)) {
+                                   debiasing.weights = NULL,
+                                   num.trees.for.variance = 500) {
   if (!("causal_forest" %in% class(forest))) {
     stop("`best_linear_projection` is only implemented for `causal_forest`")
   }
@@ -150,6 +154,10 @@ best_linear_projection <- function(forest,
       "If specified, subset must be a vector contained in 1:n,",
       "or a boolean vector of length n."
     ))
+  }
+
+  if(!is.null(debiasing.weights) && length(debiasing.weights) != length(forest$Y.hat)) {
+    stop("If specified, debiasing.weights must be a vector of length n.")
   }
 
   cluster.se <- length(forest$clusters) > 0 && length(unique(forest$clusters[subset])) > 1
@@ -183,17 +191,21 @@ best_linear_projection <- function(forest,
         " and in particular get very close to 0 and 1."
       ))
     }
+  }
+
+  if (!is.null(debiasing.weights)) {
+    weights <- debiasing.weights[subset]
+  } else if (binary.W) {
     IPW <- (subset.W.orig - subset.W.hat) / (subset.W.hat * (1 - subset.W.hat))
     weights <- IPW
   } else {
-    # Estimate the variance of W given X
+    # If treatment is continuous, estimate the variance of W given X
     # Details: https://github.com/grf-labs/grf/issues/608#issuecomment-582747602
     variance.forest <- regression_forest(subset.X.orig,
                                         (subset.W.orig - subset.W.hat)^2,
                                         clusters = subset.clusters,
                                         num.trees = num.trees.for.variance,
-                                        ci.group.size = 1,
-                                        seed = seed)
+                                        ci.group.size = 1)
     V.hat <- predict(variance.forest)$predictions
     debiasing.weights <- subset.weights * (subset.W.orig - subset.W.hat) / V.hat
     weights <- debiasing.weights
