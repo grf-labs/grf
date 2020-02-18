@@ -77,7 +77,6 @@ reference:
     contents:
       - get_sample_weights
       - get_tree
-      - starts_with("leaf_stats")
       - merge_forests
       - split_frequencies
       - test_calibration
