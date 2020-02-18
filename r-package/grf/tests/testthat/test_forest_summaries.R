@@ -150,7 +150,10 @@ test_that("best linear projection is reasonable", {
   W <- rbinom(n, 1, 0.25 + 0.5 * (X[, 1] > 0))
   S <- rbinom(n, 1, 0.5)
   Y <- S * pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
-  forest <- causal_forest(X, Y, W, num.trees = 300)
+  seed = runif(1, 0, .Machine$integer.max)
+  forest <- causal_forest(X, Y, W, num.trees = 300, seed = seed)
+  forest.shifted.W <- causal_forest(X, Y, W + 1, num.trees = 300, seed = seed)
+  forest.2W <- causal_forest(X, Y, W * 2, num.trees = 300, seed = seed)
 
   # hard-code true regression coefficients
   beta0.true <- 0.2 # approximation to mean(pmax(Z, 0))/2
@@ -161,18 +164,41 @@ test_that("best linear projection is reasonable", {
   expect_equal(blp.all[2,1], beta1.true, tol = 0.1)
   expect_equal(blp.all[3,1], 0, tol = 0.1)
 
-  blp.s <- best_linear_projection(forest, X[,1:2], subset = (S == 1))
-  expect_equal(blp.s[1,1], beta0.true * 2, tol = 0.2)
-  expect_equal(blp.s[2,1], beta1.true * 2, tol = 0.2)
-  expect_equal(blp.s[3,1], 0, tol = 0.2)
+  blp.subset <- best_linear_projection(forest, X[,1:2], subset = (S == 1))
+  expect_equal(blp.subset[1,1], beta0.true * 2, tol = 0.2)
+  expect_equal(blp.subset[2,1], beta1.true * 2, tol = 0.2)
+  expect_equal(blp.subset[3,1], 0, tol = 0.2)
 
   std.errs <- c((blp.all[1,1] - beta0.true) / blp.all[1,2],
                (blp.all[2,1] - beta1.true) / blp.all[2,2],
                (blp.all[3,1] - 0) / blp.all[3,2],
-               (blp.s[1,1] - beta0.true * 2) / blp.s[1,2],
-               (blp.s[2,1] - beta1.true * 2) / blp.s[2,2],
-               (blp.s[3,1] - 0) / blp.s[3,2])
+               (blp.subset[1,1] - beta0.true * 2) / blp.subset[1,2],
+               (blp.subset[2,1] - beta1.true * 2) / blp.subset[2,2],
+               (blp.subset[3,1] - 0) / blp.subset[3,2])
 
   expect_lt(mean(abs(std.errs)), 2.5)
   expect_gt(mean(abs(std.errs)), 0.25)
+
+  blp.shifted <- best_linear_projection(forest.shifted.W, X[,1:2])
+  expect_equal(blp.all[, "Estimate"], blp.shifted[, "Estimate"], tol = 0.05)
+  expect_equal(blp.all[, "Std. Error"], blp.shifted[, "Std. Error"], tol = 0.05)
+
+  blp.2W <- best_linear_projection(forest.2W, X[,1:2])
+  expect_equal(blp.all[, "Estimate"]/2, blp.2W[, "Estimate"], tol = 0.05)
+})
+
+test_that("best linear projection works with edge case input types", {
+  n <- 200
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.25 + 0.5 * (X[, 1] > 0))
+  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+  forest <- causal_forest(X, Y, W, num.trees = 50)
+  forest.clustered <- causal_forest(X, Y, W, num.trees = 50, clusters = c(rep(1, 100), rep(2, 100)))
+
+  # a single covariate
+  blp.single.covariate <- best_linear_projection(forest, X[, 1])
+  # a forest trained with clusters, and subset equal to only one of the clusters
+  blp.single.cluster <- best_linear_projection(forest, X[, 1], subset = which(forest.clustered$clusters == 1))
+  expect_equal(1, 1)
 })
