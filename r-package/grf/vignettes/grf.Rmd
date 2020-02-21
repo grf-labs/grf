@@ -108,4 +108,4 @@ Check whether causal forest predictions are well calibrated.
 test_calibration(tau.forest)
 ```
 
-For more worked examples see the _Articles_ section for a collection of vignettes.
+For more worked examples see the _Tutorials_ section.

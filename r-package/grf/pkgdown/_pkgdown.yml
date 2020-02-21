@@ -6,7 +6,7 @@ navbar:
     href: articles/grf.html
   - text: "Reference"
     href: reference/index.html
-  - text: "Articles" # A collection of smaller vignettes, this list is kept alphabetical
+  - text: "Tutorials" # A collection of smaller vignettes, this list is kept alphabetical
     menu:
       - text: "Categorical inputs"
         href: articles/categorical_inputs.html
