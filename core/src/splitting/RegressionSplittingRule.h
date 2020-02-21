@@ -77,7 +77,9 @@ public:
                        std::vector<double>& split_values,
                        std::vector<bool>& send_missing_left);
 
-private:
+  /*
+  * These two methods are only public for testing purposes.
+  */
   void find_best_split_value_small_q(const Data& data,
                                      size_t node,
                                      size_t var,
@@ -103,7 +105,7 @@ private:
                                      double& best_decrease,
                                      const std::vector<double>& responses_by_sample,
                                      const std::vector<std::vector<size_t>>& samples);
-
+private:
   size_t* counter;
   double* sums;
   double* weight_sums;

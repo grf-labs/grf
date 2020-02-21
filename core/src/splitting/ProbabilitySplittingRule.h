@@ -42,7 +42,6 @@ public:
                        std::vector<double>& split_values,
                        std::vector<bool>& send_missing_left);
 
-private:
   void find_best_split_value_small_q(const Data& data,
                                      size_t node, size_t var, size_t num_classes, size_t* class_counts,
                                      size_t size_node,
@@ -64,6 +63,7 @@ private:
                                      const std::vector<double>& responses_by_sample,
                                      const std::vector<std::vector<size_t>>& samples);
 
+private:
   size_t num_classes;
 
   double alpha;

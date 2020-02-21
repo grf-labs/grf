@@ -17,9 +17,6 @@
 
 #include "catch.hpp"
 
-#define private public // to access and test the private members `find_best_split_value_small_q`
-                       // and `find_best_split_value_big_q` of a splitting rule.
-
 #include "commons/utility.h"
 #include "relabeling/NoopRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
