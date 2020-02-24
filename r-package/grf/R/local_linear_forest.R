@@ -104,7 +104,7 @@ ll_regression_forest <- function(X, Y,
                                 num.threads = NULL,
                                 seed = runif(1, 0, .Machine$integer.max)) {
 
-  validate_X(X)
+  has.missing.values <- validate_X(X)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
@@ -197,6 +197,7 @@ ll_regression_forest <- function(X, Y,
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["tunable.params"]] <- args[all.tunable.params]
   forest[["tuning.output"]] <- tuning.output
+  forest[["has.missing.values"]] <- has.missing.values
 
   forest
 }

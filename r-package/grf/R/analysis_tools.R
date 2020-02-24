@@ -99,6 +99,7 @@ get_tree <- function(forest, index) {
     node
   })
 
+  tree[["has.missing.values"]] <- forest[["has.missing.values"]]
   class(tree) <- "grf_tree"
   tree
 }
@@ -202,7 +203,7 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
 
   if (!is.null(newdata)) {
     data <- create_data_matrices(newdata)
-    validate_newdata(newdata, X, allow.nan = TRUE)
+    validate_newdata(newdata, X, allow.na = TRUE)
     compute_weights(
       forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
       data$train.matrix, data$sparse.train.matrix, num.threads

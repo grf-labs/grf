@@ -110,7 +110,7 @@ regression_forest <- function(X, Y,
                               compute.oob.predictions = TRUE,
                               num.threads = NULL,
                               seed = runif(1, 0, .Machine$integer.max)) {
-  validate_X(X, allow.nan = TRUE)
+  has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
@@ -171,6 +171,7 @@ regression_forest <- function(X, Y,
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["tunable.params"]] <- args[all.tunable.params]
   forest[["tuning.output"]] <- tuning.output
+  forest[["has.missing.values"]] <- has.missing.values
 
   forest
 }
@@ -242,7 +243,7 @@ predict.regression_forest <- function(object, newdata = NULL,
                                       estimate.variance = FALSE,
                                       ...) {
   local.linear <- !is.null(linear.correction.variables)
-  allow.nan <- !local.linear
+  allow.na <- !local.linear
 
   # If possible, use pre-computed predictions.
   if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
@@ -278,7 +279,7 @@ predict.regression_forest <- function(object, newdata = NULL,
 
   if (!is.null(newdata)) {
     data <- create_data_matrices(newdata)
-    validate_newdata(newdata, X, allow.nan = allow.nan)
+    validate_newdata(newdata, X, allow.na = allow.na)
     if (!local.linear) {
       ret <- regression_predict(
         forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
