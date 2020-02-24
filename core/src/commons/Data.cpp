@@ -175,16 +175,10 @@ void Data::get_all_values(std::vector<double>& all_values,
    // fill with [0, 1,..., samples.size() - 1]
   std::iota(index.begin(), index.end(), 0);
   // sort index based on the split values (argsort)
-  if (contains_nan()) {
-    // the NaN comparison places all NaNs at the beginning
-    // this will be slightly slower if there are no NaNs, thus the branch
-    std::stable_sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs) {
-      return all_values[lhs] < all_values[rhs] || (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs]));
-    });
-  } else {
-    std::sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs)
-      {return all_values[lhs] < all_values[rhs];});
-  }
+  // the NaN comparison places all NaNs at the beginning
+  std::stable_sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs) {
+    return all_values[lhs] < all_values[rhs] || (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs]));
+  });
 
   for (size_t i = 0; i < samples.size(); i++) {
     sorted_samples[i] = samples[index[i]];
