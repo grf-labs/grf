@@ -179,11 +179,7 @@ void Data::get_all_values(std::vector<double>& all_values,
     // the NaN comparison places all NaNs at the beginning
     // this will be slightly slower if there are no NaNs, thus the branch
     std::stable_sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs) {
-      if (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs])) {
-        return true;
-      } else {
-        return all_values[lhs] < all_values[rhs];
-      }
+      return all_values[lhs] < all_values[rhs] || (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs]));
     });
   } else {
     std::sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs)
@@ -196,11 +192,7 @@ void Data::get_all_values(std::vector<double>& all_values,
   }
 
   all_values.erase(unique(all_values.begin(), all_values.end(), [&](const double& lhs, const double& rhs) {
-    if (std::isnan(lhs) && std::isnan(rhs)) {
-      return true;
-    } else {
-      return lhs == rhs;
-    }
+    return lhs == rhs || (std::isnan(lhs) && std::isnan(rhs));
   }), all_values.end());
 }
 
