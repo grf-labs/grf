@@ -37,13 +37,15 @@ The overlap assumptions requires a positive probability of treatment for each $X
 hist(e.hat <- cf$W.hat)
 ```
 
-One can also check that the covariates are balanced across the control and treated group by plotting the histogram $X_i | W_i = k$, overlaid here for each feature:
+One can also check that the covariates are balanced across the treated and control group by plotting the histograms of the inverse-propensity weighted samples $\frac{X_i | W_i = 1}{\hat e_i}$ and $\frac{X_i | W_i = 0}{1 - \hat e_i}$, overlaid here for each feature:
 
 ```{r, fig.height = 25}
-par(mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), mfrow = c(p/2, 2))
+par(mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), mfrow = c(p / 2, 2))
+ipw.control <- 1 / (1 - e.hat[W == 0])
+ipw.treated <- 1 / e.hat[W == 1]
 plots <- lapply(1:p, function (i) {
-  control.hist <- hist(X[W == 0, i], plot = FALSE)
-  treated.hist <- hist(X[W == 1, i], plot = FALSE)
+  control.hist <- hist(X[W == 0, i] * ipw.control, plot = FALSE)
+  treated.hist <- hist(X[W == 1, i] * ipw.treated, plot = FALSE)
 
   plot(control.hist, col= rgb(1, 0, 0, 0.5), main = paste("variable", i), xlab = "")
   plot(treated.hist, col= rgb(0, 0, 1, 0.5), add = TRUE)
