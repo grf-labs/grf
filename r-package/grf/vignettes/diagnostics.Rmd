@@ -89,7 +89,7 @@ bias <- (e.hat - p) * (p * (Y.hat.0 - mean(Y.hat.0))  + (1 - p) * (Y.hat.1 - mea
 Scaled by the standard deviation of the outcome:
 
 ```{r}
-summary(bias / sd(Y))
+hist(bias / sd(Y))
 ```
 
 See Athey et al. (2017) section D for more details.
