@@ -91,7 +91,7 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     tau <- zeta1 * zeta2
     e <- (1 / 4) * (1 + dbeta(X[, 1], 2, 4))
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- e * tau
+    m <- 2 * X[, 1] - 1 + e * tau
     V <- 1
   } else if (dgp == "ai1") {
     X <- matrix(rnorm(n, p), n, p)
