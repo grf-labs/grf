@@ -65,15 +65,15 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     m <- X[, 2] + pmin(X[, 3], 0) + e * tau
     V <- 1
   } else if (dgp == "aw1") {
-    X <- matrix(runif(n * p), n, p)
-    zeta1 <- 1 + 1 / (1 + exp(-20 * (X[, 1] - (1 / 3))))
-    zeta2 <- 1 + 1 / (1 + exp(-20 * (X[, 2] - (1 / 3))))
-    tau <- zeta1 * zeta2
-    e <- 0.5
+    # equation (27) of https://arxiv.org/pdf/1510.04342.pdf
+    X <- matrix(runif(n * p, min = 0, max = 1), n, p)
+    tau <- 0
+    e <- (1 / 4) * (1 + dbeta(X[, 1], 2, 4))
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- e * tau
+    m <- 2 * X[, 1] - 1 + e * tau
     V <- 1
   } else if (dgp == "aw2") {
+    # equation (28) of https://arxiv.org/pdf/1510.04342.pdf
     X <- matrix(runif(n * p), n, p)
     zeta1 <- 1 + 1 / (1 + exp(-20 * (X[, 1] - (1 / 3))))
     zeta2 <- 1 + 1 / (1 + exp(-20 * (X[, 2] - (1 / 3))))
@@ -83,11 +83,15 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     m <- e * tau
     V <- 1
   } else if (dgp == "aw3") {
-    X <- matrix(runif(n * p, min = 0, max = 1), n, p)
-    tau <- 0
+    # section 6.2 in https://arxiv.org/pdf/1610.01271.pdf
+    # (confounding from aw1, tau from aw2)
+    X <- matrix(runif(n * p), n, p)
+    zeta1 <- 1 + 1 / (1 + exp(-20 * (X[, 1] - (1 / 3))))
+    zeta2 <- 1 + 1 / (1 + exp(-20 * (X[, 2] - (1 / 3))))
+    tau <- zeta1 * zeta2
     e <- (1 / 4) * (1 + dbeta(X[, 1], 2, 4))
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- 2 * X[, 1] - 1 + e * tau
+    m <- e * tau
     V <- 1
   } else if (dgp == "ai1") {
     X <- matrix(rnorm(n, p), n, p)
