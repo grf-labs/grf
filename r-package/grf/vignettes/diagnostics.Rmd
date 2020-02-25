@@ -79,7 +79,27 @@ ate.high[["estimate"]] - ate.low[["estimate"]] +
   c(-1, 1) * qnorm(0.975) * sqrt(ate.high[["std.err"]]^2 + ate.low[["std.err"]]^2)
 ```
 
-For more details on the last two checks, see section 2.2 in Athey and Wager (2019).
+For more details on these two checks, see section 2.2 in Athey and Wager (2019).
+
+Athey et al. (2017) suggests a bias measure to gauge how much work the propensity and outcome models have to do to get an unbiased estimate, relative to looking at a simple difference-in-means: $bias(x) = (e(x) - p) \times (p(\mu(0, x) - \mu_0) + (1 - p) (\mu(1, x) - \mu_1)$.
+
+```{r}
+p <- mean(W)
+Y.hat.0 <- cf$Y.hat - e.hat * tau.hat
+Y.hat.1 <- cf$Y.hat + (1 - e.hat) * tau.hat
+
+bias <- (e.hat - p) * (p * (Y.hat.0 - mean(Y.hat.0))  + (1 - p) * (Y.hat.1 - mean(Y.hat.1)))
+```
+
+Scaled by the standard deviation of the outcome:
+
+```{r}
+summary(bias / sd(Y))
+```
+
+See Athey et al. (2017) section D for more details.
 
 ## References
 Athey, Susan and Stefan Wager. Estimating Treatment Effects with Causal Forests: An Application. _Observational Studies_, 5, 2019. ([arxiv](https://arxiv.org/abs/1902.07409))
+
+Athey, Susan, Guido Imbens, Thai Pham, and Stefan Wager. Estimating average treatment effects: Supplementary analyses and remaining challenges. _American Economic Review_, 107(5), May 2017: 278-281. ([arxiv](https://arxiv.org/abs/1702.01250))
