@@ -16,7 +16,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <cmath> // TODO header includes consistency: this is not needed in RegressionSplitting (std::isnan)
+#include <cmath>
 
 #include "InstrumentalSplittingRule.h"
 
