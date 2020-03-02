@@ -199,12 +199,10 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
     }
 
     double next_sample_value = data.get(next_sample, var);
-    // if the next sample value is different then move on to the next bucket
-    // The transition (..., NaN, Xij, ...)
-    if (std::isnan(sample_value) != std::isnan(next_sample_value)) {
-      ++split_index;
-    } else if (sample_value < next_sample_value) {
-      ++split_index;
+    // if the next sample value is different, including the transition (..., NaN, Xij, ...)
+    // then move on to the next bucket (all logical operators with NaN evaluates to false by default)
+    if (sample_value != next_sample_value && !std::isnan(next_sample_value)) {
+          ++split_index;
     }
   }
 
