@@ -47,7 +47,8 @@ plot.df <- data.frame(X, W = as.factor(W), IPW = ifelse(W == 1, 1 / e.hat, 1 / (
 plot.df <- reshape(plot.df, varying = list(1:p), v.names = "X", direction = "long")
 
 ggplot(plot.df, aes(x = X, weight = IPW, fill = W)) +
-  geom_histogram(bins = 30) + facet_wrap( ~ time, ncol = 2)
+  geom_histogram(alpha = 0.5, position = "identity", bins = 30) +
+  facet_wrap( ~ time, ncol = 2)
 ```
 
 ## Assessing fit
