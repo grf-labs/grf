@@ -148,30 +148,31 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
     // if the next sample value is different, including the transition (..., NaN, Xij, ...)
     // then move on to the next bucket (all logical operators with NaN evaluates to false by default)
     if (sample_value != next_sample_value && !std::isnan(next_sample_value)) {
-          ++split_index;
+      ++split_index;
     }
   }
 
-  size_t n_left = 0;
-  double weight_sum_left = 0;
-  double sum_left = 0;
+  size_t n_left = n_missing;
+  double weight_sum_left = weight_sum_missing;
+  double sum_left = sum_missing;
 
   // Compute decrease of impurity for each possible split
-  for (int j = 0; j < 2; ++j) {
-    if (n_missing > 0)  {
-      // j = 0 sends NaN left, j = 1 sends NaN right
-      // It is not necessarry to adjust n_right or sum_right as the the missing
+  for (bool send_left : {true, false}) {
+    if (!send_left) {
+      // A normal split with no NaNs, so we can stop early.
+      if (n_missing == 0) {
+        break;
+      }
+      // It is not necessary to adjust n_right or sum_right as the the missing
       // part is included in the total sum.
-      n_left = j == 0 ? n_missing : 0;
-      weight_sum_left = j == 0 ? weight_sum_missing : 0;
-      sum_left = j == 0 ? sum_missing : 0;
-    } else if (j > 0) {
-      break;
+      n_left = 0;
+      weight_sum_left = 0;
+      sum_left = 0;
     }
 
     for (size_t i = 0; i < num_splits; ++i) {
-      // not necessarry to evaluate sending right when splitting on NaN (i=0 and j=1)
-      if (i == 0 && j != 0) {
+      // not necessary to evaluate sending right when splitting on NaN.
+      if (i == 0 && !send_left) {
         continue;
       }
 
@@ -204,7 +205,7 @@ void RegressionSplittingRule::find_best_split_value_small_q(const Data& data,
         best_value = possible_split_values[i];
         best_var = var;
         best_decrease = decrease;
-        best_send_missing_left = j == 0 ? true : false;
+        best_send_missing_left = send_left;
       }
     }
   }

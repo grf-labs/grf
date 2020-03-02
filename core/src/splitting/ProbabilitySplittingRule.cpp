@@ -144,25 +144,34 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
     // if the next sample value is different, including the transition (..., NaN, Xij, ...)
     // then move on to the next bucket (all logical operators with NaN evaluates to false by default)
     if (sample_value != next_sample_value && !std::isnan(next_sample_value)) {
-          ++split_index;
+      ++split_index;
     }
   }
 
-  size_t n_left = 0;
-  size_t* class_counts_left = new size_t[num_classes]();
-  size_t* class_counts_left_orig_ptr = class_counts_left;
+  size_t n_left = n_missing;
+  size_t* class_counts_left = class_counts_missing;
 
-  // Compute decrease of impurity for each split
-  for (int j = 0; j < 2; ++j) {
-    if (n_missing > 0)  {
-      // j = 0 sends NaN left, j = 1 sends NaN right
-      n_left = j == 0 ? n_missing : 0;
-      class_counts_left = j == 0 ? class_counts_missing : class_counts_left_orig_ptr;
-    } else if (j > 0) {
-      break;
+  // Compute decrease of impurity for each possible split
+  for (bool send_left : {true, false}) {
+    if (!send_left) {
+      // A normal split with no NaNs, so we can stop early.
+      if (n_missing == 0) {
+        break;
+      }
+      // It is not necessary to adjust n_right or sum_right as the the missing
+      // part is included in the total sum.
+      n_left = 0;
+      for (size_t cls = 0; cls < num_classes; ++cls) {
+        class_counts_left[cls] = 0;
+      }
     }
 
     for (size_t i = 0; i < num_splits; ++i) {
+      // not necessary to evaluate sending right when splitting on NaN.
+      if (i == 0 && !send_left) {
+        continue;
+      }
+
       n_left += counter[i];
 
       // Stop if the right child is too small.
@@ -199,11 +208,10 @@ void ProbabilitySplittingRule::find_best_split_value_small_q(const Data& data,
         best_value = possible_split_values[i];
         best_var = var;
         best_decrease = decrease;
-        best_send_missing_left = j == 0 ? true : false;
+        best_send_missing_left = send_left;
       }
     }
   }
-  delete[] class_counts_left;
   delete[] class_counts_missing;
 }
 
