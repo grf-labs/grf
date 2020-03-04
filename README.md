@@ -1,4 +1,4 @@
-# grf: generalized random forests <a href='https://grf-labs.github.io/grf/'><img src='https://raw.githubusercontent.com/grf-labs/grf/master/diagrams/logo/GRF_LOGO.png' align="right" height="140" /></a>
+# grf: generalized random forests <a href='https://grf-labs.github.io/grf/'><img src='https://raw.githubusercontent.com/grf-labs/grf/master/diagrams/logo/grf_logo.png' align="right" height="140" /></a>
 
 [![CRANstatus](https://www.r-pkg.org/badges/version/grf)](https://cran.r-project.org/package=grf)
 ![CRAN Downloads overall](http://cranlogs.r-pkg.org/badges/grand-total/grf)
