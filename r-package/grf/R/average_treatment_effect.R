@@ -110,7 +110,7 @@ average_treatment_effect <- function(forest,
   subset.clusters <- clusters[subset]
   subset.weights <- observation.weight[subset]
 
-  if (length(unique(subset.clusters)) == 1) {
+  if (length(unique(subset.clusters)) <= 1) {
     stop("The passed subset specifies too few distinct units.")
   }
 
