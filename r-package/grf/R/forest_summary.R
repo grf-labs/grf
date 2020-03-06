@@ -180,8 +180,8 @@ best_linear_projection <- function(forest,
   subset.weights.raw <- observation.weight[subset]
   subset.weights <- subset.weights.raw / mean(subset.weights.raw)
 
-  if (length(unique(subset.clusters)) <=1) {
-    stop("subset specifies too few distinct units")
+  if (length(unique(subset.clusters)) == 1) {
+    stop("The passed subset specifies too few distinct units.")
   }
 
   binary.W <- all(subset.W.orig %in% c(0, 1))

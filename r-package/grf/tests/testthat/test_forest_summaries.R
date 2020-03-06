@@ -200,5 +200,5 @@ test_that("best linear projection works with edge case input types", {
   blp.single.covariate <- best_linear_projection(forest, X[, 1])
   # a forest trained with clusters, and subset equal to only one of the clusters
   expect_error(best_linear_projection(forest.clustered, X[, 1], subset = which(forest.clustered$clusters == 1)),
-               regexp = "subset specifies too few distinct units")
+               regexp = "The passed subset specifies too few distinct units.")
 })
