@@ -11,7 +11,7 @@
 #' and there are 10 clusters with 19 units each and per-cluster ATE = 0, then
 #' the overall ATE is 0.05 (additional sample.weights allow for custom
 #' weighting). If equalize.cluster.weights = TRUE each cluster gets equal weight
-#' and the overall ATE is 0.5. 
+#' and the overall ATE is 0.5.
 #'
 #' @param forest The trained forest.
 #' @param calibrate.weights Whether to force debiasing weights to match expected
@@ -78,6 +78,10 @@ average_partial_effect <- function(forest,
   subset.clusters <- clusters[subset]
   subset.weights.raw <- observation.weight[subset]
   subset.weights <- subset.weights.raw / mean(subset.weights.raw)
+
+  if (length(unique(subset.clusters)) <= 1) {
+    stop("The specified subset must contain units from more than one cluster.")
+  }
 
   # This is a simple plugin estimate of the APE.
   cape.plugin <- weighted.mean(tau.hat, subset.weights)

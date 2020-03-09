@@ -21,7 +21,7 @@
 #' and there are 10 clusters with 19 units each and per-cluster ATE = 0, then
 #' the overall ATE is 0.05 (additional sample.weights allow for custom
 #' weighting). If equalize.cluster.weights = TRUE each cluster gets equal weight
-#' and the overall ATE is 0.5. 
+#' and the overall ATE is 0.5.
 #'
 #' @param forest The trained forest.
 #' @param target.sample Which sample to aggregate treatment effects over.
@@ -109,6 +109,10 @@ average_treatment_effect <- function(forest,
   tau.hat.pointwise <- predict(forest)$predictions[subset]
   subset.clusters <- clusters[subset]
   subset.weights <- observation.weight[subset]
+
+  if (length(unique(subset.clusters)) <= 1) {
+    stop("The specified subset must contain units from more than one cluster.")
+  }
 
   # Address the overlap case separately, as this is a very different estimation problem.
   # The method argument (AIPW vs TMLE) is ignored in this case, as both methods are effectively
