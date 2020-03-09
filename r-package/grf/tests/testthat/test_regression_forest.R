@@ -223,7 +223,13 @@ test_that("sample weighting is identical to replicating samples", {
   p <- 10
   X <- matrix(rnorm(n * p), n, p)
   Y <- X[, 1] * rnorm(n)
-  rf.weighted <- regression_forest(X, Y, sample.weights = rep(2, n),
+  to.duplicate <- sample(1:n, 100)
+  XX <- rbind(X, X[to.duplicate, ])
+  YY <- c(Y, Y[to.duplicate])
+  sample.weights <- rep(1, n)
+  sample.weights[to.duplicate] <- 2
+
+  rf.weighted <- regression_forest(X, Y, sample.weights = sample.weights,
                                    num.trees = 500,
                                    sample.fraction = 1,
                                    min.node.size = 1,
@@ -231,8 +237,6 @@ test_that("sample weighting is identical to replicating samples", {
                                    ci.group.size = 1,
                                    seed = 123)
 
-  XX <- rbind(X, X)
-  YY <- c(Y, Y)
   rf.duplicated.data <- regression_forest(XX, YY,
                                           num.trees = 500,
                                           sample.fraction = 1,
