@@ -62,7 +62,7 @@ average_late <- function(forest,
           "only implemented for binary instruments."
       ))
   }
-  
+
   if (is.null(subset)) {
     subset <- 1:length(forest$Y.hat)
   }
@@ -110,6 +110,10 @@ average_late <- function(forest,
   subset.clusters <- clusters[subset]
   subset.weights <- observation.weight[subset]
 
+  if (length(unique(subset.clusters)) <= 1) {
+    stop("The specified subset must contain units from more than one cluster.")
+  }
+
   if (min(subset.Z.hat) <= 0.01 || max(subset.Z.hat) >= 0.99) {
     rng <- range(subset.Z.hat)
     warning(paste0(
@@ -120,7 +124,7 @@ average_late <- function(forest,
       "treatment effect estimation."
     ))
   }
-  
+
   if (abs(min(subset.compliance.score)) <= 0.01 * sd(subset.W.orig)) {
       warning(paste0(
           "The instrument appears to be weak, with some compliance scores as ",

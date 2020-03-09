@@ -160,7 +160,7 @@ best_linear_projection <- function(forest,
     stop("If specified, debiasing.weights must be a vector of length n.")
   }
 
-  cluster.se <- length(forest$clusters) > 0 && length(unique(forest$clusters[subset])) > 1
+  cluster.se <- length(forest$clusters) > 0
 
   clusters <- if (cluster.se) {
     forest$clusters
@@ -179,6 +179,10 @@ best_linear_projection <- function(forest,
   subset.clusters <- clusters[subset]
   subset.weights.raw <- observation.weight[subset]
   subset.weights <- subset.weights.raw / mean(subset.weights.raw)
+
+  if (length(unique(subset.clusters)) <= 1) {
+    stop("The specified subset must contain units from more than one cluster.")
+  }
 
   binary.W <- all(subset.W.orig %in% c(0, 1))
 
