@@ -111,7 +111,7 @@ average_late <- function(forest,
   subset.weights <- observation.weight[subset]
 
   if (length(unique(subset.clusters)) <= 1) {
-    stop("The passed subset specifies too few distinct units.")
+    stop("The specified subset must contain units from more than one cluster.")
   }
 
   if (min(subset.Z.hat) <= 0.01 || max(subset.Z.hat) >= 0.99) {

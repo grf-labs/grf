@@ -111,7 +111,7 @@ average_treatment_effect <- function(forest,
   subset.weights <- observation.weight[subset]
 
   if (length(unique(subset.clusters)) <= 1) {
-    stop("The passed subset specifies too few distinct units.")
+    stop("The specified subset must contain units from more than one cluster.")
   }
 
   # Address the overlap case separately, as this is a very different estimation problem.

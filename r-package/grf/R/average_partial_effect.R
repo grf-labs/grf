@@ -80,7 +80,7 @@ average_partial_effect <- function(forest,
   subset.weights <- subset.weights.raw / mean(subset.weights.raw)
 
   if (length(unique(subset.clusters)) <= 1) {
-    stop("The passed subset specifies too few distinct units.")
+    stop("The specified subset must contain units from more than one cluster.")
   }
 
   # This is a simple plugin estimate of the APE.
