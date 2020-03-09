@@ -1,4 +1,4 @@
-<a href='https://grf-labs.github.io/grf/'><img src='https://raw.githubusercontent.com/grf-labs/grf/grf-logo/images/logo/grf_logo_wbg_cropped.png' align="right" height="120" /></a>
+<a href='https://grf-labs.github.io/grf/'><img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_wbg_cropped.png' align="right" height="120" /></a>
 
 # generalized random forests
 
