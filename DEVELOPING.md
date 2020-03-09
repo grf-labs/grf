@@ -29,7 +29,7 @@ Symlinks in the src directory point to the core C++ and R bindings. On Windows o
 
 ### Code structure
 
-![GRF Architecture Diagram](https://raw.githubusercontent.com/grf-labs/grf/master/diagrams/arch_diagram.png)
+![GRF Architecture Diagram](https://raw.githubusercontent.com/grf-labs/grf/master/images/arch_diagram.png)
 
 The forest implementation is composed of two top-level components, [ForestTrainer](https://github.com/grf-labs/grf/blob/master/core/src/forest/ForestTrainer.h) and [ForestPredictor](https://github.com/grf-labs/grf/blob/master/core/src/forest/ForestPredictor.h).
 
