@@ -344,3 +344,38 @@ test_that("causal_forest works as expected with missing values", {
   mse.oob.diff.allnan <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
   expect_equal(mse.oob.diff.allnan, 0, tol = 0.0001)
 })
+
+test_that("a causal forest workflow with missing values works as expected", {
+  n <- 1000
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.25 + 0.5 * (X[, 1] > 0))
+  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+
+  nmissing <- 2000
+  idx.missing <- cbind(sample(1:n, nmissing, replace = TRUE),
+                       sample(1:p, nmissing, replace = TRUE))
+  X[idx.missing] <- NA
+
+  forest <- causal_forest(X, Y, W, tune.parameters = "all", num.trees = 500)
+  tau.hat <- predict(forest)$predictions
+  high.effect <- tau.hat > median(tau.hat)
+
+  cal <- test_calibration(forest)
+  varimp <- variable_importance(forest)
+
+  ate1 <- average_treatment_effect(forest, subset = high.effect)
+  ate2 <- average_treatment_effect(forest, subset = !high.effect)
+  ate3 <- average_treatment_effect(forest, subset = is.na(X[, 1]))
+  ate4 <- average_treatment_effect(forest, subset = !is.na(X[, 1]))
+  ate5 <- average_treatment_effect(forest, subset = complete.cases(X))
+  ate6 <- average_treatment_effect(forest, subset = !complete.cases(X))
+
+  blp1 <- best_linear_projection(forest, A = X, subset = complete.cases(X))
+  blp2 <- best_linear_projection(forest, A = X[, 1], subset = !is.na(X[, 1]))
+  blp3 <- best_linear_projection(forest, subset = !is.na(X[, 1]))
+
+  expect_equal(which.max(varimp), 1)
+  expect_true(ate1["estimate"] > ate2["estimate"])
+  expect_equal(ate4[["estimate"]], blp3[1, 1], tol = 0.01)
+})
