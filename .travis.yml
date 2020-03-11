@@ -12,6 +12,7 @@ r_binary_packages:
   - testthat
   - roxygen2
   # Vignettes
+  - ggplot2
   - knitr
   - rmarkdown
 
@@ -85,6 +86,7 @@ matrix:
         - cp ../../DEVELOPING.md .
         - cp ../../releases/CHANGELOG.md .
         - Rscript -e 'pkgdown::build_site()'
+        - cp pkgdown/favicon/* docs/
       deploy:
         provider: pages
         local_dir: r-package/grf/docs/

@@ -127,6 +127,7 @@ Rcpp::List deserialize_tree(SEXP forest_xptr,
 
   const std::vector<size_t>& split_vars = tree->get_split_vars();
   const std::vector<double>& split_values = tree->get_split_values();
+  const std::vector<bool>& send_missing_left = tree->get_send_missing_left();
 
   std::queue<size_t> frontier;
   frontier.push(tree->get_root_node());
@@ -152,6 +153,8 @@ Rcpp::List deserialize_tree(SEXP forest_xptr,
       node_object.push_back(false, "is_leaf");
       node_object.push_back(split_vars.at(node) + 1, "split_variable"); // R is 1-indexed.
       node_object.push_back(split_values.at(node), "split_value");
+      bool na_left = send_missing_left.at(node);
+      node_object.push_back(na_left, "send_missing_left");
 
       node_object.push_back(node_index + 1, "left_child");
       frontier.push(child_nodes[0][node]);

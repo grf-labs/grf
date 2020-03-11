@@ -162,7 +162,7 @@ causal_forest <- function(X, Y, W,
                           orthog.boosting = FALSE,
                           num.threads = NULL,
                           seed = runif(1, 0, .Machine$integer.max)) {
-  validate_X(X)
+  has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   W <- validate_observations(W, X)
@@ -276,6 +276,7 @@ causal_forest <- function(X, Y, W,
   forest[["sample.weights"]] <- sample.weights
   forest[["tunable.params"]] <- args[all.tunable.params]
   forest[["tuning.output"]] <- tuning.output
+  forest[["has.missing.values"]] <- has.missing.values
 
   forest
 }
@@ -368,6 +369,7 @@ predict.causal_forest <- function(object, newdata = NULL,
   num.threads <- validate_num_threads(num.threads)
 
   local.linear <- !is.null(linear.correction.variables)
+  allow.na <- !local.linear
   if (local.linear) {
     linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
 
@@ -386,7 +388,7 @@ predict.causal_forest <- function(object, newdata = NULL,
    }
 
    if (!is.null(newdata)) {
-       validate_newdata(newdata, object$X.orig)
+       validate_newdata(newdata, object$X.orig, allow.na = allow.na)
        data <- create_data_matrices(newdata)
        if (!local.linear) {
            ret <- causal_predict(get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix,

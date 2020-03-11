@@ -100,7 +100,7 @@ quantile_forest <- function(X, Y,
     stop("Error: Quantiles must be in (0, 1)")
   }
 
-  validate_X(X)
+  has.missing.values <- validate_X(X, allow.na = TRUE)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, NULL)
@@ -121,6 +121,7 @@ quantile_forest <- function(X, Y,
   forest[["Y.orig"]] <- Y
   forest[["clusters"]] <- clusters
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
+  forest[["has.missing.values"]] <- has.missing.values
   forest
 }
 
@@ -177,7 +178,7 @@ predict.quantile_forest <- function(object,
   train.data <- create_data_matrices(X, outcome = object[["Y.orig"]])
 
   if (!is.null(newdata)) {
-    validate_newdata(newdata, object$X.orig)
+    validate_newdata(newdata, object$X.orig, allow.na = TRUE)
     data <- create_data_matrices(newdata)
     quantile_predict(
       get_xptr(object), quantiles, train.data$train.matrix, train.data$sparse.train.matrix,

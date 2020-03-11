@@ -126,7 +126,7 @@ test_that("local linear predict returns local linear predictions even without tu
   ll.indicator <- !is.null(preds$ll.lambda)
   expect_true(ll.indicator)
 
-  forest <- ll_regression_forest(X, Y, num.trees = 50, ll.splits = TRUE)
+  forest <- ll_regression_forest(X, Y, num.trees = 50, enable.ll.split = TRUE)
   preds <- predict(forest)
 
   ll.indicator <- !is.null(preds$ll.lambda)
@@ -203,7 +203,7 @@ test_that("local linear predictions are correct without noise", {
   expect_true(mean((preds.llf - mu)^2) < 10^-10)
   expect_true(mean((preds.rf - mu)^2) > 10^-2)
 
-  forest <- ll_regression_forest(X, Y, num.trees = 80, ll.splits = TRUE, ci.group.size = 2)
+  forest <- ll_regression_forest(X, Y, num.trees = 80, enable.ll.split = TRUE, ci.group.size = 2)
   preds.llf.splits <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
   expect_true(mean((preds.llf.splits - mu)^2) < 10^-10)
 })
@@ -253,7 +253,7 @@ test_that("local linear forests with local linear splits are numeric and include
   mu <- 0.9 * exp(X[, 1])
   Y <- mu + rnorm(n)
 
-  forest <- ll_regression_forest(X, Y, num.trees = 800, ll.splits = TRUE, ci.group.size = 2)
+  forest <- ll_regression_forest(X, Y, num.trees = 800, enable.ll.split = TRUE, ci.group.size = 2)
   preds.oob <- predict(forest, estimate.variance = TRUE)
   preds.test <- predict(forest, X.test, estimate.variance = TRUE)
 
@@ -272,7 +272,7 @@ test_that("local linear splits reduce early splits on linear trends", {
    mu <- 0.9 * exp(X[, 1]) + 2 * X[,6]
    Y <- mu + rnorm(n)
 
-   ll.forest <- ll_regression_forest(X, Y, ll.splits = TRUE)
+   ll.forest <- ll_regression_forest(X, Y, enable.ll.split = TRUE)
    ll.split.freq <- split_frequencies(ll.forest, 1)
 
    forest = regression_forest(X, Y)
@@ -293,7 +293,7 @@ test_that("local linear splits improve predictions in a simple case", {
    forest <- regression_forest(X, Y, num.trees = 500)
    preds.grf.splits.oob <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0.1)
 
-   ll.forest <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE)
+   ll.forest <- ll_regression_forest(X, Y, num.trees = 500, enable.ll.split = TRUE)
    preds.ll.splits.oob <- predict(ll.forest, linear.correction.variables = 1:p, ll.lambda = 0.1)
 
    mse.grf.splits.oob <- mean((preds.grf.splits.oob$predictions - MU)^2)
@@ -310,8 +310,8 @@ test_that("local linear split regulating works in a simple case", {
    mu <- 0.9 * exp(X[, 1]) + 2 * X[,2] + 2 * X[,3] * X[,4]
    Y <- mu + rnorm(n)
 
-   forest.regulate <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE)
-   forest <- ll_regression_forest(X, Y, num.trees = 500, ll.splits = TRUE, ll.split.cutoff = 0)
+   forest.regulate <- ll_regression_forest(X, Y, num.trees = 500, enable.ll.split = TRUE)
+   forest <- ll_regression_forest(X, Y, num.trees = 500, enable.ll.split = TRUE, ll.split.cutoff = 0)
 
    preds.regulate <- predict(forest.regulate)$predictions
    preds <- predict(forest)$predictions

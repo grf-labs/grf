@@ -36,6 +36,7 @@ public:
        const std::vector<size_t>& split_vars,
        const std::vector<double>& split_values,
        const std::vector<size_t>& drawn_samples,
+       const std::vector<bool>& send_missing_left,
        const PredictionValues& prediction_values);
 
   /**
@@ -111,6 +112,13 @@ public:
   const std::vector<size_t>& get_drawn_samples() const;
 
   /**
+   * The NaN direction for each node. Left: true, Right: false.
+   * If a tree is grown without missing values in X, these are all true
+   * by default.
+   */
+  const std::vector<bool>& get_send_missing_left() const;
+
+  /**
    * Optional summary values about the samples in each leaf. Note that this will only
    * be non-empty if the tree was trained with an 'optimized' prediction strategy.
    */
@@ -145,8 +153,8 @@ private:
   std::vector<std::vector<size_t>> leaf_samples;
   std::vector<size_t> split_vars;
   std::vector<double> split_values;
-
   std::vector<size_t> drawn_samples;
+  std::vector<bool> send_missing_left;
 
   PredictionValues prediction_values;
 };

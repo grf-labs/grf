@@ -29,6 +29,7 @@ Tree::Tree(size_t root_node,
            const std::vector<size_t>& split_vars,
            const std::vector<double>& split_values,
            const std::vector<size_t>& drawn_samples,
+           const std::vector<bool>& send_missing_left,
            const PredictionValues& prediction_values) :
     root_node(root_node),
     child_nodes(child_nodes),
@@ -36,6 +37,7 @@ Tree::Tree(size_t root_node,
     split_vars(split_vars),
     split_values(split_values),
     drawn_samples(drawn_samples),
+    send_missing_left(send_missing_left),
     prediction_values(prediction_values) {}
 
 size_t Tree::get_root_node() const {
@@ -60,6 +62,10 @@ const std::vector<double>& Tree::get_split_values() const  {
 
 const std::vector<size_t>& Tree::get_drawn_samples() const  {
   return drawn_samples;
+}
+
+const std::vector<bool>& Tree::get_send_missing_left() const  {
+  return send_missing_left;
 }
 
 const PredictionValues& Tree::get_prediction_values() const  {
@@ -116,8 +122,14 @@ size_t Tree::find_leaf_node(const Data& data,
 
     // Move to child
     size_t split_var = get_split_vars()[node];
+    double split_val = get_split_values()[node];
     double value = data.get(sample, split_var);
-    if (value <= get_split_values()[node]) {
+    bool send_na_left = get_send_missing_left()[node];
+    if (
+        (value <= split_val) || // ordinary split
+        (send_na_left && std::isnan(value)) || // are we sending NaN left
+        (std::isnan(split_val) && std::isnan(value)) // are we splitting on NaN
+      ) {
       // Move to left child
       node = child_nodes[0][node];
     } else {

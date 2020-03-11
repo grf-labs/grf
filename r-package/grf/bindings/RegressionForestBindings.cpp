@@ -136,7 +136,7 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
                             unsigned int samples_per_cluster,
                             unsigned int num_threads,
                             unsigned int seed) {
-  ForestTrainer trainer = local_linear_trainer(split_lambda, weight_penalty, overall_beta,
+  ForestTrainer trainer = ll_regression_trainer(split_lambda, weight_penalty, overall_beta,
                                                ll_split_cutoff, ll_split_variables);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
