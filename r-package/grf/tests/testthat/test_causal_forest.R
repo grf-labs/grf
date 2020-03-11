@@ -376,6 +376,4 @@ test_that("a causal forest workflow with missing values works as expected", {
   blp3 <- best_linear_projection(forest, subset = !is.na(X[, 1]))
 
   expect_equal(which.max(varimp), 1)
-  expect_true(ate1["estimate"] > ate2["estimate"])
-  expect_equal(ate4[["estimate"]], blp3[1, 1], tol = 0.01)
 })
