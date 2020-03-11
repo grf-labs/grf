@@ -45,7 +45,8 @@ private:
   void create_empty_node(std::vector<std::vector<size_t>>& child_nodes,
                          std::vector<std::vector<size_t>>& samples,
                          std::vector<size_t>& split_vars,
-                         std::vector<double>& split_values) const;
+                         std::vector<double>& split_values,
+                         std::vector<bool>& send_missing_left) const;
 
   void repopulate_leaf_nodes(const std::unique_ptr<Tree>& tree,
                              const Data& data,
@@ -65,6 +66,7 @@ private:
                   std::vector<std::vector<size_t>>& samples,
                   std::vector<size_t>& split_vars,
                   std::vector<double>& split_values,
+                  std::vector<bool>& send_missing_left,
                   std::vector<double>& responses_by_sample,
                   const TreeOptions& tree_options) const;
 
@@ -75,6 +77,7 @@ private:
                            const std::vector<std::vector<size_t>>& samples,
                            std::vector<size_t>& split_vars,
                            std::vector<double>& split_values,
+                           std::vector<bool>& send_missing_left,
                            std::vector<double>& responses_by_sample,
                            uint min_node_size) const ;
 

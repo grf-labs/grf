@@ -59,3 +59,31 @@ test_that("quantile forest predictions for 90th percentile are strongly positive
   expect_true(cor(predict(qrf, quantiles = .9), X[, i]) > .5)
   expect_true(cor(predict(qrf, X.new, quantiles = .9), X.new[, i]) > .5)
 })
+
+test_that("quantile_forest works as expected with missing values", {
+  n <- 500
+  p <- 5
+  i <- 5
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  Y <- rnorm(n) * (1 + 100 * (X[, i] > 0))
+  quantiles <- c(0.1, 0.5, 0.9)
+
+  nmissing <- 250
+  X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
+
+  # MIA with data duplication
+  Xl <- X
+  Xr <- X
+  Xl[is.nan(Xl)] <- -1e9
+  Xr[is.nan(Xr)] <- 1e9
+  X.mia <- cbind(Xl, Xr)
+
+  rf.mia <- quantile_forest(X.mia, Y, quantiles = quantiles, seed = 123)
+  rf <- quantile_forest(X, Y, quantiles = quantiles, seed = 123)
+
+  mean.diff.oob <- colMeans((predict(rf) - predict(rf.mia)))
+  mean.diff <- colMeans((predict(rf, X) - predict(rf.mia, X.mia)))
+
+  expect_equal(mean.diff.oob, c(0, 0, 0), tol = 0.5)
+  expect_equal(mean.diff, c(0, 0, 0), tol = 0.5)
+})

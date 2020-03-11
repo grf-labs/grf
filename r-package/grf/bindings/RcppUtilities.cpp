@@ -32,6 +32,7 @@ Forest RcppUtilities::deserialize_forest(const Rcpp::List& forest_object) {
   Rcpp::List split_vars = forest_object["_split_vars"];
   Rcpp::List split_values = forest_object["_split_values"];
   Rcpp::List drawn_samples = forest_object["_drawn_samples"];
+  Rcpp::List send_missing_left = forest_object["_send_missing_left"];
 
   Rcpp::List prediction_values = forest_object["_pv_values"];
   size_t num_types = forest_object["_pv_num_types"];
@@ -44,6 +45,7 @@ Forest RcppUtilities::deserialize_forest(const Rcpp::List& forest_object) {
                          split_vars.at(t),
                          split_values.at(t),
                          drawn_samples.at(t),
+                         send_missing_left.at(t),
                          PredictionValues(prediction_values.at(t), num_types)));
   }
 
@@ -65,6 +67,7 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   Rcpp::List split_vars(num_trees);
   Rcpp::List split_values(num_trees);
   Rcpp::List drawn_samples(num_trees);
+  Rcpp::List send_missing_left(num_trees);
   Rcpp::List prediction_values(num_trees);
   size_t num_types = 0;
 
@@ -76,6 +79,7 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
     split_vars[t] = tree->get_split_vars();
     split_values[t] = tree->get_split_values();
     drawn_samples[t] = tree->get_drawn_samples();
+    send_missing_left[t] = tree->get_send_missing_left();
 
     prediction_values[t] = tree->get_prediction_values().get_all_values();
     num_types = tree->get_prediction_values().get_num_types();
@@ -87,6 +91,7 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   result.push_back(split_vars, "_split_vars");
   result.push_back(split_values, "_split_values");
   result.push_back(drawn_samples, "_drawn_samples");
+  result.push_back(send_missing_left, "_send_missing_left");
   result.push_back(prediction_values, "_pv_values");
   result.push_back(num_types, "_pv_num_types");
   return result;
@@ -209,4 +214,3 @@ Rcpp::NumericMatrix RcppUtilities::create_excess_error_matrix(const std::vector<
   }
   return result;
 }
-

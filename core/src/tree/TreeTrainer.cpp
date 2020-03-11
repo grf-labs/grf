@@ -38,10 +38,11 @@ std::unique_ptr<Tree> TreeTrainer::train(const Data& data,
   std::vector<std::vector<size_t>> nodes;
   std::vector<size_t> split_vars;
   std::vector<double> split_values;
+  std::vector<bool> send_missing_left;
 
   child_nodes.emplace_back();
   child_nodes.emplace_back();
-  create_empty_node(child_nodes, nodes, split_vars, split_values);
+  create_empty_node(child_nodes, nodes, split_vars, split_values, send_missing_left);
 
   std::vector<size_t> new_leaf_samples;
 
@@ -71,6 +72,7 @@ std::unique_ptr<Tree> TreeTrainer::train(const Data& data,
                                    nodes,
                                    split_vars,
                                    split_values,
+                                   send_missing_left,
                                    responses_by_sample,
                                    options);
     if (is_leaf_node) {
@@ -86,7 +88,7 @@ std::unique_ptr<Tree> TreeTrainer::train(const Data& data,
   sampler.get_samples_in_clusters(clusters, drawn_samples);
 
   std::unique_ptr<Tree> tree(new Tree(0, child_nodes, nodes,
-      split_vars, split_values, drawn_samples, PredictionValues()));
+      split_vars, split_values, drawn_samples, send_missing_left, PredictionValues()));
 
   if (!new_leaf_samples.empty()) {
     repopulate_leaf_nodes(tree, data, new_leaf_samples, options.get_honesty_prune_leaves());
@@ -144,6 +146,7 @@ bool TreeTrainer::split_node(size_t node,
                              std::vector<std::vector<size_t>>& samples,
                              std::vector<size_t>& split_vars,
                              std::vector<double>& split_values,
+                             std::vector<bool>& send_missing_left,
                              std::vector<double>& responses_by_sample,
                              const TreeOptions& options) const {
 
@@ -157,6 +160,7 @@ bool TreeTrainer::split_node(size_t node,
                                   samples,
                                   split_vars,
                                   split_values,
+                                  send_missing_left,
                                   responses_by_sample,
                                   options.get_min_node_size());
   if (stop) {
@@ -165,19 +169,25 @@ bool TreeTrainer::split_node(size_t node,
 
   size_t split_var = split_vars[node];
   double split_value = split_values[node];
+  bool send_na_left = send_missing_left[node];
 
   size_t left_child_node = samples.size();
   child_nodes[0][node] = left_child_node;
-  create_empty_node(child_nodes, samples, split_vars, split_values);
+  create_empty_node(child_nodes, samples, split_vars, split_values, send_missing_left);
 
   size_t right_child_node = samples.size();
   child_nodes[1][node] = right_child_node;
-  create_empty_node(child_nodes, samples, split_vars, split_values);
+  create_empty_node(child_nodes, samples, split_vars, split_values, send_missing_left);
 
   // For each sample in node, assign to left or right child
   // Ordered: left is <= splitval and right is > splitval
   for (auto& sample : samples[node]) {
-    if (data.get(sample, split_var) <= split_value) {
+  double value = data.get(sample, split_var);
+    if (
+        (value <= split_value) || // ordinary split
+        (send_na_left && std::isnan(value)) || // are we sending NaN left
+        (std::isnan(split_value) && std::isnan(value)) // are we splitting on NaN, then always send NaNs left
+      ) {
       samples[left_child_node].push_back(sample);
     } else {
       samples[right_child_node].push_back(sample);
@@ -195,6 +205,7 @@ bool TreeTrainer::split_node_internal(size_t node,
                                       const std::vector<std::vector<size_t>>& samples,
                                       std::vector<size_t>& split_vars,
                                       std::vector<double>& split_values,
+                                      std::vector<bool>& send_missing_left,
                                       std::vector<double>& responses_by_sample,
                                       uint min_node_size) const {
   // Check node size, stop if maximum reached
@@ -211,7 +222,8 @@ bool TreeTrainer::split_node_internal(size_t node,
                                               responses_by_sample,
                                               samples,
                                               split_vars,
-                                              split_values)) {
+                                              split_values,
+                                              send_missing_left)) {
     split_values[node] = -1.0;
     return true;
   }
@@ -222,12 +234,14 @@ bool TreeTrainer::split_node_internal(size_t node,
 void TreeTrainer::create_empty_node(std::vector<std::vector<size_t>>& child_nodes,
                                     std::vector<std::vector<size_t>>& samples,
                                     std::vector<size_t>& split_vars,
-                                    std::vector<double>& split_values) const {
+                                    std::vector<double>& split_values,
+                                    std::vector<bool>& send_missing_left) const {
   child_nodes[0].push_back(0);
   child_nodes[1].push_back(0);
   samples.emplace_back();
   split_vars.push_back(0);
   split_values.push_back(0);
+  send_missing_left.push_back(true);
 }
 
 } // namespace grf

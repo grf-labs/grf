@@ -76,7 +76,7 @@ custom_forest <- function(X, Y,
                           compute.oob.predictions = TRUE,
                           num.threads = NULL,
                           seed = runif(1, 0, .Machine$integer.max)) {
-  validate_X(X)
+  has.missing.values <- validate_X(X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, NULL)
@@ -96,6 +96,7 @@ custom_forest <- function(X, Y,
   class(forest) <- c("custom_forest", "grf")
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
+  forest[["has.missing.values"]] <- has.missing.values
   forest
 }
 

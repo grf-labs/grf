@@ -106,7 +106,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                 compute.oob.predictions = TRUE,
                                 num.threads = NULL,
                                 seed = runif(1, 0, .Machine$integer.max)) {
-  validate_X(X)
+  has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   W <- validate_observations(W, X)
@@ -228,6 +228,7 @@ instrumental_forest <- function(X, Y, W, Z,
   forest[["sample.weights"]] <- sample.weights
   forest[["tunable.params"]] <- args[all.tunable.params]
   forest[["tuning.output"]] <- tuning.output
+  forest[["has.missing.values"]] <- has.missing.values
 
   forest
 }
@@ -276,7 +277,7 @@ predict.instrumental_forest <- function(object, newdata = NULL,
   train.data <- create_data_matrices(X, outcome = Y.centered, treatment = W.centered, instrument = Z.centered)
 
   if (!is.null(newdata)) {
-    validate_newdata(newdata, object$X.orig)
+    validate_newdata(newdata, object$X.orig, allow.na = TRUE)
     data <- create_data_matrices(newdata)
     ret <- instrumental_predict(
       forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
