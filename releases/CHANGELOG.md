@@ -4,6 +4,23 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2020-03-12
+
+### Changed (breaking)
+**IMPORTANT** These changes might cause small differences in results compared to previous releases, even if the same random seed is used.
+- Performance improvement: remove an unnecessary splitting rule loop. Note: this may cause very small differences from earlier versions because the order potential splits are evaluated in changes to the proper sort order. [#592](https://github.com/grf-labs/grf/pull/592)
+
+### Added
+- Add support for missing values in the covariates X with [MIA](https://github.com/grf-labs/grf/issues/457) splitting. [#612](https://github.com/grf-labs/grf/pull/612)
+- Add local linear splitting. An experimental option `enable.ll.split` fits a forest with splits based on ridge residuals as opposed to standard CART splits. Note: local linear tuning does not take the new splits into account. [#603](https://github.com/grf-labs/grf/pull/603)
+- Add sample weighted splitting. Previously, if a user passed `sample.weights`, they would only be used for prediction. Now they are used in splitting as well. Note: this will make results fitted with sample weights different from previous versions. [#590](https://github.com/grf-labs/grf/pull/590)
+
+### Fixed
+- Remove a superfluous predict call in tuning. [#597](https://github.com/grf-labs/grf/pull/597)
+- Fix average partial effect calibration in case of low variation W.hat. [#611](https://github.com/grf-labs/grf/pull/611)
+- Best linear projection is updated to handle non-binary treatment. [#615](https://github.com/grf-labs/grf/pull/615)
+- Add an error message in case summary functions are passed a subset that refers to too few distinct units. [#629](https://github.com/grf-labs/grf/pull/629)
+
 ## [1.0.1] - 2019-12-05
 
 ### Fixed
