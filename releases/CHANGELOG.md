@@ -17,8 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Remove a superfluous predict call in tuning. [#597](https://github.com/grf-labs/grf/pull/597)
-- Fix average partial effect calibration in case of low variation W.hat. [#611](https://github.com/grf-labs/grf/pull/611)
-- Best linear projection is updated to handle non-binary treatment. [#615](https://github.com/grf-labs/grf/pull/615)
+- Fix `average_partial_effect` calibration in case of low variation W.hat. [#611](https://github.com/grf-labs/grf/pull/611)
+- Update `best_linear_projection` to handle non-binary treatment. [#615](https://github.com/grf-labs/grf/pull/615)
 - Add an error message in case summary functions are passed a subset that refers to too few distinct units. [#629](https://github.com/grf-labs/grf/pull/629)
 
 ## [1.0.1] - 2019-12-05
