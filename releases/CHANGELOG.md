@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed (breaking)
 **IMPORTANT** These changes might cause small differences in results compared to previous releases, even if the same random seed is used.
-- Performance improvement: remove an unnecessary splitting rule loop. Note: this may cause very small differences from earlier versions because the order potential splits are evaluated in changes to the proper sort order. [#592](https://github.com/grf-labs/grf/pull/592)
+- Performance improvement: remove an unnecessary splitting rule loop. Note: this may cause very small differences from earlier versions because it changes the order in which potential splits are evaluated. [#592](https://github.com/grf-labs/grf/pull/592)
 
 ### Added
 - Add support for missing values in the covariates X with [MIA](https://github.com/grf-labs/grf/issues/457) splitting. [#612](https://github.com/grf-labs/grf/pull/612)
