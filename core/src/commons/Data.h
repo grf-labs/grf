@@ -64,12 +64,6 @@ public:
    */
   void get_all_values(size_t& num_unique_samples, std::vector<size_t>& sorted_samples, const std::vector<size_t>& samples, size_t var) const;
 
-  size_t get_index(size_t row, size_t col) const;
-
-  double get_unique_data_value(size_t var, size_t index) const;
-
-  size_t get_num_unique_data_values(size_t var) const;
-
   size_t get_num_cols() const;
 
   size_t get_num_rows() const;
@@ -86,16 +80,9 @@ public:
 
   const std::set<size_t>& get_disallowed_split_variables() const;
 
-  bool contains_nan() const;
-
 protected:
   size_t num_rows;
   size_t num_cols;
-  bool has_nan;
-
-  std::vector<size_t> index_data;
-  std::vector<std::vector<double>> unique_data_values;
-  size_t max_num_unique_values;
 
   std::set<size_t> disallowed_split_variables;
   nonstd::optional<size_t> outcome_index;

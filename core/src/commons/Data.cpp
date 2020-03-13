@@ -30,8 +30,6 @@ namespace grf {
 Data::Data() :
     num_rows(0),
     num_cols(0),
-    index_data(),
-    max_num_unique_values(0),
     outcome_index(),
     treatment_index(),
     instrument_index(),
@@ -196,18 +194,6 @@ void Data::get_all_values(size_t& num_unique_samples,
   }
 }
 
-size_t Data::get_index(size_t row, size_t col) const {
-  return index_data[col * num_rows + row];
-}
-
-double Data::get_unique_data_value(size_t var, size_t index) const {
-  return unique_data_values[var][index];
-}
-
-size_t Data::get_num_unique_data_values(size_t var) const {
-  return unique_data_values[var].size();
-}
-
 size_t Data::get_num_cols() const {
   return num_cols;
 }
@@ -242,10 +228,6 @@ double Data::get_weight(size_t row) const {
 
 const std::set<size_t>& Data::get_disallowed_split_variables() const {
   return disallowed_split_variables;
-}
-
-bool Data::contains_nan() const {
-  return has_nan;
 }
 
 } // namespace grf
