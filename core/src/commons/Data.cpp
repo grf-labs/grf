@@ -160,11 +160,11 @@ void Data::set_weight_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
-void Data::get_all_values(std::vector<double>& all_values,
+void Data::get_all_values(size_t& num_unique_samples,
                           std::vector<size_t>& sorted_samples,
                           const std::vector<size_t>& samples,
                           size_t var) const {
-  all_values.resize(samples.size());
+  std::vector<double> all_values(samples.size());
   for (size_t i = 0; i < samples.size(); i++) {
     size_t sample = samples[i];
     all_values[i] = get(sample, var);
@@ -180,14 +180,20 @@ void Data::get_all_values(std::vector<double>& all_values,
     return all_values[lhs] < all_values[rhs] || (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs]));
   });
 
-  for (size_t i = 0; i < samples.size(); i++) {
-    sorted_samples[i] = samples[index[i]];
-    all_values[i] = get(sorted_samples[i], var);
-  }
+  num_unique_samples = 1;
+  for (size_t i = 0; i < samples.size() - 1; i++) {
+    size_t sample = index[i];
+    size_t next_sample = index[i + 1];
+    double sample_val = all_values[sample];
+    double next_sample_val = all_values[next_sample];
 
-  all_values.erase(unique(all_values.begin(), all_values.end(), [&](const double& lhs, const double& rhs) {
-    return lhs == rhs || (std::isnan(lhs) && std::isnan(rhs));
-  }), all_values.end());
+    if (!(sample_val == next_sample_val ||
+       (std::isnan(sample_val) && std::isnan(next_sample_val)))) {
+      ++num_unique_samples;
+    }
+
+    sorted_samples[i] = samples[sample];
+  }
 }
 
 size_t Data::get_index(size_t row, size_t col) const {

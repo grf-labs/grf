@@ -143,17 +143,17 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
                                                               bool& best_send_missing_left,
                                                               const std::vector<double>& responses_by_sample,
                                                               const std::vector<std::vector<size_t>>& samples) {
-  std::vector<double> possible_split_values;
+  size_t num_unique_samples;
   std::vector<size_t> sorted_samples;
-  data.get_all_values(possible_split_values, sorted_samples, samples[node], var);
+  data.get_all_values(num_unique_samples, sorted_samples, samples[node], var);
 
   // Try next variable if all equal for this
-  if (possible_split_values.size() < 2) {
+  if (num_unique_samples < 2) {
     return;
   }
 
   // Initialize with 0m if not in memory efficient mode, use pre-allocated space
-  size_t num_splits = possible_split_values.size() - 1;
+  size_t num_splits = num_unique_samples - 1;
 
   std::fill(counter, counter + num_splits, 0);
   std::fill(weight_sums, weight_sums + num_splits, 0);
@@ -285,7 +285,8 @@ void InstrumentalSplittingRule::find_best_split_value_small_q(const Data& data,
 
       // Save this split if it is the best seen so fa.
       if (decrease > best_decrease) {
-        best_value = possible_split_values[i];
+        size_t best_index = send_left ? n_left - 1 : n_left - 1 + n_missing;
+        best_value = data.get(sorted_samples[best_index], var);
         best_var = var;
         best_decrease = decrease;
         best_send_missing_left = send_left;
