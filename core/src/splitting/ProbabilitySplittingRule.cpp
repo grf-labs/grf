@@ -110,7 +110,6 @@ void ProbabilitySplittingRule::find_best_split_value(const Data& data,
     return;
   }
 
-  // Initialize with 0, if not in memory efficient mode, use pre-allocated space
   size_t num_splits = num_unique_samples - 1;
 
   std::fill(counter_per_class, counter_per_class + num_splits * num_classes, 0);

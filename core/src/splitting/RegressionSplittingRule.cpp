@@ -108,7 +108,6 @@ void RegressionSplittingRule::find_best_split_value(const Data& data,
     return;
   }
 
-  // Initialize with 0m if not in memory efficient mode, use pre-allocated space
   size_t num_splits = num_unique_samples - 1; // -1: we do not split at the last value
   std::fill(weight_sums, weight_sums + num_splits, 0);
   std::fill(counter, counter + num_splits, 0);
