@@ -87,7 +87,6 @@ TEST_CASE("regression splitting on Xij then setting all values to the left to Na
       data->set(split_var, row, NAN, write_error);
     }
   }
-  data->sort();
 
   run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);
@@ -119,7 +118,6 @@ TEST_CASE("instrumental splitting on Xij then setting all values to the left to 
       data->set(split_var, row, NAN, write_error);
     }
   }
-  data->sort();
 
   run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);
@@ -150,7 +148,6 @@ TEST_CASE("probability splitting on Xij then setting all values to the left to N
       data->set(split_var, row, NAN, write_error);
     }
   }
-  data->sort();
 
   run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);

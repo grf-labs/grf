@@ -93,7 +93,6 @@ Rcpp::NumericMatrix custom_predict_oob(Rcpp::List forest_object,
                                        unsigned int num_threads) {
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
-  data->sort();
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 

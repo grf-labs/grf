@@ -200,40 +200,6 @@ size_t Data::get_index(size_t row, size_t col) const {
   return index_data[col * num_rows + row];
 }
 
-void Data::sort() {
-  has_nan = false;
-  // Reserve memory
-  index_data.resize(num_cols * num_rows);
-
-  // For all columns, get unique values and save index for each observation
-  for (size_t col = 0; col < num_cols; ++col) {
-
-    // Get all unique values
-    std::vector<double> unique_values(num_rows);
-    for (size_t row = 0; row < num_rows; ++row) {
-      unique_values[row] = get(row, col);
-      if (std::isnan(unique_values[row])) {
-        has_nan = true;
-      }
-    }
-    std::sort(unique_values.begin(), unique_values.end());
-    unique_values.erase(unique(unique_values.begin(), unique_values.end()), unique_values.end());
-
-    // Get index of unique value
-    for (size_t row = 0; row < num_rows; ++row) {
-      size_t idx =
-          std::lower_bound(unique_values.begin(), unique_values.end(), get(row, col)) - unique_values.begin();
-      index_data[col * num_rows + row] = idx;
-    }
-
-    // Save unique values
-    unique_data_values.push_back(unique_values);
-    if (unique_values.size() > max_num_unique_values) {
-      max_num_unique_values = unique_values.size();
-    }
-  }
-}
-
 double Data::get_unique_data_value(size_t var, size_t index) const {
   return unique_data_values[var][index];
 }
@@ -251,7 +217,7 @@ size_t Data::get_num_rows() const {
 }
 
 size_t Data::get_max_num_unique_values() const {
-  return max_num_unique_values;
+  return num_rows;
 }
 
 double Data::get_outcome(size_t row) const {
