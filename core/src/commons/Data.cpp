@@ -208,10 +208,6 @@ size_t Data::get_num_rows() const {
   return num_rows;
 }
 
-size_t Data::get_max_num_unique_values() const {
-  return num_rows;
-}
-
 double Data::get_outcome(size_t row) const {
   return get(row, outcome_index.value());
 }

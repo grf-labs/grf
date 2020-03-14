@@ -68,8 +68,6 @@ public:
 
   size_t get_num_rows() const;
 
-  size_t get_max_num_unique_values() const;
-
   double get_outcome(size_t row) const;
 
   double get_treatment(size_t row) const;
