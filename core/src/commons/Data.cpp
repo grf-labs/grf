@@ -174,8 +174,14 @@ void Data::get_all_values(size_t& num_unique_samples,
   std::iota(index.begin(), index.end(), 0);
   // sort index based on the split values (argsort)
   // the NaN comparison places all NaNs at the beginning
+  // stable sort is needed for consistent element ordering cross platform,
+  // otherwise the resulting sums used in the splitting rules may compound rounding error
+  // differently and produce different splits.
   std::stable_sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs) {
-    return all_values[lhs] < all_values[rhs] || (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs]));
+    double left_val = all_values[lhs];
+    double right_val = all_values[rhs];
+    return left_val < right_val
+        || (std::isnan(left_val) && !std::isnan(right_val));
   });
 
   num_unique_samples = 1;
