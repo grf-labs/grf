@@ -61,6 +61,7 @@ public:
    * @param samples: the samples to sort.
    * @param var: the feature variable.
    *
+   * If any of the covariates are NaN, they will be placed first in the returned sort order.
    */
   void get_all_values(size_t& num_unique_samples, std::vector<size_t>& sorted_samples, const std::vector<size_t>& samples, size_t var) const;
 
