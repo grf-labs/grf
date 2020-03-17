@@ -274,7 +274,7 @@ void InstrumentalSplittingRule::find_best_split_value(const Data& data,
       // Penalize splits that are too close to the edges of the data.
       decrease -= imbalance_penalty * (1.0 / size_left + 1.0 / size_right);
 
-      // Save this split if it is the best seen so fa.
+      // Save this split if it is the best seen so far.
       if (decrease > best_decrease) {
         size_t best_index = send_left ? n_left - 1 : n_left - 1 + n_missing;
         best_value = data.get(sorted_samples[best_index], var);
