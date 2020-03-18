@@ -71,60 +71,23 @@ _Input_: `X`: covariate matrix, `weights`: weight n-vector, `response`: the resp
 _Output_: The best split value and the direction to send missing values
 
 ```
-total_sum = sum(response * weights)
-total_weight_sum = sum(weights)
-total_samples = count(samples)
+let x = X[samples, var]
 
-// Sort everything according to feature `var`
-sort(X[samples, var], weights, response)
+for each unique value u in x:
+  let count_left[u] be the number of samples with x <= u
+  let sum_left[u], weight_sum_left[u] be the sum of weight * response and weight with x <= u
 
-// `unique_cum_sum(x)` computes the cumulative sum for each of the unique elements in X[samples, var]
-// Ex: `unique_cum_sum([1.5, 2.5, 3, 8])` at x-values [0, 0, 0.5, 0.9] is [4, 7, 15]
-// (analogous for count, each of these vectors have length equal to the number of unique samples)
+  let count_right[u], sum_right[u], weight_sum_right[u] be the same for samples with x > u
+  let count_missing, sum_missing, weight_sum_missing be the same for samples with x = missing
 
-weight_sums_left = unique_cum_sum(weights[samples != "missing"])
-sample_counters_left = unique_cum_count(X[samples != "missing", var])
-weighted_response_sums_left = unique_cum_sum(response[samples != "missing"]
-                                             * weights[samples != "missing"])
+  decrease[u, missing = on_left] = (sum_left[u] + sum_missing)^2 / (weight_sum_left[u] + weight_sum_missing)
+                                  + sum_right[u]^2 / weight_sums_right[u]
 
-n_missing = count(X[samples = "missing", var])
-weight_sum_missing = sum(weights[samples = "missing", var])
-weighted_response_sum_missing = sum(response[samples = "missing"]
-                                    * weights[samples = "missing"])
+  decrease[u, missing = on_right] = sum_left[u]^2 / weight_sum_left[u]
+                                  + (sum_right[u]^2 + sum_missing) / (weight_sums_right[u] + weight_sum_missing)
 
-// a) Calculate the decrease in impurity "sum_Y_left^2/weight_sum_left+sum_Y_right^2/weight_sum_right"
-// first with all missing sent right
-missing_direction = right
-
-weight_sums_right = total_weight_sum - weight_sums_left
-sample_counters_right = total_samples - sample_counters_left
-weighted_response_sums_right = total_sum - weighted_response_sums_left
-
-decrease_na_right = weighted_response_sums_left^2 / weight_sums_left +
-                    weighted_response_sums_right^2 / weight_sums_right
-
-// select the maximum which satisfies the minimum child size constraint, etc:
-max, arg.max = max(decrease_na_left[sample_counters_left >= min_child_size
-                                    AND sample_counters_right >= min_child_size])
-
-// b) The same decrease calculation, but with all missing sent left
-weight_sums_left += weight_sum_missing
-sample_counters_left += n_missing
-weighted_response_sums_left += weighted_response_sum_missing
-
-weight_sums_right = total_weight_sum - weight_sums_left
-sample_counters_right = total_samples - sample_counters_left
-weighted_response_sums_right = total_sum - weighted_response_sums_left
-
-decrease_na_left = weighted_response_sums_left^2 / weight_sums_left +
-                   weighted_response_sums_right^2 / weight_sums_right
-
-if max(decrease_na_left) > max(decrease_na_right):
-  missing_direction = left
-  max, arg.max = max(decrease_na_right[sample_counters_left >= min_child_size
-                     AND sample_counters_right >= min_child_size])
-
-return min, X["arg.max", var], missing_direction
+return (u, missing) that maximizes decrease such that                                 
+count_left[u] and count_right[u] >= min_child_size
 ```
 
 ---
