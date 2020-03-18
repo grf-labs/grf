@@ -84,7 +84,7 @@ for each unique value u in x:
                                   + sum_right[u]^2 / weight_sums_right[u]
 
   decrease[u, missing = on_right] = sum_left[u]^2 / weight_sum_left[u]
-                                  + (sum_right[u]^2 + sum_missing) / (weight_sums_right[u] + weight_sum_missing)
+                                  + (sum_right[u] + sum_missing)^2 / (weight_sums_right[u] + weight_sum_missing)
 
 return (u, missing) that maximizes decrease such that                                 
 count_left[u] and count_right[u] >= min_child_size
