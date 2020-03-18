@@ -13,6 +13,10 @@
 #' weighting). If equalize.cluster.weights = TRUE each cluster gets equal weight
 #' and the overall ATE is 0.5.
 #'
+#' Double robust scores are calculated with a component based on a forest
+#' estimate of Var[Wi | Xi = x]. These weights can also be passed manually by
+#' specifying debiasing.weights.
+#'
 #' @param forest The trained forest.
 #' @param calibrate.weights Whether to force debiasing weights to match expected
 #'                          moments for 1, W, W.hat, and 1/Var[W|X].
@@ -20,7 +24,10 @@
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
+#' @param debiasing.weights A vector of length n of debiasing weights. If NULL (default)
+#'                          these are estimated by a variance forest.
 #' @param num.trees.for.variance Number of trees used to estimate Var[Wi | Xi = x]. Default is 500.
+#'                               (only applies when debiasing.weights = NULL)
 #'
 #' @examples
 #' \dontrun{
@@ -40,6 +47,7 @@
 average_partial_effect <- function(forest,
                                    calibrate.weights = TRUE,
                                    subset = NULL,
+                                   debiasing.weights = NULL,
                                    num.trees.for.variance = 500) {
   if (!("causal_forest" %in% class(forest))) {
     stop("Average effect estimation only implemented for causal_forest")
@@ -58,6 +66,10 @@ average_partial_effect <- function(forest,
       "If specified, subset must be a vector contained in 1:n,",
       "or a boolean vector of length n."
     ))
+  }
+
+  if(!is.null(debiasing.weights) && length(debiasing.weights) != length(forest$Y.hat)) {
+    stop("If specified, debiasing.weights must be a vector of length n.")
   }
 
   cluster.se <- length(forest$clusters) > 0
@@ -86,18 +98,22 @@ average_partial_effect <- function(forest,
   # This is a simple plugin estimate of the APE.
   cape.plugin <- weighted.mean(tau.hat, subset.weights)
 
-  # Estimate the variance of W given X. For binary treatments,
-  # we get a good implicit estimator V.hat = e.hat (1 - e.hat), and
-  # so this step is not needed. Note that if we use the present CAPE estimator
-  # with a binary treatment and set V.hat = e.hat (1 - e.hat), then we recover
-  # exactly the AIPW estimator of the CATE.
-  variance_forest <- regression_forest(subset.X.orig,
-    (subset.W.orig - subset.W.hat)^2,
-    clusters = subset.clusters,
-    num.trees = num.trees.for.variance
-  )
-  V.hat <- predict(variance_forest)$predictions
-  debiasing.weights <- subset.weights * (subset.W.orig - subset.W.hat) / V.hat
+  if (!is.null(debiasing.weights)) {
+    debiasing.weights <- debiasing.weights[subset]
+  } else {
+    # Estimate the variance of W given X. For binary treatments,
+    # we get a good implicit estimator V.hat = e.hat (1 - e.hat), and
+    # so this step is not needed. Note that if we use the present CAPE estimator
+    # with a binary treatment and set V.hat = e.hat (1 - e.hat), then we recover
+    # exactly the AIPW estimator of the CATE.
+    variance_forest <- regression_forest(subset.X.orig,
+      (subset.W.orig - subset.W.hat)^2,
+      clusters = subset.clusters,
+      num.trees = num.trees.for.variance
+    )
+    V.hat <- predict(variance_forest)$predictions
+    debiasing.weights <- subset.weights * (subset.W.orig - subset.W.hat) / V.hat
+  }
 
   # In the population, we want A' %*% weights = b.
   # Modify debiasing weights gamma to make this true, i.e., compute
