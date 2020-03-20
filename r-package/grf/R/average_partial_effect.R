@@ -24,8 +24,8 @@
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
-#' @param debiasing.weights A vector of length n of debiasing weights. If NULL (default)
-#'                          these are estimated by a variance forest.
+#' @param debiasing.weights A vector of length n (or the subset length) of debiasing weights.
+#'                          If NULL (default) these are estimated by a variance forest.
 #' @param num.trees.for.variance Number of trees used to estimate Var[Wi | Xi = x]. Default is 500.
 #'                               (only applies when debiasing.weights = NULL)
 #'
@@ -68,10 +68,6 @@ average_partial_effect <- function(forest,
     ))
   }
 
-  if(!is.null(debiasing.weights) && length(debiasing.weights) != length(forest$Y.hat)) {
-    stop("If specified, debiasing.weights must be a vector of length n.")
-  }
-
   cluster.se <- length(forest$clusters) > 0
   clusters <- if (cluster.se) {
     forest$clusters
@@ -98,8 +94,16 @@ average_partial_effect <- function(forest,
   # This is a simple plugin estimate of the APE.
   cape.plugin <- weighted.mean(tau.hat, subset.weights)
 
+  # debiasing.weights can be either length n, or same same length as the subset.
+  # In case debiasing.weights are supplied as an n-vector, we subset as usual.
+  # The other valid input case is if debiasing.weights is not an n-vector but equal to
+  # the subset.
   if (!is.null(debiasing.weights)) {
-    debiasing.weights <- debiasing.weights[subset]
+    if (length(debiasing.weights) == length(forest$Y.orig)) {
+      debiasing.weights <- debiasing.weights[subset]
+    } else if (length(debiasing.weights) != length(subset)) {
+      stop("If specified, debiasing.weights must be a vector of length n or the subset length.")
+    }
   } else {
     # Estimate the variance of W given X. For binary treatments,
     # we get a good implicit estimator V.hat = e.hat (1 - e.hat), and
