@@ -113,7 +113,8 @@ average_partial_effect <- function(forest,
     variance_forest <- regression_forest(subset.X.orig,
       (subset.W.orig - subset.W.hat)^2,
       clusters = subset.clusters,
-      num.trees = num.trees.for.variance
+      num.trees = num.trees.for.variance,
+      ci.group.size = 1
     )
     V.hat <- predict(variance_forest)$predictions
     debiasing.weights <- subset.weights * (subset.W.orig - subset.W.hat) / V.hat
