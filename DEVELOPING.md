@@ -54,11 +54,9 @@ To avoid the overhead of setting up new classes and Rcpp bindings, we provide a 
 
 This forest is made available in R as `custom.forest` (with `predict.custom.forest`). You can find a starter template for a test exercising the forest in `testthat/test_custom_forest.R`. Note that you'll need to re-run `build_package.R` after making changes to the C++ source.
 
-### Details
+### Tree Splitting Algorithm
 
 The follow section outlines pseudocode for some of the components listed above.
-
-#### [SplittingRule](https://github.com/grf-labs/grf/blob/master/core/src/splitting/SplittingRule.h)
 
 Each splitting rule follow the same pattern: given a set of samples, and a possible split variable, iterate over all the split points for that variable and compute an error criterion on both sides of the split, then select the split where the decrease in the summed error criterion is smallest. For `RegressionSplittingRule` the criterion is the mean squared error, and is usually referred to as standard CART splitting. `InstrumentalSplittingRule` use the same error criterion, but it incorporates more constraints on potential splits, such as requiring a certain number of treated and control observations (more details are in the [Algorithm Reference](https://grf-labs.github.io/grf/REFERENCE.html)).
 
