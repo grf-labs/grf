@@ -158,11 +158,11 @@ void Data::set_weight_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
-void Data::get_all_values(size_t& num_unique_samples,
+void Data::get_all_values(std::vector<double>& all_values,
                           std::vector<size_t>& sorted_samples,
                           const std::vector<size_t>& samples,
                           size_t var) const {
-  std::vector<double> all_values(samples.size());
+  all_values.resize(samples.size());
   for (size_t i = 0; i < samples.size(); i++) {
     size_t sample = samples[i];
     all_values[i] = get(sample, var);
@@ -178,26 +178,17 @@ void Data::get_all_values(size_t& num_unique_samples,
   // otherwise the resulting sums used in the splitting rules may compound rounding error
   // differently and produce different splits.
   std::stable_sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs) {
-    double left_val = all_values[lhs];
-    double right_val = all_values[rhs];
-    return left_val < right_val
-        || (std::isnan(left_val) && !std::isnan(right_val));
+    return all_values[lhs] < all_values[rhs] || (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs]));
   });
 
-  num_unique_samples = 1;
-  for (size_t i = 0; i < samples.size() - 1; i++) {
-    size_t sample = index[i];
-    size_t next_sample = index[i + 1];
-    double sample_val = all_values[sample];
-    double next_sample_val = all_values[next_sample];
-
-    if (!(sample_val == next_sample_val ||
-       (std::isnan(sample_val) && std::isnan(next_sample_val)))) {
-      ++num_unique_samples;
-    }
-
-    sorted_samples[i] = samples[sample];
+  for (size_t i = 0; i < samples.size(); i++) {
+    sorted_samples[i] = samples[index[i]];
+    all_values[i] = get(sorted_samples[i], var);
   }
+
+  all_values.erase(unique(all_values.begin(), all_values.end(), [&](const double& lhs, const double& rhs) {
+    return lhs == rhs || (std::isnan(lhs) && std::isnan(rhs));
+  }), all_values.end());
 }
 
 size_t Data::get_num_cols() const {
