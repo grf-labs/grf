@@ -107,7 +107,6 @@ MSE[s, right] = \sum_{i \in R(s)} wi [yi - Ybar_R(s)]^2
 L(s) are all points Xj such that Xj <= s, and R(s) are all points such that Xj > s.
 Ybar_L(s) and Ybar_R(s) are the weighted sample averages for the respective partitions.
 
-
 Expand the child impurity and write out the averages (minimize wrt. s):
 = \sum_{i \in L(s)} wi yi^2 + W_L(s) Ybar_L(s)
  + \sum_{i \in R(s)} wi yi^2 + W_R(s) Ybar_R(s)
