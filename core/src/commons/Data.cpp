@@ -30,8 +30,6 @@ namespace grf {
 Data::Data() :
     num_rows(0),
     num_cols(0),
-    index_data(),
-    max_num_unique_values(0),
     outcome_index(),
     treatment_index(),
     instrument_index(),
@@ -176,6 +174,9 @@ void Data::get_all_values(std::vector<double>& all_values,
   std::iota(index.begin(), index.end(), 0);
   // sort index based on the split values (argsort)
   // the NaN comparison places all NaNs at the beginning
+  // stable sort is needed for consistent element ordering cross platform,
+  // otherwise the resulting sums used in the splitting rules may compound rounding error
+  // differently and produce different splits.
   std::stable_sort(index.begin(), index.end(), [&](const size_t& lhs, const size_t& rhs) {
     return all_values[lhs] < all_values[rhs] || (std::isnan(all_values[lhs]) && !std::isnan(all_values[rhs]));
   });
@@ -190,62 +191,12 @@ void Data::get_all_values(std::vector<double>& all_values,
   }), all_values.end());
 }
 
-size_t Data::get_index(size_t row, size_t col) const {
-  return index_data[col * num_rows + row];
-}
-
-void Data::sort() {
-  has_nan = false;
-  // Reserve memory
-  index_data.resize(num_cols * num_rows);
-
-  // For all columns, get unique values and save index for each observation
-  for (size_t col = 0; col < num_cols; ++col) {
-
-    // Get all unique values
-    std::vector<double> unique_values(num_rows);
-    for (size_t row = 0; row < num_rows; ++row) {
-      unique_values[row] = get(row, col);
-      if (std::isnan(unique_values[row])) {
-        has_nan = true;
-      }
-    }
-    std::sort(unique_values.begin(), unique_values.end());
-    unique_values.erase(unique(unique_values.begin(), unique_values.end()), unique_values.end());
-
-    // Get index of unique value
-    for (size_t row = 0; row < num_rows; ++row) {
-      size_t idx =
-          std::lower_bound(unique_values.begin(), unique_values.end(), get(row, col)) - unique_values.begin();
-      index_data[col * num_rows + row] = idx;
-    }
-
-    // Save unique values
-    unique_data_values.push_back(unique_values);
-    if (unique_values.size() > max_num_unique_values) {
-      max_num_unique_values = unique_values.size();
-    }
-  }
-}
-
-double Data::get_unique_data_value(size_t var, size_t index) const {
-  return unique_data_values[var][index];
-}
-
-size_t Data::get_num_unique_data_values(size_t var) const {
-  return unique_data_values[var].size();
-}
-
 size_t Data::get_num_cols() const {
   return num_cols;
 }
 
 size_t Data::get_num_rows() const {
   return num_rows;
-}
-
-size_t Data::get_max_num_unique_values() const {
-  return max_num_unique_values;
 }
 
 double Data::get_outcome(size_t row) const {
@@ -270,10 +221,6 @@ double Data::get_weight(size_t row) const {
 
 const std::set<size_t>& Data::get_disallowed_split_variables() const {
   return disallowed_split_variables;
-}
-
-bool Data::contains_nan() const {
-  return has_nan;
 }
 
 } // namespace grf

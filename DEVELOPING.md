@@ -53,3 +53,80 @@ When designing a forest for a new statistical task, we suggest following the for
 To avoid the overhead of setting up new classes and Rcpp bindings, we provide a template for a 'custom' forest. To get started, fill in the implementation for CustomRelabelingStrategy and CustomPredictionStrategy. By default, the custom forest uses the standard regression splitting rule -- if you'd like to change this, consult the ForestTrainers.custom_trainer method.
 
 This forest is made available in R as `custom.forest` (with `predict.custom.forest`). You can find a starter template for a test exercising the forest in `testthat/test_custom_forest.R`. Note that you'll need to re-run `build_package.R` after making changes to the C++ source.
+
+### Tree Splitting Algorithm
+
+The follow section outlines pseudocode for some of the components listed above.
+
+Each splitting rule follow the same pattern: given a set of samples, and a possible split variable, iterate over all the split points for that variable and compute an error criterion on both sides of the split, then select the split where the decrease in the summed error criterion is smallest. For `RegressionSplittingRule` the criterion is the mean squared error, and is usually referred to as standard CART splitting. `InstrumentalSplittingRule` use the same error criterion, but it incorporates more constraints on potential splits, such as requiring a certain number of treated and control observations (more details are in the [Algorithm Reference](https://grf-labs.github.io/grf/REFERENCE.html)).
+
+Two added features to grf's splitting rule beyond basic CART is the addition of sample weights and support for missing values with Missingness Incorporated in Attributes (MIA) splitting. The algebra behind the decrease calculation is detailed below.
+
+***Algorithm*** (`RegressionSplittingRule`): find the best split for variable `var` at n samples `samples = i...j`
+
+_Input_: `X`: covariate matrix, `weights`: weight n-vector, `response`: the responses (pseudo-outcomes) n-vector, `min_child_size`: split constraint on number of samples
+
+_Output_: The best split value and the direction to send missing values
+
+```
+let x = X[samples, var]
+
+for each unique value u in x:
+  let count_left[u] be the number of samples with x <= u
+  let sum_left[u], weight_sum_left[u] be the sum of weight * response and weight with x <= u
+
+  let count_right[u], sum_right[u], weight_sum_right[u] be the same for samples with x > u
+  let count_missing, sum_missing, weight_sum_missing be the same for samples with x = missing
+
+  decrease[u, missing = on_left] = (sum_left[u] + sum_missing)^2 / (weight_sum_left[u] + weight_sum_missing)
+                                  + sum_right[u]^2 / weight_sums_right[u]
+
+  decrease[u, missing = on_right] = sum_left[u]^2 / weight_sum_left[u]
+                                  + (sum_right[u] + sum_missing)^2 / (weight_sums_right[u] + weight_sum_missing)
+
+return (u, missing) that maximizes decrease such that                                 
+count_left[u] and count_right[u] >= min_child_size
+```
+
+---
+
+***Algorithm*** (Decrease calculation in weighted CART): find the best split `Sj` for variable `Xj`. The impurity criterion is the sum of weighted mean squared errors, which for a specific split `Sj` is minimized by the weighted sample average `Ybar` (see for example [Elements of Statistical Learning, Ch 9](https://web.stanford.edu/~hastie/ElemStatLearn/)).
+
+_Input_: `Xj` : Covariate j, `w`: sample weight vector, `y`: response vector
+
+_Output_: The best split criterion
+
+```
+minimize wrt. s: MSE(s, left) + MSE(s, right)
+
+where
+
+MSE(s, left) = \sum_{i \in L(s)} wi [yi - Ybar_L(s)]^2
+MSE[s, right] = \sum_{i \in R(s)} wi [yi - Ybar_R(s)]^2
+
+L(s) are all points Xj such that Xj <= s, and R(s) are all points such that Xj > s.
+Ybar_L(s) and Ybar_R(s) are the weighted sample averages for the respective partitions.
+
+Expand the child impurity and write out the averages (minimize wrt. s):
+= \sum_{i \in L(s)} wi yi^2 + W_L(s) [Ybar_L(s)]^2
+ + \sum_{i \in R(s)} wi yi^2 + W_R(s) [Ybar_R(s)]^2
+= \sum_i wi yi^2
+  + 1/W_L(s) [\sum_{i \in L(s)} wi yi]^2
+  + 1/W_R(s) [\sum_{i \in R(s)} wi yi]^2
+
+Where W is the sum of sample weights.
+
+The parent impurity is (minimize wrt. s):
+= \sum_i wi [yi - Ybar]^2
+= \sum_i wi yi^2 + W Ybar^2
+= \sum_i wi yi^2 + 1/W [\sum_i wi yi]^2
+
+Child impurity <= parent impurity then reduces to
+
+1/W_L(s) [\sum_{i \in L(s)} wi yi]^2 + 1/W_R(s) [\sum_{i \in R(s)} wi yi]^2 <= 1/W [\sum_i wi yi]^2
+
+Or sum_left^2 / weight_sum_left + sum_right^2 / weight_sum_right
+```
+
+
+---

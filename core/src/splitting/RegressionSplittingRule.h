@@ -32,42 +32,6 @@ public:
 
   ~RegressionSplittingRule();
 
-  /**
-   * Finds the best split at a given node in the tree.
-   *
-   * Is called repeatedly to build a tree in a breadth-first fashion.
-   *
-   * @param data: the data matrix containing all test samples.
-   * @param node: the node id in the tree.
-   * @param possible_split_vars: a vector of valid covariate IDs.
-   * @param responses_by_sample: a map from sample ID to response.
-   * @param samples: a vector of samples at the given node.
-   * @param split_vars: the output of the method, the best split variable, stored at node.
-   * @param split_values: the output of the method, the best split value, stored at node.
-   * @return a boolean that will be true if no best split was found.
-   *
-   * Details:
-   *
-   * At each split variable j, this method calls into `find_best_split_value_small_q` or
-   * `find_best_split_value_large_q` depending on the following ratio q:
-   * the number of samples in the node (nj) over the total number of unique values in the data at variable j (Nj).
-   * If this value is less than Q_THRESHOLD (0.02 by default) then the small_q method is called,
-   * otherwise large_q.
-   *
-   * An expensive computation in finding the best split is sorting all the values in order to place samples
-   * on the left or right of the split.
-   * `small_q` sorts the data in the node when it is called, which has time complexity O(nj log nj), then
-   * iterates over all nj points calculating the decrease in impurity.
-   * `large_q` accesses a global sort order for all Nj points created at the initalization of forest training.
-   * To find the best split at the nj points in the node, a full scan
-   * over all Nj points is done, getting the proper position of the sample. This is dominated by O(Nj).
-   *
-   * The two splitting strategies balances O(nj log nj) and O(Nj). In large nodes at the root of the tree,
-   * Nj is smaller than nj log nj, but in smaller nodes, deeper down the tree, nj is small and
-   * Nj is larger than nj log nj.
-   *
-   * The exact value of Q_THRESHOLD has been determined empirically by the ranger developers.
-   */
   bool find_best_split(const Data& data,
                        size_t node,
                        const std::vector<size_t>& possible_split_vars,
@@ -77,35 +41,21 @@ public:
                        std::vector<double>& split_values,
                        std::vector<bool>& send_missing_left);
 
-  /*
-  * These two methods are only public for testing purposes.
-  */
-  void find_best_split_value_small_q(const Data& data,
-                                     size_t node,
-                                     size_t var,
-                                     double weight_sum_node,
-                                     double sum_node,
-                                     size_t size_node,
-                                     size_t min_child_size,
-                                     double& best_value,
-                                     size_t& best_var,
-                                     double& best_decrease,
-                                     bool& best_send_missing_left,
-                                     const std::vector<double>& responses_by_sample,
-                                     const std::vector<std::vector<size_t>>& samples);
-  void find_best_split_value_large_q(const Data& data,
-                                     size_t node,
-                                     size_t var,
-                                     double weight_sum_node,
-                                     double sum_node,
-                                     size_t size_node,
-                                     size_t mind_child_size,
-                                     double& best_value,
-                                     size_t& best_var,
-                                     double& best_decrease,
-                                     const std::vector<double>& responses_by_sample,
-                                     const std::vector<std::vector<size_t>>& samples);
 private:
+  void find_best_split_value(const Data& data,
+                             size_t node,
+                             size_t var,
+                             double weight_sum_node,
+                             double sum_node,
+                             size_t size_node,
+                             size_t min_child_size,
+                             double& best_value,
+                             size_t& best_var,
+                             double& best_decrease,
+                             bool& best_send_missing_left,
+                             const std::vector<double>& responses_by_sample,
+                             const std::vector<std::vector<size_t>>& samples);
+
   size_t* counter;
   double* sums;
   double* weight_sums;

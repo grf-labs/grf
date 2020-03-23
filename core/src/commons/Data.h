@@ -39,24 +39,6 @@ public:
 
   virtual void set(size_t col, size_t row, double value, bool& error) = 0;
 
-  /**
-   * sort() is only needed for the biq Q splitting rule to build an index based on
-   * the global sort order. When called, a sweep sets the member `contains_nan()`
-   * to true if a NaN is encountered, in which case only the small q splitting should
-   * be called because the proceeding sort does not account for NaNs.
-   *
-   * This means the member functions
-   *
-   * get_index
-   * get_unique_data_value
-   * get_num_unique_data_values
-   * get_max_num_unique_values
-   *
-   * can still be used, but should not be relied on for correctness.
-   *
-   */
-  void sort();
-
   bool load_from_file(const std::string& filename);
 
   bool load_from_whitespace_file(std::ifstream& input_file, const std::string& first_line);
@@ -81,20 +63,14 @@ public:
    *
    * If all the values in `samples` is unique, then `all_values` and `sorted_samples`
    * have the same length.
+   *
+   * If any of the covariates are NaN, they will be placed first in the returned sort order.
    */
   void get_all_values(std::vector<double>& all_values, std::vector<size_t>& sorted_samples, const std::vector<size_t>& samples, size_t var) const;
-
-  size_t get_index(size_t row, size_t col) const;
-
-  double get_unique_data_value(size_t var, size_t index) const;
-
-  size_t get_num_unique_data_values(size_t var) const;
 
   size_t get_num_cols() const;
 
   size_t get_num_rows() const;
-
-  size_t get_max_num_unique_values() const;
 
   double get_outcome(size_t row) const;
 
@@ -106,16 +82,9 @@ public:
 
   const std::set<size_t>& get_disallowed_split_variables() const;
 
-  bool contains_nan() const;
-
 protected:
   size_t num_rows;
   size_t num_cols;
-  bool has_nan;
-
-  std::vector<size_t> index_data;
-  std::vector<std::vector<double>> unique_data_values;
-  size_t max_num_unique_values;
 
   std::set<size_t> disallowed_split_variables;
   nonstd::optional<size_t> outcome_index;
