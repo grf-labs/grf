@@ -1,0 +1,300 @@
+---
+title: "Local Linear Forests documentation"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, comment = NA, message = FALSE, warning = FALSE}
+set.seed(617)
+
+library(grf)
+library(glmnet)
+library(ggplot2)
+```
+
+This document aims to show how to use local linear forests (LLF) via the R package grf. We begin with the standard use case, walking through parameter choices and method details, and then discuss how to use local linear corrections with larger datasets. 
+
+## Local Linear Forests: the basics
+
+Random forests are a popular and powerful nonparametric regression method, but can suffer in the presence of strong, smooth effects. Local linear regression is a great method for fitting relatively smooth functions in low dimensions, but quickly deteriorates due to the curse of dimensionality: it relies on Euclidean distance, which fast loses its locality even in 4 or 5 dimensions. This work leverages the strengths of each method (the data adaptivity of random forests and smooth fits of local linear regression) to give improved predictions and confidence intervals. For a complete treatment of local linear forests (LLF), see \texttt{https://arxiv.org/abs/1807.11408}. 
+
+Consider a random forest with $B$ trees predicting at a test point $x_0$. In each tree $b$, the test point falls into a leaf $L_b(x_0)$. A regression forest predicts by averaging all responses in $L_b(x_0)$, and then averaging those predictions $\hat{\mu}_b(x_0)$ over all trees. To gain a new perspective on random forests, we can swap the sum to start thinking about random forests as a kernel or weighting method in high dimensions.
+
+\begin{align*}
+\hat{\mu}(x_0) 
+&= \frac1B \sum_{b=1}^B \sum_{i=1}^n Y_i \frac{1\{x_i\in L_b(x_0)\}}{|L_b(x_0)|}\\
+&= \sum_{i=1}^n Y_i \frac1B \sum_{b=1}^B \frac{1\{x_i\in L_b(x_0)\}}{|L_b(x_0)|} \\
+&= \sum_{i=1}^n \alpha_i(x_0) Y_i,
+\end{align*}
+where the forest weight is
+\begin{equation}
+\alpha_i(x_0) = \frac1B \sum_{b=1}^B \frac{1\{x_i\in L_b(x_0)\}}{|L_b(x_0)|}
+\end{equation}
+
+Local linear forests take this one step further: now, instead of using the weights to fit a local average at $x_0$, we use them to fit a local linear regression, with a ridge penalty for regularization. This amounts to solving the minimization problem below, with parameters: $\mu(x)$ for the local average, and $\theta(x)$ for the slope of the local line.
+\begin{equation}
+\begin{pmatrix} \hat{\mu}(x_0) \\ \hat{\theta}(x_0) \end{pmatrix} = \text{argmin}_{\mu,\theta} \left\{\sum_{i=1}^n \alpha_i(x_0) (Y_i - \mu(x_0) - (x_i - x_0)\theta(x_0) )^2 + \lambda ||\theta(x_0)||_2^2\right\}.
+\end{equation}
+
+This enables us to (i) use local linear regression in high dimensions with a meaningful kernel, and (ii) predict with random forests even in the presence of smooth, strong signals. 
+
+## Standard LLF usage 
+
+Let's start with a simple data-generating process and a small dataset. 
+
+```{r, comment = NA}
+# data-generating function
+mu = function(x){ log(1 + exp(6 * x)) }
+
+n = 600
+p = 20
+sigma = sqrt(20)
+n.test = 600
+
+X = matrix(runif(n*p, -1, 1), nrow = n)
+Y = mu(X[,1]) + sigma * rnorm(n)
+
+X.test = matrix(runif(n*p, -1, 1), nrow = n)
+ticks = seq(-1, 1, length = n)
+X.test[,1] = ticks
+truth = mu(ticks)
+```
+
+First, let's look at how to predict with a random forest, without local linear features. We recommend tuning parameters in the final version, but it can save time in the early stages to skip this step. 
+
+```{r, comment = NA}
+# forest predictions
+forest = regression_forest(X, Y, honesty = TRUE)
+results.forest = predict(forest, X.test, estimate.variance = TRUE)
+preds.forest = results.forest$predictions
+mean((preds.forest - truth)**2)
+```
+
+We can also look at a plot of the predictions to see why they go wrong with random forests, including 95% confidence intervals shown in gray.
+
+```{r, comment = NA}
+lower = preds.forest - 1.96*sqrt(results.forest$variance.estimates)
+upper = preds.forest+ 1.96*sqrt(results.forest$variance.estimates)
+
+df = data.frame(cbind(ticks, truth, preds.forest, lower, upper))
+
+ggplot(df, aes(ticks)) + 
+  geom_point(aes(y = preds.forest, color = "Random Forest"), show.legend = F, size = 0.6) +
+  geom_line(aes(y = truth)) + 
+  geom_line(aes(y = lower), color = "gray", lty = 2) + 
+  geom_line(aes(y = upper), color = "gray", lty = 2) + 
+  xlab("x") + ylab("y") + theme_bw()
+
+# test coverage
+coverage = mean((truth >= lower) & (truth <= upper))
+coverage
+```
+
+Now, we move to LLF predictions. To specify that we want to do LLF prediction, we must include linear correction variables: the variables to use for the final local regression step. This can simply be all variables, or might be a subset (as discussed below). 
+
+```{r, comment = NA}
+results.llf = predict(forest, X.test, linear.correction.variables = 1:p) 
+preds.llf = results.llf$predictions
+mean((preds.llf - truth)**2)
+```
+
+There are several modifications to discuss. 
+* When we perform LLF predictions, we can either do a standard ridge regression (ll.weight.penalty set to FALSE), or scale by the covariance matrix (ll.weight.penalty set to TRUE). This defaults to FALSE, standard ridge regression.
+* The user can choose to specify a ridge regression parameter ll.lambda. $\lambda$ defaults to NULL, and if not modified will be selected by automatic parameter tuning. We recommend letting the forest tune $\lambda$, or performing your own cross-validation loop. 
+* Especially with many covariates, it is reasonable to restrict the local regression to only include a few features of interest. We can select these, for example, by Lasso regression or stepwise regression.
+* Last, LLF can give variance estimates and corresponding confidence intervals if we specify the request. 
+
+We now give code to detail each of these modifications, beginning with weight penalty selection:
+
+```{r, comment = NA}
+results.llf.weighted = predict(forest, X.test, linear.correction.variables = 1:p, 
+                               ll.weight.penalty = TRUE) 
+preds.llf.weighted = results.llf.weighted$predictions
+mean((preds.llf.weighted - truth)**2)
+```
+
+We show the mechanism here, but in the most recent version of the R package, $\lambda$ is automatically cross-validated by default. 
+
+```{r, comment = NA}
+# Choose your own ridge parameter 
+results.llf.lambda = predict(forest, X.test, linear.correction.variables = 1:p, 
+                             ll.lambda = 0.5) 
+preds.llf.lambda = results.llf.lambda$predictions
+mean((preds.llf.lambda - truth)**2)
+
+# Or, tune the forest to find a good choice of ridge parameter
+lambda.opt = tune_ll_regression_forest(forest, linear.correction.variables = 1:p)$lambda.min
+cat(paste("We select lambda = ", lambda.opt))
+results.llf.lambda = predict(forest, X.test, linear.correction.variables = 1:p, 
+                             ll.lambda = lambda.opt) 
+preds.llf.lambda = results.llf.lambda$predictions
+mean((preds.llf.lambda - truth)**2)
+
+# We can double check that with no specifications for lambda, the MSE is identical. 
+preds.llf.auto = predict(forest, X.test, linear.correction.variables = 1:p)$predictions
+sum(preds.llf.lambda == preds.llf.auto) == length(preds.llf.lambda) # Expect TRUE
+```
+
+Now, we move to suggest two possible methods for selecting linear correction variables in higher dimensions. We can use stepwise regression, here implemented as forwards and backwards: 
+
+```{r, comment = NA}
+# Select covariates before regression: stepwise
+
+data = data.frame(cbind(X,Y))
+colnames(data) = c(paste("V",1:p,sep=""), "Y")
+baseModel <- lm(Y ~ 1, data = data)
+upper <- as.formula(paste("Y~", paste(paste("V",1:p,sep=""), collapse = "+")))
+# Train stepwise model
+mod <- step(baseModel, scope = list(upper = upper, lower = baseModel), trace = 0)
+
+# Extract features
+names.selected = names(mod$coefficients)[2:length(names(mod$coefficients))]
+selected = sapply(names.selected, function(item){
+  num = substring(item,2,length(item)+1)
+  as.numeric(num)
+})
+selected = data.frame(selected)$selected
+
+# Predict with LLF 
+results.llf.step = predict(forest, X.test, linear.correction.variables = selected) 
+preds.llf.step = results.llf.step$predictions
+mean((preds.llf.step - truth)**2)
+```
+
+Another good method, which we recommend in most cases, is the lasso. 
+
+```{r, comment = NA}
+# Select covariates before regression: lasso
+lasso.mod = cv.glmnet(X, Y, alpha = 1)
+lasso.coef = predict(lasso.mod, type = "nonzero")
+if(!is.null(dim(lasso.coef))){
+  selected = lasso.coef[,1]
+} else {
+  selected = 1:ncol(X)
+}
+llf.lasso.preds = predict(forest, X.test, linear.correction.variables = selected)
+results.llf.lasso = llf.lasso.preds$predictions
+mean((results.llf.lasso - truth)**2)
+```
+
+We show how to find variance estimates and confidence intervals. A user must specify  estimate.variance to be TRUE. A parameter under the hood is ci.group.size, which must be at least 2 in order to grow variance estimates (defaults to 2); the forest will grow ci.group.size trees on every subsample in order to provide confidence intervals. 
+
+```{r, comment = NA}
+forest = regression_forest(X, Y)
+results.llf.var = predict(forest, X.test, linear.correction.variables = selected, 
+                          ll.weight.penalty = TRUE,
+                          estimate.variance = TRUE)
+preds.llf.var = results.llf.var$predictions
+mean((preds.llf.var - truth)**2)
+
+variance.estimates = results.llf.var$variance.estimates
+
+# find lower and upper bounds for 95% intervals 
+lower.llf = preds.llf.var - 1.96*sqrt(variance.estimates)
+upper.llf = preds.llf.var + 1.96*sqrt(variance.estimates)
+
+# test coverage
+coverage = mean((truth >= lower.llf) & (truth <= upper.llf))
+coverage
+```
+
+Last, let's take a look at LLF predictions and confidence intervals! 
+
+```{r, comment = NA}
+df = data.frame(cbind(ticks, truth, preds.llf.var, lower.llf, upper.llf))
+
+ggplot(df, aes(ticks)) + 
+  geom_point(aes(y = preds.llf.var, color = "Local Linear Forest"), show.legend = F, size = 0.6) +
+  geom_line(aes(y = truth)) + 
+  geom_line(aes(y = lower.llf), color = "gray", lty = 2) + 
+  geom_line(aes(y = upper.llf), color = "gray", lty = 2) + 
+  xlab("x") + ylab("y") + theme_bw()
+```
+
+We should get improved coverage AND better predictions. One observation to check is that the intervals are wider on the boundary of the space, which corresponds to the area where we have less information. This is a great gut check that the confidence intervals are working in a reasonable way. 
+
+## Residual splits 
+
+We also consider the role of tree training in local linear forests. A standard CART split minimizes prediction error from predicting leaf-wide averages. Instead, we can use residual splits, which minimize the corresponding prediction errors on ridge regression residuals. A full discussion is available in our paper. 
+
+```{r}
+n <- 600
+p <- 5
+
+X <- matrix(rnorm(n * p, 0, 1), nrow = n)
+MU <- X[,1] + X[,2] + X[,3]*X[,4]
+Y <- MU + rnorm(n)
+
+forest <- regression_forest(X, Y, num.trees = 500)
+preds.cart.splits.oob <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0.1)
+
+ll.forest <- ll_regression_forest(X, Y, num.trees = 500, enable.ll.split = TRUE)
+preds.ll.splits.oob <- predict(ll.forest, linear.correction.variables = 1:p, ll.lambda = 0.1)
+
+mse.cart.splits.oob <- mean((preds.cart.splits.oob$predictions - MU)^2)
+mse.ll.splits.oob <- mean((preds.ll.splits.oob$predictions - MU)^2)
+
+cat(paste("MSE from residaul splits is", round(mse.ll.splits.oob,3), ", and MSE from CART splits is",
+          round(mse.cart.splits.oob,3)))
+```
+
+## Extensions for larger datasets 
+
+Local linear forests work well in low dimensions; when we get more data, however, it starts to take a very long time to run. This is because with $n_{\text{train}}$ and $n_{\text{test}}$ train and test points, we are running $n_{\text{test}}$ regressions with $n_{\text{train}}$ data points each. However, sometimes we still want to use random forests and correct for linear trends. This section introduces addresses using LLF in this setting. 
+
+```{r, comment = NA}
+# generate data 
+n = 5e5
+p = 20
+sigma = sqrt(20)
+
+# friedman function 
+friedman = function(x){
+  10*sin(pi*x[1]*x[2]) + 10*(x[3] - 0.5)**2 + 10*x[4] + 5*x[5]
+}
+
+X = matrix(runif(n*p, 0, 1), nrow = n, ncol = p)
+Y = apply(X, MARGIN = 1, FUN = friedman) + sigma * rnorm(n)
+
+X.test = matrix(runif(n*p, 0, 1), nrow = n, ncol = p)
+truth.test = apply(X.test, MARGIN = 1, FUN = friedman) 
+```
+
+LLF predictions with all p variables will be very slow, as will automatic tuning with this scale of data. However, we can still use linear corrections, just with more careful parameters.
+
+```{r}
+ptm = proc.time()
+forest = regression_forest(X, Y, tune.parameters = "none", num.trees = 500)
+time.train = (proc.time() - ptm)[[3]]
+
+ptm = proc.time()
+preds.grf = predict(forest, X.test)$predictions
+mse.grf = mean((preds.grf - truth.test)**2)
+time.grf = (proc.time() - ptm)[[3]]
+
+ptm = proc.time()
+lasso.mod = cv.glmnet(X, Y, alpha = 1)
+lasso.coef = predict(lasso.mod, type = "nonzero")
+if(!is.null(dim(lasso.coef))){
+  selected = lasso.coef[,1]
+} else {
+  selected = 1:ncol(X)
+}
+time.lasso = (proc.time() - ptm)[[3]]
+
+ptm = proc.time()
+preds.llf = predict(forest, X.test, linear.correction.variables = selected, 
+                          ll.lambda = 0.1)$predictions
+mse.llf = mean((preds.llf - truth.test)**2)
+time.llf = (proc.time() - ptm)[[3]]
+
+cat(paste("Training took", round(time.train, 3), "seconds. \n",
+          "GRF predictions took", round(time.grf, 3), "seconds. \n",
+          "Lasso selection took", round(time.lasso, 3), "seconds. \n",
+          "LLF prediction took", round(time.llf, 3), "seconds. \n",
+          "LLF and lasso all in all took", round(time.lasso + time.llf, 3), "seconds."))
+
+cat(paste("GRF predictions had MSE", round(mse.grf, 3), "\n",
+          "LLF predictions had MSE", round(mse.llf, 3)))
+```
