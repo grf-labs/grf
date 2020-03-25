@@ -32,7 +32,7 @@ namespace grf {
 class RegressionSplittingRuleFactory final: public SplittingRuleFactory {
 public:
   RegressionSplittingRuleFactory() = default;
-  std::unique_ptr<SplittingRule> create(const Data& data,
+  std::unique_ptr<SplittingRule> create(size_t max_num_unique_values,
                                         const TreeOptions& options) const;
 private:
   DISALLOW_COPY_AND_ASSIGN(RegressionSplittingRuleFactory);
