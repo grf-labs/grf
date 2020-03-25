@@ -105,7 +105,7 @@ test_calibration <- function(forest) {
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
-#' @param debiasing.weights A vector of length n of debiasing weights. If NULL (default)
+#' @param debiasing.weights A vector of length n (or the subset length) of debiasing weights. If NULL (default)
 #'                          and the treatment is binary, then inverse-propensity weighting is used,
 #'                          otherwise, if the treatment is continuous, these are estimated by a variance
 #'                          forest.
@@ -156,10 +156,6 @@ best_linear_projection <- function(forest,
     ))
   }
 
-  if(!is.null(debiasing.weights) && length(debiasing.weights) != length(forest$Y.hat)) {
-    stop("If specified, debiasing.weights must be a vector of length n.")
-  }
-
   cluster.se <- length(forest$clusters) > 0
 
   clusters <- if (cluster.se) {
@@ -198,7 +194,13 @@ best_linear_projection <- function(forest,
   }
 
   if (!is.null(debiasing.weights)) {
-    weights <- debiasing.weights[subset]
+    if (length(debiasing.weights) == length(forest$Y.orig)) {
+      weights <- debiasing.weights[subset]
+    } else if (length(debiasing.weights) != length(subset)) {
+      stop("If specified, debiasing.weights must be a vector of length n or the subset length.")
+    } else {
+      weights <- debiasing.weights
+    }
   } else if (binary.W) {
     IPW <- (subset.W.orig - subset.W.hat) / (subset.W.hat * (1 - subset.W.hat))
     weights <- IPW

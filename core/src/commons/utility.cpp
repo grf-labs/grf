@@ -73,7 +73,6 @@ std::unique_ptr<Data> load_data(const std::string& file_name) {
   if (rounding_error) {
     throw std::runtime_error("A rounding error occurred while loading data from file.");
   }
-  data->sort();
   return data;
 }
 
@@ -83,7 +82,6 @@ std::unique_ptr<Data> load_sparse_data(const std::string& file_name) {
   if (rounding_error) {
     throw std::runtime_error("A rounding error occurred while loading data from file.");
   }
-  data->sort();
   return data;
 }
 

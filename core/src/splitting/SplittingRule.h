@@ -27,6 +27,22 @@ namespace grf {
 class SplittingRule {
 public:
   virtual ~SplittingRule() {}
+
+  /**
+   * Finds the best split at a given node in the tree.
+   *
+   * Is called repeatedly to build a tree in a breadth-first fashion.
+   *
+   * @param data: the data matrix containing all test samples.
+   * @param node: the node id in the tree.
+   * @param possible_split_vars: a vector of valid covariate IDs.
+   * @param responses_by_sample: the response for each sample.
+   * @param samples: a vector of samples at the given node.
+   * @param split_vars: the output of the method, the best split variable, stored at node.
+   * @param split_values: the output of the method, the best split value, stored at node.
+   * @return a boolean that will be true if no best split was found.
+   *
+   */
   virtual bool find_best_split(const Data& data,
                                size_t node,
                                const std::vector<size_t>& possible_split_vars,

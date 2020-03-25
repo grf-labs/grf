@@ -36,7 +36,7 @@ void run_one_split(const Data& data,
                    size_t num_features,
                    size_t& split_var,
                    double& split_value) {
-  std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(data, options);
+  std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(data.get_num_rows(), options);
   std::vector<size_t> possible_split_vars(num_features - 1);
   // Fill with {0, 1, 2, ..., Xj}
   std::iota(possible_split_vars.begin(), possible_split_vars.end(), 0);
@@ -87,7 +87,6 @@ TEST_CASE("regression splitting on Xij then setting all values to the left to Na
       data->set(split_var, row, NAN, write_error);
     }
   }
-  data->sort();
 
   run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);
@@ -119,7 +118,6 @@ TEST_CASE("instrumental splitting on Xij then setting all values to the left to 
       data->set(split_var, row, NAN, write_error);
     }
   }
-  data->sort();
 
   run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);
@@ -150,7 +148,6 @@ TEST_CASE("probability splitting on Xij then setting all values to the left to N
       data->set(split_var, row, NAN, write_error);
     }
   }
-  data->sort();
 
   run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);

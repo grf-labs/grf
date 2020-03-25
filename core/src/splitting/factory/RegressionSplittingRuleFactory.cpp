@@ -20,10 +20,10 @@
 
 namespace grf {
 
-std::unique_ptr<SplittingRule> RegressionSplittingRuleFactory::create(const Data& data,
+std::unique_ptr<SplittingRule> RegressionSplittingRuleFactory::create(size_t max_num_unique_values,
                                                                       const TreeOptions& options) const {
   return std::unique_ptr<SplittingRule>(new RegressionSplittingRule(
-      data.get_max_num_unique_values(),
+      max_num_unique_values,
       options.get_alpha(),
       options.get_imbalance_penalty()));
 }

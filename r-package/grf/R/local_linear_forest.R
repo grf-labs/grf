@@ -5,7 +5,7 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
-#' @param enable.ll.split (experimental) Optional choice to make forest splits based on ridge residuals as opposed to 
+#' @param enable.ll.split (experimental) Optional choice to make forest splits based on ridge residuals as opposed to
 #'                        standard CART splits. Defaults to FALSE.
 #' @param ll.split.weight.penalty If using local linear splits, user can specify whether or not to use a
 #'                                covariance ridge penalty, analogously to the prediction case. Defaults to FALSE.
@@ -18,6 +18,8 @@
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
+#' @param sample.weights (experimental) Weights given to an observation in estimation.
+#'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'  Default is NULL (ignored).
 #' @param equalize.cluster.weights If FALSE, each unit is given the same weight (so that bigger

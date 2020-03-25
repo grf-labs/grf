@@ -42,28 +42,18 @@ public:
                        std::vector<double>& split_values,
                        std::vector<bool>& send_missing_left);
 
-  void find_best_split_value_small_q(const Data& data,
-                                     size_t node, size_t var, size_t num_classes, size_t* class_counts,
-                                     size_t size_node,
-                                     size_t min_child_size,
-                                     double& best_value,
-                                     size_t& best_var,
-                                     double& best_decrease,
-                                     bool& best_send_missing_left,
-                                     const std::vector<double>& responses_by_sample,
-                                     const std::vector<std::vector<size_t>>& samples);
-
-  void find_best_split_value_large_q(const Data& data,
-                                     size_t node, size_t var, size_t num_classes, size_t* class_counts,
-                                     size_t size_node,
-                                     size_t min_child_size,
-                                     double& best_value,
-                                     size_t& best_var,
-                                     double& best_decrease,
-                                     const std::vector<double>& responses_by_sample,
-                                     const std::vector<std::vector<size_t>>& samples);
-
 private:
+  void find_best_split_value(const Data& data,
+                             size_t node, size_t var, size_t num_classes, size_t* class_counts,
+                             size_t size_node,
+                             size_t min_child_size,
+                             double& best_value,
+                             size_t& best_var,
+                             double& best_decrease,
+                             bool& best_send_missing_left,
+                             const std::vector<double>& responses_by_sample,
+                             const std::vector<std::vector<size_t>>& samples);
+
   size_t num_classes;
 
   double alpha;
