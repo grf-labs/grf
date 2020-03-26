@@ -13,6 +13,7 @@ r_binary_packages:
   - roxygen2
   # Vignettes
   - ggplot2
+  - glmnet
   - knitr
   - rmarkdown
 
