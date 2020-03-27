@@ -21,7 +21,9 @@ library(glmnet)
 library(ggplot2)
 ```
 
-This document aims to show how to implement local linear forests (LLF). We begin with the standard use case, walking through parameter choices and method details, and then discuss how to use local linear corrections with larger datasets. 
+This document aims to show how to use local linear forests (LLF). We begin with the standard use case, walking through parameter choices and method details, and then discuss how to use local linear corrections with larger datasets. 
+
+## Training the Algorithm
 
 ```{r}
 n <- 600
@@ -60,6 +62,8 @@ preds.llf <- results.llf$predictions
 mean((preds.llf - truth)**2)
 ```
 
+## Parameter Options 
+
 When we perform LLF predictions, we can either do a standard ridge regression (ll.weight.penalty set to FALSE), or scale by the covariance matrix (ll.weight.penalty set to TRUE). This defaults to FALSE.
 
 ```{r}
@@ -69,7 +73,7 @@ preds.llf.weighted <- results.llf.weighted$predictions
 mean((preds.llf.weighted - truth)**2)
 ```
 
-The user can choose to specify a ridge regression parameter ll.lambda. This defaults to NULL, and if not modified will be selected by automatic parameter tuning. In general, we recommend letting the forest tune this parameter, or performing your own cross-validation loop. The exception to this would be for very large datasets. 
+The user can choose to specify a ridge regression parameter ll.lambda. When this variable is not set by the user, it will be selected by automatic parameter tuning. In general, we recommend letting the forest tune this parameter, or performing your own cross-validation loop. The exception to this would be for very large datasets. 
 
 ```{r}
 results.llf.lambda <- predict(forest, X.test, 
@@ -94,6 +98,8 @@ mse.cart.splits
 mse.ll.splits
 ```
 
+## Linear Correction Variable Selection
+
 Especially with many covariates, it is reasonable to restrict the local regression to only include a few features of interest. We recommend using the lasso. 
 
 ```{r}
@@ -102,7 +108,7 @@ lasso.mod <- cv.glmnet(X, Y, alpha = 1)
 lasso.coef <- predict(lasso.mod, type = "nonzero")
 selected <- ifelse(is.null(dim(lasso.coef)), 1:ncol(X), lasso.coef[,1])
 
-# Train LLF
+# Predict with just those covariates
 llf.lasso.preds <- predict(forest, X.test, 
                            linear.correction.variables = selected,
                            ll.weight.penalty = TRUE)
@@ -110,18 +116,20 @@ results.llf.lasso <- llf.lasso.preds$predictions
 mean((results.llf.lasso - truth)**2)
 ```
 
-Last, consider variance estimates and confidence intervals. A user must specify estimate.variance to be TRUE. A parameter under the hood is ci.group.size, which must be at least 2 in order to grow variance estimates (defaults to 2); the forest will grow ci.group.size trees on every subsample in order to provide confidence intervals. We use a different data-generating process for easier visualization.
+## Pointwise Confidence Intervals
+
+Last, consider variance estimates and confidence intervals, which are analogous to grf variance estimates. We use a different data-generating process for easier visualization.
 
 ```{r}
-mu = function(x){ log(1 + exp(6 * x)) }
+mu <- function(x){ log(1 + exp(6 * x)) }
 
-X = matrix(runif(n*p, -1, 1), nrow = n)
-Y = mu(X[,1]) + sigma * rnorm(n)
+X <- matrix(runif(n*p, -1, 1), nrow = n)
+Y <- mu(X[,1]) + sigma * rnorm(n)
 
-X.test = matrix(runif(n*p, -1, 1), nrow = n)
-ticks = seq(-1, 1, length = n)
-X.test[,1] = ticks
-truth = mu(ticks)
+X.test <- matrix(runif(n*p, -1, 1), nrow = n)
+ticks <- seq(-1, 1, length = n)
+X.test[,1] <- ticks
+truth <- mu(ticks)
 
 ll.forest <- ll_regression_forest(X, Y, enable.ll.split = TRUE)
 results.llf.var <- predict(ll.forest, X.test, 
@@ -143,5 +151,6 @@ ggplot(df, aes(ticks)) +
   xlab("x") + ylab("y") + theme_bw()
 ```
 
+## A note on Larger Datasets
 
-A note on larger datasets: Local linear forests work well in low dimensions; when we get more data, however, it starts to take a very long time to run. This is because with n_train and n_test train and test points, we are running n_test regressions with n_train data points each. However, sometimes we still want to use random forests and correct for linear trends. In this case (datasets with roughly 100,000 or more observations, although always context-dependent), selecting a small number linear correction variables is especially important. The current ridge parameter tuning will also take prohibitively long, and so we recommend either setting the value to 0.01 consistently, tuning this on a subset of the data, restricting the range of values considered, or cross-validating using a small number of shallow trees.  
+Local linear forests work well in low dimensions; when we get more data, however, it starts to take a very long time to run. This is because with n_train and n_test train and test points, we are running n_test regressions with n_train data points each. However, sometimes we still want to use random forests and correct for linear trends. In this case (datasets with roughly 100,000 or more observations, although always context-dependent), selecting a small number linear correction variables is especially important. The current ridge parameter tuning will also take prohibitively long, and so we recommend either setting the value to 0.01 consistently, tuning this on a subset of the data, restricting the range of values considered, or cross-validating using a small number of shallow trees.  
