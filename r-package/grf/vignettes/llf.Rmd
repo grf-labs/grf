@@ -48,6 +48,45 @@ Local linear forests take this one step further: now, instead of using the weigh
 
 This enables us to (i) use local linear regression in high dimensions with a meaningful kernel, and (ii) predict with random forests even in the presence of smooth, strong signals. 
 
+## Toy Example
+
+We start with a simple example illustrating when local linear forests can improve on random forests. 
+
+```{r}
+mu <- function(x){ log(1 + exp(6 * x)) }
+
+p <- 20
+n <- 1000
+
+X <- matrix(runif(n*p, -1, 1), nrow = n)
+Y <- mu(X[,1]) + 4 * rnorm(n)
+
+X.test <- matrix(runif(n*p, -1, 1), nrow = n)
+ticks <- seq(-1, 1, length = n)
+X.test[,1] <- ticks
+truth <- mu(ticks)
+
+forest <- regression_forest(X, Y)
+preds.forest <- predict(forest, X.test)$predictions
+
+df <- data.frame(cbind(ticks, truth, preds.forest))
+ggplot(df, aes(ticks)) + 
+  geom_point(aes(y = preds.forest, color = "Regression Forest"), show.legend = F, size = 0.6) +
+  geom_line(aes(y = truth)) + 
+  xlab("x") + ylab("y") + theme_bw()
+
+ll.forest <- ll_regression_forest(X, Y)
+preds.llf <- predict(ll.forest, X.test, 
+                     linear.correction.variables = 1,
+                     ll.weight.penalty = TRUE)$predictions
+
+df <- data.frame(cbind(ticks, truth, preds.llf))
+ggplot(df, aes(ticks)) + 
+  geom_point(aes(y = preds.llf, color = "Local Linear Forest"), show.legend = F, size = 0.6) +
+  geom_line(aes(y = truth)) + 
+  xlab("x") + ylab("y") + theme_bw()
+```
+
 ## Training the Algorithm
 
 ```{r}
@@ -207,7 +246,7 @@ mean((results.llf.lasso - truth)**2)
 
 ## Pointwise Confidence Intervals
 
-Last, consider variance estimates and confidence intervals, which are analogous to grf variance estimates. We use a different data-generating process for easier visualization.
+Last, consider variance estimates and confidence intervals, which are analogous to grf variance estimates. We use our first data-generating process for easier visualization.
 
 ```{r}
 mu <- function(x){ log(1 + exp(6 * x)) }
@@ -221,6 +260,12 @@ X.test <- matrix(runif(n*p, -1, 1), nrow = n)
 ticks <- seq(-1, 1, length = n)
 X.test[,1] <- ticks
 truth <- mu(ticks)
+
+# Select covariates 
+lasso.mod <- cv.glmnet(X, Y, alpha = 1)
+lasso.coef <- predict(lasso.mod, type = "nonzero")
+selected <- lasso.coef[,1]
+selected
 
 ll.forest <- ll_regression_forest(X, Y, enable.ll.split = TRUE)
 results.llf.var <- predict(ll.forest, X.test, 
