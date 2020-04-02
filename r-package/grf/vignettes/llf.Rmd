@@ -53,12 +53,11 @@ This enables us to (i) use local linear regression in high dimensions with a mea
 We start with a simple example illustrating when local linear forests can improve on random forests. 
 
 ```{r}
-mu <- function(x){ log(1 + exp(6 * x)) }
-
 p <- 20
 n <- 1000
 sigma <- sqrt(20)
 
+mu <- function(x){ log(1 + exp(6 * x)) }
 X <- matrix(runif(n * p, -1, 1), nrow = n)
 Y <- mu(X[,1]) + sigma * rnorm(n)
 
@@ -95,30 +94,54 @@ g2
 
 There are several modifications to discuss. We begin by listing out the subset of training parameters specific to local linear forests (users can also consider regression_forest tuning parameters, all of which apply here as well). 
 
-* When we perform LLF predictions, we can either do a standard ridge regression (ll.weight.penalty set to FALSE), or scale by the covariance matrix (ll.weight.penalty set to TRUE). This defaults to FALSE, standard ridge regression. 
-* The user can choose to specify a ridge regression parameter ll.lambda. $\lambda$ defaults to NULL, and if not modified will be selected by automatic parameter tuning. We recommend letting the forest tune $\lambda$, or performing your own cross-validation loop. 
-* Especially with many covariates, it is reasonable to restrict the local regression to only include a few features of interest. We can select these, for example, by Lasso regression or stepwise regression.
-* Last, LLF can give variance estimates and corresponding confidence intervals if we specify the request. 
+--------------------------------------------------------------------------------------------------
+Parameters                      Value Options          Default Value     Details
+------------------------------- ---------------------- ----------------- ------------------------
+  Training 
+  Parameters
+  
+  enable.ll.split                TRUE/FALSE            FALSE             Optional choice to make 
+                                                                         forest splits based on ridge  
+                                                                         residuals as opposed to
+                                                                         standard CART splits.
+  
+  ll.split.weight.penalty        TRUE/FALSE            FALSE             If using local linear splits, 
+                                                                         user can specify whether to 
+                                                                         standaridze the ridge penalty 
+                                                                         by covariance (TRUE), or 
+                                                                         penalize all covariates 
+                                                                         equally (FALSE).
+                                                                        
+  ll.split.lambda                Non-negative double   0.1               Ridge penalty for splitting.
+  
+  ll.split.variables             Vector of covariate   1:p               Variables to use in 
+                                    indexes                              split regressions. 
+                                    
+  ll.split.cutoff                Integer between 0     Square root       If greater than 0, when
+                                    and n.                of n.          leaves reach this size,
+                                                                         forest uses regression
+                                                                         coefficients from the 
+                                                                         full dataset for ridge
+                                                                         regressions during
+                                                                         tree training. If equal
+                                                                         to 0, trees run a 
+                                                                         regression in each leaf.
+  
+  Prediction parameters
+  
+  ll.lambda                       Non-negative double   Tuned by         Ridge penalty for prediction.
+                                                        default. 
+  
+  ll.weight.penalty              TRUE/FALSE             FALSE            Standardize ridge penalty by 
+                                                                         covariance (TRUE), or penalize
+                                                                         all covariates equally (FALSE).
 
-\begin{table}
-\centering
-\begin{tabular}{| c | c | c |}
-\hline
-Parameter & Value options & Details \\
-\hline
-Training parameters \\ 
-ll.weight.penalty | non-negative double \\
-enable.ll.split \\
-ll.split.weight.penalty \\
-ll.split.lambda \\
-ll.split.variables | Covariate index \\
-ll.split.cutoff \\
-Prediction parameters \\ 
-\hline
-ll.lambda | non-negative double \\
-linear.correction.variables | Covariate index  \\
-\end{tabular}
-\end{table}
+  linear.correction.variables    Vector of covariate    1:p              Subset of indexes for
+                                   indexes                               variables to be used in local
+                                                                         linear prediction. 
+--------------------------------------------------------------------------------------------------
+
+Table: LLF Parameters. 
 
 ## Training the Algorithm
 
@@ -131,10 +154,10 @@ mu <- function( x ) {
   10 * sin(pi * x[1] * x[2]) + 20 * ((x[3] - 0.5) ** 2) + 10 * x[4] + 5 * x[5]
 }
 
-X <- matrix(runif(n*p, 0, 1), nrow = n)
+X <- matrix(runif(n * p, 0, 1), nrow = n)
 Y <- apply(X, FUN = mu, MARGIN = 1) + sigma * rnorm(n)
 
-X.test <- matrix(runif(n*p, 0, 1), nrow = n)
+X.test <- matrix(runif(n * p, 0, 1), nrow = n)
 truth = apply(X.test, FUN = mu, MARGIN = 1)
 
 # regression forest predictions
@@ -161,7 +184,7 @@ mean((preds.llf - truth)**2)
 
 ### Weight Penalties 
 
-When we perform LLF predictions, we can either do a standard ridge regression (ll.weight.penalty set to FALSE), or scale by the covariance matrix (ll.weight.penalty set to TRUE). This defaults to FALSE.
+When we perform LLF predictions, we can either do a standard ridge regression (ll.weight.penalty set to FALSE), or scale by the covariance matrix (ll.weight.penalty set to TRUE): $\hat{\beta}_\text{TRUE} = (X'AX (1 + \lambda))^{-1} X'AY$. This defaults to FALSE.
 
 ```{r}
 results.llf.unweighted <- predict(forest, X.test, 
@@ -298,13 +321,12 @@ Last, consider variance estimates and confidence intervals, which are analogous 
 
 ```{r}
 mu <- function(x){ log(1 + exp(6 * x)) }
-
 p <- 20
 
-X <- matrix(runif(n*p, -1, 1), nrow = n)
+X <- matrix(runif(n * p, -1, 1), nrow = n)
 Y <- mu(X[,1]) + sigma * rnorm(n)
 
-X.test <- matrix(runif(n*p, -1, 1), nrow = n)
+X.test <- matrix(runif(n * p, -1, 1), nrow = n)
 ticks <- seq(-1, 1, length = n)
 X.test[,1] <- ticks
 truth <- mu(ticks)
@@ -339,51 +361,46 @@ ggplot(df, aes(ticks)) +
 
 Local linear forests work well in low dimensions; when we get more data, however, it starts to take a very long time to run. This is because with n_train and n_test train and test points, we are running n_test regressions with n_train data points each. However, sometimes we still want to use random forests and correct for linear trends. In this case (datasets with roughly 100,000 or more observations, although always context-dependent), selecting a small number linear correction variables is especially important. The current ridge parameter tuning will also take prohibitively long, and so we recommend either setting the value to 0.01 consistently, tuning this on a subset of the data, restricting the range of values considered, or cross-validating using a small number of shallow trees.  
 
+LLF predictions with all p variables will be very slow, as will automatic tuning with this scale of data. However, we can still use linear corrections, just with more careful parameters. Users can increase the number of trees for better performance from both methods. The following code is set to not run currently; users can expect it to take approximately 5-6 minutes. 
 
 ```{r, eval = FALSE}
 # generate data 
-n = 5e5
-p = 20
-sigma = sqrt(20)
+n <- 5e5
+p <- 20
+sigma <- sqrt(20)
 
-f = function(x){
-  10*sin(pi*x[1]*x[2]) + 10*(x[3] - 0.5)**2 + 10*x[4] + 5*x[5]
+f <- function(x){
+  10 * sin(pi * x[1] * x[2]) + 10 * (x[3] - 0.5)**2 + 10 * x[4] + 5 * x[5]
 }
 
-X = matrix(runif(n*p, 0, 1), nrow = n, ncol = p)
-Y = apply(X, MARGIN = 1, FUN = f) + sigma * rnorm(n)
+X <- matrix(runif(n * p, 0, 1), nrow = n, ncol = p)
+Y <- apply(X, MARGIN = 1, FUN = f) + sigma * rnorm(n)
 
-X.test = matrix(runif(n*p, 0, 1), nrow = n, ncol = p)
-truth.test = apply(X.test, MARGIN = 1, FUN = f) 
-```
+X.test <- matrix(runif(n * p, 0, 1), nrow = n, ncol = p)
+truth.test <- apply(X.test, MARGIN = 1, FUN = f) 
 
-LLF predictions with all p variables will be very slow, as will automatic tuning with this scale of data. However, we can still use linear corrections, just with more careful parameters. Users can increase the number of trees for better performance from both methods.
+ptm <- proc.time()
+forest <- regression_forest(X, Y, tune.parameters = "none", num.trees = 50)
+time.train <- (proc.time() - ptm)[[3]]
 
-```{r, eval = FALSE}
-ptm = proc.time()
-forest = regression_forest(X, Y, tune.parameters = "none", num.trees = 50)
-time.train = (proc.time() - ptm)[[3]]
+ptm <- proc.time()
+preds.grf <- predict(forest, X.test)$predictions
+mse.grf <- mean((preds.grf - truth.test)**2)
+time.grf <- (proc.time() - ptm)[[3]]
 
-ptm = proc.time()
-preds.grf = predict(forest, X.test)$predictions
-mse.grf = mean((preds.grf - truth.test)**2)
-time.grf = (proc.time() - ptm)[[3]]
+ptm <- proc.time()
+lasso.mod <- cv.glmnet(X, Y, alpha = 1)
+lasso.coef <- predict(lasso.mod, type = "nonzero")
+selected <- lasso.coef[,1]
+selected 
+time.lasso <- (proc.time() - ptm)[[3]]
 
-ptm = proc.time()
-lasso.mod = cv.glmnet(X, Y, alpha = 1)
-lasso.coef = predict(lasso.mod, type = "nonzero")
-if(!is.null(dim(lasso.coef))){
-  selected = lasso.coef[,1]
-} else {
-  selected = 1:ncol(X)
-}
-time.lasso = (proc.time() - ptm)[[3]]
-
-ptm = proc.time()
-preds.llf = predict(forest, X.test, linear.correction.variables = selected, 
-                          ll.lambda = 0.1)$predictions
-mse.llf = mean((preds.llf - truth.test)**2)
-time.llf = (proc.time() - ptm)[[3]]
+ptm <- proc.time()
+preds.llf <- predict(forest, X.test, 
+                    linear.correction.variables = selected, 
+                    ll.lambda = 0.1)$predictions
+mse.llf <- mean((preds.llf - truth.test)**2)
+time.llf <- (proc.time() - ptm)[[3]]
 
 cat(paste("Training took", round(time.train, 3), "seconds. \n",
           "GRF predictions took", round(time.grf, 3), "seconds. \n",
