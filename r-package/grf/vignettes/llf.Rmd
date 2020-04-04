@@ -19,14 +19,13 @@ set.seed(123)
 library(grf)
 library(glmnet)
 library(ggplot2)
-library(reshape2)
 ```
 
 This document aims to show how to use local linear forests (LLF). We begin with the standard use case, walking through parameter choices and method details, and then discuss how to use local linear corrections with larger datasets. 
 
 ## Local Linear Forests: the basics
 
-Random forests are a popular and powerful nonparametric regression method, but can suffer in the presence of strong, smooth effects. Local linear regression is a great method for fitting relatively smooth functions in low dimensions, but quickly deteriorates due to the curse of dimensionality: it relies on Euclidean distance, which fast loses its locality even in 4 or 5 dimensions. This algorithm leverages the strengths of each method (the data adaptivity of random forests and smooth fits of local linear regression) to give improved predictions and confidence intervals. For a complete treatment of local linear forests (LLF), see \texttt{https://arxiv.org/abs/1807.11408}. 
+Random forests are a popular and powerful nonparametric regression method, but can suffer in the presence of strong, smooth effects. Local linear regression is a great method for fitting relatively smooth functions in low dimensions, but quickly deteriorates due to the curse of dimensionality: it relies on Euclidean distance, which fast loses its locality even in 4 or 5 dimensions. This algorithm leverages the strengths of each method (the data adaptivity of random forests and smooth fits of local linear regression) to give improved predictions and confidence intervals. For a complete treatment of local linear forests (LLF), see [our paper on ArXiv](https://arxiv.org/abs/1807.11408). 
 
 Consider a random forest with $B$ trees predicting at a test point $x_0$. In each tree $b$, the test point falls into a leaf $L_b(x_0)$. A regression forest predicts by averaging all responses in $L_b(x_0)$, and then averaging those predictions $\hat{\mu}_b(x_0)$ over all trees. To gain a new perspective on random forests, we can swap the sum to start thinking about random forests as a kernel or weighting method in high dimensions.
 
@@ -43,7 +42,7 @@ where the forest weight is
 
 Local linear forests take this one step further: now, instead of using the weights to fit a local average at $x_0$, we use them to fit a local linear regression, with a ridge penalty for regularization. This amounts to solving the minimization problem below, with parameters: $\mu(x)$ for the local average, and $\theta(x)$ for the slope of the local line.
 \begin{equation}
-\begin{pmatrix} \hat{\mu}(x_0) \\ \hat{\theta}(x_0) \end{pmatrix} = \text{argmin}_{\mu,\theta} \left\{\sum_{i=1}^n \alpha_i(x_0) (Y_i - \mu(x_0) - (x_i - x_0)\theta(x_0) )^2 + \lambda ||\theta(x_0)||_2^2\right\}.
+\begin{pmatrix} \hat{\mu}(x_0) \\ \hat{\theta}(x_0) \end{pmatrix} = \text{argmin}_{\mu,\theta} \left\{\sum_{i=1}^n \alpha_i(x_0) \left(Y_i - \mu(x_0) - (x_i - x_0)\theta(x_0) \right)^2 + \lambda ||\theta(x_0)||_2^2\right\}
 \end{equation}
 
 This enables us to (i) use local linear regression in high dimensions with a meaningful kernel, and (ii) predict with random forests even in the presence of smooth, strong signals. 
@@ -229,8 +228,9 @@ forest2 <- regression_forest(XX, YY)
 max.depth <- 4
 freqs <- split_frequencies(forest2, max.depth = max.depth)
 d <- data.frame(freqs)
-dm <- melt(d)
-dm$depth <- rep(1:max.depth, p)
+dm <- data.frame(variable = sort(rep(names(d), nrow(d))),
+                 value = as.vector(as.matrix(d)),
+                 depth = rep(1:max.depth, p))
 
 # normalize value by sum of value at depth
 for(i in 1:max.depth){
@@ -254,8 +254,9 @@ ll.forest2 <- ll_regression_forest(XX, YY, enable.ll.split = TRUE,
 
 freqs <- split_frequencies(ll.forest2, max.depth = max.depth)
 d <- data.frame(freqs)
-dm <- melt(d)
-dm$depth <- rep(1:max.depth,p)
+dm <- data.frame(variable = sort(rep(names(d), nrow(d))),
+                 value = as.vector(as.matrix(d)),
+                 depth = rep(1:max.depth, p))
 
 for(i in 1:max.depth){
   tot.depth <- sum(dm[dm$depth == i,]$value)
@@ -359,9 +360,68 @@ ggplot(df, aes(ticks)) +
 
 ## A note on Larger Datasets
 
-Local linear forests work well in low dimensions; when we get more data, however, it starts to take a very long time to run. This is because with n_train and n_test train and test points, we are running n_test regressions with n_train data points each. However, sometimes we still want to use random forests and correct for linear trends. In this case (datasets with roughly 100,000 or more observations, although always context-dependent), selecting a small number linear correction variables is especially important. The current ridge parameter tuning will also take prohibitively long, and so we recommend either setting the value to 0.01 consistently, tuning this on a subset of the data, restricting the range of values considered, or cross-validating using a small number of shallow trees.  
+Although generally local linear forests are an improvement over regular random forests, when the number of dimensions is very high, training and predicting using them can take long time. This is because with n_train and n_test train and test points, we are running n_test regressions with n_train data points each. However, sometimes we still want to use random forests and correct for linear trends. In this case (datasets with roughly 100,000 or more observations, although always context-dependent), selecting a small number linear correction variables is especially important. The current ridge parameter tuning will also take prohibitively long, and so we recommend either setting the value to 0.01 consistently, tuning this on a subset of the data, restricting the range of values considered, or cross-validating using a small number of shallow trees.
 
-LLF predictions with all p variables will be very slow, as will automatic tuning with this scale of data. However, we can still use linear corrections, just with more careful parameters. Users can increase the number of trees for better performance from both methods. The following code is set to not run currently; users can expect it to take approximately 5-6 minutes. 
+----------------------------------------------------------------------------------------------------
+Parameters                      Value Options          Default Value     Performance as n,p increase
+------------------------------- ---------------------- ----------------- ---------------------------
+  Training 
+  Parameters
+  
+  enable.ll.split                TRUE/FALSE            FALSE             For large n and p, ridge 
+                                                                         regressions in each leaf will 
+                                                                         take an especially long time.
+                                                                         We therefore recommend either
+                                                                         not using this feature, or setting
+                                                                         the tuning parameters discussed
+                                                                         below carefully. Please also note
+                                                                         that this is still an experimental 
+                                                                         feature. 
+  
+  ll.split.weight.penalty        TRUE/FALSE            FALSE             Unaffected
+                                                                        
+  ll.split.lambda                Non-negative double   0.1               Unaffected
+  
+  ll.split.variables             Vector of covariate   1:p               For large p (over 50), 
+                                    indexes                              we recommend either limiting
+                                                                         ll.split.variables to a subset,
+                                                                         using CART splits, or enforcing
+                                                                         a reasonably large split cutoff
+                                                                         (below). 
+                                    
+  ll.split.cutoff                Integer between 0     Square root       Increasing this parameter can help
+                                    and n.                of n.          to speed up LL splits, and is 
+                                                                         recommended for users who want to 
+                                                                         use LL splits when training
+                                                                         forests with large data. 
+  
+  Prediction parameters
+  
+  ll.lambda                       Non-negative double   Tuned by         Tuning by default takes a 
+                                                        default.         long time with large datasets, 
+                                                                         and we recommend either writing your
+                                                                         own, shorter cross-validation loop,
+                                                                         or setting ll.lambda to a default value
+                                                                         around 0.1 instead of using automatic
+                                                                         tuning. 
+  
+  ll.weight.penalty              TRUE/FALSE             FALSE            Unaffected
+
+  linear.correction.variables    Vector of covariate    1:p              Limiting linear correction variables
+                                   indexes                               is a crucial step for efficient 
+                                                                         predictions as n, p increase. We
+                                                                         highly recommend using a lasso, 
+                                                                         stepwise regression, prior 
+                                                                         knowledge, etc. to select a 
+                                                                         fairly small number of 
+                                                                         linear correction variables 
+                                                                         for LLF prediction in this case.
+----------------------------------------------------------------------------------------------------
+
+Table: LLF Parameters and their function with large datasets.
+
+
+The following code is set to not run currently; users can expect it to take approximately 5-6 minutes. LLF predictions with all p variables will be very slow, as will automatic tuning with this scale of data. However, we can still use linear corrections, just with more careful parameters. Users can increase the number of trees for better performance from both methods. 
 
 ```{r, eval = FALSE}
 # generate data 
@@ -411,4 +471,3 @@ cat(paste("Training took", round(time.train, 3), "seconds. \n",
 cat(paste("GRF predictions had MSE", round(mse.grf, 3), "\n",
           "LLF predictions had MSE", round(mse.llf, 3)))
 ```
-
