@@ -15,7 +15,6 @@ r_binary_packages:
   - ggplot2
   - glmnet
   - knitr
-  - reshape2
   - rmarkdown
 
 r_packages:
