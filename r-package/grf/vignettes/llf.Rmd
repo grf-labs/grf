@@ -358,7 +358,7 @@ ggplot(df, aes(ticks)) +
   xlab("x") + ylab("y") + theme_bw()
 ```
 
-## A note on Larger Datasets
+## A Note on Larger Datasets
 
 Although generally local linear forests are an improvement over regular random forests, when the number of dimensions is very high, training and predicting using them can take long time. This is because with n_train and n_test train and test points, we are running n_test regressions with n_train data points each. However, sometimes we still want to use random forests and correct for linear trends. In this case (datasets with roughly 100,000 or more observations, although always context-dependent), selecting a small number linear correction variables is especially important. The current ridge parameter tuning will also take prohibitively long, and so we recommend either setting the value to 0.01 consistently, tuning this on a subset of the data, restricting the range of values considered, or cross-validating using a small number of shallow trees.
 
@@ -427,6 +427,7 @@ The following code is set to not run currently; users can expect it to take appr
 # generate data 
 n <- 5e5
 p <- 20
+
 sigma <- sqrt(20)
 
 f <- function(x){
@@ -440,13 +441,17 @@ X.test <- matrix(runif(n * p, 0, 1), nrow = n, ncol = p)
 truth.test <- apply(X.test, MARGIN = 1, FUN = f) 
 
 ptm <- proc.time()
-forest <- regression_forest(X, Y, tune.parameters = "none", num.trees = 50)
+forest <-regression_forest(X, Y, tune.parameters = "none", num.trees = 50)
 time.train <- (proc.time() - ptm)[[3]]
 
 ptm <- proc.time()
 preds.grf <- predict(forest, X.test)$predictions
 mse.grf <- mean((preds.grf - truth.test)**2)
 time.grf <- (proc.time() - ptm)[[3]]
+
+ptm <- proc.time()
+ll.forest <- ll_regression_forest(X, Y, tune.parameters = "none", enable.ll.split = TRUE ,num.trees = 50)
+time.train.ll <- (proc.time() - ptm)[[3]]
 
 ptm <- proc.time()
 lasso.mod <- cv.glmnet(X, Y, alpha = 1)
@@ -456,18 +461,28 @@ selected
 time.lasso <- (proc.time() - ptm)[[3]]
 
 ptm <- proc.time()
-preds.llf <- predict(forest, X.test, 
+preds.llf <- predict(ll.forest, X.test, 
                     linear.correction.variables = selected, 
                     ll.lambda = 0.1)$predictions
 mse.llf <- mean((preds.llf - truth.test)**2)
 time.llf <- (proc.time() - ptm)[[3]]
 
-cat(paste("Training took", round(time.train, 3), "seconds. \n",
-          "GRF predictions took", round(time.grf, 3), "seconds. \n",
-          "Lasso selection took", round(time.lasso, 3), "seconds. \n",
-          "LLF prediction took", round(time.llf, 3), "seconds. \n",
-          "LLF and lasso all in all took", round(time.lasso + time.llf, 3), "seconds."))
+cat(paste("GRF training took", round(time.train, 2), "seconds. \n",
+          "GRF predictions took", round(time.train.ll, 2), "seconds. \n",
+          "LLF training took", round(time.grf, 2), "seconds. \n",
+          "Lasso selection took", round(time.lasso, 2), "seconds. \n",
+          "LLF prediction took", round(time.llf, 2), "seconds. \n",
+          "LLF and lasso all in all took", round(time.lasso + time.llf, 2), "seconds. \n"))
 
-cat(paste("GRF predictions had MSE", round(mse.grf, 3), "\n",
-          "LLF predictions had MSE", round(mse.llf, 3)))
+# GRF training took 342.14 seconds
+# LLF training took 215.64 seconds
+# GRF predictions took 20.25 seconds
+# Lasso selection took 15.10 seconds
+# LLF prediction took 45.40 seconds
+# LLF and lasso all in all took 60.50 seconds
+
+cat(paste("GRF predictions had MSE", round(mse.grf, 2), "\n",
+          "LLF predictions had MSE", round(mse.llf, 2)))
+# GRF predictions had MSE 0.81
+# LLF predictions had MSE 0.69
 ```
