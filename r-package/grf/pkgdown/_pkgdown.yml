@@ -14,6 +14,8 @@ navbar:
         href: articles/ci_and_num.trees.html
       - text: "Evaluating a causal forest fit"
         href: articles/diagnostics.html
+      - text: "Local linear forests"
+        href: articles/llf.html
       - text: "Sample weighting"
         href: articles/sample_weighting_examples.html
   - text: "Algorithm reference"
