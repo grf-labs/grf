@@ -4,8 +4,8 @@
 #' conditional surival function S(t, x) = P[Y > t | X = x]
 #'
 #' @param X The covariates.
-#' @param Y The response time.
-#' @param C The censoring indicator (1: failure, 0: censored)
+#' @param Y The response time (may be negative).
+#' @param delta The censoring indicator (1: failure, 0: censored)
 #' @param num.trees Number of trees grown in the forest. Default is 1000.
 #' @param sample.weights (experimental) Weights given to an observation in prediction.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
@@ -59,8 +59,8 @@
 #' latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
 #' censor.time <- rexp(n)
 #' Y <- pmin(latent.time, censor.time)
-#' C <- as.integer(latent.time <= censor.time)
-#' s.forest <- survival_forest(X, Y, C)
+#' delta <- as.integer(latent.time <= censor.time)
+#' s.forest <- survival_forest(X, Y, delta)
 #'
 #' # Predict using the forest.
 #' X.test <- matrix(0, 101, p)
@@ -72,7 +72,7 @@
 #' }
 #'
 #' @export
-survival_forest <- function(X, Y, C,
+survival_forest <- function(X, Y, delta,
                             num.trees = 1000,
                             sample.weights = NULL,
                             clusters = NULL,
@@ -90,7 +90,7 @@ survival_forest <- function(X, Y, C,
   has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
-  C <- validate_observations(C, X, binary = TRUE)
+  delta <- validate_observations(delta, X, binary = TRUE)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
@@ -100,10 +100,10 @@ survival_forest <- function(X, Y, C,
   # if the failure time is above the latter, but less than the second smallest failure time: set it to 1
   # etc. Will range from 0 to num.failures.
   # (Entry 0 is for time k < t1)
-  failure.times <- sort(unique(Y[C == 1]))
+  failure.times <- sort(unique(Y[delta == 1]))
   Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
 
-  data <- create_data_matrices(X, outcome = Y.relabeled, sample.weights = sample.weights, censor = C)
+  data <- create_data_matrices(X, outcome = Y.relabeled, sample.weights = sample.weights, censor = delta)
   args <- list(num.trees = num.trees,
                clusters = clusters,
                samples.per.cluster = samples.per.cluster,
@@ -124,7 +124,7 @@ survival_forest <- function(X, Y, C,
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["Y.relabeled"]] <- Y.relabeled
-  forest[["C.orig"]] <- C
+  forest[["delta.orig"]] <- delta
   forest[["sample.weights"]] <- sample.weights
   forest[["clusters"]] <- clusters
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
@@ -160,8 +160,8 @@ survival_forest <- function(X, Y, C,
 #' latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
 #' censor.time <- rexp(n)
 #' Y <- pmin(latent.time, censor.time)
-#' C <- as.integer(latent.time <= censor.time)
-#' s.forest <- survival_forest(X, Y, C)
+#' delta <- as.integer(latent.time <= censor.time)
+#' s.forest <- survival_forest(X, Y, delta)
 #'
 #' # Predict using the forest.
 #' X.test <- matrix(0, 101, p)
@@ -185,7 +185,7 @@ predict.survival_forest <- function(object, newdata = NULL, num.threads = NULL, 
 
   forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
-  train.data <- create_data_matrices(X, outcome = object[["Y.relabeled"]], censor = object[["C.orig"]])
+  train.data <- create_data_matrices(X, outcome = object[["Y.relabeled"]], censor = object[["delta.orig"]])
 
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
