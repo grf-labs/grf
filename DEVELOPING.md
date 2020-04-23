@@ -128,5 +128,37 @@ Child impurity <= parent impurity then reduces to
 Or sum_left^2 / weight_sum_left + sum_right^2 / weight_sum_right
 ```
 
-
 ---
+
+***Algorithm*** (`SurvivalSplittingRule`): find the best split for variable `var` at n samples `samples = i...j`.
+
+_Input_: `X`: covariate matrix, `response`: the failure times, `min_child_size`: split constraint on number of failures, `m`: the number of failure times in this node.
+
+_Output_: The best split value and the direction to send missing values
+
+grf performs survival splits by finding the partition that maximizes the [log-rank](https://en.wikipedia.org/wiki/Logrank_test) test for the comparison of the survival distribution in the left and right node. Using the notation from [Ishwaran et. al (2008), equation 1](https://kogalur.github.io/randomForestSRC/theory.html) the statistic is:
+
+```
+logrank(x, split.value) =  sum over all times k up to m
+  (dk,l - Yk,l * dk/Yk)  /
+  (Yk,l / Yk * (1 - Yk,l / Yk) * (Yk - dk) / (Yk - 1) dk)
+
+dk,l: the count of failures in the left node at time k
+Yk,l: the count of observations at risk in the left node at time k (At risk: all i such that Ti >= k)
+dk: the count of failures in the parent node at time k
+Yk: the count of observations at risk in the parent node at time k
+```
+
+Note that the absolute value of the response variable (the failure time) is never used, only counts matter, constructed from the relative ordering between them. Therefore, the response variable is always relabeled to range from consecutive integers starting at zero and ending at the number of failures. This can be done quickly with binary search:
+
+```
+let failure_times be a sorted vector of the original failure values (T1, T2, .. TM)
+initialize response_relabeled = zeros(n)
+for each i=1:n
+  relabeled_failure_time = binary_search(response[i], failure_times)
+  response_relabeled[i] = relabeled_failure_time
+```
+
+A label of 0 is given to all samples with response less than the first failure time, a value of 1 is given to all samples with failure value greater or equal to the first failure value and less than the second failure value, etc.
+
+The algorithm proceeds in the same manner as outlined above for RegressionSplitting: iterate over all possible splits and calculate the logrank statistic, one with all missing values on the left, and one with all missing on the right. Then select the split that yielded the maximum logrank test, subject to a constraint that there are a sufficient amount of failures on both sides of the split.

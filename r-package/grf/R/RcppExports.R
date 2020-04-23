@@ -97,3 +97,15 @@ ll_regression_predict_oob <- function(forest, train_matrix, sparse_train_matrix,
     .Call('_grf_ll_regression_predict_oob', PACKAGE = 'grf', forest, train_matrix, sparse_train_matrix, outcome_index, lambdas, weight_penalty, linear_correction_variables, num_threads, estimate_variance)
 }
 
+survival_train <- function(train_matrix, sparse_train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, num_failures, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed) {
+    .Call('_grf_survival_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, num_failures, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed)
+}
+
+survival_predict <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, censor_index, test_matrix, sparse_test_matrix, num_threads, num_failures) {
+    .Call('_grf_survival_predict', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, outcome_index, censor_index, test_matrix, sparse_test_matrix, num_threads, num_failures)
+}
+
+survival_predict_oob <- function(forest_object, train_matrix, sparse_train_matrix, outcome_index, censor_index, num_threads, num_failures) {
+    .Call('_grf_survival_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, outcome_index, censor_index, num_threads, num_failures)
+}
+

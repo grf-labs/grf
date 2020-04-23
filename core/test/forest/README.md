@@ -64,3 +64,19 @@ Y <- round(X[, 1] * rnorm(n), 2)
 nmissing <- 150
 X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
 ```
+
+```
+# survival_data.csv
+# survival_data_MIA.csv
+set.seed(123)
+n <- 1000
+p <- 5
+X <- matrix(round(rnorm(n * p), 2), n, p)
+latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
+censor.time <- rexp(n)
+Y <- round(pmin(latent.time, censor.time), 2)
+C <- as.integer(latent.time <= censor.time)
+
+nmissing <- 150
+X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
+```

@@ -33,7 +33,8 @@ Data::Data() :
     outcome_index(),
     treatment_index(),
     instrument_index(),
-    weight_index() {}
+    weight_index(),
+    censor_index() {}
 
 bool Data::load_from_file(const std::string& filename) {
   bool result;
@@ -158,6 +159,11 @@ void Data::set_weight_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
+void Data::set_censor_index(size_t index) {
+  this->censor_index = index;
+  disallowed_split_variables.insert(index);
+}
+
 void Data::get_all_values(std::vector<double>& all_values,
                           std::vector<size_t>& sorted_samples,
                           const std::vector<size_t>& samples,
@@ -217,6 +223,10 @@ double Data::get_weight(size_t row) const {
   } else {
     return 1.0;
   }
+}
+
+double Data::get_censor(size_t row) const {
+    return get(row, censor_index.value());
 }
 
 const std::set<size_t>& Data::get_disallowed_split_variables() const {
