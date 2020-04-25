@@ -24,28 +24,6 @@
 using namespace grf;
 
 TEST_CASE("Kaplan-Meier survival estimates are correct", "[survival], [prediction]") {
-  /*
-    The following test compares a survival curve estimate with ground truth from
-    the `survival` package. The data is generated with:
-
-    library(survival)
-    n <- 50
-    p <- 1
-    X <- matrix(rnorm(n * p), n, p)
-    latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
-    censor.time <- rexp(n)
-    Y <- pmin(latent.time, censor.time)
-    C <- as.integer(latent.time <= censor.time)
-    failure.times <- sort(unique(Y[C == 1]))
-    Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
-
-    kaplan.meier <- survfit(Surv(Y, C) ~ 1, data = data.frame(Y, C))
-
-    length(failure.times) # num_failures
-    dput(c(Y.relabeled, C)) # data_matrix
-    kaplan.meier.surv <- dput(summary(kaplan.meier)$surv) # expected_predictions
-  */
-
   size_t num_failures = 24;
   size_t num_rows = 50;
   size_t num_cols = 2;
