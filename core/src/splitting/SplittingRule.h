@@ -51,14 +51,6 @@ public:
                                std::vector<size_t>& split_vars,
                                std::vector<double>& split_values,
                                std::vector<bool>& send_missing_left) = 0;
-
- /**
-  * This is an optional public member used for C++ unit testing purposes.
-  *
-  * For example, Survival Splitting sets this to the best logrank statistic
-  * and verifies this is correct in a unit test.
-  */
-  double test_statistic;
 };
 
 } // namespace grf

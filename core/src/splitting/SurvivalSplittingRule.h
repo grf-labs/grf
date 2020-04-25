@@ -37,6 +37,20 @@ public:
                        std::vector<double>& split_values,
                        std::vector<bool>& send_missing_left);
 
+ /**
+  * This member is public for unit testing purposes. It returns an additional
+  * output value, the best logrank statistic in `test_value`.
+  */
+ bool find_best_split_internal(const Data& data,
+                               size_t node,
+                               const std::vector<size_t>& possible_split_vars,
+                               const std::vector<double>& responses_by_sample,
+                               const std::vector<std::vector<size_t>>& samples,
+                               std::vector<size_t>& split_vars,
+                               std::vector<double>& split_values,
+                               std::vector<bool>& send_missing_left,
+                               double& test_value);
+
 private:
   void find_best_split_value(const Data& data,
                              size_t node,

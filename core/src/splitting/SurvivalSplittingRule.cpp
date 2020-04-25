@@ -33,6 +33,22 @@ bool SurvivalSplittingRule::find_best_split(const Data& data,
                                             std::vector<size_t>& split_vars,
                                             std::vector<double>& split_values,
                                             std::vector<bool>& send_missing_left) {
+
+  double unused_test_value; // This output is only used in interal unit tests.
+  return find_best_split_internal(data, node, possible_split_vars, responses_by_sample,
+                                  samples, split_vars, split_values, send_missing_left,
+                                  unused_test_value);
+}
+
+bool SurvivalSplittingRule::find_best_split_internal(const Data& data,
+                                                     size_t node,
+                                                     const std::vector<size_t>& possible_split_vars,
+                                                     const std::vector<double>& responses_by_sample,
+                                                     const std::vector<std::vector<size_t>>& samples,
+                                                     std::vector<size_t>& split_vars,
+                                                     std::vector<double>& split_values,
+                                                     std::vector<bool>& send_missing_left,
+                                                     double& test_value) {
   size_t size_node = samples[node].size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
@@ -116,7 +132,7 @@ bool SurvivalSplittingRule::find_best_split(const Data& data,
                           count_failure, at_risk, numerator_weights, denominator_weights);
   }
 
-  test_statistic = best_logrank; // This member is set for C++ unit testing.
+  test_value = best_logrank; // This output is set for C++ unit testing.
 
   // Stop if no good split found
   if (best_logrank <= 0.0) {

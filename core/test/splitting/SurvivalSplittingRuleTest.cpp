@@ -15,7 +15,7 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "splitting/factory/SurvivalSplittingRuleFactory.h"
+#include "splitting/SurvivalSplittingRule.h"
 #include "relabeling/NoopRelabelingStrategy.h"
 
 #include "commons/utility.h"
@@ -30,12 +30,11 @@ using namespace grf;
 // returning a vector of the best logrank statistic for each feature.
 std::vector<double> run_splits(const Data& data,
                                const TreeOptions& options,
-                               const std::unique_ptr<SplittingRuleFactory>& splitting_rule_factory,
+                               const std::unique_ptr<SurvivalSplittingRule>& splitting_rule,
                                const std::unique_ptr<RelabelingStrategy>& relabeling_strategy,
                                size_t num_features) {
   std::vector<double> best_logranks;
 
-  std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(data.get_num_rows(), options);
   size_t node = 0;
   size_t size_node = data.get_num_rows();
   std::vector<double> responses_by_sample(size_node);
@@ -51,17 +50,19 @@ std::vector<double> run_splits(const Data& data,
   for (size_t split_var = 0; split_var < num_features; split_var++) {
     std::vector<size_t> possible_split_vars;
     possible_split_vars.push_back(split_var);
+    double best_logrank;
 
-    splitting_rule->find_best_split(data,
-                                    node,
-                                    possible_split_vars,
-                                    responses_by_sample,
-                                    samples,
-                                    split_vars,
-                                    split_values,
-                                    send_missing_left);
+    splitting_rule->find_best_split_internal(data,
+                                             node,
+                                             possible_split_vars,
+                                             responses_by_sample,
+                                             samples,
+                                             split_vars,
+                                             split_values,
+                                             send_missing_left,
+                                             best_logrank);
 
-    best_logranks.push_back(splitting_rule->test_statistic);
+    best_logranks.push_back(best_logrank);
    }
 
    return best_logranks;
@@ -76,9 +77,9 @@ TEST_CASE("survival splitting logrank calculation is correct", "[survival], [spl
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
-  auto splitting_rule_factory = std::unique_ptr<SplittingRuleFactory>(new SurvivalSplittingRuleFactory());
+  std::unique_ptr<SurvivalSplittingRule> surv_splitting_rule(new SurvivalSplittingRule(options.get_alpha()));
 
-  std::vector<double> logranks = run_splits(*data, options, splitting_rule_factory, relabeling_strategy, num_features);
+  std::vector<double> logranks = run_splits(*data, options, surv_splitting_rule, relabeling_strategy, num_features);
 
   std::vector<std::vector<double>> expected_logranks = FileTestUtilities::read_csv_file(
       "test/splitting/resources/survival_data_logrank_expected.csv");
