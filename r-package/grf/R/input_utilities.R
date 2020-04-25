@@ -30,34 +30,27 @@ validate_X <- function(X, allow.na = FALSE) {
   has.missing.values
 }
 
-validate_observations <- function(V, X, binary = FALSE) {
+validate_observations <- function(V, X) {
   if (is.matrix(V) && ncol(V) == 1) {
     V <- as.vector(V)
   } else if (!is.vector(V)) {
-    stop(paste("Observations (W, Y, Z or C) must be vectors."))
+    stop(paste("Observations (W, Y, Z or D) must be vectors."))
   }
 
   if (!is.numeric(V) && !is.logical(V)) {
     stop(paste(
-      "Observations (W, Y, Z or C) must be numeric. GRF does not ",
+      "Observations (W, Y, Z or D) must be numeric. GRF does not ",
       "currently support non-numeric observations."
     ))
   }
 
   if (any(is.na(V))) {
-    stop("The vector of observations (W, Y, Z or C) contains at least one NA.")
+    stop("The vector of observations (W, Y, Z or D) contains at least one NA.")
   }
 
   if (length(V) != nrow(X)) {
-    stop("length of observation (W, Y, Z or C) does not equal nrow(X).")
+    stop("length of observation (W, Y, Z or D) does not equal nrow(X).")
   }
-
-  if (binary) {
-    if(!all(V %in% c(1, 0))) {
-      stop("The input vector can only take on values in {0, 1}.")
-    }
-  }
-
   V
 }
 

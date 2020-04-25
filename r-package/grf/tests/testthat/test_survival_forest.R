@@ -7,9 +7,9 @@ test_that("a simple survival forest workflow works", {
   latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
   censor.time <- rexp(n)
   Y <- pmin(latent.time, censor.time)
-  delta <- as.integer(latent.time <= censor.time)
+  D <- as.integer(latent.time <= censor.time)
 
-  sf <- survival_forest(X, Y, delta, num.trees = 50)
+  sf <- survival_forest(X, Y, D, num.trees = 50)
   n.failures <- length(sf[["failure.times"]])
 
   survival.oob <- predict(sf)$predictions
@@ -53,16 +53,16 @@ test_that("sample weighted survival prediction is invariant to weight rescaling"
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
   Y <- 10 * round(1 + rexp(n), 1)
-  delta <- rbinom(n, 1, 0.5)
+  D <- rbinom(n, 1, 0.5)
 
   sample.weights <- runif(n)
 
-  sf1 <- survival_forest(X, Y, delta,
+  sf1 <- survival_forest(X, Y, D,
                          sample.weights = sample.weights,
                          num.trees = 50,
                          seed = 1)
 
-  sf2 <- survival_forest(X, Y, delta,
+  sf2 <- survival_forest(X, Y, D,
                         sample.weights = runif(1) * sample.weights,
                         num.trees = 50,
                         seed = 1)
@@ -77,11 +77,11 @@ test_that("survival_forest works as expected with missing values", {
   latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
   censor.time <- rexp(n)
   Y <- pmin(latent.time, censor.time)
-  delta <- as.integer(latent.time <= censor.time)
+  D <- as.integer(latent.time <= censor.time)
   nmissing <- 500
   X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
 
-  sf <- survival_forest(X, Y, delta, num.trees = 500)
+  sf <- survival_forest(X, Y, D, num.trees = 500)
 
   # MIA with data duplication
   Xl <- X
@@ -89,7 +89,7 @@ test_that("survival_forest works as expected with missing values", {
   Xl[is.nan(Xl)] <- -1e9
   Xr[is.nan(Xr)] <- 1e9
   X.mia <- cbind(Xl, Xr)
-  sf.mia <- survival_forest(X.mia, Y, delta, num.trees = 500)
+  sf.mia <- survival_forest(X.mia, Y, D, num.trees = 500)
 
   mse.oob.diff <- mean(rowMeans((predict(sf)$predictions - predict(sf.mia)$predictions)^2))
   mse.diff <- mean(rowMeans((predict(sf, X)$predictions - predict(sf.mia, X.mia)$predictions)^2))
