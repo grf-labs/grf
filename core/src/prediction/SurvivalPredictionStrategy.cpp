@@ -35,7 +35,7 @@ std::vector<double> SurvivalPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
     size_t ci_group_size) const {
-  return { NAN };
+  return { 0.0 };
 }
 
 size_t SurvivalPredictionStrategy::prediction_value_length() const {
