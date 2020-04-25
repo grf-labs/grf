@@ -167,7 +167,7 @@ instrumental_forest <- function(X, Y, W, Z,
     stop("Z.hat has incorrect length.")
   }
 
-  data <- create_data_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
+  data <- create_train_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
                                instrument = Z - Z.hat, sample.weights = sample.weights)
   args <- list(num.trees = num.trees,
               clusters = clusters,
@@ -274,11 +274,11 @@ predict.instrumental_forest <- function(object, newdata = NULL,
   W.centered <- object[["W.orig"]] - object[["W.hat"]]
   Z.centered <- object[["Z.orig"]] - object[["Z.hat"]]
 
-  train.data <- create_data_matrices(X, outcome = Y.centered, treatment = W.centered, instrument = Z.centered)
+  train.data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered, instrument = Z.centered)
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig, allow.na = TRUE)
-    data <- create_data_matrices(newdata)
+    data <- create_train_matrices(newdata)
     ret <- instrumental_predict(
       forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
       train.data$outcome.index, train.data$treatment.index, train.data$instrument.index,

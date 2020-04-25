@@ -2,7 +2,7 @@
 #'
 #' Finds the optimal parameters to be used in training a forest.
 #'
-#' @param data The data arguments (output from create_data_matrices) for the forest.
+#' @param data The data arguments (output from create_train_matrices) for the forest.
 #' @param nrow.X The number of observations.
 #' @param ncol.X The number of variables.
 #' @param args The remaining call arguments for the forest.

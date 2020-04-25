@@ -36,7 +36,7 @@ tune_ll_regression_forest <- function(forest,
 
   X <- forest[["X.orig"]]
   Y <- forest[["Y.orig"]]
-  data <- create_data_matrices(X, outcome = Y)
+  data <- create_train_matrices(X, outcome = Y)
 
   # Validate variables
   num.threads <- validate_num_threads(num.threads)

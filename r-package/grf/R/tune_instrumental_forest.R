@@ -127,7 +127,7 @@ tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat,
                              alpha = 0.05,
                              imbalance.penalty = 0)
 
-  data <- create_data_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
+  data <- create_train_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
                               instrument = Z - Z.hat, sample.weights = sample.weights)
   nrow.X <- nrow(X)
   ncol.X <- ncol(X)

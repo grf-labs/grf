@@ -106,7 +106,7 @@ survival_forest <- function(X, Y, D,
   failure.times <- sort(unique(Y[D == 1]))
   Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
 
-  data <- create_data_matrices(X, outcome = Y.relabeled, sample.weights = sample.weights, censor = D)
+  data <- create_train_matrices(X, outcome = Y.relabeled, sample.weights = sample.weights, censor = D)
   args <- list(num.trees = num.trees,
                clusters = clusters,
                samples.per.cluster = samples.per.cluster,
@@ -188,7 +188,7 @@ predict.survival_forest <- function(object, newdata = NULL, num.threads = NULL, 
 
   forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
-  train.data <- create_data_matrices(X, outcome = object[["Y.relabeled"]], censor = object[["D.orig"]])
+  train.data <- create_train_matrices(X, outcome = object[["Y.relabeled"]], censor = object[["D.orig"]])
 
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
@@ -196,7 +196,7 @@ predict.survival_forest <- function(object, newdata = NULL, num.threads = NULL, 
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)
-    test.data <- create_data_matrices(newdata, train.data = FALSE)
+    test.data <- create_test_matrices(newdata)
     ret <- do.call.rcpp(survival_predict, c(train.data, test.data, args))
   } else {
     ret <- do.call.rcpp(survival_predict_oob, c(train.data, args))

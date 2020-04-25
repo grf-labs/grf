@@ -199,10 +199,10 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
 
   forest.short <- forest[-which(names(forest) == "X.orig")]
   X <- forest[["X.orig"]]
-  train.data <- create_data_matrices(X)
+  train.data <- create_train_matrices(X)
 
   if (!is.null(newdata)) {
-    data <- create_data_matrices(newdata)
+    data <- create_train_matrices(newdata)
     validate_newdata(newdata, X, allow.na = TRUE)
     compute_weights(
       forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
