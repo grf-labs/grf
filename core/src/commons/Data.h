@@ -82,7 +82,7 @@ public:
 
   double get_weight(size_t row) const;
 
-  bool get_censor(size_t row) const;
+  bool is_censored(size_t row) const;
 
   const std::set<size_t>& get_disallowed_split_variables() const;
 

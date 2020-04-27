@@ -225,12 +225,8 @@ double Data::get_weight(size_t row) const {
   }
 }
 
-bool Data::get_censor(size_t row) const {
-  if (get(row, censor_index.value()) == 1.0) {
-    return true;
-  } else {
-    return false;
-  }
+bool Data::is_censored(size_t row) const {
+  return get(row, censor_index.value()) > 0.0;
 }
 
 const std::set<size_t>& Data::get_disallowed_split_variables() const {

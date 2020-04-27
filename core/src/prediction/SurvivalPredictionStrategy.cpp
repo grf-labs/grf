@@ -63,7 +63,7 @@ PredictionValues SurvivalPredictionStrategy::precompute_prediction_values(
     for (auto& sample : leaf_node) {
       size_t failure_time = data.get_outcome(sample);
       double sample_weight = data.get_weight(sample);
-      if (data.get_censor(sample)) {
+      if (data.is_censored(sample)) {
         count_failure[failure_time] += sample_weight;
       } else {
         count_censor[failure_time] += sample_weight;
