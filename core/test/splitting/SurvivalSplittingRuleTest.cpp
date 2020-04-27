@@ -43,24 +43,22 @@ std::vector<double> run_splits(const Data& data,
     samples[node].push_back(sample);
   }
   relabeling_strategy->relabel(samples[node], data, responses_by_sample);
-  std::vector<size_t> split_vars(1);
-  std::vector<double> split_values(1);
-  std::vector<bool> send_missing_left(1);
+  double split_value = 0;
+  size_t split_variable = 0;
+  bool send_missing_left = true;
 
   for (size_t split_var = 0; split_var < num_features; split_var++) {
     std::vector<size_t> possible_split_vars;
     possible_split_vars.push_back(split_var);
-    double best_logrank;
 
-    splitting_rule->find_best_split_internal(data,
-                                             node,
-                                             possible_split_vars,
-                                             responses_by_sample,
-                                             samples,
-                                             split_vars,
-                                             split_values,
-                                             send_missing_left,
-                                             best_logrank);
+    double best_logrank = splitting_rule->find_best_split_internal(data,
+                                                                   node,
+                                                                   possible_split_vars,
+                                                                   responses_by_sample,
+                                                                   samples,
+                                                                   split_value,
+                                                                   split_variable,
+                                                                   send_missing_left);
 
     best_logranks.push_back(best_logrank);
    }

@@ -33,22 +33,34 @@ bool SurvivalSplittingRule::find_best_split(const Data& data,
                                             std::vector<size_t>& split_vars,
                                             std::vector<double>& split_values,
                                             std::vector<bool>& send_missing_left) {
+  // The splitting rule output
+  double best_value = 0;
+  size_t best_var = 0;
+  bool best_send_missing_left = true;
 
-  double unused_test_value; // This output is only used in interal unit tests.
-  return find_best_split_internal(data, node, possible_split_vars, responses_by_sample,
-                                  samples, split_vars, split_values, send_missing_left,
-                                  unused_test_value);
+  double best_logrank = find_best_split_internal(data, node, possible_split_vars, responses_by_sample, samples,
+                                                 best_value, best_var, best_send_missing_left);
+
+  // Stop if no good split found
+  if (best_logrank <= 0.0) {
+    return true;
+  }
+
+  // Save best values
+  split_vars[node] = best_var;
+  split_values[node] = best_value;
+  send_missing_left[node] = best_send_missing_left;
+  return false;
 }
 
-bool SurvivalSplittingRule::find_best_split_internal(const Data& data,
-                                                     size_t node,
-                                                     const std::vector<size_t>& possible_split_vars,
-                                                     const std::vector<double>& responses_by_sample,
-                                                     const std::vector<std::vector<size_t>>& samples,
-                                                     std::vector<size_t>& split_vars,
-                                                     std::vector<double>& split_values,
-                                                     std::vector<bool>& send_missing_left,
-                                                     double& test_value) {
+double SurvivalSplittingRule::find_best_split_internal(const Data& data,
+                                                       size_t node,
+                                                       const std::vector<size_t>& possible_split_vars,
+                                                       const std::vector<double>& responses_by_sample,
+                                                       const std::vector<std::vector<size_t>>& samples,
+                                                       double& best_value,
+                                                       size_t& best_var,
+                                                       bool& best_send_missing_left) {
   size_t size_node = samples[node].size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
@@ -66,7 +78,7 @@ bool SurvivalSplittingRule::find_best_split_internal(const Data& data,
   size_t num_failures = node_failures.size();
   // If there are no failures or only one failure time there is nothing to do.
   if (num_failures <= 1) {
-    return true;
+    return 0.0;
   }
 
   std::vector<double> failure_values;
@@ -119,31 +131,14 @@ bool SurvivalSplittingRule::find_best_split_internal(const Data& data,
     denominator_weights[time] = (Yk - dk) / (Yk - 1) * dk / (Yk * Yk);
   }
 
-  // Initialize the variables to track the best split variable.
-  size_t best_var = 0;
-  double best_value = 0;
   double best_logrank = 0.0;
-  bool best_send_missing_left = true;
-
-  // For all possible split variables
   for (auto& var : possible_split_vars) {
     find_best_split_value(data, node, var, size_node, min_child_size, num_failures_node, num_failures,
                           best_value, best_var, best_logrank, best_send_missing_left, samples, relabeled_failures,
                           count_failure, at_risk, numerator_weights, denominator_weights);
   }
 
-  test_value = best_logrank; // This output is set for C++ unit testing.
-
-  // Stop if no good split found
-  if (best_logrank <= 0.0) {
-    return true;
-  }
-
-  // Save best values
-  split_vars[node] = best_var;
-  split_values[node] = best_value;
-  send_missing_left[node] = best_send_missing_left;
-  return false;
+  return best_logrank;
 }
 
 void SurvivalSplittingRule::find_best_split_value(const Data& data,
