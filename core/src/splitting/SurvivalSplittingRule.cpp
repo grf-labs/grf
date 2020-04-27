@@ -68,25 +68,22 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
   // Get the failure values t1, ..., tm in this node
-  std::set<double> node_failures;
-  size_t num_failures_node = 0;
+  std::vector<double> failure_values;
   for (auto& sample : samples) {
     if (data.is_censored(sample)) {
-      node_failures.insert(responses_by_sample[sample]);
-      ++num_failures_node;
+      failure_values.push_back(responses_by_sample[sample]);
     }
   }
 
+  size_t num_failures_node = failure_values.size();
+  std::sort(failure_values.begin(), failure_values.end());
+  failure_values.erase(std::unique(failure_values.begin(), failure_values.end()), failure_values.end());
+
   // The number of unique failure values in this node
-  size_t num_failures = node_failures.size();
+  size_t num_failures = failure_values.size();
   // If there are no failures or only one failure time there is nothing to do.
   if (num_failures <= 1) {
     return;
-  }
-
-  std::vector<double> failure_values;
-  for (auto& failure_value: node_failures) {
-    failure_values.push_back(failure_value);
   }
 
   // The number of failures at each time in the parent node. Entry 0 will be zero.
