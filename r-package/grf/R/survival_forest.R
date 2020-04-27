@@ -92,7 +92,7 @@ survival_forest <- function(X, Y, D,
   Y <- validate_observations(Y, X)
   D <- validate_observations(D, X)
   if(!all(D %in% c(1, 0))) {
-    stop("The input vector can only take on values in {0, 1}.")
+    stop("The censor values can only be 0 or 1.")
   }
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
