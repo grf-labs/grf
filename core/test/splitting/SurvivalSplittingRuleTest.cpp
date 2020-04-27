@@ -50,15 +50,15 @@ std::vector<double> run_splits(const Data& data,
   for (size_t split_var = 0; split_var < num_features; split_var++) {
     std::vector<size_t> possible_split_vars;
     possible_split_vars.push_back(split_var);
-
-    double best_logrank = splitting_rule->find_best_split_internal(data,
-                                                                   possible_split_vars,
-                                                                   responses_by_sample,
-                                                                   samples[node],
-                                                                   split_value,
-                                                                   split_variable,
-                                                                   send_missing_left);
-
+    double best_logrank = 0;
+    splitting_rule->find_best_split_internal(data,
+                                             possible_split_vars,
+                                             responses_by_sample,
+                                             samples[node],
+                                             split_value,
+                                             split_variable,
+                                             send_missing_left,
+                                             best_logrank);
     best_logranks.push_back(best_logrank);
    }
 

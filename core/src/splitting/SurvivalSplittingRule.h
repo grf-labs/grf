@@ -41,13 +41,14 @@ public:
   * This member is public for unit testing purposes. It returns an additional
   * output value, the best logrank statistic.
   */
- double find_best_split_internal(const Data& data,
-                                 const std::vector<size_t>& possible_split_vars,
-                                 const std::vector<double>& responses_by_sample,
-                                 const std::vector<size_t>& samples,
-                                 double& best_value,
-                                 size_t& best_var,
-                                 bool& best_send_missing_left);
+ void find_best_split_internal(const Data& data,
+                               const std::vector<size_t>& possible_split_vars,
+                               const std::vector<double>& responses_by_sample,
+                               const std::vector<size_t>& samples,
+                               double& best_value,
+                               size_t& best_var,
+                               bool& best_send_missing_left,
+                               double& best_logrank);
 
 private:
   void find_best_split_value(const Data& data,
