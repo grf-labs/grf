@@ -32,7 +32,7 @@ public:
                        size_t node,
                        const std::vector<size_t>& possible_split_vars,
                        const std::vector<double>& responses_by_sample,
-                       const std::vector<std::vector<size_t>>& samples,
+                       const std::vector<std::vector<size_t>>& samples_by_node,
                        std::vector<size_t>& split_vars,
                        std::vector<double>& split_values,
                        std::vector<bool>& send_missing_left);
@@ -42,17 +42,15 @@ public:
   * output value, the best logrank statistic.
   */
  double find_best_split_internal(const Data& data,
-                                 size_t node,
                                  const std::vector<size_t>& possible_split_vars,
                                  const std::vector<double>& responses_by_sample,
-                                 const std::vector<std::vector<size_t>>& samples,
+                                 const std::vector<size_t>& samples,
                                  double& best_value,
                                  size_t& best_var,
                                  bool& best_send_missing_left);
 
 private:
   void find_best_split_value(const Data& data,
-                             size_t node,
                              size_t var,
                              size_t size_node,
                              size_t min_child_size,
@@ -62,7 +60,7 @@ private:
                              size_t& best_var,
                              double& best_logrank,
                              bool& best_send_missing_left,
-                             const std::vector<std::vector<size_t>>& samples,
+                             const std::vector<size_t>& samples,
                              const std::vector<size_t>& relabeled_failures,
                              const std::vector<double>& count_failure,
                              const std::vector<double>& at_risk,

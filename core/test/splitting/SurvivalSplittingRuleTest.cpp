@@ -52,10 +52,9 @@ std::vector<double> run_splits(const Data& data,
     possible_split_vars.push_back(split_var);
 
     double best_logrank = splitting_rule->find_best_split_internal(data,
-                                                                   node,
                                                                    possible_split_vars,
                                                                    responses_by_sample,
-                                                                   samples,
+                                                                   samples[node],
                                                                    split_value,
                                                                    split_variable,
                                                                    send_missing_left);

@@ -29,16 +29,18 @@ bool SurvivalSplittingRule::find_best_split(const Data& data,
                                             size_t node,
                                             const std::vector<size_t>& possible_split_vars,
                                             const std::vector<double>& responses_by_sample,
-                                            const std::vector<std::vector<size_t>>& samples,
+                                            const std::vector<std::vector<size_t>>& samples_by_node,
                                             std::vector<size_t>& split_vars,
                                             std::vector<double>& split_values,
                                             std::vector<bool>& send_missing_left) {
+  const std::vector<size_t>& samples = samples_by_node[node];
+
   // The splitting rule output
   double best_value = 0;
   size_t best_var = 0;
   bool best_send_missing_left = true;
 
-  double best_logrank = find_best_split_internal(data, node, possible_split_vars, responses_by_sample, samples,
+  double best_logrank = find_best_split_internal(data, possible_split_vars, responses_by_sample, samples,
                                                  best_value, best_var, best_send_missing_left);
 
   // Stop if no good split found
@@ -54,20 +56,19 @@ bool SurvivalSplittingRule::find_best_split(const Data& data,
 }
 
 double SurvivalSplittingRule::find_best_split_internal(const Data& data,
-                                                       size_t node,
                                                        const std::vector<size_t>& possible_split_vars,
                                                        const std::vector<double>& responses_by_sample,
-                                                       const std::vector<std::vector<size_t>>& samples,
+                                                       const std::vector<size_t>& samples,
                                                        double& best_value,
                                                        size_t& best_var,
                                                        bool& best_send_missing_left) {
-  size_t size_node = samples[node].size();
+  size_t size_node = samples.size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
   // Get the failure values t1, ..., tm in this node
   std::set<double> node_failures;
   size_t num_failures_node = 0;
-  for (auto& sample : samples[node]) {
+  for (auto& sample : samples) {
     if (data.get_censor(sample)) {
       node_failures.insert(responses_by_sample[sample]);
       ++num_failures_node;
@@ -104,7 +105,7 @@ double SurvivalSplittingRule::find_best_split_internal(const Data& data,
   std::vector<double> denominator_weights(num_failures + 1);
 
   // Relabel the failure values to range from 0 to the number of failures in this node
-  for (auto& sample : samples[node]) {
+  for (auto& sample : samples) {
     double failure_value = responses_by_sample[sample];
     size_t new_failure_value = std::upper_bound(failure_values.begin(), failure_values.end(),
                                                 failure_value) - failure_values.begin();
@@ -133,7 +134,7 @@ double SurvivalSplittingRule::find_best_split_internal(const Data& data,
 
   double best_logrank = 0.0;
   for (auto& var : possible_split_vars) {
-    find_best_split_value(data, node, var, size_node, min_child_size, num_failures_node, num_failures,
+    find_best_split_value(data, var, size_node, min_child_size, num_failures_node, num_failures,
                           best_value, best_var, best_logrank, best_send_missing_left, samples, relabeled_failures,
                           count_failure, at_risk, numerator_weights, denominator_weights);
   }
@@ -142,7 +143,6 @@ double SurvivalSplittingRule::find_best_split_internal(const Data& data,
 }
 
 void SurvivalSplittingRule::find_best_split_value(const Data& data,
-                                                  size_t node,
                                                   size_t var,
                                                   size_t size_node,
                                                   size_t min_child_size,
@@ -152,7 +152,7 @@ void SurvivalSplittingRule::find_best_split_value(const Data& data,
                                                   size_t& best_var,
                                                   double& best_logrank,
                                                   bool& best_send_missing_left,
-                                                  const std::vector<std::vector<size_t>>& samples,
+                                                  const std::vector<size_t>& samples,
                                                   const std::vector<size_t>& relabeled_failures,
                                                   const std::vector<double>& count_failure,
                                                   const std::vector<double>& at_risk,
@@ -164,7 +164,7 @@ void SurvivalSplittingRule::find_best_split_value(const Data& data,
   // (if all Xij's are continuous, these two vectors have the same length)
   std::vector<double> possible_split_values;
   std::vector<size_t> sorted_samples;
-  data.get_all_values(possible_split_values, sorted_samples, samples[node], var);
+  data.get_all_values(possible_split_values, sorted_samples, samples, var);
 
   // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {
