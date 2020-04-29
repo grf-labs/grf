@@ -67,10 +67,15 @@
 #' X.test[, 1] <- seq(-2, 2, length.out = 3)
 #' s.pred <- predict(s.forest, X.test)
 #'
-#' # Plot the survival curves
-#' matplot(s.pred$failure.times, t(s.pred$predictions),
-#'         xlab = "failure time", ylab = "survival function",
-#'         type = "l", lty = 1)
+#' # Plot the survival curve
+#' plot(NA, NA, xlab = "failure time", ylab = "survival function",
+#'      xlim = range(s.pred$failure.times),
+#'      ylim = c(0, 1))
+#' for(i in 1:3) {
+#'   lines(s.pred$failure.times, s.pred$predictions[i,], col = i)
+#'   s.true = exp(-s.pred$failure.times / exp(0.5 * X.test[i, 1]))
+#'   lines(s.pred$failure.times, s.true, col = i, lty = 2)
+#' }
 #'
 #' # Predict on out-of-bag training samples.
 #' s.pred <- predict(s.forest)
@@ -176,10 +181,15 @@ survival_forest <- function(X, Y, D,
 #' X.test[, 1] <- seq(-2, 2, length.out = 3)
 #' s.pred <- predict(s.forest, X.test)
 #'
-#' # Plot the survival curves
-#' matplot(s.pred$failure.times, t(s.pred$predictions),
-#'         xlab = "failure time", ylab = "survival function",
-#'         type = "l", lty = 1)
+#' # Plot the survival curve
+#' plot(NA, NA, xlab = "failure time", ylab = "survival function",
+#'      xlim = range(s.pred$failure.times),
+#'      ylim = c(0, 1))
+#' for(i in 1:3) {
+#'   lines(s.pred$failure.times, s.pred$predictions[i,], col = i)
+#'   s.true = exp(-s.pred$failure.times / exp(0.5 * X.test[i, 1]))
+#'   lines(s.pred$failure.times, s.true, col = i, lty = 2)
+#' }
 #'
 #' # Predict on out-of-bag training samples.
 #' s.pred <- predict(s.forest)
