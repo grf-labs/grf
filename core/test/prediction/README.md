@@ -10,10 +10,10 @@ library(survival)
 n <- 50
 p <- 1
 X <- matrix(rnorm(n * p), n, p)
-latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
+failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
 censor.time <- rexp(n)
-Y <- pmin(latent.time, censor.time)
-C <- as.integer(latent.time <= censor.time)
+Y <- pmin(failure.time, censor.time)
+C <- as.integer(failure.time <= censor.time)
 failure.times <- sort(unique(Y[C == 1]))
 Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
 
