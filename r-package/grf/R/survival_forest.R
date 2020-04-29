@@ -4,7 +4,7 @@
 #' conditional surival function S(t, x) = P[Y > t | X = x]
 #'
 #' @param X The covariates.
-#' @param Y The response time (may be negative).
+#' @param Y The event time (may be negative).
 #' @param D The event type (0: censoring, 1: failure).
 #' @param num.trees Number of trees grown in the forest. Default is 1000.
 #' @param sample.weights (experimental) Weights given to an observation in prediction.
@@ -56,10 +56,10 @@
 #' n <- 100
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)
-#' latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
+#' failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
 #' censor.time <- rexp(n)
-#' Y <- pmin(latent.time, censor.time)
-#' D <- as.integer(latent.time <= censor.time)
+#' Y <- pmin(failure.time, censor.time)
+#' D <- as.integer(failure.time <= censor.time)
 #' s.forest <- survival_forest(X, Y, D)
 #'
 #' # Predict using the forest.
@@ -160,10 +160,10 @@ survival_forest <- function(X, Y, D,
 #' n <- 100
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)
-#' latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
+#' failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
 #' censor.time <- rexp(n)
-#' Y <- pmin(latent.time, censor.time)
-#' D <- as.integer(latent.time <= censor.time)
+#' Y <- pmin(failure.time, censor.time)
+#' D <- as.integer(failure.time <= censor.time)
 #' s.forest <- survival_forest(X, Y, D)
 #'
 #' # Predict using the forest.

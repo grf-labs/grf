@@ -4,10 +4,10 @@ test_that("a simple survival forest workflow works", {
   n <- 100
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
-  latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
+  failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
   censor.time <- rexp(n)
-  Y <- pmin(latent.time, censor.time)
-  D <- as.integer(latent.time <= censor.time)
+  Y <- pmin(failure.time, censor.time)
+  D <- as.integer(failure.time <= censor.time)
 
   sf <- survival_forest(X, Y, D, num.trees = 50)
   n.failures <- length(sf[["failure.times"]])
@@ -74,10 +74,10 @@ test_that("survival_forest works as expected with missing values", {
   n <- 1000
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
-  latent.time <- -log(runif(n)) * exp(0.1 * X[, 1])
+  failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
   censor.time <- rexp(n)
-  Y <- pmin(latent.time, censor.time)
-  D <- as.integer(latent.time <= censor.time)
+  Y <- pmin(failure.time, censor.time)
+  D <- as.integer(failure.time <= censor.time)
   nmissing <- 500
   X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
 
