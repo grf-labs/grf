@@ -13,13 +13,13 @@ X <- matrix(rnorm(n * p), n, p)
 failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
 censor.time <- rexp(n)
 Y <- pmin(failure.time, censor.time)
-C <- as.integer(failure.time <= censor.time)
-failure.times <- sort(unique(Y[C == 1]))
+D <- as.integer(failure.time <= censor.time)
+failure.times <- sort(unique(Y[D == 1]))
 Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
 
-kaplan.meier <- survfit(Surv(Y, C) ~ 1, data = data.frame(Y, C))
+kaplan.meier <- survfit(Surv(Y, D) ~ 1, data = data.frame(Y, D))
 
 length(failure.times) # num_failures
-dput(c(Y.relabeled, C)) # data_matrix
+dput(c(Y.relabeled, D)) # data_matrix
 dput(summary(kaplan.meier)$surv) # expected_predictions
 ```

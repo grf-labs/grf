@@ -75,7 +75,7 @@ X <- matrix(round(rnorm(n * p), 2), n, p)
 failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
 censor.time <- rexp(n)
 Y <- round(pmin(failure.time, censor.time), 2)
-C <- as.integer(failure.time <= censor.time)
+D <- as.integer(failure.time <= censor.time)
 
 nmissing <- 150
 X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
