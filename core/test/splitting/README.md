@@ -10,7 +10,7 @@ The datasets in the `resources` directory were generated through the following R
 # This script loops through all splits points for all variables
 # and uses the `survdiff` function from the `survival` package to compute the logrank
 # statistic at the given split. The largest logrank statistic subject to a minimum
-# of one failures on both sides of the split is saved in `survival_data_logrank_expected.csv`.
+# of one failure on both sides of the split is saved in `survival_data_logrank_expected.csv`.
 # p = 500 gives 500 logrank statistics computed on random partitions to check the SurvivalSplittingRule against.
 
 library(survival)
