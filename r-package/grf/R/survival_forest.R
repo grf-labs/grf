@@ -5,7 +5,7 @@
 #'
 #' @param X The covariates.
 #' @param Y The response time (may be negative).
-#' @param D The censoring indicator (1: failure, 0: censored)
+#' @param D The event type (0: censoring, 1: failure).
 #' @param num.trees Number of trees grown in the forest. Default is 1000.
 #' @param sample.weights (experimental) Weights given to an observation in prediction.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
