@@ -67,7 +67,7 @@
 #' X.test[, 1] <- seq(-2, 2, length.out = 3)
 #' s.pred <- predict(s.forest, X.test)
 #'
-#' # Plot the survival curve
+#' # Plot the survival curve.
 #' plot(NA, NA, xlab = "failure time", ylab = "survival function",
 #'      xlim = range(s.pred$failure.times),
 #'      ylim = c(0, 1))
@@ -79,6 +79,11 @@
 #'
 #' # Predict on out-of-bag training samples.
 #' s.pred <- predict(s.forest)
+#'
+#' # Plot the survival curve for the first five individuals.
+#' matplot(s.pred$failure.times, t(s.pred$predictions[1:5, ]),
+#'         xlab = "failure time", ylab = "survival function (OOB)",
+#'         type = "l", lty = 1)
 #' }
 #'
 #' @export
@@ -181,7 +186,7 @@ survival_forest <- function(X, Y, D,
 #' X.test[, 1] <- seq(-2, 2, length.out = 3)
 #' s.pred <- predict(s.forest, X.test)
 #'
-#' # Plot the survival curve
+#' # Plot the survival curve.
 #' plot(NA, NA, xlab = "failure time", ylab = "survival function",
 #'      xlim = range(s.pred$failure.times),
 #'      ylim = c(0, 1))
@@ -193,6 +198,11 @@ survival_forest <- function(X, Y, D,
 #'
 #' # Predict on out-of-bag training samples.
 #' s.pred <- predict(s.forest)
+#'
+#' # Plot the survival curve for the first five individuals.
+#' matplot(s.pred$failure.times, t(s.pred$predictions[1:5, ]),
+#'         xlab = "failure time", ylab = "survival function (OOB)",
+#'         type = "l", lty = 1)
 #' }
 #'
 #' @method predict survival_forest
