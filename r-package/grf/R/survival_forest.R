@@ -41,7 +41,7 @@
 #'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
 #'  Only applies if honesty is enabled. Default is TRUE.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05
-#'  (meaning the count of failures on each side of a split has to be at least 5 % of the total observation count in a node)
+#'  (meaning the count of failures on each side of a split has to be at least 5 \% of the total observation count in a node)
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
