@@ -6,6 +6,10 @@
 #' @param X The covariates.
 #' @param Y The event time (may be negative).
 #' @param D The event type (0: censoring, 1: failure).
+#' @param failure.times A vector of event times to fit the survival curve at. If NULL, then all the observed
+#'  failure times are used. This speeds up forest estimation by constraining the event grid. Observed event
+#'  times are rounded down to the last sorted occurance less than or equal to the specified failure time.
+#'  The time points should be in increasing order. Default is NULL.
 #' @param num.trees Number of trees grown in the forest. Default is 1000.
 #' @param sample.weights (experimental) Weights given to an observation in prediction.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
@@ -84,10 +88,19 @@
 #' matplot(s.pred$failure.times, t(s.pred$predictions[1:5, ]),
 #'         xlab = "failure time", ylab = "survival function (OOB)",
 #'         type = "l", lty = 1)
+#'
+#' # Train the forest on a less granular grid.
+#' failure.summary <- summary(Y[D == 1])
+#' events <- seq(failure.summary["Min."], failure.summary["Max."], by = 0.1)
+#' s.forest.grid <- survival_forest(X, Y, D, failure.times = events)
+#' s.pred.grid <- predict(s.forest.grid)
+#' matpoints(s.pred.grid$failure.times, t(s.pred.grid$predictions[1:5, ]),
+#'           type = "l", lty = 2)
 #' }
 #'
 #' @export
 survival_forest <- function(X, Y, D,
+                            failure.times = NULL,
                             num.trees = 1000,
                             sample.weights = NULL,
                             clusters = NULL,
@@ -118,7 +131,9 @@ survival_forest <- function(X, Y, D,
   # if the failure time is above the latter, but less than the second smallest failure time: set it to 1
   # etc. Will range from 0 to num.failures.
   # (Entry 0 is for time k < t1)
-  failure.times <- sort(unique(Y[D == 1]))
+  if (is.null(failure.times)) {
+    failure.times <- sort(unique(Y[D == 1]))
+  }
   Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
 
   data <- create_train_matrices(X, outcome = Y.relabeled, sample.weights = sample.weights, censor = D)
@@ -203,6 +218,14 @@ survival_forest <- function(X, Y, D,
 #' matplot(s.pred$failure.times, t(s.pred$predictions[1:5, ]),
 #'         xlab = "failure time", ylab = "survival function (OOB)",
 #'         type = "l", lty = 1)
+#'
+#' # Train the forest on a less granular grid.
+#' failure.summary <- summary(Y[D == 1])
+#' events <- seq(failure.summary["Min."], failure.summary["Max."], by = 0.1)
+#' s.forest.grid <- survival_forest(X, Y, D, failure.times = events)
+#' s.pred.grid <- predict(s.forest.grid)
+#' matpoints(s.pred.grid$failure.times, t(s.pred.grid$predictions[1:5, ]),
+#'           type = "l", lty = 2)
 #' }
 #'
 #' @method predict survival_forest
