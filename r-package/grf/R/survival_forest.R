@@ -53,19 +53,29 @@
 #' @examples
 #' \dontrun{
 #' # Train a standard survival forest.
-#' n <- 100
+#' n <- 2000
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)
-#' failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
-#' censor.time <- rexp(n)
+#' failure.time <- exp(0.5 * X[, 1]) * rexp(n)
+#' censor.time <- 2 * rexp(n)
 #' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
 #' s.forest <- survival_forest(X, Y, D)
 #'
 #' # Predict using the forest.
-#' X.test <- matrix(0, 101, p)
-#' X.test[, 1] <- seq(-2, 2, length.out = 101)
+#' X.test <- matrix(0, 3, p)
+#' X.test[, 1] <- seq(-2, 2, length.out = 3)
 #' s.pred <- predict(s.forest, X.test)
+#'
+#' # Plot the survival curve
+#' plot(NA, NA, xlab = "failure time", ylab = "survival function",
+#'      xlim = range(s.pred$failure.times),
+#'      ylim = c(0, 1))
+#' for(i in 1:3) {
+#'   lines(s.pred$failure.times, s.pred$predictions[i,], col = i)
+#'   s.true = exp(-s.pred$failure.times / exp(0.5 * X.test[i, 1]))
+#'   lines(s.pred$failure.times, s.true, col = i, lty = 2)
+#' }
 #'
 #' # Predict on out-of-bag training samples.
 #' s.pred <- predict(s.forest)
@@ -157,19 +167,29 @@ survival_forest <- function(X, Y, D,
 #' @examples
 #' \dontrun{
 #' # Train a standard survival forest.
-#' n <- 100
+#' n <- 2000
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)
-#' failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
-#' censor.time <- rexp(n)
+#' failure.time <- exp(0.5 * X[, 1]) * rexp(n)
+#' censor.time <- 2 * rexp(n)
 #' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
 #' s.forest <- survival_forest(X, Y, D)
 #'
 #' # Predict using the forest.
-#' X.test <- matrix(0, 101, p)
-#' X.test[, 1] <- seq(-2, 2, length.out = 101)
+#' X.test <- matrix(0, 3, p)
+#' X.test[, 1] <- seq(-2, 2, length.out = 3)
 #' s.pred <- predict(s.forest, X.test)
+#'
+#' # Plot the survival curve
+#' plot(NA, NA, xlab = "failure time", ylab = "survival function",
+#'      xlim = range(s.pred$failure.times),
+#'      ylim = c(0, 1))
+#' for(i in 1:3) {
+#'   lines(s.pred$failure.times, s.pred$predictions[i,], col = i)
+#'   s.true = exp(-s.pred$failure.times / exp(0.5 * X.test[i, 1]))
+#'   lines(s.pred$failure.times, s.true, col = i, lty = 2)
+#' }
 #'
 #' # Predict on out-of-bag training samples.
 #' s.pred <- predict(s.forest)
