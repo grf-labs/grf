@@ -24,76 +24,54 @@ SurvivalPredictionStrategy::SurvivalPredictionStrategy(size_t num_failures) :
   num_failures(num_failures) {};
 
 size_t SurvivalPredictionStrategy::prediction_length() const {
-    return num_failures;
+  return num_failures;
 }
 
-std::vector<double> SurvivalPredictionStrategy::predict(const std::vector<double>& average) const {
-  return average;
+std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample,
+    const std::unordered_map<size_t, double>& weights_by_sample,
+    const Data& train_data,
+    const Data& data) const {
+  // the failure times will always range from 0, ..., num_failures
+  // where num_failures is the count of failures in the training data.
+  std::vector<double> count_failure(num_failures + 1);
+  std::vector<double> count_censor(num_failures + 1);
+  double sum = 0;
+  for (const auto& entry : weights_by_sample) {
+    size_t sample = entry.first;
+    double forest_weight = entry.second;
+    size_t failure_time = train_data.get_outcome(sample);
+    double sample_weight = train_data.get_weight(sample);
+    if (train_data.is_censored(sample)) {
+     count_failure[failure_time] += forest_weight * sample_weight;
+    } else {
+     count_censor[failure_time] += forest_weight * sample_weight;
+    }
+    sum += forest_weight * sample_weight;
+  }
+  // Kaplan–Meier estimator of the survival function S(t)
+  double kaplan_meier = 1;
+  sum = sum - count_censor[0];
+  std::vector<double> survival_function(num_failures);
+
+  for (size_t time = 1; time <= num_failures; time++) {
+   if (sum > 0) {
+     kaplan_meier = kaplan_meier * (1 - count_failure[time] / sum);
+   }
+   survival_function[time - 1] = kaplan_meier;
+   sum = sum - count_failure[time] - count_censor[time];
+  }
+
+  return survival_function;
 }
 
 std::vector<double> SurvivalPredictionStrategy::compute_variance(
-    const std::vector<double>& average,
-    const PredictionValues& leaf_values,
+    size_t sample,
+    const std::vector<std::vector<size_t>>& samples_by_tree,
+    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const Data& train_data,
+    const Data& data,
     size_t ci_group_size) const {
   return { 0.0 };
-}
-
-size_t SurvivalPredictionStrategy::prediction_value_length() const {
-  return 1;
-}
-
-PredictionValues SurvivalPredictionStrategy::precompute_prediction_values(
-    const std::vector<std::vector<size_t>>& leaf_samples,
-    const Data& data) const {
-  size_t num_leaves = leaf_samples.size();
-  std::vector<std::vector<double>> values(num_leaves);
-
-  for (size_t i = 0; i < num_leaves; i++) {
-    const std::vector<size_t>& leaf_node = leaf_samples.at(i);
-    if (leaf_node.empty()) {
-      continue;
-    }
-
-    // the failure times will always range from 0, ..., num_failures
-    // where num_failures is the count of failures in the training data.
-    std::vector<double> count_failure(num_failures + 1);
-    std::vector<double> count_censor(num_failures + 1);
-    double sum = 0;
-
-    for (auto& sample : leaf_node) {
-      size_t failure_time = data.get_outcome(sample);
-      double sample_weight = data.get_weight(sample);
-      if (data.is_censored(sample)) {
-        count_failure[failure_time] += sample_weight;
-      } else {
-        count_censor[failure_time] += sample_weight;
-      }
-      sum += sample_weight;
-    }
-    // Kaplan–Meier estimator of the survival function S(t)
-    double kaplan_meier = 1;
-    sum = sum - count_censor[0];
-    std::vector<double>& survival_function = values[i];
-    survival_function.resize(num_failures);
-
-    for (size_t time = 1; time <= num_failures; time++) {
-      if (sum > 0) {
-        kaplan_meier = kaplan_meier * (1 - count_failure[time] / sum);
-      }
-      survival_function[time - 1] = kaplan_meier;
-      sum = sum - count_failure[time] - count_censor[time];
-    }
-  }
-
-  return PredictionValues(values, num_failures);
-}
-
-std::vector<std::pair<double, double>> SurvivalPredictionStrategy::compute_error(
-    size_t sample,
-    const std::vector<double>& average,
-    const PredictionValues& leaf_values,
-    const Data& data) const {
-  return { std::make_pair<double, double>(NAN, NAN) };
 }
 
 } // namespace grf

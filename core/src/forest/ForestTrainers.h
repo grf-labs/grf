@@ -35,7 +35,7 @@ ForestTrainer ll_regression_trainer(double split_lambda,
                                    size_t ll_split_cutoff,
                                    std::vector<size_t> ll_split_variables);
 
-ForestTrainer survival_trainer(size_t num_failures);
+ForestTrainer survival_trainer();
 
 ForestTrainer custom_trainer();
 

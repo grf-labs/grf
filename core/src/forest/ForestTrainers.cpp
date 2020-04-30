@@ -18,7 +18,6 @@
 #include "forest/ForestTrainers.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
-#include "prediction/SurvivalPredictionStrategy.h"
 #include "relabeling/CustomRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "relabeling/LLRegressionRelabelingStrategy.h"
@@ -80,14 +79,13 @@ ForestTrainer ll_regression_trainer(double split_lambda,
                        std::move(prediction_strategy));
 }
 
-ForestTrainer survival_trainer(size_t num_failures) {
+ForestTrainer survival_trainer() {
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new SurvivalSplittingRuleFactory());
-  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new SurvivalPredictionStrategy(num_failures));
 
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       std::move(prediction_strategy));
+                       nullptr);
 }
 
 ForestTrainer custom_trainer() {

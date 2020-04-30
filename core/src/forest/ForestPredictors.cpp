@@ -73,7 +73,7 @@ ForestPredictor ll_causal_predictor(uint num_threads,
 
 ForestPredictor survival_predictor(uint num_threads, size_t num_failures) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new SurvivalPredictionStrategy(num_failures));
+  std::unique_ptr<DefaultPredictionStrategy> prediction_strategy(new SurvivalPredictionStrategy(num_failures));
   return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
 

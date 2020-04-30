@@ -20,18 +20,21 @@
 
 #include "commons/DefaultData.h"
 #include "commons/Data.h"
-#include "prediction/OptimizedPredictionStrategy.h"
+#include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
 
 namespace grf {
 
-class SurvivalPredictionStrategy final: public OptimizedPredictionStrategy {
+class SurvivalPredictionStrategy final: public DefaultPredictionStrategy {
 public:
 
   /**
    * Compute Kaplan-Meier estimates of the survival function.
    *
-   * (Variance estimates and other prediction statistics are currently not implemented).
+   * This estimate is weighted by the random forest weights (alpha) and
+   * the sample weights.
+   *
+   * (Variance and error estimates are not supported).
    *
    * num_failures: the count of failures in the training data.
    */
@@ -39,29 +42,18 @@ public:
 
   size_t prediction_length() const;
 
-  std::vector<double> predict(const std::vector<double>& average) const;
+  std::vector<double> predict(size_t prediction_sample,
+    const std::unordered_map<size_t, double>& weights_by_sample,
+    const Data& train_data,
+    const Data& data) const;
 
   std::vector<double> compute_variance(
-      const std::vector<double>& average,
-      const PredictionValues& leaf_values,
-      size_t ci_group_size) const;
-
-  size_t prediction_value_length() const;
-
-  /**
-   * Compute Kaplan-Meier estimates of the survival function S(t).
-   *
-   * The prediction for each sample will be a vector of length `num_failures` with each entry
-   * corresponding to an element of S(i) for that individual.
-   */
-  PredictionValues precompute_prediction_values(const std::vector<std::vector<size_t>>& leaf_samples,
-                                                const Data& data) const;
-
-  std::vector<std::pair<double, double>> compute_error(
-      size_t sample,
-      const std::vector<double>& average,
-      const PredictionValues& leaf_values,
-      const Data& data) const;
+    size_t sample,
+    const std::vector<std::vector<size_t>>& samples_by_tree,
+    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const Data& train_data,
+    const Data& data,
+    size_t ci_group_size) const;
 
 private:
   size_t num_failures;

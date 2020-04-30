@@ -52,17 +52,16 @@ TEST_CASE("Kaplan-Meier survival estimates are correct", "[survival], [predictio
   data.set_outcome_index(outcome_index);
   data.set_censor_index(outcome_index + 1);
 
-  std::vector<std::vector<size_t>> leaf_samples(1);
+  std::unordered_map<size_t, double> weights_by_sample;
   for (size_t i = 0; i < num_rows; i++) {
-    leaf_samples[0].push_back(i);
+    weights_by_sample[i] = 1.0;
   }
 
   SurvivalPredictionStrategy prediction_strategy(num_failures);
-  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, data);
+  std::vector<double> predictions = prediction_strategy.predict(0, weights_by_sample, data, data);
 
-  std::vector<double> predictions = prediction_values.get_all_values()[0];
   for (size_t i = 0; i < predictions.size(); i++) {
-    REQUIRE(equal_doubles(predictions[i], expected_predictions[i], 1e-10));
+    REQUIRE(equal_doubles(predictions[i], expected_predictions[i], 1e-9));
   }
 }
 
@@ -114,21 +113,19 @@ TEST_CASE("Kaplan-Meier estimates on duplicated data is the same as with sample 
   data_duplicated.set_outcome_index(outcome_index);
   data_duplicated.set_censor_index(outcome_index + 1);
 
-  std::vector<std::vector<size_t>> leaf_samples(1);
+  std::unordered_map<size_t, double> weights_by_sample;
   for (size_t i = 0; i < num_rows; i++) {
-    leaf_samples[0].push_back(i);
+    weights_by_sample[i] = 1.0;
   }
 
   SurvivalPredictionStrategy prediction_strategy(num_failures);
-  PredictionValues prediction_values_weighted = prediction_strategy.precompute_prediction_values(leaf_samples, data);
+  std::vector<double> predictions_weighted = prediction_strategy.predict(0, weights_by_sample, data, data);
   for (size_t i = num_rows; i < num_rows + num_duplicates; i++) {
-    leaf_samples[0].push_back(i);
+    weights_by_sample[i] = 1.0;
   }
-  PredictionValues prediction_values_duplicated = prediction_strategy.precompute_prediction_values(leaf_samples, data_duplicated);
+  std::vector<double> predictions_duplicated = prediction_strategy.predict(0, weights_by_sample, data, data);
 
-  std::vector<double> predictions_weighted = prediction_values_weighted.get_all_values()[0];
-  std::vector<double> predictions_duplicated = prediction_values_duplicated.get_all_values()[0];
   for (size_t i = 0; i < predictions_duplicated.size(); i++) {
-    REQUIRE(equal_doubles(predictions_weighted[i], predictions_duplicated[i], 1e-10));
+    REQUIRE(equal_doubles(predictions_weighted[i], predictions_duplicated[i], 1e-9));
   }
 }
