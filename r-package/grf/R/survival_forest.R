@@ -31,7 +31,7 @@
 #'             \eqn{\sqrt p + 20} where p is the number of variables.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#'                      Default is 5.
+#'                      Default is 15.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
 #'  For a detailed description of honesty, honesty.fraction, honesty.prune.leaves, and recommendations for
 #'  parameter tuning, see the grf
@@ -107,7 +107,7 @@ survival_forest <- function(X, Y, D,
                             equalize.cluster.weights = FALSE,
                             sample.fraction = 0.5,
                             mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
-                            min.node.size = 5,
+                            min.node.size = 15,
                             honesty = TRUE,
                             honesty.fraction = 0.5,
                             honesty.prune.leaves = TRUE,
