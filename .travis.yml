@@ -7,7 +7,7 @@ branches:
   only:
     - master
 
-r_binary_packages:
+r_packages:
   - devtools
   - testthat
   - roxygen2
@@ -16,8 +16,6 @@ r_binary_packages:
   - glmnet
   - knitr
   - rmarkdown
-
-r_packages:
   - pkgdown
 
 matrix:
