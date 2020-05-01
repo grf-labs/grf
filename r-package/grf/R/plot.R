@@ -112,7 +112,7 @@ export_graphviz <- function(tree, include.na.path) {
 #'
 #' @method plot grf_tree
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Plot a tree in the forest (requires the `DiagrammeR` package).
 #' n <- 500
 #' p <- 10
@@ -121,9 +121,6 @@ export_graphviz <- function(tree, include.na.path) {
 #' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
 #' c.forest <- causal_forest(X, Y, W)
 #' plot(tree <- get_tree(c.forest, 1))
-#' }
-#'
-#' \dontrun{
 #' # Saving a plot in .svg can be done with the `DiagrammeRsvg` package.
 #' install.packages("DiagrammeRsvg")
 #' tree.plot = plot(tree)
