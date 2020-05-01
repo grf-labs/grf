@@ -56,7 +56,7 @@
 #' average_treatment_effect(c.forest, target.sample = "treated")
 #'
 #' # Estimate the conditional average treatment effect on samples with positive X[,1].
-#' average_treatment_effect(c.forest, target.sample = "all", X[, 1] > 0)
+#' average_treatment_effect(c.forest, target.sample = "all", subset = X[, 1] > 0)
 #' }
 #'
 #' @return An estimate of the average treatment effect, along with standard error.
