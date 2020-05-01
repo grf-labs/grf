@@ -113,19 +113,19 @@ export_graphviz <- function(tree, include.na.path) {
 #' @method plot grf_tree
 #' @examples
 #' \dontrun{
-#' # Save the plot of a tree in the causal forest.
-#' install.packages("DiagrammeR")
-#' install.packages("DiagrammeRsvg")
+#' # Plot a tree in the forest (requires the `DiagrammeR` package).
 #' n <- 500
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
 #' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
 #' c.forest <- causal_forest(X, Y, W)
-#' #save the first tree in the forest as plot.svg
-#' tree.plot = plot(get_tree(c.forest, 1))
-#' cat(DiagrammeRsvg::export_svg(tree.plot), file='plot.svg')
-#'}
+#' plot(tree <- get_tree(c.forest, 1))
+#' # Saving a plot in .svg can be done with the `DiagrammeRsvg` package.
+#' install.packages("DiagrammeRsvg")
+#' tree.plot = plot(tree)
+#' cat(DiagrammeRsvg::export_svg(tree.plot), file = 'plot.svg')
+#' }
 #' @export
 plot.grf_tree <- function(x, include.na.path = NULL, ...) {
   if (!requireNamespace("DiagrammeR", quietly = TRUE)) {

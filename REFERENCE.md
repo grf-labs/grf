@@ -22,6 +22,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Cluster-Robust Estimation](#cluster-robust-estimation)
   * [Sample Weighting](#sample-weighting)
   * [Categorical Inputs](#categorical-inputs)
+  * [Missing values](#missing-values)
 * [Troubleshooting](#troubleshooting)
 * [References](#references)
 
@@ -293,6 +294,22 @@ However, sometimes the category has no reasonable ordering. In that case, one co
 
 Finally, please bear in mind that in general the statistical performance of any statistical algorithm will depend on how the data is represented. Therefore, it may be worthwhile to spend some time thinking about how to encode your variables before starting the actual analysis.
 
+### Missing values
+
+GRF can handle missing covariate values, meaning that a the input covariate matrix can contain `NA` in some cells instead of numerical values.
+
+These missing values can be _informative_, in the sense that the fact that a covariate is missing can be predictive of the unobserved value itself or of the outcome Y, or it can be _non-informative_.
+For instance, an individual's annual income could be missing because this individual is wealthy and prefers to conceal his/her income and this in turn is likely to be predictive, for instance, of the type of housing of this individual.
+
+GRF handles missing values implicitly using the missing incorporated in attributes criterion (MIA; Twala et al., 2008), meaning that as soon as there is a missing value in a variable _j_, there are three candidate splits for a given threshold.
+- split the samples with observed value for _j_ according to the threshold and send all samples with missing value for _j_ to the __left__,
+- split the samples with observed value for _j_ according to the threshold and send all samples with missing value for _j_ to the __right__,
+- send all samples with observed value for _j_ to the left and all samples with missing value for _j_ to the right.
+
+Note that by default, missing values are sent to the left, which implies that if the covariates from the training set are completely observed but there are missing values occurring in a new covariate matrix from the test set, then the prediction functions will not produce an error but simply send the incomplete observations to the left side of the corresponding nodes.
+
+Missing values occur almost inevitably in most applications and the way to handle them depends on the type of analysis one wishes to perform and on the mechanism that generated these missing values.
+For a broader discussion on treatment effect estimation with missing attributes please see Mayer et al. (2019).
 
 ## Troubleshooting
 
@@ -350,11 +367,15 @@ Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, a
 
 Li, Fan, Kari Lock Morgan, and Alan M. Zaslavsky. Balancing covariates via propensity score weighting. *Journal of the American Statistical Association*, 2018.
 
+Mayer, Imke, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager and Julie Josse. Doubly robust treatment effect estimation with missing attributes. *arXiv preprint arXiv:1910.10624*, 2019.
+
 Nie, Xinkun, and Stefan Wager. Learning Objectives for Treatment Effect Estimation. *arXiv preprint arXiv:1712.04912*, 2017.
 
 Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. Estimation of regression coefficients when some regressors are not always observed. *Journal of the American statistical Association*, 1994.
 
 Robinson, Peter M. Root-n-consistent semiparametric regression. *Econometrica*, 1988.
+
+Twala, B. E. T. H., M. C. Jones, and David J. Hand. Good methods for coping with missing data in decision trees. *Pattern Recognition Letters 29*,2008.
 
 Van Der Laan, Mark J., and Daniel Rubin. Targeted maximum likelihood learning. *The International Journal of Biostatistics*, 2006.
 

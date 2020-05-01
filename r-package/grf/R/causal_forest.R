@@ -84,7 +84,7 @@
 #'  then tuning information will be included through the `tuning.output` attribute.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a causal forest.
 #' n <- 500
 #' p <- 10
@@ -217,7 +217,7 @@ causal_forest <- function(X, Y, W,
 
   Y.centered <- Y - Y.hat
   W.centered <- W - W.hat
-  data <- create_data_matrices(X, outcome = Y.centered, treatment = W.centered,
+  data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered,
                               sample.weights = sample.weights)
   args <- list(num.trees = num.trees,
                clusters = clusters,
@@ -321,7 +321,7 @@ causal_forest <- function(X, Y, W,
 #'         enough forests to make the 'excess.error' negligible.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a causal forest.
 #' n <- 100
 #' p <- 10
@@ -364,7 +364,7 @@ predict.causal_forest <- function(object, newdata = NULL,
   X <- object[["X.orig"]]
   Y.centered <- object[["Y.orig"]] - object[["Y.hat"]]
   W.centered <- object[["W.orig"]] - object[["W.hat"]]
-  train.data <- create_data_matrices(X, outcome = Y.centered, treatment = W.centered)
+  train.data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered)
 
   num.threads <- validate_num_threads(num.threads)
 
@@ -389,7 +389,7 @@ predict.causal_forest <- function(object, newdata = NULL,
 
    if (!is.null(newdata)) {
        validate_newdata(newdata, object$X.orig, allow.na = allow.na)
-       data <- create_data_matrices(newdata)
+       data <- create_train_matrices(newdata)
        if (!local.linear) {
            ret <- causal_predict(get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix,
                    train.data$outcome.index, train.data$treatment.index, data$train.matrix,

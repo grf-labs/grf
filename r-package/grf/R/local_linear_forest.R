@@ -70,7 +70,7 @@
 #' @return A trained local linear forest object.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a standard regression forest.
 #' n <- 50
 #' p <- 10
@@ -120,7 +120,7 @@ ll_regression_forest <- function(X, Y,
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
                           "honesty.prune.leaves", "alpha", "imbalance.penalty")
 
-  data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
+  data <- create_train_matrices(X, outcome = Y, sample.weights = sample.weights)
 
   args <- list(num.trees = num.trees,
                clusters = clusters,
@@ -232,7 +232,7 @@ ll_regression_forest <- function(X, Y,
 #' @return A vector of predictions.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train the forest.
 #' n <- 50
 #' p <- 5
@@ -280,11 +280,11 @@ predict.ll_regression_forest <- function(object, newdata = NULL,
   # Subtract 1 to account for C++ indexing
   linear.correction.variables <- linear.correction.variables - 1
 
-  train.data <- create_data_matrices(X, outcome = object[["Y.orig"]])
+  train.data <- create_train_matrices(X, outcome = object[["Y.orig"]])
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X)
-    data <- create_data_matrices(newdata)
+    data <- create_train_matrices(newdata)
     ret <- ll_regression_predict(
       get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
       data$train.matrix, data$sparse.train.matrix,

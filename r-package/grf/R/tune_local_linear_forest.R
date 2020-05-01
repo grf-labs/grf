@@ -13,7 +13,7 @@
 #' @return A list of lambdas tried, corresponding errors, and optimal ridge penalty lambda.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Find the optimal tuning parameters.
 #' n <- 500
 #' p <- 10
@@ -34,7 +34,7 @@ tune_ll_regression_forest <- function(forest,
                                       lambda.path = NULL) {
   X <- forest[["X.orig"]]
   Y <- forest[["Y.orig"]]
-  data <- create_data_matrices(X, outcome = Y)
+  data <- create_train_matrices(X, outcome = Y)
 
   # Validate variables
   num.threads <- validate_num_threads(num.threads)

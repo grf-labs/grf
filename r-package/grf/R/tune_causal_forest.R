@@ -65,7 +65,7 @@
 #'         error ('error').
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Find the optimal tuning parameters.
 #' n <- 500
 #' p <- 10
@@ -129,7 +129,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat,
 
   Y.centered <- Y - Y.hat
   W.centered <- W - W.hat
-  data <- create_data_matrices(X, outcome = Y.centered, treatment = W.centered,
+  data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered,
                               sample.weights = sample.weights)
   nrow.X <- nrow(X)
   ncol.X <- ncol(X)

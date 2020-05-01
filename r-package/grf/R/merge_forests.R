@@ -17,7 +17,7 @@
 #' @return A single forest containing all the trees in each forest in the input list.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train standard regression forests
 #' n <- 50
 #' p <- 10

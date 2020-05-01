@@ -51,7 +51,7 @@
 #' @return A trained quantile forest object.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Generate data.
 #' n <- 50
 #' p <- 10
@@ -106,7 +106,7 @@ quantile_forest <- function(X, Y,
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, NULL)
   num.threads <- validate_num_threads(num.threads)
 
-  data <- create_data_matrices(X, outcome = Y)
+  data <- create_train_matrices(X, outcome = Y)
   ci.group.size <- 1
 
   forest <- quantile_train(
@@ -143,7 +143,7 @@ quantile_forest <- function(X, Y,
 #' @return Predictions at each test point for each desired quantile.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a quantile forest.
 #' n <- 50
 #' p <- 10
@@ -175,11 +175,11 @@ predict.quantile_forest <- function(object,
   num.threads <- validate_num_threads(num.threads)
 
   X <- object[["X.orig"]]
-  train.data <- create_data_matrices(X, outcome = object[["Y.orig"]])
+  train.data <- create_train_matrices(X, outcome = object[["Y.orig"]])
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig, allow.na = TRUE)
-    data <- create_data_matrices(newdata)
+    data <- create_train_matrices(newdata)
     quantile_predict(
       get_xptr(object), quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
       train.data$outcome.index, data$train.matrix, data$sparse.train.matrix, num.threads

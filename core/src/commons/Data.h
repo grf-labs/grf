@@ -53,6 +53,8 @@ public:
 
   void set_weight_index(size_t index);
 
+  void set_censor_index(size_t index);
+
   /**
    * Sorts and gets the unique values in `samples` at variable `var`.
    *
@@ -80,6 +82,8 @@ public:
 
   double get_weight(size_t row) const;
 
+  bool is_censored(size_t row) const;
+
   const std::set<size_t>& get_disallowed_split_variables() const;
 
 protected:
@@ -91,6 +95,7 @@ protected:
   nonstd::optional<size_t> treatment_index;
   nonstd::optional<size_t> instrument_index;
   nonstd::optional<size_t> weight_index;
+  nonstd::optional<size_t> censor_index;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Data);

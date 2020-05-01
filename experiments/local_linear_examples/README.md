@@ -1,4 +1,7 @@
-This folder has replication files for the paper "Local Linear Forests", by Friedberg, Tibshirani, Athey, and Wager.
+This folder has replication files for the paper "Local Linear Forests", by Friedberg, Tibshirani, Athey, and Wager, as well as a general introduction for practitioners.
+
+The R markdown introduction to local linear forests can be found at llf_guide.Rmd. 
+Required R packages: ggplot2, glmnet, grf.
 
 All selected settings for the algorithms here are described in the paper.
 Required R packages: BART, ggplot2, glmnet, grf, hte, xgboost.

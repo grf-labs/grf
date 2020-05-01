@@ -7,16 +7,15 @@ branches:
   only:
     - master
 
-r_binary_packages:
+r_packages:
   - devtools
   - testthat
   - roxygen2
   # Vignettes
   - ggplot2
+  - glmnet
   - knitr
   - rmarkdown
-
-r_packages:
   - pkgdown
 
 matrix:

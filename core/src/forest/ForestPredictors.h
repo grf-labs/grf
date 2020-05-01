@@ -41,6 +41,8 @@ ForestPredictor ll_causal_predictor(uint num_threads,
                                    bool weight_penalty,
                                    std::vector<size_t> linear_correction_variables);
 
+ForestPredictor survival_predictor(uint num_threads, size_t num_failures);
+
 } // namespace grf
 
 #endif //GRF_FORESTPREDICTORS_H

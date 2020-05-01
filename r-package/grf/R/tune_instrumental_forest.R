@@ -70,7 +70,7 @@
 #'         error ('error').
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Find the optimal tuning parameters.
 #' n <- 3000; p <- 5
 #' X <- matrix(rbinom(n*p, 1, 0.5), n, p)
@@ -127,7 +127,7 @@ tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat,
                              alpha = 0.05,
                              imbalance.penalty = 0)
 
-  data <- create_data_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
+  data <- create_train_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
                               instrument = Z - Z.hat, sample.weights = sample.weights)
   nrow.X <- nrow(X)
   ncol.X <- ncol(X)

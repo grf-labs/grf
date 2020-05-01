@@ -60,7 +60,7 @@
 #'         error ('error').
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Find the optimal tuning parameters.
 #' n <- 500
 #' p <- 10
@@ -117,7 +117,7 @@ tune_regression_forest <- function(X, Y,
                              alpha = 0.05,
                              imbalance.penalty = 0)
 
-  data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
+  data <- create_train_matrices(X, outcome = Y, sample.weights = sample.weights)
   nrow.X <- nrow(X)
   ncol.X <- ncol(X)
   args <- list(clusters = clusters,
