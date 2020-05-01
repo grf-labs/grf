@@ -58,7 +58,7 @@
 #'   "Random survival forests." The Annals of Applied Statistics 2.3 (2008): 841-860.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a standard survival forest.
 #' n <- 2000
 #' p <- 5
@@ -188,7 +188,7 @@ survival_forest <- function(X, Y, D,
 #' @return Vector of predictions.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a standard survival forest.
 #' n <- 2000
 #' p <- 5

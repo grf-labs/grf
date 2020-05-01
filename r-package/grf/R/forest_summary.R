@@ -18,7 +18,7 @@
 #'             Randomized Experiments." arXiv preprint arXiv:1712.04802 (2017).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' n <- 800
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)
@@ -117,7 +117,7 @@ test_calibration <- function(forest) {
 #'             other structural functions." arXiv preprint arXiv:1702.06240 (2017).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' n <- 800
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)

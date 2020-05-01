@@ -70,7 +70,7 @@
 #'         error ('error').
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Find the optimal tuning parameters.
 #' n <- 3000; p <- 5
 #' X <- matrix(rbinom(n*p, 1, 0.5), n, p)

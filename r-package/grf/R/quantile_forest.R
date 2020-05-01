@@ -51,7 +51,7 @@
 #' @return A trained quantile forest object.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Generate data.
 #' n <- 50
 #' p <- 10
@@ -142,7 +142,7 @@ quantile_forest <- function(X, Y,
 #' @return Predictions at each test point for each desired quantile.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a quantile forest.
 #' n <- 50
 #' p <- 10

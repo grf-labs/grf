@@ -64,7 +64,7 @@
 #'  then tuning information will be included through the `tuning.output` attribute.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a standard regression forest.
 #' n <- 500
 #' p <- 10
@@ -212,7 +212,7 @@ regression_forest <- function(X, Y,
 #'         enough forests to make the 'excess.error' negligible.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a standard regression forest.
 #' n <- 50
 #' p <- 10
