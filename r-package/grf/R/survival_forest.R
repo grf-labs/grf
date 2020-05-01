@@ -54,6 +54,9 @@
 #' @return A trained survival_forest forest object. The attribute `failure.times` contains the unique failure
 #'  times in the data set.
 #'
+#' @references Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer.
+#'   "Random survival forests." The Annals of Applied Statistics 2.3 (2008): 841-860.
+#'
 #' @examples
 #' \dontrun{
 #' # Train a standard survival forest.
