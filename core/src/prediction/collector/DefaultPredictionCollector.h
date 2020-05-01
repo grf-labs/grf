@@ -30,6 +30,11 @@ class DefaultPredictionCollector final: public PredictionCollector {
 public:
   DefaultPredictionCollector(std::unique_ptr<DefaultPredictionStrategy> strategy, uint num_threads);
 
+  /**
+   * Collect predictions and variance estimates computed by the DefaultPredictionStrategy.
+   *
+   * Note: estimate_error is unused as this prediction strategy does not implement error estimates.
+   */
   std::vector<Prediction> collect_predictions(const Forest& forest,
                                               const Data& train_data,
                                               const Data& data,
@@ -45,7 +50,6 @@ private:
                                                     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                     const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                     bool estimate_variance,
-                                                    bool estimate_error,
                                                     size_t start,
                                                     size_t num_samples) const;
 
