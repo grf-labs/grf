@@ -61,7 +61,7 @@ TEST_CASE("Kaplan-Meier survival estimates are correct", "[survival], [predictio
   std::vector<double> predictions = prediction_strategy.predict(0, weights_by_sample, data, data);
 
   for (size_t i = 0; i < predictions.size(); i++) {
-    REQUIRE(equal_doubles(predictions[i], expected_predictions[i], 1e-9));
+    REQUIRE(equal_doubles(predictions[i], expected_predictions[i], 1e-8));
   }
 }
 
@@ -126,6 +126,6 @@ TEST_CASE("Kaplan-Meier estimates on duplicated data is the same as with sample 
   std::vector<double> predictions_duplicated = prediction_strategy.predict(0, weights_by_sample, data, data);
 
   for (size_t i = 0; i < predictions_duplicated.size(); i++) {
-    REQUIRE(equal_doubles(predictions_weighted[i], predictions_duplicated[i], 1e-9));
+    REQUIRE(equal_doubles(predictions_weighted[i], predictions_duplicated[i], 1e-8));
   }
 }
