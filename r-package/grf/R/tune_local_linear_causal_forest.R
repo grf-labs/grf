@@ -45,7 +45,7 @@ tune_ll_causal_forest <- function(forest,
   Y.centered <- Y - Y.hat
   W.centered <- W - W.hat
 
-  data <- create_data_matrices(X, Y.centered, W.centered)
+  data <- create_train_matrices(X, Y.centered, W.centered)
 
   # Validate variables
   num.threads <- validate_num_threads(num.threads)

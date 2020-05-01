@@ -26,6 +26,7 @@
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
+#include "splitting/factory/SurvivalSplittingRuleFactory.h"
 
 namespace grf {
 
@@ -42,7 +43,7 @@ ForestTrainer instrumental_trainer(double reduced_form_weight,
                        std::move(splitting_rule_factory),
                        std::move(prediction_strategy));
 }
-  
+
 ForestTrainer quantile_trainer(const std::vector<double>& quantiles) {
     std::unique_ptr<RelabelingStrategy> relabeling_strategy(new QuantileRelabelingStrategy(quantiles));
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(
@@ -76,6 +77,15 @@ ForestTrainer ll_regression_trainer(double split_lambda,
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
                        std::move(prediction_strategy));
+}
+
+ForestTrainer survival_trainer() {
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new SurvivalSplittingRuleFactory());
+
+  return ForestTrainer(std::move(relabeling_strategy),
+                       std::move(splitting_rule_factory),
+                       nullptr);
 }
 
 ForestTrainer custom_trainer() {

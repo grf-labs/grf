@@ -55,21 +55,21 @@ test_that("an observation matrix with 1 column is accepted", {
   expect_true(is.vector(Y))
 })
 
-test_that("create_data_matrices handles data.frame, matrix, sparse and NULL inputs equally", {
+test_that("create_train_matrices handles data.frame, matrix, sparse and NULL inputs equally", {
   Xm <- matrix(rnorm(100), 20, 5)
   Xd <- as.data.frame(Xm)
   Xs <- Matrix(Xm, sparse = T)
   Y <- matrix(rnorm(20))
 
-  data1_d <- create_data_matrices(Xd)
-  data1_m <- create_data_matrices(Xm)
-  data1_s <- create_data_matrices(Xs)
-  data2_d <- create_data_matrices(Xd, Y)
-  data2_m <- create_data_matrices(Xm, Y)
-  data2_s <- create_data_matrices(Xs, Y)
-  data3_d <- create_data_matrices(Xd, Y, NULL)
-  data3_m <- create_data_matrices(Xm, Y, NULL)
-  data3_s <- create_data_matrices(Xs, Y, NULL)
+  data1_d <- create_train_matrices(Xd)
+  data1_m <- create_train_matrices(Xm)
+  data1_s <- create_train_matrices(Xs)
+  data2_d <- create_train_matrices(Xd, Y)
+  data2_m <- create_train_matrices(Xm, Y)
+  data2_s <- create_train_matrices(Xs, Y)
+  data3_d <- create_train_matrices(Xd, Y, NULL)
+  data3_m <- create_train_matrices(Xm, Y, NULL)
+  data3_s <- create_train_matrices(Xs, Y, NULL)
 
   # Checking for equality of elements
   # (note expect_equal does not work here)

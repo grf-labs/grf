@@ -120,7 +120,7 @@ regression_forest <- function(X, Y,
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
                           "honesty.prune.leaves", "alpha", "imbalance.penalty")
 
-  data <- create_data_matrices(X, outcome = Y, sample.weights = sample.weights)
+  data <- create_train_matrices(X, outcome = Y, sample.weights = sample.weights)
   args <- list(num.trees = num.trees,
                clusters = clusters,
                samples.per.cluster = samples.per.cluster,
@@ -258,7 +258,7 @@ predict.regression_forest <- function(object, newdata = NULL,
 
   forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
-  train.data <- create_data_matrices(X, outcome = object[["Y.orig"]])
+  train.data <- create_train_matrices(X, outcome = object[["Y.orig"]])
 
   if (local.linear) {
     linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
@@ -278,7 +278,7 @@ predict.regression_forest <- function(object, newdata = NULL,
   }
 
   if (!is.null(newdata)) {
-    data <- create_data_matrices(newdata)
+    data <- create_train_matrices(newdata)
     validate_newdata(newdata, X, allow.na = allow.na)
     if (!local.linear) {
       ret <- regression_predict(
@@ -293,7 +293,7 @@ predict.regression_forest <- function(object, newdata = NULL,
       )
     }
   } else {
-    data <- create_data_matrices(X)
+    data <- create_train_matrices(X)
     if (!local.linear) {
       ret <- regression_predict_oob(
         forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,

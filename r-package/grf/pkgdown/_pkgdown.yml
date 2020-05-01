@@ -66,6 +66,11 @@ reference:
       - boosted_regression_forest
       - predict.boosted_regression_forest
 
+  - title: Survival forest
+    contents:
+      - survival_forest
+      - predict.survival_forest
+
 # Treatment effects
   - title: Treatment effect estimation
     desc: Functions for estimating various treatment effects.

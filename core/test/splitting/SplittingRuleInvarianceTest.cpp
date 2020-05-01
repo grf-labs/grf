@@ -18,6 +18,7 @@
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
+#include "splitting/factory/SurvivalSplittingRuleFactory.h"
 #include "relabeling/NoopRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "relabeling/QuantileRelabelingStrategy.h"
@@ -135,6 +136,35 @@ TEST_CASE("probability splitting on Xij then setting all values to the left to N
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new QuantileRelabelingStrategy(quantiles));
   auto splitting_rule_factory = std::unique_ptr<SplittingRuleFactory>(new ProbabilitySplittingRuleFactory(quantiles.size() + 1));
+
+  size_t split_var, split_var_nan;
+  double split_val, split_val_nan;
+  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
+
+  // Set all values to the left of the split to missing
+  bool write_error;
+  for(size_t row = 0; row < data->get_num_rows(); ++row) {
+    double value = data->get(row, split_var);
+    if (value < split_val) {
+      data->set(split_var, row, NAN, write_error);
+    }
+  }
+
+  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
+  REQUIRE(split_var == split_var_nan);
+  REQUIRE(split_val == split_val_nan);
+}
+
+TEST_CASE("survival splitting on Xij then setting all values to the left to NaN yields the same split", "[NaN], [survival], [splitting]") {
+  std::unique_ptr<Data> data = load_data("test/forest/resources/survival_data_MIA.csv");
+  size_t num_features = 5;
+  data->set_outcome_index(5);
+  data->set_censor_index(6);
+
+  TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
+
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
+  auto splitting_rule_factory = std::unique_ptr<SplittingRuleFactory>(new SurvivalSplittingRuleFactory());
 
   size_t split_var, split_var_nan;
   double split_val, split_val_nan;
