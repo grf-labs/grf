@@ -72,7 +72,7 @@ Rcpp::List survival_train(Rcpp::NumericMatrix train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List survival_predict(Rcpp::List forest_object,
+Rcpp::List survival_predict(SEXP forest_xptr,
                             Rcpp::NumericMatrix train_matrix,
                             Eigen::SparseMatrix<double> sparse_train_matrix,
                             size_t outcome_index,
@@ -91,17 +91,17 @@ Rcpp::List survival_predict(Rcpp::List forest_object,
   }
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   bool estimate_variance = false;
   ForestPredictor predictor = survival_predictor(num_threads, num_failures);
-  std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict(*forest, *train_data, *data, estimate_variance);
 
   return RcppUtilities::create_prediction_object(predictions);
 }
 
 // [[Rcpp::export]]
-Rcpp::List survival_predict_oob(Rcpp::List forest_object,
+Rcpp::List survival_predict_oob(SEXP forest_xptr,
                                 Rcpp::NumericMatrix train_matrix,
                                 Eigen::SparseMatrix<double> sparse_train_matrix,
                                 size_t outcome_index,
@@ -117,11 +117,11 @@ Rcpp::List survival_predict_oob(Rcpp::List forest_object,
       data->set_weight_index(sample_weight_index - 1);
   }
 
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   bool estimate_variance = false;
   ForestPredictor predictor = survival_predictor(num_threads, num_failures);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict_oob(*forest, *data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
   return result;

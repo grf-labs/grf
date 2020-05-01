@@ -156,6 +156,7 @@ survival_forest <- function(X, Y, D,
                seed = seed)
 
   forest <- do.call.rcpp(survival_train, c(data, args))
+  forest[["_forest"]] <- ForestPtr$new(xptr = forest[["_forest"]])
   class(forest) <- c("survival_forest", "grf")
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
@@ -249,7 +250,7 @@ predict.survival_forest <- function(object, newdata = NULL, num.threads = NULL, 
                                       sample.weights = object[["sample.weights"]],
                                       censor = object[["D.orig"]])
 
-  args <- list(forest.object = forest.short,
+  args <- list(forest.xptr = get_xptr(object),
                num.threads = num.threads,
                num.failures = length(object[["failure.times"]]))
 
