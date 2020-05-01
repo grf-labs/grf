@@ -104,7 +104,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
         size_t node = leaf_nodes.at(sample);
 
         const std::unique_ptr<Tree>& tree = forest.get_trees()[tree_index];
-        std::vector<std::vector<size_t>> leaf_samples = tree->get_leaf_samples();
+        const std::vector<std::vector<size_t>>& leaf_samples = tree->get_leaf_samples();
         samples_by_tree.push_back(leaf_samples.at(node));
       }
     }
