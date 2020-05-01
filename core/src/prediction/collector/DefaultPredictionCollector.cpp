@@ -35,7 +35,6 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
     bool estimate_variance,
     bool estimate_error) const {
-  // Note: estimate_error is not necessary for the DefaultPredictionStrategy and is unused here.
 
   size_t num_samples = data.get_num_rows();
   std::vector<uint> thread_ranges;
