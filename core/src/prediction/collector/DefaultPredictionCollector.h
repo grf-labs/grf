@@ -45,7 +45,6 @@ private:
                                                     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                     const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                     bool estimate_variance,
-                                                    bool estimate_error,
                                                     size_t start,
                                                     size_t num_samples) const;
 
