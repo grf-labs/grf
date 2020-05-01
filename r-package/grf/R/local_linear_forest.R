@@ -70,7 +70,7 @@
 #' @return A trained local linear forest object.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a standard regression forest.
 #' n <- 50
 #' p <- 10
@@ -231,7 +231,7 @@ ll_regression_forest <- function(X, Y,
 #' @return A vector of predictions.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train the forest.
 #' n <- 50
 #' p <- 5

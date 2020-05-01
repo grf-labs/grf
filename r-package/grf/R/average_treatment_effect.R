@@ -34,7 +34,7 @@
 #'               the treatment Wi or the outcome Yi.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a causal forest.
 #' n <- 50
 #' p <- 10

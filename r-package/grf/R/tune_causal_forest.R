@@ -65,7 +65,7 @@
 #'         error ('error').
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Find the optimal tuning parameters.
 #' n <- 500
 #' p <- 10

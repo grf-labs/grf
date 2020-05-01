@@ -112,7 +112,7 @@ export_graphviz <- function(tree, include.na.path) {
 #'
 #' @method plot grf_tree
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Save the plot of a tree in the causal forest.
 #' install.packages("DiagrammeR")
 #' install.packages("DiagrammeRsvg")

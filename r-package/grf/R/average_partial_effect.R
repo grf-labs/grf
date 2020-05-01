@@ -30,7 +30,7 @@
 #'                               (only applies when debiasing.weights = NULL)
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' n <- 2000
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)

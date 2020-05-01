@@ -13,7 +13,7 @@
 #' @return A list of lambdas tried, corresponding errors, and optimal ridge penalty lambda.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Find the optimal tuning parameters.
 #' n <- 50
 #' p <- 10

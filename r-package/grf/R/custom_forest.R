@@ -46,7 +46,7 @@
 #' @return A trained regression forest object.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a custom forest.
 #' n <- 50
 #' p <- 10
@@ -115,7 +115,7 @@ custom_forest <- function(X, Y,
 #' @return Vector of predictions.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a custom forest.
 #' n <- 50
 #' p <- 10

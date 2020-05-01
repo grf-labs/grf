@@ -84,7 +84,7 @@
 #'  then tuning information will be included through the `tuning.output` attribute.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a causal forest.
 #' n <- 500
 #' p <- 10
@@ -320,7 +320,7 @@ causal_forest <- function(X, Y, W,
 #'         enough forests to make the 'excess.error' negligible.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a causal forest.
 #' n <- 100
 #' p <- 10

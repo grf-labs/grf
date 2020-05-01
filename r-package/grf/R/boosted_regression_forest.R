@@ -68,7 +68,7 @@
 #'         contains the trained regression forest for each step.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a boosted regression forest.
 #' n <- 50
 #' p <- 10
@@ -219,7 +219,7 @@ boosted_regression_forest <- function(X, Y,
 #' @return A vector of predictions.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Train a boosted regression forest.
 #' n <- 50
 #' p <- 10
