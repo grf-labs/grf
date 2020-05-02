@@ -391,7 +391,7 @@ predict.causal_forest <- function(object, newdata = NULL,
                    linear.correction.variables = linear.correction.variables)
 
    if (!is.null(newdata)) {
-     validate_newdata(newdata, object$X.orig, allow.na = allow.na)
+     validate_newdata(newdata, X, allow.na = allow.na)
      test.data <- create_test_matrices(newdata)
      if (!local.linear) {
        ret <- do.call.rcpp(causal_predict, c(train.data, test.data, args))
