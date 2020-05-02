@@ -251,12 +251,10 @@ predict.regression_forest <- function(object, newdata = NULL,
     return(data.frame(
       predictions = object$predictions,
       debiased.error = object$debiased.error,
-      excess.error = object$excess.error
-    ))
+      excess.error = object$excess.error))
   }
 
   num.threads <- validate_num_threads(num.threads)
-
   X <- object[["X.orig"]]
   train.data <- create_train_matrices(X, outcome = object[["Y.orig"]])
 
@@ -266,8 +264,7 @@ predict.regression_forest <- function(object, newdata = NULL,
     if (is.null(ll.lambda)) {
       ll.regularization.path <- tune_ll_regression_forest(
         object, linear.correction.variables,
-        ll.weight.penalty, num.threads
-      )
+        ll.weight.penalty, num.threads)
       ll.lambda <- ll.regularization.path$lambda.min
     } else {
       ll.lambda <- validate_ll_lambda(ll.lambda)
@@ -276,34 +273,28 @@ predict.regression_forest <- function(object, newdata = NULL,
     # subtract 1 to account for C++ indexing
     linear.correction.variables <- linear.correction.variables - 1
   }
+  args <- list(forest.xptr = get_xptr(object),
+               num.threads = num.threads,
+               estimate.variance = estimate.variance)
+  ll.args <- list(ll.lambda = ll.lambda,
+                  ll.weight.penalty = ll.weight.penalty,
+                  linear.correction.variables = linear.correction.variables)
 
   if (!is.null(newdata)) {
-    data <- create_train_matrices(newdata)
     validate_newdata(newdata, X, allow.na = allow.na)
+    test.data <- create_test_matrices(newdata)
     if (!local.linear) {
-      ret <- regression_predict(
-        get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
-        data$train.matrix, data$sparse.train.matrix, num.threads, estimate.variance
-      )
+      ret <- do.call.rcpp(regression_predict, c(train.data, test.data, args))
     } else {
-      ret <- ll_regression_predict(
-        get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
-        data$train.matrix, data$sparse.train.matrix, ll.lambda, ll.weight.penalty, linear.correction.variables,
-        num.threads, estimate.variance
-      )
+      args <- modifyList(args, ll.args)
+      ret <- do.call.rcpp(ll_regression_predict, c(train.data, test.data, args))
     }
   } else {
-    data <- create_train_matrices(X)
     if (!local.linear) {
-      ret <- regression_predict_oob(
-        get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
-        num.threads, estimate.variance
-      )
+      ret <- do.call.rcpp(regression_predict_oob, c(train.data, args))
     } else {
-      ret <- ll_regression_predict_oob(
-        get_xptr(object), train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
-        ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
-      )
+      args <- modifyList(args, ll.args)
+      ret <- do.call.rcpp(ll_regression_predict_oob, c(train.data, args))
     }
   }
 

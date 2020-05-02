@@ -115,8 +115,8 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
                             Eigen::SparseMatrix<double> sparse_train_matrix,
                             size_t outcome_index,
                             size_t sample_weight_index,
-                            double split_lambda,
-                            bool weight_penalty,
+                            double ll_split_lambda,
+                            bool ll_split_weight_penalty,
                             std::vector<size_t> ll_split_variables,
                             size_t ll_split_cutoff,
                             std::vector<double> overall_beta,
@@ -135,7 +135,7 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
                             unsigned int samples_per_cluster,
                             unsigned int num_threads,
                             unsigned int seed) {
-  ForestTrainer trainer = ll_regression_trainer(split_lambda, weight_penalty, overall_beta,
+  ForestTrainer trainer = ll_regression_trainer(ll_split_lambda, ll_split_weight_penalty, overall_beta,
                                                ll_split_cutoff, ll_split_variables);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
@@ -159,8 +159,8 @@ Rcpp::List ll_regression_predict(SEXP forest_xptr,
                                 size_t outcome_index,
                                 Rcpp::NumericMatrix test_matrix,
                                 Eigen::SparseMatrix<double> sparse_test_matrix,
-                                std::vector<double> lambdas,
-                                bool weight_penalty,
+                                std::vector<double> ll_lambda,
+                                bool ll_weight_penalty,
                                 std::vector<size_t> linear_correction_variables,
                                 unsigned int num_threads,
                                 bool estimate_variance) {
@@ -171,7 +171,7 @@ Rcpp::List ll_regression_predict(SEXP forest_xptr,
   Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = ll_regression_predictor(num_threads,
-      lambdas, weight_penalty, linear_correction_variables);
+      ll_lambda, ll_weight_penalty, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict(*forest, *train_data, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
@@ -183,8 +183,8 @@ Rcpp::List ll_regression_predict_oob(SEXP forest_xptr,
                                     Rcpp::NumericMatrix train_matrix,
                                     Eigen::SparseMatrix<double> sparse_train_matrix,
                                     size_t outcome_index,
-                                    std::vector<double> lambdas,
-                                    bool weight_penalty,
+                                    std::vector<double> ll_lambda,
+                                    bool ll_weight_penalty,
                                     std::vector<size_t> linear_correction_variables,
                                     unsigned int num_threads,
                                     bool estimate_variance) {
@@ -194,7 +194,7 @@ Rcpp::List ll_regression_predict_oob(SEXP forest_xptr,
   Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = ll_regression_predictor(num_threads,
-      lambdas, weight_penalty, linear_correction_variables);
+      ll_lambda, ll_weight_penalty, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(*forest, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 

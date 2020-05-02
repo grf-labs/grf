@@ -173,21 +173,18 @@ predict.quantile_forest <- function(object,
   }
 
   num.threads <- validate_num_threads(num.threads)
-
   X <- object[["X.orig"]]
   train.data <- create_train_matrices(X, outcome = object[["Y.orig"]])
 
+  args <- list(forest.xptr = get_xptr(object),
+               quantiles = quantiles,
+               num.threads = num.threads)
+
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig, allow.na = TRUE)
-    data <- create_train_matrices(newdata)
-    quantile_predict(
-      get_xptr(object), quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
-      train.data$outcome.index, data$train.matrix, data$sparse.train.matrix, num.threads
-    )
+    test.data <- create_test_matrices(newdata)
+    do.call.rcpp(quantile_predict, c(train.data, test.data, args))
   } else {
-    quantile_predict_oob(
-      get_xptr(object), quantiles, train.data$train.matrix, train.data$sparse.train.matrix,
-      train.data$outcome.index, num.threads
-    )
+    do.call.rcpp(quantile_predict_oob, c(train.data, args))
   }
 }
