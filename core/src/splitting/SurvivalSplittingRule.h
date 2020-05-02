@@ -78,7 +78,6 @@ private:
                                 const std::vector<double>& denominator_weights);
 
   double alpha;
-  double imbalance_penalty;
 
   DISALLOW_COPY_AND_ASSIGN(SurvivalSplittingRule);
 };
