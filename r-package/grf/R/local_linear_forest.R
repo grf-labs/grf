@@ -144,15 +144,15 @@ ll_regression_forest <- function(X, Y,
     overall.beta <- solve(t(D) %*% D + ll.split.lambda * J) %*% t(D) %*% Y
 
     # update arguments with LLF parameters
-    args <- c(args, list(weight.penalty = ll.split.weight.penalty,
-                         split.lambda = ll.split.lambda,
+    args <- c(args, list(ll.split.weight.penalty = ll.split.weight.penalty,
+                         ll.split.lambda = ll.split.lambda,
                          ll.split.variables = ll.split.variables,
                          ll.split.cutoff = ll.split.cutoff,
                          overall.beta = overall.beta))
   } else if (enable.ll.split) {
     # update arguments with LLF parameters
-    args <- c(args, list(weight.penalty = ll.split.weight.penalty,
-                         split.lambda = ll.split.lambda,
+    args <- c(args, list(ll.split.weight.penalty = ll.split.weight.penalty,
+                         ll.split.lambda = ll.split.lambda,
                          ll.split.variables = ll.split.variables,
                          ll.split.cutoff = ll.split.cutoff,
                          overall.beta = vector(mode = "numeric", length = 0)))
@@ -257,44 +257,35 @@ predict.ll_regression_forest <- function(object, newdata = NULL,
                                          num.threads = NULL,
                                          estimate.variance = FALSE,
                                          ...) {
+  num.threads <- validate_num_threads(num.threads)
   forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
-  if (is.null(linear.correction.variables)) {
-    linear.correction.variables <- 1:ncol(X)
-  }
-  # Validate and account for C++ indexing
-  linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
+  train.data <- create_train_matrices(X, outcome = object[["Y.orig"]])
 
+  linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
   if (is.null(ll.lambda)) {
     ll.regularization.path <- tune_ll_regression_forest(
       object, linear.correction.variables,
-      ll.weight.penalty, num.threads
-    )
+      ll.weight.penalty, num.threads)
     ll.lambda <- ll.regularization.path$lambda.min
   } else {
     ll.lambda <- validate_ll_lambda(ll.lambda)
   }
-
-  num.threads <- validate_num_threads(num.threads)
-
   # Subtract 1 to account for C++ indexing
   linear.correction.variables <- linear.correction.variables - 1
-
-  train.data <- create_train_matrices(X, outcome = object[["Y.orig"]])
+  args <- list(forest.object = forest.short,
+               num.threads = num.threads,
+               estimate.variance = estimate.variance,
+               ll.lambda = ll.lambda,
+               ll.weight.penalty = ll.weight.penalty,
+               linear.correction.variables = linear.correction.variables)
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X)
-    data <- create_train_matrices(newdata)
-    ret <- ll_regression_predict(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
-      data$train.matrix, data$sparse.train.matrix,
-      ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
-    )
+    test.data <- create_test_matrices(newdata)
+    ret <- do.call.rcpp(ll_regression_predict, c(train.data, test.data, args))
   } else {
-    ret <- ll_regression_predict_oob(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix, train.data$outcome.index,
-      ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
-    )
+    ret <- do.call.rcpp(ll_regression_predict_oob, c(train.data, args))
   }
 
   ret[["ll.lambda"]] <- ll.lambda
