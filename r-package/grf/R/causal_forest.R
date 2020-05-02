@@ -350,35 +350,31 @@ predict.causal_forest <- function(object, newdata = NULL,
                                   ll.weight.penalty = FALSE,
                                   num.threads = NULL,
                                   estimate.variance = FALSE, ...) {
+  local.linear <- !is.null(linear.correction.variables)
+  allow.na <- !local.linear
 
   # If possible, use pre-computed predictions.
-  if (is.null(newdata) & !estimate.variance & !is.null(object$predictions) & is.null(linear.correction.variables)) {
+  if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
     return(data.frame(
       predictions = object$predictions,
       debiased.error = object$debiased.error,
-      excess.error = object$excess.error
-    ))
+      excess.error = object$excess.error))
   }
 
+  num.threads <- validate_num_threads(num.threads)
   forest.short <- object[-which(names(object) == "X.orig")]
-
   X <- object[["X.orig"]]
   Y.centered <- object[["Y.orig"]] - object[["Y.hat"]]
   W.centered <- object[["W.orig"]] - object[["W.hat"]]
   train.data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered)
 
-  num.threads <- validate_num_threads(num.threads)
-
-  local.linear <- !is.null(linear.correction.variables)
-  allow.na <- !local.linear
   if (local.linear) {
     linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
 
     if (is.null(ll.lambda)) {
       ll.regularization.path <- tune_ll_causal_forest(
         object, linear.correction.variables,
-        ll.weight.penalty, num.threads
-      )
+        ll.weight.penalty, num.threads)
       ll.lambda <- ll.regularization.path$lambda.min
     } else {
       ll.lambda <- validate_ll_lambda(ll.lambda)
@@ -387,28 +383,29 @@ predict.causal_forest <- function(object, newdata = NULL,
     # Subtract 1 to account for C++ indexing
     linear.correction.variables <- linear.correction.variables - 1
    }
+   args <- list(forest.object = forest.short,
+                num.threads = num.threads,
+                estimate.variance = estimate.variance)
+   ll.args <- list(ll.lambda = ll.lambda,
+                   ll.weight.penalty = ll.weight.penalty,
+                   linear.correction.variables = linear.correction.variables)
 
    if (!is.null(newdata)) {
-       validate_newdata(newdata, object$X.orig, allow.na = allow.na)
-       data <- create_train_matrices(newdata)
-       if (!local.linear) {
-           ret <- causal_predict(forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
-                   train.data$outcome.index, train.data$treatment.index, data$train.matrix,
-                   data$sparse.train.matrix, num.threads, estimate.variance)
-       } else {
-           ret <- ll_causal_predict(forest.short, data$train.matrix, train.data$train.matrix, data$sparse.train.matrix,
-                   train.data$sparse.train.matrix, train.data$outcome.index, train.data$treatment.index,
-                   ll.lambda, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance)
-       }
+     validate_newdata(newdata, object$X.orig, allow.na = allow.na)
+     test.data <- create_test_matrices(newdata)
+     if (!local.linear) {
+       ret <- do.call.rcpp(causal_predict, c(train.data, test.data, args))
+     } else {
+       args <- modifyList(args, ll.args)
+       ret <- do.call.rcpp(ll_causal_predict, c(train.data, test.data, args))
+     }
    } else {
-       if (!local.linear) {
-           ret <- causal_predict_oob(forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
-                   train.data$outcome.index, train.data$treatment.index, num.threads, estimate.variance)
-       } else {
-           ret <- ll_causal_predict_oob(forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
-                   train.data$outcome.index, train.data$treatment.index, ll.lambda, ll.weight.penalty,
-                   linear.correction.variables, num.threads, estimate.variance)
-       }
+     if (!local.linear) {
+       ret <- do.call.rcpp(causal_predict_oob, c(train.data, args))
+     } else {
+       args <- modifyList(args, ll.args)
+       ret <- do.call.rcpp(ll_causal_predict_oob, c(train.data, args))
+     }
   }
 
   # Convert list to data frame.
