@@ -1,7 +1,7 @@
 #' Survival forest
 #'
 #' Trains a forest for right-censored surival data that can be used to estimate the
-#' conditional surival function S(t, x) = P[Y > t | X = x]
+#' conditional survival function S(t, x) = P[Y > t | X = x]
 #'
 #' @param X The covariates.
 #' @param Y The event time (may be negative).
@@ -172,7 +172,7 @@ survival_forest <- function(X, Y, D,
 
 #' Predict with a survival forest forest
 #'
-#' Gets estimates of the conditional survival function S(t, x) using a trained surival forest (estimated using
+#' Gets estimates of the conditional survival function S(t, x) using a trained survival forest (estimated using
 #' Kaplan-Meier).
 #'
 #' @param object The trained forest.
