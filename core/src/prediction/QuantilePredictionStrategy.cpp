@@ -38,6 +38,10 @@ std::vector<double> QuantilePredictionStrategy::predict(
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Data& train_data,
     const Data& data) const {
+  if (weights_by_sample.empty()) {
+    return std::vector<double>(quantiles.size(), NAN);
+  }
+
   std::vector<std::pair<size_t, double>> samples_and_values;
   for (const auto& entry : weights_by_sample) {
     size_t sample = entry.first;
