@@ -44,6 +44,7 @@
 #'  Only applies if honesty is enabled. Default is TRUE.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -92,6 +93,7 @@ quantile_forest <- function(X, Y,
                             honesty.prune.leaves = TRUE,
                             alpha = 0.05,
                             imbalance.penalty = 0.0,
+                            compute.oob.predictions = TRUE,
                             num.threads = NULL,
                             seed = runif(1, 0, .Machine$integer.max)) {
   if (!is.numeric(quantiles) | length(quantiles) < 1) {
@@ -107,17 +109,29 @@ quantile_forest <- function(X, Y,
   num.threads <- validate_num_threads(num.threads)
 
   data <- create_train_matrices(X, outcome = Y)
-  ci.group.size <- 1
+  args <- list(num.trees = num.trees,
+               quantiles = quantiles,
+               regression.splitting = regression.splitting,
+               clusters = clusters,
+               samples.per.cluster = samples.per.cluster,
+               sample.fraction = sample.fraction,
+               mtry = mtry,
+               min.node.size = min.node.size,
+               honesty = honesty,
+               honesty.fraction = honesty.fraction,
+               honesty.prune.leaves = honesty.prune.leaves,
+               alpha = alpha,
+               imbalance.penalty = imbalance.penalty,
+               ci.group.size = 1,
+               compute.oob.predictions = compute.oob.predictions,
+               num.threads = num.threads,
+               seed = seed)
 
-  forest <- quantile_train(
-    quantiles, regression.splitting, data$train.matrix, data$sparse.train.matrix, data$outcome.index, mtry,
-    num.trees, min.node.size, sample.fraction, honesty, honesty.fraction, honesty.prune.leaves,
-    ci.group.size, alpha, imbalance.penalty, clusters, samples.per.cluster, num.threads, seed
-  )
-
+  forest <- do.call.rcpp(quantile_train, c(data, args))
   class(forest) <- c("quantile_forest", "grf")
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
+  forest[["quantiles.orig"]] <- quantiles
   forest[["clusters"]] <- clusters
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["has.missing.values"]] <- has.missing.values
@@ -169,6 +183,12 @@ predict.quantile_forest <- function(object,
     stop("Error: Must provide numeric quantiles")
   } else if (min(quantiles) <= 0 | max(quantiles) >= 1) {
     stop("Error: Quantiles must be in (0, 1)")
+  }
+
+  # If possible, use pre-computed predictions.
+  quantiles.orig <- object[["quantiles.orig"]]
+  if (is.null(newdata) & identical(quantiles, quantiles.orig) & !is.null(object$predictions)) {
+    return(object$predictions)
   }
 
   num.threads <- validate_num_threads(num.threads)
