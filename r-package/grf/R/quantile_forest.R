@@ -188,7 +188,7 @@ predict.quantile_forest <- function(object,
   # If possible, use pre-computed predictions.
   quantiles.orig <- object[["quantiles.orig"]]
   if (is.null(newdata) & identical(quantiles, quantiles.orig) & !is.null(object$predictions)) {
-    return(list(predictions = object[["predictions"]]))
+    return(object$predictions)
   }
 
   num.threads <- validate_num_threads(num.threads)
@@ -203,10 +203,8 @@ predict.quantile_forest <- function(object,
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig, allow.na = TRUE)
     test.data <- create_test_matrices(newdata)
-    ret <- do.call.rcpp(quantile_predict, c(train.data, test.data, args))
+    do.call.rcpp(quantile_predict, c(train.data, test.data, args))
   } else {
-    ret <- do.call.rcpp(quantile_predict_oob, c(train.data, args))
+    do.call.rcpp(quantile_predict_oob, c(train.data, args))
   }
-
-  list(predictions = ret)
 }

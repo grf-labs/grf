@@ -42,8 +42,8 @@ test_that("quantile forest predictions are positive given positive outcomes", {
   Y <- runif(n) + 100 * (X[, i] > 0)
 
   qrf <- quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry = p, min.node.size = 10, sample.fraction = 0.632)
-  expect_true(all(predict(qrf)$predictions > 0))
-  expect_true(all(predict(qrf, X.new)$predictions > 0))
+  expect_true(all(predict(qrf) > 0))
+  expect_true(all(predict(qrf, X.new) > 0))
 })
 
 test_that("quantile forest predictions for 90th percentile are strongly positively correlated
@@ -56,8 +56,8 @@ test_that("quantile forest predictions for 90th percentile are strongly positive
   Y <- runif(n) + 100 * (X[, i] > 0)
 
   qrf <- quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry = p, min.node.size = 10, sample.fraction = 0.632)
-  expect_true(cor(predict(qrf, quantiles = .9)$predictions, X[, i]) > .5)
-  expect_true(cor(predict(qrf, X.new, quantiles = .9)$predictions, X.new[, i]) > .5)
+  expect_true(cor(predict(qrf, quantiles = .9), X[, i]) > .5)
+  expect_true(cor(predict(qrf, X.new, quantiles = .9), X.new[, i]) > .5)
 })
 
 test_that("quantile_forest works as expected with missing values", {
@@ -81,8 +81,8 @@ test_that("quantile_forest works as expected with missing values", {
   rf.mia <- quantile_forest(X.mia, Y, quantiles = quantiles, seed = 123)
   rf <- quantile_forest(X, Y, quantiles = quantiles, seed = 123)
 
-  mean.diff.oob <- colMeans((predict(rf)$predictions - predict(rf.mia)$predictions))
-  mean.diff <- colMeans((predict(rf, X)$predictions - predict(rf.mia, X.mia)$predictions))
+  mean.diff.oob <- colMeans((predict(rf) - predict(rf.mia)))
+  mean.diff <- colMeans((predict(rf, X) - predict(rf.mia, X.mia)))
 
   expect_equal(mean.diff.oob, c(0, 0, 0), tol = 0.5)
   expect_equal(mean.diff, c(0, 0, 0), tol = 0.5)
