@@ -236,7 +236,7 @@ survival_forest <- function(X, Y, D,
 predict.survival_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
   failure.times = object[["failure.times"]]
   # If possible, use pre-computed predictions.
-  if (is.null(newdata) & !is.null(object$predictions)) {
+  if (is.null(newdata) && !is.null(object$predictions)) {
     return(list(predictions = object$predictions, failure.times = failure.times))
   }
 
