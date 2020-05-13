@@ -75,7 +75,7 @@ average_treatment_effect <- function(forest,
     stop("Average effect estimation only implemented for causal_forest")
   }
 
-  if (cluster.se & method == "TMLE") {
+  if (cluster.se && method == "TMLE") {
     stop("TMLE has not yet been implemented with clustered observations.")
   }
 
@@ -83,7 +83,7 @@ average_treatment_effect <- function(forest,
     subset <- 1:length(forest$Y.hat)
   }
 
-  if (class(subset) == "logical" & length(subset) == length(forest$Y.hat)) {
+  if (class(subset) == "logical" && length(subset) == length(forest$Y.hat)) {
     subset <- which(subset)
   }
 

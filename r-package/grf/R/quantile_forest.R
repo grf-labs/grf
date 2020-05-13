@@ -96,9 +96,9 @@ quantile_forest <- function(X, Y,
                             compute.oob.predictions = FALSE,
                             num.threads = NULL,
                             seed = runif(1, 0, .Machine$integer.max)) {
-  if (!is.numeric(quantiles) | length(quantiles) < 1) {
+  if (!is.numeric(quantiles) || length(quantiles) < 1) {
     stop("Error: Must provide numeric quantiles")
-  } else if (min(quantiles) <= 0 | max(quantiles) >= 1) {
+  } else if (min(quantiles) <= 0 || max(quantiles) >= 1) {
     stop("Error: Quantiles must be in (0, 1)")
   }
 
@@ -183,16 +183,16 @@ predict.quantile_forest <- function(object,
   if (is.null(quantiles)) {
     quantiles <- object[["quantiles.orig"]]
   } else {
-    if (!is.numeric(quantiles) | length(quantiles) < 1) {
+    if (!is.numeric(quantiles) || length(quantiles) < 1) {
       stop("Error: Must provide numeric quantiles")
-    } else if (min(quantiles) <= 0 | max(quantiles) >= 1) {
+    } else if (min(quantiles) <= 0 || max(quantiles) >= 1) {
       stop("Error: Quantiles must be in (0, 1)")
     }
   }
 
   # If possible, use pre-computed predictions.
   quantiles.orig <- object[["quantiles.orig"]]
-  if (is.null(newdata) & identical(quantiles, quantiles.orig) & !is.null(object$predictions)) {
+  if (is.null(newdata) && identical(quantiles, quantiles.orig) && !is.null(object$predictions)) {
     return(object$predictions)
   }
 

@@ -116,7 +116,7 @@ validate_ll_vars <- function(linear.correction.variables, num.cols) {
     stop("Linear correction variables must take positive integer values.")
   } else if (max(linear.correction.variables) > num.cols) {
     stop("Invalid range of correction variables.")
-  } else if (!is.vector(linear.correction.variables) |
+  } else if (!is.vector(linear.correction.variables) ||
     !all(linear.correction.variables == floor(linear.correction.variables))) {
     stop("Linear correction variables must be a vector of integers.")
   }
@@ -126,7 +126,7 @@ validate_ll_vars <- function(linear.correction.variables, num.cols) {
 validate_ll_lambda <- function(lambda) {
   if (lambda < 0) {
     stop("Lambda cannot be negative.")
-  } else if (!is.numeric(lambda) | length(lambda) > 1) {
+  } else if (!is.numeric(lambda) || length(lambda) > 1) {
     stop("Lambda must be a scalar.")
   }
   lambda
