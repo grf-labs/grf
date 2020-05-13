@@ -93,6 +93,14 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
         sample, forest, leaf_nodes_by_tree, valid_trees_by_sample);
     std::vector<std::vector<size_t>> samples_by_tree;
 
+    // If this sample has no neighbors, then return placeholder predictions. Note
+    // that this can only occur when honesty is enabled, and is expected to be rare.
+    if (weights_by_sample.empty()) {
+      std::vector<double> nan(strategy->prediction_length(), NAN);
+      predictions.emplace_back(nan, nan, nan, nan);
+      continue;
+    }
+
     if (record_leaf_samples) {
       samples_by_tree.resize(num_trees);
 
