@@ -51,7 +51,7 @@ tune_ll_causal_forest <- function(forest,
   # Subtract 1 to account for C++ indexing
   linear.correction.variables <- linear.correction.variables - 1
 
-  args <- list(forest.object = get_xptr(forest),
+  args <- list(forest.xptr = get_xptr(forest),
                num.threads = num.threads,
                estimate.variance = FALSE,
                ll.lambda = ll.lambda,
