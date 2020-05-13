@@ -182,16 +182,18 @@ predict.quantile_forest <- function(object,
                                     num.threads = NULL, ...) {
   if (is.null(quantiles)) {
     quantiles <- object[["quantiles.orig"]]
-    # If possible, use pre-computed predictions.
-    if (is.null(newdata) & !is.null(object$predictions)) {
-      return(object$predictions)
-    }
   } else {
     if (!is.numeric(quantiles) | length(quantiles) < 1) {
       stop("Error: Must provide numeric quantiles")
     } else if (min(quantiles) <= 0 | max(quantiles) >= 1) {
       stop("Error: Quantiles must be in (0, 1)")
     }
+  }
+
+  # If possible, use pre-computed predictions.
+  quantiles.orig <- object[["quantiles.orig"]]
+  if (is.null(newdata) & identical(quantiles, quantiles.orig) & !is.null(object$predictions)) {
+    return(object$predictions)
   }
 
   num.threads <- validate_num_threads(num.threads)
