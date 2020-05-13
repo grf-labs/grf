@@ -337,13 +337,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // quantile_train
-Rcpp::List quantile_train(std::vector<double> quantiles, bool regression_splits, Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, unsigned int mtry, unsigned int num_trees, int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, int num_threads, unsigned int seed);
-RcppExport SEXP _grf_quantile_train(SEXP quantilesSEXP, SEXP regression_splitsSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
+Rcpp::List quantile_train(std::vector<double> quantiles, bool regression_splitting, Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, unsigned int mtry, unsigned int num_trees, int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, int num_threads, unsigned int seed);
+RcppExport SEXP _grf_quantile_train(SEXP quantilesSEXP, SEXP regression_splittingSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::vector<double> >::type quantiles(quantilesSEXP);
-    Rcpp::traits::input_parameter< bool >::type regression_splits(regression_splitsSEXP);
+    Rcpp::traits::input_parameter< bool >::type regression_splitting(regression_splittingSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type sparse_train_matrix(sparse_train_matrixSEXP);
     Rcpp::traits::input_parameter< size_t >::type outcome_index(outcome_indexSEXP);
@@ -359,9 +359,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type imbalance_penalty(imbalance_penaltySEXP);
     Rcpp::traits::input_parameter< std::vector<size_t> >::type clusters(clustersSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type samples_per_cluster(samples_per_clusterSEXP);
+    Rcpp::traits::input_parameter< bool >::type compute_oob_predictions(compute_oob_predictionsSEXP);
     Rcpp::traits::input_parameter< int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(quantile_train(quantiles, regression_splits, train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, num_threads, seed));
+    rcpp_result_gen = Rcpp::wrap(quantile_train(quantiles, regression_splitting, train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -627,7 +628,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_grf_instrumental_train", (DL_FUNC) &_grf_instrumental_train, 24},
     {"_grf_instrumental_predict", (DL_FUNC) &_grf_instrumental_predict, 10},
     {"_grf_instrumental_predict_oob", (DL_FUNC) &_grf_instrumental_predict_oob, 8},
-    {"_grf_quantile_train", (DL_FUNC) &_grf_quantile_train, 19},
+    {"_grf_quantile_train", (DL_FUNC) &_grf_quantile_train, 20},
     {"_grf_quantile_predict", (DL_FUNC) &_grf_quantile_predict, 8},
     {"_grf_quantile_predict_oob", (DL_FUNC) &_grf_quantile_predict_oob, 6},
     {"_grf_regression_train", (DL_FUNC) &_grf_regression_train, 20},

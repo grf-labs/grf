@@ -56,6 +56,11 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
   for (size_t time = 1; time <= num_failures; time++) {
    if (sum > 0) {
      kaplan_meier = kaplan_meier * (1 - count_failure[time] / sum);
+     // If the estimate hits zero it will stay zero and we can break early.
+     // This also prevents errors from accumulating which may yield some point estimates less than zero.
+     if (kaplan_meier <= 0) {
+       break;
+     }
    }
    survival_function[time - 1] = kaplan_meier;
    sum = sum - count_failure[time] - count_censor[time];

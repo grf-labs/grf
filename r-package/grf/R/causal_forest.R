@@ -396,15 +396,13 @@ predict.causal_forest <- function(object, newdata = NULL,
      if (!local.linear) {
        ret <- do.call.rcpp(causal_predict, c(train.data, test.data, args))
      } else {
-       args <- modifyList(args, ll.args)
-       ret <- do.call.rcpp(ll_causal_predict, c(train.data, test.data, args))
+       ret <- do.call.rcpp(ll_causal_predict, c(train.data, test.data, args, ll.args))
      }
    } else {
      if (!local.linear) {
        ret <- do.call.rcpp(causal_predict_oob, c(train.data, args))
      } else {
-       args <- modifyList(args, ll.args)
-       ret <- do.call.rcpp(ll_causal_predict_oob, c(train.data, args))
+       ret <- do.call.rcpp(ll_causal_predict_oob, c(train.data, args, ll.args))
      }
   }
 

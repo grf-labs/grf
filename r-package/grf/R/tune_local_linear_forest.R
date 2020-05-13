@@ -23,7 +23,7 @@
 #' tuned.lambda <- tune_ll_regression_forest(forest)
 #'
 #' # Use this parameter to predict from a local linear forest.
-#' predictions <- predict(forest, linear.correction.variables = 1:p, lambda = tuned.lambda)
+#' predictions <- predict(forest, linear.correction.variables = 1:p, ll.lambda = tuned.lambda$lambda.min)
 #' }
 #'
 #' @export
@@ -34,30 +34,31 @@ tune_ll_regression_forest <- function(forest,
                                       lambda.path = NULL) {
   X <- forest[["X.orig"]]
   Y <- forest[["Y.orig"]]
-  data <- create_train_matrices(X, outcome = Y)
+  train.data <- create_train_matrices(X, outcome = Y)
 
   # Validate variables
   num.threads <- validate_num_threads(num.threads)
   linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
-  lambda.path <- validate_ll_path(lambda.path)
+  ll.lambda <- validate_ll_path(lambda.path)
 
   # Subtract 1 to account for C++ indexing
   linear.correction.variables <- linear.correction.variables - 1
 
-  # Enforce no variance estimates in tuning
-  estimate.variance <- FALSE
-  prediction.object <- ll_regression_predict_oob(
-    get_xptr(forest), data$train.matrix, data$sparse.train.matrix, data$outcome.index,
-    lambda.path, ll.weight.penalty, linear.correction.variables, num.threads, estimate.variance
-  )
+  args <- list(forest.object = get_xptr(forest),
+               num.threads = num.threads,
+               estimate.variance = FALSE,
+               ll.lambda = ll.lambda,
+               ll.weight.penalty = ll.weight.penalty,
+               linear.correction.variables = linear.correction.variables)
 
-  prediction.object <- prediction.object$predictions
-  errors <- apply(prediction.object, MARGIN = 2, FUN = function(row) {
+  prediction.object <- do.call.rcpp(ll_regression_predict_oob, c(train.data, args))
+  predictions <- prediction.object$predictions
+  errors <- apply(predictions, MARGIN = 2, FUN = function(row) {
     mean((row - Y)**2)
   })
 
   return(list(
-    lambdas = lambda.path, errors = errors, oob.predictions = prediction.object,
-    lambda.min = lambda.path[which.min(errors)]
+    lambdas = ll.lambda, errors = errors, oob.predictions = predictions,
+    lambda.min = ll.lambda[which.min(errors)]
   ))
 }
