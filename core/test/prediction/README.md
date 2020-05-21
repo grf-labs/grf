@@ -15,7 +15,7 @@ censor.time <- rexp(n)
 Y <- pmin(failure.time, censor.time)
 D <- as.integer(failure.time <= censor.time)
 failure.times <- sort(unique(Y[D == 1]))
-Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
+Y.relabeled <- findInterval(Y, failure.times)
 
 kaplan.meier <- survfit(Surv(Y, D) ~ 1, data = data.frame(Y, D))
 

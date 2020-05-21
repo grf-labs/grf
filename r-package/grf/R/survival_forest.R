@@ -137,7 +137,7 @@ survival_forest <- function(X, Y, D,
   if (is.null(failure.times)) {
     failure.times <- sort(unique(Y[D == 1]))
   }
-  Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
+  Y.relabeled <- findInterval(Y, failure.times)
 
   data <- create_train_matrices(X, outcome = Y.relabeled, sample.weights = sample.weights, censor = D)
   args <- list(num.trees = num.trees,
@@ -243,7 +243,7 @@ predict.survival_forest <- function(object,
     failure.times <- object[["failure.times"]]
     Y.relabeled <- object[["Y.relabeled"]]
   } else {
-    Y.relabeled <- findInterval(object[["Y.orig"]], failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
+    Y.relabeled <- findInterval(object[["Y.orig"]], failure.times)
   }
 
   # If possible, use pre-computed predictions.
