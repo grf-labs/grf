@@ -37,6 +37,9 @@ public:
    * (Variance and error estimates are not supported).
    *
    * num_failures: the count of failures in the training data.
+   * The event times retrieved from data.get_outcome(sample) will always be
+   * integers in the range 0, ..., num_failures.
+   *
    */
   SurvivalPredictionStrategy(size_t num_failures);
 

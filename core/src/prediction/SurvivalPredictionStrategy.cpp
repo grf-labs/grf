@@ -31,7 +31,7 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
     const std::unordered_map<size_t, double>& weights_by_sample,
     const Data& train_data,
     const Data& data) const {
-  // the failure times will always range from 0, ..., num_failures
+  // the event times will always range from 0, ..., num_failures
   // where num_failures is the count of failures in the training data.
   std::vector<double> count_failure(num_failures + 1);
   std::vector<double> count_censor(num_failures + 1);
