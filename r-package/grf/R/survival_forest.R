@@ -181,6 +181,8 @@ survival_forest <- function(X, Y, D,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
+#' @param failure.times A vector of failure times to make predictions at. If NULL, then the
+#'  failure times used for training the forest is used. Default is NULL.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param ... Additional arguments (currently ignored).
@@ -233,10 +235,20 @@ survival_forest <- function(X, Y, D,
 #'
 #' @method predict survival_forest
 #' @export
-predict.survival_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
-  failure.times = object[["failure.times"]]
+predict.survival_forest <- function(object,
+                                    newdata = NULL,
+                                    failure.times = NULL,
+                                    num.threads = NULL, ...) {
+  if (is.null(failure.times)) {
+    failure.times <- object[["failure.times"]]
+    Y.relabeled <- object[["Y.relabeled"]]
+  } else {
+    Y.relabeled <- findInterval(object[["Y.orig"]], failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
+  }
+
   # If possible, use pre-computed predictions.
-  if (is.null(newdata) && !is.null(object$predictions)) {
+  failure.times.orig <- object[["failure.times"]]
+  if (is.null(newdata) && identical(failure.times, failure.times.orig) && !is.null(object$predictions)) {
     return(list(predictions = object$predictions, failure.times = failure.times))
   }
 
@@ -245,13 +257,13 @@ predict.survival_forest <- function(object, newdata = NULL, num.threads = NULL, 
   forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
   train.data <- create_train_matrices(X,
-                                      outcome = object[["Y.relabeled"]],
+                                      outcome = Y.relabeled,
                                       sample.weights = object[["sample.weights"]],
                                       censor = object[["D.orig"]])
 
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
-               num.failures = length(object[["failure.times"]]))
+               num.failures = length(failure.times))
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)
