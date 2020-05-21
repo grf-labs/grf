@@ -42,6 +42,14 @@ test_that("a simple survival forest workflow works", {
 
   tree <- get_tree(sf, 1)
   expect_equal(length(tree[["nodes"]]), 1)
+
+  # Predicting at the same custom grid as the training grid gives the same result
+  failure.times <- sf$failure.times
+  survival.oob.grid <- predict(sf, failure.times = failure.times)$predictions
+  survival.grid <- predict(sf, X, failure.times = failure.times)$predictions
+
+  expect_equal(survival.oob.grid, survival.oob)
+  expect_equal(survival.grid, survival)
 })
 
 test_that("sample weighted survival prediction is invariant to weight rescaling", {
