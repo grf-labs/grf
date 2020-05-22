@@ -129,3 +129,6 @@ In addition to providing out-of-the-box forests for quantile regression and caus
 Susan Athey, Julie Tibshirani and Stefan Wager.
 <b>Generalized Random Forests</b>, <i>Annals of Statistics</i> 47.2 (2019): 1148-1178.
 [<a href="https://arxiv.org/abs/1610.01271">arxiv</a>]
+
+### Acknowledgements
+Development of grf is made possible by contributions from the National Science Foundation, Sloan Foundation, Office of Naval Research (grant N00014-17- 1-2131) and Schmidt Futures.
