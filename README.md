@@ -124,6 +124,10 @@ test_calibration(tau.forest)
 
 In addition to providing out-of-the-box forests for quantile regression and causal effect estimation, GRF provides a framework for creating forests tailored to new statistical tasks. If you'd like to develop using GRF, please consult the [algorithm reference](https://grf-labs.github.io/grf/REFERENCE.html) and [development guide](https://grf-labs.github.io/grf/DEVELOPING.html).
 
+### Funding
+
+Development of GRF is supported by the National Science Foundation, the Sloan Foundation, the Office of Naval Research and Schmidt Futures.
+
 ### References
 
 Susan Athey, Julie Tibshirani and Stefan Wager.
