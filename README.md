@@ -137,7 +137,7 @@ Susan Athey and Stefan Wager.
 <a href="https://arxiv.org/abs/1902.07409">arxiv</a>]
 
 Susan Athey, Julie Tibshirani and Stefan Wager.
-<b>Generalized Random Forests</b>, <i>Annals of Statistics</i>, 47(2), 2019.
+<b>Generalized Random Forests.</b> <i>Annals of Statistics</i>, 47(2), 2019.
 [<a href="https://projecteuclid.org/euclid.aos/1547197251">paper</a>,
 <a href="https://arxiv.org/abs/1610.01271">arxiv</a>]
 
@@ -146,7 +146,7 @@ Rina Friedberg, Julie Tibshirani, Susan Athey, and Stefan Wager.
 [<a href="https://arxiv.org/abs/1807.11408">arxiv</a>]
 
 Imke Mayer, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager and Julie Josse.
-<b>Doubly robust treatment effect estimation with missing attributes</b>,
+<b>Doubly Robust Treatment Effect Estimation with Missing Attributes.</b>
 <i>Annals of Applied Statistics</i>, forthcoming.
 [<a href="https://arxiv.org/pdf/1910.10624.pdf">arxiv</a>]
 
