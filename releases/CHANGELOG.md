@@ -4,6 +4,17 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2020-05-30
+
+### Added
+- Add Survival Forest functionality. [#647](https://github.com/grf-labs/grf/pull/647)
+- Add optional argument `debiasing.weights` to `average_partial_effect`. [#637](https://github.com/grf-labs/grf/pull/637)
+- Add optional `compute.oob.predictions` argument to Quantile Forest. [#665](https://github.com/grf-labs/grf/pull/665)
+
+### Fixed
+- Remove an accidental copy in DefaultPredictionCollector. This improves prediction speed for forests such as Quantile Forest. [#650](https://github.com/grf-labs/grf/pull/650)
+- Predict with training quantiles by default. [#668](https://github.com/grf-labs/grf/pull/668)
+
 ## [1.1.0] - 2020-03-12
 
 ### Changed (breaking)
