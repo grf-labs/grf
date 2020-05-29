@@ -25,7 +25,8 @@
 #' tuned.lambda <- tune_ll_causal_forest(forest)
 #'
 #' # Use this parameter to predict from a local linear causal forest.
-#' predictions <- predict(forest, linear.correction.variables = 1:p, ll.lambda = tuned.lambda$lambda.min)
+#' predictions <- predict(forest, linear.correction.variables = 1:p,
+#'                        ll.lambda = tuned.lambda$lambda.min)
 #' }
 #'
 #' @export
