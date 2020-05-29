@@ -4,7 +4,7 @@
 ![CRAN Downloads overall](http://cranlogs.r-pkg.org/badges/grand-total/grf)
 [![Build Status](https://travis-ci.com/grf-labs/grf.svg?branch=master)](https://travis-ci.com/grf-labs/grf)
 
-A pluggable package for forest-based statistical estimation and inference. GRF currently provides non-parametric methods for least-squares regression, quantile regression, and treatment effect estimation (optionally using instrumental variables).
+A pluggable package for forest-based statistical estimation and inference. GRF currently provides non-parametric methods for least-squares regression, quantile regression, survival regression, and treatment effect estimation (optionally using instrumental variables), with support for missing values.
 
 In addition, GRF supports 'honest' estimation (where one subset of the data is used for choosing splits, and another for populating the leaves of the tree), and confidence intervals for least-squares regression and treatment effect estimation.
 

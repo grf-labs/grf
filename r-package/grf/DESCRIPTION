@@ -15,8 +15,8 @@ Authors@R: c(
 BugReports: https://github.com/grf-labs/grf/issues
 Description: A pluggable package for forest-based statistical estimation and inference.
     GRF currently provides methods for non-parametric least-squares regression,
-    quantile regression, and treatment effect estimation (optionally using instrumental
-    variables).
+    quantile regression, survival regression and treatment effect estimation (optionally using instrumental
+    variables), with support for missing values.
 Depends:
     R (>= 3.5.0)
 License: GPL-3
