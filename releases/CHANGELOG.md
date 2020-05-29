@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add optional `compute.oob.predictions` argument to Quantile Forest. [#665](https://github.com/grf-labs/grf/pull/665)
 
 ### Fixed
-- Remove an accidental copy in DefaultPredictionCollector. This improves prediction speed for forests such as Quantile Forest. [#650](https://github.com/grf-labs/grf/pull/650)
+- Fix a performance regression in DefaultPredictionCollector. This improves prediction speed for forests such as Quantile Forest. [#650](https://github.com/grf-labs/grf/pull/650)
 - Predict with training quantiles by default. [#668](https://github.com/grf-labs/grf/pull/668)
 
 ## [1.1.0] - 2020-03-12
