@@ -187,7 +187,9 @@ survival_forest <- function(X, Y, D,
 #'                    automatically selects an appropriate amount.
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return Vector of predictions.
+#' @return A list with elements `failure.times`: a vector of event times t for the survival curve,
+#'  and `predictions`: a matrix of survival curves. Each row is the survival curve for
+#'  sample X_i: predictions[i, j] = S(failure.times[j], X_i).
 #'
 #' @examples
 #' \donttest{
