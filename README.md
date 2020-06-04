@@ -4,7 +4,7 @@
 ![CRAN Downloads overall](http://cranlogs.r-pkg.org/badges/grand-total/grf)
 [![Build Status](https://travis-ci.com/grf-labs/grf.svg?branch=master)](https://travis-ci.com/grf-labs/grf)
 
-A pluggable package for forest-based statistical estimation and inference. GRF currently provides non-parametric methods for least-squares regression, quantile regression, and treatment effect estimation (optionally using instrumental variables).
+A pluggable package for forest-based statistical estimation and inference. GRF currently provides non-parametric methods for least-squares regression, quantile regression, survival regression, and treatment effect estimation (optionally using instrumental variables), with support for missing values.
 
 In addition, GRF supports 'honest' estimation (where one subset of the data is used for choosing splits, and another for populating the leaves of the tree), and confidence intervals for least-squares regression and treatment effect estimation.
 
@@ -27,7 +27,7 @@ install.packages("grf")
 Any published release can also be installed from source:
 
 ```R
-install.packages("https://raw.github.com/grf-labs/grf/master/releases/grf_1.1.0.tar.gz", repos = NULL, type = "source")
+install.packages("https://raw.github.com/grf-labs/grf/master/releases/grf_1.2.0.tar.gz", repos = NULL, type = "source")
 ```
 
 `conda` users can install from the [conda-forge](https://anaconda.org/conda-forge/r-grf) channel:
