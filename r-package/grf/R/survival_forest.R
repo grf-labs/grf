@@ -182,7 +182,7 @@ survival_forest <- function(X, Y, D,
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
 #' @param failure.times A vector of failure times to make predictions at. If NULL, then the
-#'  failure times used for training the forest is used. Default is NULL.
+#'  failure times used for training the forest is used. The time points should be in increasing order. Default is NULL.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param ... Additional arguments (currently ignored).
