@@ -48,6 +48,14 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
     }
     sum += forest_weight * sample_weight;
   }
+
+  return predict_kaplan_meier(count_failure, count_censor, sum);
+}
+
+std::vector<double> SurvivalPredictionStrategy::predict_kaplan_meier(
+  const std::vector<double>& count_failure,
+  const std::vector<double>& count_censor,
+  double sum) const {
   // Kaplan–Meier estimator of the survival function S(t)
   double kaplan_meier = 1;
   sum = sum - count_censor[0];
@@ -67,6 +75,13 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
   }
 
   return survival_function;
+}
+
+std::vector<double> SurvivalPredictionStrategy::predict_nelson_aalen(
+  const std::vector<double>& count_failure,
+  const std::vector<double>& count_censor,
+  double sum) const {
+  // Nelson-Aalen estimator of the survival function S(t)
 }
 
 std::vector<double> SurvivalPredictionStrategy::compute_variance(

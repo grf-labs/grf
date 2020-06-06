@@ -59,6 +59,16 @@ public:
     size_t ci_group_size) const;
 
 private:
+  std::vector<double> predict_kaplan_meier(
+    const std::vector<double>& count_failure,
+    const std::vector<double>& count_censor,
+    double sum) const;
+
+  std::vector<double> predict_nelson_aalen(
+    const std::vector<double>& count_failure,
+    const std::vector<double>& count_censor,
+    double sum) const;
+
   size_t num_failures;
 };
 
