@@ -178,8 +178,8 @@ survival_forest <- function(X, Y, D,
 
 #' Predict with a survival forest forest
 #'
-#' Gets estimates of the conditional survival function S(t, x) using a trained survival forest (estimated using
-#' Kaplan-Meier).
+#' Gets estimates of the conditional survival function S(t, x) using a trained survival forest. The curve can be
+#' estimated by Kaplan-Meier (default), or Nelson-Aalen.
 #'
 #' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
