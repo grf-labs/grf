@@ -14,6 +14,7 @@ test_that("a simple survival forest workflow works", {
 
   survival.oob <- predict(sf)$predictions
   survival <- predict(sf, X)$predictions
+  survival.na <- predict(sf, X, prediction.type = "Nelson-Aalen")$predictions
 
   # Predictions are monotonically decreasing
   if (n.failures > 1) {
@@ -26,6 +27,9 @@ test_that("a simple survival forest workflow works", {
                dim(survival.oob))
   expect_equal(c(n, n.failures),
              dim(survival))
+
+  # Nelson-Aalen estimates of the survival curve is above zero
+  expect_true(all(survival.na > 0))
 
   # A tree with no failures does not split
   sf <- survival_forest(X, Y, rep(0, n), num.trees = 50)
