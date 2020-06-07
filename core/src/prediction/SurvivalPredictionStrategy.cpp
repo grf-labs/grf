@@ -25,7 +25,7 @@ const int SurvivalPredictionStrategy::NELSON_AALEN = 1;
 
 SurvivalPredictionStrategy::SurvivalPredictionStrategy(size_t num_failures,
                                                        int prediction_type) {
-  if (prediction_type != 0 || prediction_type != 1) {
+  if (!(prediction_type == 0 || prediction_type == 1)) {
     throw std::runtime_error("SurvivalPredictionStrategy: unknown prediction type");
   }
   this->num_failures = num_failures;
