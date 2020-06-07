@@ -24,9 +24,13 @@ const int SurvivalPredictionStrategy::KAPLAN_MEIER = 0;
 const int SurvivalPredictionStrategy::NELSON_AALEN = 1;
 
 SurvivalPredictionStrategy::SurvivalPredictionStrategy(size_t num_failures,
-                                                       int prediction_type) :
-  num_failures(num_failures),
-  prediction_type(prediction_type) {};
+                                                       int prediction_type) {
+  if (prediction_type != 0 || prediction_type != 1) {
+    throw std::runtime_error("SurvivalPredictionStrategy: unknown prediction type");
+  }
+  this->num_failures = num_failures;
+  this->prediction_type = prediction_type;
+}
 
 size_t SurvivalPredictionStrategy::prediction_length() const {
   return num_failures;
@@ -58,8 +62,6 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
     return predict_nelson_aalen(count_failure, count_censor, sum);
   } else if (prediction_type == KAPLAN_MEIER) {
     return predict_kaplan_meier(count_failure, count_censor, sum);
-  } else {
-    throw std::runtime_error("SurvivalPredictionStrategy: unknown prediction type");
   }
 }
 
