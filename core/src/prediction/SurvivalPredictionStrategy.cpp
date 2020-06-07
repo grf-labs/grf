@@ -82,6 +82,19 @@ std::vector<double> SurvivalPredictionStrategy::predict_nelson_aalen(
   const std::vector<double>& count_censor,
   double sum) const {
   // Nelson-Aalen estimator of the survival function S(t)
+  double nelson_aalen = 0;
+  sum = sum - count_censor[0];
+  std::vector<double> survival_function(num_failures);
+
+  for (size_t time = 1; time <= num_failures; time++) {
+    if (sum > 0) {
+      nelson_aalen = nelson_aalen - count_failure[time] / sum;
+    }
+    survival_function[time - 1] = exp(nelson_aalen);
+    sum = sum - count_failure[time] - count_censor[time];
+  }
+
+   return survival_function;
 }
 
 std::vector<double> SurvivalPredictionStrategy::compute_variance(
