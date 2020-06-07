@@ -57,10 +57,9 @@ test_that("a simple survival forest workflow works", {
 })
 
 test_that("sample weighted survival prediction is invariant to weight rescaling", {
-  # With Kaplan-Meier estimates of the survival function adjusting each sample count
+  # Estimates of the survival function adjusting each sample count
   # by its rescaled sample weight should leave predictions unchanged.
-
-  # We can not do a check on one forest with some samples duplicated as the splits might be different
+  # (We can not do a check on one forest with some samples duplicated as the splits might be different)
   n <- 500
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
@@ -78,8 +77,10 @@ test_that("sample weighted survival prediction is invariant to weight rescaling"
                         sample.weights = runif(1) * sample.weights,
                         num.trees = 50,
                         seed = 1)
-
-  expect_true(sum(abs(predict(sf1, X)$pred - predict(sf2, X)$pred)) < 1e-8)
+  type <- "Kaplan-Meier"
+  expect_true(sum(abs(predict(sf1, X, prediction.type = type)$pred - predict(sf2, X, prediction.type = type)$pred)) < 1e-8)
+  type <- "Nelson-Aalen"
+  expect_true(sum(abs(predict(sf1, X, prediction.type = type)$pred - predict(sf2, X, prediction.type = type)$pred)) < 1e-8)
 })
 
 test_that("survival_forest works as expected with missing values", {
