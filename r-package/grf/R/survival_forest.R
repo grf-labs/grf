@@ -47,7 +47,7 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05
 #'  (meaning the count of failures on each side of a split has to be at least 5 \% of the total observation count in a node)
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
-#' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" and "Nelson-Aalen".
+#' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 #' Only relevant if `compute.oob.predictions` is TRUE. Default is "Kaplan-Meier".
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
@@ -189,7 +189,7 @@ survival_forest <- function(X, Y, D,
 #'                matrix, and that the columns must appear in the same order.
 #' @param failure.times A vector of failure times to make predictions at. If NULL, then the
 #'  failure times used for training the forest is used. The time points should be in increasing order. Default is NULL.
-#' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" and "Nelson-Aalen".
+#' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 #'  Default is "Kaplan-Meier".
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
