@@ -179,7 +179,7 @@ survival_forest <- function(X, Y, D,
 #' Predict with a survival forest forest
 #'
 #' Gets estimates of the conditional survival function S(t, x) using a trained survival forest. The curve can be
-#' estimated by Kaplan-Meier (default), or Nelson-Aalen.
+#' estimated by Kaplan-Meier, or Nelson-Aalen.
 #'
 #' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
@@ -190,7 +190,7 @@ survival_forest <- function(X, Y, D,
 #' @param failure.times A vector of failure times to make predictions at. If NULL, then the
 #'  failure times used for training the forest is used. The time points should be in increasing order. Default is NULL.
 #' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
-#'  Default is "Kaplan-Meier".
+#'  If NULL, then the prediction.type used to train the forest is used. Default is NULL.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param ... Additional arguments (currently ignored).
@@ -248,15 +248,20 @@ survival_forest <- function(X, Y, D,
 predict.survival_forest <- function(object,
                                     newdata = NULL,
                                     failure.times = NULL,
-                                    prediction.type = "Kaplan-Meier",
+                                    prediction.type = NULL,
                                     num.threads = NULL, ...) {
-  prediction.type = validate_prediction_type(prediction.type)
   num.threads <- validate_num_threads(num.threads)
   if (is.null(failure.times)) {
     failure.times <- object[["failure.times"]]
     Y.relabeled <- object[["Y.relabeled"]]
   } else {
     Y.relabeled <- findInterval(object[["Y.orig"]], failure.times)
+  }
+
+  if (is.null(prediction.type)) {
+    prediction.type <- object[["prediction.type"]]
+  } else {
+    prediction.type = validate_prediction_type(prediction.type)
   }
 
   # If possible, use pre-computed predictions.
