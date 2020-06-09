@@ -14,6 +14,7 @@ test_that("a simple survival forest workflow works", {
 
   survival.oob <- predict(sf)$predictions
   survival <- predict(sf, X)$predictions
+  survival.na <- predict(sf, X, prediction.type = "Nelson-Aalen")$predictions
 
   # Predictions are monotonically decreasing
   if (n.failures > 1) {
@@ -26,6 +27,9 @@ test_that("a simple survival forest workflow works", {
                dim(survival.oob))
   expect_equal(c(n, n.failures),
              dim(survival))
+
+  # Nelson-Aalen estimates of the survival curve is above zero
+  expect_true(all(survival.na > 0))
 
   # A tree with no failures does not split
   sf <- survival_forest(X, Y, rep(0, n), num.trees = 50)
@@ -53,10 +57,9 @@ test_that("a simple survival forest workflow works", {
 })
 
 test_that("sample weighted survival prediction is invariant to weight rescaling", {
-  # With Kaplan-Meier estimates of the survival function adjusting each sample count
+  # Estimates of the survival function adjusting each sample count
   # by its rescaled sample weight should leave predictions unchanged.
-
-  # We can not do a check on one forest with some samples duplicated as the splits might be different
+  # (We can not do a check on one forest with some samples duplicated as the splits might be different)
   n <- 500
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
@@ -74,8 +77,10 @@ test_that("sample weighted survival prediction is invariant to weight rescaling"
                         sample.weights = runif(1) * sample.weights,
                         num.trees = 50,
                         seed = 1)
-
-  expect_true(sum(abs(predict(sf1, X)$pred - predict(sf2, X)$pred)) < 1e-8)
+  type <- "Kaplan-Meier"
+  expect_true(sum(abs(predict(sf1, X, prediction.type = type)$pred - predict(sf2, X, prediction.type = type)$pred)) < 1e-8)
+  type <- "Nelson-Aalen"
+  expect_true(sum(abs(predict(sf1, X, prediction.type = type)$pred - predict(sf2, X, prediction.type = type)$pred)) < 1e-8)
 })
 
 test_that("survival_forest works as expected with missing values", {

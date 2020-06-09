@@ -172,6 +172,16 @@ validate_sample_weights <- function(sample.weights, X) {
   }
 }
 
+validate_prediction_type <- function(prediction.type) {
+  type <- match.arg(tolower(prediction.type), c("kaplan-meier", "nelson-aalen"))
+  if (type == "kaplan-meier") {
+    return (0)
+  }
+  if (type == "nelson-aalen") {
+    return (1)
+  }
+}
+
 #' @importFrom Matrix Matrix cBind
 #' @importFrom methods new
 create_train_matrices <- function(X, outcome = NULL, treatment = NULL,

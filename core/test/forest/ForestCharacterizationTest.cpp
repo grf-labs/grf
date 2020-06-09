@@ -387,7 +387,8 @@ TEST_CASE("survival forest predictions have not changed", "[survival], [characte
   ForestOptions options = ForestTestUtilities::default_options();
   Forest forest = trainer.train(*data, options);
 
-  ForestPredictor predictor = survival_predictor(4, num_failures);
+  int prediction_type = 0;
+  ForestPredictor predictor = survival_predictor(4, num_failures, prediction_type);
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
   std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
 
@@ -415,7 +416,8 @@ TEST_CASE("survival forest predictions with NaNs have not changed", "[NaN], [sur
   ForestOptions options = ForestTestUtilities::default_options();
   Forest forest = trainer.train(*data, options);
 
-  ForestPredictor predictor = survival_predictor(4, num_failures);
+  int prediction_type = 0;
+  ForestPredictor predictor = survival_predictor(4, num_failures, prediction_type);
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
   std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
 

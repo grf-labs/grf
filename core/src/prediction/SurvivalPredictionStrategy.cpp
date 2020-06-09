@@ -20,8 +20,17 @@
 
 namespace grf {
 
-SurvivalPredictionStrategy::SurvivalPredictionStrategy(size_t num_failures) :
-  num_failures(num_failures) {};
+const int SurvivalPredictionStrategy::KAPLAN_MEIER = 0;
+const int SurvivalPredictionStrategy::NELSON_AALEN = 1;
+
+SurvivalPredictionStrategy::SurvivalPredictionStrategy(size_t num_failures,
+                                                       int prediction_type) {
+  if (!(prediction_type == 0 || prediction_type == 1)) {
+    throw std::runtime_error("SurvivalPredictionStrategy: unknown prediction type");
+  }
+  this->num_failures = num_failures;
+  this->prediction_type = prediction_type;
+}
 
 size_t SurvivalPredictionStrategy::prediction_length() const {
   return num_failures;
@@ -48,6 +57,18 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
     }
     sum += forest_weight * sample_weight;
   }
+
+  if (prediction_type == NELSON_AALEN) {
+    return predict_nelson_aalen(count_failure, count_censor, sum);
+  } else if (prediction_type == KAPLAN_MEIER) {
+    return predict_kaplan_meier(count_failure, count_censor, sum);
+  }
+}
+
+std::vector<double> SurvivalPredictionStrategy::predict_kaplan_meier(
+  const std::vector<double>& count_failure,
+  const std::vector<double>& count_censor,
+  double sum) const {
   // Kaplan–Meier estimator of the survival function S(t)
   double kaplan_meier = 1;
   sum = sum - count_censor[0];
@@ -67,6 +88,26 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
   }
 
   return survival_function;
+}
+
+std::vector<double> SurvivalPredictionStrategy::predict_nelson_aalen(
+  const std::vector<double>& count_failure,
+  const std::vector<double>& count_censor,
+  double sum) const {
+  // Nelson-Aalen estimator of the survival function S(t)
+  double nelson_aalen = 0;
+  sum = sum - count_censor[0];
+  std::vector<double> survival_function(num_failures);
+
+  for (size_t time = 1; time <= num_failures; time++) {
+    if (sum > 0) {
+      nelson_aalen = nelson_aalen - count_failure[time] / sum;
+    }
+    survival_function[time - 1] = exp(nelson_aalen);
+    sum = sum - count_failure[time] - count_censor[time];
+  }
+
+   return survival_function;
 }
 
 std::vector<double> SurvivalPredictionStrategy::compute_variance(
