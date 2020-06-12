@@ -96,9 +96,9 @@ quantile_forest <- function(X, Y,
                             compute.oob.predictions = FALSE,
                             num.threads = NULL,
                             seed = runif(1, 0, .Machine$integer.max)) {
-  if (!is.numeric(quantiles) | length(quantiles) < 1) {
+  if (!is.numeric(quantiles) || length(quantiles) < 1) {
     stop("Error: Must provide numeric quantiles")
-  } else if (min(quantiles) <= 0 | max(quantiles) >= 1) {
+  } else if (min(quantiles) <= 0 || max(quantiles) >= 1) {
     stop("Error: Quantiles must be in (0, 1)")
   }
 
@@ -149,7 +149,8 @@ quantile_forest <- function(X, Y,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
-#' @param quantiles Vector of quantiles at which estimates are required.
+#' @param quantiles Vector of quantiles at which estimates are required. If NULL, the quantiles
+#'  used to train the forest is used. Default is NULL.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param ... Additional arguments (currently ignored).
@@ -178,17 +179,21 @@ quantile_forest <- function(X, Y,
 #' @export
 predict.quantile_forest <- function(object,
                                     newdata = NULL,
-                                    quantiles = c(0.1, 0.5, 0.9),
+                                    quantiles = NULL,
                                     num.threads = NULL, ...) {
-  if (!is.numeric(quantiles) | length(quantiles) < 1) {
-    stop("Error: Must provide numeric quantiles")
-  } else if (min(quantiles) <= 0 | max(quantiles) >= 1) {
-    stop("Error: Quantiles must be in (0, 1)")
+  if (is.null(quantiles)) {
+    quantiles <- object[["quantiles.orig"]]
+  } else {
+    if (!is.numeric(quantiles) || length(quantiles) < 1) {
+      stop("Error: Must provide numeric quantiles")
+    } else if (min(quantiles) <= 0 || max(quantiles) >= 1) {
+      stop("Error: Quantiles must be in (0, 1)")
+    }
   }
 
   # If possible, use pre-computed predictions.
   quantiles.orig <- object[["quantiles.orig"]]
-  if (is.null(newdata) & identical(quantiles, quantiles.orig) & !is.null(object$predictions)) {
+  if (is.null(newdata) && identical(quantiles, quantiles.orig) && !is.null(object$predictions)) {
     return(object$predictions)
   }
 

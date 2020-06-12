@@ -247,7 +247,7 @@ predict.regression_forest <- function(object, newdata = NULL,
   allow.na <- !local.linear
 
   # If possible, use pre-computed predictions.
-  if (is.null(newdata) & !estimate.variance & !local.linear & !is.null(object$predictions)) {
+  if (is.null(newdata) && !estimate.variance && !local.linear && !is.null(object$predictions)) {
     return(data.frame(
       predictions = object$predictions,
       debiased.error = object$debiased.error,

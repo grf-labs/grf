@@ -57,7 +57,7 @@ average_partial_effect <- function(forest,
     subset <- 1:length(forest$Y.hat)
   }
 
-  if (class(subset) == "logical" & length(subset) == length(forest$Y.hat)) {
+  if (class(subset) == "logical" && length(subset) == length(forest$Y.hat)) {
     subset <- which(subset)
   }
 

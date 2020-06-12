@@ -47,6 +47,8 @@
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05
 #'  (meaning the count of failures on each side of a split has to be at least 5 \% of the total observation count in a node)
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
+#' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
+#' Only relevant if `compute.oob.predictions` is TRUE. Default is "Kaplan-Meier".
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -115,6 +117,7 @@ survival_forest <- function(X, Y, D,
                             honesty.fraction = 0.5,
                             honesty.prune.leaves = TRUE,
                             alpha = 0.05,
+                            prediction.type = "Kaplan-Meier",
                             compute.oob.predictions = TRUE,
                             num.threads = NULL,
                             seed = runif(1, 0, .Machine$integer.max)) {
@@ -128,6 +131,7 @@ survival_forest <- function(X, Y, D,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
+  prediction.type = validate_prediction_type(prediction.type)
 
   # Relabel the times to consecutive integers such that:
   # if the failure time is less than the smallest failure time: set it to 0
@@ -137,7 +141,7 @@ survival_forest <- function(X, Y, D,
   if (is.null(failure.times)) {
     failure.times <- sort(unique(Y[D == 1]))
   }
-  Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
+  Y.relabeled <- findInterval(Y, failure.times)
 
   data <- create_train_matrices(X, outcome = Y.relabeled, sample.weights = sample.weights, censor = D)
   args <- list(num.trees = num.trees,
@@ -151,6 +155,7 @@ survival_forest <- function(X, Y, D,
                honesty.prune.leaves = honesty.prune.leaves,
                alpha = alpha,
                num.failures = length(failure.times),
+               prediction.type = prediction.type,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed)
@@ -167,14 +172,15 @@ survival_forest <- function(X, Y, D,
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["has.missing.values"]] <- has.missing.values
   forest[["failure.times"]] <- failure.times
+  forest[["prediction.type"]] <- prediction.type
 
   forest
 }
 
 #' Predict with a survival forest forest
 #'
-#' Gets estimates of the conditional survival function S(t, x) using a trained survival forest (estimated using
-#' Kaplan-Meier).
+#' Gets estimates of the conditional survival function S(t, x) using a trained survival forest. The curve can be
+#' estimated by Kaplan-Meier, or Nelson-Aalen.
 #'
 #' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
@@ -182,11 +188,17 @@ survival_forest <- function(X, Y, D,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
+#' @param failure.times A vector of failure times to make predictions at. If NULL, then the
+#'  failure times used for training the forest is used. The time points should be in increasing order. Default is NULL.
+#' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
+#'  If NULL, then the prediction.type used to train the forest is used. Default is NULL.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return Vector of predictions.
+#' @return A list with elements `failure.times`: a vector of event times t for the survival curve,
+#'  and `predictions`: a matrix of survival curves. Each row is the survival curve for
+#'  sample X_i: predictions[i, j] = S(failure.times[j], X_i).
 #'
 #' @examples
 #' \donttest{
@@ -234,25 +246,44 @@ survival_forest <- function(X, Y, D,
 #'
 #' @method predict survival_forest
 #' @export
-predict.survival_forest <- function(object, newdata = NULL, num.threads = NULL, ...) {
-  failure.times = object[["failure.times"]]
-  # If possible, use pre-computed predictions.
-  if (is.null(newdata) & !is.null(object$predictions)) {
-    return(list(predictions = object$predictions, failure.times = failure.times))
+predict.survival_forest <- function(object,
+                                    newdata = NULL,
+                                    failure.times = NULL,
+                                    prediction.type = NULL,
+                                    num.threads = NULL, ...) {
+  num.threads <- validate_num_threads(num.threads)
+  if (is.null(failure.times)) {
+    failure.times <- object[["failure.times"]]
+    Y.relabeled <- object[["Y.relabeled"]]
+  } else {
+    Y.relabeled <- findInterval(object[["Y.orig"]], failure.times)
   }
 
-  num.threads <- validate_num_threads(num.threads)
+  if (is.null(prediction.type)) {
+    prediction.type <- object[["prediction.type"]]
+  } else {
+    prediction.type = validate_prediction_type(prediction.type)
+  }
+
+  # If possible, use pre-computed predictions.
+  failure.times.orig <- object[["failure.times"]]
+  prediction.type.orig <- object[["prediction.type"]]
+  if (is.null(newdata) && identical(failure.times, failure.times.orig)
+      && identical(prediction.type, prediction.type.orig) && !is.null(object$predictions)) {
+    return(list(predictions = object$predictions, failure.times = failure.times))
+  }
 
   forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
   train.data <- create_train_matrices(X,
-                                      outcome = object[["Y.relabeled"]],
+                                      outcome = Y.relabeled,
                                       sample.weights = object[["sample.weights"]],
                                       censor = object[["D.orig"]])
 
   args <- list(forest.xptr = get_xptr(object),
                num.threads = num.threads,
-               num.failures = length(object[["failure.times"]]))
+               num.failures = length(failure.times),
+               prediction.type = prediction.type)
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

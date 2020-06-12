@@ -260,7 +260,7 @@ predict.instrumental_forest <- function(object, newdata = NULL,
                                         ...) {
 
   # If possible, use pre-computed predictions.
-  if (is.null(newdata) & !estimate.variance & !is.null(object$predictions)) {
+  if (is.null(newdata) && !estimate.variance && !is.null(object$predictions)) {
     return(data.frame(
       predictions = object$predictions,
       debiased.error = object$debiased.error

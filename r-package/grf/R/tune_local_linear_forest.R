@@ -23,7 +23,8 @@
 #' tuned.lambda <- tune_ll_regression_forest(forest)
 #'
 #' # Use this parameter to predict from a local linear forest.
-#' predictions <- predict(forest, linear.correction.variables = 1:p, ll.lambda = tuned.lambda$lambda.min)
+#' predictions <- predict(forest, linear.correction.variables = 1:p,
+#'                        ll.lambda = tuned.lambda$lambda.min)
 #' }
 #'
 #' @export

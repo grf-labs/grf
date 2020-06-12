@@ -85,9 +85,7 @@ test_calibration <- function(forest) {
 #' using a causal forest.
 #'
 #' Let tau(Xi) = E[Y(1) - Y(0) | X = Xi] be the CATE, and Ai be a vector of user-provided
-#' covariates. This function provides a (doubly robust) fit to the linear model
-#'
-#' tau(Xi) ~ beta_0 + Ai * beta
+#' covariates. This function provides a (doubly robust) fit to the linear model tau(Xi) ~ beta_0 + Ai * beta.
 #'
 #' Procedurally, we do so by regressing doubly robust scores derived from the causal
 #' forest against the Ai. Note the covariates Ai may consist of a subset of the Xi,
@@ -145,7 +143,7 @@ best_linear_projection <- function(forest,
     subset <- 1:length(forest$Y.hat)
   }
 
-  if (class(subset) == "logical" & length(subset) == length(forest$Y.hat)) {
+  if (class(subset) == "logical" && length(subset) == length(forest$Y.hat)) {
     subset <- which(subset)
   }
 

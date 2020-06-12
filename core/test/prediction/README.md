@@ -15,11 +15,12 @@ censor.time <- rexp(n)
 Y <- pmin(failure.time, censor.time)
 D <- as.integer(failure.time <= censor.time)
 failure.times <- sort(unique(Y[D == 1]))
-Y.relabeled <- findInterval(Y, failure.times, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
+Y.relabeled <- findInterval(Y, failure.times)
 
-kaplan.meier <- survfit(Surv(Y, D) ~ 1, data = data.frame(Y, D))
+sfit <- survfit(Surv(Y, D) ~ 1, data = data.frame(Y, D))
 
 length(failure.times) # num_failures
 dput(c(Y.relabeled, D)) # data_matrix
-dput(summary(kaplan.meier)$surv) # expected_predictions
+dput(summary(sfit)$surv) # expected_predictions Kaplan-Meier
+dput(exp(-sfit$cumhaz[D[order(Y)] == 1])) # expected_predictions Nelson-Aalen
 ```
