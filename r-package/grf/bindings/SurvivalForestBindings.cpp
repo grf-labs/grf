@@ -97,7 +97,7 @@ Rcpp::List survival_predict(SEXP forest_xptr,
 
   bool estimate_variance = false;
   ForestPredictor predictor = survival_predictor(num_threads, num_failures, prediction_type);
-  std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict(*forest, *train_data, *data, estimate_variance);
 
   return RcppUtilities::create_prediction_object(predictions);
 }
@@ -124,7 +124,7 @@ Rcpp::List survival_predict_oob(SEXP forest_xptr,
 
   bool estimate_variance = false;
   ForestPredictor predictor = survival_predictor(num_threads, num_failures, prediction_type);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict_oob(*forest, *data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
   return result;
