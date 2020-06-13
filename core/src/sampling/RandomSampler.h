@@ -115,6 +115,19 @@ private:
                          size_t n_all,
                          size_t size);
 
+ /**
+  * Sample blocks allowing repeating
+  *
+  * @param samples A list of first 'size'n_first shuffled numbers
+  * @param n_all Number elements
+  * @param size Number of blocks of to select
+  * @param block_size Length of blocks
+  */
+ void shuffle_and_split_block(std::vector<size_t>& samples,
+                              size_t n_all,
+                              size_t size,
+                              size_t block_size);
+
   /**
    * Simple algorithm for sampling without replacement, faster for smaller num_samples
    * @param result Vector to add results to. Will not be cleaned before filling.

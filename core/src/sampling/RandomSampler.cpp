@@ -140,6 +140,26 @@ void RandomSampler::shuffle_and_split(std::vector<size_t>& samples,
   samples.resize(size);
 }
 
+void RandomSampler::shuffle_and_split_block(std::vector<size_t>& samples,
+                                            size_t n_all,
+                                            size_t size,
+                                            size_t block_size) {
+  std::vector<size_t> heads(n_all - block_size + 1);
+
+  // Select the first element of each block
+  std::iota(heads.begin(), heads.end(), 0);
+  nonstd::shuffle(heads.begin(), heads.end(), random_number_generator);
+  heads.resize(size);
+
+  // Add all elements in each block
+  samples.clear();
+  for (auto head:heads) {
+    for (int i = 0; i < block_size; ++i) {
+      samples.push_back(head + i);
+    }
+  }
+}
+
 void RandomSampler::draw(std::vector<size_t>& result,
                          size_t max,
                          const std::set<size_t>& skip,
