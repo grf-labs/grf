@@ -109,7 +109,8 @@ regression_forest <- function(X, Y,
                               tune.num.draws = 1000,
                               compute.oob.predictions = TRUE,
                               num.threads = NULL,
-                              seed = runif(1, 0, .Machine$integer.max)) {
+                              seed = runif(1, 0, .Machine$integer.max)
+                              blocklength = floor((nrow(X))^(1/3)) ) {
   has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
@@ -135,7 +136,8 @@ regression_forest <- function(X, Y,
                ci.group.size = ci.group.size,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               blocklength = blocklength)
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")){
@@ -157,7 +159,8 @@ regression_forest <- function(X, Y,
                                             tune.num.reps = tune.num.reps,
                                             tune.num.draws = tune.num.draws,
                                             num.threads = num.threads,
-                                            seed = seed)
+                                            seed = seed,
+                                            blocklength = blocklength)
     args <- modifyList(args, as.list(tuning.output[["params"]]))
   }
 

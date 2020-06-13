@@ -48,7 +48,8 @@ Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
                             unsigned int samples_per_cluster,
                             bool compute_oob_predictions,
                             unsigned int num_threads,
-                            unsigned int seed) {
+                            unsigned int seed,
+                            unsigned int blocklength) {
   ForestTrainer trainer = regression_trainer();
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);

@@ -98,7 +98,8 @@ tune_regression_forest <- function(X, Y,
                                   tune.num.reps = 100,
                                   tune.num.draws = 1000,
                                   num.threads = NULL,
-                                  seed = runif(1, 0, .Machine$integer.max)) {
+                                  seed = runif(1, 0, .Machine$integer.max),
+                                  blocklength = floor((nrow(X))^(1/3)) ) {
   validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
@@ -132,7 +133,8 @@ tune_regression_forest <- function(X, Y,
                imbalance.penalty = imbalance.penalty,
                ci.group.size = ci.group.size,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               blocklength = blocklength)
 
   if (identical(tune.parameters, "all")) {
     tune.parameters <- all.tunable.params
