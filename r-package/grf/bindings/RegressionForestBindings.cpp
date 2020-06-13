@@ -59,7 +59,8 @@ Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
   }
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
+      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster,
+      blocklength);
   Forest forest = trainer.train(*data, options);
 
   std::vector<Prediction> predictions;
