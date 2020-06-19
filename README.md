@@ -41,7 +41,7 @@ Note that to install from source, a compiler that implements C++11 is required (
 The current development version can be installed from source using devtools.
 ```R
 library(devtools)
-install_github(‘grf-labs/grf’, subdir=‘r-package/grf’)
+install_github("grf-labs/grf", subdir="r-package/grf")
 ```
 
 
