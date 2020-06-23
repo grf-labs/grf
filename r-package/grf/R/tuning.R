@@ -18,6 +18,7 @@
 #'
 #' @importFrom stats sd runif
 #' @importFrom utils capture.output
+#' @keywords internal
 tune_forest <- function(data,
                         nrow.X,
                         ncol.X,
