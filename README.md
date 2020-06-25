@@ -24,12 +24,6 @@ The latest release of the package can be installed through CRAN:
 install.packages("grf")
 ```
 
-Any published release can also be installed from source:
-
-```R
-install.packages("https://raw.github.com/grf-labs/grf/master/releases/grf_1.2.0.tar.gz", repos = NULL, type = "source")
-```
-
 `conda` users can install from the [conda-forge](https://anaconda.org/conda-forge/r-grf) channel:
 
 ```
