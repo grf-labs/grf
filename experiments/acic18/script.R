@@ -47,14 +47,15 @@ X = cbind(X.raw[,-which(names(X.raw) %in% c("C1", "XC"))], C1.exp, XC.exp)
 # Grow a forest. Add extra trees for the causal forest.
 #
 
-Y.forest = regression_forest(X, Y, clusters = school.id)
+Y.forest = regression_forest(X, Y, clusters = school.id, equalize.cluster.weights = TRUE)
 Y.hat = predict(Y.forest)$predictions
-W.forest = regression_forest(X, W, clusters = school.id)
+W.forest = regression_forest(X, W, clusters = school.id, equalize.cluster.weights = TRUE)
 W.hat = predict(W.forest)$predictions
 
 cf.raw = causal_forest(X, Y, W,
                        Y.hat = Y.hat, W.hat = W.hat,
-                       clusters = school.id)
+                       clusters = school.id,
+                       equalize.cluster.weights = TRUE)
 varimp = variable_importance(cf.raw)
 selected.idx = which(varimp > mean(varimp))
 
