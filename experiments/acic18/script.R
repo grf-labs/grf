@@ -1,3 +1,12 @@
+# Notes:
+# - The paper refers to an argument called `samples.per.cluster`. This option was removed in grf version 1.0
+# and is now by default (`equalize.cluster.weights = FALSE`) internally set to the size of the largest cluster,
+# which means that large schools recieve larger weight than small schools. To be closer to the original behavior,
+# this script has been updated by setting `equalize.cluster.weights` to TRUE, which means each school receives
+# equal weight in ATE estimation.
+#
+# For more details on clustering in grf, see the algorithm reference at:
+# https://grf-labs.github.io/grf/REFERENCE.html#cluster-robust-estimation
 set.seed(1)
 
 rm(list = ls())
@@ -52,7 +61,7 @@ selected.idx = which(varimp > mean(varimp))
 cf = causal_forest(X[,selected.idx], Y, W,
                    Y.hat = Y.hat, W.hat = W.hat,
                    clusters = school.id,
-                   samples.per.cluster = 50,
+                   equalize.cluster.weights = TRUE,
                    tune.parameters = "all")
 tau.hat = predict(cf)$predictions
 
@@ -197,7 +206,7 @@ summary(aov(dr.score ~ factor(school.id)))
 cf.noprop = causal_forest(X[,selected.idx], Y, W,
                           Y.hat = Y.hat, W.hat = mean(W),
                           tune.parameters = "all",
-                          samples.per.cluster = 50,
+                          equalize.cluster.weights = TRUE,
                           clusters = school.id)
 tau.hat.noprop = predict(cf.noprop)$predictions
 
