@@ -117,7 +117,7 @@ survival_forest <- function(X, Y, D,
                             honesty.fraction = 0.5,
                             honesty.prune.leaves = TRUE,
                             alpha = 0.05,
-                            prediction.type = "Kaplan-Meier",
+                            prediction.type = c("Kaplan-Meier", "Nelson-Aalen"),
                             compute.oob.predictions = TRUE,
                             num.threads = NULL,
                             seed = runif(1, 0, .Machine$integer.max)) {
@@ -131,7 +131,12 @@ survival_forest <- function(X, Y, D,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
-  prediction.type = validate_prediction_type(prediction.type)
+  prediction.type <- match.arg(prediction.type)
+  if (prediction.type == "Kaplan-Meier") {
+    prediction.type <- 0
+  } else if (prediction.type == "Nelson-Aalen") {
+    prediction.type <- 1
+  }
 
   # Relabel the times to consecutive integers such that:
   # if the failure time is less than the smallest failure time: set it to 0
@@ -191,7 +196,7 @@ survival_forest <- function(X, Y, D,
 #' @param failure.times A vector of failure times to make predictions at. If NULL, then the
 #'  failure times used for training the forest is used. The time points should be in increasing order. Default is NULL.
 #' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
-#'  If NULL, then the prediction.type used to train the forest is used. Default is NULL.
+#'  The default is the prediction.type used to train the forest.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param ... Additional arguments (currently ignored).
@@ -249,7 +254,7 @@ survival_forest <- function(X, Y, D,
 predict.survival_forest <- function(object,
                                     newdata = NULL,
                                     failure.times = NULL,
-                                    prediction.type = NULL,
+                                    prediction.type = c("Kaplan-Meier", "Nelson-Aalen"),
                                     num.threads = NULL, ...) {
   num.threads <- validate_num_threads(num.threads)
   if (is.null(failure.times)) {
@@ -259,10 +264,14 @@ predict.survival_forest <- function(object,
     Y.relabeled <- findInterval(object[["Y.orig"]], failure.times)
   }
 
-  if (is.null(prediction.type)) {
+  default.prediction.type <- length(prediction.type) == 2
+  prediction.type <- match.arg(prediction.type)
+  if (default.prediction.type) {
     prediction.type <- object[["prediction.type"]]
-  } else {
-    prediction.type = validate_prediction_type(prediction.type)
+  } else if (prediction.type == "Kaplan-Meier") {
+    prediction.type <- 0
+  } else if (prediction.type == "Nelson-Aalen") {
+    prediction.type <- 1
   }
 
   # If possible, use pre-computed predictions.

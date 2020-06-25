@@ -24,6 +24,3 @@ docs/
 
 # clion files
 .idea/
-
-# documentation by roxygen
-*.Rd

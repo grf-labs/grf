@@ -24,20 +24,19 @@ The latest release of the package can be installed through CRAN:
 install.packages("grf")
 ```
 
-Any published release can also be installed from source:
-
-```R
-install.packages("https://raw.github.com/grf-labs/grf/master/releases/grf_1.2.0.tar.gz", repos = NULL, type = "source")
-```
-
 `conda` users can install from the [conda-forge](https://anaconda.org/conda-forge/r-grf) channel:
 
 ```
 conda install -c conda-forge r-grf
 ```
 
-Note that to install from source, a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
+The current development version can be installed from source using devtools.
 
+```R
+devtools::install_github("grf-labs/grf", subdir = "r-package/grf")
+```
+
+Note that to install from source, a compiler that implements C++11 is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
 
 ### Usage Examples
 

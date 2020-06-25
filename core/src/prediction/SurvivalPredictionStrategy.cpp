@@ -25,7 +25,7 @@ const int SurvivalPredictionStrategy::NELSON_AALEN = 1;
 
 SurvivalPredictionStrategy::SurvivalPredictionStrategy(size_t num_failures,
                                                        int prediction_type) {
-  if (!(prediction_type == 0 || prediction_type == 1)) {
+  if (!(prediction_type == KAPLAN_MEIER || prediction_type == NELSON_AALEN)) {
     throw std::runtime_error("SurvivalPredictionStrategy: unknown prediction type");
   }
   this->num_failures = num_failures;
@@ -62,6 +62,8 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
     return predict_nelson_aalen(count_failure, count_censor, sum);
   } else if (prediction_type == KAPLAN_MEIER) {
     return predict_kaplan_meier(count_failure, count_censor, sum);
+  } else {
+    throw std::runtime_error("SurvivalPredictionStrategy: unknown prediction type");
   }
 }
 

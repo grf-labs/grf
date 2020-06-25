@@ -178,6 +178,7 @@ leaf_stats <- function(forest, samples) UseMethod("leaf_stats")
 #' @return NULL
 #'
 #' @method leaf_stats default
+#' @keywords internal
 leaf_stats.default <- function(forest, samples, ...){
   return(NULL)
 }
@@ -190,6 +191,7 @@ leaf_stats.default <- function(forest, samples, ...){
 #' @return A named vector containing summary stats
 #'
 #' @method leaf_stats regression_forest
+#' @keywords internal
 leaf_stats.regression_forest <- function(forest, samples, ...){
   leaf_stats <- c()
   leaf_stats["avg_Y"] <- round(mean(forest$Y.orig[samples]), 2)
@@ -204,6 +206,7 @@ leaf_stats.regression_forest <- function(forest, samples, ...){
 #' @return A named vector containing summary stats
 #'
 #' @method leaf_stats causal_forest
+#' @keywords internal
 leaf_stats.causal_forest <- function(forest, samples, ...){
   leaf_stats <- c()
   leaf_stats["avg_Y"] <- round(mean(forest$Y.orig[samples]), 2)
@@ -219,6 +222,7 @@ leaf_stats.causal_forest <- function(forest, samples, ...){
 #' @return A named vector containing summary stats
 #'
 #' @method leaf_stats instrumental_forest
+#' @keywords internal
 leaf_stats.instrumental_forest <- function(forest, samples, ...){
 
   leaf_stats <- c()
