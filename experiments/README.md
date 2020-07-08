@@ -10,8 +10,7 @@ This directory contains replication code for
 
 * Mayer, Sverdrup, Gauss, Moyer, Wager, and Josse (2020): This is available at https://github.com/imkemayer/causal-inference-missing
 
-* Wager and Athey (2018):
-
+* Wager and Athey (2018): This paper is not based on GRF, but on the deprecated `causalForest`. For replication code see https://github.com/swager/causalForest
 
 ### References
 
