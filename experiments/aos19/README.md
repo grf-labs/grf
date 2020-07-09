@@ -1,4 +1,4 @@
-_This folder has replication files for the paper "Generalized Random Forests" by Athey, Tibshirani, and Wager._
+_This folder has replication files for the paper "Generalized Random Forests" by Athey, Tibshirani, and Wager. Note that the package has undergone several changes and some options (such as for example "precompute.nuisance") have been removed._
 
 - For Figure 2, see the folder `quantile_examples`
 - For Figure 3, see the file `grow_forest_angrist_evans.R`
