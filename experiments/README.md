@@ -4,7 +4,7 @@ This directory contains replication code for
 
 * Athey and Wager (2019): `acic18`
 
-* Athey, Tibshirani, and Wager (2019):
+* Athey, Tibshirani, and Wager (2019): `aos19`
 
 * Friedberg, Tibshirani, Athey, and Wager (2018): `local_linear_examples`
 
