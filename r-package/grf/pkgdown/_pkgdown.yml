@@ -12,6 +12,8 @@ navbar:
         href: articles/categorical_inputs.html
       - text: "Confidence intervals and the number of trees"
         href: articles/ci_and_num.trees.html
+      - text: "Estimating conditional means"
+        href: articles/muhats.html
       - text: "Evaluating a causal forest fit"
         href: articles/diagnostics.html
       - text: "Local linear forests"
