@@ -1,36 +1,36 @@
 rm(list = ls())
 library(grf)
-load("R_files/angev80_recode_run1_line525.RData")
+data = read.csv('angev80_recode_run1_line525.csv.xz')
 
-FEATURES=data.frame(twoa.agem,
-			  	twoa.agefstm,
-			  	twoa.educm,
-			  	as.numeric(twoa.blackm),
-			  	as.numeric(twoa.hispm),
-			  	as.numeric(twoa.othracem),
-			  	twoa.incomed=round(twoa.incomed))
+FEATURES=data.frame(data$twoa.agem,
+			  	data$twoa.agefstm,
+			  	data$twoa.educm,
+			  	as.numeric(data$twoa.blackm),
+			  	as.numeric(data$twoa.hispm),
+			  	as.numeric(data$twoa.othracem),
+			  	twoa.incomed=round(data$twoa.incomed))
 names(FEATURES)=1:ncol(FEATURES)
 
 #labor income: twoa.incomem, worked for pay: twoa.workedm
 DF.all=data.frame(
 			  X=FEATURES,
-			  Y=as.numeric(twoa.workedm),
-			  W=as.numeric(twoa.kidcount > 2),
-			  I=as.numeric(twoa.samesex))
+			  Y=as.numeric(data$twoa.workedm),
+			  W=as.numeric(data$twoa.kidcount > 2),
+			  I=as.numeric(data$twoa.samesex))
 
 # remove ~15% of data with missing father's income
 # roughly 4% of fathers have zero income after removing missing
 #
 # only consider married women
-is.ok = !is.na(twoa.incomed) & (twoa.marital==0)
+is.ok = !is.na(data$twoa.incomed) & (data$twoa.marital==0)
 DF=DF.all[is.ok,]
 
 agefstm.vals= c(18, 20, 22, 24)
-incomed.vals = quantile(twoa.incomed, na.rm=TRUE, seq(0.025, 0.975, by = 0.05))
+incomed.vals = quantile(data$twoa.incomed, na.rm=TRUE, seq(0.025, 0.975, by = 0.05))
 
 dummy = expand.grid(AGEFSTM=agefstm.vals, INCOMED=incomed.vals)
 X.test = data.frame(
-	median(twoa.agem, na.rm=TRUE),
+	median(data$twoa.agem, na.rm=TRUE),
 	dummy[,1],
 	12,
 	0, 0, 1,
