@@ -57,7 +57,7 @@ We then obtain the following expressions for the counterfactual response surface
 
 8. $\mu(X_i, 1) = \tau(X_i) + \mu(X_i, 0) = m(X_i) + [1 - e(X_i)] \tau(X_i)$
 
-These objects are all computed by the built-in ATE functions. The following code snippet illustrates how to manually obtain estimates of the conditional means $E[Y | X_i, W_i ]$:
+These objects are all computed by the built-in ATE functions. The following code snippet illustrates how to manually obtain estimates of the conditional means $E[Y | X_i, W_i]$:
 
 ```{r}
 n <- 250
