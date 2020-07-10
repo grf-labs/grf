@@ -51,7 +51,7 @@ To see how the last expression arises, note that we have:
 
 where there last line is due to unconfoundedness (conditioning on the set of covariates $X_i$, the potential outcomes are independent of the treatment).
 
-Combining (1) and (6) we then obtain the following expressions for the counterfactual response surfaces:
+We then obtain the following expressions for the counterfactual response surfaces:
 
 7. $\mu(X_i, 0) = m(X_i) - e(X_i) \tau(X_i)$
 
