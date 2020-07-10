@@ -1,0 +1,72 @@
+---
+title: "Estimating conditional means"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{muhats}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+set.seed(123)
+```
+
+```{r setup}
+library(grf)
+```
+
+## Conditional means and average treatment estimates
+
+grf computes average treatments effects based on a double robust correction (giving rise to an augmented inverse-propensity weighted average treatment effect). For a causal forest with binary treatment the exact expression is  (equation (8) of Athey and Wager, 2019):
+
+$\hat \Gamma_i = \hat \tau^{(-i)}(X_i) + \frac{W_i - \hat e^{(-i)}(X_i)}{\hat e^{(-i)}(X_i)[1 - \hat e^{(-i)}(X_i)]} [Y_i - \hat \mu^{(-i)}(X_i, W_i)]$
+
+where:
+
+* $\hat \tau^{(-i)}(X_i)$ is the treatment effect estimate (returned by grf's `predict` method). 
+
+* $W_i$ is the binary treatment indicator for subject $i$.
+
+* $\hat e^{(-i)}(X_i)$ is the propensity score for subject $i$.
+
+* $Y_i$ is the outcome for subject $i$. 
+
+* $\hat \mu^{(-i)}(X_i, W_i) = E[Y | X_i, W_i ] = \hat m^{(-i)}(X_i) + [W_i - \hat e^{(-i)}(X_i)] \hat \tau^{(-i)}(X_i)$ is the conditional mean for subject $i$, where $\hat m^{(-i)}(X_i) = E[Y_i | X_i]$ is estimated using a regression forest, marginalizing over treatment. 
+
+The superscript $-i$ indicates cross-fitting, i.e. that the estimate is computed by leaving observation $i$ out. This holds by construction for out-of-bag forest estimates. 
+
+These objects are computed by the built-in ATE functions. The following code snippet illustrates how to manually obtain estimates of the conditional means $E[Y | X_i, W_i ]$:
+
+```{r}
+n <- 250
+p <- 5
+X <- matrix(rnorm(n * p), n, p)
+W <- rbinom(n, 1, 0.5)
+Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+
+# These are estimates of m(X) = E[Y | X]
+forest.Y <- regression_forest(X, Y)
+Y.hat <- predict(forest.Y)$predictions
+
+# These are estimates of the propensity score P[W | X]
+forest.W <- regression_forest(X, W)
+W.hat <- predict(forest.W)$predictions
+
+c.forest <- causal_forest(X, Y, W, Y.hat, W.hat)
+tau.hat <- predict(c.forest)$predictions
+
+# E[Y | X, W = 0]
+mu.hat.0 <- Y.hat - W.hat * tau.hat
+# E[Y | X, W = 1]
+mu.hat.1 <- Y.hat + (1 - W.hat) * tau.hat
+```
+
+
+
+
+## References
+Athey, Susan and Stefan Wager. Estimating Treatment Effects with Causal Forests: An Application. _Observational Studies_, 5, 2019. ([arxiv](https://arxiv.org/abs/1902.07409))
