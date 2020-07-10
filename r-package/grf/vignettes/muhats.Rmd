@@ -27,17 +27,17 @@ $\hat \Gamma_i = \hat \tau^{(-i)}(X_i) + \frac{W_i - \hat e^{(-i)}(X_i)}{\hat e^
 
 where:
 
-* $\hat \tau^{(-i)}(X_i)$ is the treatment effect estimate (returned by grf's `predict` method). 
+* $\hat \tau^{(-i)}(X_i)$ is the treatment effect estimate (returned by grf's `predict` method).
 
 * $W_i$ is the binary treatment indicator for subject $i$.
 
 * $\hat e^{(-i)}(X_i)$ is the propensity score for subject $i$.
 
-* $Y_i$ is the outcome for subject $i$. 
+* $Y_i$ is the outcome for subject $i$.
 
-* $\hat \mu^{(-i)}(X_i, W_i) = E[Y | X_i, W_i ] = \hat m^{(-i)}(X_i) + [W_i - \hat e^{(-i)}(X_i)] \hat \tau^{(-i)}(X_i)$ is the conditional mean for subject $i$, where $\hat m^{(-i)}(X_i) = E[Y_i | X_i]$ is estimated using a regression forest, marginalizing over treatment. 
+* $\hat \mu^{(-i)}(X_i, W_i) = E[Y | X_i, W_i ] = \hat m^{(-i)}(X_i) + [W_i - \hat e^{(-i)}(X_i)] \hat \tau^{(-i)}(X_i)$ is the conditional mean for subject $i$, where $\hat m^{(-i)}(X_i) = E[Y_i | X_i]$ is estimated using a regression forest, marginalizing over treatment.
 
-The superscript $-i$ indicates cross-fitting, i.e. that the estimate is computed by leaving observation $i$ out. This holds by construction for out-of-bag forest estimates. 
+The superscript $-i$ indicates cross-fitting, i.e. that the estimate is computed by leaving observation $i$ out. This holds by construction for out-of-bag forest estimates.
 
 These objects are computed by the built-in ATE functions. The following code snippet illustrates how to manually obtain estimates of the conditional means $E[Y | X_i, W_i ]$:
 
@@ -64,9 +64,6 @@ mu.hat.0 <- Y.hat - W.hat * tau.hat
 # E[Y | X, W = 1]
 mu.hat.1 <- Y.hat + (1 - W.hat) * tau.hat
 ```
-
-
-
 
 ## References
 Athey, Susan and Stefan Wager. Estimating Treatment Effects with Causal Forests: An Application. _Observational Studies_, 5, 2019. ([arxiv](https://arxiv.org/abs/1902.07409))
