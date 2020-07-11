@@ -18,3 +18,4 @@ that always returns NULL.}
 A default leaf_stats for forests classes without a leaf_stats method
 that always returns NULL.
 }
+\keyword{internal}

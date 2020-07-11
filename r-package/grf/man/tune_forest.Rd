@@ -45,3 +45,4 @@ tuning output
 \description{
 Finds the optimal parameters to be used in training a forest.
 }
+\keyword{internal}
