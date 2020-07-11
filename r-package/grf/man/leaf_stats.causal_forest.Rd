@@ -19,3 +19,4 @@ A named vector containing summary stats
 \description{
 Calculate summary stats given a set of samples for causal forests.
 }
+\keyword{internal}
