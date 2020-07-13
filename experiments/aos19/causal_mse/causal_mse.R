@@ -17,10 +17,11 @@ out <- lapply(1:nrow(grid), function(i) {
   dgp <- grid$dgp[i]
   mse <- replicate(mse.reps, {
     data <- gen_data(n = n, p = p, dgp = dgp, sigma.tau = 1)
+    data.test <- gen_data(n = 1000, p = p, dgp = dgp, sigma.tau = 1)
     cf <- causal_forest(data$X, data$Y, data$W)
-    tau.hat <- predict(cf)$predictions
+    tau.hat <- predict(cf, data.test$X)$predictions
 
-    mean((tau.hat - data$tau)^2)
+    mean((tau.hat - data.test$tau)^2)
   })
 
   data.frame(dgp = dgp, p = p, n = n, C.GRF = mean(mse) * 10)
