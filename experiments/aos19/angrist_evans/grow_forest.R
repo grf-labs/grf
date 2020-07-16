@@ -14,7 +14,7 @@ names(FEATURES)=1:ncol(FEATURES)
 #labor income: twoa.incomem, worked for pay: twoa.workedm
 DF.all=data.frame(
 			  X=FEATURES,
-			  Y=as.numeric(data$twoa.workedm),
+			  Y=1 - as.numeric(data$twoa.workedm), # The outcome is whether the mother did not work
 			  W=as.numeric(data$twoa.kidcount > 2),
 			  I=as.numeric(data$twoa.samesex))
 
