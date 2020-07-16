@@ -37,14 +37,20 @@ X.test = data.frame(
 	dummy[,2])
 names(X.test)=1:ncol(X.test)
 
-DF$Y.resid = DF$Y - predict(lm(Y ~ ., data = DF[,1:8]))
+DF$Y.hat = predict(lm(Y ~ ., data = DF[,1:8]))
 
 W.lr = glm(W ~ ., data = DF[,c(1:7, 9)], family = binomial())
-DF$W.resid = DF$W - predict(W.lr, type="response")
+DF$W.hat = predict(W.lr, type="response")
 
 print(Sys.time())
 
-forest.iv = instrumental.forest(DF[,1:ncol(FEATURES)], DF$Y.resid, DF$W.resid, DF$I, min.node.size = 800, num.trees = 100000, ci.group.size = 125, sample.fraction = 0.05, precompute.nuisance = FALSE)
+forest.iv = instrumental_forest(
+	DF[,1:ncol(FEATURES)], DF$Y, DF$W, DF$I,
+	Y.hat = DF$Y.hat, W.hat = DF$W.hat, Z.hat = 0.5,
+	min.node.size = 800,
+	num.trees = 100000,
+	ci.group.size = 125,
+	sample.fraction = 0.05)
 preds.iv = predict(forest.iv, X.test, estimate.variance = TRUE)
 tau.hat = preds.iv$predictions
 var.hat = preds.iv$variance.estimates
