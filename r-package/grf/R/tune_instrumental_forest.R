@@ -168,7 +168,8 @@ tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat,
                                num.fit.trees = tune.num.trees,
                                num.fit.reps = tune.num.reps,
                                num.optimize.reps = tune.num.draws,
-                               train = train)
+                               train = train,
+                               seed = seed)
 
   tuning.output
 }

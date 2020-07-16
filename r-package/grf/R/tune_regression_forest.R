@@ -155,7 +155,8 @@ tune_regression_forest <- function(X, Y,
                                num.fit.trees = tune.num.trees,
                                num.fit.reps = tune.num.reps,
                                num.optimize.reps = tune.num.draws,
-                               train = train)
+                               train = train,
+                               seed = seed)
 
   tuning.output
 }
