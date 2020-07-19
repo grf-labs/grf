@@ -28,8 +28,7 @@ tune_forest <- function(data,
                         num.fit.trees,
                         num.fit.reps,
                         num.optimize.reps,
-                        train,
-                        seed) {
+                        train) {
   fit.parameters <- args[!names(args) %in% tune.parameters]
   fit.parameters[["num.trees"]] <- num.fit.trees
   fit.parameters[["ci.group.size"]] <- 1
@@ -37,7 +36,7 @@ tune_forest <- function(data,
 
   # 1. Train several mini-forests, and gather their debiased OOB error estimates.
   num.params <- length(tune.parameters)
-  unif <- with_seed(runif(num.fit.reps * num.params), seed=seed)
+  unif <- with_seed(runif(num.fit.reps * num.params), seed = args$seed)
   fit.draws <- matrix(unif, num.fit.reps, num.params,
                       dimnames = list(NULL, tune.parameters))
 
@@ -74,7 +73,7 @@ tune_forest <- function(data,
           response = small.forest.errors,
           noise.var = variance.guess
         ),
-      seed = seed)
+      seed = args$seed)
     )
     model
   },
@@ -91,7 +90,7 @@ tune_forest <- function(data,
 
   # 3. To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
-  unif <- with_seed(runif(num.optimize.reps * num.params), seed=seed)
+  unif <- with_seed(runif(num.optimize.reps * num.params), seed = args$seed)
   optimize.draws <- matrix(unif, num.optimize.reps, num.params,
                            dimnames = list(NULL, tune.parameters))
   model.surface <- predict(kriging.model, newdata = data.frame(optimize.draws), type = "SK")$mean
@@ -170,12 +169,12 @@ with_seed <- function(expr, seed) {
   # Restore entry seed on exit
   on.exit({
     if (is.null(oseed)) {
-      rm(list=".Random.seed", envir=env, inherits=FALSE)
+      rm(list = ".Random.seed", envir = env, inherits = FALSE)
     } else {
-      assign(".Random.seed", value=oseed, envir=env, inherits=FALSE)
+      assign(".Random.seed", value = oseed, envir = env, inherits = FALSE)
     }
   })
 
-  set.seed(seed=seed)
-  eval(expr, envir=parent.frame())
+  set.seed(seed = seed)
+  eval(expr, envir = parent.frame())
 }
