@@ -536,8 +536,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // survival_predict
-Rcpp::List survival_predict(Rcpp::List forest_object, Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t censor_index, size_t sample_weight_index, bool use_sample_weights, int prediction_type, Rcpp::NumericMatrix test_matrix, Eigen::SparseMatrix<double> sparse_test_matrix, unsigned int num_threads, size_t num_failures);
-RcppExport SEXP _grf_survival_predict(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP censor_indexSEXP, SEXP sample_weight_indexSEXP, SEXP use_sample_weightsSEXP, SEXP prediction_typeSEXP, SEXP test_matrixSEXP, SEXP sparse_test_matrixSEXP, SEXP num_threadsSEXP, SEXP num_failuresSEXP) {
+Rcpp::List survival_predict(Rcpp::List forest_object, Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t censor_index, int prediction_type, Rcpp::NumericMatrix test_matrix, Eigen::SparseMatrix<double> sparse_test_matrix, unsigned int num_threads, size_t num_failures);
+RcppExport SEXP _grf_survival_predict(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP censor_indexSEXP, SEXP prediction_typeSEXP, SEXP test_matrixSEXP, SEXP sparse_test_matrixSEXP, SEXP num_threadsSEXP, SEXP num_failuresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -546,20 +546,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type sparse_train_matrix(sparse_train_matrixSEXP);
     Rcpp::traits::input_parameter< size_t >::type outcome_index(outcome_indexSEXP);
     Rcpp::traits::input_parameter< size_t >::type censor_index(censor_indexSEXP);
-    Rcpp::traits::input_parameter< size_t >::type sample_weight_index(sample_weight_indexSEXP);
-    Rcpp::traits::input_parameter< bool >::type use_sample_weights(use_sample_weightsSEXP);
     Rcpp::traits::input_parameter< int >::type prediction_type(prediction_typeSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type test_matrix(test_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type sparse_test_matrix(sparse_test_matrixSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< size_t >::type num_failures(num_failuresSEXP);
-    rcpp_result_gen = Rcpp::wrap(survival_predict(forest_object, train_matrix, sparse_train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, test_matrix, sparse_test_matrix, num_threads, num_failures));
+    rcpp_result_gen = Rcpp::wrap(survival_predict(forest_object, train_matrix, sparse_train_matrix, outcome_index, censor_index, prediction_type, test_matrix, sparse_test_matrix, num_threads, num_failures));
     return rcpp_result_gen;
 END_RCPP
 }
 // survival_predict_oob
-Rcpp::List survival_predict_oob(Rcpp::List forest_object, Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t censor_index, size_t sample_weight_index, bool use_sample_weights, int prediction_type, unsigned int num_threads, size_t num_failures);
-RcppExport SEXP _grf_survival_predict_oob(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP censor_indexSEXP, SEXP sample_weight_indexSEXP, SEXP use_sample_weightsSEXP, SEXP prediction_typeSEXP, SEXP num_threadsSEXP, SEXP num_failuresSEXP) {
+Rcpp::List survival_predict_oob(Rcpp::List forest_object, Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, size_t outcome_index, size_t censor_index, int prediction_type, unsigned int num_threads, size_t num_failures);
+RcppExport SEXP _grf_survival_predict_oob(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP censor_indexSEXP, SEXP prediction_typeSEXP, SEXP num_threadsSEXP, SEXP num_failuresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -568,12 +566,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type sparse_train_matrix(sparse_train_matrixSEXP);
     Rcpp::traits::input_parameter< size_t >::type outcome_index(outcome_indexSEXP);
     Rcpp::traits::input_parameter< size_t >::type censor_index(censor_indexSEXP);
-    Rcpp::traits::input_parameter< size_t >::type sample_weight_index(sample_weight_indexSEXP);
-    Rcpp::traits::input_parameter< bool >::type use_sample_weights(use_sample_weightsSEXP);
     Rcpp::traits::input_parameter< int >::type prediction_type(prediction_typeSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< size_t >::type num_failures(num_failuresSEXP);
-    rcpp_result_gen = Rcpp::wrap(survival_predict_oob(forest_object, train_matrix, sparse_train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, num_threads, num_failures));
+    rcpp_result_gen = Rcpp::wrap(survival_predict_oob(forest_object, train_matrix, sparse_train_matrix, outcome_index, censor_index, prediction_type, num_threads, num_failures));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -604,8 +600,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_grf_ll_regression_predict", (DL_FUNC) &_grf_ll_regression_predict, 11},
     {"_grf_ll_regression_predict_oob", (DL_FUNC) &_grf_ll_regression_predict_oob, 9},
     {"_grf_survival_train", (DL_FUNC) &_grf_survival_train, 21},
-    {"_grf_survival_predict", (DL_FUNC) &_grf_survival_predict, 12},
-    {"_grf_survival_predict_oob", (DL_FUNC) &_grf_survival_predict_oob, 10},
+    {"_grf_survival_predict", (DL_FUNC) &_grf_survival_predict, 10},
+    {"_grf_survival_predict_oob", (DL_FUNC) &_grf_survival_predict_oob, 8},
     {NULL, NULL, 0}
 };
 
