@@ -1,3 +1,4 @@
+# This script was run with grf version 1.2.0.
 rm(list = ls())
 library(grf)
 data = read.csv('angev80_recode_run1_line525.csv.xz')
@@ -47,10 +48,10 @@ print(Sys.time())
 forest.iv = instrumental_forest(
 	DF[,1:ncol(FEATURES)], DF$Y, DF$W, DF$I,
 	Y.hat = DF$Y.hat, W.hat = DF$W.hat, Z.hat = 0.5,
-	min.node.size = 800,
+	min.node.size = 600,
 	num.trees = 100000,
 	ci.group.size = 125,
-	sample.fraction = 0.05)
+	sample.fraction = 0.2)
 preds.iv = predict(forest.iv, X.test, estimate.variance = TRUE)
 tau.hat = preds.iv$predictions
 var.hat = preds.iv$variance.estimates
