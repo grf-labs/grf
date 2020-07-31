@@ -292,14 +292,7 @@ causal_survival_forest <- function(X, Y, W, D,
       S.failure.times <- sf.survival$failure.times
     }
     # We want the predicted survival curves S.hat and C.hat on the common grid Y.grid:
-    # `predict(sf.survival, failure.times = Y.grid)$predictions`.
-    # The KM/NA estimates only changes at grid points where there is a failure,
-    # so this extended curve is identical to indexing appropriately into the
-    # original fitted curve (Y: Y[D==1] unless failure.times is specified).
-    # We do this for a moderate speedup.
-    t.index <- findInterval(Y.grid, S.failure.times)
-    S.hat <- predict(sf.survival)$predictions
-    S.hat <- cbind(1, S.hat)[, t.index + 1]
+    S.hat <- predict(sf.survival, failure.times = Y.grid)$predictions
   } else if (NROW(S.hat) != num.samples) {
     stop("S.hat has incorrect length.")
   } else if (NCOL(S.hat) != num.events) {
@@ -309,9 +302,7 @@ causal_survival_forest <- function(X, Y, W, D,
   # The conditional survival function for the censoring process S_C(t, x, w).
   if (is.null(C.hat)) {
     sf.censor <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = 1 - D), args.nuisance))
-    t.index <- findInterval(Y.grid, sf.censor$failure.times)
-    C.hat <- predict(sf.censor)$predictions
-    C.hat <- cbind(1, C.hat)[, t.index + 1]
+    C.hat <- predict(sf.censor, failure.times = Y.grid)$predictions
   } else if (NROW(C.hat) != num.samples) {
     stop("C.hat has incorrect length.")
   } else if (NCOL(C.hat) != num.events) {
