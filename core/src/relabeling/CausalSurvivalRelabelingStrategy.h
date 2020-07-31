@@ -15,32 +15,25 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_FORESTTRAINERS_H
-#define GRF_FORESTTRAINERS_H
+#ifndef GRF_CAUSALSURVIVALRELABELINGSTRATEGY_H
+#define GRF_CAUSALSURVIVALRELABELINGSTRATEGY_H
 
-#include "forest/ForestTrainer.h"
+#include <vector>
+
+#include "commons/Data.h"
+#include "relabeling/RelabelingStrategy.h"
 
 namespace grf {
 
-ForestTrainer instrumental_trainer(double reduced_form_weight,
-                                   bool stabilize_splits);
+class CausalSurvivalRelabelingStrategy final: public RelabelingStrategy {
+public:
+  bool relabel(
+      const std::vector<size_t>& samples,
+      const Data& data,
+      std::vector<double>& responses_by_sample) const;
 
-ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
-
-ForestTrainer regression_trainer();
-
-ForestTrainer ll_regression_trainer(double split_lambda,
-                                   bool weight_penalty,
-                                   const std::vector<double>& overall_beta,
-                                   size_t ll_split_cutoff,
-                                   std::vector<size_t> ll_split_variables);
-
-ForestTrainer survival_trainer();
-
-ForestTrainer causal_survival_trainer(bool stabilize_splits);
-
-ForestTrainer custom_trainer();
+};
 
 } // namespace grf
 
-#endif //GRF_FORESTTRAINERS_H
+#endif //GRF_CAUSALSURVIVALRELABELINGSTRATEGY_H

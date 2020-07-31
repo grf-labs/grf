@@ -15,32 +15,23 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_FORESTTRAINERS_H
-#define GRF_FORESTTRAINERS_H
+#ifndef GRF_CAUSALSURVIVALSPLITTINGRULEFACTORY_H
+#define GRF_CAUSALSURVIVALSPLITTINGRULEFACTORY_H
 
-#include "forest/ForestTrainer.h"
+
+#include "splitting/factory/SplittingRuleFactory.h"
 
 namespace grf {
 
-ForestTrainer instrumental_trainer(double reduced_form_weight,
-                                   bool stabilize_splits);
-
-ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
-
-ForestTrainer regression_trainer();
-
-ForestTrainer ll_regression_trainer(double split_lambda,
-                                   bool weight_penalty,
-                                   const std::vector<double>& overall_beta,
-                                   size_t ll_split_cutoff,
-                                   std::vector<size_t> ll_split_variables);
-
-ForestTrainer survival_trainer();
-
-ForestTrainer causal_survival_trainer(bool stabilize_splits);
-
-ForestTrainer custom_trainer();
+class CausalSurvivalSplittingRuleFactory final: public SplittingRuleFactory {
+public:
+  CausalSurvivalSplittingRuleFactory() = default;
+  std::unique_ptr<SplittingRule> create(size_t max_num_unique_values,
+                                        const TreeOptions& options) const;
+private:
+  DISALLOW_COPY_AND_ASSIGN(CausalSurvivalSplittingRuleFactory);
+};
 
 } // namespace grf
 
-#endif //GRF_FORESTTRAINERS_H
+#endif //GRF_CAUSALSURVIVALSPLITTINGRULEFACTORY_H
