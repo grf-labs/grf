@@ -522,7 +522,7 @@ compute_eta <- function(S.hat,
   }
 
   # The denominator simplifies to this
-  denominator <- W.centered^2 * (D == 1) / C.Y.hat
+  denominator <- D * W.centered^2 / C.Y.hat
 
   # Even though we only need to compute the integral up to Yi, it is more clear (and as fast)
   # to simply compute everything for all time points t then at the end sum
@@ -545,8 +545,7 @@ compute_eta <- function(S.hat,
 
   # Get Q.Y.hat = Q(Y, X) = E[T | X, W, T >= Y]
   Q.Y.hat <- Q.t.hat[cbind(1:num.samples, Y.relabeled)]
-  numerator.one <- (W.centered) *
-    ifelse(D == 1, Y - m.hat, Q.Y.hat - m.hat) / C.Y.hat
+  numerator.one <- (D * (Y - m.hat) + (1 - D) * (Q.Y.hat - m.hat)) * W.centered / C.Y.hat
 
   integrand <- sweep(lambda.C.hat / C.hat * (Q.t.hat - m.hat), 2, Y.diff, "*")
   numerator.two <- rep(0, num.samples)
