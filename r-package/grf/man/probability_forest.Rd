@@ -8,6 +8,7 @@ probability_forest(
   X,
   Y,
   num.trees = 2000,
+  sample.weights = NULL,
   clusters = NULL,
   equalize.cluster.weights = FALSE,
   sample.fraction = 0.5,
@@ -32,6 +33,9 @@ probability_forest(
 \item{num.trees}{Number of trees grown in the forest. Note: Getting accurate
 confidence intervals generally requires more trees than
 getting accurate predictions. Default is 2000.}
+
+\item{sample.weights}{(experimental) Weights given to an observation in prediction.
+If NULL, each observation is given the same weight. Default is NULL.}
 
 \item{clusters}{Vector of integers or factors specifying which cluster each observation corresponds to.
 Default is NULL (ignored).}

@@ -47,3 +47,25 @@ test_that("probability forest is well-calibrated", {
 
   expect_true(all(colMeans(covered) > 0.7))
 })
+
+test_that("sample weighted probability forest is invariant to scaling", {
+  n <- 500
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  Y <- rbinom(n, 1, 1 / (1 + exp(-X[, 1] - X[, 2])))
+  weights <- runif(n)
+
+  # Predictions are invariant to sample weight scaling
+  pf <- probability_forest(X, Y, num.trees = 100, sample.weights = weights, seed = 1)
+  pf2 <- probability_forest(X, Y, num.trees = 100, sample.weights = weights * 2, seed = 1)
+  p1 <- predict(pf)
+  p2 <- predict(pf2)
+
+  expect_true(all(p1$predictions - p2$predictions == 0))
+
+  # Variance estimates are invariant to sample weight scaling
+  v1 <- predict(pf, estimate.variance = TRUE)
+  v2 <- predict(pf2, estimate.variance = TRUE)
+
+  expect_true(all(v1$variance.estimates - v2$variance.estimates == 0))
+})

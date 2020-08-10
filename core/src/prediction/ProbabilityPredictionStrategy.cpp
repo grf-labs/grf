@@ -104,14 +104,20 @@ PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
 
     std::vector<double>& averages = values[i];
     averages.resize(num_classes);
-
+    double weight_sum = 0.0;
     for (auto& sample : leaf_node) {
       size_t sample_class = data.get_outcome(sample);
-      ++averages[sample_class];
+      averages[sample_class] += data.get_weight(sample);
+      weight_sum += data.get_weight(sample);
+    }
+
+    // if total weight is very small, treat the leaf as empty
+    if (std::abs(weight_sum) <= 1e-16) {
+      continue;
     }
 
     for (size_t cls = 0; cls < num_classes; ++cls) {
-      averages[cls] = averages[cls] / leaf_node.size();
+      averages[cls] = averages[cls] / weight_sum;
     }
   }
 

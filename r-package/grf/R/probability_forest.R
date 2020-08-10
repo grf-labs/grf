@@ -8,6 +8,8 @@
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
+#' @param sample.weights (experimental) Weights given to an observation in prediction.
+#'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'  Default is NULL (ignored).
 #' @param equalize.cluster.weights If FALSE, each unit is given the same weight (so that bigger
@@ -79,6 +81,7 @@
 #' @export
 probability_forest <- function(X, Y,
                                num.trees = 2000,
+                               sample.weights = NULL,
                                clusters = NULL,
                                equalize.cluster.weights = FALSE,
                                sample.fraction = 0.5,
@@ -94,8 +97,9 @@ probability_forest <- function(X, Y,
                                num.threads = NULL,
                                seed = runif(1, 0, .Machine$integer.max)) {
   has.missing.values <- validate_X(X, allow.na = TRUE)
+  validate_sample_weights(sample.weights, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, NULL)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
   if (length(Y) != nrow(X)) {
     stop("length of observation Y does not equal nrow(X).")
@@ -105,7 +109,7 @@ probability_forest <- function(X, Y,
   class.names <- levels(Y.factor)
   num.classes <- length(class.names)
 
-  data <- create_train_matrices(X, outcome = Y.relabeled)
+  data <- create_train_matrices(X, outcome = Y.relabeled, sample.weights = sample.weights)
   args <- list(num.classes = num.classes,
                num.trees = num.trees,
                clusters = clusters,
@@ -128,6 +132,7 @@ probability_forest <- function(X, Y,
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["Y.relabeled"]] <- Y.relabeled
+  forest[["sample.weights"]] <- sample.weights
   forest[["clusters"]] <- clusters
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["has.missing.values"]] <- has.missing.values
