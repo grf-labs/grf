@@ -29,6 +29,8 @@ ForestPredictor instrumental_predictor(uint num_threads);
 ForestPredictor quantile_predictor(uint num_threads,
                                    const std::vector<double>& quantiles);
 
+ForestPredictor probability_predictor(uint num_threads, size_t num_classes);
+
 ForestPredictor regression_predictor(uint num_threads);
 
 ForestPredictor ll_regression_predictor(uint num_threads,
