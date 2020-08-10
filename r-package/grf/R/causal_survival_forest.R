@@ -38,7 +38,9 @@
 #'  times are rounded down to the last sorted occurance less than or equal to the specified failure time.
 #'  The time points should be in increasing order.
 #'  Default is NULL.
-#' @param num.trees Number of trees grown in the forest. Default is 2000.
+#' @param num.trees Number of trees grown in the forest. Note: Getting accurate
+#'                  confidence intervals generally requires more trees than
+#'                  getting accurate predictions. Default is 2000.
 #' @param sample.weights (experimental) Weights given to each sample in estimation.
 #'                       If NULL, each observation receives the same weight.
 #'                       Note: To avoid introducing confounding, weights should be
