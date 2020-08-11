@@ -607,6 +607,7 @@ expected_survival <- function(S.hat, Y.grid) {
 #' cate.test <- generate_survival_data(n, p, X = X.test)$cate
 #' }
 #'
+#' @importFrom stats dbeta rbinom rexp rnorm rpois
 #' @export
 generate_survival_data <- function(n, p, tau = NULL, X = NULL, n.mc = 10000,
                                    dgp = c("simple1", "type1", "type2", "type3", "type4")) {
