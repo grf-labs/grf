@@ -28,7 +28,7 @@ probability_forest(
 \arguments{
 \item{X}{The covariates.}
 
-\item{Y}{The class label k.}
+\item{Y}{The class label.}
 
 \item{num.trees}{Number of trees grown in the forest. Note: Getting accurate
 confidence intervals generally requires more trees than

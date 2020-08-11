@@ -4,7 +4,7 @@
 #' the conditional class probabilities P[Y = k | X = x]
 #'
 #' @param X The covariates.
-#' @param Y The class label k.
+#' @param Y The class label.
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
