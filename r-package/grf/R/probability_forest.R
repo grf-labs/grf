@@ -102,7 +102,10 @@ probability_forest <- function(X, Y,
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
   if (length(Y) != nrow(X)) {
-    stop("length of observation Y does not equal nrow(X).")
+    stop("length of observations Y does not equal nrow(X).")
+  }
+  if (any(is.na(Y))) {
+    stop("The vector of observations contains at least one NA.")
   }
   Y.factor <- as.factor(Y)
   Y.relabeled <- as.numeric(Y.factor) - 1 # convert to integers between 0 and num_classes
