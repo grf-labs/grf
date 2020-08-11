@@ -37,7 +37,7 @@ Gets estimates of P[Y = k | X = x] using a trained forest.
 }
 \examples{
 \donttest{
-Train a probability forest.
+# Train a probability forest.
 p <- 5
 n <- 2000
 X <- matrix(rnorm(n*p), n, p)
