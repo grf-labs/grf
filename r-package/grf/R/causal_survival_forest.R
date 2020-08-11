@@ -315,11 +315,11 @@ causal_survival_forest <- function(X, Y, W, D,
     stop("Some censoring probabilites are exactly zero")
   }
 
-  if (any(C.hat < 0.1)) {
+  if (any(C.hat < 0.05)) {
     warning(paste("Censoring probabilites go as low as:", min(C.hat),
-                  "\nAn important identifying assumption is that there exist a fixed positve constant M",
+                  "\nAn identifying assumption is that there exist a fixed positve constant M",
                   "such that the probability of observing an event time past the maximum follow-up time tau",
-                  "is at least M. This warning appears when M is less than 0.1.",
+                  "is at least M. This warning appears when M is less than 0.05.",
                   "Formally, we assume: P(Y >= tau | X) > M."))
   }
 
