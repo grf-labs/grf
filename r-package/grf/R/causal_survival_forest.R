@@ -359,6 +359,7 @@ causal_survival_forest <- function(X, Y, W, D,
   forest[["Y.orig"]] <- Y
   forest[["W.orig"]] <- W
   forest[["D.orig"]] <- D
+  forest[["W.hat"]] <- W.hat
   forest[["sample.weights"]] <- sample.weights
   forest[["clusters"]] <- clusters
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
