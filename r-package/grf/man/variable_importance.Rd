@@ -22,7 +22,7 @@ A simple weighted sum of how many times feature i was split on at each depth in 
 \examples{
 \donttest{
 # Train a quantile forest.
-n <- 50
+n <- 250
 p <- 10
 X <- matrix(rnorm(n * p), n, p)
 Y <- X[, 1] * rnorm(n)
