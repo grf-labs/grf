@@ -552,14 +552,20 @@ compute_eta <- function(S.hat,
 
   integrand <- sweep(lambda.C.hat / C.hat * (Q.t.hat - m.hat), 2, Y.diff, "*")
   numerator.two <- rep(0, num.samples)
+  # Store additional coefficients for computing robust scores later on
+  integrand.update <- sweep(lambda.C.hat / C.hat, 2, Y.diff, "*")
+  integral.update <- rep(0, num.samples)
   for (sample in 1:num.samples) {
     Y.index <- Y.relabeled[sample]
     numerator.two[sample] <- sum(integrand[sample, 1:Y.index]) * (W.centered[sample])
+    integral.update[sample]<- sum(integrand.update[sample, 1:Y.index]) * (W.centered[sample])
   }
 
   numerator <- numerator.one - numerator.two
 
-  list(numerator = numerator, denominator = denominator)
+  list(numerator = numerator, denominator = denominator,
+       numerator.one = numerator.one, numerator.two = numerator.two,
+       integral.update = integral.update, C.Y.hat = C.Y.hat)
 }
 
 #' Compute E[T | X]
