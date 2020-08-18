@@ -158,32 +158,21 @@ test_that("causal survival forest has not changed ", {
   cs.forest <- causal_survival_forest(round(data$X, 2), round(data$Y, 2), data$W, data$D,
                                       num.trees = 50, seed = 42, num.threads = 4)
 
-
-  expected.predictions.oob <- as.numeric(readLines("data/test_causal_survival_forest_1.csv"))
-  # Update expected.predictions.oob:
-  # write.table(predict(cs.forest)$predictions, file = "data/test_causal_survival_forest_1.csv", row.names = FALSE, col.names = FALSE)
-
-  expected.predictions <- as.numeric(readLines("data/test_causal_survival_forest_2.csv"))
-  # Update expected.predictions:
-  # write.table(predict(cs.forest, round(data$X, 2))$predictions, file = "data/test_causal_survival_forest_2.csv", row.names = FALSE, col.names = FALSE)
+  expected.predictions.oob <- as.numeric(readLines("data/causal_survival_oob_predictions.csv"))
+  expected.predictions <- as.numeric(readLines("data/causal_survival_predictions.csv"))
 
   expect_equal(predict(cs.forest)$predictions, expected.predictions.oob)
   expect_equal(predict(cs.forest, round(data$X, 2))$predictions, expected.predictions)
 
   # Same forest with constrained event grid.
   failure.times <- seq(min(data$Y), max(data$Y), length.out = 5)
-  cs.forest2 <- causal_survival_forest(round(data$X, 2), round(data$Y, 2), data$W, data$D,
-                                       failure.times = failure.times,
-                                       num.trees = 50, seed = 42, num.threads = 4)
+  cs.forest.grid <- causal_survival_forest(round(data$X, 2), round(data$Y, 2), data$W, data$D,
+                                           failure.times = failure.times,
+                                           num.trees = 50, seed = 42, num.threads = 4)
 
-  expected.predictions.oob2 <- as.numeric(readLines("data/test_causal_survival_forest_12.csv"))
-  # Update expected.predictions.oob:
-  # write.table(predict(cs.forest2)$predictions, file = "data/test_causal_survival_forest_12.csv", row.names = FALSE, col.names = FALSE)
+  expected.predictions.oob.grid <- as.numeric(readLines("data/causal_survival_oob_predictions_grid.csv"))
+  expected.predictions.grid <- as.numeric(readLines("data/causal_survival_predictions_grid.csv"))
 
-  expected.predictions2 <- as.numeric(readLines("data/test_causal_survival_forest_22.csv"))
-  # Update expected.predictions:
-  # write.table(predict(cs.forest2, round(data$X, 2))$predictions, file = "data/test_causal_survival_forest_22.csv", row.names = FALSE, col.names = FALSE)
-
-  expect_equal(predict(cs.forest2)$predictions, expected.predictions.oob2)
-  expect_equal(predict(cs.forest2, round(data$X, 2))$predictions, expected.predictions2)
+  expect_equal(predict(cs.forest.grid)$predictions, expected.predictions.oob.grid)
+  expect_equal(predict(cs.forest.grid, round(data$X, 2))$predictions, expected.predictions.grid)
 })
