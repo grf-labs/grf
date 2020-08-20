@@ -30,7 +30,7 @@ const std::size_t CausalSurvivalPredictionStrategy::DENOMINATOR = 1;
 const std::size_t NUM_TYPES = 2;
 
 size_t CausalSurvivalPredictionStrategy::prediction_length() const {
-    return 1;
+  return 1;
 }
 
 std::vector<double> CausalSurvivalPredictionStrategy::predict(const std::vector<double>& average) const {
