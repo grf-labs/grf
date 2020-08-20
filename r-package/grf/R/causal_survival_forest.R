@@ -305,15 +305,21 @@ causal_survival_forest <- function(X, Y, W, D,
   }
 
   if (any(C.hat == 0.0)) {
-    stop("Some censoring probabilites are exactly zero")
+    stop("Some censoring probabilites are exactly zero.")
   }
 
-  if (any(C.hat < 0.05)) {
-    warning(paste("Censoring probabilites go as low as:", min(C.hat),
-                  "\nAn identifying assumption is that there exist a fixed positve constant M",
+ if (any(C.hat <= 0.05)) {
+  warning(paste("Estimated censoring probabilites go as low as:", min(C.hat),
+                "- an identifying assumption is that there exist a fixed positve constant M",
+                "such that the probability of observing an event time past the maximum follow-up time tau",
+                "is at least M. Formally, we assume: P(Y >= tau | X) > M.",
+                "This warning appears when M is less than 0.05, at which point causal survival forest",
+                "can not be expected to deliver reliable estimates."))
+  } else if (any(C.hat < 0.2 & C.hat > 0.05)) {
+    warning(paste("Estimated censoring probabilites are lower than 0.2.",
+                  "An identifying assumption is that there exist a fixed positve constant M",
                   "such that the probability of observing an event time past the maximum follow-up time tau",
-                  "is at least M. This warning appears when M is less than 0.05.",
-                  "Formally, we assume: P(Y >= tau | X) > M."))
+                  "is at least M. Formally, we assume: P(Y >= tau | X) > M."))
   }
 
   # Compute the pseudo outcomes
