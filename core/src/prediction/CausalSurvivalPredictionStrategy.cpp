@@ -43,12 +43,12 @@ std::vector<double> CausalSurvivalPredictionStrategy::compute_variance(
     size_t ci_group_size) const {
 
   double v_est = average.at(DENOMINATOR);
-	double average_eta = average.at(NUMERATOR) / average.at(DENOMINATOR);
+  double average_eta = average.at(NUMERATOR) / average.at(DENOMINATOR);
 
 
   double num_good_groups = 0;
   double psi_squared = 0;
-	double psi_grouped_squared = 0;
+  double psi_grouped_squared = 0;
 
   for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
@@ -81,7 +81,7 @@ std::vector<double> CausalSurvivalPredictionStrategy::compute_variance(
   // Using notation from the GRF paper, ...
 
   double var_between = psi_grouped_squared / num_good_groups;
-	double var_total = psi_squared / (num_good_groups * ci_group_size);
+  double var_total = psi_squared / (num_good_groups * ci_group_size);
 
   // This is the amount by which var_between is inflated due to using small groups
   double group_noise = (var_total - var_between) / (ci_group_size - 1);
