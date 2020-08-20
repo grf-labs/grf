@@ -161,6 +161,11 @@ test_that("causal survival forest has not changed ", {
   expected.predictions.oob <- as.numeric(readLines("data/causal_survival_oob_predictions.csv"))
   expected.predictions <- as.numeric(readLines("data/causal_survival_predictions.csv"))
 
+  # Update with:
+  # write.table(predict(cs.forest)$predictions, file = "data/causal_survival_oob_predictions.csv", row.names = FALSE, col.names = FALSE)
+  # write.table(predict(cs.forest, round(data$X, 2))$predictions, file = "data/causal_survival_predictions.csv", row.names = FALSE, col.names = FALSE)
+
+
   expect_equal(predict(cs.forest)$predictions, expected.predictions.oob)
   expect_equal(predict(cs.forest, round(data$X, 2))$predictions, expected.predictions)
 
@@ -172,6 +177,10 @@ test_that("causal survival forest has not changed ", {
 
   expected.predictions.oob.grid <- as.numeric(readLines("data/causal_survival_oob_predictions_grid.csv"))
   expected.predictions.grid <- as.numeric(readLines("data/causal_survival_predictions_grid.csv"))
+
+  # Update with:
+  # write.table(predict(cs.forest.grid)$predictions, file = "data/causal_survival_oob_predictions_grid.csv", row.names = FALSE, col.names = FALSE)
+  # write.table(predict(cs.forest.grid, round(data$X, 2))$predictions, file = "data/causal_survival_predictions_grid.csv", row.names = FALSE, col.names = FALSE)
 
   expect_equal(predict(cs.forest.grid)$predictions, expected.predictions.oob.grid)
   expect_equal(predict(cs.forest.grid, round(data$X, 2))$predictions, expected.predictions.grid)
