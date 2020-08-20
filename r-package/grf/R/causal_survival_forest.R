@@ -189,13 +189,6 @@ causal_survival_forest <- function(X, Y, W, D,
     stop("The number of distinct event times should be more than 2.")
   }
 
-  # top.ten <- which(Y >= quantile(Y, probs =  0.9))
-  # if (length(unique(W[top.ten])) == 1) {
-  #   warning(paste("Identifying assumption may be violated:",
-  #                 "the largest 10 % of event times all belong to the same treatment arm, which",
-  #                 "indicates a lack of common support."))
-  # }
-
   args.orthog <- list(X = X,
                       Y = W,
                       num.trees = max(50, num.trees / 4),
