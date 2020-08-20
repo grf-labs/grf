@@ -196,7 +196,13 @@ create_train_matrices <- function(X, outcome = NULL, treatment = NULL,
     i <- i + 1
     out[["censor.index"]] <- ncol(X) + i
   }
-  if (!isFALSE(sample.weights)) {
+  # Forest bindings without sample weights: sample.weights = FALSE
+  # Forest bindings with sample weights:
+  # -sample.weights = NULL if no weights passed
+  # -sample.weights = numeric vector if passed
+  if (is.logical(sample.weights)) {
+    sample.weights <- NULL
+  } else {
     i <- i + 1
     out[["sample.weight.index"]] <- ncol(X) + i
     if (is.null(sample.weights)) {
@@ -204,8 +210,6 @@ create_train_matrices <- function(X, outcome = NULL, treatment = NULL,
     } else {
       out[["use.sample.weights"]] <- TRUE
     }
-  } else {
-    sample.weights = NULL
   }
 
   if (inherits(X, "dgCMatrix") && ncol(X) > 1) {

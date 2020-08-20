@@ -86,8 +86,6 @@
 #' }
 #'
 #' @export
-#' @useDynLib grf
-#' @importFrom Rcpp evalCpp
 #' @importFrom utils modifyList
 regression_forest <- function(X, Y,
                               num.trees = 2000,

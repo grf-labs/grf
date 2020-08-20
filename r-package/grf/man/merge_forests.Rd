@@ -22,7 +22,8 @@ larger forest. Default is TRUE.}
 A single forest containing all the trees in each forest in the input list.
 }
 \description{
-Merges a list of forests that were grown using the same data into one large forest.
+NOTE: Merging forests invalidates the individual R forest objects leaving only the resulting big
+ merged forest in a valid state.
 }
 \examples{
 \donttest{

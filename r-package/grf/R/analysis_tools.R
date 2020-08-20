@@ -70,7 +70,7 @@ get_tree <- function(forest, index) {
 #' @examples
 #' \donttest{
 #' # Train a quantile forest.
-#' n <- 50
+#' n <- 250
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)
 #' Y <- X[, 1] * rnorm(n)
@@ -100,7 +100,7 @@ split_frequencies <- function(forest, max.depth = 4) {
 #' @examples
 #' \donttest{
 #' # Train a quantile forest.
-#' n <- 50
+#' n <- 250
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)
 #' Y <- X[, 1] * rnorm(n)

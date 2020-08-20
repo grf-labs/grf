@@ -21,7 +21,7 @@ Calculate which features the forest split on at each depth.
 \examples{
 \donttest{
 # Train a quantile forest.
-n <- 50
+n <- 250
 p <- 10
 X <- matrix(rnorm(n * p), n, p)
 Y <- X[, 1] * rnorm(n)

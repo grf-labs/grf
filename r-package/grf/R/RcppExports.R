@@ -73,6 +73,18 @@ instrumental_predict_oob <- function(forest_xptr, train_matrix, sparse_train_mat
     .Call('_grf_instrumental_predict_oob', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, treatment_index, instrument_index, num_threads, estimate_variance)
 }
 
+probability_train <- function(train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, use_sample_weights, num_classes, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed) {
+    .Call('_grf_probability_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, sample_weight_index, use_sample_weights, num_classes, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed)
+}
+
+probability_predict <- function(forest_xptr, train_matrix, sparse_train_matrix, outcome_index, num_classes, test_matrix, sparse_test_matrix, num_threads, estimate_variance) {
+    .Call('_grf_probability_predict', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, num_classes, test_matrix, sparse_test_matrix, num_threads, estimate_variance)
+}
+
+probability_predict_oob <- function(forest_xptr, train_matrix, sparse_train_matrix, outcome_index, num_classes, num_threads, estimate_variance) {
+    .Call('_grf_probability_predict_oob', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, num_classes, num_threads, estimate_variance)
+}
+
 quantile_train <- function(quantiles, regression_splitting, train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed) {
     .Call('_grf_quantile_train', PACKAGE = 'grf', quantiles, regression_splitting, train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed)
 }
@@ -113,11 +125,11 @@ survival_train <- function(train_matrix, sparse_train_matrix, outcome_index, cen
     .Call('_grf_survival_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, num_failures, clusters, samples_per_cluster, compute_oob_predictions, prediction_type, num_threads, seed)
 }
 
-survival_predict <- function(forest_xptr, train_matrix, sparse_train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, test_matrix, sparse_test_matrix, num_threads, num_failures) {
-    .Call('_grf_survival_predict', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, test_matrix, sparse_test_matrix, num_threads, num_failures)
+survival_predict <- function(forest_xptr, train_matrix, sparse_train_matrix, outcome_index, censor_index, prediction_type, test_matrix, sparse_test_matrix, num_threads, num_failures) {
+    .Call('_grf_survival_predict', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, censor_index, prediction_type, test_matrix, sparse_test_matrix, num_threads, num_failures)
 }
 
-survival_predict_oob <- function(forest_xptr, train_matrix, sparse_train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, num_threads, num_failures) {
-    .Call('_grf_survival_predict_oob', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, num_threads, num_failures)
+survival_predict_oob <- function(forest_xptr, train_matrix, sparse_train_matrix, outcome_index, censor_index, prediction_type, num_threads, num_failures) {
+    .Call('_grf_survival_predict_oob', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, censor_index, prediction_type, num_threads, num_failures)
 }
 

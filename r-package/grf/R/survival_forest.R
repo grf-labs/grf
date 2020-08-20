@@ -286,7 +286,6 @@ predict.survival_forest <- function(object,
   X <- object[["X.orig"]]
   train.data <- create_train_matrices(X,
                                       outcome = Y.relabeled,
-                                      sample.weights = object[["sample.weights"]],
                                       censor = object[["D.orig"]])
 
   args <- list(forest.xptr = get_xptr(object),
