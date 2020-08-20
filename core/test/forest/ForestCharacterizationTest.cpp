@@ -119,6 +119,34 @@ TEST_CASE("quantile forest predictions with NaNs have not changed", "[NaN], [qua
   REQUIRE(equal_predictions(predictions, expected_predictions));
 }
 
+TEST_CASE("probability forest predictions have not changed", "[probability], [characterization]") {
+  std::unique_ptr<Data> data = load_data("test/forest/resources/probability_data.csv");
+  data->set_outcome_index(10);
+  size_t num_classes = 6;
+
+  ForestTrainer trainer = probability_trainer(num_classes);
+  ForestOptions options = ForestTestUtilities::default_options();
+  Forest forest = trainer.train(*data, options);
+
+  ForestPredictor predictor = probability_predictor(4, num_classes);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/probability_oob_predictions.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/probability_predictions.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/probability_oob_predictions.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/probability_predictions.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+}
+
+
 TEST_CASE("causal forest predictions have not changed", "[causal], [characterization]") {
   std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
   data->set_outcome_index(10);
