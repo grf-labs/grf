@@ -22,6 +22,14 @@ X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
 ```
 
 ```
+# probability_data.csv
+p <- 10
+n <- 1000
+X <- matrix(round(rnorm(n * p), 2), n, p)
+Y <- rbinom(n, 5, exp(-abs(X[, 1])))
+```
+
+```
 # causal_data.csv
 p = 10
 n = 1000

@@ -44,6 +44,11 @@ reference:
       - quantile_forest
       - predict.quantile_forest
 
+  - title: Probability forest
+    contents:
+      - probability_forest
+      - predict.probability_forest
+
   - title: Causal forest
     contents:
       - causal_forest
