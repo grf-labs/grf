@@ -174,14 +174,20 @@ validate_sample_weights <- function(sample.weights, X) {
 
 #' @importFrom Matrix Matrix cBind
 #' @importFrom methods new
-create_train_matrices <- function(X, outcome = NULL, treatment = NULL,
-                                 instrument = NULL, censor = NULL,
-                                 sample.weights = FALSE) {
+create_train_matrices <- function(X,
+                                  outcome = NULL,
+                                  treatment = NULL,
+                                  instrument = NULL,
+                                  survival.numerator = NULL,
+                                  survival.denominator = NULL,
+                                  censor = NULL,
+                                  sample.weights = FALSE) {
   default.data <- matrix(nrow = 0, ncol = 0)
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
   out <- list()
-  i <- 1
+  i <- 0
   if (!is.null(outcome)) {
+    i <- i + 1
     out[["outcome.index"]] <- ncol(X) + i
   }
   if (!is.null(treatment)) {
@@ -191,6 +197,14 @@ create_train_matrices <- function(X, outcome = NULL, treatment = NULL,
   if (!is.null(instrument)) {
     i <- i + 1
     out[["instrument.index"]] <- ncol(X) + i
+  }
+  if (!is.null(survival.numerator)) {
+    i <- i + 1
+    out[["causal.survival.numerator.index"]] <- ncol(X) + i
+  }
+  if (!is.null(survival.denominator)) {
+    i <- i + 1
+    out[["causal.survival.denominator.index"]] <- ncol(X) + i
   }
   if (!is.null(censor)) {
     i <- i + 1
@@ -213,10 +227,10 @@ create_train_matrices <- function(X, outcome = NULL, treatment = NULL,
   }
 
   if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
-    sparse.data <- cbind(X, outcome, treatment, instrument, censor, sample.weights)
+    sparse.data <- cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, sample.weights)
   } else {
     X <- as.matrix(X)
-    default.data <- as.matrix(cbind(X, outcome, treatment, instrument, censor, sample.weights))
+    default.data <- as.matrix(cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, sample.weights))
   }
   out[["train.matrix"]] <- default.data
   out[["sparse.train.matrix"]] <- sparse.data

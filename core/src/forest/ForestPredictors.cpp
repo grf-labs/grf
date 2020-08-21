@@ -24,6 +24,7 @@
 #include "prediction/LocalLinearPredictionStrategy.h"
 #include "prediction/LLCausalPredictionStrategy.h"
 #include "prediction/SurvivalPredictionStrategy.h"
+#include "prediction/CausalSurvivalPredictionStrategy.h"
 
 namespace grf {
 
@@ -82,6 +83,12 @@ ForestPredictor survival_predictor(uint num_threads, size_t num_failures, int pr
   num_threads = ForestOptions::validate_num_threads(num_threads);
   std::unique_ptr<DefaultPredictionStrategy> prediction_strategy(
     new SurvivalPredictionStrategy(num_failures, prediction_type));
+  return ForestPredictor(num_threads, std::move(prediction_strategy));
+}
+
+ForestPredictor causal_survival_predictor(uint num_threads) {
+  num_threads = ForestOptions::validate_num_threads(num_threads);
+  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new CausalSurvivalPredictionStrategy());
   return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
 

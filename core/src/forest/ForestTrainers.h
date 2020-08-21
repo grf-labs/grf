@@ -39,6 +39,8 @@ ForestTrainer ll_regression_trainer(double split_lambda,
 
 ForestTrainer survival_trainer();
 
+ForestTrainer causal_survival_trainer(bool stabilize_splits);
+
 ForestTrainer custom_trainer();
 
 } // namespace grf

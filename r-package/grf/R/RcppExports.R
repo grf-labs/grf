@@ -49,6 +49,18 @@ ll_causal_predict_oob <- function(forest_xptr, train_matrix, sparse_train_matrix
     .Call('_grf_ll_causal_predict_oob', PACKAGE = 'grf', forest_xptr, train_matrix, sparse_train_matrix, outcome_index, treatment_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance)
 }
 
+causal_survival_train <- function(train_matrix, sparse_train_matrix, causal_survival_numerator_index, causal_survival_denominator_index, treatment_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed) {
+    .Call('_grf_causal_survival_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, causal_survival_numerator_index, causal_survival_denominator_index, treatment_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed)
+}
+
+causal_survival_predict <- function(forest_object, train_matrix, sparse_train_matrix, test_matrix, sparse_test_matrix, num_threads, estimate_variance) {
+    .Call('_grf_causal_survival_predict', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, test_matrix, sparse_test_matrix, num_threads, estimate_variance)
+}
+
+causal_survival_predict_oob <- function(forest_object, train_matrix, sparse_train_matrix, num_threads, estimate_variance) {
+    .Call('_grf_causal_survival_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, num_threads, estimate_variance)
+}
+
 custom_train <- function(train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed) {
     .Call('_grf_custom_train', PACKAGE = 'grf', train_matrix, sparse_train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed)
 }

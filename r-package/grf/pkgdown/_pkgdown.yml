@@ -78,6 +78,11 @@ reference:
       - survival_forest
       - predict.survival_forest
 
+  - title: Causal Survival forest
+    contents:
+      - causal_survival_forest
+      - predict.causal_survival_forest
+
 # Treatment effects
   - title: Treatment effect estimation
     desc: Functions for estimating various treatment effects.

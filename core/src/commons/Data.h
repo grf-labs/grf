@@ -53,6 +53,10 @@ public:
 
   void set_weight_index(size_t index);
 
+  void set_causal_survival_numerator_index(size_t index);
+
+  void set_causal_survival_denominator_index(size_t index);
+
   void set_censor_index(size_t index);
 
   /**
@@ -82,6 +86,10 @@ public:
 
   double get_weight(size_t row) const;
 
+  double get_causal_survival_numerator(size_t row) const;
+
+  double get_causal_survival_denominator(size_t row) const;
+
   bool is_censored(size_t row) const;
 
   const std::set<size_t>& get_disallowed_split_variables() const;
@@ -95,6 +103,8 @@ protected:
   nonstd::optional<size_t> treatment_index;
   nonstd::optional<size_t> instrument_index;
   nonstd::optional<size_t> weight_index;
+  nonstd::optional<size_t> causal_survival_numerator_index;
+  nonstd::optional<size_t> causal_survival_denominator_index;
   nonstd::optional<size_t> censor_index;
 
 private:
