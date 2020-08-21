@@ -5,7 +5,7 @@
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.
-#' @param sample.weights (experimental) Weights given to an observation in estimation.
+#' @param sample.weights Weights given to an observation in estimation.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'  Default is NULL (ignored).

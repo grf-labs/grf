@@ -8,7 +8,7 @@
 #'              over treatment. See section 6.1.1 of the GRF paper for
 #'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi].
-#' @param sample.weights (experimental) Weights given to an observation in estimation.
+#' @param sample.weights Weights given to an observation in estimation.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'  Default is NULL (ignored).
