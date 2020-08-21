@@ -19,9 +19,11 @@
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
 #include "splitting/factory/SurvivalSplittingRuleFactory.h"
+#include "splitting/factory/CausalSurvivalSplittingRuleFactory.h"
 #include "relabeling/NoopRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "relabeling/QuantileRelabelingStrategy.h"
+#include "relabeling/CausalSurvivalRelabelingStrategy.h"
 
 #include "utilities/ForestTestUtilities.h"
 
@@ -165,6 +167,38 @@ TEST_CASE("survival splitting on Xij then setting all values to the left to NaN 
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   auto splitting_rule_factory = std::unique_ptr<SplittingRuleFactory>(new SurvivalSplittingRuleFactory());
+
+  size_t split_var, split_var_nan;
+  double split_val, split_val_nan;
+  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
+
+  // Set all values to the left of the split to missing
+  bool write_error;
+  for(size_t row = 0; row < data->get_num_rows(); ++row) {
+    double value = data->get(row, split_var);
+    if (value < split_val) {
+      data->set(split_var, row, NAN, write_error);
+    }
+  }
+
+  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
+  REQUIRE(split_var == split_var_nan);
+  REQUIRE(split_val == split_val_nan);
+}
+
+TEST_CASE("causal survival splitting on Xij then setting all values to the left to NaN yields the same split", "[NaN], [causal survival], [splitting]") {
+  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_survival_data.csv");
+  size_t num_features = 5;
+  data->set_treatment_index(5);
+  data->set_instrument_index(5);
+  data->set_censor_index(6);
+  data->set_causal_survival_numerator_index(7);
+  data->set_causal_survival_denominator_index(8);
+
+  TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
+
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new CausalSurvivalRelabelingStrategy());
+  auto splitting_rule_factory = std::unique_ptr<SplittingRuleFactory>(new CausalSurvivalSplittingRuleFactory());
 
   size_t split_var, split_var_nan;
   double split_val, split_val_nan;

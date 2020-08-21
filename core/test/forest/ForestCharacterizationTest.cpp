@@ -462,3 +462,63 @@ TEST_CASE("survival forest predictions with NaNs have not changed", "[NaN], [sur
       "test/forest/resources/survival_predictions_MIA.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 }
+
+TEST_CASE("causal survival forest predictions have not changed", "[causal survival], [characterization]") {
+  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_survival_data.csv");
+  data->set_treatment_index(5);
+  data->set_instrument_index(5);
+  data->set_censor_index(6);
+  data->set_causal_survival_numerator_index(7);
+  data->set_causal_survival_denominator_index(8);
+
+  ForestTrainer trainer = causal_survival_trainer(true);
+  ForestOptions options = ForestTestUtilities::default_options();
+  Forest forest = trainer.train(*data, options);
+
+  ForestPredictor predictor = causal_survival_predictor(4);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/causal_survival_oob_predictions.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/causal_survival_predictions.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/causal_survival_oob_predictions.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/causal_survival_predictions.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+}
+
+TEST_CASE("causal survival forest predictions with NaNs have not changed", "[NaN], [causal survival], [characterization]") {
+  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_survival_data_MIA.csv");
+  data->set_treatment_index(5);
+  data->set_instrument_index(5);
+  data->set_censor_index(6);
+  data->set_causal_survival_numerator_index(7);
+  data->set_causal_survival_denominator_index(8);
+
+  ForestTrainer trainer = causal_survival_trainer(true);
+  ForestOptions options = ForestTestUtilities::default_options();
+  Forest forest = trainer.train(*data, options);
+
+  ForestPredictor predictor = causal_survival_predictor(4);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/causal_survival_oob_predictions_MIA.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/causal_survival_predictions_MIA.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/causal_survival_oob_predictions_MIA.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/causal_survival_predictions_MIA.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+}
