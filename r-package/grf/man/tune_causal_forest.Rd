@@ -44,7 +44,7 @@ further discussion of this quantity.}
 
 \item{W.hat}{Estimates of the treatment propensities E[W | Xi].}
 
-\item{sample.weights}{(experimental) Weights given to an observation in estimation.
+\item{sample.weights}{Weights given to an observation in estimation.
 If NULL, each observation is given the same weight. Default is NULL.}
 
 \item{clusters}{Vector of integers or factors specifying which cluster each observation corresponds to.

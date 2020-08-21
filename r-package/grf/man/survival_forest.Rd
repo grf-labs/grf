@@ -40,7 +40,7 @@ The time points should be in increasing order. Default is NULL.}
 
 \item{num.trees}{Number of trees grown in the forest. Default is 1000.}
 
-\item{sample.weights}{(experimental) Weights given to an observation in prediction.
+\item{sample.weights}{Weights given to an observation in prediction.
 If NULL, each observation is given the same weight. Default is NULL.}
 
 \item{clusters}{Vector of integers or factors specifying which cluster each observation corresponds to.

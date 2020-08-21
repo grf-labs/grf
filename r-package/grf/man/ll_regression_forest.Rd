@@ -57,7 +57,7 @@ regulation (i.e., using the leaf betas at each step) by setting this parameter t
 confidence intervals generally requires more trees than
 getting accurate predictions. Default is 2000.}
 
-\item{sample.weights}{(experimental) Weights given to an observation in estimation.
+\item{sample.weights}{Weights given to an observation in estimation.
 If NULL, each observation is given the same weight. Default is NULL.}
 
 \item{clusters}{Vector of integers or factors specifying which cluster each observation corresponds to.
