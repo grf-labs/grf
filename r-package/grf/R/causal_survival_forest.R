@@ -41,7 +41,7 @@
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
-#' @param sample.weights (experimental) Weights given to each sample in estimation.
+#' @param sample.weights Weights given to each sample in estimation.
 #'                       If NULL, each observation receives the same weight.
 #'                       Note: To avoid introducing confounding, weights should be
 #'                       independent of the potential outcomes given X. Sample weights
