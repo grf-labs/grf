@@ -352,6 +352,7 @@ causal_survival_forest <- function(X, Y, W, D,
                seed = seed)
 
   forest <- do.call.rcpp(causal_survival_train, c(data, args))
+  forest[["_forest"]] <- ForestPtr$new(xptr = forest[["_forest"]])
   class(forest) <- c("causal_survival_forest", "grf")
   forest[["eta"]] <- eta
   forest[["X.orig"]] <- X
@@ -439,11 +440,10 @@ predict.causal_survival_forest <- function(object,
 
   num.threads <- validate_num_threads(num.threads)
 
-  forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
   train.data <- create_train_matrices(X)
 
-  args <- list(forest.object = forest.short,
+  args <- list(forest.xptr = get_xptr(object),
                num.threads = num.threads,
                estimate.variance = estimate.variance)
 

@@ -239,34 +239,34 @@ BEGIN_RCPP
 END_RCPP
 }
 // causal_survival_predict
-Rcpp::List causal_survival_predict(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, Rcpp::NumericMatrix& test_matrix, Eigen::SparseMatrix<double>& sparse_test_matrix, unsigned int num_threads, bool estimate_variance);
-RcppExport SEXP _grf_causal_survival_predict(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP test_matrixSEXP, SEXP sparse_test_matrixSEXP, SEXP num_threadsSEXP, SEXP estimate_varianceSEXP) {
+Rcpp::List causal_survival_predict(SEXP forest_xptr, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, Rcpp::NumericMatrix& test_matrix, Eigen::SparseMatrix<double>& sparse_test_matrix, unsigned int num_threads, bool estimate_variance);
+RcppExport SEXP _grf_causal_survival_predict(SEXP forest_xptrSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP test_matrixSEXP, SEXP sparse_test_matrixSEXP, SEXP num_threadsSEXP, SEXP estimate_varianceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List& >::type forest_object(forest_objectSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type forest_xptr(forest_xptrSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_train_matrix(sparse_train_matrixSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type test_matrix(test_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_test_matrix(sparse_test_matrixSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< bool >::type estimate_variance(estimate_varianceSEXP);
-    rcpp_result_gen = Rcpp::wrap(causal_survival_predict(forest_object, train_matrix, sparse_train_matrix, test_matrix, sparse_test_matrix, num_threads, estimate_variance));
+    rcpp_result_gen = Rcpp::wrap(causal_survival_predict(forest_xptr, train_matrix, sparse_train_matrix, test_matrix, sparse_test_matrix, num_threads, estimate_variance));
     return rcpp_result_gen;
 END_RCPP
 }
 // causal_survival_predict_oob
-Rcpp::List causal_survival_predict_oob(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, unsigned int num_threads, bool estimate_variance);
-RcppExport SEXP _grf_causal_survival_predict_oob(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP num_threadsSEXP, SEXP estimate_varianceSEXP) {
+Rcpp::List causal_survival_predict_oob(SEXP forest_xptr, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, unsigned int num_threads, bool estimate_variance);
+RcppExport SEXP _grf_causal_survival_predict_oob(SEXP forest_xptrSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP num_threadsSEXP, SEXP estimate_varianceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List& >::type forest_object(forest_objectSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type forest_xptr(forest_xptrSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_train_matrix(sparse_train_matrixSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< bool >::type estimate_variance(estimate_varianceSEXP);
-    rcpp_result_gen = Rcpp::wrap(causal_survival_predict_oob(forest_object, train_matrix, sparse_train_matrix, num_threads, estimate_variance));
+    rcpp_result_gen = Rcpp::wrap(causal_survival_predict_oob(forest_xptr, train_matrix, sparse_train_matrix, num_threads, estimate_variance));
     return rcpp_result_gen;
 END_RCPP
 }

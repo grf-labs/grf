@@ -60,7 +60,7 @@ Rcpp::List causal_survival_train(Rcpp::NumericMatrix& train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List causal_survival_predict(Rcpp::List& forest_object,
+Rcpp::List causal_survival_predict(SEXP forest_xptr,
                                    Rcpp::NumericMatrix& train_matrix,
                                    Eigen::SparseMatrix<double>& sparse_train_matrix,
                                    Rcpp::NumericMatrix& test_matrix,
@@ -70,27 +70,27 @@ Rcpp::List causal_survival_predict(Rcpp::List& forest_object,
   std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
 
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = causal_survival_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict(*forest, *train_data, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   return result;
 }
 
 // [[Rcpp::export]]
-Rcpp::List causal_survival_predict_oob(Rcpp::List& forest_object,
+Rcpp::List causal_survival_predict_oob(SEXP forest_xptr,
                                        Rcpp::NumericMatrix& train_matrix,
                                        Eigen::SparseMatrix<double>& sparse_train_matrix,
                                        unsigned int num_threads,
                                        bool estimate_variance) {
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
 
-  Forest forest = RcppUtilities::deserialize_forest(forest_object);
+  Rcpp::XPtr<Forest> forest(forest_xptr);
 
   ForestPredictor predictor = causal_survival_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict_oob(*forest, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   return result;
