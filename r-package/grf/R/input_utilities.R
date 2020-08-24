@@ -290,3 +290,19 @@ do.call.rcpp = function(what, args, quote = FALSE, envir = parent.frame()) {
   names(args) = gsub("\\.", "_", names(args))
   do.call(what, args, quote, envir)
 }
+
+validate_subset <- function(forest, subset) {
+  if (is.null(subset)) {
+    subset <- 1:length(forest$Y.hat)
+  }
+  if (class(subset) == "logical" && length(subset) == length(forest$Y.hat)) {
+    subset <- which(subset)
+  }
+  if (!all(subset %in% 1:length(forest$Y.hat))) {
+    stop(paste(
+      "If specified, subset must be a vector contained in 1:n,",
+      "or a boolean vector of length n."
+    ))
+  }
+  subset
+}

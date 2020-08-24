@@ -31,21 +31,18 @@ An estimate of the average treatment effect, along with standard error.
 \description{
 Gets estimates of one of the following.
 \itemize{
-  \item The (conditional) average treatment effect (target.sample = all):
-  sum_{i = 1}^n E[Y(1) - Y(0) | X = Xi] / n
-  \item The (conditional) average treatment effect on the treated (target.sample = treated):
-  sum_{Wi = 1} E[Y(1) - Y(0) | X = Xi] / |{i : Wi = 1}|
-  \item The (conditional) average treatment effect on the controls (target.sample = control):
-  sum_{Wi = 0} E[Y(1) - Y(0) | X = Xi] / |{i : Wi = 0}|
-  \item The overlap-weighted (conditional) average treatment effect
-  sum_{i = 1}^n e(Xi) (1 - e(Xi)) E[Y(1) - Y(0) | X = Xi] / sum_{i = 1}^n e(Xi) (1 - e(Xi)),
-  where e(x) = P[Wi = 1 | Xi = x].
+  \item The average treatment effect (target.sample = all): E[Y(1) - Y(0)]
+  \item The average treatment effect on the treated (target.sample = treated): E[Y(1) - Y(0) | Wi = 1]
+  \item The average treatment effect on the controls (target.sample = control): : E[Y(1) - Y(0) | Wi = 0]
+  \item The overlap-weighted average treatment effect (target.sample = overlap):
+  E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].
 }
+}
+\details{
 This last estimand is recommended by Li, Morgan, and Zaslavsky (JASA, 2017)
 in case of poor overlap (i.e., when the propensities e(x) may be very close
 to 0 or 1), as it doesn't involve dividing by estimated propensities.
-}
-\details{
+
 If clusters are specified, then each unit gets equal weight by default. For
 example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1,
 and there are 10 clusters with 19 units each and per-cluster ATE = 0, then

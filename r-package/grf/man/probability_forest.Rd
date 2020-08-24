@@ -111,7 +111,7 @@ X.test <- matrix(0, 10, p)
 X.test[, 1] <- seq(-1.5, 1.5, length.out = 10)
 p.hat <- predict(p.forest, X.test, estimate.variance = TRUE)
 
-# Plot the estimated success probabilities with 95 \% confidence bands.
+# Plot the estimated success probabilities with 95 % confidence bands.
 prob.test <- 1 / (1 + exp(-X.test[, 1] - X.test[, 2]))
 p.true <- cbind(`0` = 1 - prob.test, `1` = prob.test)
 plot(X.test[, 1], p.true[, "1"], col = 'red', ylim = c(0, 1))
