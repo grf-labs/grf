@@ -45,7 +45,7 @@ used when debiasing.weights = NULL.}
 An estimate of the average treatment effect, along with standard error.
 }
 \description{
-Gets estimates of one of the following.
+In the case of binary treatment, provides estimates of one of the following:
 \itemize{
   \item The average treatment effect (target.sample = all): E[Y(1) - Y(0)]
   \item The average treatment effect on the treated (target.sample = treated): E[Y(1) - Y(0) | Wi = 1]
@@ -53,11 +53,17 @@ Gets estimates of one of the following.
   \item The overlap-weighted average treatment effect (target.sample = overlap):
   E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].
 }
-}
-\details{
 This last estimand is recommended by Li, Morgan, and Zaslavsky (JASA, 2017)
 in case of poor overlap (i.e., when the propensities e(x) may be very close
 to 0 or 1), as it doesn't involve dividing by estimated propensities.
+}
+\details{
+In the case of continuous treatment, provides estimates of the average partial effect, i.e.,
+E[Cov[W, Y | X] / Var[W | X]]. In the case of a binary treatment, the
+average partial effect matches the average treatment effect. Computing the average partial
+effect is somewhat more involved, as the relevant doubly robust scores require an estimate
+estimate of Var[Wi | Xi = x]. By default, we get such estimates by training an auxiliary forest;
+however, these weights can also be passed manually by specifying debiasing.weights.
 
 If clusters are specified, then each unit gets equal weight by default. For
 example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1,
@@ -90,6 +96,17 @@ average_treatment_effect(c.forest, target.sample = "treated")
 
 # Estimate the conditional average treatment effect on samples with positive X[,1].
 average_treatment_effect(c.forest, target.sample = "all", subset = X[, 1] > 0)
+
+# Example for causal forests with a continuous treatment.
+n <- 2000
+p <- 10
+X <- matrix(rnorm(n * p), n, p)
+W <- rbinom(n, 1, 1 / (1 + exp(-X[, 2]))) + rnorm(n)
+Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+tau.forest <- causal_forest(X, Y, W)
+tau.hat <- predict(tau.forest)
+average_partial_effect(tau.forest)
+average_partial_effect(tau.forest, subset = X[, 1] > 0)
 }
 
 }

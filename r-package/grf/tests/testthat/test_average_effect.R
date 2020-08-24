@@ -293,12 +293,12 @@ test_that("cluster robust average effects do weighting correctly", {
   expect_true(cate.aipw[2] <= 0.2)
 
   # The best linear projection with NULL covariates should match the ATE estimate via AIPW.
-  # The reason the numbers don't match exactly is that the function `average_treatment_effect`
-  # does a Hajek-style correction to renormalize propensities for the treated and control
-  # groups, whereas `best_linear_projection` does not.
+  # The reason the standard error estimates don't match exactly is that the function
+  # `best_linear_projection` estimates standard errors using the more general function
+  # `coeftest`, whereas `average_treatment_effect` uses a direct calculation.
   cate.aipw.blp <- best_linear_projection(forest.causal, A = NULL)
-  expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1], tol = 0.001)
-  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.002)
+  expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1])
+  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.0001)
 
   catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
   expect_true(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]) <= 1)
@@ -371,15 +371,15 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.cate.aipw[2]) <= 1)
 
   # The best linear projection with NULL covariates should match the ATE estimate via AIPW.
-  # The reason the numbers don't match exactly is that the function `average_treatment_effect`
-  # does a Hajek-style correction to renormalize propensities for the treated and control
-  # groups, whereas `best_linear_projection` does not.
+  # The reason the standard error estimates don't match exactly is that the function
+  # `best_linear_projection` estimates standard errors using the more general function
+  # `coeftest`, whereas `average_treatment_effect` uses a direct calculation.
   cate.aipw.blp <- best_linear_projection(forest.weighted, A = NULL)
-  expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1], tol = 0.03)
-  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.03)
+  expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1])
+  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.01)
   biased.cate.aipw.blp <- best_linear_projection(forest.unweighted, A = NULL)
-  expect_equal(as.numeric(biased.cate.aipw[1]), biased.cate.aipw.blp[1,1], tol = 0.03)
-  expect_equal(as.numeric(biased.cate.aipw[2]), biased.cate.aipw.blp[1,2], tol = 0.03)
+  expect_equal(as.numeric(biased.cate.aipw[1]), biased.cate.aipw.blp[1,1])
+  expect_equal(as.numeric(biased.cate.aipw[2]), biased.cate.aipw.blp[1,2], tol = 0.01)
 
   catt.aipw <- average_treatment_effect(forest.weighted, target.sample = "treated", method = "AIPW")
   biased.catt.aipw <- average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW")

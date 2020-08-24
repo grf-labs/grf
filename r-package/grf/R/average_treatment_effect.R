@@ -48,6 +48,15 @@
 #'               This is the number of trees used for this task. Note: this argument is only
 #'               used when debiasing.weights = NULL.
 #'
+#' @references Athey, Susan, and Stefan Wager. "Efficient policy learning."
+#'             arXiv preprint arXiv:1702.02896 (2017).
+#' @references Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,
+#'             Whitney K. Newey, and James M. Robins. "Locally robust semiparametric
+#'             estimation." arXiv preprint arXiv:1608.00033 (2016).
+#' @references Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
+#'             multivariate regression models with missing data." Journal of the
+#'             American Statistical Association 90(429), 1995.
+#' 
 #' @examples
 #' \donttest{
 #' # Train a causal forest.
@@ -114,7 +123,7 @@ average_treatment_effect <- function(forest,
     }
   }
 
-  clusters <- if (length(forest$clusters) > 0) {
+  clusters <- if (cluster.se) {
     forest$clusters
   } else {
     1:length(forest$Y.orig)

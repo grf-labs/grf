@@ -9,7 +9,14 @@
 #'               the treatment Wi or the outcome Yi.
 #' @param debiasing.weights A vector of length n (or the subset length) of debiasing weights.
 #'               If NULL (default) they are obtained via inverse-propensity weighting.
-#' 
+#'               
+#' @references Farrell, Max H. "Robust inference on average treatment effects with
+#'             possibly more covariates than observations." Journal of Econometrics
+#'             189(1), 2015.
+#' @references Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
+#'             multivariate regression models with missing data." Journal of the
+#'             American Statistical Association 90(429), 1995.
+#'
 #' @export
 get_scores_ATE = function(forest,
                           subset,
@@ -53,7 +60,13 @@ get_scores_ATE = function(forest,
 #'               If NULL (default) these are obtained by estimating Var[W | X = x] using a new forest.
 #' @param num.trees.for.weights Number of trees used to estimate Var[W | X = x]. Note: this
 #'               argument is only used when debiasing.weights = NULL.
-#'               
+#'
+#'  @references Graham, Bryan S., and Cristine Campos de Xavier Pinto. "Semiparametrically
+#'             efficient estimation of the average linear regression function." arXiv preprint
+#'             arXiv:1810.12511, 2018.              
+#' @references Hirshberg, David A., and Stefan Wager. "Augmented minimax linear estimation."
+#'             arXiv preprint arXiv:1712.00038, 2017.
+#' 
 #' @export
 get_scores_APE = function(forest,
                           subset,
