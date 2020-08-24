@@ -1,6 +1,6 @@
 #' Estimate average treatment effects using a causal forest
 #'
-#' Gets estimates of one of the following.
+#' In the case of binary treatment, provides estimates of one of the following:
 #' \itemize{
 #'   \item The average treatment effect (target.sample = all): E[Y(1) - Y(0)]
 #'   \item The average treatment effect on the treated (target.sample = treated): E[Y(1) - Y(0) | Wi = 1]
@@ -8,10 +8,16 @@
 #'   \item The overlap-weighted average treatment effect (target.sample = overlap):
 #'   E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].
 #' }
-#'
 #' This last estimand is recommended by Li, Morgan, and Zaslavsky (JASA, 2017)
 #' in case of poor overlap (i.e., when the propensities e(x) may be very close
 #' to 0 or 1), as it doesn't involve dividing by estimated propensities.
+#'
+#' In the case of continuous treatment, provides estimates of the average partial effect, i.e.,
+#' E[Cov[W, Y | X] / Var[W | X]]. In the case of a binary treatment, the
+#' average partial effect matches the average treatment effect. Computing the average partial
+#' effect is somewhat more involved, as the relevant doubly robust scores require an estimate
+#' estimate of Var[Wi | Xi = x]. By default, we get such estimates by training an auxiliary forest;
+#' however, these weights can also be passed manually by specifying debiasing.weights.
 #'
 #' If clusters are specified, then each unit gets equal weight by default. For
 #' example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1,
@@ -22,13 +28,25 @@
 #'
 #' @param forest The trained forest.
 #' @param target.sample Which sample to aggregate treatment effects over.
+#'               Note: Options other than "all" are only currently implemented
+#'               for causal forests.
 #' @param method Method used for doubly robust inference. Can be either
 #'               augmented inverse-propensity weighting (AIPW), or
-#'               targeted maximum likelihood estimation (TMLE).
+#'               targeted maximum likelihood estimation (TMLE). Note:
+#'               TMLE is currently only implemented for causal forests with
+#'               a binary treatment.
 #' @param subset Specifies subset of the training examples over which we
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
+#' @param debiasing.weights A vector of length n (or the subset length) of debiasing weights.
+#'               If NULL (default) these are obtained via the appropriate doubly robust score
+#'               construction, e.g., in the case of causal_forests with a binary treatment, they
+#'               are obtained via inverse-propensity weighting.
+#' @param num.trees.for.weights In some cases (e.g., with causal forests with a continuous
+#'               treatment), we need to train auxiliary forests to learn debiasing weights.
+#'               This is the number of trees used for this task. Note: this argument is only
+#'               used when debiasing.weights = NULL.
 #'
 #' @examples
 #' \donttest{
@@ -54,6 +72,17 @@
 #'
 #' # Estimate the conditional average treatment effect on samples with positive X[,1].
 #' average_treatment_effect(c.forest, target.sample = "all", subset = X[, 1] > 0)
+#'
+#' # Example for causal forests with a continuous treatment.
+#' n <- 2000
+#' p <- 10
+#' X <- matrix(rnorm(n * p), n, p)
+#' W <- rbinom(n, 1, 1 / (1 + exp(-X[, 2]))) + rnorm(n)
+#' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+#' tau.forest <- causal_forest(X, Y, W)
+#' tau.hat <- predict(tau.forest)
+#' average_partial_effect(tau.forest)
+#' average_partial_effect(tau.forest, subset = X[, 1] > 0)
 #' }
 #'
 #' @return An estimate of the average treatment effect, along with standard error.
@@ -63,7 +92,9 @@
 average_treatment_effect <- function(forest,
                                      target.sample = c("all", "treated", "control", "overlap"),
                                      method = c("AIPW", "TMLE"),
-                                     subset = NULL) {
+                                     subset = NULL,
+                                     debiasing.weights = NULL,
+                                     num.trees.for.weights = 500) {
 
   if (!("causal_forest" %in% class(forest))) {
     stop("Average effect estimation only implemented for causal_forest")
@@ -83,7 +114,7 @@ average_treatment_effect <- function(forest,
     }
   }
 
-  clusters <- if (cluster.se) {
+  clusters <- if (length(forest$clusters) > 0) {
     forest$clusters
   } else {
     1:length(forest$Y.orig)
@@ -96,6 +127,14 @@ average_treatment_effect <- function(forest,
 
   if (length(unique(subset.clusters)) <= 1) {
     stop("The specified subset must contain units from more than one cluster.")
+  }
+
+  if (!is.null(debiasing.weights)) {
+    if (length(debiasing.weights) == length(forest$Y.orig)) {
+      debiasing.weights <- debiasing.weights[subset]
+    } else if (length(debiasing.weights) != length(subset)) {
+      stop("If specified, debiasing.weights must be a vector of length n or the subset length.")
+    }
   }
 
   # Add usage guidance for causal forests with a binary treatment, as this
@@ -135,17 +174,17 @@ average_treatment_effect <- function(forest,
     # This is the most general workflow, that shares codepaths with best linear projection
     # and other average effect estimators.
 
-    if ("causal_forest" %in% class(forest) & all(forest$W.orig %in% c(0, 1))) {
-      DR.scores.all <- get_scores_ATE(forest, subset)
+    if ("causal_forest" %in% class(forest)) {
+        if(all(forest$W.orig %in% c(0, 1))) {
+          DR.scores <- get_scores_ATE(forest, subset, debiasing.weights)
+        } else {
+          DR.scores <- get_scores_APE(forest, subset, debiasing.weights, num.trees.for.weights)
+        }
     } else {
-      # TODO: This will work eventually.
-      stop(paste(
-        "Average treatment effect estimation only implemented for binary treatment.",
-        "See `average_partial_effect` for continuous W."
-      ))
+      # We shouldn't be able to get here.
+      stop("Invalid code path.")
     }
 
-    DR.scores <- DR.scores.all[subset]
     tau.hat <- weighted.mean(DR.scores, subset.weights)
     correction.clust <- Matrix::sparse.model.matrix(
       ~ factor(subset.clusters) + 0,

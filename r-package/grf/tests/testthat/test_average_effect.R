@@ -38,13 +38,23 @@ test_that("average effects are translation invariant", {
   catc.plus.1.tmle <- average_treatment_effect(forest.causal.plus.1, target.sample = "control", method = "TMLE")
   expect_equal(catc.tmle, catc.plus.1.tmle)
 
-  cape <- average_partial_effect(forest.causal)
-  cape.plus.1 <- average_partial_effect(forest.causal.plus.1)
-  expect_true(abs(cape[1] - cape.plus.1[1]) <= 0.01)
-
   wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
   wate.plus.1 <- average_treatment_effect(forest.causal.plus.1, target.sample = "overlap")
   expect_true(abs(wate[1] - wate.plus.1[1]) <= 0.006)
+
+  # Now test this in "average partial effect" mode. Add some fuzz to the treatments
+  # so the "continuous treatment" code path is triggered. However, first cache
+  # the debiasing weights so we don't actually have to re-compute them
+  debiasing.weights <- (forest.causal$W.orig - forest.causal$W.hat) /
+    (forest.causal$W.hat * (1 - forest.causal$W.hat))
+
+  fuzz <- 0.00000001 * rnorm(length(forest.causal$W.orig))
+  forest.causal$W.orig <- forest.causal$W.orig + fuzz
+  forest.causal.plus.1$W.orig <- forest.causal.plus.1$W.orig + fuzz
+  cape <- average_treatment_effect(forest.causal, debiasing.weights=debiasing.weights)
+  cape.plus.1 <- average_treatment_effect(forest.causal.plus.1, debiasing.weights=debiasing.weights)
+  expect_equal(cape[1], cate.aipw[1])
+  expect_equal(cape[1], cape.plus.1[1])
 })
 
 test_that("average treatment effect estimates are reasonable", {
@@ -91,19 +101,18 @@ test_that("average treatment effect estimates are reasonable", {
   expect_true(abs(catc.aipw[1] - catc.tmle[1]) <= 0.05)
   expect_true(abs(catc.aipw[2] - catc.tmle[2]) <= 0.05)
 
-  cape.nocal <- average_partial_effect(forest.causal, calibrate.weights = FALSE)
+  cape.nocal <- average_treatment_effect(forest.causal)
   expect_true(abs(cape.nocal[1] - mean(TAU)) <= 0.2)
   expect_true(abs(cape.nocal[1] - mean(TAU)) <= 3 * cape.nocal[2])
-
   expect_true(abs(cate.aipw[1] - cape.nocal[1]) <= 0.05)
   expect_true(abs(cate.aipw[2] - cape.nocal[2]) <= 0.05)
 
-  cape.cal <- average_partial_effect(forest.causal, calibrate.weights = TRUE)
-  expect_true(abs(cape.cal[1] - mean(TAU)) <= 0.2)
-  expect_true(abs(cape.cal[1] - mean(TAU)) <= 3 * cape.cal[2])
-
-  expect_true(abs(cate.aipw[1] - cape.cal[1]) <= 0.05)
-  expect_true(abs(cate.aipw[2] - cape.cal[2]) <= 0.05)
+  # The calibration option was eliminated after version 1.2.0.
+  # cape.cal <- average_treatment_effect(forest.causal, calibrate.weights = TRUE)
+  # expect_true(abs(cape.cal[1] - mean(TAU)) <= 0.2)
+  # expect_true(abs(cape.cal[1] - mean(TAU)) <= 3 * cape.cal[2])
+  # expect_true(abs(cate.aipw[1] - cape.cal[1]) <= 0.05)
+  # expect_true(abs(cate.aipw[2] - cape.cal[2]) <= 0.05)
 
   wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
   tau.overlap <- sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
@@ -147,7 +156,7 @@ test_that("average partial effect estimates are reasonable", {
     num.trees = 500,
     ci.group.size = 1, clusters = rep(1:(n / 2), 2)
   )
-  cape.pos <- average_partial_effect(forest.causal, subset = X[, 1] > 0)
+  cape.pos <- average_treatment_effect(forest.causal, subset = X[, 1] > 0)
   expect_true(abs(cape.pos["estimate"] - 4) < 0.1)
 })
 
@@ -196,7 +205,7 @@ test_that("average partial effects larger example works", {
 
   forest.causal <- causal_forest(X, Y, W, num.trees = 1000, ci.group.size = 1)
 
-  cape <- average_partial_effect(forest.causal)
+  cape <- average_treatment_effect(forest.causal)
   expect_true(abs(cape[1] - mean(TAU)) <= 0.2)
   expect_true(abs(cape[1] - mean(TAU)) <= 3 * cape[2])
 })
@@ -254,8 +263,8 @@ test_that("cluster robust average effects are consistent", {
   expect_true(abs(catc.aipw[1] - catc.clust.aipw[1]) <= 0.05)
   expect_true(abs(catc.aipw[2] - catc.clust.aipw[2]) <= 0.005)
 
-  cape <- average_partial_effect(forest.causal, num.trees.for.variance = 200)
-  cape.clust <- average_partial_effect(forest.causal.clust, num.trees.for.variance = 200)
+  cape <- average_treatment_effect(forest.causal, num.trees.for.weights = 200)
+  cape.clust <- average_treatment_effect(forest.causal.clust, num.trees.for.weights = 200)
   expect_true(abs(cape[1] - cape.clust[1]) <= 0.05)
   expect_true(abs(cape[2] - cape.clust[2]) <= 0.005)
 
@@ -299,7 +308,7 @@ test_that("cluster robust average effects do weighting correctly", {
   expect_true(abs(catc.aipw[1] - t0) / (3 * catc.aipw[2]) <= 1)
   expect_true(catc.aipw[2] <= 0.2)
 
-  cape <- average_partial_effect(forest.causal, num.trees.for.variance = 200)
+  cape <- average_treatment_effect(forest.causal, num.trees.for.weights = 200)
   expect_true(abs(cape[1] - t0) / (3 * cape[2]) <= 1)
   expect_true(cape[2] <= 0.2)
 
@@ -382,8 +391,8 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   expect_true(abs(catc.aipw[1] - true.ate) / (3 * catc.aipw[2]) <= 1)
   expect_false(abs(biased.catc.aipw[1] - true.ate) / (3 * biased.catc.aipw[2]) <= 1)
 
-  cape <- average_partial_effect(forest.weighted, num.trees.for.variance = 200)
-  biased.cape <- average_partial_effect(forest.unweighted, num.trees.for.variance = 200)
+  cape <- average_treatment_effect(forest.weighted, num.trees.for.weights = 200)
+  biased.cape <- average_treatment_effect(forest.unweighted, num.trees.for.weights = 200)
   expect_true(abs(cape[1] - true.ate) / (3 * cape[2]) <= 1)
   expect_false(abs(biased.cape[1] - true.ate) / (3 * biased.cape[2]) <= 1)
 
@@ -402,7 +411,7 @@ test_that("average effect estimation doesn't error on data with a single feature
   W <- rbinom(n, size = 1, prob = 0.5)
 
   forest <- causal_forest(X, Y, W)
-  average_partial_effect(forest)
+  average_treatment_effect(forest)
   expect_true(TRUE) # so we don't get a warning about an empty test
 })
 

@@ -8,22 +8,38 @@ average_treatment_effect(
   forest,
   target.sample = c("all", "treated", "control", "overlap"),
   method = c("AIPW", "TMLE"),
-  subset = NULL
+  subset = NULL,
+  debiasing.weights = NULL,
+  num.trees.for.weights = 500
 )
 }
 \arguments{
 \item{forest}{The trained forest.}
 
-\item{target.sample}{Which sample to aggregate treatment effects over.}
+\item{target.sample}{Which sample to aggregate treatment effects over.
+Note: Options other than "all" are only currently implemented
+for causal forests.}
 
 \item{method}{Method used for doubly robust inference. Can be either
 augmented inverse-propensity weighting (AIPW), or
-targeted maximum likelihood estimation (TMLE).}
+targeted maximum likelihood estimation (TMLE). Note:
+TMLE is currently only implemented for causal forests with
+a binary treatment.}
 
 \item{subset}{Specifies subset of the training examples over which we
 estimate the ATE. WARNING: For valid statistical performance,
 the subset should be defined only using features Xi, not using
 the treatment Wi or the outcome Yi.}
+
+\item{debiasing.weights}{A vector of length n (or the subset length) of debiasing weights.
+If NULL (default) these are obtained via the appropriate doubly robust score
+construction, e.g., in the case of causal_forests with a binary treatment, they
+are obtained via inverse-propensity weighting.}
+
+\item{num.trees.for.weights}{In some cases (e.g., with causal forests with a continuous
+treatment), we need to train auxiliary forests to learn debiasing weights.
+This is the number of trees used for this task. Note: this argument is only
+used when debiasing.weights = NULL.}
 }
 \value{
 An estimate of the average treatment effect, along with standard error.

@@ -44,7 +44,7 @@
 #'
 #' @return An estimate of the average partial effect, along with standard error.
 #' @export
-average_partial_effect <- function(forest,
+DEPRECATED_average_partial_effect <- function(forest,
                                    calibrate.weights = TRUE,
                                    subset = NULL,
                                    debiasing.weights = NULL,
