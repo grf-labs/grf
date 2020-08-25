@@ -6,7 +6,7 @@
 using a causal forest. Under regularity conditions, the average of the DR.scores
 is an efficient estimate of the average treatment effect.}
 \usage{
-get_scores_ATE(forest, subset, debiasing.weights = NULL)
+get_scores_ATE(forest, subset = NULL, debiasing.weights = NULL)
 }
 \arguments{
 \item{forest}{A trained causal forest.}
@@ -23,4 +23,13 @@ If NULL (default) they are obtained via inverse-propensity weighting.}
 Compute doubly robust (AIPW) scores for average treatment effect estimation
 using a causal forest. Under regularity conditions, the average of the DR.scores
 is an efficient estimate of the average treatment effect.
+}
+\references{
+Farrell, Max H. "Robust inference on average treatment effects with
+            possibly more covariates than observations." Journal of Econometrics
+            189(1), 2015.
+
+Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
+            multivariate regression models with missing data." Journal of the
+            American Statistical Association 90(429), 1995.
 }

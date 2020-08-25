@@ -251,17 +251,17 @@ test_that("cluster robust average effects are consistent", {
   cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
   cate.clust.aipw <- average_treatment_effect(forest.causal.clust, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - cate.clust.aipw[1]) <= 0.05)
-  expect_true(abs(cate.aipw[2] - cate.clust.aipw[2]) <= 0.005)
+  expect_true(abs(cate.aipw[2] - cate.clust.aipw[2]) <= 0.008)
 
   catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
   catt.clust.aipw <- average_treatment_effect(forest.causal.clust, target.sample = "treated", method = "AIPW")
   expect_true(abs(catt.aipw[1] - catt.clust.aipw[1]) <= 0.05)
-  expect_true(abs(catt.aipw[2] - catt.clust.aipw[2]) <= 0.005)
+  expect_true(abs(catt.aipw[2] - catt.clust.aipw[2]) <= 0.008)
 
   catc.aipw <- average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
   catc.clust.aipw <- average_treatment_effect(forest.causal.clust, target.sample = "control", method = "AIPW")
   expect_true(abs(catc.aipw[1] - catc.clust.aipw[1]) <= 0.05)
-  expect_true(abs(catc.aipw[2] - catc.clust.aipw[2]) <= 0.005)
+  expect_true(abs(catc.aipw[2] - catc.clust.aipw[2]) <= 0.008)
 
   cape <- average_treatment_effect(forest.causal, num.trees.for.weights = 200)
   cape.clust <- average_treatment_effect(forest.causal.clust, num.trees.for.weights = 200)
@@ -326,7 +326,7 @@ test_that("cluster robust average effects do weighting correctly", {
                                              equalize.cluster.weights = TRUE,
                                              num.trees = 400)
   compliance.score <- rep(1, n)
-  aclate <- average_late(forest.instrumental, compliance.score)
+  aclate <- average_treatment_effect(forest.instrumental, compliance.score=compliance.score)
   expect_equal(cate.aipw["estimate"], aclate["estimate"], tol = 0.03)
   expect_equal(cate.aipw["std.err"], aclate["std.err"], tol = 0.002)
 })
@@ -436,8 +436,8 @@ test_that("average conditional local average treatment effect estimation is reas
                                      num.trees = 250)
   compliance.score <- predict(compliance.forest)$predictions
 
-  tau.hat <- average_late(forest.iv, compliance.score=compliance.score)
-  tau.x1p <- average_late(forest.iv, compliance.score=compliance.score,
+  tau.hat <- average_treatment_effect(forest.iv, compliance.score=compliance.score)
+  tau.x1p <- average_treatment_effect(forest.iv, compliance.score=compliance.score,
                           subset = X[,1] > 0)
 
   expect_equal(as.numeric(tau.hat["estimate"]), mean(tau), tol = 0.2)
