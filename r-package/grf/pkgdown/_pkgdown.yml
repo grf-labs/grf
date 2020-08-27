@@ -78,7 +78,7 @@ reference:
       - survival_forest
       - predict.survival_forest
 
-  - title: Causal Survival forest
+  - title: Causal survival forest
     contents:
       - causal_survival_forest
       - predict.causal_survival_forest
