@@ -10,8 +10,8 @@ causal_survival_forest(
   W,
   D,
   W.hat = NULL,
-  S1.hat = NULL,
-  S0.hat = NULL,
+  E1.hat = NULL,
+  E0.hat = NULL,
   S.hat = NULL,
   C.hat = NULL,
   lambda.C.hat = NULL,
@@ -48,15 +48,13 @@ causal_survival_forest(
 \item{W.hat}{Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 these are estimated using a separate regression forest. Default is NULL.}
 
-\item{S1.hat}{Estimates of the conditional survival function S(t, x, 1) = P[Y > t | X = x, W = 1].
-If S1.hat is NULL, this is estimated using a survival forest (S-learner). If provided:
-a list with first element: N*t matrix of survival estimates and second element: t-vector of event times
-the survival curve is evaluated at. Default is NULL.}
+\item{E1.hat}{Estimates of the expected survival time conditional on being treated
+E[Y | X = x, W = 1]. If E1.hat is NULL, then this is estimated with an S-learner using
+a survival forest.}
 
-\item{S0.hat}{Estimates of the conditional survival function S(t, x, 0) = P[Y > t | X = x, W = 0].
-If S0.hat is NULL, this is estimated using a survival forest (S-learner). If provided:
-a list with first element: N*t matrix of survival estimates and second element: t-vector of event times
-the survival curve is evaluated at. Default is NULL.}
+\item{E0.hat}{Estimates of the expected survival time conditional on being a control unit
+E[Y | X = x, W = 0]. If E0.hat is NULL, then this is estimated with an S-learner using
+a survival forest.}
 
 \item{S.hat}{Estimates of the conditional survival function S(t, x, w) = P[Y > t | X = x, W = w].
 If S.hat is NULL, this is estimated using a survival forest. If provided:
