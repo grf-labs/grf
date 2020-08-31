@@ -129,8 +129,6 @@ test_calibration <- function(forest) {
 #'
 #' @return An estimate of the best linear projection, along with coefficient standard errors.
 #'
-#' @importFrom stats lm
-#'
 #' @export
 best_linear_projection <- function(forest,
                                    A = NULL,

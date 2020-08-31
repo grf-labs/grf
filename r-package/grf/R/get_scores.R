@@ -9,7 +9,7 @@
 #'               the treatment Wi or the outcome Yi.
 #' @param debiasing.weights A vector of length n (or the subset length) of debiasing weights.
 #'               If NULL (default) they are obtained via inverse-propensity weighting.
-#'               
+#'
 #' @references Farrell, Max H. "Robust inference on average treatment effects with
 #'             possibly more covariates than observations." Journal of Econometrics
 #'             189(1), 2015.
@@ -68,12 +68,12 @@ get_scores_ATE = function(forest,
 #' @param num.trees.for.weights Number of trees used to estimate Var[W | X = x]. Note: this
 #'               argument is only used when debiasing.weights = NULL.
 #'
-#'  @references Graham, Bryan S., and Cristine Campos de Xavier Pinto. "Semiparametrically
+#' @references Graham, Bryan S., and Cristine Campos de Xavier Pinto. "Semiparametrically
 #'             efficient estimation of the average linear regression function." arXiv preprint
-#'             arXiv:1810.12511, 2018.              
+#'             arXiv:1810.12511, 2018.
 #' @references Hirshberg, David A., and Stefan Wager. "Augmented minimax linear estimation."
 #'             arXiv preprint arXiv:1712.00038, 2017.
-#' 
+#'
 #' @export
 get_scores_APE = function(forest,
                           subset = NULL,
@@ -83,7 +83,7 @@ get_scores_APE = function(forest,
     stop("The forest must be a causal_forest.")
   }
   subset <- validate_subset(forest, subset)
-  
+
   # Start by learning debiasing weights if needed.
   # The goal is to estimate the variance of W given X. For binary treatments,
   # we get a good implicit estimator V.hat = e.hat (1 - e.hat), and
@@ -110,13 +110,13 @@ get_scores_APE = function(forest,
   } else if (length(debiasing.weights) != length(subset))  {
     stop("If specified, debiasing.weights must have length n or |subset|.")
   }
-  
+
   W.orig <- forest$W.orig[subset]
   W.hat <- forest$W.hat[subset]
   Y.orig <- forest$Y.orig[subset]
   Y.hat <- forest$Y.hat[subset]
   tau.hat.pointwise <- predict(forest)$predictions[subset]
-  
+
   # Form AIPW-type scores.
   Y.residual <- Y.orig - (Y.hat + tau.hat.pointwise * (W.orig - W.hat))
   tau.hat.pointwise + debiasing.weights * Y.residual
@@ -150,7 +150,7 @@ get_scores_APE = function(forest,
 #'               This is the number of trees used for this task. Note: this argument is only
 #'               used when debiasing.weights = NULL.
 #'
-#'  @references Aronow, Peter M., and Allison Carnegie. "Beyond LATE: Estimation of the
+#' @references Aronow, Peter M., and Allison Carnegie. "Beyond LATE: Estimation of the
 #'              average treatment effect with an instrumental variable." Political
 #'              Analysis 21(4), 2013.
 #' @references Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,

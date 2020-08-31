@@ -13,11 +13,11 @@
 #' in case of poor overlap (i.e., when the propensities e(x) may be very close
 #' to 0 or 1), as it doesn't involve dividing by estimated propensities.
 #'
-#' In the case of a causal forest continuous treatment, we provides estimates of the
+#' In the case of a causal forest with continuous treatment, we provide estimates of the
 #' average partial effect, i.e., E[Cov[W, Y | X] / Var[W | X]]. In the case of a binary treatment,
 #' the average partial effect matches the average treatment effect. Computing the average partial
 #' effect is somewhat more involved, as the relevant doubly robust scores require an estimate
-#' estimate of Var[Wi | Xi = x]. By default, we get such estimates by training an auxiliary forest;
+#' of Var[Wi | Xi = x]. By default, we get such estimates by training an auxiliary forest;
 #' however, these weights can also be passed manually by specifying debiasing.weights.
 #'
 #' In the case of instrumental forests with a binary treatment, we provide an estimate
@@ -29,7 +29,7 @@
 #' assumption, tau(x) is simply the CATE at x. When W is binary
 #' and there are no "defiers", Imbens and Angrist (1994) show that tau(x) can
 #' be interpreted as an average treatment effect on compliers. This function
-#' provides and estimate od tau = E[tau(X)]. See Chernozhukov
+#' provides and estimate of tau = E[tau(X)]. See Chernozhukov
 #' et al. (2016) for a discussion, and Section 5.2 of Athey and Wager (2017)
 #' for an example using forests.
 #'
@@ -76,7 +76,7 @@
 #' @references Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
 #'             multivariate regression models with missing data." Journal of the
 #'             American Statistical Association 90(429), 1995.
-#' 
+#'
 #' @importFrom stats coef lm predict var weighted.mean
 #' @examples
 #' \donttest{
@@ -111,8 +111,8 @@
 #' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
 #' tau.forest <- causal_forest(X, Y, W)
 #' tau.hat <- predict(tau.forest)
-#' average_partial_effect(tau.forest)
-#' average_partial_effect(tau.forest, subset = X[, 1] > 0)
+#' average_treatment_effect(tau.forest)
+#' average_treatment_effect(tau.forest, subset = X[, 1] > 0)
 #' }
 #'
 #' @return An estimate of the average treatment effect, along with standard error.
@@ -132,10 +132,6 @@ average_treatment_effect <- function(forest,
   cluster.se <- length(forest$clusters) > 0
 
   if (method == "TMLE") {
-    loaded <- requireNamespace("sandwich", quietly = TRUE)
-    if (!loaded) {
-      stop("To use TMLE, please install the package `sandwich`.")
-    }
     if (cluster.se) {
       stop("TMLE has not yet been implemented with clustered observations.")
     }
@@ -167,8 +163,8 @@ average_treatment_effect <- function(forest,
   # Add usage guidance for causal forests with a binary treatment, as this
   # is a setting where there are many estimands available
 
-  if ("causal_forest" %in% class(forest) &
-      all(forest$W.orig %in% c(0, 1)) &
+  if ("causal_forest" %in% class(forest) &&
+      all(forest$W.orig %in% c(0, 1)) &&
       target.sample != "overlap") {
     if (min(forest$W.hat[subset]) <= 0.05 && max(forest$W.hat[subset]) >= 0.95) {
       rng <- range(forest$W.hat[subset])
@@ -232,7 +228,7 @@ average_treatment_effect <- function(forest,
 
   if (!("causal_forest" %in% class(forest))) {
     stop(paste("For any forest type other than causal_forest, the only",
-               "implemented options as method=AIPW and target.sample=all"))
+               "implemented option is method=AIPW and target.sample=all"))
   }
 
   # Only use data selected via subsetting.
