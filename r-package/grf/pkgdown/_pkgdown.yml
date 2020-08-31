@@ -87,8 +87,6 @@ reference:
   - title: Treatment effect estimation
     desc: Functions for estimating various treatment effects.
     contents:
-      - average_late
-      - average_partial_effect
       - average_treatment_effect
       - best_linear_projection
 
