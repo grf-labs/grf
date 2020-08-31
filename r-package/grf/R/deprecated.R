@@ -9,7 +9,7 @@
 #'
 #' @export
 average_late <- function(forest, ...) {
-  stop("This function has been deprecated. See the function `average_treatment_effect` instead.")
+  stop("This function has been deprecated after version 1.2.0. See the function `average_treatment_effect` instead.")
 }
 
 #' Average partial effect (deprecated)
@@ -23,5 +23,5 @@ average_late <- function(forest, ...) {
 #'
 #' @export
 average_partial_effect <- function(forest, ...) {
-  stop("This function has been deprecated. See the function `average_treatment_effect` instead.")
+  stop("This function has been deprecated after version 1.2.0. See the function `average_treatment_effect` instead.")
 }
