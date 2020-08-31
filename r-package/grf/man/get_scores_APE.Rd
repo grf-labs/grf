@@ -38,4 +38,3 @@ Graham, Bryan S., and Cristine Campos de Xavier Pinto. "Semiparametrically
 Hirshberg, David A., and Stefan Wager. "Augmented minimax linear estimation."
             arXiv preprint arXiv:1712.00038, 2017.
 }
-\keyword{internal}

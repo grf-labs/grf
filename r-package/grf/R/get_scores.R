@@ -17,7 +17,7 @@
 #'             multivariate regression models with missing data." Journal of the
 #'             American Statistical Association 90(429), 1995.
 #'
-#' @keywords internal
+#' @export
 get_scores_ATE = function(forest,
                           subset = NULL,
                           debiasing.weights = NULL) {
@@ -74,7 +74,7 @@ get_scores_ATE = function(forest,
 #' @references Hirshberg, David A., and Stefan Wager. "Augmented minimax linear estimation."
 #'             arXiv preprint arXiv:1712.00038, 2017.
 #'
-#' @keywords internal
+#' @export
 get_scores_APE = function(forest,
                           subset = NULL,
                           debiasing.weights = NULL,
@@ -159,7 +159,7 @@ get_scores_APE = function(forest,
 #' @references Imbens, Guido W., and Joshua D. Angrist. "Identification and Estimation of
 #'             Local Average Treatment Effects." Econometrica 62(2), 1994.
 #'
-#' @keywords internal
+#' @export
 get_scores_ACLATE = function(forest,
                              subset = NULL,
                              debiasing.weights = NULL,

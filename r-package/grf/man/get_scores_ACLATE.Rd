@@ -56,4 +56,3 @@ Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,
 Imbens, Guido W., and Joshua D. Angrist. "Identification and Estimation of
             Local Average Treatment Effects." Econometrica 62(2), 1994.
 }
-\keyword{internal}
