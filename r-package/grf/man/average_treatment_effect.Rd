@@ -65,11 +65,11 @@ in case of poor overlap (i.e., when the propensities e(x) may be very close
 to 0 or 1), as it doesn't involve dividing by estimated propensities.
 }
 \details{
-In the case of a causal forest continuous treatment, we provides estimates of the
+In the case of a causal forest with continuous treatment, we provide estimates of the
 average partial effect, i.e., E[Cov[W, Y | X] / Var[W | X]]. In the case of a binary treatment,
 the average partial effect matches the average treatment effect. Computing the average partial
 effect is somewhat more involved, as the relevant doubly robust scores require an estimate
-estimate of Var[Wi | Xi = x]. By default, we get such estimates by training an auxiliary forest;
+of Var[Wi | Xi = x]. By default, we get such estimates by training an auxiliary forest;
 however, these weights can also be passed manually by specifying debiasing.weights.
 
 In the case of instrumental forests with a binary treatment, we provide an estimate
@@ -81,7 +81,7 @@ It can be intepreted causally in various ways. Given a homogeneity
 assumption, tau(x) is simply the CATE at x. When W is binary
 and there are no "defiers", Imbens and Angrist (1994) show that tau(x) can
 be interpreted as an average treatment effect on compliers. This function
-provides and estimate od tau = E[tau(X)]. See Chernozhukov
+provides and estimate of tau = E[tau(X)]. See Chernozhukov
 et al. (2016) for a discussion, and Section 5.2 of Athey and Wager (2017)
 for an example using forests.
 
@@ -125,8 +125,8 @@ W <- rbinom(n, 1, 1 / (1 + exp(-X[, 2]))) + rnorm(n)
 Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
 tau.forest <- causal_forest(X, Y, W)
 tau.hat <- predict(tau.forest)
-average_partial_effect(tau.forest)
-average_partial_effect(tau.forest, subset = X[, 1] > 0)
+average_treatment_effect(tau.forest)
+average_treatment_effect(tau.forest, subset = X[, 1] > 0)
 }
 
 }

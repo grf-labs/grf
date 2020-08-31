@@ -24,17 +24,18 @@ the treatment Wi or the outcome Yi.}
 If NULL (default) these are obtained by estimating Var[W | X = x] using a new forest.}
 
 \item{num.trees.for.weights}{Number of trees used to estimate Var[W | X = x]. Note: this
-              argument is only used when debiasing.weights = NULL.
-
- @references Graham, Bryan S., and Cristine Campos de Xavier Pinto. "Semiparametrically
-            efficient estimation of the average linear regression function." arXiv preprint
-            arXiv:1810.12511, 2018.}
+argument is only used when debiasing.weights = NULL.}
 }
 \description{
 Compute doubly robust scores for average partial effect estimation with continuous
 treatment, using a causal forest.
 }
 \references{
+Graham, Bryan S., and Cristine Campos de Xavier Pinto. "Semiparametrically
+            efficient estimation of the average linear regression function." arXiv preprint
+            arXiv:1810.12511, 2018.
+
 Hirshberg, David A., and Stefan Wager. "Augmented minimax linear estimation."
             arXiv preprint arXiv:1712.00038, 2017.
 }
+\keyword{internal}
