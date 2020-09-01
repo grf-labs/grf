@@ -332,6 +332,10 @@ test_that("cluster robust average effects do weighting correctly", {
 })
 
 test_that("cluster robust average effects do weighting correctly with IPCC weights", {
+  # This test may warn about low overlap, so we disable warnings here to avoid
+  # test failures, and restore it at the end.
+  options(warn = -1)
+
   t0 <- 2
   t1 <- 3
   K <- 100
@@ -400,6 +404,8 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   biased.wate <- average_treatment_effect(forest.unweighted, target.sample = "overlap")
   expect_true(abs(wate[1] - true.ate) / (3 * wate[2]) <= 1)
   expect_false(abs(biased.wate[1] - true.ate) / (3 * biased.wate[2]) <= 1)
+
+  options(warn = 2)
 })
 
 test_that("average effect estimation doesn't error on data with a single feature", {
