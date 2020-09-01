@@ -82,12 +82,12 @@ test_calibration <- function(forest) {
 
 
 #' Estimate the best linear projection of a conditional average treatment effect
-#' using a causal forest.
+#' using a causal forest, or causal survival forest.
 #'
 #' Let tau(Xi) = E[Y(1) - Y(0) | X = Xi] be the CATE, and Ai be a vector of user-provided
 #' covariates. This function provides a (doubly robust) fit to the linear model tau(Xi) ~ beta_0 + Ai * beta.
 #'
-#' Procedurally, we do so by regressing doubly robust scores derived from the causal
+#' Procedurally, we do so by regressing doubly robust scores derived from the
 #' forest against the Ai. Note the covariates Ai may consist of a subset of the Xi,
 #' or they may be distinct The case of the null model tau(Xi) ~ beta_0 is equivalent
 #' to fitting an average treatment effect via AIPW.
@@ -135,11 +135,6 @@ best_linear_projection <- function(forest,
                                    subset = NULL,
                                    debiasing.weights = NULL,
                                    num.trees.for.weights = 500) {
-
-  if (!("causal_forest" %in% class(forest))) {
-    stop("`best_linear_projection` is only implemented for `causal_forest`")
-  }
-
   clusters <- if (length(forest$clusters) > 0) {
     forest$clusters
   } else {
@@ -176,10 +171,16 @@ best_linear_projection <- function(forest,
     }
   }
 
-  if(all(forest$W.orig %in% c(0, 1))) {
-    DR.scores <- get_scores_ATE(forest, subset, debiasing.weights)
+  if ("causal_forest" %in% class(forest)) {
+    if(all(forest$W.orig %in% c(0, 1))) {
+      DR.scores <- get_scores_ATE(forest, subset, debiasing.weights)
+    } else {
+      DR.scores <- get_scores_APE(forest, subset, debiasing.weights, num.trees.for.weights)
+    }
+  } else if ("causal_survival_forest" %in% class(forest)) {
+    DR.scores <- get_scores_CSF(forest, subset)
   } else {
-    DR.scores <- get_scores_APE(forest, subset, debiasing.weights, num.trees.for.weights)
+    stop("`best_linear_projection` is only implemented for `causal_forest` and `causal_survival_forest`")
   }
 
   if (!is.null(A)) {
