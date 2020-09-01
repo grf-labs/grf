@@ -34,4 +34,6 @@ build(package.name)
 # Test installation and run some smoke tests.
 install(package.name)
 library(package.name, character.only = TRUE)
+# Treat warnings as errors.
+options(warn = 2)
 test_package(package.name)
