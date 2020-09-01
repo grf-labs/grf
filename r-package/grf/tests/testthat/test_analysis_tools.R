@@ -17,7 +17,7 @@ test_that("examining a tree gives reasonable results", {
   expect_lt(num.nodes, n)
 
   split.vars <- unlist(sapply(quantile.tree$nodes, function(node) node$split_variable))
-  expect_true(all(split.vars >= 0 && split.vars <= 40))
+  expect_true(all(split.vars >= 0 & split.vars <= 40))
 
   left.children <- unlist(sapply(quantile.tree$nodes, function(node) node$left_child))
   expect_equal(seq(2, num.nodes, 2), left.children)
