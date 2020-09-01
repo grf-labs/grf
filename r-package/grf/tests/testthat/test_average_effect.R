@@ -365,6 +365,9 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   forest.unweighted <- causal_forest(X[cc, ], Y[cc], W[cc], clusters = clust[cc],
                                      equalize.cluster.weights = FALSE,  num.trees = 400)
 
+  forest.weighted$W.hat[forest.weighted$W.hat > 0.94] <- 0.94
+  forest.unweighted$W.hat[forest.unweighted$W.hat > 0.94] <- 0.94
+
   cate.aipw <- average_treatment_effect(forest.weighted, target.sample = "all", method = "AIPW")
   biased.cate.aipw <- average_treatment_effect(forest.unweighted, target.sample = "all", method = "AIPW")
   expect_true(abs(cate.aipw[1] - true.ate) / (3 * cate.aipw[2]) <= 1)
