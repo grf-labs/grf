@@ -232,3 +232,36 @@ get_scores_ACLATE = function(forest,
   Y.residual <- Y.orig - (Y.hat + tau.hat.pointwise * (W.orig - W.hat))
   tau.hat.pointwise + debiasing.weights * Y.residual
 }
+
+#' Compute doubly robust for a causal survival forest.
+#'
+#' @param forest A trained causal survival forest.
+#' @param subset Specifies subset of the training examples over which we
+#'               estimate the ATE. WARNING: For valid statistical performance,
+#'               the subset should be defined only using features Xi, not using
+#'               the treatment Wi or the outcome Yi.
+#'
+#' @export
+get_scores_CSF = function(forest,
+                          subset = NULL) {
+  if (!("causal_survival_forest" %in% class(forest))) {
+    stop("The forest must be a causal_forest.")
+  }
+  subset <- validate_subset(forest, subset)
+
+  eta <- forest$eta
+  numerator.one <- eta$numerator.one[subset]
+  numerator.two <- eta$numerator.two[subset]
+  C.Y.hat <- eta$C.Y.hat[subset]
+  integral.update <- eta$integral.update[subset]
+  W.hat <- forest$W.hat[subset]
+  W.orig <- forest$W.orig[subset]
+  cate.hat <- predict(forest)$predictions[subset]
+
+  W.centered <- W.orig - W.hat
+  term1 <- numerator.one - cate.hat * W.centered^2 / C.Y.hat
+  term2 <- numerator.two - cate.hat * integral.update * W.centered
+  correction <- term1 - term2
+
+  cate.hat + correction * 1 / W.hat / (1 - W.hat)
+}
