@@ -366,7 +366,7 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
                                      equalize.cluster.weights = FALSE,  num.trees = 400)
 
   cate.aipw <- average_treatment_effect(forest.weighted, target.sample = "all", method = "AIPW")
-  biased.cate.aipw <- average_treatment_effect(forest.unweighted, target.sample = "all", method = "AIPW")
+  expect_warning(biased.cate.aipw <- average_treatment_effect(forest.unweighted, target.sample = "all", method = "AIPW"))
   expect_true(abs(cate.aipw[1] - true.ate) / (3 * cate.aipw[2]) <= 1)
   expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.cate.aipw[2]) <= 1)
 
@@ -382,7 +382,7 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   expect_equal(as.numeric(biased.cate.aipw[2]), biased.cate.aipw.blp[1,2], tol = 0.01)
 
   catt.aipw <- average_treatment_effect(forest.weighted, target.sample = "treated", method = "AIPW")
-  biased.catt.aipw <- average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW")
+  expect_warning(biased.catt.aipw <- average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW"))
   expect_true(abs(catt.aipw[1] - true.ate) / (3 * catt.aipw[2]) <= 1)
   expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.catt.aipw[2]) <= 1)
 
@@ -392,7 +392,7 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   expect_false(abs(biased.catc.aipw[1] - true.ate) / (3 * biased.catc.aipw[2]) <= 1)
 
   cape <- average_treatment_effect(forest.weighted, num.trees.for.weights = 200)
-  biased.cape <- average_treatment_effect(forest.unweighted, num.trees.for.weights = 200)
+  expect_warning(biased.cape <- average_treatment_effect(forest.unweighted, num.trees.for.weights = 200))
   expect_true(abs(cape[1] - true.ate) / (3 * cape[2]) <= 1)
   expect_false(abs(biased.cape[1] - true.ate) / (3 * biased.cape[2]) <= 1)
 
