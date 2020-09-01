@@ -206,16 +206,17 @@ test_that("best linear projection works with edge case input types", {
 test_that("best linear projection works as expected with causal survival forest", {
   n <- 500
   p <- 5
-  data <- generate_survival_data(n, p, n.mc = 10000, dgp = "simple1")
+  data <- generate_survival_data(n, p, n.mc = 1, dgp = "simple1")
+  data.test <- generate_survival_data(5000, p, n.mc = 10000, dgp = "simple1")
   cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
 
-  ate.true <- mean(data$cate)
+  ate.true <- mean(data.test$cate)
   blp.ate <- best_linear_projection(cs.forest)
   expect_equal(ate.true, blp.ate[1, "Estimate"], tol = 2.1 * sqrt(blp.ate[1, "Std. Error"]))
 
-  A1 <- data$X[, 1]
-  blp.X1.true <- lm(data$cate ~ A1)$coefficients
-  blp.X1 <- best_linear_projection(cs.forest, A1)
+  A1 <- data.test$X[, 1]
+  blp.X1.true <- lm(data.test$cate ~ A1)$coefficients
+  blp.X1 <- best_linear_projection(cs.forest, data$X[, 1])
   expect_equal(blp.X1.true, blp.X1[, "Estimate"], tol = 2.1 * sqrt(blp.X1[, "Std. Error"]))
 
   weights <- rep(1, n)
