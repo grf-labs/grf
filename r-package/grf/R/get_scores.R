@@ -190,6 +190,11 @@ get_scores_ACLATE = function(forest,
   if (is.null(debiasing.weights)) {
   # The compliance forest estimates the effect of the "treatment" Z on the "outcome" W.
     if (is.null(compliance.score)) {
+      clusters <- if (length(forest$clusters) > 0) {
+        forest$clusters
+      } else {
+        1:length(forest$Y.orig)
+      }
       compliance.forest <- causal_forest(forest$X.orig,
                                          Y=forest$W.orig,
                                          W=forest$Z.orig,
