@@ -171,14 +171,9 @@ best_linear_projection <- function(forest,
     }
   }
 
-  if ("causal_forest" %in% class(forest)) {
-    if(all(forest$W.orig %in% c(0, 1))) {
-      DR.scores <- get_scores_ATE(forest, subset, debiasing.weights)
-    } else {
-      DR.scores <- get_scores_APE(forest, subset, debiasing.weights, num.trees.for.weights)
-    }
-  } else if ("causal_survival_forest" %in% class(forest)) {
-    DR.scores <- get_scores_CSF(forest, subset)
+  if (any(c("causal_forest", "causal_survival_forest") %in% class(forest))) {
+    DR.scores <- get_scores(forest, subset = subset, debiasing.weights = debiasing.weights,
+                            num.trees.for.weights = num.trees.for.weights)
   } else {
     stop("`best_linear_projection` is only implemented for `causal_forest` and `causal_survival_forest`")
   }
