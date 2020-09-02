@@ -2,50 +2,89 @@
 % Please edit documentation in R/average_treatment_effect.R
 \name{average_treatment_effect}
 \alias{average_treatment_effect}
-\title{Estimate average treatment effects using a causal forest}
+\title{Get doubly robust estimates of average treatment effects.}
 \usage{
 average_treatment_effect(
   forest,
   target.sample = c("all", "treated", "control", "overlap"),
   method = c("AIPW", "TMLE"),
-  subset = NULL
+  subset = NULL,
+  debiasing.weights = NULL,
+  compliance.score = NULL,
+  num.trees.for.weights = 500
 )
 }
 \arguments{
 \item{forest}{The trained forest.}
 
-\item{target.sample}{Which sample to aggregate treatment effects over.}
+\item{target.sample}{Which sample to aggregate treatment effects over.
+Note: Options other than "all" are only currently implemented
+for causal forests.}
 
 \item{method}{Method used for doubly robust inference. Can be either
 augmented inverse-propensity weighting (AIPW), or
-targeted maximum likelihood estimation (TMLE).}
+targeted maximum likelihood estimation (TMLE). Note:
+TMLE is currently only implemented for causal forests with
+a binary treatment.}
 
 \item{subset}{Specifies subset of the training examples over which we
 estimate the ATE. WARNING: For valid statistical performance,
 the subset should be defined only using features Xi, not using
 the treatment Wi or the outcome Yi.}
+
+\item{debiasing.weights}{A vector of length n (or the subset length) of debiasing weights.
+If NULL (default) these are obtained via the appropriate doubly robust score
+construction, e.g., in the case of causal_forests with a binary treatment, they
+are obtained via inverse-propensity weighting.}
+
+\item{compliance.score}{Only used with instrumental forests. An estimate of the causal
+effect of Z on W, i.e., Delta(X) = E[W | X, Z = 1] - E[W | X, Z = 0],
+which can then be used to produce debiasing.weights. If not provided,
+this is estimated via an auxiliary causal forest.}
+
+\item{num.trees.for.weights}{In some cases (e.g., with causal forests with a continuous
+treatment), we need to train auxiliary forests to learn debiasing weights.
+This is the number of trees used for this task. Note: this argument is only
+used when debiasing.weights = NULL.}
 }
 \value{
 An estimate of the average treatment effect, along with standard error.
 }
 \description{
-Gets estimates of one of the following.
+In the case of a causal forest with binary treatment, we provide
+estimates of one of the following:
 \itemize{
-  \item The (conditional) average treatment effect (target.sample = all):
-  sum_{i = 1}^n E[Y(1) - Y(0) | X = Xi] / n
-  \item The (conditional) average treatment effect on the treated (target.sample = treated):
-  sum_{Wi = 1} E[Y(1) - Y(0) | X = Xi] / |{i : Wi = 1}|
-  \item The (conditional) average treatment effect on the controls (target.sample = control):
-  sum_{Wi = 0} E[Y(1) - Y(0) | X = Xi] / |{i : Wi = 0}|
-  \item The overlap-weighted (conditional) average treatment effect
-  sum_{i = 1}^n e(Xi) (1 - e(Xi)) E[Y(1) - Y(0) | X = Xi] / sum_{i = 1}^n e(Xi) (1 - e(Xi)),
-  where e(x) = P[Wi = 1 | Xi = x].
+  \item The average treatment effect (target.sample = all): E[Y(1) - Y(0)]
+  \item The average treatment effect on the treated (target.sample = treated): E[Y(1) - Y(0) | Wi = 1]
+  \item The average treatment effect on the controls (target.sample = control): : E[Y(1) - Y(0) | Wi = 0]
+  \item The overlap-weighted average treatment effect (target.sample = overlap):
+  E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].
 }
 This last estimand is recommended by Li, Morgan, and Zaslavsky (JASA, 2017)
 in case of poor overlap (i.e., when the propensities e(x) may be very close
 to 0 or 1), as it doesn't involve dividing by estimated propensities.
 }
 \details{
+In the case of a causal forest with continuous treatment, we provide estimates of the
+average partial effect, i.e., E[Cov[W, Y | X] / Var[W | X]]. In the case of a binary treatment,
+the average partial effect matches the average treatment effect. Computing the average partial
+effect is somewhat more involved, as the relevant doubly robust scores require an estimate
+of Var[Wi | Xi = x]. By default, we get such estimates by training an auxiliary forest;
+however, these weights can also be passed manually by specifying debiasing.weights.
+
+In the case of instrumental forests with a binary treatment, we provide an estimate
+of the the Average (Conditional) Local Averate Treatment (ACLATE).
+Specifically, given an outcome Y, treatment W and instrument Z, the (conditional) local
+average treatment effect is tau(x) = Cov[Y, Z | X = x] / Cov[W, Z | X = x].
+This is the quantity that is estimated with an instrumental forest.
+It can be intepreted causally in various ways. Given a homogeneity
+assumption, tau(x) is simply the CATE at x. When W is binary
+and there are no "defiers", Imbens and Angrist (1994) show that tau(x) can
+be interpreted as an average treatment effect on compliers. This function
+provides and estimate of tau = E[tau(X)]. See Chernozhukov
+et al. (2016) for a discussion, and Section 5.2 of Athey and Wager (2017)
+for an example using forests.
+
 If clusters are specified, then each unit gets equal weight by default. For
 example, if there are 10 clusters with 1 unit each and per-cluster ATE = 1,
 and there are 10 clusters with 19 units each and per-cluster ATE = 0, then
@@ -77,6 +116,32 @@ average_treatment_effect(c.forest, target.sample = "treated")
 
 # Estimate the conditional average treatment effect on samples with positive X[,1].
 average_treatment_effect(c.forest, target.sample = "all", subset = X[, 1] > 0)
+
+# Example for causal forests with a continuous treatment.
+n <- 2000
+p <- 10
+X <- matrix(rnorm(n * p), n, p)
+W <- rbinom(n, 1, 1 / (1 + exp(-X[, 2]))) + rnorm(n)
+Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+tau.forest <- causal_forest(X, Y, W)
+tau.hat <- predict(tau.forest)
+average_treatment_effect(tau.forest)
+average_treatment_effect(tau.forest, subset = X[, 1] > 0)
 }
 
+}
+\references{
+Athey, Susan, and Stefan Wager. "Efficient policy learning."
+            arXiv preprint arXiv:1702.02896, 2017.
+
+Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,
+            Whitney K. Newey, and James M. Robins. "Locally robust semiparametric
+            estimation." arXiv preprint arXiv:1608.00033, 2016.
+
+Imbens, Guido W., and Joshua D. Angrist. "Identification and Estimation of
+            Local Average Treatment Effects." Econometrica 62(2), 1994.
+
+Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
+            multivariate regression models with missing data." Journal of the
+            American Statistical Association 90(429), 1995.
 }
