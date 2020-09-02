@@ -197,15 +197,9 @@ average_treatment_effect <- function(forest,
     # This is the most general workflow, that shares codepaths with best linear projection
     # and other average effect estimators.
 
-    if ("causal_forest" %in% class(forest)) {
-        if(all(forest$W.orig %in% c(0, 1))) {
-          DR.scores <- get_scores_ATE(forest, subset, debiasing.weights)
-        } else {
-          DR.scores <- get_scores_APE(forest, subset, debiasing.weights, num.trees.for.weights)
-        }
-    } else if ("instrumental_forest" %in% class(forest)) {
-      DR.scores <- get_scores_ACLATE(forest, subset, debiasing.weights,
-                                     compliance.score, num.trees.for.weights)
+    if (any(c("causal_forest", "instrumental_forest") %in% class(forest))) {
+      DR.scores <- get_scores(forest, subset = subset, debiasing.weights = debiasing.weights,
+                              compliance.score = compliance.score, num.trees.for.weights = num.trees.for.weights)
     } else {
       stop("Average treatment effects are not implemented for this forest type.")
     }

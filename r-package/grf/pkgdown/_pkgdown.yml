@@ -89,6 +89,9 @@ reference:
     contents:
       - average_treatment_effect
       - best_linear_projection
+      - get_scores.causal_forest
+      - get_scores.instrumental_forest
+      - get_scores.causal_survival_forest
 
 # Utilities and various
   - title: Analysis tools
