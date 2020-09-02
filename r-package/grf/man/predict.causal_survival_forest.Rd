@@ -66,6 +66,9 @@ points(X.test[, 1], cs.pred$predictions)
 lines(X.test[, 1], cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates), lty = 2)
 lines(X.test[, 1], cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates), lty = 2)
 
+# Compute the best linear projection on the first covariate.
+best_linear_projection(cs.forest, X[, 1])
+
 # Train the forest on a less granular grid.
 cs.forest.grid <- causal_survival_forest(X, Y, W, D,
                                          failure.times = seq(min(Y), max(Y), length.out = 50))

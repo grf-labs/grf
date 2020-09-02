@@ -3,7 +3,7 @@
 \name{best_linear_projection}
 \alias{best_linear_projection}
 \title{Estimate the best linear projection of a conditional average treatment effect
-using a causal forest.}
+using a causal forest, or causal survival forest.}
 \usage{
 best_linear_projection(
   forest,
@@ -41,7 +41,7 @@ Let tau(Xi) = E[Y(1) - Y(0) | X = Xi] be the CATE, and Ai be a vector of user-pr
 covariates. This function provides a (doubly robust) fit to the linear model tau(Xi) ~ beta_0 + Ai * beta.
 }
 \details{
-Procedurally, we do so by regressing doubly robust scores derived from the causal
+Procedurally, we do so by regressing doubly robust scores derived from the
 forest against the Ai. Note the covariates Ai may consist of a subset of the Xi,
 or they may be distinct The case of the null model tau(Xi) ~ beta_0 is equivalent
 to fitting an average treatment effect via AIPW.
