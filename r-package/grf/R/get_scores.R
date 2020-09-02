@@ -1,4 +1,17 @@
+#' Compute doubly robust scores for a GRF forest object
+#'
+#' @param forest A grf forest object
+#' @param ... Additional arguments
+#' @return A vector of scores
+#' @export
+get_scores <- function(forest, ...) {
+  UseMethod("get_scores")
+}
+
+#' Compute doubly robust scores for a causal forest.
+#'
 #' Compute doubly robust (AIPW) scores for average treatment effect estimation
+#' or average partial effect estimation with continuous treatment,
 #' using a causal forest. Under regularity conditions, the average of the DR.scores
 #' is an efficient estimate of the average treatment effect.
 #'
@@ -8,23 +21,112 @@
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
 #' @param debiasing.weights A vector of length n (or the subset length) of debiasing weights.
-#'               If NULL (default) they are obtained via inverse-propensity weighting.
+#'               If NULL (default) they are obtained via inverse-propensity weighting in the case
+#'               of binary treatment or by estimating Var[W | X = x] using a new forest
+#'               in the case of a continuous treatment.
+#' @param num.trees.for.weights Number of trees used to estimate Var[W | X = x]. Note: this
+#'               argument is only used when debiasing.weights = NULL.
+#' @param ... Additional arguments (currently ignored).
 #'
 #' @references Farrell, Max H. "Robust inference on average treatment effects with
 #'             possibly more covariates than observations." Journal of Econometrics
 #'             189(1), 2015.
+#' @references Graham, Bryan S., and Cristine Campos de Xavier Pinto. "Semiparametrically
+#'             efficient estimation of the average linear regression function." arXiv preprint
+#'             arXiv:1810.12511, 2018.
+#' @references Hirshberg, David A., and Stefan Wager. "Augmented minimax linear estimation."
+#'             arXiv preprint arXiv:1712.00038, 2017.
 #' @references Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
 #'             multivariate regression models with missing data." Journal of the
 #'             American Statistical Association 90(429), 1995.
 #'
+#' @method get_scores causal_forest
 #' @export
-get_scores_ATE = function(forest,
-                          subset = NULL,
-                          debiasing.weights = NULL) {
-
-  if (!("causal_forest" %in% class(forest))) {
-    stop("The forest must be a causal_forest.")
+get_scores.causal_forest <- function(forest,
+                                     subset = NULL,
+                                     debiasing.weights = NULL,
+                                     num.trees.for.weights = 500,
+                                     ...) {
+  binary.W <- all(forest$W.orig %in% c(0, 1))
+  if (binary.W) {
+    scores <- get_scores_ATE(forest, subset, debiasing.weights)
+  } else {
+    scores <- get_scores_APE(forest, subset, debiasing.weights, num.trees.for.weights)
   }
+
+  scores
+}
+
+#' Doubly robust scores for estimating the average conditional local average treatment effect.
+#'
+#' Given an outcome Y, treatment W and instrument Z, the (conditional) local
+#' average treatment effect is tau(x) = Cov[Y, Z | X = x] / Cov[W, Z | X = x].
+#' This is the quantity that is estimated with an instrumental forest.
+#' It can be intepreted causally in various ways. Given a homogeneity
+#' assumption, tau(x) is simply the CATE at x. When W is binary
+#' and there are no "defiers", Imbens and Angrist (1994) show that tau(x) can
+#' be interpreted as an average treatment effect on compliers. This doubly robust
+#' scores provided here are for estimating tau = E[tau(X)].
+#'
+#' @param forest A trained instrumental forest.
+#' @param subset Specifies subset of the training examples over which we
+#'               estimate the ATE. WARNING: For valid statistical performance,
+#'               the subset should be defined only using features Xi, not using
+#'               the treatment Wi or the outcome Yi.
+#' @param debiasing.weights A vector of length n (or the subset length) of debiasing weights.
+#'               If NULL (default) these are obtained via the appropriate doubly robust score
+#'               construction, e.g., in the case of causal_forests with a binary treatment, they
+#'               are obtained via inverse-propensity weighting.
+#' @param compliance.score An estimate of the causal effect of Z on W, i.e., Delta(X) = E[W | X, Z = 1]
+#'               - E[W | X, Z = 0], which can then be used to produce debiasing.weights. If not provided,
+#'               this is estimated via an auxiliary causal forest.
+#' @param num.trees.for.weights In some cases (e.g., with causal forests with a continuous
+#'               treatment), we need to train auxiliary forests to learn debiasing weights.
+#'               This is the number of trees used for this task. Note: this argument is only
+#'               used when debiasing.weights = NULL.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @references Aronow, Peter M., and Allison Carnegie. "Beyond LATE: Estimation of the
+#'              average treatment effect with an instrumental variable." Political
+#'              Analysis 21(4), 2013.
+#' @references Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,
+#'             Whitney K. Newey, and James M. Robins. "Locally robust semiparametric
+#'             estimation." arXiv preprint arXiv:1608.00033, 2016.
+#' @references Imbens, Guido W., and Joshua D. Angrist. "Identification and Estimation of
+#'             Local Average Treatment Effects." Econometrica 62(2), 1994.
+#'
+#' @method get_scores instrumental_forest
+#' @export
+get_scores.instrumental_forest <- function(forest,
+                                           subset = NULL,
+                                           debiasing.weights = NULL,
+                                           compliance.score = NULL,
+                                           num.trees.for.weights = 500,
+                                           ...) {
+  get_scores_ACLATE(forest, subset, debiasing.weights, compliance.score, num.trees.for.weights)
+}
+
+#' Compute doubly robust for a causal survival forest.
+#'
+#' @param forest A trained causal survival forest.
+#' @param subset Specifies subset of the training examples over which we
+#'               estimate the ATE. WARNING: For valid statistical performance,
+#'               the subset should be defined only using features Xi, not using
+#'               the treatment Wi or the outcome Yi.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @method get_scores causal_survival_forest
+#' @export
+get_scores.causal_survival_forest <- function(forest,
+                                              subset = NULL,
+                                              ...) {
+  get_scores_CSF(forest, subset)
+}
+
+# Causal forest with binary treatment.
+get_scores_ATE <- function(forest,
+                           subset = NULL,
+                           debiasing.weights = NULL) {
   subset <- validate_subset(forest, subset)
 
   if(!all(forest$W.orig %in% c(0, 1))) {
@@ -55,33 +157,11 @@ get_scores_ATE = function(forest,
   tau.hat.pointwise + debiasing.weights * Y.residual
 }
 
-#' Compute doubly robust scores for average partial effect estimation with continuous
-#' treatment, using a causal forest.
-#'
-#' @param forest A trained causal forest.
-#' @param subset Specifies subset of the training examples over which we
-#'               estimate the ATE. WARNING: For valid statistical performance,
-#'               the subset should be defined only using features Xi, not using
-#'               the treatment Wi or the outcome Yi.
-#' @param debiasing.weights A vector of length n (or the subset length) of debiasing weights.
-#'               If NULL (default) these are obtained by estimating Var[W | X = x] using a new forest.
-#' @param num.trees.for.weights Number of trees used to estimate Var[W | X = x]. Note: this
-#'               argument is only used when debiasing.weights = NULL.
-#'
-#' @references Graham, Bryan S., and Cristine Campos de Xavier Pinto. "Semiparametrically
-#'             efficient estimation of the average linear regression function." arXiv preprint
-#'             arXiv:1810.12511, 2018.
-#' @references Hirshberg, David A., and Stefan Wager. "Augmented minimax linear estimation."
-#'             arXiv preprint arXiv:1712.00038, 2017.
-#'
-#' @export
-get_scores_APE = function(forest,
-                          subset = NULL,
-                          debiasing.weights = NULL,
-                          num.trees.for.weights = 500) {
-  if (!("causal_forest" %in% class(forest))) {
-    stop("The forest must be a causal_forest.")
-  }
+# Causal forest with continuous treatment.
+get_scores_APE <- function(forest,
+                           subset = NULL,
+                           debiasing.weights = NULL,
+                           num.trees.for.weights = 500) {
   subset <- validate_subset(forest, subset)
 
   # Start by learning debiasing weights if needed.
@@ -122,56 +202,12 @@ get_scores_APE = function(forest,
   tau.hat.pointwise + debiasing.weights * Y.residual
 }
 
-#' Doubly robust scores for estimating the average conditional local average treatment effect.
-#'
-#' Given an outcome Y, treatment W and instrument Z, the (conditional) local
-#' average treatment effect is tau(x) = Cov[Y, Z | X = x] / Cov[W, Z | X = x].
-#' This is the quantity that is estimated with an instrumental forest.
-#' It can be intepreted causally in various ways. Given a homogeneity
-#' assumption, tau(x) is simply the CATE at x. When W is binary
-#' and there are no "defiers", Imbens and Angrist (1994) show that tau(x) can
-#' be interpreted as an average treatment effect on compliers. This doubly robust
-#' scores provided here are for estimating tau = E[tau(X)].
-#'
-#' @param forest A trained instrumental forest.
-#' @param subset Specifies subset of the training examples over which we
-#'               estimate the ATE. WARNING: For valid statistical performance,
-#'               the subset should be defined only using features Xi, not using
-#'               the treatment Wi or the outcome Yi.
-#' @param debiasing.weights A vector of length n (or the subset length) of debiasing weights.
-#'               If NULL (default) these are obtained via the appropriate doubly robust score
-#'               construction, e.g., in the case of causal_forests with a binary treatment, they
-#'               are obtained via inverse-propensity weighting.
-#' @param compliance.score An estimate of the causal effect of Z on W, i.e., Delta(X) = E[W | X, Z = 1]
-#'               - E[W | X, Z = 0], which can then be used to produce debiasing.weights. If not provided,
-#'               this is estimated via an auxiliary causal forest.
-#' @param num.trees.for.weights In some cases (e.g., with causal forests with a continuous
-#'               treatment), we need to train auxiliary forests to learn debiasing weights.
-#'               This is the number of trees used for this task. Note: this argument is only
-#'               used when debiasing.weights = NULL.
-#'
-#' @references Aronow, Peter M., and Allison Carnegie. "Beyond LATE: Estimation of the
-#'              average treatment effect with an instrumental variable." Political
-#'              Analysis 21(4), 2013.
-#' @references Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,
-#'             Whitney K. Newey, and James M. Robins. "Locally robust semiparametric
-#'             estimation." arXiv preprint arXiv:1608.00033, 2016.
-#' @references Imbens, Guido W., and Joshua D. Angrist. "Identification and Estimation of
-#'             Local Average Treatment Effects." Econometrica 62(2), 1994.
-#'
-#' @export
-get_scores_ACLATE = function(forest,
-                             subset = NULL,
-                             debiasing.weights = NULL,
-                             compliance.score = NULL,
-                             num.trees.for.weights = 500) {
-
-  if (!("instrumental_forest" %in% class(forest))) {
-    stop(paste(
-      "Average conditional local average treatment effect estimation",
-      "only implemented for instrumental_forest."
-    ))
-  }
+# Instrumental forest.
+get_scores_ACLATE <- function(forest,
+                              subset = NULL,
+                              debiasing.weights = NULL,
+                              compliance.score = NULL,
+                              num.trees.for.weights = 500) {
   if (!all(forest$Z.orig %in% c(0, 1))) {
     stop(paste(
       "Average conditional local average treatment effect estimation",
@@ -238,20 +274,9 @@ get_scores_ACLATE = function(forest,
   tau.hat.pointwise + debiasing.weights * Y.residual
 }
 
-#' Compute doubly robust for a causal survival forest.
-#'
-#' @param forest A trained causal survival forest.
-#' @param subset Specifies subset of the training examples over which we
-#'               estimate the ATE. WARNING: For valid statistical performance,
-#'               the subset should be defined only using features Xi, not using
-#'               the treatment Wi or the outcome Yi.
-#'
-#' @export
-get_scores_CSF = function(forest,
-                          subset = NULL) {
-  if (!("causal_survival_forest" %in% class(forest))) {
-    stop("The forest must be a causal_forest.")
-  }
+# Causal survival forest.
+get_scores_CSF <- function(forest,
+                           subset = NULL) {
   subset <- validate_subset(forest, subset)
 
   eta <- forest$eta
