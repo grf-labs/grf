@@ -1,8 +1,7 @@
 # Table 1 ("C.GRF" column)
 # Simulated MSE with the DGPs "aw2" (first rows),  "aw1" (second rows)
-# and "aw3" (last rows) from `benchmarking/dgps.R`
+# and "aw3" (last rows).
 rm(list = ls())
-source("../../benchmarking/dgps.R")
 library(grf)
 
 mse.reps <- 60

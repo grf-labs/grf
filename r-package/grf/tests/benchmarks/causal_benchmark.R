@@ -11,7 +11,6 @@
 # Usage: `(benchmarks)$ Rscript causal_benchmark.R`
 
 library(grf)
-source("../../../../experiments/benchmarking/dgps.R")
 set.seed(1)
 
 reps <- 10
