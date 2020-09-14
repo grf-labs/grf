@@ -1,43 +1,60 @@
 # dgps.R - convenience script for generating simulation data for grf.
 
-#' Generate comparable simulation data
+#' Generate causal forest data
 #'
-#' The following function returns one simulated data set from one of the eleven following DGPs:
-#' "simple", "aw1", "aw2", "aw3", "ai1", "ai2", "kunzel", "nw1", "nw2", "nw3", "nw4"
+#' The following DGPs are available for benchmarking purposes:
+#' \itemize{
+#'  \item "simple": tau = max(X1, 0), e = 0.4 + 0.2 * 1{X1 > 0}.
+#'  \item "aw1": equation (27) of https://arxiv.org/pdf/1510.04342.pdf
+#'  \item "aw2": equation (28) of https://arxiv.org/pdf/1510.04342.pdf
+#'  \item "aw3": confounding is from "aw1" and tau is from "aw2"
+#'  \item "aw3reverse": Same as aw3, but HTEs anticorrelated with baseline
+#'  \item "ai1": "Setup 1" from section 6 of https://arxiv.org/pdf/1504.01132.pdf
+#'  \item "ai2": "Setup 2" from section 6 of https://arxiv.org/pdf/1504.01132.pdf
+#'  \item "kunzel": "Simulation 1" from A.1 in https://arxiv.org/pdf/1706.03461.pdf
+#'  \item "nw1": "Setup A" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
+#'  \item "nw2": "Setup B" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
+#'  \item "nw3": "Setup C" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
+#'  \item "nw4": "Setup D" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
+#'}
 #'
 #' Each DGP is parameterized by
-#' x: observables
-#' m: conditional mean of Y
-#' tau: treatment effect
-#' e: propensity scores
-#' V: conditional variance of Y
+#' X: observables,
+#' m: conditional mean of Y,
+#' tau: treatment effect,
+#' e: propensity scores,
+#' V: conditional variance of Y.
 #'
 #' The following rescaled data is returned
-#' m = m / sd(m) * sigma.m
-#' tau = tau / sd(tau) * sigma.tau
-#' V = V / mean(V) * sigma.noise^2
-#' W = rbinom(e)
-#' Y = m + (W - e) * tau + sqrt(V) + rnorm(n)
+#' m = m / sd(m) * sigma.m,
+#' tau = tau / sd(tau) * sigma.tau,
+#' V = V / mean(V) * sigma.noise^2,
+#' W = rbinom(e),
+#' Y = m + (W - e) * tau + sqrt(V) + rnorm(n).
 #'
-#' @param n The number of observations
-#' @param p The number of covariates (note: the minimum varies by DGP)
-#' @param sigma.m The standard deviation of the unconditional mean of Y. Default=1.
-#' @param sigma.tau The standard deviation of the treatment effect. Default=0.1.
-#' @param sigma.noise The conditional variance of Y. Default=1.
-#' @param dgp The kind of dgp. Default="simple".
+#' @param n The number of observations.
+#' @param p The number of covariates (note: the minimum varies by DGP).
+#' @param sigma.m The standard deviation of the unconditional mean of Y. Default is 1.
+#' @param sigma.tau The standard deviation of the treatment effect. Default  is 0.1.
+#' @param sigma.noise The conditional variance of Y. Default is 1.
+#' @param dgp The kind of dgp. Default is "simple".
 #'
 #' @return A list consisting of:
 #'  X, Y, W, tau, m, e, dgp.
 #'
 #' @examples
-#' gen_data(100, 5, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1, dgp = "simple")
-#' @note:
-#' To add an additonal DGP, fill in the template below and add an entry to `dgp` and `.minp`.
-#'
+#' \donttest{
+#' # Generate simple benchmark data
+#' data <- gen_data(100, 5, dgp = "simple")
+#' # Generate data from Wager and Athey (2018)
+#' data <- gen_data(100, 5, dgp = "aw1")
+#' data2 <- gen_data(100, 5, dgp = "aw2")
+#' }
+#' @export
 gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
                      dgp = c("simple", "aw1", "aw2", "aw3", "aw3reverse", "ai1", "ai2", "kunzel",
-                             "nw1", "nw2", "nw3", "nw4"),
-                     ...) {
+                             "nw1", "nw2", "nw3", "nw4")) {
+  # To add an additonal DGP, fill in the template below and add an entry to `dgp` and `.minp`.
   .minp <- c(simple=3, aw1=2, aw2=2, aw3=1, aw3reverse=1, ai1=2, ai2=6, kunzel=2,
              nw1=5, nw2=5, nw3=3, nw4=5)
   dgp <- match.arg(dgp)
