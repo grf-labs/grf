@@ -6,8 +6,8 @@
 
 #' Generate comparable simulation data
 #'
-#' The following function returns one simulated data set from one of the seven following DGPs:
-#' "simple", "aw1", "aw2", "aw3", "ai1", "ai2", "kunzel".
+#' The following function returns one simulated data set from one of the eleven following DGPs:
+#' "simple", "aw1", "aw2", "aw3", "ai1", "ai2", "kunzel", "nw1", "nw2", "nw3", "nw4"
 #'
 #' Each DGP is parameterized by
 #' x: observables
