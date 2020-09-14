@@ -136,21 +136,21 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
   } else if (dgp == "nw1") {
     # "Setup A" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
     # Difficult nuisance components, easy treatment effect function.
-    X <- matrix(runif(n * p, min=0, max=1), n, p)
-    tau <- (X[,1] + X[,2]) / 2
+    X <- matrix(runif(n * p), n, p)
+    tau <- (X[, 1] + X[, 2]) / 2
     eta <- 0.1
-    e <- pmax(eta, pmin(sin(pi * X[,1] * X[,2]), 1-eta))
+    e <- pmax(eta, pmin(sin(pi * X[, 1] * X[, 2]), 1 - eta))
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- sin(pi * X[,1] * X[,2]) + 2 * (X[,3] - 0.5)^2 + X[,4] + 0.5 * X[,5]
+    m <- sin(pi * X[, 1] * X[, 2]) + 2 * (X[, 3] - 0.5)^2 + X[, 4] + 0.5 * X[, 5]
     V <- 1
   } else if (dgp == "nw2") {
     # "Setup B" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
     # Randomized trial
     X <- matrix(rnorm(n * p), n, p)
-    tau <- X[,1] + log(1 + exp(X[,2]))
+    tau <- X[,1] + log(1 + exp(X[, 2]))
     e <- rep(0.5, n)
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- pmax(0, X[,1] + X[,2], X[,3]) + pmax(0, X[,4] + X[,5])
+    m <- pmax(0, X[, 1] + X[, 2], X[, 3]) + pmax(0, X[, 4] + X[, 5])
     V <- 1
   } else if (dgp == "nw3") {
     # "Setup C" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
@@ -158,19 +158,19 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     # constant treatment effect
     X <- matrix(rnorm(n * p), n, p)
     tau <- rep(1, n)
-    e <- 1/(1 + exp(X[,2] + X[,3]))
+    e <- 1 / (1 + exp(X[, 2] + X[, 3]))
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- 2 * log(1 + exp(X[,1] + X[,2] + X[,3]))
+    m <- 2 * log(1 + exp(X[, 1] + X[, 2] + X[, 3]))
     V <- 1
   } else if (dgp == "nw4") {
     # "Setup D" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
     # Unrelated treatment and control arms
     # (No upside to learning them jointly)
-    X <- matrix(rnorm(n*p), n, p)
-    tau <- pmax(X[,1] + X[,2] + X[,3], 0) - pmax(X[,4] + X[,5], 0)
-    e <- 1/(1 + exp(-X[,1]) + exp(-X[,2]))
+    X <- matrix(rnorm(n * p), n, p)
+    tau <- pmax(X[, 1] + X[, 2] + X[, 3], 0) - pmax(X[, 4] + X[, 5], 0)
+    e <- 1 / (1 + exp(-X[, 1]) + exp(-X[, 2]))
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- (pmax(X[,1] + X[,2] + X[,3], 0) + pmax(X[,4] + X[,5], 0)) / 2
+    m <- (pmax(X[, 1] + X[, 2] + X[, 3], 0) + pmax(X[, 4] + X[, 5], 0)) / 2
     V <- 1
   }
 
