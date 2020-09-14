@@ -174,8 +174,8 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     V <- 1
   }
 
-  # Scale and return data (rescale if `m` and `tau` is not constant)
-  if (!is.na(sd(m)) & !(sd(tau) == 0)) {
+  # Scale and return data (rescale if `m` and `tau` is not constant, the NA check is for when n=1)
+  if (!is.na(sd(m)) & !(sd(m) == 0)) {
     m <- m / sd(m) * sigma.m
   }
   if (!is.na(sd(tau)) & !(sd(tau) == 0)) {
