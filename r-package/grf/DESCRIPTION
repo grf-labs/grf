@@ -31,6 +31,7 @@ Imports:
 RoxygenNote: 7.1.1
 Suggests:
     DiagrammeR,
-    testthat
+    testthat,
+    MASS
 SystemRequirements: GNU make
 URL: https://github.com/grf-labs/grf
