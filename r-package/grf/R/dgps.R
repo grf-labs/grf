@@ -1,8 +1,4 @@
 # dgps.R - convenience script for generating simulation data for grf.
-# Usage:
-# `source("dgps.R")` exports:
-# gen_data() (documented below)
-
 
 #' Generate comparable simulation data
 #'
