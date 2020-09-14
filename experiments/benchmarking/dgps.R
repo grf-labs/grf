@@ -40,10 +40,10 @@
 #'
 gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
                      dgp = c("simple", "aw1", "aw2", "aw3", "ai1", "ai2", "kunzel",
-                             "nwA", "nwB", "nwC", "nwD"),
+                             "nw1", "nw2", "nw3", "nw4"),
                      ...) {
   .minp <- c(simple=3, aw1=2, aw2=2, aw3=1, ai1=2, ai2=6, kunzel=2,
-             nwA=5, nwB=5, nwC=3, nwD=5)
+             nw1=5, nw2=5, nw3=3, nw4=5)
   dgp <- match.arg(dgp)
   minp <- .minp[dgp]
   if (p < minp) {
@@ -133,7 +133,7 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     W <- rbinom(n = n, size = 1, prob = e)
     m <- W * mu_1 + (1 - W) * mu_0 - (W - e) * tau
     V <- 1
-  } else if (dgp == "nwA") {
+  } else if (dgp == "nw1") {
     # "Setup A" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
     # Difficult nuisance components, easy treatment effect function.
     X <- matrix(runif(n * p, min=0, max=1), n, p)
@@ -143,16 +143,16 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     W <- rbinom(n = n, size = 1, prob = e)
     m <- sin(pi * X[,1] * X[,2]) + 2 * (X[,3] - 0.5)^2 + X[,4] + 0.5 * X[,5]
     V <- 1
-  } else if (dgp == "nwB") {
+  } else if (dgp == "nw2") {
     # "Setup B" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
-    # Randomized trial 
+    # Randomized trial
     X <- matrix(rnorm(n * p), n, p)
     tau <- X[,1] + log(1 + exp(X[,2]))
     e <- 0.5
     W <- rbinom(n = n, size = 1, prob = e)
     m <- pmax(0, X[,1] + X[,2], X[,3]) + pmax(0, X[,4] + X[,5])
     V <- 1
-  } else if (dgp == "nwC") {
+  } else if (dgp == "nw3") {
     # "Setup C" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
     # Easy propensity score, strong confounding, difficult baseline,
     # constant treatment effect
@@ -162,7 +162,7 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     W <- rbinom(n = n, size = 1, prob = e)
     m <- 2 * log(1 + exp(X[,1] + X[,2] + X[,3]))
     V <- 1
-  } else if (dgp == "nwD") {
+  } else if (dgp == "nw4") {
     # "Setup D" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
     # Unrelated treatment and control arms
     # (No upside to learning them jointly)
@@ -173,7 +173,7 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     m <- (pmax(X[,1] + X[,2] + X[,3], 0) + pmax(X[,4] + X[,5], 0)) / 2
     V <- 1
   }
-  
+
   # Scale and return data (rescale if `m` and `tau` is not constant)
   if (!is.na(sd(m)) & !(sd(tau) == 0)) {
     m <- m / sd(m) * sigma.m
@@ -184,6 +184,6 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
   V <- V / mean(V) * sigma.noise^2
   Y <- m + (W - e) * tau + sqrt(V) * rnorm(n)
   out <- list(X = X, Y = Y, W = W, tau = tau, m = m, e = e, dgp = dgp)
-  
+
   out
 }
