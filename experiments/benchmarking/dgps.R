@@ -80,7 +80,7 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     zeta1 <- 1 + 1 / (1 + exp(-20 * (X[, 1] - (1 / 3))))
     zeta2 <- 1 + 1 / (1 + exp(-20 * (X[, 2] - (1 / 3))))
     tau <- zeta1 * zeta2
-    e <- 0.5  # Randomized trial (no confounding)
+    e <- rep(0.5, n)  # Randomized trial (no confounding)
     W <- rbinom(n = n, size = 1, prob = e)
     m <- e * tau
     V <- 1
@@ -109,7 +109,7 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     X <- matrix(rnorm(n, p), n, p)
     nu_x <- 0.5 * X[, 1] + X[, 2]
     tau <- 0.25 * X[, 1]
-    e <- 0.5
+    e <- rep(0.5, n)
     W <- rbinom(n = n, size = 1, prob = e)
     m <- nu_x + e * tau
     V <- 0.1^2
@@ -117,7 +117,7 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     X <- matrix(rnorm(n, p), n, p)
     nu_x <- 0.5 * X[, 1] + 0.5 * X[, 2] + X[, 3] + X[, 4] + X[, 5] + X[, 6]
     tau <- 0.5 * ((X[, 1] > 0) * X[, 1] + (X[, 2] > 0) * X[, 2])
-    e <- 0.5
+    e <- rep(0.5, n)
     W <- rbinom(n = n, size = 1, prob = e)
     m <- nu_x + e * tau
     V <- 0.1^2
@@ -129,7 +129,7 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     beta <- runif(p, -5, 5)
     mu_0 <- X %*% beta + 5 * (X[, 1] > 0.5) + rnorm(n = n)
     mu_1 <- mu_0 + tau + rnorm(n = n)
-    e <- 0.01
+    e <- rep(0.01, n)
     W <- rbinom(n = n, size = 1, prob = e)
     m <- W * mu_1 + (1 - W) * mu_0 - (W - e) * tau
     V <- 1
@@ -148,7 +148,7 @@ gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
     # Randomized trial
     X <- matrix(rnorm(n * p), n, p)
     tau <- X[,1] + log(1 + exp(X[,2]))
-    e <- 0.5
+    e <- rep(0.5, n)
     W <- rbinom(n = n, size = 1, prob = e)
     m <- pmax(0, X[,1] + X[,2], X[,3]) + pmax(0, X[,4] + X[,5])
     V <- 1
