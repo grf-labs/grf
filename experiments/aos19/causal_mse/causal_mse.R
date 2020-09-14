@@ -15,8 +15,8 @@ out <- lapply(1:nrow(grid), function(i) {
   p <- grid$p[i]
   dgp <- grid$dgp[i]
   mse <- replicate(mse.reps, {
-    data <- gen_data(n = n, p = p, dgp = dgp, sigma.tau = 1)
-    data.test <- gen_data(n = 1000, p = p, dgp = dgp, sigma.tau = 1)
+    data <- generate_data(n = n, p = p, dgp = dgp, sigma.tau = 1)
+    data.test <- generate_data(n = 1000, p = p, dgp = dgp, sigma.tau = 1)
     cf <- causal_forest(data$X, data$Y, data$W)
     tau.hat <- predict(cf, data.test$X)$predictions
 

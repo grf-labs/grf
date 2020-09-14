@@ -45,18 +45,18 @@
 #' @examples
 #' \donttest{
 #' # Generate simple benchmark data
-#' data <- gen_data(100, 5, dgp = "simple")
+#' data <- generate_data(100, 5, dgp = "simple")
 #' # Generate data from Wager and Athey (2018)
-#' data <- gen_data(100, 5, dgp = "aw1")
-#' data2 <- gen_data(100, 5, dgp = "aw2")
+#' data <- generate_data(100, 5, dgp = "aw1")
+#' data2 <- generate_data(100, 5, dgp = "aw2")
 #' }
 #' @export
-gen_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
-                     dgp = c("simple", "aw1", "aw2", "aw3", "aw3reverse", "ai1", "ai2", "kunzel",
-                             "nw1", "nw2", "nw3", "nw4")) {
+generate_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
+                          dgp = c("simple", "aw1", "aw2", "aw3", "aw3reverse",
+                                  "ai1", "ai2", "kunzel", "nw1", "nw2", "nw3", "nw4")) {
   # To add an additonal DGP, fill in the template below and add an entry to `dgp` and `.minp`.
-  .minp <- c(simple=3, aw1=2, aw2=2, aw3=1, aw3reverse=1, ai1=2, ai2=6, kunzel=2,
-             nw1=5, nw2=5, nw3=3, nw4=5)
+  .minp <- c(simple=3, aw1=2, aw2=2, aw3=1, aw3reverse=1,
+             ai1=2, ai2=6, kunzel=2, nw1=5, nw2=5, nw3=3, nw4=5)
   dgp <- match.arg(dgp)
   minp <- .minp[dgp]
   if (p < minp) {
