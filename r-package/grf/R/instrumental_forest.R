@@ -21,7 +21,7 @@
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
-#' @param sample.weights (experimental) Weights given to each observation in estimation.
+#' @param sample.weights Weights given to each observation in estimation.
 #'                       If NULL, each observation receives equal weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'  Default is NULL (ignored).

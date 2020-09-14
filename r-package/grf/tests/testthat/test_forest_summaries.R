@@ -202,3 +202,33 @@ test_that("best linear projection works with edge case input types", {
   expect_error(best_linear_projection(forest.clustered, X[, 1], subset = which(forest.clustered$clusters == 1)),
                regexp = "The specified subset must contain units from more than one cluster.")
 })
+
+test_that("best linear projection works as expected with causal survival forest", {
+  n <- 500
+  p <- 5
+  data <- generate_survival_data(n, p, n.mc = 1, dgp = "simple1")
+  data.test <- generate_survival_data(5000, p, n.mc = 10000, dgp = "simple1")
+  cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
+
+  ate.true <- mean(data.test$cate)
+  blp.ate <- best_linear_projection(cs.forest)
+  expect_equal(ate.true, blp.ate[1, "Estimate"], tol = 2.1 * sqrt(blp.ate[1, "Std. Error"]))
+
+  A1 <- data.test$X[, 1]
+  blp.X1.true <- lm(data.test$cate ~ A1)$coefficients
+  blp.X1 <- best_linear_projection(cs.forest, data$X[, 1])
+  expect_equal(blp.X1.true, blp.X1[, "Estimate"], tol = 2.1 * sqrt(blp.X1[, "Std. Error"]))
+
+  weights <- rep(1, n)
+  dup <- sample(1:n, 50)
+  weights[dup] <- 2
+  cs.forest.weight <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500, sample.weights = weights)
+  cs.forest.dup <- causal_survival_forest(
+    rbind(data$X, data$X[dup, ]), c(data$Y, data$Y[dup]), c(data$W, data$W[dup]), c(data$D, data$D[dup]),
+    num.trees = 500
+  )
+
+  blp.weight <- best_linear_projection(cs.forest.weight)
+  blp.dup <- best_linear_projection(cs.forest.dup)
+  expect_equal(blp.weight[1, "Estimate"], blp.dup[1, "Estimate"], tol = 0.01)
+})

@@ -34,6 +34,8 @@ Data::Data() :
     treatment_index(),
     instrument_index(),
     weight_index(),
+    causal_survival_numerator_index(),
+    causal_survival_denominator_index(),
     censor_index() {}
 
 bool Data::load_from_file(const std::string& filename) {
@@ -159,6 +161,16 @@ void Data::set_weight_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
+void Data::set_causal_survival_numerator_index(size_t index) {
+  this->causal_survival_numerator_index = index;
+  disallowed_split_variables.insert(index);
+}
+
+void Data::set_causal_survival_denominator_index(size_t index) {
+  this->causal_survival_denominator_index = index;
+  disallowed_split_variables.insert(index);
+}
+
 void Data::set_censor_index(size_t index) {
   this->censor_index = index;
   disallowed_split_variables.insert(index);
@@ -223,6 +235,14 @@ double Data::get_weight(size_t row) const {
   } else {
     return 1.0;
   }
+}
+
+double Data::get_causal_survival_numerator(size_t row) const {
+  return get(row, causal_survival_numerator_index.value());
+}
+
+double Data::get_causal_survival_denominator(size_t row) const {
+  return get(row, causal_survival_denominator_index.value());
 }
 
 bool Data::is_censored(size_t row) const {

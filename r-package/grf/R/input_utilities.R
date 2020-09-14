@@ -174,14 +174,20 @@ validate_sample_weights <- function(sample.weights, X) {
 
 #' @importFrom Matrix Matrix cBind
 #' @importFrom methods new
-create_train_matrices <- function(X, outcome = NULL, treatment = NULL,
-                                 instrument = NULL, censor = NULL,
-                                 sample.weights = FALSE) {
+create_train_matrices <- function(X,
+                                  outcome = NULL,
+                                  treatment = NULL,
+                                  instrument = NULL,
+                                  survival.numerator = NULL,
+                                  survival.denominator = NULL,
+                                  censor = NULL,
+                                  sample.weights = FALSE) {
   default.data <- matrix(nrow = 0, ncol = 0)
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
   out <- list()
-  i <- 1
+  i <- 0
   if (!is.null(outcome)) {
+    i <- i + 1
     out[["outcome.index"]] <- ncol(X) + i
   }
   if (!is.null(treatment)) {
@@ -192,11 +198,25 @@ create_train_matrices <- function(X, outcome = NULL, treatment = NULL,
     i <- i + 1
     out[["instrument.index"]] <- ncol(X) + i
   }
+  if (!is.null(survival.numerator)) {
+    i <- i + 1
+    out[["causal.survival.numerator.index"]] <- ncol(X) + i
+  }
+  if (!is.null(survival.denominator)) {
+    i <- i + 1
+    out[["causal.survival.denominator.index"]] <- ncol(X) + i
+  }
   if (!is.null(censor)) {
     i <- i + 1
     out[["censor.index"]] <- ncol(X) + i
   }
-  if (!isFALSE(sample.weights)) {
+  # Forest bindings without sample weights: sample.weights = FALSE
+  # Forest bindings with sample weights:
+  # -sample.weights = NULL if no weights passed
+  # -sample.weights = numeric vector if passed
+  if (is.logical(sample.weights)) {
+    sample.weights <- NULL
+  } else {
     i <- i + 1
     out[["sample.weight.index"]] <- ncol(X) + i
     if (is.null(sample.weights)) {
@@ -204,15 +224,13 @@ create_train_matrices <- function(X, outcome = NULL, treatment = NULL,
     } else {
       out[["use.sample.weights"]] <- TRUE
     }
-  } else {
-    sample.weights = NULL
   }
 
   if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
-    sparse.data <- cbind(X, outcome, treatment, instrument, censor, sample.weights)
+    sparse.data <- cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, sample.weights)
   } else {
     X <- as.matrix(X)
-    default.data <- as.matrix(cbind(X, outcome, treatment, instrument, censor, sample.weights))
+    default.data <- as.matrix(cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, sample.weights))
   }
   out[["train.matrix"]] <- default.data
   out[["sparse.train.matrix"]] <- sparse.data
@@ -271,4 +289,20 @@ observation_weights <- function(forest) {
 do.call.rcpp = function(what, args, quote = FALSE, envir = parent.frame()) {
   names(args) = gsub("\\.", "_", names(args))
   do.call(what, args, quote, envir)
+}
+
+validate_subset <- function(forest, subset) {
+  if (is.null(subset)) {
+    subset <- 1:length(forest$Y.orig)
+  }
+  if (class(subset) == "logical" && length(subset) == length(forest$Y.orig)) {
+    subset <- which(subset)
+  }
+  if (!all(subset %in% 1:length(forest$Y.orig))) {
+    stop(paste(
+      "If specified, subset must be a vector contained in 1:n,",
+      "or a boolean vector of length n."
+    ))
+  }
+  subset
 }

@@ -18,6 +18,7 @@
 #'
 #' @importFrom stats sd runif
 #' @importFrom utils capture.output
+#' @keywords internal
 tune_forest <- function(data,
                         nrow.X,
                         ncol.X,
@@ -35,7 +36,8 @@ tune_forest <- function(data,
 
   # 1. Train several mini-forests, and gather their debiased OOB error estimates.
   num.params <- length(tune.parameters)
-  fit.draws <- matrix(runif(num.fit.reps * num.params), num.fit.reps, num.params,
+  unif <- with_seed(runif(num.fit.reps * num.params), seed = args$seed)
+  fit.draws <- matrix(unif, num.fit.reps, num.params,
                       dimnames = list(NULL, tune.parameters))
 
   small.forest.errors <- apply(fit.draws, 1, function(draw) {
@@ -65,11 +67,13 @@ tune_forest <- function(data,
   variance.guess <- rep(var(small.forest.errors) / 2, nrow(fit.draws))
   kriging.model <- tryCatch({
     capture.output(
-      model <- DiceKriging::km(
-        design = data.frame(fit.draws),
-        response = small.forest.errors,
-        noise.var = variance.guess
-      )
+      with_seed(
+        model <- DiceKriging::km(
+          design = data.frame(fit.draws),
+          response = small.forest.errors,
+          noise.var = variance.guess
+        ),
+      seed = args$seed)
     )
     model
   },
@@ -86,7 +90,8 @@ tune_forest <- function(data,
 
   # 3. To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
-  optimize.draws <- matrix(runif(num.optimize.reps * num.params), num.optimize.reps, num.params,
+  unif <- with_seed(runif(num.optimize.reps * num.params), seed = args$seed)
+  optimize.draws <- matrix(unif, num.optimize.reps, num.params,
                            dimnames = list(NULL, tune.parameters))
   model.surface <- predict(kriging.model, newdata = data.frame(optimize.draws), type = "SK")$mean
   tuned.params <- get_params_from_draw(nrow.X, ncol.X, optimize.draws)
@@ -154,4 +159,22 @@ get_tuning_output <- function(status, params, error = NA, grid = NA) {
   out <- list(status = status, params = params, error = error, grid = grid)
   class(out) <- c("tuning_output")
   out
+}
+
+with_seed <- function(expr, seed) {
+  # Record entry seed
+  env <- globalenv()
+  oseed <- env$.Random.seed
+
+  # Restore entry seed on exit
+  on.exit({
+    if (is.null(oseed)) {
+      rm(list = ".Random.seed", envir = env, inherits = FALSE)
+    } else {
+      assign(".Random.seed", value = oseed, envir = env, inherits = FALSE)
+    }
+  })
+
+  set.seed(seed = seed)
+  eval(expr, envir = parent.frame())
 }

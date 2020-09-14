@@ -10,7 +10,7 @@
 #'              further discussion of this quantity.
 #' @param W.hat Estimates of the treatment propensities E[W | Xi].
 #' @param Z.hat Estimates of the instrument propensities E[Z | Xi].
-#' @param sample.weights (experimental) Weights given to an observation in estimation.
+#' @param sample.weights Weights given to an observation in estimation.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'  Default is NULL (ignored).

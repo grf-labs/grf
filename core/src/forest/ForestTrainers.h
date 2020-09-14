@@ -27,6 +27,8 @@ ForestTrainer instrumental_trainer(double reduced_form_weight,
 
 ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
 
+ForestTrainer probability_trainer(size_t num_classes);
+
 ForestTrainer regression_trainer();
 
 ForestTrainer ll_regression_trainer(double split_lambda,
@@ -36,6 +38,8 @@ ForestTrainer ll_regression_trainer(double split_lambda,
                                    std::vector<size_t> ll_split_variables);
 
 ForestTrainer survival_trainer();
+
+ForestTrainer causal_survival_trainer(bool stabilize_splits);
 
 ForestTrainer custom_trainer();
 
