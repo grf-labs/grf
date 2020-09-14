@@ -3,14 +3,14 @@
 \name{best_linear_projection}
 \alias{best_linear_projection}
 \title{Estimate the best linear projection of a conditional average treatment effect
-using a causal forest.}
+using a causal forest, or causal survival forest.}
 \usage{
 best_linear_projection(
   forest,
   A = NULL,
   subset = NULL,
   debiasing.weights = NULL,
-  num.trees.for.variance = 500
+  num.trees.for.weights = 500
 )
 }
 \arguments{
@@ -23,13 +23,15 @@ estimate the ATE. WARNING: For valid statistical performance,
 the subset should be defined only using features Xi, not using
 the treatment Wi or the outcome Yi.}
 
-\item{debiasing.weights}{A vector of length n (or the subset length) of debiasing weights. If NULL (default)
-and the treatment is binary, then inverse-propensity weighting is used,
-otherwise, if the treatment is continuous, these are estimated by a variance
-forest.}
+\item{debiasing.weights}{A vector of length n (or the subset length) of debiasing weights.
+If NULL (default) these are obtained via the appropriate doubly robust score
+construction, e.g., in the case of causal_forests with a binary treatment, they
+are obtained via inverse-propensity weighting.}
 
-\item{num.trees.for.variance}{Number of trees used to estimate Var[Wi | Xi = x]. Default is 500.
-(only applies with continuous treatment and debiasing.weights = NULL)}
+\item{num.trees.for.weights}{In some cases (e.g., with causal forests with a continuous
+treatment), we need to train auxiliary forests to learn debiasing weights.
+This is the number of trees used for this task. Note: this argument is only
+used when debiasing.weights = NULL.}
 }
 \value{
 An estimate of the best linear projection, along with coefficient standard errors.
@@ -39,7 +41,7 @@ Let tau(Xi) = E[Y(1) - Y(0) | X = Xi] be the CATE, and Ai be a vector of user-pr
 covariates. This function provides a (doubly robust) fit to the linear model tau(Xi) ~ beta_0 + Ai * beta.
 }
 \details{
-Procedurally, we do so by regressing doubly robust scores derived from the causal
+Procedurally, we do so by regressing doubly robust scores derived from the
 forest against the Ai. Note the covariates Ai may consist of a subset of the Xi,
 or they may be distinct The case of the null model tau(Xi) ~ beta_0 is equivalent
 to fitting an average treatment effect via AIPW.

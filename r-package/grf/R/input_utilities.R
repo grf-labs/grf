@@ -317,3 +317,19 @@ get_xptr <- function(forest) {
 clear_xptr <- function(forest) {
   forest[["_forest"]]$clear()
 }
+
+validate_subset <- function(forest, subset) {
+  if (is.null(subset)) {
+    subset <- 1:length(forest$Y.orig)
+  }
+  if (class(subset) == "logical" && length(subset) == length(forest$Y.orig)) {
+    subset <- which(subset)
+  }
+  if (!all(subset %in% 1:length(forest$Y.orig))) {
+    stop(paste(
+      "If specified, subset must be a vector contained in 1:n,",
+      "or a boolean vector of length n."
+    ))
+  }
+  subset
+}

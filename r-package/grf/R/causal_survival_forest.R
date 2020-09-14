@@ -13,14 +13,12 @@
 #' @param D The event type (0: censoring, 1: failure).
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest. Default is NULL.
-#' @param S1.hat Estimates of the conditional survival function S(t, x, 1) = P[Y > t | X = x, W = 1].
-#'  If S1.hat is NULL, this is estimated using a survival forest (S-learner). If provided:
-#'  a list with first element: N*t matrix of survival estimates and second element: t-vector of event times
-#'  the survival curve is evaluated at. Default is NULL.
-#' @param S0.hat Estimates of the conditional survival function S(t, x, 0) = P[Y > t | X = x, W = 0].
-#'  If S0.hat is NULL, this is estimated using a survival forest (S-learner). If provided:
-#'  a list with first element: N*t matrix of survival estimates and second element: t-vector of event times
-#'  the survival curve is evaluated at. Default is NULL.
+#' @param E1.hat Estimates of the expected survival time conditional on being treated
+#'  E[Y | X = x, W = 1]. If E1.hat is NULL, then this is estimated with an S-learner using
+#'  a survival forest.
+#' @param E0.hat Estimates of the expected survival time conditional on being a control unit
+#'  E[Y | X = x, W = 0]. If E0.hat is NULL, then this is estimated with an S-learner using
+#'  a survival forest.
 #' @param S.hat Estimates of the conditional survival function S(t, x, w) = P[Y > t | X = x, W = w].
 #'  If S.hat is NULL, this is estimated using a survival forest. If provided:
 #'  a N*T matrix of survival estimates. The grid should correspond to the T unique events in Y.
@@ -129,6 +127,9 @@
 #' lines(X.test[, 1], cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates), lty = 2)
 #' lines(X.test[, 1], cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates), lty = 2)
 #'
+#' # Compute the best linear projection on the first covariate.
+#' best_linear_projection(cs.forest, X[, 1])
+#'
 #' # Train the forest on a less granular grid.
 #' cs.forest.grid <- causal_survival_forest(X, Y, W, D,
 #'                                          failure.times = seq(min(Y), max(Y), length.out = 50))
@@ -139,8 +140,8 @@
 #' @export
 causal_survival_forest <- function(X, Y, W, D,
                                    W.hat = NULL,
-                                   S1.hat = NULL,
-                                   S0.hat = NULL,
+                                   E1.hat = NULL,
+                                   E0.hat = NULL,
                                    S.hat = NULL,
                                    C.hat = NULL,
                                    lambda.C.hat = NULL,
@@ -235,10 +236,7 @@ causal_survival_forest <- function(X, Y, W, D,
                         seed = seed)
 
   # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
-  nuisance.msg <- paste("if provided, this argument must be a list with first element:",
-                        "the N*t matrix of survival probability estimates and second element:",
-                        "a t-vector of event times corresponding to the survival estimates.")
-  if (is.null(S1.hat)) {
+  if (is.null(E1.hat)) {
     sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
     S1.failure.times <- S0.failure.times <- S.failure.times <- sf.survival$failure.times
     # Computing OOB estimates for modified training samples is not a workflow we have implemented,
@@ -247,18 +245,13 @@ causal_survival_forest <- function(X, Y, W, D,
     sf.survival[["X.orig"]] <- cbind(X, rep(1, num.samples))
     S1.hat <- predict(sf.survival)$predictions
     sf.survival[["X.orig"]] <- X.orig
-  } else if (is.list(S1.hat) && length(S1.hat) == 2) {
-    S1.failure.times <- S1.hat[[2]]
-    S1.hat <- S1.hat[[1]]
-    if (NCOL(S1.hat) != length(S1.failure.times) || NROW(S1.hat) != num.samples) {
-      stop(paste("S1.hat:", nuisance.msg))
-    }
-  } else {
-    stop(paste("S1.hat:", nuisance.msg))
+    E1.hat <- expected_survival(S1.hat, S1.failure.times)
+  } else if (length(E1.hat) != num.samples) {
+    stop("E1.hat has incorrect length.")
   }
 
   # The survival function conditioning on being a control unit S(t, x, 0) estimated with an "S-learner".
-  if (is.null(S0.hat)) {
+  if (is.null(E0.hat)) {
     if (!exists("sf.survival", inherits = FALSE)) {
       sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
       S0.failure.times <- S.failure.times <- sf.survival$failure.times
@@ -267,18 +260,12 @@ causal_survival_forest <- function(X, Y, W, D,
     sf.survival[["X.orig"]] <- cbind(X, rep(0, num.samples))
     S0.hat <- predict(sf.survival)$predictions
     sf.survival[["X.orig"]] <- X.orig
-  } else if (is.list(S0.hat) && length(S0.hat) == 2) {
-    S0.failure.times <- S0.hat[[2]]
-    S0.hat <- S0.hat[[1]]
-    if (NCOL(S0.hat) != length(S0.failure.times) || NROW(S0.hat) != num.samples) {
-      stop(paste("S0.hat:", nuisance.msg))
-    }
-  } else {
-    stop(paste("S0.hat:", nuisance.msg))
+    E0.hat <- expected_survival(S0.hat, S0.failure.times)
+  } else if (length(E0.hat) != num.samples) {
+    stop("E0.hat has incorrect length.")
   }
   # Compute m(x) = e(X) E[T | X, W = 1] + (1 - e(X)) E[T | X, W = 0]
-  m.hat <- W.hat * expected_survival(S1.hat, S1.failure.times) +
-            (1 - W.hat) * expected_survival(S0.hat, S0.failure.times)
+  m.hat <- W.hat * E1.hat + (1 - W.hat) * E0.hat
 
   # The conditional survival function S(t, x, w).
   if (is.null(S.hat)) {
@@ -416,6 +403,9 @@ causal_survival_forest <- function(X, Y, W, D,
 #' points(X.test[, 1], cs.pred$predictions)
 #' lines(X.test[, 1], cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates), lty = 2)
 #' lines(X.test[, 1], cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates), lty = 2)
+#'
+#' # Compute the best linear projection on the first covariate.
+#' best_linear_projection(cs.forest, X[, 1])
 #'
 #' # Train the forest on a less granular grid.
 #' cs.forest.grid <- causal_survival_forest(X, Y, W, D,

@@ -11,7 +11,7 @@
 #'  times are rounded down to the last sorted occurance less than or equal to the specified failure time.
 #'  The time points should be in increasing order. Default is NULL.
 #' @param num.trees Number of trees grown in the forest. Default is 1000.
-#' @param sample.weights (experimental) Weights given to an observation in prediction.
+#' @param sample.weights Weights given to an observation in prediction.
 #'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'  Default is NULL (ignored).
