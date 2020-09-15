@@ -11,15 +11,14 @@
 # Usage: `(benchmarks)$ Rscript causal_benchmark.R`
 
 library(grf)
-source("../../../../experiments/benchmarking/dgps.R")
 set.seed(1)
 
 reps <- 10
 num.trees <- 2000
 
 results.raw <- lapply(1:reps, function(iter) {
-  data <- gen_data(4000, 10, dgp = "simple")
-  data.test <- gen_data(4000, 10, dgp = "simple")
+  data <- generate_causal_data(4000, 10, dgp = "simple")
+  data.test <- generate_causal_data(4000, 10, dgp = "simple")
 
   # regression forest
   Y.time <- system.time(forest.Y <- regression_forest(data$X, data$Y,

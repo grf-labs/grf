@@ -1,8 +1,7 @@
 # Table 1 ("C.GRF" column)
 # Simulated MSE with the DGPs "aw2" (first rows),  "aw1" (second rows)
-# and "aw3" (last rows) from `benchmarking/dgps.R`
+# and "aw3" (last rows).
 rm(list = ls())
-source("../../benchmarking/dgps.R")
 library(grf)
 
 mse.reps <- 60
@@ -16,8 +15,8 @@ out <- lapply(1:nrow(grid), function(i) {
   p <- grid$p[i]
   dgp <- grid$dgp[i]
   mse <- replicate(mse.reps, {
-    data <- gen_data(n = n, p = p, dgp = dgp, sigma.tau = 1)
-    data.test <- gen_data(n = 1000, p = p, dgp = dgp, sigma.tau = 1)
+    data <- generate_causal_data(n = n, p = p, dgp = dgp, sigma.tau = 1)
+    data.test <- generate_causal_data(n = 1000, p = p, dgp = dgp, sigma.tau = 1)
     cf <- causal_forest(data$X, data$Y, data$W)
     tau.hat <- predict(cf, data.test$X)$predictions
 
