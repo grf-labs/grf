@@ -45,15 +45,15 @@
 #' @examples
 #' \donttest{
 #' # Generate simple benchmark data
-#' data <- generate_data(100, 5, dgp = "simple")
+#' data <- generate_causal_data(100, 5, dgp = "simple")
 #' # Generate data from Wager and Athey (2018)
-#' data <- generate_data(100, 5, dgp = "aw1")
-#' data2 <- generate_data(100, 5, dgp = "aw2")
+#' data <- generate_causal_data(100, 5, dgp = "aw1")
+#' data2 <- generate_causal_data(100, 5, dgp = "aw2")
 #' }
 #' @importFrom stats toeplitz
 #' @importFrom utils installed.packages
 #' @export
-generate_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
+generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
                           dgp = c("simple", "aw1", "aw2", "aw3", "aw3reverse",
                                   "ai1", "ai2", "kunzel", "nw1", "nw2", "nw3", "nw4")) {
   # To add an additonal DGP, fill in the template below and add an entry to `dgp` and `.minp`.
