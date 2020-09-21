@@ -82,7 +82,7 @@ matrix:
         - cp ../../DEVELOPING.md .
         - cp ../../releases/CHANGELOG.md .
         - Rscript -e 'install.packages("pkgdown")'
-        - Rscript -e 'install.packages(c("ggplot2", "glmnet"))'
+        - Rscript -e 'install.packages(c("ggplot2", "glmnet", "policytree"))'
         - Rscript -e 'pkgdown::build_site()'
         - cp pkgdown/favicon/* docs/
       deploy:
