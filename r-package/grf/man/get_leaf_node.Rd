@@ -12,10 +12,11 @@ get_leaf_node(tree, newdata)
 \item{newdata}{Points at which leaf predictions should be made.}
 }
 \value{
-A vector of integers numbered 1 to num.leafs indicating the leaf number for each sample in the given tree.
+A vector of integers indicating the leaf number for each sample in the given tree.
 }
 \description{
-Given a GRF tree object, compute the leaf node a test sample falls into.
+Given a GRF tree object, compute the leaf node a test sample falls into. The nodes in a GRF tree
+is numbered according to breadth first, the returned numbers will be integers for the leaves of this ordering.
 }
 \examples{
 \donttest{
