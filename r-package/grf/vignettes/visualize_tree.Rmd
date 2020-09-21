@@ -24,7 +24,7 @@ library(grf)
 All GRF forest objects works with the tree extractor function `get_tree` which you can use to visually inspect trees with either `print` or `plot`. The example below demonstrates this for a regression forest.
 
 ```{r}
-n <- 150
+n <- 100
 p <- 5
 X <- matrix(rnorm(n * p), n, p)
 Y <- X[, 1] * rnorm(n)
