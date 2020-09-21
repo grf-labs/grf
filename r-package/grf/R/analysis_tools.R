@@ -213,6 +213,72 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
   }
 }
 
+#' Find the leaf nodes for a test sample.
+#'
+#' Given a GRF tree object, compute the leaf node a test sample falls into.
+#'
+#' @param tree A GRF tree object (retrieved by `get_tree`).
+#' @param newdata Points at which leaf predictions should be made.
+#' @return A vector of integers numbered 1 to num.leafs indicating the leaf number for each sample in the given tree.
+#'
+#' @examples
+#' \donttest{
+#' p <- 10
+#' n <- 100
+#' X <- matrix(2 * runif(n * p) - 1, n, p)
+#' Y <- (X[, 1] > 0) + 2 * rnorm(n)
+#' r.forest <- regression_forest(X, Y, num.tree = 50)
+#'
+#' n.test <- 5
+#' X.test <- matrix(2 * runif(n.test * p) - 1, n.test, p)
+#' tree <- get_tree(r.forest, 1)
+#' get_leaf_node(tree, X.test)
+#' }
+#'
+#' @export
+get_leaf_node <- function(tree, newdata) {
+  if (!("grf_tree" %in% class(tree))) {
+    stop("get_leaf_node is only implemented for class `grf_tree`")
+  }
+  validate_X(newdata, allow.na = TRUE)
+  num.samples <- nrow(newdata)
+  num.features <- ncol(newdata)
+  leaf.nodes <- rep(0, num.samples)
+
+  for (i in 1:num.samples) {
+    node <- 1
+    # The following logic is verbatim from "Tree.cpp::find_leaf_node"
+    # `isTRUE(value <= split_val)` is to emulate C++ logic where any
+    # boolean operator with NA operand evaluates to FALSE.
+    while (TRUE) {
+      if (tree$nodes[[node]]$is_leaf) {
+        break()
+      }
+      split_var <- tree$nodes[[node]]$split_variable
+      split_val <- tree$nodes[[node]]$split_value
+      if (split_var > num.features) {
+        stop("Test data with fewer features than original training data provided.")
+      }
+      value <- newdata[i, split_var]
+      send_na_left <- tree$nodes[[node]]$send_missing_left
+      if (
+          (isTRUE(value <= split_val)) || # ordinary split
+          (send_na_left && is.na(value)) || # are we sending NaN left
+          (is.na(split_val) && is.na(value)) # are we splitting on NaN
+        ) {
+        # Move to the left child
+        node <- tree$nodes[[node]]$left_child
+      } else {
+        # Move to the right child
+        node <- tree$nodes[[node]]$right_child
+      }
+      leaf.nodes[i] <- node
+    }
+  }
+
+  leaf.nodes
+}
+
 leaf_stats <- function(forest, samples) UseMethod("leaf_stats")
 
 #' A default leaf_stats for forests classes without a leaf_stats method
