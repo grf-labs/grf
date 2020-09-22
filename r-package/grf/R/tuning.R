@@ -1,4 +1,4 @@
-#' Tune a forests
+#' Tune a forest
 #'
 #' Finds the optimal parameters to be used in training a forest.
 #'
