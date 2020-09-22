@@ -206,3 +206,24 @@ test_that("result of get_tree is consistent with internal tree representation (c
     }
   }
 })
+
+test_that("get_leaf_nodes works as expected", {
+  n <- 200
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  Y <- X[, 1] * rnorm(n)
+  X[1:30, 1] <- NaN
+  X[10:20, 3] <- NaN
+  r.forest <- regression_forest(X, Y,
+                                num.trees = 1,
+                                ci.group.size = 1,
+                                honesty = FALSE,
+                                sample.fraction = 1)
+
+  leaf.nodes <- get_leaf_node(get_tree(r.forest, 1), X)
+  leaf.predictions <- aggregate(Y, list(leaf = leaf.nodes), mean)
+  Y.hat.leaves <- leaf.predictions$x[match(leaf.nodes, leaf.predictions$leaf)]
+
+  Y.hat <- predict(r.forest, X)$predictions
+  expect_equal(Y.hat.leaves, Y.hat)
+})
