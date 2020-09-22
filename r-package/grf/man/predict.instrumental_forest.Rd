@@ -35,3 +35,21 @@ Vector of predictions, along with (optional) variance estimates.
 \description{
 Gets estimates of tau(x) using a trained instrumental forest.
 }
+\examples{
+\donttest{
+# Train an instrumental forest.
+n <- 2000
+p <- 5
+X <- matrix(rbinom(n * p, 1, 0.5), n, p)
+Z <- rbinom(n, 1, 0.5)
+Q <- rbinom(n, 1, 0.5)
+W <- Q * Z
+tau <-  X[, 1] / 2
+Y <- rowSums(X[, 1:3]) + tau * W + Q + rnorm(n)
+iv.forest <- instrumental_forest(X, Y, W, Z)
+
+# Predict on out-of-bag training samples.
+iv.pred <- predict(iv.forest)
+}
+
+}
