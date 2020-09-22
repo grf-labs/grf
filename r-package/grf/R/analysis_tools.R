@@ -274,8 +274,8 @@ get_leaf_node <- function(tree, newdata) {
         # Move to the right child
         node <- tree$nodes[[node]]$right_child
       }
-      leaf.nodes[i] <- node
     }
+    leaf.nodes[i] <- node
   }
 
   leaf.nodes
