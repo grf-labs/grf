@@ -2,7 +2,7 @@
 % Please edit documentation in R/tuning.R
 \name{tune_forest}
 \alias{tune_forest}
-\title{Tune a forests}
+\title{Tune a forest}
 \usage{
 tune_forest(
   data,

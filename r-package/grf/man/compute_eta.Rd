@@ -53,6 +53,6 @@ lambda.C = -d/dt log(C.hat(t, x, w)) is the conditional hazard function of the c
 
 Some useful properties:
 The expected survival time E[T] is the integral of the survival function S(t).
-The conditional expected survival time E[T | T >= y] is the integral of S(t + y) / S(y).
+The conditional expected survival time E[T | T >= y] is y + the integral of S(t + y) / S(y).
 }
 \keyword{internal}

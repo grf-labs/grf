@@ -465,7 +465,7 @@ predict.causal_survival_forest <- function(object,
 #'
 #' Some useful properties:
 #' The expected survival time E[T] is the integral of the survival function S(t).
-#' The conditional expected survival time E[T | T >= y] is the integral of S(t + y) / S(y).
+#' The conditional expected survival time E[T | T >= y] is y + the integral of S(t + y) / S(y).
 #'
 #' @param S.hat Estimates of the conditional survival function S(t, x, w).
 #' @param C.hat Estimates of the conditional survival function for the censoring process S_C(t, x, w).
