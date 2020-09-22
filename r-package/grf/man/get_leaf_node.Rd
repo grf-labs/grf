@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis_tools.R
 \name{get_leaf_node}
 \alias{get_leaf_node}
-\title{Find the leaf nodes for a test sample.}
+\title{Find the leaf node for a test sample.}
 \usage{
 get_leaf_node(tree, newdata)
 }
@@ -16,7 +16,8 @@ A vector of integers indicating the leaf number for each sample in the given tre
 }
 \description{
 Given a GRF tree object, compute the leaf node a test sample falls into. The nodes in a GRF tree
-is numbered according to breadth first, the returned numbers will be integers for the leaves of this ordering.
+is numbered according to breadth first, the returned numbers will be the leaf integer according
+to this ordering.
 }
 \examples{
 \donttest{
