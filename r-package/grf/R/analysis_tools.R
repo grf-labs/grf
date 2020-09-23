@@ -249,6 +249,7 @@ get_leaf_node <- function(tree, newdata) {
   leaf.nodes <- rep(0, num.samples)
 
   for (i in 1:num.samples) {
+    # Start at root node
     node <- 1
     # The following logic is verbatim from "Tree.cpp::find_leaf_node"
     # `isTRUE(value <= split_val)` is to emulate C++ logic where any
