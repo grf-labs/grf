@@ -216,7 +216,7 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
 #' Find the leaf node for a test sample.
 #'
 #' Given a GRF tree object, compute the leaf node a test sample falls into. The nodes in a GRF tree
-#' is numbered according to breadth first, the returned numbers will be the leaf integer according
+#' are numbered breadth first, and the returned numbers will be the leaf integer according
 #' to this ordering. To get sample weights based on leaf membership, see the function
 #' \code{\link{get_sample_weights}}.
 #'
