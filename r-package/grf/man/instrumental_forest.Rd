@@ -147,3 +147,21 @@ tau(X) = Cov[Y, Z | X = x] / Cov[W, Z | X = x].
 Note that when the instrument Z and treatment assignment W
 coincide, an instrumental forest is equivalent to a causal forest.
 }
+\examples{
+\donttest{
+# Train an instrumental forest.
+n <- 2000
+p <- 5
+X <- matrix(rbinom(n * p, 1, 0.5), n, p)
+Z <- rbinom(n, 1, 0.5)
+Q <- rbinom(n, 1, 0.5)
+W <- Q * Z
+tau <-  X[, 1] / 2
+Y <- rowSums(X[, 1:3]) + tau * W + Q + rnorm(n)
+iv.forest <- instrumental_forest(X, Y, W, Z)
+
+# Predict on out-of-bag training samples.
+iv.pred <- predict(iv.forest)
+}
+
+}
