@@ -219,11 +219,15 @@ test_that("get_leaf_nodes works as expected", {
                                 ci.group.size = 1,
                                 honesty = FALSE,
                                 sample.fraction = 1)
+  Y.hat <- predict(r.forest, X)$predictions
 
-  leaf.nodes <- get_leaf_node(get_tree(r.forest, 1), X)
+  tree <- get_tree(r.forest, 1)
+  leaf.nodes <- get_leaf_node(tree, X)
+  leaf.samples <- get_leaf_node(tree, X, node.id = FALSE)
   leaf.predictions <- aggregate(Y, list(leaf = leaf.nodes), mean)
+  leaf.predictions.alternative <- sapply(leaf.samples, function(samples) mean(Y[samples]))
   Y.hat.leaves <- leaf.predictions$x[match(leaf.nodes, leaf.predictions$leaf)]
 
-  Y.hat <- predict(r.forest, X)$predictions
+  expect_equal(unname(leaf.predictions.alternative), leaf.predictions$x)
   expect_equal(Y.hat.leaves, Y.hat)
 })

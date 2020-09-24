@@ -45,7 +45,10 @@ To find the leaf node a given sample falls into, you can use the `get_leaf_node`
 n.test <- 4
 X.test <- matrix(rnorm(n.test * p), n.test, p)
 print(X.test)
+# Get a vector of node numbers for each sample.
 get_leaf_node(tree, X.test)
+# Get a list of samples per node.
+get_leaf_node(tree, X.test, node.id = FALSE)
 ```
 
 ## Visualizing tree-based treatment assignment rules

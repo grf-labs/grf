@@ -222,6 +222,8 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
 #'
 #' @param tree A GRF tree object (retrieved by `get_tree`).
 #' @param newdata Points at which leaf predictions should be made.
+#' @param node.id Boolean indicating whether to return the node.id for each query sample (default), or
+#'  if FALSE, a list of node numbers with the samples contained.
 #' @return A vector of integers indicating the leaf number for each sample in the given tree.
 #'
 #' @examples
@@ -235,11 +237,14 @@ get_sample_weights <- function(forest, newdata = NULL, num.threads = NULL) {
 #' n.test <- 5
 #' X.test <- matrix(2 * runif(n.test * p) - 1, n.test, p)
 #' tree <- get_tree(r.forest, 1)
+#' # Get a vector of node numbers for each sample.
 #' get_leaf_node(tree, X.test)
+#' # Get a list of samples per node.
+#' get_leaf_node(tree, X.test, node.id = FALSE)
 #' }
 #'
 #' @export
-get_leaf_node <- function(tree, newdata) {
+get_leaf_node <- function(tree, newdata, node.id = TRUE) {
   if (!("grf_tree" %in% class(tree))) {
     stop("get_leaf_node is only implemented for class `grf_tree`")
   }
@@ -280,7 +285,11 @@ get_leaf_node <- function(tree, newdata) {
     leaf.nodes[i] <- node
   }
 
-  leaf.nodes
+  if (node.id) {
+    return (leaf.nodes)
+  } else {
+    return (split(1:nrow(newdata), leaf.nodes))
+  }
 }
 
 leaf_stats <- function(forest, samples) UseMethod("leaf_stats")
