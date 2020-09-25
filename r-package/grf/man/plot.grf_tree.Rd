@@ -28,6 +28,9 @@ W <- rbinom(n, 1, 0.5)
 Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
 c.forest <- causal_forest(X, Y, W)
 plot(tree <- get_tree(c.forest, 1))
+# Compute the leaf nodes the first five samples falls into.
+leaf.nodes <- get_leaf_node(tree, X[1:5, ])
+
 # Saving a plot in .svg can be done with the `DiagrammeRsvg` package.
 install.packages("DiagrammeRsvg")
 tree.plot = plot(tree)

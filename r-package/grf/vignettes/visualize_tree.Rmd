@@ -24,7 +24,7 @@ library(grf)
 All GRF forest objects works with the tree extractor function `get_tree` which you can use to visually inspect trees with either `print` or `plot`. The example below demonstrates this for a regression forest.
 
 ```{r}
-n <- 150
+n <- 100
 p <- 5
 X <- matrix(rnorm(n * p), n, p)
 Y <- X[, 1] * rnorm(n)
@@ -37,6 +37,18 @@ print(tree)
 
 # Plot the first tree.
 plot(tree)
+```
+
+To find the leaf node a given sample falls into, you can use the `get_leaf_node` function.
+
+```{r}
+n.test <- 4
+X.test <- matrix(rnorm(n.test * p), n.test, p)
+print(X.test)
+# Get a vector of node numbers for each sample.
+get_leaf_node(tree, X.test)
+# Get a list of samples per node.
+get_leaf_node(tree, X.test, node.id = FALSE)
 ```
 
 ## Visualizing tree-based treatment assignment rules

@@ -101,6 +101,7 @@ reference:
     contents:
       - get_sample_weights
       - get_tree
+      - get_leaf_node
       - merge_forests
       - split_frequencies
       - test_calibration
