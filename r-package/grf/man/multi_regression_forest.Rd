@@ -99,7 +99,7 @@ the conditional mean functions mu_i(x) = E[Y_i | X = x]
 n <- 500
 p <- 5
 X <- matrix(rnorm(n * p), n, p)
-Y <-  X[, 1, drop = F] \%*\% cbind(1, 2) * rnorm(n)
+Y <-  X[, 1, drop = F] \%*\% cbind(1, 2) + rnorm(n)
 mr.forest <- multi_regression_forest(X, Y)
 
 # Predict using the forest.

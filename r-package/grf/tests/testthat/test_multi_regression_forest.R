@@ -34,7 +34,7 @@ test_that("multi_regression_forest is similar to two regression_forest", {
   n <- 500
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
-  Y <-  X[, 1, drop = F] %*% cbind(1, 2) * rnorm(n)
+  Y <-  X[, 1, drop = F] %*% cbind(1, 2) + rnorm(n)
 
   rf1 <- regression_forest(X, Y[, 1], num.trees = 1000)
   rf2 <- regression_forest(X, Y[, 2], num.trees = 1000)
