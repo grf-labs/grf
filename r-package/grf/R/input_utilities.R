@@ -188,30 +188,30 @@ create_train_matrices <- function(X,
   default.data <- matrix(nrow = 0, ncol = 0)
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
   out <- list()
-  i <- 0
+  offset <- ncol(X) - 1
   if (!is.null(outcome)) {
-    i <- i + NCOL(outcome)
-    out[["outcome.index"]] <- (ncol(X) + 1):(ncol(X) + i) - 1
+    out[["outcome.index"]] <- (offset + 1):(offset + NCOL(outcome))
+    offset <- offset + NCOL(outcome)
   }
   if (!is.null(treatment)) {
-    i <- i + 1
-    out[["treatment.index"]] <- ncol(X) + i - 1
+    out[["treatment.index"]] <- offset + 1
+    offset <- offset + 1
   }
   if (!is.null(instrument)) {
-    i <- i + 1
-    out[["instrument.index"]] <- ncol(X) + i - 1
+    out[["instrument.index"]] <- offset + 1
+    offset <- offset + 1
   }
   if (!is.null(survival.numerator)) {
-    i <- i + 1
-    out[["causal.survival.numerator.index"]] <- ncol(X) + i - 1
+    out[["causal.survival.numerator.index"]] <- offset + 1
+    offset <- offset + 1
   }
   if (!is.null(survival.denominator)) {
-    i <- i + 1
-    out[["causal.survival.denominator.index"]] <- ncol(X) + i - 1
+    out[["causal.survival.denominator.index"]] <- offset + 1
+    offset <- offset + 1
   }
   if (!is.null(censor)) {
-    i <- i + 1
-    out[["censor.index"]] <- ncol(X) + i - 1
+    out[["censor.index"]] <- offset + 1
+    offset <- offset + 1
   }
   # Forest bindings without sample weights: sample.weights = FALSE
   # Forest bindings with sample weights:
@@ -220,8 +220,7 @@ create_train_matrices <- function(X,
   if (is.logical(sample.weights)) {
     sample.weights <- NULL
   } else {
-    i <- i + 1
-    out[["sample.weight.index"]] <- ncol(X) + i - 1
+    out[["sample.weight.index"]] <- offset + 1
     if (is.null(sample.weights)) {
       out[["use.sample.weights"]] <- FALSE
     } else {
