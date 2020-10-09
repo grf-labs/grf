@@ -27,45 +27,40 @@
 using namespace grf;
 
 // [[Rcpp::export]]
-Rcpp::List survival_train(Rcpp::NumericMatrix train_matrix,
-                          Eigen::SparseMatrix<double> sparse_train_matrix,
-                          size_t outcome_index,
-                          size_t censor_index,
-                          size_t sample_weight_index,
-                          bool use_sample_weights,
-                          unsigned int mtry,
-                          unsigned int num_trees,
-                          unsigned int min_node_size,
-                          double sample_fraction,
-                          bool honesty,
-                          double honesty_fraction,
-                          bool honesty_prune_leaves,
-                          double alpha,
-                          size_t num_failures,
-                          std::vector<size_t> clusters,
-                          unsigned int samples_per_cluster,
-                          bool compute_oob_predictions,
-                          int prediction_type,
-                          unsigned int num_threads,
-                          unsigned int seed) {
-  ForestTrainer trainer = survival_trainer();
-
+Rcpp::List multi_regression_train(Rcpp::NumericMatrix& train_matrix,
+                                  Eigen::SparseMatrix<double>& sparse_train_matrix,
+                                  std::vector<size_t>& outcome_index,
+                                  size_t sample_weight_index,
+                                  bool use_sample_weights,
+                                  unsigned int mtry,
+                                  unsigned int num_trees,
+                                  unsigned int min_node_size,
+                                  double sample_fraction,
+                                  bool honesty,
+                                  double honesty_fraction,
+                                  bool honesty_prune_leaves,
+                                  double alpha,
+                                  double imbalance_penalty,
+                                  std::vector<size_t>& clusters,
+                                  unsigned int samples_per_cluster,
+                                  bool compute_oob_predictions,
+                                  unsigned int num_threads,
+                                  unsigned int seed) {
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
-  data->set_censor_index(censor_index);
   if (use_sample_weights) {
       data->set_weight_index(sample_weight_index);
   }
 
   size_t ci_group_size = 1;
-  size_t imbalance_penalty = 0;
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
+  ForestTrainer trainer = multi_regression_trainer(data->get_num_outcomes());
   Forest forest = trainer.train(*data, options);
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
-    ForestPredictor predictor = survival_predictor(num_threads, num_failures, prediction_type);
+    ForestPredictor predictor = multi_regression_predictor(num_threads, data->get_num_outcomes());
     predictions = predictor.predict_oob(forest, *data, false);
   }
 
@@ -73,47 +68,37 @@ Rcpp::List survival_train(Rcpp::NumericMatrix train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List survival_predict(Rcpp::List forest_object,
-                            Rcpp::NumericMatrix train_matrix,
-                            Eigen::SparseMatrix<double> sparse_train_matrix,
-                            size_t outcome_index,
-                            size_t censor_index,
-                            int prediction_type,
-                            Rcpp::NumericMatrix test_matrix,
-                            Eigen::SparseMatrix<double> sparse_test_matrix,
-                            unsigned int num_threads,
-                            size_t num_failures) {
+Rcpp::List multi_regression_predict(Rcpp::List& forest_object,
+                                    Rcpp::NumericMatrix& train_matrix,
+                                    Eigen::SparseMatrix<double>& sparse_train_matrix,
+                                    std::vector<size_t>& outcome_index,
+                                    Rcpp::NumericMatrix& test_matrix,
+                                    Eigen::SparseMatrix<double>& sparse_test_matrix,
+                                    unsigned int num_threads) {
   std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   train_data->set_outcome_index(outcome_index);
-  train_data->set_censor_index(censor_index);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
-
   bool estimate_variance = false;
-  ForestPredictor predictor = survival_predictor(num_threads, num_failures, prediction_type);
+  ForestPredictor predictor = multi_regression_predictor(num_threads, train_data->get_num_outcomes());
   std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, estimate_variance);
 
   return RcppUtilities::create_prediction_object(predictions);
 }
 
 // [[Rcpp::export]]
-Rcpp::List survival_predict_oob(Rcpp::List forest_object,
-                                Rcpp::NumericMatrix train_matrix,
-                                Eigen::SparseMatrix<double> sparse_train_matrix,
-                                size_t outcome_index,
-                                size_t censor_index,
-                                int prediction_type,
-                                unsigned int num_threads,
-                                size_t num_failures) {
+Rcpp::List multi_regression_predict_oob(Rcpp::List& forest_object,
+                                        Rcpp::NumericMatrix& train_matrix,
+                                        Eigen::SparseMatrix<double>& sparse_train_matrix,
+                                        std::vector<size_t>& outcome_index,
+                                        unsigned int num_threads) {
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
-  data->set_censor_index(censor_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
-
   bool estimate_variance = false;
-  ForestPredictor predictor = survival_predictor(num_threads, num_failures, prediction_type);
+  ForestPredictor predictor = multi_regression_predictor(num_threads, data->get_num_outcomes());
   std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);

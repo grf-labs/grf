@@ -21,7 +21,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Eigen/Dense"
 #include "commons/globals.h"
 #include "commons/Data.h"
 #include "prediction/Prediction.h"

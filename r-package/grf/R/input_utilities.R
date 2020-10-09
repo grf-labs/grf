@@ -30,11 +30,13 @@ validate_X <- function(X, allow.na = FALSE) {
   has.missing.values
 }
 
-validate_observations <- function(V, X) {
-  if (is.matrix(V) && ncol(V) == 1) {
-    V <- as.vector(V)
-  } else if (!is.vector(V)) {
-    stop(paste("Observations (W, Y, Z or D) must be vectors."))
+validate_observations <- function(V, X, allow.matrix = FALSE) {
+  if (!allow.matrix) {
+    if (is.matrix(V) && ncol(V) == 1) {
+      V <- as.vector(V)
+    } else if (!is.vector(V)) {
+      stop(paste("Observations (W, Y, Z or D) must be vectors."))
+    }
   }
 
   if (!is.numeric(V) && !is.logical(V)) {
@@ -48,7 +50,7 @@ validate_observations <- function(V, X) {
     stop("The vector of observations (W, Y, Z or D) contains at least one NA.")
   }
 
-  if (length(V) != nrow(X)) {
+  if (NROW(V) != nrow(X)) {
     stop("length of observation (W, Y, Z or D) does not equal nrow(X).")
   }
   V
@@ -174,6 +176,7 @@ validate_sample_weights <- function(sample.weights, X) {
 
 #' @importFrom Matrix Matrix cBind
 #' @importFrom methods new
+# Indices are offset by 1 for C++.
 create_train_matrices <- function(X,
                                   outcome = NULL,
                                   treatment = NULL,
@@ -187,28 +190,28 @@ create_train_matrices <- function(X,
   out <- list()
   i <- 0
   if (!is.null(outcome)) {
-    i <- i + 1
-    out[["outcome.index"]] <- ncol(X) + i
+    i <- i + NCOL(outcome)
+    out[["outcome.index"]] <- (ncol(X) + 1):(ncol(X) + i) - 1
   }
   if (!is.null(treatment)) {
     i <- i + 1
-    out[["treatment.index"]] <- ncol(X) + i
+    out[["treatment.index"]] <- ncol(X) + i - 1
   }
   if (!is.null(instrument)) {
     i <- i + 1
-    out[["instrument.index"]] <- ncol(X) + i
+    out[["instrument.index"]] <- ncol(X) + i - 1
   }
   if (!is.null(survival.numerator)) {
     i <- i + 1
-    out[["causal.survival.numerator.index"]] <- ncol(X) + i
+    out[["causal.survival.numerator.index"]] <- ncol(X) + i - 1
   }
   if (!is.null(survival.denominator)) {
     i <- i + 1
-    out[["causal.survival.denominator.index"]] <- ncol(X) + i
+    out[["causal.survival.denominator.index"]] <- ncol(X) + i - 1
   }
   if (!is.null(censor)) {
     i <- i + 1
-    out[["censor.index"]] <- ncol(X) + i
+    out[["censor.index"]] <- ncol(X) + i - 1
   }
   # Forest bindings without sample weights: sample.weights = FALSE
   # Forest bindings with sample weights:
@@ -218,7 +221,7 @@ create_train_matrices <- function(X,
     sample.weights <- NULL
   } else {
     i <- i + 1
-    out[["sample.weight.index"]] <- ncol(X) + i
+    out[["sample.weight.index"]] <- ncol(X) + i - 1
     if (is.null(sample.weights)) {
       out[["use.sample.weights"]] <- FALSE
     } else {

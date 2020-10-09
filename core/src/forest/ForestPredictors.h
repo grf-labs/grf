@@ -33,6 +33,8 @@ ForestPredictor probability_predictor(uint num_threads, size_t num_classes);
 
 ForestPredictor regression_predictor(uint num_threads);
 
+ForestPredictor multi_regression_predictor(uint num_threads, size_t num_outcomes);
+
 ForestPredictor ll_regression_predictor(uint num_threads,
                                         std::vector<double> lambdas,
                                         bool weight_penalty,

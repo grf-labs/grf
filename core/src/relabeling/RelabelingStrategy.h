@@ -18,10 +18,11 @@
 #ifndef GRF_RELABELINGSTRATEGY_H
 #define GRF_RELABELINGSTRATEGY_H
 
+#include <vector>
 
+#include "Eigen/Dense"
 #include "commons/DefaultData.h"
 #include "commons/Data.h"
-#include <vector>
 
 namespace grf {
 
@@ -38,6 +39,7 @@ public:
    * samples: the subset of samples to relabel.
    * data: the training data matrix.
    * responses_by_sample: the output of the method, containing a map from sample ID to relabelled response.
+   * (the response values may be either scalar or vector valued for each sample ID).
    *
    * Note that for performance reasons (avoiding clearing out the vector after each split) this vector may
    * contain garbage values for indices outside of the given set of sample IDs.
@@ -46,7 +48,7 @@ public:
    */
   virtual bool relabel(const std::vector<size_t>& samples,
                        const Data& data,
-                       std::vector<double>& responses_by_sample) const = 0;
+                       Eigen::ArrayXXd& responses_by_sample) const = 0;
 };
 
 } // namespace grf

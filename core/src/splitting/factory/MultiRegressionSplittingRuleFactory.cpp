@@ -15,22 +15,19 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_CUSTOMRELABELINGSTRATEGY_H
-#define GRF_CUSTOMRELABELINGSTRATEGY_H
-
-
-#include "RelabelingStrategy.h"
+#include "splitting/factory/MultiRegressionSplittingRuleFactory.h"
+#include "splitting/MultiRegressionSplittingRule.h"
 
 namespace grf {
 
-class CustomRelabelingStrategy final: public RelabelingStrategy {
-public:
-  bool relabel(
-      const std::vector<size_t>& samples,
-      const Data& data,
-      Eigen::ArrayXXd& responses_by_sample) const;
-};
+std::unique_ptr<SplittingRule> MultiRegressionSplittingRuleFactory::create(size_t max_num_unique_values,
+                                                                           const Data& data,
+                                                                           const TreeOptions& options) const {
+  return std::unique_ptr<SplittingRule>(new MultiRegressionSplittingRule(
+      data,
+      max_num_unique_values,
+      options.get_alpha(),
+      options.get_imbalance_penalty()));
+}
 
 } // namespace grf
-
-#endif //GRF_CUSTOMRELABELINGSTRATEGY_H

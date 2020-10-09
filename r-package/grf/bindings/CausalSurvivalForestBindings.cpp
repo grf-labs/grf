@@ -37,13 +37,13 @@ Rcpp::List causal_survival_train(Rcpp::NumericMatrix& train_matrix,
   ForestTrainer trainer = causal_survival_trainer(stabilize_splits);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  data->set_causal_survival_numerator_index(causal_survival_numerator_index - 1);
-  data->set_causal_survival_denominator_index(causal_survival_denominator_index - 1);
-  data->set_treatment_index(treatment_index - 1);
-  data->set_instrument_index(treatment_index - 1);
-  data->set_censor_index(censor_index - 1);
+  data->set_causal_survival_numerator_index(causal_survival_numerator_index);
+  data->set_causal_survival_denominator_index(causal_survival_denominator_index);
+  data->set_treatment_index(treatment_index);
+  data->set_instrument_index(treatment_index);
+  data->set_censor_index(censor_index);
   if (use_sample_weights) {
-    data->set_weight_index(sample_weight_index - 1);
+    data->set_weight_index(sample_weight_index);
   }
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,

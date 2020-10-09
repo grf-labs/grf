@@ -39,13 +39,13 @@ void run_one_split(const Data& data,
                    size_t num_features,
                    size_t& split_var,
                    double& split_value) {
-  std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(data.get_num_rows(), options);
+  std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(data.get_num_rows(), data, options);
   std::vector<size_t> possible_split_vars(num_features - 1);
   // Fill with {0, 1, 2, ..., Xj}
   std::iota(possible_split_vars.begin(), possible_split_vars.end(), 0);
   size_t node = 0;
   size_t size_node = data.get_num_rows();
-  std::vector<double> responses_by_sample(size_node);
+  Eigen::ArrayXXd responses_by_sample(size_node, 1);
   std::vector<std::vector<size_t>> samples(1);
   for (size_t sample = 0; sample < size_node; ++sample) {
     samples[node].push_back(sample);

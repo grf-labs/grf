@@ -40,7 +40,7 @@ std::vector<double> get_relabeled_outcomes(std::vector<double> observations, siz
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy());
 
-  std::vector<double> relabeled_observations(num_samples);
+  Eigen::ArrayXXd relabeled_observations(num_samples, 1);
   bool stop = relabeling_strategy->relabel(samples, data, relabeled_observations);
   if (stop) {
     return std::vector<double>();
@@ -49,7 +49,7 @@ std::vector<double> get_relabeled_outcomes(std::vector<double> observations, siz
   std::vector<double> relabeled_outcomes;
   relabeled_outcomes.reserve(samples.size());
   for (auto& sample : samples) {
-    relabeled_outcomes.push_back(relabeled_observations.at(sample));
+    relabeled_outcomes.push_back(relabeled_observations(sample));
   }
   return relabeled_outcomes;
 }

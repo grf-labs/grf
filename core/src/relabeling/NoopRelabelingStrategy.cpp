@@ -22,14 +22,20 @@ namespace grf {
 bool NoopRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
     const Data& data,
-    std::vector<double>& responses_by_sample) const {
-
-  for (size_t sample : samples) {
-    double outcome = data.get_outcome(sample);
-    responses_by_sample[sample] = outcome;
+    Eigen::ArrayXXd& responses_by_sample) const {
+  if (data.get_num_outcomes() == 1) {
+    for (size_t sample : samples) {
+      double outcome = data.get_outcome(sample);
+      responses_by_sample(sample) = outcome;
+    }
+  } else {
+    for (size_t sample : samples) {
+      Eigen::VectorXd outcome = data.get_outcomes(sample);
+      responses_by_sample.row(sample) = outcome;
+    }
   }
+
   return false;
 }
 
 } // namespace grf
-

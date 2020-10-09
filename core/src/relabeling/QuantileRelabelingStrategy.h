@@ -18,6 +18,7 @@
 #ifndef GRF_QUANTILERELABELINGSTRATEGY_H
 #define GRF_QUANTILERELABELINGSTRATEGY_H
 
+
 #include "commons/Data.h"
 #include "tree/Tree.h"
 #include "relabeling/RelabelingStrategy.h"
@@ -30,7 +31,7 @@ public:
   bool relabel(
       const std::vector<size_t>& samples,
       const Data& data,
-      std::vector<double>& responses_by_sample) const;
+      Eigen::ArrayXXd& responses_by_sample) const;
 private:
   std::vector<double> quantiles;
 };

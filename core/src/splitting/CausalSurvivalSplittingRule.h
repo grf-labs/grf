@@ -40,7 +40,7 @@ public:
   bool find_best_split(const Data& data,
                        size_t node,
                        const std::vector<size_t>& possible_split_vars,
-                       const std::vector<double>& responses_by_sample,
+                       const Eigen::ArrayXXd& responses_by_sample,
                        const std::vector<std::vector<size_t>>& samples,
                        std::vector<size_t>& split_vars,
                        std::vector<double>& split_values,
@@ -64,7 +64,7 @@ private:
                              size_t& best_var,
                              double& best_decrease,
                              bool& best_send_missing_left,
-                             const std::vector<double>& responses_by_sample,
+                             const Eigen::ArrayXXd& responses_by_sample,
                              const std::vector<std::vector<size_t>>& samples);
 
   size_t* counter;

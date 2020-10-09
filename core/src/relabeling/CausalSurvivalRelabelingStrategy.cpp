@@ -23,7 +23,7 @@ namespace grf {
 bool CausalSurvivalRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
     const Data& data,
-    std::vector<double>& responses_by_sample) const {
+    Eigen::ArrayXXd& responses_by_sample) const {
 
   // Prepare the relevant averages.
   double numerator_sum = 0;
@@ -44,7 +44,7 @@ bool CausalSurvivalRelabelingStrategy::relabel(
   for (size_t sample : samples) {
     double response = (data.get_causal_survival_numerator(sample) -
       data.get_causal_survival_denominator(sample) * eta) / denominator_sum;
-    responses_by_sample[sample] = response;
+    responses_by_sample(sample) = response;
   }
   return false;
 }

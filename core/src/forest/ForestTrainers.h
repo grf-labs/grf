@@ -31,6 +31,8 @@ ForestTrainer probability_trainer(size_t num_classes);
 
 ForestTrainer regression_trainer();
 
+ForestTrainer multi_regression_trainer(size_t num_outcomes);
+
 ForestTrainer ll_regression_trainer(double split_lambda,
                                    bool weight_penalty,
                                    const std::vector<double>& overall_beta,
