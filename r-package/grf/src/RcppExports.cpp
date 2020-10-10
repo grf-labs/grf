@@ -398,34 +398,34 @@ BEGIN_RCPP
 END_RCPP
 }
 // multi_regression_predict
-Rcpp::List multi_regression_predict(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, const std::vector<size_t>& outcome_index, Rcpp::NumericMatrix& test_matrix, Eigen::SparseMatrix<double>& sparse_test_matrix, unsigned int num_threads);
-RcppExport SEXP _grf_multi_regression_predict(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP test_matrixSEXP, SEXP sparse_test_matrixSEXP, SEXP num_threadsSEXP) {
+Rcpp::List multi_regression_predict(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, Rcpp::NumericMatrix& test_matrix, Eigen::SparseMatrix<double>& sparse_test_matrix, size_t num_outcomes, unsigned int num_threads);
+RcppExport SEXP _grf_multi_regression_predict(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP test_matrixSEXP, SEXP sparse_test_matrixSEXP, SEXP num_outcomesSEXP, SEXP num_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List& >::type forest_object(forest_objectSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_train_matrix(sparse_train_matrixSEXP);
-    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type outcome_index(outcome_indexSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type test_matrix(test_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_test_matrix(sparse_test_matrixSEXP);
+    Rcpp::traits::input_parameter< size_t >::type num_outcomes(num_outcomesSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(multi_regression_predict(forest_object, train_matrix, sparse_train_matrix, outcome_index, test_matrix, sparse_test_matrix, num_threads));
+    rcpp_result_gen = Rcpp::wrap(multi_regression_predict(forest_object, train_matrix, sparse_train_matrix, test_matrix, sparse_test_matrix, num_outcomes, num_threads));
     return rcpp_result_gen;
 END_RCPP
 }
 // multi_regression_predict_oob
-Rcpp::List multi_regression_predict_oob(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, const std::vector<size_t>& outcome_index, unsigned int num_threads);
-RcppExport SEXP _grf_multi_regression_predict_oob(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP num_threadsSEXP) {
+Rcpp::List multi_regression_predict_oob(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, size_t num_outcomes, unsigned int num_threads);
+RcppExport SEXP _grf_multi_regression_predict_oob(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP num_outcomesSEXP, SEXP num_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List& >::type forest_object(forest_objectSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_train_matrix(sparse_train_matrixSEXP);
-    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type outcome_index(outcome_indexSEXP);
+    Rcpp::traits::input_parameter< size_t >::type num_outcomes(num_outcomesSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(multi_regression_predict_oob(forest_object, train_matrix, sparse_train_matrix, outcome_index, num_threads));
+    rcpp_result_gen = Rcpp::wrap(multi_regression_predict_oob(forest_object, train_matrix, sparse_train_matrix, num_outcomes, num_threads));
     return rcpp_result_gen;
 END_RCPP
 }

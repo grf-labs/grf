@@ -171,10 +171,11 @@ predict.multi_regression_forest <- function(object,
   num.threads <- validate_num_threads(num.threads)
   forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
-  train.data <- create_train_matrices(X, outcome = object[["Y.orig"]])
+  train.data <- create_train_matrices(X)
 
   args <- list(forest.object = forest.short,
-               num.threads = num.threads)
+               num.threads = num.threads,
+               num.outcomes = NCOL(object[["Y.orig"]]))
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)
