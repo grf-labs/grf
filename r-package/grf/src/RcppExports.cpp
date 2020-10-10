@@ -369,14 +369,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // multi_regression_train
-Rcpp::List multi_regression_train(Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, std::vector<size_t>& outcome_index, size_t sample_weight_index, bool use_sample_weights, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, double alpha, double imbalance_penalty, std::vector<size_t>& clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
+Rcpp::List multi_regression_train(Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, const std::vector<size_t>& outcome_index, size_t sample_weight_index, bool use_sample_weights, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, double alpha, double imbalance_penalty, std::vector<size_t>& clusters, unsigned int samples_per_cluster, bool compute_oob_predictions, unsigned int num_threads, unsigned int seed);
 RcppExport SEXP _grf_multi_regression_train(SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP sample_weight_indexSEXP, SEXP use_sample_weightsSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP compute_oob_predictionsSEXP, SEXP num_threadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_train_matrix(sparse_train_matrixSEXP);
-    Rcpp::traits::input_parameter< std::vector<size_t>& >::type outcome_index(outcome_indexSEXP);
+    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type outcome_index(outcome_indexSEXP);
     Rcpp::traits::input_parameter< size_t >::type sample_weight_index(sample_weight_indexSEXP);
     Rcpp::traits::input_parameter< bool >::type use_sample_weights(use_sample_weightsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type mtry(mtrySEXP);
@@ -398,7 +398,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // multi_regression_predict
-Rcpp::List multi_regression_predict(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, std::vector<size_t>& outcome_index, Rcpp::NumericMatrix& test_matrix, Eigen::SparseMatrix<double>& sparse_test_matrix, unsigned int num_threads);
+Rcpp::List multi_regression_predict(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, const std::vector<size_t>& outcome_index, Rcpp::NumericMatrix& test_matrix, Eigen::SparseMatrix<double>& sparse_test_matrix, unsigned int num_threads);
 RcppExport SEXP _grf_multi_regression_predict(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP test_matrixSEXP, SEXP sparse_test_matrixSEXP, SEXP num_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -406,7 +406,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::List& >::type forest_object(forest_objectSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_train_matrix(sparse_train_matrixSEXP);
-    Rcpp::traits::input_parameter< std::vector<size_t>& >::type outcome_index(outcome_indexSEXP);
+    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type outcome_index(outcome_indexSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type test_matrix(test_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_test_matrix(sparse_test_matrixSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
@@ -415,7 +415,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // multi_regression_predict_oob
-Rcpp::List multi_regression_predict_oob(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, std::vector<size_t>& outcome_index, unsigned int num_threads);
+Rcpp::List multi_regression_predict_oob(Rcpp::List& forest_object, Rcpp::NumericMatrix& train_matrix, Eigen::SparseMatrix<double>& sparse_train_matrix, const std::vector<size_t>& outcome_index, unsigned int num_threads);
 RcppExport SEXP _grf_multi_regression_predict_oob(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP outcome_indexSEXP, SEXP num_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -423,7 +423,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::List& >::type forest_object(forest_objectSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type sparse_train_matrix(sparse_train_matrixSEXP);
-    Rcpp::traits::input_parameter< std::vector<size_t>& >::type outcome_index(outcome_indexSEXP);
+    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type outcome_index(outcome_indexSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     rcpp_result_gen = Rcpp::wrap(multi_regression_predict_oob(forest_object, train_matrix, sparse_train_matrix, outcome_index, num_threads));
     return rcpp_result_gen;

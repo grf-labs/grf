@@ -146,7 +146,7 @@ void Data::set_outcome_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
-void Data::set_outcome_index(std::vector<size_t>& index) {
+void Data::set_outcome_index(const std::vector<size_t>& index) {
   this->outcome_index = index;
   disallowed_split_variables.insert(index.begin(), index.end());
 }

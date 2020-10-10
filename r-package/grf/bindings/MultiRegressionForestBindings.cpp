@@ -29,7 +29,7 @@ using namespace grf;
 // [[Rcpp::export]]
 Rcpp::List multi_regression_train(Rcpp::NumericMatrix& train_matrix,
                                   Eigen::SparseMatrix<double>& sparse_train_matrix,
-                                  std::vector<size_t>& outcome_index,
+                                  const std::vector<size_t>& outcome_index,
                                   size_t sample_weight_index,
                                   bool use_sample_weights,
                                   unsigned int mtry,
@@ -71,7 +71,7 @@ Rcpp::List multi_regression_train(Rcpp::NumericMatrix& train_matrix,
 Rcpp::List multi_regression_predict(Rcpp::List& forest_object,
                                     Rcpp::NumericMatrix& train_matrix,
                                     Eigen::SparseMatrix<double>& sparse_train_matrix,
-                                    std::vector<size_t>& outcome_index,
+                                    const std::vector<size_t>& outcome_index,
                                     Rcpp::NumericMatrix& test_matrix,
                                     Eigen::SparseMatrix<double>& sparse_test_matrix,
                                     unsigned int num_threads) {
@@ -91,7 +91,7 @@ Rcpp::List multi_regression_predict(Rcpp::List& forest_object,
 Rcpp::List multi_regression_predict_oob(Rcpp::List& forest_object,
                                         Rcpp::NumericMatrix& train_matrix,
                                         Eigen::SparseMatrix<double>& sparse_train_matrix,
-                                        std::vector<size_t>& outcome_index,
+                                        const std::vector<size_t>& outcome_index,
                                         unsigned int num_threads) {
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);

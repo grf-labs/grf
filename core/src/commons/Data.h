@@ -48,7 +48,7 @@ public:
 
   void set_outcome_index(size_t index);
 
-  void set_outcome_index(std::vector<size_t>& index);
+  void set_outcome_index(const std::vector<size_t>& index);
 
   void set_treatment_index(size_t index);
 
