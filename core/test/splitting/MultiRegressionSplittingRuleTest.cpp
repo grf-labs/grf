@@ -79,10 +79,10 @@ TEST_CASE("multi regression splitting with one outcome is identical to regressio
       options.get_alpha(),
       options.get_imbalance_penalty()));
   auto multi_reg_splitting_rule = std::unique_ptr<SplittingRule>(new MultiRegressionSplittingRule(
-      *data,
       data->get_num_rows(),
       options.get_alpha(),
-      options.get_imbalance_penalty()));
+      options.get_imbalance_penalty(),
+      1));
 
 
   std::vector<double> reg = run_splits(*data, options, reg_splitting_rule, relabeling_strategy, num_features);
@@ -106,10 +106,10 @@ TEST_CASE("multi regression splitting with one outcome on NaN data is identical 
       options.get_alpha(),
       options.get_imbalance_penalty()));
   auto multi_reg_splitting_rule = std::unique_ptr<SplittingRule>(new MultiRegressionSplittingRule(
-      *data,
       data->get_num_rows(),
       options.get_alpha(),
-      options.get_imbalance_penalty()));
+      options.get_imbalance_penalty(),
+      1));
 
 
   std::vector<double> reg = run_splits(*data, options, reg_splitting_rule, relabeling_strategy, num_features);
