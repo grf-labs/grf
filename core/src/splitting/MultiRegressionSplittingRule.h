@@ -26,10 +26,10 @@ namespace grf {
 
 class MultiRegressionSplittingRule final: public SplittingRule {
 public:
-  MultiRegressionSplittingRule(const Data& data,
-                               size_t max_num_unique_values,
+  MultiRegressionSplittingRule(size_t max_num_unique_values,
                                double alpha,
-                               double imbalance_penalty);
+                               double imbalance_penalty,
+                               size_t num_outcomes);
 
   ~MultiRegressionSplittingRule();
 
@@ -63,6 +63,7 @@ private:
 
   double alpha;
   double imbalance_penalty;
+  size_t num_outcomes;
 
   DISALLOW_COPY_AND_ASSIGN(MultiRegressionSplittingRule);
 };

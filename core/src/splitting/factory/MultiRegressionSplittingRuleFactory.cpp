@@ -20,14 +20,16 @@
 
 namespace grf {
 
+MultiRegressionSplittingRuleFactory::MultiRegressionSplittingRuleFactory(size_t num_outcomes):
+  num_outcomes(num_outcomes) {}
+
 std::unique_ptr<SplittingRule> MultiRegressionSplittingRuleFactory::create(size_t max_num_unique_values,
-                                                                           const Data& data,
                                                                            const TreeOptions& options) const {
   return std::unique_ptr<SplittingRule>(new MultiRegressionSplittingRule(
-      data,
       max_num_unique_values,
       options.get_alpha(),
-      options.get_imbalance_penalty()));
+      options.get_imbalance_penalty(),
+      num_outcomes));
 }
 
 } // namespace grf

@@ -31,11 +31,13 @@ namespace grf {
  */
 class MultiRegressionSplittingRuleFactory final: public SplittingRuleFactory {
 public:
-  MultiRegressionSplittingRuleFactory() = default;
+  MultiRegressionSplittingRuleFactory(size_t num_outcomes);
+
   std::unique_ptr<SplittingRule> create(size_t max_num_unique_values,
-                                        const Data& data,
                                         const TreeOptions& options) const;
 private:
+  size_t num_outcomes;
+  
   DISALLOW_COPY_AND_ASSIGN(MultiRegressionSplittingRuleFactory);
 };
 

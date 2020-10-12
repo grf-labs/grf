@@ -82,7 +82,7 @@ ForestTrainer regression_trainer() {
 
 ForestTrainer multi_regression_trainer(size_t num_outcomes) {
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
-  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new MultiRegressionSplittingRuleFactory());
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new MultiRegressionSplittingRuleFactory(num_outcomes));
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new MultiRegressionPredictionStrategy(num_outcomes));
 
   return ForestTrainer(std::move(relabeling_strategy),

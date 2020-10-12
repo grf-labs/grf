@@ -31,7 +31,6 @@ public:
   SurvivalSplittingRuleFactory() = default;
 
   std::unique_ptr<SplittingRule> create(size_t max_num_unique_values,
-                                        const Data& data,
                                         const TreeOptions& options) const;
 private:
   DISALLOW_COPY_AND_ASSIGN(SurvivalSplittingRuleFactory);

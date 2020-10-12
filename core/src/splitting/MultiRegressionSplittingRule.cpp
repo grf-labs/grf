@@ -21,14 +21,15 @@
 
 namespace grf {
 
-MultiRegressionSplittingRule::MultiRegressionSplittingRule(const Data& data,
-                                                           size_t max_num_unique_values,
+MultiRegressionSplittingRule::MultiRegressionSplittingRule(size_t max_num_unique_values,
                                                            double alpha,
-                                                           double imbalance_penalty):
+                                                           double imbalance_penalty,
+                                                           size_t num_outcomes):
     alpha(alpha),
-    imbalance_penalty(imbalance_penalty) {
+    imbalance_penalty(imbalance_penalty),
+    num_outcomes(num_outcomes) {
   this->counter = new size_t[max_num_unique_values];
-  this->sums = Eigen::ArrayXXd(max_num_unique_values, data.get_num_outcomes());
+  this->sums = Eigen::ArrayXXd(max_num_unique_values, num_outcomes);
   this->weight_sums = new double[max_num_unique_values];
 }
 
@@ -54,7 +55,7 @@ bool MultiRegressionSplittingRule::find_best_split(const Data& data,
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
   // Precompute the sum of outcomes in this node.
-  Eigen::ArrayXd sum_node = Eigen::ArrayXd::Zero(data.get_num_outcomes());
+  Eigen::ArrayXd sum_node = Eigen::ArrayXd::Zero(num_outcomes);
   double weight_sum_node = 0.0;
   for (auto& sample : samples[node]) {
     double sample_weight = data.get_weight(sample);
@@ -112,7 +113,7 @@ void MultiRegressionSplittingRule::find_best_split_value(const Data& data,
   sums.topRows(num_splits).setZero(); // Sets the first num_splits rows to zeros.
   size_t n_missing = 0;
   double weight_sum_missing = 0;
-  Eigen::ArrayXd sum_missing = Eigen::ArrayXd::Zero(data.get_num_outcomes());
+  Eigen::ArrayXd sum_missing = Eigen::ArrayXd::Zero(num_outcomes);
 
   // Fill counter and sums buckets
   size_t split_index = 0;
