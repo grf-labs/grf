@@ -46,3 +46,24 @@ test_that("multi_regression_forest is similar to two regression_forest", {
   expect_true(diff1 < 0.01)
   expect_true(diff2 < 0.01)
 })
+
+test_that("multi_regression_forest is well calibrated", {
+  n <- 250
+  p <- 25
+  X <- matrix(rnorm(n * p), n, p)
+
+  signal <- pmax(X[, 1], 0)
+  nY <- 5
+  mu <- matrix(rep(signal, nY), n, nY)
+  Y <- mu + matrix(rnorm(n * nY), n, nY)
+
+  # A multi regression forest trained on the same signal with idiosyncratic noise
+  # should yield a lower MSE than multiple regression forests
+  rf.pred <- apply(Y, 2, function(y) predict(regression_forest(X, y, num.trees = 250))$predictions)
+  mrf.pred <- predict(multi_regression_forest(X, Y, num.trees = 250))$predictions
+
+  mse.rf <- mean((rf.pred - mu)^2)
+  mse.mrf <- mean((mrf.pred - mu)^2)
+
+  expect_true(mse.mrf < 0.8 * mse.rf)
+})
