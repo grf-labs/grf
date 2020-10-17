@@ -26,9 +26,6 @@ test_that("multi_regression_forest works as expected", {
 
   # A regression forest trained on Y is the same as a multi regression forest
   # trained on [0 Y]
-  rf <- regression_forest(X, Y, num.trees = 100, ci.group.size = 1,
-                          min.node.size = 1, alpha = 0,
-                          seed = 42)
   mrf <- multi_regression_forest(X, cbind(zeros, Y), num.trees = 100,
                                  min.node.size = 1, alpha = 0,
                                  seed = 42)
@@ -39,9 +36,6 @@ test_that("multi_regression_forest works as expected", {
 
   # A regression forest trained on Y is the same as a multi regression forest
   # trained on [0 0 Y 0 0 0]
-  rf <- regression_forest(X, Y, num.trees = 100, ci.group.size = 1,
-                          min.node.size = 1, alpha = 0,
-                          seed = 42)
   mrf <- multi_regression_forest(X, cbind(zeros, zeros, Y, zeros, zeros, zeros), num.trees = 100,
                                  min.node.size = 1, alpha = 0,
                                  seed = 42)

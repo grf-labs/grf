@@ -18,7 +18,6 @@
 #ifndef GRF_QUANTILERELABELINGSTRATEGY_H
 #define GRF_QUANTILERELABELINGSTRATEGY_H
 
-
 #include "commons/Data.h"
 #include "tree/Tree.h"
 #include "relabeling/RelabelingStrategy.h"
