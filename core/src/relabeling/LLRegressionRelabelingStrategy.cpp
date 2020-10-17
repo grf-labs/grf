@@ -52,6 +52,10 @@ bool LLRegressionRelabelingStrategy::relabel(
 
   Eigen::MatrixXd leaf_predictions (num_data_points, 1);
 
+  Eigen::MatrixXf a(3,3);
+  Eigen::MatrixXf b(4,4);
+  Eigen::MatrixXf x = a*b;
+
   if (num_data_points < ll_split_cutoff) {
     // use overall beta for ridge predictions
 
