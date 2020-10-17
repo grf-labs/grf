@@ -7,20 +7,48 @@ test_that("multi_regression_forest works as expected", {
   Y <- X[, 1] * rnorm(n)
   nmissing <- 50
   X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
+  zeros <- rep(0, n)
 
   # A regression forest trained on Y is the same as a multi regression forest
   # trained on [Y 0]
   rf <- regression_forest(X, Y, num.trees = 100, ci.group.size = 1,
                           min.node.size = 1, alpha = 0,
                           seed = 42)
-  mrf <- multi_regression_forest(X, cbind(Y, rep(0, n)), num.trees = 100,
+  mrf <- multi_regression_forest(X, cbind(Y, zeros), num.trees = 100,
                                  min.node.size = 1, alpha = 0,
                                  seed = 42)
 
   expect_equal(predict(rf)$predictions, predict(mrf)$predictions[, 1])
   expect_equal(predict(rf, X)$predictions, predict(mrf, X)$predictions[, 1])
-
   expect_equal(ncol((mrf)$predictions), 2)
+
+  # The above logic holds "symmetrically":
+
+  # A regression forest trained on Y is the same as a multi regression forest
+  # trained on [0 Y]
+  rf <- regression_forest(X, Y, num.trees = 100, ci.group.size = 1,
+                          min.node.size = 1, alpha = 0,
+                          seed = 42)
+  mrf <- multi_regression_forest(X, cbind(zeros, Y), num.trees = 100,
+                                 min.node.size = 1, alpha = 0,
+                                 seed = 42)
+
+  expect_equal(predict(rf)$predictions, predict(mrf)$predictions[, 2])
+  expect_equal(predict(rf, X)$predictions, predict(mrf, X)$predictions[, 2])
+  expect_equal(ncol((mrf)$predictions), 2)
+
+  # A regression forest trained on Y is the same as a multi regression forest
+  # trained on [0 0 Y 0 0 0]
+  rf <- regression_forest(X, Y, num.trees = 100, ci.group.size = 1,
+                          min.node.size = 1, alpha = 0,
+                          seed = 42)
+  mrf <- multi_regression_forest(X, cbind(zeros, zeros, Y, zeros, zeros, zeros), num.trees = 100,
+                                 min.node.size = 1, alpha = 0,
+                                 seed = 42)
+
+  expect_equal(predict(rf)$predictions, predict(mrf)$predictions[, 3])
+  expect_equal(predict(rf, X)$predictions, predict(mrf, X)$predictions[, 3])
+  expect_equal(ncol((mrf)$predictions), 6)
 
   # A multi regression forest trained on duplicated outcomes yields the same result
   X <- matrix(rnorm(n * p), n, p)
