@@ -72,7 +72,7 @@ matrix:
         - cd r-package/grf
       script:
         - cd ..
-        - export PKG_CPPFLAGS="-UNDEBUG"
+        - export PKG_CPPFLAGS="-UNDEBUG" # Compile C++ extensions with debug assertions enabled 
         - Rscript build_package.R
       # Render the examples under vignettes/ and build the package documentation with 'pkgdown'.
       # Also install required packages for vignette examples, like glmnet.
