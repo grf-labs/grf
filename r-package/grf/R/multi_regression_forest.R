@@ -92,9 +92,6 @@ multi_regression_forest <- function(X, Y,
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
 
-  all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
-                          "honesty.prune.leaves", "alpha", "imbalance.penalty")
-
   data <- create_train_matrices(X, outcome = Y, sample.weights = sample.weights)
   args <- list(num.trees = num.trees,
                clusters = clusters,
