@@ -35,22 +35,22 @@ TEST_CASE("multi regression predictions with one outcome is identical to regress
     {21, 22, 38, 41, 18},
     {87}
   };
-  size_t num_nodes = 6;
+  size_t num_nodes = leaf_samples.size();
 
   RegressionPredictionStrategy prediction_strategy;
   MultiRegressionPredictionStrategy multi_prediction_strategy(1);
-  PredictionValues reg_pv = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
-  PredictionValues multi_reg_pv = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
+  PredictionValues reg_prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
+  PredictionValues multi_reg_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
 
-  REQUIRE(reg_pv.get_num_nodes() == multi_reg_pv.get_num_nodes());
-  REQUIRE(reg_pv.get_num_types() == multi_reg_pv.get_num_types());
-  REQUIRE(reg_pv.get_num_types() == 1);
-  REQUIRE(reg_pv.get_num_nodes() == num_nodes);
-  for (size_t i = 0; i < num_nodes - 1; i++) {
-    if (reg_pv.empty(i)) {
-      REQUIRE(multi_reg_pv.empty(i));
+  REQUIRE(reg_prediction_values.get_num_nodes() == multi_reg_prediction_values.get_num_nodes());
+  REQUIRE(reg_prediction_values.get_num_types() == multi_reg_prediction_values.get_num_types());
+  REQUIRE(reg_prediction_values.get_num_types() == 1);
+  REQUIRE(reg_prediction_values.get_num_nodes() == num_nodes);
+  for (size_t i = 0; i < num_nodes; i++) {
+    if (reg_prediction_values.empty(i)) {
+      REQUIRE(multi_reg_prediction_values.empty(i));
     } else {
-      REQUIRE(equal_doubles(reg_pv.get(i, 0), multi_reg_pv.get(i, 0), 1.0e-10));
+      REQUIRE(equal_doubles(reg_prediction_values.get(i, 0), multi_reg_prediction_values.get(i, 0), 1.0e-10));
     }
   }
 }
