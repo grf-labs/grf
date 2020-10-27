@@ -128,6 +128,8 @@ Child impurity <= parent impurity then reduces to
 Or sum_left^2 / weight_sum_left + sum_right^2 / weight_sum_right
 ```
 
+For multivariate CART `sum_left^2` and `sum_right^2` becomes the squared L2 norm.
+
 ---
 
 ***Algorithm*** (`SurvivalSplittingRule`): find the best split for variable `var` at n samples `samples = i...j`.

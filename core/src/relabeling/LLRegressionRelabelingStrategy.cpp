@@ -34,7 +34,7 @@ LLRegressionRelabelingStrategy::LLRegressionRelabelingStrategy(double split_lamb
 bool LLRegressionRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
     const Data& data,
-    std::vector<double>& responses_by_sample) const {
+    Eigen::ArrayXXd& responses_by_sample) const {
 
   size_t num_variables = ll_split_variables.size();
   size_t num_data_points = samples.size();
@@ -86,7 +86,7 @@ bool LLRegressionRelabelingStrategy::relabel(
   for (size_t sample : samples) {
       double prediction_sample = leaf_predictions(i);
       double residual = prediction_sample - data.get_outcome(sample);
-      responses_by_sample[sample] = residual;
+      responses_by_sample(sample) = residual;
       i++;
     }
     return false;

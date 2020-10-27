@@ -142,8 +142,13 @@ bool Data::load_from_other_file(std::ifstream& input_file,
 }
 
 void Data::set_outcome_index(size_t index) {
-  this->outcome_index = index;
+  this->outcome_index = std::vector<size_t>({index});
   disallowed_split_variables.insert(index);
+}
+
+void Data::set_outcome_index(const std::vector<size_t>& index) {
+  this->outcome_index = index;
+  disallowed_split_variables.insert(index.begin(), index.end());
 }
 
 void Data::set_treatment_index(size_t index) {
@@ -217,8 +222,24 @@ size_t Data::get_num_rows() const {
   return num_rows;
 }
 
+size_t Data::get_num_outcomes() const {
+  if (outcome_index.has_value()) {
+    return outcome_index.value().size();
+  } else {
+    return 1;
+  }
+}
+
 double Data::get_outcome(size_t row) const {
-  return get(row, outcome_index.value());
+  return get(row, outcome_index.value()[0]);
+}
+
+Eigen::VectorXd Data::get_outcomes(size_t row) const {
+  Eigen::VectorXd out(outcome_index.value().size());
+  for (size_t i = 0; i < outcome_index.value().size(); i++) {
+    out(i) = get(row, outcome_index.value()[i]);
+  }
+  return out;
 }
 
 double Data::get_treatment(size_t row) const {

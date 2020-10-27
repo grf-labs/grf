@@ -49,7 +49,7 @@ Rcpp::List custom_train(Rcpp::NumericMatrix train_matrix,
   ForestTrainer trainer = custom_trainer();
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  data->set_outcome_index(outcome_index - 1);
+  data->set_outcome_index(outcome_index);
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
@@ -73,7 +73,7 @@ Rcpp::NumericMatrix custom_predict(Rcpp::List forest_object,
                                    Eigen::SparseMatrix<double> sparse_test_matrix,
                                    unsigned int num_threads) {
   std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  train_data->set_outcome_index(outcome_index - 1);
+  train_data->set_outcome_index(outcome_index);
   std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);

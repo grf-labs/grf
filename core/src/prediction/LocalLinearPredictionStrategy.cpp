@@ -19,7 +19,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "Eigen/Dense"
 #include "commons/utility.h"
 #include "commons/Data.h"
 #include "prediction/LocalLinearPredictionStrategy.h"

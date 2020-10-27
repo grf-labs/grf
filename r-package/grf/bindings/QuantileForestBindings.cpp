@@ -37,7 +37,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
       : quantile_trainer(quantiles);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  data->set_outcome_index(outcome_index - 1);
+  data->set_outcome_index(outcome_index);
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
@@ -63,7 +63,7 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
                                      unsigned int num_threads) {
   std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
-  train_data->set_outcome_index(outcome_index - 1);
+  train_data->set_outcome_index(outcome_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
@@ -82,7 +82,7 @@ Rcpp::NumericMatrix quantile_predict_oob(Rcpp::List forest_object,
                                          size_t outcome_index,
                                          unsigned int num_threads) {
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  data->set_outcome_index(outcome_index - 1);
+  data->set_outcome_index(outcome_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 

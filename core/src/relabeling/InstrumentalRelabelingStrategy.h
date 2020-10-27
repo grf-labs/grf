@@ -35,7 +35,7 @@ public:
   bool relabel(
       const std::vector<size_t>& samples,
       const Data& data,
-      std::vector<double>& responses_by_sample) const;
+      Eigen::ArrayXXd& responses_by_sample) const;
 
   DISALLOW_COPY_AND_ASSIGN(InstrumentalRelabelingStrategy);
 

@@ -19,7 +19,6 @@
 #include <vector>
 #include <string>
 
-#include "Eigen/Dense"
 #include "commons/DefaultData.h"
 #include "prediction/QuantilePredictionStrategy.h"
 

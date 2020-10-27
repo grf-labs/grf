@@ -63,7 +63,7 @@ std::unique_ptr<Tree> TreeTrainer::train(const Data& data,
 
   size_t num_open_nodes = 1;
   size_t i = 0;
-  std::vector<double> responses_by_sample(data.get_num_rows());
+  Eigen::ArrayXXd responses_by_sample(data.get_num_rows(), data.get_num_outcomes());
   while (num_open_nodes > 0) {
     bool is_leaf_node = split_node(i,
                                    data,
@@ -148,7 +148,7 @@ bool TreeTrainer::split_node(size_t node,
                              std::vector<size_t>& split_vars,
                              std::vector<double>& split_values,
                              std::vector<bool>& send_missing_left,
-                             std::vector<double>& responses_by_sample,
+                             Eigen::ArrayXXd& responses_by_sample,
                              const TreeOptions& options) const {
 
   std::vector<size_t> possible_split_vars;
@@ -207,7 +207,7 @@ bool TreeTrainer::split_node_internal(size_t node,
                                       std::vector<size_t>& split_vars,
                                       std::vector<double>& split_values,
                                       std::vector<bool>& send_missing_left,
-                                      std::vector<double>& responses_by_sample,
+                                      Eigen::ArrayXXd& responses_by_sample,
                                       uint min_node_size) const {
   // Check node size, stop if maximum reached
   if (samples[node].size() <= min_node_size) {

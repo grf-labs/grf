@@ -15,44 +15,45 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_QUANTILEPREDICTIONSTRATEGY_H
-#define GRF_QUANTILEPREDICTIONSTRATEGY_H
+#ifndef GRF_MULTIREGRESSIONPREDICTIONSTRATEGY_H
+#define GRF_MULTIREGRESSIONPREDICTIONSTRATEGY_H
 
-
-#include <cstddef>
-#include <unordered_map>
+#include "commons/DefaultData.h"
 #include "commons/Data.h"
-#include "prediction/DefaultPredictionStrategy.h"
+#include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
+#include "ObjectiveBayesDebiaser.h"
 
 namespace grf {
 
-class QuantilePredictionStrategy final: public DefaultPredictionStrategy {
+class MultiRegressionPredictionStrategy final: public OptimizedPredictionStrategy {
 public:
-  QuantilePredictionStrategy(std::vector<double> quantiles);
+  MultiRegressionPredictionStrategy(size_t num_outcomes);
+
+  size_t prediction_value_length() const;
+
+  PredictionValues precompute_prediction_values(const std::vector<std::vector<size_t>>& leaf_samples,
+                                                const Data& data) const;
 
   size_t prediction_length() const;
 
-  std::vector<double> predict(size_t prediction_sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
-    const Data& train_data,
-    const Data& data) const;
+  std::vector<double> predict(const std::vector<double>& average) const;
 
   std::vector<double> compute_variance(
-      size_t sampleID,
-      const std::vector<std::vector<size_t>>& samples_by_tree,
-      const std::unordered_map<size_t, double>& weights_by_sampleID,
-      const Data& train_data,
-      const Data& data,
+      const std::vector<double>& average,
+      const PredictionValues& leaf_values,
       size_t ci_group_size) const;
 
-private:
-  std::vector<double> compute_quantile_cutoffs(const std::unordered_map<size_t, double>& weights_by_sample,
-                                               std::vector<std::pair<size_t, double>>& samples_and_values) const;
+  std::vector<std::pair<double, double>> compute_error(
+      size_t sample,
+      const std::vector<double>& average,
+      const PredictionValues& leaf_values,
+      const Data& data) const;
 
-  std::vector<double> quantiles;
+private:
+  size_t num_outcomes;
 };
 
 } // namespace grf
 
-#endif //GRF_QUANTILEPREDICTIONSTRATEGY_H
+#endif //GRF_MULTIREGRESSIONPREDICTIONSTRATEGY_H

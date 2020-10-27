@@ -22,6 +22,7 @@
 #include <set>
 #include <vector>
 
+#include "Eigen/Dense"
 #include "globals.h"
 #include "optional/optional.hpp"
 
@@ -46,6 +47,8 @@ public:
   bool load_from_other_file(std::ifstream& input_file, const std::string& first_line, char seperator);
 
   void set_outcome_index(size_t index);
+
+  void set_outcome_index(const std::vector<size_t>& index);
 
   void set_treatment_index(size_t index);
 
@@ -78,7 +81,11 @@ public:
 
   size_t get_num_rows() const;
 
+  size_t get_num_outcomes() const;
+
   double get_outcome(size_t row) const;
+
+  Eigen::VectorXd get_outcomes(size_t row) const;
 
   double get_treatment(size_t row) const;
 
@@ -99,7 +106,7 @@ protected:
   size_t num_cols;
 
   std::set<size_t> disallowed_split_variables;
-  nonstd::optional<size_t> outcome_index;
+  nonstd::optional<std::vector<size_t>> outcome_index;
   nonstd::optional<size_t> treatment_index;
   nonstd::optional<size_t> instrument_index;
   nonstd::optional<size_t> weight_index;

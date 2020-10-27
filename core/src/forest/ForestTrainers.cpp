@@ -19,16 +19,19 @@
 #include "prediction/CausalSurvivalPredictionStrategy.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
 #include "prediction/RegressionPredictionStrategy.h"
+#include "prediction/MultiRegressionPredictionStrategy.h"
 #include "prediction/ProbabilityPredictionStrategy.h"
 #include "relabeling/CustomRelabelingStrategy.h"
 #include "relabeling/CausalSurvivalRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "relabeling/LLRegressionRelabelingStrategy.h"
 #include "relabeling/NoopRelabelingStrategy.h"
+#include "relabeling/MultiNoopRelabelingStrategy.h"
 #include "relabeling/QuantileRelabelingStrategy.h"
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
+#include "splitting/factory/MultiRegressionSplittingRuleFactory.h"
 #include "splitting/factory/SurvivalSplittingRuleFactory.h"
 #include "splitting/factory/CausalSurvivalSplittingRuleFactory.h"
 
@@ -72,6 +75,16 @@ ForestTrainer regression_trainer() {
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
+
+  return ForestTrainer(std::move(relabeling_strategy),
+                       std::move(splitting_rule_factory),
+                       std::move(prediction_strategy));
+}
+
+ForestTrainer multi_regression_trainer(size_t num_outcomes) {
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new MultiNoopRelabelingStrategy());
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new MultiRegressionSplittingRuleFactory(num_outcomes));
+  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new MultiRegressionPredictionStrategy(num_outcomes));
 
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),

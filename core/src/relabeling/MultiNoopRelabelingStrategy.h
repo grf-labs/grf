@@ -15,15 +15,14 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_CUSTOMRELABELINGSTRATEGY_H
-#define GRF_CUSTOMRELABELINGSTRATEGY_H
+#ifndef GRF_MULTINOOPRELABELINGSTRATEGY_H
+#define GRF_MULTINOOPRELABELINGSTRATEGY_H
 
-
-#include "RelabelingStrategy.h"
+#include "relabeling/RelabelingStrategy.h"
 
 namespace grf {
 
-class CustomRelabelingStrategy final: public RelabelingStrategy {
+class MultiNoopRelabelingStrategy final: public RelabelingStrategy {
 public:
   bool relabel(
       const std::vector<size_t>& samples,
@@ -33,4 +32,4 @@ public:
 
 } // namespace grf
 
-#endif //GRF_CUSTOMRELABELINGSTRATEGY_H
+#endif //GRF_MULTINOOPRELABELINGSTRATEGY_H

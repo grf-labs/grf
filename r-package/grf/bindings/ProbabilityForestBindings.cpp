@@ -34,9 +34,9 @@ Rcpp::List probability_train(Rcpp::NumericMatrix& train_matrix,
   ForestTrainer trainer = probability_trainer(num_classes);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  data->set_outcome_index(outcome_index - 1);
+  data->set_outcome_index(outcome_index);
   if (use_sample_weights) {
-      data->set_weight_index(sample_weight_index - 1);
+      data->set_weight_index(sample_weight_index);
   }
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
@@ -64,7 +64,7 @@ Rcpp::List probability_predict(Rcpp::List& forest_object,
                                bool estimate_variance) {
   std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
-  train_data->set_outcome_index(outcome_index - 1);
+  train_data->set_outcome_index(outcome_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
@@ -83,7 +83,7 @@ Rcpp::List probability_predict_oob(Rcpp::List& forest_object,
                                    unsigned int num_threads,
                                    bool estimate_variance) {
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  data->set_outcome_index(outcome_index - 1);
+  data->set_outcome_index(outcome_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 

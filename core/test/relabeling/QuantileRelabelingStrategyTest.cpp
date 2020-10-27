@@ -38,13 +38,13 @@ TEST_CASE("simple quantile relabeling", "[quantile, relabeling]") {
 
   QuantileRelabelingStrategy relabeling_strategy({0.25, 0.5, 0.75});
 
-  std::vector<double> relabeled_observations(data.get_num_rows());
+  Eigen::ArrayXXd relabeled_observations(data.get_num_rows(), 1);
   bool stop = relabeling_strategy.relabel(samples, data, relabeled_observations);
   REQUIRE(stop == false);
 
   std::vector<double> relabeled_outcomes;
   for (auto& sample : samples) {
-    relabeled_outcomes.push_back(relabeled_observations.at(sample));
+    relabeled_outcomes.push_back(relabeled_observations(sample));
   }
 
   std::vector<double> expected_outcomes = {0, 0, 3, 1, 2, 1, 0, 2, 2, 3};
@@ -61,13 +61,13 @@ TEST_CASE("quantile relabeling subset of observations", "[quantile, relabeling]"
 
   QuantileRelabelingStrategy relabeling_strategy({0.5, 0.75});
 
-  std::vector<double> relabeled_observations(data.get_num_rows());
+  Eigen::ArrayXXd relabeled_observations(data.get_num_rows(), 1);
   bool stop = relabeling_strategy.relabel(samples, data, relabeled_observations);
   REQUIRE(stop == false);
 
   std::vector<double> relabeled_outcomes;
   for (auto& sample : samples) {
-    relabeled_outcomes.push_back(relabeled_observations.at(sample));
+    relabeled_outcomes.push_back(relabeled_observations(sample));
   }
 
   std::vector<double> expected_outcomes = {1, 0, 2, 0, 0};

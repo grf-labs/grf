@@ -17,51 +17,50 @@
 
 #include <algorithm>
 
-#include "RegressionSplittingRule.h"
+#include "MultiRegressionSplittingRule.h"
 
 namespace grf {
 
-RegressionSplittingRule::RegressionSplittingRule(size_t max_num_unique_values,
-                                                 double alpha,
-                                                 double imbalance_penalty):
+MultiRegressionSplittingRule::MultiRegressionSplittingRule(size_t max_num_unique_values,
+                                                           double alpha,
+                                                           double imbalance_penalty,
+                                                           size_t num_outcomes):
     alpha(alpha),
-    imbalance_penalty(imbalance_penalty) {
+    imbalance_penalty(imbalance_penalty),
+    num_outcomes(num_outcomes) {
   this->counter = new size_t[max_num_unique_values];
-  this->sums = new double[max_num_unique_values];
+  this->sums = Eigen::ArrayXXd(max_num_unique_values, num_outcomes);
   this->weight_sums = new double[max_num_unique_values];
 }
 
-RegressionSplittingRule::~RegressionSplittingRule() {
+MultiRegressionSplittingRule::~MultiRegressionSplittingRule() {
   if (counter != nullptr) {
     delete[] counter;
-  }
-  if (sums != nullptr) {
-    delete[] sums;
   }
   if (weight_sums != nullptr) {
     delete[] weight_sums;
   }
 }
 
-bool RegressionSplittingRule::find_best_split(const Data& data,
-                                              size_t node,
-                                              const std::vector<size_t>& possible_split_vars,
-                                              const Eigen::ArrayXXd& responses_by_sample,
-                                              const std::vector<std::vector<size_t>>& samples,
-                                              std::vector<size_t>& split_vars,
-                                              std::vector<double>& split_values,
-                                              std::vector<bool>& send_missing_left) {
+bool MultiRegressionSplittingRule::find_best_split(const Data& data,
+                                                   size_t node,
+                                                   const std::vector<size_t>& possible_split_vars,
+                                                   const Eigen::ArrayXXd& responses_by_sample,
+                                                   const std::vector<std::vector<size_t>>& samples,
+                                                   std::vector<size_t>& split_vars,
+                                                   std::vector<double>& split_values,
+                                                   std::vector<bool>& send_missing_left) {
 
   size_t size_node = samples[node].size();
   size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
 
   // Precompute the sum of outcomes in this node.
-  double sum_node = 0.0;
+  Eigen::ArrayXd sum_node = Eigen::ArrayXd::Zero(num_outcomes);
   double weight_sum_node = 0.0;
   for (auto& sample : samples[node]) {
     double sample_weight = data.get_weight(sample);
     weight_sum_node += sample_weight;
-    sum_node += sample_weight * responses_by_sample(sample);
+    sum_node += sample_weight * responses_by_sample.row(sample);
   }
 
   // Initialize the variables to track the best split variable.
@@ -88,10 +87,10 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   return false;
 }
 
-void RegressionSplittingRule::find_best_split_value(const Data& data,
+void MultiRegressionSplittingRule::find_best_split_value(const Data& data,
                                                     size_t node, size_t var,
                                                     double weight_sum_node,
-                                                    double sum_node,
+                                                    const Eigen::ArrayXd& sum_node,
                                                     size_t size_node,
                                                     size_t min_child_size,
                                                     double& best_value, size_t& best_var,
@@ -111,10 +110,10 @@ void RegressionSplittingRule::find_best_split_value(const Data& data,
   size_t num_splits = possible_split_values.size() - 1; // -1: we do not split at the last value
   std::fill(weight_sums, weight_sums + num_splits, 0);
   std::fill(counter, counter + num_splits, 0);
-  std::fill(sums, sums + num_splits, 0);
+  sums.topRows(num_splits).setZero(); // Sets the first num_splits rows to zeros.
   size_t n_missing = 0;
   double weight_sum_missing = 0;
-  double sum_missing = 0;
+  Eigen::ArrayXd sum_missing = Eigen::ArrayXd::Zero(num_outcomes);
 
   // Fill counter and sums buckets
   size_t split_index = 0;
@@ -122,16 +121,15 @@ void RegressionSplittingRule::find_best_split_value(const Data& data,
     size_t sample = sorted_samples[i];
     size_t next_sample = sorted_samples[i + 1];
     double sample_value = data.get(sample, var);
-    double response = responses_by_sample(sample);
     double sample_weight = data.get_weight(sample);
 
     if (std::isnan(sample_value)) {
       weight_sum_missing += sample_weight;
-      sum_missing += sample_weight * response;
+      sum_missing += sample_weight * responses_by_sample.row(sample);
       ++n_missing;
     } else {
       weight_sums[split_index] += sample_weight;
-      sums[split_index] += sample_weight * response;
+      sums.row(split_index) += sample_weight * responses_by_sample.row(sample);
       ++counter[split_index];
     }
 
@@ -145,7 +143,7 @@ void RegressionSplittingRule::find_best_split_value(const Data& data,
 
   size_t n_left = n_missing;
   double weight_sum_left = weight_sum_missing;
-  double sum_left = sum_missing;
+  Eigen::Ref<Eigen::ArrayXd> sum_left = sum_missing;
 
   // Compute decrease of impurity for each possible split
   for (bool send_left : {true, false}) {
@@ -158,7 +156,7 @@ void RegressionSplittingRule::find_best_split_value(const Data& data,
       // part is included in the total sum.
       n_left = 0;
       weight_sum_left = 0;
-      sum_left = 0;
+      sum_left.setZero();
     }
 
     for (size_t i = 0; i < num_splits; ++i) {
@@ -169,7 +167,7 @@ void RegressionSplittingRule::find_best_split_value(const Data& data,
 
       n_left += counter[i];
       weight_sum_left += weight_sums[i];
-      sum_left += sums[i];
+      sum_left += sums.row(i);
 
       // Skip this split if one child is too small.
       if (n_left < min_child_size) {
@@ -183,8 +181,10 @@ void RegressionSplittingRule::find_best_split_value(const Data& data,
       }
 
       double weight_sum_right = weight_sum_node - weight_sum_left;
-      double sum_right = sum_node - sum_left;
-      double decrease = sum_left * sum_left / weight_sum_left + sum_right * sum_right / weight_sum_right;
+      // We have `Eigen::ArrayXd sum_right = sum_node - sum_left` but write down the expression
+      // in-place below to avoid unnecessary temporaries.
+      double decrease = sum_left.square().sum() / weight_sum_left +
+                        (sum_node - sum_left).square().sum() / weight_sum_right;
 
       // Penalize splits that are too close to the edges of the data.
       double penalty = imbalance_penalty * (1.0 / n_left + 1.0 / n_right);

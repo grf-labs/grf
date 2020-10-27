@@ -28,7 +28,7 @@ SurvivalSplittingRule::SurvivalSplittingRule(double alpha):
 bool SurvivalSplittingRule::find_best_split(const Data& data,
                                             size_t node,
                                             const std::vector<size_t>& possible_split_vars,
-                                            const std::vector<double>& responses_by_sample,
+                                            const Eigen::ArrayXXd& responses_by_sample,
                                             const std::vector<std::vector<size_t>>& samples_by_node,
                                             std::vector<size_t>& split_vars,
                                             std::vector<double>& split_values,
@@ -58,7 +58,7 @@ bool SurvivalSplittingRule::find_best_split(const Data& data,
 
 void SurvivalSplittingRule::find_best_split_internal(const Data& data,
                                                      const std::vector<size_t>& possible_split_vars,
-                                                     const std::vector<double>& responses_by_sample,
+                                                     const Eigen::ArrayXXd& responses_by_sample,
                                                      const std::vector<size_t>& samples,
                                                      double& best_value,
                                                      size_t& best_var,
@@ -71,7 +71,7 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
   std::vector<double> failure_values;
   for (auto& sample : samples) {
     if (data.is_censored(sample)) {
-      failure_values.push_back(responses_by_sample[sample]);
+      failure_values.push_back(responses_by_sample(sample));
     }
   }
 
@@ -105,7 +105,7 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
 
   // Relabel the failure values to range from 0 to the number of failures in this node
   for (auto& sample : samples) {
-    double failure_value = responses_by_sample[sample];
+    double failure_value = responses_by_sample(sample);
     size_t new_failure_value = std::upper_bound(failure_values.begin(), failure_values.end(),
                                                 failure_value) - failure_values.begin();
     relabeled_failures[sample] = new_failure_value;

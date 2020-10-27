@@ -47,7 +47,7 @@ ProbabilitySplittingRule::~ProbabilitySplittingRule() {
 bool ProbabilitySplittingRule::find_best_split(const Data& data,
                                                size_t node,
                                                const std::vector<size_t>& possible_split_vars,
-                                               const std::vector<double>& responses_by_sample,
+                                               const Eigen::ArrayXXd& responses_by_sample,
                                                const std::vector<std::vector<size_t>>& samples,
                                                std::vector<size_t>& split_vars,
                                                std::vector<double>& split_values,
@@ -58,7 +58,7 @@ bool ProbabilitySplittingRule::find_best_split(const Data& data,
   size_t* class_counts = new size_t[num_classes]();
   for (size_t i = 0; i < size_node; ++i) {
     size_t sample = samples[node][i];
-    uint sample_class = (uint) std::round(responses_by_sample[sample]);
+    uint sample_class = (uint) std::round(responses_by_sample(sample));
     ++class_counts[sample_class];
   }
 
@@ -99,7 +99,7 @@ void ProbabilitySplittingRule::find_best_split_value(const Data& data,
                                                      size_t& best_var,
                                                      double& best_decrease,
                                                      bool& best_send_missing_left,
-                                                     const std::vector<double>& responses_by_sample,
+                                                     const Eigen::ArrayXXd& responses_by_sample,
                                                      const std::vector<std::vector<size_t>>& samples) {
   std::vector<double> possible_split_values;
   std::vector<size_t> sorted_samples;
@@ -123,7 +123,7 @@ void ProbabilitySplittingRule::find_best_split_value(const Data& data,
     size_t sample = sorted_samples[i];
     size_t next_sample = sorted_samples[i + 1];
     double sample_value = data.get(sample, var);
-    uint sample_class = responses_by_sample[sample];
+    uint sample_class = responses_by_sample(sample);
 
     if (std::isnan(sample_value)) {
       ++class_counts_missing[sample_class];

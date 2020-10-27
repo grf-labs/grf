@@ -26,7 +26,7 @@ QuantileRelabelingStrategy::QuantileRelabelingStrategy(const std::vector<double>
 bool QuantileRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
     const Data& data,
-    std::vector<double>& responses_by_sample) const {
+    Eigen::ArrayXXd& responses_by_sample) const {
 
   std::vector<double> sorted_outcomes(samples.size());
   for (size_t i = 0; i < samples.size(); i++) {
@@ -55,7 +55,7 @@ bool QuantileRelabelingStrategy::relabel(
                                      quantile_cutoffs.end(),
                                      outcome);
     long quantile_index = quantile - quantile_cutoffs.begin();
-    responses_by_sample[sample] = (uint) quantile_index;
+    responses_by_sample(sample) = (uint) quantile_index;
   }
   return false;
 }
