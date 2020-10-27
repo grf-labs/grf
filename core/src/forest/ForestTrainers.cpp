@@ -26,6 +26,7 @@
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "relabeling/LLRegressionRelabelingStrategy.h"
 #include "relabeling/NoopRelabelingStrategy.h"
+#include "relabeling/MultiNoopRelabelingStrategy.h"
 #include "relabeling/QuantileRelabelingStrategy.h"
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
@@ -81,7 +82,7 @@ ForestTrainer regression_trainer() {
 }
 
 ForestTrainer multi_regression_trainer(size_t num_outcomes) {
-  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new MultiNoopRelabelingStrategy());
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new MultiRegressionSplittingRuleFactory(num_outcomes));
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new MultiRegressionPredictionStrategy(num_outcomes));
 

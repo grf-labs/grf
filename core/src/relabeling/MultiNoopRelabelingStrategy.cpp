@@ -15,18 +15,18 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
- #include "relabeling/NoopRelabelingStrategy.h"
+ #include "relabeling/MultiNoopRelabelingStrategy.h"
 
  namespace grf {
 
- bool NoopRelabelingStrategy::relabel(
+ bool MultiNoopRelabelingStrategy::relabel(
      const std::vector<size_t>& samples,
      const Data& data,
      Eigen::ArrayXXd& responses_by_sample) const {
 
    for (size_t sample : samples) {
-     double outcome = data.get_outcome(sample);
-     responses_by_sample(sample) = outcome;
+     Eigen::VectorXd outcome = data.get_outcomes(sample);
+     responses_by_sample.row(sample) = outcome;
    }
    return false;
  }
