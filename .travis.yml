@@ -72,7 +72,7 @@ matrix:
         - cd r-package/grf
       script:
         - cd ..
-        - export PKG_CPPFLAGS="-UNDEBUG" # Compile C++ extensions with debug assertions enabled 
+        - export PKG_CPPFLAGS="-UNDEBUG" # Compile C++ extensions with debug assertions enabled
         - Rscript build_package.R
       # Render the examples under vignettes/ and build the package documentation with 'pkgdown'.
       # Also install required packages for vignette examples, like glmnet.
@@ -82,7 +82,9 @@ matrix:
         - cp ../../REFERENCE.md .
         - cp ../../DEVELOPING.md .
         - cp ../../releases/CHANGELOG.md .
-        - Rscript -e 'install.packages("pkgdown")'
+        # Install a previous version of `pkgdown` and its dependencies, which appears less likely to break.
+        - Rscript -e 'install.packages(c("fs", "highlight", "httr", "memoise", "openssl", "rmarkdown", "whisker", "xml2"))'
+        - Rscript -e 'install.packages("https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz", repos = NULL, type = "source")'
         - Rscript -e 'install.packages(c("ggplot2", "glmnet", "policytree"))'
         - Rscript -e 'pkgdown::build_site()'
         - cp pkgdown/favicon/* docs/
