@@ -32,21 +32,27 @@ bool InstrumentalRelabelingStrategy::relabel(
     Eigen::ArrayXXd& responses_by_sample) const {
 
   // Prepare the relevant averages.
-  size_t num_samples = samples.size();
+  double sum_weight = 0.0;
 
   double total_outcome = 0.0;
   double total_treatment = 0.0;
   double total_instrument = 0.0;
 
   for (size_t sample : samples) {
-    total_outcome += data.get_outcome(sample);
-    total_treatment += data.get_treatment(sample);
-    total_instrument += data.get_instrument(sample);
+    double weight = data.get_weight(sample);
+    total_outcome += weight * data.get_outcome(sample);
+    total_treatment += weight * data.get_treatment(sample);
+    total_instrument += weight * data.get_instrument(sample);
+    sum_weight += weight;
   }
 
-  double average_outcome = total_outcome / num_samples;
-  double average_treatment = total_treatment / num_samples;
-  double average_instrument = total_instrument / num_samples;
+  if (std::abs(sum_weight) <= 1e-16) {
+    return true;
+  }
+
+  double average_outcome = total_outcome / sum_weight;
+  double average_treatment = total_treatment / sum_weight;
+  double average_instrument = total_instrument / sum_weight;
   double average_regularized_instrument = (1 - reduced_form_weight) * average_instrument
                                           + reduced_form_weight * average_treatment;
 
@@ -55,14 +61,15 @@ bool InstrumentalRelabelingStrategy::relabel(
   double denominator = 0.0;
 
   for (size_t sample : samples) {
+    double weight = data.get_weight(sample);
     double outcome = data.get_outcome(sample);
     double treatment = data.get_treatment(sample);
     double instrument = data.get_instrument(sample);
     double regularized_instrument = (1 - reduced_form_weight) * instrument
                                     + reduced_form_weight * treatment;
 
-    numerator += (regularized_instrument - average_regularized_instrument) * (outcome - average_outcome);
-    denominator += (regularized_instrument - average_regularized_instrument) * (treatment - average_treatment);
+    numerator += weight * (regularized_instrument - average_regularized_instrument) * (outcome - average_outcome);
+    denominator += weight * (regularized_instrument - average_regularized_instrument) * (treatment - average_treatment);
   }
 
   if (equal_doubles(denominator, 0.0, 1.0e-10)) {
