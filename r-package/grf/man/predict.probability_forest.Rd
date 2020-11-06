@@ -42,7 +42,7 @@ p <- 5
 n <- 2000
 X <- matrix(rnorm(n*p), n, p)
 prob <- 1 / (1 + exp(-X[, 1] - X[, 2]))
-Y <- rbinom(n, 1, prob)
+Y <- as.factor(rbinom(n, 1, prob))
 p.forest <- probability_forest(X, Y)
 
 # Predict using the forest.

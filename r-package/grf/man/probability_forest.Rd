@@ -28,7 +28,7 @@ probability_forest(
 \arguments{
 \item{X}{The covariates.}
 
-\item{Y}{The class label.}
+\item{Y}{The class label (must be a factor vector with no NAs).}
 
 \item{num.trees}{Number of trees grown in the forest. Note: Getting accurate
 confidence intervals generally requires more trees than
@@ -103,7 +103,7 @@ p <- 5
 n <- 2000
 X <- matrix(rnorm(n*p), n, p)
 prob <- 1 / (1 + exp(-X[, 1] - X[, 2]))
-Y <- rbinom(n, 1, prob)
+Y <- as.factor(rbinom(n, 1, prob))
 p.forest <- probability_forest(X, Y)
 
 # Predict using the forest.

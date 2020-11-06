@@ -4,7 +4,7 @@ test_that("probability forest works as expected", {
   p <- 5
   n <- 200
   X <- matrix(rnorm(n * p), n, p)
-  Y <- sample(c(0, 1, 5, 8), n, T)
+  Y <- as.factor(sample(c(0, 1, 5, 8), n, T))
   class.names <- sort(unique(Y))
 
   prf <- probability_forest(X, Y, num.trees = 50)
@@ -22,7 +22,8 @@ test_that("probability forest works as expected", {
   expect_true(all(abs(rowSums(pred.oob$predictions) - 1) < 1e-10))
 
   Y <- sample(c("A", "B", "C"), n, T)
-  class.names <- sort(unique(Y))
+  Y <- as.factor(Y)
+  class.names <- levels(Y)
   prf <- probability_forest(X, Y, num.trees = 50)
   pred.oob <- predict(prf)
   expect_true(all(colnames(pred.oob$predictions) == class.names))
@@ -35,6 +36,7 @@ test_that("probability forest is well-calibrated", {
   X <- sweep(X, 1, rowSums(X), "/")
   prob.true <- X[, 1:4]
   Y <- sapply(1:n, function(i) sample(c("a", "b", "c", "d"), 1, prob = prob.true[i, ]))
+  Y <- as.factor(Y)
 
   prf <- probability_forest(X, Y, num.trees = 500)
   p.hat <- predict(prf, estimate.variance = TRUE)
@@ -53,6 +55,7 @@ test_that("sample weighted probability forest is invariant to scaling", {
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
   Y <- rbinom(n, 1, 1 / (1 + exp(-X[, 1] - X[, 2])))
+  Y <- as.factor(Y)
   weights <- runif(n)
 
   # Predictions are invariant to sample weight scaling

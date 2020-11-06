@@ -4,7 +4,7 @@
 #' the conditional class probabilities P[Y = k | X = x]
 #'
 #' @param X The covariates.
-#' @param Y The class label.
+#' @param Y The class label (must be a factor vector with no NAs).
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
@@ -58,7 +58,7 @@
 #' n <- 2000
 #' X <- matrix(rnorm(n*p), n, p)
 #' prob <- 1 / (1 + exp(-X[, 1] - X[, 2]))
-#' Y <- rbinom(n, 1, prob)
+#' Y <- as.factor(rbinom(n, 1, prob))
 #' p.forest <- probability_forest(X, Y)
 #'
 #' # Predict using the forest.
@@ -107,9 +107,11 @@ probability_forest <- function(X, Y,
   if (any(is.na(Y))) {
     stop("The vector of observations contains at least one NA.")
   }
-  Y.factor <- as.factor(Y)
-  Y.relabeled <- as.numeric(Y.factor) - 1 # convert to integers between 0 and num_classes
-  class.names <- levels(Y.factor)
+  if (!is.factor(Y)) {
+    stop("The class labels must be a factor vector.")
+  }
+  Y.relabeled <- as.numeric(Y) - 1 # convert to integers between 0 and num_classes
+  class.names <- levels(Y)
   num.classes <- length(class.names)
 
   data <- create_train_matrices(X, outcome = Y.relabeled, sample.weights = sample.weights)
@@ -170,7 +172,7 @@ probability_forest <- function(X, Y,
 #' n <- 2000
 #' X <- matrix(rnorm(n*p), n, p)
 #' prob <- 1 / (1 + exp(-X[, 1] - X[, 2]))
-#' Y <- rbinom(n, 1, prob)
+#' Y <- as.factor(rbinom(n, 1, prob))
 #' p.forest <- probability_forest(X, Y)
 #'
 #' # Predict using the forest.
