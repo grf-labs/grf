@@ -10,7 +10,7 @@ generate_survival_data(
   tau = NULL,
   X = NULL,
   n.mc = 10000,
-  dgp = c("simple1", "type1", "type2", "type3", "type4")
+  dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")
 )
 }
 \arguments{
@@ -41,6 +41,7 @@ and C the censoring time:
   \item  "type2": T is drawn from a proportional hazard model and C from a accelerated failure time (scenario 2 in https://arxiv.org/abs/2001.09887)
   \item  "type3": T and C are drawn from a Poisson distribution  (scenario 3 in https://arxiv.org/abs/2001.09887)
   \item  "type4": T and C are drawn from a Poisson distribution  (scenario 4 in https://arxiv.org/abs/2001.09887)
+  \item  "type5": is similar to "type2" but with censoring generated from an accelerated failure time model.
 }
 }
 \examples{
