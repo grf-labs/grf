@@ -213,6 +213,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
 #'   \item  "type2": T is drawn from a proportional hazard model and C from a accelerated failure time (scenario 2 in https://arxiv.org/abs/2001.09887)
 #'   \item  "type3": T and C are drawn from a Poisson distribution  (scenario 3 in https://arxiv.org/abs/2001.09887)
 #'   \item  "type4": T and C are drawn from a Poisson distribution  (scenario 4 in https://arxiv.org/abs/2001.09887)
+#'   \item  "type5": is similar to "type2" but with censoring generated from an accelerated failure time model.
 #' }
 #' @param n The number of samples.
 #' @param p The number of covariates.
@@ -240,8 +241,8 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
 #' @importFrom stats dbeta rbinom rexp rnorm rpois
 #' @export
 generate_survival_data <- function(n, p, tau = NULL, X = NULL, n.mc = 10000,
-                                   dgp = c("simple1", "type1", "type2", "type3", "type4")) {
-  .minp <- c(simple1 = 1, type1 = 5, type2 = 5, type3 = 5, type4 = 5)
+                                   dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")) {
+  .minp <- c(simple1 = 1, type1 = 5, type2 = 5, type3 = 5, type4 = 5, type5 = 5)
   dgp <- match.arg(dgp)
   minp <- .minp[dgp]
   if (!is.null(X)) {
@@ -310,19 +311,19 @@ generate_survival_data <- function(n, p, tau = NULL, X = NULL, n.mc = 10000,
     e <- (1 + dbeta(X[, 1], 2, 4)) / 4
     W <- rbinom(n, 1, e)
     numerator <- -log(runif(n))
-    cox.ft <- (numerator / exp(X[,1] + (-0.4 + X[,2]) * W))^2
+    cox.ft <- (numerator / exp(X[,1] + (-0.5 + X[,2]) * W))^2
     failure.time <- pmin(cox.ft, tau)
-    censor.time <- exp(X[1, ] - X[, 3] * W + rnorm(n))
+    censor.time <- 3 * runif(n)
     Y <- pmin(failure.time, censor.time)
     D <- as.integer(failure.time <= censor.time)
     cate <- rep(NA, n)
     numerator <- -log(runif(n.mc))
     for (i in 1:n) {
-      cox.ft0 <- (numerator / exp(X[i, 1] + (-0.4 + X[i, 2]) * 0))^2
-      cox.ft1 <- (numerator / exp(X[i, 1] + (-0.4 + X[i, 2]) * 1))^2
+      cox.ft0 <- (numerator / exp(X[i, 1] + (-0.5 + X[i, 2]) * 0))^2
+      cox.ft1 <- (numerator / exp(X[i, 1] + (-0.5 + X[i, 2]) * 1))^2
       cate[i] <- mean(pmin(cox.ft1, tau) - pmin(cox.ft0, tau))
     }
-    cate.sign <- -sign(-0.4 + X[,2]) # Note: negative b/c of Cox model, larger is worse.
+    cate.sign <- -sign(-0.5 + X[,2]) # Note: negative b/c of Cox model, larger is worse.
   } else if (dgp == "type3") {
     # Type 3 from https://arxiv.org/abs/2001.09887 (Poisson)
     if (is.null(tau)) {
@@ -375,6 +376,30 @@ generate_survival_data <- function(n, p, tau = NULL, X = NULL, n.mc = 10000,
     cate.sign <- sign(pmax(0, X[, 1] - 0.3))
     # For X1 < 0.3 the cate is zero so both (0, 1) are optimal, and we can ignore this subset.
     cate.sign[X[, 1] < 0.3] <- NA
+  } else if (dgp == "type5") {
+    # Similar to "type2" but censoring generated from an accelerated failure time model.
+    if (is.null(tau)) {
+      tau <- 2
+    }
+    if (is.null(X)) {
+      X <- matrix(runif(n * p), n, p)
+    }
+    e <- (1 + dbeta(X[, 1], 2, 4)) / 4
+    W <- rbinom(n, 1, e)
+    numerator <- -log(runif(n))
+    cox.ft <- (numerator / exp(X[,1] + (-0.4 + X[,2]) * W))^2
+    failure.time <- pmin(cox.ft, tau)
+    censor.time <- exp(X[1, ] - X[, 3] * W + rnorm(n))
+    Y <- pmin(failure.time, censor.time)
+    D <- as.integer(failure.time <= censor.time)
+    cate <- rep(NA, n)
+    numerator <- -log(runif(n.mc))
+    for (i in 1:n) {
+      cox.ft0 <- (numerator / exp(X[i, 1] + (-0.4 + X[i, 2]) * 0))^2
+      cox.ft1 <- (numerator / exp(X[i, 1] + (-0.4 + X[i, 2]) * 1))^2
+      cate[i] <- mean(pmin(cox.ft1, tau) - pmin(cox.ft0, tau))
+    }
+    cate.sign <- -sign(-0.4 + X[,2]) # Note: negative b/c of Cox model, larger is worse.
   }
 
   list(X = X, Y = Y, W = W, D = D, cate = cate, cate.sign = cate.sign, dgp = dgp, tau = tau)
