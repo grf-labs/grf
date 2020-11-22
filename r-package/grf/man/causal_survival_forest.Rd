@@ -163,6 +163,20 @@ where T is the survival time up to a fixed maximum follow-up time.
 T(1) and T(0) are potental outcomes corresponding to the two possible
 treatment states.
 }
+\section{Computational details}{
+
+Causal survival forest computes two nuisance components, the estimated survival
+and censoring curves (S.hat and C.hat). Recall that the Kaplan-Meier or
+Nelson-Aalen estimates of the survival curve is a step function that only
+changes at points at which there is an event D = 1 (or D' = 1 - D for the
+censoring curve). For very dense event data Y there may not be any accuracy
+benefit to fitting these curves on the complete grid compared with the
+computational cost, which scales as O(num.events) in each tree node.
+
+The suggested resolution to this issue is to round or relabel the event data Y
+to a coarser resolution.
+}
+
 \examples{
 \donttest{
 # Train a standard causal survival forest.
