@@ -157,8 +157,8 @@ A trained causal_survival_forest forest object.
 }
 \description{
 Trains a causal survival forest that can be used to estimate
-conditional average treatment effects theta(X). When the treatment assigment
-is unconfounded, we have theta(X) = E[T(1) - T(0) | X = x],
+conditional average treatment effects tau(X). When the treatment assignment
+is unconfounded, we have tau(X) = E[T(1) - T(0) | X = x],
 where T is the survival time up to a fixed maximum follow-up time.
 T(1) and T(0) are potental outcomes corresponding to the two possible
 treatment states.

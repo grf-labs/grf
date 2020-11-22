@@ -7,7 +7,7 @@
 generate_survival_data(
   n,
   p,
-  tau = NULL,
+  Y.max = NULL,
   X = NULL,
   n.mc = 10000,
   dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")
@@ -18,7 +18,7 @@ generate_survival_data(
 
 \item{p}{The number of covariates.}
 
-\item{tau}{The maximum follow-up time (optional).}
+\item{Y.max}{The maximum follow-up time (optional).}
 
 \item{X}{The covariates (optional).}
 
@@ -30,13 +30,13 @@ generate_survival_data(
 A list with entries:
  `X`: the covariates, `Y`: the event times, `W`: the treatment indicator, `D`: the censoring indicator,
  `cate`: the treatment effect estimated by monte carlo, `cate.sign`: the true sign of the cate for ITR comparison,
- `dgp`: the dgp name, `tau`: the maximum follow-up time.
+ `dgp`: the dgp name, `Y.max`: the maximum follow-up time.
 }
 \description{
 The following DGPs are available for benchmarking purposes, T is the failure time
 and C the censoring time:
 \itemize{
-  \item "simple1": T = X1*eps + W, C ~ U(0, 2) where eps ~ Exp(1) and tau = 1.
+  \item "simple1": T = X1*eps + W, C ~ U(0, 2) where eps ~ Exp(1) and Y.max = 1.
   \item  "type1": T is drawn from an accelerated failure time model and C from a Cox model (scenario 1 in https://arxiv.org/abs/2001.09887)
   \item  "type2": T is drawn from a proportional hazard model and C from a accelerated failure time (scenario 2 in https://arxiv.org/abs/2001.09887)
   \item  "type3": T and C are drawn from a Poisson distribution  (scenario 3 in https://arxiv.org/abs/2001.09887)
