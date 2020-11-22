@@ -163,6 +163,27 @@ where T is the survival time up to a fixed maximum follow-up time.
 T(1) and T(0) are potental outcomes corresponding to the two possible
 treatment states.
 }
+\section{Statistical details}{
+
+An important assumption for identifying the conditional average treatment effect theta(X)
+is that there exist a fixed positive constant M such that the probability of observing an
+event time past the maximum follow-up time Y.max is at least M (formally, we assume: P(Y
+>= Y.max | X) > M).
+
+This means that the individual censoring probabilities (by default estimated using a
+survival_forest on D' = 1 - D) should not get too low. This function provides a warning
+if these estimates gets below 0.2, if they drop all the way down to below 0.05, we emit a
+stronger warning that you can not expect causal survival forest to deliver reliable
+estimates.
+
+The practical issue is that we can not reliably extrapolate the survival curves
+sufficiently far into the future (where most observations will be censored). A workaround
+is to re-define the estimand as the treatment effect up to some suitable maximum
+follow-up time Y.max. One can do this in practice by thresholding Y before running
+causal_survival_forest: D[Y >= Y.max] = 1 and Y[Y >= Y.max] = Y.max. The online vignette on
+survival data has more details.
+}
+
 \examples{
 \donttest{
 # Train a standard causal survival forest.
