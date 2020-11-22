@@ -43,8 +43,8 @@
 #'  If lambda.C.hat is NULL, this is estimated from C.hat using a forward difference. If provided:
 #'  a matrix of same dimensionality has C.hat.
 #'  Default is NULL.
-#' @param failure.times A vector of event times to fit the survival curves at. If NULL, then all the observed
-#'  failure times are used. This speeds up forest estimation by constraining the event grid. Observed event
+#' @param failure.times A vector of event times to fit the survival curves at. If NULL, then all the unique
+#'  event times are used. This speeds up forest estimation by constraining the event grid. Observed event
 #'  times are rounded down to the last sorted occurance less than or equal to the specified failure time.
 #'  The time points should be in increasing order.
 #'  Default is NULL.
