@@ -1,8 +1,8 @@
 #' Causal survival forest (experimental)
 #'
 #' Trains a causal survival forest that can be used to estimate
-#' conditional average treatment effects theta(X). When the treatment assigment
-#' is unconfounded, we have theta(X) = E[T(1) - T(0) | X = x],
+#' conditional average treatment effects tau(X). When the treatment assignment
+#' is unconfounded, we have tau(X) = E[T(1) - T(0) | X = x],
 #' where T is the survival time up to a fixed maximum follow-up time.
 #' T(1) and T(0) are potental outcomes corresponding to the two possible
 #' treatment states.
@@ -356,7 +356,7 @@ causal_survival_forest <- function(X, Y, W, D,
 
 #' Predict with a causal survival forest forest
 #'
-#' Gets estimates of theta(X) using a trained causal survival forest.
+#' Gets estimates of tau(X) using a trained causal survival forest.
 #'
 #' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
@@ -366,7 +366,7 @@ causal_survival_forest <- function(X, Y, W, D,
 #'                matrix, and that the columns must appear in the same order.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
-#' @param estimate.variance Whether variance estimates for hat{theta}(x) are desired
+#' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
@@ -450,7 +450,7 @@ predict.causal_survival_forest <- function(object,
   do.call(cbind.data.frame, ret[!empty])
 }
 
-#' Compute pseudo outcomes (based on the influence function of theta(X) for each unit)
+#' Compute pseudo outcomes (based on the influence function of tau(X) for each unit)
 #' used for CART splitting.
 #'
 #' We compute:

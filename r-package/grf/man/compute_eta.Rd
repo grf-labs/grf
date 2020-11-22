@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal_survival_forest.R
 \name{compute_eta}
 \alias{compute_eta}
-\title{Compute pseudo outcomes (based on the influence function of theta(X) for each unit)
+\title{Compute pseudo outcomes (based on the influence function of tau(X) for each unit)
 used for CART splitting.}
 \usage{
 compute_eta(
