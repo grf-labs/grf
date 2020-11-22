@@ -15,7 +15,7 @@
 #'
 #' This means that the individual censoring probabilities (by default estimated using a
 #' survival_forest on D' = 1 - D) should not get too low. This function provides a warning
-#' if these estimates gets below 0.2, if they drop all the way down to below 0.05, we emit a
+#' if these estimates get below 0.2, if they drop all the way down to below 0.05, we emit a
 #' stronger warning that you can not expect causal survival forest to deliver reliable
 #' estimates.
 #'
