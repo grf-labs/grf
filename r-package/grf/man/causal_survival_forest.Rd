@@ -171,7 +171,8 @@ Nelson-Aalen estimates of the survival curve is a step function that only
 changes at points at which there is an event D = 1 (or D' = 1 - D for the
 censoring curve). For very dense event data Y there may not be any accuracy
 benefit to fitting these curves on the complete grid compared with the
-computational cost, which scales as O(num.events) in each tree node.
+computational cost, which scales as O(m*n) in each tree node (where
+m is the number of events in the node, and n the number of split points).
 
 The suggested resolution to this issue is to round or relabel the event data Y
 to a coarser resolution.
