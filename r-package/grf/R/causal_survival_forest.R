@@ -103,8 +103,8 @@
 #' p <- 5
 #' X <- matrix(runif(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
-#' tau <- 1
-#' failure.time <- pmin(rexp(n) * X[, 1] + W, tau)
+#' Y.max <- 1
+#' failure.time <- pmin(rexp(n) * X[, 1] + W, Y.max)
 #' censor.time <- 2 * runif(n)
 #' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
@@ -119,8 +119,8 @@
 #' r.monte.carlo <- rexp(5000)
 #' cate <- rep(NA, 10)
 #' for (i in 1:10) {
-#'   cate[i] <- mean(pmin(r.monte.carlo * X.test[i, 1] + 1, tau) -
-#'                     pmin(r.monte.carlo * X.test[i, 1], tau))
+#'   cate[i] <- mean(pmin(r.monte.carlo * X.test[i, 1] + 1, Y.max) -
+#'                     pmin(r.monte.carlo * X.test[i, 1], Y.max))
 #' }
 #' plot(X.test[, 1], cate, type = 'l', col = 'red')
 #' points(X.test[, 1], cs.pred$predictions)
@@ -379,8 +379,8 @@ causal_survival_forest <- function(X, Y, W, D,
 #' p <- 5
 #' X <- matrix(runif(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
-#' tau <- 1
-#' failure.time <- pmin(rexp(n) * X[, 1] + W, tau)
+#' Y.max <- 1
+#' failure.time <- pmin(rexp(n) * X[, 1] + W, Y.max)
 #' censor.time <- 2 * runif(n)
 #' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
@@ -395,8 +395,8 @@ causal_survival_forest <- function(X, Y, W, D,
 #' r.monte.carlo <- rexp(5000)
 #' cate <- rep(NA, 10)
 #' for (i in 1:10) {
-#'   cate[i] <- mean(pmin(r.monte.carlo * X.test[i, 1] + 1, tau) -
-#'                     pmin(r.monte.carlo * X.test[i, 1], tau))
+#'   cate[i] <- mean(pmin(r.monte.carlo * X.test[i, 1] + 1, Y.max) -
+#'                     pmin(r.monte.carlo * X.test[i, 1], Y.max))
 #' }
 #' plot(X.test[, 1], cate, type = 'l', col = 'red')
 #' points(X.test[, 1], cs.pred$predictions)
