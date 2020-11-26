@@ -71,8 +71,8 @@ If lambda.C.hat is NULL, this is estimated from C.hat using a forward difference
 a matrix of same dimensionality has C.hat.
 Default is NULL.}
 
-\item{failure.times}{A vector of event times to fit the survival curves at. If NULL, then all the observed
-failure times are used. This speeds up forest estimation by constraining the event grid. Observed event
+\item{failure.times}{A vector of event times to fit the survival curves at. If NULL, then all the unique
+event times are used. This speeds up forest estimation by constraining the event grid. Observed event
 times are rounded down to the last sorted occurance less than or equal to the specified failure time.
 The time points should be in increasing order.
 Default is NULL.}
@@ -182,6 +182,21 @@ is to re-define the estimand as the treatment effect up to some suitable maximum
 follow-up time Y.max. One can do this in practice by thresholding Y before running
 causal_survival_forest: D[Y >= Y.max] = 1 and Y[Y >= Y.max] = Y.max. The online vignette on
 survival data has more details.
+}
+
+\section{Computational details}{
+
+Causal survival forest computes two nuisance components, the estimated survival
+and censoring curves (S.hat and C.hat). Recall that the Kaplan-Meier or
+Nelson-Aalen estimates of the survival curve is a step function that only
+changes at points at which there is an event D = 1 (or D' = 1 - D for the
+censoring curve). For very dense event data Y there may not be any accuracy
+benefit to fitting these curves on the complete grid compared with the
+computational cost, which scales as O(m*n) in each tree node (where
+m is the number of events in the node, and n the number of split points).
+
+The suggested resolution to this issue is to round or relabel the event data Y
+to a coarser resolution.
 }
 
 \examples{
