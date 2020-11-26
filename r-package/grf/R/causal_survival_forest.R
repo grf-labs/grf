@@ -8,7 +8,7 @@
 #' treatment states.
 #'
 #' @section Statistical details:
-#' An important assumption for identifying the conditional average treatment effect theta(X)
+#' An important assumption for identifying the conditional average treatment effect tau(X)
 #' is that there exists a fixed positive constant M such that the probability of observing an
 #' event time past the maximum follow-up time Y.max is at least M (formally, we assume: P(Y
 #' >= Y.max | X) > M).
