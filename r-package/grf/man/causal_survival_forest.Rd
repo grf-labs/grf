@@ -196,7 +196,7 @@ computational cost, which scales as O(m*n) in each tree node (where
 m is the number of events in the node, and n the number of split points).
 
 The suggested resolution to this issue is to round or relabel the event data Y
-to a coarser resolution.
+to a coarser resolution. The argument `failure.times` can be used for this purpose.
 }
 
 \examples{
