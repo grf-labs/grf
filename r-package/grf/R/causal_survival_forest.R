@@ -7,6 +7,25 @@
 #' Y(1) and Y(0) are potental outcomes corresponding to the two possible
 #' treatment states.
 #'
+#' @section Statistical details:
+#' An important assumption for identifying the conditional average treatment effect theta(X)
+#' is that there exists a fixed positive constant M such that the probability of observing an
+#' event time past the maximum follow-up time Y.max is at least M (formally, we assume: P(Y
+#' >= Y.max | X) > M).
+#'
+#' This means that the individual censoring probabilities (by default estimated using a
+#' survival_forest on D' = 1 - D) should not get too low. This function provides a warning
+#' if these estimates get below 0.2, if they drop all the way down to below 0.05, we emit a
+#' stronger warning that you can not expect causal survival forest to deliver reliable
+#' estimates.
+#'
+#' The practical issue is that we can not reliably extrapolate the survival curves
+#' sufficiently far into the future (where most observations will be censored). A workaround
+#' is to re-define the estimand as the treatment effect up to some suitable maximum
+#' follow-up time Y.max. One can do this in practice by thresholding Y before running
+#' causal_survival_forest: D[Y >= Y.max] = 1 and Y[Y >= Y.max] = Y.max. The online vignette on
+#' survival data has more details.
+#'
 #' @param X The covariates.
 #' @param Y The event time (may be negative).
 #' @param W The treatment assignment (must be a binary vector with no NAs).
@@ -297,16 +316,16 @@ causal_survival_forest <- function(X, Y, W, D,
 
  if (any(C.hat <= 0.05)) {
   warning(paste("Estimated censoring probabilites go as low as:", min(C.hat),
-                "- an identifying assumption is that there exist a fixed positve constant M",
-                "such that the probability of observing an event time past the maximum follow-up time tau",
-                "is at least M. Formally, we assume: P(Y >= tau | X) > M.",
+                "- an identifying assumption is that there exists a fixed positve constant M",
+                "such that the probability of observing an event time past the maximum follow-up time Y.max",
+                "is at least M. Formally, we assume: P(Y >= Y.max | X) > M.",
                 "This warning appears when M is less than 0.05, at which point causal survival forest",
                 "can not be expected to deliver reliable estimates."))
   } else if (any(C.hat < 0.2 & C.hat > 0.05)) {
     warning(paste("Estimated censoring probabilites are lower than 0.2.",
-                  "An identifying assumption is that there exist a fixed positve constant M",
-                  "such that the probability of observing an event time past the maximum follow-up time tau",
-                  "is at least M. Formally, we assume: P(Y >= tau | X) > M."))
+                  "An identifying assumption is that there exists a fixed positve constant M",
+                  "such that the probability of observing an event time past the maximum follow-up time Y.max",
+                  "is at least M. Formally, we assume: P(Y >= Y.max | X) > M."))
   }
 
   # Compute the pseudo outcomes
