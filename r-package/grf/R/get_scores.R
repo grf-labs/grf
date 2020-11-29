@@ -209,6 +209,62 @@ get_scores.instrumental_forest <- function(forest,
   tau.hat.pointwise + debiasing.weights * Y.residual
 }
 
+#' Compute doubly robust scores for a multi action causal forest.
+#'
+#' Compute doubly robust (AIPW) scores for average treatment effect estimation
+#' using a multi action causal forest. Under regularity conditions, the average of the DR.scores
+#' is an efficient estimate of the average treatment effect.
+#'
+#' @param forest A trained multi action causal forest.
+#' @param subset Specifies subset of the training examples over which we
+#'               estimate the ATE. WARNING: For valid statistical performance,
+#'               the subset should be defined only using features Xi, not using
+#'               the treatment Wi or the outcome Yi.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @return A matrix of scores for each contrast.
+#'
+#' @method get_scores multi_action_causal_forest
+#' @export
+get_scores.multi_action_causal_forest <- function(forest,
+                                                  subset = NULL,
+                                                  ...) {
+  subset <- validate_subset(forest, subset)
+  W.orig <- forest$W.orig[subset]
+  W.hat <- forest$W.hat[subset, , drop = FALSE]
+  Y.orig <- forest$Y.orig[subset]
+  Y.hat <- forest$Y.hat[subset]
+  tau.hat.pointwise <- predict(forest)$predictions[subset, , drop = FALSE]
+
+  treatment.names <- levels(W.orig)
+  num.treatments <- length(treatment.names)
+  observed.treatment <- match(W.orig, treatment.names)
+  observed.treatment.idx <- cbind(seq_along(subset), observed.treatment)
+
+  if (min(W.hat) <= 0.05 || max(W.hat) >= 0.95) {
+    min <- apply(W.hat, 2, min)
+    max <- apply(W.hat, 2, max)
+    warning(paste0(
+      "Estimated treatment propensities take values very close to 0 or 1",
+      " meaning estimates may not be well identified.",
+      " In particular, the minimum propensity estimates for each arm is ",
+      paste0(treatment.names, ": ", round(min, 3), collapse = " "),
+      " and the maximum is ",
+      paste0(treatment.names, ": ", round(max, 3), collapse = " "),
+      "."
+    ))
+  }
+
+  Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1] * tau.hat.pointwise)
+  mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat.pointwise)
+  Y.residual <- Y.orig - mu.hat.matrix[observed.treatment.idx]
+
+  W.matrix <- stats::model.matrix(~ W.orig - 1)
+  IPW <- (W.matrix[, -1] - W.hat[, -1]) / (W.hat[, -1] * (1 - W.hat[, -1]))
+
+  tau.hat.pointwise + IPW * Y.residual
+}
+
 #' Compute doubly robust for a causal survival forest.
 #'
 #' @param forest A trained causal survival forest.
