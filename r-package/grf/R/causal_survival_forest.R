@@ -221,6 +221,12 @@ causal_survival_forest <- function(X, Y, W, D,
   if (num.events <= 2) {
     stop("The number of distinct event times should be more than 2.")
   }
+  if (num.samples > 5000 && num.events / num.samples > 0.1) {
+    warning(paste0("The number of events are more than 10% of the sample size. ",
+                   "To reduce the computational burden of fitting survival and ",
+                   "censoring curves, consider rounding the event values `Y` or ",
+                   "supplying a coarser grid with the `failure.times` argument. "))
+  }
 
   args.orthog <- list(X = X,
                       Y = W,
