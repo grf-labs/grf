@@ -21,7 +21,7 @@ One of the approaches below relies on `grf`'s sister package [`sufrep`](https://
 
 ```{r setup}
 library(grf)
-devtools::install_github("grf-labs/sufrep")
+install.packages("https://github.com/grf-labs/sufrep/blob/master/sufrep_0.1.0.tar.gz?raw=true", repos = NULL, type = "source")
 library(sufrep)
 ```
 
