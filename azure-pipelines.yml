@@ -1,0 +1,94 @@
+# The following pipeline tests grf in the following ways:
+# 1. Core C++ compiled with GCC and test with valgrind on latest Ubuntu.
+# 2. Core C++ compiled with Clang and test with valgrind on latest Ubuntu.
+# 3. Latest R release (4.0) on Ubuntu.
+# The R setup here is based on https://eddelbuettel.github.io/r-ci/
+trigger:
+- master
+
+pool:
+  vmImage: "ubuntu-latest"
+
+jobs:
+- job: coreCPP
+  strategy:
+    matrix:
+      clang:
+        CXX: clang++
+      gcc:
+        CXX: g++
+  steps:
+  - script: |
+      sudo apt-get update -qq
+      sudo apt-get install -qq valgrind
+    displayName: Setup
+  - script: |
+      mkdir build && cd build
+      cmake -DCMAKE_CXX_COMPILER=$CXX .. && make
+    workingDirectory: core
+    displayName: Build
+  - script: valgrind --leak-check=full --error-exitcode=1 ./build/grf
+    workingDirectory: core
+    displayName: Valgrind check
+
+- job: R_package
+  variables:
+  - name: R_LIBS_USER
+    value: '$(Agent.BuildDirectory)/R/library'
+  - name: CRAN
+    value: 'https://cloud.r-project.org'
+  - name: _R_CHECK_FORCE_SUGGESTS_
+    value: false
+  - name: _R_CHECK_DONTTEST_EXAMPLES_
+    value: false
+  - name: USE_BSPM
+    value: true
+  - name: WARNINGS_ARE_ERRORS
+    value: true
+  steps:
+  - script: |
+      curl -OLs https://eddelbuettel.github.io/r-ci/run.sh && chmod 0755 run.sh
+      ./run.sh bootstrap
+      ./run.sh install_deps
+    workingDirectory: r-package/grf
+    displayName: Setup R
+  - script: ./run.sh run_tests
+    workingDirectory: r-package/grf
+    displayName: Test R package
+  - script: ./run.sh dump_logs_by_extension "fail"
+    condition: failed()
+    workingDirectory: r-package/grf
+    displayName: Print test failures
+  # Final deploy step:
+  # Build the online docs and deploy to gh-pages - only done on master branch.
+  # `GITHUB_PAT` is a GitHub access token stored on Azure Pipelines.
+  - script: |
+      set -e
+      # Install a previous version of `pkgdown` and its dependencies, which appears less likely to break.
+      sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'whisker', 'xml2', 'yaml'))"
+      sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
+      # Install dependencies needed for vignettes and install grf.
+      R CMD INSTALL .
+      sudo Rscript -e "install.packages(c('DiagrammeR', 'ggplot2', 'glmnet', 'policytree'))"
+      cp ../../README.md .
+      cp ../../REFERENCE.md .
+      cp ../../DEVELOPING.md .
+      cp ../../releases/CHANGELOG.md .
+      # Build and deploy page. This requires that the branch `gh-pages` exists.
+      # git worktree is used to only commit the doc folder (docs/) as the root.
+      # update-ref is used to not keep a commit history of the generated docs.
+      git config --local user.email "azuredevops@microsoft.com"
+      git config --local user.name "Azure Pipelines"
+      git worktree add -B gh-pages docs/ origin/gh-pages
+      rm -rf docs/*
+      Rscript -e "pkgdown::build_site()"
+      cd docs
+      git add --all
+      git update-ref -d refs/heads/gh-pages
+      git commit --allow-empty -m "Update gh-pages ***NO_CI***"
+      git push --force https://$(GITHUB_PAT)@github.com/grf-labs/grf.git HEAD:gh-pages
+    workingDirectory: r-package/grf
+    displayName: 'Publish GitHub Pages'
+    condition: |
+      and(not(eq(variables['Build.Reason'], 'PullRequest')),
+      eq(variables['Build.SourceBranch'], 'refs/heads/master'))
