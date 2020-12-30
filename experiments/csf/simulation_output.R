@@ -57,7 +57,6 @@ tab.mse = tab.mse[order(tab.mse$dgp, tab.mse$metric), ]
 # Table 1 - MSE
 print(xtable(tab.mse), include.rownames = FALSE)
 
-
 tab.clf = DF.table[c("dgp", "estimator", "CLF")]
 tab.clf = xtabs(CLF ~ dgp + estimator, tab.clf)
 # Table 2 - classification error
@@ -82,6 +81,3 @@ ggplot(DF, aes(x = estimator, y = mse.excess)) +
   ylab("Excess MSE") +
   xlab("Method")
 ggsave("simulation_comparison_mse_allN.pdf", width = 9, height = 9)
-
-
-
