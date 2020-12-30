@@ -241,3 +241,8 @@ points(X.test[, 1], predict(cs.forest.grid, X.test)$predictions, col = "blue")
 }
 
 }
+\references{
+Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
+ "Estimating heterogeneous treatment effects with right-censored data via causal survival forests."
+ arXiv preprint arXiv:2001.09887, 2020.
+}

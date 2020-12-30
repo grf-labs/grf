@@ -128,6 +128,10 @@
 #'
 #' @return A trained causal_survival_forest forest object.
 #'
+#' @references Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
+#'  "Estimating heterogeneous treatment effects with right-censored data via causal survival forests."
+#'  arXiv preprint arXiv:2001.09887, 2020.
+#'
 #' @examples
 #' \donttest{
 #' # Train a standard causal survival forest.
