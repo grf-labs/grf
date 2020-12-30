@@ -180,8 +180,7 @@ The practical issue is that we can not reliably extrapolate the survival curves
 sufficiently far into the future (where most observations will be censored). A workaround
 is to re-define the estimand as the treatment effect up to some suitable maximum
 follow-up time Y.max. One can do this in practice by thresholding Y before running
-causal_survival_forest: D[Y >= Y.max] = 1 and Y[Y >= Y.max] = Y.max. The online vignette on
-survival data has more details.
+causal_survival_forest: D[Y >= Y.max] = 1 and Y[Y >= Y.max] = Y.max.
 }
 
 \section{Computational details}{
