@@ -336,8 +336,8 @@ causal_survival_forest <- function(X, Y, W, D,
     stop("Some censoring probabilites are exactly zero.")
   }
 
- if (any(C.hat <= 0.05)) {
-  warning(paste("Estimated censoring probabilites go as low as:", min(C.hat),
+  if (any(C.hat <= 0.05)) {
+    warning(paste("Estimated censoring probabilites go as low as:", min(C.hat),
                 "- an identifying assumption is that there exists a fixed positve constant M",
                 "such that the probability of observing an event time past the maximum follow-up time Y.max",
                 "is at least M. Formally, we assume: P(Y >= Y.max | X) > M.",
