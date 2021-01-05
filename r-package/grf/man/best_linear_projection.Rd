@@ -10,7 +10,8 @@ best_linear_projection(
   A = NULL,
   subset = NULL,
   debiasing.weights = NULL,
-  num.trees.for.weights = 500
+  num.trees.for.weights = 500,
+  vcov.type = "HC3"
 )
 }
 \arguments{
@@ -32,6 +33,10 @@ are obtained via inverse-propensity weighting.}
 treatment), we need to train auxiliary forests to learn debiasing weights.
 This is the number of trees used for this task. Note: this argument is only
 used when debiasing.weights = NULL.}
+
+\item{vcov.type}{Optional covariance type for standard errors. The default is "HC3".
+For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute
+(for details see the `sandwich` package).}
 }
 \value{
 An estimate of the best linear projection, along with coefficient standard errors.

@@ -4,10 +4,14 @@
 \alias{test_calibration}
 \title{Omnibus evaluation of the quality of the random forest estimates via calibration.}
 \usage{
-test_calibration(forest)
+test_calibration(forest, vcov.type = "HC3")
 }
 \arguments{
 \item{forest}{The trained forest.}
+
+\item{vcov.type}{Optional covariance type for standard errors. The default is "HC3".
+For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute
+(for details see the `sandwich` package).}
 }
 \value{
 A heteroskedasticity-consistent test of calibration.
