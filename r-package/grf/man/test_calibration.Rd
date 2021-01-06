@@ -9,9 +9,11 @@ test_calibration(forest, vcov.type = "HC3")
 \arguments{
 \item{forest}{The trained forest.}
 
-\item{vcov.type}{Optional covariance type for standard errors. The default is "HC3".
-For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute
-(for details see the `sandwich` package).}
+\item{vcov.type}{Optional covariance type for standard errors. The possible
+options are HC0, ..., HC3. The default is "HC3", which is recommended in small
+samples and corresponds to the "shortcut formula" for the jackknife
+(see MacKinnon & White for more discussion). For large data sets with clusters,
+"HC0" or "HC1" are significantly faster to compute.}
 }
 \value{
 A heteroskedasticity-consistent test of calibration.
@@ -44,4 +46,8 @@ test_calibration(forest)
 Chernozhukov, Victor, Mert Demirer, Esther Duflo, and Ivan Fernandez-Val.
             "Generic Machine Learning Inference on Heterogenous Treatment Effects in
             Randomized Experiments." arXiv preprint arXiv:1712.04802 (2017).
+
+MacKinnon, James G., and Halbert White. "Some heteroskedasticity-consistent
+ covariance matrix estimators with improved finite sample properties."
+ Journal of Econometrics 29.3 (1985): 305-325.
 }
