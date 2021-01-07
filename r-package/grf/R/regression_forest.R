@@ -153,7 +153,6 @@ regression_forest <- function(X, Y,
       tune.parameters <- tune.parameters[!grepl("honesty", tune.parameters)]
     }
     tune.parameters.defaults <- default.parameters[tune.parameters]
-    train <- regression_train
     tuning.output <- tune_forest(data = data,
                                  nrow.X = nrow(X),
                                  ncol.X = ncol(X),
