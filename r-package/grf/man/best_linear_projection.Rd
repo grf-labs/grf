@@ -37,8 +37,8 @@ used when debiasing.weights = NULL.}
 \item{vcov.type}{Optional covariance type for standard errors. The possible
 options are HC0, ..., HC3. The default is "HC3", which is recommended in small
 samples and corresponds to the "shortcut formula" for the jackknife
-(see MacKinnon & White for more discussion). For large data sets with clusters,
-"HC0" or "HC1" are significantly faster to compute.}
+(see MacKinnon & White for more discussion, and Colin & Miller for a review).
+For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.}
 }
 \value{
 An estimate of the best linear projection, along with coefficient standard errors.
@@ -71,6 +71,9 @@ best_linear_projection(forest, X[,1:2])
 
 }
 \references{
+Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
+ cluster-robust inference." Journal of human resources 50, no. 2 (2015): 317-372.
+
 Chernozhukov, Victor, and Vira Semenova. "Simultaneous inference for
             Best Linear Predictor of the Conditional Average Treatment Effect and
             other structural functions." arXiv preprint arXiv:1702.06240 (2017).
