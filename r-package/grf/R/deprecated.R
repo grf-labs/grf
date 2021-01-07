@@ -40,3 +40,21 @@ average_partial_effect <- function(forest, ...) {
 tune_regression_forest <- function(X, Y, ...) {
   stop("This function has been deprecated after version 1.2.0.")
 }
+
+#' Causal forest tuning (deprecated)
+#'
+#' To tune a causal forest, see the function `causal_forest`
+#'
+#' @param X X
+#' @param Y Y
+#' @param W W
+#' @param Y.hat Y.hat
+#' @param W.hat W.hat
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @return output
+#'
+#' @export
+tune_causal_forest <- function(X, Y, W, Y.hat, W.hat, ...) {
+  stop("This function has been deprecated after version 1.2.0.")
+}
