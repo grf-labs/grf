@@ -39,7 +39,6 @@ reference:
     contents:
       - regression_forest
       - multi_regression_forest
-      - tune_regression_forest
       - predict.regression_forest
       - predict.multi_regression_forest
 
