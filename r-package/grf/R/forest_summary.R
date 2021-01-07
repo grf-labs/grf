@@ -15,7 +15,7 @@
 #' @param vcov.type Optional covariance type for standard errors. The possible
 #'  options are HC0, ..., HC3. The default is "HC3", which is recommended in small
 #'  samples and corresponds to the "shortcut formula" for the jackknife
-#'  (see MacKinnon & White for more discussion, and Colin & Miller for a review).
+#'  (see MacKinnon & White for more discussion, and Cameron & Miller for a review).
 #'  For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.
 #' @return A heteroskedasticity-consistent test of calibration.
 #'
@@ -127,7 +127,7 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 #' @param vcov.type Optional covariance type for standard errors. The possible
 #'  options are HC0, ..., HC3. The default is "HC3", which is recommended in small
 #'  samples and corresponds to the "shortcut formula" for the jackknife
-#'  (see MacKinnon & White for more discussion, and Colin & Miller for a review).
+#'  (see MacKinnon & White for more discussion, and Cameron & Miller for a review).
 #'  For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.
 #'
 #' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
