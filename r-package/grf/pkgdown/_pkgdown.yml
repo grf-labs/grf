@@ -55,7 +55,6 @@ reference:
   - title: Causal forest
     contents:
       - causal_forest
-      - tune_ll_causal_forest
       - predict.causal_forest
 
   - title: Instrumental forest
@@ -66,7 +65,6 @@ reference:
   - title: Local linear regression forest
     contents:
       - ll_regression_forest
-      - tune_ll_regression_forest
       - predict.ll_regression_forest
 
   - title: Boosted regression forest
