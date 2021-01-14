@@ -23,6 +23,7 @@ namespace grf {
 
 MultiRegressionPredictionStrategy::MultiRegressionPredictionStrategy(size_t num_outcomes) {
   this->num_outcomes = num_outcomes;
+  this->num_types = 1 + num_outcomes;
 }
 
 size_t MultiRegressionPredictionStrategy::prediction_length() const {
@@ -30,7 +31,14 @@ size_t MultiRegressionPredictionStrategy::prediction_length() const {
 }
 
 std::vector<double> MultiRegressionPredictionStrategy::predict(const std::vector<double>& average) const {
-  return average;
+  std::vector<double> out;
+  out.reserve(num_outcomes);
+  double weight_bar = average[0];
+  for (size_t value_ix = 1; value_ix < num_types; value_ix++) {
+    out.push_back(average[value_ix] / weight_bar);
+  }
+
+  return out;
 }
 
 std::vector<double> MultiRegressionPredictionStrategy::compute_variance(
@@ -40,9 +48,8 @@ std::vector<double> MultiRegressionPredictionStrategy::compute_variance(
   return { 0.0 };
 }
 
-
 size_t MultiRegressionPredictionStrategy::prediction_value_length() const {
-  return 1;
+  return num_types;
 }
 
 PredictionValues MultiRegressionPredictionStrategy::precompute_prediction_values(
@@ -53,27 +60,32 @@ PredictionValues MultiRegressionPredictionStrategy::precompute_prediction_values
 
   for (size_t i = 0; i < num_leaves; i++) {
     const std::vector<size_t>& leaf_node = leaf_samples.at(i);
-    if (leaf_node.empty()) {
+    size_t num_samples = leaf_node.size();
+    if (num_samples == 0) {
       continue;
     }
 
     Eigen::VectorXd sum = Eigen::VectorXd::Zero(num_outcomes);
-    double weight = 0.0;
+    double sum_weight = 0.0;
     for (auto& sample : leaf_node) {
-      sum += data.get_weight(sample) * data.get_outcomes(sample);
-      weight += data.get_weight(sample);
+      double weight = data.get_weight(sample);
+      sum += weight * data.get_outcomes(sample);
+      sum_weight += weight;
     }
-
     // if total weight is very small, treat the leaf as empty
-    if (std::abs(weight) <= 1e-16) {
+    if (std::abs(sum_weight) <= 1e-16) {
       continue;
     }
-    sum /= weight;
 
-    values[i] = std::vector<double> (sum.data(), sum.data() + num_outcomes);
+    std::vector<double>& value = values[i];
+    value.reserve(num_types);
+    value.push_back(sum_weight / num_samples);
+    for (size_t j = 0; j < num_outcomes; j++) {
+      value.push_back(sum[j] / num_samples);
+    }
   }
 
-  return PredictionValues(values, num_outcomes);
+  return PredictionValues(values, num_types);
 }
 
 std::vector<std::pair<double, double>> MultiRegressionPredictionStrategy::compute_error(

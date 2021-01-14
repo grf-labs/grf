@@ -44,13 +44,15 @@ TEST_CASE("multi regression predictions with one outcome is identical to regress
 
   REQUIRE(reg_prediction_values.get_num_nodes() == multi_reg_prediction_values.get_num_nodes());
   REQUIRE(reg_prediction_values.get_num_types() == multi_reg_prediction_values.get_num_types());
-  REQUIRE(reg_prediction_values.get_num_types() == 1);
   REQUIRE(reg_prediction_values.get_num_nodes() == num_nodes);
   for (size_t i = 0; i < num_nodes; i++) {
     if (reg_prediction_values.empty(i)) {
       REQUIRE(multi_reg_prediction_values.empty(i));
     } else {
-      REQUIRE(equal_doubles(reg_prediction_values.get(i, 0), multi_reg_prediction_values.get(i, 0), 1.0e-10));
+      std::vector<double> prediction = prediction_strategy.predict(reg_prediction_values.get_values(i));
+      std::vector<double> prediction_multi = multi_prediction_strategy.predict(multi_reg_prediction_values.get_values(i));
+      REQUIRE(prediction.size() == prediction_multi.size());
+      REQUIRE(equal_doubles(prediction[0], prediction_multi[0], 1e-10));
     }
   }
 }

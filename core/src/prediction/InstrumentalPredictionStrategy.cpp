@@ -31,16 +31,17 @@ const std::size_t InstrumentalPredictionStrategy::INSTRUMENT = 2;
 const std::size_t InstrumentalPredictionStrategy::OUTCOME_INSTRUMENT = 3;
 const std::size_t InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT = 4;
 const std::size_t InstrumentalPredictionStrategy::INSTRUMENT_INSTRUMENT = 5;
+const std::size_t InstrumentalPredictionStrategy::WEIGHT = 6;
 
-const std::size_t NUM_TYPES = 6;
+const std::size_t NUM_TYPES = 7;
 
 size_t InstrumentalPredictionStrategy::prediction_length() const {
     return 1;
 }
 
 std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<double>& average) const {
-  double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
-  double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) - average.at(TREATMENT) * average.at(INSTRUMENT);
+  double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) * average.at(WEIGHT) - average.at(OUTCOME) * average.at(INSTRUMENT);
+  double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) * average.at(WEIGHT) - average.at(TREATMENT) * average.at(INSTRUMENT);
 
   return { instrument_effect_numerator / first_stage_numerator };
 }
@@ -165,9 +166,6 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
       continue;
     }
 
-    std::vector<double>& value = values[i];
-    value.resize(NUM_TYPES);
-
     double sum_Y = 0;
     double sum_W = 0;
     double sum_Z = 0;
@@ -191,13 +189,16 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     if (std::abs(sum_weight) <= 1e-16) {
       continue;
     }
+    std::vector<double>& value = values[i];
+    value.resize(NUM_TYPES);
 
-    value[OUTCOME] = sum_Y / sum_weight;
-    value[TREATMENT] = sum_W / sum_weight;
-    value[INSTRUMENT] = sum_Z / sum_weight;
-    value[OUTCOME_INSTRUMENT] = sum_YZ / sum_weight;
-    value[TREATMENT_INSTRUMENT] = sum_WZ / sum_weight;
-    value[INSTRUMENT_INSTRUMENT] = sum_ZZ / sum_weight;
+    value[OUTCOME] = sum_Y / leaf_size;
+    value[TREATMENT] = sum_W / leaf_size;
+    value[INSTRUMENT] = sum_Z / leaf_size;
+    value[OUTCOME_INSTRUMENT] = sum_YZ / leaf_size;
+    value[TREATMENT_INSTRUMENT] = sum_WZ / leaf_size;
+    value[INSTRUMENT_INSTRUMENT] = sum_ZZ / leaf_size;
+    value[WEIGHT] = sum_weight / leaf_size;
   }
 
   return PredictionValues(values, NUM_TYPES);

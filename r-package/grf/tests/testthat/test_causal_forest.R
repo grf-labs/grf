@@ -137,8 +137,8 @@ test_that("local linear causal forests with large lambda are equivalent to causa
   expect_lt(mean((preds.ll - preds.cf)^2), 0.02)
 })
 
-test_that("predictions are invariant to scaling of the sample weights.", {
-  n <- 100
+test_that("causal forest predictions and variance estimates are invariant to scaling of the sample weights.", {
+  n <- 200
   p <- 6
   X <- matrix(rnorm(n * p), n, p)
   e <- 1 / (1 + exp(-2 * X[, 1] + 3 * X[, 2]))
@@ -148,10 +148,38 @@ test_that("predictions are invariant to scaling of the sample weights.", {
   e.cc <- 1 / (1 + exp(-2 * X[, 1]))
   sample.weights <- 1 / e.cc
 
+  # The multiple is a power of 2 to avoid rounding errors allowing for exact comparison
+  # between two forest with the same seed.
   forest.1 <- causal_forest(X, Y, W, sample.weights = sample.weights, seed = 1)
-  # The multiple is a power of 2 to avoid rounding errors.
   forest.2 <- causal_forest(X, Y, W, sample.weights = 64 * sample.weights, seed = 1)
-  expect_true(all(abs(forest.2$predictions - forest.1$predictions) < 1e-10))
+  pred.1 <- predict(forest.1, estimate.variance = TRUE)
+  pred.2 <- predict(forest.2, estimate.variance = TRUE)
+
+  expect_equal(pred.1$predictions, pred.2$predictions, tol = 1e-10)
+  expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tol = 1e-10)
+  expect_equal(pred.1$debiased.error, pred.2$debiased.error, tol = 1e-10)
+})
+
+test_that("sample weighted causal forest is estimated with kernel weights `forest.weights * sample.weights`", {
+  n <- 500
+  p <- 6
+  X <- matrix(rnorm(n * p), n, p)
+  e <- 1 / (1 + exp(-X[, 1] + 2 * X[, 2]))
+  W <- rbinom(n, 1, e)
+  tau <- 2 * (X[, 1] > 0 & X[, 5] > 0) -
+    0.5 * (X[, 2] > 0) - 0.5 * (X[, 3] > 0) - 0.5 * (X[, 4] > 0)
+  Y <- W * tau + rnorm(n)
+  e.cc <- 1 - 0.9 * (X[, 1] > 0 & X[, 5] > 0)
+  cc <- as.logical(rbinom(n, 1, e.cc))
+  sample.weights <- 1 / e.cc
+  cf <- causal_forest(X, Y, W, Y.hat = 0, W.hat = 0, sample.weights = sample.weights, num.trees = 250)
+
+  x1 <- X[1, , drop = F]
+  theta1 <- predict(cf, x1)$predictions
+  alpha1 <- get_sample_weights(cf, x1)[1, ]
+  theta1.lm <- lm(Y ~ W, weights = alpha1 * sample.weights)
+
+  expect_equal(theta1, theta1.lm$coefficients[[2]], tol = 1e-6)
 })
 
 test_that("IPCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {

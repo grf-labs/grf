@@ -170,18 +170,55 @@ test_that("debiased errors are smaller than raw errors [with sample weights]", {
   expect_true(all(preds$debiased.error^2 < preds$error^2))
 })
 
-test_that("predictions are invariant to scaling of the sample weights.", {
-  n <- 1000
+test_that("predictions and variance estimates are invariant to scaling of the sample weights.", {
+  n <- 500
   p <- 2
   X <- matrix(rnorm(n * p), n, p)
   Y <- abs(X[, 1]) + 0.1 * rnorm(n)
   e <- 1 / (1 + exp(-3 * X[, 1]))
   sample.weights <- 1 / e
 
-  forest.1 <- regression_forest(X, Y, sample.weights = sample.weights)
-  forest.2 <- regression_forest(X, Y, sample.weights = 1e-6 * sample.weights)
-  expect_true(max(abs(forest.1$predictions - forest.2$predictions)) < .1)
-  # forests are built with different random seeds, hence possibly poor agreement
+  # The multiple is a power of 2 to avoid rounding errors allowing for exact comparison
+  # between two forest with the same seed.
+  forest.1 <- regression_forest(X, Y, sample.weights = sample.weights, seed = 1)
+  forest.2 <- regression_forest(X, Y, sample.weights = 64 * sample.weights, seed = 1)
+  pred.1 <- predict(forest.1, estimate.variance = TRUE)
+  pred.2 <- predict(forest.2, estimate.variance = TRUE)
+
+  expect_equal(pred.1$predictions, pred.2$predictions, tol = 1e-10)
+  expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tol = 1e-10)
+  expect_equal(pred.1$debiased.error, pred.2$debiased.error, tol = 1e-10)
+})
+
+test_that("sample weighted regression forest works as expected", {
+  n <- 2000
+  p <- 5
+  obs.prob <- 1 / 20
+  Y0 <- rbinom(n, 1, obs.prob / (1 + obs.prob))
+  Y <- Y0 + rnorm(n) * 0.01
+  X <- matrix(rnorm(n * p), n, p)
+  sample.weights <- 1 + Y0 * (1 / obs.prob - 1)
+  rf <- regression_forest(X, Y, sample.weights = sample.weights, num.trees = 250)
+
+  expect_equal(mean(predict(rf)$predictions), weighted.mean(Y, sample.weights), tol = 0.05)
+})
+
+test_that("sample weighted regression forest is estimated with kernel weights `forest.weights * sample.weights`", {
+  n <- 2000
+  p <- 5
+  obs.prob <- 1 / 20
+  Y0 <- rbinom(n, 1, obs.prob / (1 + obs.prob))
+  Y <- Y0 + rnorm(n)*0.01
+  X <- matrix(rnorm(n*p), n, p)
+  sample.weights <- 1 + Y0 * (1 / obs.prob - 1)
+  rf <- regression_forest(X, Y, sample.weights = sample.weights, num.trees = 250)
+
+  x1 <- X[1, , drop = F]
+  theta1 <- predict(rf, x1)$predictions
+  alpha1 <- get_sample_weights(rf, x1)[1, ]
+  theta1.lm <- lm(Y ~ 1, weights = alpha1 * sample.weights)
+
+  expect_equal(theta1, theta1.lm$coefficients[[1]], tol = 1e-6)
 })
 
 test_that("sample weighting in the training of a regression forest improves its sample-weighted MSE.", {

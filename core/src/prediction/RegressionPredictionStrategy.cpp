@@ -22,13 +22,14 @@
 namespace grf {
 
 const size_t RegressionPredictionStrategy::OUTCOME = 0;
+const size_t RegressionPredictionStrategy::WEIGHT = 1;
 
 size_t RegressionPredictionStrategy::prediction_length() const {
     return 1;
 }
 
 std::vector<double> RegressionPredictionStrategy::predict(const std::vector<double>& average) const {
-  return { average.at(OUTCOME) };
+  return { average.at(OUTCOME) / average.at(WEIGHT) };
 }
 
 std::vector<double> RegressionPredictionStrategy::compute_variance(
@@ -36,7 +37,7 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
     const PredictionValues& leaf_values,
     size_t ci_group_size) const {
 
-  double average_outcome = average.at(OUTCOME);
+  double average_outcome = average.at(OUTCOME) / average.at(WEIGHT);
 
   double num_good_groups = 0;
   double psi_squared = 0;
@@ -57,7 +58,7 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
 
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t i = group * ci_group_size + j;
-      double psi_1 = leaf_values.get(i, OUTCOME) - average_outcome;
+      double psi_1 = leaf_values.get(i, OUTCOME) / leaf_values.get(i, WEIGHT) - average_outcome;
 
       psi_squared += psi_1 * psi_1;
       group_psi += psi_1;
@@ -84,7 +85,7 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
 
 
 size_t RegressionPredictionStrategy::prediction_value_length() const {
-  return 1;
+  return 2;
 }
 
 PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
@@ -112,11 +113,12 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     }
 
     std::vector<double>& averages = values[i];
-    averages.resize(1);
-    averages[OUTCOME] = sum / weight;
+    averages.resize(2);
+    averages[OUTCOME] = sum / leaf_node.size();
+    averages[WEIGHT] = weight / leaf_node.size();
   }
 
-  return PredictionValues(values, 1);
+  return PredictionValues(values, 2);
 }
 
 std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_error(
@@ -126,7 +128,7 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
     const Data& data) const {
   double outcome = data.get_outcome(sample);
 
-  double error = average.at(OUTCOME) - outcome;
+  double error = average.at(OUTCOME) / average.at(WEIGHT) - outcome;
   double mse = error * error;
 
   double bias = 0.0;
@@ -136,7 +138,7 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
       continue;
     }
 
-    double tree_variance = leaf_values.get(n, OUTCOME) - average.at(OUTCOME);
+    double tree_variance = leaf_values.get(n, OUTCOME) / leaf_values.get(n, WEIGHT) - average.at(OUTCOME) / average.at(WEIGHT);
     bias += tree_variance * tree_variance;
     num_trees++;
   }

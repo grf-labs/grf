@@ -32,8 +32,8 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
 //  treatment: {1, 0, 0, 0, 1, 0, 1, 0, 0, 0}
 //  instrument: {0, 0, 1, 1, 1, 0, 1, 0, 1, 0}
 
-  std::vector<double> averages = {-1.1251472, 0.3, 0.5, -0.1065444, 0.2};
-  std::vector<double> flipped_averages = {-1.1251472, 0.7, 0.5, -0.1065444, 0.3};
+  std::vector<double> averages = {-1.1251472, 0.3, 0.5, -0.1065444, 0.2, 1, 1};
+  std::vector<double> flipped_averages = {-1.1251472, 0.7, 0.5, -0.1065444, 0.3, 1, 1};
 
   InstrumentalPredictionStrategy prediction_strategy;
   std::vector<double> first_prediction = prediction_strategy.predict(averages);
@@ -46,9 +46,9 @@ TEST_CASE("flipping signs of treatment flips predictions", "[instrumental, predi
 }
 
 TEST_CASE("instrumental variance estimates are positive", "[regression, prediction]") {
-  std::vector<double> averages = {1, 0, 4.5, 2, 0.75};
+  std::vector<double> averages = {1, 0, 4.5, 2, 0.75, 1, 1};
   std::vector<std::vector<double>> leaf_values =
-      {{1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {-2, -3, 5, -3, -1}, {1, 0, 1, 2, 1}};
+      {{1, 1, 1, 1, 1, 1, 1}, {2, 2, 2, 2, 2, 1, 1}, {-2, -3, 5, -3, -1, 1, 1}, {1, 0, 1, 2, 1, 1, 1}};
 
   InstrumentalPredictionStrategy prediction_strategy;
   std::vector<double> variance = prediction_strategy.compute_variance(
@@ -59,13 +59,13 @@ TEST_CASE("instrumental variance estimates are positive", "[regression, predicti
 }
 
 TEST_CASE("scaling outcome scales instrumental variance", "[instrumental, prediction]") {
-  std::vector<double> averages = {1, 0, 4.5, 2, 0.75};
+  std::vector<double> averages = {1, 0, 4.5, 2, 0.75, 1, 1};
   std::vector<std::vector<double>> leaf_values =
-      {{1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {-2, -3, 5, -3, -1}, {1, 0, 1, 2, 1}};
+      {{1, 1, 1, 1, 1, 1, 1}, {2, 2, 2, 2, 2, 1, 1}, {-2, -3, 5, -3, -1, 1, 1}, {1, 0, 1, 2, 1, 1, 1}};
 
-  std::vector<double> scaled_average = {2, 0, 4.5, 4, 0.75};
+  std::vector<double> scaled_average = {2, 0, 4.5, 4, 0.75, 1, 1};
   std::vector<std::vector<double>> scaled_leaf_values =
-      {{2, 1, 1, 2, 1}, {4, 2, 2, 4, 2}, {-4, -3, 5, -6, -1}, {2, 0, 1, 4, 1}};
+      {{2, 1, 1, 2, 1, 1, 1}, {4, 2, 2, 4, 2, 1, 1}, {-4, -3, 5, -6, -1, 1, 1}, {2, 0, 1, 4, 1, 1, 1}};
 
   InstrumentalPredictionStrategy prediction_strategy;
   std::vector<double> first_variance = prediction_strategy.compute_variance(
@@ -85,8 +85,8 @@ TEST_CASE("scaling outcome scales instrumental variance", "[instrumental, predic
 TEST_CASE("monte carlo errors are nonzero", "[instrumental, prediction]") {
   std::vector<double> average = {2.725, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
   std::vector<std::vector<double>> leaf_values = {
-    {2, 1, 1, 2, 1, 2}, {4, 2, 2, 4, 2, 1}, {-4, -3, 5, -6, -1, 0},
-    {2, 0, 1, 4, 1, 0}, {2, 0, 1, 4, 1, 3}, {2, 0, 1, 3, 4, 1}
+    {2, 1, 1, 2, 1, 2, 1}, {4, 2, 2, 4, 2, 1, 1}, {-4, -3, 5, -6, -1, 0, 1},
+    {2, 0, 1, 4, 1, 0, 1}, {2, 0, 1, 4, 1, 3, 1}, {2, 0, 1, 3, 4, 1, 1}
   };
 
   std::vector<double> outcomes = {6.4, 1.0, 1.4, 1.0, 0.0, 1.6,

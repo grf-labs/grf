@@ -50,6 +50,7 @@ public:
 
 private:
   static const std::size_t OUTCOME;
+  static const std::size_t WEIGHT;
   ObjectiveBayesDebiaser bayes_debiaser;
 };
 
