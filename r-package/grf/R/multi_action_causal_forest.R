@@ -49,7 +49,7 @@
 #'             \eqn{\sqrt p + 20} where p is the number of variables.
 #' @param min.node.size A target for the minimum number of observations in each tree leaf. Note that nodes
 #'                      with size smaller than min.node.size can occur, as in the original randomForest package.
-#'                      Default is min(ceiling(4 * num.treatments, 50).
+#'                      Default is 5.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
 #'  For a detailed description of honesty, honesty.fraction, honesty.prune.leaves, and recommendations for
 #'  parameter tuning, see the grf
@@ -138,7 +138,7 @@ multi_action_causal_forest <- function(X, Y, W,
                                        equalize.cluster.weights = FALSE,
                                        sample.fraction = 0.5,
                                        mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
-                                       min.node.size = min(ceiling(4 * length(levels(W))), 50),
+                                       min.node.size = 5,
                                        honesty = TRUE,
                                        honesty.fraction = 0.5,
                                        honesty.prune.leaves = TRUE,
@@ -197,28 +197,14 @@ multi_action_causal_forest <- function(X, Y, W,
     stop("Y.hat has incorrect length.")
   }
 
-  check.What <- TRUE
   if (is.null(W.hat)) {
     args.orthog$tune.parameters <- NULL # Tuning is not yet implemented for probability_forest
     forest.W <- do.call(probability_forest, c(Y = list(W), args.orthog))
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == num.treatments) {
     W.hat <- matrix(W.hat, nrow = length(Y), ncol = num.treatments, byrow = TRUE)
-    # Passing this way may also be used to disable orthogonalization (i.e. W.hat = [0, ..., 0])
-    check.What <- FALSE
   } else if ((NROW(W.hat) != nrow(X)) || (NCOL(W.hat) != num.treatments)) {
     stop("W.hat has incorrect dimensions: should be a matrix of propensities for each (observation, action).")
-  }
-
-  if (check.What && min(W.hat) <= 0.05) {
-    min <- apply(W.hat, 2, min)
-    warning(paste0(
-      "Estimated treatment propensities take values very close to 0,",
-      " meaning estimates may not be well identified and some predictions may be empty.",
-      " In particular, the minimum propensity estimates for each arm is ",
-      paste0(levels(W), ": ", round(min, 3), collapse = " "),
-      "."
-    ))
   }
 
   Y.centered <- Y - Y.hat
@@ -276,7 +262,8 @@ multi_action_causal_forest <- function(X, Y, W,
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return A list with elements `predictions`: a matrix with K-1 columns with predictions for each contrast.
+#' @return A list with elements `predictions`: a matrix with K-1 columns with predictions for each contrast,
+#'  and optionally `variance.estimates`: a matrix with K-1 columns with variance estimates for each contrast.
 #'
 #' @examples
 #' \donttest{
@@ -365,5 +352,6 @@ predict.multi_action_causal_forest <- function(object,
   }
   colnames(ret$predictions) <- contrast.names
 
-  list(predictions = ret$predictions)
+  list(predictions = ret$predictions,
+       variance.estimates = if(estimate.variance) ret$variance.estimates)
 }

@@ -36,9 +36,9 @@ TEST_CASE("multi causal predictions with one treatment is identical to causal fo
     {},
     {21, 22, 38, 41, 18},
     {21, 22, 38},
-    // {21, 22}, // InstrumentalPredictionStrategy may predict NaN with n = 1 or zero variation w.
-    // {87},
-    // {87, 87},
+    {21, 22},
+    {87},
+    {87, 87},
     {101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
     117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130}
   };
@@ -51,7 +51,6 @@ TEST_CASE("multi causal predictions with one treatment is identical to causal fo
 
   REQUIRE(prediction_values.get_num_nodes() == multi_prediction_values.get_num_nodes());
   REQUIRE(prediction_values.get_num_nodes() == num_nodes);
-  REQUIRE(multi_prediction_values.get_num_types() == 1);
 
   for (size_t i = 0; i < num_nodes; i++) {
     if (prediction_values.empty(i)) {
@@ -78,9 +77,9 @@ TEST_CASE("multi causal predictions with one continuous treatment is identical t
     {},
     {21, 22, 38, 41, 18},
     {21, 22, 38},
-    // {21, 22},
-    // {87},  // InstrumentalPredictionStrategy may predict NaN with n = 1 or zero variation w.
-    // {87, 87},
+    {21, 22},
+    {87},
+    {87, 87},
     {101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
     117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130}
   };
@@ -93,7 +92,6 @@ TEST_CASE("multi causal predictions with one continuous treatment is identical t
 
   REQUIRE(prediction_values.get_num_nodes() == multi_prediction_values.get_num_nodes());
   REQUIRE(prediction_values.get_num_nodes() == num_nodes);
-  REQUIRE(multi_prediction_values.get_num_types() == 1);
 
   for (size_t i = 0; i < num_nodes; i++) {
     if (prediction_values.empty(i)) {
@@ -127,8 +125,8 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
     {},
     {21, 22, 38, 41, 18},
     {21, 22, 38},
-    // {21, 22},
-    // {87},  // InstrumentalPredictionStrategy may predict NaN with n = 1 or zero variation w.
+    {21, 22},
+    // {87}, //These lines can be uncommented and should pass when https://github.com/grf-labs/grf/pull/774 is merged.
     // {87, 87},
     {101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
     117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130}
@@ -142,7 +140,6 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
 
   REQUIRE(prediction_values.get_num_nodes() == multi_prediction_values.get_num_nodes());
   REQUIRE(prediction_values.get_num_nodes() == num_nodes);
-  REQUIRE(multi_prediction_values.get_num_types() == 1);
 
   for (size_t i = 0; i < num_nodes; i++) {
     if (prediction_values.empty(i)) {
@@ -150,6 +147,46 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
     } else {
       std::vector<double> prediction = prediction_strategy.predict(prediction_values.get_values(i));
       std::vector<double> prediction_multi = multi_prediction_strategy.predict(multi_prediction_values.get_values(i));
+      REQUIRE(prediction.size() == prediction_multi.size());
+      REQUIRE(equal_doubles(prediction[0], prediction_multi[0], 1e-5));
+    }
+  }
+}
+
+TEST_CASE("multi causal variance estimates with one continuous treatment is identical to causal forest", "[multi_causal, prediction]") {
+  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
+  data->set_outcome_index(10);
+  data->set_treatment_index(0); // Set the treatment variable to the first continous covariate
+  data->set_instrument_index(0);
+
+  std::vector<std::vector<size_t>> leaf_samples{
+    {0, 1, 2, 3, 4, 5},
+    {6, 7, 8, 9, 10, 11},
+    {12, 13, 14, 15, 16},
+    {},
+    {21, 22, 38, 41, 18},
+    {21, 22, 38},
+    {87},
+    {87, 87},
+    {101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
+    117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130}
+  };
+  size_t num_nodes = leaf_samples.size();
+
+  InstrumentalPredictionStrategy prediction_strategy;
+  MultiCausalPredictionStrategy multi_prediction_strategy(1);
+  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
+  PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
+
+  REQUIRE(prediction_values.get_num_nodes() == multi_prediction_values.get_num_nodes());
+  REQUIRE(prediction_values.get_num_nodes() == num_nodes);
+
+  for (size_t i = 0; i < num_nodes; i++) {
+    if (prediction_values.empty(i)) {
+      REQUIRE(multi_prediction_values.empty(i));
+    } else {
+      std::vector<double> prediction = prediction_strategy.compute_variance(prediction_values.get_values(i), prediction_values, 2);
+      std::vector<double> prediction_multi = multi_prediction_strategy.compute_variance(multi_prediction_values.get_values(i), multi_prediction_values, 2);
       REQUIRE(prediction.size() == prediction_multi.size());
       REQUIRE(equal_doubles(prediction[0], prediction_multi[0], 1e-5));
     }

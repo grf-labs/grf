@@ -16,7 +16,7 @@ multi_action_causal_forest(
   equalize.cluster.weights = FALSE,
   sample.fraction = 0.5,
   mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
-  min.node.size = min(ceiling(4 * length(levels(W))), 50),
+  min.node.size = 5,
   honesty = TRUE,
   honesty.fraction = 0.5,
   honesty.prune.leaves = TRUE,
@@ -76,7 +76,7 @@ further be cut by a factor of honesty.fraction. Default is 0.5.}
 
 \item{min.node.size}{A target for the minimum number of observations in each tree leaf. Note that nodes
 with size smaller than min.node.size can occur, as in the original randomForest package.
-Default is min(ceiling(4 * num.treatments, 50).}
+Default is 5.}
 
 \item{honesty}{Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
 For a detailed description of honesty, honesty.fraction, honesty.prune.leaves, and recommendations for

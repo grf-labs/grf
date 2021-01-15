@@ -30,7 +30,8 @@ automatically selects an appropriate amount.}
 \item{...}{Additional arguments (currently ignored).}
 }
 \value{
-A list with elements `predictions`: a matrix with K-1 columns with predictions for each contrast.
+A list with elements `predictions`: a matrix with K-1 columns with predictions for each contrast,
+ and optionally `variance.estimates`: a matrix with K-1 columns with variance estimates for each contrast.
 }
 \description{
 Gets estimates of contrasts tau_k(x) using a trained multi action causal forest.
