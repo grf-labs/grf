@@ -178,7 +178,8 @@ Rcpp::NumericMatrix RcppUtilities::create_error_matrix(const std::vector<Predict
     return Rcpp::NumericMatrix(0);
   }
 
-  size_t prediction_length = first_prediction.size();
+  size_t prediction_length = 1;
+  // size_t prediction_length = first_prediction.size();
   Rcpp::NumericMatrix result(predictions.size(), prediction_length);
 
   for (size_t i = 0; i < predictions.size(); i++) {
@@ -202,7 +203,8 @@ Rcpp::NumericMatrix RcppUtilities::create_excess_error_matrix(const std::vector<
     return Rcpp::NumericMatrix(0);
   }
 
-  size_t prediction_length = first_prediction.size();
+  // size_t prediction_length = first_prediction.size();
+  size_t prediction_length = 1;
   Rcpp::NumericMatrix result(predictions.size(), prediction_length);
 
   for (size_t i = 0; i < predictions.size(); i++) {

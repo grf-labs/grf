@@ -29,10 +29,11 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
                               std::vector<size_t> clusters,
                               unsigned int samples_per_cluster,
                               bool compute_oob_predictions,
+                              bool calculate_error,
                               unsigned int num_threads,
                               unsigned int seed) {
   size_t num_treatments = treatment_index.size();
-  ForestTrainer trainer = multi_causal_trainer(num_treatments);
+  ForestTrainer trainer = multi_causal_trainer(num_treatments, calculate_error);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
@@ -47,7 +48,7 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
-    ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments);
+    ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments, calculate_error);
     predictions = predictor.predict_oob(forest, *data, false);
   }
 
@@ -68,7 +69,7 @@ Rcpp::List multi_causal_predict(Rcpp::List forest_object,
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
-  ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments);
+  ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments, false);
   std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
@@ -86,7 +87,7 @@ Rcpp::List multi_causal_predict_oob(Rcpp::List forest_object,
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
-  ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments);
+  ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments, false);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 

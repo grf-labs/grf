@@ -49,11 +49,15 @@ namespace grf {
  * contiguously into a std::vector in the `pre-compute` step, and "re-constructed"
  * with pointers in the `predict` step through Eigen's Map class.
  *
+ * The member variable `calculate_error` computes optional error estimates
+ * for tuning. It is false by default because it is costly to compute..
+ *
 */
 class MultiCausalPredictionStrategy final: public OptimizedPredictionStrategy {
 public:
 
-  MultiCausalPredictionStrategy(size_t num_treatments);
+  MultiCausalPredictionStrategy(size_t num_treatments,
+                                bool calculate_error);
 
   size_t prediction_value_length() const;
   PredictionValues precompute_prediction_values(
@@ -82,6 +86,7 @@ private:
   size_t W_index;
   size_t YW_index;
   size_t WW_index;
+  bool calculate_error;
   ObjectiveBayesDebiaser bayes_debiaser;
 };
 

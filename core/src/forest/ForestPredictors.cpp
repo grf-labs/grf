@@ -42,9 +42,9 @@ ForestPredictor instrumental_predictor(uint num_threads) {
   return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
 
-ForestPredictor multi_causal_predictor(uint num_threads, size_t num_treatments) {
+ForestPredictor multi_causal_predictor(uint num_threads, size_t num_treatments, bool calculate_error) {
   num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new MultiCausalPredictionStrategy(num_treatments));
+  std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new MultiCausalPredictionStrategy(num_treatments, calculate_error));
   return ForestPredictor(num_threads, std::move(prediction_strategy));
 }
 
