@@ -26,9 +26,7 @@ ForestPredictor custom_predictor(uint num_threads);
 
 ForestPredictor instrumental_predictor(uint num_threads);
 
-ForestPredictor multi_causal_predictor(uint num_threads,
-                                       size_t num_treatments,
-                                       bool calculate_error);
+ForestPredictor multi_causal_predictor(uint num_threads, size_t num_treatments);
 
 ForestPredictor quantile_predictor(uint num_threads,
                                    const std::vector<double>& quantiles);

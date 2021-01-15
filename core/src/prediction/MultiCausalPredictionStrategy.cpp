@@ -24,8 +24,7 @@
 
 namespace grf {
 
-MultiCausalPredictionStrategy::MultiCausalPredictionStrategy(size_t num_treatments,
-                                                             bool calculate_error) {
+MultiCausalPredictionStrategy::MultiCausalPredictionStrategy(size_t num_treatments) {
   this->num_treatments = num_treatments;
   this->num_types = 2 + 2 * num_treatments + num_treatments * num_treatments;
   this->weight_index = 0;
@@ -33,7 +32,6 @@ MultiCausalPredictionStrategy::MultiCausalPredictionStrategy(size_t num_treatmen
   this->W_index = 2;
   this->YW_index = 2 + num_treatments;
   this->WW_index = 2 + 2 * num_treatments;
-  this->calculate_error = calculate_error;
 }
 
 size_t MultiCausalPredictionStrategy::prediction_length() const {
@@ -204,6 +202,7 @@ PredictionValues MultiCausalPredictionStrategy::precompute_prediction_values(
     for (size_t j = 0; j < num_treatments * num_treatments; j++) {
       value.push_back(sum_WW.data()[j] / num_samples);
     }
+
   }
 
   return PredictionValues(values, num_types);
@@ -214,71 +213,7 @@ std::vector<std::pair<double, double>> MultiCausalPredictionStrategy::compute_er
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
     const Data& data) const {
-  if (!calculate_error) {
-    return { std::make_pair<double, double>(NAN, NAN) };
-  }
-
-  double weight_bar = average[weight_index];
-  double Y_bar = average[Y_index];
-  Eigen::Map<const Eigen::VectorXd> W_bar(average.data() + W_index, num_treatments);
-  Eigen::Map<const Eigen::VectorXd> YW_bar(average.data() + YW_index, num_treatments);
-  Eigen::Map<const Eigen::MatrixXd> WW_bar(average.data() + WW_index, num_treatments, num_treatments);
-
-  Eigen::VectorXd theta = (WW_bar * weight_bar - W_bar * W_bar.transpose()).inverse() *
-   (YW_bar * weight_bar - Y_bar * W_bar);
-
-  double outcome = data.get_outcome(sample);
-  Eigen::VectorXd treatment = data.get_treatments(sample);
-
-  // To justify the squared residual below as an error criterion in the case of CATE estimation
-  // with an unconfounded treatment assignment, see Nie and Wager (2017).
-  double residual = outcome - theta.transpose() * (treatment - W_bar) - Y_bar;
-  double error_raw = residual * residual;
-
-  // Estimates the Monte Carlo bias of the raw error via the jackknife estimate of variance.
-  size_t num_trees = 0;
-  for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
-   if (leaf_values.empty(n)) {
-     continue;
-   }
-   num_trees++;
-  }
-
-  // If the treatment effect estimate is due to less than 5 trees, do not attempt to estimate error,
-  // as this quantity is unstable due to non-linearities.
-  if (num_trees <= 5) {
-   return { std::make_pair<double, double>(NAN, NAN) };
-  }
-
-  // Compute 'leave one tree out' treatment effect estimates, and use them get a jackknife estimate of the excess error.
-  double error_bias = 0.0;
-  for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
-   if (leaf_values.empty(n)) {
-     continue;
-   }
-   const std::vector<double>& leaf_value = leaf_values.get_values(n);
-   double leaf_weight = leaf_value[weight_index]; // LATER TODO
-   double leaf_Y = leaf_value[Y_index];
-   Eigen::Map<const Eigen::VectorXd> leaf_W(leaf_value.data() + W_index, num_treatments);
-   Eigen::Map<const Eigen::VectorXd> leaf_YW(leaf_value.data() + YW_index, num_treatments);
-   Eigen::Map<const Eigen::MatrixXd> leaf_WW(leaf_value.data() + WW_index, num_treatments, num_treatments);
-
-   double Y_loto = (num_trees * Y_bar - leaf_Y) / (num_trees - 1);
-   Eigen::VectorXd W_loto = (num_trees * W_bar - leaf_W) / (num_trees - 1);
-   Eigen::VectorXd YW_loto = (num_trees * YW_bar - leaf_YW) / (num_trees - 1);
-   Eigen::MatrixXd WW_loto = (num_trees * WW_bar - leaf_WW) / (num_trees - 1);
-
-   Eigen::VectorXd theta_loto = (WW_loto - W_loto * W_loto.transpose()).inverse() *
-    (YW_loto - Y_loto * W_loto);
-   double residual_loto = outcome - theta_loto.transpose() * (treatment - W_loto) - Y_loto;
-   error_bias += (residual_loto - residual) * (residual_loto - residual);
-  }
-
-  error_bias *= ((double) (num_trees - 1)) / num_trees;
-  double debiased_error = error_raw - error_bias;
-  auto output = std::make_pair(debiased_error, error_bias);
-
-  return {output};
+  return { std::make_pair<double, double>(NAN, NAN) };
 }
 
 } // namespace grf

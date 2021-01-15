@@ -67,22 +67,12 @@
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 2.
-#' @param tune.parameters A vector of parameter names to tune.
-#'  If "all": all tunable parameters are tuned by cross-validation. The following parameters are
-#'  tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
-#'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE the honesty.* parameters are not tuned.
-#'  Default is "none" (no parameters are tuned).
-#' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 200.
-#' @param tune.num.reps The number of forests used to fit the tuning model. Default is 50.
-#' @param tune.num.draws The number of random parameter values considered when using the model
-#'                          to select the optimal parameters. Default is 1000.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
 #'
-#' @return A trained multi action causal forest object. If tune.parameters is enabled,
-#'  then tuning information will be included through the `tuning.output` attribute.
+#' @return A trained multi action causal forest object.
 #'
 #' @examples
 #' \donttest{
@@ -155,10 +145,6 @@ multi_action_causal_forest <- function(X, Y, W,
                                        alpha = 0.05,
                                        imbalance.penalty = 0,
                                        ci.group.size = 2,
-                                       tune.parameters = "none",
-                                       tune.num.trees = 200,
-                                       tune.num.reps = 50,
-                                       tune.num.draws = 1000,
                                        compute.oob.predictions = TRUE,
                                        num.threads = NULL,
                                        seed = runif(1, 0, .Machine$integer.max)) {
@@ -182,16 +168,7 @@ multi_action_causal_forest <- function(X, Y, W,
   if (num.treatments == 1) {
     stop("Can not compute contrasts from a single treatment.")
   }
-
-  all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
-                        "honesty.prune.leaves", "alpha", "imbalance.penalty")
-  default.parameters <- list(sample.fraction = 0.5,
-                             mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
-                             min.node.size = 5,
-                             honesty.fraction = 0.5,
-                             honesty.prune.leaves = TRUE,
-                             alpha = 0.05,
-                             imbalance.penalty = 0)
+  W.matrix <- stats::model.matrix(~ W - 1)
 
   args.orthog <- list(X = X,
                      num.trees = max(50, num.trees / 4),
@@ -207,7 +184,7 @@ multi_action_causal_forest <- function(X, Y, W,
                      alpha = alpha,
                      imbalance.penalty = imbalance.penalty,
                      ci.group.size = 1,
-                     tune.parameters = tune.parameters,
+                     tune.parameters = "none",
                      num.threads = num.threads,
                      seed = seed)
 
@@ -230,7 +207,6 @@ multi_action_causal_forest <- function(X, Y, W,
     stop("W.hat has incorrect dimensions: should be a matrix of propensities for each (observation, action).")
   }
 
-  W.matrix <- stats::model.matrix(~ W - 1)
   Y.centered <- Y - Y.hat
   W.centered <- W.matrix - W.hat
   data <- create_train_matrices(X,
@@ -254,33 +230,6 @@ multi_action_causal_forest <- function(X, Y, W,
                num.threads = num.threads,
                seed = seed)
 
-  tuning.output <- NULL
-  if (!identical(tune.parameters, "none")) {
-    if (identical(tune.parameters, "all")) {
-      tune.parameters <- all.tunable.params
-    } else {
-      tune.parameters <- unique(match.arg(tune.parameters, all.tunable.params, several.ok = TRUE))
-    }
-    if (!honesty) {
-      tune.parameters <- tune.parameters[!grepl("honesty", tune.parameters)]
-    }
-    args$calculate.error <- TRUE
-    tune.parameters.defaults <- default.parameters[tune.parameters]
-    tuning.output <- tune_forest(data = data,
-                                 nrow.X = nrow(X),
-                                 ncol.X = ncol(X),
-                                 args = args,
-                                 tune.parameters = tune.parameters,
-                                 tune.parameters.defaults = tune.parameters.defaults,
-                                 num.fit.trees = tune.num.trees,
-                                 num.fit.reps = tune.num.reps,
-                                 num.optimize.reps = tune.num.draws,
-                                 train = multi_causal_train)
-
-    args <- modifyList(args, as.list(tuning.output[["params"]]))
-  }
-  args$calculate.error <- TRUE
-
   forest <- do.call.rcpp(multi_causal_train, c(data, args))
   class(forest) <- c("multi_action_causal_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
@@ -292,8 +241,6 @@ multi_action_causal_forest <- function(X, Y, W,
   forest[["clusters"]] <- clusters
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["sample.weights"]] <- sample.weights
-  forest[["tunable.params"]] <- args[all.tunable.params]
-  forest[["tuning.output"]] <- tuning.output
   forest[["has.missing.values"]] <- has.missing.values
 
   forest

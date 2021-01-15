@@ -23,10 +23,6 @@ multi_action_causal_forest(
   alpha = 0.05,
   imbalance.penalty = 0,
   ci.group.size = 2,
-  tune.parameters = "none",
-  tune.num.trees = 200,
-  tune.num.reps = 50,
-  tune.num.draws = 1000,
   compute.oob.predictions = TRUE,
   num.threads = NULL,
   seed = runif(1, 0, .Machine$integer.max)
@@ -105,19 +101,6 @@ Only applies if honesty is enabled. Default is TRUE.}
 In order to provide confidence intervals, ci.group.size must
 be at least 2. Default is 2.}
 
-\item{tune.parameters}{A vector of parameter names to tune.
-If "all": all tunable parameters are tuned by cross-validation. The following parameters are
-tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
- "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE the honesty.* parameters are not tuned.
-Default is "none" (no parameters are tuned).}
-
-\item{tune.num.trees}{The number of trees in each 'mini forest' used to fit the tuning model. Default is 200.}
-
-\item{tune.num.reps}{The number of forests used to fit the tuning model. Default is 50.}
-
-\item{tune.num.draws}{The number of random parameter values considered when using the model
-to select the optimal parameters. Default is 1000.}
-
 \item{compute.oob.predictions}{Whether OOB predictions on training set should be precomputed. Default is TRUE.}
 
 \item{num.threads}{Number of threads used in training. By default, the number of threads is set
@@ -126,8 +109,7 @@ to the maximum hardware concurrency.}
 \item{seed}{The seed of the C++ random number generator.}
 }
 \value{
-A trained multi action causal forest object. If tune.parameters is enabled,
- then tuning information will be included through the `tuning.output` attribute.
+A trained multi action causal forest object.
 }
 \description{
 Trains a causal forest that can be used to estimate
