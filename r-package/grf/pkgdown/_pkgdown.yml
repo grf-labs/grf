@@ -39,7 +39,6 @@ reference:
     contents:
       - regression_forest
       - multi_regression_forest
-      - tune_regression_forest
       - predict.regression_forest
       - predict.multi_regression_forest
 
@@ -57,21 +56,17 @@ reference:
     contents:
       - causal_forest
       - multi_action_causal_forest
-      - tune_causal_forest
-      - tune_ll_causal_forest
       - predict.causal_forest
       - predict.multi_action_causal_forest
 
   - title: Instrumental forest
     contents:
       - instrumental_forest
-      - tune_instrumental_forest
       - predict.instrumental_forest
 
   - title: Local linear regression forest
     contents:
       - ll_regression_forest
-      - tune_ll_regression_forest
       - predict.ll_regression_forest
 
   - title: Boosted regression forest
