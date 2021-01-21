@@ -224,9 +224,9 @@ get_scores.instrumental_forest <- function(forest,
 #'
 #' @return A matrix of scores for each contrast.
 #'
-#' @method get_scores multi_action_causal_forest
+#' @method get_scores multi_arm_causal_forest
 #' @export
-get_scores.multi_action_causal_forest <- function(forest,
+get_scores.multi_arm_causal_forest <- function(forest,
                                                   subset = NULL,
                                                   ...) {
   subset <- validate_subset(forest, subset)

@@ -1,6 +1,6 @@
 library(grf)
 
-test_that("single treatment multi_action_causal_forest is similar to causal_forest", {
+test_that("single treatment multi_arm_causal_forest is similar to causal_forest", {
   # It is not possible to check this parity holds exactly since forest differences
   # accrue through numerical differences (e.g. relabeling in causal forest is done with doubles
   # and with Eigen data structures in multi action causal forest.)
@@ -15,7 +15,7 @@ test_that("single treatment multi_action_causal_forest is similar to causal_fore
 
   cf <- causal_forest(X, Y, W, W.hat = 0, Y.hat = 0, seed = 1, stabilize.splits = FALSE,
                      alpha = 0, min.node.size = 1, num.trees = 500)
-  mcf <- multi_action_causal_forest(X, Y, as.factor(W), W.hat = c(0, 0), Y.hat = 0, seed = 1,
+  mcf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(0, 0), Y.hat = 0, seed = 1,
                                     alpha = 0, min.node.size = 1, num.trees = 500)
 
   pp.cf <- predict(cf, estimate.variance = TRUE)
@@ -31,18 +31,18 @@ test_that("single treatment multi_action_causal_forest is similar to causal_fore
   expect_equal(mean(predict(cf, X)$predictions), mean(predict(mcf, X)$predictions[, 1]), tol = 0.05)
 })
 
-test_that("multi_action_causal_forest contrasts works as expected", {
+test_that("multi_arm_causal_forest contrasts works as expected", {
   n <- 500
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
   W <- as.factor(sample(c("A", "B", "C"), n, replace = TRUE))
   Y <- X[, 1] + 1.5 * (W == "A") + 2.8 * (W == "B") - 4 * (W == "C") + 0.1 * rnorm(n)
 
-  mcf.A <- multi_action_causal_forest(X, Y, W, num.trees = 500, seed = 1)
+  mcf.A <- multi_arm_causal_forest(X, Y, W, num.trees = 500, seed = 1)
   tau.hat.oob.A <- predict(mcf.A)$predictions
   tau.hat.A <- predict(mcf.A, X)$predictions
 
-  mcf.C <- multi_action_causal_forest(X, Y, relevel(W, ref = "C"), num.trees = 500, seed = 1)
+  mcf.C <- multi_arm_causal_forest(X, Y, relevel(W, ref = "C"), num.trees = 500, seed = 1)
   tau.hat.oob.C <- predict(mcf.C)$predictions
   tau.hat.C <- predict(mcf.C, X)$predictions
 
@@ -61,7 +61,7 @@ test_that("multi_action_causal_forest contrasts works as expected", {
   expect_equal(tau.hat.A[, "B - A"] - tau.hat.A[, "C - A"], tau.hat.C[, "B - C"], tol = 0.01)
 })
 
-test_that("multi_action_causal_forest ATE works as expected", {
+test_that("multi_arm_causal_forest ATE works as expected", {
   n <- 500
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
@@ -69,7 +69,7 @@ test_that("multi_action_causal_forest ATE works as expected", {
   tauB <- pmax(X[, 2], 0)
   tauC <- - 1.5 * abs(X[, 2])
   Y <- 2 + X[, 1] + tauB * (W == "B") + tauC * (W == "C") + 0.1 * rnorm(n)
-  mcf <- multi_action_causal_forest(X, Y, W, num.trees = 500)
+  mcf <- multi_arm_causal_forest(X, Y, W, num.trees = 500)
 
   ate <- average_treatment_effect(mcf)
   expect_equal(ate["B - A", "estimate"], mean(tauB), tol = 3 * ate["B - A", "std.err"])
@@ -78,14 +78,14 @@ test_that("multi_action_causal_forest ATE works as expected", {
   ate.subset <- average_treatment_effect(mcf, subset = X[, 2] < 0)
   expect_equal(ate.subset["B - A", "estimate"], 0, tol = 3 * ate.subset["B - A", "std.err"])
 
-  mcf.B <- multi_action_causal_forest(X, Y, relevel(W, ref = "B"), num.trees = 500)
+  mcf.B <- multi_arm_causal_forest(X, Y, relevel(W, ref = "B"), num.trees = 500)
   ate.B <- average_treatment_effect(mcf.B)
 
   expect_equal(ate.B["A - B", "estimate"], -1 * ate["B - A", "estimate"], tol = 0.05)
   expect_equal(ate.B["C - B", "estimate"], ate["C - A", "estimate"] - ate["B - A", "estimate"], tol = 0.05)
 })
 
-test_that("multi_action_causal_forest predictions are kernel weighted correctly", {
+test_that("multi_arm_causal_forest predictions are kernel weighted correctly", {
   n <- 250
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
@@ -94,8 +94,8 @@ test_that("multi_action_causal_forest predictions are kernel weighted correctly"
   tauC <- - 1.5 * abs(X[, 2])
   Y <- 2 + X[, 1] + tauB * (W == "B") + tauC * (W == "C") + rnorm(n)
   sample.weights <- sample(c(1, 5), n, TRUE)
-  mcf <- multi_action_causal_forest(X, Y, W, Y.hat = 0, W.hat = c(0, 0, 0), num.trees = 250)
-  mcf.weighted <- multi_action_causal_forest(X, Y, W, Y.hat = 0, W.hat = c(0, 0, 0), num.trees = 250, sample.weights = sample.weights)
+  mcf <- multi_arm_causal_forest(X, Y, W, Y.hat = 0, W.hat = c(0, 0, 0), num.trees = 250)
+  mcf.weighted <- multi_arm_causal_forest(X, Y, W, Y.hat = 0, W.hat = c(0, 0, 0), num.trees = 250, sample.weights = sample.weights)
 
   W.matrix <- stats::model.matrix(~ mcf$W.orig - 1)
   x1 <- X[1, , drop = F]
@@ -111,7 +111,7 @@ test_that("multi_action_causal_forest predictions are kernel weighted correctly"
   expect_equal(as.numeric(theta1.weighted), as.numeric(theta1.lm.weighted$coefficients[-1]), tol = 1e-6)
 })
 
-test_that("multi_action_causal_forest predictions and variance estimates are invariant to scaling of the sample weights.", {
+test_that("multi_arm_causal_forest predictions and variance estimates are invariant to scaling of the sample weights.", {
   n <- 250
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
@@ -123,8 +123,8 @@ test_that("multi_action_causal_forest predictions and variance estimates are inv
 
   # The multiple is a power of 2 to avoid rounding errors allowing for exact comparison
   # between two forest with the same seed.
-  forest.1 <- multi_action_causal_forest(X, Y, W, sample.weights = sample.weights, num.trees = 250, seed = 1)
-  forest.2 <- multi_action_causal_forest(X, Y, W, sample.weights = 64 * sample.weights, num.trees = 250, seed = 1)
+  forest.1 <- multi_arm_causal_forest(X, Y, W, sample.weights = sample.weights, num.trees = 250, seed = 1)
+  forest.2 <- multi_arm_causal_forest(X, Y, W, sample.weights = 64 * sample.weights, num.trees = 250, seed = 1)
   pred.1 <- predict(forest.1, estimate.variance = TRUE)
   pred.2 <- predict(forest.2, estimate.variance = TRUE)
 
@@ -133,7 +133,7 @@ test_that("multi_action_causal_forest predictions and variance estimates are inv
   # expect_equal(pred.1$debiased.error, pred.2$debiased.error, tol = 1e-10)
 })
 
-test_that("multi_action_causal_forest confidence intervals are reasonable", {
+test_that("multi_arm_causal_forest confidence intervals are reasonable", {
   n <- 500
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
@@ -141,7 +141,7 @@ test_that("multi_action_causal_forest confidence intervals are reasonable", {
   tauB <- pmax(X[, 2], 0)
   tauC <- - 1.5 * abs(X[, 2])
   Y <- 2 + X[, 1] + tauB * (W == "B") + tauC * (W == "C") + rnorm(n)
-  mcf <- multi_action_causal_forest(X, Y, W, num.trees = 500)
+  mcf <- multi_arm_causal_forest(X, Y, W, num.trees = 500)
 
   tau <- cbind(tauB, tauC)
   pp.mcf <- predict(mcf, estimate.variance = TRUE)

@@ -82,7 +82,7 @@
 #' X <- matrix(rnorm(n * p), n, p)
 #' W <- as.factor(sample(c("A", "B", "C"), n, replace = TRUE))
 #' Y <- X[, 1] + X[, 2] * (W == "B") - 1.5 * X[, 2] * (W == "C") + rnorm(n)
-#' mc.forest <- multi_action_causal_forest(X, Y, W)
+#' mc.forest <- multi_arm_causal_forest(X, Y, W)
 #'
 #' # Predict contrasts (out-of-bag) using the forest.
 #' # By default, the first ordinal treatment is used as baseline ("A" in this example),
@@ -125,11 +125,11 @@
 #' # The reference level for contrast prediction can be changed with `relevel`.
 #' # Predict with treatment B as baseline:
 #' W <- relevel(W, ref = "B")
-#' mc.forest <- multi_action_causal_forest(X, Y, W)
+#' mc.forest <- multi_arm_causal_forest(X, Y, W)
 #' }
 #'
 #' @export
-multi_action_causal_forest <- function(X, Y, W,
+multi_arm_causal_forest <- function(X, Y, W,
                                        Y.hat = NULL,
                                        W.hat = NULL,
                                        num.trees = 2000,
@@ -231,7 +231,7 @@ multi_action_causal_forest <- function(X, Y, W,
                seed = seed)
 
   forest <- do.call.rcpp(multi_causal_train, c(data, args))
-  class(forest) <- c("multi_action_causal_forest", "grf")
+  class(forest) <- c("multi_arm_causal_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
@@ -273,7 +273,7 @@ multi_action_causal_forest <- function(X, Y, W,
 #' X <- matrix(rnorm(n * p), n, p)
 #' W <- as.factor(sample(c("A", "B", "C"), n, replace = TRUE))
 #' Y <- X[, 1] + X[, 2] * (W == "B") - 1.5 * X[, 2] * (W == "C") + rnorm(n)
-#' mc.forest <- multi_action_causal_forest(X, Y, W)
+#' mc.forest <- multi_arm_causal_forest(X, Y, W)
 #'
 #' # Predict contrasts (out-of-bag) using the forest.
 #' # By default, the first ordinal treatment is used as baseline ("A" in this example),
@@ -316,12 +316,12 @@ multi_action_causal_forest <- function(X, Y, W,
 #' # The reference level for contrast prediction can be changed with `relevel`.
 #' # Predict with treatment B as baseline:
 #' W <- relevel(W, ref = "B")
-#' mc.forest <- multi_action_causal_forest(X, Y, W)
+#' mc.forest <- multi_arm_causal_forest(X, Y, W)
 #' }
 #'
-#' @method predict multi_action_causal_forest
+#' @method predict multi_arm_causal_forest
 #' @export
-predict.multi_action_causal_forest <- function(object,
+predict.multi_arm_causal_forest <- function(object,
                                                newdata = NULL,
                                                num.threads = NULL,
                                                estimate.variance = FALSE, ...) {
