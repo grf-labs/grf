@@ -80,5 +80,5 @@ MacKinnon, James G., and Halbert White. "Some heteroskedasticity-consistent
 
 Semenova, Vira, and Victor Chernozhukov. "Debiased Machine Learning of
  Conditional Average Treatment Effects and Other Causal Functions".
- The Econometrics Journal, forthcoming.
+ The Econometrics Journal (2020).
 }
