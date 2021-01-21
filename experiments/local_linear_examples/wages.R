@@ -68,11 +68,8 @@ mse.sample.sizes = data.frame(t(sapply(sample.sizes, function(size){
 
     forest = regression_forest(as.matrix(X), Y, honesty = TRUE, tune.parameters = "all")
 
-    ll.lambda = tune_ll_regression_forest(forest, linear.correction.variables = continuous.covariates,
-                                          ll.weight.penalty = T)$lambda.min
     llf.preds = predict(forest, as.matrix(X.test),
                               linear.correction.variables = continuous.covariates,
-                              ll.lambda = ll.lambda,
                               ll.weight.penalty = T)$predictions
     llf.mse = mean((llf.preds - truth)**2)
 
