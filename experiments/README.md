@@ -8,7 +8,7 @@ This directory contains replication code for
 
 * Cui, Kosorok, Sverdrup, Wager, and Zhu (2020): `csf`
 
-* Friedberg, Tibshirani, Athey, and Wager (2018): `local_linear_examples`
+* Friedberg, Tibshirani, Athey, and Wager (2020): `local_linear_examples`
 
 * Mayer, Sverdrup, Gauss, Moyer, Wager, and Josse (2020): This is available at https://github.com/imkemayer/causal-inference-missing
 
@@ -32,13 +32,15 @@ Yifan Cui, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
 [<a href="https://arxiv.org/abs/2001.09887">arxiv</a>]
 
 Rina Friedberg, Julie Tibshirani, Susan Athey, and Stefan Wager.
-<b>Local Linear Forests.</b> 2018.
-[<a href="https://arxiv.org/abs/1807.11408">arxiv</a>]
+<b>Local Linear Forests.</b> <i>Journal of Computational and Graphical Statistics</i>, 2020.
+[<a href="https://www.tandfonline.com/doi/abs/10.1080/10618600.2020.1831930">paper</a>,
+<a href="https://arxiv.org/abs/1807.11408">arxiv</a>]
 
 Imke Mayer, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager and Julie Josse.
 <b>Doubly Robust Treatment Effect Estimation with Missing Attributes.</b>
-<i>Annals of Applied Statistics</i>, forthcoming.
-[<a href="https://arxiv.org/pdf/1910.10624.pdf">arxiv</a>]
+<i>Annals of Applied Statistics</i>, 14(3) 2020.
+[<a href="https://projecteuclid.org/euclid.aoas/1600454872">paper</a>,
+<a href="https://arxiv.org/pdf/1910.10624.pdf">arxiv</a>]
 
 Stefan Wager and Susan Athey.
 <b>Estimation and Inference of Heterogeneous Treatment Effects using Random Forests.</b>

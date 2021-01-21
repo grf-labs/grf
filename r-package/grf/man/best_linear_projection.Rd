@@ -10,7 +10,8 @@ best_linear_projection(
   A = NULL,
   subset = NULL,
   debiasing.weights = NULL,
-  num.trees.for.weights = 500
+  num.trees.for.weights = 500,
+  vcov.type = "HC3"
 )
 }
 \arguments{
@@ -32,6 +33,12 @@ are obtained via inverse-propensity weighting.}
 treatment), we need to train auxiliary forests to learn debiasing weights.
 This is the number of trees used for this task. Note: this argument is only
 used when debiasing.weights = NULL.}
+
+\item{vcov.type}{Optional covariance type for standard errors. The possible
+options are HC0, ..., HC3. The default is "HC3", which is recommended in small
+samples and corresponds to the "shortcut formula" for the jackknife
+(see MacKinnon & White for more discussion, and Cameron & Miller for a review).
+For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.}
 }
 \value{
 An estimate of the best linear projection, along with coefficient standard errors.
@@ -64,7 +71,14 @@ best_linear_projection(forest, X[,1:2])
 
 }
 \references{
-Chernozhukov, Victor, and Vira Semenova. "Simultaneous inference for
-            Best Linear Predictor of the Conditional Average Treatment Effect and
-            other structural functions." arXiv preprint arXiv:1702.06240 (2017).
+Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
+ cluster-robust inference." Journal of human resources 50, no. 2 (2015): 317-372.
+
+MacKinnon, James G., and Halbert White. "Some heteroskedasticity-consistent
+ covariance matrix estimators with improved finite sample properties."
+ Journal of Econometrics 29.3 (1985): 305-325.
+
+Semenova, Vira, and Victor Chernozhukov. "Debiased Machine Learning of
+ Conditional Average Treatment Effects and Other Causal Functions".
+ The Econometrics Journal (2020).
 }

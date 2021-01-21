@@ -48,3 +48,4 @@ predictions <- predict(forest, linear.correction.variables = 1:p,
 }
 
 }
+\keyword{internal}

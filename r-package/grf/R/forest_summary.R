@@ -12,10 +12,21 @@
 #' no heterogeneity.
 #'
 #' @param forest The trained forest.
+#' @param vcov.type Optional covariance type for standard errors. The possible
+#'  options are HC0, ..., HC3. The default is "HC3", which is recommended in small
+#'  samples and corresponds to the "shortcut formula" for the jackknife
+#'  (see MacKinnon & White for more discussion, and Cameron & Miller for a review).
+#'  For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.
 #' @return A heteroskedasticity-consistent test of calibration.
+#'
+#' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
+#'  cluster-robust inference." Journal of human resources 50, no. 2 (2015): 317-372.
 #' @references Chernozhukov, Victor, Mert Demirer, Esther Duflo, and Ivan Fernandez-Val.
 #'             "Generic Machine Learning Inference on Heterogenous Treatment Effects in
 #'             Randomized Experiments." arXiv preprint arXiv:1712.04802 (2017).
+#' @references MacKinnon, James G., and Halbert White. "Some heteroskedasticity-consistent
+#'  covariance matrix estimators with improved finite sample properties."
+#'  Journal of Econometrics 29.3 (1985): 305-325.
 #'
 #' @examples
 #' \donttest{
@@ -29,7 +40,7 @@
 #' }
 #'
 #' @export
-test_calibration <- function(forest) {
+test_calibration <- function(forest, vcov.type = "HC3") {
   observation.weight <- observation_weights(forest)
   clusters <- if (length(forest$clusters) > 0) {
     forest$clusters
@@ -64,14 +75,14 @@ test_calibration <- function(forest) {
     )
   blp.summary <- lmtest::coeftest(best.linear.predictor,
     vcov = sandwich::vcovCL,
-    type = "HC3",
+    type = vcov.type,
     cluster = clusters
   )
   attr(blp.summary, "method") <-
-    paste("Best linear fit using forest predictions (on held-out data)",
-      "as well as the mean forest prediction as regressors, along",
-      "with one-sided heteroskedasticity-robust (HC3) SEs",
-      sep = "\n"
+    paste0("Best linear fit using forest predictions (on held-out data)\n",
+      "as well as the mean forest prediction as regressors, along\n",
+      "with one-sided heteroskedasticity-robust ",
+      "(", vcov.type, ") SEs"
     )
   # convert to one-sided p-values
   dimnames(blp.summary)[[2]][4] <- gsub("[|]", "", dimnames(blp.summary)[[2]][4])
@@ -111,10 +122,20 @@ test_calibration <- function(forest) {
 #'               treatment), we need to train auxiliary forests to learn debiasing weights.
 #'               This is the number of trees used for this task. Note: this argument is only
 #'               used when debiasing.weights = NULL.
+#' @param vcov.type Optional covariance type for standard errors. The possible
+#'  options are HC0, ..., HC3. The default is "HC3", which is recommended in small
+#'  samples and corresponds to the "shortcut formula" for the jackknife
+#'  (see MacKinnon & White for more discussion, and Cameron & Miller for a review).
+#'  For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.
 #'
-#' @references Chernozhukov, Victor, and Vira Semenova. "Simultaneous inference for
-#'             Best Linear Predictor of the Conditional Average Treatment Effect and
-#'             other structural functions." arXiv preprint arXiv:1702.06240 (2017).
+#' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
+#'  cluster-robust inference." Journal of human resources 50, no. 2 (2015): 317-372.
+#' @references MacKinnon, James G., and Halbert White. "Some heteroskedasticity-consistent
+#'  covariance matrix estimators with improved finite sample properties."
+#'  Journal of Econometrics 29.3 (1985): 305-325.
+#' @references Semenova, Vira, and Victor Chernozhukov. "Debiased Machine Learning of
+#'  Conditional Average Treatment Effects and Other Causal Functions".
+#'  The Econometrics Journal (2020).
 #'
 #' @examples
 #' \donttest{
@@ -134,7 +155,8 @@ best_linear_projection <- function(forest,
                                    A = NULL,
                                    subset = NULL,
                                    debiasing.weights = NULL,
-                                   num.trees.for.weights = 500) {
+                                   num.trees.for.weights = 500,
+                                   vcov.type = "HC3") {
   clusters <- if (length(forest$clusters) > 0) {
     forest$clusters
   } else {
@@ -198,13 +220,13 @@ best_linear_projection <- function(forest,
   blp.ols <- lm(target ~ ., weights = subset.weights, data = DF)
   blp.summary <- lmtest::coeftest(blp.ols,
                                   vcov = sandwich::vcovCL,
-                                  type = "HC3",
+                                  type = vcov.type,
                                   cluster = subset.clusters
   )
   attr(blp.summary, "method") <-
-    paste("Best linear projection of the conditional average treatment effect.",
-          "Confidence intervals are cluster- and heteroskedasticity-robust (HC3)",
-          sep="\n")
+    paste0("Best linear projection of the conditional average treatment effect.\n",
+          "Confidence intervals are cluster- and heteroskedasticity-robust ",
+          "(", vcov.type, ")")
 
   blp.summary
 }
