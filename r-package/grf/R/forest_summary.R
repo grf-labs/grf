@@ -21,11 +21,9 @@
 #'
 #' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
 #'  cluster-robust inference." Journal of human resources 50, no. 2 (2015): 317-372.
-#'
 #' @references Chernozhukov, Victor, Mert Demirer, Esther Duflo, and Ivan Fernandez-Val.
 #'             "Generic Machine Learning Inference on Heterogenous Treatment Effects in
 #'             Randomized Experiments." arXiv preprint arXiv:1712.04802 (2017).
-#'
 #' @references MacKinnon, James G., and Halbert White. "Some heteroskedasticity-consistent
 #'  covariance matrix estimators with improved finite sample properties."
 #'  Journal of Econometrics 29.3 (1985): 305-325.
@@ -132,14 +130,12 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 #'
 #' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
 #'  cluster-robust inference." Journal of human resources 50, no. 2 (2015): 317-372.
-#'
-#' @references Chernozhukov, Victor, and Vira Semenova. "Simultaneous inference for
-#'             Best Linear Predictor of the Conditional Average Treatment Effect and
-#'             other structural functions." arXiv preprint arXiv:1702.06240 (2017).
-#'
 #' @references MacKinnon, James G., and Halbert White. "Some heteroskedasticity-consistent
 #'  covariance matrix estimators with improved finite sample properties."
 #'  Journal of Econometrics 29.3 (1985): 305-325.
+#' @references Semenova, Vira, and Victor Chernozhukov. "Debiased Machine Learning of
+#'  Conditional Average Treatment Effects and Other Causal Functions".
+#'  The Econometrics Journal, forthcoming.
 #'
 #' @examples
 #' \donttest{

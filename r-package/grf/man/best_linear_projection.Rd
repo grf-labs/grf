@@ -74,11 +74,11 @@ best_linear_projection(forest, X[,1:2])
 Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
  cluster-robust inference." Journal of human resources 50, no. 2 (2015): 317-372.
 
-Chernozhukov, Victor, and Vira Semenova. "Simultaneous inference for
-            Best Linear Predictor of the Conditional Average Treatment Effect and
-            other structural functions." arXiv preprint arXiv:1702.06240 (2017).
-
 MacKinnon, James G., and Halbert White. "Some heteroskedasticity-consistent
  covariance matrix estimators with improved finite sample properties."
  Journal of Econometrics 29.3 (1985): 305-325.
+
+Semenova, Vira, and Victor Chernozhukov. "Debiased Machine Learning of
+ Conditional Average Treatment Effects and Other Causal Functions".
+ The Econometrics Journal, forthcoming.
 }

@@ -66,8 +66,8 @@
 #'               This is the number of trees used for this task. Note: this argument is only
 #'               used when debiasing.weights = NULL.
 #'
-#' @references Athey, Susan, and Stefan Wager. "Efficient policy learning."
-#'             arXiv preprint arXiv:1702.02896, 2017.
+#' @references Athey, Susan, and Stefan Wager. "Policy Learning With Observational Data."
+#'             Econometrica 89.1 (2021): 133-161.
 #' @references Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,
 #'             Whitney K. Newey, and James M. Robins. "Locally robust semiparametric
 #'             estimation." arXiv preprint arXiv:1608.00033, 2016.
