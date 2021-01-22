@@ -152,8 +152,13 @@ void Data::set_outcome_index(const std::vector<size_t>& index) {
 }
 
 void Data::set_treatment_index(size_t index) {
-  this->treatment_index = index;
+  this->treatment_index = std::vector<size_t>({index});
   disallowed_split_variables.insert(index);
+}
+
+void Data::set_treatment_index(const std::vector<size_t>& index) {
+  this->treatment_index = index;
+  disallowed_split_variables.insert(index.begin(), index.end());
 }
 
 void Data::set_instrument_index(size_t index) {
@@ -230,6 +235,14 @@ size_t Data::get_num_outcomes() const {
   }
 }
 
+size_t Data::get_num_treatments() const {
+  if (treatment_index.has_value()) {
+    return treatment_index.value().size();
+  } else {
+    return 1;
+  }
+}
+
 double Data::get_outcome(size_t row) const {
   return get(row, outcome_index.value()[0]);
 }
@@ -243,7 +256,15 @@ Eigen::VectorXd Data::get_outcomes(size_t row) const {
 }
 
 double Data::get_treatment(size_t row) const {
-  return get(row, treatment_index.value());
+  return get(row, treatment_index.value()[0]);
+}
+
+Eigen::VectorXd Data::get_treatments(size_t row) const {
+  Eigen::VectorXd out(treatment_index.value().size());
+  for (size_t i = 0; i < treatment_index.value().size(); i++) {
+    out(i) = get(row, treatment_index.value()[i]);
+  }
+  return out;
 }
 
 double Data::get_instrument(size_t row) const {

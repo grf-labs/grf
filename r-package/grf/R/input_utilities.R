@@ -194,8 +194,8 @@ create_train_matrices <- function(X,
     offset <- offset + NCOL(outcome)
   }
   if (!is.null(treatment)) {
-    out[["treatment.index"]] <- offset + 1
-    offset <- offset + 1
+    out[["treatment.index"]] <- (offset + 1):(offset + NCOL(treatment))
+    offset <- offset + NCOL(treatment)
   }
   if (!is.null(instrument)) {
     out[["instrument.index"]] <- offset + 1

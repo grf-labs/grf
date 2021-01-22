@@ -222,11 +222,8 @@ predict.probability_forest <- function(object,
   } else {
     ret <- do.call.rcpp(probability_predict_oob, c(train.data, args))
   }
-  empty <- sapply(ret, function(elem) length(elem) == 0)
-  ret <- ret[!empty]
-  for (i in 1:length(ret)) {
-    colnames(ret[[i]]) <- class.names
-  }
+  colnames(ret$predictions) <- class.names
 
-  ret
+  list(predictions = ret$predictions,
+       variance.estimates = if(estimate.variance) ret$variance.estimates)
 }

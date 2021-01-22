@@ -197,21 +197,32 @@ average_treatment_effect <- function(forest,
     # This is the most general workflow, that shares codepaths with best linear projection
     # and other average effect estimators.
 
-    if (any(c("causal_forest", "instrumental_forest") %in% class(forest))) {
+    if (any(c("causal_forest", "instrumental_forest", "multi_arm_causal_forest") %in% class(forest))) {
       DR.scores <- get_scores(forest, subset = subset, debiasing.weights = debiasing.weights,
                               compliance.score = compliance.score, num.trees.for.weights = num.trees.for.weights)
     } else {
       stop("Average treatment effects are not implemented for this forest type.")
     }
 
-    tau.hat <- weighted.mean(DR.scores, subset.weights)
-    correction.clust <- Matrix::sparse.model.matrix(
-      ~ factor(subset.clusters) + 0,
-      transpose = TRUE
-    ) %*% ((DR.scores - tau.hat) * subset.weights)
-    sigma2.hat <- sum(correction.clust^2) / sum(subset.weights)^2 *
-      length(correction.clust) / (length(correction.clust) - 1)
-    return(c(estimate = tau.hat, std.err = sqrt(sigma2.hat)))
+    if ("multi_arm_causal_forest" %in% class(forest)) {
+      tau.hat <- apply(DR.scores, 2, function(dr) weighted.mean(dr, subset.weights))
+      correction.clust <- Matrix::sparse.model.matrix(
+        ~ factor(subset.clusters) + 0,
+        transpose = TRUE
+      ) %*% ((DR.scores - tau.hat) * subset.weights)
+      sigma2.hat <- Matrix::colSums(correction.clust^2) / sum(subset.weights)^2 *
+        nrow(correction.clust) / (nrow(correction.clust) - 1)
+      return(cbind(estimate = tau.hat, std.err = sqrt(sigma2.hat)))
+    } else {
+      tau.hat <- weighted.mean(DR.scores, subset.weights)
+      correction.clust <- Matrix::sparse.model.matrix(
+        ~ factor(subset.clusters) + 0,
+        transpose = TRUE
+      ) %*% ((DR.scores - tau.hat) * subset.weights)
+      sigma2.hat <- sum(correction.clust^2) / sum(subset.weights)^2 *
+        length(correction.clust) / (length(correction.clust) - 1)
+      return(c(estimate = tau.hat, std.err = sqrt(sigma2.hat)))
+    }
   }
 
   #

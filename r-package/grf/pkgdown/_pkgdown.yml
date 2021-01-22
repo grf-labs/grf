@@ -55,7 +55,9 @@ reference:
   - title: Causal forest
     contents:
       - causal_forest
+      - multi_arm_causal_forest
       - predict.causal_forest
+      - predict.multi_arm_causal_forest
 
   - title: Instrumental forest
     contents:
@@ -89,6 +91,7 @@ reference:
       - average_treatment_effect
       - best_linear_projection
       - get_scores.causal_forest
+      - get_scores.multi_arm_causal_forest
       - get_scores.instrumental_forest
       - get_scores.causal_survival_forest
 
