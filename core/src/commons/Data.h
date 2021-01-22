@@ -52,6 +52,8 @@ public:
 
   void set_treatment_index(size_t index);
 
+  void set_treatment_index(const std::vector<size_t>& index);
+
   void set_instrument_index(size_t index);
 
   void set_weight_index(size_t index);
@@ -83,11 +85,15 @@ public:
 
   size_t get_num_outcomes() const;
 
+  size_t get_num_treatments() const;
+
   double get_outcome(size_t row) const;
 
   Eigen::VectorXd get_outcomes(size_t row) const;
 
   double get_treatment(size_t row) const;
+
+  Eigen::VectorXd get_treatments(size_t row) const;
 
   double get_instrument(size_t row) const;
 
@@ -107,7 +113,7 @@ protected:
 
   std::set<size_t> disallowed_split_variables;
   nonstd::optional<std::vector<size_t>> outcome_index;
-  nonstd::optional<size_t> treatment_index;
+  nonstd::optional<std::vector<size_t>> treatment_index;
   nonstd::optional<size_t> instrument_index;
   nonstd::optional<size_t> weight_index;
   nonstd::optional<size_t> causal_survival_numerator_index;

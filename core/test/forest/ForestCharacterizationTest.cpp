@@ -285,6 +285,45 @@ TEST_CASE("causal forest predictions with NaNs and stable splitting have not cha
   REQUIRE(equal_predictions(predictions, expected_predictions));
 }
 
+TEST_CASE("multi causal forest predictions with sample weights have not changed", "[multi causal], [characterization]") {
+  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
+  data->set_outcome_index(10);
+  // Use first 4 covariates as treatments (mimics centered categorical treatments or continous ones)
+  data->set_treatment_index({0, 1, 2, 3});
+  // Use covariate in data column 5 as dummy sample weights
+  size_t weight_index = 4;
+  data->set_weight_index(weight_index);
+  bool error;
+  for(size_t r = 0; r < data->get_num_rows(); r++) {
+    double value = data->get(r, weight_index);
+    double weight = value < 0 ? -value : value;
+    data->set(weight_index, r, weight, error);
+  }
+
+  size_t num_treatments = 4;
+  ForestTrainer trainer = multi_causal_trainer(num_treatments);
+  ForestOptions options = ForestTestUtilities::default_options();
+
+  Forest forest = trainer.train(*data, options);
+
+  ForestPredictor predictor = multi_causal_predictor(4, num_treatments);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/stable_multi_causal_oob_predictions.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/stable_multi_causal_predictions.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/stable_multi_causal_oob_predictions.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/stable_multi_causal_predictions.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+}
+
 TEST_CASE("regression forest predictions have not changed", "[regression], [characterization]") {
   std::unique_ptr<Data> data = load_data("test/forest/resources/regression_data.csv");
   data->set_outcome_index(10);
