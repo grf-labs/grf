@@ -130,24 +130,24 @@
 #'
 #' @export
 multi_arm_causal_forest <- function(X, Y, W,
-                                       Y.hat = NULL,
-                                       W.hat = NULL,
-                                       num.trees = 2000,
-                                       sample.weights = NULL,
-                                       clusters = NULL,
-                                       equalize.cluster.weights = FALSE,
-                                       sample.fraction = 0.5,
-                                       mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
-                                       min.node.size = 5,
-                                       honesty = TRUE,
-                                       honesty.fraction = 0.5,
-                                       honesty.prune.leaves = TRUE,
-                                       alpha = 0.05,
-                                       imbalance.penalty = 0,
-                                       ci.group.size = 2,
-                                       compute.oob.predictions = TRUE,
-                                       num.threads = NULL,
-                                       seed = runif(1, 0, .Machine$integer.max)) {
+                                    Y.hat = NULL,
+                                    W.hat = NULL,
+                                    num.trees = 2000,
+                                    sample.weights = NULL,
+                                    clusters = NULL,
+                                    equalize.cluster.weights = FALSE,
+                                    sample.fraction = 0.5,
+                                    mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
+                                    min.node.size = 5,
+                                    honesty = TRUE,
+                                    honesty.fraction = 0.5,
+                                    honesty.prune.leaves = TRUE,
+                                    alpha = 0.05,
+                                    imbalance.penalty = 0,
+                                    ci.group.size = 2,
+                                    compute.oob.predictions = TRUE,
+                                    num.threads = NULL,
+                                    seed = runif(1, 0, .Machine$integer.max)) {
   has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
@@ -322,9 +322,9 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' @method predict multi_arm_causal_forest
 #' @export
 predict.multi_arm_causal_forest <- function(object,
-                                               newdata = NULL,
-                                               num.threads = NULL,
-                                               estimate.variance = FALSE, ...) {
+                                            newdata = NULL,
+                                            num.threads = NULL,
+                                            estimate.variance = FALSE, ...) {
   treatment.names <- levels(object$W.orig)
   contrast.names <- paste(treatment.names[-1], "-", treatment.names[1])
   # If possible, use pre-computed predictions.
