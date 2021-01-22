@@ -1,4 +1,4 @@
-#' multi arm causal forest
+#' Multi-arm causal forest
 #'
 #' Trains a causal forest that can be used to estimate
 #' conditional average treatment effects tau_k(X). When
