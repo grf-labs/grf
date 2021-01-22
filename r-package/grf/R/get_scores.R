@@ -227,8 +227,8 @@ get_scores.instrumental_forest <- function(forest,
 #' @method get_scores multi_arm_causal_forest
 #' @export
 get_scores.multi_arm_causal_forest <- function(forest,
-                                                  subset = NULL,
-                                                  ...) {
+                                               subset = NULL,
+                                               ...) {
   subset <- validate_subset(forest, subset)
   W.orig <- forest$W.orig[subset]
   W.hat <- forest$W.hat[subset, , drop = FALSE]
