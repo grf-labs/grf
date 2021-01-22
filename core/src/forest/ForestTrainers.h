@@ -25,6 +25,8 @@ namespace grf {
 ForestTrainer instrumental_trainer(double reduced_form_weight,
                                    bool stabilize_splits);
 
+ForestTrainer multi_causal_trainer(size_t num_treatments);
+
 ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
 
 ForestTrainer probability_trainer(size_t num_classes);
