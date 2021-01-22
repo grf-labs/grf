@@ -131,8 +131,8 @@ average_treatment_effect(tau.forest, subset = X[, 1] > 0)
 
 }
 \references{
-Athey, Susan, and Stefan Wager. "Efficient policy learning."
-            arXiv preprint arXiv:1702.02896, 2017.
+Athey, Susan, and Stefan Wager. "Policy Learning With Observational Data."
+            Econometrica 89.1 (2021): 133-161.
 
 Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,
             Whitney K. Newey, and James M. Robins. "Locally robust semiparametric
