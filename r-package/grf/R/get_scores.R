@@ -209,13 +209,13 @@ get_scores.instrumental_forest <- function(forest,
   tau.hat.pointwise + debiasing.weights * Y.residual
 }
 
-#' Compute doubly robust scores for a multi action causal forest.
+#' Compute doubly robust scores for a multi arm causal forest.
 #'
 #' Compute doubly robust (AIPW) scores for average treatment effect estimation
-#' using a multi action causal forest. Under regularity conditions, the average of the DR.scores
+#' using a multi arm causal forest. Under regularity conditions, the average of the DR.scores
 #' is an efficient estimate of the average treatment effect.
 #'
-#' @param forest A trained multi action causal forest.
+#' @param forest A trained multi arm causal forest.
 #' @param subset Specifies subset of the training examples over which we
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using

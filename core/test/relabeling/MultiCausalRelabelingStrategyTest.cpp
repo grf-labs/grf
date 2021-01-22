@@ -47,7 +47,7 @@ Eigen::ArrayXXd get_relabeled_outcomes(
   return relabeled_observations;
 }
 
-TEST_CASE("multi action causal relabeling calculations are correct", "[multi causal, relabeling]") {
+TEST_CASE("multi causal relabeling calculations are correct", "[multi causal, relabeling]") {
   /* This test case data is generated from the following R script
     set.seed(123)
     n <- 10

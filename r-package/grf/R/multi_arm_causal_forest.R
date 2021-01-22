@@ -1,4 +1,4 @@
-#' Multi action causal forest
+#' multi arm causal forest
 #'
 #' Trains a causal forest that can be used to estimate
 #' conditional average treatment effects tau_k(X). When
@@ -72,11 +72,11 @@
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
 #'
-#' @return A trained multi action causal forest object.
+#' @return A trained multi arm causal forest object.
 #'
 #' @examples
 #' \donttest{
-#' # Train a multi action causal forest.
+#' # Train a multi arm causal forest.
 #' n <- 500
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)
@@ -203,7 +203,7 @@ multi_arm_causal_forest <- function(X, Y, W,
   } else if (length(W.hat) == num.treatments) {
     W.hat <- matrix(W.hat, nrow = length(Y), ncol = num.treatments, byrow = TRUE)
   } else if ((NROW(W.hat) != nrow(X)) || (NCOL(W.hat) != num.treatments)) {
-    stop("W.hat has incorrect dimensions: should be a matrix of propensities for each (observation, action).")
+    stop("W.hat has incorrect dimensions: should be a matrix of propensities for each (observation, arm).")
   }
 
   Y.centered <- Y - Y.hat
@@ -245,9 +245,9 @@ multi_arm_causal_forest <- function(X, Y, W,
   forest
 }
 
-#' Predict with a multi action causal forest
+#' Predict with a multi arm causal forest
 #'
-#' Gets estimates of contrasts tau_k(x) using a trained multi action causal forest.
+#' Gets estimates of contrasts tau_k(x) using a trained multi arm causal forest.
 #'
 #' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
@@ -266,7 +266,7 @@ multi_arm_causal_forest <- function(X, Y, W,
 #'
 #' @examples
 #' \donttest{
-#' # Train a multi action causal forest.
+#' # Train a multi arm causal forest.
 #' n <- 500
 #' p <- 10
 #' X <- matrix(rnorm(n * p), n, p)

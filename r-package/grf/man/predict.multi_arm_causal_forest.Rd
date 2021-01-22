@@ -2,7 +2,7 @@
 % Please edit documentation in R/multi_arm_causal_forest.R
 \name{predict.multi_arm_causal_forest}
 \alias{predict.multi_arm_causal_forest}
-\title{Predict with a multi action causal forest}
+\title{Predict with a multi arm causal forest}
 \usage{
 \method{predict}{multi_arm_causal_forest}(
   object,
@@ -34,11 +34,11 @@ A list with elements `predictions`: a matrix with K-1 columns with predictions f
  and optionally `variance.estimates`: a matrix with K-1 columns with variance estimates for each contrast.
 }
 \description{
-Gets estimates of contrasts tau_k(x) using a trained multi action causal forest.
+Gets estimates of contrasts tau_k(x) using a trained multi arm causal forest.
 }
 \examples{
 \donttest{
-# Train a multi action causal forest.
+# Train a multi arm causal forest.
 n <- 500
 p <- 10
 X <- matrix(rnorm(n * p), n, p)

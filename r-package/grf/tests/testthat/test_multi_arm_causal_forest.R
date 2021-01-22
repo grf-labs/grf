@@ -3,7 +3,7 @@ library(grf)
 test_that("single treatment multi_arm_causal_forest is similar to causal_forest", {
   # It is not possible to check this parity holds exactly since forest differences
   # accrue through numerical differences (e.g. relabeling in causal forest is done with doubles
-  # and with Eigen data structures in multi action causal forest.)
+  # and with Eigen data structures in multi arm causal forest.)
   n <- 500
   p <- 5
   X <- matrix(rnorm(n * p), n, p)

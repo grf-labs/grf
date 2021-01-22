@@ -2,12 +2,12 @@
 % Please edit documentation in R/get_scores.R
 \name{get_scores.multi_arm_causal_forest}
 \alias{get_scores.multi_arm_causal_forest}
-\title{Compute doubly robust scores for a multi action causal forest.}
+\title{Compute doubly robust scores for a multi arm causal forest.}
 \usage{
 \method{get_scores}{multi_arm_causal_forest}(forest, subset = NULL, ...)
 }
 \arguments{
-\item{forest}{A trained multi action causal forest.}
+\item{forest}{A trained multi arm causal forest.}
 
 \item{subset}{Specifies subset of the training examples over which we
 estimate the ATE. WARNING: For valid statistical performance,
@@ -21,6 +21,6 @@ A matrix of scores for each contrast.
 }
 \description{
 Compute doubly robust (AIPW) scores for average treatment effect estimation
-using a multi action causal forest. Under regularity conditions, the average of the DR.scores
+using a multi arm causal forest. Under regularity conditions, the average of the DR.scores
 is an efficient estimate of the average treatment effect.
 }

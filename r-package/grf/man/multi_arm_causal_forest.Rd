@@ -2,7 +2,7 @@
 % Please edit documentation in R/multi_arm_causal_forest.R
 \name{multi_arm_causal_forest}
 \alias{multi_arm_causal_forest}
-\title{Multi action causal forest}
+\title{multi arm causal forest}
 \usage{
 multi_arm_causal_forest(
   X,
@@ -109,7 +109,7 @@ to the maximum hardware concurrency.}
 \item{seed}{The seed of the C++ random number generator.}
 }
 \value{
-A trained multi action causal forest object.
+A trained multi arm causal forest object.
 }
 \description{
 Trains a causal forest that can be used to estimate
@@ -128,7 +128,7 @@ differences in numerics.
 }
 \examples{
 \donttest{
-# Train a multi action causal forest.
+# Train a multi arm causal forest.
 n <- 500
 p <- 10
 X <- matrix(rnorm(n * p), n, p)
