@@ -9,7 +9,7 @@
 #'   \item The overlap-weighted average treatment effect (target.sample = overlap):
 #'   E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].
 #' }
-#' This last estimand is recommended by Li, Morgan, and Zaslavsky (JASA, 2017)
+#' This last estimand is recommended by Li, Morgan, and Zaslavsky (2018)
 #' in case of poor overlap (i.e., when the propensities e(x) may be very close
 #' to 0 or 1), as it doesn't involve dividing by estimated propensities.
 #'
@@ -73,6 +73,9 @@
 #'             estimation." arXiv preprint arXiv:1608.00033, 2016.
 #' @references Imbens, Guido W., and Joshua D. Angrist. "Identification and Estimation of
 #'             Local Average Treatment Effects." Econometrica 62(2), 1994.
+#' @references Li, Fan, Kari Lock Morgan, and Alan M. Zaslavsky.
+#'             "Balancing covariates via propensity score weighting."
+#'             Journal of the American Statistical Association 113(521), 2018.
 #' @references Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
 #'             multivariate regression models with missing data." Journal of the
 #'             American Statistical Association 90(429), 1995.
