@@ -103,10 +103,6 @@ public:
 
   double get_causal_survival_denominator(size_t row) const;
 
-  /**
-   *
-   *
-   */
   bool is_failure(size_t row) const;
 
   const std::set<size_t>& get_disallowed_split_variables() const;
