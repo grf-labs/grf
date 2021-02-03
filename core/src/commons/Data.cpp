@@ -287,7 +287,7 @@ double Data::get_causal_survival_denominator(size_t row) const {
   return get(row, causal_survival_denominator_index.value());
 }
 
-bool Data::is_censored(size_t row) const {
+bool Data::is_failure(size_t row) const {
   return get(row, censor_index.value()) > 0.0;
 }
 

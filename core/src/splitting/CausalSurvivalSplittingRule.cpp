@@ -87,7 +87,7 @@ bool CausalSurvivalSplittingRule::find_best_split(const Data& data,
     sum_node_z += sample_weight * z;
     sum_node_z_squared += sample_weight * z * z;
 
-    if (data.is_censored(sample)) {
+    if (data.is_failure(sample)) {
       num_failures_node++;
     }
   }
@@ -191,7 +191,7 @@ void CausalSurvivalSplittingRule::find_best_split_value(const Data& data,
       if (z < mean_node_z) {
         ++num_small_z_missing;
       }
-      if (data.is_censored(sample)) {
+      if (data.is_failure(sample)) {
         num_failures_missing++;
       }
     } else {
@@ -204,7 +204,7 @@ void CausalSurvivalSplittingRule::find_best_split_value(const Data& data,
       if (z < mean_node_z) {
         ++num_small_z[split_index];
       }
-      if (data.is_censored(sample)) {
+      if (data.is_failure(sample)) {
         ++failure_count[split_index];
       }
     }
