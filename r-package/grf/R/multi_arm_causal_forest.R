@@ -163,7 +163,8 @@ multi_arm_causal_forest <- function(X, Y, W,
   if (!is.factor(W)) {
     stop("The treatment assignment W must be a factor vector.")
   }
-  if (length(levels(W)) == 1) {
+  num.treatments <- length(levels(W))
+  if (num.treatments == 1) {
     stop("Can not compute contrasts from a single treatment.")
   }
   W.matrix <- stats::model.matrix(~ W - 1)
