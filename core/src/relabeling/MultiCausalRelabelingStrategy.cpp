@@ -55,7 +55,6 @@ bool MultiCausalRelabelingStrategy::relabel(
   Y_centered.array() -= Y_mean;
   W_centered.rowwise() -= W_mean.transpose();
 
-  // if total weight is very small, treat the leaf as empty
   if (std::abs(sum_weight) <= 1e-16) {
     return true;
   }
