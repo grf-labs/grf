@@ -154,7 +154,7 @@ multi_arm_causal_forest <- function(X, Y, W,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
-  if (length(W) != length(Y)) {
+  if (length(W) != nrow(X)) {
     stop("length of observation (W, Y, Z or D) does not equal nrow(X).")
   }
   if (any(is.na(W))) {
