@@ -154,7 +154,7 @@ multi_arm_causal_forest <- function(X, Y, W,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
-  if (length(W) != length(Y)) {
+  if (length(W) != nrow(X)) {
     stop("length of observation (W, Y, Z or D) does not equal nrow(X).")
   }
   if (any(is.na(W))) {
@@ -201,7 +201,7 @@ multi_arm_causal_forest <- function(X, Y, W,
     forest.W <- do.call(probability_forest, c(Y = list(W), args.orthog))
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == num.treatments) {
-    W.hat <- matrix(W.hat, nrow = length(Y), ncol = num.treatments, byrow = TRUE)
+    W.hat <- matrix(W.hat, nrow = length(W), ncol = num.treatments, byrow = TRUE)
   } else if ((NROW(W.hat) != nrow(X)) || (NCOL(W.hat) != num.treatments)) {
     stop("W.hat has incorrect dimensions: should be a matrix of propensities for each (observation, arm).")
   }
