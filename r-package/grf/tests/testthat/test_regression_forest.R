@@ -157,21 +157,8 @@ test_that("variance estimates are positive [with sample weights]", {
   expect_true(all(mu.forest$variance.estimates > 0))
 })
 
-test_that("debiased errors are smaller than raw errors [with sample weights]", {
+test_that("predictions are invariant to scaling of the sample weights.", {
   n <- 1000
-  p <- 2
-  X <- matrix(rnorm(n * p), n, p)
-  Y <- abs(X[, 1]) + 0.1 * rnorm(n)
-  e <- 1 / (1 + exp(-3 * X[, 1]))
-  sample.weights <- 1 / e
-
-  forest <- regression_forest(X, Y, sample.weights = sample.weights)
-  preds <- predict(forest)
-  expect_true(all(preds$debiased.error^2 < preds$error^2))
-})
-
-test_that("predictions and variance estimates are invariant to scaling of the sample weights.", {
-  n <- 500
   p <- 2
   X <- matrix(rnorm(n * p), n, p)
   Y <- abs(X[, 1]) + 0.1 * rnorm(n)
