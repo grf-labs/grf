@@ -70,7 +70,7 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
   // Get the failure values t1, ..., tm in this node
   std::vector<double> failure_values;
   for (auto& sample : samples) {
-    if (data.is_censored(sample)) {
+    if (data.is_failure(sample)) {
       failure_values.push_back(responses_by_sample(sample));
     }
   }
@@ -109,7 +109,7 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
     size_t new_failure_value = std::upper_bound(failure_values.begin(), failure_values.end(),
                                                 failure_value) - failure_values.begin();
     relabeled_failures[sample] = new_failure_value;
-    if (data.is_censored(sample)) {
+    if (data.is_failure(sample)) {
       ++count_failure[new_failure_value];
     } else {
       ++count_censor[new_failure_value];
@@ -180,7 +180,7 @@ void SurvivalSplittingRule::find_best_split_value(const Data& data,
     size_t sample_time = relabeled_failures[sample];
 
     if (std::isnan(sample_value)) {
-      if (data.is_censored(sample)) {
+      if (data.is_failure(sample)) {
         ++left_count_failure[sample_time];
         ++num_failures_missing;
       } else {
@@ -228,7 +228,7 @@ void SurvivalSplittingRule::find_best_split_value(const Data& data,
       }
 
       if (!split_on_missing) {
-        if (data.is_censored(sample)) {
+        if (data.is_failure(sample)) {
           ++left_count_failure[sample_time];
           ++num_failures_left;
         } else {

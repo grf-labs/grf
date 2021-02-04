@@ -50,7 +50,7 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
     double forest_weight = entry.second;
     size_t failure_time = train_data.get_outcome(sample);
     double sample_weight = train_data.get_weight(sample);
-    if (train_data.is_censored(sample)) {
+    if (train_data.is_failure(sample)) {
      count_failure[failure_time] += forest_weight * sample_weight;
     } else {
      count_censor[failure_time] += forest_weight * sample_weight;

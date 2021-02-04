@@ -60,7 +60,7 @@ estimates of one of the following:
   \item The overlap-weighted average treatment effect (target.sample = overlap):
   E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].
 }
-This last estimand is recommended by Li, Morgan, and Zaslavsky (JASA, 2017)
+This last estimand is recommended by Li, Morgan, and Zaslavsky (2018)
 in case of poor overlap (i.e., when the propensities e(x) may be very close
 to 0 or 1), as it doesn't involve dividing by estimated propensities.
 }
@@ -82,7 +82,7 @@ assumption, tau(x) is simply the CATE at x. When W is binary
 and there are no "defiers", Imbens and Angrist (1994) show that tau(x) can
 be interpreted as an average treatment effect on compliers. This function
 provides and estimate of tau = E[tau(X)]. See Chernozhukov
-et al. (2016) for a discussion, and Section 5.2 of Athey and Wager (2017)
+et al. (2016) for a discussion, and Section 5.2 of Athey and Wager (2021)
 for an example using forests.
 
 If clusters are specified, then each unit gets equal weight by default. For
@@ -140,6 +140,10 @@ Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,
 
 Imbens, Guido W., and Joshua D. Angrist. "Identification and Estimation of
             Local Average Treatment Effects." Econometrica 62(2), 1994.
+
+Li, Fan, Kari Lock Morgan, and Alan M. Zaslavsky.
+            "Balancing covariates via propensity score weighting."
+            Journal of the American Statistical Association 113(521), 2018.
 
 Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
             multivariate regression models with missing data." Journal of the
