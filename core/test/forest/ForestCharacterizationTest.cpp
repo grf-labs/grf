@@ -286,21 +286,12 @@ TEST_CASE("causal forest predictions with NaNs and stable splitting have not cha
 }
 
 TEST_CASE("multi causal forest predictions with sample weights have not changed", "[multi causal], [characterization]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
-  data->set_outcome_index(10);
-  // Use first 4 covariates as treatments (mimics centered categorical treatments or continous ones)
-  data->set_treatment_index({0, 1, 2, 3});
-  // Use covariate in data column 5 as dummy sample weights
-  size_t weight_index = 4;
-  data->set_weight_index(weight_index);
-  bool error;
-  for(size_t r = 0; r < data->get_num_rows(); r++) {
-    double value = data->get(r, weight_index);
-    double weight = value < 0 ? -value : value;
-    data->set(weight_index, r, weight, error);
-  }
+  std::unique_ptr<Data> data = load_data("test/forest/resources/multi_causal_data.csv");
+  data->set_outcome_index(5);
+  data->set_treatment_index({6, 7});
+  data->set_weight_index(8);
 
-  size_t num_treatments = 4;
+  size_t num_treatments = 2;
   ForestTrainer trainer = multi_causal_trainer(num_treatments);
   ForestOptions options = ForestTestUtilities::default_options();
 
