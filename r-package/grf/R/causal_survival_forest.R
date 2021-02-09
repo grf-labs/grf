@@ -460,9 +460,7 @@ predict.causal_survival_forest <- function(object,
                                            ...) {
   # If possible, use pre-computed predictions.
   if (is.null(newdata) && !estimate.variance && !is.null(object$predictions)) {
-    return(data.frame(predictions = object$predictions,
-                      debiased.error = object$debiased.error,
-                      excess.error = object$excess.error))
+    return(data.frame(predictions = object$predictions))
   }
 
   num.threads <- validate_num_threads(num.threads)
@@ -484,6 +482,7 @@ predict.causal_survival_forest <- function(object,
   }
 
   # Convert list to data frame.
+  ret <- ret[c(1, 2)] # the last two entries are unused error estimates
   empty <- sapply(ret, function(elem) length(elem) == 0)
   do.call(cbind.data.frame, ret[!empty])
 }
