@@ -50,6 +50,18 @@ X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
 ```
 
 ```
+# multi_causal_data.csv
+n <- 500
+p <- 5
+X <- matrix(round(rnorm(n * p), 1), n, p)
+W <- as.factor(sample(c("A", "B", "C"), n, replace = TRUE))
+Y <- round(X[, 1] + X[, 2] * (W == "B") + X[, 3] * (W == "C") + runif(n), 1)
+sample.weights <- sample(c(1, 5), n, TRUE)
+W.matrix <- stats::model.matrix(~ W - 1)
+data <- cbind(X, Y, W.matrix[, -1], sample.weights)
+```
+
+```
 # gaussian_data.csv
 n = 500
 p = 11
