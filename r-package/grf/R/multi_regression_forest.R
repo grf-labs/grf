@@ -160,8 +160,14 @@ predict.multi_regression_forest <- function(object,
                                             newdata = NULL,
                                             num.threads = NULL,
                                             ...) {
+  outcome.names <- if (is.null(colnames(object[["Y.orig"]]))) {
+    paste0("Y", 1:NCOL(object[["Y.orig"]]))
+  } else {
+    colnames(object[["Y.orig"]])
+  }
   # If possible, use pre-computed predictions.
   if (is.null(newdata) && !is.null(object$predictions)) {
+      colnames(object$predictions) <- outcome.names
     return(list(predictions = object$predictions))
   }
 
@@ -181,6 +187,7 @@ predict.multi_regression_forest <- function(object,
   } else {
     ret <- do.call.rcpp(multi_regression_predict_oob, c(train.data, args))
   }
+  colnames(ret$predictions) <- outcome.names
 
   list(predictions = ret$predictions)
 }
