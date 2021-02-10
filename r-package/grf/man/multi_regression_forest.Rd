@@ -27,7 +27,7 @@ multi_regression_forest(
 \arguments{
 \item{X}{The covariates used in the regression.}
 
-\item{Y}{The outcomes.}
+\item{Y}{The outcomes (must be a numeric vector/matrix with no NAs).}
 
 \item{num.trees}{Number of trees grown in the forest. Note: Getting accurate
 confidence intervals generally requires more trees than
