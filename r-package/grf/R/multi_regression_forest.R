@@ -4,7 +4,7 @@
 #' the conditional mean functions mu_i(x) = E[Y_i | X = x]
 #'
 #' @param X The covariates used in the regression.
-#' @param Y The outcomes.
+#' @param Y The outcomes (must be a numeric vector/matrix with no NAs).
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
