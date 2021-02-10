@@ -167,7 +167,7 @@ predict.multi_regression_forest <- function(object,
   }
   # If possible, use pre-computed predictions.
   if (is.null(newdata) && !is.null(object$predictions)) {
-      colnames(object$predictions) <- outcome.names
+    colnames(object$predictions) <- outcome.names
     return(list(predictions = object$predictions))
   }
 
