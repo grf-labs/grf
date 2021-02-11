@@ -87,5 +87,5 @@ test_that("multi_regression_forest is well calibrated", {
   mse.rf <- mean((rf.pred - mu)^2)
   mse.mrf <- mean((mrf.pred - mu)^2)
 
-  expect_true(mse.mrf < 0.8 * mse.rf)
+  expect_lt(mse.mrf / mse.rf, 0.8)
 })
