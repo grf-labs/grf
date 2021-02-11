@@ -7,14 +7,13 @@ test_that("multi_regression_forest works as expected", {
   Y <- X[, 1] * rnorm(n)
   nmissing <- 50
   X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
-  zeros <- rep(0, n)
 
   # A regression forest trained on Y is the same as a multi regression forest
   # trained on [Y 0]
   rf <- regression_forest(X, Y, num.trees = 100, ci.group.size = 1,
                           min.node.size = 1, alpha = 0,
                           seed = 42)
-  mrf <- multi_regression_forest(X, cbind(Y, zeros), num.trees = 100,
+  mrf <- multi_regression_forest(X, cbind(Y, 0), num.trees = 100,
                                  min.node.size = 1, alpha = 0,
                                  seed = 42)
 
@@ -26,7 +25,7 @@ test_that("multi_regression_forest works as expected", {
 
   # A regression forest trained on Y is the same as a multi regression forest
   # trained on [0 Y]
-  mrf <- multi_regression_forest(X, cbind(zeros, Y), num.trees = 100,
+  mrf <- multi_regression_forest(X, cbind(0, Y), num.trees = 100,
                                  min.node.size = 1, alpha = 0,
                                  seed = 42)
 
@@ -36,7 +35,7 @@ test_that("multi_regression_forest works as expected", {
 
   # A regression forest trained on Y is the same as a multi regression forest
   # trained on [0 0 Y 0 0 0]
-  mrf <- multi_regression_forest(X, cbind(zeros, zeros, Y, zeros, zeros, zeros), num.trees = 100,
+  mrf <- multi_regression_forest(X, cbind(0, 0, Y, 0, 0, 0), num.trees = 100,
                                  min.node.size = 1, alpha = 0,
                                  seed = 42)
 
@@ -87,5 +86,5 @@ test_that("multi_regression_forest is well calibrated", {
   mse.rf <- mean((rf.pred - mu)^2)
   mse.mrf <- mean((mrf.pred - mu)^2)
 
-  expect_true(mse.mrf < 0.8 * mse.rf)
+  expect_lt(mse.mrf / mse.rf, 0.8)
 })
