@@ -240,14 +240,13 @@ get_scores.multi_arm_causal_forest <- function(forest,
   W.hat <- forest$W.hat[subset, , drop = FALSE]
   Y.orig <- forest$Y.orig[subset, outcome]
   Y.hat <- forest$Y.hat[subset, outcome]
-  tau.hat.pointwise <- predict(forest, drop = FALSE)$predictions[subset, , outcome, drop = FALSE]
-  contrast.names <- dimnames(tau.hat.pointwise)[[2]]
-  tau.hat.pointwise <- drop(tau.hat.pointwise)
+  tau.hat.pointwise <- predict(forest, drop = FALSE)$predictions[subset, , outcome]
 
   treatment.names <- levels(W.orig)
   num.treatments <- length(treatment.names)
   observed.treatment <- match(W.orig, treatment.names)
   observed.treatment.idx <- cbind(seq_along(subset), observed.treatment)
+  contrast.names <- paste(treatment.names[-1], "-", treatment.names[1])
 
   if (min(W.hat) <= 0.05 || max(W.hat) >= 0.95) {
     min <- apply(W.hat, 2, min)

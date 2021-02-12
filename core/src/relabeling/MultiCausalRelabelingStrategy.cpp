@@ -74,7 +74,7 @@ bool MultiCausalRelabelingStrategy::relabel(
   Eigen::MatrixXd residual = Y_centered - W_centered * beta; // [num_samples X num_outcomes]
 
   // Create the new outcomes, eq (20) in https://arxiv.org/pdf/1610.01271.pdf
-  // `responses_by_sample(sample_i, j)` is a `num_treatments*num_outcomes`-sized vector.
+  // `responses_by_sample(sample_i, )` is a `num_treatments*num_outcomes`-sized vector.
   for (size_t i = 0; i < num_samples; i++) {
     size_t sample = samples[i];
     size_t j = 0;
