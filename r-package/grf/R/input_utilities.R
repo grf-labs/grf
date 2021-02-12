@@ -35,7 +35,7 @@ validate_observations <- function(V, X, allow.matrix = FALSE) {
     if (is.matrix(V) && ncol(V) == 1) {
       V <- as.vector(V)
     } else if (!is.vector(V)) {
-      stop(paste("Observations (W, Y, Z or D) must be vectors."))
+      stop("Observations (W, Y, Z or D) must be vectors.")
     }
   } else {
     if (is.matrix(V) || is.data.frame(V) || is.vector(V)) {
