@@ -33,7 +33,7 @@ bool MultiCausalRelabelingStrategy::relabel(
     return true;
   }
 
-  Eigen::MatrixXd Y_centered = Eigen::MatrixXd(num_samples, num_outcomes);
+  Eigen::VectorXd Y_centered = Eigen::VectorXd(num_samples);
   Eigen::MatrixXd W_centered = Eigen::MatrixXd(num_samples, num_treatments);
   Eigen::VectorXd weights = Eigen::VectorXd(num_samples);
   Eigen::VectorXd Y_mean = Eigen::VectorXd::Zero(num_outcomes);
@@ -53,7 +53,7 @@ bool MultiCausalRelabelingStrategy::relabel(
   }
   Y_mean = Y_mean / sum_weight;
   W_mean = W_mean / sum_weight;
-  Y_centered.rowwise() -= Y_mean.transpose();
+  Y_centered.array() -= Y_mean(0);
   W_centered.rowwise() -= W_mean.transpose();
 
   if (std::abs(sum_weight) <= 1e-16) {
