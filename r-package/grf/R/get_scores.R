@@ -220,6 +220,8 @@ get_scores.instrumental_forest <- function(forest,
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
+#' @param outcome In the event the forest is trained with multiple outcomes Y,
+#'                a column number specifying the outcome of interest. Default is 1.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A matrix of scores for each contrast.
@@ -228,13 +230,19 @@ get_scores.instrumental_forest <- function(forest,
 #' @export
 get_scores.multi_arm_causal_forest <- function(forest,
                                                subset = NULL,
+                                               outcome = 1,
                                                ...) {
+  if (!outcome %in% 1:NCOL(forest[["Y.orig"]])) {
+    stop("`outcome` should be an integer specifying the outcome column in Y.")
+  }
   subset <- validate_subset(forest, subset)
   W.orig <- forest$W.orig[subset]
   W.hat <- forest$W.hat[subset, , drop = FALSE]
-  Y.orig <- forest$Y.orig[subset]
-  Y.hat <- forest$Y.hat[subset]
-  tau.hat.pointwise <- predict(forest)$predictions[subset, , drop = FALSE]
+  Y.orig <- forest$Y.orig[subset, outcome]
+  Y.hat <- forest$Y.hat[subset, outcome]
+  tau.hat.pointwise <- predict(forest, drop = FALSE)$predictions[subset, , outcome, drop = FALSE]
+  contrast.names <- dimnames(tau.hat.pointwise)[[2]]
+  tau.hat.pointwise <- drop(tau.hat.pointwise)
 
   treatment.names <- levels(W.orig)
   num.treatments <- length(treatment.names)
@@ -255,14 +263,18 @@ get_scores.multi_arm_causal_forest <- function(forest,
     ))
   }
 
-  Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1] * tau.hat.pointwise)
+  W.hat <- W.hat[, -1, drop = FALSE]
+  Y.hat.baseline <- Y.hat - rowSums(W.hat * tau.hat.pointwise)
   mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat.pointwise)
   Y.residual <- Y.orig - mu.hat.matrix[observed.treatment.idx]
 
   W.matrix <- stats::model.matrix(~ W.orig - 1)
-  IPW <- (W.matrix[, -1] - W.hat[, -1]) / (W.hat[, -1] * (1 - W.hat[, -1]))
+  IPW <- (W.matrix[, -1] - W.hat) / (W.hat * (1 - W.hat))
 
-  tau.hat.pointwise + IPW * Y.residual
+  out <- tau.hat.pointwise + IPW * Y.residual
+  colnames(out) <- contrast.names
+
+  out
 }
 
 #' Compute doubly robust for a causal survival forest.

@@ -9,6 +9,7 @@
   newdata = NULL,
   num.threads = NULL,
   estimate.variance = FALSE,
+  drop = TRUE,
   ...
 )
 }
@@ -25,16 +26,23 @@ matrix, and that the columns must appear in the same order.}
 automatically selects an appropriate amount.}
 
 \item{estimate.variance}{Whether variance estimates for hat{tau}(x) are desired
-(for confidence intervals).}
+(for confidence intervals). This option is currently
+only supported for univariate outcomes Y.}
+
+\item{drop}{For the returned prediction matrix: should singleton dimensions be dropped?
+This argument works in the same manner as in `[`. Default is TRUE.}
 
 \item{...}{Additional arguments (currently ignored).}
 }
 \value{
 A list with elements `predictions`: a matrix with K-1 columns with predictions for each contrast,
  and optionally `variance.estimates`: a matrix with K-1 columns with variance estimates for each contrast.
+ In the event the forest is trained with M outcomes, `predictions` is a 3-dimensional array
+ [num.samples, K-1, M].
 }
 \description{
-Gets estimates of contrasts tau_k(x) using a trained multi arm causal forest.
+Gets estimates of contrasts tau_k(x) using a trained multi arm causal forest (k = 1, ..., K-1
+where K is the number of treatments).
 }
 \examples{
 \donttest{

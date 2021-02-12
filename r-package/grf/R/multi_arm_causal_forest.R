@@ -14,7 +14,7 @@
 #' differences in numerics.
 #'
 #' @param X The covariates used in the causal regression.
-#' @param Y The outcome (must be a numeric vector with no NAs).
+#' @param Y The outcome (must be a numeric vector/matrix with no NAs).
 #' @param W The treatment assignment (must be a factor vector with no NAs). The reference treatment
 #'          is set to the first treatment according to the ordinality of the factors, this can be changed
 #'          with the `relevel` function in R.
@@ -150,7 +150,7 @@ multi_arm_causal_forest <- function(X, Y, W,
                                     seed = runif(1, 0, .Machine$integer.max)) {
   has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
-  Y <- validate_observations(Y, X)
+  Y <- validate_observations(Y, X, allow.matrix = TRUE)
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
@@ -182,27 +182,25 @@ multi_arm_causal_forest <- function(X, Y, W,
                      honesty.prune.leaves = honesty.prune.leaves,
                      alpha = alpha,
                      imbalance.penalty = imbalance.penalty,
-                     ci.group.size = 1,
-                     tune.parameters = "none",
                      num.threads = num.threads,
                      seed = seed)
 
   if (is.null(Y.hat)) {
-    forest.Y <- do.call(regression_forest, c(Y = list(Y), args.orthog))
+    forest.Y <- do.call(multi_regression_forest, c(Y = list(Y), args.orthog))
     Y.hat <- predict(forest.Y)$predictions
-  } else if (length(Y.hat) == 1) {
-    Y.hat <- rep(Y.hat, nrow(X))
-  } else if (length(Y.hat) != nrow(X)) {
+  } else if (length(Y.hat) == NCOL(Y)) {
+    Y.hat <- matrix(Y.hat, nrow = NROW(Y), ncol = NCOL(Y), byrow = TRUE)
+  } else if (NROW(Y.hat) != nrow(X) || NCOL(Y.hat) != NROW(Y)) {
     stop("Y.hat has incorrect length.")
   }
 
   if (is.null(W.hat)) {
-    args.orthog$tune.parameters <- NULL # Tuning is not yet implemented for probability_forest
+    args.orthog$ci.group.size <- 1
     forest.W <- do.call(probability_forest, c(Y = list(W), args.orthog))
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == num.treatments) {
     W.hat <- matrix(W.hat, nrow = length(W), ncol = num.treatments, byrow = TRUE)
-  } else if ((NROW(W.hat) != nrow(X)) || (NCOL(W.hat) != num.treatments)) {
+  } else if ((NROW(W.hat) != nrow(X)) || NCOL(W.hat) != num.treatments) {
     stop("W.hat has incorrect dimensions: should be a matrix of propensities for each (observation, arm).")
   }
 
@@ -233,7 +231,7 @@ multi_arm_causal_forest <- function(X, Y, W,
   class(forest) <- c("multi_arm_causal_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
-  forest[["Y.orig"]] <- Y
+  forest[["Y.orig"]] <- as.matrix(Y)
   forest[["W.orig"]] <- W
   forest[["Y.hat"]] <- Y.hat
   forest[["W.hat"]] <- W.hat
@@ -247,7 +245,8 @@ multi_arm_causal_forest <- function(X, Y, W,
 
 #' Predict with a multi arm causal forest
 #'
-#' Gets estimates of contrasts tau_k(x) using a trained multi arm causal forest.
+#' Gets estimates of contrasts tau_k(x) using a trained multi arm causal forest (k = 1, ..., K-1
+#' where K is the number of treatments).
 #'
 #' @param object The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL, makes out-of-bag
@@ -258,11 +257,16 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
-#'                          (for confidence intervals).
+#'                          (for confidence intervals). This option is currently
+#'                          only supported for univariate outcomes Y.
+#' @param drop For the returned prediction matrix: should singleton dimensions be dropped?
+#'             This argument works in the same manner as in `[`. Default is TRUE.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A list with elements `predictions`: a matrix with K-1 columns with predictions for each contrast,
 #'  and optionally `variance.estimates`: a matrix with K-1 columns with variance estimates for each contrast.
+#'  In the event the forest is trained with M outcomes, `predictions` is a 3-dimensional array
+#'  [num.samples, K-1, M].
 #'
 #' @examples
 #' \donttest{
@@ -323,13 +327,26 @@ multi_arm_causal_forest <- function(X, Y, W,
 predict.multi_arm_causal_forest <- function(object,
                                             newdata = NULL,
                                             num.threads = NULL,
-                                            estimate.variance = FALSE, ...) {
-  treatment.names <- levels(object$W.orig)
+                                            estimate.variance = FALSE,
+                                            drop = TRUE, ...) {
+  if (estimate.variance && NCOL(object[["Y.orig"]]) > 1) {
+    stop("Pointwise variance estimates are only supported for one outcome.")
+  }
+  treatment.names <- levels(object[["W.orig"]])
   contrast.names <- paste(treatment.names[-1], "-", treatment.names[1])
+  outcome.names <- if (is.null(colnames(object[["Y.orig"]]))) {
+    paste0("Y", 1:NCOL(object[["Y.orig"]]))
+  } else {
+    colnames(object[["Y.orig"]])
+  }
+  num.treatments <- length(treatment.names) - 1
+  num.outcomes <- length(outcome.names)
+  dimnames <- list(NULL, contrast.names, outcome.names)
   # If possible, use pre-computed predictions.
   if (is.null(newdata) && !estimate.variance && !is.null(object$predictions)) {
-    colnames(object$predictions) <- contrast.names
-    return(list(predictions = object$predictions))
+    predictions <- array(object$predictions, dim = c(NROW(object$predictions), num.treatments, num.outcomes),
+                         dimnames = dimnames)
+    return(list(predictions = if (drop) drop(predictions) else predictions))
   }
 
   num.threads <- validate_num_threads(num.threads)
@@ -338,7 +355,8 @@ predict.multi_arm_causal_forest <- function(object,
   train.data <- create_train_matrices(X)
 
   args <- list(forest.object = forest.short,
-               num.treatments = length(treatment.names) - 1,
+               num.outcomes = num.outcomes,
+               num.treatments = num.treatments,
                num.threads = num.threads,
                estimate.variance = estimate.variance)
 
@@ -349,8 +367,9 @@ predict.multi_arm_causal_forest <- function(object,
   } else {
     ret <- do.call.rcpp(multi_causal_predict_oob, c(train.data, args))
   }
-  colnames(ret$predictions) <- contrast.names
+  predictions <- array(ret$predictions, dim = c(NROW(ret$predictions), num.treatments, num.outcomes),
+                       dimnames = dimnames)
 
-  list(predictions = ret$predictions,
-       variance.estimates = if(estimate.variance) ret$variance.estimates)
+  list(predictions = if (drop) drop(predictions) else predictions,
+       variance.estimates = if (estimate.variance) ret$variance.estimates)
 }
