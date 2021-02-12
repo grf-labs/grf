@@ -59,21 +59,25 @@ bool MultiCausalRelabelingStrategy::relabel(
     return true;
   }
 
+  Eigen::MatrixXd WW_bar = W_centered.transpose() * weights.asDiagonal() * W_centered; // [num_treatments X num_treatments]
   // Calculate the treatment effect.
   // This condition number check works fine in practice - there may be more robust ways.
-  if (equal_doubles((W_centered.transpose() * weights.asDiagonal() * W_centered).determinant(), 0.0, 1.0e-10)) {
+  if (equal_doubles(WW_bar.determinant(), 0.0, 1.0e-10)) {
     return true;
   }
 
-  Eigen::MatrixXd A_p_inv = (W_centered.transpose() * weights.asDiagonal() * W_centered).inverse();
-  Eigen::VectorXd beta = A_p_inv * W_centered.transpose() * weights.asDiagonal() * Y_centered;
+  Eigen::MatrixXd A_p_inv = WW_bar.inverse();
+  Eigen::MatrixXd beta = A_p_inv * W_centered.transpose() * weights.asDiagonal() * Y_centered;
 
-  Eigen::ArrayXXd rho = (W_centered * A_p_inv.transpose()).array().colwise() * (Y_centered - W_centered * beta).array();
+  Eigen::MatrixXd rho_weight = W_centered * A_p_inv.transpose(); // [num_samples X num_treatments]
+  Eigen::MatrixXd residual = Y_centered - W_centered * beta; // [num_samples X num_outcomes]
 
-  // Create the new outcomes.
+  // Create the new outcomes, eq (20) in https://arxiv.org/pdf/1610.01271.pdf
   for (size_t i = 0; i < num_samples; i++) {
     size_t sample = samples[i];
-    responses_by_sample.row(sample) = rho.row(i);
+    for (size_t treatment = 0; treatment < num_treatments; treatment++) {
+      responses_by_sample(sample, treatment) = rho_weight(i, treatment) * residual(i, 0);
+    }
   }
   return false;
 }
