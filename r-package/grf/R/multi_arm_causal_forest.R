@@ -231,7 +231,7 @@ multi_arm_causal_forest <- function(X, Y, W,
   class(forest) <- c("multi_arm_causal_forest", "grf")
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
-  forest[["Y.orig"]] <- as.matrix(Y)
+  forest[["Y.orig"]] <- Y
   forest[["W.orig"]] <- W
   forest[["Y.hat"]] <- Y.hat
   forest[["W.hat"]] <- W.hat
