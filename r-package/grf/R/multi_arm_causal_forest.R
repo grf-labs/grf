@@ -190,7 +190,9 @@ multi_arm_causal_forest <- function(X, Y, W,
     Y.hat <- predict(forest.Y)$predictions
   } else if (length(Y.hat) == NCOL(Y)) {
     Y.hat <- matrix(Y.hat, nrow = NROW(Y), ncol = NCOL(Y), byrow = TRUE)
-  } else if (NROW(Y.hat) != nrow(X) || NCOL(Y.hat) != NROW(Y)) {
+  } else if (NROW(Y.hat) == nrow(X) && NCOL(Y.hat) == 1) {
+    Y.hat <- as.matrix(Y.hat)
+  } else if (NROW(Y.hat) != nrow(X) || NCOL(Y.hat) != NCOL(Y)) {
     stop("Y.hat has incorrect length.")
   }
 
