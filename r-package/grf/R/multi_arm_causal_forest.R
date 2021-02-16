@@ -89,9 +89,9 @@
 #' # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
 #' mc.pred <- predict(mc.forest)
 #'
-#' plot(X[, 2], mc.pred$predictions[, "B - A"], ylab = "tau.contrast")
+#' plot(X[, 2], mc.pred$predictions[, "B - A", ], ylab = "tau.contrast")
 #' abline(0, 1, col = "red")
-#' points(X[, 2], mc.pred$predictions[, "C - A"], col = "blue")
+#' points(X[, 2], mc.pred$predictions[, "C - A", ], col = "blue")
 #' abline(0, -1.5, col = "red")
 #' legend("topleft", c("B - A", "C - A"), col = c("black", "blue"), pch = 19)
 #'
@@ -105,9 +105,9 @@
 #' # * mu(A, x) = m(x) - e_B(x) tau_B(x) - e_C(x) tau_C(x)
 #' # * mu(B, x) = m(x) + (1 - e_B(x)) tau_B(x) - e_C(x) tau_C(x)
 #' # * mu(C, x) = m(x) - e_B(x) tau_B(x) + (1 - e_C(x)) tau_C(x)
-#' Y.hat <- mc.forest$Y.hat
+#' Y.hat <- mc.forest$Y.hat[, 1]
 #' W.hat <- mc.forest$W.hat
-#' tau.hat <- mc.pred$predictions
+#' tau.hat <- mc.pred$predictions[,,]
 #'
 #' muA <- Y.hat - W.hat[, "B"] * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[, "C - A"]
 #' muB <- Y.hat + (1 - W.hat[, "B"]) * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[, "C - A"]
@@ -245,7 +245,7 @@ multi_arm_causal_forest <- function(X, Y, W,
 
 #' Predict with a multi arm causal forest
 #'
-#' Gets estimates of contrasts tau_k(x) using a trained multi arm causal forest (k = 1, ..., K-1
+#' Gets estimates of contrasts tau_k(x) using a trained multi arm causal forest (k = 1,...,K-1
 #' where K is the number of treatments).
 #'
 #' @param object The trained forest.
@@ -259,14 +259,12 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals). This option is currently
 #'                          only supported for univariate outcomes Y.
-#' @param drop For the returned prediction matrix: should singleton dimensions be dropped?
-#'             This argument works in the same manner as in `[`. Default is TRUE.
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return A list with elements `predictions`: a matrix with K-1 columns with predictions for each contrast,
+#' @return A list with elements `predictions`: a 3d array of dimension (num.samples * K-1 * M) with
+#' predictions for each contrast, for each outcome 1,..,M (singleton dimensions in this array can
+#' be dropped by passing the `drop` argument to `[`, or with the shorthand `$predictions[,,]`),
 #'  and optionally `variance.estimates`: a matrix with K-1 columns with variance estimates for each contrast.
-#'  In the event the forest is trained with M outcomes, `predictions` is a 3-dimensional array
-#'  [num.samples, K-1, M].
 #'
 #' @examples
 #' \donttest{
@@ -283,9 +281,9 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
 #' mc.pred <- predict(mc.forest)
 #'
-#' plot(X[, 2], mc.pred$predictions[, "B - A"], ylab = "tau.contrast")
+#' plot(X[, 2], mc.pred$predictions[, "B - A", ], ylab = "tau.contrast")
 #' abline(0, 1, col = "red")
-#' points(X[, 2], mc.pred$predictions[, "C - A"], col = "blue")
+#' points(X[, 2], mc.pred$predictions[, "C - A", ], col = "blue")
 #' abline(0, -1.5, col = "red")
 #' legend("topleft", c("B - A", "C - A"), col = c("black", "blue"), pch = 19)
 #'
@@ -299,9 +297,9 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' # * mu(A, x) = m(x) - e_B(x) tau_B(x) - e_C(x) tau_C(x)
 #' # * mu(B, x) = m(x) + (1 - e_B(x)) tau_B(x) - e_C(x) tau_C(x)
 #' # * mu(C, x) = m(x) - e_B(x) tau_B(x) + (1 - e_C(x)) tau_C(x)
-#' Y.hat <- mc.forest$Y.hat
+#' Y.hat <- mc.forest$Y.hat[, 1]
 #' W.hat <- mc.forest$W.hat
-#' tau.hat <- mc.pred$predictions
+#' tau.hat <- mc.pred$predictions[,,]
 #'
 #' muA <- Y.hat - W.hat[, "B"] * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[, "C - A"]
 #' muB <- Y.hat + (1 - W.hat[, "B"]) * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[, "C - A"]
@@ -328,7 +326,7 @@ predict.multi_arm_causal_forest <- function(object,
                                             newdata = NULL,
                                             num.threads = NULL,
                                             estimate.variance = FALSE,
-                                            drop = TRUE, ...) {
+                                            ...) {
   if (estimate.variance && NCOL(object[["Y.orig"]]) > 1) {
     stop("Pointwise variance estimates are only supported for one outcome.")
   }
@@ -346,7 +344,7 @@ predict.multi_arm_causal_forest <- function(object,
   if (is.null(newdata) && !estimate.variance && !is.null(object$predictions)) {
     predictions <- array(object$predictions, dim = c(NROW(object$predictions), num.treatments, num.outcomes),
                          dimnames = dimnames)
-    return(list(predictions = if (drop) drop(predictions) else predictions))
+    return(list(predictions = predictions))
   }
 
   num.threads <- validate_num_threads(num.threads)
@@ -370,6 +368,6 @@ predict.multi_arm_causal_forest <- function(object,
   predictions <- array(ret$predictions, dim = c(NROW(ret$predictions), num.treatments, num.outcomes),
                        dimnames = dimnames)
 
-  list(predictions = if (drop) drop(predictions) else predictions,
+  list(predictions = predictions,
        variance.estimates = if (estimate.variance) ret$variance.estimates)
 }

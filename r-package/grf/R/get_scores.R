@@ -240,7 +240,7 @@ get_scores.multi_arm_causal_forest <- function(forest,
   W.hat <- forest$W.hat[subset, , drop = FALSE]
   Y.orig <- forest$Y.orig[subset, outcome]
   Y.hat <- forest$Y.hat[subset, outcome]
-  tau.hat.pointwise <- predict(forest, drop = FALSE)$predictions[subset, , outcome]
+  tau.hat.pointwise <- predict(forest)$predictions[subset, , outcome]
 
   treatment.names <- levels(W.orig)
   num.treatments <- length(treatment.names)

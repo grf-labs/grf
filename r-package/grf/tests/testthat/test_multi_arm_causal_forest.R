@@ -21,7 +21,7 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   pp.cf <- predict(cf, estimate.variance = TRUE)
   pp.mcf <- predict(mcf, estimate.variance = TRUE)
   z.cf <- abs((pp.cf$predictions - tau) / sqrt(pp.cf$variance.estimates))
-  z.mcf <- abs((pp.mcf$predictions - tau) / sqrt(pp.mcf$variance.estimates))
+  z.mcf <- abs((pp.mcf$predictions[,,] - tau) / sqrt(pp.mcf$variance.estimates))
   expect_equal(mean(z.cf > 1.96), mean(z.mcf > 1.96), tol = 0.05)
 
   expect_equal(mean((pp.cf$predictions - pp.mcf$predictions)^2), 0, tol = 0.05)
@@ -41,12 +41,12 @@ test_that("multi_arm_causal_forest contrasts works as expected", {
   Y <- X[, 1] + 1.5 * (W == "A") + 2.8 * (W == "B") - 4 * (W == "C") + 0.1 * rnorm(n)
 
   mcf.A <- multi_arm_causal_forest(X, Y, W, num.trees = 500, seed = 1)
-  tau.hat.oob.A <- predict(mcf.A)$predictions
-  tau.hat.A <- predict(mcf.A, X)$predictions
+  tau.hat.oob.A <- predict(mcf.A)$predictions[,,]
+  tau.hat.A <- predict(mcf.A, X)$predictions[,,]
 
   mcf.C <- multi_arm_causal_forest(X, Y, relevel(W, ref = "C"), num.trees = 500, seed = 1)
-  tau.hat.oob.C <- predict(mcf.C)$predictions
-  tau.hat.C <- predict(mcf.C, X)$predictions
+  tau.hat.oob.C <- predict(mcf.C)$predictions[,,]
+  tau.hat.C <- predict(mcf.C, X)$predictions[,,]
 
   # 1. With easy constant treatment effects we estimate the correct contrasts
   expect_equal(colMeans(tau.hat.oob.A), c("B - A" = 2.8 - 1.5, "C - A" = -4 - 1.5), tol = 0.04)
@@ -147,7 +147,7 @@ test_that("multi_arm_causal_forest confidence intervals are reasonable", {
 
   tau <- cbind(tauB, tauC)
   pp.mcf <- predict(mcf, estimate.variance = TRUE)
-  z <- abs((pp.mcf$predictions - tau) / sqrt(pp.mcf$variance.estimates))
+  z <- abs((pp.mcf$predictions[,,] - tau) / sqrt(pp.mcf$variance.estimates))
 
   expect_true(all(colMeans(z > 1.96) < c(0.25, 0.25)))
 })
@@ -168,8 +168,8 @@ test_that("multi_arm_causal_forest with multiple outcomes works as expected", {
   mrf <- multi_arm_causal_forest(X, cbind(Y, 0), W, Y.hat = c(0, 0), W.hat = c(1/3, 1/3, 1/3),
                                  num.trees = 200, seed = 42)
 
-  expect_equal(predict(rf)$predictions, predict(mrf)$predictions[, , 1])
-  expect_equal(predict(rf, X)$predictions, predict(mrf, X)$predictions[, , 1])
+  expect_equal(predict(rf)$predictions[,,], predict(mrf)$predictions[, , 1])
+  expect_equal(predict(rf, X)$predictions[,,], predict(mrf, X)$predictions[, , 1])
   expect_equal(dim(predict(mrf)$predictions), c(n, 2, 2))
   expect_equal(average_treatment_effect(rf), average_treatment_effect(mrf))
 
@@ -178,8 +178,8 @@ test_that("multi_arm_causal_forest with multiple outcomes works as expected", {
   mrf <- multi_arm_causal_forest(X, cbind(0, Y), W, Y.hat = c(0, 0), W.hat = c(1/3, 1/3, 1/3),
                                  num.trees = 200, seed = 42)
 
-  expect_equal(predict(rf)$predictions, predict(mrf)$predictions[, , 2])
-  expect_equal(predict(rf, X)$predictions, predict(mrf, X)$predictions[, , 2])
+  expect_equal(predict(rf)$predictions[,,], predict(mrf)$predictions[, , 2])
+  expect_equal(predict(rf, X)$predictions[,,], predict(mrf, X)$predictions[, , 2])
   expect_equal(dim(predict(mrf)$predictions), c(n, 2, 2))
   expect_equal(average_treatment_effect(rf), average_treatment_effect(mrf, outcome = 2))
 
@@ -187,8 +187,8 @@ test_that("multi_arm_causal_forest with multiple outcomes works as expected", {
   mrf <- multi_arm_causal_forest(X, cbind(0, 0, Y, 0, 0, 0), W, Y.hat = rep(0, 6), W.hat = c(1/3, 1/3, 1/3),
                                  num.trees = 200, seed = 42)
 
-  expect_equal(predict(rf)$predictions, predict(mrf)$predictions[, , 3])
-  expect_equal(predict(rf, X)$predictions, predict(mrf, X)$predictions[, , 3])
+  expect_equal(predict(rf)$predictions[,,], predict(mrf)$predictions[, , 3])
+  expect_equal(predict(rf, X)$predictions[,,], predict(mrf, X)$predictions[, , 3])
   expect_equal(dim(predict(mrf)$predictions), c(n, 2, 6))
   expect_equal(average_treatment_effect(rf), average_treatment_effect(mrf, outcome = 3))
 
@@ -238,7 +238,7 @@ test_that("multi_arm_causal_forest with multiple outcomes is well calibrated", {
   YY <- tau * W + X[, 3:4] + 0.5 * matrix(rnorm(n * 2), n, 2)
 
   cf.pred <- apply(YY, 2, function(Y) predict(causal_forest(X, Y, W, num.trees = 500, stabilize.splits = FALSE))$predictions)
-  mcf.pred <- predict(multi_arm_causal_forest(X, YY, as.factor(W), num.trees = 500))$predictions
+  mcf.pred <- predict(multi_arm_causal_forest(X, YY, as.factor(W), num.trees = 500))$predictions[,,]
   mse.cf <- mean((mcf.pred - tau)^2)
   mse.mcf <- mean((cf.pred - tau)^2)
 
