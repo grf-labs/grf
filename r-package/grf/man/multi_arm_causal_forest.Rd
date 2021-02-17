@@ -31,7 +31,7 @@ multi_arm_causal_forest(
 \arguments{
 \item{X}{The covariates used in the causal regression.}
 
-\item{Y}{The outcome (must be a numeric vector with no NAs).}
+\item{Y}{The outcome (must be a numeric vector/matrix with no NAs).}
 
 \item{W}{The treatment assignment (must be a factor vector with no NAs). The reference treatment
 is set to the first treatment according to the ordinality of the factors, this can be changed
@@ -140,10 +140,14 @@ mc.forest <- multi_arm_causal_forest(X, Y, W)
 # By default, the first ordinal treatment is used as baseline ("A" in this example),
 # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
 mc.pred <- predict(mc.forest)
+# Fitting several outcomes jointly is supported, and the returned prediction array
+# has dimension num.samples * num.contrasts * num.outcomes. Since num.outcomes is
+# one in this example, we can drop this singleton dimension using `[,,]`.
+tau.hat <- mc.pred$predictions[,,]
 
-plot(X[, 2], mc.pred$predictions[, "B - A"], ylab = "tau.contrast")
+plot(X[, 2], tau.hat[, "B - A"], ylab = "tau.contrast")
 abline(0, 1, col = "red")
-points(X[, 2], mc.pred$predictions[, "C - A"], col = "blue")
+points(X[, 2], tau.hat[, "C - A"], col = "blue")
 abline(0, -1.5, col = "red")
 legend("topleft", c("B - A", "C - A"), col = c("black", "blue"), pch = 19)
 
@@ -157,9 +161,8 @@ legend("topleft", c("B - A", "C - A"), col = c("black", "blue"), pch = 19)
 # * mu(A, x) = m(x) - e_B(x) tau_B(x) - e_C(x) tau_C(x)
 # * mu(B, x) = m(x) + (1 - e_B(x)) tau_B(x) - e_C(x) tau_C(x)
 # * mu(C, x) = m(x) - e_B(x) tau_B(x) + (1 - e_C(x)) tau_C(x)
-Y.hat <- mc.forest$Y.hat
+Y.hat <- mc.forest$Y.hat[, 1]
 W.hat <- mc.forest$W.hat
-tau.hat <- mc.pred$predictions
 
 muA <- Y.hat - W.hat[, "B"] * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[, "C - A"]
 muB <- Y.hat + (1 - W.hat[, "B"]) * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[, "C - A"]

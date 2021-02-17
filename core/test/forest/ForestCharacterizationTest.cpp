@@ -292,12 +292,12 @@ TEST_CASE("multi causal forest predictions with sample weights have not changed"
   data->set_weight_index(8);
 
   size_t num_treatments = 2;
-  ForestTrainer trainer = multi_causal_trainer(num_treatments);
+  ForestTrainer trainer = multi_causal_trainer(num_treatments, 1);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(*data, options);
 
-  ForestPredictor predictor = multi_causal_predictor(4, num_treatments);
+  ForestPredictor predictor = multi_causal_predictor(4, num_treatments, 1);
   std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
   std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
 

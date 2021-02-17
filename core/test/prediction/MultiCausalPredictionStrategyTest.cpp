@@ -45,7 +45,7 @@ TEST_CASE("multi causal predictions with one treatment is identical to causal fo
   size_t num_nodes = leaf_samples.size();
 
   InstrumentalPredictionStrategy prediction_strategy;
-  MultiCausalPredictionStrategy multi_prediction_strategy(1);
+  MultiCausalPredictionStrategy multi_prediction_strategy(1, 1);
   PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
   PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
 
@@ -86,7 +86,7 @@ TEST_CASE("multi causal predictions with one continuous treatment is identical t
   size_t num_nodes = leaf_samples.size();
 
   InstrumentalPredictionStrategy prediction_strategy;
-  MultiCausalPredictionStrategy multi_prediction_strategy(1);
+  MultiCausalPredictionStrategy multi_prediction_strategy(1, 1);
   PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
   PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
 
@@ -134,7 +134,7 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
   size_t num_nodes = leaf_samples.size();
 
   InstrumentalPredictionStrategy prediction_strategy;
-  MultiCausalPredictionStrategy multi_prediction_strategy(1);
+  MultiCausalPredictionStrategy multi_prediction_strategy(1, 1);
   PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
   PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
 
@@ -174,7 +174,7 @@ TEST_CASE("multi causal variance estimates with one continuous treatment is iden
   size_t num_nodes = leaf_samples.size();
 
   InstrumentalPredictionStrategy prediction_strategy;
-  MultiCausalPredictionStrategy multi_prediction_strategy(1);
+  MultiCausalPredictionStrategy multi_prediction_strategy(1, 1);
   PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
   PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
 

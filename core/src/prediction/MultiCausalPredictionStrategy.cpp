@@ -24,38 +24,43 @@
 
 namespace grf {
 
-MultiCausalPredictionStrategy::MultiCausalPredictionStrategy(size_t num_treatments) {
+MultiCausalPredictionStrategy::MultiCausalPredictionStrategy(size_t num_treatments,
+                                                             size_t num_outcomes) {
   this->num_treatments = num_treatments;
-  this->num_types = 2 + 2 * num_treatments + num_treatments * num_treatments;
+  this->num_outcomes = num_outcomes;
+  this->num_types = num_treatments * (num_treatments + num_outcomes + 1) + num_outcomes + 1;
   this->weight_index = 0;
   this->Y_index = 1;
-  this->W_index = 2;
-  this->YW_index = 2 + num_treatments;
-  this->WW_index = 2 + 2 * num_treatments;
+  this->W_index = this->Y_index + num_outcomes;
+  this->YW_index = this->W_index + num_treatments;
+  this->WW_index = this->YW_index + num_treatments * num_outcomes;
 }
 
 size_t MultiCausalPredictionStrategy::prediction_length() const {
-    return num_treatments;
+    return num_treatments * num_outcomes;
 }
 
 std::vector<double> MultiCausalPredictionStrategy::predict(const std::vector<double>& average) const {
   // Re-construct the relevant data structures from the std::vector produced in `precompute_prediction_values`
   double weight_bar = average[weight_index];
-  double Y_bar = average[Y_index];
+  Eigen::Map<const Eigen::VectorXd> Y_bar(average.data() + Y_index, num_outcomes);
   Eigen::Map<const Eigen::VectorXd> W_bar(average.data() + W_index, num_treatments);
-  Eigen::Map<const Eigen::VectorXd> YW_bar(average.data() + YW_index, num_treatments);
+  Eigen::Map<const Eigen::MatrixXd> YW_bar(average.data() + YW_index, num_treatments, num_outcomes);
   Eigen::Map<const Eigen::MatrixXd> WW_bar(average.data() + WW_index, num_treatments, num_treatments);
 
-  Eigen::VectorXd theta = (WW_bar * weight_bar - W_bar * W_bar.transpose()).inverse() *
-   (YW_bar * weight_bar - Y_bar * W_bar);
+  Eigen::MatrixXd theta = (WW_bar * weight_bar - W_bar * W_bar.transpose()).inverse() *
+   (YW_bar * weight_bar - W_bar * Y_bar.transpose());
 
-  return std::vector<double> (theta.data(), theta.data() + num_treatments);
+  return std::vector<double> (theta.data(), theta.data() + prediction_length());
 }
 
 std::vector<double> MultiCausalPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
     size_t ci_group_size) const {
+  if (num_outcomes > 1) {
+    throw std::runtime_error("Pointwise variance estimates are only implemented for one outcome.");
+  }
 
   double weight_bar = average[weight_index];
   double Y_bar = average[Y_index];
@@ -167,18 +172,18 @@ PredictionValues MultiCausalPredictionStrategy::precompute_prediction_values(
       continue;
     }
 
-    double sum_Y = 0;
+    Eigen::VectorXd sum_Y = Eigen::VectorXd::Zero(num_outcomes);
     Eigen::VectorXd sum_W = Eigen::VectorXd::Zero(num_treatments);
-    Eigen::VectorXd sum_YW = Eigen::VectorXd::Zero(num_treatments);
+    Eigen::MatrixXd sum_YW = Eigen::MatrixXd::Zero(num_treatments, num_outcomes);
     Eigen::MatrixXd sum_WW = Eigen::MatrixXd::Zero(num_treatments, num_treatments);
     double sum_weight = 0.0;
     for (auto& sample : leaf_samples[i]) {
       double weight = data.get_weight(sample);
-      double outcome = data.get_outcome(sample);
+      Eigen::VectorXd outcome = data.get_outcomes(sample);
       Eigen::VectorXd treatment = data.get_treatments(sample);
       sum_Y += weight * outcome;
       sum_W += weight * treatment;
-      sum_YW += weight * outcome * treatment;
+      sum_YW += weight * treatment * outcome.transpose();
       sum_WW += weight * treatment * treatment.transpose();
       sum_weight += weight;
     }
@@ -192,12 +197,14 @@ PredictionValues MultiCausalPredictionStrategy::precompute_prediction_values(
     // {sum_weight, sum_Y, sum_W, sum_YW, sum_WW}
 
     value.push_back(sum_weight / num_samples);
-    value.push_back(sum_Y / num_samples);
+    for (size_t j = 0; j < num_outcomes; j++) {
+      value.push_back(sum_Y[j] / num_samples);
+    }
     for (size_t j = 0; j < num_treatments; j++) {
       value.push_back(sum_W[j] / num_samples);
     }
-    for (size_t j = 0; j < num_treatments; j++) {
-      value.push_back(sum_YW[j] / num_samples);
+    for (size_t j = 0; j < num_treatments * num_outcomes; j++) {
+      value.push_back(sum_YW.data()[j] / num_samples);
     }
     for (size_t j = 0; j < num_treatments * num_treatments; j++) {
       value.push_back(sum_WW.data()[j] / num_samples);

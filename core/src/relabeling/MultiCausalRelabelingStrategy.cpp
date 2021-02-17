@@ -28,22 +28,23 @@ bool MultiCausalRelabelingStrategy::relabel(
   // Prepare the relevant averages.
   size_t num_samples = samples.size();
   size_t num_treatments = data.get_num_treatments();
+  size_t num_outcomes = data.get_num_outcomes();
   if (num_samples <= num_treatments) {
     return true;
   }
 
-  Eigen::VectorXd Y_centered = Eigen::VectorXd(num_samples);
+  Eigen::MatrixXd Y_centered = Eigen::MatrixXd(num_samples, num_outcomes);
   Eigen::MatrixXd W_centered = Eigen::MatrixXd(num_samples, num_treatments);
   Eigen::VectorXd weights = Eigen::VectorXd(num_samples);
-  double Y_mean = 0;
+  Eigen::VectorXd Y_mean = Eigen::VectorXd::Zero(num_outcomes);
   Eigen::VectorXd W_mean = Eigen::VectorXd::Zero(num_treatments);
   double sum_weight = 0;
   for (size_t i = 0; i < num_samples; i++) {
     size_t sample = samples[i];
     double weight = data.get_weight(sample);
-    double outcome = data.get_outcome(sample);
+    Eigen::VectorXd outcome = data.get_outcomes(sample);
     Eigen::VectorXd treatment = data.get_treatments(sample);
-    Y_centered(i) = outcome;
+    Y_centered.row(i) = outcome;
     W_centered.row(i) = treatment;
     weights(i) = weight;
     Y_mean += weight * outcome;
@@ -52,7 +53,7 @@ bool MultiCausalRelabelingStrategy::relabel(
   }
   Y_mean = Y_mean / sum_weight;
   W_mean = W_mean / sum_weight;
-  Y_centered.array() -= Y_mean;
+  Y_centered.rowwise() -= Y_mean.transpose();
   W_centered.rowwise() -= W_mean.transpose();
 
   if (std::abs(sum_weight) <= 1e-16) {
@@ -67,16 +68,21 @@ bool MultiCausalRelabelingStrategy::relabel(
   }
 
   Eigen::MatrixXd A_p_inv = WW_bar.inverse();
-  Eigen::MatrixXd beta = A_p_inv * W_centered.transpose() * weights.asDiagonal() * Y_centered;
+  Eigen::MatrixXd beta = A_p_inv * W_centered.transpose() * weights.asDiagonal() * Y_centered; // [num_treatments X num_outcomes]
 
   Eigen::MatrixXd rho_weight = W_centered * A_p_inv.transpose(); // [num_samples X num_treatments]
   Eigen::MatrixXd residual = Y_centered - W_centered * beta; // [num_samples X num_outcomes]
 
   // Create the new outcomes, eq (20) in https://arxiv.org/pdf/1610.01271.pdf
+  // `responses_by_sample(sample_i, )` is a `num_treatments*num_outcomes`-sized vector.
   for (size_t i = 0; i < num_samples; i++) {
     size_t sample = samples[i];
-    for (size_t treatment = 0; treatment < num_treatments; treatment++) {
-      responses_by_sample(sample, treatment) = rho_weight(i, treatment) * residual(i, 0);
+    size_t j = 0;
+    for (size_t outcome = 0; outcome < num_outcomes; outcome++) {
+      for (size_t treatment = 0; treatment < num_treatments; treatment++) {
+        responses_by_sample(sample, j) = rho_weight(i, treatment) * residual(i, outcome);
+        j++;
+      }
     }
   }
   return false;
