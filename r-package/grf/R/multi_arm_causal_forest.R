@@ -14,7 +14,7 @@
 #' differences in numerics.
 #'
 #' @param X The covariates used in the causal regression.
-#' @param Y The outcome (must be a numeric vector or matrix [one column per outcome] with no NAs)
+#' @param Y The outcome (must be a numeric vector or matrix [one column per outcome] with no NAs).
 #' @param W The treatment assignment (must be a factor vector with no NAs). The reference treatment
 #'          is set to the first treatment according to the ordinality of the factors, this can be changed
 #'          with the `relevel` function in R.
@@ -67,7 +67,7 @@
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 2. (Confidence intervals are
-#'                      currently only supported for univariate outcomes Y)
+#'                      currently only supported for univariate outcomes Y).
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
