@@ -31,7 +31,7 @@ multi_arm_causal_forest(
 \arguments{
 \item{X}{The covariates used in the causal regression.}
 
-\item{Y}{The outcome (must be a numeric vector/matrix with no NAs).}
+\item{Y}{The outcome (must be a numeric vector or matrix [one column per outcome] with no NAs)}
 
 \item{W}{The treatment assignment (must be a factor vector with no NAs). The reference treatment
 is set to the first treatment according to the ordinality of the factors, this can be changed
@@ -99,7 +99,8 @@ Only applies if honesty is enabled. Default is TRUE.}
 
 \item{ci.group.size}{The forest will grow ci.group.size trees on each subsample.
 In order to provide confidence intervals, ci.group.size must
-be at least 2. Default is 2.}
+be at least 2. Default is 2. (Confidence intervals are
+currently only supported for univariate outcomes Y)}
 
 \item{compute.oob.predictions}{Whether OOB predictions on training set should be precomputed. Default is TRUE.}
 
