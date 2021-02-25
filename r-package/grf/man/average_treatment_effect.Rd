@@ -11,7 +11,8 @@ average_treatment_effect(
   subset = NULL,
   debiasing.weights = NULL,
   compliance.score = NULL,
-  num.trees.for.weights = 500
+  num.trees.for.weights = 500,
+  outcome = 1
 )
 }
 \arguments{
@@ -46,6 +47,9 @@ this is estimated via an auxiliary causal forest.}
 treatment), we need to train auxiliary forests to learn debiasing weights.
 This is the number of trees used for this task. Note: this argument is only
 used when debiasing.weights = NULL.}
+
+\item{outcome}{Only used with multi arm causal forets. In the event the forest is trained
+with multiple outcomes Y, a column number specifying the outcome of interest. Default is 1.}
 }
 \value{
 An estimate of the average treatment effect, along with standard error.

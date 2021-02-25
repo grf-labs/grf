@@ -12,7 +12,7 @@ using namespace grf;
 // [[Rcpp::export]]
 Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
                               Eigen::SparseMatrix<double> sparse_train_matrix,
-                              size_t outcome_index,
+                              const std::vector<size_t>& outcome_index,
                               const std::vector<size_t>& treatment_index,
                               size_t sample_weight_index,
                               bool use_sample_weights,
@@ -32,7 +32,8 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
                               unsigned int num_threads,
                               unsigned int seed) {
   size_t num_treatments = treatment_index.size();
-  ForestTrainer trainer = multi_causal_trainer(num_treatments);
+  size_t num_outcomes = outcome_index.size();
+  ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
@@ -47,7 +48,7 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
-    ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments);
+    ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments, num_outcomes);
     predictions = predictor.predict_oob(forest, *data, false);
   }
 
@@ -60,6 +61,7 @@ Rcpp::List multi_causal_predict(Rcpp::List forest_object,
                                 Eigen::SparseMatrix<double> sparse_train_matrix,
                                 Rcpp::NumericMatrix test_matrix,
                                 Eigen::SparseMatrix<double> sparse_test_matrix,
+                                size_t num_outcomes,
                                 size_t num_treatments,
                                 unsigned int num_threads,
                                 bool estimate_variance) {
@@ -68,7 +70,7 @@ Rcpp::List multi_causal_predict(Rcpp::List forest_object,
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
-  ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments);
+  ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments, num_outcomes);
   std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
@@ -79,6 +81,7 @@ Rcpp::List multi_causal_predict(Rcpp::List forest_object,
 Rcpp::List multi_causal_predict_oob(Rcpp::List forest_object,
                                     Rcpp::NumericMatrix train_matrix,
                                     Eigen::SparseMatrix<double> sparse_train_matrix,
+                                    size_t num_outcomes,
                                     size_t num_treatments,
                                     unsigned int num_threads,
                                     bool estimate_variance) {
@@ -86,7 +89,7 @@ Rcpp::List multi_causal_predict_oob(Rcpp::List forest_object,
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
-  ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments);
+  ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments, num_outcomes);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 

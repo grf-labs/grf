@@ -119,7 +119,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions_batch(
     // that this can only occur when honesty is enabled, and is expected to be rare.
     if (num_leaves == 0) {
       std::vector<double> nan(strategy->prediction_length(), NAN);
-      predictions.emplace_back(nan, nan, nan, nan);
+      std::vector<double> nan_error(1, NAN);
+      predictions.emplace_back(nan, estimate_variance ? nan : std::vector<double>(), nan_error, nan_error);
       continue;
     }
 
