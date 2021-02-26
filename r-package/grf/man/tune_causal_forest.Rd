@@ -2,7 +2,7 @@
 % Please edit documentation in R/deprecated.R
 \name{tune_causal_forest}
 \alias{tune_causal_forest}
-\title{Causal forest tuning (deprecated)}
+\title{Causal forest tuning (removed)}
 \usage{
 tune_causal_forest(X, Y, W, Y.hat, W.hat, ...)
 }

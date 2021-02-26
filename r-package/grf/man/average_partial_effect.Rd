@@ -2,7 +2,7 @@
 % Please edit documentation in R/deprecated.R
 \name{average_partial_effect}
 \alias{average_partial_effect}
-\title{Average partial effect (deprecated)}
+\title{Average partial effect (removed)}
 \usage{
 average_partial_effect(forest, ...)
 }

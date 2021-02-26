@@ -2,7 +2,7 @@
 % Please edit documentation in R/deprecated.R
 \name{tune_regression_forest}
 \alias{tune_regression_forest}
-\title{Regression forest tuning (deprecated)}
+\title{Regression forest tuning (removed)}
 \usage{
 tune_regression_forest(X, Y, ...)
 }

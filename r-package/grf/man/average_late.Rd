@@ -2,7 +2,7 @@
 % Please edit documentation in R/deprecated.R
 \name{average_late}
 \alias{average_late}
-\title{Average LATE (deprecated)}
+\title{Average LATE (removed)}
 \usage{
 average_late(forest, ...)
 }
