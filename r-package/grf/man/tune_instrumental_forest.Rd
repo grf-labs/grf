@@ -2,7 +2,7 @@
 % Please edit documentation in R/deprecated.R
 \name{tune_instrumental_forest}
 \alias{tune_instrumental_forest}
-\title{Instrumental forest tuning (deprecated)}
+\title{Instrumental forest tuning (removed)}
 \usage{
 tune_instrumental_forest(X, Y, W, Z, Y.hat, W.hat, Z.hat, ...)
 }
