@@ -44,8 +44,6 @@
 #' average_treatment_effect(tau.forest, target.sample = "all")
 #'
 #' # Estimate the conditional average treatment effect on the treated sample (CATT).
-#' # Here, we don't expect much difference between the CATE and the CATT, since
-#' # treatment assignment was randomized.
 #' average_treatment_effect(tau.forest, target.sample = "treated")
 #'
 #' # Add confidence intervals for heterogeneous treatment effects; growing more
