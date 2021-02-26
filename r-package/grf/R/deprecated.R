@@ -9,7 +9,7 @@
 #'
 #' @export
 average_late <- function(forest, ...) {
-  stop("This function has been deprecated after version 1.2.0. See the function `average_treatment_effect` instead.")
+  stop("This function has been removed after version 1.2.0. See the function `average_treatment_effect` instead.")
 }
 
 #' Average partial effect (deprecated)
@@ -23,7 +23,7 @@ average_late <- function(forest, ...) {
 #'
 #' @export
 average_partial_effect <- function(forest, ...) {
-  stop("This function has been deprecated after version 1.2.0. See the function `average_treatment_effect` instead.")
+  stop("This function has been removed after version 1.2.0. See the function `average_treatment_effect` instead.")
 }
 
 #' Regression forest tuning (deprecated)
@@ -38,7 +38,7 @@ average_partial_effect <- function(forest, ...) {
 #'
 #' @export
 tune_regression_forest <- function(X, Y, ...) {
-  stop("This function has been deprecated after version 1.2.0.")
+  stop("This function has been removed after version 1.2.0.")
 }
 
 #' Causal forest tuning (deprecated)
@@ -56,7 +56,7 @@ tune_regression_forest <- function(X, Y, ...) {
 #'
 #' @export
 tune_causal_forest <- function(X, Y, W, Y.hat, W.hat, ...) {
-  stop("This function has been deprecated after version 1.2.0.")
+  stop("This function has been removed after version 1.2.0.")
 }
 
 #' Instrumental forest tuning (deprecated)
@@ -76,5 +76,5 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat, ...) {
 #'
 #' @export
 tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat, ...) {
-  stop("This function has been deprecated after version 1.2.0.")
+  stop("This function has been removed after version 1.2.0.")
 }
