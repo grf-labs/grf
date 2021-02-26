@@ -27,6 +27,17 @@ test_that("probability forest works as expected", {
   prf <- probability_forest(X, Y, num.trees = 50)
   pred.oob <- predict(prf)
   expect_true(all(colnames(pred.oob$predictions) == class.names))
+
+  p <- 5
+  n <- 200
+  X <- matrix(rnorm(n*p), n, p)
+  prob <- 1 / (1 + exp(-X[, 1] - X[, 2]))
+  Y <- rbinom(n, 1, prob)
+  pf <- probability_forest(X, as.factor(Y), seed = 42, num.trees = 100)
+  pf.flipped <- probability_forest(X, as.factor(1 - Y), seed = 42, num.trees = 100)
+
+  expect_equal(unname(predict(pf)$predictions), unname(predict(pf.flipped)$predictions[, c(2, 1)]))
+  expect_equal(unname(predict(pf, X)$predictions), unname(predict(pf.flipped, X)$predictions[, c(2, 1)]))
 })
 
 test_that("probability forest is well-calibrated", {
