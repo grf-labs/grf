@@ -396,13 +396,13 @@ enum DecompositionOptions {
   /** \internal */
   EigVecMask = EigenvaluesOnly | ComputeEigenvectors,
   /** Used in GeneralizedSelfAdjointEigenSolver to indicate that it should
-    * solve the generalized eigenproblem \f$ Ax = \imbalance_penalty B x \f$. */
+    * solve the generalized eigenproblem \f$ Ax = \lambda B x \f$. */
   Ax_lBx              = 0x100,
   /** Used in GeneralizedSelfAdjointEigenSolver to indicate that it should
-    * solve the generalized eigenproblem \f$ ABx = \imbalance_penalty x \f$. */
+    * solve the generalized eigenproblem \f$ ABx = \lambda x \f$. */
   ABx_lx              = 0x200,
   /** Used in GeneralizedSelfAdjointEigenSolver to indicate that it should
-    * solve the generalized eigenproblem \f$ BAx = \imbalance_penalty x \f$. */
+    * solve the generalized eigenproblem \f$ BAx = \lambda x \f$. */
   BAx_lx              = 0x400,
   /** \internal */
   GenEigMask = Ax_lBx | ABx_lx | BAx_lx

@@ -38,8 +38,8 @@ ComputationInfo computeFromTridiagonal_impl(DiagType& diag, SubDiagType& subdiag
   * A matrix \f$ A \f$ is selfadjoint if it equals its adjoint. For real
   * matrices, this means that the matrix is symmetric: it equals its
   * transpose. This class computes the eigenvalues and eigenvectors of a
-  * selfadjoint matrix. These are the scalars \f$ \imbalance_penalty \f$ and vectors
-  * \f$ v \f$ such that \f$ Av = \imbalance_penalty v \f$.  The eigenvalues of a
+  * selfadjoint matrix. These are the scalars \f$ \lambda \f$ and vectors
+  * \f$ v \f$ such that \f$ Av = \lambda v \f$.  The eigenvalues of a
   * selfadjoint matrix are always real. If \f$ D \f$ is a diagonal matrix with
   * the eigenvalues on the diagonal, and \f$ V \f$ is a matrix with the
   * eigenvectors as its columns, then \f$ A = V D V^{-1} \f$ (for selfadjoint
@@ -62,7 +62,7 @@ ComputationInfo computeFromTridiagonal_impl(DiagType& diag, SubDiagType& subdiag
   * The documentation for SelfAdjointEigenSolver(const MatrixType&, int)
   * contains an example of the typical use of this class.
   *
-  * To solve the \em generalized eigenvalue problem \f$ Av = \imbalance_penalty Bv \f$ and
+  * To solve the \em generalized eigenvalue problem \f$ Av = \lambda Bv \f$ and
   * the likes, see the class GeneralizedSelfAdjointEigenSolver.
   *
   * \sa MatrixBase::eigenvalues(), class EigenSolver, class ComplexEigenSolver
@@ -605,7 +605,8 @@ template<typename SolverType> struct direct_selfadjoint_eigenvalues<SolverType,3
   EIGEN_DEVICE_FUNC
   static inline bool extract_kernel(MatrixType& mat, Ref<VectorType> res, Ref<VectorType> representative)
   {
-    using std::abs;
+    EIGEN_USING_STD_MATH(sqrt)
+    EIGEN_USING_STD_MATH(abs)
     Index i0;
     // Find non-zero column i0 (by construction, there must exist a non zero coefficient on the diagonal):
     mat.diagonal().cwiseAbs().maxCoeff(&i0);
@@ -616,8 +617,8 @@ template<typename SolverType> struct direct_selfadjoint_eigenvalues<SolverType,3
     VectorType c0, c1;
     n0 = (c0 = representative.cross(mat.col((i0+1)%3))).squaredNorm();
     n1 = (c1 = representative.cross(mat.col((i0+2)%3))).squaredNorm();
-    if(n0>n1) res = c0/std::sqrt(n0);
-    else      res = c1/std::sqrt(n1);
+    if(n0>n1) res = c0/sqrt(n0);
+    else      res = c1/sqrt(n1);
 
     return true;
   }
