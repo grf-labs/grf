@@ -12,23 +12,6 @@
 #' @param lambda.path Optional list of lambdas to use for cross-validation.
 #' @return A list of lambdas tried, corresponding errors, and optimal ridge penalty lambda.
 #'
-#' @examples
-#' \donttest{
-#' # Find the optimal tuning parameters.
-#' n <- 50
-#' p <- 10
-#' X <- matrix(rnorm(n * p), n, p)
-#' W <- rbinom(n, 1, 0.5)
-#' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
-#'
-#' forest <- causal_forest(X, Y, W)
-#' tuned.lambda <- tune_ll_causal_forest(forest)
-#'
-#' # Use this parameter to predict from a local linear causal forest.
-#' predictions <- predict(forest, linear.correction.variables = 1:p,
-#'                        ll.lambda = tuned.lambda$lambda.min)
-#' }
-#'
 #' @keywords internal
 tune_ll_causal_forest <- function(forest,
                                   linear.correction.variables = NULL,
