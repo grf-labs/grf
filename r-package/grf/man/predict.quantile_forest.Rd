@@ -24,7 +24,7 @@ automatically selects an appropriate amount.}
 \item{...}{Additional arguments (currently ignored).}
 }
 \value{
-Predictions at each test point for each desired quantile.
+A list with elements `predictions`: a matrix with predictions at each test point for each desired quantile.
 }
 \description{
 Gets estimates of the conditional quantiles of Y given X using a trained forest.

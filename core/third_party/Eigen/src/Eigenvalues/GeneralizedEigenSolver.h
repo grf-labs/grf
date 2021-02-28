@@ -28,7 +28,7 @@ namespace Eigen {
   * class template. Currently, only real matrices are supported.
   *
   * The generalized eigenvalues and eigenvectors of a matrix pair \f$ A \f$ and \f$ B \f$ are scalars
-  * \f$ \imbalance_penalty \f$ and vectors \f$ v \f$ such that \f$ Av = \imbalance_penalty Bv \f$.  If
+  * \f$ \lambda \f$ and vectors \f$ v \f$ such that \f$ Av = \lambda Bv \f$.  If
   * \f$ D \f$ is a diagonal matrix with the eigenvalues on the diagonal, and
   * \f$ V \f$ is a matrix with the eigenvectors as its columns, then \f$ A V =
   * B V D \f$. The matrix \f$ V \f$ is almost always invertible, in which case we
@@ -37,7 +37,7 @@ namespace Eigen {
   * The generalized eigenvalues and eigenvectors of a matrix pair may be complex, even when the
   * matrices are real. Moreover, the generalized eigenvalue might be infinite if the matrix B is
   * singular. To workaround this difficulty, the eigenvalues are provided as a pair of complex \f$ \alpha \f$
-  * and real \f$ \beta \f$ such that: \f$ \imbalance_penalty_i = \alpha_i / \beta_i \f$. If \f$ \beta_i \f$ is (nearly) zero,
+  * and real \f$ \beta \f$ such that: \f$ \lambda_i = \alpha_i / \beta_i \f$. If \f$ \beta_i \f$ is (nearly) zero,
   * then one can consider the well defined left eigenvalue \f$ \mu = \beta_i / \alpha_i\f$ such that:
   * \f$ \mu_i A v_i = B v_i \f$, or even \f$ \mu_i u_i^T A  = u_i^T B \f$ where \f$ u_i \f$ is
   * called the left eigenvector.
@@ -311,7 +311,6 @@ GeneralizedEigenSolver<MatrixType>::compute(const MatrixType& A, const MatrixTyp
     // Aliases:
     Map<VectorType> v(reinterpret_cast<Scalar*>(m_tmp.data()), size);
     ComplexVectorType &cv = m_tmp;
-    const MatrixType &mZ = m_realQZ.matrixZ();
     const MatrixType &mS = m_realQZ.matrixS();
     const MatrixType &mT = m_realQZ.matrixT();
 
@@ -351,7 +350,7 @@ GeneralizedEigenSolver<MatrixType>::compute(const MatrixType& A, const MatrixTyp
               }
             }
           }
-          m_eivec.col(i).real().noalias() = mZ.transpose() * v;
+          m_eivec.col(i).real().noalias() = m_realQZ.matrixZ().transpose() * v;
           m_eivec.col(i).real().normalize();
           m_eivec.col(i).imag().setConstant(0);
         }
@@ -400,7 +399,7 @@ GeneralizedEigenSolver<MatrixType>::compute(const MatrixType& A, const MatrixTyp
                               / (alpha*mT.coeffRef(j,j) - static_cast<Scalar>(beta*mS.coeffRef(j,j)));
             }
           }
-          m_eivec.col(i+1).noalias() = (mZ.transpose() * cv);
+          m_eivec.col(i+1).noalias() = (m_realQZ.matrixZ().transpose() * cv);
           m_eivec.col(i+1).normalize();
           m_eivec.col(i) = m_eivec.col(i+1).conjugate();
         }

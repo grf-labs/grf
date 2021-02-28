@@ -12,21 +12,6 @@
 #' @param lambda.path Optional list of lambdas to use for cross-validation.
 #' @return A list of lambdas tried, corresponding errors, and optimal ridge penalty lambda.
 #'
-#' @examples
-#' \donttest{
-#' # Find the optimal tuning parameters.
-#' n <- 500
-#' p <- 10
-#' X <- matrix(rnorm(n * p), n, p)
-#' Y <- X[, 1] * rnorm(n)
-#' forest <- regression_forest(X, Y)
-#' tuned.lambda <- tune_ll_regression_forest(forest)
-#'
-#' # Use this parameter to predict from a local linear forest.
-#' predictions <- predict(forest, linear.correction.variables = 1:p,
-#'                        ll.lambda = tuned.lambda$lambda.min)
-#' }
-#'
 #' @keywords internal
 tune_ll_regression_forest <- function(forest,
                                       linear.correction.variables = NULL,
