@@ -78,6 +78,28 @@ test_that("multi_arm_causal_forest contrasts works as expected", {
   expect_equal(tau.hat.A.ns[, "B - A"] - tau.hat.A.ns[, "C - A"], tau.hat.C.ns[, "B - C"], tol = 1e-10)
 })
 
+test_that("multi_arm_causal_forest with binary treatment respects contrast invariance", {
+  n <- 500
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+
+  # With W.hat = 1/2 we can make the following check exact
+  W.hat <- c(0.5, 0.5)
+  cf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = W.hat, num.trees = 250, seed = 42)
+  cf.flipped <- multi_arm_causal_forest(X, Y, as.factor(1 - W), W.hat = W.hat, num.trees = 250, seed = 42)
+  cf.relevel <- multi_arm_causal_forest(X, Y, relevel(as.factor(W), ref = "1"), W.hat = W.hat, num.trees = 250, seed = 42)
+
+  pp <- predict(cf)$predictions[,,]
+  pp.flipped <- predict(cf.flipped)$predictions[,,]
+  pp.relevel <- predict(cf.relevel)$predictions[,,]
+
+  expect_equal(pp, -1 * pp.flipped, tol = 0)
+  expect_equal(pp, -1 * pp.relevel, tol = 0)
+  expect_equal(pp.flipped, pp.relevel, tol = 0)
+})
+
 test_that("multi_arm_causal_forest ATE works as expected", {
   n <- 500
   p <- 5
