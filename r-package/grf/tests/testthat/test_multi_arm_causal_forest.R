@@ -61,6 +61,21 @@ test_that("multi_arm_causal_forest contrasts works as expected", {
 
   expect_equal(tau.hat.oob.A[, "B - A"] - tau.hat.oob.A[, "C - A"], tau.hat.oob.C[, "B - C"], tol = 0.01)
   expect_equal(tau.hat.A[, "B - A"] - tau.hat.A[, "C - A"], tau.hat.C[, "B - C"], tol = 0.01)
+
+  # The above invariance holds exactly if we ignore splitting and just predict
+  mcf.A.ns <- multi_arm_causal_forest(X, Y, W, num.trees = 250, seed = 42, min.node.size = n)
+  tau.hat.oob.A.ns <- predict(mcf.A.ns)$predictions[,,]
+  tau.hat.A.ns <- predict(mcf.A.ns, X)$predictions[,,]
+
+  mcf.C.ns <- multi_arm_causal_forest(X, Y, relevel(W, ref = "C"), num.trees = 250, seed = 42, min.node.size = n)
+  tau.hat.oob.C.ns <- predict(mcf.C.ns)$predictions[,,]
+  tau.hat.C.ns <- predict(mcf.C.ns, X)$predictions[,,]
+
+  expect_equal(tau.hat.oob.A.ns[, "C - A"], -1 * tau.hat.oob.C.ns[, "A - C"], tol = 1e-10)
+  expect_equal(tau.hat.A.ns[, "C - A"], -1 * tau.hat.C.ns[, "A - C"], tol = 1e-10)
+
+  expect_equal(tau.hat.oob.A.ns[, "B - A"] - tau.hat.oob.A.ns[, "C - A"], tau.hat.oob.C.ns[, "B - C"], tol = 1e-10)
+  expect_equal(tau.hat.A.ns[, "B - A"] - tau.hat.A.ns[, "C - A"], tau.hat.C.ns[, "B - C"], tol = 1e-10)
 })
 
 test_that("multi_arm_causal_forest ATE works as expected", {
