@@ -13,9 +13,9 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   nmissing <- 50
   X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
 
-  cf <- causal_forest(X, Y, W, W.hat = 1/2, Y.hat = 0, seed = 1, stabilize.splits = FALSE,
+  cf <- causal_forest(X, Y, W, W.hat = 1/2, Y.hat = 0, seed = 42, stabilize.splits = FALSE,
                      alpha = 0, min.node.size = 1, num.trees = 500)
-  mcf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(1/2, 1/2), Y.hat = 0, seed = 1,
+  mcf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(1/2, 1/2), Y.hat = 0, seed = 42,
                                  alpha = 0, min.node.size = 1, num.trees = 500)
 
   pp.cf <- predict(cf, estimate.variance = TRUE)
@@ -40,11 +40,11 @@ test_that("multi_arm_causal_forest contrasts works as expected", {
   W <- as.factor(sample(c("A", "B", "C"), n, replace = TRUE))
   Y <- X[, 1] + 1.5 * (W == "A") + 2.8 * (W == "B") - 4 * (W == "C") + 0.1 * rnorm(n)
 
-  mcf.A <- multi_arm_causal_forest(X, Y, W, num.trees = 500, seed = 1)
+  mcf.A <- multi_arm_causal_forest(X, Y, W, num.trees = 500, seed = 42)
   tau.hat.oob.A <- predict(mcf.A)$predictions[,,]
   tau.hat.A <- predict(mcf.A, X)$predictions[,,]
 
-  mcf.C <- multi_arm_causal_forest(X, Y, relevel(W, ref = "C"), num.trees = 500, seed = 1)
+  mcf.C <- multi_arm_causal_forest(X, Y, relevel(W, ref = "C"), num.trees = 500, seed = 42)
   tau.hat.oob.C <- predict(mcf.C)$predictions[,,]
   tau.hat.C <- predict(mcf.C, X)$predictions[,,]
 
@@ -140,8 +140,8 @@ test_that("multi_arm_causal_forest predictions and variance estimates are invari
 
   # The multiple is a power of 2 to avoid rounding errors allowing for exact comparison
   # between two forest with the same seed.
-  forest.1 <- multi_arm_causal_forest(X, Y, W, sample.weights = sample.weights, num.trees = 250, seed = 1)
-  forest.2 <- multi_arm_causal_forest(X, Y, W, sample.weights = 64 * sample.weights, num.trees = 250, seed = 1)
+  forest.1 <- multi_arm_causal_forest(X, Y, W, sample.weights = sample.weights, num.trees = 250, seed = 42)
+  forest.2 <- multi_arm_causal_forest(X, Y, W, sample.weights = 64 * sample.weights, num.trees = 250, seed = 42)
   pred.1 <- predict(forest.1, estimate.variance = TRUE)
   pred.2 <- predict(forest.2, estimate.variance = TRUE)
 
