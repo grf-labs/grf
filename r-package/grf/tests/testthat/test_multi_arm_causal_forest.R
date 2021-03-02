@@ -85,7 +85,10 @@ test_that("multi_arm_causal_forest with binary treatment respects contrast invar
   W <- rbinom(n, 1, 0.5)
   Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
 
-  # With W.hat = 1/2 we can make the following check exact
+  # With W.hat = 1/2 we can make the following check exact.
+  # Setting W.hat to NULL or any other float pair will cause extremely small numerical differences
+  # to accrue (10th+ digit) in splitting on the pseudo outcomes, leading these forests
+  # to yield different splits even though they are algebraically the same.
   W.hat <- c(0.5, 0.5)
   cf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = W.hat, num.trees = 250, seed = 42)
   cf.flipped <- multi_arm_causal_forest(X, Y, as.factor(1 - W), W.hat = W.hat, num.trees = 250, seed = 42)
