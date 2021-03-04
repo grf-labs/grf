@@ -215,5 +215,5 @@ Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
  Annals of Statistics, 47(2), 2019.
 
 Nie, Xinkun, and Stefan Wager. "Quasi-Oracle Estimation of Heterogeneous Treatment Effects".
- Biometrika, 2020.
+ Biometrika, forthcoming.
 }
