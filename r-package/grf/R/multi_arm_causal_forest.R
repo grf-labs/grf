@@ -36,8 +36,7 @@
 #' For a single treatment, this forest is equivalent to a causal forest, however,
 #' they may still produce different results, as the splitting rule in causal forest
 #' currently incorporates more constraints. Setting `stabilize.splits = FALSE` may give
-#' more similar results, but is not expected to be identical due to
-#' differences in numerics.
+#' more similar results, but may not be identical due to differences in numerics.
 #'
 #' @param X The covariates used in the causal regression.
 #' @param Y The outcome (must be a numeric vector or matrix [one column per outcome] with no NAs).
