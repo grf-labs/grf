@@ -139,8 +139,8 @@ splitting on the vector-valued gradient of tau(x). (The intercept c(x)
 is a nuisance parameter not directly estimated). By default, e(X) and
 m(X) are estimated using two separate random forests, a probability forest
 and regression forest respectively (optionally provided through the arguments
-W.hat and Y.hat). The l'th element of tau(x) measures the conditional average
-treatment effect of the l-th treatment arm at X = x for l = 1, ..., K-1.
+W.hat and Y.hat). The k-th element of tau(x) measures the conditional average
+treatment effect of the k-th treatment arm at X = x for k = 1, ..., K-1.
 The treatment effect for multiple outcomes can be estimated jointly (i.e. Y can
 be vector valued) - in which case the splitting rule takes into account
 all outcomes simultaneously (specifically, we concatenate the gradient
