@@ -80,7 +80,7 @@ results.raw <- lapply(1:reps, function(iter) {
   ll.Y.time.pred <- system.time(ll.Y.test <- predict(ll.forest.Y, newdata = data.test$X[1:1000,], num.threads=1))
 
   # causal survival forest
-  data.surv <- generate_survival_data(2000, 10, dgp = "type3") # Discrete response Y
+  data.surv <- generate_survival_data(2500, 10, dgp = "type3") # Discrete response Y
   data.surv.test <- generate_survival_data(4000, 10, dgp = "type3")
 
   csf.time <- system.time(csf <- causal_survival_forest(data.surv$X, data.surv$Y, data.surv$W, data.surv$D,
@@ -96,7 +96,7 @@ results.raw <- lapply(1:reps, function(iter) {
   )
 
   # multi arm causal forest
-  data.mcf <- generate_multi_arm_causal_data(2000, 10)
+  data.mcf <- generate_multi_arm_causal_data(4000, 10)
   data.mcf.test <- generate_multi_arm_causal_data(4000, 10)
 
   mcf.time <- system.time(mcf <- multi_arm_causal_forest(data.mcf$X, data.mcf$Y, data.mcf$W,
