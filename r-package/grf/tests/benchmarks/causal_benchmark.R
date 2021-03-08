@@ -6,11 +6,23 @@
 # - causal survival forest ("csf")
 # - quantile forest ("quantile")
 # - local linear regression forest ("ll.Y")
+# - multi arm causal forest ("mcf")
 # This script also benchmarks statistical performance for:
 # - regression forest
 # - causal forest
 # - causal survival forest
+# - multi arm causal forest
 # Usage: `(benchmarks)$ Rscript causal_benchmark.R`
+
+generate_multi_arm_causal_data <-function(n, p) {
+  X <- matrix(rnorm(n * p), n, p)
+  W <- as.factor(sample(c("A", "B", "C"), n, replace = TRUE))
+  tauB <- pmax(X[, 2], 0)
+  tauC <- - 1.5 * abs(X[, 2])
+  tau <- cbind(tauB, tauC)
+  Y <- 2 + X[, 1] + tauB * (W == "B") + tauC * (W == "C") + rnorm(n)
+  list(X = X, Y = Y, W = W, tau = tau)
+}
 
 library(grf)
 set.seed(1)
@@ -82,13 +94,29 @@ results.raw <- lapply(1:reps, function(iter) {
                       csf.ci$variance.estimates)
   )
 
-  error <- rbind(Y.error, tau.error, csf.error)
+  # multi arm causal forest
+  data.mcf <- generate_multi_arm_causal_data(2000, 10)
+  data.mcf.test <- generate_multi_arm_causal_data(2000, 10)
+
+  mcf.time <- system.time(mcf <- multi_arm_causal_forest(data.mcf$X, data.mcf$Y, data.mcf$W, num.threads = 1))
+  mcf.time.pred <- system.time(mcf.pred <- predict(mcf, data.mcf.test$X, num.threads = 1))
+  mcf.time.ci <- system.time(mcf.ci <- predict(mcf, data.mcf.test$X, estimate.variance = TRUE, num.threads = 1))
+
+  mcf.error <- c(
+    oob = mean((predict(mcf)$predictions[,,] - data.mcf$tau)^2),
+    test = mean((mcf.pred$predictions[,,] - data.mcf.test$tau)^2),
+    stdratio = mean((mcf.ci$predictions[,,] - data.mcf.test$tau)^2 /
+                      mcf.ci$variance.estimates)
+  )
+
+  error <- rbind(Y.error, tau.error, csf.error, mcf.error)
   time <- rbind(Y.time, Y.time.pred, Y.time.ci,
                 tau.time, tau.time.pred, tau.time.ci,
                 survival.time, survival.time.pred,
                 quantile.time, quantile.time.pred,
                 ll.Y.time, ll.Y.time.pred,
-                csf.time, csf.time.pred, csf.time.ci)
+                csf.time, csf.time.pred, csf.time.ci,
+                mcf.time, mcf.time.pred, mcf.time.ci)
 
   print("done with a rep!")
   list(error, time[,1:3])
