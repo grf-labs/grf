@@ -1,13 +1,15 @@
 # grf benchmark script
 # This script benchmarks timings for:
-# - regression forest
-# - causal forest
-# - survival forest
-# - quantile forest
-# - local linear regression forest
+# - regression forest ("Y")
+# - causal forest ("tau")
+# - survival forest ("survival")
+# - causal survival forest ("csf")
+# - quantile forest ("quantile")
+# - local linear regression forest ("ll.Y")
 # This script also benchmarks statistical performance for:
 # - regression forest
 # - causal forest
+# - causal survival forest
 # Usage: `(benchmarks)$ Rscript causal_benchmark.R`
 
 library(grf)
@@ -65,12 +67,28 @@ results.raw <- lapply(1:reps, function(iter) {
                                                                num.trees = num.trees, num.threads=1))
   ll.Y.time.pred <- system.time(ll.Y.test <- predict(ll.forest.Y, newdata = data.test$X[1:1000,], num.threads=1))
 
-  error <- rbind(Y.error, tau.error)
+  # causal survival forest
+  data.surv <- generate_survival_data(2000, 10, dgp = "type3") # Discrete response Y
+  data.surv.test <- generate_survival_data(2000, 10, dgp = "type3")
+
+  csf.time <- system.time(csf <- causal_survival_forest(data.surv$X, data.surv$Y, data.surv$W, data.surv$D, num.threads = 1))
+  csf.time.pred <- system.time(csf.pred <- predict(csf, data.surv.test$X, num.threads = 1))
+  csf.time.ci <- system.time(csf.ci <- predict(csf, data.surv.test$X, estimate.variance = TRUE, num.threads = 1))
+
+  csf.error <- c(
+    oob = mean((predict(csf)$predictions - data.surv$cate)^2),
+    test = mean((csf.pred$predictions - data.surv.test$cate)^2),
+    stdratio = mean((csf.ci$predictions - data.surv.test$cate)^2 /
+                      csf.ci$variance.estimates)
+  )
+
+  error <- rbind(Y.error, tau.error, csf.error)
   time <- rbind(Y.time, Y.time.pred, Y.time.ci,
                 tau.time, tau.time.pred, tau.time.ci,
                 survival.time, survival.time.pred,
                 quantile.time, quantile.time.pred,
-                ll.Y.time, ll.Y.time.pred)
+                ll.Y.time, ll.Y.time.pred,
+                csf.time, csf.time.pred, csf.time.ci)
 
   print("done with a rep!")
   list(error, time[,1:3])
