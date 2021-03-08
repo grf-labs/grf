@@ -3,9 +3,9 @@
 # - regression forest ("Y")
 # - causal forest ("tau")
 # - survival forest ("survival")
-# - causal survival forest ("csf")
 # - quantile forest ("quantile")
 # - local linear regression forest ("ll.Y")
+# - causal survival forest ("csf")
 # - multi arm causal forest ("mcf")
 # This script also benchmarks statistical performance for:
 # - regression forest
