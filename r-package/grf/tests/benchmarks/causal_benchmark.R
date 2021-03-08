@@ -1,11 +1,11 @@
 # grf benchmark script
 # This script benchmarks timings for:
-# - regression forest
-# - causal forest
-# - survival forest
-# - causal survival forest
-# - quantile forest
-# - local linear regression forest
+# - regression forest ("Y")
+# - causal forest ("tau")
+# - survival forest ("survival")
+# - causal survival forest ("csf")
+# - quantile forest ("quantile")
+# - local linear regression forest ("ll.Y")
 # This script also benchmarks statistical performance for:
 # - regression forest
 # - causal forest
