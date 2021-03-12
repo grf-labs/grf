@@ -88,3 +88,21 @@ test_that("multi_regression_forest is well calibrated", {
 
   expect_lt(mse.mrf / mse.rf, 0.8)
 })
+
+test_that("sample weighted multi_regression_forest is estimated with kernel weights `forest.weights * sample.weights`", {
+  n <- 2000
+  p <- 5
+  obs.prob <- 1 / 20
+  Y0 <- rbinom(n, 1, obs.prob / (1 + obs.prob))
+  Y <- Y0 + matrix(rnorm(n * 2), n, 2) * 0.01
+  X <- matrix(rnorm(n * p), n, p)
+  sample.weights <- 1 + Y0 * (1 / obs.prob - 1)
+  mrf <- multi_regression_forest(X, Y, sample.weights = sample.weights, num.trees = 250)
+
+  x1 <- X[1, , drop = F]
+  theta1 <- predict(mrf, x1)$predictions
+  alpha1 <- get_sample_weights(mrf, x1)[1, ]
+  theta1.lm <- lm(Y ~ 1, weights = alpha1 * sample.weights)
+
+  expect_equal(unname(theta1[1, ]), theta1.lm$coefficients[1, ], tol = 1e-6)
+})

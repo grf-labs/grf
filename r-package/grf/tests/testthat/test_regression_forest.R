@@ -195,8 +195,8 @@ test_that("sample weighted regression forest is estimated with kernel weights `f
   p <- 5
   obs.prob <- 1 / 20
   Y0 <- rbinom(n, 1, obs.prob / (1 + obs.prob))
-  Y <- Y0 + rnorm(n)*0.01
-  X <- matrix(rnorm(n*p), n, p)
+  Y <- Y0 + rnorm(n) * 0.01
+  X <- matrix(rnorm(n * p), n, p)
   sample.weights <- 1 + Y0 * (1 / obs.prob - 1)
   rf <- regression_forest(X, Y, sample.weights = sample.weights, num.trees = 250)
 
