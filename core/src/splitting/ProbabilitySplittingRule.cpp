@@ -132,7 +132,6 @@ void ProbabilitySplittingRule::find_best_split_value(const Data& data,
       ++n_missing;
     } else {
       ++counter[split_index];
-      // ++counter_per_class[split_index * num_classes + sample_class];
       counter_per_class[split_index * num_classes + sample_class] += sample_weight;
     }
 
