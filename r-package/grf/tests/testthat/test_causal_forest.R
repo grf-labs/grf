@@ -179,7 +179,7 @@ test_that("sample weighted causal forest is estimated with kernel weights `fores
   alpha1 <- get_sample_weights(cf, x1)[1, ]
   theta1.lm <- lm(Y ~ W, weights = alpha1 * sample.weights)
 
-  expect_equal(theta1, theta1.lm$coefficients[[2]], tol = 1e-6)
+  expect_equal(theta1, theta1.lm$coefficients[[2]], tol = 1e-10)
 })
 
 test_that("IPCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {

@@ -205,7 +205,7 @@ test_that("sample weighted regression forest is estimated with kernel weights `f
   alpha1 <- get_sample_weights(rf, x1)[1, ]
   theta1.lm <- lm(Y ~ 1, weights = alpha1 * sample.weights)
 
-  expect_equal(theta1, theta1.lm$coefficients[[1]], tol = 1e-6)
+  expect_equal(theta1, theta1.lm$coefficients[[1]], tol = 1e-10)
 })
 
 test_that("sample weighting in the training of a regression forest improves its sample-weighted MSE.", {

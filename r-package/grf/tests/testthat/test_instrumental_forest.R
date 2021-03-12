@@ -63,7 +63,7 @@ test_that("sample weighted instrumental forest is estimated with kernel weights 
   R <- predict(lm(W ~ Z, weights = alpha1 * sample.weights))
   theta1.lm <- lm(Y ~ R, weights = alpha1 * sample.weights)
 
-  expect_equal(theta1, theta1.lm$coefficients[[2]], tol = 1e-6)
+  expect_equal(theta1, theta1.lm$coefficients[[2]], tol = 1e-10)
 })
 
 test_that("instrumental forest predictions and variance estimates are invariant to scaling of the sample weights.", {
