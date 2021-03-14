@@ -40,7 +40,7 @@ public:
    * data: the training data matrix.
    * responses_by_sample: the output of the method, an array of relabelled response for each sample ID in `samples`.
    * The dimension of this array is N * K where N is the total number of samples in the data, and K
-   * is equal to`data.get_num_outcomes() * data.get_num_treatments()`. I.e, in most cases, like a single-variable
+   * is equal to `data.get_num_outcomes() * data.get_num_treatments()`. I.e, in most cases, like a single-variable
    * regression forest, K is 1, and `responses_by_sample` is a scalar for each sample. In other forests, like
    * multi-output regression forest, K is equal to the number of outcomes, and `responses_by_sample` is a
    * length K vector for each sample (working with a vector-valued splitting rule).
