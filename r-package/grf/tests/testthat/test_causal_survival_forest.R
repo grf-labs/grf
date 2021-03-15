@@ -204,11 +204,11 @@ test_that("causal survival forest summary functions works as expected", {
   blp.subset <- best_linear_projection(cs.forest, subset = X[, 1] > 0.5)
   ate.subset <- average_treatment_effect(cs.forest, subset = X[, 1] > 0.5)
 
-  expect_equal(coef(blp), ate[["estimate"]])
+  expect_equal(blp[1], ate[["estimate"]])
   expect_equal(blp[2], ate[["std.err"]], tol = 1e-4)
   expect_equal(ate[["estimate"]], mean(tau), tol = 3 * ate[["std.err"]])
 
-  expect_equal(coef(blp.subset), ate.subset[["estimate"]])
+  expect_equal(blp.subset[1], ate.subset[["estimate"]])
   expect_equal(blp.subset[2], ate.subset[["std.err"]], tol = 1e-4)
   expect_equal(ate.subset[["estimate"]], mean(tau[X[, 1] > 0.5]), tol = 3 * ate.subset[["std.err"]])
 })
