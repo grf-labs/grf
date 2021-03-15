@@ -276,7 +276,9 @@ get_scores.multi_arm_causal_forest <- function(forest,
   out
 }
 
-#' Compute doubly robust for a causal survival forest.
+#' Compute doubly robust scores for a causal survival forest.
+#'
+#' For details see section 3.2 and equation (20) in the causal survival forest paper.
 #'
 #' @param forest A trained causal survival forest.
 #' @param subset Specifies subset of the training examples over which we
