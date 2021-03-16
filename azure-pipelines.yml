@@ -7,7 +7,7 @@ trigger:
 - master
 
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: "ubuntu-18.04"
 
 jobs:
 - job: coreCPP
