@@ -253,7 +253,7 @@ get_scores.multi_arm_causal_forest <- function(forest,
     max <- apply(W.hat, 2, max)
     warning(paste0(
       "Estimated treatment propensities take values very close to 0 or 1",
-      " meaning estimates may not be well identified.",
+      " meaning some estimates may not be well identified.",
       " In particular, the minimum propensity estimates for each arm is ",
       paste0(treatment.names, ": ", round(min, 3), collapse = " "),
       " and the maximum is ",
@@ -276,7 +276,9 @@ get_scores.multi_arm_causal_forest <- function(forest,
   out
 }
 
-#' Compute doubly robust for a causal survival forest.
+#' Compute doubly robust scores for a causal survival forest.
+#'
+#' For details see section 3.2 and equation (20) in the causal survival forest paper.
 #'
 #' @param forest A trained causal survival forest.
 #' @param subset Specifies subset of the training examples over which we
@@ -291,6 +293,16 @@ get_scores.causal_survival_forest <- function(forest,
                                               subset = NULL,
                                               ...) {
   subset <- validate_subset(forest, subset)
+
+  if (min(forest$W.hat[subset]) <= 0.05 || max(forest$W.hat[subset]) >= 0.95) {
+    rng <- range(forest$W.hat[subset])
+    warning(paste0(
+      "Estimated treatment propensities take values very close to 0 or 1.",
+      " The estimated propensities are between ",
+      round(rng[1], 3), " and ", round(rng[2], 3),
+      ", meaning some estimates may not be well identified."
+    ))
+  }
 
   eta <- forest$eta
   numerator.one <- eta$numerator.one[subset]

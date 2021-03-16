@@ -203,7 +203,8 @@ average_treatment_effect <- function(forest,
     # This is the most general workflow, that shares codepaths with best linear projection
     # and other average effect estimators.
 
-    if (any(c("causal_forest", "instrumental_forest", "multi_arm_causal_forest") %in% class(forest))) {
+    if (any(c("causal_forest", "instrumental_forest", "multi_arm_causal_forest", "causal_survival_forest")
+            %in% class(forest))) {
       DR.scores <- get_scores(forest, subset = subset, debiasing.weights = debiasing.weights,
                               compliance.score = compliance.score, num.trees.for.weights = num.trees.for.weights,
                               outcome = outcome)

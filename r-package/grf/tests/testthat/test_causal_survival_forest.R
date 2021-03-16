@@ -187,3 +187,28 @@ test_that("causal survival forest has not changed ", {
   expect_equal(predict(cs.forest.grid)$predictions, expected.predictions.oob.grid)
   expect_equal(predict(cs.forest.grid, round(data$X, 2))$predictions, expected.predictions.grid)
 })
+
+test_that("causal survival forest summary functions works as expected", {
+  n <- 500
+  p <- 5
+  data <- generate_survival_data(n, p, Y.max = 1, dgp = "simple1")
+  X <- data$X
+  W <- data$W
+  Y <- data$Y
+  D <- data$D
+  tau <- data$cate
+  cs.forest <- causal_survival_forest(X, Y, W, D, num.trees = 500)
+
+  blp <- best_linear_projection(cs.forest)
+  ate <- average_treatment_effect(cs.forest)
+  blp.subset <- best_linear_projection(cs.forest, subset = X[, 1] > 0.5)
+  ate.subset <- average_treatment_effect(cs.forest, subset = X[, 1] > 0.5)
+
+  expect_equal(blp[1], ate[["estimate"]])
+  expect_equal(blp[2], ate[["std.err"]], tol = 1e-4)
+  expect_equal(ate[["estimate"]], mean(tau), tol = 3 * ate[["std.err"]])
+
+  expect_equal(blp.subset[1], ate.subset[["estimate"]])
+  expect_equal(blp.subset[2], ate.subset[["std.err"]], tol = 1e-4)
+  expect_equal(ate.subset[["estimate"]], mean(tau[X[, 1] > 0.5]), tol = 3 * ate.subset[["std.err"]])
+})
