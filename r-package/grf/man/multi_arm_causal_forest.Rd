@@ -121,11 +121,35 @@ Y(1) are potential outcomes corresponding to the treatment
 state for arm k and the baseline arm 1.
 }
 \details{
-Internal details: for a single treatment results may differ
-from a causal forest as the splitting rule in that forest incorporates
-more constraints. Setting `stabilize.splits = FALSE` may give
-more similar results, but is not expected to be identical due to
-differences in numerics.
+This forest fits a multi arm treatment estimate following the multivariate
+extension of the "R-learner" suggested in Nie and Wager (2020), with kernel
+weights derived by the GRF algortim (Athey, Tibshirani, and Wager, 2019).
+In particular, with K arms, and W encoded as \{0, 1\}^(K-1), we estimate, for
+a target sample x, and a chosen baseline arm:
+
+\eqn{\hat \tau(x) = argmin_{\tau} \left\{ \sum_{i=1}^{n}
+\alpha_i (x) \left( Y_i - \hat m^{(-i)}(X_i) - c(x) -
+\left\langle W_i - \hat e^{(-i)}(X_i), \,  \tau(X_i)  \right\rangle
+\right)^2 \right\}},
+
+where the angle brackets indicates an inner product, e(X) = E[W | X = x] is
+a (vector valued) generalized propensity score, and m(x) = E[Y | X = x].
+The forest weights alpha(x) are derived from a generalized random forest
+splitting on the vector-valued gradient of tau(x). (The intercept c(x)
+is a nuisance parameter not directly estimated). By default, e(X) and
+m(X) are estimated using two separate random forests, a probability forest
+and regression forest respectively (optionally provided through the arguments
+W.hat and Y.hat). The k-th element of tau(x) measures the conditional average
+treatment effect of the k-th treatment arm at X = x for k = 1, ..., K-1.
+The treatment effect for multiple outcomes can be estimated jointly (i.e. Y can
+be vector valued) - in which case the splitting rule takes into account
+all outcomes simultaneously (specifically, we concatenate the gradient
+vector for each outcome).
+
+For a single treatment, this forest is equivalent to a causal forest, however,
+they may still produce different results, as the splitting rule in causal forest
+currently incorporates more constraints. Setting `stabilize.splits = FALSE` may give
+more similar results, but may not be identical due to differences in numerics.
 }
 \examples{
 \donttest{
@@ -184,4 +208,11 @@ W <- relevel(W, ref = "B")
 mc.forest <- multi_arm_causal_forest(X, Y, W)
 }
 
+}
+\references{
+Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
+ Annals of Statistics, 47(2), 2019.
+
+Nie, Xinkun, and Stefan Wager. "Quasi-Oracle Estimation of Heterogeneous Treatment Effects".
+ Biometrika, forthcoming.
 }

@@ -13,9 +13,9 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   nmissing <- 50
   X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
 
-  cf <- causal_forest(X, Y, W, W.hat = 1/2, Y.hat = 0, seed = 1, stabilize.splits = FALSE,
+  cf <- causal_forest(X, Y, W, W.hat = 1/2, Y.hat = 0, seed = 42, stabilize.splits = FALSE,
                      alpha = 0, min.node.size = 1, num.trees = 500)
-  mcf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(1/2, 1/2), Y.hat = 0, seed = 1,
+  mcf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(1/2, 1/2), Y.hat = 0, seed = 42,
                                  alpha = 0, min.node.size = 1, num.trees = 500)
 
   pp.cf <- predict(cf, estimate.variance = TRUE)
@@ -40,11 +40,11 @@ test_that("multi_arm_causal_forest contrasts works as expected", {
   W <- as.factor(sample(c("A", "B", "C"), n, replace = TRUE))
   Y <- X[, 1] + 1.5 * (W == "A") + 2.8 * (W == "B") - 4 * (W == "C") + 0.1 * rnorm(n)
 
-  mcf.A <- multi_arm_causal_forest(X, Y, W, num.trees = 500, seed = 1)
+  mcf.A <- multi_arm_causal_forest(X, Y, W, num.trees = 500, seed = 42)
   tau.hat.oob.A <- predict(mcf.A)$predictions[,,]
   tau.hat.A <- predict(mcf.A, X)$predictions[,,]
 
-  mcf.C <- multi_arm_causal_forest(X, Y, relevel(W, ref = "C"), num.trees = 500, seed = 1)
+  mcf.C <- multi_arm_causal_forest(X, Y, relevel(W, ref = "C"), num.trees = 500, seed = 42)
   tau.hat.oob.C <- predict(mcf.C)$predictions[,,]
   tau.hat.C <- predict(mcf.C, X)$predictions[,,]
 
@@ -61,6 +61,46 @@ test_that("multi_arm_causal_forest contrasts works as expected", {
 
   expect_equal(tau.hat.oob.A[, "B - A"] - tau.hat.oob.A[, "C - A"], tau.hat.oob.C[, "B - C"], tol = 0.01)
   expect_equal(tau.hat.A[, "B - A"] - tau.hat.A[, "C - A"], tau.hat.C[, "B - C"], tol = 0.01)
+
+  # The above invariance holds exactly if we ignore splitting and just predict
+  mcf.A.ns <- multi_arm_causal_forest(X, Y, W, num.trees = 250, seed = 42, min.node.size = n)
+  tau.hat.oob.A.ns <- predict(mcf.A.ns)$predictions[,,]
+  tau.hat.A.ns <- predict(mcf.A.ns, X)$predictions[,,]
+
+  mcf.C.ns <- multi_arm_causal_forest(X, Y, relevel(W, ref = "C"), num.trees = 250, seed = 42, min.node.size = n)
+  tau.hat.oob.C.ns <- predict(mcf.C.ns)$predictions[,,]
+  tau.hat.C.ns <- predict(mcf.C.ns, X)$predictions[,,]
+
+  expect_equal(tau.hat.oob.A.ns[, "C - A"], -1 * tau.hat.oob.C.ns[, "A - C"], tol = 1e-10)
+  expect_equal(tau.hat.A.ns[, "C - A"], -1 * tau.hat.C.ns[, "A - C"], tol = 1e-10)
+
+  expect_equal(tau.hat.oob.A.ns[, "B - A"] - tau.hat.oob.A.ns[, "C - A"], tau.hat.oob.C.ns[, "B - C"], tol = 1e-10)
+  expect_equal(tau.hat.A.ns[, "B - A"] - tau.hat.A.ns[, "C - A"], tau.hat.C.ns[, "B - C"], tol = 1e-10)
+})
+
+test_that("multi_arm_causal_forest with binary treatment respects contrast invariance", {
+  n <- 500
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+
+  # With W.hat = 1/2 we can make the following check exact.
+  # Setting W.hat to NULL or any other float pair will cause extremely small numerical differences
+  # to accrue (10th+ digit) in splitting on the pseudo outcomes, leading these forests
+  # to yield different splits even though they are algebraically the same.
+  W.hat <- c(0.5, 0.5)
+  cf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = W.hat, num.trees = 250, seed = 42)
+  cf.flipped <- multi_arm_causal_forest(X, Y, as.factor(1 - W), W.hat = W.hat, num.trees = 250, seed = 42)
+  cf.relevel <- multi_arm_causal_forest(X, Y, relevel(as.factor(W), ref = "1"), W.hat = W.hat, num.trees = 250, seed = 42)
+
+  pp <- predict(cf)$predictions[,,]
+  pp.flipped <- predict(cf.flipped)$predictions[,,]
+  pp.relevel <- predict(cf.relevel)$predictions[,,]
+
+  expect_equal(pp, -1 * pp.flipped, tol = 0)
+  expect_equal(pp, -1 * pp.relevel, tol = 0)
+  expect_equal(pp.flipped, pp.relevel, tol = 0)
 })
 
 test_that("multi_arm_causal_forest ATE works as expected", {
@@ -125,8 +165,8 @@ test_that("multi_arm_causal_forest predictions and variance estimates are invari
 
   # The multiple is a power of 2 to avoid rounding errors allowing for exact comparison
   # between two forest with the same seed.
-  forest.1 <- multi_arm_causal_forest(X, Y, W, sample.weights = sample.weights, num.trees = 250, seed = 1)
-  forest.2 <- multi_arm_causal_forest(X, Y, W, sample.weights = 64 * sample.weights, num.trees = 250, seed = 1)
+  forest.1 <- multi_arm_causal_forest(X, Y, W, sample.weights = sample.weights, num.trees = 250, seed = 42)
+  forest.2 <- multi_arm_causal_forest(X, Y, W, sample.weights = 64 * sample.weights, num.trees = 250, seed = 42)
   pred.1 <- predict(forest.1, estimate.variance = TRUE)
   pred.2 <- predict(forest.2, estimate.variance = TRUE)
 

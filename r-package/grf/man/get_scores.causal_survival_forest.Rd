@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_scores.R
 \name{get_scores.causal_survival_forest}
 \alias{get_scores.causal_survival_forest}
-\title{Compute doubly robust for a causal survival forest.}
+\title{Compute doubly robust scores for a causal survival forest.}
 \usage{
 \method{get_scores}{causal_survival_forest}(forest, subset = NULL, ...)
 }
@@ -17,5 +17,5 @@ the treatment Wi or the outcome Yi.}
 \item{...}{Additional arguments (currently ignored).}
 }
 \description{
-Compute doubly robust for a causal survival forest.
+For details see section 3.2 and equation (20) in the causal survival forest paper.
 }
