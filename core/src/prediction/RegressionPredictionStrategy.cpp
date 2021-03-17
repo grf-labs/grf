@@ -37,7 +37,7 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
     const PredictionValues& leaf_values,
     size_t ci_group_size) const {
 
-  double average_outcome = average.at(OUTCOME);
+  double average_outcome = average.at(OUTCOME) / average.at(WEIGHT);
 
   double num_good_groups = 0;
   double psi_squared = 0;
@@ -58,7 +58,7 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
 
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t i = group * ci_group_size + j;
-      double psi_1 = leaf_values.get(i, OUTCOME) - average_outcome;
+      double psi_1 = leaf_values.get(i, OUTCOME) / leaf_values.get(i, WEIGHT) - average_outcome;
 
       psi_squared += psi_1 * psi_1;
       group_psi += psi_1;
