@@ -128,7 +128,8 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
     const Data& data) const {
   double outcome = data.get_outcome(sample);
 
-  double error = average.at(OUTCOME) - outcome;
+  double average_outcome = average.at(OUTCOME) / average.at(WEIGHT);
+  double error = average_outcome - outcome;
   double mse = error * error;
 
   double bias = 0.0;
@@ -138,7 +139,7 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
       continue;
     }
 
-    double tree_variance = leaf_values.get(n, OUTCOME) - average.at(OUTCOME);
+    double tree_variance = leaf_values.get(n, OUTCOME) / leaf_values.get(n, WEIGHT) - average_outcome;
     bias += tree_variance * tree_variance;
     num_trees++;
   }
