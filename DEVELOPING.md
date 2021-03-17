@@ -109,22 +109,22 @@ L(s) are all points Xj such that Xj <= s, and R(s) are all points such that Xj >
 Ybar_L(s) and Ybar_R(s) are the weighted sample averages for the respective partitions.
 
 Expand the child impurity and write out the averages (minimize wrt. s):
-= \sum_{i \in L(s)} wi yi^2 + W_L(s) [Ybar_L(s)]^2
- + \sum_{i \in R(s)} wi yi^2 + W_R(s) [Ybar_R(s)]^2
+= \sum_{i \in L(s)} wi yi^2 - W_L(s) [Ybar_L(s)]^2
+ + \sum_{i \in R(s)} wi yi^2 - W_R(s) [Ybar_R(s)]^2
 = \sum_i wi yi^2
-  + 1/W_L(s) [\sum_{i \in L(s)} wi yi]^2
-  + 1/W_R(s) [\sum_{i \in R(s)} wi yi]^2
+  - 1/W_L(s) [\sum_{i \in L(s)} wi yi]^2
+  - 1/W_R(s) [\sum_{i \in R(s)} wi yi]^2
 
 Where W is the sum of sample weights.
 
 The parent impurity is (minimize wrt. s):
 = \sum_i wi [yi - Ybar]^2
-= \sum_i wi yi^2 + W Ybar^2
-= \sum_i wi yi^2 + 1/W [\sum_i wi yi]^2
+= \sum_i wi yi^2 - W Ybar^2
+= \sum_i wi yi^2 - 1/W [\sum_i wi yi]^2
 
 Child impurity <= parent impurity then reduces to
 
-1/W_L(s) [\sum_{i \in L(s)} wi yi]^2 + 1/W_R(s) [\sum_{i \in R(s)} wi yi]^2 <= 1/W [\sum_i wi yi]^2
+1/W_L(s) [\sum_{i \in L(s)} wi yi]^2 + 1/W_R(s) [\sum_{i \in R(s)} wi yi]^2 >= 1/W [\sum_i wi yi]^2
 
 Or sum_left^2 / weight_sum_left + sum_right^2 / weight_sum_right
 ```
