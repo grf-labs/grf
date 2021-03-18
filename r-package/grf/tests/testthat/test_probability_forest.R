@@ -85,22 +85,24 @@ test_that("sample weighted probability forest is invariant to scaling", {
 })
 
 test_that("sample weighted probability forest improves complete-data MSE", {
-  n <- 500
-  p <- 5
-  X <- matrix(rnorm(n * p), n, p)
-  e <- 1 / (1 + exp(-X[, 1]))
-  Y <- rbinom(n, 1, e)
+  mean <- mean(replicate(4, {
+      n <- 500
+      p <- 5
+      X <- matrix(rnorm(n * p), n, p)
+      e <- 1 / (1 + exp(-5 * X[, 1]))
+      Y <- as.factor(rbinom(n, 1, e))
+      cc <- runif(n) < e
+      sample.weights <- 1 / e[cc]
+      pp.true <- cbind(1 - e, e)
 
-  # Label {0} is censored with prob 0.3
-  obs.prob <- ifelse(Y == 1, 1, 0.3)
-  cc <- as.logical(rbinom(n, 1, obs.prob))
-  sample.weights <- 1 / obs.prob[cc]
+      pf <- probability_forest(X[cc, ], Y[cc], num.trees = 500)
+      pf.weighted <- probability_forest(X[cc, ], Y[cc], sample.weights = sample.weights, num.trees = 500)
 
-  Y <- as.factor(Y)
-  pf <- probability_forest(X[cc, ], Y[cc], num.trees = 500)
-  pf.weighted <- probability_forest(X[cc, ], Y[cc], sample.weights = sample.weights, num.trees = 500)
-  mse <- mean((predict(pf, X)$predictions - cbind(1 - e, e))^2)
-  mse.weighted <- mean((predict(pf.weighted, X)$predictions - cbind(1 - e, e))^2)
+      mse <- mean((predict(pf, X)$predictions - pp.true)^2)
+      mse.weighted <- mean((predict(pf.weighted, X)$predictions - pp.true)^2)
 
-  expect_lt(mse.weighted / mse, 0.6)
+      mse.weighted / mse
+    }))
+
+  expect_lt(mean, 0.8)
 })
