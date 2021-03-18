@@ -45,7 +45,7 @@ public:
 
 private:
   void find_best_split_value(const Data& data,
-                             size_t node, size_t var, size_t num_classes, size_t* class_counts,
+                             size_t node, size_t var, size_t num_classes, double* class_counts,
                              size_t size_node,
                              size_t min_child_size,
                              double& best_value,
@@ -61,7 +61,7 @@ private:
   double imbalance_penalty;
 
   size_t* counter;
-  size_t* counter_per_class;
+  double* counter_per_class;
 
   DISALLOW_COPY_AND_ASSIGN(ProbabilitySplittingRule);
 };
