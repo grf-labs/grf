@@ -183,12 +183,12 @@ best_linear_projection <- function(forest,
   binary.W <- all(forest$W.orig %in% c(0, 1))
 
   if (binary.W) {
-    if (min(forest$W.hat[subset]) <= 0.01 && max(forest$W.hat[subset]) >= 0.99) {
+    if (min(forest$W.hat[subset]) <= 0.01 || max(forest$W.hat[subset]) >= 0.99) {
       rng <- range(forest$W.hat[subset])
       warning(paste0(
         "Estimated treatment propensities take values between ",
         round(rng[1], 3), " and ", round(rng[2], 3),
-        " and in particular get very close to 0 and 1."
+        " and in particular get very close to 0 or 1."
       ))
     }
   }
