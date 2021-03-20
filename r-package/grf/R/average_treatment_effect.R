@@ -146,7 +146,7 @@ average_treatment_effect <- function(forest,
   clusters <- if (cluster.se) {
     forest$clusters
   } else {
-    1:length(forest$Y.orig)
+    1:NROW(forest$Y.orig)
   }
   observation.weight <- observation_weights(forest)
 
@@ -159,7 +159,7 @@ average_treatment_effect <- function(forest,
   }
 
   if (!is.null(debiasing.weights)) {
-    if (length(debiasing.weights) == length(forest$Y.orig)) {
+    if (length(debiasing.weights) == NROW(forest$Y.orig)) {
       debiasing.weights <- debiasing.weights[subset]
     } else if (length(debiasing.weights) != length(subset)) {
       stop("If specified, debiasing.weights must be a vector of length n or the subset length.")

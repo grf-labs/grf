@@ -160,7 +160,7 @@ best_linear_projection <- function(forest,
   clusters <- if (length(forest$clusters) > 0) {
     forest$clusters
   } else {
-    1:length(forest$Y.orig)
+    1:NROW(forest$Y.orig)
   }
   observation.weight <- observation_weights(forest)
 
@@ -173,7 +173,7 @@ best_linear_projection <- function(forest,
   }
 
   if (!is.null(debiasing.weights)) {
-    if (length(debiasing.weights) == length(forest$Y.orig)) {
+    if (length(debiasing.weights) == NROW(forest$Y.orig)) {
       debiasing.weights <- debiasing.weights[subset]
     } else if (length(debiasing.weights) != length(subset)) {
       stop("If specified, debiasing.weights must be a vector of length n or the subset length.")
@@ -202,7 +202,7 @@ best_linear_projection <- function(forest,
 
   if (!is.null(A)) {
     A <- as.matrix(A)
-    if (nrow(A) == length(forest$Y.orig)) {
+    if (nrow(A) == NROW(forest$Y.orig)) {
       A.subset <- A[subset, , drop = FALSE]
     } else if (nrow(A) == length(subset)) {
       A.subset <- A
