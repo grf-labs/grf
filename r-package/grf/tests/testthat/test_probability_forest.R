@@ -83,3 +83,26 @@ test_that("sample weighted probability forest is invariant to scaling", {
 
   expect_true(all(v1$variance.estimates - v2$variance.estimates == 0))
 })
+
+test_that("sample weighted probability forest improves complete-data MSE", {
+  mean <- mean(replicate(4, {
+      n <- 500
+      p <- 5
+      X <- matrix(rnorm(n * p), n, p)
+      e <- 1 / (1 + exp(-5 * X[, 1]))
+      Y <- as.factor(rbinom(n, 1, e))
+      cc <- runif(n) < e
+      sample.weights <- 1 / e[cc]
+      pp.true <- cbind(1 - e, e)
+
+      pf <- probability_forest(X[cc, ], Y[cc], num.trees = 500)
+      pf.weighted <- probability_forest(X[cc, ], Y[cc], sample.weights = sample.weights, num.trees = 500)
+
+      mse <- mean((predict(pf, X)$predictions - pp.true)^2)
+      mse.weighted <- mean((predict(pf.weighted, X)$predictions - pp.true)^2)
+
+      mse.weighted / mse
+    }))
+
+  expect_lt(mean, 0.8)
+})

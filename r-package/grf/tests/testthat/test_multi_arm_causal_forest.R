@@ -127,6 +127,29 @@ test_that("multi_arm_causal_forest ATE works as expected", {
   expect_equal(ate.B["C - B", "estimate"], ate["C - A", "estimate"] - ate["B - A", "estimate"], tol = 0.05)
 })
 
+test_that("multi_arm_causal_forest ATE standard errors are consistent with rest of GRF", {
+  n <- 500
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- as.factor(sample(c("A", "B", "C"), n, replace = TRUE))
+  tauB <- pmax(X[, 2], 0)
+  tauC <- - 1.5 * abs(X[, 2])
+  Y <- 2 + X[, 1] + tauB * (W == "B") + tauC * (W == "C") + rnorm(n)
+  mcf <- multi_arm_causal_forest(X, Y, W, num.trees = 500)
+
+  ate <- average_treatment_effect(mcf)
+  DR.scores <- get_scores(mcf)
+
+  lm.test <- lmtest::coeftest(lm(DR.scores ~ 1),
+                              vcov = sandwich::vcovCL,
+                              type = "HC3",
+                              cluster = clusters <- if (length(mcf$clusters) > 0)
+                                mcf$clusters else 1:length(mcf$Y.orig)
+                              )
+  expect_equal(ate[1, 2], lm.test[1, 2], tol = 1e-10)
+  expect_equal(ate[2, 2], lm.test[2, 2], tol = 1e-10)
+})
+
 test_that("multi_arm_causal_forest predictions are kernel weighted correctly", {
   n <- 250
   p <- 5
