@@ -29,6 +29,9 @@ bool MultiCausalRelabelingStrategy::relabel(
   size_t num_samples = samples.size();
   size_t num_treatments = data.get_num_treatments();
   size_t num_outcomes = data.get_num_outcomes();
+  if (data.num_responses.has_value()) {
+    num_treatments++;
+  }
   if (num_samples <= num_treatments) {
     return true;
   }
@@ -39,22 +42,46 @@ bool MultiCausalRelabelingStrategy::relabel(
   Eigen::VectorXd Y_mean = Eigen::VectorXd::Zero(num_outcomes);
   Eigen::VectorXd W_mean = Eigen::VectorXd::Zero(num_treatments);
   double sum_weight = 0;
-  for (size_t i = 0; i < num_samples; i++) {
-    size_t sample = samples[i];
-    double weight = data.get_weight(sample);
-    Eigen::VectorXd outcome = data.get_outcomes(sample);
-    Eigen::VectorXd treatment = data.get_treatments(sample);
-    Y_centered.row(i) = outcome;
-    W_centered.row(i) = treatment;
-    weights(i) = weight;
-    Y_mean += weight * outcome;
-    W_mean += weight * treatment;
-    sum_weight += weight;
+
+  if (data.num_responses.has_value()) {
+    for (size_t i = 0; i < num_samples; i++) {
+      size_t sample = samples[i];
+      double weight = data.get_weight(sample);
+      Eigen::VectorXd outcome = data.get_outcomes(sample);
+      Eigen::VectorXd treatment = data.get_treatments(sample);
+      // double treatment = data.get_treatments(sample)(0);
+      Eigen::VectorXd one = Eigen::VectorXd::Ones(1);
+      Eigen::VectorXd one_treatment(one.size()+treatment.size());
+      one_treatment << one, treatment;
+      Y_centered.row(i) = outcome;
+      W_centered.row(i) = one_treatment;
+      weights(i) = weight;
+      // Y_mean += weight * outcome;
+      // W_mean += weight * treatment;
+      sum_weight += weight;
+    }
+    // Y_mean = Y_mean / sum_weight;
+    // W_mean = W_mean / sum_weight;
+    // Y_centered.rowwise() -= Y_mean.transpose();
+    // W_centered.rowwise() -= W_mean.transpose();
+  } else {
+    for (size_t i = 0; i < num_samples; i++) {
+      size_t sample = samples[i];
+      double weight = data.get_weight(sample);
+      Eigen::VectorXd outcome = data.get_outcomes(sample);
+      Eigen::VectorXd treatment = data.get_treatments(sample);
+      Y_centered.row(i) = outcome;
+      W_centered.row(i) = treatment;
+      weights(i) = weight;
+      Y_mean += weight * outcome;
+      W_mean += weight * treatment;
+      sum_weight += weight;
+    }
+    Y_mean = Y_mean / sum_weight;
+    W_mean = W_mean / sum_weight;
+    Y_centered.rowwise() -= Y_mean.transpose();
+    W_centered.rowwise() -= W_mean.transpose();
   }
-  Y_mean = Y_mean / sum_weight;
-  W_mean = W_mean / sum_weight;
-  Y_centered.rowwise() -= Y_mean.transpose();
-  W_centered.rowwise() -= W_mean.transpose();
 
   if (std::abs(sum_weight) <= 1e-16) {
     return true;

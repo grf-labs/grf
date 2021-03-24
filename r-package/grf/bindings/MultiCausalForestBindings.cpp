@@ -30,16 +30,20 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
                               unsigned int samples_per_cluster,
                               bool compute_oob_predictions,
                               unsigned int num_threads,
-                              unsigned int seed) {
+                              unsigned int seed,
+                              bool intercept) {
   size_t num_treatments = treatment_index.size();
   size_t num_outcomes = outcome_index.size();
-  ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes);
+  ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes, intercept);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
   data->set_treatment_index(treatment_index);
   if (use_sample_weights) {
     data->set_weight_index(sample_weight_index);
+  }
+  if (intercept) {
+    data->num_responses = num_outcomes * num_treatments + 1;
   }
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,

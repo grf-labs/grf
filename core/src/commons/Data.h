@@ -107,6 +107,15 @@ public:
 
   const std::set<size_t>& get_disallowed_split_variables() const;
 
+  size_t get_num_responses() const {
+    if (num_responses.has_value()) {
+      return num_responses.value();
+    } else {
+      return get_num_outcomes() * get_num_treatments();
+    }
+  }
+  nonstd::optional<size_t> num_responses;
+
 protected:
   size_t num_rows;
   size_t num_cols;

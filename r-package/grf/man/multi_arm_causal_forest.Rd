@@ -11,6 +11,7 @@ multi_arm_causal_forest(
   Y.hat = NULL,
   W.hat = NULL,
   num.trees = 2000,
+  split.on.intercept = FALSE,
   sample.weights = NULL,
   clusters = NULL,
   equalize.cluster.weights = FALSE,
@@ -48,6 +49,8 @@ If W.hat = NULL, these are estimated using a probability forest.}
 \item{num.trees}{Number of trees grown in the forest. Note: Getting accurate
 confidence intervals generally requires more trees than
 getting accurate predictions. Default is 2000.}
+
+\item{split.on.intercept}{...}
 
 \item{sample.weights}{Weights given to each sample in estimation.
 If NULL, each observation receives the same weight.
