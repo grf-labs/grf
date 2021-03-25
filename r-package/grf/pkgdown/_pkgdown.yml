@@ -18,6 +18,8 @@ navbar:
         href: articles/diagnostics.html
       - text: "Local linear forests"
         href: articles/llf.html
+      - text: "Policy learning"
+        href: articles/policy_learning.html
       - text: "Sample weighting"
         href: articles/sample_weighting_examples.html
       - text: "Visualize trees"
