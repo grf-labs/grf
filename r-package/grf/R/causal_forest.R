@@ -60,7 +60,7 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
 #'                         determining the imbalance of a split. Default is TRUE.
-#' @param split.guide Optional variable to include in splitting. If provided, the new regression splits at point i are
+#' @param split.guide.variable Optional variable to include in splitting. If provided, the new regression splits at point i are
 #'  are computed on [delta tau_i, split.guide_i] instead of on just [delta tau_i] (default, when split.guide = NULL).
 #'  Only supported for `stabilie.splits = FALSE`.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.

@@ -105,6 +105,10 @@ Only applies if honesty is enabled. Default is TRUE.}
 \item{stabilize.splits}{Whether or not the treatment should be taken into account when
 determining the imbalance of a split. Default is TRUE.}
 
+\item{split.guide.variable}{Optional variable to include in splitting. If provided, the new regression splits at point i are
+are computed on [delta tau_i, split.guide_i] instead of on just [delta tau_i] (default, when split.guide = NULL).
+Only supported for `stabilie.splits = FALSE`.}
+
 \item{ci.group.size}{The forest will grow ci.group.size trees on each subsample.
 In order to provide confidence intervals, ci.group.size must
 be at least 2. Default is 2.}
@@ -132,10 +136,6 @@ The number of boosting steps is selected automatically. Default is FALSE.}
 to the maximum hardware concurrency.}
 
 \item{seed}{The seed of the C++ random number generator.}
-
-\item{split.guide}{Optional variable to include in splitting. If provided, the new regression splits at point i are
-are computed on [delta tau_i, split.guide_i] instead of on just [delta tau_i] (default, when split.guide = NULL).
-Only supported for `stabilie.splits = FALSE`.}
 }
 \value{
 A trained causal forest object. If tune.parameters is enabled,
