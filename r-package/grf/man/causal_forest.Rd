@@ -23,6 +23,7 @@ causal_forest(
   alpha = 0.05,
   imbalance.penalty = 0,
   stabilize.splits = TRUE,
+  split.guide.variable = NULL,
   ci.group.size = 2,
   tune.parameters = "none",
   tune.num.trees = 200,
@@ -131,6 +132,10 @@ The number of boosting steps is selected automatically. Default is FALSE.}
 to the maximum hardware concurrency.}
 
 \item{seed}{The seed of the C++ random number generator.}
+
+\item{split.guide}{Optional variable to include in splitting. If provided, the new regression splits at point i are
+are computed on [delta tau_i, split.guide_i] instead of on just [delta tau_i] (default, when split.guide = NULL).
+Only supported for `stabilie.splits = FALSE`.}
 }
 \value{
 A trained causal forest object. If tune.parameters is enabled,
