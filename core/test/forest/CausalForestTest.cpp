@@ -44,7 +44,7 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
     data->set(weight_index, r, weight, error);
   }
 
-  ForestTrainer trainer = instrumental_trainer(0, true);
+  ForestTrainer trainer = instrumental_trainer(0, true, 1);
   ForestOptions options = ForestTestUtilities::default_honest_options();
 
   Forest forest = trainer.train(*data, options);

@@ -40,12 +40,13 @@
 namespace grf {
 
 ForestTrainer instrumental_trainer(double reduced_form_weight,
-                                   bool stabilize_splits) {
+                                   bool regression_split,
+                                   size_t response_length) {
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new InstrumentalRelabelingStrategy(reduced_form_weight));
-  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory = stabilize_splits
-          ? std::unique_ptr<SplittingRuleFactory>(new InstrumentalSplittingRuleFactory())
-          : std::unique_ptr<SplittingRuleFactory>(new RegressionSplittingRuleFactory());
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory = regression_split
+          ? std::unique_ptr<SplittingRuleFactory>(new MultiRegressionSplittingRuleFactory(response_length))
+          : std::unique_ptr<SplittingRuleFactory>(new InstrumentalSplittingRuleFactory());
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
 
   return ForestTrainer(std::move(relabeling_strategy),

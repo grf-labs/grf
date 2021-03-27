@@ -58,6 +58,8 @@ public:
 
   void set_weight_index(size_t index);
 
+  void set_split_guide_index(size_t index);
+
   void set_causal_survival_numerator_index(size_t index);
 
   void set_causal_survival_denominator_index(size_t index);
@@ -111,6 +113,8 @@ public:
 
   double get_weight(size_t row) const;
 
+  double get_split_guide(size_t row) const;
+
   double get_causal_survival_numerator(size_t row) const;
 
   double get_causal_survival_denominator(size_t row) const;
@@ -128,6 +132,7 @@ protected:
   nonstd::optional<std::vector<size_t>> treatment_index;
   nonstd::optional<size_t> instrument_index;
   nonstd::optional<size_t> weight_index;
+  nonstd::optional<size_t> split_guide_index;
   nonstd::optional<size_t> causal_survival_numerator_index;
   nonstd::optional<size_t> causal_survival_denominator_index;
   nonstd::optional<size_t> censor_index;

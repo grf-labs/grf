@@ -163,7 +163,7 @@ TEST_CASE("LLF causal predictions are unaffected by shifts in Y", "[local linear
   double reduced_form_weight = 0.0;
   bool stabilize_splits = false;
 
-  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits, 1);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(*data, options);

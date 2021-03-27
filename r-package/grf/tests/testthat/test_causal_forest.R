@@ -377,3 +377,26 @@ test_that("a causal forest workflow with missing values works as expected", {
 
   expect_equal(which.max(varimp), 1)
 })
+
+test_that("split guide is...", {
+  n <- 500
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.25 + 0.5 * (X[, 1] > 0))
+  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+
+  # internally consistent
+  cf <- causal_forest(X, Y, W, stabilize.splits = FALSE, seed = 42, num.trees = 250)
+  cf.guide.zero <- causal_forest(X, Y, W,
+     stabilize.splits = FALSE, split.guide.variable = rep(0, n), seed = 42, num.trees = 250)
+
+  expect_equal(predict(cf)$predictions, predict(cf.guide.zero)$predictions)
+
+  # sign doesnt matter
+  cf.plus <- causal_forest(X, Y, W,
+     stabilize.splits = FALSE, split.guide.variable = Y, seed = 42, num.trees = 250)
+  cf.minus <- causal_forest(X, Y, W,
+     stabilize.splits = FALSE, split.guide.variable = -Y, seed = 42, num.trees = 250)
+
+  expect_equal(predict(cf.plus)$predictions, predict(cf.minus)$predictions)
+})

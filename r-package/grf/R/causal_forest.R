@@ -60,6 +60,9 @@
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
 #'                         determining the imbalance of a split. Default is TRUE.
+#' @param split.guide Optional variable to include in splitting. If provided, the new regression splits at point i are
+#'  are computed on [delta tau_i, split.guide_i] instead of on just [delta tau_i] (default, when split.guide = NULL).
+#'  Only supported for `stabilie.splits = FALSE`.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 2.
@@ -153,6 +156,7 @@ causal_forest <- function(X, Y, W,
                           alpha = 0.05,
                           imbalance.penalty = 0,
                           stabilize.splits = TRUE,
+                          split.guide.variable = NULL,
                           ci.group.size = 2,
                           tune.parameters = "none",
                           tune.num.trees = 200,
@@ -169,6 +173,14 @@ causal_forest <- function(X, Y, W,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
+  if (is.null(split.guide.variable)) {
+    split.guide.variable <- FALSE
+  } else {
+    if (stabilize.splits) {
+      stop("Guided splits not supported when `stabilize.splits = TRUE`.")
+    }
+    split.guide.variable <- validate_observations(split.guide.variable, X)
+  }
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
                           "honesty.prune.leaves", "alpha", "imbalance.penalty")
@@ -225,7 +237,7 @@ causal_forest <- function(X, Y, W,
   Y.centered <- Y - Y.hat
   W.centered <- W - W.hat
   data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered,
-                              sample.weights = sample.weights)
+                                sample.weights = sample.weights, split.guide.variable = split.guide.variable)
   args <- list(num.trees = num.trees,
                clusters = clusters,
                samples.per.cluster = samples.per.cluster,

@@ -172,6 +172,11 @@ void Data::set_weight_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
+void Data::set_split_guide_index(size_t index) {
+  this->split_guide_index = index;
+  disallowed_split_variables.insert(index);
+}
+
 void Data::set_causal_survival_numerator_index(size_t index) {
   this->causal_survival_numerator_index = index;
   disallowed_split_variables.insert(index);
@@ -290,6 +295,10 @@ double Data::get_weight(size_t row) const {
   } else {
     return 1.0;
   }
+}
+
+double Data::get_split_guide(size_t row) const {
+  return get(row, split_guide_index.value());
 }
 
 double Data::get_causal_survival_numerator(size_t row) const {

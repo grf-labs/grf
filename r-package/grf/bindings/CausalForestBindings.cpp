@@ -34,6 +34,7 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
                         size_t outcome_index,
                         size_t treatment_index,
                         size_t sample_weight_index,
+                        int split_guide_index,
                         bool use_sample_weights,
                         unsigned int mtry,
                         unsigned int num_trees,
@@ -52,8 +53,6 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
                         bool compute_oob_predictions,
                         unsigned int num_threads,
                         unsigned int seed) {
-  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
-
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
   data->set_treatment_index(treatment_index);
@@ -61,6 +60,14 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
   if(use_sample_weights) {
       data->set_weight_index(sample_weight_index);
   }
+  if (split_guide_index > 0) {
+    data->set_split_guide_index(split_guide_index);
+  }
+  size_t response_length = split_guide_index > 0 ? 2 : 1;
+  data->set_response_length(response_length);
+
+  bool regression_split = !stabilize_splits || split_guide_index > 0 ? true : false;
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, regression_split, response_length);
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
                         honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);

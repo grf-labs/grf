@@ -23,7 +23,8 @@
 namespace grf {
 
 ForestTrainer instrumental_trainer(double reduced_form_weight,
-                                   bool stabilize_splits);
+                                   bool regression_split,
+                                   size_t response_length);
 
 ForestTrainer multi_causal_trainer(size_t num_treatments,
                                    size_t num_outcomes,

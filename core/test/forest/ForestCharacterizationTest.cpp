@@ -156,7 +156,7 @@ TEST_CASE("causal forest predictions have not changed", "[causal], [characteriza
   double reduced_form_weight = 0.0;
   bool stabilize_splits = false;
 
-  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits, 1);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(*data, options);
@@ -188,7 +188,7 @@ TEST_CASE("causal forest predictions with stable splitting have not changed", "[
   double reduced_form_weight = 0.0;
   bool stabilize_splits = true;
 
-  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits, 1);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(*data, options);
@@ -230,7 +230,7 @@ TEST_CASE("causal forest predictions with sample weights and stable splitting ha
   double reduced_form_weight = 0.0;
   bool stabilize_splits = true;
 
-  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits, 1);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(*data, options);
@@ -262,7 +262,7 @@ TEST_CASE("causal forest predictions with NaNs and stable splitting have not cha
   double reduced_form_weight = 0.0;
   bool stabilize_splits = true;
 
-  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits, 1);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(*data, options);

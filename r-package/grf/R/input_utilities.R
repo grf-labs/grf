@@ -190,6 +190,7 @@ create_train_matrices <- function(X,
                                   survival.numerator = NULL,
                                   survival.denominator = NULL,
                                   censor = NULL,
+                                  split.guide.variable = NULL,
                                   sample.weights = FALSE) {
   default.data <- matrix(nrow = 0, ncol = 0)
   sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
@@ -219,6 +220,15 @@ create_train_matrices <- function(X,
     out[["censor.index"]] <- offset + 1
     offset <- offset + 1
   }
+  if (!is.null(split.guide.variable)) {
+    if (isFALSE(split.guide.variable)) {
+      out[["split.guide.index"]] <- -1
+      split.guide.variable <- NULL
+    } else {
+      out[["split.guide.index"]] <- offset + 1
+      offset <- offset + 1
+    }
+  }
   # Forest bindings without sample weights: sample.weights = FALSE
   # Forest bindings with sample weights:
   # -sample.weights = NULL if no weights passed
@@ -235,10 +245,10 @@ create_train_matrices <- function(X,
   }
 
   if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
-    sparse.data <- cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, sample.weights)
+    sparse.data <- cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, split.guide.variable, sample.weights)
   } else {
     X <- as.matrix(X)
-    default.data <- as.matrix(cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, sample.weights))
+    default.data <- as.matrix(cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, split.guide.variable, sample.weights))
   }
   out[["train.matrix"]] <- default.data
   out[["sparse.train.matrix"]] <- sparse.data

@@ -36,7 +36,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
                               bool compute_oob_predictions,
                               unsigned int num_threads,
                               unsigned int seed) {
-  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
+  ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits, 1);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
