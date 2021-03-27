@@ -48,6 +48,7 @@ Rcpp::List multi_regression_train(Rcpp::NumericMatrix& train_matrix,
                                   unsigned int seed) {
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
+  data->set_response_length(outcome_index.size());
   if (use_sample_weights) {
       data->set_weight_index(sample_weight_index);
   }

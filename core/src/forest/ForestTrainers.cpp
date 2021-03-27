@@ -54,11 +54,12 @@ ForestTrainer instrumental_trainer(double reduced_form_weight,
 }
 
 ForestTrainer multi_causal_trainer(size_t num_treatments,
-                                   size_t num_outcomes) {
+                                   size_t num_outcomes,
+                                   size_t response_length) {
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new MultiCausalRelabelingStrategy());
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory =
-   std::unique_ptr<SplittingRuleFactory>(new MultiRegressionSplittingRuleFactory(num_treatments * num_outcomes));
+   std::unique_ptr<SplittingRuleFactory>(new MultiRegressionSplittingRuleFactory(response_length));
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new MultiCausalPredictionStrategy(num_treatments, num_outcomes));
 
   return ForestTrainer(std::move(relabeling_strategy),

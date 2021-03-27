@@ -63,7 +63,7 @@ std::unique_ptr<Tree> TreeTrainer::train(const Data& data,
 
   size_t num_open_nodes = 1;
   size_t i = 0;
-  Eigen::ArrayXXd responses_by_sample(data.get_num_rows(), data.get_num_outcomes() * data.get_num_treatments());
+  Eigen::ArrayXXd responses_by_sample(data.get_num_rows(), data.get_response_length());
   while (num_open_nodes > 0) {
     bool is_leaf_node = split_node(i,
                                    data,

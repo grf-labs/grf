@@ -39,12 +39,12 @@ public:
    * samples: the subset of samples to relabel.
    * data: the training data matrix.
    * responses_by_sample: the output of the method, an array of relabelled response for each sample ID in `samples`.
-   * The dimension of this array is N * K where N is the total number of samples in the data, and K
-   * is equal to `data.get_num_outcomes() * data.get_num_treatments()`. I.e, in most cases, like a single-variable
-   * regression forest, K is 1, and `responses_by_sample` is a scalar for each sample. In other forests, like
-   * multi-output regression forest, K is equal to the number of outcomes, and `responses_by_sample` is a
-   * length K vector for each sample (working with a vector-valued splitting rule).
+   * The dimension of this array is N * K where N is the total number of samples in the data, and K the
+   * response length, given by data.get_response_length(), and set throughout the forest with `data.set_response_length`.
    *
+   * In most cases, like a single-variable regression forest, K is 1, and `responses_by_sample` is a scalar for each sample.
+   * In other forests, like multi-output regression forest, K is equal to the number of outcomes, and `responses_by_sample`
+   * is a length K vector for each sample (working with a vector-valued splitting rule).
    *
    * Note that for performance reasons (avoiding clearing out the array after each split) this array may
    * contain garbage values for indices outside of the given set of sample IDs.

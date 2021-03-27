@@ -64,6 +64,8 @@ public:
 
   void set_censor_index(size_t index);
 
+  void set_response_length(size_t length);
+
   /**
    * Sorts and gets the unique values in `samples` at variable `var`.
    *
@@ -86,6 +88,16 @@ public:
   size_t get_num_outcomes() const;
 
   size_t get_num_treatments() const;
+
+  /**
+   * GRF can split on scalar or vector valued responses. The dimension of the data structure
+   * "responses_by_sample" used in the forest components is controlled by this method.
+   *
+   * Most forests split on scalar valued pseudo outcomes, and the default return value for this method
+   * is 1. To set it to another value, use the method `set_response_length`. For example, the Multi
+   * Regression Forest sets this to the number of outcomes.
+   */
+  size_t get_response_length() const;
 
   double get_outcome(size_t row) const;
 
@@ -119,6 +131,7 @@ protected:
   nonstd::optional<size_t> causal_survival_numerator_index;
   nonstd::optional<size_t> causal_survival_denominator_index;
   nonstd::optional<size_t> censor_index;
+  nonstd::optional<size_t> response_length;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Data);

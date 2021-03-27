@@ -36,7 +36,8 @@ Data::Data() :
     weight_index(),
     causal_survival_numerator_index(),
     causal_survival_denominator_index(),
-    censor_index() {}
+    censor_index(),
+    response_length() {}
 
 bool Data::load_from_file(const std::string& filename) {
   bool result;
@@ -186,6 +187,10 @@ void Data::set_censor_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
+void Data::set_response_length(size_t length) {
+  this->response_length = length;
+}
+
 void Data::get_all_values(std::vector<double>& all_values,
                           std::vector<size_t>& sorted_samples,
                           const std::vector<size_t>& samples,
@@ -238,6 +243,14 @@ size_t Data::get_num_outcomes() const {
 size_t Data::get_num_treatments() const {
   if (treatment_index.has_value()) {
     return treatment_index.value().size();
+  } else {
+    return 1;
+  }
+}
+
+size_t Data::get_response_length() const {
+  if (response_length.has_value()) {
+    return response_length.value();
   } else {
     return 1;
   }
