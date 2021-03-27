@@ -89,6 +89,7 @@ mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat)
 colnames(mu.hat.matrix) <- levels(W)
 
 # The average treatment effect of the arms with "A" as baseline.
+(in the event the forest is fit with multiple Ys, specify the response variable with the `outcome` argument)
 average_treatment_effect(mc.forest)
 
 # The reference level for contrast prediction can be changed with `relevel`.

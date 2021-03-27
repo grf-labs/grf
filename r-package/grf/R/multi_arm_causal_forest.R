@@ -154,6 +154,7 @@
 #' colnames(mu.hat.matrix) <- levels(W)
 #'
 #' # The average treatment effect of the arms with "A" as baseline.
+#' (in the event the forest is fit with multiple Ys, specify the response variable with the `outcome` argument)
 #' average_treatment_effect(mc.forest)
 #'
 #' # The reference level for contrast prediction can be changed with `relevel`.
@@ -351,6 +352,7 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' colnames(mu.hat.matrix) <- levels(W)
 #'
 #' # The average treatment effect of the arms with "A" as baseline.
+#' (in the event the forest is fit with multiple Ys, specify the response variable with the `outcome` argument)
 #' average_treatment_effect(mc.forest)
 #'
 #' # The reference level for contrast prediction can be changed with `relevel`.
