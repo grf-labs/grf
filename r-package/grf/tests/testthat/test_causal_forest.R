@@ -303,7 +303,7 @@ test_that("causal_forest works as expected with missing values", {
   Xr[is.nan(Xr)] <- 1e9
   X.mia <- cbind(Xl, Xr)
 
-  X.test <- matrix(rnorm(n * p), n * 2, p)
+  X.test <- matrix(rnorm(n * p), n, p)
   X.test[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
   Xlt <- X.test
   Xrt <- X.test
