@@ -35,8 +35,6 @@ std::vector<double> run_splits(const Data& data,
                                const std::unique_ptr<SplittingRule>& splitting_rule,
                                const std::unique_ptr<RelabelingStrategy>& relabeling_strategy,
                                size_t num_features) {
-  std::vector<double> best_logranks;
-
   size_t node = 0;
   size_t size_node = data.get_num_rows();
   Eigen::ArrayXXd responses_by_sample(size_node, data.get_num_outcomes());
