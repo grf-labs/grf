@@ -59,7 +59,7 @@ public:
                        Eigen::ArrayXXd& responses_by_sample) const = 0;
  /**
    * Override to specify the column dimension of `responses_by_sample`.
-   * The default value of 1 is used for most forest splitting on scalar values.
+   * The default value of 1 is used for most forests splitting on scalar values.
    */
   virtual size_t get_response_length() const { return 1; };
 };
