@@ -57,6 +57,7 @@ public:
   virtual bool relabel(const std::vector<size_t>& samples,
                        const Data& data,
                        Eigen::ArrayXXd& responses_by_sample) const = 0;
+
  /**
    * Override to specify the column dimension of `responses_by_sample`.
    * The default value of 1 is used for most forests splitting on scalar values.
