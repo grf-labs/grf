@@ -33,7 +33,7 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
                               unsigned int seed) {
   size_t num_treatments = treatment_index.size();
   size_t num_outcomes = outcome_index.size();
-  ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes);
+  ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes, num_treatments * num_outcomes);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);
