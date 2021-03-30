@@ -24,10 +24,17 @@ namespace grf {
 
 class MultiNoopRelabelingStrategy final: public RelabelingStrategy {
 public:
+  MultiNoopRelabelingStrategy(size_t num_outcomes);
+
   bool relabel(
       const std::vector<size_t>& samples,
       const Data& data,
       Eigen::ArrayXXd& responses_by_sample) const;
+
+  size_t get_response_length() const;
+
+private:
+  size_t num_outcomes;
 };
 
 } // namespace grf

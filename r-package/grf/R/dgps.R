@@ -156,7 +156,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
     eta <- 0.1
     e <- pmax(eta, pmin(sin(pi * X[, 1] * X[, 2]), 1 - eta))
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- sin(pi * X[, 1] * X[, 2]) + 2 * (X[, 3] - 0.5)^2 + X[, 4] + 0.5 * X[, 5]
+    m <- sin(pi * X[, 1] * X[, 2]) + 2 * (X[, 3] - 0.5)^2 + X[, 4] + 0.5 * X[, 5] + e * tau
     V <- 1
   } else if (dgp == "nw2") {
     # "Setup B" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
@@ -165,7 +165,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
     tau <- X[,1] + log(1 + exp(X[, 2]))
     e <- rep(0.5, n)
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- pmax(0, X[, 1] + X[, 2], X[, 3]) + pmax(0, X[, 4] + X[, 5])
+    m <- pmax(0, X[, 1] + X[, 2], X[, 3]) + pmax(0, X[, 4] + X[, 5]) + e * tau
     V <- 1
   } else if (dgp == "nw3") {
     # "Setup C" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
@@ -175,7 +175,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
     tau <- rep(1, n)
     e <- 1 / (1 + exp(X[, 2] + X[, 3]))
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- 2 * log(1 + exp(X[, 1] + X[, 2] + X[, 3]))
+    m <- 2 * log(1 + exp(X[, 1] + X[, 2] + X[, 3])) + e * tau
     V <- 1
   } else if (dgp == "nw4") {
     # "Setup D" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
@@ -185,7 +185,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
     tau <- pmax(X[, 1] + X[, 2] + X[, 3], 0) - pmax(X[, 4] + X[, 5], 0)
     e <- 1 / (1 + exp(-X[, 1]) + exp(-X[, 2]))
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- (pmax(X[, 1] + X[, 2] + X[, 3], 0) + pmax(X[, 4] + X[, 5], 0)) / 2
+    m <- (pmax(X[, 1] + X[, 2] + X[, 3], 0) + pmax(X[, 4] + X[, 5], 0)) / 2 + e * tau
     V <- 1
   }
 

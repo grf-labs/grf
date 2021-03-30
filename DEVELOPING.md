@@ -55,6 +55,25 @@ To avoid the overhead of setting up new classes and Rcpp bindings, we provide a 
 
 This forest is made available in R as `custom.forest` (with `predict.custom.forest`). You can find a starter template for a test exercising the forest in `testthat/test_custom_forest.R`. Note that you'll need to re-run `build_package.R` after making changes to the C++ source.
 
+### Current forests and main components
+
+The following table shows the current collection of forests implemented and the C++ components.
+
+
+| R forest name                        	| RelabelingStrategy               	| SplittingStrategy            	| PredictionStrategy                	|
+|--------------------------------------	|----------------------------------	|------------------------------	|-----------------------------------	|
+| regression_forest                    	| NoopRelabelingStrategy           	| RegressionSplittingRule      	| RegressionPredictionStrategy      	|
+| multi_regression_forest              	| MultiNoopRelabelingStrategy      	| MultiRegressionSplittingRule 	| MultiRegressionPredictionStrategy 	|
+| quantile_forest                      	| QuantileRelabelingStrategy       	| ProbabilitySplittingRule     	| QuantilePredictionStrategy        	|
+| probability_forest                   	| NoopRelabelingStrategy           	| ProbabilitySplittingRule     	| ProbabilityPredictionStrategy     	|
+| causal_forest                        	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| InstrumentalPredictionStrategy    	|
+| instrumental_forest                  	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| InstrumentalPredictionStrategy    	|
+| multi_arm_causal_forest              	| MultiCausalRelabelingStrategy    	| MultiRegressionSplittingRule 	| MultiCausalPredictionStrategy     	|
+| survival_forest                      	| NoopRelabelingStrategy           	| SurvivalSplittingRule        	| SurvivalPredictionStrategy        	|
+| causal_survival_forest               	| CausalSurvivalRelabelingStrategy 	| CausalSurvivalSplittingRule  	| CausalSurvivalPredictionStrategy  	|
+| ll_regression_forest                 	| LLRegressionRelabelingStrategy   	| RegressionSplittingRule      	| RegressionSplittingRule           	|
+| causal_forest with ll_causal_predict 	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| LLCausalPredictionStrategy        	|
+
 ### Tree Splitting Algorithm
 
 The follow section outlines pseudocode for some of the components listed above.

@@ -19,6 +19,9 @@
 
  namespace grf {
 
+ MultiNoopRelabelingStrategy::MultiNoopRelabelingStrategy(size_t num_outcomes) :
+  num_outcomes(num_outcomes) {}
+
  bool MultiNoopRelabelingStrategy::relabel(
      const std::vector<size_t>& samples,
      const Data& data,
@@ -30,5 +33,9 @@
    }
    return false;
  }
+
+size_t MultiNoopRelabelingStrategy::get_response_length() const {
+  return num_outcomes;
+}
 
  } // namespace grf

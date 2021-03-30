@@ -18,8 +18,6 @@
 #' @param num.trees Number of trees grown in the forest. Note: Getting accurate
 #'                  confidence intervals generally requires more trees than
 #'                  getting accurate predictions. Default is 2000.
-#' @param sample.weights Weights given to an observation in estimation.
-#'                       If NULL, each observation is given the same weight. Default is NULL.
 #' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
 #'  Default is NULL (ignored).
 #' @param equalize.cluster.weights If FALSE, each unit is given the same weight (so that bigger
@@ -87,7 +85,6 @@ ll_regression_forest <- function(X, Y,
                                 ll.split.variables = NULL,
                                 ll.split.cutoff = NULL,
                                 num.trees = 2000,
-                                sample.weights = NULL,
                                 clusters = NULL,
                                 equalize.cluster.weights = FALSE,
                                 sample.fraction = 0.5,
@@ -107,10 +104,9 @@ ll_regression_forest <- function(X, Y,
                                 seed = runif(1, 0, .Machine$integer.max)) {
 
   has.missing.values <- validate_X(X)
-  validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   clusters <- validate_clusters(clusters, X)
-  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
+  samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, NULL)
   num.threads <- validate_num_threads(num.threads)
 
   ll.split.variables <- validate_ll_vars(ll.split.variables, ncol(X))
@@ -120,7 +116,9 @@ ll_regression_forest <- function(X, Y,
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
                           "honesty.prune.leaves", "alpha", "imbalance.penalty")
 
-  data <- create_train_matrices(X, outcome = Y, sample.weights = sample.weights)
+  # The ll_regression train wrapper signature does not contain sample weights, which is why sample.weights=FALSE,
+  # whereas the regression_train wrapper signature does, and specifying sample.weights=NULL disables them.
+  data <- create_train_matrices(X, outcome = Y, sample.weights = if (enable.ll.split) FALSE else NULL)
 
   args <- list(num.trees = num.trees,
                clusters = clusters,
@@ -163,7 +161,6 @@ ll_regression_forest <- function(X, Y,
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")){
     tuning.output <- tune_regression_forest(X, Y,
-                                            sample.weights = sample.weights,
                                             clusters = clusters,
                                             equalize.cluster.weights = equalize.cluster.weights,
                                             sample.fraction = sample.fraction,
@@ -194,7 +191,6 @@ ll_regression_forest <- function(X, Y,
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
-  forest[["sample.weights"]] <- sample.weights
   forest[["clusters"]] <- clusters
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["tunable.params"]] <- args[all.tunable.params]

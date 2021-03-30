@@ -28,10 +28,17 @@ namespace grf {
 
 class MultiCausalRelabelingStrategy final: public RelabelingStrategy {
 public:
+  MultiCausalRelabelingStrategy(size_t response_length);
+
   bool relabel(
       const std::vector<size_t>& samples,
       const Data& data,
       Eigen::ArrayXXd& responses_by_sample) const;
+
+  size_t get_response_length() const;
+
+private:
+  size_t response_length;
 };
 
 } // namespace grf
