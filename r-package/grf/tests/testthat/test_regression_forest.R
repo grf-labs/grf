@@ -209,35 +209,42 @@ test_that("sample weighted regression forest is estimated with kernel weights `f
 })
 
 test_that("sample weighting in the training of a regression forest improves its sample-weighted MSE.", {
-  n <- 1000
-  p <- 2
-  X <- matrix(rnorm(n * p), n, p)
-  Y <- abs(X[, 1]) + 0.1 * rnorm(n)
-  e <- 1 / (1 + exp(-3 * X[, 1]))
-  sample.weights <- 1 / e
+  mse.ratio <- summary(replicate(4, {
+    n <- 1000
+    p <- 2
+    X <- matrix(rnorm(n * p), n, p)
+    Y <- abs(X[, 1]) + 0.1 * rnorm(n)
+    e <- 1 / (1 + exp(-3 * X[, 1]))
+    sample.weights <- 1 / e
 
-  forest <- regression_forest(X, Y)
-  forest.weighted <- regression_forest(X, Y, sample.weights = sample.weights)
-  weighted.mse.forest <- sum(sample.weights * (forest$predictions - Y)^2)
-  weighted.mse.forest.weighted <- sum(sample.weights * (forest.weighted$predictions - Y)^2)
-  expect_true(weighted.mse.forest.weighted < weighted.mse.forest)
+    forest <- regression_forest(X, Y, num.trees = 500)
+    forest.weighted <- regression_forest(X, Y, sample.weights = sample.weights, num.trees = 500)
+    weighted.mse.forest <- sum(sample.weights * (forest$predictions - Y)^2)
+    weighted.mse.forest.weighted <- sum(sample.weights * (forest.weighted$predictions - Y)^2)
+    weighted.mse.forest.weighted / weighted.mse.forest
+  }))
+  expect_lt(mse.ratio[["1st Qu."]], 0.8)
 })
 
 test_that("inverse propensity weighting in the training of a regression forest with missing data improves
            its complete-data MSE.", {
-  n <- 1000
-  p <- 2
-  X <- matrix(rnorm(n * p), n, p)
-  Y <- abs(X[, 1]) + 0.1 * rnorm(n)
-  e <- 1 / (1 + exp(-3 * X[, 1]))
-  w <- runif(n) <= e
-  sample.weights <- 1 / e[w]
+  mse.ratio <- summary(replicate(4, {
+    n <- 1000
+    p <- 2
+    X <- matrix(rnorm(n * p), n, p)
+    Y <- abs(X[, 1]) + 0.1 * rnorm(n)
+    e <- 1 / (1 + exp(-3 * X[, 1]))
+    w <- runif(n) <= e
+    sample.weights <- 1 / e[w]
 
-  forest <- regression_forest(X[w, ], Y[w])
-  forest.weighted <- regression_forest(X[w, ], Y[w], sample.weights = sample.weights)
-  ipw.mse.forest <- sum((predict(forest, X) - Y)^2)
-  ipw.mse.forest.weighted <- sum((predict(forest.weighted, X) - Y)^2)
-  expect_true(ipw.mse.forest.weighted < ipw.mse.forest)
+    forest <- regression_forest(X[w, ], Y[w], num.trees = 500)
+    forest.weighted <- regression_forest(X[w, ], Y[w], sample.weights = sample.weights, num.trees = 500)
+    ipw.mse.forest <- sum((predict(forest, X) - Y)^2)
+    ipw.mse.forest.weighted <- sum((predict(forest.weighted, X) - Y)^2)
+    ipw.mse.forest.weighted / ipw.mse.forest
+  }))
+  # Due to the influence of rare extreme weights we check the following more conservative bound.
+  expect_lt(mse.ratio[["1st Qu."]], 0.85)
 })
 
 test_that("sample weighting is identical to replicating samples", {
