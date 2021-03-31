@@ -20,6 +20,9 @@
 
 namespace grf {
 
+MultiCausalRelabelingStrategy::MultiCausalRelabelingStrategy(size_t response_length) :
+  response_length(response_length) {}
+
 bool MultiCausalRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
     const Data& data,
@@ -86,6 +89,10 @@ bool MultiCausalRelabelingStrategy::relabel(
     }
   }
   return false;
+}
+
+size_t MultiCausalRelabelingStrategy::get_response_length() const {
+  return response_length;
 }
 
 } // namespace grf

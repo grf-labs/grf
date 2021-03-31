@@ -267,7 +267,7 @@ observation_weights <- function(forest) {
   # Case 1: No sample.weights
   if (is.null(forest$sample.weights)) {
     if (length(forest$clusters) == 0 || !forest$equalize.cluster.weights) {
-      raw.weights <- rep(1, length(forest$Y.orig))
+      raw.weights <- rep(1, NROW(forest$Y.orig))
     } else {
       # If clustering with no sample.weights provided and equalize.cluster.weights = TRUE, then
       # give each observation weight 1/cluster size, so that the total weight of each cluster is the same.

@@ -1,0 +1,77 @@
+---
+title: "Policy learning"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{policy_learning}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+set.seed(123)
+```
+
+```{r setup}
+library(grf)
+library(policytree)
+```
+
+## Estimating tree-based treatment assignment rules
+
+Using suitable estimates of individual treatment effects, Athey and Wager (2021) show that one can estimate policies with favorable statistical properties (low regret). The case where we restrict our candidate policies to be a (shallow) tree, is implemented in the companion package [policytree](https://github.com/grf-labs/policytree) (Sverdrup et. al, 2020).
+
+The example below demonstrates fitting a depth-2 tree on doubly robust treatment effect estimates obtained from a causal forest. The function `policy_tree` and `double_robust_scores` belong to the `policytree` package.
+
+```{r}
+# Fit a causal forest.
+n <- 15000
+p <- 5
+X <- round(matrix(rnorm(n * p), n, p), 2)
+W <- rbinom(n, 1, 1 / (1 + exp(X[, 3])))
+tau <- 1 / (1 + exp((X[, 1] + X[, 2]) / 2)) - 0.5
+Y <- X[, 3] + W * tau + rnorm(n)
+c.forest <- causal_forest(X, Y, W)
+
+# Compute doubly robust scores.
+dr.scores <- double_robust_scores(c.forest)
+head(dr.scores)
+
+# Fit a depth-2 tree on the doubly robust scores.
+tree <- policy_tree(X, dr.scores, depth = 2)
+
+# Print and plot the tree - action 1 corresponds to control, and 2 treated.
+print(tree)
+plot(tree)
+```
+
+The 45-degree line in the following plot separates units with a negative effect (above the line), and a positive effect (below the line).
+
+```{r}
+# Predict the treatment assignment {1, 2} for each sample.
+predicted <- predict(tree, X)
+plot(X[, 1], X[, 2], col = predicted)
+legend("topright", c("control", "treat"), col = c(1, 2), pch = 19)
+abline(0, -1, lty = 2)
+```
+
+Alternatively, `predict` can return the leaf node each sample falls into, which we can use to calculate statistics for each group (note that for valid inference, statistics like these should all be computed on test set separate from the one used for learning the policy).
+
+```{r}
+node.id <- predict(tree, X, type = "node.id")
+
+# The value of all arms (along with SEs) by each leaf node.
+values <- aggregate(dr.scores, by = list(leaf.node = node.id),
+                    FUN = function(x) c(mean = mean(x), se = sd(x) / sqrt(length(x))))
+print(values, digits = 2)
+```
+
+For more details (such as the computational aspect of the tree search in `policy_tree`) please see the `policytree` package.
+
+## References
+Susan Athey and Stefan Wager. Policy Learning With Observational Data. _Econometrica, 2021_. [[arxiv](https://arxiv.org/abs/1702.02896)]
+
+Sverdrup, Erik, Ayush Kanodia, Zhengyuan Zhou, Susan Athey, and Stefan Wager. policytree: Policy learning via doubly robust empirical welfare maximization over trees. _Journal of Open Source Software 5, no. 50 (2020): 2232._ [[paper](https://joss.theoj.org/papers/10.21105/joss.02232.pdf)]

@@ -376,6 +376,9 @@ predict.causal_forest <- function(object, newdata = NULL,
   train.data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered)
 
   if (local.linear) {
+    if (!is.null(object[["sample.weights"]])) {
+      stop("sample.weights are currently not supported for local linear forests.")
+    }
     linear.correction.variables <- validate_ll_vars(linear.correction.variables, ncol(X))
 
     if (is.null(ll.lambda)) {

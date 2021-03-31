@@ -55,6 +55,25 @@ To avoid the overhead of setting up new classes and Rcpp bindings, we provide a 
 
 This forest is made available in R as `custom.forest` (with `predict.custom.forest`). You can find a starter template for a test exercising the forest in `testthat/test_custom_forest.R`. Note that you'll need to re-run `build_package.R` after making changes to the C++ source.
 
+### Current forests and main components
+
+The following table shows the current collection of forests implemented and the C++ components.
+
+
+| R forest name                        	| RelabelingStrategy               	| SplittingStrategy            	| PredictionStrategy                	|
+|--------------------------------------	|----------------------------------	|------------------------------	|-----------------------------------	|
+| regression_forest                    	| NoopRelabelingStrategy           	| RegressionSplittingRule      	| RegressionPredictionStrategy      	|
+| multi_regression_forest              	| MultiNoopRelabelingStrategy      	| MultiRegressionSplittingRule 	| MultiRegressionPredictionStrategy 	|
+| quantile_forest                      	| QuantileRelabelingStrategy       	| ProbabilitySplittingRule     	| QuantilePredictionStrategy        	|
+| probability_forest                   	| NoopRelabelingStrategy           	| ProbabilitySplittingRule     	| ProbabilityPredictionStrategy     	|
+| causal_forest                        	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| InstrumentalPredictionStrategy    	|
+| instrumental_forest                  	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| InstrumentalPredictionStrategy    	|
+| multi_arm_causal_forest              	| MultiCausalRelabelingStrategy    	| MultiRegressionSplittingRule 	| MultiCausalPredictionStrategy     	|
+| survival_forest                      	| NoopRelabelingStrategy           	| SurvivalSplittingRule        	| SurvivalPredictionStrategy        	|
+| causal_survival_forest               	| CausalSurvivalRelabelingStrategy 	| CausalSurvivalSplittingRule  	| CausalSurvivalPredictionStrategy  	|
+| ll_regression_forest                 	| LLRegressionRelabelingStrategy   	| RegressionSplittingRule      	| RegressionSplittingRule           	|
+| causal_forest with ll_causal_predict 	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| LLCausalPredictionStrategy        	|
+
 ### Tree Splitting Algorithm
 
 The follow section outlines pseudocode for some of the components listed above.
@@ -165,3 +184,7 @@ for each i=1:n
 A label of 0 is given to all samples with response less than the first failure time, a value of 1 is given to all samples with failure value greater or equal to the first failure value and less than the second failure value, etc.
 
 The algorithm proceeds in the same manner as outlined above for RegressionSplitting: iterate over all possible splits and calculate the logrank statistic, one with all missing values on the left, and one with all missing on the right. Then select the split that yielded the maximum logrank test, subject to a constraint that there are a sufficient amount of failures on both sides of the split.
+
+---
+
+***Algorithm*** (`ProbabilitySplittingRule`): This splitting rule uses the Gini impurity measure from CART for categorical data. Sample weights are incorporated by counting the sample weight of an observation when forming class counts. The missing values adjustment is the same as for the other splitting rules.

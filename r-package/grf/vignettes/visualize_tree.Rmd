@@ -51,39 +51,4 @@ get_leaf_node(tree, X.test)
 get_leaf_node(tree, X.test, node.id = FALSE)
 ```
 
-## Visualizing tree-based treatment assignment rules
-
-The above approach is only a convenient way to inspect individual trees, it is not suggested as a way to evaluate or design treatment assignment rules. For this purpose we suggest the companion package [policytree](https://github.com/grf-labs/policytree) (Athey and Wager, 2021). The example below illustrates this by fitting a shallow tree on doubly robust treatment effect estimates obtained from a causal forest. The function `policy_tree` and `double_robust_scores` belong to the [policytree](https://github.com/grf-labs/policytree) package.
-
-```{r}
-library(policytree)
-
-# Fit a causal forest.
-n <- 15000
-p <- 5
-X <- round(matrix(rnorm(n * p), n, p), 2)
-W <- rbinom(n, 1, 1 / (1 + exp(X[, 3])))
-tau <- 1 / (1 + exp((X[, 1] + X[, 2]) / 2)) - 0.5
-Y <- X[, 3] + W * tau + rnorm(n)
-c.forest <- causal_forest(X, Y, W)
-
-# Compute doubly robust scores.
-dr.scores <- double_robust_scores(c.forest)
-# Fit a depth two tree on the doubly robust scores.
-tree <- policy_tree(X, dr.scores, 2)
-plot(tree)
-
-# Predict treatment assignment.
-predicted <- predict(tree, X)
-
-plot(X[, 1], X[, 2], col = predicted)
-legend("topright", c("control", "treat"), col = c(1, 2), pch = 19)
-abline(0, -1, lty = 2)
-```
-
-For more details please see the referenced package, and the references therein.
-
-## References
-Susan Athey and Stefan Wager. Policy Learning With Observational Data. _Econometrica, 2021_. [[arxiv](https://arxiv.org/abs/1702.02896)]
-
-Sverdrup, Erik, Ayush Kanodia, Zhengyuan Zhou, Susan Athey, and Stefan Wager. policytree: Policy learning via doubly robust empirical welfare maximization over trees. _Journal of Open Source Software 5, no. 50 (2020): 2232._ [[paper](https://joss.theoj.org/papers/10.21105/joss.02232.pdf)]
+For a tutorial on visualizing tree-based treatment assignment rules, see the `Policy learning` vignette.
