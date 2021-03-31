@@ -37,23 +37,6 @@ navbar:
 ## Function reference
 # Different forest types
 reference:
-  - title: Regression forest
-    contents:
-      - regression_forest
-      - multi_regression_forest
-      - predict.regression_forest
-      - predict.multi_regression_forest
-
-  - title: Quantile forest
-    contents:
-      - quantile_forest
-      - predict.quantile_forest
-
-  - title: Probability forest
-    contents:
-      - probability_forest
-      - predict.probability_forest
-
   - title: Causal forest
     contents:
       - causal_forest
@@ -61,30 +44,41 @@ reference:
       - predict.causal_forest
       - predict.multi_arm_causal_forest
 
+  - title: Causal survival forest
+    contents:
+      - causal_survival_forest
+      - predict.causal_survival_forest
+
   - title: Instrumental forest
     contents:
       - instrumental_forest
       - predict.instrumental_forest
 
-  - title: Local linear regression forest
+  - title: Probability forest
     contents:
-      - ll_regression_forest
-      - predict.ll_regression_forest
+      - probability_forest
+      - predict.probability_forest
 
-  - title: Boosted regression forest
+  - title: Quantile forest
     contents:
+      - quantile_forest
+      - predict.quantile_forest
+
+  - title: Regression forest
+    contents:
+      - regression_forest
+      - multi_regression_forest
+      - ll_regression_forest
       - boosted_regression_forest
+      - predict.regression_forest
+      - predict.multi_regression_forest
+      - predict.ll_regression_forest
       - predict.boosted_regression_forest
 
   - title: Survival forest
     contents:
       - survival_forest
       - predict.survival_forest
-
-  - title: Causal survival forest
-    contents:
-      - causal_survival_forest
-      - predict.causal_survival_forest
 
 # Treatment effects
   - title: Treatment effect estimation
@@ -94,21 +88,22 @@ reference:
       - best_linear_projection
       - get_scores.causal_forest
       - get_scores.multi_arm_causal_forest
-      - get_scores.instrumental_forest
       - get_scores.causal_survival_forest
+      - get_scores.instrumental_forest
 
 # Utilities and various
   - title: Analysis tools
     desc: Functions for extracting further information from fitted forest objects.
     contents:
+      - get_leaf_node
       - get_sample_weights
       - get_tree
-      - get_leaf_node
       - merge_forests
       - split_frequencies
       - test_calibration
       - variable_importance
-  - title: Plotting and Printing
+
+  - title: Plotting and printing
     contents:
       - plot.grf_tree
       - print.boosted_regression_forest
