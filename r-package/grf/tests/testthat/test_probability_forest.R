@@ -84,6 +84,40 @@ test_that("sample weighted probability forest is invariant to scaling", {
   expect_true(all(v1$variance.estimates - v2$variance.estimates == 0))
 })
 
+test_that("sample weighted probability forest is identical to replicating samples", {
+  # To make these forests comparable sample.fraction has to be 1 to draw the same samples
+  # and min.node.size 1 for the split stopping condition to be the same.
+  n <- 250
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  e <- 1 / (1 + exp(-5 * X[, 1]))
+  Y <- rbinom(n, 1, e)
+  to.duplicate <- sample(1:n, 100)
+  XX <- rbind(X, X[to.duplicate, ])
+  YY <- c(Y, Y[to.duplicate])
+  sample.weights <- rep(1, n)
+  sample.weights[to.duplicate] <- 2
+
+  pf.weighted <- probability_forest(X, as.factor(Y),
+                                    sample.weights = sample.weights,
+                                    num.trees = 250,
+                                    sample.fraction = 1,
+                                    min.node.size = 1,
+                                    honesty = FALSE,
+                                    ci.group.size = 1,
+                                    seed = 42)
+
+  pf.duplicated <- probability_forest(XX, as.factor(YY),
+                                      num.trees = 250,
+                                      sample.fraction = 1,
+                                      min.node.size = 1,
+                                      honesty = FALSE,
+                                      ci.group.size = 1,
+                                      seed = 42)
+
+  expect_equal(predict(pf.weighted, XX)$predictions, predict(pf.duplicated, XX)$predictions)
+})
+
 test_that("sample weighted probability forest improves complete-data MSE", {
   mean <- mean(replicate(4, {
       n <- 500
