@@ -75,13 +75,13 @@ test_that("sample weighted probability forest is invariant to scaling", {
   p1 <- predict(pf)
   p2 <- predict(pf2)
 
-  expect_true(all(p1$predictions - p2$predictions == 0))
+  expect_equal(p1$predictions, p2$predictions)
 
   # Variance estimates are invariant to sample weight scaling
   v1 <- predict(pf, estimate.variance = TRUE)
   v2 <- predict(pf2, estimate.variance = TRUE)
 
-  expect_true(all(v1$variance.estimates - v2$variance.estimates == 0))
+  expect_equal(v1$variance.estimates, v2$variance.estimates)
 })
 
 test_that("sample weighted probability forest is identical to replicating samples", {
