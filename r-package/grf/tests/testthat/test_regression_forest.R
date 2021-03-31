@@ -247,7 +247,7 @@ test_that("inverse propensity weighting in the training of a regression forest w
   expect_lt(mse.ratio[["1st Qu."]], 0.85)
 })
 
-test_that("sample weighting is identical to replicating samples", {
+test_that("sample weighted regression forest is identical to replicating samples", {
   # To make these forests comparable sample.fraction has to be 1 to draw the same samples
   # and min.node.size 1 for the split stopping condition to be the same.
   n <- 500
@@ -275,9 +275,7 @@ test_that("sample weighting is identical to replicating samples", {
                                           honesty = FALSE,
                                           ci.group.size = 1,
                                           seed = 123)
-  diff.abs <- abs(predict(rf.weighted, XX)$predictions - predict(rf.duplicated.data, XX)$predictions)
-
-  expect_equal(all(diff.abs == 0), TRUE)
+  expect_equal(predict(rf.weighted, XX)$predictions, predict(rf.duplicated.data, XX)$predictions)
 })
 
 test_that("a non-pruned honest regression forest has lower MSE than a pruned honest regression forests
@@ -294,7 +292,7 @@ test_that("a non-pruned honest regression forest has lower MSE than a pruned hon
   mse.notpruned <- mean((predict(f2)$predictions - Y)^2)
 
   # Upper bound of 65 % is based on 10 000 repetitions of the above DGP
-  expect_true(mse.notpruned < 0.65 * mse.pruned)
+  expect_lt(mse.notpruned / mse.pruned, 0.65)
 })
 
 test_that("regression_forest works as expected with missing values", {
