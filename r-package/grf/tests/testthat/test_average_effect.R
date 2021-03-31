@@ -40,7 +40,7 @@ test_that("average effects are translation invariant", {
 
   wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
   wate.plus.1 <- average_treatment_effect(forest.causal.plus.1, target.sample = "overlap")
-  expect_true(abs(wate[1] - wate.plus.1[1]) <= 0.006)
+  expect_equal(wate[1], wate.plus.1[1], tolerance = 0.006)
 
   # Now test this in "average partial effect" mode. Add some fuzz to the treatments
   # so the "continuous treatment" code path is triggered. However, first cache
@@ -69,43 +69,43 @@ test_that("average treatment effect estimates are reasonable", {
   forest.causal <- causal_forest(X, Y, W, num.trees = 500, ci.group.size = 1)
 
   cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
-  expect_true(abs(cate.aipw[1] - mean(TAU)) <= 0.2)
-  expect_true(abs(cate.aipw[1] - mean(TAU)) <= 3 * cate.aipw[2])
+  expect_equal(cate.aipw[[1]], mean(TAU), tolerance = 0.2)
+  expect_equal(cate.aipw[[1]], mean(TAU), tolerance = 3 * cate.aipw[2])
 
   cate.tmle <- average_treatment_effect(forest.causal, target.sample = "all", method = "TMLE")
-  expect_true(abs(cate.tmle[1] - mean(TAU)) <= 0.2)
-  expect_true(abs(cate.tmle[1] - mean(TAU)) <= 3 * cate.tmle[2])
+  expect_equal(cate.tmle[[1]], mean(TAU), tolerance = 0.2)
+  expect_equal(cate.tmle[[1]], mean(TAU), tolerance = 3 * cate.tmle[2])
 
-  expect_true(abs(cate.aipw[1] - cate.tmle[1]) <= 0.01)
-  expect_true(abs(cate.aipw[2] - cate.tmle[2]) <= 0.01)
+  expect_equal(cate.aipw[1], cate.tmle[1], tolerance = 0.01)
+  expect_equal(cate.aipw[2], cate.tmle[2], tolerance = 0.01)
 
   catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
-  expect_true(abs(catt.aipw[1] - mean(TAU[W == 1])) <= 0.2)
-  expect_true(abs(catt.aipw[1] - mean(TAU[W == 1])) <= 3 * catt.aipw[2])
+  expect_equal(catt.aipw[[1]], mean(TAU[W == 1]), tolerance = 0.2)
+  expect_equal(catt.aipw[[1]], mean(TAU[W == 1]), tolerance = 3 * catt.aipw[2])
 
   catt.tmle <- average_treatment_effect(forest.causal, target.sample = "treated", method = "TMLE")
-  expect_true(abs(catt.tmle[1] - mean(TAU[W == 1])) <= 0.2)
-  expect_true(abs(catt.tmle[1] - mean(TAU[W == 1])) <= 3 * catt.tmle[2])
+  expect_equal(catt.tmle[[1]], mean(TAU[W == 1]), tolerance = 0.2)
+  expect_equal(catt.tmle[[1]], mean(TAU[W == 1]), tolerance = 3 * catt.tmle[2])
 
-  expect_true(abs(catt.aipw[1] - catt.tmle[1]) <= 0.05)
-  expect_true(abs(catt.aipw[2] - catt.tmle[2]) <= 0.05)
+  expect_equal(catt.aipw[1], catt.tmle[1], tolerance = 0.05)
+  expect_equal(catt.aipw[2], catt.tmle[2], tolerance = 0.05)
 
   catc.aipw <- average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - mean(TAU[W == 0])) <= 0.25)
-  expect_true(abs(catc.aipw[1] - mean(TAU[W == 0])) <= 3 * catc.aipw[2])
+  expect_equal(catc.aipw[[1]], mean(TAU[W == 0]), tolerance = 0.25)
+  expect_equal(catc.aipw[[1]], mean(TAU[W == 0]), tolerance = 3 * catc.aipw[2])
 
   catc.tmle <- average_treatment_effect(forest.causal, target.sample = "control", method = "TMLE")
-  expect_true(abs(catc.tmle[1] - mean(TAU[W == 0])) <= 0.25)
-  expect_true(abs(catc.tmle[1] - mean(TAU[W == 0])) <= 3 * catc.tmle[2])
+  expect_equal(catc.tmle[[1]], mean(TAU[W == 0]), tolerance = 0.25)
+  expect_equal(catc.tmle[[1]], mean(TAU[W == 0]), tolerance = 3 * catc.tmle[2])
 
-  expect_true(abs(catc.aipw[1] - catc.tmle[1]) <= 0.05)
-  expect_true(abs(catc.aipw[2] - catc.tmle[2]) <= 0.05)
+  expect_equal(catc.aipw[1], catc.tmle[1], tolerance = 0.05)
+  expect_equal(catc.aipw[2], catc.tmle[2], tolerance = 0.05)
 
   cape.nocal <- average_treatment_effect(forest.causal)
-  expect_true(abs(cape.nocal[1] - mean(TAU)) <= 0.2)
-  expect_true(abs(cape.nocal[1] - mean(TAU)) <= 3 * cape.nocal[2])
-  expect_true(abs(cate.aipw[1] - cape.nocal[1]) <= 0.05)
-  expect_true(abs(cate.aipw[2] - cape.nocal[2]) <= 0.05)
+  expect_equal(cape.nocal[[1]], mean(TAU), tolerance = 0.2)
+  expect_equal(cape.nocal[[1]], mean(TAU), tolerance = 3 * cape.nocal[2])
+  expect_equal(cate.aipw[1], cape.nocal[1], tolerance = 0.05)
+  expect_equal(cate.aipw[2], cape.nocal[2], tolerance = 0.05)
 
   # The calibration option was eliminated after version 1.2.0.
   # cape.cal <- average_treatment_effect(forest.causal, calibrate.weights = TRUE)
@@ -116,8 +116,8 @@ test_that("average treatment effect estimates are reasonable", {
 
   wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
   tau.overlap <- sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
-  expect_true(abs(wate[1] - tau.overlap) <= 0.2)
-  expect_true(abs(wate[1] - tau.overlap) <= 3 * wate[2])
+  expect_equal(wate[[1]], tau.overlap, tolerance = 0.2)
+  expect_equal(wate[[1]], tau.overlap, tolerance = 3 * wate[2])
 
   cate.aipw.pos <- average_treatment_effect(forest.causal,
     target.sample = "all",
