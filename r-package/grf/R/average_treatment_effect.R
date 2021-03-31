@@ -438,5 +438,5 @@ average_treatment_effect <- function(forest,
 
   tau.avg <- tau.avg.raw + dr.correction
   tau.se <- sqrt(tau.avg.var + sigma2.hat)
-  return(c(estimate = tau.avg, std.err = tau.se))
+  return(c(estimate = unname(tau.avg), std.err = tau.se))
 }
