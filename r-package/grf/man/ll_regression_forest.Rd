@@ -65,9 +65,7 @@ during training, each tree uses the same number of observations from each drawn 
 smallest cluster has K units, then when we sample a cluster during training, we only give a random
 K elements of the cluster to the tree-growing procedure. When estimating average treatment effects,
 each observation is given weight 1/cluster size, so that the total weight of each cluster is the
-same. Note that, if this argument is FALSE, sample weights may also be directly adjusted via the
-sample.weights argument. If this argument is TRUE, sample.weights must be set to NULL. Default is
-FALSE.}
+same. Default is FALSE.}
 
 \item{sample.fraction}{Fraction of the data used to build each tree.
 Note: If honesty = TRUE, these subsamples will
