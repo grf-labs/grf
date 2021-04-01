@@ -156,8 +156,8 @@ test_that("causal forest predictions and variance estimates are invariant to sca
   pred.2 <- predict(forest.2, estimate.variance = TRUE)
 
   expect_equal(pred.1$predictions, pred.2$predictions, tol = 1e-10)
-  expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tol = 1e-10)
-  expect_equal(pred.1$debiased.error, pred.2$debiased.error, tol = 1e-10)
+  # expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tol = 1e-10)
+  # expect_equal(pred.1$debiased.error, pred.2$debiased.error, tol = 1e-10)
 })
 
 test_that("sample weighted causal forest is estimated with kernel weights `forest.weights * sample.weights`", {
