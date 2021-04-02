@@ -78,3 +78,16 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat, ...) {
 tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat, ...) {
   stop("This function has been removed after version 1.2.0.")
 }
+
+#' Custom forest (removed)
+#'
+#' To build a custom forest, see an existing simpler forest, like regression_forest,
+#' for a development template.
+#'
+#' @param X X
+#' @param Y Y
+#'
+#' @export
+custom_forest <- function(X, Y, ...) {
+  stop("This function has been removed after version 1.2.0.")
+}
