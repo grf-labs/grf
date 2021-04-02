@@ -10,6 +10,8 @@ custom_forest(X, Y, ...)
 \item{X}{X}
 
 \item{Y}{Y}
+
+\item{...}{Additional arguments (currently ignored).}
 }
 \description{
 To build a custom forest, see an existing simpler forest, like regression_forest,

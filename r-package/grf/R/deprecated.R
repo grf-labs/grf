@@ -86,6 +86,7 @@ tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat, ...) {
 #'
 #' @param X X
 #' @param Y Y
+#' @param ... Additional arguments (currently ignored).
 #'
 #' @export
 custom_forest <- function(X, Y, ...) {
