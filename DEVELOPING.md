@@ -51,28 +51,25 @@ The factory classes [ForestTrainers](https://github.com/grf-labs/grf/blob/master
 
 When designing a forest for a new statistical task, we suggest following the format suggested in the paper: provide a custom RelabelingStrategy and PredictionStrategy, but use the standard RegressionSplittingRule. If modifications to the splitting rule must be made, they should be done carefully, as it is an extremely performance-sensitive piece of code.
 
-To avoid the overhead of setting up new classes and Rcpp bindings, we provide a template for a 'custom' forest. To get started, fill in the implementation for CustomRelabelingStrategy and CustomPredictionStrategy. By default, the custom forest uses the standard regression splitting rule -- if you'd like to change this, consult the ForestTrainers.custom_trainer method.
-
-This forest is made available in R as `custom.forest` (with `predict.custom.forest`). You can find a starter template for a test exercising the forest in `testthat/test_custom_forest.R`. Note that you'll need to re-run `build_package.R` after making changes to the C++ source.
+To get started with setting up new classes and Rcpp bindings, we suggest having a look at one of the simpler forests, like regression_forest, and use this as a template.
 
 ### Current forests and main components
 
 The following table shows the current collection of forests implemented and the C++ components.
 
-
 | R forest name                        	| RelabelingStrategy               	| SplittingStrategy            	| PredictionStrategy                	|
 |--------------------------------------	|----------------------------------	|------------------------------	|-----------------------------------	|
-| regression_forest                    	| NoopRelabelingStrategy           	| RegressionSplittingRule      	| RegressionPredictionStrategy      	|
-| multi_regression_forest              	| MultiNoopRelabelingStrategy      	| MultiRegressionSplittingRule 	| MultiRegressionPredictionStrategy 	|
-| quantile_forest                      	| QuantileRelabelingStrategy       	| ProbabilitySplittingRule     	| QuantilePredictionStrategy        	|
-| probability_forest                   	| NoopRelabelingStrategy           	| ProbabilitySplittingRule     	| ProbabilityPredictionStrategy     	|
 | causal_forest                        	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| InstrumentalPredictionStrategy    	|
-| instrumental_forest                  	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| InstrumentalPredictionStrategy    	|
-| multi_arm_causal_forest              	| MultiCausalRelabelingStrategy    	| MultiRegressionSplittingRule 	| MultiCausalPredictionStrategy     	|
-| survival_forest                      	| NoopRelabelingStrategy           	| SurvivalSplittingRule        	| SurvivalPredictionStrategy        	|
-| causal_survival_forest               	| CausalSurvivalRelabelingStrategy 	| CausalSurvivalSplittingRule  	| CausalSurvivalPredictionStrategy  	|
-| ll_regression_forest                 	| LLRegressionRelabelingStrategy   	| RegressionSplittingRule      	| RegressionSplittingRule           	|
 | causal_forest with ll_causal_predict 	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| LLCausalPredictionStrategy        	|
+| causal_survival_forest               	| CausalSurvivalRelabelingStrategy 	| CausalSurvivalSplittingRule  	| CausalSurvivalPredictionStrategy  	|
+| instrumental_forest                  	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| InstrumentalPredictionStrategy    	|
+| ll_regression_forest                 	| LLRegressionRelabelingStrategy   	| RegressionSplittingRule      	| RegressionSplittingRule           	|
+| multi_arm_causal_forest              	| MultiCausalRelabelingStrategy    	| MultiRegressionSplittingRule 	| MultiCausalPredictionStrategy     	|
+| multi_regression_forest              	| MultiNoopRelabelingStrategy      	| MultiRegressionSplittingRule 	| MultiRegressionPredictionStrategy 	|
+| probability_forest                   	| NoopRelabelingStrategy           	| ProbabilitySplittingRule     	| ProbabilityPredictionStrategy     	|
+| quantile_forest                      	| QuantileRelabelingStrategy       	| ProbabilitySplittingRule     	| QuantilePredictionStrategy        	|
+| regression_forest                    	| NoopRelabelingStrategy           	| RegressionSplittingRule      	| RegressionPredictionStrategy      	|
+| survival_forest                      	| NoopRelabelingStrategy           	| SurvivalSplittingRule        	| SurvivalPredictionStrategy        	|
 
 ### Tree Splitting Algorithm
 
