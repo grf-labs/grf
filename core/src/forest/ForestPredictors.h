@@ -22,8 +22,6 @@
 
 namespace grf {
 
-ForestPredictor custom_predictor(uint num_threads);
-
 ForestPredictor instrumental_predictor(uint num_threads);
 
 ForestPredictor multi_causal_predictor(uint num_threads, size_t num_treatments, size_t num_outcomes);

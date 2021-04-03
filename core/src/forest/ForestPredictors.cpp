@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include "forest/ForestPredictors.h"
-#include "prediction/CustomPredictionStrategy.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
 #include "prediction/MultiCausalPredictionStrategy.h"
 #include "prediction/QuantilePredictionStrategy.h"
@@ -29,12 +28,6 @@
 #include "prediction/CausalSurvivalPredictionStrategy.h"
 
 namespace grf {
-
-ForestPredictor custom_predictor(uint num_threads) {
-  num_threads = ForestOptions::validate_num_threads(num_threads);
-  std::unique_ptr<DefaultPredictionStrategy> prediction_strategy(new CustomPredictionStrategy());
-  return ForestPredictor(num_threads, std::move(prediction_strategy));
-}
 
 ForestPredictor instrumental_predictor(uint num_threads) {
   num_threads = ForestOptions::validate_num_threads(num_threads);

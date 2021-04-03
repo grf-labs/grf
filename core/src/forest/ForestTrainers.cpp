@@ -22,7 +22,6 @@
 #include "prediction/RegressionPredictionStrategy.h"
 #include "prediction/MultiRegressionPredictionStrategy.h"
 #include "prediction/ProbabilityPredictionStrategy.h"
-#include "relabeling/CustomRelabelingStrategy.h"
 #include "relabeling/CausalSurvivalRelabelingStrategy.h"
 #include "relabeling/InstrumentalRelabelingStrategy.h"
 #include "relabeling/MultiCausalRelabelingStrategy.h"
@@ -142,15 +141,6 @@ ForestTrainer causal_survival_trainer(bool stabilize_splits) {
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
                        std::move(prediction_strategy));
-}
-
-ForestTrainer custom_trainer() {
-  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new CustomRelabelingStrategy());
-  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
-
-  return ForestTrainer(std::move(relabeling_strategy),
-                       std::move(splitting_rule_factory),
-                       nullptr);
 }
 
 } // namespace grf
