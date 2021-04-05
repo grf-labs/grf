@@ -9,3 +9,5 @@ _This folder has replication files for the paper "Estimating heterogeneous treat
 * Figure 2: `blp_simulation.R`
 
 * Figure 3, Figure 4, and Table 4: `hiv.R`
+
+These scripts were run using R version 3.6 and grf v1.2.0.0 (development). They rely on the additional packages: `"ggplot", "lmtest", "randomForestSRC", "speff2trial", "survival", "texreg", "xtable"`.
