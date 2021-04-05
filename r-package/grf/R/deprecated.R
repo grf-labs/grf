@@ -38,7 +38,7 @@ average_partial_effect <- function(forest, ...) {
 #'
 #' @export
 tune_regression_forest <- function(X, Y, ...) {
-  stop("This function has been removed after version 1.2.0.")
+  stop("This function has been removed after version 1.2.0. To tune a regression_forest see the `tune.parameters` argument in that forest.")
 }
 
 #' Causal forest tuning (removed)
@@ -56,7 +56,7 @@ tune_regression_forest <- function(X, Y, ...) {
 #'
 #' @export
 tune_causal_forest <- function(X, Y, W, Y.hat, W.hat, ...) {
-  stop("This function has been removed after version 1.2.0.")
+  stop("This function has been removed after version 1.2.0. To tune a causal_forest see the `tune.parameters` argument in that forest.")
 }
 
 #' Instrumental forest tuning (removed)
@@ -76,7 +76,7 @@ tune_causal_forest <- function(X, Y, W, Y.hat, W.hat, ...) {
 #'
 #' @export
 tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat, ...) {
-  stop("This function has been removed after version 1.2.0.")
+  stop("This function has been removed after version 1.2.0. To tune an instrumental_forest see the `tune.parameters` argument in that forest.")
 }
 
 #' Custom forest (removed)
@@ -90,5 +90,5 @@ tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat, ...) {
 #'
 #' @export
 custom_forest <- function(X, Y, ...) {
-  stop("This function has been removed after version 1.2.0.")
+  stop("This function has been removed after version 1.2.0. For a development template, see existing forests, such as regression_forest, for inspiration.")
 }

@@ -30,7 +30,7 @@ we run a locally weighted linear regression on the included variables.
 Please note that this is a beta feature still in development, and may slow down
 prediction considerably. Defaults to NULL.}
 
-\item{ll.lambda}{Ridge penalty for local linear predictions}
+\item{ll.lambda}{Ridge penalty for local linear predictions. Defaults to NULL and will be cross-validated.}
 
 \item{ll.weight.penalty}{Option to standardize ridge penalty by covariance (TRUE),
 or penalize all covariates equally (FALSE). Defaults to FALSE.}
