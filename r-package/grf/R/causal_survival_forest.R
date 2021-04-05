@@ -219,12 +219,11 @@ causal_survival_forest <- function(X, Y, W, D,
     Y.grid <- failure.times
   }
   Y.relabeled <- findInterval(Y, Y.grid)
-  num.events <- length(Y.grid)
   num.samples <- nrow(X)
-  if (num.events <= 2) {
+  if (length(Y.grid) <= 2) {
     stop("The number of distinct event times should be more than 2.")
   }
-  if (num.samples > 5000 && num.events / num.samples > 0.1) {
+  if (num.samples > 5000 && length(Y.grid) / num.samples > 0.1) {
     warning(paste0("The number of events are more than 10% of the sample size. ",
                    "To reduce the computational burden of fitting survival and ",
                    "censoring curves, consider rounding the event values `Y` or ",
@@ -318,7 +317,7 @@ causal_survival_forest <- function(X, Y, W, D,
     S.hat <- predict(sf.survival, failure.times = Y.grid)$predictions
   } else if (NROW(S.hat) != num.samples) {
     stop("S.hat has incorrect length.")
-  } else if (NCOL(S.hat) != num.events) {
+  } else if (NCOL(S.hat) != length(Y.grid)) {
     stop("S.hat has incorrect number of columns (should be equal to the number of events).")
   }
 
@@ -328,7 +327,7 @@ causal_survival_forest <- function(X, Y, W, D,
     C.hat <- predict(sf.censor, failure.times = Y.grid)$predictions
   } else if (NROW(C.hat) != num.samples) {
     stop("C.hat has incorrect length.")
-  } else if (NCOL(C.hat) != num.events) {
+  } else if (NCOL(C.hat) != length(Y.grid)) {
     stop("C.hat has incorrect number of columns (should be equal to the number of events).")
   }
 
