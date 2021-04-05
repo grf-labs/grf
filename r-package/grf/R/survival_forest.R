@@ -142,10 +142,9 @@ survival_forest <- function(X, Y, D,
   }
 
   # Relabel the times to consecutive integers such that:
-  # if the failure time is less than the smallest failure time: set it to 0
-  # if the failure time is above the latter, but less than the second smallest failure time: set it to 1
+  # if the event time is less than the smallest failure time: set it to 0
+  # if the event time is above the latter, but less than the second smallest failure time: set it to 1
   # etc. Will range from 0 to num.failures.
-  # (Entry 0 is for time k < t1)
   if (is.null(failure.times)) {
     failure.times <- sort(unique(Y[D == 1]))
   }
