@@ -8,7 +8,7 @@
 #' @param args The remaining call arguments for the forest.
 #' @param tune.parameters The vector of parameter names to tune.
 #' @param tune.parameters.defaults The grf default values for the vector of parameter names to tune.
-#' @param num.fit.trees The number of trees in each 'mini forest' used to fit the tuning model.
+#' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param num.fit.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'  to select the optimal parameters.
@@ -25,12 +25,12 @@ tune_forest <- function(data,
                         args,
                         tune.parameters,
                         tune.parameters.defaults,
-                        num.fit.trees,
+                        tune.num.trees,
                         num.fit.reps,
                         num.optimize.reps,
                         train) {
   fit.parameters <- args[!names(args) %in% tune.parameters]
-  fit.parameters[["num.trees"]] <- num.fit.trees
+  fit.parameters[["num.trees"]] <- tune.num.trees
   fit.parameters[["ci.group.size"]] <- 1
   fit.parameters[["compute.oob.predictions"]] <- TRUE
 
@@ -50,7 +50,7 @@ tune_forest <- function(data,
   if (any(is.na(small.forest.errors))) {
     warning(paste0(
       "Could not tune forest because some small forest error estimates were NA.\n",
-      "Consider increasing tuning argument num.fit.trees."))
+      "Consider increasing tuning argument tune.num.trees."))
     out <- get_tuning_output(params = c(tune.parameters.defaults), status = "failure")
     return(out)
   }
@@ -58,7 +58,7 @@ tune_forest <- function(data,
   if (sd(small.forest.errors) == 0 || sd(small.forest.errors) / mean(small.forest.errors) < 1e-10) {
     warning(paste0(
       "Could not tune forest because small forest errors were nearly constant.\n",
-      "Consider increasing argument num.fit.trees."))
+      "Consider increasing argument tune.num.trees."))
     out <- get_tuning_output(params = c(tune.parameters.defaults), status = "failure")
     return(out)
   }
@@ -100,7 +100,7 @@ tune_forest <- function(data,
 
   # To avoid the possibility of selection bias, re-train a moderately-sized forest
   # at the value chosen by the method above
-  fit.parameters[["num.trees"]] <- num.fit.trees * 4
+  fit.parameters[["num.trees"]] <- tune.num.trees * 4
   retrained.forest.params <- grid[small.forest.optimal.draw, -1]
   retrained.forest <- do.call.rcpp(train, c(data, fit.parameters, retrained.forest.params))
   retrained.forest.error <- mean(retrained.forest$debiased.error, na.rm = TRUE)
