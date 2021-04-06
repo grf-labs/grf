@@ -89,13 +89,13 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
   predictions.reserve(num_samples);
 
   for (size_t sample = start; sample < num_samples + start; ++sample) {
-    std::unordered_map<size_t, double> weights_by_sample = weight_computer.compute_weights(
-        sample, forest, leaf_nodes_by_tree, valid_trees_by_sample);
+    Eigen::SparseVector<double> weights_by_sample = weight_computer.compute_weights(
+        sample, forest, leaf_nodes_by_tree, valid_trees_by_sample, train_data);
     std::vector<std::vector<size_t>> samples_by_tree;
 
     // If this sample has no neighbors, then return placeholder predictions. Note
     // that this can only occur when honesty is enabled, and is expected to be rare.
-    if (weights_by_sample.empty()) {
+    if (weights_by_sample.nonZeros() == 0) {
       std::vector<double> nan(strategy->prediction_length(), NAN);
       std::vector<double> empty;
       predictions.emplace_back(nan, estimate_variance ? nan : empty, empty, empty);

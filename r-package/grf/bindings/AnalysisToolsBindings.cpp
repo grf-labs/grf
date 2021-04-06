@@ -77,11 +77,11 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
   Eigen::SparseMatrix<double> result(num_samples, num_neighbors);
 
   for (size_t sample = 0; sample < num_samples; sample++) {
-    std::unordered_map<size_t, double> weights = weight_computer.compute_weights(
-        sample, forest, leaf_nodes_by_tree, trees_by_sample);
-    for (auto it = weights.begin(); it != weights.end(); it++) {
-      size_t neighbor = it->first;
-      double weight = it->second;
+    Eigen::SparseVector<double> weights = weight_computer.compute_weights(
+        sample, forest, leaf_nodes_by_tree, trees_by_sample, *train_data);
+    for (Eigen::SparseVector<double>::InnerIterator it(weights); it; ++it) {
+      size_t neighbor = it.index();
+      double weight = it.value();
       triplet_list.emplace_back(sample, neighbor, weight);
     }
   }

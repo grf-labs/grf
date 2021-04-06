@@ -18,9 +18,9 @@
 #ifndef GRF_DEFAULTPREDICTIONSTRATEGY_H
 #define GRF_DEFAULTPREDICTIONSTRATEGY_H
 
-#include <unordered_map>
 #include <vector>
 
+#include "Eigen/Sparse"
 #include "commons/globals.h"
 #include "commons/Data.h"
 #include "prediction/Prediction.h"
@@ -45,7 +45,7 @@ public:
    */
   virtual size_t prediction_length() const = 0;
 
-  /**
+  /** // TODO UPDATE WITH A DESCRIPTION of Eigen::SparseVector<double>& weights_by_sample protocol
    * Computes a prediction for a single test sample.
    *
    * sample: the ID of the test sample.
@@ -57,7 +57,7 @@ public:
    *     be the same as the training matrix.
    */
   virtual std::vector<double> predict(size_t sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
+    const Eigen::SparseVector<double>& weights_by_sample,
     const Data& train_data,
     const Data& data) const = 0;
 
@@ -79,7 +79,7 @@ public:
   virtual std::vector<double> compute_variance(
       size_t sample,
       const std::vector<std::vector<size_t>>& samples_by_tree,
-      const std::unordered_map<size_t, double>& weights_by_sampleID,
+      const Eigen::SparseVector<double>& weights_by_sampleID,
       const Data& train_data,
       const Data& data,
       size_t ci_group_size) const = 0;

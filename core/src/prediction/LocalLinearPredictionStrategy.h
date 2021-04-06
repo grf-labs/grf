@@ -46,14 +46,14 @@ public:
     *   output predictions along each of these parameters.
     */
     std::vector<double> predict(size_t sampleID,
-                                const std::unordered_map<size_t, double>& weights_by_sampleID,
+                                const Eigen::SparseVector<double>& weights_by_sampleID,
                                 const Data& train_data,
                                 const Data& data) const;
 
     std::vector<double> compute_variance(
         size_t sampleID,
         const std::vector<std::vector<size_t>>& samples_by_tree,
-        const std::unordered_map<size_t, double>& weights_by_sampleID,
+        const Eigen::SparseVector<double>& weights_by_sampleID,
         const Data& train_data,
         const Data& data,
         size_t ci_group_size) const;
