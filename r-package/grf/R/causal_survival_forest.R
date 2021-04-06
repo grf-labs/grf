@@ -524,7 +524,7 @@ compute_eta <- function(S.hat,
                         D,
                         m.hat,
                         W.centered) {
-  # The event time values relabeled to consecutive integers 1 to length(Y.grid).
+  # The event time values relabeled to consecutive integers 0/1 to length(Y.grid).
   Y.relabeled <- findInterval(Y, Y.grid)
   # S.hat and C.hat will have the same dimensions,
   # they are survival estimates corresponding to the same grid Y.grid.
