@@ -218,7 +218,6 @@ causal_survival_forest <- function(X, Y, W, D,
   } else {
     Y.grid <- failure.times
   }
-  Y.relabeled <- findInterval(Y, Y.grid)
   if (length(Y.grid) <= 2) {
     stop("The number of distinct event times should be more than 2.")
   }
@@ -348,7 +347,7 @@ causal_survival_forest <- function(X, Y, W, D,
   }
 
   # Compute the pseudo outcomes
-  eta <- compute_eta(S.hat, C.hat, lambda.C.hat, Y.grid, Y, Y.relabeled, D, m.hat, W.centered)
+  eta <- compute_eta(S.hat, C.hat, lambda.C.hat, Y.grid, Y, D, m.hat, W.centered)
   validate_observations(eta[["numerator"]], X)
   validate_observations(eta[["denominator"]], X)
 
@@ -512,7 +511,6 @@ predict.causal_survival_forest <- function(object,
 #' @param lambda.C.hat Estimates of the conditional hazard function for the censoring process S_C(t, x, w).
 #' @param Y.grid The time values corresponding to S.hat and C.hat.
 #' @param Y The event times.
-#' @param Y.relabeled The event time values relabeled to consecutive integers 1 to length(Y.grid).
 #' @param D The censoring indicator.
 #' @param m.hat Estimates of m(X).
 #' @param W.centered W - W.hat.
@@ -523,10 +521,11 @@ compute_eta <- function(S.hat,
                         lambda.C.hat,
                         Y.grid,
                         Y,
-                        Y.relabeled,
                         D,
                         m.hat,
                         W.centered) {
+  # The event time values relabeled to consecutive integers 1 to length(Y.grid).
+  Y.relabeled <- findInterval(Y, Y.grid)
   # S.hat and C.hat will have the same dimensions,
   # they are survival estimates corresponding to the same grid Y.grid.
   num.samples <- nrow(S.hat)
