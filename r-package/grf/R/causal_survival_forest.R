@@ -277,7 +277,7 @@ causal_survival_forest <- function(X, Y, W, D,
   # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
   if (is.null(E1.hat)) {
     sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
-    S1.failure.times <- S0.failure.times <- S.failure.times <- sf.survival$failure.times
+    S1.failure.times <- S0.failure.times <- sf.survival$failure.times
     # Computing OOB estimates for modified training samples is not a workflow we have implemented,
     # so we do it with a manual workaround here. Note that compute.oob.predictions has to be FALSE.
     X.orig <- sf.survival[["X.orig"]]
@@ -293,7 +293,7 @@ causal_survival_forest <- function(X, Y, W, D,
   if (is.null(E0.hat)) {
     if (!exists("sf.survival", inherits = FALSE)) {
       sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
-      S0.failure.times <- S.failure.times <- sf.survival$failure.times
+      S0.failure.times <- sf.survival$failure.times
     }
     X.orig <- sf.survival[["X.orig"]]
     sf.survival[["X.orig"]] <- cbind(X, rep(0, nrow(X)))
@@ -310,7 +310,6 @@ causal_survival_forest <- function(X, Y, W, D,
   if (is.null(S.hat)) {
     if (!exists("sf.survival", inherits = FALSE)) {
       sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
-      S.failure.times <- sf.survival$failure.times
     }
     # We want the predicted survival curves S.hat and C.hat on the common grid Y.grid:
     S.hat <- predict(sf.survival, failure.times = Y.grid)$predictions
