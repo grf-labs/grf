@@ -29,6 +29,7 @@ Eigen::SparseVector<double> SampleWeightComputer::compute_weights(size_t sample,
   Eigen::VectorXd weights_by_sample = Eigen::VectorXd::Zero(train_data.get_num_rows());
   double total_weight = 0;
 
+  // Create a list of weighted neighbors for this sample.
   for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
     if (!valid_trees_by_sample[sample][tree_index]) {
       continue;
