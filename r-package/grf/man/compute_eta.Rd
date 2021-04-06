@@ -5,17 +5,7 @@
 \title{Compute pseudo outcomes (based on the influence function of tau(X) for each unit)
 used for CART splitting.}
 \usage{
-compute_eta(
-  S.hat,
-  C.hat,
-  lambda.C.hat,
-  Y.grid,
-  Y,
-  Y.relabeled,
-  D,
-  m.hat,
-  W.centered
-)
+compute_eta(S.hat, C.hat, lambda.C.hat, Y.grid, Y, D, m.hat, W.centered)
 }
 \arguments{
 \item{S.hat}{Estimates of the conditional survival function S(t, x, w).}
@@ -27,8 +17,6 @@ compute_eta(
 \item{Y.grid}{The time values corresponding to S.hat and C.hat.}
 
 \item{Y}{The event times.}
-
-\item{Y.relabeled}{The event time values relabeled to consecutive integers 1 to length(Y.grid).}
 
 \item{D}{The censoring indicator.}
 
