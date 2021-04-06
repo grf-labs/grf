@@ -12,7 +12,7 @@ tune_forest(
   tune.parameters,
   tune.parameters.defaults,
   tune.num.trees,
-  num.fit.reps,
+  tune.num.reps,
   num.optimize.reps,
   train
 )
@@ -32,7 +32,7 @@ tune_forest(
 
 \item{tune.num.trees}{The number of trees in each 'mini forest' used to fit the tuning model.}
 
-\item{num.fit.reps}{The number of forests used to fit the tuning model.}
+\item{tune.num.reps}{The number of forests used to fit the tuning model.}
 
 \item{num.optimize.reps}{The number of random parameter values considered when using the model
 to select the optimal parameters.}

@@ -9,7 +9,7 @@
 #' @param tune.parameters The vector of parameter names to tune.
 #' @param tune.parameters.defaults The grf default values for the vector of parameter names to tune.
 #' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model.
-#' @param num.fit.reps The number of forests used to fit the tuning model.
+#' @param tune.num.reps The number of forests used to fit the tuning model.
 #' @param num.optimize.reps The number of random parameter values considered when using the model
 #'  to select the optimal parameters.
 #' @param train The grf forest training function.
@@ -26,7 +26,7 @@ tune_forest <- function(data,
                         tune.parameters,
                         tune.parameters.defaults,
                         tune.num.trees,
-                        num.fit.reps,
+                        tune.num.reps,
                         num.optimize.reps,
                         train) {
   fit.parameters <- args[!names(args) %in% tune.parameters]
@@ -36,8 +36,8 @@ tune_forest <- function(data,
 
   # 1. Train several mini-forests, and gather their debiased OOB error estimates.
   num.params <- length(tune.parameters)
-  unif <- with_seed(runif(num.fit.reps * num.params), seed = args$seed)
-  fit.draws <- matrix(unif, num.fit.reps, num.params,
+  unif <- with_seed(runif(tune.num.reps * num.params), seed = args$seed)
+  fit.draws <- matrix(unif, tune.num.reps, num.params,
                       dimnames = list(NULL, tune.parameters))
 
   small.forest.errors <- apply(fit.draws, 1, function(draw) {

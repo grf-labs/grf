@@ -160,7 +160,7 @@ regression_forest <- function(X, Y,
                                  tune.parameters = tune.parameters,
                                  tune.parameters.defaults = tune.parameters.defaults,
                                  tune.num.trees = tune.num.trees,
-                                 num.fit.reps = tune.num.reps,
+                                 tune.num.reps = tune.num.reps,
                                  num.optimize.reps = tune.num.draws,
                                  train = regression_train)
 
