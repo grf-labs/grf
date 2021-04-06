@@ -161,7 +161,7 @@ regression_forest <- function(X, Y,
                                  tune.parameters.defaults = tune.parameters.defaults,
                                  tune.num.trees = tune.num.trees,
                                  tune.num.reps = tune.num.reps,
-                                 num.optimize.reps = tune.num.draws,
+                                 tune.num.draws = tune.num.draws,
                                  train = regression_train)
 
     args <- modifyList(args, as.list(tuning.output[["params"]]))

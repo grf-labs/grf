@@ -13,7 +13,7 @@ tune_forest(
   tune.parameters.defaults,
   tune.num.trees,
   tune.num.reps,
-  num.optimize.reps,
+  tune.num.draws,
   train
 )
 }
@@ -34,7 +34,7 @@ tune_forest(
 
 \item{tune.num.reps}{The number of forests used to fit the tuning model.}
 
-\item{num.optimize.reps}{The number of random parameter values considered when using the model
+\item{tune.num.draws}{The number of random parameter values considered when using the model
 to select the optimal parameters.}
 
 \item{train}{The grf forest training function.}

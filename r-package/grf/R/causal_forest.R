@@ -263,7 +263,7 @@ causal_forest <- function(X, Y, W,
                                  tune.parameters.defaults = tune.parameters.defaults,
                                  tune.num.trees = tune.num.trees,
                                  tune.num.reps = tune.num.reps,
-                                 num.optimize.reps = tune.num.draws,
+                                 tune.num.draws = tune.num.draws,
                                  train = causal_train)
 
     args <- modifyList(args, as.list(tuning.output[["params"]]))

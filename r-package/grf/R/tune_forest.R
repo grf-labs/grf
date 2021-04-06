@@ -10,7 +10,7 @@
 #' @param tune.parameters.defaults The grf default values for the vector of parameter names to tune.
 #' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model.
 #' @param tune.num.reps The number of forests used to fit the tuning model.
-#' @param num.optimize.reps The number of random parameter values considered when using the model
+#' @param tune.num.draws The number of random parameter values considered when using the model
 #'  to select the optimal parameters.
 #' @param train The grf forest training function.
 #'
@@ -27,7 +27,7 @@ tune_forest <- function(data,
                         tune.parameters.defaults,
                         tune.num.trees,
                         tune.num.reps,
-                        num.optimize.reps,
+                        tune.num.draws,
                         train) {
   fit.parameters <- args[!names(args) %in% tune.parameters]
   fit.parameters[["num.trees"]] <- tune.num.trees
@@ -90,8 +90,8 @@ tune_forest <- function(data,
 
   # 3. To determine the optimal parameter values, predict using the kriging model at a large
   # number of random values, then select those that produced the lowest error.
-  unif <- with_seed(runif(num.optimize.reps * num.params), seed = args$seed)
-  optimize.draws <- matrix(unif, num.optimize.reps, num.params,
+  unif <- with_seed(runif(tune.num.draws * num.params), seed = args$seed)
+  optimize.draws <- matrix(unif, tune.num.draws, num.params,
                            dimnames = list(NULL, tune.parameters))
   model.surface <- predict(kriging.model, newdata = data.frame(optimize.draws), type = "SK")$mean
   tuned.params <- get_params_from_draw(nrow.X, ncol.X, optimize.draws)
