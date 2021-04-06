@@ -229,9 +229,9 @@ instrumental_forest <- function(X, Y, W, Z,
                                  args = args,
                                  tune.parameters = tune.parameters,
                                  tune.parameters.defaults = tune.parameters.defaults,
-                                 num.fit.trees = tune.num.trees,
-                                 num.fit.reps = tune.num.reps,
-                                 num.optimize.reps = tune.num.draws,
+                                 tune.num.trees = tune.num.trees,
+                                 tune.num.reps = tune.num.reps,
+                                 tune.num.draws = tune.num.draws,
                                  train = instrumental_train)
 
     args <- modifyList(args, as.list(tuning.output[["params"]]))

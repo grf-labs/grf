@@ -11,9 +11,9 @@ tune_forest(
   args,
   tune.parameters,
   tune.parameters.defaults,
-  num.fit.trees,
-  num.fit.reps,
-  num.optimize.reps,
+  tune.num.trees,
+  tune.num.reps,
+  tune.num.draws,
   train
 )
 }
@@ -30,11 +30,11 @@ tune_forest(
 
 \item{tune.parameters.defaults}{The grf default values for the vector of parameter names to tune.}
 
-\item{num.fit.trees}{The number of trees in each 'mini forest' used to fit the tuning model.}
+\item{tune.num.trees}{The number of trees in each 'mini forest' used to fit the tuning model.}
 
-\item{num.fit.reps}{The number of forests used to fit the tuning model.}
+\item{tune.num.reps}{The number of forests used to fit the tuning model.}
 
-\item{num.optimize.reps}{The number of random parameter values considered when using the model
+\item{tune.num.draws}{The number of random parameter values considered when using the model
 to select the optimal parameters.}
 
 \item{train}{The grf forest training function.}
