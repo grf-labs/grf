@@ -72,6 +72,7 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   size_t num_types = 0;
 
   for (size_t t = 0; t < num_trees; t++) {
+    // Destructively iterate over the forest by moving the unique_ptr to each tree.
     std::unique_ptr<Tree> tree = std::move(forest.get_trees_().at(t));
     root_nodes[t] = tree->get_root_node();
     child_nodes[t] = tree->get_child_nodes();

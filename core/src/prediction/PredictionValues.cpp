@@ -55,10 +55,4 @@ const size_t PredictionValues::get_num_types() const {
   return num_types;
 }
 
-void PredictionValues::clear() {
-  num_nodes = 0;
-  num_types = 0;
-  values.clear();
-}
-
 } // namespace grf
