@@ -141,8 +141,8 @@ PredictionValues CausalSurvivalPredictionStrategy::precompute_prediction_values(
       continue;
     }
 
-    value[NUMERATOR] = numerator_sum / sum_weight;
-    value[DENOMINATOR] = denominator_sum / sum_weight;
+    value[NUMERATOR] = numerator_sum / leaf_size;
+    value[DENOMINATOR] = denominator_sum / leaf_size;
   }
 
   return PredictionValues(values, NUM_TYPES);
