@@ -42,7 +42,7 @@
 #' @param X The covariates.
 #' @param Y The event time (may be negative).
 #' @param W The treatment assignment (must be a binary vector with no NAs).
-#' @param D The event type (0: censoring, 1: failure).
+#' @param D The event type (0: censored, 1: failure).
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest. Default is NULL.
 #' @param E1.hat Estimates of the expected survival time conditional on being treated

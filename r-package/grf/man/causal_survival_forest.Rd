@@ -43,7 +43,7 @@ causal_survival_forest(
 
 \item{W}{The treatment assignment (must be a binary vector with no NAs).}
 
-\item{D}{The event type (0: censoring, 1: failure).}
+\item{D}{The event type (0: censored, 1: failure).}
 
 \item{W.hat}{Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 these are estimated using a separate regression forest. Default is NULL.}
