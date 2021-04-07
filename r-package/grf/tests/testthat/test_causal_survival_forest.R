@@ -19,6 +19,30 @@ test_that("causal survival forest is well-calibrated", {
   expect_true(mse.test < 0.01)
 })
 
+test_that("causal survival forest predictions are kernel weighted correctly", {
+  # Test that the sufficient statistic approach to solving the forest weighted
+  # estimating equation is internally consistent.
+  n <- 250
+  p <- 5
+  data <- generate_survival_data(n, p, Y.max = 1, n.mc = 1, dgp = "simple1")
+  sample.weights <- sample(c(1, 10), n, TRUE)
+  cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 250)
+  cs.forest.weighted <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 250, sample.weights = sample.weights)
+  x1 <- data$X[1, , drop = FALSE]
+  cs.pred <- predict(cs.forest, x1)$predictions
+  cs.pred.weighted <- predict(cs.forest.weighted, x1)$predictions
+  forest.weights <- get_sample_weights(cs.forest, x1)[1, ]
+  forest.weights.weighted <- get_sample_weights(cs.forest.weighted, x1)[1, ]
+
+  theta1 <- sum(forest.weights * cs.forest$eta$numerator) /
+    sum(forest.weights * cs.forest$eta$denominator)
+  theta1.weighted <- sum(forest.weights.weighted * sample.weights * cs.forest.weighted$eta$numerator) /
+    sum(forest.weights.weighted * sample.weights * cs.forest.weighted$eta$denominator)
+
+  expect_equal(cs.pred, theta1)
+  expect_equal(cs.pred.weighted, theta1.weighted)
+})
+
 test_that("causal survival forest variance estimates are decent", {
   n <- 1000
   p <- 5
@@ -26,23 +50,29 @@ test_that("causal survival forest variance estimates are decent", {
   true.effect <- data$cate
   cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
   cs.pred <- predict(cs.forest, estimate.variance = TRUE)
-
   ub.oob <- cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates)
   lb.oob <- cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates)
   cate.coverage.oob <- mean(lb.oob < true.effect & true.effect < ub.oob)
+  expect_true(cate.coverage.oob >= 0.65)
 
   X.test <- matrix(0.5, 10, p)
   X.test[, 1] <- seq(0, 1, length.out = 10)
-  true.effect.test <- rep(NA, 10)
   true.effect.test <- generate_survival_data(10, p, Y.max = 1, X = X.test, n.mc = 5000, dgp = "simple1")$cate
   cs.pred.test <- predict(cs.forest, X.test, estimate.variance = TRUE)
 
   ub.test <- cs.pred.test$predictions + 2 * sqrt(cs.pred.test$variance.estimates)
   lb.test <- cs.pred.test$predictions - 2 * sqrt(cs.pred.test$variance.estimates)
   cate.coverage.test <- mean(lb.test < true.effect.test & true.effect.test < ub.test)
-
-  expect_true(cate.coverage.oob >= 0.65)
   expect_true(cate.coverage.test >= 0.65)
+
+  # Duplicate some samples
+  sample.weights <- sample(c(1, 2), n, TRUE)
+  cs.forest.weighted <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500, sample.weights = sample.weights)
+  cs.pred.weighted <- predict(cs.forest.weighted, estimate.variance = TRUE)
+  ub.oob.weighted <- cs.pred.weighted$predictions + 2 * sqrt(cs.pred.weighted$variance.estimates)
+  lb.oob.weighted <- cs.pred.weighted$predictions - 2 * sqrt(cs.pred.weighted$variance.estimates)
+  cate.coverage.oob.weighted <- mean(lb.oob.weighted < true.effect & true.effect < ub.oob.weighted)
+  expect_true(cate.coverage.oob.weighted >= 0.65)
 })
 
 test_that("sample weighted causal survival forest is invariant to scaling", {
