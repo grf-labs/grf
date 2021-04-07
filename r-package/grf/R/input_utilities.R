@@ -21,7 +21,7 @@ validate_X <- function(X, allow.na = FALSE) {
     ))
   }
 
-  has.missing.values <- any(is.na(X))
+  has.missing.values <- anyNA(X)
 
   if (!allow.na && has.missing.values) {
     stop("The feature matrix X contains at least one NA.")
@@ -52,7 +52,7 @@ validate_observations <- function(V, X, allow.matrix = FALSE) {
     ))
   }
 
-  if (any(is.na(V))) {
+  if (anyNA(V)) {
     stop("The vector of observations (W, Y, Z or D) contains at least one NA.")
   }
 
