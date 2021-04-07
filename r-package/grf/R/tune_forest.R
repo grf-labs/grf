@@ -47,7 +47,7 @@ tune_forest <- function(data,
     mean(error, na.rm = TRUE)
   })
 
-  if (any(is.na(small.forest.errors))) {
+  if (anyNA(small.forest.errors)) {
     warning(paste0(
       "Could not tune forest because some small forest error estimates were NA.\n",
       "Consider increasing tuning argument tune.num.trees."))
