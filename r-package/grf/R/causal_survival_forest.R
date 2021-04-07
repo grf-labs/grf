@@ -207,10 +207,10 @@ causal_survival_forest <- function(X, Y, W, D,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
-  if(!all(W %in% c(0, 1))) {
+  if (!all(W %in% c(0, 1))) {
     stop("The treatment values can only be 0 or 1.")
   }
-  if(!all(D %in% c(0, 1))) {
+  if (!all(D %in% c(0, 1))) {
     stop("The censor values can only be 0 or 1.")
   }
   if (all(D == 0)) {
