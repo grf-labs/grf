@@ -213,6 +213,9 @@ causal_survival_forest <- function(X, Y, W, D,
   if(!all(D %in% c(0, 1))) {
     stop("The censor values can only be 0 or 1.")
   }
+  if (all(D == 0)) {
+    stop("All observations are censored.")
+  }
   if (is.null(failure.times)) {
     Y.grid <- sort(unique(Y))
   } else {
