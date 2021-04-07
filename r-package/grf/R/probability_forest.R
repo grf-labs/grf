@@ -104,7 +104,7 @@ probability_forest <- function(X, Y,
   if (length(Y) != nrow(X)) {
     stop("length of observations Y does not equal nrow(X).")
   }
-  if (any(is.na(Y))) {
+  if (anyNA(Y)) {
     stop("The vector of observations contains at least one NA.")
   }
   if (!is.factor(Y)) {

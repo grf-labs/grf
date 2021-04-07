@@ -194,7 +194,7 @@ multi_arm_causal_forest <- function(X, Y, W,
   if (length(W) != nrow(X)) {
     stop("length of observation (W, Y, Z or D) does not equal nrow(X).")
   }
-  if (any(is.na(W))) {
+  if (anyNA(W)) {
     stop("The vector of observations (W, Y, Z or D) contains at least one NA.")
   }
   if (!is.factor(W)) {
