@@ -19,6 +19,30 @@ test_that("causal survival forest is well-calibrated", {
   expect_true(mse.test < 0.01)
 })
 
+test_that("causal survival forest predictions are kernel weighted correctly", {
+  # Test that the sufficient statistic approach to solving the forest weighted
+  # estimating equation is internally consistent.
+  n <- 250
+  p <- 5
+  data <- generate_survival_data(n, p, Y.max = 1, n.mc = 1, dgp = "simple1")
+  sample.weights <- sample(c(1, 10), n, TRUE)
+  cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 250)
+  cs.forest.weighted <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 250, sample.weights = sample.weights)
+  x1 <- data$X[1, , drop = FALSE]
+  cs.pred <- predict(cs.forest, x1)$predictions
+  cs.pred.weighted <- predict(cs.forest.weighted, x1)$predictions
+  forest.weights <- get_sample_weights(cs.forest, x1)[1, ]
+  forest.weights.weighted <- get_sample_weights(cs.forest.weighted, x1)[1, ]
+
+  theta1 <- sum(forest.weights * cs.forest$eta$numerator) /
+    sum(forest.weights * cs.forest$eta$denominator)
+  theta1.weighted <- sum(forest.weights.weighted * sample.weights * cs.forest.weighted$eta$numerator) /
+    sum(forest.weights.weighted * sample.weights * cs.forest.weighted$eta$denominator)
+
+  expect_equal(cs.pred, theta1)
+  expect_equal(cs.pred.weighted, theta1.weighted)
+})
+
 test_that("causal survival forest variance estimates are decent", {
   n <- 1000
   p <- 5
