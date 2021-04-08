@@ -120,7 +120,7 @@
 #' # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
 #' mc.pred <- predict(mc.forest)
 #' # Fitting several outcomes jointly is supported, and the returned prediction array
-#' # has dimension num.samples * num.contrasts * num.outcomes. Since num.outcomes is
+#' # has dimension [num.samples, num.contrasts, num.outcomes]. Since num.outcomes is
 #' # one in this example, we can drop this singleton dimension using `[,,]`.
 #' tau.hat <- mc.pred$predictions[,,]
 #'
@@ -299,7 +299,7 @@ multi_arm_causal_forest <- function(X, Y, W,
 #'                          only supported for univariate outcomes Y.
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return A list with elements `predictions`: a 3d array of dimension (num.samples * K-1 * M) with
+#' @return A list with elements `predictions`: a 3d array of dimension [num.samples, K-1, M] with
 #' predictions for each contrast, for each outcome 1,..,M (singleton dimensions in this array can
 #' be dropped by passing the `drop` argument to `[`, or with the shorthand `$predictions[,,]`),
 #'  and optionally `variance.estimates`: a matrix with K-1 columns with variance estimates for each contrast.
@@ -319,7 +319,7 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
 #' mc.pred <- predict(mc.forest)
 #' # Fitting several outcomes jointly is supported, and the returned prediction array
-#' # has dimension num.samples * num.contrasts * num.outcomes. Since num.outcomes is
+#' # has dimension [num.samples, num.contrasts, num.outcomes]. Since num.outcomes is
 #' # one in this example, we can drop this singleton dimension using `[,,]`.
 #' tau.hat <- mc.pred$predictions[,,]
 #'
