@@ -203,7 +203,6 @@ multi_arm_causal_forest <- function(X, Y, W,
   if (nlevels(W) == 1) {
     stop("Can not compute contrasts from a single treatment.")
   }
-  W.matrix <- stats::model.matrix(~ W - 1)
 
   args.orthog <- list(X = X,
                      num.trees = max(50, num.trees / 4),
@@ -242,6 +241,7 @@ multi_arm_causal_forest <- function(X, Y, W,
     stop("W.hat has incorrect dimensions: should be a matrix of propensities for each (observation, arm).")
   }
 
+  W.matrix <- stats::model.matrix(~ W - 1)
   Y.centered <- Y - Y.hat
   W.centered <- W.matrix - W.hat
   data <- create_train_matrices(X,
