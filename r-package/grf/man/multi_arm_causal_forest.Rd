@@ -166,7 +166,7 @@ mc.forest <- multi_arm_causal_forest(X, Y, W)
 # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
 mc.pred <- predict(mc.forest)
 # Fitting several outcomes jointly is supported, and the returned prediction array
-# has dimension num.samples * num.contrasts * num.outcomes. Since num.outcomes is
+# has dimension [num.samples, num.contrasts, num.outcomes]. Since num.outcomes is
 # one in this example, we can drop this singleton dimension using `[,,]`.
 tau.hat <- mc.pred$predictions[,,]
 
