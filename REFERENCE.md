@@ -222,7 +222,7 @@ The accuracy of a forest can be sensitive to several training parameters:
 - the parameters that control honesty behavior `honesty.fraction` and `honesty.prune.leaves`
 - the split balance parameters `alpha` and `imbalance.penalty`
 
-GRF provides a cross-validation procedure to select values of these parameters to use in training. To enable this tuning during training, the option `tune.parameters = "all"` can be passed to main forest method.
+GRF provides a cross-validation procedure to select values of these parameters to use in training. To enable this tuning during training, the option `tune.parameters = "all"` can be passed to main forest method. The cross-validation methods can also be called directly through `tune_regression_forest` and `tune_causal_forest`. Parameter tuning is currently disabled by default.
 
 The cross-validation procedure works as follows:
 - Draw a number of random points in the space of possible parameter values. By default, 100 distinct sets of parameter values are chosen (`tune.num.reps`).
