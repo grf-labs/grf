@@ -37,10 +37,13 @@ std::vector<double> QuantilePredictionStrategy::predict(
     const Eigen::SparseVector<double>& weights_by_sample,
     const Data& train_data,
     const Data& data) const {
-  std::vector<std::pair<size_t, double>> samples_and_values;
+  std::vector< std::pair<size_t, std::pair<double, double>> > samples_and_values;
   for (Eigen::SparseVector<double>::InnerIterator it(weights_by_sample); it; ++it) {
     size_t sample = it.index();
-    samples_and_values.emplace_back(sample, train_data.get_outcome(sample));
+    // samples_and_values.emplace_back(sample, train_data.get_outcome(sample), it.value());
+    samples_and_values.push_back(
+      std::make_pair( it.index(), std::make_pair (train_data.get_outcome(sample), it.value()) )
+    );
   }
 
   return compute_quantile_cutoffs(weights_by_sample, samples_and_values);
@@ -48,15 +51,15 @@ std::vector<double> QuantilePredictionStrategy::predict(
 
 std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
     const Eigen::SparseVector<double>& weights_by_sample,
-    std::vector<std::pair<size_t, double>>& samples_and_values) const {
+    std::vector< std::pair<size_t, std::pair<double, double>> >& samples_and_values) const {
   std::sort(samples_and_values.begin(),
             samples_and_values.end(),
-            [](std::pair<size_t, double> first_pair, std::pair<size_t, double> second_pair) {
+            [](std::pair<size_t, std::pair<double, double>> first_pair, std::pair<size_t, std::pair<double, double>> second_pair) {
               // Note: we add a tie-breaker here to ensure that this sort consistently produces the
               // same element ordering. Otherwise, different runs of the algorithm could result in
               // different quantile predictions on the same data.
-              return first_pair.second < second_pair.second
-                  || (first_pair.second == second_pair.second && first_pair.first < second_pair.first);
+              return first_pair.second.first < second_pair.second.first
+                  || (first_pair.second.first == second_pair.second.first && first_pair.first < second_pair.first);
             });
 
   std::vector<double> quantile_cutoffs;
@@ -65,16 +68,17 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
 
   for (const auto& entry : samples_and_values) {
     size_t sample = entry.first;
-    double value = entry.second;
+    double value = entry.second.first;
 
-    cumulative_weight += weights_by_sample.coeff(sample);
+    // cumulative_weight += weights_by_sample.coeff(sample);
+    cumulative_weight += entry.second.second;
     while (quantile_it != quantiles.end() && cumulative_weight >= *quantile_it) {
       quantile_cutoffs.push_back(value);
       ++quantile_it;
     }
   }
 
-  double last_value = samples_and_values.back().second;
+  double last_value = samples_and_values.back().second.first;
   for (; quantile_it != quantiles.end(); ++quantile_it) {
     quantile_cutoffs.push_back(last_value);
   }
