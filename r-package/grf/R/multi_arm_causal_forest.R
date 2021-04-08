@@ -381,7 +381,7 @@ predict.multi_arm_causal_forest <- function(object,
   } else {
     colnames(object[["Y.orig"]])
   }
-  # Note the word `num.treatments` is overloaded, in multi_arm_causal_forest's context it means `num.contrasts`
+  # Note the term `num.treatments` is overloaded, in multi_arm_causal_forest's context it means `num.contrasts`
   num.treatments <- length(treatment.names) - 1
   num.outcomes <- length(outcome.names)
   dimnames <- list(NULL, contrast.names, outcome.names)
