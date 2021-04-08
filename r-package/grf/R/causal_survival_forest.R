@@ -285,10 +285,9 @@ causal_survival_forest <- function(X, Y, W, D,
     S1.failure.times <- S0.failure.times <- sf.survival$failure.times
     # Computing OOB estimates for modified training samples is not a workflow we have implemented,
     # so we do it with a manual workaround here. Note that compute.oob.predictions has to be FALSE.
-    X.orig <- sf.survival[["X.orig"]]
-    sf.survival[["X.orig"]] <- cbind(X, rep(1, nrow(X)))
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(1, nrow(X))
     S1.hat <- predict(sf.survival)$predictions
-    sf.survival[["X.orig"]] <- X.orig
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- W
     E1.hat <- expected_survival(S1.hat, S1.failure.times)
   } else if (length(E1.hat) != nrow(X)) {
     stop("E1.hat has incorrect length.")
@@ -300,10 +299,9 @@ causal_survival_forest <- function(X, Y, W, D,
       sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
       S0.failure.times <- sf.survival$failure.times
     }
-    X.orig <- sf.survival[["X.orig"]]
-    sf.survival[["X.orig"]] <- cbind(X, rep(0, nrow(X)))
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(0, nrow(X))
     S0.hat <- predict(sf.survival)$predictions
-    sf.survival[["X.orig"]] <- X.orig
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- W
     E0.hat <- expected_survival(S0.hat, S0.failure.times)
   } else if (length(E0.hat) != nrow(X)) {
     stop("E0.hat has incorrect length.")
