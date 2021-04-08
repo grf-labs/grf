@@ -200,8 +200,7 @@ multi_arm_causal_forest <- function(X, Y, W,
   if (!is.factor(W)) {
     stop("The treatment assignment W must be a factor vector.")
   }
-  num.treatments <- length(levels(W))
-  if (num.treatments == 1) {
+  if (nlevels(W) == 1) {
     stop("Can not compute contrasts from a single treatment.")
   }
   W.matrix <- stats::model.matrix(~ W - 1)
@@ -237,9 +236,9 @@ multi_arm_causal_forest <- function(X, Y, W,
     args.orthog$ci.group.size <- 1
     forest.W <- do.call(probability_forest, c(Y = list(W), args.orthog))
     W.hat <- predict(forest.W)$predictions
-  } else if (length(W.hat) == num.treatments) {
-    W.hat <- matrix(W.hat, nrow = length(W), ncol = num.treatments, byrow = TRUE)
-  } else if ((NROW(W.hat) != nrow(X)) || NCOL(W.hat) != num.treatments) {
+  } else if (length(W.hat) == nlevels(W)) {
+    W.hat <- matrix(W.hat, nrow = length(W), ncol = nlevels(W), byrow = TRUE)
+  } else if ((NROW(W.hat) != nrow(X)) || NCOL(W.hat) != nlevels(W)) {
     stop("W.hat has incorrect dimensions: should be a matrix of propensities for each (observation, arm).")
   }
 
