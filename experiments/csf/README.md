@@ -1,4 +1,4 @@
-_This folder has replication files for the paper "Estimating heterogeneous treatment effects with right-censored data via causal survival forests" by Cui, Kosorok, Sverdrup, Wager, and Zhu._
+_This folder has replication files for the paper "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests" by Cui, Kosorok, Sverdrup, Wager, and Zhu._
 
 * Figure 1: `prediction_comparsion.R`
 
