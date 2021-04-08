@@ -219,6 +219,9 @@ causal_survival_forest <- function(X, Y, W, D,
   if (is.null(failure.times)) {
     Y.grid <- sort(unique(Y))
   } else {
+    if (is.unsorted(failure.times, strictly = TRUE)) {
+      stop("Argument `failure.times` should be a vector with elements in increasing order.")
+    }
     Y.grid <- failure.times
   }
   if (length(Y.grid) <= 2) {
