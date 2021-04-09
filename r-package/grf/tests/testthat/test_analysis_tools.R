@@ -106,7 +106,7 @@ test_that("computing sample weights gives reasonable results", {
 
   rrf <- regression_forest(X, Y, mtry = p)
 
-  sample.weights.oob <- get_sample_weights(rrf)
+  sample.weights.oob <- get_forest_weights(rrf)
   expect_equal(nrow(sample.weights.oob), n)
   expect_equal(ncol(sample.weights.oob), n)
 
@@ -116,7 +116,7 @@ test_that("computing sample weights gives reasonable results", {
   n.test <- 103
   X.test <- matrix(2 * runif(n.test * p) - 1, n.test, p)
 
-  sample.weights <- get_sample_weights(rrf, X.test)
+  sample.weights <- get_forest_weights(rrf, X.test)
   expect_equal(nrow(sample.weights), n.test)
   expect_equal(ncol(sample.weights), n)
 

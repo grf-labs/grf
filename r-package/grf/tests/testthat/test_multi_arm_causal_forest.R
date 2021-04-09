@@ -165,11 +165,11 @@ test_that("multi_arm_causal_forest predictions are kernel weighted correctly", {
   W.matrix <- stats::model.matrix(~ mcf$W.orig - 1)
   x1 <- X[1, , drop = F]
   theta1 <- predict(mcf, x1)$predictions
-  alpha1 <- get_sample_weights(mcf, x1)[1, ]
+  alpha1 <- get_forest_weights(mcf, x1)[1, ]
   theta1.lm <- lm(Y ~ W.matrix[, -1], weights = alpha1)
 
   theta1.weighted <- predict(mcf.weighted, x1)$predictions
-  alpha1.weighted <- get_sample_weights(mcf.weighted, x1)[1, ]
+  alpha1.weighted <- get_forest_weights(mcf.weighted, x1)[1, ]
   theta1.lm.weighted <- lm(Y ~ W.matrix[, -1], weights = alpha1.weighted * sample.weights)
 
   expect_equal(as.numeric(theta1), as.numeric(theta1.lm$coefficients[-1]), tol = 1e-6)
