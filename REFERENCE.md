@@ -195,7 +195,7 @@ In addition to personalized treatment effects, causal forests can be used to est
 The `average_treatment_effect` function implements two types of doubly robust average treatment effect estimations: augmented inverse-propensity weighting (Robins et al., 1994), and targeted maximum likelihood estimation (van der Laan and Rubin, 2006). Which method to use can be specified through the `method` parameter. The following estimates are available:
 - The average treatment effect (`target.sample = all`): `E[Y(1) - Y(0)]`.
 - The average treatment effect on the treated (`target.sample = treated`): `E[Y(1) - Y(0) | Wi = 1]`.
-- The average treatment effect on the controls (`target.sample = control`): : `E[Y(1) - Y(0) | Wi = 0]`.
+- The average treatment effect on the controls (`target.sample = control`): `E[Y(1) - Y(0) | Wi = 0]`.
 - The overlap-weighted average treatment effect (`target.sample = overlap`): `E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X))`, where `e(x) = P[Wi = 1 | Xi = x]`.
 
 This last estimand is recommended by Li et al. (2018) in case of poor overlap (i.e., when the treatment propensities e(x) may be very close to 0 or 1), as it doesn't involve dividing by estimated propensities.
