@@ -53,8 +53,7 @@
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
 #'
-#' @return A trained survival_forest forest object. The attribute `failure.times` contains the unique failure
-#'  times in the data set.
+#' @return A trained survival_forest forest object.
 #'
 #' @references Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
 #'  "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests."

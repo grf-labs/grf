@@ -96,8 +96,7 @@ to the maximum hardware concurrency.}
 \item{seed}{The seed of the C++ random number generator.}
 }
 \value{
-A trained survival_forest forest object. The attribute `failure.times` contains the unique failure
- times in the data set.
+A trained survival_forest forest object.
 }
 \description{
 Trains a forest for right-censored surival data that can be used to estimate the
