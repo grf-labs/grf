@@ -111,7 +111,7 @@ test_that("computing sample weights gives reasonable results", {
   expect_equal(ncol(sample.weights.oob), n)
 
   row.sums.oob <- apply(sample.weights.oob, 1, sum)
-  expect_equal(row.sums.oob, rep(1.0, n), tolerance = 1e-10)
+  expect_equal(row.sums.oob, rep(1, n), tolerance = 1e-10)
 
   n.test <- 103
   X.test <- matrix(2 * runif(n.test * p) - 1, n.test, p)
