@@ -176,7 +176,7 @@ test_that("sample weighted causal forest is estimated with kernel weights `fores
 
   x1 <- X[1, , drop = F]
   theta1 <- predict(cf, x1)$predictions
-  alpha1 <- get_sample_weights(cf, x1)[1, ]
+  alpha1 <- get_forest_weights(cf, x1)[1, ]
   theta1.lm <- lm(Y ~ W, weights = alpha1 * sample.weights)
 
   expect_equal(theta1, theta1.lm$coefficients[[2]], tol = 1e-10)

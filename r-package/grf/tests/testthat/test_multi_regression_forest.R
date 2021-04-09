@@ -118,7 +118,7 @@ test_that("sample weighted multi_regression_forest is estimated with kernel weig
 
   x1 <- X[1, , drop = F]
   theta1 <- predict(mrf, x1)$predictions
-  alpha1 <- get_sample_weights(mrf, x1)[1, ]
+  alpha1 <- get_forest_weights(mrf, x1)[1, ]
   theta1.lm <- lm(Y ~ 1, weights = alpha1 * sample.weights)
 
   expect_equal(unname(theta1[1, ]), theta1.lm$coefficients[1, ], tol = 1e-10)

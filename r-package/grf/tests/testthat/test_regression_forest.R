@@ -202,7 +202,7 @@ test_that("sample weighted regression forest is estimated with kernel weights `f
 
   x1 <- X[1, , drop = F]
   theta1 <- predict(rf, x1)$predictions
-  alpha1 <- get_sample_weights(rf, x1)[1, ]
+  alpha1 <- get_forest_weights(rf, x1)[1, ]
   theta1.lm <- lm(Y ~ 1, weights = alpha1 * sample.weights)
 
   expect_equal(theta1, theta1.lm$coefficients[[1]], tol = 1e-10)

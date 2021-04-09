@@ -59,7 +59,7 @@ test_that("sample weighted instrumental forest is estimated with kernel weights 
 
   x1 <- X[1, , drop = F]
   theta1 <- predict(ivf, x1)$predictions
-  alpha1 <- get_sample_weights(ivf, x1)[1, ]
+  alpha1 <- get_forest_weights(ivf, x1)[1, ]
   R <- predict(lm(W ~ Z, weights = alpha1 * sample.weights))
   theta1.lm <- lm(Y ~ R, weights = alpha1 * sample.weights)
 
