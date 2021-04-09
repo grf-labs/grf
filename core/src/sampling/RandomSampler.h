@@ -136,9 +136,9 @@ private:
    * @param num_samples Number of samples to draw
    */
   void draw_fisher_yates(std::vector<size_t>& result,
-                  size_t max,
-                  const std::set<size_t>& skip,
-                  size_t num_samples);
+                         size_t max,
+                         const std::set<size_t>& skip,
+                         size_t num_samples);
 
   SamplingOptions options;
   std::mt19937_64 random_number_generator;
