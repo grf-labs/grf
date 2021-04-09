@@ -21,7 +21,7 @@ A vector of integers indicating the leaf number for each sample in the given tre
 Given a GRF tree object, compute the leaf node a test sample falls into. The nodes in a GRF tree
 are numbered breadth first, and the returned numbers will be the leaf integer according
 to this ordering. To get sample weights based on leaf membership, see the function
-\code{\link{get_sample_weights}}.
+\code{\link{get_forest_weights}}.
 }
 \examples{
 \donttest{

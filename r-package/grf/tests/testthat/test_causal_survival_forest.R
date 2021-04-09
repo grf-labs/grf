@@ -31,8 +31,8 @@ test_that("causal survival forest predictions are kernel weighted correctly", {
   x1 <- data$X[1, , drop = FALSE]
   cs.pred <- predict(cs.forest, x1)$predictions
   cs.pred.weighted <- predict(cs.forest.weighted, x1)$predictions
-  forest.weights <- get_sample_weights(cs.forest, x1)[1, ]
-  forest.weights.weighted <- get_sample_weights(cs.forest.weighted, x1)[1, ]
+  forest.weights <- get_forest_weights(cs.forest, x1)[1, ]
+  forest.weights.weighted <- get_forest_weights(cs.forest.weighted, x1)[1, ]
 
   theta1 <- sum(forest.weights * cs.forest$eta$numerator) /
     sum(forest.weights * cs.forest$eta$denominator)
