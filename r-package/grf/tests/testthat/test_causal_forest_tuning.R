@@ -15,7 +15,7 @@ test_that("causal forest tuning decreases prediction error", {
   tuned.preds <- predict(tuned.forest)
   tuned.error <- mean((tuned.preds$predictions - TAU)^2)
 
-  expect_true(tuned.error < error * 0.75)
+  expect_lt(tuned.error, error * 0.75)
 })
 
 test_that("local linear causal forest tuning returns lambda and decreases error", {
@@ -40,7 +40,7 @@ test_that("local linear causal forest tuning returns lambda and decreases error"
   preds.untuned <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
   error.untuned <- mean((preds.untuned - TAU)^2)
 
-  expect_true(error.tuned < 0.75 * error.untuned)
+  expect_lt(error.tuned, 0.75 * error.untuned)
 })
 
 test_that("output of tune local linear causal forest is consistent with prediction output", {
