@@ -371,8 +371,8 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
 
   cate.aipw <- average_treatment_effect(forest.weighted, target.sample = "all", method = "AIPW")
   biased.cate.aipw <- average_treatment_effect(forest.unweighted, target.sample = "all", method = "AIPW")
-  expect_true(abs(cate.aipw[1] - true.ate) / (3 * cate.aipw[2]) <= 1)
-  expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.cate.aipw[2]) <= 1)
+  expect_lte(abs(cate.aipw[1] - true.ate) / (3 * cate.aipw[2]), 1)
+  expect_gte(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.cate.aipw[2]), 1)
 
   # The best linear projection with NULL covariates should match the ATE estimate via AIPW.
   # The reason the standard error estimates don't match exactly is that the function
@@ -387,23 +387,23 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
 
   catt.aipw <- average_treatment_effect(forest.weighted, target.sample = "treated", method = "AIPW")
   biased.catt.aipw <- average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW")
-  expect_true(abs(catt.aipw[1] - true.ate) / (3 * catt.aipw[2]) <= 1)
-  expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.catt.aipw[2]) <= 1)
+  expect_lte(abs(catt.aipw[1] - true.ate) / (3 * catt.aipw[2]), 1)
+  expect_gte(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.catt.aipw[2]), 1)
 
   catc.aipw <- average_treatment_effect(forest.weighted, target.sample = "control", method = "AIPW")
   biased.catc.aipw <- average_treatment_effect(forest.unweighted, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - true.ate) / (3 * catc.aipw[2]) <= 1)
-  expect_false(abs(biased.catc.aipw[1] - true.ate) / (3 * biased.catc.aipw[2]) <= 1)
+  expect_lte(abs(catc.aipw[1] - true.ate) / (3 * catc.aipw[2]), 1)
+  expect_gte(abs(biased.catc.aipw[1] - true.ate) / (3 * biased.catc.aipw[2]), 1)
 
   cape <- average_treatment_effect(forest.weighted, num.trees.for.weights = 200)
   biased.cape <- average_treatment_effect(forest.unweighted, num.trees.for.weights = 200)
-  expect_true(abs(cape[1] - true.ate) / (3 * cape[2]) <= 1)
-  expect_false(abs(biased.cape[1] - true.ate) / (3 * biased.cape[2]) <= 1)
+  expect_lte(abs(cape[1] - true.ate) / (3 * cape[2]), 1)
+  expect_gte(abs(biased.cape[1] - true.ate) / (3 * biased.cape[2]), 1)
 
   wate <- average_treatment_effect(forest.weighted, target.sample = "overlap")
   biased.wate <- average_treatment_effect(forest.unweighted, target.sample = "overlap")
-  expect_true(abs(wate[1] - true.ate) / (3 * wate[2]) <= 1)
-  expect_false(abs(biased.wate[1] - true.ate) / (3 * biased.wate[2]) <= 1)
+  expect_lte(abs(wate[1] - true.ate) / (3 * wate[2]), 1)
+  expect_gte(abs(biased.wate[1] - true.ate) / (3 * biased.wate[2]), 1)
 
   options(warn = 2)
 })
