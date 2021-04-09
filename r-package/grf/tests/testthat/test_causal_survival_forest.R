@@ -15,8 +15,8 @@ test_that("causal survival forest is well-calibrated", {
   cs.pred.test <- predict(cs.forest, X.test)
   mse.test <- mean((cs.pred.test$predictions - true.effect.test)^2)
 
-  expect_true(mse.oob < 0.01)
-  expect_true(mse.test < 0.01)
+  expect_lt(mse.oob, 0.01)
+  expect_lt(mse.test, 0.01)
 })
 
 test_that("causal survival forest predictions are kernel weighted correctly", {
@@ -53,7 +53,7 @@ test_that("causal survival forest variance estimates are decent", {
   ub.oob <- cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates)
   lb.oob <- cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates)
   cate.coverage.oob <- mean(lb.oob < true.effect & true.effect < ub.oob)
-  expect_true(cate.coverage.oob >= 0.65)
+  expect_gte(cate.coverage.oob, 0.65)
 
   X.test <- matrix(0.5, 10, p)
   X.test[, 1] <- seq(0, 1, length.out = 10)
@@ -63,7 +63,7 @@ test_that("causal survival forest variance estimates are decent", {
   ub.test <- cs.pred.test$predictions + 2 * sqrt(cs.pred.test$variance.estimates)
   lb.test <- cs.pred.test$predictions - 2 * sqrt(cs.pred.test$variance.estimates)
   cate.coverage.test <- mean(lb.test < true.effect.test & true.effect.test < ub.test)
-  expect_true(cate.coverage.test >= 0.65)
+  expect_gte(cate.coverage.test, 0.65)
 
   # Duplicate some samples
   sample.weights <- sample(c(1, 2), n, TRUE)
@@ -72,7 +72,7 @@ test_that("causal survival forest variance estimates are decent", {
   ub.oob.weighted <- cs.pred.weighted$predictions + 2 * sqrt(cs.pred.weighted$variance.estimates)
   lb.oob.weighted <- cs.pred.weighted$predictions - 2 * sqrt(cs.pred.weighted$variance.estimates)
   cate.coverage.oob.weighted <- mean(lb.oob.weighted < true.effect & true.effect < ub.oob.weighted)
-  expect_true(cate.coverage.oob.weighted >= 0.65)
+  expect_gte(cate.coverage.oob.weighted, 0.65)
 })
 
 test_that("sample weighted causal survival forest is invariant to scaling", {
@@ -92,13 +92,13 @@ test_that("sample weighted causal survival forest is invariant to scaling", {
   p1 <- predict(sf)
   p2 <- predict(sf2)
 
-  expect_true(all(p1$predictions - p2$predictions == 0))
+  expect_equal(p1$predictions, p2$predictions)
 
   # Variance estimates are invariant to sample weight scaling
   v1 <- predict(sf, estimate.variance = TRUE)
   v2 <- predict(sf2, estimate.variance = TRUE)
 
-  expect_true(all(v1$variance.estimates - v2$variance.estimates == 0))
+  expect_equal(v1$variance.estimates, v2$variance.estimates)
 })
 
 test_that("a causal survival forest trained on dense data is near identical to forest trained on coarser grid", {
@@ -113,7 +113,7 @@ test_that("a causal survival forest trained on dense data is near identical to f
                                            failure.times = Y.grid)
   cs.pred.grid <- predict(cs.forest.grid)
 
-  expect_true(mean((cs.pred$predictions - cs.pred.grid$predictions)^2) < 0.001)
+  expect_lt(mean((cs.pred$predictions - cs.pred.grid$predictions)^2), 0.001)
 })
 
 test_that("nuisance argument handling in a causal survival forest works as expected", {
@@ -147,11 +147,11 @@ test_that("nuisance argument handling in a causal survival forest works as expec
                                        S.hat = S.hat$predictions,
                                        C.hat = C.hat$predictions)
 
-  expect_true(mean((predict(cs.forest1)$predictions - cs.pred$predictions)^2) < 0.005)
-  expect_true(mean((predict(cs.forest2)$predictions - cs.pred$predictions)^2) < 0.005)
-  expect_true(mean((predict(cs.forest3)$predictions - cs.pred$predictions)^2) < 0.005)
-  expect_true(mean((predict(cs.forest4)$predictions - cs.pred$predictions)^2) < 0.005)
-  expect_true(mean((predict(cs.forest5)$predictions - cs.pred$predictions)^2) < 0.005)
+  expect_lt(mean((predict(cs.forest1)$predictions - cs.pred$predictions)^2), 0.005)
+  expect_lt(mean((predict(cs.forest2)$predictions - cs.pred$predictions)^2), 0.005)
+  expect_lt(mean((predict(cs.forest3)$predictions - cs.pred$predictions)^2), 0.005)
+  expect_lt(mean((predict(cs.forest4)$predictions - cs.pred$predictions)^2), 0.005)
+  expect_lt(mean((predict(cs.forest5)$predictions - cs.pred$predictions)^2), 0.005)
 })
 
 test_that("causal survival forest works as expected with missing values", {
