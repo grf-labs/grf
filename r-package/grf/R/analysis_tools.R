@@ -163,11 +163,11 @@ variable_importance <- function(forest, decay.exponent = 2, max.depth = 4) {
   t(split.freq) %*% weight / sum(weight)
 }
 
-#' Given a trained forest and test data, compute the training sample weights for each test point.
+#' Given a trained forest and test data, compute the kernel weights for each test point.
 #'
-#' During normal prediction, these weights are computed as an intermediate step towards producing estimates.
-#' This function allows for examining the weights directly, so they could be potentially be used as the
-#' input to a different analysis.
+#' During normal prediction, these weights (named alpha in the GRF paper) are computed as an intermediate
+#' step towards producing estimates. This function allows for examining the weights directly, so they
+#' could be potentially be used as the input to a different analysis.
 #'
 #' @param forest The trained forest.
 #' @param newdata Points at which predictions should be made. If NULL,
@@ -217,7 +217,7 @@ get_forest_weights <- function(forest, newdata = NULL, num.threads = NULL) {
 #'
 #' Given a GRF tree object, compute the leaf node a test sample falls into. The nodes in a GRF tree
 #' are numbered breadth first, and the returned numbers will be the leaf integer according
-#' to this ordering. To get sample weights based on leaf membership, see the function
+#' to this ordering. To get kernel weights based on leaf membership, see the function
 #' \code{\link{get_forest_weights}}.
 #'
 #' @param tree A GRF tree object (retrieved by `get_tree`).

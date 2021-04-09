@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis_tools.R
 \name{get_forest_weights}
 \alias{get_forest_weights}
-\title{Given a trained forest and test data, compute the training sample weights for each test point.}
+\title{Given a trained forest and test data, compute the kernel weights for each test point.}
 \usage{
 get_forest_weights(forest, newdata = NULL, num.threads = NULL)
 }
@@ -22,9 +22,9 @@ A sparse matrix where each row represents a test sample, and each column is a sa
         training data. The value at (i, j) gives the weight of training sample j for test sample i.
 }
 \description{
-During normal prediction, these weights are computed as an intermediate step towards producing estimates.
-This function allows for examining the weights directly, so they could be potentially be used as the
-input to a different analysis.
+During normal prediction, these weights (named alpha in the GRF paper) are computed as an intermediate
+step towards producing estimates. This function allows for examining the weights directly, so they
+could be potentially be used as the input to a different analysis.
 }
 \examples{
 \donttest{
