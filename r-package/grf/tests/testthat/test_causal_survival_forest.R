@@ -72,7 +72,7 @@ test_that("causal survival forest variance estimates are decent", {
   ub.oob.weighted <- cs.pred.weighted$predictions + 2 * sqrt(cs.pred.weighted$variance.estimates)
   lb.oob.weighted <- cs.pred.weighted$predictions - 2 * sqrt(cs.pred.weighted$variance.estimates)
   cate.coverage.oob.weighted <- mean(lb.oob.weighted < true.effect & true.effect < ub.oob.weighted)
-  expect_gte(cate.coverage.oob.weighted, 0.65)
+  expect_gte(cate.coverage.oob.weighted, 0.6)
 })
 
 test_that("sample weighted causal survival forest is invariant to scaling", {
