@@ -121,7 +121,7 @@ test_that("computing sample weights gives reasonable results", {
   expect_equal(ncol(sample.weights), n)
 
   row.sums <- apply(sample.weights, 1, sum)
-  expect_equal(row.sums, rep(1, n.test), tolerance =  1e-10)
+  expect_equal(row.sums, rep(1, n.test), tolerance = 1e-10)
 })
 
 test_that("regression forest leaf nodes contains 'avg_Y' only", {
