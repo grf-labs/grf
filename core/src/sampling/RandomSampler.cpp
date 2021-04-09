@@ -40,14 +40,7 @@ void RandomSampler::sample(size_t num_samples,
                            double sample_fraction,
                            std::vector<size_t>& samples) {
   size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-  if (options.get_sample_weights().empty()) {
-    shuffle_and_split(samples, num_samples, num_samples_inbag);
-  } else {
-    draw_weighted(samples,
-                  num_samples - 1,
-                  num_samples_inbag,
-                  options.get_sample_weights());
-  }
+  shuffle_and_split(samples, num_samples, num_samples_inbag);
 }
 
 void RandomSampler::subsample(const std::vector<size_t>& samples,
@@ -199,27 +192,6 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
   }
 
   result.resize(num_samples);
-}
-
-void RandomSampler::draw_weighted(std::vector<size_t>& result,
-                                  size_t max,
-                                  size_t num_samples,
-                                  const std::vector<double>& weights) {
-  result.resize(num_samples);
-
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(max + 1, false);
-
-  nonstd::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
-  for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
-    do {
-      draw = weighted_dist(random_number_generator);
-    } while (temp[draw]);
-    temp[draw] = true;
-    result[i] = draw;
-  }
 }
 
 size_t RandomSampler::sample_poisson(size_t mean) {

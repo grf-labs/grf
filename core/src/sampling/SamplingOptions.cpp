@@ -22,13 +22,11 @@
 namespace grf {
 
 SamplingOptions::SamplingOptions():
-    sample_weights(0),
     num_samples_per_cluster(0),
     clusters(0) {}
 
 SamplingOptions::SamplingOptions(uint samples_per_cluster,
                                  const std::vector<size_t>& sample_clusters):
-    sample_weights(0),
     num_samples_per_cluster(samples_per_cluster) {
 
   // Map the provided clusters to IDs in the range 0 ... num_clusters.
@@ -48,11 +46,6 @@ SamplingOptions::SamplingOptions(uint samples_per_cluster,
     clusters[cluster_id].push_back(sample);
   }
 }
-
-const std::vector<double>& SamplingOptions::get_sample_weights() const {
-  return sample_weights;
-}
-
 
 unsigned int SamplingOptions::get_samples_per_cluster() const {
   return num_samples_per_cluster;
