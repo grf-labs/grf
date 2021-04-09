@@ -53,7 +53,7 @@ test_that("causal survival forest variance estimates are decent", {
   ub.oob <- cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates)
   lb.oob <- cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates)
   cate.coverage.oob <- mean(lb.oob < true.effect & true.effect < ub.oob)
-  expect_gte(cate.coverage.oob, 0.65)
+  expect_gte(cate.coverage.oob, 0.7)
 
   X.test <- matrix(0.5, 10, p)
   X.test[, 1] <- seq(0, 1, length.out = 10)
@@ -63,7 +63,7 @@ test_that("causal survival forest variance estimates are decent", {
   ub.test <- cs.pred.test$predictions + 2 * sqrt(cs.pred.test$variance.estimates)
   lb.test <- cs.pred.test$predictions - 2 * sqrt(cs.pred.test$variance.estimates)
   cate.coverage.test <- mean(lb.test < true.effect.test & true.effect.test < ub.test)
-  expect_gte(cate.coverage.test, 0.65)
+  expect_gte(cate.coverage.test, 0.6)
 
   # Duplicate some samples
   sample.weights <- sample(c(1, 2), n, TRUE)
@@ -72,7 +72,7 @@ test_that("causal survival forest variance estimates are decent", {
   ub.oob.weighted <- cs.pred.weighted$predictions + 2 * sqrt(cs.pred.weighted$variance.estimates)
   lb.oob.weighted <- cs.pred.weighted$predictions - 2 * sqrt(cs.pred.weighted$variance.estimates)
   cate.coverage.oob.weighted <- mean(lb.oob.weighted < true.effect & true.effect < ub.oob.weighted)
-  expect_gte(cate.coverage.oob.weighted, 0.6)
+  expect_gte(cate.coverage.oob.weighted, 0.7)
 })
 
 test_that("sample weighted causal survival forest is invariant to scaling", {
