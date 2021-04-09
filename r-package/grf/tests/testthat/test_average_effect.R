@@ -289,8 +289,8 @@ test_that("cluster robust average effects do weighting correctly", {
   forest.causal <- causal_forest(X, Y, W, clusters = clust, equalize.cluster.weights = TRUE, num.trees = 400)
 
   cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
-  expect_true(abs(cate.aipw[1] - t0) / (3 * cate.aipw[2]) <= 1)
-  expect_true(cate.aipw[2] <= 0.2)
+  expect_lte(abs(cate.aipw[1] - t0) / (3 * cate.aipw[2]),  1)
+  expect_lte(cate.aipw[2], 0.2)
 
   # The best linear projection with NULL covariates should match the ATE estimate via AIPW.
   # The reason the standard error estimates don't match exactly is that the function
@@ -301,20 +301,20 @@ test_that("cluster robust average effects do weighting correctly", {
   expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.0001)
 
   catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
-  expect_true(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]) <= 1)
-  expect_true(catt.aipw[2] <= 0.2)
+  expect_lte(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]), 1)
+  expect_lte(catt.aipw[2], 0.2)
 
   catc.aipw <- average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - t0) / (3 * catc.aipw[2]) <= 1)
-  expect_true(catc.aipw[2] <= 0.2)
+  expect_lte(abs(catc.aipw[1] - t0) / (3 * catc.aipw[2]), 1)
+  expect_lte(catc.aipw[2], 0.2)
 
   cape <- average_treatment_effect(forest.causal, num.trees.for.weights = 200)
-  expect_true(abs(cape[1] - t0) / (3 * cape[2]) <= 1)
-  expect_true(cape[2] <= 0.2)
+  expect_lte(abs(cape[1] - t0) / (3 * cape[2]), 1)
+  expect_lte(cape[2], 0.2)
 
   wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
-  expect_true(abs(wate[1] - t0) / (3 * wate[2]) <= 1)
-  expect_true(wate[2] <= 0.2)
+  expect_lte(abs(wate[1] - t0) / (3 * wate[2]), 1)
+  expect_lte(wate[2], 0.2)
 
   # An IV forest with W = Z should behave just like a causal forest
   # with treatment W.
