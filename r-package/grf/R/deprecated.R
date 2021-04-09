@@ -92,3 +92,13 @@ tune_instrumental_forest <- function(X, Y, W, Z, Y.hat, W.hat, Z.hat, ...) {
 custom_forest <- function(X, Y, ...) {
   stop("This function has been removed after version 1.2.0. For a development template, see existing forests, such as regression_forest, for inspiration.")
 }
+
+#' Retrieve forest weights (renamed to get_forest_weights)
+#'
+#' @param forest The trained forest.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @export
+get_sample_weights <- function(forest, ...) {
+  stop("This function has been renamed after version 1.2.0. See the function `get_forest_weights`.")
+}
