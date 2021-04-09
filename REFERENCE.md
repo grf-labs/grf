@@ -255,8 +255,6 @@ The `boosted_regression_forest` method also contains parameters to control the s
 
 Alternatively, you can to skip the cross-validation procedure and specify the number of steps directly through the parameter `boost.steps`.
 
-By default, `causal_forest` uses `regression_forest` to perform orthogonalization (that is, estimating `e(x) = E[W|X=x]` and `m(x) = E[Y|X=x]`). If the `orthog.boosting` flag is enabled, then `boosted_regression_forest` will be used instead.
-
 Some additional notes about the behavior of boosted regression forests:
 - For computational reasons, if `tune.parameters` is enabled, then parameters are chosen by the `regression_forest` procedure once in the first boosting step. The selected parameters are then applied to train the forests in any further steps.
 - The `estimate.variance` parameter is not available for boosted forests.

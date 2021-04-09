@@ -159,9 +159,9 @@ regression_forest <- function(X, Y,
                                  args = args,
                                  tune.parameters = tune.parameters,
                                  tune.parameters.defaults = tune.parameters.defaults,
-                                 num.fit.trees = tune.num.trees,
-                                 num.fit.reps = tune.num.reps,
-                                 num.optimize.reps = tune.num.draws,
+                                 tune.num.trees = tune.num.trees,
+                                 tune.num.reps = tune.num.reps,
+                                 tune.num.draws = tune.num.draws,
                                  train = regression_train)
 
     args <- modifyList(args, as.list(tuning.output[["params"]]))
@@ -197,7 +197,7 @@ regression_forest <- function(X, Y,
 #'                   we run a locally weighted linear regression on the included variables.
 #'                   Please note that this is a beta feature still in development, and may slow down
 #'                   prediction considerably. Defaults to NULL.
-#' @param ll.lambda Ridge penalty for local linear predictions
+#' @param ll.lambda Ridge penalty for local linear predictions. Defaults to NULL and will be cross-validated.
 #' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
 #'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
 #' @param num.threads Number of threads used in training. If set to NULL, the software

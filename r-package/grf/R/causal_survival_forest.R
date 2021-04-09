@@ -207,24 +207,27 @@ causal_survival_forest <- function(X, Y, W, D,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
-  if(!all(W %in% c(0, 1))) {
+  if (!all(W %in% c(0, 1))) {
     stop("The treatment values can only be 0 or 1.")
   }
-  if(!all(D %in% c(0, 1))) {
+  if (!all(D %in% c(0, 1))) {
     stop("The censor values can only be 0 or 1.")
+  }
+  if (sum(D) == 0) {
+    stop("All observations are censored.")
   }
   if (is.null(failure.times)) {
     Y.grid <- sort(unique(Y))
   } else {
+    if (is.unsorted(failure.times, strictly = TRUE)) {
+      stop("Argument `failure.times` should be a vector with elements in increasing order.")
+    }
     Y.grid <- failure.times
   }
-  Y.relabeled <- findInterval(Y, Y.grid)
-  num.events <- length(Y.grid)
-  num.samples <- nrow(X)
-  if (num.events <= 2) {
+  if (length(Y.grid) <= 2) {
     stop("The number of distinct event times should be more than 2.")
   }
-  if (num.samples > 5000 && num.events / num.samples > 0.1) {
+  if (nrow(X) > 5000 && length(Y.grid) / nrow(X) > 0.1) {
     warning(paste0("The number of events are more than 10% of the sample size. ",
                    "To reduce the computational burden of fitting survival and ",
                    "censoring curves, consider rounding the event values `Y` or ",
@@ -255,8 +258,8 @@ causal_survival_forest <- function(X, Y, W, D,
     forest.W <- do.call(regression_forest, args.orthog)
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == 1) {
-    W.hat <- rep(W.hat, num.samples)
-  } else if (length(W.hat) != num.samples) {
+    W.hat <- rep(W.hat, nrow(X))
+  } else if (length(W.hat) != nrow(X)) {
     stop("W.hat has incorrect length.")
   }
   W.centered <- W - W.hat
@@ -279,15 +282,14 @@ causal_survival_forest <- function(X, Y, W, D,
   # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
   if (is.null(E1.hat)) {
     sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
-    S1.failure.times <- S0.failure.times <- S.failure.times <- sf.survival$failure.times
+    S1.failure.times <- S0.failure.times <- sf.survival$failure.times
     # Computing OOB estimates for modified training samples is not a workflow we have implemented,
     # so we do it with a manual workaround here. Note that compute.oob.predictions has to be FALSE.
-    X.orig <- sf.survival[["X.orig"]]
-    sf.survival[["X.orig"]] <- cbind(X, rep(1, num.samples))
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(1, nrow(X))
     S1.hat <- predict(sf.survival)$predictions
-    sf.survival[["X.orig"]] <- X.orig
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- W
     E1.hat <- expected_survival(S1.hat, S1.failure.times)
-  } else if (length(E1.hat) != num.samples) {
+  } else if (length(E1.hat) != nrow(X)) {
     stop("E1.hat has incorrect length.")
   }
 
@@ -295,14 +297,13 @@ causal_survival_forest <- function(X, Y, W, D,
   if (is.null(E0.hat)) {
     if (!exists("sf.survival", inherits = FALSE)) {
       sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
-      S0.failure.times <- S.failure.times <- sf.survival$failure.times
+      S0.failure.times <- sf.survival$failure.times
     }
-    X.orig <- sf.survival[["X.orig"]]
-    sf.survival[["X.orig"]] <- cbind(X, rep(0, num.samples))
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(0, nrow(X))
     S0.hat <- predict(sf.survival)$predictions
-    sf.survival[["X.orig"]] <- X.orig
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- W
     E0.hat <- expected_survival(S0.hat, S0.failure.times)
-  } else if (length(E0.hat) != num.samples) {
+  } else if (length(E0.hat) != nrow(X)) {
     stop("E0.hat has incorrect length.")
   }
   # Compute m(x) = e(X) E[T | X, W = 1] + (1 - e(X)) E[T | X, W = 0]
@@ -312,13 +313,12 @@ causal_survival_forest <- function(X, Y, W, D,
   if (is.null(S.hat)) {
     if (!exists("sf.survival", inherits = FALSE)) {
       sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
-      S.failure.times <- sf.survival$failure.times
     }
     # We want the predicted survival curves S.hat and C.hat on the common grid Y.grid:
     S.hat <- predict(sf.survival, failure.times = Y.grid)$predictions
-  } else if (NROW(S.hat) != num.samples) {
+  } else if (NROW(S.hat) != nrow(X)) {
     stop("S.hat has incorrect length.")
-  } else if (NCOL(S.hat) != num.events) {
+  } else if (NCOL(S.hat) != length(Y.grid)) {
     stop("S.hat has incorrect number of columns (should be equal to the number of events).")
   }
 
@@ -326,9 +326,9 @@ causal_survival_forest <- function(X, Y, W, D,
   if (is.null(C.hat)) {
     sf.censor <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = 1 - D), args.nuisance))
     C.hat <- predict(sf.censor, failure.times = Y.grid)$predictions
-  } else if (NROW(C.hat) != num.samples) {
+  } else if (NROW(C.hat) != nrow(X)) {
     stop("C.hat has incorrect length.")
-  } else if (NCOL(C.hat) != num.events) {
+  } else if (NCOL(C.hat) != length(Y.grid)) {
     stop("C.hat has incorrect number of columns (should be equal to the number of events).")
   }
 
@@ -351,7 +351,7 @@ causal_survival_forest <- function(X, Y, W, D,
   }
 
   # Compute the pseudo outcomes
-  eta <- compute_eta(S.hat, C.hat, lambda.C.hat, Y.grid, Y, Y.relabeled, D, m.hat, W.centered)
+  eta <- compute_eta(S.hat, C.hat, lambda.C.hat, Y.grid, Y, D, m.hat, W.centered)
   validate_observations(eta[["numerator"]], X)
   validate_observations(eta[["denominator"]], X)
 
@@ -515,7 +515,6 @@ predict.causal_survival_forest <- function(object,
 #' @param lambda.C.hat Estimates of the conditional hazard function for the censoring process S_C(t, x, w).
 #' @param Y.grid The time values corresponding to S.hat and C.hat.
 #' @param Y The event times.
-#' @param Y.relabeled The event time values relabeled to consecutive integers 1 to length(Y.grid).
 #' @param D The censoring indicator.
 #' @param m.hat Estimates of m(X).
 #' @param W.centered W - W.hat.
@@ -526,10 +525,11 @@ compute_eta <- function(S.hat,
                         lambda.C.hat,
                         Y.grid,
                         Y,
-                        Y.relabeled,
                         D,
                         m.hat,
                         W.centered) {
+  # The event time values relabeled to consecutive integers 0/1 to length(Y.grid).
+  Y.relabeled <- findInterval(Y, Y.grid)
   # S.hat and C.hat will have the same dimensions,
   # they are survival estimates corresponding to the same grid Y.grid.
   num.samples <- nrow(S.hat)
