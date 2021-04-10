@@ -128,7 +128,7 @@ There are several important caveats to this parameter:
 
 #### `alpha`
 
-The parameter `alpha` controls the maximum imbalance of a split. In particular, when splitting a parent node, the size of each child node is not allowed to be less than `size(parent) * alpha`. It defaults to 0.05.
+The parameter `alpha` controls the maximum imbalance of a split. In particular, when splitting a parent node, the size of each child node is not allowed to be less than `size(parent) * alpha`. Its value must lie between (0, 0.25), and defaults to 0.05.
 
 When training a causal forest, this parameter takes on a slightly different notion related to the number of treatment and control samples. More detail can be found in the 'Selecting Balanced Splits' section below, under the 'Causal Forests' heading.
 
@@ -180,7 +180,7 @@ Empirically, we've found orthogonalization to be essential in obtaining accurate
 
 In the sections above on `min.node.size`, `alpha`, and `imbalance.penalty`, we described how tree training protects against making splits that result in a large size imbalance between the children, or leaf nodes that are too small. In a causal setting, it is not sufficient to consider the number of examples in each node -- we must also take into account the number treatment vs. control examples. Without a reasonable balance of treated and control examples, there will not be enough information in the node to obtain a good estimate of treatment effect. In the worst case, we could end up with nodes composed entirely of control (or treatment) examples.
 
-For this reason, causal splitting (enabled with the argument `stabilize.splits = TRUE`) uses modified notions of each split balancing parameter:
+For this reason, causal splitting uses modified notions of each split balancing parameter:
 - `min.node.size` usually determines the minimum number of examples a node should contain. In causal forests, the requirement is more stringent: a node must contain at least `min.node.size` treated samples, and also at least that many control samples.
 - In regression forests, `alpha` and `imbalance.penalty` help ensure that the size difference between children is not too large. When applying `alpha` and `imbalance.penalty` in causal forests, we use a modified measure of node size that tries to capture how much 'information content' it contains. The new size measure is given by `\sum_{i in node} (W_i - \bar{W})^2`.
 
