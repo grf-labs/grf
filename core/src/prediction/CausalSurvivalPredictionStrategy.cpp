@@ -113,9 +113,6 @@ PredictionValues CausalSurvivalPredictionStrategy::precompute_prediction_values(
       continue;
     }
 
-    std::vector<double>& value = values[i];
-    value.resize(NUM_TYPES);
-
     double numerator_sum = 0;
     double denominator_sum = 0;
     double sum_weight = 0;
@@ -131,6 +128,8 @@ PredictionValues CausalSurvivalPredictionStrategy::precompute_prediction_values(
     if (std::abs(sum_weight) <= 1e-16) {
       continue;
     }
+    std::vector<double>& value = values[i];
+    value.resize(NUM_TYPES);
 
     value[NUMERATOR] = numerator_sum / leaf_size;
     value[DENOMINATOR] = denominator_sum / leaf_size;
