@@ -52,6 +52,7 @@ public:
 
 private:
   size_t num_classes;
+  size_t num_types;
   ObjectiveBayesDebiaser bayes_debiaser;
 };
 

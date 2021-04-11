@@ -21,7 +21,8 @@
 namespace grf {
 
 ProbabilityPredictionStrategy::ProbabilityPredictionStrategy(size_t num_classes):
-    num_classes(num_classes) {
+    num_classes(num_classes),
+    num_types(num_classes + 1) {
 };
 
 size_t ProbabilityPredictionStrategy::prediction_length() const {
@@ -94,7 +95,7 @@ std::vector<double> ProbabilityPredictionStrategy::compute_variance(
 }
 
 size_t ProbabilityPredictionStrategy::prediction_value_length() const {
-  return num_classes + 1;
+  return num_types;
 }
 
 PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
@@ -110,7 +111,7 @@ PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
     }
 
     std::vector<double>& averages = values[i];
-    averages.resize(prediction_value_length());
+    averages.resize(num_types);
     double weight_sum = 0.0;
     for (auto& sample : leaf_node) {
       size_t sample_class = data.get_outcome(sample);
@@ -131,7 +132,7 @@ PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
     averages[num_classes] = weight_sum / leaf_node.size();
   }
 
-  return PredictionValues(values, prediction_value_length());
+  return PredictionValues(values, num_types);
 }
 
 std::vector<std::pair<double, double>> ProbabilityPredictionStrategy::compute_error(
