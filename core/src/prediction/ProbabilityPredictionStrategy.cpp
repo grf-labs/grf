@@ -29,7 +29,13 @@ size_t ProbabilityPredictionStrategy::prediction_length() const {
 }
 
 std::vector<double> ProbabilityPredictionStrategy::predict(const std::vector<double>& average) const {
-  return average;
+  double weight_bar = average[num_classes];
+  std::vector<double> predictions(num_classes);
+  for (size_t cls = 0; cls < num_classes; ++cls) {
+    predictions[cls] = average[cls] / weight_bar;
+  }
+
+  return predictions;
 }
 
 std::vector<double> ProbabilityPredictionStrategy::compute_variance(
@@ -87,7 +93,7 @@ std::vector<double> ProbabilityPredictionStrategy::compute_variance(
 }
 
 size_t ProbabilityPredictionStrategy::prediction_value_length() const {
-  return num_classes;
+  return num_classes + 1;
 }
 
 PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
@@ -103,7 +109,7 @@ PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
     }
 
     std::vector<double>& averages = values[i];
-    averages.resize(num_classes);
+    averages.resize(prediction_value_length());
     double weight_sum = 0.0;
     for (auto& sample : leaf_node) {
       size_t sample_class = data.get_outcome(sample);
@@ -113,15 +119,18 @@ PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
 
     // if total weight is very small, treat the leaf as empty
     if (std::abs(weight_sum) <= 1e-16) {
+      averages.clear();
       continue;
     }
 
     for (size_t cls = 0; cls < num_classes; ++cls) {
-      averages[cls] = averages[cls] / weight_sum;
+      averages[cls] = averages[cls] / leaf_node.size();
     }
+    // Store sample weights at last entry.
+    averages[num_classes] = weight_sum / leaf_node.size();
   }
 
-  return PredictionValues(values, num_classes);
+  return PredictionValues(values, prediction_value_length());
 }
 
 std::vector<std::pair<double, double>> ProbabilityPredictionStrategy::compute_error(

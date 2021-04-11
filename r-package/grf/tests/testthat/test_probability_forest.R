@@ -138,3 +138,17 @@ test_that("sample weighted probability forest improves complete-data MSE", {
 
   expect_lt(mean, 0.8)
 })
+
+test_that("sample weighted probability forest works as expected", {
+  n <- 2000
+  p <- 5
+  obs.prob <- 1 / 20
+  Y <- rbinom(n, 1, obs.prob / (1 + obs.prob))
+  X <- matrix(rnorm(n * p), n, p)
+  sample.weights <- 1 + Y * (1 / obs.prob - 1)
+
+  pf <- probability_forest(X, as.factor(Y), sample.weights = sample.weights, num.trees = 500)
+  pp <- predict(pf)$predictions
+
+  expect_equal(mean(pp[, "1"]), weighted.mean(Y, sample.weights), tolerance = 0.05)
+})
