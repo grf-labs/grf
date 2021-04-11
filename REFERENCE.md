@@ -124,13 +124,13 @@ The parameter `min.node.size` relates to the minimum size a leaf node is allowed
 There are several important caveats to this parameter:
 - When honesty is enabled, the leaf nodes are 'repopulated' after splitting with a fresh subsample. This means that the final tree may contain leaf nodes smaller than the `min.node.size` setting.
 - For regression forests, the splitting will only stop once a node has become smaller than `min.node.size`. Because of this, trees can have leaf nodes that violate the `min.node.size` setting. We initially chose this behavior to match that of other random forest packages like `randomForest` and `ranger`, but will likely be changed as it is misleading (see [#143](https://github.com/grf-labs/grf/issues/143)).
-- When training a causal forest, `min.node.size` takes on a slightly different notion related to the number of treatment and control samples. More detail can be found in the 'Split Penalization' section below, under the 'Causal Forests' heading.
+- When training a causal forest, `min.node.size` takes on a slightly different notion related to the number of treatment and control samples. More detail can be found in the 'Selecting Balanced Splits' section below, under the 'Causal Forests' heading.
 
 #### `alpha`
 
 The parameter `alpha` controls the maximum imbalance of a split. In particular, when splitting a parent node, the size of each child node is not allowed to be less than `size(parent) * alpha`. Its value must lie between (0, 0.25), and defaults to 0.05.
 
-When training a causal forest, this parameter takes on a slightly different notion related to the number of treatment and control samples. More detail can be found in the 'Split Penalization' section below, under the 'Causal Forests' heading.
+When training a causal forest, this parameter takes on a slightly different notion related to the number of treatment and control samples. More detail can be found in the 'Selecting Balanced Splits' section below, under the 'Causal Forests' heading.
 
 #### `imbalance.penalty`
 
@@ -182,7 +182,7 @@ In the sections above on `min.node.size`, `alpha`, and `imbalance.penalty`, we d
 
 For this reason, causal splitting uses modified notions of each split balancing parameter:
 - `min.node.size` usually determines the minimum number of examples a node should contain. In causal forests, the requirement is more stringent: a node must contain at least `min.node.size` treated samples, and also at least that many control samples.
-- In regression forests, `alpha` and `imbalance.penalty` help ensure that the size difference between children is not too large. When applying `alpha` and `imbalance.penalty`, we use a modified measure of node size that tries to capture how much 'information content' it contains. The new size measure is given by `\sum_{i in node} (W_i - \bar{W})^2`.
+- In regression forests, `alpha` and `imbalance.penalty` help ensure that the size difference between children is not too large. When applying `alpha` and `imbalance.penalty` in causal forests, we use a modified measure of node size that tries to capture how much 'information content' it contains. The new size measure is given by `\sum_{i in node} (W_i - \bar{W})^2`.
 
 The above description of `min.node.size` assumes that the treatment is binary, which in most cases is an oversimplification. The precise algorithm for enforcing `min.node.size` is as follows. Note that this same approach is used both when the treatment is binary or continuous.
 - Take the average of the parent node's treatment values.
@@ -192,12 +192,13 @@ The above description of `min.node.size` assumes that the treatment is binary, w
 
 In addition to personalized treatment effects, causal forests can be used to estimate the average treatment effect across the training population. Naively, one might estimate the average treatment effect by averaging personalized treatment effects across training examples. However, a more accurate estimate can be obtained by plugging causal forest predictions into a doubly robust average treatment effect estimator. As discussed in Chernozhukov et al. (2018), such approaches can yield semiparametrically efficient average treatment effect estimates and accurate standard error estimates under considerable generality. GRF provides the dedicated function `average_treatment_effect` to compute these estimates.
 
-The `average_treatment_effect` function implements two types of doubly robust average treatment effect estimations: augmented inverse-propensity weighting (Robins et al., 1994), and targeted maximum likelihood estimation (van der Laan and Rubin, 2006). Which method to use can be specified through the `method` parameter. The parameter `target.sample` controls which population the average treatment effect is taken over:
-- `target.sample = "all"`: the ATE on the whole population, `sum_{i = 1}^n E[Y(1) - Y(0) | X = X_i] / n`.
-- `target.sample = "treated"`: the ATE on the treated examples, `sum_{W_i = 1} E[Y(1) - Y(0) | X = X_i] / |{i : W_i = 1}|`.
-- `target.sample = "control"`: the ATE on the control examples, `sum_{W_i = 0} E[Y(1) - Y(0) | X = X_i] / |{i : W_i = 0}|`.
-- `target.sample = "overlap"`: the overlap-weighted ATE `sum_{i = 1}^n e(Xi) (1 - e(Xi)) E[Y(1) - Y(0) | X = Xi] / sum_{i = 1}^n e(Xi) (1 - e(Xi))`,
-  where `e(x) = P[W_i = 1 | X_i = x]`. This last estimand is recommended by Li et al. (2017) in case of poor overlap (i.e., when the treatment propensities e(x) may be very close to 0 or 1), as it doesn't involve dividing by estimated propensities.
+The `average_treatment_effect` function implements two types of doubly robust average treatment effect estimations: augmented inverse-propensity weighting (Robins et al., 1994), and targeted maximum likelihood estimation (van der Laan and Rubin, 2006). Which method to use can be specified through the `method` parameter. The following estimates are available:
+- The average treatment effect (`target.sample = all`): `E[Y(1) - Y(0)]`.
+- The average treatment effect on the treated (`target.sample = treated`): `E[Y(1) - Y(0) | Wi = 1]`.
+- The average treatment effect on the controls (`target.sample = control`): `E[Y(1) - Y(0) | Wi = 0]`.
+- The overlap-weighted average treatment effect (`target.sample = overlap`): `E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X))`, where `e(x) = P[Wi = 1 | Xi = x]`.
+
+This last estimand is recommended by Li et al. (2018) in case of poor overlap (i.e., when the treatment propensities e(x) may be very close to 0 or 1), as it doesn't involve dividing by estimated propensities.
 
 ### Best Linear Projection of the CATE
 
@@ -222,7 +223,7 @@ The accuracy of a forest can be sensitive to several training parameters:
 - the parameters that control honesty behavior `honesty.fraction` and `honesty.prune.leaves`
 - the split balance parameters `alpha` and `imbalance.penalty`
 
-GRF provides a cross-validation procedure to select values of these parameters to use in training. To enable this tuning during training, the option `tune.parameters = "all"` can be passed to main forest method. The cross-validation methods can also be called directly through `tune_regression_forest` and `tune_causal_forest`. Parameter tuning is currently disabled by default.
+GRF provides a cross-validation procedure to select values of these parameters to use in training. To enable this tuning during training, the option `tune.parameters = "all"` can be passed to main forest method. Parameter tuning is currently disabled by default.
 
 The cross-validation procedure works as follows:
 - Draw a number of random points in the space of possible parameter values. By default, 100 distinct sets of parameter values are chosen (`tune.num.reps`).
