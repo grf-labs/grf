@@ -43,8 +43,9 @@ std::vector<double> ProbabilityPredictionStrategy::compute_variance(
     const PredictionValues& leaf_values,
     size_t ci_group_size) const {
   std::vector<double> variance_estimates(num_classes);
+  double weight_bar = average[num_classes];
   for (size_t cls = 0; cls < num_classes; ++cls) {
-    double average_outcome = average.at(cls);
+    double average_outcome = average.at(cls) / weight_bar;
 
     double num_good_groups = 0;
     double psi_squared = 0;
@@ -65,7 +66,7 @@ std::vector<double> ProbabilityPredictionStrategy::compute_variance(
 
       for (size_t j = 0; j < ci_group_size; ++j) {
         size_t i = group * ci_group_size + j;
-        double psi_1 = leaf_values.get(i, cls) - average_outcome;
+        double psi_1 = leaf_values.get(i, cls) / leaf_values.get(i, num_classes) - average_outcome;
 
         psi_squared += psi_1 * psi_1;
         group_psi += psi_1;
