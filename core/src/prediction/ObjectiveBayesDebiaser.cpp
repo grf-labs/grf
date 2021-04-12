@@ -39,6 +39,9 @@ double ObjectiveBayesDebiaser::debias(double var_between,
 
   double initial_estimate = var_between - group_noise;
   double initial_se = std::max(var_between, group_noise) * std::sqrt(2.0 / num_good_groups);
+  if (equal_doubles(initial_se, 0.0, 1.0e-10)) {
+    return 0.0;
+  }
 
   double ratio = initial_estimate / initial_se;
 
