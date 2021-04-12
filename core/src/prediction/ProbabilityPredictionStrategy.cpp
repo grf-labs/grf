@@ -22,7 +22,8 @@ namespace grf {
 
 ProbabilityPredictionStrategy::ProbabilityPredictionStrategy(size_t num_classes):
     num_classes(num_classes),
-    num_types(num_classes + 1) {
+    num_types(num_classes + 1),
+    weight_index(num_classes){
 };
 
 size_t ProbabilityPredictionStrategy::prediction_length() const {
@@ -30,7 +31,7 @@ size_t ProbabilityPredictionStrategy::prediction_length() const {
 }
 
 std::vector<double> ProbabilityPredictionStrategy::predict(const std::vector<double>& average) const {
-  double weight_bar = average[num_classes];
+  double weight_bar = average[weight_index];
   std::vector<double> predictions(num_classes);
   for (size_t cls = 0; cls < num_classes; ++cls) {
     predictions[cls] = average[cls] / weight_bar;
@@ -67,7 +68,7 @@ std::vector<double> ProbabilityPredictionStrategy::compute_variance(
 
       for (size_t j = 0; j < ci_group_size; ++j) {
         size_t i = group * ci_group_size + j;
-        double psi_1 = leaf_values.get(i, cls) / leaf_values.get(i, num_classes) - average_outcome;
+        double psi_1 = leaf_values.get(i, cls) / leaf_values.get(i, weight_index) - average_outcome;
 
         psi_squared += psi_1 * psi_1;
         group_psi += psi_1;
@@ -118,17 +119,16 @@ PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
       averages[sample_class] += data.get_weight(sample);
       weight_sum += data.get_weight(sample);
     }
-
     // if total weight is very small, treat the leaf as empty
     if (std::abs(weight_sum) <= 1e-16) {
       averages.clear();
       continue;
     }
-
+    // store sufficient statistics in order
+    // {class_counts_1, ..., class_counts_K, sum_weight}
     for (size_t cls = 0; cls < num_classes; ++cls) {
       averages[cls] = averages[cls] / leaf_node.size();
     }
-    // Store sample weights at last entry.
     averages[num_classes] = weight_sum / leaf_node.size();
   }
 
