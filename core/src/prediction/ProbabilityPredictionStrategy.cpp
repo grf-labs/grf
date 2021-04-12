@@ -45,7 +45,7 @@ std::vector<double> ProbabilityPredictionStrategy::compute_variance(
     const PredictionValues& leaf_values,
     size_t ci_group_size) const {
   std::vector<double> variance_estimates(num_classes);
-  double weight_bar = average[num_classes];
+  double weight_bar = average[weight_index];
   for (size_t cls = 0; cls < num_classes; ++cls) {
     double average_outcome = average.at(cls) / weight_bar;
 
