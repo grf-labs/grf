@@ -24,6 +24,7 @@ namespace grf {
 MultiRegressionPredictionStrategy::MultiRegressionPredictionStrategy(size_t num_outcomes) {
   this->num_outcomes = num_outcomes;
   this->num_types = 1 + num_outcomes;
+  this->weight_index = num_outcomes;
 }
 
 size_t MultiRegressionPredictionStrategy::prediction_length() const {
@@ -31,14 +32,14 @@ size_t MultiRegressionPredictionStrategy::prediction_length() const {
 }
 
 std::vector<double> MultiRegressionPredictionStrategy::predict(const std::vector<double>& average) const {
-  std::vector<double> out;
-  out.reserve(num_outcomes);
-  double weight_bar = average[0];
-  for (size_t value_ix = 1; value_ix < num_types; value_ix++) {
-    out.push_back(average[value_ix] / weight_bar);
+  std::vector<double> predictions;
+  predictions.reserve(num_outcomes);
+  double weight_bar = average[weight_index];
+  for (size_t j = 0; j < num_outcomes; j++) {
+    predictions.push_back(average[j] / weight_bar);
   }
 
-  return out;
+  return predictions;
 }
 
 std::vector<double> MultiRegressionPredictionStrategy::compute_variance(
@@ -77,12 +78,14 @@ PredictionValues MultiRegressionPredictionStrategy::precompute_prediction_values
       continue;
     }
 
+    // store sufficient statistics in order
+    // {outcome_1, ..., outcome_M, weight_sum}
     std::vector<double>& value = values[i];
     value.reserve(num_types);
-    value.push_back(sum_weight / num_samples);
     for (size_t j = 0; j < num_outcomes; j++) {
       value.push_back(sum[j] / num_samples);
     }
+    value.push_back(sum_weight / num_samples);
   }
 
   return PredictionValues(values, num_types);
