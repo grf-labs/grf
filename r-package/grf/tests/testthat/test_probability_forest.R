@@ -152,3 +152,23 @@ test_that("sample weighted probability forest works as expected", {
 
   expect_equal(mean(pp[, "1"]), weighted.mean(Y, sample.weights), tolerance = 0.05)
 })
+
+test_that("probability forest with sample weights is kernel weighted correctly", {
+  p <- 5
+  n <- 500
+  X <- matrix(rnorm(n*p), n, p)
+  prob <- 1 / (1 + exp(-X[, 1] - X[, 2]))
+  Y <- as.factor(rbinom(n, 1, prob))
+  sample.weights <- sample(c(1, 10), n, TRUE)
+  pf <- probability_forest(X, Y, sample.weights = sample.weights, num.trees = 250)
+
+  x1 <- X[1, , drop = FALSE]
+  theta1 <- predict(pf, x1)$predictions[,]
+
+  alpha1 <- get_forest_weights(pf, x1)[1, ]
+  y <- as.numeric(Y) - 1
+  sums <- cbind((y == 0) * alpha1 * sample.weights, (y == 1) * alpha1 * sample.weights)
+  theta1.weighted <- colSums(sums) / sum(sums)
+
+  expect_equal(unname(theta1), theta1.weighted)
+})
