@@ -129,7 +129,7 @@ PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
     for (size_t cls = 0; cls < num_classes; ++cls) {
       averages[cls] = averages[cls] / leaf_node.size();
     }
-    averages[num_classes] = weight_sum / leaf_node.size();
+    averages[weight_index] = weight_sum / leaf_node.size();
   }
 
   return PredictionValues(values, num_types);
