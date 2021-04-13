@@ -298,7 +298,7 @@ test_that("cluster robust average effects do weighting correctly", {
   # `coeftest`, whereas `average_treatment_effect` uses a direct calculation.
   cate.aipw.blp <- best_linear_projection(forest.causal, A = NULL)
   expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1])
-  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.0001)
+  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tolerance = 0.0001)
 
   catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
   expect_lte(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]), 1)
@@ -327,8 +327,8 @@ test_that("cluster robust average effects do weighting correctly", {
                                              num.trees = 400)
   compliance.score <- rep(1, n)
   aclate <- average_treatment_effect(forest.instrumental, compliance.score=compliance.score)
-  expect_equal(cate.aipw["estimate"], aclate["estimate"], tol = 0.03)
-  expect_equal(cate.aipw["std.err"], aclate["std.err"], tol = 0.002)
+  expect_equal(cate.aipw["estimate"], aclate["estimate"], tolerance = 0.03)
+  expect_equal(cate.aipw["std.err"], aclate["std.err"], tolerance = 0.002)
 })
 
 test_that("cluster robust average effects do weighting correctly with IPCC weights", {
@@ -380,10 +380,10 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   # `coeftest`, whereas `average_treatment_effect` uses a direct calculation.
   cate.aipw.blp <- best_linear_projection(forest.weighted, A = NULL)
   expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1])
-  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.01)
+  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tolerance = 0.01)
   biased.cate.aipw.blp <- best_linear_projection(forest.unweighted, A = NULL)
   expect_equal(as.numeric(biased.cate.aipw[1]), biased.cate.aipw.blp[1,1])
-  expect_equal(as.numeric(biased.cate.aipw[2]), biased.cate.aipw.blp[1,2], tol = 0.01)
+  expect_equal(as.numeric(biased.cate.aipw[2]), biased.cate.aipw.blp[1,2], tolerance = 0.01)
 
   catt.aipw <- average_treatment_effect(forest.weighted, target.sample = "treated", method = "AIPW")
   biased.catt.aipw <- average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW")
@@ -446,9 +446,9 @@ test_that("average conditional local average treatment effect estimation is reas
   tau.x1p <- average_treatment_effect(forest.iv, compliance.score=compliance.score,
                           subset = X[,1] > 0)
 
-  expect_equal(as.numeric(tau.hat["estimate"]), mean(tau), tol = 0.2)
+  expect_equal(as.numeric(tau.hat["estimate"]), mean(tau), tolerance = 0.2)
   expect_lt(abs(tau.hat["estimate"] - mean(tau)) / tau.hat["std.err"], 3)
 
-  expect_equal(as.numeric(tau.x1p["estimate"]), mean(tau[X[,1] > 0]), tol = 0.3)
+  expect_equal(as.numeric(tau.x1p["estimate"]), mean(tau[X[,1] > 0]), tolerance = 0.3)
   expect_lt(abs(tau.x1p["estimate"] - mean(tau[X[,1] > 0])) / tau.x1p["std.err"], 3)
 })

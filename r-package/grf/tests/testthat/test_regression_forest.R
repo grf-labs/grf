@@ -286,13 +286,13 @@ test_that("regression_forest works as expected with missing values", {
   diff.mse <- mean((predict(rf.mia, X.mia)$pred - Y)^2) - mean((predict(rf, X)$pred - Y)^2)
   diff.mse.test <- mean((predict(rf.mia, X.mia.test)$pred - Y)^2) - mean((predict(rf, X.test)$pred - Y)^2)
 
-  expect_equal(mse.oob.diff, 0, tol = 0.001)
-  expect_equal(mse.diff, 0, tol = 0.001)
-  expect_equal(mse.test.diff, 0, tol = 0.001)
+  expect_equal(mse.oob.diff, 0, tolerance = 0.001)
+  expect_equal(mse.diff, 0, tolerance = 0.001)
+  expect_equal(mse.test.diff, 0, tolerance = 0.001)
 
-  expect_equal(diff.mse.oob, 0, tol = 0.01)
-  expect_equal(diff.mse, 0, tol = 0.01)
-  expect_equal(diff.mse.test, 0, tol = 0.01)
+  expect_equal(diff.mse.oob, 0, tolerance = 0.01)
+  expect_equal(diff.mse, 0, tolerance = 0.01)
+  expect_equal(diff.mse.test, 0, tolerance = 0.01)
 
   # All NaNs
   X[, ] <- NaN
@@ -306,5 +306,5 @@ test_that("regression_forest works as expected with missing values", {
   rf.mia <- regression_forest(X.mia, Y, seed = 123)
   rf <- regression_forest(X, Y, seed = 123)
   mse.oob.diff.allnan <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
-  expect_equal(mse.oob.diff.allnan, 0, tol = 0.0001)
+  expect_equal(mse.oob.diff.allnan, 0, tolerance = 0.0001)
 })

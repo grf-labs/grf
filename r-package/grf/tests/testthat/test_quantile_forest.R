@@ -84,6 +84,6 @@ test_that("quantile_forest works as expected with missing values", {
   mean.diff.oob <- colMeans((predict(rf)$predictions - predict(rf.mia)$predictions))
   mean.diff <- colMeans((predict(rf, X)$predictions - predict(rf.mia, X.mia)$predictions))
 
-  expect_equal(mean.diff.oob, c(0, 0, 0), tol = 0.5)
-  expect_equal(mean.diff, c(0, 0, 0), tol = 0.5)
+  expect_equal(mean.diff.oob, c(0, 0, 0), tolerance = 0.5)
+  expect_equal(mean.diff, c(0, 0, 0), tolerance = 0.5)
 })
