@@ -211,7 +211,7 @@ test_that("multi_arm_causal_forest confidence intervals are reasonable", {
   tau <- cbind(tauB, tauC)
   pp.mcf <- predict(mcf, estimate.variance = TRUE)
   z.score <- abs((pp.mcf$predictions[,,] - tau) / sqrt(pp.mcf$variance.estimates))
-  coverage <- colMeans(z.score < 1.96)
+  coverage <- colMeans(z.score <= 1.96)
 
   expect_gt(coverage[1], 0.75)
   expect_gt(coverage[2], 0.75)

@@ -52,7 +52,7 @@ test_that("probability forest is well-calibrated", {
   expect_lt(mean(rowMeans((p.hat$predictions - prob.true)^2)), 0.01)
 
   z.score <- abs(p.hat$predictions - prob.true) / sqrt(p.hat$variance.estimates)
-  coverage <- colMeans(z.score < 1.96)
+  coverage <- colMeans(z.score <= 1.96)
   expect_gt(coverage[1], 0.7)
   expect_gt(coverage[2], 0.7)
   expect_gt(coverage[3], 0.7)

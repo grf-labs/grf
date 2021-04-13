@@ -51,7 +51,7 @@ test_that("causal survival forest variance estimates are decent", {
   cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
   cs.pred <- predict(cs.forest, estimate.variance = TRUE)
   z.score.oob <- abs(cs.pred$predictions - true.effect) / sqrt(cs.pred$variance.estimates)
-  cate.coverage.oob <- mean(z.score.oob < 1.96)
+  cate.coverage.oob <- mean(z.score.oob <= 1.96)
   expect_gte(cate.coverage.oob, 0.7)
 
   X.test <- matrix(0.5, 10, p)
@@ -59,7 +59,7 @@ test_that("causal survival forest variance estimates are decent", {
   true.effect.test <- generate_survival_data(10, p, Y.max = 1, X = X.test, n.mc = 5000, dgp = "simple1")$cate
   cs.pred.test <- predict(cs.forest, X.test, estimate.variance = TRUE)
   z.score.test <- abs(cs.pred.test$predictions - true.effect.test) / sqrt(cs.pred.test$variance.estimates)
-  cate.coverage.test <- mean(z.score.test < 1.96)
+  cate.coverage.test <- mean(z.score.test <= 1.96)
   expect_gte(cate.coverage.test, 0.6)
 
   # Duplicate some samples
@@ -67,7 +67,7 @@ test_that("causal survival forest variance estimates are decent", {
   cs.forest.weighted <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500, sample.weights = sample.weights)
   cs.pred.weighted <- predict(cs.forest.weighted, estimate.variance = TRUE)
   z.score.weighted <- abs(cs.pred.weighted$predictions - true.effect) / sqrt(cs.pred.weighted$variance.estimates)
-  cate.coverage.oob.weighted <- mean(z.score.weighted < 1.96)
+  cate.coverage.oob.weighted <- mean(z.score.weighted <= 1.96)
   expect_gte(cate.coverage.oob.weighted, 0.7)
 })
 
