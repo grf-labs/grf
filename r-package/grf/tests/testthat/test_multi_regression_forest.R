@@ -121,5 +121,5 @@ test_that("sample weighted multi_regression_forest is estimated with kernel weig
   alpha1 <- get_forest_weights(mrf, x1)[1, ]
   theta1.lm <- lm(Y ~ 1, weights = alpha1 * sample.weights)
 
-  expect_equal(unname(theta1[1, ]), theta1.lm$coefficients[1, ], tol = 1e-10)
+  expect_equal(unname(theta1[1, ]), theta1.lm$coefficients[1, ], tolerance = 1e-10)
 })

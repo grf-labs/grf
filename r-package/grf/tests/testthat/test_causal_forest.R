@@ -155,9 +155,9 @@ test_that("causal forest predictions and variance estimates are invariant to sca
   pred.1 <- predict(forest.1, estimate.variance = TRUE)
   pred.2 <- predict(forest.2, estimate.variance = TRUE)
 
-  expect_equal(pred.1$predictions, pred.2$predictions, tol = 1e-10)
-  # expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tol = 1e-10)
-  # expect_equal(pred.1$debiased.error, pred.2$debiased.error, tol = 1e-10)
+  expect_equal(pred.1$predictions, pred.2$predictions, tolerance = 1e-10)
+  # expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tolerance = 1e-10)
+  # expect_equal(pred.1$debiased.error, pred.2$debiased.error, tolerance = 1e-10)
 })
 
 test_that("sample weighted causal forest is estimated with kernel weights `forest.weights * sample.weights`", {
@@ -179,7 +179,7 @@ test_that("sample weighted causal forest is estimated with kernel weights `fores
   alpha1 <- get_forest_weights(cf, x1)[1, ]
   theta1.lm <- lm(Y ~ W, weights = alpha1 * sample.weights)
 
-  expect_equal(theta1, theta1.lm$coefficients[[2]], tol = 1e-10)
+  expect_equal(theta1, theta1.lm$coefficients[[2]], tolerance = 1e-10)
 })
 
 test_that("IPCC weighting in the training of a causal forest with missing data improves its complete-data MSE.", {

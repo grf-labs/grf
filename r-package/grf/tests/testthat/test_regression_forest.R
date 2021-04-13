@@ -172,9 +172,9 @@ test_that("predictions are invariant to scaling of the sample weights.", {
   pred.1 <- predict(forest.1, estimate.variance = TRUE)
   pred.2 <- predict(forest.2, estimate.variance = TRUE)
 
-  expect_equal(pred.1$predictions, pred.2$predictions, tol = 1e-10)
-  expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tol = 1e-10)
-  expect_equal(pred.1$debiased.error, pred.2$debiased.error, tol = 1e-10)
+  expect_equal(pred.1$predictions, pred.2$predictions, tolerance = 1e-10)
+  expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tolerance = 1e-10)
+  expect_equal(pred.1$debiased.error, pred.2$debiased.error, tolerance = 1e-10)
 })
 
 test_that("sample weighted regression forest works as expected", {
@@ -187,7 +187,7 @@ test_that("sample weighted regression forest works as expected", {
   sample.weights <- 1 + Y0 * (1 / obs.prob - 1)
   rf <- regression_forest(X, Y, sample.weights = sample.weights, num.trees = 250)
 
-  expect_equal(mean(predict(rf)$predictions), weighted.mean(Y, sample.weights), tol = 0.05)
+  expect_equal(mean(predict(rf)$predictions), weighted.mean(Y, sample.weights), tolerance = 0.05)
 })
 
 test_that("sample weighted regression forest is estimated with kernel weights `forest.weights * sample.weights`", {
@@ -205,7 +205,7 @@ test_that("sample weighted regression forest is estimated with kernel weights `f
   alpha1 <- get_forest_weights(rf, x1)[1, ]
   theta1.lm <- lm(Y ~ 1, weights = alpha1 * sample.weights)
 
-  expect_equal(theta1, theta1.lm$coefficients[[1]], tol = 1e-10)
+  expect_equal(theta1, theta1.lm$coefficients[[1]], tolerance = 1e-10)
 })
 
 test_that("sample weighting in the training of a regression forest improves its sample-weighted MSE.", {
