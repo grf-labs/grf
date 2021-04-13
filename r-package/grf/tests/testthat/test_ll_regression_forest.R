@@ -19,8 +19,8 @@ test_that("local linear prediction gives reasonable estimates", {
   mse.grf.oob <- mean((preds.grf.oob$predictions - MU)^2)
   mse.ll.oob <- mean((preds.ll.oob$predictions - MU)^2)
 
-  expect_true(mse.ll.oob < 1)
-  expect_true(mse.ll.oob < mse.grf.oob / 2)
+  expect_lt(mse.ll.oob, 1)
+  expect_lt(mse.ll.oob, mse.grf.oob / 2)
 
   X.test <- matrix(rnorm(n * p), n, p)
   MU.test <- apply(X.test, FUN = f, MARGIN = 1)
@@ -31,8 +31,8 @@ test_that("local linear prediction gives reasonable estimates", {
   mse.grf <- mean((preds.grf$predictions - MU.test)^2)
   mse.ll <- mean((preds.ll$predictions - MU.test)^2)
 
-  expect_true(mse.ll < 1)
-  expect_true(mse.ll < mse.grf / 1.5)
+  expect_lt(mse.ll, 1)
+  expect_lt(mse.ll, mse.grf / 1.5)
 })
 
 test_that("linear correction variables function as expected", {
@@ -52,7 +52,7 @@ test_that("linear correction variables function as expected", {
   preds.selected <- predict(forest, linear.correction.variables = 1:3)
   mse.selected <- mean((preds.selected$predictions - MU)^2)
 
-  expect_true(mse.selected < mse / 1.5)
+  expect_lt(mse.selected, mse / 1.5)
 })
 
 test_that("local linear forest tuning returns lambda and decreases prediction error", {
@@ -80,7 +80,7 @@ test_that("local linear forest tuning returns lambda and decreases prediction er
   preds.untuned <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0.1)$predictions
   mse.untuned <- mean((preds.untuned - truth)^2)
 
-  expect_true(mse.tuned < 0.75 * mse.untuned)
+  expect_lt(mse.tuned, 0.75 * mse.untuned)
 })
 
 test_that("default local linear forest predict and regression forest predict with local.linear = TRUE are the same", {
@@ -104,7 +104,7 @@ test_that("default local linear forest predict and regression forest predict wit
 
   average.difference <- mean((ll.preds - preds)**2)
 
-  expect_true(average.difference < 0.05)
+  expect_lt(average.difference, 0.05)
 })
 
 test_that("local linear predict returns local linear predictions even without tuning parameters", {
@@ -158,7 +158,7 @@ test_that("local linear confidence intervals have reasonable coverage", {
   )
 
   percent_llf <- mean(df$lower <= truth & truth <= df$upper)
-  expect_true(percent_llf > 0.8)
+  expect_gt(percent_llf, 0.8)
 })
 
 
@@ -183,8 +183,8 @@ test_that("local linear confidence intervals match regression forest with large 
     ll.lambda = 10000000, estimate.variance = TRUE
   )
 
-  expect_true(max(abs(preds.llf$predictions - preds.rf$predictions)) < 10^-5)
-  expect_true(max(abs(preds.llf$variance.estimates - preds.rf$variance.estimates)) < 10^-5)
+  expect_lt(max(abs(preds.llf$predictions - preds.rf$predictions)), 10^-5)
+  expect_lt(max(abs(preds.llf$variance.estimates - preds.rf$variance.estimates)), 10^-5)
 })
 
 test_that("local linear predictions are correct without noise", {
@@ -200,12 +200,12 @@ test_that("local linear predictions are correct without noise", {
   preds.rf <- predict(forest)$predictions
   preds.llf <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
 
-  expect_true(mean((preds.llf - mu)^2) < 10^-10)
-  expect_true(mean((preds.rf - mu)^2) > 10^-2)
+  expect_lt(mean((preds.llf - mu)^2), 10^-10)
+  expect_gt(mean((preds.rf - mu)^2), 10^-2)
 
   forest <- ll_regression_forest(X, Y, num.trees = 80, enable.ll.split = TRUE, ci.group.size = 2)
   preds.llf.splits <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
-  expect_true(mean((preds.llf.splits - mu)^2) < 10^-10)
+  expect_lt(mean((preds.llf.splits - mu)^2), 10^-10)
 })
 
 test_that("prediction with and without CIs are the same", {
@@ -220,7 +220,7 @@ test_that("prediction with and without CIs are the same", {
 
   preds.rf <- predict(forest, ll.lambda = 1, estimate.variance = FALSE)$predictions
   preds.rf2 <- predict(forest, ll.lambda = 1, estimate.variance = TRUE)$predictions
-  expect_true(max(abs(preds.rf - preds.rf2)) < 10^-10)
+  expect_lt(max(abs(preds.rf - preds.rf2)), 10^-10)
 })
 
 test_that("output of tune local linear forest is consistent with prediction output", {
@@ -237,11 +237,11 @@ test_that("output of tune local linear forest is consistent with prediction outp
 
   ll.min <- tune.out$lambdas[1]
   pred.ll.min <- predict(forest, ll.lambda = ll.min)$predictions
-  expect_true(max(abs(tune.out$oob.predictions[, 1] - pred.ll.min)) < 10^-6)
+  expect_lt(max(abs(tune.out$oob.predictions[, 1] - pred.ll.min)), 10^-6)
 
   ll.max <- tune.out$lambdas[length(tune.out$lambdas)]
   pred.ll.max <- predict(forest, ll.lambda = ll.max)$predictions
-  expect_true(max(abs(tune.out$oob.predictions[, length(tune.out$lambdas)] - pred.ll.max)) < 10^-6)
+  expect_lt(max(abs(tune.out$oob.predictions[, length(tune.out$lambdas)] - pred.ll.max)), 10^-6)
 })
 
 test_that("local linear forests with local linear splits are numeric and include variance estimates", {
@@ -278,8 +278,8 @@ test_that("local linear splits reduce early splits on linear trends", {
    forest = regression_forest(X, Y)
    split.freq <- split_frequencies(forest, 1)
 
-   expect_true(split.freq[1,1] < ll.split.freq[1,1] / 3)
-   expect_true(split.freq[1,6] > ll.split.freq[1,6] * 3)
+   expect_lt(split.freq[1,1], ll.split.freq[1,1] / 3)
+   expect_gt(split.freq[1,6], ll.split.freq[1,6] * 3)
 })
 
 test_that("local linear splits improve predictions in a simple case", {
@@ -299,7 +299,7 @@ test_that("local linear splits improve predictions in a simple case", {
    mse.grf.splits.oob <- mean((preds.grf.splits.oob$predictions - MU)^2)
    mse.ll.splits.oob <- mean((preds.ll.splits.oob$predictions - MU)^2)
 
-   expect_true(mse.ll.splits.oob / mse.grf.splits.oob < 0.9)
+   expect_lt(mse.ll.splits.oob / mse.grf.splits.oob, 0.9)
 })
 
 test_that("local linear split regulating works in a simple case", {
@@ -318,5 +318,5 @@ test_that("local linear split regulating works in a simple case", {
 
    mse.preds.regulate <- mean((preds.regulate - mu)^2)
    mse.preds <- mean((preds - mu)^2)
-   expect_true(mse.preds.regulate / mse.preds < 0.5)
+   expect_lt(mse.preds.regulate / mse.preds, 0.5)
 })
