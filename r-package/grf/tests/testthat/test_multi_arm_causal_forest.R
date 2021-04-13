@@ -20,9 +20,9 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
 
   pp.cf <- predict(cf, estimate.variance = TRUE)
   pp.mcf <- predict(mcf, estimate.variance = TRUE)
-  z.cf <- abs((pp.cf$predictions - tau) / sqrt(pp.cf$variance.estimates))
-  z.mcf <- abs((pp.mcf$predictions[,,] - tau) / sqrt(pp.mcf$variance.estimates))
-  expect_equal(mean(z.cf > 1.96), mean(z.mcf > 1.96), tol = 0.05)
+  z.cf <- abs(pp.cf$predictions - tau) / sqrt(pp.cf$variance.estimates)
+  z.mcf <- abs(pp.mcf$predictions[,,] - tau) / sqrt(pp.mcf$variance.estimates)
+  expect_equal(mean(z.cf <= 1.96), mean(z.mcf <= 1.96), tol = 0.05)
 
   expect_equal(mean((pp.cf$predictions - pp.mcf$predictions)^2), 0, tol = 0.05)
   expect_equal(mean(pp.cf$predictions), mean(pp.mcf$predictions), tol = 0.05)
