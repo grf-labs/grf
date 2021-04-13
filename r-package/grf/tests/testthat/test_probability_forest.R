@@ -49,14 +49,14 @@ test_that("probability forest is well-calibrated", {
 
   prf <- probability_forest(X, Y, num.trees = 500)
   p.hat <- predict(prf, estimate.variance = TRUE)
-
   expect_lt(mean(rowMeans((p.hat$predictions - prob.true)^2)), 0.01)
 
-  ub <- p.hat$predictions + 2 * sqrt(p.hat$variance.estimates)
-  lb <- p.hat$predictions - 2 * sqrt(p.hat$variance.estimates)
-  covered <- lb < prob.true & prob.true < ub
-
-  expect_true(all(colMeans(covered) > 0.7))
+  z.score <- abs(p.hat$predictions - prob.true) / sqrt(p.hat$variance.estimates)
+  coverage <- colMeans(z.score < 1.96)
+  expect_gt(coverage[1], 0.7)
+  expect_gt(coverage[2], 0.7)
+  expect_gt(coverage[3], 0.7)
+  expect_gt(coverage[4], 0.7)
 })
 
 test_that("sample weighted probability forest is invariant to scaling", {
