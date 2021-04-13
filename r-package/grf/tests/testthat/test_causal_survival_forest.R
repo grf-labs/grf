@@ -50,28 +50,24 @@ test_that("causal survival forest variance estimates are decent", {
   true.effect <- data$cate
   cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
   cs.pred <- predict(cs.forest, estimate.variance = TRUE)
-  ub.oob <- cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates)
-  lb.oob <- cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates)
-  cate.coverage.oob <- mean(lb.oob < true.effect & true.effect < ub.oob)
+  z.score.oob <- abs(cs.pred$predictions - true.effect) / sqrt(cs.pred$variance.estimates)
+  cate.coverage.oob <- mean(z.score.oob < 1.96)
   expect_gte(cate.coverage.oob, 0.7)
 
   X.test <- matrix(0.5, 10, p)
   X.test[, 1] <- seq(0, 1, length.out = 10)
   true.effect.test <- generate_survival_data(10, p, Y.max = 1, X = X.test, n.mc = 5000, dgp = "simple1")$cate
   cs.pred.test <- predict(cs.forest, X.test, estimate.variance = TRUE)
-
-  ub.test <- cs.pred.test$predictions + 2 * sqrt(cs.pred.test$variance.estimates)
-  lb.test <- cs.pred.test$predictions - 2 * sqrt(cs.pred.test$variance.estimates)
-  cate.coverage.test <- mean(lb.test < true.effect.test & true.effect.test < ub.test)
+  z.score.test <- abs(cs.pred.test$predictions - true.effect.test) / sqrt(cs.pred.test$variance.estimates)
+  cate.coverage.test <- mean(z.score.test < 1.96)
   expect_gte(cate.coverage.test, 0.6)
 
   # Duplicate some samples
   sample.weights <- sample(c(1, 2), n, TRUE)
   cs.forest.weighted <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500, sample.weights = sample.weights)
   cs.pred.weighted <- predict(cs.forest.weighted, estimate.variance = TRUE)
-  ub.oob.weighted <- cs.pred.weighted$predictions + 2 * sqrt(cs.pred.weighted$variance.estimates)
-  lb.oob.weighted <- cs.pred.weighted$predictions - 2 * sqrt(cs.pred.weighted$variance.estimates)
-  cate.coverage.oob.weighted <- mean(lb.oob.weighted < true.effect & true.effect < ub.oob.weighted)
+  z.score.weighted <- abs(cs.pred.weighted$predictions - true.effect) / sqrt(cs.pred.weighted$variance.estimates)
+  cate.coverage.oob.weighted <- mean(z.score.weighted < 1.96)
   expect_gte(cate.coverage.oob.weighted, 0.7)
 })
 
