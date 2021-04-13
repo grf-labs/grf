@@ -29,16 +29,16 @@ test_that("instrumental forests give reasonable estimates", {
   expect_true(all(preds.iv.oob$variance.estimate > 0))
 
   error <- preds.iv$predictions - tau.true
-  expect_true(mean(error^2) < 0.4)
+  expect_lt(mean(error^2), 0.4)
 
   error.oob <- preds.iv.oob$predictions - tau
-  expect_true(mean(error.oob^2) < 0.4)
+  expect_lt(mean(error.oob^2), 0.4)
 
   Z <- error / sqrt(preds.iv$variance.estimate)
   Z.oob <- error.oob / sqrt(preds.iv.oob$variance.estimate)
 
-  expect_true(mean(abs(Z) > 1) < 0.5)
-  expect_true(mean(abs(Z.oob) > 1) < 0.5)
+  expect_lt(mean(abs(Z) > 1), 0.5)
+  expect_lt(mean(abs(Z.oob) > 1), 0.5)
 })
 
 test_that("sample weighted instrumental forest is estimated with kernel weights `forest.weights * sample.weights`", {
@@ -128,10 +128,10 @@ test_that("instrumental forests with censoring and ipcc weights compare to fores
 
   error.full <- preds.iv.full$predictions - tau.true
   error.ipcc <- preds.iv.ipcc$predictions - tau.true
-  expect_true(mean(error.full^2) < 0.4)
-  expect_true(mean(error.ipcc^2) < 0.6)
+  expect_lt(mean(error.full^2), 0.4)
+  expect_lt(mean(error.ipcc^2), 0.6)
 
-  expect_true(mean(preds.iv.full$variance.estimate) / mean(preds.iv.ipcc$variance.estimate) <= 1)
+  expect_lte(mean(preds.iv.full$variance.estimate) / mean(preds.iv.ipcc$variance.estimate), 1)
 
   Z.full <- error.full / sqrt(preds.iv.full$variance.estimate)
   Z.ipcc <- error.ipcc / sqrt(preds.iv.ipcc$variance.estimate)
@@ -139,6 +139,6 @@ test_that("instrumental forests with censoring and ipcc weights compare to fores
   # ask for a very weak approximation of coverage.
   coverage.full <- mean(abs(Z.full) <= 2)
   coverage.ipcc <- mean(abs(Z.ipcc) <= 2)
-  expect_true(coverage.full >= .6)
-  expect_true(coverage.ipcc >= .6)
+  expect_gte(coverage.full, 0.6)
+  expect_gte(coverage.ipcc, 0.6)
 })

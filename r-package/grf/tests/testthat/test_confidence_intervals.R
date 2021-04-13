@@ -18,9 +18,9 @@ test_that("using big ci.group.size doesn't result in tiny CIs", {
   pred.sm.group <- predict(forest.sm.group, X.test, estimate.variance = TRUE)
   var.sm.group <- sqrt(pred.sm.group$variance.estimates)
 
-  expect_true(min(var.big.group) > 0.01)
-  expect_true(min(var.sm.group) > 0.01)
-  expect_true(mean(var.big.group) / mean(var.sm.group) > 0.8)
+  expect_gt(min(var.big.group), 0.01)
+  expect_gt(min(var.sm.group), 0.01)
+  expect_gt(mean(var.big.group) / mean(var.sm.group), 0.8)
 })
 
 
@@ -32,7 +32,7 @@ test_that("regression CIs are reasonable", {
   forest <- regression_forest(X, Y)
   preds.oob <- predict(forest, estimate.variance = TRUE)
   error.standardized <- (preds.oob$predictions - (X[, 1] > 0)) / sqrt(preds.oob$variance.estimates)
-  expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.15)
+  expect_lte(mean(abs(error.standardized) > qnorm(0.975)), 0.15)
 })
 
 test_that("instrumental CIs are reasonable", {
@@ -59,7 +59,7 @@ test_that("instrumental CIs are reasonable", {
   forest <- instrumental_forest(X, Y, W, Z)
   tau.hat <- predict(forest, newdata = X.test, estimate.variance = TRUE)
   error.standardized <- (tau.hat$predictions - tau.true) / sqrt(tau.hat$variance.estimates)
-  expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.18)
+  expect_lte(mean(abs(error.standardized) > qnorm(0.975)), 0.18)
 })
 
 test_that("instrumental CIs are invariant to scaling Z", {
@@ -79,8 +79,8 @@ test_that("instrumental CIs are invariant to scaling Z", {
   forest <- causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0)
   tau.hat <- predict(forest, newdata = X.test, estimate.variance = TRUE)
   error.standardized <- (tau.hat$predictions - tau.true) / sqrt(tau.hat$variance.estimates)
-  expect_true(mean(abs(error.standardized) > qnorm(0.975)) <= 0.15)
-  expect_true(mean(abs(error.standardized) > qnorm(0.975)) >= 0.005)
+  expect_lte(mean(abs(error.standardized) > qnorm(0.975)), 0.15)
+  expect_gte(mean(abs(error.standardized) > qnorm(0.975)), 0.005)
 
   Z <- 0.00000001 * W
   forest.iv <- instrumental_forest(X, Y, W, Z,
@@ -88,11 +88,11 @@ test_that("instrumental CIs are invariant to scaling Z", {
   )
   tau.hat.iv <- predict(forest.iv, newdata = X.test, estimate.variance = TRUE)
   error.standardized.iv <- (tau.hat.iv$predictions - tau.true) / sqrt(tau.hat.iv$variance.estimates)
-  expect_true(mean(abs(error.standardized.iv) > qnorm(0.975)) <= 0.15)
-  expect_true(mean(abs(error.standardized.iv) > qnorm(0.975)) >= 0.005)
+  expect_lte(mean(abs(error.standardized.iv) > qnorm(0.975)), 0.15)
+  expect_gte(mean(abs(error.standardized.iv) > qnorm(0.975)), 0.005)
 
   kst <- ks.test(error.standardized, error.standardized.iv)
-  expect_true(kst$statistic <= 0.05)
+  expect_lte(kst$statistic, 0.05)
 })
 
 test_that("LL causal CIs are reasonable", {
