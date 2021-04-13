@@ -22,15 +22,15 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   pp.mcf <- predict(mcf, estimate.variance = TRUE)
   z.cf <- abs(pp.cf$predictions - tau) / sqrt(pp.cf$variance.estimates)
   z.mcf <- abs(pp.mcf$predictions[,,] - tau) / sqrt(pp.mcf$variance.estimates)
-  expect_equal(mean(z.cf <= 1.96), mean(z.mcf <= 1.96), tol = 0.05)
+  expect_equal(mean(z.cf <= 1.96), mean(z.mcf <= 1.96), tolerance = 0.05)
 
-  expect_equal(mean((pp.cf$predictions - pp.mcf$predictions)^2), 0, tol = 0.05)
-  expect_equal(mean(pp.cf$predictions), mean(pp.mcf$predictions), tol = 0.05)
+  expect_equal(mean((pp.cf$predictions - pp.mcf$predictions)^2), 0, tolerance = 0.05)
+  expect_equal(mean(pp.cf$predictions), mean(pp.mcf$predictions), tolerance = 0.05)
 
-  expect_equal(mean((predict(cf, X)$predictions - predict(mcf, X)$predictions)^2), 0, tol = 0.05)
-  expect_equal(mean(predict(cf, X)$predictions), mean(predict(mcf, X)$predictions), tol = 0.05)
+  expect_equal(mean((predict(cf, X)$predictions - predict(mcf, X)$predictions)^2), 0, tolerance = 0.05)
+  expect_equal(mean(predict(cf, X)$predictions), mean(predict(mcf, X)$predictions), tolerance = 0.05)
 
-  expect_equal(average_treatment_effect(cf), average_treatment_effect(mcf)[,], tol = 0.001)
+  expect_equal(average_treatment_effect(cf), average_treatment_effect(mcf)[,], tolerance = 0.001)
 })
 
 test_that("multi_arm_causal_forest contrasts works as expected", {
@@ -49,18 +49,18 @@ test_that("multi_arm_causal_forest contrasts works as expected", {
   tau.hat.C <- predict(mcf.C, X)$predictions[,,]
 
   # 1. With easy constant treatment effects we estimate the correct contrasts
-  expect_equal(colMeans(tau.hat.oob.A), c("B - A" = 2.8 - 1.5, "C - A" = -4 - 1.5), tol = 0.04)
-  expect_equal(colMeans(tau.hat.A), c("B - A" = 2.8 - 1.5, "C - A" = -4 - 1.5), tol = 0.04)
-  expect_equal(colMeans(tau.hat.oob.C), c("A - C" = 1.5 - (-4), "B - C" = 2.8 - (-4)), tol = 0.04)
-  expect_equal(colMeans(tau.hat.C), c("A - C" = 1.5 - (-4), "B - C" = 2.8 - (-4)), tol = 0.04)
+  expect_equal(colMeans(tau.hat.oob.A), c("B - A" = 2.8 - 1.5, "C - A" = -4 - 1.5), tolerance = 0.04)
+  expect_equal(colMeans(tau.hat.A), c("B - A" = 2.8 - 1.5, "C - A" = -4 - 1.5), tolerance = 0.04)
+  expect_equal(colMeans(tau.hat.oob.C), c("A - C" = 1.5 - (-4), "B - C" = 2.8 - (-4)), tolerance = 0.04)
+  expect_equal(colMeans(tau.hat.C), c("A - C" = 1.5 - (-4), "B - C" = 2.8 - (-4)), tolerance = 0.04)
 
   # 2. The estimated contrast respects the symmetry properties we expect. It is not possible to check
   # this invariant exactly since differences in relabeling may lead to different trees
-  expect_equal(tau.hat.oob.A[, "C - A"], -1 * tau.hat.oob.C[, "A - C"], tol = 0.01)
-  expect_equal(tau.hat.A[, "C - A"], -1 * tau.hat.C[, "A - C"], tol = 0.01)
+  expect_equal(tau.hat.oob.A[, "C - A"], -1 * tau.hat.oob.C[, "A - C"], tolerance = 0.01)
+  expect_equal(tau.hat.A[, "C - A"], -1 * tau.hat.C[, "A - C"], tolerance = 0.01)
 
-  expect_equal(tau.hat.oob.A[, "B - A"] - tau.hat.oob.A[, "C - A"], tau.hat.oob.C[, "B - C"], tol = 0.01)
-  expect_equal(tau.hat.A[, "B - A"] - tau.hat.A[, "C - A"], tau.hat.C[, "B - C"], tol = 0.01)
+  expect_equal(tau.hat.oob.A[, "B - A"] - tau.hat.oob.A[, "C - A"], tau.hat.oob.C[, "B - C"], tolerance = 0.01)
+  expect_equal(tau.hat.A[, "B - A"] - tau.hat.A[, "C - A"], tau.hat.C[, "B - C"], tolerance = 0.01)
 
   # The above invariance holds exactly if we ignore splitting and just predict
   mcf.A.ns <- multi_arm_causal_forest(X, Y, W, num.trees = 250, seed = 42, min.node.size = n)
@@ -71,11 +71,11 @@ test_that("multi_arm_causal_forest contrasts works as expected", {
   tau.hat.oob.C.ns <- predict(mcf.C.ns)$predictions[,,]
   tau.hat.C.ns <- predict(mcf.C.ns, X)$predictions[,,]
 
-  expect_equal(tau.hat.oob.A.ns[, "C - A"], -1 * tau.hat.oob.C.ns[, "A - C"], tol = 1e-10)
-  expect_equal(tau.hat.A.ns[, "C - A"], -1 * tau.hat.C.ns[, "A - C"], tol = 1e-10)
+  expect_equal(tau.hat.oob.A.ns[, "C - A"], -1 * tau.hat.oob.C.ns[, "A - C"], tolerance = 1e-10)
+  expect_equal(tau.hat.A.ns[, "C - A"], -1 * tau.hat.C.ns[, "A - C"], tolerance = 1e-10)
 
-  expect_equal(tau.hat.oob.A.ns[, "B - A"] - tau.hat.oob.A.ns[, "C - A"], tau.hat.oob.C.ns[, "B - C"], tol = 1e-10)
-  expect_equal(tau.hat.A.ns[, "B - A"] - tau.hat.A.ns[, "C - A"], tau.hat.C.ns[, "B - C"], tol = 1e-10)
+  expect_equal(tau.hat.oob.A.ns[, "B - A"] - tau.hat.oob.A.ns[, "C - A"], tau.hat.oob.C.ns[, "B - C"], tolerance = 1e-10)
+  expect_equal(tau.hat.A.ns[, "B - A"] - tau.hat.A.ns[, "C - A"], tau.hat.C.ns[, "B - C"], tolerance = 1e-10)
 })
 
 test_that("multi_arm_causal_forest with binary treatment respects contrast invariance", {
@@ -98,9 +98,9 @@ test_that("multi_arm_causal_forest with binary treatment respects contrast invar
   pp.flipped <- predict(cf.flipped)$predictions[,,]
   pp.relevel <- predict(cf.relevel)$predictions[,,]
 
-  expect_equal(pp, -1 * pp.flipped, tol = 0)
-  expect_equal(pp, -1 * pp.relevel, tol = 0)
-  expect_equal(pp.flipped, pp.relevel, tol = 0)
+  expect_equal(pp, -1 * pp.flipped, tolerance = 0)
+  expect_equal(pp, -1 * pp.relevel, tolerance = 0)
+  expect_equal(pp.flipped, pp.relevel, tolerance = 0)
 })
 
 test_that("multi_arm_causal_forest ATE works as expected", {
@@ -114,17 +114,17 @@ test_that("multi_arm_causal_forest ATE works as expected", {
   mcf <- multi_arm_causal_forest(X, Y, W, num.trees = 500)
 
   ate <- average_treatment_effect(mcf)
-  expect_equal(ate["B - A", "estimate"], mean(tauB), tol = 3 * ate["B - A", "std.err"])
-  expect_equal(ate["C - A", "estimate"], mean(tauC), tol = 3 * ate["C - A", "std.err"])
+  expect_equal(ate["B - A", "estimate"], mean(tauB), tolerance = 3 * ate["B - A", "std.err"])
+  expect_equal(ate["C - A", "estimate"], mean(tauC), tolerance = 3 * ate["C - A", "std.err"])
 
   ate.subset <- average_treatment_effect(mcf, subset = X[, 2] < 0)
-  expect_equal(ate.subset["B - A", "estimate"], 0, tol = 3 * ate.subset["B - A", "std.err"])
+  expect_equal(ate.subset["B - A", "estimate"], 0, tolerance = 3 * ate.subset["B - A", "std.err"])
 
   mcf.B <- multi_arm_causal_forest(X, Y, relevel(W, ref = "B"), num.trees = 500)
   ate.B <- average_treatment_effect(mcf.B)
 
-  expect_equal(ate.B["A - B", "estimate"], -1 * ate["B - A", "estimate"], tol = 0.05)
-  expect_equal(ate.B["C - B", "estimate"], ate["C - A", "estimate"] - ate["B - A", "estimate"], tol = 0.05)
+  expect_equal(ate.B["A - B", "estimate"], -1 * ate["B - A", "estimate"], tolerance = 0.05)
+  expect_equal(ate.B["C - B", "estimate"], ate["C - A", "estimate"] - ate["B - A", "estimate"], tolerance = 0.05)
 })
 
 test_that("multi_arm_causal_forest ATE standard errors are consistent with rest of GRF", {
@@ -146,8 +146,8 @@ test_that("multi_arm_causal_forest ATE standard errors are consistent with rest 
                               cluster = clusters <- if (length(mcf$clusters) > 0)
                                 mcf$clusters else 1:length(mcf$Y.orig)
                               )
-  expect_equal(ate[1, 2], lm.test[1, 2], tol = 1e-10)
-  expect_equal(ate[2, 2], lm.test[2, 2], tol = 1e-10)
+  expect_equal(ate[1, 2], lm.test[1, 2], tolerance = 1e-10)
+  expect_equal(ate[2, 2], lm.test[2, 2], tolerance = 1e-10)
 })
 
 test_that("multi_arm_causal_forest predictions are kernel weighted correctly", {
@@ -172,8 +172,8 @@ test_that("multi_arm_causal_forest predictions are kernel weighted correctly", {
   alpha1.weighted <- get_forest_weights(mcf.weighted, x1)[1, ]
   theta1.lm.weighted <- lm(Y ~ W.matrix[, -1], weights = alpha1.weighted * sample.weights)
 
-  expect_equal(as.numeric(theta1), as.numeric(theta1.lm$coefficients[-1]), tol = 1e-6)
-  expect_equal(as.numeric(theta1.weighted), as.numeric(theta1.lm.weighted$coefficients[-1]), tol = 1e-6)
+  expect_equal(as.numeric(theta1), as.numeric(theta1.lm$coefficients[-1]), tolerance = 1e-6)
+  expect_equal(as.numeric(theta1.weighted), as.numeric(theta1.lm.weighted$coefficients[-1]), tolerance = 1e-6)
 })
 
 test_that("multi_arm_causal_forest predictions and variance estimates are invariant to scaling of the sample weights.", {
@@ -193,9 +193,9 @@ test_that("multi_arm_causal_forest predictions and variance estimates are invari
   pred.1 <- predict(forest.1, estimate.variance = TRUE)
   pred.2 <- predict(forest.2, estimate.variance = TRUE)
 
-  expect_equal(pred.1$predictions, pred.2$predictions, tol = 1e-10)
-  # expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tol = 1e-10)
-  # expect_equal(pred.1$debiased.error, pred.2$debiased.error, tol = 1e-10)
+  expect_equal(pred.1$predictions, pred.2$predictions, tolerance = 1e-10)
+  # expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tolerance = 1e-10)
+  # expect_equal(pred.1$debiased.error, pred.2$debiased.error, tolerance = 1e-10)
 })
 
 test_that("multi_arm_causal_forest confidence intervals are reasonable", {

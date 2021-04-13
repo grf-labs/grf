@@ -109,6 +109,6 @@ test_that("survival_forest works as expected with missing values", {
   mse.oob.diff <- mean(rowMeans((predict(sf)$predictions - predict(sf.mia)$predictions)^2))
   mse.diff <- mean(rowMeans((predict(sf, X)$predictions - predict(sf.mia, X.mia)$predictions)^2))
 
-  expect_equal(mse.oob.diff, 0, tol = 0.001)
-  expect_equal(mse.diff, 0, tol = 0.001)
+  expect_equal(mse.oob.diff, 0, tolerance = 0.001)
+  expect_equal(mse.diff, 0, tolerance = 0.001)
 })

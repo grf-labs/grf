@@ -339,13 +339,13 @@ test_that("causal_forest works as expected with missing values", {
   diff.mse <- mean((predict(rf.mia, X.mia)$pred - Y)^2) - mean((predict(rf, X)$pred - Y)^2)
   diff.mse.test <- mean((predict(rf.mia, X.mia.test)$pred - Y)^2) - mean((predict(rf, X.test)$pred - Y)^2)
 
-  expect_equal(mse.oob.diff, 0, tol = 0.005)
-  expect_equal(mse.diff, 0, tol = 0.005)
-  expect_equal(mse.test.diff, 0, tol = 0.005)
+  expect_equal(mse.oob.diff, 0, tolerance = 0.005)
+  expect_equal(mse.diff, 0, tolerance = 0.005)
+  expect_equal(mse.test.diff, 0, tolerance = 0.005)
 
-  expect_equal(diff.mse.oob, 0, tol = 0.05)
-  expect_equal(diff.mse, 0, tol = 0.05)
-  expect_equal(diff.mse.test, 0, tol = 0.05)
+  expect_equal(diff.mse.oob, 0, tolerance = 0.05)
+  expect_equal(diff.mse, 0, tolerance = 0.05)
+  expect_equal(diff.mse.test, 0, tolerance = 0.05)
 
   # All NaNs
   X[, ] <- NaN
@@ -359,7 +359,7 @@ test_that("causal_forest works as expected with missing values", {
   rf.mia <- causal_forest(X.mia, Y, W, 0, 0, seed = 123)
   rf <- causal_forest(X, Y, W, 0, 0, seed = 123)
   mse.oob.diff.allnan <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
-  expect_equal(mse.oob.diff.allnan, 0, tol = 0.0001)
+  expect_equal(mse.oob.diff.allnan, 0, tolerance = 0.0001)
 })
 
 test_that("a causal forest workflow with missing values works as expected", {
