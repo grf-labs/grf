@@ -30,7 +30,7 @@ test_that("regression error estimates are reasonable", {
   expect_equal(err.debiased.200, mse.200, tolerance = 0.01 * sigma^2)
   expect_equal(err.debiased.5, err.debiased.200, tolerance = 0.025 * sigma^2)
 
-  expect_true(mse.5 - mse.200 >= sigma^2 / 10)
+  expect_gte(mse.5 - mse.200, sigma^2 / 10)
 })
 
 test_that("causal error estimates are reasonable", {
@@ -91,6 +91,6 @@ test_that("causal error estimates are reasonable", {
   expect_equal(err.400, raw.400, tolerance = 0.1 * sigma^2)
   expect_equal(err.10, err.400, tolerance = 1.5 * sigma^2)
   expect_equal(err.20, err.400, tolerance = 1.0 * sigma^2)
-  expect_true(raw.10 - err.400 > sigma^2)
-  expect_true(err.10 - err.400 < sigma^2)
+  expect_gt(raw.10 - err.400, sigma^2)
+  expect_lt(err.10 - err.400, sigma^2)
 })

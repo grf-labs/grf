@@ -217,14 +217,12 @@ test_that("Weighting is roughly equivalent to replication of samples", {
     abs(a$predictions - b$predictions) / sqrt(2 * (a$variance + b$variance))
   }
 
-  expect_true(mean(z_scores(
-    predict(regression.forest.rep, X[test, ], estimate.variance = TRUE),
-    predict(regression.forest.weight, X[test, ], estimate.variance = TRUE)
-  ) <= 1) >= .5)
-  expect_true(mean(z_scores(
-    predict(regression.forest.rep, X[test, ], estimate.variance = TRUE),
-    predict(regression.forest.biased, X[test, ], estimate.variance = TRUE)
-  ) >= 1) >= .5)
+  expect_gte(mean(z_scores(predict(regression.forest.rep, X[test, ], estimate.variance = TRUE),
+                           predict(regression.forest.weight, X[test, ], estimate.variance = TRUE)) <= 1),
+            0.5)
+  expect_gte(mean(z_scores(predict(regression.forest.rep, X[test, ], estimate.variance = TRUE),
+                           predict(regression.forest.biased, X[test, ], estimate.variance = TRUE)) >= 1),
+            0.5)
   ## causal forest
   causal.forest.rep <- causal_forest(X.rep, Y.rep, W.rep,
     W.hat = predict(regression.forest.rep)$predictions, num.trees = num.trees
@@ -235,11 +233,10 @@ test_that("Weighting is roughly equivalent to replication of samples", {
   causal.forest.biased <- causal_forest(X[rep(train, 2), ], c(Y.a[train], Y.b[train]), c(W.a[train], W.b[train]),
     W.hat = predict(regression.forest.biased)$predictions, num.trees = num.trees
   )
-  expect_true(mean(z_scores(
-    predict(causal.forest.rep, X[test, ], estimate.variance = TRUE),
-    predict(causal.forest.weight, X[test, ], estimate.variance = TRUE)
-  ) <= 1) >= .5)
-  expect_true(mean(predict(causal.forest.rep, X[test, ]) > 100 + predict(causal.forest.biased, X[test, ])) >= .5)
+  expect_gte(mean(z_scores(predict(causal.forest.rep, X[test, ], estimate.variance = TRUE),
+                           predict(causal.forest.weight, X[test, ], estimate.variance = TRUE)) <= 1),
+             0.5)
+  expect_gte(mean(predict(causal.forest.rep, X[test, ]) > 100 + predict(causal.forest.biased, X[test, ])), 0.5)
 })
 
 test_that("A non-pruned honest causal forest contains trees with empty leafs,

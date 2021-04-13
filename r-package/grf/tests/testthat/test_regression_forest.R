@@ -80,14 +80,14 @@ test_that("regression variance estimates are positive", {
   expect_true(all(preds.oob$variance.estimate > 0))
 
   error <- preds$predictions - truth
-  expect_true(mean(error^2) < 0.2)
+  expect_lt(mean(error^2), 0.2)
 
   truth.oob <- (X[, 1] > 0)
   error.oob <- preds.oob$predictions - truth.oob
-  expect_true(mean(error.oob^2) < 0.2)
+  expect_lt(mean(error.oob^2), 0.2)
 
   Z.oob <- error.oob / sqrt(preds.oob$variance.estimate)
-  expect_true(mean(abs(Z.oob) > 1) < 0.5)
+  expect_lt(mean(abs(Z.oob) > 1), 0.5)
 })
 
 test_that("using a sparse data representation produces the same predictions", {
@@ -126,7 +126,7 @@ test_that("regression forests with a positive imbalance.penalty have reasonable 
 
   forest <- regression_forest(X, Y, imbalance.penalty = 0.001)
   split.freq <- split_frequencies(forest)
-  expect_true(sum(split.freq[4, ]) > 0)
+  expect_gt(sum(split.freq[4, ]), 0)
 })
 
 test_that("regression forests with a very small imbalance.penalty behave similarly to unpenalized forests.", {
@@ -141,7 +141,7 @@ test_that("regression forests with a very small imbalance.penalty behave similar
 
   diff.large.penalty <- abs(forest.large.penalty$debiased.error - forest$debiased.error)
   diff.small.penalty <- abs(forest.small.penalty$debiased.error - forest$debiased.error)
-  expect_true(mean(diff.small.penalty) < 0.10 * mean(diff.large.penalty))
+  expect_lt(mean(diff.small.penalty), 0.10 * mean(diff.large.penalty))
 })
 
 test_that("variance estimates are positive [with sample weights]", {

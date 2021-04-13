@@ -17,5 +17,5 @@ test_that("instrumental forest tuning decreases prediction error", {
   tuned.iv.forest <- instrumental_forest(X, Y, T, Z, Y.hat, W.hat, Z.hat, tune.parameters = "all")
   tuned.error <- mean((TAU - predict(tuned.iv.forest)$predictions)^2)
 
-  expect_true(tuned.error < error * 0.8)
+  expect_lt(tuned.error, error * 0.8)
 })

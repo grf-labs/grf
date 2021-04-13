@@ -9,7 +9,7 @@ test_that("quantile forests have reasonable split frequencies", {
 
   qrf <- quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry = p, min.node.size = 10, sample.fraction = 0.632)
   split.frequencies <- split_frequencies(qrf, 4)
-  expect_true(split.frequencies[1, i] / sum(split.frequencies[1, ]) > 1 / 2)
+  expect_gt(split.frequencies[1, i] / sum(split.frequencies[1, ]), 1 / 2)
 })
 
 test_that("quantile forests with regression splitting are identical to regression forests", {
@@ -56,8 +56,8 @@ test_that("quantile forest predictions for 90th percentile are strongly positive
   Y <- runif(n) + 100 * (X[, i] > 0)
 
   qrf <- quantile_forest(X, Y, quantiles = c(0.1, 0.5, 0.9), mtry = p, min.node.size = 10, sample.fraction = 0.632)
-  expect_true(cor(predict(qrf, quantiles = .9)$predictions, X[, i]) > .5)
-  expect_true(cor(predict(qrf, X.new, quantiles = .9)$predictions, X.new[, i]) > .5)
+  expect_gt(cor(predict(qrf, quantiles = .9)$predictions, X[, i]), 0.5)
+  expect_gt(cor(predict(qrf, X.new, quantiles = .9)$predictions, X.new[, i]), 0.5)
 })
 
 test_that("quantile_forest works as expected with missing values", {
