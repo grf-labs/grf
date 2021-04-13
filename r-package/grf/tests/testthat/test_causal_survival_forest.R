@@ -170,8 +170,8 @@ test_that("causal survival forest works as expected with missing values", {
   mse.oob.diff <- mean((predict(csf)$predictions - predict(csf.mia)$predictions)^2)
   mse.diff <- mean((predict(csf, data$X)$predictions - predict(csf.mia, X.mia)$predictions)^2)
 
-  expect_equal(mse.oob.diff, 0, tol = 0.001)
-  expect_equal(mse.diff, 0, tol = 0.001)
+  expect_equal(mse.oob.diff, 0, tolerance = 0.001)
+  expect_equal(mse.diff, 0, tolerance = 0.001)
 })
 
 # This characterization test locks in behavior for the default causal survival forest.
@@ -231,10 +231,10 @@ test_that("causal survival forest summary functions works as expected", {
   ate.subset <- average_treatment_effect(cs.forest, subset = X[, 1] > 0.5)
 
   expect_equal(blp[1], ate[["estimate"]])
-  expect_equal(blp[2], ate[["std.err"]], tol = 1e-4)
-  expect_equal(ate[["estimate"]], mean(tau), tol = 3 * ate[["std.err"]])
+  expect_equal(blp[2], ate[["std.err"]], tolerance = 1e-4)
+  expect_equal(ate[["estimate"]], mean(tau), tolerance = 3 * ate[["std.err"]])
 
   expect_equal(blp.subset[1], ate.subset[["estimate"]])
-  expect_equal(blp.subset[2], ate.subset[["std.err"]], tol = 1e-4)
-  expect_equal(ate.subset[["estimate"]], mean(tau[X[, 1] > 0.5]), tol = 3 * ate.subset[["std.err"]])
+  expect_equal(blp.subset[2], ate.subset[["std.err"]], tolerance = 1e-4)
+  expect_equal(ate.subset[["estimate"]], mean(tau[X[, 1] > 0.5]), tolerance = 3 * ate.subset[["std.err"]])
 })
