@@ -64,8 +64,8 @@ test_that("multi_regression_forest is similar to two regression_forest", {
   diff1 <- mean((predict(mrf)$predictions[, 1] - predict(rf1)$predictions)^2)
   diff2 <- mean((predict(mrf)$predictions[, 2] - predict(rf2)$predictions)^2)
 
-  expect_true(diff1 < 0.01)
-  expect_true(diff2 < 0.01)
+  expect_lt(diff1, 0.01)
+  expect_lt(diff2, 0.01)
 })
 
 test_that("multi_regression_forest is on parity with regression_forest", {

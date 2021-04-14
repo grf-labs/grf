@@ -95,8 +95,8 @@ reference:
   - title: Analysis tools
     desc: Functions for extracting further information from fitted forest objects.
     contents:
+      - get_forest_weights
       - get_leaf_node
-      - get_sample_weights
       - get_tree
       - merge_forests
       - split_frequencies

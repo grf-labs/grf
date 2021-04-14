@@ -73,9 +73,6 @@
 #' @param tune.num.draws The number of random parameter values considered when using the model
 #'                          to select the optimal parameters. Default is 1000.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
-#' @param orthog.boosting (experimental) If TRUE, then when Y.hat = NULL or W.hat is NULL,
-#'                 the missing quantities are estimated using boosted regression forests.
-#'                 The number of boosting steps is selected automatically. Default is FALSE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -159,7 +156,6 @@ causal_forest <- function(X, Y, W,
                           tune.num.reps = 50,
                           tune.num.draws = 1000,
                           compute.oob.predictions = TRUE,
-                          orthog.boosting = FALSE,
                           num.threads = NULL,
                           seed = runif(1, 0, .Machine$integer.max)) {
   has.missing.values <- validate_X(X, allow.na = TRUE)
@@ -198,11 +194,8 @@ causal_forest <- function(X, Y, W,
                      num.threads = num.threads,
                      seed = seed)
 
-  if (is.null(Y.hat) && !orthog.boosting) {
+  if (is.null(Y.hat)) {
     forest.Y <- do.call(regression_forest, c(Y = list(Y), args.orthog))
-    Y.hat <- predict(forest.Y)$predictions
-  } else if (is.null(Y.hat) && orthog.boosting) {
-    forest.Y <- do.call(boosted_regression_forest, c(Y = list(Y), args.orthog))
     Y.hat <- predict(forest.Y)$predictions
   } else if (length(Y.hat) == 1) {
     Y.hat <- rep(Y.hat, nrow(X))
@@ -210,11 +203,8 @@ causal_forest <- function(X, Y, W,
     stop("Y.hat has incorrect length.")
   }
 
-  if (is.null(W.hat) && !orthog.boosting) {
+  if (is.null(W.hat)) {
     forest.W <- do.call(regression_forest, c(Y = list(W), args.orthog))
-    W.hat <- predict(forest.W)$predictions
-  } else if (is.null(W.hat) && orthog.boosting) {
-    forest.W <- do.call(boosted_regression_forest, c(Y = list(W), args.orthog))
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == 1) {
     W.hat <- rep(W.hat, nrow(X))

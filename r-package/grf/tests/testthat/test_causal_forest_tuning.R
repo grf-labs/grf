@@ -15,7 +15,7 @@ test_that("causal forest tuning decreases prediction error", {
   tuned.preds <- predict(tuned.forest)
   tuned.error <- mean((tuned.preds$predictions - TAU)^2)
 
-  expect_true(tuned.error < error * 0.75)
+  expect_lt(tuned.error, error * 0.75)
 })
 
 test_that("local linear causal forest tuning returns lambda and decreases error", {
@@ -32,7 +32,7 @@ test_that("local linear causal forest tuning returns lambda and decreases error"
   lambda <- tuning.results$lambda.min
 
   expect_true(is.numeric(lambda))
-  expect_true(length(lambda) == 1)
+  expect_equal(length(lambda), 1)
 
   preds.tuned <- predict(forest, linear.correction.variables = 1:p, ll.lambda = lambda)$predictions
   error.tuned <- mean((preds.tuned - TAU)^2)
@@ -40,7 +40,7 @@ test_that("local linear causal forest tuning returns lambda and decreases error"
   preds.untuned <- predict(forest, linear.correction.variables = 1:p, ll.lambda = 0)$predictions
   error.untuned <- mean((preds.untuned - TAU)^2)
 
-  expect_true(error.tuned < 0.75 * error.untuned)
+  expect_lt(error.tuned, 0.75 * error.untuned)
 })
 
 test_that("output of tune local linear causal forest is consistent with prediction output", {
@@ -58,9 +58,9 @@ test_that("output of tune local linear causal forest is consistent with predicti
 
   ll.min <- tuning.results$lambdas[1]
   pred.ll.min <- predict(forest, linear.correction.variables = 1:p, ll.lambda = ll.min)$predictions
-  expect_true(max(abs(tuning.results$oob.predictions[, 1] - pred.ll.min)) < 10^-6)
+  expect_lt(max(abs(tuning.results$oob.predictions[, 1] - pred.ll.min)), 10^-6)
 
   ll.max <- tuning.results$lambdas[length(tuning.results$lambdas)]
   pred.ll.max <- predict(forest, linear.correction.variables = 1:p, ll.lambda = ll.max)$predictions
-  expect_true(max(abs(tuning.results$oob.predictions[, length(tuning.results$lambdas)] - pred.ll.max)) < 10^-6)
+  expect_lt(max(abs(tuning.results$oob.predictions[, length(tuning.results$lambdas)] - pred.ll.max)), 10^-6)
 })

@@ -15,7 +15,7 @@ test_that("regression forest tuning decreases prediction error", {
   tuned.preds <- predict(tuned.forest, X.test)
   tuned.error <- mean((tuned.preds$predictions - truth)^2)
 
-  expect_true(tuned.error < error * 0.75)
+  expect_lt(tuned.error, error * 0.75)
 })
 
 test_that("tuning with a seed ensures reproducible results without disturbing global seed", {
@@ -24,7 +24,7 @@ test_that("tuning with a seed ensures reproducible results without disturbing gl
 
   X <- matrix(runif(n * p), n, p)
   Y <- (X[, 1] > 0) + rnorm(n)
-  
+
   global.seed.before <- .Random.seed
   tuned.forest.1 <- regression_forest(X, Y, num.trees = 150, tune.parameters = "all", seed = 1)
   tuned.preds.1 <- predict(tuned.forest.1)

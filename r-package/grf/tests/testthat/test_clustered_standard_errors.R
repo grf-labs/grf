@@ -51,7 +51,7 @@ test_that("Clustered standard errors are greater than unclustered", {
 
   expect_equal(mean_no_cluster, mean_corrected, tolerance = 0.2 * mean_no_cluster)
   expect_equal(mean_no_cluster, mean_corrected_no_cluster, tolerance = 0.2 * mean_no_cluster)
-  expect_true(mean_no_cluster > 2 * mean_uncorrected)
+  expect_gt(mean_no_cluster, 2 * mean_uncorrected)
 
   mse_no_cluster <- mean((preds_no_cluster.oob$predictions - MU)^2)
   mse_uncorrected <- mean((preds_uncorrected.oob$predictions - MU_clusters)^2)
@@ -60,7 +60,7 @@ test_that("Clustered standard errors are greater than unclustered", {
 
   expect_equal(mse_no_cluster, mse_corrected, tolerance = 0.16 * mse_no_cluster)
   expect_equal(mse_no_cluster, mse_corrected_no_cluster, tolerance = 0.1 * mse_no_cluster)
-  expect_true(mse_no_cluster < 2 * mse_uncorrected)
+  expect_lt(mse_no_cluster, 2 * mse_uncorrected)
 })
 
 test_that("Clustered predictions are reasonable with unevenly sized clusters", {
@@ -117,7 +117,7 @@ test_that("Clustered predictions are reasonable with unevenly sized clusters", {
 
   expect_equal(mse_no_cluster, mse_corrected, tolerance = 0.1 * mse_no_cluster)
   expect_equal(mse_no_cluster, mse_corrected_no_cluster, tolerance = 0.1 * mse_no_cluster)
-  expect_true(mse_no_cluster > 2 * mse_uncorrected)
+  expect_gt(mse_no_cluster, 2 * mse_uncorrected)
 
   meanp_no_cluster <- mean(preds_no_cluster.oob$predictions)
   meanp_uncorrected <- mean(preds_uncorrected.oob$predictions[n / 2 * (cluster_size - 1) + 1:n])
@@ -126,5 +126,5 @@ test_that("Clustered predictions are reasonable with unevenly sized clusters", {
 
   expect_equal(meanp_no_cluster, meanp_corrected, tolerance = 0.2)
   expect_equal(meanp_no_cluster, meanp_corrected_no_cluster, tolerance = 0.2)
-  expect_true(meanp_no_cluster > meanp_uncorrected + 1)
+  expect_gt(meanp_no_cluster, meanp_uncorrected + 1)
 })

@@ -103,7 +103,7 @@ be at least 2. Default is 1.}
 
 \item{tune.parameters}{If true, NULL parameters are tuned by cross-validation; if FALSE
 NULL parameters are set to defaults. Default is FALSE. Currently, local linear tuning
-does not take local linear splits into account.}
+is based on regression forest fit, and is only supported for `enable.ll.split = FALSE`.}
 
 \item{tune.num.trees}{The number of trees in each 'mini forest' used to fit the tuning model. Default is 10.}
 

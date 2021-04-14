@@ -42,7 +42,7 @@ std::vector<double> MultiRegressionPredictionStrategy::compute_variance(
 
 
 size_t MultiRegressionPredictionStrategy::prediction_value_length() const {
-  return 1;
+  return num_outcomes;
 }
 
 PredictionValues MultiRegressionPredictionStrategy::precompute_prediction_values(

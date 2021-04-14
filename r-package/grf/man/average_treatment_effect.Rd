@@ -60,7 +60,7 @@ estimates of one of the following:
 \itemize{
   \item The average treatment effect (target.sample = all): E[Y(1) - Y(0)]
   \item The average treatment effect on the treated (target.sample = treated): E[Y(1) - Y(0) | Wi = 1]
-  \item The average treatment effect on the controls (target.sample = control): : E[Y(1) - Y(0) | Wi = 0]
+  \item The average treatment effect on the controls (target.sample = control): E[Y(1) - Y(0) | Wi = 0]
   \item The overlap-weighted average treatment effect (target.sample = overlap):
   E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].
 }

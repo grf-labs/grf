@@ -28,7 +28,7 @@ test_that("a simple survival forest workflow works", {
   expect_equal(c(n, n.failures),
              dim(survival))
 
-  # Nelson-Aalen estimates of the survival curve is above zero
+  # Nelson-Aalen estimates of the survival curve are above zero
   expect_true(all(survival.na > 0))
 
   # A tree with no failures does not split
@@ -78,9 +78,11 @@ test_that("sample weighted survival prediction is invariant to weight rescaling"
                         num.trees = 50,
                         seed = 1)
   type <- "Kaplan-Meier"
-  expect_true(sum(abs(predict(sf1, X, prediction.type = type)$pred - predict(sf2, X, prediction.type = type)$pred)) < 1e-8)
+  expect_equal(predict(sf1, X, prediction.type = type)$predictions,
+               predict(sf2, X, prediction.type = type)$predictions, tolerance = 1e-8)
   type <- "Nelson-Aalen"
-  expect_true(sum(abs(predict(sf1, X, prediction.type = type)$pred - predict(sf2, X, prediction.type = type)$pred)) < 1e-8)
+  expect_equal(predict(sf1, X, prediction.type = type)$predictions,
+               predict(sf2, X, prediction.type = type)$predictions, tolerance = 1e-8)
 })
 
 test_that("survival_forest works as expected with missing values", {
@@ -107,6 +109,6 @@ test_that("survival_forest works as expected with missing values", {
   mse.oob.diff <- mean(rowMeans((predict(sf)$predictions - predict(sf.mia)$predictions)^2))
   mse.diff <- mean(rowMeans((predict(sf, X)$predictions - predict(sf.mia, X.mia)$predictions)^2))
 
-  expect_equal(mse.oob.diff, 0, tol = 0.001)
-  expect_equal(mse.diff, 0, tol = 0.001)
+  expect_equal(mse.oob.diff, 0, tolerance = 0.001)
+  expect_equal(mse.diff, 0, tolerance = 0.001)
 })

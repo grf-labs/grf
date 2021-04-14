@@ -251,6 +251,8 @@ causal_survival_forest <- function(X, Y, W, D,
 
   args.nuisance <- list(failure.times = failure.times,
                         num.trees = max(50, num.trees / 4),
+                        sample.weights = sample.weights,
+                        clusters = clusters,
                         equalize.cluster.weights = equalize.cluster.weights,
                         sample.fraction = sample.fraction,
                         mtry = mtry,

@@ -24,13 +24,12 @@
 namespace grf {
 
 /**
- * An experimental factory that produces splitting rules specialized
+ * An factory that produces splitting rules specialized
  * for instrumental forests.
  *
  * In addition to performing standard regression splits, this rule applies
  * a penalty to avoid splits that are too imbalanced in terms of treatment
- * assignment or instrument. The exact penalty used  depends on the value
- * of {@link TreeOptions#get_split_penalty}.
+ * assignment or instrument.
  */
 class InstrumentalSplittingRuleFactory final: public SplittingRuleFactory {
 public:

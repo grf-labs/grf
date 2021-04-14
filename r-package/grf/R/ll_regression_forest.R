@@ -54,7 +54,7 @@
 #'                      be at least 2. Default is 1.
 #' @param tune.parameters If true, NULL parameters are tuned by cross-validation; if FALSE
 #'                        NULL parameters are set to defaults. Default is FALSE. Currently, local linear tuning
-#'                        does not take local linear splits into account.
+#'                        is based on regression forest fit, and is only supported for `enable.ll.split = FALSE`.
 #' @param tune.num.trees The number of trees in each 'mini forest' used to fit the tuning model. Default is 10.
 #' @param tune.num.reps The number of forests used to fit the tuning model. Default is 100.
 #' @param tune.num.draws The number of random parameter values considered when using the model
@@ -113,6 +113,13 @@ ll_regression_forest <- function(X, Y,
 
   all.tunable.params <- c("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
                           "honesty.prune.leaves", "alpha", "imbalance.penalty")
+  default.parameters <- list(sample.fraction = 0.5,
+                             mtry = min(ceiling(sqrt(ncol(X)) + 20), ncol(X)),
+                             min.node.size = 5,
+                             honesty.fraction = 0.5,
+                             honesty.prune.leaves = TRUE,
+                             alpha = 0.05,
+                             imbalance.penalty = 0)
 
   # The ll_regression train wrapper signature does not contain sample weights, which is why sample.weights=FALSE,
   # whereas the regression_train wrapper signature does, and specifying sample.weights=NULL disables them.
@@ -158,24 +165,29 @@ ll_regression_forest <- function(X, Y,
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")){
-    tuning.output <- tune_regression_forest(X, Y,
-                                            clusters = clusters,
-                                            equalize.cluster.weights = equalize.cluster.weights,
-                                            sample.fraction = sample.fraction,
-                                            mtry = mtry,
-                                            min.node.size = min.node.size,
-                                            honesty = honesty,
-                                            honesty.fraction = honesty.fraction,
-                                            honesty.prune.leaves = honesty.prune.leaves,
-                                            alpha = alpha,
-                                            imbalance.penalty = imbalance.penalty,
-                                            ci.group.size = ci.group.size,
-                                            tune.parameters = tune.parameters,
-                                            tune.num.trees = tune.num.trees,
-                                            tune.num.reps = tune.num.reps,
-                                            tune.num.draws = tune.num.draws,
-                                            num.threads = num.threads,
-                                            seed = seed)
+    if (enable.ll.split) {
+      stop("Tuning is currently only supported when enable.ll.split = FALSE.")
+    }
+    if (identical(tune.parameters, "all")) {
+      tune.parameters <- all.tunable.params
+    } else {
+      tune.parameters <- unique(match.arg(tune.parameters, all.tunable.params, several.ok = TRUE))
+    }
+    if (!honesty) {
+      tune.parameters <- tune.parameters[!grepl("honesty", tune.parameters)]
+    }
+    tune.parameters.defaults <- default.parameters[tune.parameters]
+    tuning.output <- tune_forest(data = data,
+                                 nrow.X = nrow(X),
+                                 ncol.X = ncol(X),
+                                 args = args,
+                                 tune.parameters = tune.parameters,
+                                 tune.parameters.defaults = tune.parameters.defaults,
+                                 tune.num.trees = tune.num.trees,
+                                 tune.num.reps = tune.num.reps,
+                                 tune.num.draws = tune.num.draws,
+                                 train = regression_train)
+
     args <- modifyList(args, as.list(tuning.output[["params"]]))
   }
 

@@ -179,14 +179,6 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
   forest <- causal_forest(X[cc, ], Y[cc], W[cc], num.trees = num.trees)
   weighted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], sample.weights = sample.weights[cc], num.trees = num.trees)
   expect_lt(mse(weighted.forest) / mse(forest), .9)
-
-  boosted.forest <- causal_forest(X[cc, ], Y[cc], W[cc], orthog.boosting = TRUE, num.trees = num.trees)
-  boosted.weighted.forest <- causal_forest(
-      X[cc, ], Y[cc], W[cc],
-      sample.weights = sample.weights[cc],
-      orthog.boosting = TRUE, num.trees = num.trees
-  )
-  expect_lt(mse(boosted.weighted.forest) / mse(boosted.forest), .9)
 })
 
 test_that("Weighting is roughly equivalent to replication of samples", {
@@ -225,14 +217,12 @@ test_that("Weighting is roughly equivalent to replication of samples", {
     abs(a$predictions - b$predictions) / sqrt(2 * (a$variance + b$variance))
   }
 
-  expect_true(mean(z_scores(
-    predict(regression.forest.rep, X[test, ], estimate.variance = TRUE),
-    predict(regression.forest.weight, X[test, ], estimate.variance = TRUE)
-  ) <= 1) >= .5)
-  expect_true(mean(z_scores(
-    predict(regression.forest.rep, X[test, ], estimate.variance = TRUE),
-    predict(regression.forest.biased, X[test, ], estimate.variance = TRUE)
-  ) >= 1) >= .5)
+  expect_gte(mean(z_scores(predict(regression.forest.rep, X[test, ], estimate.variance = TRUE),
+                           predict(regression.forest.weight, X[test, ], estimate.variance = TRUE)) <= 1),
+            0.5)
+  expect_gte(mean(z_scores(predict(regression.forest.rep, X[test, ], estimate.variance = TRUE),
+                           predict(regression.forest.biased, X[test, ], estimate.variance = TRUE)) >= 1),
+            0.5)
   ## causal forest
   causal.forest.rep <- causal_forest(X.rep, Y.rep, W.rep,
     W.hat = predict(regression.forest.rep)$predictions, num.trees = num.trees
@@ -243,11 +233,10 @@ test_that("Weighting is roughly equivalent to replication of samples", {
   causal.forest.biased <- causal_forest(X[rep(train, 2), ], c(Y.a[train], Y.b[train]), c(W.a[train], W.b[train]),
     W.hat = predict(regression.forest.biased)$predictions, num.trees = num.trees
   )
-  expect_true(mean(z_scores(
-    predict(causal.forest.rep, X[test, ], estimate.variance = TRUE),
-    predict(causal.forest.weight, X[test, ], estimate.variance = TRUE)
-  ) <= 1) >= .5)
-  expect_true(mean(predict(causal.forest.rep, X[test, ]) > 100 + predict(causal.forest.biased, X[test, ])) >= .5)
+  expect_gte(mean(z_scores(predict(causal.forest.rep, X[test, ], estimate.variance = TRUE),
+                           predict(causal.forest.weight, X[test, ], estimate.variance = TRUE)) <= 1),
+             0.5)
+  expect_gte(mean(predict(causal.forest.rep, X[test, ]) > 100 + predict(causal.forest.biased, X[test, ])), 0.5)
 })
 
 test_that("A non-pruned honest causal forest contains trees with empty leafs,
@@ -322,13 +311,13 @@ test_that("causal_forest works as expected with missing values", {
   diff.mse <- mean((predict(rf.mia, X.mia)$pred - Y)^2) - mean((predict(rf, X)$pred - Y)^2)
   diff.mse.test <- mean((predict(rf.mia, X.mia.test)$pred - Y)^2) - mean((predict(rf, X.test)$pred - Y)^2)
 
-  expect_equal(mse.oob.diff, 0, tol = 0.005)
-  expect_equal(mse.diff, 0, tol = 0.005)
-  expect_equal(mse.test.diff, 0, tol = 0.005)
+  expect_equal(mse.oob.diff, 0, tolerance = 0.005)
+  expect_equal(mse.diff, 0, tolerance = 0.005)
+  expect_equal(mse.test.diff, 0, tolerance = 0.005)
 
-  expect_equal(diff.mse.oob, 0, tol = 0.05)
-  expect_equal(diff.mse, 0, tol = 0.05)
-  expect_equal(diff.mse.test, 0, tol = 0.05)
+  expect_equal(diff.mse.oob, 0, tolerance = 0.05)
+  expect_equal(diff.mse, 0, tolerance = 0.05)
+  expect_equal(diff.mse.test, 0, tolerance = 0.05)
 
   # All NaNs
   X[, ] <- NaN
@@ -342,7 +331,7 @@ test_that("causal_forest works as expected with missing values", {
   rf.mia <- causal_forest(X.mia, Y, W, 0, 0, seed = 123)
   rf <- causal_forest(X, Y, W, 0, 0, seed = 123)
   mse.oob.diff.allnan <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
-  expect_equal(mse.oob.diff.allnan, 0, tol = 0.0001)
+  expect_equal(mse.oob.diff.allnan, 0, tolerance = 0.0001)
 })
 
 test_that("a causal forest workflow with missing values works as expected", {

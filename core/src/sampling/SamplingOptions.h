@@ -32,8 +32,6 @@ public:
   SamplingOptions(uint samples_per_cluster,
                   const std::vector<size_t>& clusters);
 
-  const std::vector<double>& get_sample_weights() const;
-
   /**
    * A map from each cluster ID to the set of sample IDs it contains.
    */
@@ -46,7 +44,6 @@ public:
   uint get_samples_per_cluster() const;
 
 private:
-  std::vector<double> sample_weights;
   uint num_samples_per_cluster;
   std::vector<std::vector<size_t>> clusters;
 };

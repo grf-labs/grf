@@ -289,8 +289,8 @@ test_that("cluster robust average effects do weighting correctly", {
   forest.causal <- causal_forest(X, Y, W, clusters = clust, equalize.cluster.weights = TRUE, num.trees = 400)
 
   cate.aipw <- average_treatment_effect(forest.causal, target.sample = "all", method = "AIPW")
-  expect_true(abs(cate.aipw[1] - t0) / (3 * cate.aipw[2]) <= 1)
-  expect_true(cate.aipw[2] <= 0.2)
+  expect_lte(abs(cate.aipw[1] - t0) / (3 * cate.aipw[2]),  1)
+  expect_lte(cate.aipw[2], 0.2)
 
   # The best linear projection with NULL covariates should match the ATE estimate via AIPW.
   # The reason the standard error estimates don't match exactly is that the function
@@ -298,23 +298,23 @@ test_that("cluster robust average effects do weighting correctly", {
   # `coeftest`, whereas `average_treatment_effect` uses a direct calculation.
   cate.aipw.blp <- best_linear_projection(forest.causal, A = NULL)
   expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1])
-  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.0001)
+  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tolerance = 0.0001)
 
   catt.aipw <- average_treatment_effect(forest.causal, target.sample = "treated", method = "AIPW")
-  expect_true(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]) <= 1)
-  expect_true(catt.aipw[2] <= 0.2)
+  expect_lte(abs(catt.aipw[1] - t0) / (3 * catt.aipw[2]), 1)
+  expect_lte(catt.aipw[2], 0.2)
 
   catc.aipw <- average_treatment_effect(forest.causal, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - t0) / (3 * catc.aipw[2]) <= 1)
-  expect_true(catc.aipw[2] <= 0.2)
+  expect_lte(abs(catc.aipw[1] - t0) / (3 * catc.aipw[2]), 1)
+  expect_lte(catc.aipw[2], 0.2)
 
   cape <- average_treatment_effect(forest.causal, num.trees.for.weights = 200)
-  expect_true(abs(cape[1] - t0) / (3 * cape[2]) <= 1)
-  expect_true(cape[2] <= 0.2)
+  expect_lte(abs(cape[1] - t0) / (3 * cape[2]), 1)
+  expect_lte(cape[2], 0.2)
 
   wate <- average_treatment_effect(forest.causal, target.sample = "overlap")
-  expect_true(abs(wate[1] - t0) / (3 * wate[2]) <= 1)
-  expect_true(wate[2] <= 0.2)
+  expect_lte(abs(wate[1] - t0) / (3 * wate[2]), 1)
+  expect_lte(wate[2], 0.2)
 
   # An IV forest with W = Z should behave just like a causal forest
   # with treatment W.
@@ -327,8 +327,8 @@ test_that("cluster robust average effects do weighting correctly", {
                                              num.trees = 400)
   compliance.score <- rep(1, n)
   aclate <- average_treatment_effect(forest.instrumental, compliance.score=compliance.score)
-  expect_equal(cate.aipw["estimate"], aclate["estimate"], tol = 0.03)
-  expect_equal(cate.aipw["std.err"], aclate["std.err"], tol = 0.002)
+  expect_equal(cate.aipw["estimate"], aclate["estimate"], tolerance = 0.03)
+  expect_equal(cate.aipw["std.err"], aclate["std.err"], tolerance = 0.002)
 })
 
 test_that("cluster robust average effects do weighting correctly with IPCC weights", {
@@ -371,8 +371,8 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
 
   cate.aipw <- average_treatment_effect(forest.weighted, target.sample = "all", method = "AIPW")
   biased.cate.aipw <- average_treatment_effect(forest.unweighted, target.sample = "all", method = "AIPW")
-  expect_true(abs(cate.aipw[1] - true.ate) / (3 * cate.aipw[2]) <= 1)
-  expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.cate.aipw[2]) <= 1)
+  expect_lte(abs(cate.aipw[1] - true.ate) / (3 * cate.aipw[2]), 1)
+  expect_gte(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.cate.aipw[2]), 1)
 
   # The best linear projection with NULL covariates should match the ATE estimate via AIPW.
   # The reason the standard error estimates don't match exactly is that the function
@@ -380,30 +380,30 @@ test_that("cluster robust average effects do weighting correctly with IPCC weigh
   # `coeftest`, whereas `average_treatment_effect` uses a direct calculation.
   cate.aipw.blp <- best_linear_projection(forest.weighted, A = NULL)
   expect_equal(as.numeric(cate.aipw[1]), cate.aipw.blp[1,1])
-  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tol = 0.01)
+  expect_equal(as.numeric(cate.aipw[2]), cate.aipw.blp[1,2], tolerance = 0.01)
   biased.cate.aipw.blp <- best_linear_projection(forest.unweighted, A = NULL)
   expect_equal(as.numeric(biased.cate.aipw[1]), biased.cate.aipw.blp[1,1])
-  expect_equal(as.numeric(biased.cate.aipw[2]), biased.cate.aipw.blp[1,2], tol = 0.01)
+  expect_equal(as.numeric(biased.cate.aipw[2]), biased.cate.aipw.blp[1,2], tolerance = 0.01)
 
   catt.aipw <- average_treatment_effect(forest.weighted, target.sample = "treated", method = "AIPW")
   biased.catt.aipw <- average_treatment_effect(forest.unweighted, target.sample = "treated", method = "AIPW")
-  expect_true(abs(catt.aipw[1] - true.ate) / (3 * catt.aipw[2]) <= 1)
-  expect_false(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.catt.aipw[2]) <= 1)
+  expect_lte(abs(catt.aipw[1] - true.ate) / (3 * catt.aipw[2]), 1)
+  expect_gte(abs(biased.cate.aipw[1] - true.ate) / (3 * biased.catt.aipw[2]), 1)
 
   catc.aipw <- average_treatment_effect(forest.weighted, target.sample = "control", method = "AIPW")
   biased.catc.aipw <- average_treatment_effect(forest.unweighted, target.sample = "control", method = "AIPW")
-  expect_true(abs(catc.aipw[1] - true.ate) / (3 * catc.aipw[2]) <= 1)
-  expect_false(abs(biased.catc.aipw[1] - true.ate) / (3 * biased.catc.aipw[2]) <= 1)
+  expect_lte(abs(catc.aipw[1] - true.ate) / (3 * catc.aipw[2]), 1)
+  expect_gte(abs(biased.catc.aipw[1] - true.ate) / (3 * biased.catc.aipw[2]), 1)
 
   cape <- average_treatment_effect(forest.weighted, num.trees.for.weights = 200)
   biased.cape <- average_treatment_effect(forest.unweighted, num.trees.for.weights = 200)
-  expect_true(abs(cape[1] - true.ate) / (3 * cape[2]) <= 1)
-  expect_false(abs(biased.cape[1] - true.ate) / (3 * biased.cape[2]) <= 1)
+  expect_lte(abs(cape[1] - true.ate) / (3 * cape[2]), 1)
+  expect_gte(abs(biased.cape[1] - true.ate) / (3 * biased.cape[2]), 1)
 
   wate <- average_treatment_effect(forest.weighted, target.sample = "overlap")
   biased.wate <- average_treatment_effect(forest.unweighted, target.sample = "overlap")
-  expect_true(abs(wate[1] - true.ate) / (3 * wate[2]) <= 1)
-  expect_false(abs(biased.wate[1] - true.ate) / (3 * biased.wate[2]) <= 1)
+  expect_lte(abs(wate[1] - true.ate) / (3 * wate[2]), 1)
+  expect_gte(abs(biased.wate[1] - true.ate) / (3 * biased.wate[2]), 1)
 
   options(warn = 2)
 })
@@ -446,9 +446,9 @@ test_that("average conditional local average treatment effect estimation is reas
   tau.x1p <- average_treatment_effect(forest.iv, compliance.score=compliance.score,
                           subset = X[,1] > 0)
 
-  expect_equal(as.numeric(tau.hat["estimate"]), mean(tau), tol = 0.2)
+  expect_equal(as.numeric(tau.hat["estimate"]), mean(tau), tolerance = 0.2)
   expect_lt(abs(tau.hat["estimate"] - mean(tau)) / tau.hat["std.err"], 3)
 
-  expect_equal(as.numeric(tau.x1p["estimate"]), mean(tau[X[,1] > 0]), tol = 0.3)
+  expect_equal(as.numeric(tau.x1p["estimate"]), mean(tau[X[,1] > 0]), tolerance = 0.3)
   expect_lt(abs(tau.x1p["estimate"] - mean(tau[X[,1] > 0])) / tau.x1p["std.err"], 3)
 })
