@@ -88,11 +88,11 @@
 #'  tree is skipped and does not contribute to the estimate). Setting this to FALSE may improve performance on
 #'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
 #'  Only applies if honesty is enabled. Default is TRUE.
-#' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05
-#'  (meaning the count of failures on each side of a split has to be at least 5 \% of the total observation count in a node)
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05.
 #' @param imbalance.penalty A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.
 #' @param stabilize.splits Whether or not the treatment and censoring status should be taken into account when
-#'                         determining the imbalance of a split. Default is TRUE.
+#'  determining the imbalance of a split. The requirement for valid split candidates is the same as in causal_forest
+#'  with the additional constraint that num.failures(child) >= num.samples(parent) * alpha. Default is TRUE.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 2.
