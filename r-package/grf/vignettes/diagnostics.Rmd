@@ -28,6 +28,7 @@ Two common diagnostics to evaluate if the identifying assumptions behind grf hol
 n <- 2000
 p <- 10
 X <- matrix(rnorm(n * p), n, p)
+colnames(X) <- make.names(1:p)
 
 W <- rbinom(n, 1, 0.4 + 0.2 * (X[, 1] > 0))
 Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
@@ -43,13 +44,16 @@ hist(e.hat <- cf$W.hat)
 One can also check that the covariates are balanced across the treated and control group by plotting the inverse-propensity weighted histograms of all samples, overlaid here for each feature (done with [ggplot2](https://ggplot2.tidyverse.org/index.html) which supports weighted histograms):
 
 ```{r, fig.height = 10}
-plot.df <- data.frame(X, W = as.factor(W), IPW = ifelse(W == 1, 1 / e.hat, 1 / (1 - e.hat)))
-plot.df <- reshape(plot.df, varying = list(1:p), v.names = "X", direction = "long",
-                   times = factor(paste0("X.", 1:p), levels = paste0("X.", 1:p)))
+IPW <- ifelse(W == 1, 1 / e.hat, 1 / (1 - e.hat))
 
-ggplot(plot.df, aes(x = X, weight = IPW, fill = W)) +
+plot.df = data.frame(value = as.vector(X),
+                     variable = colnames(X)[rep(1:p, each = n)],
+                     W = as.factor(W),
+                     IPW = IPW)
+
+ggplot(plot.df, aes(x = value, weight = IPW, fill = W)) +
   geom_histogram(alpha = 0.5, position = "identity", bins = 30) +
-  facet_wrap( ~ time, ncol = 2)
+  facet_wrap( ~ variable, ncol = 2)
 ```
 
 ## Assessing fit
