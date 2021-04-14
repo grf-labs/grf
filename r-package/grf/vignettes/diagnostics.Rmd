@@ -46,7 +46,7 @@ One can also check that the covariates are balanced across the treated and contr
 ```{r, fig.height = 10}
 IPW <- ifelse(W == 1, 1 / e.hat, 1 / (1 - e.hat))
 
-plot.df = data.frame(value = as.vector(X),
+plot.df <- data.frame(value = as.vector(X),
                      variable = colnames(X)[rep(1:p, each = n)],
                      W = as.factor(W),
                      IPW = IPW)
