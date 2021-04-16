@@ -47,9 +47,9 @@ One can also check that the covariates are balanced across the treated and contr
 IPW <- ifelse(W == 1, 1 / e.hat, 1 / (1 - e.hat))
 
 plot.df <- data.frame(value = as.vector(X),
-                     variable = colnames(X)[rep(1:p, each = n)],
-                     W = as.factor(W),
-                     IPW = IPW)
+                      variable = colnames(X)[rep(1:p, each = n)],
+                      W = as.factor(W),
+                      IPW = IPW)
 
 ggplot(plot.df, aes(x = value, weight = IPW, fill = W)) +
   geom_histogram(alpha = 0.5, position = "identity", bins = 30) +
