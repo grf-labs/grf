@@ -278,9 +278,9 @@ test_that("regression_forest works as expected with missing values", {
   rf.mia <- regression_forest(X.mia, Y, seed = 123)
   rf <- regression_forest(X, Y, seed = 123)
 
-  mse.oob.diff <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
-  mse.diff <- mean((predict(rf.mia, X.mia)$pred - predict(rf, X)$pred)^2)
-  mse.test.diff <- mean((predict(rf.mia, X.mia.test)$pred - predict(rf, X.test)$pred)^2)
+  mse.oob.diff <- mean((predict(rf.mia)$pred - predict(rf)$predictions)^2)
+  mse.diff <- mean((predict(rf.mia, X.mia)$pred - predict(rf, X)$predictions)^2)
+  mse.test.diff <- mean((predict(rf.mia, X.mia.test)$pred - predict(rf, X.test)$predictions)^2)
 
   diff.mse.oob <- mean((predict(rf.mia)$pred - Y)^2) - mean((predict(rf)$pred - Y)^2)
   diff.mse <- mean((predict(rf.mia, X.mia)$pred - Y)^2) - mean((predict(rf, X)$pred - Y)^2)
@@ -305,6 +305,6 @@ test_that("regression_forest works as expected with missing values", {
 
   rf.mia <- regression_forest(X.mia, Y, seed = 123)
   rf <- regression_forest(X, Y, seed = 123)
-  mse.oob.diff.allnan <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
+  mse.oob.diff.allnan <- mean((predict(rf.mia)$pred - predict(rf)$predictions)^2)
   expect_equal(mse.oob.diff.allnan, 0, tolerance = 0.0001)
 })
