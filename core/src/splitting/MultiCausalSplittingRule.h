@@ -24,7 +24,7 @@
 namespace grf {
 
 /**
- * This splitting rule is a multivariate generalization of {@link InstrumentalSplittingRule}.
+ * This splitting rule is a multivariate extension of {@link InstrumentalSplittingRule}.
  * The contraints are
  * (1)
  * Define A_ik = W_ik < \bar{W}_k,
