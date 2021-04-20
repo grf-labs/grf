@@ -22,6 +22,7 @@ multi_arm_causal_forest(
   honesty.prune.leaves = TRUE,
   alpha = 0.05,
   imbalance.penalty = 0,
+  stabilize.splits = TRUE,
   ci.group.size = 2,
   compute.oob.predictions = TRUE,
   num.threads = NULL,
@@ -97,6 +98,11 @@ Only applies if honesty is enabled. Default is TRUE.}
 
 \item{imbalance.penalty}{A tuning parameter that controls how harshly imbalanced splits are penalized. Default is 0.}
 
+\item{stabilize.splits}{Whether or not the treatment should be taken into account when
+determining the imbalance of a split. It is an exact extension of the single-arm constraints (detailed
+in the causal forest algorithm reference) to multiple arms, where the constraints apply to each treatment arm independently.
+This is currently considerably slower than standard regression splitting. Default is TRUE.}
+
 \item{ci.group.size}{The forest will grow ci.group.size trees on each subsample.
 In order to provide confidence intervals, ci.group.size must
 be at least 2. Default is 2. (Confidence intervals are
@@ -147,9 +153,7 @@ all outcomes simultaneously (specifically, we concatenate the gradient
 vector for each outcome).
 
 For a single treatment, this forest is equivalent to a causal forest, however,
-they may still produce different results, as the splitting rule in causal forest
-currently incorporates more constraints. Setting `stabilize.splits = FALSE` may give
-more similar results, but may not be identical due to differences in numerics.
+they may produce different results due to differences in numerics.
 }
 \examples{
 \donttest{
