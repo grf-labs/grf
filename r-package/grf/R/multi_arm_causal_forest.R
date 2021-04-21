@@ -90,7 +90,7 @@
 #' @param stabilize.splits Whether or not the treatment should be taken into account when
 #' determining the imbalance of a split. It is an exact extension of the single-arm constraints (detailed
 #' in the causal forest algorithm reference) to multiple arms, where the constraints apply to each treatment arm independently.
-#' This is currently considerably slower than standard regression splitting. Default is TRUE.
+#' Default is TRUE.
 #' @param ci.group.size The forest will grow ci.group.size trees on each subsample.
 #'                      In order to provide confidence intervals, ci.group.size must
 #'                      be at least 2. Default is 2. (Confidence intervals are
