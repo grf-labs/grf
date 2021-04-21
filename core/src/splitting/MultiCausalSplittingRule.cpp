@@ -223,35 +223,45 @@ void MultiCausalSplittingRule::find_best_split_value(const Data& data,
 
       // Skip this split if the left child does not contain enough
       // w values below and above the parent's mean.
-      Eigen::ArrayXi num_left_large_w = n_left - num_left_small_w;
-      if ((num_left_small_w < min_node_size).any() || (num_left_large_w < min_node_size).any()) {
+      // We have Eigen::ArrayXi num_left_large_w = n_left - num_left_small_w; but write down the expressions
+      // in-place so Eigen can resolve them with the minimum amount of unnecessary copies at compile time.
+      // Same as: if ((num_left_small_w < min_node_size).any() || (num_left_large_w < min_node_size).any()
+      if ((num_left_small_w < min_node_size).any() || (n_left - num_left_small_w < min_node_size).any()) {
         continue;
       }
 
       // Stop if the right child does not contain enough w values below
       // and above the parent's mean.
       size_t n_right = num_samples - n_left;
-      Eigen::ArrayXi num_right_small_w = num_node_small_w - num_left_small_w;
-      Eigen::ArrayXi num_right_large_w = n_right - num_right_small_w;
-      if ((num_right_small_w < min_node_size).any() || (num_right_large_w < min_node_size).any()) {
+      // We have:
+      // Eigen::ArrayXi num_right_small_w = num_node_small_w - num_left_small_w
+      // Eigen::ArrayXi num_right_large_w = n_right - num_right_small_w
+      // Same as: if ((num_right_small_w < min_node_size).any() || (num_right_large_w < min_node_size).any())
+      if ((num_node_small_w - num_left_small_w < min_node_size).any() ||
+          (n_right - num_node_small_w + num_left_small_w < min_node_size).any()) {
         break;
       }
 
       // Calculate relevant quantities for the left child.
-      Eigen::ArrayXd size_left = sum_left_w_squared - sum_left_w.square() / weight_sum_left;
+      // We have:
+      // Eigen::ArrayXd size_left = sum_left_w_squared - sum_left_w.square() / weight_sum_left
       // Skip this split if the left child's variance is too small.
-      if ((size_left < min_child_size).any() || (imbalance_penalty > 0.0 && (size_left == 0).all())) {
+      // Same as: if ((size_left < min_child_size).any() || (imbalance_penalty > 0.0 && (size_left == 0).all()))
+      if ((sum_left_w_squared - sum_left_w.square() / weight_sum_left < min_child_size).any() ||
+          (imbalance_penalty > 0.0 && (sum_left_w_squared - sum_left_w.square() / weight_sum_left == 0).all())) {
         continue;
       }
 
-      // Calculate relevant quantities for the left child.
+      // Calculate relevant quantities for the right child.
       double weight_sum_right = weight_sum_node - weight_sum_left;
-      Eigen::ArrayXd sum_right_w_squared = sum_node_w_squared - sum_left_w_squared;
-      Eigen::ArrayXd sum_right_w = sum_node_w - sum_left_w;
-      Eigen::ArrayXd size_right = sum_right_w_squared - sum_right_w.square() / weight_sum_right;
-
+      // We have:
+      // Eigen::ArrayXd sum_right_w_squared = sum_node_w_squared - sum_left_w_squared;
+      // Eigen::ArrayXd sum_right_w = sum_node_w - sum_left_w;
+      // Eigen::ArrayXd size_right = sum_right_w_squared - sum_right_w.square() / weight_sum_right;
       // Skip this split if the right child's variance is too small.
-      if ((size_right < min_child_size).any() || (imbalance_penalty > 0.0 && (size_right == 0).all())) {
+      // Same as: if ((size_right < min_child_size).any() || (imbalance_penalty > 0.0 && (size_right == 0).all()))
+      if ((sum_node_w_squared - sum_left_w_squared - (sum_node_w - sum_left_w).square() / weight_sum_right < min_child_size).any() ||
+          (imbalance_penalty > 0.0 && (sum_node_w_squared - sum_left_w_squared - (sum_node_w - sum_left_w).square() / weight_sum_right == 0).all())) {
         continue;
       }
 
