@@ -74,7 +74,7 @@ bool MultiCausalSplittingRule::find_best_split(const Data& data,
     sum_node_w_squared += sample_weight * w.square();
   }
 
-  Eigen::ArrayXd size_node = sum_node_w_squared - sum_node_w * sum_node_w / weight_sum_node;
+  Eigen::ArrayXd size_node = sum_node_w_squared - sum_node_w.square() / weight_sum_node;
   Eigen::ArrayXd min_child_size = size_node * alpha;
 
   Eigen::ArrayXd mean_w_node = sum_node_w / weight_sum_node;
@@ -238,7 +238,7 @@ void MultiCausalSplittingRule::find_best_split_value(const Data& data,
       }
 
       // Calculate relevant quantities for the left child.
-      Eigen::ArrayXd size_left = sum_left_w_squared - sum_left_w * sum_left_w / weight_sum_left;
+      Eigen::ArrayXd size_left = sum_left_w_squared - sum_left_w.square() / weight_sum_left;
       // Skip this split if the left child's variance is too small.
       if ((size_left < min_child_size).any() || (imbalance_penalty > 0.0 && (size_left == 0).all())) {
         continue;
@@ -248,7 +248,7 @@ void MultiCausalSplittingRule::find_best_split_value(const Data& data,
       double weight_sum_right = weight_sum_node - weight_sum_left;
       Eigen::ArrayXd sum_right_w_squared = sum_node_w_squared - sum_left_w_squared;
       Eigen::ArrayXd sum_right_w = sum_node_w - sum_left_w;
-      Eigen::ArrayXd size_right = sum_right_w_squared - sum_right_w * sum_right_w / weight_sum_right;
+      Eigen::ArrayXd size_right = sum_right_w_squared - sum_right_w.square() / weight_sum_right;
 
       // Skip this split if the right child's variance is too small.
       if ((size_right < min_child_size).any() || (imbalance_penalty > 0.0 && (size_right == 0).all())) {
