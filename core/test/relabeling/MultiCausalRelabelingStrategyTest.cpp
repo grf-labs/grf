@@ -121,5 +121,4 @@ TEST_CASE("multi causal relabeling with optional weights works as expected", "[m
   REQUIRE((rho_only_w2.col(1) != 0).all());
 
   REQUIRE((rho * 4.0 == rho_times_4).all());
-
 }
