@@ -107,10 +107,10 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
                      - leaf_W.transpose() * theta
                      - main_effect;
 
-      psi_squared.topLeftCorner(num_treatments, num_treatments) += psi_1 * psi_1.transpose();
-      psi_squared.topRightCorner(num_treatments, 1) += psi_1 * psi_2;
-      psi_squared.bottomLeftCorner(1, num_treatments) += psi_2 * psi_1.transpose();
-      psi_squared.bottomRightCorner(1, 1) += Eigen::MatrixXd::Identity(1, 1) * psi_2 * psi_2;
+      psi_squared.topLeftCorner(num_treatments, num_treatments).noalias() += psi_1 * psi_1.transpose();
+      psi_squared.topRightCorner(num_treatments, 1).noalias() += psi_1 * psi_2;
+      psi_squared.bottomLeftCorner(1, num_treatments).noalias() += psi_2 * psi_1.transpose();
+      psi_squared.bottomRightCorner(1, 1).noalias() += Eigen::MatrixXd::Identity(1, 1) * psi_2 * psi_2;
 
       group_psi_1 += psi_1;
       group_psi_2 += psi_2;
@@ -119,10 +119,10 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
     group_psi_1 /= ci_group_size;
     group_psi_2 /= ci_group_size;
 
-    psi_grouped_squared.topLeftCorner(num_treatments, num_treatments) += group_psi_1 * group_psi_1.transpose();
-    psi_grouped_squared.topRightCorner(num_treatments, 1) += group_psi_1 * group_psi_2;
-    psi_grouped_squared.bottomLeftCorner(1, num_treatments) += group_psi_2 * group_psi_1.transpose();
-    psi_grouped_squared.bottomRightCorner(1, 1) += Eigen::MatrixXd::Identity(1, 1) * group_psi_2 * group_psi_2;
+    psi_grouped_squared.topLeftCorner(num_treatments, num_treatments).noalias() += group_psi_1 * group_psi_1.transpose();
+    psi_grouped_squared.topRightCorner(num_treatments, 1).noalias() += group_psi_1 * group_psi_2;
+    psi_grouped_squared.bottomLeftCorner(1, num_treatments).noalias() += group_psi_2 * group_psi_1.transpose();
+    psi_grouped_squared.bottomRightCorner(1, 1).noalias() += Eigen::MatrixXd::Identity(1, 1) * group_psi_2 * group_psi_2;
   }
 
   psi_squared /= (num_good_groups * ci_group_size);
@@ -183,8 +183,8 @@ PredictionValues MultiCausalPredictionStrategy::precompute_prediction_values(
       Eigen::VectorXd treatment = data.get_treatments(sample);
       sum_Y += weight * outcome;
       sum_W += weight * treatment;
-      sum_YW += weight * treatment * outcome.transpose();
-      sum_WW += weight * treatment * treatment.transpose();
+      sum_YW.noalias() += weight * treatment * outcome.transpose();
+      sum_WW.noalias() += weight * treatment * treatment.transpose();
       sum_weight += weight;
     }
     // if total weight is very small, treat the leaf as empty
