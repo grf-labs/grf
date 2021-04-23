@@ -183,8 +183,8 @@ PredictionValues MultiCausalPredictionStrategy::precompute_prediction_values(
       Eigen::VectorXd treatment = data.get_treatments(sample);
       sum_Y += weight * outcome;
       sum_W += weight * treatment;
-      sum_YW += weight * treatment * outcome.transpose();
-      sum_WW += weight * treatment * treatment.transpose();
+      sum_YW.noalias() += weight * treatment * outcome.transpose();
+      sum_WW.noalias() += weight * treatment * treatment.transpose();
       sum_weight += weight;
     }
     // if total weight is very small, treat the leaf as empty
