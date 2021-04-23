@@ -28,8 +28,8 @@ namespace grf {
 
 /**
  * This relabeling strategy is a multi-treatment extension of {@link InstrumentalRelabelingStrategy}.
- * We compute the vector-valued gradient for tau wrt. observation i in the regression
- * Y = c + tau_k W + e,
+ * We compute the vector-valued gradient for tau = [tau_1, ..., tau_K] wrt. observation i in the regression
+ * Y = c + tau W + e,
  * where W is a vector of treatment variables (k = 1,...,K). See equation (20) in
  * https://arxiv.org/pdf/1610.01271.pdf. The response Y may be multivariate (m = 1,..,M),
  * in which case we concatenate the influence vectors for each response.
