@@ -54,8 +54,8 @@ bool MultiCausalRelabelingStrategy::relabel(
     W_mean += weight * treatment;
     sum_weight += weight;
   }
-  Y_mean = Y_mean / sum_weight;
-  W_mean = W_mean / sum_weight;
+  Y_mean /= sum_weight;
+  W_mean /= sum_weight;
   Y_centered.rowwise() -= Y_mean.transpose();
   W_centered.rowwise() -= W_mean.transpose();
 

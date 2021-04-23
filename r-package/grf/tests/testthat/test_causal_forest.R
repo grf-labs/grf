@@ -303,13 +303,13 @@ test_that("causal_forest works as expected with missing values", {
   rf.mia <- causal_forest(X.mia, Y, W, 0, 0, seed = 123)
   rf <- causal_forest(X, Y, W, 0, 0, seed = 123)
 
-  mse.oob.diff <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
-  mse.diff <- mean((predict(rf.mia, X.mia)$pred - predict(rf, X)$pred)^2)
-  mse.test.diff <- mean((predict(rf.mia, X.mia.test)$pred - predict(rf, X.test)$pred)^2)
+  mse.oob.diff <- mean((predict(rf.mia)$predictions - predict(rf)$predictions)^2)
+  mse.diff <- mean((predict(rf.mia, X.mia)$predictions - predict(rf, X)$predictions)^2)
+  mse.test.diff <- mean((predict(rf.mia, X.mia.test)$predictions - predict(rf, X.test)$predictions)^2)
 
-  diff.mse.oob <- mean((predict(rf.mia)$pred - Y)^2) - mean((predict(rf)$pred - Y)^2)
-  diff.mse <- mean((predict(rf.mia, X.mia)$pred - Y)^2) - mean((predict(rf, X)$pred - Y)^2)
-  diff.mse.test <- mean((predict(rf.mia, X.mia.test)$pred - Y)^2) - mean((predict(rf, X.test)$pred - Y)^2)
+  diff.mse.oob <- mean((predict(rf.mia)$predictions - Y)^2) - mean((predict(rf)$predictions - Y)^2)
+  diff.mse <- mean((predict(rf.mia, X.mia)$predictions - Y)^2) - mean((predict(rf, X)$predictions - Y)^2)
+  diff.mse.test <- mean((predict(rf.mia, X.mia.test)$predictions - Y)^2) - mean((predict(rf, X.test)$predictions - Y)^2)
 
   expect_equal(mse.oob.diff, 0, tolerance = 0.005)
   expect_equal(mse.diff, 0, tolerance = 0.005)
@@ -330,7 +330,7 @@ test_that("causal_forest works as expected with missing values", {
 
   rf.mia <- causal_forest(X.mia, Y, W, 0, 0, seed = 123)
   rf <- causal_forest(X, Y, W, 0, 0, seed = 123)
-  mse.oob.diff.allnan <- mean((predict(rf.mia)$pred - predict(rf)$pred)^2)
+  mse.oob.diff.allnan <- mean((predict(rf.mia)$predictions - predict(rf)$predictions)^2)
   expect_equal(mse.oob.diff.allnan, 0, tolerance = 0.0001)
 })
 

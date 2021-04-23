@@ -257,7 +257,7 @@ void InstrumentalSplittingRule::find_best_split_value(const Data& data,
         continue;
       }
 
-      // Calculate relevant quantities for the left child.
+      // Calculate relevant quantities for the right child.
       double weight_sum_right = weight_sum_node - weight_sum_left;
       double sum_right = sum_node - sum_left;
       double sum_right_z_squared = sum_node_z_squared - sum_left_z_squared;

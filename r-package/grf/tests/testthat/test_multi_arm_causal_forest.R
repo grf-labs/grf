@@ -199,7 +199,7 @@ test_that("multi_arm_causal_forest predictions and variance estimates are invari
 })
 
 test_that("multi_arm_causal_forest confidence intervals are reasonable", {
-  n <- 500
+  n <- 1000
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
   W <- as.factor(sample(c("A", "B", "C"), n, replace = TRUE))
