@@ -26,8 +26,7 @@ MultiCausalRelabelingStrategy::MultiCausalRelabelingStrategy(size_t response_len
   if (influence_weight.empty()) {
     this->influence_weight = std::vector<double> (response_length, 1.0);
   } else if (influence_weight.size() != response_length) {
-    throw std::runtime_error(
-      "Optional influence weight vector must be same length as response_length.");
+    throw std::runtime_error("Optional influence weight vector must be same length as response_length.");
   } else {
     this->influence_weight = influence_weight;
   }
