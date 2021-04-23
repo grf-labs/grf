@@ -16,6 +16,7 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
                               const std::vector<size_t>& treatment_index,
                               size_t sample_weight_index,
                               bool use_sample_weights,
+                              const std::vector<double>& influence_weight,
                               unsigned int mtry,
                               unsigned int num_trees,
                               unsigned int min_node_size,
@@ -33,7 +34,7 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
                               unsigned int seed) {
   size_t num_treatments = treatment_index.size();
   size_t num_outcomes = outcome_index.size();
-  ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes);
+  ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes, influence_weight);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);

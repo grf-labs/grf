@@ -26,9 +26,24 @@
 
 namespace grf {
 
+/**
+ * This relabeling strategy is a multi-treatment extension of {@link InstrumentalRelabelingStrategy}.
+ * We compute the vector-valued gradient for tau wrt. observation i in the regression
+ * Y = c + tau_k W + e,
+ * where W is a vector of treatment variables (k = 1,...,K). See equation (20) in
+ * https://arxiv.org/pdf/1610.01271.pdf. The response Y may be multivariate (m = 1,..,M),
+ * in which case we concatenate the influence vectors for each response.
+ *
+ * The output of this method is a vector with coefficient influences for each observation ordered according to:
+ * influence_weight * [\delta \tau_{11}, ..., \delta \tau_{1K}, ..., \delta \tau_{M1}, ..., \delta \tau_{MK}]
+ * where `*` denotes elementwise multiplication with the optional weight vector `influence_weight` (by
+ * default equal to [1, ..., 1]).
+ *
+*/
 class MultiCausalRelabelingStrategy final: public RelabelingStrategy {
 public:
-  MultiCausalRelabelingStrategy(size_t response_length);
+  MultiCausalRelabelingStrategy(size_t response_length,
+                                const std::vector<double>& influence_weight);
 
   bool relabel(
       const std::vector<size_t>& samples,
@@ -39,6 +54,7 @@ public:
 
 private:
   size_t response_length;
+  std::vector<double> influence_weight;
 };
 
 } // namespace grf

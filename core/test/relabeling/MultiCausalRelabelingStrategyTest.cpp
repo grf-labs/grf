@@ -36,7 +36,7 @@ Eigen::ArrayXXd get_relabeled_outcomes(
     samples.push_back(i);
   }
 
-  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new MultiCausalRelabelingStrategy(num_treatments));
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new MultiCausalRelabelingStrategy(num_treatments, {}));
 
   Eigen::ArrayXXd relabeled_observations(num_samples, num_treatments);
   bool stop = relabeling_strategy->relabel(samples, data, relabeled_observations);
