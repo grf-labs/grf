@@ -282,9 +282,8 @@ generate_survival_data <- function(n, p, Y.max = NULL, X = NULL, n.mc = 10000,
     e <- (1 + dbeta(X[, 1], 2, 4)) / 4
     W <- rbinom(n, 1, e)
     I1 <- X[,1 ] < 0.5
-    eps <- rnorm(n)
     ft <- exp(-1.85 - 0.8 * I1 + 0.7 * sqrt(X[, 2]) + 0.2 * X[, 3] +
-                (0.7 - 0.4 * I1 - 0.4 * sqrt(X[, 2])) * W + eps)
+                (0.7 - 0.4 * I1 - 0.4 * sqrt(X[, 2])) * W + rnorm(n))
     failure.time <- pmin(ft, Y.max)
     numerator <- -log(runif(n))
     denominator <- exp(-1.75 - 0.5 * sqrt(X[, 2]) + 0.2 * X[, 3]  + (1.15 + 0.5 * I1 - 0.3 * sqrt(X[, 2])) * W)
