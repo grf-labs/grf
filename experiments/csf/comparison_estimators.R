@@ -1,5 +1,16 @@
 # *** Comparison methods ***
 
+#' Compute E[T | X]
+#'
+#' @param S.hat The estimated survival curve.
+#' @param Y.grid The time values corresponding to S.hat.
+#' @return A vector of expected values.
+expected_survival <- function(S.hat, Y.grid) {
+  grid.diff <- diff(c(0, Y.grid, max(Y.grid)))
+
+  c(cbind(1, S.hat) %*% grid.diff)
+}
+
 # "SRC1"
 estimate_rfsrc_X_W = function(data, data.test) {
   df = data.frame(Y=data$Y, D=data$D, cbind(x=data$X, w=data$W))
@@ -11,8 +22,8 @@ estimate_rfsrc_X_W = function(data, data.test) {
   p1 = predict(fit, data.frame(cbind(data.test$X, w=W1)))
   p0 = predict(fit, data.frame(cbind(data.test$X, w=W0)))
 
-  grf:::expected_survival(p1$survival, p1$time.interest) -
-    grf:::expected_survival(p0$survival, p0$time.interest)
+  expected_survival(p1$survival, p1$time.interest) -
+    expected_survival(p0$survival, p0$time.interest)
 }
 
 # "SRC2"
@@ -26,8 +37,8 @@ estimate_rfsrc_XW_W = function(data, data.test) {
   p1 = predict(fit, data.frame(cbind(data.test$X, data.test$X*W1, w=W1)))
   p0 = predict(fit, data.frame(cbind(data.test$X, data.test$X*W0, w=W0)))
 
-  grf:::expected_survival(p1$survival, p1$time.interest) -
-    grf:::expected_survival(p0$survival, p0$time.interest)
+  expected_survival(p1$survival, p1$time.interest) -
+    expected_survival(p0$survival, p0$time.interest)
 }
 
 # "VT"
@@ -41,8 +52,8 @@ estimate_rfsrc_twin = function(data, data.test) {
   p1 = predict(fit1, data.frame(data.test$X))
   p0 = predict(fit0, data.frame(data.test$X))
 
-  grf:::expected_survival(p1$survival, p1$time.interest) -
-    grf:::expected_survival(p0$survival, p0$time.interest)
+  expected_survival(p1$survival, p1$time.interest) -
+    expected_survival(p0$survival, p0$time.interest)
 }
 
 # "CSF"
