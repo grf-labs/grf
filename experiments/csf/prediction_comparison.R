@@ -24,8 +24,8 @@ dgp = "type2"
 # dgp = "type3"
 n.mc = 100000
 
-data = generate_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
-data.test = generate_survival_data(n = n.test, p = p, dgp = dgp, n.mc = n.mc)
+data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
+data.test = generate_causal_survival_data(n = n.test, p = p, dgp = dgp, n.mc = n.mc)
 true.cate = data.test$cate
 for (j in 1:length(estimators)) {
   estimator.name = estimator.names[j]

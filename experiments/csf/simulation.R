@@ -31,8 +31,8 @@ for (i in 1:nrow(grid)) {
 
   for (sim in 1:n.sim) {
     print(paste("sim", sim))
-    data = generate_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
-    data.test = generate_survival_data(n = n.test, p = p, dgp = dgp, n.mc = n.mc)
+    data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
+    data.test = generate_causal_survival_data(n = n.test, p = p, dgp = dgp, n.mc = n.mc)
     true.cate = data.test$cate
     true.cate.sign = data.test$cate.sign
     estimator.output = list()

@@ -20,8 +20,8 @@ for (i in 1:nrow(grid)) {
 
   for (sim in 1:n.sim) {
     print(paste("sim", sim))
-    data = generate_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
-    data.test = generate_survival_data(n = nrow(X.test), p = p, X = X.test, dgp = dgp, n.mc = n.mc)
+    data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
+    data.test = generate_causal_survival_data(n = nrow(X.test), p = p, X = X.test, dgp = dgp, n.mc = n.mc)
     cate.true = data.test$cate
     fit = causal_survival_forest(data$X, data$Y, data$W, data$D,
                                  num.trees = num.trees)

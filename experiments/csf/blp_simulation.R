@@ -10,7 +10,7 @@ nreps = 200
 
 # ground truth
 n.test = 50000
-data.test = generate_survival_data(n.test, p, dgp=dgp, n.mc = 50000)
+data.test = generate_causal_survival_data(n.test, p, dgp=dgp, n.mc = 50000)
 df = data.frame(cate=data.test$cate, x=data.test$X)
 lm1 = coeftest(lm(cate ~ x.1 + x.2, df))
 true = lm1[2, 1]
@@ -18,7 +18,7 @@ lm2 = coeftest(lm(cate ~ 1, df))
 true.ate = lm2[1, 1]
 
 res = replicate(nreps, {
-  data = generate_survival_data(n, p, dgp = dgp, n.mc = 1)
+  data = generate_causal_survival_data(n, p, dgp = dgp, n.mc = 1)
   X = data$X
   Y = data$Y
   W = data$W
