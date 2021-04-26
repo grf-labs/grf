@@ -2,7 +2,7 @@
 % Please edit documentation in R/dgps.R
 \name{generate_causal_survival_data}
 \alias{generate_causal_survival_data}
-\title{Simulate survival data}
+\title{Simulate causal survival data}
 \usage{
 generate_causal_survival_data(
   n,

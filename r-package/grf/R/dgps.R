@@ -203,7 +203,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
   out
 }
 
-#' Simulate survival data
+#' Simulate causal survival data
 #'
 #' The following DGPs are available for benchmarking purposes, T is the failure time
 #' and C the censoring time:
