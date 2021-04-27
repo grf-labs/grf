@@ -108,7 +108,7 @@ set.seed(42)
 n <- 500
 p <- 5
 dgp <- "simple1"
-data <- generate_survival_data(n = n, p = p, dgp = dgp)
+data <- generate_causal_survival_data(n = n, p = p, dgp = dgp)
 X <- round(data$X, 2)
 X.na <- X
 Y <- round(data$Y, 2)

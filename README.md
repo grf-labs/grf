@@ -138,6 +138,10 @@ Susan Athey, Julie Tibshirani and Stefan Wager.
 [<a href="https://projecteuclid.org/euclid.aos/1547197251">paper</a>,
 <a href="https://arxiv.org/abs/1610.01271">arxiv</a>]
 
+Yifan Cui, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
+<b>Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests.</b> 2020.
+[<a href="https://arxiv.org/abs/2001.09887">arxiv</a>]
+
 Rina Friedberg, Julie Tibshirani, Susan Athey, and Stefan Wager.
 <b>Local Linear Forests.</b> <i>Journal of Computational and Graphical Statistics</i>, 2020.
 [<a href="https://www.tandfonline.com/doi/abs/10.1080/10618600.2020.1831930">paper</a>,
