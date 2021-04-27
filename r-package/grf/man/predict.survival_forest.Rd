@@ -2,7 +2,7 @@
 % Please edit documentation in R/survival_forest.R
 \name{predict.survival_forest}
 \alias{predict.survival_forest}
-\title{Predict with a survival forest forest}
+\title{Predict with a survival forest}
 \usage{
 \method{predict}{survival_forest}(
   object,

@@ -3,7 +3,7 @@ library(grf)
 test_that("causal survival forest is well-calibrated", {
   n <- 1000
   p <- 5
-  data <- generate_survival_data(n, p, Y.max = 1, n.mc = 5000, dgp = "simple1")
+  data <- generate_causal_survival_data(n, p, Y.max = 1, n.mc = 5000, dgp = "simple1")
   cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
   cs.pred <- predict(cs.forest)
 
@@ -11,7 +11,7 @@ test_that("causal survival forest is well-calibrated", {
 
   X.test <- matrix(0.5, 10, p)
   X.test[, 1] <- seq(0, 1, length.out = 10)
-  true.effect.test <- generate_survival_data(10, p, Y.max = 1, X = X.test, n.mc = 5000, dgp = "simple1")$cate
+  true.effect.test <- generate_causal_survival_data(10, p, Y.max = 1, X = X.test, n.mc = 5000, dgp = "simple1")$cate
   cs.pred.test <- predict(cs.forest, X.test)
   mse.test <- mean((cs.pred.test$predictions - true.effect.test)^2)
 
@@ -24,7 +24,7 @@ test_that("causal survival forest predictions are kernel weighted correctly", {
   # estimating equation is internally consistent.
   n <- 250
   p <- 5
-  data <- generate_survival_data(n, p, Y.max = 1, n.mc = 1, dgp = "simple1")
+  data <- generate_causal_survival_data(n, p, Y.max = 1, n.mc = 1, dgp = "simple1")
   sample.weights <- sample(c(1, 10), n, TRUE)
   cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 250)
   cs.forest.weighted <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 250, sample.weights = sample.weights)
@@ -46,7 +46,7 @@ test_that("causal survival forest predictions are kernel weighted correctly", {
 test_that("causal survival forest variance estimates are decent", {
   n <- 1000
   p <- 5
-  data <- generate_survival_data(n, p, Y.max = 1, n.mc = 5000, dgp = "simple1")
+  data <- generate_causal_survival_data(n, p, Y.max = 1, n.mc = 5000, dgp = "simple1")
   true.effect <- data$cate
   cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
   cs.pred <- predict(cs.forest, estimate.variance = TRUE)
@@ -56,7 +56,7 @@ test_that("causal survival forest variance estimates are decent", {
 
   X.test <- matrix(0.5, 10, p)
   X.test[, 1] <- seq(0, 1, length.out = 10)
-  true.effect.test <- generate_survival_data(10, p, Y.max = 1, X = X.test, n.mc = 5000, dgp = "simple1")$cate
+  true.effect.test <- generate_causal_survival_data(10, p, Y.max = 1, X = X.test, n.mc = 5000, dgp = "simple1")$cate
   cs.pred.test <- predict(cs.forest, X.test, estimate.variance = TRUE)
   z.score.test <- abs(cs.pred.test$predictions - true.effect.test) / sqrt(cs.pred.test$variance.estimates)
   cate.coverage.test <- mean(z.score.test <= 1.96)
@@ -100,7 +100,7 @@ test_that("sample weighted causal survival forest is invariant to scaling", {
 test_that("a causal survival forest trained on dense data is near identical to forest trained on coarser grid", {
   n <- 1000
   p <- 5
-  data <- generate_survival_data(n, p, n.mc = 1, dgp = "simple1")
+  data <- generate_causal_survival_data(n, p, n.mc = 1, dgp = "simple1")
   cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
   cs.pred <- predict(cs.forest)
 
@@ -115,7 +115,7 @@ test_that("a causal survival forest trained on dense data is near identical to f
 test_that("nuisance argument handling in a causal survival forest works as expected", {
   n <- 1000
   p <- 5
-  data <- generate_survival_data(n, p, n.mc = 1, dgp = "simple1")
+  data <- generate_causal_survival_data(n, p, n.mc = 1, dgp = "simple1")
   cs.forest.default <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 200)
   cs.pred <- predict(cs.forest.default)
 
@@ -153,7 +153,7 @@ test_that("nuisance argument handling in a causal survival forest works as expec
 test_that("causal survival forest works as expected with missing values", {
   n <- 1000
   p <- 5
-  data <- generate_survival_data(n, p, n.mc = 1, dgp = "simple1")
+  data <- generate_causal_survival_data(n, p, n.mc = 1, dgp = "simple1")
   nmissing <- 200
   data$X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
 
@@ -182,7 +182,7 @@ test_that("causal survival forest has not changed ", {
   n <- 500
   p <- 5
   dgp <- "simple1"
-  data <- generate_survival_data(n = n, p = p, dgp = dgp)
+  data <- generate_causal_survival_data(n = n, p = p, dgp = dgp)
   cs.forest <- causal_survival_forest(round(data$X, 2), round(data$Y, 2), data$W, data$D,
                                       num.trees = 50, seed = 42, num.threads = 4)
 
@@ -217,7 +217,7 @@ test_that("causal survival forest has not changed ", {
 test_that("causal survival forest summary functions works as expected", {
   n <- 500
   p <- 5
-  data <- generate_survival_data(n, p, Y.max = 1, dgp = "simple1")
+  data <- generate_causal_survival_data(n, p, Y.max = 1, dgp = "simple1")
   X <- data$X
   W <- data$W
   Y <- data$Y

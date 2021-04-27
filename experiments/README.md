@@ -6,6 +6,8 @@ This directory contains replication code for
 
 * Athey, Tibshirani, and Wager (2019): `aos19`
 
+* Cui, Kosorok, Sverdrup, Wager, and Zhu (2020): `csf`
+
 * Friedberg, Tibshirani, Athey, and Wager (2020): `local_linear_examples`
 
 * Mayer, Sverdrup, Gauss, Moyer, Wager, and Josse (2020): This is available at https://github.com/imkemayer/causal-inference-missing
@@ -24,6 +26,10 @@ Susan Athey, Julie Tibshirani and Stefan Wager.
 <b>Generalized Random Forests.</b> <i>Annals of Statistics</i>, 47(2), 2019.
 [<a href="https://projecteuclid.org/euclid.aos/1547197251">paper</a>,
 <a href="https://arxiv.org/abs/1610.01271">arxiv</a>]
+
+Yifan Cui, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
+<b>Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests.</b> 2020.
+[<a href="https://arxiv.org/abs/2001.09887">arxiv</a>]
 
 Rina Friedberg, Julie Tibshirani, Susan Athey, and Stefan Wager.
 <b>Local Linear Forests.</b> <i>Journal of Computational and Graphical Statistics</i>, 2020.

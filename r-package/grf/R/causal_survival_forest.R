@@ -7,42 +7,23 @@
 #' Y(1) and Y(0) are potental outcomes corresponding to the two possible
 #' treatment states.
 #'
-#' @section Statistical details:
-#' An important assumption for identifying the conditional average treatment effect tau(X)
-#' is that there exists a fixed positive constant M such that the probability of observing an
-#' event time past the maximum follow-up time Y.max is at least M (formally, we assume: P(Y
-#' >= Y.max | X) > M).
 #'
-#' This means that the individual censoring probabilities (by default estimated using a
-#' survival_forest on D' = 1 - D) should not get too low. This function provides a warning
-#' if these estimates get below 0.2, if they drop all the way down to below 0.05, we emit a
-#' stronger warning that you can not expect causal survival forest to deliver reliable
-#' estimates.
-#'
-#' The practical issue is that we can not reliably extrapolate the survival curves
-#' sufficiently far into the future (where most observations will be censored). A workaround
-#' is to re-define the estimand as the treatment effect up to some suitable maximum
-#' follow-up time Y.max. One can do this in practice by thresholding Y before running
-#' causal_survival_forest: D[Y >= Y.max] = 1 and Y[Y >= Y.max] = Y.max. The online vignette on
-#' survival data has more details.
-#'
-#' @section Computational details:
-#' Causal survival forest computes two nuisance components, the estimated survival
-#' and censoring curves (S.hat and C.hat). Recall that the Kaplan-Meier or
-#' Nelson-Aalen estimates of the survival curve is a step function that only
-#' changes at points at which there is an event D = 1 (or D' = 1 - D for the
-#' censoring curve). For very dense event data Y there may not be any accuracy
-#' benefit to fitting these curves on the complete grid compared with the
-#' computational cost, which scales as O(m*n) in each tree node (where
-#' m is the number of events in the node, and n the number of split points).
-#'
-#' The suggested resolution to this issue is to round or relabel the event data Y
-#' to a coarser resolution. The argument `failure.times` can be used for this purpose.
+#' An important assumption for identifying the conditional average treatment effect
+#' tau(X) is that there exists a fixed positive constant M such that the probability
+#' of observing an event time past the maximum follow-up time Y.max is at least M.
+#' This may be an issue with data where most endpoint observations are censored.
+#' The suggested resolution is to re-define the estimand as the treatment effect up
+#' to some suitable maximum follow-up time Y.max. One can do this in practice by
+#' thresholding Y before running causal_survival_forest: `D[Y >= Y.max] <- 1` and
+#' `Y[Y >= Y.max] <- Y.max`. For details see Cui et al. (2020). The computational
+#' complexity of this estimator scales with the cardinality of the event times Y.
+#' If the number of samples is large and the Y grid dense, consider rounding the
+#' event times (or supply a coarser grid with the `failure.times` argument).
 #'
 #' @param X The covariates.
 #' @param Y The event time (may be negative).
 #' @param W The treatment assignment (must be a binary vector with no NAs).
-#' @param D The event type (0: censoring, 1: failure).
+#' @param D The event type (0: censored, 1: failure).
 #' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest. Default is NULL.
 #' @param E1.hat Estimates of the expected survival time conditional on being treated
@@ -127,6 +108,10 @@
 #' @param seed The seed of the C++ random number generator.
 #'
 #' @return A trained causal_survival_forest forest object.
+#'
+#' @references Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
+#'  "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests."
+#'  arXiv preprint arXiv:2001.09887, 2020.
 #'
 #' @examples
 #' \donttest{
@@ -338,8 +323,8 @@ causal_survival_forest <- function(X, Y, W, D,
     stop("Some censoring probabilites are exactly zero.")
   }
 
- if (any(C.hat <= 0.05)) {
-  warning(paste("Estimated censoring probabilites go as low as:", min(C.hat),
+  if (any(C.hat <= 0.05)) {
+    warning(paste("Estimated censoring probabilites go as low as:", min(C.hat),
                 "- an identifying assumption is that there exists a fixed positve constant M",
                 "such that the probability of observing an event time past the maximum follow-up time Y.max",
                 "is at least M. Formally, we assume: P(Y >= Y.max | X) > M.",

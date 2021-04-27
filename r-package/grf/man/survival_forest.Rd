@@ -96,8 +96,7 @@ to the maximum hardware concurrency.}
 \item{seed}{The seed of the C++ random number generator.}
 }
 \value{
-A trained survival_forest forest object. The attribute `failure.times` contains the unique failure
- times in the data set.
+A trained survival_forest forest object.
 }
 \description{
 Trains a forest for right-censored surival data that can be used to estimate the
@@ -149,6 +148,10 @@ matpoints(s.pred.grid$failure.times, t(s.pred.grid$predictions[1:5, ]),
 
 }
 \references{
+Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
+ "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests."
+ arXiv preprint arXiv:2001.09887, 2020.
+
 Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer.
   "Random survival forests." The Annals of Applied Statistics 2.3 (2008): 841-860.
 }
