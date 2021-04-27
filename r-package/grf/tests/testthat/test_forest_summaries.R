@@ -206,8 +206,8 @@ test_that("best linear projection works with edge case input types", {
 test_that("best linear projection works as expected with causal survival forest", {
   n <- 500
   p <- 5
-  data <- generate_survival_data(n, p, n.mc = 1, dgp = "simple1")
-  data.test <- generate_survival_data(5000, p, n.mc = 10000, dgp = "simple1")
+  data <- generate_causal_survival_data(n, p, n.mc = 1, dgp = "simple1")
+  data.test <- generate_causal_survival_data(5000, p, n.mc = 10000, dgp = "simple1")
   cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
 
   ate.true <- mean(data.test$cate)
