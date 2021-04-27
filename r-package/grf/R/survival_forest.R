@@ -53,9 +53,11 @@
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
 #'
-#' @return A trained survival_forest forest object. The attribute `failure.times` contains the unique failure
-#'  times in the data set.
+#' @return A trained survival_forest forest object.
 #'
+#' @references Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
+#'  "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests."
+#'  arXiv preprint arXiv:2001.09887, 2020.
 #' @references Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer.
 #'   "Random survival forests." The Annals of Applied Statistics 2.3 (2008): 841-860.
 #'
@@ -125,7 +127,7 @@ survival_forest <- function(X, Y, D,
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
   D <- validate_observations(D, X)
-  if(!all(D %in% c(0, 1))) {
+  if (!all(D %in% c(0, 1))) {
     stop("The censor values can only be 0 or 1.")
   }
   clusters <- validate_clusters(clusters, X)
@@ -139,10 +141,9 @@ survival_forest <- function(X, Y, D,
   }
 
   # Relabel the times to consecutive integers such that:
-  # if the failure time is less than the smallest failure time: set it to 0
-  # if the failure time is above the latter, but less than the second smallest failure time: set it to 1
+  # if the event time is less than the smallest failure time: set it to 0
+  # if the event time is above the latter, but less than the second smallest failure time: set it to 1
   # etc. Will range from 0 to num.failures.
-  # (Entry 0 is for time k < t1)
   if (is.null(failure.times)) {
     failure.times <- sort(unique(Y[D == 1]))
   }
@@ -181,7 +182,7 @@ survival_forest <- function(X, Y, D,
   forest
 }
 
-#' Predict with a survival forest forest
+#' Predict with a survival forest
 #'
 #' Gets estimates of the conditional survival function S(t, x) using a trained survival forest. The curve can be
 #' estimated by Kaplan-Meier, or Nelson-Aalen.

@@ -203,7 +203,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
   out
 }
 
-#' Simulate survival data
+#' Simulate causal survival data
 #'
 #' The following DGPs are available for benchmarking purposes, T is the failure time
 #' and C the censoring time:
@@ -232,16 +232,16 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
 #' # Generate data
 #' n <- 1000
 #' p <- 5
-#' data <- generate_survival_data(n, p)
+#' data <- generate_causal_survival_data(n, p)
 #' # Get true CATE on a test set
 #' X.test <- matrix(seq(0, 1, length.out = 5), 5, p)
-#' cate.test <- generate_survival_data(n, p, X = X.test)$cate
+#' cate.test <- generate_causal_survival_data(n, p, X = X.test)$cate
 #' }
 #'
 #' @importFrom stats dbeta rbinom rexp rnorm rpois
 #' @export
-generate_survival_data <- function(n, p, Y.max = NULL, X = NULL, n.mc = 10000,
-                                   dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")) {
+generate_causal_survival_data <- function(n, p, Y.max = NULL, X = NULL, n.mc = 10000,
+                                          dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")) {
   .minp <- c(simple1 = 1, type1 = 5, type2 = 5, type3 = 5, type4 = 5, type5 = 5)
   dgp <- match.arg(dgp)
   minp <- .minp[dgp]
