@@ -28,8 +28,7 @@
      Eigen::ArrayXXd& responses_by_sample) const {
 
    for (size_t sample : samples) {
-     Eigen::VectorXd outcome = data.get_outcomes(sample);
-     responses_by_sample.row(sample) = outcome;
+     responses_by_sample.row(sample) = data.get_outcomes(sample);
    }
    return false;
  }
