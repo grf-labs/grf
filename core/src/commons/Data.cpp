@@ -142,8 +142,7 @@ bool Data::load_from_other_file(std::ifstream& input_file,
 }
 
 void Data::set_outcome_index(size_t index) {
-  this->outcome_index = std::vector<size_t>({index});
-  disallowed_split_variables.insert(index);
+  set_outcome_index(std::vector<size_t>({index}));
 }
 
 void Data::set_outcome_index(const std::vector<size_t>& index) {
@@ -152,8 +151,7 @@ void Data::set_outcome_index(const std::vector<size_t>& index) {
 }
 
 void Data::set_treatment_index(size_t index) {
-  this->treatment_index = std::vector<size_t>({index});
-  disallowed_split_variables.insert(index);
+  set_treatment_index(std::vector<size_t>({index}));
 }
 
 void Data::set_treatment_index(const std::vector<size_t>& index) {
