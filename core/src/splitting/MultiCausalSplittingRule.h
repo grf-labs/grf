@@ -71,6 +71,7 @@ private:
                              const Eigen::ArrayXd& sum_node_w,
                              const Eigen::ArrayXd& sum_node_w_squared,
                              const Eigen::ArrayXd& min_child_size,
+                             const Eigen::ArrayXXd& treatments,
                              double& best_value,
                              size_t& best_var,
                              double& best_decrease,

@@ -186,10 +186,10 @@ void Data::set_censor_index(size_t index) {
   disallowed_split_variables.insert(index);
 }
 
-void Data::get_all_values(std::vector<double>& all_values,
-                          std::vector<size_t>& sorted_samples,
-                          const std::vector<size_t>& samples,
-                          size_t var) const {
+std::vector<size_t> Data::get_all_values(std::vector<double>& all_values,
+                                         std::vector<size_t>& sorted_samples,
+                                         const std::vector<size_t>& samples,
+                                         size_t var) const {
   all_values.resize(samples.size());
   for (size_t i = 0; i < samples.size(); i++) {
     size_t sample = samples[i];
@@ -217,6 +217,8 @@ void Data::get_all_values(std::vector<double>& all_values,
   all_values.erase(unique(all_values.begin(), all_values.end(), [&](const double& lhs, const double& rhs) {
     return lhs == rhs || (std::isnan(lhs) && std::isnan(rhs));
   }), all_values.end());
+
+  return index;
 }
 
 size_t Data::get_num_cols() const {

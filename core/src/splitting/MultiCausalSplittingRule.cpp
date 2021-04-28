@@ -64,14 +64,17 @@ bool MultiCausalSplittingRule::find_best_split(const Data& data,
   Eigen::ArrayXd sum_node = Eigen::ArrayXd::Zero(response_length);
   Eigen::ArrayXd sum_node_w = Eigen::ArrayXd::Zero(num_treatments);
   Eigen::ArrayXd sum_node_w_squared = Eigen::ArrayXd::Zero(num_treatments);
-  for (auto& sample : samples[node]) {
+  // Allocate W-array and re-use to avoid expensive copy-inducing calls to `data.get_treatments`
+  Eigen::ArrayXXd treatments = Eigen::ArrayXXd(num_samples, num_treatments);
+  for (size_t i = 0; i < num_samples; i++) {
+    size_t sample = samples[node][i];
     double sample_weight = data.get_weight(sample);
     weight_sum_node += sample_weight;
     sum_node += sample_weight * responses_by_sample.row(sample);
+    treatments.row(i) = data.get_treatments(sample);
 
-    Eigen::ArrayXd w = data.get_treatments(sample).array();
-    sum_node_w += sample_weight * w;
-    sum_node_w_squared += sample_weight * w.square();
+    sum_node_w += sample_weight * treatments.row(i);
+    sum_node_w_squared += sample_weight * treatments.row(i).square();
   }
 
   Eigen::ArrayXd size_node = sum_node_w_squared - sum_node_w.square() / weight_sum_node;
@@ -79,9 +82,8 @@ bool MultiCausalSplittingRule::find_best_split(const Data& data,
 
   Eigen::ArrayXd mean_w_node = sum_node_w / weight_sum_node;
   Eigen::ArrayXi num_node_small_w = Eigen::ArrayXi::Zero(num_treatments);
-  for (auto& sample : samples[node]) {
-    Eigen::ArrayXd w = data.get_treatments(sample).array();
-    num_node_small_w += (w < mean_w_node).cast<int>();
+  for (size_t i = 0; i < num_samples; i++) {
+    num_node_small_w += (treatments.row(i).transpose() < mean_w_node).cast<int>();
   }
 
   // Initialize the variables to track the best split variable.
@@ -93,7 +95,7 @@ bool MultiCausalSplittingRule::find_best_split(const Data& data,
   // For all possible split variables
   for (auto& var : possible_split_vars) {
     find_best_split_value(data, node, var, num_samples, weight_sum_node, sum_node, mean_w_node, num_node_small_w,
-                          sum_node_w, sum_node_w_squared, min_child_size, best_value,
+                          sum_node_w, sum_node_w_squared, min_child_size, treatments, best_value,
                           best_var, best_decrease, best_send_missing_left, responses_by_sample, samples);
   }
 
@@ -120,6 +122,7 @@ void MultiCausalSplittingRule::find_best_split_value(const Data& data,
                                                      const Eigen::ArrayXd& sum_node_w,
                                                      const Eigen::ArrayXd& sum_node_w_squared,
                                                      const Eigen::ArrayXd& min_child_size,
+                                                     const Eigen::ArrayXXd& treatments,
                                                      double& best_value,
                                                      size_t& best_var,
                                                      double& best_decrease,
@@ -128,7 +131,7 @@ void MultiCausalSplittingRule::find_best_split_value(const Data& data,
                                                      const std::vector<std::vector<size_t>>& samples) {
   std::vector<double> possible_split_values;
   std::vector<size_t> sorted_samples;
-  data.get_all_values(possible_split_values, sorted_samples, samples[node], var);
+  std::vector<size_t> index = data.get_all_values(possible_split_values, sorted_samples, samples[node], var);
 
   // Try next variable if all equal for this
   if (possible_split_values.size() < 2) {
@@ -154,8 +157,8 @@ void MultiCausalSplittingRule::find_best_split_value(const Data& data,
   for (size_t i = 0; i < num_samples - 1; i++) {
     size_t sample = sorted_samples[i];
     size_t next_sample = sorted_samples[i + 1];
+    size_t sort_index = index[i];
     double sample_value = data.get(sample, var);
-    Eigen::ArrayXd w = data.get_treatments(sample).array();
     double sample_weight = data.get_weight(sample);
 
     if (std::isnan(sample_value)) {
@@ -163,17 +166,17 @@ void MultiCausalSplittingRule::find_best_split_value(const Data& data,
       sum_missing += sample_weight * responses_by_sample.row(sample);
       ++n_missing;
 
-      sum_w_missing += sample_weight * w;
-      sum_w_squared_missing += sample_weight * w.square();
-      num_small_w_missing += (w < mean_node_w).cast<int>();
+      sum_w_missing += sample_weight * treatments.row(sort_index);
+      sum_w_squared_missing += sample_weight * treatments.row(sort_index).square();
+      num_small_w_missing += (treatments.row(sort_index).transpose() < mean_node_w).cast<int>();
     } else {
       weight_sums[split_index] += sample_weight;
       sums.row(split_index) += sample_weight * responses_by_sample.row(sample);
       ++counter[split_index];
 
-      sums_w.row(split_index) += sample_weight * w;
-      sums_w_squared.row(split_index) += sample_weight * w.square();
-      num_small_w.row(split_index) += (w < mean_node_w).cast<int>();
+      sums_w.row(split_index) += sample_weight * treatments.row(sort_index);
+      sums_w_squared.row(split_index) += sample_weight * treatments.row(sort_index).square();
+      num_small_w.row(split_index) += (treatments.row(sort_index).transpose() < mean_node_w).cast<int>();
     }
 
     double next_sample_value = data.get(next_sample, var);
