@@ -142,23 +142,33 @@ bool Data::load_from_other_file(std::ifstream& input_file,
 }
 
 void Data::set_outcome_index(size_t index) {
-  this->outcome_index = std::vector<size_t>({index});
-  disallowed_split_variables.insert(index);
+  set_outcome_index(std::vector<size_t>({index}));
 }
 
 void Data::set_outcome_index(const std::vector<size_t>& index) {
   this->outcome_index = index;
   disallowed_split_variables.insert(index.begin(), index.end());
+  this->outcomes = Eigen::MatrixXd(get_num_rows(), index.size());
+  for (size_t i = 0; i < get_num_rows(); i++) {
+    for (size_t j = 0; j < index.size(); j++) {
+      this->outcomes(i, j) = get(i, index[j]);
+    }
+  }
 }
 
 void Data::set_treatment_index(size_t index) {
-  this->treatment_index = std::vector<size_t>({index});
-  disallowed_split_variables.insert(index);
+  set_treatment_index(std::vector<size_t>({index}));
 }
 
 void Data::set_treatment_index(const std::vector<size_t>& index) {
   this->treatment_index = index;
   disallowed_split_variables.insert(index.begin(), index.end());
+  this->treatments = Eigen::MatrixXd(get_num_rows(), index.size());
+  for (size_t i = 0; i < get_num_rows(); i++) {
+    for (size_t j = 0; j < index.size(); j++) {
+      this->treatments(i, j) = get(i, index[j]);
+    }
+  }
 }
 
 void Data::set_instrument_index(size_t index) {
@@ -247,24 +257,16 @@ double Data::get_outcome(size_t row) const {
   return get(row, outcome_index.value()[0]);
 }
 
-Eigen::VectorXd Data::get_outcomes(size_t row) const {
-  Eigen::VectorXd out(outcome_index.value().size());
-  for (size_t i = 0; i < outcome_index.value().size(); i++) {
-    out(i) = get(row, outcome_index.value()[i]);
-  }
-  return out;
+Eigen::MatrixXd::ConstRowXpr Data::get_outcomes(size_t row) const {
+  return outcomes.row(row);
 }
 
 double Data::get_treatment(size_t row) const {
   return get(row, treatment_index.value()[0]);
 }
 
-Eigen::VectorXd Data::get_treatments(size_t row) const {
-  Eigen::VectorXd out(treatment_index.value().size());
-  for (size_t i = 0; i < treatment_index.value().size(); i++) {
-    out(i) = get(row, treatment_index.value()[i]);
-  }
-  return out;
+Eigen::MatrixXd::ConstRowXpr Data::get_treatments(size_t row) const {
+  return treatments.row(row);
 }
 
 double Data::get_instrument(size_t row) const {

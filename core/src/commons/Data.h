@@ -48,10 +48,22 @@ public:
 
   void set_outcome_index(size_t index);
 
+  /**
+   * Sets index for multiple responses.
+   * For performance reasons the data is copied into a separate Eigen matrix.
+   * This means the public method `set` will not work as expected if used
+   * to change elements in the response data.
+   */
   void set_outcome_index(const std::vector<size_t>& index);
 
   void set_treatment_index(size_t index);
 
+  /**
+   * Sets index for multiple treatments.
+   * For performance reasons the data is copied into a separate Eigen matrix.
+   * This means the public method `set` will not work as expected if used
+   * to change elements in the treatments data.
+   */
   void set_treatment_index(const std::vector<size_t>& index);
 
   void set_instrument_index(size_t index);
@@ -89,11 +101,11 @@ public:
 
   double get_outcome(size_t row) const;
 
-  Eigen::VectorXd get_outcomes(size_t row) const;
+  Eigen::MatrixXd::ConstRowXpr get_outcomes(size_t row) const;
 
   double get_treatment(size_t row) const;
 
-  Eigen::VectorXd get_treatments(size_t row) const;
+  Eigen::MatrixXd::ConstRowXpr get_treatments(size_t row) const;
 
   double get_instrument(size_t row) const;
 
@@ -119,6 +131,8 @@ protected:
   nonstd::optional<size_t> causal_survival_numerator_index;
   nonstd::optional<size_t> causal_survival_denominator_index;
   nonstd::optional<size_t> censor_index;
+  Eigen::MatrixXd outcomes;
+  Eigen::MatrixXd treatments;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Data);
