@@ -86,7 +86,7 @@ bool InstrumentalRelabelingStrategy::relabel(
     double regularized_instrument = (1 - reduced_form_weight) * instrument + reduced_form_weight * treatment;
 
     double residual = (response - average_outcome) - local_average_treatment_effect * (treatment - average_treatment);
-    responses_by_sample(sample) = (regularized_instrument - average_regularized_instrument) * residual;
+    responses_by_sample(sample, 0) = (regularized_instrument - average_regularized_instrument) * residual;
   }
   return false;
 }

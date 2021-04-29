@@ -76,7 +76,7 @@ bool InstrumentalSplittingRule::find_best_split(const Data& data,
   for (auto& sample : samples[node]) {
     double sample_weight = data.get_weight(sample);
     weight_sum_node += sample_weight;
-    sum_node += sample_weight * responses_by_sample(sample);
+    sum_node += sample_weight * responses_by_sample(sample, 0);
 
     double z = data.get_instrument(sample);
     sum_node_z += sample_weight * z;
@@ -169,7 +169,7 @@ void InstrumentalSplittingRule::find_best_split_value(const Data& data,
 
     if (std::isnan(sample_value)) {
       weight_sum_missing += sample_weight;
-      sum_missing += sample_weight * responses_by_sample(sample);
+      sum_missing += sample_weight * responses_by_sample(sample, 0);
       ++n_missing;
 
       sum_z_missing += sample_weight * z;
@@ -179,7 +179,7 @@ void InstrumentalSplittingRule::find_best_split_value(const Data& data,
       }
     } else {
       weight_sums[split_index] += sample_weight;
-      sums[split_index] += sample_weight * responses_by_sample(sample);
+      sums[split_index] += sample_weight * responses_by_sample(sample, 0);
       ++counter[split_index];
 
       sums_z[split_index] += sample_weight * z;

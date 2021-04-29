@@ -55,7 +55,7 @@ bool QuantileRelabelingStrategy::relabel(
                                      quantile_cutoffs.end(),
                                      outcome);
     long quantile_index = quantile - quantile_cutoffs.begin();
-    responses_by_sample(sample) = (uint) quantile_index;
+    responses_by_sample(sample, 0) = (uint) quantile_index;
   }
   return false;
 }
