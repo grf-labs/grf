@@ -26,7 +26,7 @@
 
    for (size_t sample : samples) {
      double outcome = data.get_outcome(sample);
-     responses_by_sample(sample) = outcome;
+     responses_by_sample(sample, 0) = outcome;
    }
    return false;
  }

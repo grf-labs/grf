@@ -71,7 +71,7 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
   std::vector<double> failure_values;
   for (auto& sample : samples) {
     if (data.is_failure(sample)) {
-      failure_values.push_back(responses_by_sample(sample));
+      failure_values.push_back(responses_by_sample(sample, 0));
     }
   }
 
@@ -105,7 +105,7 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
 
   // Relabel the failure values to range from 0 to the number of failures in this node
   for (auto& sample : samples) {
-    double failure_value = responses_by_sample(sample);
+    double failure_value = responses_by_sample(sample, 0);
     size_t new_failure_value = std::upper_bound(failure_values.begin(), failure_values.end(),
                                                 failure_value) - failure_values.begin();
     relabeled_failures[sample] = new_failure_value;
