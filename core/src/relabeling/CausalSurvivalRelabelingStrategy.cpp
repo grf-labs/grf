@@ -47,7 +47,7 @@ bool CausalSurvivalRelabelingStrategy::relabel(
   for (size_t sample : samples) {
     double response = (data.get_causal_survival_numerator(sample) -
       data.get_causal_survival_denominator(sample) * eta) / denominator_sum;
-    responses_by_sample(sample) = response;
+    responses_by_sample(sample, 0) = response;
   }
   return false;
 }

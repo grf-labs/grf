@@ -58,7 +58,7 @@ bool ProbabilitySplittingRule::find_best_split(const Data& data,
   double* class_counts = new double[num_classes]();
   for (size_t i = 0; i < size_node; ++i) {
     size_t sample = samples[node][i];
-    uint sample_class = (uint) std::round(responses_by_sample(sample));
+    uint sample_class = (uint) std::round(responses_by_sample(sample, 0));
     double sample_weight = data.get_weight(sample);
     class_counts[sample_class] += sample_weight;
   }
@@ -123,7 +123,7 @@ void ProbabilitySplittingRule::find_best_split_value(const Data& data,
     size_t sample = sorted_samples[i];
     size_t next_sample = sorted_samples[i + 1];
     double sample_value = data.get(sample, var);
-    uint sample_class = responses_by_sample(sample);
+    uint sample_class = responses_by_sample(sample, 0);
     double sample_weight = data.get_weight(sample);
 
     if (std::isnan(sample_value)) {
