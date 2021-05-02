@@ -26,6 +26,7 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
                               size_t ci_group_size,
                               double alpha,
                               double imbalance_penalty,
+                              bool stabilize_splits,
                               std::vector<size_t> clusters,
                               unsigned int samples_per_cluster,
                               bool compute_oob_predictions,
@@ -33,7 +34,7 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
                               unsigned int seed) {
   size_t num_treatments = treatment_index.size();
   size_t num_outcomes = outcome_index.size();
-  ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes);
+  ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes, stabilize_splits);
 
   std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
   data->set_outcome_index(outcome_index);

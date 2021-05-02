@@ -13,24 +13,35 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   nmissing <- 50
   X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
 
-  cf <- causal_forest(X, Y, W, W.hat = 1/2, Y.hat = 0, seed = 42, stabilize.splits = FALSE,
-                     alpha = 0, min.node.size = 1, num.trees = 500)
-  mcf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(1/2, 1/2), Y.hat = 0, seed = 42,
-                                 alpha = 0, min.node.size = 1, num.trees = 500)
+  cf <- causal_forest(X, Y, W, W.hat = 1/2, Y.hat = 0, seed = 42, num.trees = 500)
+  mcf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(1/2, 1/2), Y.hat = 0, seed = 42, num.trees = 500)
 
   pp.cf <- predict(cf, estimate.variance = TRUE)
   pp.mcf <- predict(mcf, estimate.variance = TRUE)
   z.cf <- abs(pp.cf$predictions - tau) / sqrt(pp.cf$variance.estimates)
   z.mcf <- abs(pp.mcf$predictions[,,] - tau) / sqrt(pp.mcf$variance.estimates)
   expect_equal(mean(z.cf <= 1.96), mean(z.mcf <= 1.96), tolerance = 0.05)
-
   expect_equal(mean((pp.cf$predictions - pp.mcf$predictions)^2), 0, tolerance = 0.05)
   expect_equal(mean(pp.cf$predictions), mean(pp.mcf$predictions), tolerance = 0.05)
-
   expect_equal(mean((predict(cf, X)$predictions - predict(mcf, X)$predictions)^2), 0, tolerance = 0.05)
   expect_equal(mean(predict(cf, X)$predictions), mean(predict(mcf, X)$predictions), tolerance = 0.05)
-
   expect_equal(average_treatment_effect(cf), average_treatment_effect(mcf)[,], tolerance = 0.001)
+
+  # Same checks with standard unconstrained regression splits.
+  cf.rsplit <- causal_forest(X, Y, W, W.hat = 1/2, Y.hat = 0, seed = 42, num.trees = 500, stabilize.splits = FALSE)
+  mcf.rsplit <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(1/2, 1/2), Y.hat = 0, seed = 42,
+                                        num.trees = 500, stabilize.splits = FALSE)
+
+  pp.cf.rsplit <- predict(cf.rsplit, estimate.variance = TRUE)
+  pp.mcf.rsplit <- predict(mcf.rsplit, estimate.variance = TRUE)
+  z.cf.rsplit <- abs(pp.cf.rsplit$predictions - tau) / sqrt(pp.cf.rsplit$variance.estimates)
+  z.mcf.rsplit <- abs(pp.mcf.rsplit$predictions[,,] - tau) / sqrt(pp.mcf.rsplit$variance.estimates)
+  expect_equal(mean(z.cf.rsplit <= 1.96), mean(z.mcf.rsplit <= 1.96), tolerance = 0.05)
+  expect_equal(mean((pp.cf.rsplit$predictions - pp.mcf.rsplit$predictions)^2), 0, tolerance = 0.05)
+  expect_equal(mean(pp.cf.rsplit$predictions), mean(pp.mcf.rsplit$predictions), tolerance = 0.05)
+  expect_equal(mean((predict(cf.rsplit, X)$predictions - predict(mcf.rsplit, X)$predictions)^2), 0, tolerance = 0.05)
+  expect_equal(mean(predict(cf.rsplit, X)$predictions), mean(predict(mcf.rsplit, X)$predictions), tolerance = 0.05)
+  expect_equal(average_treatment_effect(cf.rsplit), average_treatment_effect(mcf.rsplit)[,], tolerance = 0.001)
 })
 
 test_that("multi_arm_causal_forest contrasts works as expected", {
@@ -206,7 +217,8 @@ test_that("multi_arm_causal_forest confidence intervals are reasonable", {
   tauB <- pmax(X[, 2], 0)
   tauC <- - 1.5 * abs(X[, 2])
   Y <- 2 + X[, 1] + tauB * (W == "B") + tauC * (W == "C") + rnorm(n)
-  mcf <- multi_arm_causal_forest(X, Y, W, num.trees = 500)
+  # Use min.node.size = 1 to check coverage on small n.
+  mcf <- multi_arm_causal_forest(X, Y, W, num.trees = 500, min.node.size = 1)
 
   tau <- cbind(tauB, tauC)
   pp.mcf <- predict(mcf, estimate.variance = TRUE)
@@ -302,7 +314,7 @@ test_that("multi_arm_causal_forest with multiple outcomes is well calibrated", {
   tau <- cbind(tau1, tau2)
   YY <- tau * W + X[, 3:4] + 0.5 * matrix(rnorm(n * 2), n, 2)
 
-  cf.pred <- apply(YY, 2, function(Y) predict(causal_forest(X, Y, W, num.trees = 500, stabilize.splits = FALSE))$predictions)
+  cf.pred <- apply(YY, 2, function(Y) predict(causal_forest(X, Y, W, num.trees = 500))$predictions)
   mcf.pred <- predict(multi_arm_causal_forest(X, YY, as.factor(W), num.trees = 500))$predictions[,,]
   mse.cf <- mean((mcf.pred - tau)^2)
   mse.mcf <- mean((cf.pred - tau)^2)
