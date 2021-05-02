@@ -32,6 +32,7 @@
 #include "splitting/factory/InstrumentalSplittingRuleFactory.h"
 #include "splitting/factory/ProbabilitySplittingRuleFactory.h"
 #include "splitting/factory/RegressionSplittingRuleFactory.h"
+#include "splitting/factory/MultiCausalSplittingRuleFactory.h"
 #include "splitting/factory/MultiRegressionSplittingRuleFactory.h"
 #include "splitting/factory/SurvivalSplittingRuleFactory.h"
 #include "splitting/factory/CausalSurvivalSplittingRuleFactory.h"
@@ -53,11 +54,13 @@ ForestTrainer instrumental_trainer(double reduced_form_weight,
 }
 
 ForestTrainer multi_causal_trainer(size_t num_treatments,
-                                   size_t num_outcomes) {
+                                   size_t num_outcomes,
+                                   bool stabilize_splits) {
   size_t response_length = num_treatments * num_outcomes;
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new MultiCausalRelabelingStrategy(response_length));
-  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory =
-   std::unique_ptr<SplittingRuleFactory>(new MultiRegressionSplittingRuleFactory(response_length));
+  std::unique_ptr<SplittingRuleFactory> splitting_rule_factory = stabilize_splits
+    ? std::unique_ptr<SplittingRuleFactory>(new MultiCausalSplittingRuleFactory(response_length, num_treatments))
+    : std::unique_ptr<SplittingRuleFactory>(new MultiRegressionSplittingRuleFactory(response_length));
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new MultiCausalPredictionStrategy(num_treatments, num_outcomes));
 
   return ForestTrainer(std::move(relabeling_strategy),

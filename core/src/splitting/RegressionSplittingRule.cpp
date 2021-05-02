@@ -61,7 +61,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
   for (auto& sample : samples[node]) {
     double sample_weight = data.get_weight(sample);
     weight_sum_node += sample_weight;
-    sum_node += sample_weight * responses_by_sample(sample);
+    sum_node += sample_weight * responses_by_sample(sample, 0);
   }
 
   // Initialize the variables to track the best split variable.
@@ -122,7 +122,7 @@ void RegressionSplittingRule::find_best_split_value(const Data& data,
     size_t sample = sorted_samples[i];
     size_t next_sample = sorted_samples[i + 1];
     double sample_value = data.get(sample, var);
-    double response = responses_by_sample(sample);
+    double response = responses_by_sample(sample, 0);
     double sample_weight = data.get_weight(sample);
 
     if (std::isnan(sample_value)) {

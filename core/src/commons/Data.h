@@ -71,13 +71,14 @@ public:
    * @param sorted_samples: the sample IDs in sorted order (filled in place).
    * @param samples: the samples to sort.
    * @param var: the feature variable.
+   * @return: (optional) the index (arg sort) of `sorted_samples` (integers from 0,...,samples.size() - 1).
    *
    * If all the values in `samples` is unique, then `all_values` and `sorted_samples`
    * have the same length.
    *
    * If any of the covariates are NaN, they will be placed first in the returned sort order.
    */
-  void get_all_values(std::vector<double>& all_values, std::vector<size_t>& sorted_samples, const std::vector<size_t>& samples, size_t var) const;
+  std::vector<size_t> get_all_values(std::vector<double>& all_values, std::vector<size_t>& sorted_samples, const std::vector<size_t>& samples, size_t var) const;
 
   size_t get_num_cols() const;
 

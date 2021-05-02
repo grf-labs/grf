@@ -15,20 +15,27 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
- #include "relabeling/NoopRelabelingStrategy.h"
+#ifndef GRF_MULTICAUSALSPLITTINGRULEFACTORY_H
+#define GRF_MULTICAUSALSPLITTINGRULEFACTORY_H
 
- namespace grf {
+#include "splitting/factory/SplittingRuleFactory.h"
 
- bool NoopRelabelingStrategy::relabel(
-     const std::vector<size_t>& samples,
-     const Data& data,
-     Eigen::ArrayXXd& responses_by_sample) const {
+namespace grf {
 
-   for (size_t sample : samples) {
-     double outcome = data.get_outcome(sample);
-     responses_by_sample(sample, 0) = outcome;
-   }
-   return false;
- }
+class MultiCausalSplittingRuleFactory final: public SplittingRuleFactory {
+public:
+  MultiCausalSplittingRuleFactory(size_t response_length,
+                                  size_t num_treatments);
 
- } // namespace grf
+  std::unique_ptr<SplittingRule> create(size_t max_num_unique_values,
+                                        const TreeOptions& options) const;
+private:
+  size_t response_length;
+  size_t num_treatments;
+
+  DISALLOW_COPY_AND_ASSIGN(MultiCausalSplittingRuleFactory);
+};
+
+} // namespace grf
+
+#endif //GRF_MULTICAUSALSPLITTINGRULEFACTORY_H

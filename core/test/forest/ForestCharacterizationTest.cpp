@@ -292,7 +292,7 @@ TEST_CASE("multi causal forest predictions with sample weights have not changed"
   data->set_weight_index(8);
 
   size_t num_treatments = 2;
-  ForestTrainer trainer = multi_causal_trainer(num_treatments, 1);
+  ForestTrainer trainer = multi_causal_trainer(num_treatments, 1, false);
   ForestOptions options = ForestTestUtilities::default_options();
 
   Forest forest = trainer.train(*data, options);
@@ -312,6 +312,36 @@ TEST_CASE("multi causal forest predictions with sample weights have not changed"
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/stable_multi_causal_predictions.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+}
+
+TEST_CASE("multi causal forest predictions with sample weights and stable splitting have not changed", "[multi causal], [characterization]") {
+  std::unique_ptr<Data> data = load_data("test/forest/resources/multi_causal_data.csv");
+  data->set_outcome_index(5);
+  data->set_treatment_index({6, 7});
+  data->set_weight_index(8);
+
+  size_t num_treatments = 2;
+  ForestTrainer trainer = multi_causal_trainer(num_treatments, 1, true);
+  ForestOptions options = ForestTestUtilities::default_options();
+
+  Forest forest = trainer.train(*data, options);
+
+  ForestPredictor predictor = multi_causal_predictor(4, num_treatments, 1);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict(forest, *data, *data, false);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/stable_multi_causal_oob_predictions_stable_split.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/stable_multi_causal_predictions_stable_split.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/stable_multi_causal_oob_predictions_stable_split.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/stable_multi_causal_predictions_stable_split.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 }
 

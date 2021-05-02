@@ -86,7 +86,7 @@ bool LLRegressionRelabelingStrategy::relabel(
   for (size_t sample : samples) {
       double prediction_sample = leaf_predictions(i);
       double residual = prediction_sample - data.get_outcome(sample);
-      responses_by_sample(sample) = residual;
+      responses_by_sample(sample, 0) = residual;
       i++;
     }
     return false;
