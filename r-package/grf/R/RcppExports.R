@@ -9,8 +9,8 @@ compute_weights <- function(forest_object, train_matrix, test_matrix, num_thread
     .Call('_grf_compute_weights', PACKAGE = 'grf', forest_object, train_matrix, test_matrix, num_threads)
 }
 
-compute_weights_oob <- function(forest_object, train_matrix, sparse_train_matrix, num_threads) {
-    .Call('_grf_compute_weights_oob', PACKAGE = 'grf', forest_object, train_matrix, sparse_train_matrix, num_threads)
+compute_weights_oob <- function(forest_object, train_matrix, num_threads) {
+    .Call('_grf_compute_weights_oob', PACKAGE = 'grf', forest_object, train_matrix, num_threads)
 }
 
 merge <- function(forest_objects) {

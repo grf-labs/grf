@@ -55,30 +55,23 @@ test_that("an observation matrix with 1 column is accepted", {
   expect_true(is.vector(Y))
 })
 
-test_that("create_train_matrices handles data.frame, matrix, sparse and NULL inputs equally", {
+test_that("create_train_matrices handles data.frame, matrix, and NULL inputs equally", {
   Xm <- matrix(rnorm(100), 20, 5)
   Xd <- as.data.frame(Xm)
-  Xs <- Matrix(Xm, sparse = T)
   Y <- matrix(rnorm(20))
 
   data1_d <- create_train_matrices(Xd)
   data1_m <- create_train_matrices(Xm)
-  data1_s <- create_train_matrices(Xs)
   data2_d <- create_train_matrices(Xd, Y)
   data2_m <- create_train_matrices(Xm, Y)
-  data2_s <- create_train_matrices(Xs, Y)
   data3_d <- create_train_matrices(Xd, Y, NULL)
   data3_m <- create_train_matrices(Xm, Y, NULL)
-  data3_s <- create_train_matrices(Xs, Y, NULL)
 
   # Checking for equality of elements
   # (note expect_equal does not work here)
   expect_true(all(data1_d$default == data1_m$default))
-  expect_true(all(data1_s$sparse == data1_m$default))
   expect_true(all(data2_d$default == data2_m$default))
-  expect_true(all(data2_s$sparse == data2_m$default))
   expect_true(all(data3_d$default == data3_m$default))
-  expect_true(all(data3_s$sparse == data3_m$default))
 })
 
 test_that("providing sample.weights when equalize.cluster.weights is TRUE is not accepted", {
