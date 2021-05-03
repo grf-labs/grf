@@ -1,6 +1,4 @@
-#include <map>
 #include <Rcpp.h>
-#include <sstream>
 #include <vector>
 
 #include "commons/globals.h"

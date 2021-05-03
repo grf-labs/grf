@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include <Rcpp.h>
-#include <queue>
 #include <vector>
 
 #include "Eigen/Sparse"

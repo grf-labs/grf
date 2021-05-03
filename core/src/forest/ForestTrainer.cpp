@@ -19,7 +19,6 @@
 #include <ctime>
 #include <future>
 #include <stdexcept>
-#include <string>
 
 #include "commons/utility.h"
 #include "ForestTrainer.h"
