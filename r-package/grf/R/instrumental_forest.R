@@ -328,7 +328,6 @@ predict.instrumental_forest <- function(object, newdata = NULL,
     ret <- do.call.rcpp(instrumental_predict_oob, c(train.data, args))
   }
 
-
   # Convert list to data frame.
   empty <- sapply(ret, function(elem) length(elem) == 0)
   do.call(cbind.data.frame, ret[!empty])
