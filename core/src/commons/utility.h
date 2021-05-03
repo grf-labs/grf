@@ -42,8 +42,6 @@ bool equal_doubles(double first, double second, double epsilon);
 
 std::unique_ptr<Data> load_data(const std::string& file_name);
 
-std::unique_ptr<Data> load_sparse_data(const std::string& file_name);
-
 } // namespace grf
 
 #endif /* GRF_UTILITY_H_ */

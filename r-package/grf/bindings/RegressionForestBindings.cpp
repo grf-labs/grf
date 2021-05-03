@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "commons/globals.h"
-#include "Eigen/Sparse"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainers.h"
 #include "RcppUtilities.h"
@@ -30,7 +29,6 @@ using namespace grf;
 
 // [[Rcpp::export]]
 Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
-                            Eigen::SparseMatrix<double> sparse_train_matrix,
                             size_t outcome_index,
                             size_t sample_weight_index,
                             bool use_sample_weights,
@@ -51,7 +49,7 @@ Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
                             unsigned int seed) {
   ForestTrainer trainer = regression_trainer();
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
   if(use_sample_weights) {
       data->set_weight_index(sample_weight_index);
@@ -73,16 +71,14 @@ Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
 // [[Rcpp::export]]
 Rcpp::List regression_predict(Rcpp::List forest_object,
                               Rcpp::NumericMatrix train_matrix,
-                              Eigen::SparseMatrix<double> sparse_train_matrix,
                               size_t outcome_index,
                               Rcpp::NumericMatrix test_matrix,
-                              Eigen::SparseMatrix<double> sparse_test_matrix,
                               unsigned int num_threads,
                               unsigned int estimate_variance) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
   train_data->set_outcome_index(outcome_index);
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
   ForestPredictor predictor = regression_predictor(num_threads);
@@ -94,11 +90,10 @@ Rcpp::List regression_predict(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::List regression_predict_oob(Rcpp::List forest_object,
                                   Rcpp::NumericMatrix train_matrix,
-                                  Eigen::SparseMatrix<double> sparse_train_matrix,
                                   size_t outcome_index,
                                   unsigned int num_threads,
                                   bool estimate_variance) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
@@ -112,7 +107,6 @@ Rcpp::List regression_predict_oob(Rcpp::List forest_object,
 
 // [[Rcpp::export]]
 Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
-                            Eigen::SparseMatrix<double> sparse_train_matrix,
                             size_t outcome_index,
                             double ll_split_lambda,
                             bool ll_split_weight_penalty,
@@ -136,7 +130,7 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
   ForestTrainer trainer = ll_regression_trainer(ll_split_lambda, ll_split_weight_penalty, overall_beta,
                                                ll_split_cutoff, ll_split_variables);
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
@@ -150,18 +144,16 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
 // [[Rcpp::export]]
 Rcpp::List ll_regression_predict(Rcpp::List forest_object,
                                 Rcpp::NumericMatrix train_matrix,
-                                Eigen::SparseMatrix<double> sparse_train_matrix,
                                 size_t outcome_index,
                                 Rcpp::NumericMatrix test_matrix,
-                                Eigen::SparseMatrix<double> sparse_test_matrix,
                                 std::vector<double> ll_lambda,
                                 bool ll_weight_penalty,
                                 std::vector<size_t> linear_correction_variables,
                                 unsigned int num_threads,
                                 bool estimate_variance) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
   train_data->set_outcome_index(outcome_index);
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest_object);
 
@@ -176,14 +168,13 @@ Rcpp::List ll_regression_predict(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::List ll_regression_predict_oob(Rcpp::List forest_object,
                                     Rcpp::NumericMatrix train_matrix,
-                                    Eigen::SparseMatrix<double> sparse_train_matrix,
                                     size_t outcome_index,
                                     std::vector<double> ll_lambda,
                                     bool ll_weight_penalty,
                                     std::vector<size_t> linear_correction_variables,
                                     unsigned int num_threads,
                                     bool estimate_variance) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest_object);

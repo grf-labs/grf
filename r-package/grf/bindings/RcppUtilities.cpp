@@ -2,7 +2,6 @@
 #include <sstream>
 
 #include "commons/DefaultData.h"
-#include "commons/SparseData.h"
 #include "forest/ForestOptions.h"
 #include "RcppData.h"
 #include "RcppUtilities.h"
@@ -98,19 +97,11 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   return result;
 };
 
-std::unique_ptr<Data> RcppUtilities::convert_data(Rcpp::NumericMatrix& input_data,
-                                                  Eigen::SparseMatrix<double>& sparse_input_data) {
+std::unique_ptr<Data> RcppUtilities::convert_data(Rcpp::NumericMatrix& input_data) {
   std::unique_ptr<Data> data;
-  if (input_data.nrow() > 0) {
-    size_t num_rows = input_data.nrow();
-    size_t num_cols = input_data.ncol();
-    data = std::unique_ptr<Data>(new RcppData(input_data, num_rows, num_cols));
-  } else {
-    size_t num_rows = sparse_input_data.rows();
-    size_t num_cols = sparse_input_data.cols();
-
-    data = std::unique_ptr<Data>(new SparseData(sparse_input_data, num_rows, num_cols));
-  }
+  size_t num_rows = input_data.nrow();
+  size_t num_cols = input_data.ncol();
+  data = std::unique_ptr<Data>(new RcppData(input_data, num_rows, num_cols));
   return data;
 }
 
