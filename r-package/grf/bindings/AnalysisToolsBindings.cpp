@@ -103,11 +103,11 @@ Eigen::SparseMatrix<double> compute_weights(Rcpp::List forest_object,
 
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object,
-                                                Rcpp::NumericMatrix test_matrix,
-                                                Eigen::SparseMatrix<double> sparse_test_matrix,
+                                                Rcpp::NumericMatrix train_matrix,
+                                                Eigen::SparseMatrix<double> sparse_train_matrix,
                                                 unsigned int num_threads) {
-  return compute_sample_weights(forest_object, test_matrix, sparse_test_matrix,
-                                test_matrix, sparse_test_matrix, num_threads, true);
+  return compute_sample_weights(forest_object, train_matrix, sparse_train_matrix,
+                                train_matrix, sparse_train_matrix, num_threads, true);
 }
 
 // [[Rcpp::export]]
