@@ -93,7 +93,7 @@ test_that("regression variance estimates are positive", {
 test_that("Converting from a sparse data representation produces the same predictions", {
   dim <- 20
   X <- diag(rnorm(dim), dim)
-  sparse.X <- as(X, "dgCMatrix")
+  sparse.X <- Matrix::Matrix(X, sparse = TRUE)
   Y <- 1000 * (X[, 1]) + rnorm(dim)
 
   forest <- regression_forest(X, Y, mtry = dim, seed = 10)

@@ -180,8 +180,6 @@ validate_sample_weights <- function(sample.weights, X) {
   }
 }
 
-#' @importFrom Matrix Matrix cBind
-#' @importFrom methods new
 # Indices are offset by 1 for C++.
 create_train_matrices <- function(X,
                                   outcome = NULL,
@@ -238,8 +236,6 @@ create_train_matrices <- function(X,
   out
 }
 
-#' @importFrom Matrix Matrix cBind
-#' @importFrom methods new
 create_test_matrices <- function(X) {
   out <- list()
   out[["test.matrix"]] <- as.matrix(X)
