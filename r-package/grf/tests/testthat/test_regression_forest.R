@@ -90,7 +90,7 @@ test_that("regression variance estimates are positive", {
   expect_lt(mean(abs(Z.oob) > 1), 0.5)
 })
 
-test_that("using a sparse data representation produces the same predictions", {
+test_that("Converting from a sparse data representation produces the same predictions", {
   dim <- 20
   X <- diag(rnorm(dim), dim)
   sparse.X <- as(X, "dgCMatrix")
@@ -99,7 +99,7 @@ test_that("using a sparse data representation produces the same predictions", {
   forest <- regression_forest(X, Y, mtry = dim, seed = 10)
   preds <- predict(forest, estimate.variance = TRUE)
 
-  sparse.forest <- regression_forest(sparse.X, Y, mtry = dim, seed = 10)
+  sparse.forest <- regression_forest(as.matrix(sparse.X), Y, mtry = dim, seed = 10)
   sparse.preds <- predict(sparse.forest, estimate.variance = TRUE)
 
   expect_equal(preds$predictions, sparse.preds$predictions)
