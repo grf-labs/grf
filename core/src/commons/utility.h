@@ -18,9 +18,6 @@
 #ifndef GRF_UTILITY_H_
 #define GRF_UTILITY_H_
 
-#include <algorithm>
-#include <fstream>
-#include <iostream>
 #include <memory>
 #include <vector>
 

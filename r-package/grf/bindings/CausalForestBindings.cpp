@@ -15,9 +15,7 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <map>
 #include <Rcpp.h>
-#include <sstream>
 #include <vector>
 
 #include "commons/globals.h"

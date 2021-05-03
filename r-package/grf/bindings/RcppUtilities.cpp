@@ -1,5 +1,4 @@
 #include <Rcpp.h>
-#include <sstream>
 
 #include "commons/DefaultData.h"
 #include "forest/ForestOptions.h"

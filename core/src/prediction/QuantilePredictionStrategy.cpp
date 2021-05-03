@@ -17,7 +17,6 @@
 
 #include <algorithm>
 #include <vector>
-#include <string>
 
 #include "commons/DefaultData.h"
 #include "prediction/QuantilePredictionStrategy.h"
