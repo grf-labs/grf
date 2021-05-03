@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "commons/globals.h"
-#include "Eigen/Sparse"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainers.h"
 #include "RcppUtilities.h"
@@ -13,7 +12,6 @@ using namespace grf;
 
 // [[Rcpp::export]]
 Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
-                              Eigen::SparseMatrix<double> sparse_train_matrix,
                               size_t outcome_index,
                               size_t treatment_index,
                               size_t instrument_index,
@@ -38,7 +36,7 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
                               unsigned int seed) {
   ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
   data->set_treatment_index(treatment_index);
   data->set_instrument_index(instrument_index);
@@ -62,19 +60,17 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
 // [[Rcpp::export]]
 Rcpp::List instrumental_predict(Rcpp::List forest_object,
                                 Rcpp::NumericMatrix train_matrix,
-                                Eigen::SparseMatrix<double> sparse_train_matrix,
                                 size_t outcome_index,
                                 size_t treatment_index,
                                 size_t instrument_index,
                                 Rcpp::NumericMatrix test_matrix,
-                                Eigen::SparseMatrix<double> sparse_test_matrix,
                                 unsigned int num_threads,
                                 bool estimate_variance) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
   train_data->set_outcome_index(outcome_index);
   train_data->set_treatment_index(treatment_index);
   train_data->set_instrument_index(instrument_index);
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
@@ -88,13 +84,12 @@ Rcpp::List instrumental_predict(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::List instrumental_predict_oob(Rcpp::List forest_object,
                                     Rcpp::NumericMatrix train_matrix,
-                                    Eigen::SparseMatrix<double> sparse_train_matrix,
                                     size_t outcome_index,
                                     size_t treatment_index,
                                     size_t instrument_index,
                                     unsigned int num_threads,
                                     bool estimate_variance) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
   data->set_treatment_index(treatment_index);
   data->set_instrument_index(instrument_index);
