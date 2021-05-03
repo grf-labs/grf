@@ -18,6 +18,7 @@
 #ifndef GRF_UTILITY_H_
 #define GRF_UTILITY_H_
 
+#include <memory>
 #include <vector>
 
 #include "Data.h"
