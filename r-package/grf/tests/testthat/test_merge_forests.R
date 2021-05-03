@@ -14,7 +14,7 @@ test_that("Merged regression forest attributes are sensible", {
   big.rf <- merge_forests(list(r.forest1, r.forest2))
 
   # Result is also a regression_forest of the same class
-  expect_true(is(big.rf, "grf"))
+  expect_true(methods::is(big.rf, "grf"))
   expect_equal(r.forest1[["_num_trees"]] + r.forest2[["_num_trees"]], big.rf[["_num_trees"]])
   expect_equal(class(r.forest1), class(big.rf))
 })
@@ -34,7 +34,7 @@ test_that("Merged causal forest attributes are sensible", {
 
   # Result is also a causal forest of the same class
   expect_true(big.rf[["_num_trees"]] == (c.forest1[["_num_trees"]] + c.forest2[["_num_trees"]]))
-  expect_true(is(big.rf, "grf"))
+  expect_true(methods::is(big.rf, "grf"))
   expect_equal(class(c.forest1), class(big.rf))
 
   expect_equal(c.forest1$Y.hat, big.rf$Y.hat)
