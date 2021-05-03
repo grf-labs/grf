@@ -200,16 +200,15 @@ get_forest_weights <- function(forest, newdata = NULL, num.threads = NULL) {
   forest.short <- forest[-which(names(forest) == "X.orig")]
   X <- forest[["X.orig"]]
   train.data <- create_train_matrices(X)
+  args <- list(forest.object = forest.short,
+               num.threads = num.threads)
 
   if (!is.null(newdata)) {
-    data <- create_train_matrices(newdata)
+    test.data <- create_test_matrices(newdata)
     validate_newdata(newdata, X, allow.na = TRUE)
-    compute_weights(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
-      data$train.matrix, data$sparse.train.matrix, num.threads
-    )
+    do.call.rcpp(compute_weights, c(train.data, test.data, args))
   } else {
-    compute_weights_oob(forest.short, train.data$train.matrix, train.data$sparse.train.matrix, num.threads)
+    do.call.rcpp(compute_weights_oob, c(train.data, args))
   }
 }
 

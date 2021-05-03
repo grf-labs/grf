@@ -35,16 +35,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // compute_weights_oob
-Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object, Rcpp::NumericMatrix test_matrix, Eigen::SparseMatrix<double> sparse_test_matrix, unsigned int num_threads);
-RcppExport SEXP _grf_compute_weights_oob(SEXP forest_objectSEXP, SEXP test_matrixSEXP, SEXP sparse_test_matrixSEXP, SEXP num_threadsSEXP) {
+Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object, Rcpp::NumericMatrix train_matrix, Eigen::SparseMatrix<double> sparse_train_matrix, unsigned int num_threads);
+RcppExport SEXP _grf_compute_weights_oob(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP sparse_train_matrixSEXP, SEXP num_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type forest_object(forest_objectSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type test_matrix(test_matrixSEXP);
-    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type sparse_test_matrix(sparse_test_matrixSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type train_matrix(train_matrixSEXP);
+    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double> >::type sparse_train_matrix(sparse_train_matrixSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_weights_oob(forest_object, test_matrix, sparse_test_matrix, num_threads));
+    rcpp_result_gen = Rcpp::wrap(compute_weights_oob(forest_object, train_matrix, sparse_train_matrix, num_threads));
     return rcpp_result_gen;
 END_RCPP
 }
