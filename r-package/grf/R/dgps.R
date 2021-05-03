@@ -50,7 +50,6 @@
 #' data <- generate_causal_data(100, 5, dgp = "aw1")
 #' data2 <- generate_causal_data(100, 5, dgp = "aw2")
 #' }
-#' @importFrom utils installed.packages
 #' @export
 generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
                                  dgp = c("simple", "aw1", "aw2", "aw3", "aw3reverse",
@@ -66,7 +65,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
   }
 
   if (dgp == "kunzel") {
-    if (!("MASS" %in% installed.packages())) {
+    if (!("MASS" %in% utils::installed.packages())) {
       msg <- paste0("Selected dgp ", dgp, " requires the MASS library.")
       stop(msg)
     }
