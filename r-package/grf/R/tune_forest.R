@@ -17,7 +17,6 @@
 #' @return tuning output
 #'
 #' @importFrom stats sd runif
-#' @importFrom utils capture.output
 #' @keywords internal
 tune_forest <- function(data,
                         nrow.X,
@@ -66,7 +65,7 @@ tune_forest <- function(data,
   # 2. Fit the 'dice kriging' model to these error estimates.
   variance.guess <- rep(var(small.forest.errors) / 2, nrow(fit.draws))
   kriging.model <- tryCatch({
-    capture.output(
+    utils::capture.output(
       with_seed(
         model <- DiceKriging::km(
           design = data.frame(fit.draws),
