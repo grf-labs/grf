@@ -234,7 +234,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                  tune.num.draws = tune.num.draws,
                                  train = instrumental_train)
 
-    args <- modifyList(args, as.list(tuning.output[["params"]]))
+    args <- utils::modifyList(args, as.list(tuning.output[["params"]]))
   }
 
   forest <- do.call.rcpp(instrumental_train, c(data, args))

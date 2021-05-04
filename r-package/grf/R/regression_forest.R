@@ -86,7 +86,6 @@
 #' }
 #'
 #' @export
-#' @importFrom utils modifyList
 regression_forest <- function(X, Y,
                               num.trees = 2000,
                               sample.weights = NULL,
@@ -164,7 +163,7 @@ regression_forest <- function(X, Y,
                                  tune.num.draws = tune.num.draws,
                                  train = regression_train)
 
-    args <- modifyList(args, as.list(tuning.output[["params"]]))
+    args <- utils::modifyList(args, as.list(tuning.output[["params"]]))
   }
 
   forest <- do.call.rcpp(regression_train, c(data, args))
