@@ -121,7 +121,6 @@
 #'
 #' @return An estimate of the average treatment effect, along with standard error.
 #'
-#' @importFrom stats coef lm predict var weighted.mean
 #' @export
 average_treatment_effect <- function(forest,
                                      target.sample = c("all", "treated", "control", "overlap"),

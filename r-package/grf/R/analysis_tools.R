@@ -193,7 +193,6 @@ variable_importance <- function(forest, decay.exponent = 2, max.depth = 4) {
 #' forest.weights <- get_forest_weights(rrf, X.test)
 #' }
 #'
-#' @importFrom Matrix Matrix
 #' @export
 get_forest_weights <- function(forest, newdata = NULL, num.threads = NULL) {
   num.threads <- validate_num_threads(num.threads)

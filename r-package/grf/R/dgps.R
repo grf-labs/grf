@@ -236,7 +236,6 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
 #' cate.test <- generate_causal_survival_data(n, p, X = X.test)$cate
 #' }
 #'
-#' @importFrom stats dbeta rbinom rexp rnorm rpois
 #' @export
 generate_causal_survival_data <- function(n, p, Y.max = NULL, X = NULL, n.mc = 10000,
                                           dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")) {
