@@ -93,5 +93,8 @@
 #'
 #' @useDynLib grf
 #' @importFrom Rcpp evalCpp
+#' @importFrom Matrix Matrix
+#' @importFrom stats coef lm predict sd var weighted.mean
+#' @importFrom stats dbeta rbinom rexp rnorm runif rpois
 #' @keywords internal
 "_PACKAGE"
