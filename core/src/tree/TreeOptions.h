@@ -18,11 +18,6 @@
 #ifndef GRF_TREEOPTIONS_H
 #define GRF_TREEOPTIONS_H
 
-
-#include <set>
-#include <string>
-#include <vector>
-
 #include "commons/globals.h"
 
 namespace grf {

@@ -109,6 +109,7 @@ test_that("computing sample weights gives reasonable results", {
   sample.weights.oob <- get_forest_weights(rrf)
   expect_equal(nrow(sample.weights.oob), n)
   expect_equal(ncol(sample.weights.oob), n)
+  expect_equal(apply(sample.weights.oob, 1, function(w) weighted.mean(Y, w)), predict(rrf)$predictions)
 
   row.sums.oob <- apply(sample.weights.oob, 1, sum)
   expect_equal(row.sums.oob, rep(1, n), tolerance = 1e-10)
@@ -119,6 +120,7 @@ test_that("computing sample weights gives reasonable results", {
   sample.weights <- get_forest_weights(rrf, X.test)
   expect_equal(nrow(sample.weights), n.test)
   expect_equal(ncol(sample.weights), n)
+  expect_equal(apply(sample.weights, 1, function(w) weighted.mean(Y, w)), predict(rrf, X.test)$predictions)
 
   row.sums <- apply(sample.weights, 1, sum)
   expect_equal(row.sums, rep(1, n.test), tolerance = 1e-10)

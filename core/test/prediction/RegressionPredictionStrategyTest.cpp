@@ -15,9 +15,6 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <map>
-#include <unordered_set>
-#include <fstream>
 #include "commons/Data.h"
 #include "commons/utility.h"
 #include "prediction/RegressionPredictionStrategy.h"

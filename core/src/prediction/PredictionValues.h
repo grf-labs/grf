@@ -18,10 +18,8 @@
 #ifndef GRF_PREDICTIONVALUES_H
 #define GRF_PREDICTIONVALUES_H
 
-
+#include <cstddef>
 #include <vector>
-#include <string>
-#include <map>
 
 namespace grf {
 

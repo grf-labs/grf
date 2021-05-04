@@ -234,7 +234,7 @@ instrumental_forest <- function(X, Y, W, Z,
                                  tune.num.draws = tune.num.draws,
                                  train = instrumental_train)
 
-    args <- modifyList(args, as.list(tuning.output[["params"]]))
+    args <- utils::modifyList(args, as.list(tuning.output[["params"]]))
   }
 
   forest <- do.call.rcpp(instrumental_train, c(data, args))
@@ -316,21 +316,16 @@ predict.instrumental_forest <- function(object, newdata = NULL,
   Z.centered <- object[["Z.orig"]] - object[["Z.hat"]]
 
   train.data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered, instrument = Z.centered)
+  args <- list(forest.object = forest.short,
+               num.threads = num.threads,
+               estimate.variance = estimate.variance)
 
   if (!is.null(newdata)) {
-    validate_newdata(newdata, object$X.orig, allow.na = TRUE)
-    data <- create_train_matrices(newdata)
-    ret <- instrumental_predict(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
-      train.data$outcome.index, train.data$treatment.index, train.data$instrument.index,
-      data$train.matrix, data$sparse.train.matrix, num.threads, estimate.variance
-    )
+    validate_newdata(newdata, X, allow.na = TRUE)
+    test.data <- create_test_matrices(newdata)
+    ret <- do.call.rcpp(instrumental_predict, c(train.data, test.data, args))
   } else {
-    ret <- instrumental_predict_oob(
-      forest.short, train.data$train.matrix, train.data$sparse.train.matrix,
-      train.data$outcome.index, train.data$treatment.index, train.data$instrument.index,
-      num.threads, estimate.variance
-    )
+    ret <- do.call.rcpp(instrumental_predict_oob, c(train.data, args))
   }
 
   # Convert list to data frame.

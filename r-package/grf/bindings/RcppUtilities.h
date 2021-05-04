@@ -1,8 +1,24 @@
+/*-------------------------------------------------------------------------------
+  This file is part of generalized random forest (grf).
+
+  grf is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  grf is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with grf. If not, see <http://www.gnu.org/licenses/>.
+ #-------------------------------------------------------------------------------*/
+
 #ifndef GRF_RCPPUTILITIES_H
 #define GRF_RCPPUTILITIES_H
 
 #include "commons/globals.h"
-#include "Eigen/Sparse"
 #include "forest/ForestTrainer.h"
 
 using namespace grf;
@@ -25,8 +41,7 @@ public:
   static Rcpp::List serialize_forest(Forest& forest);
   static Forest deserialize_forest(const Rcpp::List& forest_object);
 
-  static std::unique_ptr<Data> convert_data(Rcpp::NumericMatrix& input_data,
-                                            Eigen::SparseMatrix<double>& sparse_input_data);
+  static std::unique_ptr<Data> convert_data(Rcpp::NumericMatrix& input_data);
 
   static Rcpp::List create_prediction_object(const std::vector<Prediction>& predictions);
   static void add_predictions(Rcpp::List& output,

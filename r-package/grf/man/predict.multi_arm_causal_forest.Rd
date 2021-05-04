@@ -76,7 +76,7 @@ average_treatment_effect(mc.forest)
 # m(x) := E[Y | X] = E[Y(A) | X] + E[W_B (Y(B) - Y(A))] + E[W_C (Y(C) - Y(A))]
 # which given unconfoundedness is equal to:
 # m(x) = mu(A, x) + e_B(x) tau_B(X) + e_C(x) tau_C(x)
-# Rearraning and plugging in the above expressions, we obtain the following estimates
+# Rearranging and plugging in the above expressions, we obtain the following estimates
 # * mu(A, x) = m(x) - e_B(x) tau_B(x) - e_C(x) tau_C(x)
 # * mu(B, x) = m(x) + (1 - e_B(x)) tau_B(x) - e_C(x) tau_C(x)
 # * mu(C, x) = m(x) - e_B(x) tau_B(x) + (1 - e_C(x)) tau_C(x)
@@ -87,7 +87,7 @@ muA <- Y.hat - W.hat[, "B"] * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[, "C -
 muB <- Y.hat + (1 - W.hat[, "B"]) * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[, "C - A"]
 muC <- Y.hat - W.hat[, "B"] * tau.hat[, "B - A"] + (1 - W.hat[, "C"]) * tau.hat[, "C - A"]
 
-# These can also be succinctly obtained with some array manipulations.
+# These can also be obtained with some array manipulations.
 # With the first colum as baseline we have:
 Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1] * tau.hat)
 mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat)

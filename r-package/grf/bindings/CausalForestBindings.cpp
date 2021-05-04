@@ -15,13 +15,10 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <map>
 #include <Rcpp.h>
-#include <sstream>
 #include <vector>
 
 #include "commons/globals.h"
-#include "Eigen/Sparse"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainers.h"
 #include "RcppUtilities.h"
@@ -30,7 +27,6 @@ using namespace grf;
 
 // [[Rcpp::export]]
 Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
-                        Eigen::SparseMatrix<double> sparse_train_matrix,
                         size_t outcome_index,
                         size_t treatment_index,
                         size_t sample_weight_index,
@@ -54,7 +50,7 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
                         unsigned int seed) {
   ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
   data->set_treatment_index(treatment_index);
   data->set_instrument_index(treatment_index);
@@ -79,18 +75,16 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
 // [[Rcpp::export]]
 Rcpp::List causal_predict(Rcpp::List forest_object,
                           Rcpp::NumericMatrix train_matrix,
-                          Eigen::SparseMatrix<double> sparse_train_matrix,
                           size_t outcome_index,
                           size_t treatment_index,
                           Rcpp::NumericMatrix test_matrix,
-                          Eigen::SparseMatrix<double> sparse_test_matrix,
                           unsigned int num_threads,
                           bool estimate_variance) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
   train_data->set_outcome_index(outcome_index);
   train_data->set_treatment_index(treatment_index);
   train_data->set_instrument_index(treatment_index);
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
@@ -104,12 +98,11 @@ Rcpp::List causal_predict(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::List causal_predict_oob(Rcpp::List forest_object,
                               Rcpp::NumericMatrix train_matrix,
-                              Eigen::SparseMatrix<double> sparse_train_matrix,
                               size_t outcome_index,
                               size_t treatment_index,
                               unsigned int num_threads,
                               bool estimate_variance) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
   data->set_treatment_index(treatment_index);
   data->set_instrument_index(treatment_index);
@@ -126,21 +119,19 @@ Rcpp::List causal_predict_oob(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::List ll_causal_predict(Rcpp::List forest_object,
                              Rcpp::NumericMatrix train_matrix,
-                             Eigen::SparseMatrix<double> sparse_train_matrix,
                              size_t outcome_index,
                              size_t treatment_index,
                              Rcpp::NumericMatrix test_matrix,
-                             Eigen::SparseMatrix<double> sparse_test_matrix,
                              std::vector<double> ll_lambda,
                              bool ll_weight_penalty,
                              std::vector<size_t> linear_correction_variables,
                              unsigned int num_threads,
                              bool estimate_variance) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
   train_data->set_outcome_index(outcome_index);
   train_data->set_treatment_index(treatment_index);
   train_data->set_instrument_index(treatment_index);
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest_object);
 
@@ -155,7 +146,6 @@ Rcpp::List ll_causal_predict(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::List ll_causal_predict_oob(Rcpp::List forest_object,
                                  Rcpp::NumericMatrix train_matrix,
-                                 Eigen::SparseMatrix<double> sparse_train_matrix,
                                  size_t outcome_index,
                                  size_t treatment_index,
                                  std::vector<double> ll_lambda,
@@ -163,7 +153,7 @@ Rcpp::List ll_causal_predict_oob(Rcpp::List forest_object,
                                  std::vector<size_t> linear_correction_variables,
                                  unsigned int num_threads,
                                  bool estimate_variance) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
 
   data->set_outcome_index(outcome_index);
   data->set_treatment_index(treatment_index);

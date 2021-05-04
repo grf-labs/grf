@@ -1,4 +1,3 @@
-#' @importFrom utils capture.output
 test_that("basic quantile forest plotting is successful", {
   p <- 4
   n <- 50

@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include <cmath>
-#include <string>
 #include "prediction/RegressionPredictionStrategy.h"
 
 namespace grf {

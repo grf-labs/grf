@@ -1,14 +1,14 @@
 validate_X <- function(X, allow.na = FALSE) {
-  valid.classes <- c("matrix", "data.frame", "dgCMatrix")
+  valid.classes <- c("matrix", "data.frame")
 
   if (!inherits(X, valid.classes)) {
     stop(paste(
       "Currently the only supported data input types are:",
-      "`matrix`, `data.frame`, `dgCMatrix`"
+      "`matrix`, `data.frame`"
     ))
   }
 
-  if (!inherits(X, "dgCMatrix") && !is.numeric(as.matrix(X))) {
+  if (!is.numeric(as.matrix(X))) {
     stop(paste(
       "The feature matrix X must be numeric. GRF does not",
       "currently support non-numeric features. If factor variables",
@@ -180,8 +180,6 @@ validate_sample_weights <- function(sample.weights, X) {
   }
 }
 
-#' @importFrom Matrix Matrix cBind
-#' @importFrom methods new
 # Indices are offset by 1 for C++.
 create_train_matrices <- function(X,
                                   outcome = NULL,
@@ -191,8 +189,6 @@ create_train_matrices <- function(X,
                                   survival.denominator = NULL,
                                   censor = NULL,
                                   sample.weights = FALSE) {
-  default.data <- matrix(nrow = 0, ncol = 0)
-  sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
   out <- list()
   offset <- ncol(X) - 1
   if (!is.null(outcome)) {
@@ -234,31 +230,15 @@ create_train_matrices <- function(X,
     }
   }
 
-  if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
-    sparse.data <- cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, sample.weights)
-  } else {
-    X <- as.matrix(X)
-    default.data <- as.matrix(cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, sample.weights))
-  }
-  out[["train.matrix"]] <- default.data
-  out[["sparse.train.matrix"]] <- sparse.data
+  X <- as.matrix(X)
+  out[["train.matrix"]] <- as.matrix(cbind(X, outcome, treatment, instrument, survival.numerator, survival.denominator, censor, sample.weights))
 
   out
 }
 
-#' @importFrom Matrix Matrix cBind
-#' @importFrom methods new
 create_test_matrices <- function(X) {
-  default.data <- matrix(nrow = 0, ncol = 0)
-  sparse.data <- new("dgCMatrix", Dim = c(0L, 0L))
   out <- list()
-  if (inherits(X, "dgCMatrix") && ncol(X) > 1) {
-    sparse.data <- X
-  } else {
-    default.data <- as.matrix(X)
-  }
-  out[["test.matrix"]] <- default.data
-  out[["sparse.test.matrix"]] <- sparse.data
+  out[["test.matrix"]] <- as.matrix(X)
 
   out
 }

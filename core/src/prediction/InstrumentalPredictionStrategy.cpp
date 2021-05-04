@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
 
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 #include "commons/Data.h"

@@ -1,8 +1,24 @@
+/*-------------------------------------------------------------------------------
+  This file is part of generalized random forest (grf).
+
+  grf is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  grf is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with grf. If not, see <http://www.gnu.org/licenses/>.
+ #-------------------------------------------------------------------------------*/
+ 
 #include <Rcpp.h>
 #include <vector>
 
 #include "commons/globals.h"
-#include "Eigen/Sparse"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainers.h"
 #include "RcppUtilities.h"
@@ -11,7 +27,6 @@ using namespace grf;
 
 // [[Rcpp::export]]
 Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
-                              Eigen::SparseMatrix<double> sparse_train_matrix,
                               const std::vector<size_t>& outcome_index,
                               const std::vector<size_t>& treatment_index,
                               size_t sample_weight_index,
@@ -36,7 +51,7 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
   size_t num_outcomes = outcome_index.size();
   ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes, stabilize_splits);
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
   data->set_treatment_index(treatment_index);
   if (use_sample_weights) {
@@ -59,15 +74,13 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
 // [[Rcpp::export]]
 Rcpp::List multi_causal_predict(Rcpp::List forest_object,
                                 Rcpp::NumericMatrix train_matrix,
-                                Eigen::SparseMatrix<double> sparse_train_matrix,
                                 Rcpp::NumericMatrix test_matrix,
-                                Eigen::SparseMatrix<double> sparse_test_matrix,
                                 size_t num_outcomes,
                                 size_t num_treatments,
                                 unsigned int num_threads,
                                 bool estimate_variance) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
@@ -81,12 +94,11 @@ Rcpp::List multi_causal_predict(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::List multi_causal_predict_oob(Rcpp::List forest_object,
                                     Rcpp::NumericMatrix train_matrix,
-                                    Eigen::SparseMatrix<double> sparse_train_matrix,
                                     size_t num_outcomes,
                                     size_t num_treatments,
                                     unsigned int num_threads,
                                     bool estimate_variance) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 

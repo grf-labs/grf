@@ -1,10 +1,24 @@
-#include <map>
+/*-------------------------------------------------------------------------------
+  This file is part of generalized random forest (grf).
+
+  grf is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  grf is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with grf. If not, see <http://www.gnu.org/licenses/>.
+ #-------------------------------------------------------------------------------*/
+ 
 #include <Rcpp.h>
-#include <sstream>
 #include <vector>
 
 #include "commons/globals.h"
-#include "Eigen/Sparse"
 #include "forest/ForestPredictors.h"
 #include "forest/ForestTrainers.h"
 #include "RcppUtilities.h"
@@ -15,7 +29,6 @@ using namespace grf;
 Rcpp::List quantile_train(std::vector<double> quantiles,
                           bool regression_splitting,
                           Rcpp::NumericMatrix train_matrix,
-                          Eigen::SparseMatrix<double> sparse_train_matrix,
                           size_t outcome_index,
                           unsigned int mtry,
                           unsigned int num_trees,
@@ -36,7 +49,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
       ? regression_trainer()
       : quantile_trainer(quantiles);
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
@@ -56,13 +69,11 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
 Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
                                      std::vector<double> quantiles,
                                      Rcpp::NumericMatrix train_matrix,
-                                     Eigen::SparseMatrix<double> sparse_train_matrix,
                                      size_t outcome_index,
                                      Rcpp::NumericMatrix test_matrix,
-                                     Eigen::SparseMatrix<double> sparse_test_matrix,
                                      unsigned int num_threads) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix, sparse_test_matrix);
+  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
   train_data->set_outcome_index(outcome_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
@@ -78,10 +89,9 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
 Rcpp::NumericMatrix quantile_predict_oob(Rcpp::List forest_object,
                                          std::vector<double> quantiles,
                                          Rcpp::NumericMatrix train_matrix,
-                                         Eigen::SparseMatrix<double> sparse_train_matrix,
                                          size_t outcome_index,
                                          unsigned int num_threads) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix, sparse_train_matrix);
+  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
   data->set_outcome_index(outcome_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);

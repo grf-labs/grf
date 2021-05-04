@@ -95,7 +95,6 @@ print.boosted_regression_forest <- function(x, ...) {
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @method print tuning_output
-#' @importFrom stats aggregate quantile
 #' @export
 print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
   if (x$status == "failure") {
@@ -114,7 +113,7 @@ print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
     cat("This indicates tuning found parameters that are expected to perform better than default. \n\n")
     grid <- x$grid
     out <- lapply(colnames(grid)[-1], function(name) {
-      q <- quantile(grid[, name], probs = tuning.quantiles)
+      q <- stats::quantile(grid[, name], probs = tuning.quantiles)
       # Cannot form for example quintiles for mtry if the number of variables is
       # less than 5, so here we just truncate the groups.
       if (length(unique(q) < length(q))) {
@@ -126,7 +125,7 @@ print.tuning_output <- function(x, tuning.quantiles = seq(0, 1, 0.2), ...) {
       if (length(levels(rank)) == 1) {
         rank = grid[, name]
       }
-      out <- aggregate(grid[, "error"], by = list(rank), FUN = mean)
+      out <- stats::aggregate(grid[, "error"], by = list(rank), FUN = mean)
       colnames(out) <- c(name, "error")
       out
     })

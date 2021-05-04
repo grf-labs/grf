@@ -55,14 +55,13 @@ merge_forests <- function(forest_list, compute.oob.predictions = TRUE) {
   big_forest
 }
 
-#' @importFrom methods is
 validate_forest_list <- function(forest_list) {
   if (length(forest_list) == 0) {
     stop("Length of argument 'forest_list' must be positive.")
   }
 
   first_forest <- forest_list[[1]]
-  if (!is(first_forest, "grf")) {
+  if (!methods::is(first_forest, "grf")) {
     stop("Argument 'forest_list' must be a list of grf objects.
            Be sure to use 'list(forest1, forest2), not 'c(forest1, forest2)'.")
   }

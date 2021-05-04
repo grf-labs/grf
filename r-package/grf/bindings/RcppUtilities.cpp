@@ -1,8 +1,23 @@
+/*-------------------------------------------------------------------------------
+  This file is part of generalized random forest (grf).
+
+  grf is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  grf is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with grf. If not, see <http://www.gnu.org/licenses/>.
+ #-------------------------------------------------------------------------------*/
+ 
 #include <Rcpp.h>
-#include <sstream>
 
 #include "commons/DefaultData.h"
-#include "commons/SparseData.h"
 #include "forest/ForestOptions.h"
 #include "RcppData.h"
 #include "RcppUtilities.h"
@@ -98,19 +113,11 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   return result;
 };
 
-std::unique_ptr<Data> RcppUtilities::convert_data(Rcpp::NumericMatrix& input_data,
-                                                  Eigen::SparseMatrix<double>& sparse_input_data) {
+std::unique_ptr<Data> RcppUtilities::convert_data(Rcpp::NumericMatrix& input_data) {
   std::unique_ptr<Data> data;
-  if (input_data.nrow() > 0) {
-    size_t num_rows = input_data.nrow();
-    size_t num_cols = input_data.ncol();
-    data = std::unique_ptr<Data>(new RcppData(input_data, num_rows, num_cols));
-  } else {
-    size_t num_rows = sparse_input_data.rows();
-    size_t num_cols = sparse_input_data.cols();
-
-    data = std::unique_ptr<Data>(new SparseData(sparse_input_data, num_rows, num_cols));
-  }
+  size_t num_rows = input_data.nrow();
+  size_t num_cols = input_data.ncol();
+  data = std::unique_ptr<Data>(new RcppData(input_data, num_rows, num_cols));
   return data;
 }
 

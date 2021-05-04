@@ -256,7 +256,7 @@ causal_forest <- function(X, Y, W,
                                  tune.num.draws = tune.num.draws,
                                  train = causal_train)
 
-    args <- modifyList(args, as.list(tuning.output[["params"]]))
+    args <- utils::modifyList(args, as.list(tuning.output[["params"]]))
   }
 
   forest <- do.call.rcpp(causal_train, c(data, args))

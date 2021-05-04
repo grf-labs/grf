@@ -188,7 +188,7 @@ ll_regression_forest <- function(X, Y,
                                  tune.num.draws = tune.num.draws,
                                  train = regression_train)
 
-    args <- modifyList(args, as.list(tuning.output[["params"]]))
+    args <- utils::modifyList(args, as.list(tuning.output[["params"]]))
   }
 
   if (enable.ll.split) {

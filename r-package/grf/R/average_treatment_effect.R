@@ -82,7 +82,6 @@
 #'             multivariate regression models with missing data." Journal of the
 #'             American Statistical Association 90(429), 1995.
 #'
-#' @importFrom stats coef lm predict var weighted.mean
 #' @examples
 #' \donttest{
 #' # Train a causal forest.
@@ -122,7 +121,6 @@
 #'
 #' @return An estimate of the average treatment effect, along with standard error.
 #'
-#' @importFrom stats coef lm predict var weighted.mean
 #' @export
 average_treatment_effect <- function(forest,
                                      target.sample = c("all", "treated", "control", "overlap"),

@@ -15,9 +15,6 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include <map>
-#include <unordered_set>
-#include <fstream>
 #include "commons/DefaultData.h"
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/QuantilePredictionStrategy.h"

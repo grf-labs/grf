@@ -50,8 +50,6 @@
 #' data <- generate_causal_data(100, 5, dgp = "aw1")
 #' data2 <- generate_causal_data(100, 5, dgp = "aw2")
 #' }
-#' @importFrom stats toeplitz
-#' @importFrom utils installed.packages
 #' @export
 generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise = 1,
                                  dgp = c("simple", "aw1", "aw2", "aw3", "aw3reverse",
@@ -67,7 +65,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
   }
 
   if (dgp == "kunzel") {
-    if (!("MASS" %in% installed.packages())) {
+    if (!("MASS" %in% utils::installed.packages())) {
       msg <- paste0("Selected dgp ", dgp, " requires the MASS library.")
       stop(msg)
     }
@@ -139,7 +137,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
   } else if (dgp == "kunzel") {
     # "Simulation 1" from A.1 in https://arxiv.org/pdf/1706.03461.pdf
     # Extremely unbalanced treatment assignment, easy treatment effect.
-    X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = toeplitz(0.5^seq(0, p - 1)))
+    X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = stats::toeplitz(0.5^seq(0, p - 1)))
     tau <- 8 * (X[, 2] > 0.1)
     beta <- runif(p, -5, 5)
     mu_0 <- X %*% beta + 5 * (X[, 1] > 0.5) + rnorm(n = n)
@@ -238,7 +236,6 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
 #' cate.test <- generate_causal_survival_data(n, p, X = X.test)$cate
 #' }
 #'
-#' @importFrom stats dbeta rbinom rexp rnorm rpois
 #' @export
 generate_causal_survival_data <- function(n, p, Y.max = NULL, X = NULL, n.mc = 10000,
                                           dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")) {
