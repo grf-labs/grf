@@ -22,15 +22,14 @@
 #include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 
+namespace grf {
+
 /**
  * This splitting rule is identical to {@link InstrumentalSplittingRule} with the
  * following additional size requirement:
  * number_of_failures(child) >= number_of_samples(parent) * alpha.
  * (This is the same size requirement used in {@link SurvivalSplittingRule}).
-*/
-
-namespace grf {
-
+ */
 class CausalSurvivalSplittingRule final: public SplittingRule {
 public:
   CausalSurvivalSplittingRule(size_t max_num_unique_values,
