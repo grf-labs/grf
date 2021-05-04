@@ -37,7 +37,7 @@ namespace grf {
  * The output of this method is a vector with coefficient influences for each observation ordered according to:
  * [\delta \tau_{11}, ..., \delta \tau_{1K}, ..., \delta \tau_{M1}, ..., \delta \tau_{MK}]
  *
-*/
+ */
 class MultiCausalRelabelingStrategy final: public RelabelingStrategy {
 public:
   MultiCausalRelabelingStrategy(size_t response_length);
