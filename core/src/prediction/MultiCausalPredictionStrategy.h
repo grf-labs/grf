@@ -49,7 +49,7 @@ namespace grf {
  * contiguously into a std::vector in the `pre-compute` step, and "re-constructed"
  * with pointers in the `predict` step through Eigen's Map class.
  *
-*/
+ */
 class MultiCausalPredictionStrategy final: public OptimizedPredictionStrategy {
 public:
 

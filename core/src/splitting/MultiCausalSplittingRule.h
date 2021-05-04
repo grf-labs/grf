@@ -38,7 +38,7 @@ namespace grf {
  * Requirement: for each k, the size of each child must be greater or equal to
  * size(parent_k) * alpha, where alpha: (0, 0.25) is a tuning parameter.
  *
-*/
+ */
 class MultiCausalSplittingRule final: public SplittingRule {
 public:
   MultiCausalSplittingRule(size_t max_num_unique_values,
