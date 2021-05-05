@@ -17,129 +17,28 @@
 
 #include <algorithm>
 #include <cmath>
-#include <fstream>
 #include <numeric>
 #include <iterator>
 #include <stdexcept>
-#include <sstream>
 
 #include "Data.h"
 
 namespace grf {
 
-Data::Data() :
-    num_rows(0),
-    num_cols(0),
-    outcome_index(),
-    treatment_index(),
-    instrument_index(),
-    weight_index(),
-    causal_survival_numerator_index(),
-    causal_survival_denominator_index(),
-    censor_index() {}
-
-bool Data::load_from_file(const std::string& filename) {
-  bool result;
-
-  // Open input file
-  std::ifstream input_file;
-  input_file.open(filename);
-  if (!input_file.good()) {
-    throw std::runtime_error("Could not open input file.");
+Data::Data(const double* data_ptr, size_t num_rows, size_t num_cols) {
+  if (data_ptr == nullptr) {
+    throw std::runtime_error("Invalid data storage: nullptr");
   }
-
-  // Count number of rows
-  size_t line_count = 0;
-  std::string line;
-  std::string first_line;
-  while (getline(input_file, line)) {
-    if (line_count == 0) {
-      first_line = line;
-    }
-    ++line_count;
-  }
-
-  num_rows = line_count;
-  input_file.close();
-  input_file.open(filename);
-
-  // Find out if comma, semicolon or whitespace seperated and call appropriate method
-  if (first_line.find(',') != std::string::npos) {
-    result = load_from_other_file(input_file, first_line, ',');
-  } else if (first_line.find(';') != std::string::npos) {
-    result = load_from_other_file(input_file, first_line, ';');
-  } else {
-    result = load_from_whitespace_file(input_file, first_line);
-  }
-
-  input_file.close();
-  return result;
+  this->data_ptr = data_ptr;
+  this->num_rows = num_rows;
+  this->num_cols = num_cols;
 }
 
-bool Data::load_from_whitespace_file(std::ifstream& input_file,
-                                     const std::string& first_line) {
-  // Read the first line to determine the number of columns.
-  std::string dummy_token;
-  std::stringstream first_line_stream(first_line);
-  while (first_line_stream >> dummy_token) {
-    num_cols++;
-  }
+Data::Data(const std::vector<double>& data, size_t num_rows, size_t num_cols) :
+  Data(data.data(), num_rows, num_cols) {}
 
-  // Read the entire contents.
-  reserve_memory();
-  bool error = false;
-  std::string line;
-  size_t row = 0;
-  while (getline(input_file, line)) {
-    std::string token;
-    std::stringstream line_stream(line);
-    size_t column = 0;
-    while (line_stream >> token) {
-      set(column, row, std::stod(token), error);
-      ++column;
-    }
-    if (column > num_cols) {
-      throw std::runtime_error("Could not open input file. Too many columns in a row.");
-    } else if (column < num_cols) {
-      throw std::runtime_error("Could not open input file. Too few columns in a row. Are all values numeric?");
-    }
-    ++row;
-  }
-  num_rows = row;
-  return error;
-}
-
-bool Data::load_from_other_file(std::ifstream& input_file,
-                                const std::string& first_line,
-                                char seperator) {
-  // Read the first line to determine the number of columns.
-  std::string dummy_token;
-  std::stringstream first_line_stream(first_line);
-  while (getline(first_line_stream, dummy_token, seperator)) {
-    num_cols++;
-  }
-
-  // Read the entire contents.
-  reserve_memory();
-  bool error = false;
-  std::string line;
-  size_t row = 0;
-  while (getline(input_file, line)) {
-    std::string token_string;
-    double token;
-    std::stringstream line_stream(line);
-    size_t column = 0;
-    while (getline(line_stream, token_string, seperator)) {
-      std::stringstream token_stream(token_string);
-      token_stream >> token;
-      set(column, row, token, error);
-      ++column;
-    }
-    ++row;
-  }
-  num_rows = row;
-  return error;
-}
+Data::Data(const std::pair<std::vector<double>, std::vector<size_t>>& data) :
+  Data(data.first.data(), data.second.at(0), data.second.at(1)) {}
 
 void Data::set_outcome_index(size_t index) {
   set_outcome_index(std::vector<size_t>({index}));
@@ -241,54 +140,6 @@ size_t Data::get_num_treatments() const {
   } else {
     return 1;
   }
-}
-
-double Data::get_outcome(size_t row) const {
-  return get(row, outcome_index.value()[0]);
-}
-
-Eigen::VectorXd Data::get_outcomes(size_t row) const {
-  Eigen::VectorXd out(outcome_index.value().size());
-  for (size_t i = 0; i < outcome_index.value().size(); i++) {
-    out(i) = get(row, outcome_index.value()[i]);
-  }
-  return out;
-}
-
-double Data::get_treatment(size_t row) const {
-  return get(row, treatment_index.value()[0]);
-}
-
-Eigen::VectorXd Data::get_treatments(size_t row) const {
-  Eigen::VectorXd out(treatment_index.value().size());
-  for (size_t i = 0; i < treatment_index.value().size(); i++) {
-    out(i) = get(row, treatment_index.value()[i]);
-  }
-  return out;
-}
-
-double Data::get_instrument(size_t row) const {
-  return get(row, instrument_index.value());
-}
-
-double Data::get_weight(size_t row) const {
-  if (weight_index.has_value()) {
-    return get(row, weight_index.value());
-  } else {
-    return 1.0;
-  }
-}
-
-double Data::get_causal_survival_numerator(size_t row) const {
-  return get(row, causal_survival_numerator_index.value());
-}
-
-double Data::get_causal_survival_denominator(size_t row) const {
-  return get(row, causal_survival_denominator_index.value());
-}
-
-bool Data::is_failure(size_t row) const {
-  return get(row, censor_index.value()) > 0.0;
 }
 
 const std::set<size_t>& Data::get_disallowed_split_variables() const {

@@ -19,7 +19,6 @@
 #define GRF_CAUSALSURVIVALSPLITTINGRULE_H
 
 #include "commons/Data.h"
-#include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 
 namespace grf {

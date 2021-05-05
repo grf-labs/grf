@@ -65,26 +65,27 @@ return {(double) split_vars[0], split_values[0], (double) send_missing_left[0]};
 }
 
 TEST_CASE("multi regression splitting with one outcome is identical to regression splitting", "[multi_regression], [splitting]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/regression_data.csv");
-  data->set_outcome_index(10);
+  auto data_vec = load_data("test/forest/resources/regression_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
   size_t num_features = 10;
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   auto reg_splitting_rule = std::unique_ptr<SplittingRule>(new RegressionSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_alpha(),
       options.get_imbalance_penalty()));
   auto multi_reg_splitting_rule = std::unique_ptr<SplittingRule>(new MultiRegressionSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_alpha(),
       options.get_imbalance_penalty(),
       1));
 
 
-  std::vector<double> reg = run_splits(*data, options, reg_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi_reg = run_splits(*data, options, multi_reg_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> reg = run_splits(data, options, reg_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> multi_reg = run_splits(data, options, multi_reg_splitting_rule, relabeling_strategy, num_features);
 
   REQUIRE(equal_doubles(reg[0], multi_reg[0], 1e-6));
   REQUIRE(equal_doubles(reg[1], multi_reg[1], 1e-6));
@@ -92,26 +93,27 @@ TEST_CASE("multi regression splitting with one outcome is identical to regressio
 }
 
 TEST_CASE("multi regression splitting with one outcome on NaN data is identical to regression splitting", "[multi_regression], [splitting], [NaN]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/regression_data_MIA.csv");
-  data->set_outcome_index(5);
+  auto data_vec = load_data("test/forest/resources/regression_data_MIA.csv");
+  Data data(data_vec);
+  data.set_outcome_index(5);
   size_t num_features = 5;
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   auto reg_splitting_rule = std::unique_ptr<SplittingRule>(new RegressionSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_alpha(),
       options.get_imbalance_penalty()));
   auto multi_reg_splitting_rule = std::unique_ptr<SplittingRule>(new MultiRegressionSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_alpha(),
       options.get_imbalance_penalty(),
       1));
 
 
-  std::vector<double> reg = run_splits(*data, options, reg_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi_reg = run_splits(*data, options, multi_reg_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> reg = run_splits(data, options, reg_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> multi_reg = run_splits(data, options, multi_reg_splitting_rule, relabeling_strategy, num_features);
 
   REQUIRE(equal_doubles(reg[0], multi_reg[0], 1e-6));
   REQUIRE(equal_doubles(reg[1], multi_reg[1], 1e-6));

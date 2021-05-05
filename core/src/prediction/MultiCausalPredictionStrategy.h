@@ -18,7 +18,7 @@
 #ifndef GRF_MULTICAUSALPREDICTIONSTRATEGY_H
 #define GRF_MULTICAUSALPREDICTIONSTRATEGY_H
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "prediction/Prediction.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"

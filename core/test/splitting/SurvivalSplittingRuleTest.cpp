@@ -66,17 +66,18 @@ std::vector<double> run_splits(const Data& data,
 }
 
 TEST_CASE("survival splitting logrank calculation is correct", "[survival], [splitting]") {
-  std::unique_ptr<Data> data = load_data("test/splitting/resources/survival_data_logrank.csv");
+  auto data_vec = load_data("test/splitting/resources/survival_data_logrank.csv");
+  Data data(data_vec);
   size_t num_features = 500;
-  data->set_outcome_index(num_features);
-  data->set_censor_index(num_features + 1);
+  data.set_outcome_index(num_features);
+  data.set_censor_index(num_features + 1);
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   std::unique_ptr<SurvivalSplittingRule> surv_splitting_rule(new SurvivalSplittingRule(options.get_alpha()));
 
-  std::vector<double> logranks = run_splits(*data, options, surv_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> logranks = run_splits(data, options, surv_splitting_rule, relabeling_strategy, num_features);
 
   std::vector<std::vector<double>> expected_logranks = FileTestUtilities::read_csv_file(
       "test/splitting/resources/survival_data_logrank_expected.csv");

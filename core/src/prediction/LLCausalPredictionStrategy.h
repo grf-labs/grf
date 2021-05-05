@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <unordered_map>
 #include "Eigen/Dense"
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "prediction/Prediction.h"
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"

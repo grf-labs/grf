@@ -27,19 +27,20 @@
 using namespace grf;
 
 TEST_CASE("causal survival forests give positive variance estimates", "[causal survival]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_survival_data.csv");
-  data->set_treatment_index(5);
-  data->set_instrument_index(5);
-  data->set_censor_index(6);
-  data->set_causal_survival_numerator_index(7);
-  data->set_causal_survival_denominator_index(8);
+  auto data_vec = load_data("test/forest/resources/causal_survival_data.csv");
+  Data data(data_vec);
+  data.set_treatment_index(5);
+  data.set_instrument_index(5);
+  data.set_censor_index(6);
+  data.set_causal_survival_numerator_index(7);
+  data.set_causal_survival_denominator_index(8);
 
   ForestTrainer trainer = causal_survival_trainer(true);
   ForestOptions options = ForestTestUtilities::default_options(true, 2);
-  Forest forest = trainer.train(*data, options);
+  Forest forest = trainer.train(data, options);
 
   ForestPredictor predictor = causal_survival_predictor(4);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, true);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, true);
 
   for (const Prediction& prediction : predictions) {
     REQUIRE(prediction.contains_variance_estimates());

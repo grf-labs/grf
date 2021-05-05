@@ -25,7 +25,7 @@ using namespace grf;
 Eigen::ArrayXXd get_relabeled_outcomes(
   std::vector<double> observations, size_t num_samples, size_t num_treatments) {
 
-  DefaultData data(observations, num_samples, 1 + num_treatments);
+  Data data(observations, num_samples, 1 + num_treatments);
   data.set_outcome_index(0);
   std::vector<size_t> treatment_index(num_treatments);
   std::iota(treatment_index.begin(), treatment_index.end(), 1);

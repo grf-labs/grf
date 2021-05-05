@@ -48,23 +48,23 @@ Rcpp::List survival_train(Rcpp::NumericMatrix train_matrix,
                           unsigned int seed) {
   ForestTrainer trainer = survival_trainer();
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
-  data->set_outcome_index(outcome_index);
-  data->set_censor_index(censor_index);
+  Data data = RcppUtilities::convert_data(train_matrix);
+  data.set_outcome_index(outcome_index);
+  data.set_censor_index(censor_index);
   if (use_sample_weights) {
-      data->set_weight_index(sample_weight_index);
+      data.set_weight_index(sample_weight_index);
   }
 
   size_t ci_group_size = 1;
   size_t imbalance_penalty = 0;
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
-  Forest forest = trainer.train(*data, options);
+  Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
     ForestPredictor predictor = survival_predictor(num_threads, num_failures, prediction_type);
-    predictions = predictor.predict_oob(forest, *data, false);
+    predictions = predictor.predict_oob(forest, data, false);
   }
 
   return RcppUtilities::create_forest_object(forest, predictions);
@@ -79,16 +79,16 @@ Rcpp::List survival_predict(Rcpp::List forest_object,
                             Rcpp::NumericMatrix test_matrix,
                             unsigned int num_threads,
                             size_t num_failures) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
-  train_data->set_outcome_index(outcome_index);
-  train_data->set_censor_index(censor_index);
+  Data train_data = RcppUtilities::convert_data(train_matrix);
+  train_data.set_outcome_index(outcome_index);
+  train_data.set_censor_index(censor_index);
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
+  Data data = RcppUtilities::convert_data(test_matrix);
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
   bool estimate_variance = false;
   ForestPredictor predictor = survival_predictor(num_threads, num_failures, prediction_type);
-  std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
 
   return RcppUtilities::create_prediction_object(predictions);
 }
@@ -101,15 +101,15 @@ Rcpp::List survival_predict_oob(Rcpp::List forest_object,
                                 int prediction_type,
                                 unsigned int num_threads,
                                 size_t num_failures) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
-  data->set_outcome_index(outcome_index);
-  data->set_censor_index(censor_index);
+  Data data = RcppUtilities::convert_data(train_matrix);
+  data.set_outcome_index(outcome_index);
+  data.set_censor_index(censor_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
   bool estimate_variance = false;
   ForestPredictor predictor = survival_predictor(num_threads, num_failures, prediction_type);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
   return result;

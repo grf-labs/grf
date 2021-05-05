@@ -18,7 +18,7 @@
 #ifndef GRF_MULTIREGRESSIONSPLITTINGRULE_H
 #define GRF_MULTIREGRESSIONSPLITTINGRULE_H
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 #include "tree/Tree.h"
 

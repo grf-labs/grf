@@ -18,7 +18,7 @@
 #ifndef GRF_MULTICAUSALSPLITTINGRULE_H
 #define GRF_MULTICAUSALSPLITTINGRULE_H
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 
 namespace grf {
