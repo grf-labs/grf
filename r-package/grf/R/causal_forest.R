@@ -215,7 +215,7 @@ causal_forest <- function(X, Y, W,
   Y.centered <- Y - Y.hat
   W.centered <- W - W.hat
   data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered,
-                              sample.weights = sample.weights)
+                                sample.weights = sample.weights)
   args <- list(num.trees = num.trees,
                clusters = clusters,
                samples.per.cluster = samples.per.cluster,

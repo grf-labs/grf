@@ -193,7 +193,7 @@ instrumental_forest <- function(X, Y, W, Z,
   }
 
   data <- create_train_matrices(X, outcome = Y - Y.hat, treatment = W - W.hat,
-                               instrument = Z - Z.hat, sample.weights = sample.weights)
+                                instrument = Z - Z.hat, sample.weights = sample.weights)
   args <- list(num.trees = num.trees,
               clusters = clusters,
               samples.per.cluster = samples.per.cluster,
