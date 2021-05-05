@@ -53,7 +53,6 @@ jobs:
       # Speed up package compilation with dynamic linking (Eigen templates slows down build)
       echo "SHLIB_CXXLDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
       echo "SHLIB_CXX11LDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
-      echo "SHLIB_CXX14LDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
       echo "SHLIB_FCLDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
       echo "SHLIB_LDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
     workingDirectory: r-package/grf
