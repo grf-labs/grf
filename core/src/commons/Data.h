@@ -76,7 +76,9 @@ public:
    *
    * If any of the covariates are NaN, they will be placed first in the returned sort order.
    */
-  std::vector<size_t> get_all_values(std::vector<double>& all_values, std::vector<size_t>& sorted_samples, const std::vector<size_t>& samples, size_t var) const;
+  std::vector<size_t> get_all_values(std::vector<double>& all_values,
+                                     std::vector<size_t>& sorted_samples,
+                                     const std::vector<size_t>& samples, size_t var) const;
 
   size_t get_num_cols() const;
 
