@@ -43,7 +43,7 @@ bool equal_doubles(double first, double second, double epsilon);
  */
 std::pair<std::vector<double>, std::vector<size_t>> load_data(const std::string& file_name);
 
-void set_data(std::pair<std::vector<double>, std::vector<size_t>>& data, size_t col, size_t row, double value);
+void set_data(std::pair<std::vector<double>, std::vector<size_t>>& data, size_t row, size_t col, double value);
 
 } // namespace grf
 

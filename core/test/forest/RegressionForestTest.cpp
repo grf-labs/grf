@@ -43,7 +43,7 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
   // Shift each outcome by 1, and re-run the forest.
   for (size_t r = 0; r < data.get_num_rows(); r++) {
     double outcome = data.get(r, outcome_index);
-    set_data(data_vec, outcome_index, r, outcome + 1);
+    set_data(data_vec, r, outcome_index, outcome + 1);
   }
 
   Forest shifted_forest = trainer.train(data, options);
@@ -104,7 +104,7 @@ TEST_CASE("regression error estimates are shift invariant", "[regression, forest
   // Shift each outcome by 1, and re-run the forest.
   for (size_t r = 0; r < data.get_num_rows(); r++) {
     double outcome = data.get(r, outcome_index);
-    set_data(data_vec, outcome_index, r, outcome + 1);
+    set_data(data_vec, r, outcome_index, outcome + 1);
   }
 
   Forest shifted_forest = trainer.train(data, options);
