@@ -50,6 +50,12 @@ jobs:
       curl -OLs https://eddelbuettel.github.io/r-ci/run.sh && chmod 0755 run.sh
       ./run.sh bootstrap
       ./run.sh install_deps
+      # Speed up package compilation with dynamic linking (Eigen templates slows down build)
+      echo "SHLIB_CXXLDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
+      echo "SHLIB_CXX11LDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
+      echo "SHLIB_CXX14LDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
+      echo "SHLIB_FCLDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
+      echo "SHLIB_LDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
     workingDirectory: r-package/grf
     displayName: Setup R
   - script: ./run.sh run_tests
