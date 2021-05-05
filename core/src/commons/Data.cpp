@@ -25,18 +25,6 @@
 
 namespace grf {
 
-Data::Data() :
-    data_ptr(nullptr),
-    num_rows(0),
-    num_cols(0),
-    outcome_index(),
-    treatment_index(),
-    instrument_index(),
-    weight_index(),
-    causal_survival_numerator_index(),
-    causal_survival_denominator_index(),
-    censor_index() {}
-
 Data::Data(const double* data_ptr, size_t num_rows, size_t num_cols) {
   if (data_ptr == nullptr) {
     throw std::runtime_error("Invalid data storage: nullptr");

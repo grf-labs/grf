@@ -38,8 +38,6 @@ namespace grf {
  */
 class Data {
 public:
-  Data();
-
   Data(const double* data_ptr, size_t num_rows, size_t num_cols);
 
   Data(const std::vector<double>& data, size_t num_rows, size_t num_cols);
