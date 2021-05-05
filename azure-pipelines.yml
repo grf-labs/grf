@@ -51,7 +51,7 @@ jobs:
       ./run.sh bootstrap
       ./run.sh install_deps
       # Speed up package compilation with dynamic linking (Eigen templates slows down build)
-      touch ~/.R/Makevars
+      mkdir ~/.R/
       echo "SHLIB_CXXLDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
       echo "SHLIB_CXX11LDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
       echo "SHLIB_FCLDFLAGS = -Wl,-S -shared" >> ~/.R/Makevars
