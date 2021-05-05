@@ -18,7 +18,7 @@
 #ifndef GRF_FOREST_H_
 #define GRF_FOREST_H_
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "commons/globals.h"
 #include "forest/ForestOptions.h"
 #include "tree/TreeTrainer.h"
@@ -53,7 +53,7 @@ public:
    * be used after they are merged together.
    */
   static Forest merge(std::vector<Forest>& forests);
-  
+
 private:
   std::vector<std::unique_ptr<Tree>> trees;
   size_t num_variables;

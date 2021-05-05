@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "commons/globals.h"
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "sampling/RandomSampler.h"
 #include "prediction/PredictionValues.h"
 #include "splitting/SplittingRule.h"

@@ -75,7 +75,7 @@ TEST_CASE("debiased errors are smaller than raw errors", "[regression, predictio
   std::vector<std::vector<double>> leaf_values = {{3.2, 1}, {4.5, 1}, {6.7, 1}, {-3.5, 1}};
 
   std::vector<double> outcomes = {6.4, 9.0, 13.4, -7.0};
-  DefaultData data(outcomes, 4, 1);
+  Data data(outcomes, 4, 1);
   data.set_outcome_index(0);
 
   RegressionPredictionStrategy prediction_strategy;

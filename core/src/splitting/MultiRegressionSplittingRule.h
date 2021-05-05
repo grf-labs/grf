@@ -18,7 +18,7 @@
 #ifndef GRF_MULTIREGRESSIONSPLITTINGRULE_H
 #define GRF_MULTIREGRESSIONSPLITTINGRULE_H
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 #include "tree/Tree.h"
 
@@ -28,7 +28,7 @@ namespace grf {
  * This splitting rule is identical to `RegressionSplittingRule` with the extension
  * that it allows for splits on vector valued Y (responses_by_sample) by considering
  * the squared L2 norm of the response sums.
-*/
+ */
 class MultiRegressionSplittingRule final: public SplittingRule {
 public:
   MultiRegressionSplittingRule(size_t max_num_unique_values,

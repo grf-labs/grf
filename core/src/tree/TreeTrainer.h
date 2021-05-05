@@ -21,7 +21,7 @@
 #include <memory>
 
 #include "Eigen/Dense"
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
 #include "sampling/RandomSampler.h"

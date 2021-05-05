@@ -29,26 +29,26 @@ using namespace grf;
 TEST_CASE("honest regression forests are shift invariant", "[regression, forest]") {
   // Run the original forest.
   uint outcome_index = 10;
-  std::unique_ptr<Data> data = load_data("test/forest/resources/gaussian_data.csv");
-  data->set_outcome_index(outcome_index);
+  auto data_vec = load_data("test/forest/resources/gaussian_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(outcome_index);
 
   ForestTrainer trainer = regression_trainer();
   ForestOptions options = ForestTestUtilities::default_honest_options();
 
-  Forest forest = trainer.train(*data, options);
+  Forest forest = trainer.train(data, options);
   ForestPredictor predictor = regression_predictor(4);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
 
   // Shift each outcome by 1, and re-run the forest.
-  bool error;
-  for (size_t r = 0; r < data->get_num_rows(); r++) {
-    double outcome = data->get(r, outcome_index);
-    data->set(outcome_index, r, outcome + 1, error);
+  for (size_t r = 0; r < data.get_num_rows(); r++) {
+    double outcome = data.get(r, outcome_index);
+    set_data(data_vec, outcome_index, r, outcome + 1);
   }
 
-  Forest shifted_forest = trainer.train(*data, options);
+  Forest shifted_forest = trainer.train(data, options);
   ForestPredictor shifted_predictor = regression_predictor(4);
-  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, *data, false);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
 
   REQUIRE(predictions.size() == shifted_predictions.size());
   double delta = 0.0;
@@ -66,17 +66,18 @@ TEST_CASE("honest regression forests are shift invariant", "[regression, forest]
 }
 
 TEST_CASE("regression forests give reasonable variance estimates", "[regression, forest]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/gaussian_data.csv");
-  data->set_outcome_index(10);
+  auto data_vec = load_data("test/forest/resources/gaussian_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
   double alpha = 0.10;
   double imbalance_penalty = 0.07;
 
   ForestTrainer trainer = regression_trainer();
   ForestOptions options = ForestTestUtilities::default_options(false, 2);
 
-  Forest forest = trainer.train(*data, options);
+  Forest forest = trainer.train(data, options);
   ForestPredictor predictor = regression_predictor(4);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, true);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, true);
 
   for (const Prediction& prediction : predictions) {
     REQUIRE(prediction.contains_variance_estimates());
@@ -89,26 +90,26 @@ TEST_CASE("regression forests give reasonable variance estimates", "[regression,
 TEST_CASE("regression error estimates are shift invariant", "[regression, forest]") {
   // Run the original forest.
   uint outcome_index = 10;
-  std::unique_ptr<Data> data = load_data("test/forest/resources/gaussian_data.csv");
-  data->set_outcome_index(outcome_index);
+  auto data_vec = load_data("test/forest/resources/gaussian_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(outcome_index);
 
   ForestTrainer trainer = regression_trainer();
   ForestOptions options = ForestTestUtilities::default_honest_options();
 
-  Forest forest = trainer.train(*data, options);
+  Forest forest = trainer.train(data, options);
   ForestPredictor predictor = regression_predictor(4);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
 
   // Shift each outcome by 1, and re-run the forest.
-  bool data_error;
-  for (size_t r = 0; r < data->get_num_rows(); r++) {
-    double outcome = data->get(r, outcome_index);
-    data->set(outcome_index, r, outcome + 1, data_error);
+  for (size_t r = 0; r < data.get_num_rows(); r++) {
+    double outcome = data.get(r, outcome_index);
+    set_data(data_vec, outcome_index, r, outcome + 1);
   }
 
-  Forest shifted_forest = trainer.train(*data, options);
+  Forest shifted_forest = trainer.train(data, options);
   ForestPredictor shifted_predictor = regression_predictor(4);
-  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, *data, false);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
 
   REQUIRE(predictions.size() == shifted_predictions.size());
   double delta = 0.0;
@@ -124,4 +125,3 @@ TEST_CASE("regression error estimates are shift invariant", "[regression, forest
 
   REQUIRE(equal_doubles(delta / predictions.size(), 0, 1e-1));
 }
-

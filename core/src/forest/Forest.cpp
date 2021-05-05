@@ -17,7 +17,7 @@
 
 #include <stdexcept>
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "forest/Forest.h"
 
 namespace grf {

@@ -18,7 +18,7 @@
 #include <unordered_set>
 
 #include "catch.hpp"
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "sampling/RandomSampler.h"
 
 using namespace grf;
@@ -184,7 +184,8 @@ TEST_CASE("Draw without replacement 5", "[drawWithoutReplacement]") {
 
 TEST_CASE("sample multilevel 1", "[sampleMultilevel]") {
   std::random_device random_device;
-  DefaultData data;
+  std::vector<double> dummy_storage(1);
+  Data data(dummy_storage, 0, 0);
 
   uint samples_per_cluster = 3;
   std::vector<size_t> clusters = {0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 2, 2, 2, 2, 0, 3, 3, 3, 2, 3};

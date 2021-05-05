@@ -18,7 +18,7 @@
 #ifndef GRF_MULTICAUSALPREDICTIONSTRATEGY_H
 #define GRF_MULTICAUSALPREDICTIONSTRATEGY_H
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "prediction/Prediction.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
@@ -49,7 +49,7 @@ namespace grf {
  * contiguously into a std::vector in the `pre-compute` step, and "re-constructed"
  * with pointers in the `predict` step through Eigen's Map class.
  *
-*/
+ */
 class MultiCausalPredictionStrategy final: public OptimizedPredictionStrategy {
 public:
 

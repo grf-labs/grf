@@ -69,9 +69,10 @@ void run_one_split(const Data& data,
 }
 
 TEST_CASE("regression splitting on Xij then setting all values to the left to NaN yields the same split", "[NaN], [regression], [splitting]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/regression_data.csv");
+  auto data_vec = load_data("test/forest/resources/regression_data.csv");
+  Data data(data_vec);
   size_t num_features = 10;
-  data->set_outcome_index(num_features);
+  data.set_outcome_index(num_features);
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
@@ -80,28 +81,28 @@ TEST_CASE("regression splitting on Xij then setting all values to the left to Na
 
   size_t split_var, split_var_nan;
   double split_val, split_val_nan;
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
 
   // Set all values to the left of the split to missing
-  bool write_error;
-  for(size_t row = 0; row < data->get_num_rows(); ++row) {
-    double value = data->get(row, split_var);
+  for(size_t row = 0; row < data.get_num_rows(); ++row) {
+    double value = data.get(row, split_var);
     if (value < split_val) {
-      data->set(split_var, row, NAN, write_error);
+      set_data(data_vec, split_var, row, NAN);
     }
   }
 
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);
   REQUIRE(split_val == split_val_nan);
 }
 
 TEST_CASE("instrumental splitting on Xij then setting all values to the left to NaN yields the same split", "[NaN], [causal], [splitting]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
+  auto data_vec = load_data("test/forest/resources/causal_data.csv");
+  Data data(data_vec);
   size_t num_features = 10;
-  data->set_outcome_index(10);
-  data->set_treatment_index(11);
-  data->set_instrument_index(11);
+  data.set_outcome_index(10);
+  data.set_treatment_index(11);
+  data.set_instrument_index(11);
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
   double reduced_form_weight = 0.0;
@@ -111,26 +112,26 @@ TEST_CASE("instrumental splitting on Xij then setting all values to the left to 
 
   size_t split_var, split_var_nan;
   double split_val, split_val_nan;
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
 
   // Set all values to the left of the split to missing
-  bool write_error;
-  for(size_t row = 0; row < data->get_num_rows(); ++row) {
-    double value = data->get(row, split_var);
+  for(size_t row = 0; row < data.get_num_rows(); ++row) {
+    double value = data.get(row, split_var);
     if (value < split_val) {
-      data->set(split_var, row, NAN, write_error);
+      set_data(data_vec, split_var, row, NAN);
     }
   }
 
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);
   REQUIRE(split_val == split_val_nan);
 }
 
 TEST_CASE("probability splitting on Xij then setting all values to the left to NaN yields the same split", "[NaN], [quantile], [splitting]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/quantile_data.csv");
+  auto data_vec = load_data("test/forest/resources/quantile_data.csv");
+  Data data(data_vec);
   size_t num_features = 10;
-  data->set_outcome_index(10);
+  data.set_outcome_index(10);
   std::vector<double> quantiles({0.25, 0.5, 0.75});
   size_t num_classes = quantiles.size() + 1;
 
@@ -141,27 +142,27 @@ TEST_CASE("probability splitting on Xij then setting all values to the left to N
 
   size_t split_var, split_var_nan;
   double split_val, split_val_nan;
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
 
   // Set all values to the left of the split to missing
-  bool write_error;
-  for(size_t row = 0; row < data->get_num_rows(); ++row) {
-    double value = data->get(row, split_var);
+  for(size_t row = 0; row < data.get_num_rows(); ++row) {
+    double value = data.get(row, split_var);
     if (value < split_val) {
-      data->set(split_var, row, NAN, write_error);
+      set_data(data_vec, split_var, row, NAN);
     }
   }
 
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);
   REQUIRE(split_val == split_val_nan);
 }
 
 TEST_CASE("survival splitting on Xij then setting all values to the left to NaN yields the same split", "[NaN], [survival], [splitting]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/survival_data_MIA.csv");
+  auto data_vec = load_data("test/forest/resources/survival_data_MIA.csv");
+  Data data(data_vec);
   size_t num_features = 5;
-  data->set_outcome_index(5);
-  data->set_censor_index(6);
+  data.set_outcome_index(5);
+  data.set_censor_index(6);
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
@@ -170,30 +171,30 @@ TEST_CASE("survival splitting on Xij then setting all values to the left to NaN 
 
   size_t split_var, split_var_nan;
   double split_val, split_val_nan;
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
 
   // Set all values to the left of the split to missing
-  bool write_error;
-  for(size_t row = 0; row < data->get_num_rows(); ++row) {
-    double value = data->get(row, split_var);
+  for(size_t row = 0; row < data.get_num_rows(); ++row) {
+    double value = data.get(row, split_var);
     if (value < split_val) {
-      data->set(split_var, row, NAN, write_error);
+      set_data(data_vec, split_var, row, NAN);
     }
   }
 
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);
   REQUIRE(split_val == split_val_nan);
 }
 
 TEST_CASE("causal survival splitting on Xij then setting all values to the left to NaN yields the same split", "[NaN], [causal survival], [splitting]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_survival_data.csv");
+  auto data_vec = load_data("test/forest/resources/causal_survival_data.csv");
+  Data data(data_vec);
   size_t num_features = 5;
-  data->set_treatment_index(5);
-  data->set_instrument_index(5);
-  data->set_censor_index(6);
-  data->set_causal_survival_numerator_index(7);
-  data->set_causal_survival_denominator_index(8);
+  data.set_treatment_index(5);
+  data.set_instrument_index(5);
+  data.set_censor_index(6);
+  data.set_causal_survival_numerator_index(7);
+  data.set_causal_survival_denominator_index(8);
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
@@ -202,18 +203,17 @@ TEST_CASE("causal survival splitting on Xij then setting all values to the left 
 
   size_t split_var, split_var_nan;
   double split_val, split_val_nan;
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
 
   // Set all values to the left of the split to missing
-  bool write_error;
-  for(size_t row = 0; row < data->get_num_rows(); ++row) {
-    double value = data->get(row, split_var);
+  for(size_t row = 0; row < data.get_num_rows(); ++row) {
+    double value = data.get(row, split_var);
     if (value < split_val) {
-      data->set(split_var, row, NAN, write_error);
+      set_data(data_vec, split_var, row, NAN);
     }
   }
 
-  run_one_split(*data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
   REQUIRE(split_var == split_var_nan);
   REQUIRE(split_val == split_val_nan);
 }

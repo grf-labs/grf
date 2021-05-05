@@ -25,8 +25,9 @@
 using namespace grf;
 
 TEST_CASE("multi regression predictions with one outcome is identical to regression predictions", "[multi_regression, prediction]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/regression_data_MIA.csv");
-  data->set_outcome_index(5);
+  auto data_vec = load_data("test/forest/resources/regression_data_MIA.csv");
+  Data data(data_vec);
+  data.set_outcome_index(5);
   std::vector<std::vector<size_t>> leaf_samples{
     {0, 1, 2, 3, 4, 5},
     {6, 7, 8, 9, 10, 11},
@@ -39,8 +40,8 @@ TEST_CASE("multi regression predictions with one outcome is identical to regress
 
   RegressionPredictionStrategy prediction_strategy;
   MultiRegressionPredictionStrategy multi_prediction_strategy(1);
-  PredictionValues reg_prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
-  PredictionValues multi_reg_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
+  PredictionValues reg_prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, data);
+  PredictionValues multi_reg_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, data);
 
   REQUIRE(reg_prediction_values.get_num_nodes() == multi_reg_prediction_values.get_num_nodes());
   REQUIRE(reg_prediction_values.get_num_types() == multi_reg_prediction_values.get_num_types());

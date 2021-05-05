@@ -18,7 +18,6 @@
 #ifndef GRF_MULTIREGRESSIONPREDICTIONSTRATEGY_H
 #define GRF_MULTIREGRESSIONPREDICTIONSTRATEGY_H
 
-#include "commons/DefaultData.h"
 #include "commons/Data.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"

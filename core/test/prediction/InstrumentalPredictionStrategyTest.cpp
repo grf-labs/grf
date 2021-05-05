@@ -92,7 +92,7 @@ TEST_CASE("monte carlo errors are nonzero", "[instrumental, prediction]") {
                                   3.4, 2.0, 3.4, 4.0, 3.0, 3.3,
                                   4.4, 3.0, 14.4, 5.0, 4.0, 2.2,
                                   3.4, 9.0, 16.4, 6.0, 5.0, 1.1};
-  DefaultData data(outcomes, 6, 6);
+  Data data(outcomes, 6, 6);
   data.set_outcome_index(0);
   data.set_instrument_index(1);
   data.set_treatment_index(1);

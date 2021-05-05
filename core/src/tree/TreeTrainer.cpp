@@ -18,7 +18,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "tree/TreeTrainer.h"
 
 namespace grf {
