@@ -28,7 +28,7 @@ using namespace grf;
 // [[Rcpp::export]]
 Rcpp::List quantile_train(std::vector<double> quantiles,
                           bool regression_splitting,
-                          Rcpp::NumericMatrix train_matrix,
+                          const Rcpp::NumericMatrix& train_matrix,
                           size_t outcome_index,
                           unsigned int mtry,
                           unsigned int num_trees,
@@ -68,9 +68,9 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
 // [[Rcpp::export]]
 Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
                                      std::vector<double> quantiles,
-                                     Rcpp::NumericMatrix train_matrix,
+                                     const Rcpp::NumericMatrix& train_matrix,
                                      size_t outcome_index,
-                                     Rcpp::NumericMatrix test_matrix,
+                                     const Rcpp::NumericMatrix& test_matrix,
                                      unsigned int num_threads) {
   Data train_data = RcppUtilities::convert_data(train_matrix);
   Data data = RcppUtilities::convert_data(test_matrix);
@@ -88,7 +88,7 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
 // [[Rcpp::export]]
 Rcpp::NumericMatrix quantile_predict_oob(Rcpp::List forest_object,
                                          std::vector<double> quantiles,
-                                         Rcpp::NumericMatrix train_matrix,
+                                         const Rcpp::NumericMatrix& train_matrix,
                                          size_t outcome_index,
                                          unsigned int num_threads) {
   Data data = RcppUtilities::convert_data(train_matrix);

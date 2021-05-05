@@ -26,7 +26,7 @@
 using namespace grf;
 
 // [[Rcpp::export]]
-Rcpp::List survival_train(Rcpp::NumericMatrix train_matrix,
+Rcpp::List survival_train(const Rcpp::NumericMatrix& train_matrix,
                           size_t outcome_index,
                           size_t censor_index,
                           size_t sample_weight_index,
@@ -72,11 +72,11 @@ Rcpp::List survival_train(Rcpp::NumericMatrix train_matrix,
 
 // [[Rcpp::export]]
 Rcpp::List survival_predict(Rcpp::List forest_object,
-                            Rcpp::NumericMatrix train_matrix,
+                            const Rcpp::NumericMatrix& train_matrix,
                             size_t outcome_index,
                             size_t censor_index,
                             int prediction_type,
-                            Rcpp::NumericMatrix test_matrix,
+                            const Rcpp::NumericMatrix& test_matrix,
                             unsigned int num_threads,
                             size_t num_failures) {
   Data train_data = RcppUtilities::convert_data(train_matrix);
@@ -95,7 +95,7 @@ Rcpp::List survival_predict(Rcpp::List forest_object,
 
 // [[Rcpp::export]]
 Rcpp::List survival_predict_oob(Rcpp::List forest_object,
-                                Rcpp::NumericMatrix train_matrix,
+                                const Rcpp::NumericMatrix& train_matrix,
                                 size_t outcome_index,
                                 size_t censor_index,
                                 int prediction_type,

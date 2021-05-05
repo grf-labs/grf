@@ -41,7 +41,7 @@ public:
   static Rcpp::List serialize_forest(Forest& forest);
   static Forest deserialize_forest(const Rcpp::List& forest_object);
 
-  static Data convert_data(Rcpp::NumericMatrix& input_data);
+  static Data convert_data(const Rcpp::NumericMatrix& input_data);
 
   static Rcpp::List create_prediction_object(const std::vector<Prediction>& predictions);
   static void add_predictions(Rcpp::List& output,
