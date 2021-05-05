@@ -14,7 +14,7 @@
   You should have received a copy of the GNU General Public License
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
- 
+
 #include <Rcpp.h>
 #include <vector>
 
@@ -26,7 +26,7 @@
 using namespace grf;
 
 // [[Rcpp::export]]
-Rcpp::List probability_train(Rcpp::NumericMatrix& train_matrix,
+Rcpp::List probability_train(const Rcpp::NumericMatrix& train_matrix,
                              size_t outcome_index,
                              size_t sample_weight_index,
                              bool use_sample_weights,
@@ -69,10 +69,10 @@ Rcpp::List probability_train(Rcpp::NumericMatrix& train_matrix,
 
 // [[Rcpp::export]]
 Rcpp::List probability_predict(Rcpp::List& forest_object,
-                               Rcpp::NumericMatrix& train_matrix,
+                               const Rcpp::NumericMatrix& train_matrix,
                                size_t outcome_index,
                                size_t num_classes,
-                               Rcpp::NumericMatrix& test_matrix,
+                               const Rcpp::NumericMatrix& test_matrix,
                                unsigned int num_threads,
                                bool estimate_variance) {
   Data train_data = RcppUtilities::convert_data(train_matrix);
@@ -89,7 +89,7 @@ Rcpp::List probability_predict(Rcpp::List& forest_object,
 
 // [[Rcpp::export]]
 Rcpp::List probability_predict_oob(Rcpp::List& forest_object,
-                                   Rcpp::NumericMatrix& train_matrix,
+                                   const Rcpp::NumericMatrix& train_matrix,
                                    size_t outcome_index,
                                    size_t num_classes,
                                    unsigned int num_threads,

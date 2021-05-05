@@ -50,8 +50,8 @@ Rcpp::NumericMatrix compute_split_frequencies(Rcpp::List forest_object,
 }
 
 Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
-                                                   Rcpp::NumericMatrix train_matrix,
-                                                   Rcpp::NumericMatrix test_matrix,
+                                                   const Rcpp::NumericMatrix& train_matrix,
+                                                   const Rcpp::NumericMatrix& test_matrix,
                                                    unsigned int num_threads,
                                                    bool oob_prediction) {
   Data train_data = RcppUtilities::convert_data(train_matrix);
@@ -90,8 +90,8 @@ Eigen::SparseMatrix<double> compute_sample_weights(Rcpp::List forest_object,
 
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> compute_weights(Rcpp::List forest_object,
-                                            Rcpp::NumericMatrix train_matrix,
-                                            Rcpp::NumericMatrix test_matrix,
+                                            const Rcpp::NumericMatrix& train_matrix,
+                                            const Rcpp::NumericMatrix& test_matrix,
                                             unsigned int num_threads) {
   return compute_sample_weights(forest_object, train_matrix,
                                 test_matrix, num_threads, false);
@@ -99,7 +99,7 @@ Eigen::SparseMatrix<double> compute_weights(Rcpp::List forest_object,
 
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> compute_weights_oob(Rcpp::List forest_object,
-                                                Rcpp::NumericMatrix train_matrix,
+                                                const Rcpp::NumericMatrix& train_matrix,
                                                 unsigned int num_threads) {
   return compute_sample_weights(forest_object, train_matrix,
                                 train_matrix, num_threads, true);

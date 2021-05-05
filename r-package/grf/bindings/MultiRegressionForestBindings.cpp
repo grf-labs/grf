@@ -26,7 +26,7 @@
 using namespace grf;
 
 // [[Rcpp::export]]
-Rcpp::List multi_regression_train(Rcpp::NumericMatrix& train_matrix,
+Rcpp::List multi_regression_train(const Rcpp::NumericMatrix& train_matrix,
                                   const std::vector<size_t>& outcome_index,
                                   size_t sample_weight_index,
                                   bool use_sample_weights,
@@ -67,8 +67,8 @@ Rcpp::List multi_regression_train(Rcpp::NumericMatrix& train_matrix,
 
 // [[Rcpp::export]]
 Rcpp::List multi_regression_predict(Rcpp::List& forest_object,
-                                    Rcpp::NumericMatrix& train_matrix,
-                                    Rcpp::NumericMatrix& test_matrix,
+                                    const Rcpp::NumericMatrix& train_matrix,
+                                    const Rcpp::NumericMatrix& test_matrix,
                                     size_t num_outcomes,
                                     unsigned int num_threads) {
   Data train_data = RcppUtilities::convert_data(train_matrix);
@@ -84,7 +84,7 @@ Rcpp::List multi_regression_predict(Rcpp::List& forest_object,
 
 // [[Rcpp::export]]
 Rcpp::List multi_regression_predict_oob(Rcpp::List& forest_object,
-                                        Rcpp::NumericMatrix& train_matrix,
+                                        const Rcpp::NumericMatrix& train_matrix,
                                         size_t num_outcomes,
                                         unsigned int num_threads) {
   Data data = RcppUtilities::convert_data(train_matrix);

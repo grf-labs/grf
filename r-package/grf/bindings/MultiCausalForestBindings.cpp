@@ -26,7 +26,7 @@
 using namespace grf;
 
 // [[Rcpp::export]]
-Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
+Rcpp::List multi_causal_train(const Rcpp::NumericMatrix& train_matrix,
                               const std::vector<size_t>& outcome_index,
                               const std::vector<size_t>& treatment_index,
                               size_t sample_weight_index,
@@ -73,8 +73,8 @@ Rcpp::List multi_causal_train(Rcpp::NumericMatrix train_matrix,
 
 // [[Rcpp::export]]
 Rcpp::List multi_causal_predict(Rcpp::List forest_object,
-                                Rcpp::NumericMatrix train_matrix,
-                                Rcpp::NumericMatrix test_matrix,
+                                const Rcpp::NumericMatrix& train_matrix,
+                                const Rcpp::NumericMatrix& test_matrix,
                                 size_t num_outcomes,
                                 size_t num_treatments,
                                 unsigned int num_threads,
@@ -93,7 +93,7 @@ Rcpp::List multi_causal_predict(Rcpp::List forest_object,
 
 // [[Rcpp::export]]
 Rcpp::List multi_causal_predict_oob(Rcpp::List forest_object,
-                                    Rcpp::NumericMatrix train_matrix,
+                                    const Rcpp::NumericMatrix& train_matrix,
                                     size_t num_outcomes,
                                     size_t num_treatments,
                                     unsigned int num_threads,

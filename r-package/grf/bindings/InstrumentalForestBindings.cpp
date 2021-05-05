@@ -26,7 +26,7 @@
 using namespace grf;
 
 // [[Rcpp::export]]
-Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
+Rcpp::List instrumental_train(const Rcpp::NumericMatrix& train_matrix,
                               size_t outcome_index,
                               size_t treatment_index,
                               size_t instrument_index,
@@ -74,11 +74,11 @@ Rcpp::List instrumental_train(Rcpp::NumericMatrix train_matrix,
 
 // [[Rcpp::export]]
 Rcpp::List instrumental_predict(Rcpp::List forest_object,
-                                Rcpp::NumericMatrix train_matrix,
+                                const Rcpp::NumericMatrix& train_matrix,
                                 size_t outcome_index,
                                 size_t treatment_index,
                                 size_t instrument_index,
-                                Rcpp::NumericMatrix test_matrix,
+                                const Rcpp::NumericMatrix& test_matrix,
                                 unsigned int num_threads,
                                 bool estimate_variance) {
   Data train_data = RcppUtilities::convert_data(train_matrix);
@@ -98,7 +98,7 @@ Rcpp::List instrumental_predict(Rcpp::List forest_object,
 
 // [[Rcpp::export]]
 Rcpp::List instrumental_predict_oob(Rcpp::List forest_object,
-                                    Rcpp::NumericMatrix train_matrix,
+                                    const Rcpp::NumericMatrix& train_matrix,
                                     size_t outcome_index,
                                     size_t treatment_index,
                                     size_t instrument_index,

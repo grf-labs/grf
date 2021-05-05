@@ -112,7 +112,7 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   return result;
 };
 
-Data RcppUtilities::convert_data(Rcpp::NumericMatrix& input_data) {
+Data RcppUtilities::convert_data(const Rcpp::NumericMatrix& input_data) {
   return Data(input_data.begin(), input_data.nrow(), input_data.ncol());
 }
 
