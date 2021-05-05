@@ -15,7 +15,6 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#include "commons/DefaultData.h"
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/QuantilePredictionStrategy.h"
 
@@ -31,7 +30,7 @@ TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
 
   std::vector<double> outcomes = { -9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                    -5.62082, -9.05911, 3.57729, 3.58593, 8.69386 };
-  DefaultData data(outcomes, 10, 1);
+  Data data(outcomes, 10, 1);
   data.set_outcome_index(0);
 
   QuantilePredictionStrategy prediction_strategy({0.25, 0.5, 0.75});
@@ -48,7 +47,7 @@ TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
 
   std::vector<double> outcomes =  { -1.99984, -0.36924, 0.11211, -1.826997, 1.655345,
                                     -1.62082, -0.05911, 0.57729, 0.58593, 1.69386 };
-  DefaultData data(outcomes, 10, 1);
+  Data data(outcomes, 10, 1);
   data.set_outcome_index(0);
 
   QuantilePredictionStrategy prediction_strategy({0.5, 0.75, 0.80, 0.90});
@@ -68,7 +67,7 @@ TEST_CASE("prediction with repeated quantiles", "[quantile, prediction]") {
 
   std::vector<double> outcomes  = { -9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                     -5.62082, -9.05911, 3.57729, 3.58593, 8.69386 };
-  DefaultData data(outcomes, 10, 1);
+  Data data(outcomes, 10, 1);
   data.set_outcome_index(0);
 
   std::vector<double> first_predictions = QuantilePredictionStrategy({0.5})

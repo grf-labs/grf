@@ -14,12 +14,11 @@
   You should have received a copy of the GNU General Public License
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
- 
+
 #include <Rcpp.h>
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "forest/ForestOptions.h"
-#include "RcppData.h"
 #include "RcppUtilities.h"
 
 using namespace grf;
@@ -113,12 +112,8 @@ Rcpp::List RcppUtilities::serialize_forest(Forest& forest) {
   return result;
 };
 
-std::unique_ptr<Data> RcppUtilities::convert_data(Rcpp::NumericMatrix& input_data) {
-  std::unique_ptr<Data> data;
-  size_t num_rows = input_data.nrow();
-  size_t num_cols = input_data.ncol();
-  data = std::unique_ptr<Data>(new RcppData(input_data, num_rows, num_cols));
-  return data;
+Data RcppUtilities::convert_data(Rcpp::NumericMatrix& input_data) {
+  return Data(input_data.begin(), input_data.nrow(), input_data.ncol());
 }
 
 Rcpp::List RcppUtilities::create_prediction_object(const std::vector<Prediction>& predictions) {

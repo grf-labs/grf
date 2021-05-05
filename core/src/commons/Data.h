@@ -18,7 +18,6 @@
 #ifndef GRF_DATA_H_
 #define GRF_DATA_H_
 
-#include <iostream>
 #include <set>
 #include <vector>
 
@@ -28,23 +27,24 @@
 
 namespace grf {
 
+/**
+ * Data wrapper for GRF.
+ * Serves as a read-only (immutable) wrapper of a column major (Fortran order)
+ * array accessed through its pointer (data_ptr).
+ *
+ * The GRF data model is a contiguous array [X, Y, z, ...] of covariates X,
+ * outcomes Y, and other optional variables z.
+ *
+ */
 class Data {
 public:
   Data();
 
-  virtual ~Data() = default;
+  Data(const double* data_ptr, size_t num_rows, size_t num_cols);
 
-  virtual void reserve_memory() = 0;
+  Data(const std::vector<double>& data, size_t num_rows, size_t num_cols);
 
-  virtual double get(size_t row, size_t col) const = 0;
-
-  virtual void set(size_t col, size_t row, double value, bool& error) = 0;
-
-  bool load_from_file(const std::string& filename);
-
-  bool load_from_whitespace_file(std::ifstream& input_file, const std::string& first_line);
-
-  bool load_from_other_file(std::ifstream& input_file, const std::string& first_line, char seperator);
+  Data(const std::pair<std::vector<double>, std::vector<size_t>>& data);
 
   void set_outcome_index(size_t index);
 
@@ -88,6 +88,8 @@ public:
 
   size_t get_num_treatments() const;
 
+  const std::set<size_t>& get_disallowed_split_variables() const;
+
   double get_outcome(size_t row) const;
 
   Eigen::VectorXd get_outcomes(size_t row) const;
@@ -106,9 +108,10 @@ public:
 
   bool is_failure(size_t row) const;
 
-  const std::set<size_t>& get_disallowed_split_variables() const;
+  double get(size_t row, size_t col) const;
 
-protected:
+private:
+  const double* data_ptr;
   size_t num_rows;
   size_t num_cols;
 
@@ -120,10 +123,60 @@ protected:
   nonstd::optional<size_t> causal_survival_numerator_index;
   nonstd::optional<size_t> causal_survival_denominator_index;
   nonstd::optional<size_t> censor_index;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Data);
 };
+
+// inline appropriate getters
+inline double Data::get_outcome(size_t row) const {
+  return get(row, outcome_index.value()[0]);
+}
+
+inline Eigen::VectorXd Data::get_outcomes(size_t row) const {
+  Eigen::VectorXd out(outcome_index.value().size());
+  for (size_t i = 0; i < outcome_index.value().size(); i++) {
+    out(i) = get(row, outcome_index.value()[i]);
+  }
+  return out;
+}
+
+inline double Data::get_treatment(size_t row) const {
+  return get(row, treatment_index.value()[0]);
+}
+
+inline Eigen::VectorXd Data::get_treatments(size_t row) const {
+  Eigen::VectorXd out(treatment_index.value().size());
+  for (size_t i = 0; i < treatment_index.value().size(); i++) {
+    out(i) = get(row, treatment_index.value()[i]);
+  }
+  return out;
+}
+
+inline double Data::get_instrument(size_t row) const {
+  return get(row, instrument_index.value());
+}
+
+inline double Data::get_weight(size_t row) const {
+  if (weight_index.has_value()) {
+    return get(row, weight_index.value());
+  } else {
+    return 1.0;
+  }
+}
+
+inline double Data::get_causal_survival_numerator(size_t row) const {
+  return get(row, causal_survival_numerator_index.value());
+}
+
+inline double Data::get_causal_survival_denominator(size_t row) const {
+  return get(row, causal_survival_denominator_index.value());
+}
+
+inline bool Data::is_failure(size_t row) const {
+  return get(row, censor_index.value()) > 0.0;
+}
+
+inline double Data::get(size_t row, size_t col) const {
+  return data_ptr[col * num_rows + row];
+}
 
 } // namespace grf
 #endif /* GRF_DATA_H_ */

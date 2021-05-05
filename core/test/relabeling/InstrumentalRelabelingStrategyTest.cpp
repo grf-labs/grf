@@ -24,7 +24,7 @@ using namespace grf;
 
 std::vector<double> get_relabeled_outcomes(
   std::vector<double> observations, size_t num_samples, bool use_sample_weights=false) {
-  DefaultData data(observations, num_samples, 3);
+  Data data(observations, num_samples, 3);
   data.set_outcome_index(0);
   data.set_treatment_index(1);
   data.set_instrument_index(2);

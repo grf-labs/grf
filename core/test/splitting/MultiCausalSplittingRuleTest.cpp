@@ -65,10 +65,11 @@ return {(double) split_vars[0], split_values[0], (double) send_missing_left[0]};
 }
 
 TEST_CASE("multi causal splitting with one treatment is identical to instrumental splitting", "[multi_causal], [splitting]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
-  data->set_outcome_index(10);
-  data->set_treatment_index(11);
-  data->set_instrument_index(11);
+  auto data_vec = load_data("test/forest/resources/causal_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
+  data.set_treatment_index(11);
+  data.set_instrument_index(11);
   size_t num_features = 10;
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
@@ -76,12 +77,12 @@ TEST_CASE("multi causal splitting with one treatment is identical to instrumenta
   // Ignore relabeling for the purpose on these tests and only split directly on outcomes.
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   auto inst_splitting_rule = std::unique_ptr<SplittingRule>(new InstrumentalSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_min_node_size(),
       options.get_alpha(),
       options.get_imbalance_penalty()));
   auto multi_splitting_rule = std::unique_ptr<SplittingRule>(new MultiCausalSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_min_node_size(),
       options.get_alpha(),
       options.get_imbalance_penalty(),
@@ -89,8 +90,8 @@ TEST_CASE("multi causal splitting with one treatment is identical to instrumenta
       1));
 
 
-  std::vector<double> inst = run_splits_multi(*data, options, inst_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi = run_splits_multi(*data, options, multi_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> inst = run_splits_multi(data, options, inst_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> multi = run_splits_multi(data, options, multi_splitting_rule, relabeling_strategy, num_features);
 
   REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
   REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
@@ -98,22 +99,23 @@ TEST_CASE("multi causal splitting with one treatment is identical to instrumenta
 }
 
 TEST_CASE("multi causal splitting with one treatment on NaN data is identical to instrumental splitting", "[multi_causal], [splitting], [NaN]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data_MIA.csv");
-  data->set_outcome_index(10);
-  data->set_treatment_index(11);
-  data->set_instrument_index(11);
+  auto data_vec = load_data("test/forest/resources/causal_data_MIA.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
+  data.set_treatment_index(11);
+  data.set_instrument_index(11);
   size_t num_features = 10;
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   auto inst_splitting_rule = std::unique_ptr<SplittingRule>(new InstrumentalSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_min_node_size(),
       options.get_alpha(),
       options.get_imbalance_penalty()));
   auto multi_splitting_rule = std::unique_ptr<SplittingRule>(new MultiCausalSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_min_node_size(),
       options.get_alpha(),
       options.get_imbalance_penalty(),
@@ -121,8 +123,8 @@ TEST_CASE("multi causal splitting with one treatment on NaN data is identical to
       1));
 
 
-  std::vector<double> inst = run_splits_multi(*data, options, inst_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi = run_splits_multi(*data, options, multi_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> inst = run_splits_multi(data, options, inst_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> multi = run_splits_multi(data, options, multi_splitting_rule, relabeling_strategy, num_features);
 
   REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
   REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
@@ -130,10 +132,11 @@ TEST_CASE("multi causal splitting with one treatment on NaN data is identical to
 }
 
 TEST_CASE("multi causal splitting with many identical treatments is identical to instrumental splitting", "[multi_causal], [splitting]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
-  data->set_outcome_index(10);
-  data->set_treatment_index({11, 11, 11});
-  data->set_instrument_index(11);
+  auto data_vec = load_data("test/forest/resources/causal_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
+  data.set_treatment_index({11, 11, 11});
+  data.set_instrument_index(11);
   size_t num_features = 10;
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
@@ -141,12 +144,12 @@ TEST_CASE("multi causal splitting with many identical treatments is identical to
   // Ignore relabeling for the purpose on these tests and only split directly on outcomes.
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   auto inst_splitting_rule = std::unique_ptr<SplittingRule>(new InstrumentalSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_min_node_size(),
       options.get_alpha(),
       options.get_imbalance_penalty()));
   auto multi_splitting_rule = std::unique_ptr<SplittingRule>(new MultiCausalSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_min_node_size(),
       options.get_alpha(),
       options.get_imbalance_penalty(),
@@ -154,8 +157,8 @@ TEST_CASE("multi causal splitting with many identical treatments is identical to
       1));
 
 
-  std::vector<double> inst = run_splits_multi(*data, options, inst_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi = run_splits_multi(*data, options, multi_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> inst = run_splits_multi(data, options, inst_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> multi = run_splits_multi(data, options, multi_splitting_rule, relabeling_strategy, num_features);
 
   REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
   REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
@@ -163,22 +166,23 @@ TEST_CASE("multi causal splitting with many identical treatments is identical to
 }
 
 TEST_CASE("multi causal splitting with many identical treatments on NaN data is identical to instrumental splitting", "[multi_causal], [splitting], [NaN]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data_MIA.csv");
-  data->set_outcome_index(10);
-  data->set_treatment_index({11, 11, 11, 11, 11});
-  data->set_instrument_index(11);
+  auto data_vec = load_data("test/forest/resources/causal_data_MIA.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
+  data.set_treatment_index({11, 11, 11, 11, 11});
+  data.set_instrument_index(11);
   size_t num_features = 10;
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   auto inst_splitting_rule = std::unique_ptr<SplittingRule>(new InstrumentalSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_min_node_size(),
       options.get_alpha(),
       options.get_imbalance_penalty()));
   auto multi_splitting_rule = std::unique_ptr<SplittingRule>(new MultiCausalSplittingRule(
-      data->get_num_rows(),
+      data.get_num_rows(),
       options.get_min_node_size(),
       options.get_alpha(),
       options.get_imbalance_penalty(),
@@ -186,8 +190,8 @@ TEST_CASE("multi causal splitting with many identical treatments on NaN data is 
       1));
 
 
-  std::vector<double> inst = run_splits_multi(*data, options, inst_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi = run_splits_multi(*data, options, multi_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> inst = run_splits_multi(data, options, inst_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> multi = run_splits_multi(data, options, multi_splitting_rule, relabeling_strategy, num_features);
 
   REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
   REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));

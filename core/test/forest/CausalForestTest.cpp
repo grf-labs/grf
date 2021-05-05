@@ -28,38 +28,38 @@ using namespace grf;
 
 TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[causal, forest]") {
   // Run the original forest.
-  // we'll overwrite a covariate in the original data with sample weights so we needn't resize the data->
+  // we'll overwrite a covariate in the original data with sample weights so we needn't resize the data.
   size_t weight_index = 9;
   size_t outcome_index = 10;
   size_t treatment_index = 11;
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
-  data->set_weight_index(weight_index);
-  data->set_outcome_index(outcome_index);
-  data->set_treatment_index(treatment_index);
-  data->set_instrument_index(treatment_index);
+  auto data_vec = load_data("test/forest/resources/causal_data.csv");
+  Data data(data_vec);
+  data.set_weight_index(weight_index);
+  data.set_outcome_index(outcome_index);
+  data.set_treatment_index(treatment_index);
+  data.set_instrument_index(treatment_index);
 
-  bool error;
-  for(size_t r = 0; r < data->get_num_rows(); r++) {
-    double weight = 1.0 / (1.0 + exp(- data->get(r, 1)));
-    data->set(weight_index, r, weight, error);
+  for(size_t r = 0; r < data.get_num_rows(); r++) {
+    double weight = 1.0 / (1.0 + exp(- data.get(r, 1)));
+    set_data(data_vec, weight_index, r, weight);
   }
 
   ForestTrainer trainer = instrumental_trainer(0, true);
   ForestOptions options = ForestTestUtilities::default_honest_options();
 
-  Forest forest = trainer.train(*data, options);
+  Forest forest = trainer.train(data, options);
   ForestPredictor predictor = instrumental_predictor(4);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, false);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
 
   // Scale weights by n and re-run the forest.
-  for (size_t r = 0; r < data->get_num_rows(); r++) {
-    double weight = data->get_weight(r) * data->get_num_rows();
-    data->set(weight_index, r, weight, error);
+  for (size_t r = 0; r < data.get_num_rows(); r++) {
+    double weight = data.get_weight(r) * data.get_num_rows();
+    set_data(data_vec, weight_index, r, weight);
   }
 
-  Forest shifted_forest = trainer.train(*data, options);
+  Forest shifted_forest = trainer.train(data, options);
   ForestPredictor shifted_predictor = instrumental_predictor(4);
-  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, *data, false);
+  std::vector<Prediction> shifted_predictions = shifted_predictor.predict_oob(shifted_forest, data, false);
 
   REQUIRE(predictions.size() == shifted_predictions.size());
   double delta = 0.0;

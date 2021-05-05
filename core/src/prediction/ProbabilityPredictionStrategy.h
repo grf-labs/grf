@@ -18,7 +18,6 @@
 #ifndef GRF_PROBABILITYPREDICTIONSTRATEGY_H
 #define GRF_PROBABILITYPREDICTIONSTRATEGY_H
 
-#include "commons/DefaultData.h"
 #include "commons/Data.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "prediction/PredictionValues.h"

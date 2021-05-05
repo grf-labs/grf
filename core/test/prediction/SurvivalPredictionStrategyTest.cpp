@@ -48,7 +48,7 @@ TEST_CASE("Kaplan-Meier survival estimates are correct", "[survival], [predictio
     0.378065152194585, 0.336057913061853, 0.288049639767303, 0.192033093178202
   };
 
-  DefaultData data(data_matrix, num_rows, num_cols);
+  Data data(data_matrix, num_rows, num_cols);
   data.set_outcome_index(outcome_index);
   data.set_censor_index(outcome_index + 1);
 
@@ -105,12 +105,12 @@ TEST_CASE("Kaplan-Meier estimates on duplicated data is the same as with sample 
     }
   }
 
-  DefaultData data(data_matrix, num_rows, num_cols + 1);
+  Data data(data_matrix, num_rows, num_cols + 1);
   data.set_outcome_index(outcome_index);
   data.set_censor_index(outcome_index + 1);
   data.set_weight_index(outcome_index + 2);
 
-  DefaultData data_duplicated(data_matrix_duplicated, num_rows + num_duplicates, num_cols);
+  Data data_duplicated(data_matrix_duplicated, num_rows + num_duplicates, num_cols);
   data_duplicated.set_outcome_index(outcome_index);
   data_duplicated.set_censor_index(outcome_index + 1);
 
@@ -157,7 +157,7 @@ TEST_CASE("Nelson-Aalen survival estimates are correct", "[survival], [predictio
     0.322140173184762, 0.25088301913505
   };
 
-  DefaultData data(data_matrix, num_rows, num_cols);
+  Data data(data_matrix, num_rows, num_cols);
   data.set_outcome_index(outcome_index);
   data.set_censor_index(outcome_index + 1);
 
@@ -214,12 +214,12 @@ TEST_CASE("Nelson-Aalen estimates on duplicated data is the same as with sample 
     }
   }
 
-  DefaultData data(data_matrix, num_rows, num_cols + 1);
+  Data data(data_matrix, num_rows, num_cols + 1);
   data.set_outcome_index(outcome_index);
   data.set_censor_index(outcome_index + 1);
   data.set_weight_index(outcome_index + 2);
 
-  DefaultData data_duplicated(data_matrix_duplicated, num_rows + num_duplicates, num_cols);
+  Data data_duplicated(data_matrix_duplicated, num_rows + num_duplicates, num_cols);
   data_duplicated.set_outcome_index(outcome_index);
   data_duplicated.set_censor_index(outcome_index + 1);
 

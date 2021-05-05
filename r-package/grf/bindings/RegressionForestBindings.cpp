@@ -47,20 +47,20 @@ Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
                             unsigned int seed) {
   ForestTrainer trainer = regression_trainer();
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
-  data->set_outcome_index(outcome_index);
+  Data data = RcppUtilities::convert_data(train_matrix);
+  data.set_outcome_index(outcome_index);
   if(use_sample_weights) {
-      data->set_weight_index(sample_weight_index);
+      data.set_weight_index(sample_weight_index);
   }
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
-  Forest forest = trainer.train(*data, options);
+  Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
     ForestPredictor predictor = regression_predictor(num_threads);
-    predictions = predictor.predict_oob(forest, *data, false);
+    predictions = predictor.predict_oob(forest, data, false);
   }
 
   return RcppUtilities::create_forest_object(forest, predictions);
@@ -73,14 +73,14 @@ Rcpp::List regression_predict(Rcpp::List forest_object,
                               Rcpp::NumericMatrix test_matrix,
                               unsigned int num_threads,
                               unsigned int estimate_variance) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
-  train_data->set_outcome_index(outcome_index);
+  Data train_data = RcppUtilities::convert_data(train_matrix);
+  train_data.set_outcome_index(outcome_index);
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
+  Data data = RcppUtilities::convert_data(test_matrix);
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
   ForestPredictor predictor = regression_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict(forest, *train_data, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
 
   return RcppUtilities::create_prediction_object(predictions);
 }
@@ -91,13 +91,13 @@ Rcpp::List regression_predict_oob(Rcpp::List forest_object,
                                   size_t outcome_index,
                                   unsigned int num_threads,
                                   bool estimate_variance) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
-  data->set_outcome_index(outcome_index);
+  Data data = RcppUtilities::convert_data(train_matrix);
+  data.set_outcome_index(outcome_index);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
 
   ForestPredictor predictor = regression_predictor(num_threads);
-  std::vector<Prediction> predictions = predictor.predict_oob(forest, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
   return result;
@@ -128,12 +128,12 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
   ForestTrainer trainer = ll_regression_trainer(ll_split_lambda, ll_split_weight_penalty, overall_beta,
                                                ll_split_cutoff, ll_split_variables);
 
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
-  data->set_outcome_index(outcome_index);
+  Data data = RcppUtilities::convert_data(train_matrix);
+  data.set_outcome_index(outcome_index);
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
                         honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
-  Forest forest = trainer.train(*data, options);
+  Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;
   return RcppUtilities::create_forest_object(forest, predictions);
@@ -149,15 +149,15 @@ Rcpp::List ll_regression_predict(Rcpp::List forest_object,
                                 std::vector<size_t> linear_correction_variables,
                                 unsigned int num_threads,
                                 bool estimate_variance) {
-  std::unique_ptr<Data> train_data = RcppUtilities::convert_data(train_matrix);
-  train_data->set_outcome_index(outcome_index);
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(test_matrix);
+  Data train_data = RcppUtilities::convert_data(train_matrix);
+  train_data.set_outcome_index(outcome_index);
+  Data data = RcppUtilities::convert_data(test_matrix);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest_object);
 
   ForestPredictor predictor = ll_regression_predictor(num_threads,
       ll_lambda, ll_weight_penalty, linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict(deserialized_forest, *train_data, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict(deserialized_forest, train_data, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   return result;
@@ -172,14 +172,14 @@ Rcpp::List ll_regression_predict_oob(Rcpp::List forest_object,
                                     std::vector<size_t> linear_correction_variables,
                                     unsigned int num_threads,
                                     bool estimate_variance) {
-  std::unique_ptr<Data> data = RcppUtilities::convert_data(train_matrix);
-  data->set_outcome_index(outcome_index);
+  Data data = RcppUtilities::convert_data(train_matrix);
+  data.set_outcome_index(outcome_index);
 
   Forest deserialized_forest = RcppUtilities::deserialize_forest(forest_object);
 
   ForestPredictor predictor = ll_regression_predictor(num_threads,
       ll_lambda, ll_weight_penalty, linear_correction_variables);
-  std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, *data, estimate_variance);
+  std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
 
   return result;

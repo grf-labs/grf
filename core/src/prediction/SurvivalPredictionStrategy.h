@@ -18,7 +18,6 @@
 #ifndef GRF_SURVIVALPREDICTIONSTRATEGY_H
 #define GRF_SURVIVALPREDICTIONSTRATEGY_H
 
-#include "commons/DefaultData.h"
 #include "commons/Data.h"
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"

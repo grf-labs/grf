@@ -20,7 +20,7 @@
 
 #include "Eigen/Dense"
 
-#include "commons/DefaultData.h"
+#include "commons/Data.h"
 #include "splitting/SplittingRule.h"
 #include "tree/Tree.h"
 

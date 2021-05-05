@@ -25,10 +25,11 @@
 using namespace grf;
 
 TEST_CASE("multi causal predictions with one treatment is identical to causal forest predictions", "[multi_causal, prediction]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
-  data->set_outcome_index(10);
-  data->set_treatment_index(11);
-  data->set_instrument_index(11);
+  auto data_vec = load_data("test/forest/resources/causal_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
+  data.set_treatment_index(11);
+  data.set_instrument_index(11);
   std::vector<std::vector<size_t>> leaf_samples{
     {0, 1, 2, 3, 4, 5},
     {6, 7, 8, 9, 10, 11},
@@ -46,8 +47,8 @@ TEST_CASE("multi causal predictions with one treatment is identical to causal fo
 
   InstrumentalPredictionStrategy prediction_strategy;
   MultiCausalPredictionStrategy multi_prediction_strategy(1, 1);
-  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
-  PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
+  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, data);
+  PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, data);
 
   REQUIRE(prediction_values.get_num_nodes() == multi_prediction_values.get_num_nodes());
   REQUIRE(prediction_values.get_num_nodes() == num_nodes);
@@ -65,10 +66,11 @@ TEST_CASE("multi causal predictions with one treatment is identical to causal fo
 }
 
 TEST_CASE("multi causal predictions with one continuous treatment is identical to causal forest predictions", "[multi_causal, prediction]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
-  data->set_outcome_index(10);
-  data->set_treatment_index(0); // Set the treatment variable to the first continous covariate
-  data->set_instrument_index(0);
+  auto data_vec = load_data("test/forest/resources/causal_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
+  data.set_treatment_index(0); // Set the treatment variable to the first continous covariate
+  data.set_instrument_index(0);
 
   std::vector<std::vector<size_t>> leaf_samples{
     {0, 1, 2, 3, 4, 5},
@@ -87,8 +89,8 @@ TEST_CASE("multi causal predictions with one continuous treatment is identical t
 
   InstrumentalPredictionStrategy prediction_strategy;
   MultiCausalPredictionStrategy multi_prediction_strategy(1, 1);
-  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
-  PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
+  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, data);
+  PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, data);
 
   REQUIRE(prediction_values.get_num_nodes() == multi_prediction_values.get_num_nodes());
   REQUIRE(prediction_values.get_num_nodes() == num_nodes);
@@ -106,16 +108,17 @@ TEST_CASE("multi causal predictions with one continuous treatment is identical t
 }
 
 TEST_CASE("multi causal predictions with one continuous treatment and sample weights is identical to causal forest predictions", "[multi_causal, prediction]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
-  data->set_outcome_index(10);
-  data->set_treatment_index(0); // Set the treatment variable to the first continous covariate
-  data->set_instrument_index(0);
-  data->set_weight_index(1); // Use covariate in data column 1 as dummy sample weights
-  bool error;
-  for(size_t row = 0; row < data->get_num_rows(); row++) {
-    double value = data->get(row, 1);
+  auto data_vec = load_data("test/forest/resources/causal_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
+  data.set_treatment_index(0); // Set the treatment variable to the first continous covariate
+  data.set_instrument_index(0);
+  data.set_weight_index(1); // Use covariate in data column 1 as dummy sample weights
+  
+  for(size_t row = 0; row < data.get_num_rows(); row++) {
+    double value = data.get(row, 1);
     double weight = value < 0 ? -value : value;
-    data->set(1, row, weight, error);
+    set_data(data_vec, 1, row, weight);
   }
 
   std::vector<std::vector<size_t>> leaf_samples{
@@ -135,8 +138,8 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
 
   InstrumentalPredictionStrategy prediction_strategy;
   MultiCausalPredictionStrategy multi_prediction_strategy(1, 1);
-  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
-  PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
+  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, data);
+  PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, data);
 
   REQUIRE(prediction_values.get_num_nodes() == multi_prediction_values.get_num_nodes());
   REQUIRE(prediction_values.get_num_nodes() == num_nodes);
@@ -154,10 +157,11 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
 }
 
 TEST_CASE("multi causal variance estimates with one continuous treatment is identical to causal forest", "[multi_causal, prediction]") {
-  std::unique_ptr<Data> data = load_data("test/forest/resources/causal_data.csv");
-  data->set_outcome_index(10);
-  data->set_treatment_index(0); // Set the treatment variable to the first continous covariate
-  data->set_instrument_index(0);
+  auto data_vec = load_data("test/forest/resources/causal_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(10);
+  data.set_treatment_index(0); // Set the treatment variable to the first continous covariate
+  data.set_instrument_index(0);
 
   std::vector<std::vector<size_t>> leaf_samples{
     {0, 1, 2, 3, 4, 5},
@@ -175,8 +179,8 @@ TEST_CASE("multi causal variance estimates with one continuous treatment is iden
 
   InstrumentalPredictionStrategy prediction_strategy;
   MultiCausalPredictionStrategy multi_prediction_strategy(1, 1);
-  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, *data);
-  PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, *data);
+  PredictionValues prediction_values = prediction_strategy.precompute_prediction_values(leaf_samples, data);
+  PredictionValues multi_prediction_values = multi_prediction_strategy.precompute_prediction_values(leaf_samples, data);
 
   REQUIRE(prediction_values.get_num_nodes() == multi_prediction_values.get_num_nodes());
   REQUIRE(prediction_values.get_num_nodes() == num_nodes);

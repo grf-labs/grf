@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "Eigen/Dense"
-#include "commons/DefaultData.h"
 #include "commons/Data.h"
 
 namespace grf {
