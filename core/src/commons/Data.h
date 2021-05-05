@@ -30,7 +30,8 @@ namespace grf {
 /**
  * Data wrapper for GRF.
  * Serves as a read-only (immutable) wrapper of a column major (Fortran order)
- * array accessed through its pointer (data_ptr).
+ * array accessed through its pointer (data_ptr). This class does not own
+ * data.
  *
  * The GRF data model is a contiguous array [X, Y, z, ...] of covariates X,
  * outcomes Y, and other optional variables z.
@@ -40,6 +41,13 @@ class Data {
 public:
   Data(const double* data_ptr, size_t num_rows, size_t num_cols);
 
+  /**
+   * Convenience constructors for unit test.
+   * The intended use case is with storage (data vector) mananaged
+   * elsewhere, i.e.
+   * std::vector<double> data_vector {1, 2, 3, etc};
+   * Data grf_data_wrapper(data_vector, num_rows, num_cols);
+   */
   Data(const std::vector<double>& data, size_t num_rows, size_t num_cols);
 
   Data(const std::pair<std::vector<double>, std::vector<size_t>>& data);
