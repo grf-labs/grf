@@ -73,7 +73,7 @@ Rcpp::List causal_train(const Rcpp::NumericMatrix& train_matrix,
 
 
 // [[Rcpp::export]]
-Rcpp::List causal_predict(Rcpp::List forest_object,
+Rcpp::List causal_predict(const Rcpp::List& forest_object,
                           const Rcpp::NumericMatrix& train_matrix,
                           size_t outcome_index,
                           size_t treatment_index,
@@ -96,7 +96,7 @@ Rcpp::List causal_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List causal_predict_oob(Rcpp::List forest_object,
+Rcpp::List causal_predict_oob(const Rcpp::List& forest_object,
                               const Rcpp::NumericMatrix& train_matrix,
                               size_t outcome_index,
                               size_t treatment_index,
@@ -117,7 +117,7 @@ Rcpp::List causal_predict_oob(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List ll_causal_predict(Rcpp::List forest_object,
+Rcpp::List ll_causal_predict(const Rcpp::List& forest_object,
                              const Rcpp::NumericMatrix& train_matrix,
                              size_t outcome_index,
                              size_t treatment_index,
@@ -144,7 +144,7 @@ Rcpp::List ll_causal_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List ll_causal_predict_oob(Rcpp::List forest_object,
+Rcpp::List ll_causal_predict_oob(const Rcpp::List& forest_object,
                                  const Rcpp::NumericMatrix& train_matrix,
                                  size_t outcome_index,
                                  size_t treatment_index,

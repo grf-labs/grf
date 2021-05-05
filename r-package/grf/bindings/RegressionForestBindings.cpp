@@ -67,7 +67,7 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List regression_predict(Rcpp::List forest_object,
+Rcpp::List regression_predict(const Rcpp::List& forest_object,
                               const Rcpp::NumericMatrix& train_matrix,
                               size_t outcome_index,
                               const Rcpp::NumericMatrix& test_matrix,
@@ -86,7 +86,7 @@ Rcpp::List regression_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List regression_predict_oob(Rcpp::List forest_object,
+Rcpp::List regression_predict_oob(const Rcpp::List& forest_object,
                                   const Rcpp::NumericMatrix& train_matrix,
                                   size_t outcome_index,
                                   unsigned int num_threads,
@@ -140,7 +140,7 @@ Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List ll_regression_predict(Rcpp::List forest_object,
+Rcpp::List ll_regression_predict(const Rcpp::List& forest_object,
                                 const Rcpp::NumericMatrix& train_matrix,
                                 size_t outcome_index,
                                 const Rcpp::NumericMatrix& test_matrix,
@@ -164,7 +164,7 @@ Rcpp::List ll_regression_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List ll_regression_predict_oob(Rcpp::List forest_object,
+Rcpp::List ll_regression_predict_oob(const Rcpp::List& forest_object,
                                     const Rcpp::NumericMatrix& train_matrix,
                                     size_t outcome_index,
                                     std::vector<double> ll_lambda,

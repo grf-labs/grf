@@ -66,7 +66,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
+Rcpp::NumericMatrix quantile_predict(const Rcpp::List& forest_object,
                                      std::vector<double> quantiles,
                                      const Rcpp::NumericMatrix& train_matrix,
                                      size_t outcome_index,
@@ -86,7 +86,7 @@ Rcpp::NumericMatrix quantile_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix quantile_predict_oob(Rcpp::List forest_object,
+Rcpp::NumericMatrix quantile_predict_oob(const Rcpp::List& forest_object,
                                          std::vector<double> quantiles,
                                          const Rcpp::NumericMatrix& train_matrix,
                                          size_t outcome_index,

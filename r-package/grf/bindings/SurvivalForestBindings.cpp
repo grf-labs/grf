@@ -71,7 +71,7 @@ Rcpp::List survival_train(const Rcpp::NumericMatrix& train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List survival_predict(Rcpp::List forest_object,
+Rcpp::List survival_predict(const Rcpp::List& forest_object,
                             const Rcpp::NumericMatrix& train_matrix,
                             size_t outcome_index,
                             size_t censor_index,
@@ -94,7 +94,7 @@ Rcpp::List survival_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List survival_predict_oob(Rcpp::List forest_object,
+Rcpp::List survival_predict_oob(const Rcpp::List& forest_object,
                                 const Rcpp::NumericMatrix& train_matrix,
                                 size_t outcome_index,
                                 size_t censor_index,
