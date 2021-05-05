@@ -114,11 +114,11 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
   data.set_treatment_index(0); // Set the treatment variable to the first continous covariate
   data.set_instrument_index(0);
   data.set_weight_index(1); // Use covariate in data column 1 as dummy sample weights
-  
+
   for(size_t row = 0; row < data.get_num_rows(); row++) {
     double value = data.get(row, 1);
     double weight = value < 0 ? -value : value;
-    set_data(data_vec, 1, row, weight);
+    set_data(data_vec, row, 1, weight);
   }
 
   std::vector<std::vector<size_t>> leaf_samples{

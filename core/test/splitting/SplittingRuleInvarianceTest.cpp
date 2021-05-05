@@ -87,7 +87,7 @@ TEST_CASE("regression splitting on Xij then setting all values to the left to Na
   for(size_t row = 0; row < data.get_num_rows(); ++row) {
     double value = data.get(row, split_var);
     if (value < split_val) {
-      set_data(data_vec, split_var, row, NAN);
+      set_data(data_vec, row, split_var, NAN);
     }
   }
 
@@ -118,7 +118,7 @@ TEST_CASE("instrumental splitting on Xij then setting all values to the left to 
   for(size_t row = 0; row < data.get_num_rows(); ++row) {
     double value = data.get(row, split_var);
     if (value < split_val) {
-      set_data(data_vec, split_var, row, NAN);
+      set_data(data_vec, row, split_var, NAN);
     }
   }
 
@@ -148,7 +148,7 @@ TEST_CASE("probability splitting on Xij then setting all values to the left to N
   for(size_t row = 0; row < data.get_num_rows(); ++row) {
     double value = data.get(row, split_var);
     if (value < split_val) {
-      set_data(data_vec, split_var, row, NAN);
+      set_data(data_vec, row, split_var, NAN);
     }
   }
 
@@ -177,7 +177,7 @@ TEST_CASE("survival splitting on Xij then setting all values to the left to NaN 
   for(size_t row = 0; row < data.get_num_rows(); ++row) {
     double value = data.get(row, split_var);
     if (value < split_val) {
-      set_data(data_vec, split_var, row, NAN);
+      set_data(data_vec, row, split_var, NAN);
     }
   }
 
@@ -209,7 +209,7 @@ TEST_CASE("causal survival splitting on Xij then setting all values to the left 
   for(size_t row = 0; row < data.get_num_rows(); ++row) {
     double value = data.get(row, split_var);
     if (value < split_val) {
-      set_data(data_vec, split_var, row, NAN);
+      set_data(data_vec, row, split_var, NAN);
     }
   }
 
