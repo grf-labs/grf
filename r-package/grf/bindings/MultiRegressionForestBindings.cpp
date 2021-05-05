@@ -66,7 +66,7 @@ Rcpp::List multi_regression_train(const Rcpp::NumericMatrix& train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List multi_regression_predict(Rcpp::List& forest_object,
+Rcpp::List multi_regression_predict(const Rcpp::List& forest_object,
                                     const Rcpp::NumericMatrix& train_matrix,
                                     const Rcpp::NumericMatrix& test_matrix,
                                     size_t num_outcomes,
@@ -83,7 +83,7 @@ Rcpp::List multi_regression_predict(Rcpp::List& forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List multi_regression_predict_oob(Rcpp::List& forest_object,
+Rcpp::List multi_regression_predict_oob(const Rcpp::List& forest_object,
                                         const Rcpp::NumericMatrix& train_matrix,
                                         size_t num_outcomes,
                                         unsigned int num_threads) {
