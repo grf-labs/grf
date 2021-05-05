@@ -14,7 +14,7 @@
   You should have received a copy of the GNU General Public License
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
- 
+
 #include <Rcpp.h>
 #include <vector>
 
@@ -26,7 +26,7 @@
 using namespace grf;
 
 // [[Rcpp::export]]
-Rcpp::List causal_survival_train(Rcpp::NumericMatrix& train_matrix,
+Rcpp::List causal_survival_train(const Rcpp::NumericMatrix& train_matrix,
                                  size_t causal_survival_numerator_index,
                                  size_t causal_survival_denominator_index,
                                  size_t treatment_index,
@@ -75,9 +75,9 @@ Rcpp::List causal_survival_train(Rcpp::NumericMatrix& train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List causal_survival_predict(Rcpp::List& forest_object,
-                                   Rcpp::NumericMatrix& train_matrix,
-                                   Rcpp::NumericMatrix& test_matrix,
+Rcpp::List causal_survival_predict(const Rcpp::List& forest_object,
+                                   const Rcpp::NumericMatrix& train_matrix,
+                                   const Rcpp::NumericMatrix& test_matrix,
                                    unsigned int num_threads,
                                    bool estimate_variance) {
   Data train_data = RcppUtilities::convert_data(train_matrix);
@@ -93,8 +93,8 @@ Rcpp::List causal_survival_predict(Rcpp::List& forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List causal_survival_predict_oob(Rcpp::List& forest_object,
-                                       Rcpp::NumericMatrix& train_matrix,
+Rcpp::List causal_survival_predict_oob(const Rcpp::List& forest_object,
+                                       const Rcpp::NumericMatrix& train_matrix,
                                        unsigned int num_threads,
                                        bool estimate_variance) {
   Data data = RcppUtilities::convert_data(train_matrix);

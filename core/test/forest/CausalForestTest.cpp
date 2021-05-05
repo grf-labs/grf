@@ -41,7 +41,7 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
 
   for(size_t r = 0; r < data.get_num_rows(); r++) {
     double weight = 1.0 / (1.0 + exp(- data.get(r, 1)));
-    set_data(data_vec, weight_index, r, weight);
+    set_data(data_vec, r, weight_index, weight);
   }
 
   ForestTrainer trainer = instrumental_trainer(0, true);
@@ -54,7 +54,7 @@ TEST_CASE("causal forests are invariant to rescaling of the sample weights", "[c
   // Scale weights by n and re-run the forest.
   for (size_t r = 0; r < data.get_num_rows(); r++) {
     double weight = data.get_weight(r) * data.get_num_rows();
-    set_data(data_vec, weight_index, r, weight);
+    set_data(data_vec, r, weight_index, weight);
   }
 
   Forest shifted_forest = trainer.train(data, options);

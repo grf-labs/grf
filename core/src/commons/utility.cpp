@@ -125,7 +125,7 @@ std::pair<std::vector<double>, std::vector<size_t>> load_data(const std::string&
   return std::make_pair(storage, dim);
 }
 
-void set_data(std::pair<std::vector<double>, std::vector<size_t>>& data, size_t col, size_t row, double value) {
+void set_data(std::pair<std::vector<double>, std::vector<size_t>>& data, size_t row, size_t col, double value) {
   const std::vector<size_t>& dim = data.second;
   size_t num_rows = dim[0];
 

@@ -26,7 +26,7 @@
 using namespace grf;
 
 // [[Rcpp::export]]
-Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
+Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
                             size_t outcome_index,
                             size_t sample_weight_index,
                             bool use_sample_weights,
@@ -67,10 +67,10 @@ Rcpp::List regression_train(Rcpp::NumericMatrix train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List regression_predict(Rcpp::List forest_object,
-                              Rcpp::NumericMatrix train_matrix,
+Rcpp::List regression_predict(const Rcpp::List& forest_object,
+                              const Rcpp::NumericMatrix& train_matrix,
                               size_t outcome_index,
-                              Rcpp::NumericMatrix test_matrix,
+                              const Rcpp::NumericMatrix& test_matrix,
                               unsigned int num_threads,
                               unsigned int estimate_variance) {
   Data train_data = RcppUtilities::convert_data(train_matrix);
@@ -86,8 +86,8 @@ Rcpp::List regression_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List regression_predict_oob(Rcpp::List forest_object,
-                                  Rcpp::NumericMatrix train_matrix,
+Rcpp::List regression_predict_oob(const Rcpp::List& forest_object,
+                                  const Rcpp::NumericMatrix& train_matrix,
                                   size_t outcome_index,
                                   unsigned int num_threads,
                                   bool estimate_variance) {
@@ -104,7 +104,7 @@ Rcpp::List regression_predict_oob(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
+Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix,
                             size_t outcome_index,
                             double ll_split_lambda,
                             bool ll_split_weight_penalty,
@@ -140,10 +140,10 @@ Rcpp::List ll_regression_train(Rcpp::NumericMatrix train_matrix,
 }
 
 // [[Rcpp::export]]
-Rcpp::List ll_regression_predict(Rcpp::List forest_object,
-                                Rcpp::NumericMatrix train_matrix,
+Rcpp::List ll_regression_predict(const Rcpp::List& forest_object,
+                                const Rcpp::NumericMatrix& train_matrix,
                                 size_t outcome_index,
-                                Rcpp::NumericMatrix test_matrix,
+                                const Rcpp::NumericMatrix& test_matrix,
                                 std::vector<double> ll_lambda,
                                 bool ll_weight_penalty,
                                 std::vector<size_t> linear_correction_variables,
@@ -164,8 +164,8 @@ Rcpp::List ll_regression_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List ll_regression_predict_oob(Rcpp::List forest_object,
-                                    Rcpp::NumericMatrix train_matrix,
+Rcpp::List ll_regression_predict_oob(const Rcpp::List& forest_object,
+                                    const Rcpp::NumericMatrix& train_matrix,
                                     size_t outcome_index,
                                     std::vector<double> ll_lambda,
                                     bool ll_weight_penalty,

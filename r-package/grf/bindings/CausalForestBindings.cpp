@@ -26,7 +26,7 @@
 using namespace grf;
 
 // [[Rcpp::export]]
-Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
+Rcpp::List causal_train(const Rcpp::NumericMatrix& train_matrix,
                         size_t outcome_index,
                         size_t treatment_index,
                         size_t sample_weight_index,
@@ -73,11 +73,11 @@ Rcpp::List causal_train(Rcpp::NumericMatrix train_matrix,
 
 
 // [[Rcpp::export]]
-Rcpp::List causal_predict(Rcpp::List forest_object,
-                          Rcpp::NumericMatrix train_matrix,
+Rcpp::List causal_predict(const Rcpp::List& forest_object,
+                          const Rcpp::NumericMatrix& train_matrix,
                           size_t outcome_index,
                           size_t treatment_index,
-                          Rcpp::NumericMatrix test_matrix,
+                          const Rcpp::NumericMatrix& test_matrix,
                           unsigned int num_threads,
                           bool estimate_variance) {
   Data train_data = RcppUtilities::convert_data(train_matrix);
@@ -96,8 +96,8 @@ Rcpp::List causal_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List causal_predict_oob(Rcpp::List forest_object,
-                              Rcpp::NumericMatrix train_matrix,
+Rcpp::List causal_predict_oob(const Rcpp::List& forest_object,
+                              const Rcpp::NumericMatrix& train_matrix,
                               size_t outcome_index,
                               size_t treatment_index,
                               unsigned int num_threads,
@@ -117,11 +117,11 @@ Rcpp::List causal_predict_oob(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List ll_causal_predict(Rcpp::List forest_object,
-                             Rcpp::NumericMatrix train_matrix,
+Rcpp::List ll_causal_predict(const Rcpp::List& forest_object,
+                             const Rcpp::NumericMatrix& train_matrix,
                              size_t outcome_index,
                              size_t treatment_index,
-                             Rcpp::NumericMatrix test_matrix,
+                             const Rcpp::NumericMatrix& test_matrix,
                              std::vector<double> ll_lambda,
                              bool ll_weight_penalty,
                              std::vector<size_t> linear_correction_variables,
@@ -144,8 +144,8 @@ Rcpp::List ll_causal_predict(Rcpp::List forest_object,
 }
 
 // [[Rcpp::export]]
-Rcpp::List ll_causal_predict_oob(Rcpp::List forest_object,
-                                 Rcpp::NumericMatrix train_matrix,
+Rcpp::List ll_causal_predict_oob(const Rcpp::List& forest_object,
+                                 const Rcpp::NumericMatrix& train_matrix,
                                  size_t outcome_index,
                                  size_t treatment_index,
                                  std::vector<double> ll_lambda,

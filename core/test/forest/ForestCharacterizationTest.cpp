@@ -229,7 +229,7 @@ TEST_CASE("causal forest predictions with sample weights and stable splitting ha
   for(size_t r = 0; r < data.get_num_rows(); r++) {
     double value = data.get(r, weight_index);
     double weight = value < 0 ? -value : value;
-    set_data(data_vec, weight_index, r, weight);
+    set_data(data_vec, r, weight_index, weight);
   }
 
   double reduced_form_weight = 0.0;
@@ -398,7 +398,7 @@ TEST_CASE("regression forest predictions with sample weights have not changed", 
   for(size_t r = 0; r < data.get_num_rows(); r++) {
     double value = data.get(r, weight_index);
     double weight = value < 0 ? -value : value;
-    set_data(data_vec, weight_index, r, weight);
+    set_data(data_vec, r, weight_index, weight);
   }
 
   ForestTrainer trainer = regression_trainer();

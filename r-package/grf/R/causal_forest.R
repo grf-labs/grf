@@ -177,22 +177,22 @@ causal_forest <- function(X, Y, W,
                              imbalance.penalty = 0)
 
   args.orthog <- list(X = X,
-                     num.trees = max(50, num.trees / 4),
-                     sample.weights = sample.weights,
-                     clusters = clusters,
-                     equalize.cluster.weights = equalize.cluster.weights,
-                     sample.fraction = sample.fraction,
-                     mtry = mtry,
-                     min.node.size = 5,
-                     honesty = TRUE,
-                     honesty.fraction = 0.5,
-                     honesty.prune.leaves = honesty.prune.leaves,
-                     alpha = alpha,
-                     imbalance.penalty = imbalance.penalty,
-                     ci.group.size = 1,
-                     tune.parameters = tune.parameters,
-                     num.threads = num.threads,
-                     seed = seed)
+                      num.trees = max(50, num.trees / 4),
+                      sample.weights = sample.weights,
+                      clusters = clusters,
+                      equalize.cluster.weights = equalize.cluster.weights,
+                      sample.fraction = sample.fraction,
+                      mtry = mtry,
+                      min.node.size = 5,
+                      honesty = TRUE,
+                      honesty.fraction = 0.5,
+                      honesty.prune.leaves = honesty.prune.leaves,
+                      alpha = alpha,
+                      imbalance.penalty = imbalance.penalty,
+                      ci.group.size = 1,
+                      tune.parameters = tune.parameters,
+                      num.threads = num.threads,
+                      seed = seed)
 
   if (is.null(Y.hat)) {
     forest.Y <- do.call(regression_forest, c(Y = list(Y), args.orthog))
@@ -215,7 +215,7 @@ causal_forest <- function(X, Y, W,
   Y.centered <- Y - Y.hat
   W.centered <- W - W.hat
   data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered,
-                              sample.weights = sample.weights)
+                                sample.weights = sample.weights)
   args <- list(num.trees = num.trees,
                clusters = clusters,
                samples.per.cluster = samples.per.cluster,
