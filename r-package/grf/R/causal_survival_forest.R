@@ -325,14 +325,14 @@ causal_survival_forest <- function(X, Y, W, D,
 
   if (any(C.hat <= 0.05)) {
     warning(paste("Estimated censoring probabilites go as low as:", min(C.hat),
-                "- an identifying assumption is that there exists a fixed positve constant M",
+                "- an identifying assumption is that there exists a fixed positive constant M",
                 "such that the probability of observing an event time past the maximum follow-up time Y.max",
                 "is at least M. Formally, we assume: P(Y >= Y.max | X) > M.",
                 "This warning appears when M is less than 0.05, at which point causal survival forest",
                 "can not be expected to deliver reliable estimates."))
   } else if (any(C.hat < 0.2 & C.hat > 0.05)) {
     warning(paste("Estimated censoring probabilites are lower than 0.2.",
-                  "An identifying assumption is that there exists a fixed positve constant M",
+                  "An identifying assumption is that there exists a fixed positive constant M",
                   "such that the probability of observing an event time past the maximum follow-up time Y.max",
                   "is at least M. Formally, we assume: P(Y >= Y.max | X) > M."))
   }
