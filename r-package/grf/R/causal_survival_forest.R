@@ -78,8 +78,7 @@
 #'                      Default is 5.
 #' @param honesty Whether to use honest splitting (i.e., sub-sample splitting). Default is TRUE.
 #'  For a detailed description of honesty, honesty.fraction, honesty.prune.leaves, and recommendations for
-#'  parameter tuning, see the grf
-#'  \href{https://grf-labs.github.io/grf/REFERENCE.html#honesty-honesty-fraction-honesty-prune-leaves}{algorithm reference}.
+#'  parameter tuning, see the grf algorithm reference.
 #' @param honesty.fraction The fraction of data that will be used for determining splits if honesty = TRUE. Corresponds
 #'                         to set J1 in the notation of the paper. Default is 0.5 (i.e. half of the data is used for
 #'                         determining splits).
@@ -325,14 +324,14 @@ causal_survival_forest <- function(X, Y, W, D,
 
   if (any(C.hat <= 0.05)) {
     warning(paste("Estimated censoring probabilites go as low as:", min(C.hat),
-                "- an identifying assumption is that there exists a fixed positve constant M",
+                "- an identifying assumption is that there exists a fixed positive constant M",
                 "such that the probability of observing an event time past the maximum follow-up time Y.max",
                 "is at least M. Formally, we assume: P(Y >= Y.max | X) > M.",
                 "This warning appears when M is less than 0.05, at which point causal survival forest",
                 "can not be expected to deliver reliable estimates."))
   } else if (any(C.hat < 0.2 & C.hat > 0.05)) {
     warning(paste("Estimated censoring probabilites are lower than 0.2.",
-                  "An identifying assumption is that there exists a fixed positve constant M",
+                  "An identifying assumption is that there exists a fixed positive constant M",
                   "such that the probability of observing an event time past the maximum follow-up time Y.max",
                   "is at least M. Formally, we assume: P(Y >= Y.max | X) > M."))
   }
