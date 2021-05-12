@@ -15,7 +15,7 @@ the subset should be defined only using features Xi, not using
 the treatment Wi or the outcome Yi.}
 
 \item{outcome}{In the event the forest is trained with multiple outcomes Y,
-a column number specifying the outcome of interest. Default is 1.}
+a column number/name specifying the outcome of interest. Default is 1.}
 
 \item{...}{Additional arguments (currently ignored).}
 }
