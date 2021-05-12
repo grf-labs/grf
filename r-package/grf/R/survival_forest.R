@@ -102,6 +102,15 @@
 #' s.pred.grid <- predict(s.forest.grid)
 #' matpoints(s.pred.grid$failure.times, t(s.pred.grid$predictions[1:5, ]),
 #'           type = "l", lty = 2)
+#'
+#' # Compute OOB concordance based on the mortality score in Ishwaran et al. (2008).
+#' # This number is between zero and one, where zero indicates perfect predictions.
+#' s.pred.nelson.aalen <- predict(s.forest, prediction.type = "Nelson-Aalen")
+#' chf.score <- rowSums(-log(s.pred.nelson.aalen$predictions))
+#' if (requireNamespace("survival", quietly = TRUE)) {
+#'  library(survival)
+#'  concordance(Surv(Y, D) ~ chf.score)
+#' }
 #' }
 #'
 #' @export
@@ -246,6 +255,15 @@ survival_forest <- function(X, Y, D,
 #' s.pred.grid <- predict(s.forest.grid)
 #' matpoints(s.pred.grid$failure.times, t(s.pred.grid$predictions[1:5, ]),
 #'           type = "l", lty = 2)
+#'
+#' # Compute OOB concordance based on the mortality score in Ishwaran et al. (2008).
+#' # This number is between zero and one, where zero indicates perfect predictions.
+#' s.pred.nelson.aalen <- predict(s.forest, prediction.type = "Nelson-Aalen")
+#' chf.score <- rowSums(-log(s.pred.nelson.aalen$predictions))
+#' if (requireNamespace("survival", quietly = TRUE)) {
+#'  library(survival)
+#'  concordance(Surv(Y, D) ~ chf.score)
+#' }
 #' }
 #'
 #' @method predict survival_forest
