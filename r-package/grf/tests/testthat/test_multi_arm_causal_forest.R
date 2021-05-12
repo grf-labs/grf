@@ -287,6 +287,14 @@ test_that("multi_arm_causal_forest with multiple outcomes works as expected", {
   expect_equal(average_treatment_effect(mrf, outcome = 1), average_treatment_effect(mrf.dup, outcome = 3))
   expect_equal(average_treatment_effect(mrf, outcome = 2), average_treatment_effect(mrf.dup, outcome = 2))
   expect_equal(average_treatment_effect(mrf, outcome = 2), average_treatment_effect(mrf.dup, outcome = 4))
+
+  # Named outcome argument works as expected
+  mrf.Yname <- multi_arm_causal_forest(X, cbind(runif(n), orange = runif(n), apple = rnorm(n)),
+                                       W, Y.hat = rep(0, 3), W.hat = c(1/3, 1/3, 1/3),
+                                       num.trees = 200, seed = 42)
+  expect_equal(average_treatment_effect(mrf.Yname, outcome = 1), average_treatment_effect(mrf.Yname, outcome = "1"))
+  expect_equal(average_treatment_effect(mrf.Yname, outcome = 2), average_treatment_effect(mrf.Yname, outcome = "orange"))
+  expect_equal(average_treatment_effect(mrf.Yname, outcome = 3), average_treatment_effect(mrf.Yname, outcome = "apple"))
 })
 
 test_that("multi_arm_causal_forest with multiple outcomes is well calibrated", {
