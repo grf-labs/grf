@@ -221,7 +221,7 @@ get_scores.instrumental_forest <- function(forest,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
 #' @param outcome In the event the forest is trained with multiple outcomes Y,
-#'                a column number specifying the outcome of interest. Default is 1.
+#'                a column number/name specifying the outcome of interest. Default is 1.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A matrix of scores for each contrast.
@@ -232,8 +232,14 @@ get_scores.multi_arm_causal_forest <- function(forest,
                                                subset = NULL,
                                                outcome = 1,
                                                ...) {
-  if (!outcome %in% 1:NCOL(forest[["Y.orig"]])) {
-    stop("`outcome` should be an integer specifying the outcome column in Y.")
+  outcome <- outcome[1]
+  if (!outcome %in% 1:NCOL(forest$Y.orig)) {
+    outcome <- match(outcome, colnames(forest$Y.orig, do.NULL = FALSE))
+    if (is.na(outcome)) {
+      stop("`outcome` should be a column number/name specifying a column in Y.")
+    }
+  } else {
+    outcome <- as.integer(outcome)
   }
   subset <- validate_subset(forest, subset)
   W.orig <- forest$W.orig[subset]
