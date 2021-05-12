@@ -107,8 +107,7 @@
 #' # This number is between zero and one, where zero indicates perfect predictions.
 #' s.pred.nelson.aalen <- predict(s.forest, prediction.type = "Nelson-Aalen")
 #' chf.score <- rowSums(-log(s.pred.nelson.aalen$predictions))
-#' if (requireNamespace("survival", quietly = TRUE)) {
-#'  library(survival)
+#' if (require("survival", quietly = TRUE)) {
 #'  concordance(Surv(Y, D) ~ chf.score)
 #' }
 #' }
@@ -260,8 +259,7 @@ survival_forest <- function(X, Y, D,
 #' # This number is between zero and one, where zero indicates perfect predictions.
 #' s.pred.nelson.aalen <- predict(s.forest, prediction.type = "Nelson-Aalen")
 #' chf.score <- rowSums(-log(s.pred.nelson.aalen$predictions))
-#' if (requireNamespace("survival", quietly = TRUE)) {
-#'  library(survival)
+#' if (require("survival", quietly = TRUE)) {
 #'  concordance(Surv(Y, D) ~ chf.score)
 #' }
 #' }

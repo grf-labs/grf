@@ -148,8 +148,7 @@ matpoints(s.pred.grid$failure.times, t(s.pred.grid$predictions[1:5, ]),
 # This number is between zero and one, where zero indicates perfect predictions.
 s.pred.nelson.aalen <- predict(s.forest, prediction.type = "Nelson-Aalen")
 chf.score <- rowSums(-log(s.pred.nelson.aalen$predictions))
-if (requireNamespace("survival", quietly = TRUE)) {
- library(survival)
+if (require("survival", quietly = TRUE)) {
  concordance(Surv(Y, D) ~ chf.score)
 }
 }
