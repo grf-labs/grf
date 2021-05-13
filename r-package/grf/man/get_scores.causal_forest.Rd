@@ -30,6 +30,9 @@ argument is only used when debiasing.weights = NULL.}
 
 \item{...}{Additional arguments (currently ignored).}
 }
+\value{
+A vector of scores.
+}
 \description{
 Compute doubly robust (AIPW) scores for average treatment effect estimation
 or average partial effect estimation with continuous treatment,

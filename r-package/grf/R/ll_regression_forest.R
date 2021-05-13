@@ -1,4 +1,4 @@
-#' Local Linear forest
+#' Local linear forest
 #'
 #' Trains a local linear forest that can be used to estimate
 #' the conditional mean function mu(x) = E[Y | X = x]
