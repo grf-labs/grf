@@ -2,7 +2,7 @@
 % Please edit documentation in R/ll_regression_forest.R
 \name{ll_regression_forest}
 \alias{ll_regression_forest}
-\title{Local Linear forest}
+\title{Local linear forest}
 \usage{
 ll_regression_forest(
   X,
