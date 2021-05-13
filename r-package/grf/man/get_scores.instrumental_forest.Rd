@@ -37,6 +37,9 @@ used when debiasing.weights = NULL.}
 
 \item{...}{Additional arguments (currently ignored).}
 }
+\value{
+A vector of scores.
+}
 \description{
 Given an outcome Y, treatment W and instrument Z, the (conditional) local
 average treatment effect is tau(x) = Cov[Y, Z | X = x] / Cov[W, Z | X = x].

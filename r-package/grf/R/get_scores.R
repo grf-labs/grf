@@ -40,6 +40,8 @@ get_scores <- function(forest, ...) {
 #'             multivariate regression models with missing data." Journal of the
 #'             American Statistical Association 90(429), 1995.
 #'
+#' @return A vector of scores.
+#'
 #' @method get_scores causal_forest
 #' @export
 get_scores.causal_forest <- function(forest,
@@ -133,6 +135,8 @@ get_scores.causal_forest <- function(forest,
 #'             estimation." arXiv preprint arXiv:1608.00033, 2016.
 #' @references Imbens, Guido W., and Joshua D. Angrist. "Identification and Estimation of
 #'             Local Average Treatment Effects." Econometrica 62(2), 1994.
+#'
+#' @return A vector of scores.
 #'
 #' @method get_scores instrumental_forest
 #' @export
@@ -292,6 +296,8 @@ get_scores.multi_arm_causal_forest <- function(forest,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
 #' @param ... Additional arguments (currently ignored).
+#'
+#' @return A vector of scores.
 #'
 #' @method get_scores causal_survival_forest
 #' @export
