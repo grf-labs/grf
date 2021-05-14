@@ -24,7 +24,7 @@ CRAN releases have a 3-digit version number, while the development version has 4
 
 ### Note for Windows users:
 
-Symlinks in the src directory point to the core C++ and R bindings. On Windows one has to clone this repository with symlinks enabled: `git clone -c core.symlinks=true https://github.com/grf-labs/grf.git` (this command needs to be run as an administrator: right click _Command Prompt -> Run as administrator_). Caveat: the above RStudio workflow is not tested on Windows.
+Symlinks in the src directory point to the core C++ and R bindings. On Windows one has to clone this repository with symlinks enabled: `git clone -c core.symlinks=true https://github.com/grf-labs/grf.git` (this command may have to be run as an administrator if the account does not have permission to create symlinks). Caveat: the above RStudio workflow is not tested on Windows.
 
 ## Core C++
 
