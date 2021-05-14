@@ -5,7 +5,7 @@
 #'
 #' @param X The covariates.
 #' @param Y The event time (may be negative).
-#' @param D The event type (0: censoring, 1: failure).
+#' @param D The event type (0: censored, 1: failure).
 #' @param failure.times A vector of event times to fit the survival curve at. If NULL, then all the observed
 #'  failure times are used. This speeds up forest estimation by constraining the event grid. Observed event
 #'  times are rounded down to the last sorted occurance less than or equal to the specified failure time.
