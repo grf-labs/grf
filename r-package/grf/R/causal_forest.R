@@ -234,7 +234,7 @@ causal_forest <- function(X, Y, W,
                reduced.form.weight = 0)
 
   tuning.output <- NULL
-  if (!identical(tune.parameters, "none")){
+  if (!identical(tune.parameters, "none")) {
     if (identical(tune.parameters, "all")) {
       tune.parameters <- all.tunable.params
     } else {

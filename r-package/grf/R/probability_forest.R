@@ -224,5 +224,5 @@ predict.probability_forest <- function(object,
   colnames(ret$predictions) <- class.names
 
   list(predictions = ret$predictions,
-       variance.estimates = if(estimate.variance) ret$variance.estimates)
+       variance.estimates = if (estimate.variance) ret$variance.estimates)
 }
