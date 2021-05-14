@@ -55,7 +55,7 @@ Rcpp::List instrumental_train(const Rcpp::NumericMatrix& train_matrix,
   data.set_outcome_index(outcome_index);
   data.set_treatment_index(treatment_index);
   data.set_instrument_index(instrument_index);
-  if(use_sample_weights) {
+  if (use_sample_weights) {
     data.set_weight_index(sample_weight_index);
   }
 
