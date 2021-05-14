@@ -27,7 +27,7 @@
 namespace grf {
 
 /**
- * This prediction strategy is a special case of {@link InstrumentalRelabelingStrategy}
+ * This prediction strategy is an extension of {@link InstrumentalPredictionStrategy}
  * with a multivariate treatment = instrument, and a vector-valued outcome Y.
  *
  * We estimate a forest weighted (alpha) estimate of beta in
