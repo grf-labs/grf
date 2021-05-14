@@ -53,7 +53,7 @@ print.grf_tree <- function(x, ...) {
 
     if (node$is_leaf) {
       leaf_stats_text <- ""
-      if (!is.null(node$leaf_stats)){
+      if (!is.null(node$leaf_stats)) {
         leaf_stats_text <- paste(paste(names(node$leaf_stats), unname(node$leaf_stats), sep = ": ", collapse = " "))
       }
       output <- paste(output, "* num_samples:", length(node$samples), "", leaf_stats_text)
