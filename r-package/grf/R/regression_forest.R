@@ -141,7 +141,7 @@ regression_forest <- function(X, Y,
                seed = seed)
 
   tuning.output <- NULL
-  if (!identical(tune.parameters, "none")){
+  if (!identical(tune.parameters, "none")) {
     if (identical(tune.parameters, "all")) {
       tune.parameters <- all.tunable.params
     } else {

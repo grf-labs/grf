@@ -23,7 +23,7 @@ namespace grf {
 ProbabilityPredictionStrategy::ProbabilityPredictionStrategy(size_t num_classes):
     num_classes(num_classes),
     num_types(num_classes + 1),
-    weight_index(num_classes){
+    weight_index(num_classes) {
 };
 
 size_t ProbabilityPredictionStrategy::prediction_length() const {

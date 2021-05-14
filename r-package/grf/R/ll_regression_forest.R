@@ -163,7 +163,7 @@ ll_regression_forest <- function(X, Y,
   }
 
   tuning.output <- NULL
-  if (!identical(tune.parameters, "none")){
+  if (!identical(tune.parameters, "none")) {
     if (enable.ll.split) {
       stop("Tuning is currently only supported when enable.ll.split = FALSE.")
     }
