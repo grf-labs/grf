@@ -32,7 +32,7 @@ Gets estimates of E[Y_i | X = x] using a trained multi regression forest.
 n <- 500
 p <- 5
 X <- matrix(rnorm(n * p), n, p)
-Y <-  X[, 1, drop = FALSE] \%*\% cbind(1, 2) + rnorm(n)
+Y <-  X[, 1, drop = FALSE] %*% cbind(1, 2) + rnorm(n)
 mr.forest <- multi_regression_forest(X, Y)
 
 # Predict using the forest.

@@ -194,7 +194,7 @@ X.test <- matrix(0.5, 10, p)
 X.test[, 1] <- seq(0, 1, length.out = 10)
 cs.pred <- predict(cs.forest, X.test, estimate.variance = TRUE)
 
-# Plot the estimated CATEs along with 95\% confidence bands.
+# Plot the estimated CATEs along with 95% confidence bands.
 r.monte.carlo <- rexp(5000)
 cate <- rep(NA, 10)
 for (i in 1:10) {

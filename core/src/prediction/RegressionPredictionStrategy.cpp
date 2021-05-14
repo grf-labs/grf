@@ -55,8 +55,8 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
   double average_outcome = average.at(OUTCOME) / average_weight;
 
   double num_good_groups = 0;
-  double psi_squared = 0;
-  double psi_grouped_squared = 0;
+  double rho_squared = 0;
+  double rho_grouped_squared = 0;
 
   for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
@@ -69,22 +69,22 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
 
     num_good_groups++;
 
-    double group_psi = 0;
+    double group_rho = 0;
 
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t i = group * ci_group_size + j;
-      double psi_1 = (leaf_values.get(i, OUTCOME) - average_outcome * leaf_values.get(i, WEIGHT)) / average_weight;
+      double rho = (leaf_values.get(i, OUTCOME) - average_outcome * leaf_values.get(i, WEIGHT)) / average_weight;
 
-      psi_squared += psi_1 * psi_1;
-      group_psi += psi_1;
+      rho_squared += rho * rho;
+      group_rho += rho;
     }
 
-    group_psi /= ci_group_size;
-    psi_grouped_squared += group_psi * group_psi;
+    group_rho /= ci_group_size;
+    rho_grouped_squared += group_rho * group_rho;
   }
 
-  double var_between = psi_grouped_squared / num_good_groups;
-  double var_total = psi_squared / (num_good_groups * ci_group_size);
+  double var_between = rho_grouped_squared / num_good_groups;
+  double var_total = rho_squared / (num_good_groups * ci_group_size);
 
   // This is the amount by which var_between is inflated due to using small groups
   double group_noise = (var_total - var_between) / (ci_group_size - 1);
