@@ -48,6 +48,8 @@ std::vector<double> MultiCausalPredictionStrategy::predict(const std::vector<dou
   Eigen::Map<const Eigen::MatrixXd> YW_bar(average.data() + YW_index, num_treatments, num_outcomes);
   Eigen::Map<const Eigen::MatrixXd> WW_bar(average.data() + WW_index, num_treatments, num_treatments);
 
+  // Why we do not do a `...ldlt().solve(...)` instead of inverse: because dim(W) is low (intended use-case)
+  // and ^-1 replicates the behavior of InstrumentalPredictionStrategy for dim(W) = 1.
   Eigen::MatrixXd theta = (WW_bar * weight_bar - W_bar * W_bar.transpose()).inverse() *
    (YW_bar * weight_bar - W_bar * Y_bar.transpose());
 
