@@ -5,7 +5,7 @@
 #'
 #' @param X The covariates.
 #' @param Y The event time (may be negative).
-#' @param D The event type (0: censoring, 1: failure).
+#' @param D The event type (0: censored, 1: failure).
 #' @param failure.times A vector of event times to fit the survival curve at. If NULL, then all the observed
 #'  failure times are used. This speeds up forest estimation by constraining the event grid. Observed event
 #'  times are rounded down to the last sorted occurance less than or equal to the specified failure time.
@@ -43,8 +43,8 @@
 #'  tree is skipped and does not contribute to the estimate). Setting this to FALSE may improve performance on
 #'  small/marginally powered data, but requires more trees (note: tuning does not adjust the number of trees).
 #'  Only applies if honesty is enabled. Default is TRUE.
-#' @param alpha A tuning parameter that controls the maximum imbalance of a split. Default is 0.05
-#'  (meaning the count of failures on each side of a split has to be at least 5 \% of the total observation count in a node)
+#' @param alpha A tuning parameter that controls the maximum imbalance of a split. The number of failures in
+#'  each child has to be at least one or `alpha` times the number of samples in the parent node. Default is 0.05.
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 #' Only relevant if `compute.oob.predictions` is TRUE. Default is "Kaplan-Meier".

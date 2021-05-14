@@ -119,7 +119,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
     double weight = 0.0;
     for (auto& sample : leaf_node) {
       sum += data.get_weight(sample) * data.get_outcome(sample);
-      weight  += data.get_weight(sample);
+      weight += data.get_weight(sample);
     }
 
     // if total weight is very small, treat the leaf as empty

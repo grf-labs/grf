@@ -170,9 +170,9 @@ PredictionValues InstrumentalPredictionStrategy::precompute_prediction_values(
     double sum_weight = 0.0;
     for (auto& sample : leaf_samples[i]) {
       auto weight = data.get_weight(sample);
-      sum_Y +=  weight * data.get_outcome(sample);
-      sum_W +=  weight * data.get_treatment(sample);
-      sum_Z +=  weight * data.get_instrument(sample);
+      sum_Y += weight * data.get_outcome(sample);
+      sum_W += weight * data.get_treatment(sample);
+      sum_Z += weight * data.get_instrument(sample);
       sum_YZ += weight * data.get_outcome(sample) * data.get_instrument(sample);
       sum_WZ += weight * data.get_treatment(sample) * data.get_instrument(sample);
       sum_ZZ += weight * data.get_instrument(sample) * data.get_instrument(sample);
