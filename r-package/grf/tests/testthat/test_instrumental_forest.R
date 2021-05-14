@@ -89,8 +89,8 @@ test_that("instrumental forest predictions and variance estimates are invariant 
   pred.2 <- predict(forest.2, estimate.variance = TRUE)
 
   expect_equal(pred.1$predictions, pred.2$predictions, tolerance = 1e-10)
-  # expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tolerance = 1e-10)
-  # expect_equal(pred.1$debiased.error, pred.2$debiased.error, tolerance = 1e-10)
+  expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tolerance = 1e-10)
+  expect_equal(pred.1$debiased.error, pred.2$debiased.error, tolerance = 1e-10)
 })
 
 test_that("instrumental forests with censoring and ipcc weights compare to forests given full data as you would expect:
