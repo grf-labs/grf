@@ -31,12 +31,28 @@ std::vector<double> RegressionPredictionStrategy::predict(const std::vector<doub
   return { average.at(OUTCOME) / average.at(WEIGHT) };
 }
 
+// In general, the basic "bootstrap of little bags" algorithm, as described in Section 4.1
+// of the GRF paper (Athey & al, 2019) could be applied to regression forests. However,
+// when sampling weights are present, we need to use a delta-method based argument as descibed
+// in (15) and (16) of that paper. Specifically, with sample weights Gi, the estimating
+// equation psi_mu for regression and associated Hessian V are:
+//
+// E[psi_{mu(x)}(Yi, Gi)] = 0,  psi_mu(Yi, Gi) = Gi(Yi - mu),
+// V(x) = d/dmu E[psi_mu(Yi, Gi)] = E[Gi | Xi = x].
+//
+// Thus, following (16), the delta method involves applying the boostrap of little bags
+// with pseudo-outcomes
+//
+// rho_i = psi_{hat{mu}(x)}(Yi, Gi) / hat{V}(x) = Gi(Yi - hat{mu}) / hat{E[Gi | Xi = x]},
+//
+// where the required estimates are obtained via forest-weighted averaging.
 std::vector<double> RegressionPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
     size_t ci_group_size) const {
 
-  double average_outcome = average.at(OUTCOME) / average.at(WEIGHT);
+  double average_weight = average.at(WEIGHT);
+  double average_outcome = average.at(OUTCOME) / average_weight;
 
   double num_good_groups = 0;
   double psi_squared = 0;
@@ -57,7 +73,7 @@ std::vector<double> RegressionPredictionStrategy::compute_variance(
 
     for (size_t j = 0; j < ci_group_size; ++j) {
       size_t i = group * ci_group_size + j;
-      double psi_1 = leaf_values.get(i, OUTCOME) / leaf_values.get(i, WEIGHT) - average_outcome;
+      double psi_1 = (leaf_values.get(i, OUTCOME) - average_outcome * leaf_values.get(i, WEIGHT)) / average_weight;
 
       psi_squared += psi_1 * psi_1;
       group_psi += psi_1;
@@ -127,7 +143,8 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
     const Data& data) const {
   double outcome = data.get_outcome(sample);
 
-  double average_outcome = average.at(OUTCOME) / average.at(WEIGHT);
+  double average_weight = average.at(WEIGHT);
+  double average_outcome = average.at(OUTCOME) / average_weight;
   double error = average_outcome - outcome;
   double mse = error * error;
 
@@ -138,7 +155,7 @@ std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_er
       continue;
     }
 
-    double tree_variance = leaf_values.get(n, OUTCOME) / leaf_values.get(n, WEIGHT) - average_outcome;
+    double tree_variance = (leaf_values.get(n, OUTCOME) - average_outcome * leaf_values.get(n, WEIGHT)) / average_weight;
     bias += tree_variance * tree_variance;
     num_trees++;
   }
