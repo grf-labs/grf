@@ -305,7 +305,8 @@ predict.survival_forest <- function(object,
   X <- object[["X.orig"]]
   train.data <- create_train_matrices(X,
                                       outcome = Y.relabeled,
-                                      censor = object[["D.orig"]])
+                                      censor = object[["D.orig"]],
+                                      sample.weights = object[["sample.weights"]])
 
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
