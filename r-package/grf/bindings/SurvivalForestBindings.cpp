@@ -52,7 +52,7 @@ Rcpp::List survival_train(const Rcpp::NumericMatrix& train_matrix,
   data.set_outcome_index(outcome_index);
   data.set_censor_index(censor_index);
   if (use_sample_weights) {
-      data.set_weight_index(sample_weight_index);
+    data.set_weight_index(sample_weight_index);
   }
 
   size_t ci_group_size = 1;
