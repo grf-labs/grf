@@ -136,7 +136,7 @@ PredictionValues RegressionPredictionStrategy::precompute_prediction_values(
   return PredictionValues(values, 2);
 }
 
-std::vector<std::pair<double, double>>  RegressionPredictionStrategy::compute_error(
+std::vector<std::pair<double, double>> RegressionPredictionStrategy::compute_error(
     size_t sample,
     const std::vector<double>& average,
     const PredictionValues& leaf_values,

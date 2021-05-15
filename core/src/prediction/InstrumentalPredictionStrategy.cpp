@@ -204,8 +204,10 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
     const PredictionValues& leaf_values,
     const Data& data) const {
 
-  double reduced_form_numerator = average.at(OUTCOME_INSTRUMENT) - average.at(OUTCOME) * average.at(INSTRUMENT);
-  double reduced_form_denominator = average.at(INSTRUMENT_INSTRUMENT) - average.at(INSTRUMENT) * average.at(INSTRUMENT);
+  double reduced_form_numerator = average.at(OUTCOME_INSTRUMENT) * average.at(WEIGHT)
+    - average.at(OUTCOME) * average.at(INSTRUMENT);
+  double reduced_form_denominator = average.at(INSTRUMENT_INSTRUMENT) * average.at(WEIGHT)
+    - average.at(INSTRUMENT) * average.at(INSTRUMENT);
   double reduced_form_estimate = reduced_form_numerator / reduced_form_denominator;
 
   double outcome = data.get_outcome(sample);
@@ -213,7 +215,7 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
 
   // To justify the squared residual below as an error criterion in the case of CATE estimation
   // with an unconfounded treatment assignment, see Nie and Wager (2017).
-  double residual = outcome - (instrument - average.at(INSTRUMENT)) * reduced_form_estimate - average.at(OUTCOME);
+  double residual = outcome - (instrument - average.at(INSTRUMENT) / average.at(WEIGHT)) * reduced_form_estimate - average.at(OUTCOME) / average.at(WEIGHT);
   double error_raw = residual * residual;
 
   // Estimates the Monte Carlo bias of the raw error via the jackknife estimate of variance.
@@ -232,25 +234,27 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
   }
 
   // Compute 'leave one tree out' treatment effect estimates, and use them get a jackknife estimate of the excess error.
+  // We do this by "decrementing" each of the the averaged (over num_trees) sufficient statistics by one component,
+  // leading to the adjustment `(num_trees * "average" - "component")/(num_trees - 1)`.
   double error_bias = 0.0;
   for (size_t n = 0; n < leaf_values.get_num_nodes(); n++) {
     if (leaf_values.empty(n)) {
       continue;
     }
     const std::vector<double>& leaf_value = leaf_values.get_values(n);
-    double outcome_loto = (num_trees *  average.at(OUTCOME) - leaf_value.at(OUTCOME)) / (num_trees - 1);
-    double instrument_loto = (num_trees *  average.at(INSTRUMENT) - leaf_value.at(INSTRUMENT)) / (num_trees - 1);
-    double outcome_instrument_loto = (num_trees *  average.at(OUTCOME_INSTRUMENT) - leaf_value.at(OUTCOME_INSTRUMENT)) / (num_trees - 1);
-    double instrument_instrument_loto = (num_trees *  average.at(INSTRUMENT_INSTRUMENT) - leaf_value.at(INSTRUMENT_INSTRUMENT)) / (num_trees - 1);
+    double weight_loto = (num_trees * average.at(WEIGHT) - leaf_value.at(WEIGHT)) / (num_trees - 1);
+    double outcome_loto = (num_trees * average.at(OUTCOME) - leaf_value.at(OUTCOME)) / (num_trees - 1);
+    double instrument_loto = (num_trees * average.at(INSTRUMENT) - leaf_value.at(INSTRUMENT)) / (num_trees - 1);
+    double outcome_instrument_loto = (num_trees * average.at(OUTCOME_INSTRUMENT) - leaf_value.at(OUTCOME_INSTRUMENT)) / (num_trees - 1);
+    double instrument_instrument_loto = (num_trees * average.at(INSTRUMENT_INSTRUMENT) - leaf_value.at(INSTRUMENT_INSTRUMENT)) / (num_trees - 1);
 
-    double reduced_form_numerator_loto = outcome_instrument_loto - outcome_loto * instrument_loto;
-    double reduced_form_denominator_loto = instrument_instrument_loto - instrument_loto * instrument_loto;
+    double reduced_form_numerator_loto = outcome_instrument_loto * weight_loto - outcome_loto * instrument_loto;
+    double reduced_form_denominator_loto = instrument_instrument_loto * weight_loto - instrument_loto * instrument_loto;
     double reduced_form_estimate_loto = reduced_form_numerator_loto / reduced_form_denominator_loto;
 
-    double residual_loto = outcome - (instrument - instrument_loto) * reduced_form_estimate_loto - outcome_loto;
+    double residual_loto = outcome - (instrument - instrument_loto / weight_loto) * reduced_form_estimate_loto - outcome_loto / weight_loto;
     error_bias += (residual_loto - residual) * (residual_loto - residual);
   }
-
 
   error_bias *= ((double) (num_trees - 1)) / num_trees;
 
