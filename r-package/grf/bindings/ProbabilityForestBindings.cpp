@@ -51,7 +51,7 @@ Rcpp::List probability_train(const Rcpp::NumericMatrix& train_matrix,
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
   if (use_sample_weights) {
-      data.set_weight_index(sample_weight_index);
+    data.set_weight_index(sample_weight_index);
   }
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
