@@ -78,9 +78,13 @@ test_that("sample weighted survival prediction is invariant to weight rescaling"
                         num.trees = 50,
                         seed = 1)
   type <- "Kaplan-Meier"
+  expect_equal(predict(sf1, prediction.type = type)$predictions,
+               predict(sf2, prediction.type = type)$predictions, tolerance = 1e-8)
   expect_equal(predict(sf1, X, prediction.type = type)$predictions,
                predict(sf2, X, prediction.type = type)$predictions, tolerance = 1e-8)
   type <- "Nelson-Aalen"
+  expect_equal(predict(sf1, prediction.type = type)$predictions,
+               predict(sf2, prediction.type = type)$predictions, tolerance = 1e-8)
   expect_equal(predict(sf1, X, prediction.type = type)$predictions,
                predict(sf2, X, prediction.type = type)$predictions, tolerance = 1e-8)
 })
