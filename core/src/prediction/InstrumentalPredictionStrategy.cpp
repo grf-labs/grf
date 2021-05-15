@@ -52,9 +52,9 @@ size_t InstrumentalPredictionStrategy::prediction_length() const {
 // We then estimate all conditional expectations via forest weighting.
 std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<double>& average) const {
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) * average.at(WEIGHT)
-           - average.at(OUTCOME) * average.at(INSTRUMENT);
+    - average.at(OUTCOME) * average.at(INSTRUMENT);
   double first_stage_numerator = average.at(TREATMENT_INSTRUMENT) * average.at(WEIGHT)
-           - average.at(TREATMENT) * average.at(INSTRUMENT);
+    - average.at(TREATMENT) * average.at(INSTRUMENT);
 
   return { instrument_effect_numerator / first_stage_numerator };
 }
