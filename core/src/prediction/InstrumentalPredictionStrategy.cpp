@@ -38,18 +38,20 @@ size_t InstrumentalPredictionStrategy::prediction_length() const {
     return 1;
 }
 
-// In the presence of sample weights Gi, the score condition for IV forests
-// is E[psi_{mu(x),tau(x)}(Yi, Wi, Zi, Gi) | Xi = x] = 0, where
-//
-// psi_{mu,tau}^1(Yi, Wi, Zi, Gi) = Gi Zi (Yi - Wi tau - mu),
-// psi_{mu,tau}^2(Yi, Wi, Zi, Gi) = Gi (Yi - Wi tau - mu),
-//
-// which yields an expression for tau(x):
-//
-// tau(x) = (E[Gi Zi Yi | Xi = x] * E[Gi | Xi = x] - E[Gi Zi| Xi = x] * E[Gi Yi | Xi = x])
-//             / (E[Gi Zi Wi | Xi = x] * E[Gi | Xi = x] - E[Gi Zi| Xi = x] * E[Gi Wi | Xi = x]).
-//
-// We then estimate all conditional expectations via forest weighting.
+/**
+ * In the presence of sample weights Gi, the score condition for IV forests
+ * is E[psi_{mu(x),tau(x)}(Yi, Wi, Zi, Gi) | Xi = x] = 0, where
+ *
+ * psi_{mu,tau}^1(Yi, Wi, Zi, Gi) = Gi Zi (Yi - Wi tau - mu),
+ * psi_{mu,tau}^2(Yi, Wi, Zi, Gi) = Gi (Yi - Wi tau - mu),
+ *
+ * which yields an expression for tau(x):
+ *
+ * tau(x) = (E[Gi Zi Yi | Xi = x] * E[Gi | Xi = x] - E[Gi Zi| Xi = x] * E[Gi Yi | Xi = x])
+ *             / (E[Gi Zi Wi | Xi = x] * E[Gi | Xi = x] - E[Gi Zi| Xi = x] * E[Gi Wi | Xi = x]).
+ *
+ * We then estimate all conditional expectations via forest weighting.
+ */
 std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<double>& average) const {
   double instrument_effect_numerator = average.at(OUTCOME_INSTRUMENT) * average.at(WEIGHT)
     - average.at(OUTCOME) * average.at(INSTRUMENT);
@@ -59,22 +61,24 @@ std::vector<double> InstrumentalPredictionStrategy::predict(const std::vector<do
   return { instrument_effect_numerator / first_stage_numerator };
 }
 
-// Continuing from above, the Hessian V(x) associated with our estimating equation is
-//
-// V11(x) = E[Gi Zi Wi | Xi = x],
-// V12(x) = E[Gi Zi | Xi = x],
-// V21(x) = E[Gi Wi | Xi = x],
-// V22(x) = E[Gi | Xi = x].
-//
-// To estimate the variance, we use the bootstrap of little bags delta
-// method, which is equivalent to using a bootstrap of little bags with
-// pseudo outcomes (all "hat" omitted in second expression for conciseness):
-//
-// rhoi = \xi' hat{V}^{-1} psi_{hat{mu}, hat{tau}}(Yi, Wi, Zi, Gi)
-//      = (E[Gi | Xi = x] * Gi Zi (Yi - Wi tau - mu) - E[Gi Zi | Xi = x] * Gi (Yi - Wi tau - mu))
-//           / (E[Gi Zi Wi | Xi = x] * E[Gi | Xi = x] - E[Gi Zi| Xi = x] * E[Gi Wi | Xi = x]).
-// \xi = (1 0)
-// As usual, we take forest-weighted estimates for the unknown quantities.
+/**
+ * Continuing from above, the Hessian V(x) associated with our estimating equation is
+ *
+ * V11(x) = E[Gi Zi Wi | Xi = x],
+ * V12(x) = E[Gi Zi | Xi = x],
+ * V21(x) = E[Gi Wi | Xi = x],
+ * V22(x) = E[Gi | Xi = x].
+ *
+ * To estimate the variance, we use the bootstrap of little bags delta
+ * method, which is equivalent to using a bootstrap of little bags with
+ * pseudo outcomes (all "hat" omitted in second expression for conciseness):
+ *
+ * rhoi = \xi' hat{V}^{-1} psi_{hat{mu}, hat{tau}}(Yi, Wi, Zi, Gi)
+ *      = (E[Gi | Xi = x] * Gi Zi (Yi - Wi tau - mu) - E[Gi Zi | Xi = x] * Gi (Yi - Wi tau - mu))
+ *           / (E[Gi Zi Wi | Xi = x] * E[Gi | Xi = x] - E[Gi Zi| Xi = x] * E[Gi Wi | Xi = x]).
+ * \xi = (1 0)
+ * As usual, we take forest-weighted estimates for the unknown quantities.
+ */
 std::vector<double> InstrumentalPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
