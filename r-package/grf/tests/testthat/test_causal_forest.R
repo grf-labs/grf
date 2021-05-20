@@ -209,6 +209,34 @@ test_that("IPCC weighting in the training of a causal forest with missing data i
   expect_lt(mse(weighted.forest) / mse(forest), .9)
 })
 
+test_that("sample weighted causal forest gives correct coverage", {
+  n <- 2500
+  p <- 5
+  pA <- 0.2
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  A <- rbinom(n, 1, pA)
+  gamma = A / pA + (1 - A) / (1 - pA)
+  tau.true <- 1 / (1 + exp(-3 * X[,1]))
+  Y <- 2 * tau.true * W * A + rnorm(n)
+
+  cf <- causal_forest(X, Y, W, W.hat = 0.5, sample.weights = gamma)
+  preds <- predict(cf, estimate.variance = TRUE)
+  zstat <- (preds$predictions - tau.true) / sqrt(preds$variance.estimates)
+  coverage <- mean(abs(zstat) < 1.96)
+  mse <- mean((preds$predictions - tau.true)^2)
+
+  cf.noweight <- causal_forest(X, Y, W, W.hat = 0.5)
+  preds.noweight <- predict(cf.noweight, estimate.variance = TRUE)
+  zstat.noweight <- (preds.noweight$predictions - tau.true) / sqrt(preds.noweight$variance.estimates)
+  coverage.noweight <- mean(abs(zstat.noweight) < 1.96)
+  mse.noweight <- mean((preds.noweight$predictions - tau.true)^2)
+
+  expect_lt(mse / mse.noweight, 0.3)
+  expect_gt(coverage, 0.8)
+  expect_lt(coverage.noweight, 0.55)
+})
+
 test_that("Weighting is roughly equivalent to replication of samples", {
   n <- 500
   p <- 2
