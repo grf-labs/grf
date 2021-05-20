@@ -104,13 +104,10 @@
 #'           type = "l", lty = 2)
 #'
 #' # Compute OOB concordance based on the mortality score in Ishwaran et al. (2008).
-#' # This number is between zero and one, where zero indicates perfect predictions.
 #' s.pred.nelson.aalen <- predict(s.forest, prediction.type = "Nelson-Aalen")
 #' chf.score <- rowSums(-log(s.pred.nelson.aalen$predictions))
-#' # In case the forest is trained with optional clusters or sample weights,
-#' # these can be passed on to the following function:
 #' if (require("survival", quietly = TRUE)) {
-#'  concordance(Surv(Y, D) ~ chf.score)
+#'  concordance(Surv(Y, D) ~ chf.score, reverse = TRUE)
 #' }
 #' }
 #'
@@ -258,13 +255,10 @@ survival_forest <- function(X, Y, D,
 #'           type = "l", lty = 2)
 #'
 #' # Compute OOB concordance based on the mortality score in Ishwaran et al. (2008).
-#' # This number is between zero and one, where zero indicates perfect predictions.
 #' s.pred.nelson.aalen <- predict(s.forest, prediction.type = "Nelson-Aalen")
 #' chf.score <- rowSums(-log(s.pred.nelson.aalen$predictions))
-#' # In case the forest is trained with optional clusters or sample weights,
-#' # these can be passed on to the following function:
 #' if (require("survival", quietly = TRUE)) {
-#'  concordance(Surv(Y, D) ~ chf.score)
+#'  concordance(Surv(Y, D) ~ chf.score, reverse = TRUE)
 #' }
 #' }
 #'
