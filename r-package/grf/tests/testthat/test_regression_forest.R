@@ -247,6 +247,34 @@ test_that("inverse propensity weighting in the training of a regression forest w
   expect_lt(mse.ratio[["1st Qu."]], 0.85)
 })
 
+test_that("sample weighted regression forest gives correct coverage", {
+  n <- 2500
+  p <- 5
+  pA <- 0.2
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  A <- rbinom(n, 1, pA)
+  gamma <- A / pA + (1 - A) / (1 - pA)
+  Y.true <- 1 / (1 + exp(-3 * X[,1]))
+  Y <- 2 * Y.true * A + rnorm(n)
+
+  rf <- regression_forest(X, Y, sample.weights = gamma)
+  preds <- predict(rf, estimate.variance = TRUE)
+  zstat <- (preds$predictions - Y.true) / sqrt(preds$variance.estimates)
+  coverage <- mean(abs(zstat) < 1.96)
+  mse <- mean((preds$predictions - Y.true)^2)
+
+  rf.noweight <- regression_forest(X, Y)
+  preds.noweight <- predict(rf.noweight, estimate.variance = TRUE)
+  zstat.noweight <- (preds.noweight$predictions - Y.true) / sqrt(preds.noweight$variance.estimates)
+  coverage.noweight <- mean(abs(zstat.noweight) < 1.96)
+  mse.noweight <- mean((preds.noweight$predictions - Y.true)^2)
+
+  expect_lt(mse / mse.noweight, 0.3)
+  expect_gt(coverage, 0.8)
+  expect_lt(coverage.noweight, 0.55)
+})
+
 test_that("sample weighted regression forest is identical to replicating samples", {
   # To make these forests comparable sample.fraction has to be 1 to draw the same samples
   # and min.node.size 1 for the split stopping condition to be the same.

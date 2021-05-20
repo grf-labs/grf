@@ -216,7 +216,7 @@ test_that("sample weighted causal forest gives correct coverage", {
   X <- matrix(rnorm(n * p), n, p)
   W <- rbinom(n, 1, 0.5)
   A <- rbinom(n, 1, pA)
-  gamma = A / pA + (1 - A) / (1 - pA)
+  gamma <- A / pA + (1 - A) / (1 - pA)
   tau.true <- 1 / (1 + exp(-3 * X[,1]))
   Y <- 2 * tau.true * W * A + rnorm(n)
 
