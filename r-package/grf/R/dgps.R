@@ -144,7 +144,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
     mu_1 <- mu_0 + tau + rnorm(n = n)
     e <- rep(0.01, n)
     W <- rbinom(n = n, size = 1, prob = e)
-    m <- W * mu_1 + (1 - W) * mu_0 - (W - e) * tau
+    m <- c(W * mu_1 + (1 - W) * mu_0 - (W - e) * tau)
     V <- 1
   } else if (dgp == "nw1") {
     # "Setup A" from Section 4 of https://arxiv.org/pdf/1712.04912.pdf
