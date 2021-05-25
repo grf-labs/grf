@@ -336,7 +336,7 @@ hist(W.hat, xlab = "propensity score")
 
 If there is strong overlap, the histogram will be concentrated away from 0 and 1. If the data is instead concentrated at the extremes, the overlap assumption likely does not hold.
 
-For further discussion of the overlap assumption, please see Imbens and Rubin (2015). In practice, this assumption is often violated due to incorrect modelling decision: for example one covariate may be a deterministic indicator that the example received treatment.
+For further discussion of the overlap assumption, please see Imbens and Rubin (2015). In practice, this assumption is often violated due to incorrect modeling decision: for example one covariate may be a deterministic indicator that the example received treatment.
 
 ### Regression forest predictions differ from those of the randomForest and ranger packages.
 
