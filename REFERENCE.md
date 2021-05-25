@@ -320,6 +320,15 @@ If you observe poor performance on a dataset with a small number of examples, th
 - Adjusting honesty parameters during training. When honesty is enabled, the training subsample is further split in half before performing splitting. This may not leave enough information for the algorithm to determine high-quality splits. The section above on the `honesty` parameter gives guidance on how to mitigate the issue.
 - Skipping the variance estimate computation by setting `ci.group.size` to 1 during training, then increasing `sample.fraction`. Because of how variance estimation is implemented, `sample.fraction` cannot be greater than 0.5 when it is enabled. If variance estimates are not needed, it may help to disable this computation and use a larger subsample size for training.
 
+
+### GRF isn't working well on a massive dataset.
+
+GRF is a package designed for forest-based estimation on datasets of 'moderate' size. The tree building process can be sped up significantly on a machine with many cores, but note that on very large datasets the problem quickly becomes memory bound, due the information (sufficient statistics, etc.) stored by each tree. As a point of reference a `causal_forest` with 1 000 000 observations of 30 continuous covariates takes around 1 hour to train (using default settings on a machine with 24 cores and 150GB RAM), and the final forest takes up ca. 25 GB of memory (this is expected to scale linearly in the number of trees). In order to make forest training on very large data more managable, we provide the following recommendations:
+- Increase `min.node.size`, effectively growing shallower trees.
+- Decrease the subsampling rate `sample.fraction`, reducing the number of samples per tree.
+- Split up training and take a union of forests on a machine with more ram using `merge_forests` (note that merging is still a copy inducing operation).
+- For a moderate gain in speed, on could also round down continuous covariates, effectively reducing the number of split points to search over.
+
 ### The variance estimates are jumpy or very large.
 
 In this case, it would be good to try growing a larger number of trees. Obtaining good variance estimates often requires growing more trees than it takes to only obtain accurate predictions. See the discussion under [`num.trees`](#numtrees) and [Merging Forests](#merging-forests).
