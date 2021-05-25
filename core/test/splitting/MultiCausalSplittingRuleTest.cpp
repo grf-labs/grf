@@ -28,8 +28,8 @@
 
 using namespace grf;
 
-// Splitting rule input setup to emulate one run of node zero (all data) splitting on all features
-// returning a vector containing the best split variable, best split value, and missing direction.
+// Splitting rule input setup to emulate one run of node zero (first `size_node` observations) splitting
+// on all features returning a vector containing the best split variable, best split value, and missing direction.
 std::vector<double> run_splits_multi(const Data& data,
                                      size_t size_node,
                                      const TreeOptions& options,
@@ -91,12 +91,14 @@ TEST_CASE("multi causal splitting with one treatment is identical to instrumenta
       num_treatments));
 
 
-  std::vector<double> inst = run_splits_multi(data, data.get_num_rows(), options, inst_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi = run_splits_multi(data, data.get_num_rows(), options, multi_splitting_rule, relabeling_strategy, num_features);
+  for (auto size_node : {1000, 500, 250, 113, 25, 10, 3}) {
+    std::vector<double> inst = run_splits_multi(data, size_node, options, inst_splitting_rule, relabeling_strategy, num_features);
+    std::vector<double> multi = run_splits_multi(data, size_node, options, multi_splitting_rule, relabeling_strategy, num_features);
 
-  REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
-  REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
-  REQUIRE(equal_doubles(inst[2], multi[2], 1e-6));
+    REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
+    REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
+    REQUIRE(equal_doubles(inst[2], multi[2], 1e-6));
+  }
 }
 
 TEST_CASE("multi causal splitting with one treatment on NaN data is identical to instrumental splitting", "[multi_causal], [splitting], [NaN]") {
@@ -124,13 +126,14 @@ TEST_CASE("multi causal splitting with one treatment on NaN data is identical to
       1,
       num_treatments));
 
+  for (auto size_node : {1000, 500, 250, 113, 25, 10, 3}) {
+    std::vector<double> inst = run_splits_multi(data, size_node, options, inst_splitting_rule, relabeling_strategy, num_features);
+    std::vector<double> multi = run_splits_multi(data, size_node, options, multi_splitting_rule, relabeling_strategy, num_features);
 
-  std::vector<double> inst = run_splits_multi(data, data.get_num_rows(), options, inst_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi = run_splits_multi(data, data.get_num_rows(), options, multi_splitting_rule, relabeling_strategy, num_features);
-
-  REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
-  REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
-  REQUIRE(equal_doubles(inst[2], multi[2], 1e-6));
+    REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
+    REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
+    REQUIRE(equal_doubles(inst[2], multi[2], 1e-6));
+  }
 }
 
 TEST_CASE("multi causal splitting with many identical treatments is identical to instrumental splitting", "[multi_causal], [splitting]") {
@@ -160,12 +163,14 @@ TEST_CASE("multi causal splitting with many identical treatments is identical to
       num_treatments));
 
 
-  std::vector<double> inst = run_splits_multi(data, data.get_num_rows(), options, inst_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi = run_splits_multi(data, data.get_num_rows(), options, multi_splitting_rule, relabeling_strategy, num_features);
+  for (auto size_node : {1000, 500, 250, 113, 25, 10, 3}) {
+    std::vector<double> inst = run_splits_multi(data, size_node, options, inst_splitting_rule, relabeling_strategy, num_features);
+    std::vector<double> multi = run_splits_multi(data, size_node, options, multi_splitting_rule, relabeling_strategy, num_features);
 
-  REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
-  REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
-  REQUIRE(equal_doubles(inst[2], multi[2], 1e-6));
+    REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
+    REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
+    REQUIRE(equal_doubles(inst[2], multi[2], 1e-6));
+  }
 }
 
 TEST_CASE("multi causal splitting with many identical treatments on NaN data is identical to instrumental splitting", "[multi_causal], [splitting], [NaN]") {
@@ -193,11 +198,12 @@ TEST_CASE("multi causal splitting with many identical treatments on NaN data is 
       1,
       num_treatments));
 
+  for (auto size_node : {1000, 500, 250, 113, 25, 10, 3}) {
+    std::vector<double> inst = run_splits_multi(data, size_node, options, inst_splitting_rule, relabeling_strategy, num_features);
+    std::vector<double> multi = run_splits_multi(data, size_node, options, multi_splitting_rule, relabeling_strategy, num_features);
 
-  std::vector<double> inst = run_splits_multi(data, data.get_num_rows(), options, inst_splitting_rule, relabeling_strategy, num_features);
-  std::vector<double> multi = run_splits_multi(data, data.get_num_rows(), options, multi_splitting_rule, relabeling_strategy, num_features);
-
-  REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
-  REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
-  REQUIRE(equal_doubles(inst[2], multi[2], 1e-6));
+    REQUIRE(equal_doubles(inst[0], multi[0], 1e-6));
+    REQUIRE(equal_doubles(inst[1], multi[1], 1e-6));
+    REQUIRE(equal_doubles(inst[2], multi[2], 1e-6));
+  }
 }
