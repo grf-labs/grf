@@ -155,7 +155,7 @@
 #'
 #' # These can also be obtained with some array manipulations.
 #' # With the first colum as baseline we have:
-#' Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1] * tau.hat)
+#' Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1, drop = FALSE] * tau.hat)
 #' mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat)
 #' colnames(mu.hat.matrix) <- levels(W)
 #' head(mu.hat.matrix)
@@ -356,7 +356,7 @@ multi_arm_causal_forest <- function(X, Y, W,
 #'
 #' # These can also be obtained with some array manipulations.
 #' # With the first colum as baseline we have:
-#' Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1] * tau.hat)
+#' Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1, drop = FALSE] * tau.hat)
 #' mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat)
 #' colnames(mu.hat.matrix) <- levels(W)
 #' head(mu.hat.matrix)
