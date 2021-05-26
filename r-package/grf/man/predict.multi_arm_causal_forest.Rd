@@ -88,7 +88,7 @@ muB <- Y.hat + (1 - W.hat[, "B"]) * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[
 muC <- Y.hat - W.hat[, "B"] * tau.hat[, "B - A"] + (1 - W.hat[, "C"]) * tau.hat[, "C - A"]
 
 # These can also be obtained with some array manipulations.
-# With the first colum as baseline we have:
+# (the first column is always the baseline arm)
 Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1, drop = FALSE] * tau.hat)
 mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat)
 colnames(mu.hat.matrix) <- levels(W)
