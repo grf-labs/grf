@@ -380,9 +380,9 @@ predict.multi_arm_causal_forest <- function(object,
   treatment.names <- levels(object[["W.orig"]])
   contrast.names <- paste(treatment.names[-1], "-", treatment.names[1])
   outcome.names <- if (is.null(colnames(object[["Y.orig"]]))) {
-    paste0("Y", 1:NCOL(object[["Y.orig"]]))
+    paste("Y", 1:NCOL(object[["Y.orig"]]), sep = ".")
   } else {
-    colnames(object[["Y.orig"]])
+    make.names(colnames(object[["Y.orig"]]), unique = TRUE)
   }
   # Note the term `num.treatments` is overloaded, in multi_arm_causal_forest's context it means `num.contrasts`
   num.treatments <- length(treatment.names) - 1
