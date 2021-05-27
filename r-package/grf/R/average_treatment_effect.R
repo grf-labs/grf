@@ -226,7 +226,8 @@ average_treatment_effect <- function(forest,
         estimate = unlist(tau.hats),
         std.err = sqrt(unlist(sigma2.hats)),
         contrast = names(unlist(tau.hats)),
-        outcome = dimnames(DR.scores)[[3]][rep(1:NCOL(forest$Y.orig), each = dim(DR.scores)[2])]
+        outcome = dimnames(DR.scores)[[3]][rep(1:NCOL(forest$Y.orig), each = dim(DR.scores)[2])],
+        stringsAsFactors = FALSE
       )
       return(out) # rownames will be `contrast` when suitable, allowing a convenient `ate["contrast", "estimate"]` access.
     } else {
