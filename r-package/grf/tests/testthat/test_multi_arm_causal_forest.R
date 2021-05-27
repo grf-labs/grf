@@ -25,7 +25,8 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   expect_equal(mean(pp.cf$predictions), mean(pp.mcf$predictions), tolerance = 0.05)
   expect_equal(mean((predict(cf, X)$predictions - predict(mcf, X)$predictions)^2), 0, tolerance = 0.05)
   expect_equal(mean(predict(cf, X)$predictions), mean(predict(mcf, X)$predictions), tolerance = 0.05)
-  expect_equal(average_treatment_effect(cf), average_treatment_effect(mcf)[,], tolerance = 0.001)
+  expect_equal(average_treatment_effect(cf)[["estimate"]], average_treatment_effect(mcf)[["estimate"]], tolerance = 0.001)
+  expect_equal(average_treatment_effect(cf)[["std.err"]], average_treatment_effect(mcf)[["std.err"]], tolerance = 0.001)
 
   # Same checks with standard unconstrained regression splits.
   cf.rsplit <- causal_forest(X, Y, W, W.hat = 1/2, Y.hat = 0, seed = 42, num.trees = 500, stabilize.splits = FALSE)
@@ -41,7 +42,8 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   expect_equal(mean(pp.cf.rsplit$predictions), mean(pp.mcf.rsplit$predictions), tolerance = 0.05)
   expect_equal(mean((predict(cf.rsplit, X)$predictions - predict(mcf.rsplit, X)$predictions)^2), 0, tolerance = 0.05)
   expect_equal(mean(predict(cf.rsplit, X)$predictions), mean(predict(mcf.rsplit, X)$predictions), tolerance = 0.05)
-  expect_equal(average_treatment_effect(cf.rsplit), average_treatment_effect(mcf.rsplit)[,], tolerance = 0.001)
+  expect_equal(average_treatment_effect(cf.rsplit)[["estimate"]], average_treatment_effect(mcf.rsplit)[["estimate"]], tolerance = 0.001)
+  expect_equal(average_treatment_effect(cf.rsplit)[["estimate"]], average_treatment_effect(mcf.rsplit)[["estimate"]], tolerance = 0.001)
 })
 
 test_that("multi_arm_causal_forest contrasts works as expected", {
@@ -151,7 +153,7 @@ test_that("multi_arm_causal_forest ATE standard errors are consistent with rest 
   ate <- average_treatment_effect(mcf)
   DR.scores <- get_scores(mcf)
 
-  lm.test <- lmtest::coeftest(lm(DR.scores ~ 1),
+  lm.test <- lmtest::coeftest(lm(DR.scores[,,] ~ 1),
                               vcov = sandwich::vcovCL,
                               type = "HC3",
                               cluster = clusters <- if (length(mcf$clusters) > 0)
