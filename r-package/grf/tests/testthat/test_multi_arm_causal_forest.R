@@ -43,7 +43,7 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   expect_equal(mean((predict(cf.rsplit, X)$predictions - predict(mcf.rsplit, X)$predictions)^2), 0, tolerance = 0.05)
   expect_equal(mean(predict(cf.rsplit, X)$predictions), mean(predict(mcf.rsplit, X)$predictions), tolerance = 0.05)
   expect_equal(average_treatment_effect(cf.rsplit)[["estimate"]], average_treatment_effect(mcf.rsplit)[["estimate"]], tolerance = 0.001)
-  expect_equal(average_treatment_effect(cf.rsplit)[["estimate"]], average_treatment_effect(mcf.rsplit)[["estimate"]], tolerance = 0.001)
+  expect_equal(average_treatment_effect(cf.rsplit)[["std.err"]], average_treatment_effect(mcf.rsplit)[["std.err"]], tolerance = 0.001)
 })
 
 test_that("multi_arm_causal_forest contrasts works as expected", {
