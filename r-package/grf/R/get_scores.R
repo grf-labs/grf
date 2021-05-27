@@ -273,7 +273,7 @@ get_scores.multi_arm_causal_forest <- function(forest,
 
   scores <- lapply(1:NCOL(forest$Y.orig), function(col) .get.scores(col))
 
-  array(unlist(scores), dim = dim(forest.pp$predictions), dimnames = dimnames(forest.pp$predictions))
+  array(unlist(scores), dim = c(length(subset), dim(forest.pp$predictions)[-1]), dimnames = dimnames(forest.pp$predictions))
 }
 
 #' Compute doubly robust scores for a causal survival forest.
