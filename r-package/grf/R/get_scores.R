@@ -224,36 +224,19 @@ get_scores.instrumental_forest <- function(forest,
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
-#' @param outcome In the event the forest is trained with multiple outcomes Y,
-#'                a column number/name specifying the outcome of interest. Default is 1.
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return A matrix of scores for each contrast.
+#' @return An array of scores for each contrast and outcome.
 #'
 #' @method get_scores multi_arm_causal_forest
 #' @export
 get_scores.multi_arm_causal_forest <- function(forest,
                                                subset = NULL,
-                                               outcome = 1,
                                                ...) {
-  outcome <- outcome[1]
-  if (!outcome %in% 1:NCOL(forest$Y.orig)) {
-    outcome <- match(outcome, colnames(forest$Y.orig, do.NULL = FALSE))
-    if (is.na(outcome)) {
-      stop("`outcome` should be a column number/name specifying a column in Y.")
-    }
-  } else {
-    outcome <- as.integer(outcome)
-  }
   subset <- validate_subset(forest, subset)
   W.orig <- forest$W.orig[subset]
   W.hat <- forest$W.hat[subset, , drop = FALSE]
-  Y.orig <- forest$Y.orig[subset, outcome]
-  Y.hat <- forest$Y.hat[subset, outcome]
-  tau.hat.pointwise <- predict(forest)$predictions[subset, , outcome]
-
   treatment.names <- levels(W.orig)
-  num.treatments <- length(treatment.names)
   observed.treatment <- match(W.orig, treatment.names)
   observed.treatment.idx <- cbind(seq_along(subset), observed.treatment)
   contrast.names <- paste(treatment.names[-1], "-", treatment.names[1])
@@ -264,26 +247,33 @@ get_scores.multi_arm_causal_forest <- function(forest,
     warning(paste0(
       "Estimated treatment propensities take values very close to 0 or 1",
       " meaning some estimates may not be well identified.",
-      " In particular, the minimum propensity estimates for each arm is ",
+      " In particular, the minimum propensity estimates for each arm is\n",
       paste0(treatment.names, ": ", round(min, 3), collapse = " "),
-      " and the maximum is ",
+      "\nand the maximum is\n",
       paste0(treatment.names, ": ", round(max, 3), collapse = " "),
       "."
     ))
   }
-
   W.hat <- W.hat[, -1, drop = FALSE]
-  Y.hat.baseline <- Y.hat - rowSums(W.hat * tau.hat.pointwise)
-  mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat.pointwise)
-  Y.residual <- Y.orig - mu.hat.matrix[observed.treatment.idx]
-
   W.matrix <- stats::model.matrix(~ W.orig - 1)
   IPW <- (W.matrix[, -1] - W.hat) / (W.hat * (1 - W.hat))
+  forest.pp <- predict(forest)
 
-  out <- tau.hat.pointwise + IPW * Y.residual
-  colnames(out) <- contrast.names
+  .get.scores <- function(outcome) {
+    Y.orig <- forest$Y.orig[subset, outcome]
+    Y.hat <- forest$Y.hat[subset, outcome]
+    tau.hat.pointwise <- forest.pp$predictions[subset, , outcome]
 
-  out
+    Y.hat.baseline <- Y.hat - rowSums(W.hat * tau.hat.pointwise)
+    mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat.pointwise)
+    Y.residual <- Y.orig - mu.hat.matrix[observed.treatment.idx]
+
+    tau.hat.pointwise + IPW * Y.residual
+  }
+
+  scores <- lapply(1:NCOL(forest$Y.orig), function(col) .get.scores(col))
+
+  array(unlist(scores), dim = dim(forest.pp$predictions), dimnames = dimnames(forest.pp$predictions))
 }
 
 #' Compute doubly robust scores for a causal survival forest.
