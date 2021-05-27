@@ -4,7 +4,7 @@
 \alias{get_scores.multi_arm_causal_forest}
 \title{Compute doubly robust scores for a multi arm causal forest.}
 \usage{
-\method{get_scores}{multi_arm_causal_forest}(forest, subset = NULL, outcome = 1, ...)
+\method{get_scores}{multi_arm_causal_forest}(forest, subset = NULL, ...)
 }
 \arguments{
 \item{forest}{A trained multi arm causal forest.}
@@ -14,13 +14,10 @@ estimate the ATE. WARNING: For valid statistical performance,
 the subset should be defined only using features Xi, not using
 the treatment Wi or the outcome Yi.}
 
-\item{outcome}{In the event the forest is trained with multiple outcomes Y,
-a column number/name specifying the outcome of interest. Default is 1.}
-
 \item{...}{Additional arguments (currently ignored).}
 }
 \value{
-A matrix of scores for each contrast.
+An array of scores for each contrast and outcome.
 }
 \description{
 Compute doubly robust (AIPW) scores for average treatment effect estimation

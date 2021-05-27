@@ -180,8 +180,6 @@ abline(0, -1.5, col = "red")
 legend("topleft", c("B - A", "C - A"), col = c("black", "blue"), pch = 19)
 
 # The average treatment effect of the arms with "A" as baseline.
-# (in the event the forest is fit with multiple Ys, specify the
-# response variable with the `outcome` argument)
 average_treatment_effect(mc.forest)
 
 # The conditional response surfaces mu_k(X) can be reconstructed from the
@@ -202,8 +200,8 @@ muB <- Y.hat + (1 - W.hat[, "B"]) * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[
 muC <- Y.hat - W.hat[, "B"] * tau.hat[, "B - A"] + (1 - W.hat[, "C"]) * tau.hat[, "C - A"]
 
 # These can also be obtained with some array manipulations.
-# With the first colum as baseline we have:
-Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1] * tau.hat)
+# (the first column is always the baseline arm)
+Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1, drop = FALSE] * tau.hat)
 mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat)
 colnames(mu.hat.matrix) <- levels(W)
 head(mu.hat.matrix)

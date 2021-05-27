@@ -25,7 +25,8 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   expect_equal(mean(pp.cf$predictions), mean(pp.mcf$predictions), tolerance = 0.05)
   expect_equal(mean((predict(cf, X)$predictions - predict(mcf, X)$predictions)^2), 0, tolerance = 0.05)
   expect_equal(mean(predict(cf, X)$predictions), mean(predict(mcf, X)$predictions), tolerance = 0.05)
-  expect_equal(average_treatment_effect(cf), average_treatment_effect(mcf)[,], tolerance = 0.001)
+  expect_equal(average_treatment_effect(cf)[["estimate"]], average_treatment_effect(mcf)[["estimate"]], tolerance = 0.001)
+  expect_equal(average_treatment_effect(cf)[["std.err"]], average_treatment_effect(mcf)[["std.err"]], tolerance = 0.001)
 
   # Same checks with standard unconstrained regression splits.
   cf.rsplit <- causal_forest(X, Y, W, W.hat = 1/2, Y.hat = 0, seed = 42, num.trees = 500, stabilize.splits = FALSE)
@@ -41,7 +42,8 @@ test_that("single treatment multi_arm_causal_forest is similar to causal_forest"
   expect_equal(mean(pp.cf.rsplit$predictions), mean(pp.mcf.rsplit$predictions), tolerance = 0.05)
   expect_equal(mean((predict(cf.rsplit, X)$predictions - predict(mcf.rsplit, X)$predictions)^2), 0, tolerance = 0.05)
   expect_equal(mean(predict(cf.rsplit, X)$predictions), mean(predict(mcf.rsplit, X)$predictions), tolerance = 0.05)
-  expect_equal(average_treatment_effect(cf.rsplit), average_treatment_effect(mcf.rsplit)[,], tolerance = 0.001)
+  expect_equal(average_treatment_effect(cf.rsplit)[["estimate"]], average_treatment_effect(mcf.rsplit)[["estimate"]], tolerance = 0.001)
+  expect_equal(average_treatment_effect(cf.rsplit)[["std.err"]], average_treatment_effect(mcf.rsplit)[["std.err"]], tolerance = 0.001)
 })
 
 test_that("multi_arm_causal_forest contrasts works as expected", {
@@ -151,7 +153,7 @@ test_that("multi_arm_causal_forest ATE standard errors are consistent with rest 
   ate <- average_treatment_effect(mcf)
   DR.scores <- get_scores(mcf)
 
-  lm.test <- lmtest::coeftest(lm(DR.scores ~ 1),
+  lm.test <- lmtest::coeftest(lm(DR.scores[,,] ~ 1),
                               vcov = sandwich::vcovCL,
                               type = "HC3",
                               cluster = clusters <- if (length(mcf$clusters) > 0)
@@ -242,32 +244,40 @@ test_that("multi_arm_causal_forest with multiple outcomes works as expected", {
   # A multi arm causal forest trained on Y is identical to one trained on [Y 0]
   rf <- multi_arm_causal_forest(X, Y, W, Y.hat = 0, W.hat = c(1/3, 1/3, 1/3),
                                 num.trees = 200, seed = 42)
-  mrf <- multi_arm_causal_forest(X, cbind(Y, 0), W, Y.hat = c(0, 0), W.hat = c(1/3, 1/3, 1/3),
+  ate.rf <- average_treatment_effect(rf)
+  row.names(ate.rf) <- NULL
+  mrf <- multi_arm_causal_forest(X, cbind(Y.1 = Y, 0), W, Y.hat = c(0, 0), W.hat = c(1/3, 1/3, 1/3),
                                  num.trees = 200, seed = 42)
 
   expect_equal(predict(rf)$predictions[,,], predict(mrf)$predictions[, , 1])
   expect_equal(predict(rf, X)$predictions[,,], predict(mrf, X)$predictions[, , 1])
   expect_equal(dim(predict(mrf)$predictions), c(n, 2, 2))
-  expect_equal(average_treatment_effect(rf), average_treatment_effect(mrf))
+  ate.mrf <- average_treatment_effect(mrf)[1:2, ]
+  row.names(mrf) <- NULL
+  expect_equal(ate.rf, ate.mrf)
 
   # The above logic holds "symmetrically"
   # A multi arm causal forest trained on Y is identical to one trained on [0 Y]
-  mrf <- multi_arm_causal_forest(X, cbind(0, Y), W, Y.hat = c(0, 0), W.hat = c(1/3, 1/3, 1/3),
+  mrf <- multi_arm_causal_forest(X, cbind(0, Y.1 = Y), W, Y.hat = c(0, 0), W.hat = c(1/3, 1/3, 1/3),
                                  num.trees = 200, seed = 42)
 
   expect_equal(predict(rf)$predictions[,,], predict(mrf)$predictions[, , 2])
   expect_equal(predict(rf, X)$predictions[,,], predict(mrf, X)$predictions[, , 2])
   expect_equal(dim(predict(mrf)$predictions), c(n, 2, 2))
-  expect_equal(average_treatment_effect(rf), average_treatment_effect(mrf, outcome = 2))
+  ate.mrf <- average_treatment_effect(mrf)[3:4, ]
+  row.names(ate.mrf) <- NULL
+  expect_equal(ate.rf, ate.mrf)
 
   # A multi arm causal forest trained on Y is identical to one trained on [0 0 Y 0 0 0]
-  mrf <- multi_arm_causal_forest(X, cbind(0, 0, Y, 0, 0, 0), W, Y.hat = rep(0, 6), W.hat = c(1/3, 1/3, 1/3),
+  mrf <- multi_arm_causal_forest(X, cbind(0, 0, Y.1 = Y, 0, 0, 0), W, Y.hat = rep(0, 6), W.hat = c(1/3, 1/3, 1/3),
                                  num.trees = 200, seed = 42)
 
   expect_equal(predict(rf)$predictions[,,], predict(mrf)$predictions[, , 3])
   expect_equal(predict(rf, X)$predictions[,,], predict(mrf, X)$predictions[, , 3])
   expect_equal(dim(predict(mrf)$predictions), c(n, 2, 6))
-  expect_equal(average_treatment_effect(rf), average_treatment_effect(mrf, outcome = 3))
+  ate.mrf <- average_treatment_effect(mrf)[5:6, ]
+  row.names(ate.mrf) <- NULL
+  expect_equal(ate.rf, ate.mrf)
 
   # A multi arm causal forest trained on duplicated Y's yields the same result
   n <- 500
@@ -281,20 +291,13 @@ test_that("multi_arm_causal_forest with multiple outcomes works as expected", {
   mrf.dup <- multi_arm_causal_forest(X, cbind(YY, YY), W, Y.hat = rep(0, 4), W.hat = c(1/3, 1/3, 1/3),
                                      num.trees = 200, seed = 42)
 
-  expect_equal(predict(mrf)$predictions, predict(mrf.dup)$predictions[, , 1:2])
-  expect_equal(predict(mrf)$predictions, predict(mrf.dup)$predictions[, , 3:4])
-  expect_equal(average_treatment_effect(mrf, outcome = 1), average_treatment_effect(mrf.dup, outcome = 1))
-  expect_equal(average_treatment_effect(mrf, outcome = 1), average_treatment_effect(mrf.dup, outcome = 3))
-  expect_equal(average_treatment_effect(mrf, outcome = 2), average_treatment_effect(mrf.dup, outcome = 2))
-  expect_equal(average_treatment_effect(mrf, outcome = 2), average_treatment_effect(mrf.dup, outcome = 4))
-
-  # Named outcome argument works as expected
-  mrf.Yname <- multi_arm_causal_forest(X, cbind(runif(n), orange = runif(n), apple = rnorm(n)),
-                                       W, Y.hat = rep(0, 3), W.hat = c(1/3, 1/3, 1/3),
-                                       num.trees = 200, seed = 42)
-  expect_equal(average_treatment_effect(mrf.Yname, outcome = 1), average_treatment_effect(mrf.Yname, outcome = "1"))
-  expect_equal(average_treatment_effect(mrf.Yname, outcome = 2), average_treatment_effect(mrf.Yname, outcome = "orange"))
-  expect_equal(average_treatment_effect(mrf.Yname, outcome = 3), average_treatment_effect(mrf.Yname, outcome = "apple"))
+  expect_equal(unname(predict(mrf)$predictions), unname(predict(mrf.dup)$predictions[, , 1:2]))
+  expect_equal(unname(predict(mrf)$predictions), unname(predict(mrf.dup)$predictions[, , 3:4]))
+  expect_equal(average_treatment_effect(mrf), average_treatment_effect(mrf.dup)[1:4, ])
+  df1 <- average_treatment_effect(mrf)[, -4]
+  df2 <- average_treatment_effect(mrf.dup)[5:8, -4]
+  row.names(df2) <- NULL
+  expect_equal(df1, df2)
 })
 
 test_that("multi_arm_causal_forest with multiple outcomes is well calibrated", {
