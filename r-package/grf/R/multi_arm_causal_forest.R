@@ -132,8 +132,6 @@
 #' legend("topleft", c("B - A", "C - A"), col = c("black", "blue"), pch = 19)
 #'
 #' # The average treatment effect of the arms with "A" as baseline.
-#' # (in the event the forest is fit with multiple Ys, specify the
-#' # response variable with the `outcome` argument)
 #' average_treatment_effect(mc.forest)
 #'
 #' # The conditional response surfaces mu_k(X) can be reconstructed from the
@@ -333,8 +331,6 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' legend("topleft", c("B - A", "C - A"), col = c("black", "blue"), pch = 19)
 #'
 #' # The average treatment effect of the arms with "A" as baseline.
-#' # (in the event the forest is fit with multiple Ys, specify the
-#' # response variable with the `outcome` argument)
 #' average_treatment_effect(mc.forest)
 #'
 #' # The conditional response surfaces mu_k(X) can be reconstructed from the
