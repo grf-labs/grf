@@ -199,7 +199,7 @@ average_treatment_effect <- function(forest,
 
     .sigma2.hat <- function(DR.scores, tau.hat) {
       correction.clust <- Matrix::sparse.model.matrix(~ factor(subset.clusters) + 0, transpose = TRUE) %*%
-       (sweep(as.matrix(DR.scores), 2, tau.hat, "-") * subset.weights)
+        (sweep(as.matrix(DR.scores), 2, tau.hat, "-") * subset.weights)
 
       Matrix::colSums(correction.clust^2) / sum(subset.weights)^2 *
         nrow(correction.clust) / (nrow(correction.clust) - 1)
