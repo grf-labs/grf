@@ -65,8 +65,6 @@
 #'               treatment), we need to train auxiliary forests to learn debiasing weights.
 #'               This is the number of trees used for this task. Note: this argument is only
 #'               used when debiasing.weights = NULL.
-#' @param outcome Only used with multi arm causal forets. In the event the forest is trained
-#'                with multiple outcomes Y, a column number/name specifying the outcome of interest. Default is 1.
 #'
 #' @references Athey, Susan, and Stefan Wager. "Policy Learning With Observational Data."
 #'             Econometrica 89.1 (2021): 133-161.
@@ -128,8 +126,7 @@ average_treatment_effect <- function(forest,
                                      subset = NULL,
                                      debiasing.weights = NULL,
                                      compliance.score = NULL,
-                                     num.trees.for.weights = 500,
-                                     outcome = 1) {
+                                     num.trees.for.weights = 500) {
 
   target.sample <- match.arg(target.sample)
   method <- match.arg(method)
@@ -197,36 +194,44 @@ average_treatment_effect <- function(forest,
   }
 
   if (method == "AIPW" && target.sample == "all") {
-
     # This is the most general workflow, that shares codepaths with best linear projection
     # and other average effect estimators.
+
+    .sigma2.hat <- function(DR.scores, tau.hat) {
+      correction.clust <- Matrix::sparse.model.matrix(
+        ~ factor(subset.clusters) + 0,
+        transpose = TRUE
+      ) %*% (sweep(as.matrix(DR.scores), 2, tau.hat, "-") * subset.weights)
+
+      Matrix::colSums(correction.clust^2) / sum(subset.weights)^2 *
+        nrow(correction.clust) / (nrow(correction.clust) - 1)
+    }
 
     if (any(c("causal_forest", "instrumental_forest", "multi_arm_causal_forest", "causal_survival_forest")
             %in% class(forest))) {
       DR.scores <- get_scores(forest, subset = subset, debiasing.weights = debiasing.weights,
-                              compliance.score = compliance.score, num.trees.for.weights = num.trees.for.weights,
-                              outcome = outcome)
+                              compliance.score = compliance.score, num.trees.for.weights = num.trees.for.weights)
     } else {
       stop("Average treatment effects are not implemented for this forest type.")
     }
 
     if ("multi_arm_causal_forest" %in% class(forest)) {
-      tau.hat <- apply(DR.scores, 2, function(dr) weighted.mean(dr, subset.weights))
-      correction.clust <- Matrix::sparse.model.matrix(
-        ~ factor(subset.clusters) + 0,
-        transpose = TRUE
-      ) %*% (sweep(DR.scores, 2, tau.hat, "-") * subset.weights)
-      sigma2.hat <- Matrix::colSums(correction.clust^2) / sum(subset.weights)^2 *
-        nrow(correction.clust) / (nrow(correction.clust) - 1)
-      return(cbind(estimate = tau.hat, std.err = sqrt(sigma2.hat)))
+      tau.hats <- lapply(1:NCOL(forest$Y.orig), function(col) {
+        apply(DR.scores[, , col, drop = FALSE], 2, function(dr) weighted.mean(dr, subset.weights))
+      })
+      sigma2.hats <- lapply(1:NCOL(forest$Y.orig), function(col) {
+        .sigma2.hat(DR.scores[, , col], tau.hats[[col]])
+      })
+      out <- data.frame(
+        estimate = unlist(tau.hats),
+        std.err = sqrt(unlist(sigma2.hats)),
+        contrast = names(unlist(tau.hats)),
+        outcome = dimnames(DR.scores)[[3]][rep(1:NCOL(forest$Y.orig), each = dim(DR.scores)[2])]
+      )
+      return(out) # rownames will be `contrast` when suitable, allowing a convenient `ate["contrast", "estimate"]` access.
     } else {
       tau.hat <- weighted.mean(DR.scores, subset.weights)
-      correction.clust <- Matrix::sparse.model.matrix(
-        ~ factor(subset.clusters) + 0,
-        transpose = TRUE
-      ) %*% ((DR.scores - tau.hat) * subset.weights)
-      sigma2.hat <- sum(correction.clust^2) / sum(subset.weights)^2 *
-        length(correction.clust) / (length(correction.clust) - 1)
+      sigma2.hat <- .sigma2.hat(DR.scores, tau.hat)
       return(c(estimate = tau.hat, std.err = sqrt(sigma2.hat)))
     }
   }
