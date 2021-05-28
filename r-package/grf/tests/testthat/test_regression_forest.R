@@ -165,42 +165,114 @@ test_that("predictions are invariant to scaling of the sample weights.", {
   e <- 1 / (1 + exp(-3 * X[, 1]))
   sample.weights <- 1 / e
 
-  forest.1 <- regression_forest(X, Y, sample.weights = sample.weights)
-  forest.2 <- regression_forest(X, Y, sample.weights = 1e-6 * sample.weights)
-  expect_true(max(abs(forest.1$predictions - forest.2$predictions)) < .1)
-  # forests are built with different random seeds, hence possibly poor agreement
+  # The multiple is a power of 2 to avoid rounding errors allowing for exact comparison
+  # between two forest with the same seed.
+  forest.1 <- regression_forest(X, Y, sample.weights = sample.weights, seed = 1)
+  forest.2 <- regression_forest(X, Y, sample.weights = 64 * sample.weights, seed = 1)
+  pred.1 <- predict(forest.1, estimate.variance = TRUE)
+  pred.2 <- predict(forest.2, estimate.variance = TRUE)
+
+  expect_equal(pred.1$predictions, pred.2$predictions, tolerance = 1e-10)
+  expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tolerance = 1e-10)
+  expect_equal(pred.1$debiased.error, pred.2$debiased.error, tolerance = 1e-10)
+})
+
+test_that("sample weighted regression forest works as expected", {
+  n <- 2000
+  p <- 5
+  obs.prob <- 1 / 20
+  Y0 <- rbinom(n, 1, obs.prob / (1 + obs.prob))
+  Y <- Y0 + rnorm(n) * 0.01
+  X <- matrix(rnorm(n * p), n, p)
+  sample.weights <- 1 + Y0 * (1 / obs.prob - 1)
+  rf <- regression_forest(X, Y, sample.weights = sample.weights, num.trees = 250)
+
+  expect_equal(mean(predict(rf)$predictions), weighted.mean(Y, sample.weights), tolerance = 0.05)
+})
+
+test_that("sample weighted regression forest is estimated with kernel weights `forest.weights * sample.weights`", {
+  n <- 2000
+  p <- 5
+  obs.prob <- 1 / 20
+  Y0 <- rbinom(n, 1, obs.prob / (1 + obs.prob))
+  Y <- Y0 + rnorm(n) * 0.01
+  X <- matrix(rnorm(n * p), n, p)
+  sample.weights <- 1 + Y0 * (1 / obs.prob - 1)
+  rf <- regression_forest(X, Y, sample.weights = sample.weights, num.trees = 250)
+
+  x1 <- X[1, , drop = F]
+  theta1 <- predict(rf, x1)$predictions
+  alpha1 <- get_forest_weights(rf, x1)[1, ]
+  theta1.lm <- lm(Y ~ 1, weights = alpha1 * sample.weights)
+
+  expect_equal(theta1, theta1.lm$coefficients[[1]], tolerance = 1e-10)
 })
 
 test_that("sample weighting in the training of a regression forest improves its sample-weighted MSE.", {
-  n <- 1000
-  p <- 2
-  X <- matrix(rnorm(n * p), n, p)
-  Y <- abs(X[, 1]) + 0.1 * rnorm(n)
-  e <- 1 / (1 + exp(-3 * X[, 1]))
-  sample.weights <- 1 / e
+  mse.ratio <- summary(replicate(4, {
+    n <- 1000
+    p <- 2
+    X <- matrix(rnorm(n * p), n, p)
+    Y <- abs(X[, 1]) + 0.1 * rnorm(n)
+    e <- 1 / (1 + exp(-3 * X[, 1]))
+    sample.weights <- 1 / e
 
-  forest <- regression_forest(X, Y)
-  forest.weighted <- regression_forest(X, Y, sample.weights = sample.weights)
-  weighted.mse.forest <- sum(sample.weights * (forest$predictions - Y)^2)
-  weighted.mse.forest.weighted <- sum(sample.weights * (forest.weighted$predictions - Y)^2)
-  expect_true(weighted.mse.forest.weighted < weighted.mse.forest)
+    forest <- regression_forest(X, Y, num.trees = 500)
+    forest.weighted <- regression_forest(X, Y, sample.weights = sample.weights, num.trees = 500)
+    weighted.mse.forest <- sum(sample.weights * (forest$predictions - Y)^2)
+    weighted.mse.forest.weighted <- sum(sample.weights * (forest.weighted$predictions - Y)^2)
+    weighted.mse.forest.weighted / weighted.mse.forest
+  }))
+  expect_lt(mse.ratio[["1st Qu."]], 0.8)
 })
 
 test_that("inverse propensity weighting in the training of a regression forest with missing data improves
            its complete-data MSE.", {
-  n <- 1000
-  p <- 2
-  X <- matrix(rnorm(n * p), n, p)
-  Y <- abs(X[, 1]) + 0.1 * rnorm(n)
-  e <- 1 / (1 + exp(-3 * X[, 1]))
-  w <- runif(n) <= e
-  sample.weights <- 1 / e[w]
+  mse.ratio <- summary(replicate(4, {
+    n <- 1000
+    p <- 2
+    X <- matrix(rnorm(n * p), n, p)
+    Y <- abs(X[, 1]) + 0.1 * rnorm(n)
+    e <- 1 / (1 + exp(-3 * X[, 1]))
+    w <- runif(n) <= e
+    sample.weights <- 1 / e[w]
 
-  forest <- regression_forest(X[w, ], Y[w])
-  forest.weighted <- regression_forest(X[w, ], Y[w], sample.weights = sample.weights)
-  ipw.mse.forest <- sum((predict(forest, X) - Y)^2)
-  ipw.mse.forest.weighted <- sum((predict(forest.weighted, X) - Y)^2)
-  expect_true(ipw.mse.forest.weighted < ipw.mse.forest)
+    forest <- regression_forest(X[w, ], Y[w], num.trees = 500)
+    forest.weighted <- regression_forest(X[w, ], Y[w], sample.weights = sample.weights, num.trees = 500)
+    ipw.mse.forest <- sum((predict(forest, X) - Y)^2)
+    ipw.mse.forest.weighted <- sum((predict(forest.weighted, X) - Y)^2)
+    ipw.mse.forest.weighted / ipw.mse.forest
+  }))
+  # Due to the influence of rare extreme weights we check the following more conservative bound.
+  expect_lt(mse.ratio[["1st Qu."]], 0.85)
+})
+
+test_that("sample weighted regression forest gives correct coverage", {
+  n <- 2500
+  p <- 5
+  pA <- 0.2
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  A <- rbinom(n, 1, pA)
+  gamma <- A / pA + (1 - A) / (1 - pA)
+  Y.true <- 1 / (1 + exp(-3 * X[,1]))
+  Y <- 2 * Y.true * A + rnorm(n)
+
+  rf <- regression_forest(X, Y, sample.weights = gamma)
+  preds <- predict(rf, estimate.variance = TRUE)
+  zstat <- (preds$predictions - Y.true) / sqrt(preds$variance.estimates)
+  coverage <- mean(abs(zstat) < 1.96)
+  mse <- mean((preds$predictions - Y.true)^2)
+
+  rf.noweight <- regression_forest(X, Y)
+  preds.noweight <- predict(rf.noweight, estimate.variance = TRUE)
+  zstat.noweight <- (preds.noweight$predictions - Y.true) / sqrt(preds.noweight$variance.estimates)
+  coverage.noweight <- mean(abs(zstat.noweight) < 1.96)
+  mse.noweight <- mean((preds.noweight$predictions - Y.true)^2)
+
+  expect_lt(mse / mse.noweight, 0.3)
+  expect_gt(coverage, 0.8)
+  expect_lt(coverage.noweight, 0.55)
 })
 
 test_that("sample weighted regression forest is identical to replicating samples", {

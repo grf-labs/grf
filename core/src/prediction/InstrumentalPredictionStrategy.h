@@ -37,6 +37,7 @@ public:
   static const std::size_t OUTCOME_INSTRUMENT;
   static const std::size_t TREATMENT_INSTRUMENT;
   static const std::size_t INSTRUMENT_INSTRUMENT;
+  static const std::size_t WEIGHT;
 
   size_t prediction_value_length() const;
   PredictionValues precompute_prediction_values(

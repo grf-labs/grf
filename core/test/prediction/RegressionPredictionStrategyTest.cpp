@@ -24,8 +24,8 @@
 using namespace grf;
 
 TEST_CASE("flipping signs of outcome flips predictions", "[regression, prediction]") {
-  std::vector<double> averages = {1.1251472};
-  std::vector<double> flipped_averages = {-1.1251472};
+  std::vector<double> averages = {1.1251472, 1};
+  std::vector<double> flipped_averages = {-1.1251472, 1};
 
   RegressionPredictionStrategy prediction_strategy;
   std::vector<double> first_prediction = prediction_strategy.predict(averages);
@@ -37,8 +37,8 @@ TEST_CASE("flipping signs of outcome flips predictions", "[regression, predictio
 }
 
 TEST_CASE("regression variance estimates are positive", "[regression, prediction]") {
-  std::vector<double> averages = {1.12};
-  std::vector<std::vector<double>> leaf_values = {{3.2}, {4.5}, {6.7}, {-3.5}};
+  std::vector<double> averages = {1.12, 1};
+  std::vector<std::vector<double>> leaf_values = {{3.2, 1}, {4.5, 1}, {6.7, 1}, {-3.5, 1}};
 
   RegressionPredictionStrategy prediction_strategy;
   std::vector<double> variance = prediction_strategy.compute_variance(
@@ -49,11 +49,11 @@ TEST_CASE("regression variance estimates are positive", "[regression, prediction
 }
 
 TEST_CASE("scaling outcome scales regression variance", "[regression, prediction]") {
-  std::vector<double> averages = {2.725};
-  std::vector<std::vector<double>> leaf_values = {{3.2}, {4.5}, {6.7}, {-3.5}};
+  std::vector<double> averages = {2.725, 1};
+  std::vector<std::vector<double>> leaf_values = {{3.2, 1}, {4.5, 1}, {6.7, 1}, {-3.5, 1}};
 
-  std::vector<double> scaled_average = {5.45};
-  std::vector<std::vector<double>> scaled_leaf_values = {{6.4}, {9.0}, {13.4}, {-7.0}};
+  std::vector<double> scaled_average = {5.45, 1};
+  std::vector<std::vector<double>> scaled_leaf_values = {{6.4, 1}, {9.0, 1}, {13.4, 1}, {-7.0, 1}};
 
   RegressionPredictionStrategy prediction_strategy;
   std::vector<double> first_variance = prediction_strategy.compute_variance(
@@ -71,8 +71,8 @@ TEST_CASE("scaling outcome scales regression variance", "[regression, prediction
 
 
 TEST_CASE("debiased errors are smaller than raw errors", "[regression, prediction]") {
-  std::vector<double> average = {2.725};
-  std::vector<std::vector<double>> leaf_values = {{3.2}, {4.5}, {6.7}, {-3.5}};
+  std::vector<double> average = {2.725, 1};
+  std::vector<std::vector<double>> leaf_values = {{3.2, 1}, {4.5, 1}, {6.7, 1}, {-3.5, 1}};
 
   std::vector<double> outcomes = {6.4, 9.0, 13.4, -7.0};
   Data data(outcomes, 4, 1);

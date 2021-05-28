@@ -51,6 +51,8 @@ public:
 
 private:
   size_t num_outcomes;
+  size_t num_types;
+  size_t weight_index;
 };
 
 } // namespace grf

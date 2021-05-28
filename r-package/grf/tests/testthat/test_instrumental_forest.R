@@ -1,7 +1,5 @@
 library(grf)
 
-set.seed(1234)
-
 test_that("instrumental forests give reasonable estimates", {
   p <- 6
   n <- 2000
@@ -41,6 +39,58 @@ test_that("instrumental forests give reasonable estimates", {
 
   expect_lt(mean(abs(Z) > 1), 0.5)
   expect_lt(mean(abs(Z.oob) > 1), 0.5)
+})
+
+test_that("sample weighted instrumental forest is estimated with kernel weights `forest.weights * sample.weights`", {
+  p <- 4
+  n <- 500
+  X <- matrix(rnorm(n * p), n, p)
+  eps <- rnorm(n)
+  Z <- rbinom(n, 1, 2 / 3)
+  filter <- rbinom(n, 1, 1 / (1 + exp(-1 * eps)))
+  W <- Z * filter
+  tau <- apply(X[, 1:2], 1, function(xx) sum(pmax(0, xx)))
+  mu <- apply(X[, 2 + 1:2], 1, function(xx) sum(pmax(0, xx)))
+  Y <- (2 * W - 1) / 2 * tau + mu + eps
+  e.cc <- 1 / (1 + exp(-1 * X[, 1]))
+  cc <- as.logical(rbinom(n, 1, e.cc))
+  sample.weights <- 1 / e.cc
+  ivf <- instrumental_forest(X, Y, W, Z, Y.hat = 0, W.hat = 0, Z.hat = 0, sample.weights = sample.weights, num.trees = 250)
+
+  x1 <- X[1, , drop = F]
+  theta1 <- predict(ivf, x1)$predictions
+  alpha1 <- get_forest_weights(ivf, x1)[1, ]
+  R <- predict(lm(W ~ Z, weights = alpha1 * sample.weights))
+  theta1.lm <- lm(Y ~ R, weights = alpha1 * sample.weights)
+
+  expect_equal(theta1, theta1.lm$coefficients[[2]], tolerance = 1e-10)
+})
+
+test_that("instrumental forest predictions and variance estimates are invariant to scaling of the sample weights.", {
+  p <- 4
+  n <- 200
+  X <- matrix(rnorm(n * p), n, p)
+  eps <- rnorm(n)
+  Z <- rbinom(n, 1, 2 / 3)
+  filter <- rbinom(n, 1, 1 / (1 + exp(-1 * eps)))
+  W <- Z * filter
+  tau <- apply(X[, 1:2], 1, function(xx) sum(pmax(0, xx)))
+  mu <- apply(X[, 2 + 1:2], 1, function(xx) sum(pmax(0, xx)))
+  Y <- (2 * W - 1) / 2 * tau + mu + eps
+  e.cc <- 1 / (1 + exp(-1 * X[, 1]))
+  cc <- as.logical(rbinom(n, 1, e.cc))
+  sample.weights <- 1 / e.cc
+
+  # The multiple is a power of 2 to avoid rounding errors allowing for exact comparison
+  # between two forest with the same seed.
+  forest.1 <- instrumental_forest(X, Y, W, Z, sample.weights = sample.weights, num.trees = 250, seed = 1)
+  forest.2 <- instrumental_forest(X, Y, W, Z, sample.weights = 64 * sample.weights, num.trees = 250, seed = 1)
+  pred.1 <- predict(forest.1, estimate.variance = TRUE)
+  pred.2 <- predict(forest.2, estimate.variance = TRUE)
+
+  expect_equal(pred.1$predictions, pred.2$predictions, tolerance = 1e-10)
+  expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tolerance = 1e-10)
+  expect_equal(pred.1$debiased.error, pred.2$debiased.error, tolerance = 1e-10)
 })
 
 test_that("instrumental forests with censoring and ipcc weights compare to forests given full data as you would expect:
