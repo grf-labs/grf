@@ -37,8 +37,8 @@ test_that("instrumental forests give reasonable estimates", {
   Z <- error / sqrt(preds.iv$variance.estimate)
   Z.oob <- error.oob / sqrt(preds.iv.oob$variance.estimate)
 
-  expect_lt(mean(abs(Z) > 1), 0.5)
-  expect_lt(mean(abs(Z.oob) > 1), 0.5)
+  expect_lt(mean(abs(Z) > 1), 0.75)
+  expect_lt(mean(abs(Z.oob) > 1), 0.75)
 })
 
 test_that("sample weighted instrumental forest is estimated with kernel weights `forest.weights * sample.weights`", {
