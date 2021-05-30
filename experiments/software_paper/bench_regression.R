@@ -5,7 +5,6 @@ rm(list = ls())
 set.seed(42)
 library(randomForestSRC) # 2.9.3
 library(ranger) # 0.12.1
-# library(tuneRanger) # 0.5 # Ignore, does not install w/o error on a linux box
 library(grf) # 1.2.0.0
 
 # *** Estimators ***
@@ -39,24 +38,7 @@ estimate_ranger = function(data, data.test, tune = FALSE) {
   df = data.frame(Y=data$Y, x=data$X)
   df.test = data.frame(x=data.test$X)
   start = Sys.time()
-  if (tune) {
-    task = makeRegrTask(data = df, target = "Y")
-    res <- tryCatch({
-      tuneRanger(task, build.final.model = FALSE)
-      },
-      error = function(e) {
-        warning(paste0("ranger tuning threw the following error (fitting with default values): \n", e))
-        return(NULL)
-    })
-    if (is.null(res)) {
-      fit = ranger(Y ~ ., data = df, num.trees = num.trees)
-      } else {
-      fit = ranger(Y ~ ., data = df, num.trees = num.trees, mtry = res$recommended.pars$mtry,
-                   sample.fraction = res$recommended.pars$sample.fraction)
-    }
-  } else {
-    fit = ranger(Y ~ ., data = df, num.trees = num.trees)
-  }
+  fit = ranger(Y ~ ., data = df, num.trees = num.trees)
   pp = predict(fit, df.test)
   end = Sys.time()
   elapsed.sec = difftime(end, start, units = "secs")
