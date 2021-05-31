@@ -9,7 +9,7 @@
 #'
 #'
 #' This forest fits a multi arm treatment estimate following the multivariate
-#' extension of the "R-learner" suggested in Nie and Wager (2020), with kernel
+#' extension of the "R-learner" suggested in Nie and Wager (2021), with kernel
 #' weights derived by the GRF algortim (Athey, Tibshirani, and Wager, 2019).
 #' In particular, with K arms, and W encoded as \{0, 1\}^(K-1), we estimate, for
 #' a target sample x, and a chosen baseline arm:
@@ -104,7 +104,7 @@
 #' @references Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
 #'  Annals of Statistics, 47(2), 2019.
 #' @references Nie, Xinkun, and Stefan Wager. "Quasi-Oracle Estimation of Heterogeneous Treatment Effects".
-#'  Biometrika, forthcoming.
+#'  Biometrika, 108(2), 2021.
 #'
 #' @examples
 #' \donttest{
