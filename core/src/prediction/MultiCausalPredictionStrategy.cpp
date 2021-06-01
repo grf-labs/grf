@@ -74,9 +74,13 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
    (YW_bar * weight_bar - Y_bar * W_bar);
   double main_effect = Y_bar - theta.transpose() * W_bar;
 
+  double k = 1 - W_bar.transpose() * WW_bar.inverse() * W_bar;
+  Eigen::MatrixXd term1 = WW_bar.inverse() + 1 / k * WW_bar.inverse() * W_bar * W_bar.transpose() * WW_bar.inverse();
+  Eigen::VectorXd term2 = 1 / k * WW_bar.inverse() * W_bar;
+
   double num_good_groups = 0;
-  Eigen::MatrixXd psi_squared = Eigen::MatrixXd::Zero(num_treatments + 1, num_treatments + 1);
-  Eigen::MatrixXd psi_grouped_squared = Eigen::MatrixXd::Zero(num_treatments + 1, num_treatments + 1);
+  Eigen::VectorXd rho_squared = Eigen::VectorXd::Zero(num_treatments);
+  Eigen::VectorXd rho_grouped_squared = Eigen::VectorXd::Zero(num_treatments);
 
   for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
@@ -89,8 +93,7 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
 
     num_good_groups++;
 
-    Eigen::VectorXd group_psi_1 = Eigen::VectorXd::Zero(num_treatments);
-    double group_psi_2 = 0;
+    Eigen::VectorXd group_rho = Eigen::VectorXd::Zero(num_treatments);
 
     for (size_t j = 0; j < ci_group_size; ++j) {
 
@@ -109,39 +112,17 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
                      - leaf_W.transpose() * theta
                      - main_effect;
 
-      psi_squared.topLeftCorner(num_treatments, num_treatments).noalias() += psi_1 * psi_1.transpose();
-      psi_squared.topRightCorner(num_treatments, 1).noalias() += psi_1 * psi_2;
-      psi_squared.bottomLeftCorner(1, num_treatments).noalias() += psi_2 * psi_1.transpose();
-      psi_squared.bottomRightCorner(1, 1).noalias() += Eigen::MatrixXd::Identity(1, 1) * psi_2 * psi_2;
-
-      group_psi_1 += psi_1;
-      group_psi_2 += psi_2;
+      Eigen::VectorXd rho = term1 * psi_1 - term2 * psi_2;
+      rho_squared += rho.array().square().matrix();
+      group_rho += rho;
     }
 
-    group_psi_1 /= ci_group_size;
-    group_psi_2 /= ci_group_size;
-
-    psi_grouped_squared.topLeftCorner(num_treatments, num_treatments).noalias() += group_psi_1 * group_psi_1.transpose();
-    psi_grouped_squared.topRightCorner(num_treatments, 1).noalias() += group_psi_1 * group_psi_2;
-    psi_grouped_squared.bottomLeftCorner(1, num_treatments).noalias() += group_psi_2 * group_psi_1.transpose();
-    psi_grouped_squared.bottomRightCorner(1, 1).noalias() += Eigen::MatrixXd::Identity(1, 1) * group_psi_2 * group_psi_2;
+    group_rho /= ci_group_size;
+    rho_grouped_squared += group_rho.array().square().matrix();
   }
 
-  psi_squared /= (num_good_groups * ci_group_size);
-  psi_grouped_squared /= num_good_groups;
-
-  // Using notation from the GRF paper, we want to apply equation (16),
-  // \hat{sigma^2} = \xi' V^{-1} Hn V^{-1}' \xi
-  // with Hn = Psi as computed above, \xi selecting the diagonal, and
-  // V(x) = (E[WW|X=x] E[W|X=x]; E[W|X=x] 1).
-  Eigen::MatrixXd V(num_treatments + 1, num_treatments + 1);
-  V.topLeftCorner(num_treatments, num_treatments) = WW_bar;
-  V.topRightCorner(num_treatments, 1) = W_bar;
-  V.bottomLeftCorner(1, num_treatments) = W_bar.transpose();
-  V.bottomRightCorner(1, 1) = Eigen::MatrixXd::Identity(1, 1);
-  V = V.inverse();
-  Eigen::VectorXd var_between = (V * psi_grouped_squared * V.transpose()).diagonal();
-  Eigen::VectorXd var_total = (V * psi_squared * V.transpose()).diagonal();
+  Eigen::VectorXd var_between = rho_grouped_squared / num_good_groups;
+  Eigen::VectorXd var_total = rho_squared / (num_good_groups * ci_group_size);
 
   // This is the amount by which var_between is inflated due to using small groups
   Eigen::VectorXd group_noise = (var_total - var_between) / (ci_group_size - 1);
