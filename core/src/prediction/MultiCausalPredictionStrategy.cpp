@@ -56,6 +56,29 @@ std::vector<double> MultiCausalPredictionStrategy::predict(const std::vector<dou
   return std::vector<double> (theta.data(), theta.data() + prediction_length());
 }
 
+/**
+ * The following calculations follow directly from {@link InstrumentalPredictionStrategy}.
+ * Yi is real valued, Wi is a 1xK vector, Gi are sample weights.
+ * The scoring function is:
+ * psi_{mu, tau}^1(Yi, Wi, Gi) = Gi Wi (Yi - Wi tau - mu),
+ * psi_{mu, tau}^2(Yi, Wi, Gi) = Gi (Yi - Wi tau - mu).
+ *
+ * The hessian V(x) is:
+ * V11(x) = A; V12(x) = b
+ * V21(x) = b'; V22(x) = c
+ * where
+ * A = E[Gi Wi Wi' | Xi = x]
+ * b = E[Gi Wi | Xi = x]
+ * c = E[Gi | Xi = x]
+ *
+ * Using the matrix inverse formula in block form we get
+ * rhoi = \xi' hat{V}^{-1} psi_{hat{mu}, hat{tau}}(Yi, Wi, Gi)
+ *      = term1 * psi_1 - term2 * psi_2
+ * where \xi selects the first K elements and
+ * term1 = A^{-1} + 1/k A^{-1} b b' A^{-1},
+ * term2 = 1/k A^{-1} b,
+ * and k = c - b' A^{-1} b
+ */
 std::vector<double> MultiCausalPredictionStrategy::compute_variance(
     const std::vector<double>& average,
     const PredictionValues& leaf_values,
@@ -72,9 +95,10 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
 
   Eigen::VectorXd theta = (WW_bar * weight_bar - W_bar * W_bar.transpose()).inverse() *
    (YW_bar * weight_bar - Y_bar * W_bar);
-  double main_effect = Y_bar - theta.transpose() * W_bar;
+  double main_effect = (Y_bar - theta.transpose() * W_bar) / weight_bar;
 
-  double k = 1 - W_bar.transpose() * WW_bar.inverse() * W_bar;
+  // NOTE: could potentially use pseudoinverses.
+  double k = weight_bar - W_bar.transpose() * WW_bar.inverse() * W_bar;
   Eigen::MatrixXd term1 = WW_bar.inverse() + 1 / k * WW_bar.inverse() * W_bar * W_bar.transpose() * WW_bar.inverse();
   Eigen::VectorXd term2 = 1 / k * WW_bar.inverse() * W_bar;
 
@@ -99,7 +123,7 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
 
       size_t i = group * ci_group_size + j;
       const std::vector<double>& leaf_value = leaf_values.get_values(i);
-      double leaf_weight = leaf_value[weight_index]; // LATER
+      double leaf_weight = leaf_value[weight_index];
       double leaf_Y = leaf_value[Y_index];
       Eigen::Map<const Eigen::VectorXd> leaf_W(leaf_value.data() + W_index, num_treatments);
       Eigen::Map<const Eigen::VectorXd> leaf_YW(leaf_value.data() + YW_index, num_treatments);
@@ -110,7 +134,7 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
                              - leaf_W * main_effect;
       double psi_2 = leaf_Y
                      - leaf_W.transpose() * theta
-                     - main_effect;
+                     - leaf_weight * main_effect;
 
       Eigen::VectorXd rho = term1 * psi_1 - term2 * psi_2;
       rho_squared += rho.array().square().matrix();
