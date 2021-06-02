@@ -129,8 +129,8 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
     {21, 22, 38, 41, 18},
     {21, 22, 38},
     {21, 22},
-    // {87}, //These lines can be uncommented and should pass when https://github.com/grf-labs/grf/pull/774 is merged.
-    // {87, 87},
+    {87},
+    {87, 87},
     {101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
     117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130}
   };
@@ -151,6 +151,9 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
       std::vector<double> prediction = prediction_strategy.predict(prediction_values.get_values(i));
       std::vector<double> prediction_multi = multi_prediction_strategy.predict(multi_prediction_values.get_values(i));
       REQUIRE(prediction.size() == prediction_multi.size());
+      if (std::isinf(prediction[0]) && std::isinf(prediction_multi[0])) {
+        continue;
+      }
       REQUIRE(equal_doubles(prediction[0], prediction_multi[0], 1e-5));
     }
   }
