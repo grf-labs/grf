@@ -69,7 +69,7 @@ TEST_CASE("multi causal predictions with one continuous treatment is identical t
   auto data_vec = load_data("test/forest/resources/causal_data.csv");
   Data data(data_vec);
   data.set_outcome_index(10);
-  data.set_treatment_index(0); // Set the treatment variable to the first continous covariate
+  data.set_treatment_index(0); // Set the treatment variable to the first continuous covariate
   data.set_instrument_index(0);
 
   std::vector<std::vector<size_t>> leaf_samples{
@@ -111,7 +111,7 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
   auto data_vec = load_data("test/forest/resources/causal_data.csv");
   Data data(data_vec);
   data.set_outcome_index(10);
-  data.set_treatment_index(0); // Set the treatment variable to the first continous covariate
+  data.set_treatment_index(0); // Set the treatment variable to the first continuous covariate
   data.set_instrument_index(0);
   data.set_weight_index(1); // Use covariate in data column 1 as dummy sample weights
 
@@ -163,7 +163,7 @@ TEST_CASE("multi causal variance estimates with one continuous treatment is iden
   auto data_vec = load_data("test/forest/resources/causal_data.csv");
   Data data(data_vec);
   data.set_outcome_index(10);
-  data.set_treatment_index(0); // Set the treatment variable to the first continous covariate
+  data.set_treatment_index(0); // Set the treatment variable to the first continuous covariate
   data.set_instrument_index(0);
 
   std::vector<std::vector<size_t>> leaf_samples{
@@ -204,7 +204,7 @@ TEST_CASE("sample weighted multi causal variance estimates with one continuous t
   auto data_vec = load_data("test/forest/resources/causal_data.csv");
   Data data(data_vec);
   data.set_outcome_index(10);
-  data.set_treatment_index(0); // Set the treatment variable to the first continous covariate
+  data.set_treatment_index(0); // Set the treatment variable to the first continuous covariate
   data.set_instrument_index(0);
   data.set_weight_index(1); // Use covariate in data column 1 as dummy sample weights
 
