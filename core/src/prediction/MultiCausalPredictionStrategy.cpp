@@ -63,7 +63,7 @@ std::vector<double> MultiCausalPredictionStrategy::predict(const std::vector<dou
  * psi_{mu, tau}^1(Yi, Wi, Gi) = Gi Wi (Yi - Wi tau - mu),
  * psi_{mu, tau}^2(Yi, Wi, Gi) = Gi (Yi - Wi tau - mu).
  *
- * The hessian V(x) is:
+ * The Hessian V(x) is:
  * V11(x) = A; V12(x) = b
  * V21(x) = b'; V22(x) = c
  * where
@@ -106,6 +106,9 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
   Eigen::VectorXd rho_squared = Eigen::VectorXd::Zero(num_treatments);
   Eigen::VectorXd rho_grouped_squared = Eigen::VectorXd::Zero(num_treatments);
 
+  Eigen::VectorXd group_rho = Eigen::VectorXd(num_treatments);
+  Eigen::VectorXd psi_1 = Eigen::VectorXd(num_treatments);
+  Eigen::VectorXd rho = Eigen::VectorXd(num_treatments);
   for (size_t group = 0; group < leaf_values.get_num_nodes() / ci_group_size; ++group) {
     bool good_group = true;
     for (size_t j = 0; j < ci_group_size; ++j) {
@@ -116,9 +119,7 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
     if (!good_group) continue;
 
     num_good_groups++;
-
-    Eigen::VectorXd group_rho = Eigen::VectorXd::Zero(num_treatments);
-
+    group_rho.setZero();
     for (size_t j = 0; j < ci_group_size; ++j) {
 
       size_t i = group * ci_group_size + j;
@@ -129,14 +130,10 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
       Eigen::Map<const Eigen::VectorXd> leaf_YW(leaf_value.data() + YW_index, num_treatments);
       Eigen::Map<const Eigen::MatrixXd> leaf_WW(leaf_value.data() + WW_index, num_treatments, num_treatments);
 
-      Eigen::VectorXd psi_1 = leaf_YW
-                             - leaf_WW * theta
-                             - leaf_W * main_effect;
-      double psi_2 = leaf_Y
-                     - leaf_W.transpose() * theta
-                     - leaf_weight * main_effect;
+      psi_1 = leaf_YW - leaf_WW * theta - leaf_W * main_effect;
+      double psi_2 = leaf_Y - leaf_W.transpose() * theta - leaf_weight * main_effect;
 
-      Eigen::VectorXd rho = term1 * psi_1 - term2 * psi_2;
+      rho = term1 * psi_1 - term2 * psi_2;
       rho_squared += rho.array().square().matrix();
       group_rho += rho;
     }
