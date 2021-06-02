@@ -74,7 +74,7 @@ std::vector<double> MultiCausalPredictionStrategy::predict(const std::vector<dou
  * Using the matrix inverse formula in block form we get
  * rhoi = \xi' hat{V}^{-1} psi_{hat{mu}, hat{tau}}(Yi, Wi, Gi)
  *      = term1 * psi_1 - term2 * psi_2
- * where \xi selects the first K elements and
+ * where \xi selects the first K-subvector and
  * term1 = A^{-1} + 1/k A^{-1} b b' A^{-1},
  * term2 = 1/k A^{-1} b,
  * and k = c - b' A^{-1} b
