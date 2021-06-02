@@ -88,7 +88,7 @@ bool LLRegressionRelabelingStrategy::relabel(
       double residual = prediction_sample - data.get_outcome(sample);
       responses_by_sample(sample, 0) = residual;
       i++;
-    }
+  }
     return false;
   }
 
