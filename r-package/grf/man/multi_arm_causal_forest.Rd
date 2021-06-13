@@ -167,9 +167,9 @@ mc.forest <- multi_arm_causal_forest(X, Y, W)
 # By default, the first ordinal treatment is used as baseline ("A" in this example),
 # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
 mc.pred <- predict(mc.forest)
-# Fitting several outcomes jointly is supported, and the returned prediction array
-# has dimension [num.samples, num.contrasts, num.outcomes]. Since num.outcomes is
-# one in this example, we can `drop()` this singleton dimension using the `[,,]` shorthand.
+# Fitting several outcomes jointly is supported, and the returned prediction array has
+# dimension [num.samples, num.contrasts, num.outcomes]. Since num.outcomes is one in
+# this example, we can `drop()` this singleton dimension using the `[,,]` shorthand.
 tau.hat <- mc.pred$predictions[,,]
 
 plot(X[, 2], tau.hat[, "B - A"], ylab = "tau.contrast")
