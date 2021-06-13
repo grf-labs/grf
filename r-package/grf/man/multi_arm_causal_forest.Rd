@@ -40,8 +40,7 @@ with the `relevel` function in R.}
 
 \item{Y.hat}{Estimates of the expected responses E[Y | Xi], marginalizing
 over treatment. If Y.hat = NULL, these are estimated using
-a separate regression forest. See section 6.1.1 of the GRF paper for
-further discussion of this quantity. Default is NULL.}
+a separate multi-task regression forest. Default is NULL.}
 
 \item{W.hat}{Matrix with estimates of the treatment propensities E[Wk | Xi].
 If W.hat = NULL, these are estimated using a probability forest.}
