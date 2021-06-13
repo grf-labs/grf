@@ -4,6 +4,36 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0] - 2021-?-?
+
+### Changed (breaking)
+**IMPORTANT** These changes might cause small differences in results compared to previous releases, even if the same random seed is used.
+- Unify the interface to ATE-type estimators: 1) `average_treatment_effect` is the new entry point for all ATE summaries, meaning `average_late` and `average_partial_effect` is removed. 2) This function now targets population-type quantities for all forests, meaning confidence intervals may be slightly wider for some forests. 3) Some ad-hoc normalization schemes are removed, but can be manually specified through the `debiasing.weights` argument. [#723](https://github.com/grf-labs/grf/pull/723)
+- Remove all `tune_***_forest` functions, restricting the tuning interface to the pre-existing `tune.parameters` argument in all tuning-compatible forests. [#790](https://github.com/grf-labs/grf/pull/790)
+- Return `quantile_forest` predictions in the `predictions` attribute of the output list in order to have all GRF estimators conform to the convention of returning point predictions as `predict(forest)$predictions`. [#822](https://github.com/grf-labs/grf/pull/822)
+- Remove `custom_forest`. For a template for getting started with a custom GRF estimator, consider using an existing simple forest, like `regression_forest` as a scaffold. For more details see the GRF [developing document](https://grf-labs.github.io/grf/DEVELOPING.html). [#870](https://github.com/grf-labs/grf/pull/870)
+- Remove the optional `orthog.boosting` argument in `causal_forest`, as custom `m(x)` estimates can be passed through the existing `Y.hat` argument. [#892](https://github.com/grf-labs/grf/pull/892)
+- Rename `get_sample_weights` to `get_forest_weights`. [#894](https://github.com/grf-labs/grf/pull/894)
+- Remove superficial support for sparse training/test data `X`. To train a forest with sparse data do `forest(as.matrix(X), Y)`. [#939](https://github.com/grf-labs/grf/pull/939)
+- Change the way optional sample weights (passed through the `sample.weights` argument) interact with the GRF forest weights. When forming estimates, according to (2) and (3) in the [GRF paper](https://arxiv.org/pdf/1610.01271.pdf), sample weights enter through alpha_i(x)' = alpha_i(x) * sample.weight_i. Also, `causal_forest` and `instrumental_forest` now take sample weights into account in the relabeling step ([#752](https://github.com/grf-labs/grf/pull/752)). Sample weights are explicitly disabled for local linear forests ([#841](https://github.com/grf-labs/grf/pull/841)). [#796](https://github.com/grf-labs/grf/issues/796)
+- Internal C++: the addition of vector-valued responses entails some changes to core C++. The data structure `responses_by_sample` is now an `Eigen` array instead of a `std::vector`. In addition, the `Data` class is now concrete ([#946](https://github.com/grf-labs/grf/pull/946)). The bundled libraries `optional` and `Eigen` are updated to version 3.4.0 and 3.3.9 respectively ([#918](https://github.com/grf-labs/grf/pull/918)/[#819](https://github.com/grf-labs/grf/pull/819)).
+
+### Added
+- Add optional Nelson-Aalen estimates of the survival function. [#685](https://github.com/grf-labs/grf/pull/685)
+- Add `probability_forest` for estimating conditional class probabilities P[Y = k | X = x]. [#711](https://github.com/grf-labs/grf/pull/711)
+- Add `causal_survival_forest` for estimating conditional average treatment effects with right-censored data. [#660](https://github.com/grf-labs/grf/pull/660)
+- Add `get_scores` returning doubly robust scores for a number of estimands. [#732](https://github.com/grf-labs/grf/pull/732)
+- Add `get_leaf_node` utility function which given a GRF tree object returns the leaf node a test sample falls into. [#739](https://github.com/grf-labs/grf/pull/739)
+- Add `multi_regression_forest` for estimating several conditional mean functions mu_i(x) = E[Y_i | X = x]. [#742](https://github.com/grf-labs/grf/pull/742)
+- Add a `vcov.type` standard error option to `test_calibration` and `best_linear_projection`. On large datasets with clusters, setting this option to `"HC0"` or `"HC1"` will significantly speed up the computation.
+- Add `multi_arm_causal_forest`, an extension of `causal_forest` to multiple categorial treatments `W`, and optionally multiple responses `Y`. [#748](https://github.com/grf-labs/grf/pull/748)
+- Add a docstring example to `survival_forest` on how to calculate concordance with the optional `survival` package. [#956](https://github.com/grf-labs/grf/pull/956)
+
+### Fixed
+- Make forest tuning respect the `seed` argument passed to the original forest being tuned to avoid reliance on R's global seed. [#704](https://github.com/grf-labs/grf/pull/704)
+- Fix the output name in `average_treatment_effect` when `method = "TMLE"`. [#864](https://github.com/grf-labs/grf/pull/864)
+- Fix pointwise variance estimates in (the very unlikely) zero variance case. [#907](https://github.com/grf-labs/grf/pull/907)
+
 ## [1.2.0] - 2020-06-04
 
 ### Added
