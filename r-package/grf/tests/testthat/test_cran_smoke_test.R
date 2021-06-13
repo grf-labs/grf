@@ -25,5 +25,6 @@ preds.causal2 <- predict(forest.causal, X, estimate.variance = TRUE)
 forest.mcausal <- multi_arm_causal_forest(X, Y, as.factor(W), compute.oob.predictions = FALSE)
 preds.mcausal.oob <- predict(forest.mcausal, estimate.variance = TRUE)
 
-forest.scausal <- causal_survival_forest(X, round(Y, 1), W, rep(1, n), compute.oob.predictions = FALSE)
+forest.scausal <- causal_survival_forest(X, round(Y, 1), W, rep(1, n),
+                                         W.hat = 0.5, compute.oob.predictions = FALSE)
 preds.scausal.oob <- predict(forest.scausal, estimate.variance = TRUE)
