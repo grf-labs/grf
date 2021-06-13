@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fix the output name in `average_treatment_effect` when `method = "TMLE"`. [#864](https://github.com/grf-labs/grf/pull/864)
 - Fix pointwise variance estimates in (the very unlikely) zero variance case. [#907](https://github.com/grf-labs/grf/pull/907)
+- Fix `survival_forest` test set predictions with sample weights. [#969](https://github.com/grf-labs/grf/pull/969)
 - Make forest tuning respect the `seed` argument passed to the original forest being tuned to avoid reliance on R's global seed. [#704](https://github.com/grf-labs/grf/pull/704)
 
 ## [1.2.0] - 2020-06-04
