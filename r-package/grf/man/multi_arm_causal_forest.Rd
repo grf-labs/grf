@@ -40,8 +40,7 @@ with the `relevel` function in R.}
 
 \item{Y.hat}{Estimates of the expected responses E[Y | Xi], marginalizing
 over treatment. If Y.hat = NULL, these are estimated using
-a separate regression forest. See section 6.1.1 of the GRF paper for
-further discussion of this quantity. Default is NULL.}
+a separate multi-task regression forest. Default is NULL.}
 
 \item{W.hat}{Matrix with estimates of the treatment propensities E[Wk | Xi].
 If W.hat = NULL, these are estimated using a probability forest.}
@@ -168,9 +167,9 @@ mc.forest <- multi_arm_causal_forest(X, Y, W)
 # By default, the first ordinal treatment is used as baseline ("A" in this example),
 # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
 mc.pred <- predict(mc.forest)
-# Fitting several outcomes jointly is supported, and the returned prediction array
-# has dimension [num.samples, num.contrasts, num.outcomes]. Since num.outcomes is
-# one in this example, we can drop this singleton dimension using `[,,]`.
+# Fitting several outcomes jointly is supported, and the returned prediction array has
+# dimension [num.samples, num.contrasts, num.outcomes]. Since num.outcomes is one in
+# this example, we can `drop()` this singleton dimension using the `[,,]` shorthand.
 tau.hat <- mc.pred$predictions[,,]
 
 plot(X[, 2], tau.hat[, "B - A"], ylab = "tau.contrast")
@@ -182,8 +181,8 @@ legend("topleft", c("B - A", "C - A"), col = c("black", "blue"), pch = 19)
 # The average treatment effect of the arms with "A" as baseline.
 average_treatment_effect(mc.forest)
 
-# The conditional response surfaces mu_k(X) can be reconstructed from the
-# contrasts tau_k(x), the treatment propensities e_k(x), and the conditional mean m(x).
+# The conditional response surfaces mu_k(X) for a single outcome can be reconstructed from
+# the contrasts tau_k(x), the treatment propensities e_k(x), and the conditional mean m(x).
 # Given treatment "A" as baseline we have:
 # m(x) := E[Y | X] = E[Y(A) | X] + E[W_B (Y(B) - Y(A))] + E[W_C (Y(C) - Y(A))]
 # which given unconfoundedness is equal to:
@@ -192,7 +191,7 @@ average_treatment_effect(mc.forest)
 # * mu(A, x) = m(x) - e_B(x) tau_B(x) - e_C(x) tau_C(x)
 # * mu(B, x) = m(x) + (1 - e_B(x)) tau_B(x) - e_C(x) tau_C(x)
 # * mu(C, x) = m(x) - e_B(x) tau_B(x) + (1 - e_C(x)) tau_C(x)
-Y.hat <- mc.forest$Y.hat[, 1]
+Y.hat <- mc.forest$Y.hat
 W.hat <- mc.forest$W.hat
 
 muA <- Y.hat - W.hat[, "B"] * tau.hat[, "B - A"] - W.hat[, "C"] * tau.hat[, "C - A"]
@@ -202,7 +201,7 @@ muC <- Y.hat - W.hat[, "B"] * tau.hat[, "B - A"] + (1 - W.hat[, "C"]) * tau.hat[
 # These can also be obtained with some array manipulations.
 # (the first column is always the baseline arm)
 Y.hat.baseline <- Y.hat - rowSums(W.hat[, -1, drop = FALSE] * tau.hat)
-mu.hat.matrix <- cbind(Y.hat.baseline, Y.hat.baseline + tau.hat)
+mu.hat.matrix <- cbind(Y.hat.baseline, c(Y.hat.baseline) + tau.hat)
 colnames(mu.hat.matrix) <- levels(W)
 head(mu.hat.matrix)
 
