@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.0] - 2021-?-?
 
 ### Changed (breaking)
-**IMPORTANT** These changes might cause small differences in results compared to previous releases, even if the same random seed is used.
+**IMPORTANT** Some of these changes might cause small differences in results compared to previous releases, even if the same random seed is used.
 - Unify the interface to ATE-type estimators: 1) `average_treatment_effect` is the new entry point for all ATE summaries, meaning `average_late` and `average_partial_effect` is removed. 2) This function now targets population-type quantities for all forests, meaning some confidence intervals may be slightly wider than before. 3) Some ad-hoc normalization schemes are removed, but can be manually specified through the `debiasing.weights` argument. [#723](https://github.com/grf-labs/grf/pull/723)
 - Remove all `tune_***_forest` functions, restricting the tuning interface to the pre-existing `tune.parameters` argument in all tuning-compatible forests. [#790](https://github.com/grf-labs/grf/pull/790)
 - Remove the optional `orthog.boosting` argument in `causal_forest`, since tailored `m(x)` estimates can be passed through the existing `Y.hat` argument. [#892](https://github.com/grf-labs/grf/pull/892)
