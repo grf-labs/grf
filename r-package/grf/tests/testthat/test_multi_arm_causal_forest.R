@@ -207,8 +207,7 @@ test_that("multi_arm_causal_forest predictions and variance estimates are invari
   pred.2 <- predict(forest.2, estimate.variance = TRUE)
 
   expect_equal(pred.1$predictions, pred.2$predictions, tolerance = 1e-10)
-  # expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tolerance = 1e-10)
-  # expect_equal(pred.1$debiased.error, pred.2$debiased.error, tolerance = 1e-10)
+  expect_equal(pred.1$variance.estimates, pred.2$variance.estimates, tolerance = 1e-10)
 })
 
 test_that("multi_arm_causal_forest confidence intervals are reasonable", {
@@ -229,6 +228,34 @@ test_that("multi_arm_causal_forest confidence intervals are reasonable", {
 
   expect_gt(coverage[1], 0.75)
   expect_gt(coverage[2], 0.75)
+})
+
+test_that("sample weighted multi_arm_causal forest gives correct coverage", {
+  n <- 2500
+  p <- 5
+  pA <- 0.2
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  A <- rbinom(n, 1, pA)
+  gamma <- A / pA + (1 - A) / (1 - pA)
+  tau.true <- 1 / (1 + exp(-3 * X[,1]))
+  Y <- 2 * tau.true * W * A + rnorm(n)
+
+  cf <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(0.5, 0.5), sample.weights = gamma)
+  preds <- predict(cf, estimate.variance = TRUE)
+  zstat <- (preds$predictions[,,] - tau.true) / sqrt(preds$variance.estimates)
+  coverage <- mean(abs(zstat) < 1.96)
+  mse <- mean((preds$predictions[,,] - tau.true)^2)
+
+  cf.noweight <- multi_arm_causal_forest(X, Y, as.factor(W), W.hat = c(0.5, 0.5))
+  preds.noweight <- predict(cf.noweight, estimate.variance = TRUE)
+  zstat.noweight <- (preds.noweight$predictions[,,] - tau.true) / sqrt(preds.noweight$variance.estimates)
+  coverage.noweight <- mean(abs(zstat.noweight) < 1.96)
+  mse.noweight <- mean((preds.noweight$predictions[,,] - tau.true)^2)
+
+  expect_lt(mse / mse.noweight, 0.3)
+  expect_gt(coverage, 0.75)
+  expect_lt(coverage.noweight, 0.55)
 })
 
 test_that("multi_arm_causal_forest with multiple outcomes works as expected", {

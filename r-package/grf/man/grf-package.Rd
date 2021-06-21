@@ -113,6 +113,7 @@ Useful links:
 Authors:
 \itemize{
   \item Susan Athey
+  \item Erik Sverdup
   \item Stefan Wager
 }
 
@@ -122,7 +123,6 @@ Other contributors:
   \item Vitor Hadad [contributor]
   \item David Hirshberg [contributor]
   \item Luke Miner [contributor]
-  \item Erik Sverdrup [contributor]
   \item Marvin Wright [contributor]
 }
 

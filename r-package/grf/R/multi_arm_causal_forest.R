@@ -8,7 +8,7 @@
 #' state for arm k and the baseline arm 1.
 #'
 #'
-#' This forest fits a multi arm treatment estimate following the multivariate
+#' This forest fits a multi-arm treatment estimate following the multivariate
 #' extension of the "R-learner" suggested in Nie and Wager (2021), with kernel
 #' weights derived by the GRF algortim (Athey, Tibshirani, and Wager, 2019).
 #' In particular, with K arms, and W encoded as \{0, 1\}^(K-1), we estimate, for
@@ -29,7 +29,7 @@
 #' W.hat and Y.hat). The k-th element of tau(x) measures the conditional average
 #' treatment effect of the k-th treatment arm at X = x for k = 1, ..., K-1.
 #' The treatment effect for multiple outcomes can be estimated jointly (i.e. Y can
-#' be vector valued) - in which case the splitting rule takes into account
+#' be vector-valued) - in which case the splitting rule takes into account
 #' all outcomes simultaneously (specifically, we concatenate the gradient
 #' vector for each outcome).
 #'

@@ -233,7 +233,7 @@ test_that("sample weighted causal forest gives correct coverage", {
   mse.noweight <- mean((preds.noweight$predictions - tau.true)^2)
 
   expect_lt(mse / mse.noweight, 0.3)
-  expect_gt(coverage, 0.8)
+  expect_gt(coverage, 0.75)
   expect_lt(coverage.noweight, 0.55)
 })
 
