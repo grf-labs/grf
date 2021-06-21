@@ -113,7 +113,7 @@ Useful links:
 Authors:
 \itemize{
   \item Susan Athey
-  \item Erik Sverdup
+  \item Erik Sverdrup
   \item Stefan Wager
 }
 
