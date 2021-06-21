@@ -12,7 +12,7 @@ In addition, GRF supports 'honest' estimation (where one subset of the data is u
 
 Some helpful links for getting started:
 
-* The R package documentation contains usage examples and method reference (\url{https://grf-labs.github.io/grf}).
+* The R package documentation contains usage examples and method reference (\url{https://grf-labs.github.io/grf/}).
 
 * The GRF reference gives a detailed description of the GRF algorithm and includes troubleshooting suggestions (\url{https://grf-labs.github.io/grf/REFERENCE.html}).
 
