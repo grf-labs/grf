@@ -4,6 +4,36 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2021-06-22
+
+### Changed (breaking)
+**IMPORTANT** Some of these changes might cause small differences in results compared to previous releases, even if the same random seed is used.
+- Unify the interface to ATE-type estimators: 1) `average_treatment_effect` is the new entry point for all ATE summaries, meaning `average_late` and `average_partial_effect` is removed. 2) This function now targets population-type quantities for all forests, meaning some confidence intervals may be slightly wider than before. 3) Some ad-hoc normalization schemes are removed, but can be manually specified through the `debiasing.weights` argument. [#723](https://github.com/grf-labs/grf/pull/723)
+- Remove all `tune_***_forest` functions, restricting the tuning interface to the pre-existing `tune.parameters` argument in all tuning-compatible forests. [#790](https://github.com/grf-labs/grf/pull/790)
+- Remove the optional `orthog.boosting` argument in `causal_forest`, since tailored `m(x)` estimates can be passed through the existing `Y.hat` argument. [#892](https://github.com/grf-labs/grf/pull/892)
+- Remove support for sparse `X` in forest training (as the internal C++ implementation did not leverage sparsity in `X` beyond storage mode). To train a forest with sparse data do `forest(as.matrix(X), Y)`. [#939](https://github.com/grf-labs/grf/pull/939)
+- Remove `custom_forest`. For a template for getting started with a custom GRF estimator, consider using an existing simple forest, like `regression_forest` as a scaffold. For more details see the GRF [developing document](https://grf-labs.github.io/grf/DEVELOPING.html). [#870](https://github.com/grf-labs/grf/pull/870)
+- Rename `get_sample_weights` to `get_forest_weights`. [#894](https://github.com/grf-labs/grf/pull/894)
+- Return `quantile_forest` predictions in the `predictions` attribute of a new output list in order to conform with the GRF convention of returning point predictions as `predict(forest)$predictions`. [#822](https://github.com/grf-labs/grf/pull/822)
+- Change the way optional sample weights (passed through the `sample.weights` argument) interact with the GRF forest weights. When forming estimates according to (2) and (3) in the [GRF paper](https://arxiv.org/pdf/1610.01271.pdf), sample weights now enter through alpha_i(x)' = alpha_i(x) * sample.weight_i. In addition, `causal_forest` and `instrumental_forest` now take sample weights into account in the relabeling step ([#752](https://github.com/grf-labs/grf/pull/752)). Sample weights are also explicitly disabled for local linear forests ([#841](https://github.com/grf-labs/grf/pull/841)). [#796](https://github.com/grf-labs/grf/issues/796)
+
+### Added
+- Add `causal_survival_forest` for estimating conditional average treatment effects with right-censored data. [#660](https://github.com/grf-labs/grf/pull/660)
+- Add `multi_arm_causal_forest`, an extension of `causal_forest` to multiple categorial treatments `W`, and optionally multiple responses `Y`. [#748](https://github.com/grf-labs/grf/pull/748)
+- Add `multi_regression_forest` for estimating several conditional mean functions mu_i(x) = E[Y_i | X = x]. [#742](https://github.com/grf-labs/grf/pull/742)
+- Add `probability_forest` for estimating conditional class probabilities P[Y = k | X = x]. [#711](https://github.com/grf-labs/grf/pull/711)
+- Add `get_scores` returning doubly robust scores for a number of estimands. [#732](https://github.com/grf-labs/grf/pull/732)
+- Add `get_leaf_node` utility function which given a GRF tree object returns the leaf node a test sample falls into. [#739](https://github.com/grf-labs/grf/pull/739)
+- Add a `vcov.type` standard error option to `test_calibration` and `best_linear_projection`. On large datasets with clusters, setting this option to `"HC0"` or `"HC1"` will significantly speed up the computation.
+- Add optional Nelson-Aalen estimates of the survival function. [#685](https://github.com/grf-labs/grf/pull/685)
+- Add a docstring example to `survival_forest` on how to calculate concordance with the optional `survival` package. [#956](https://github.com/grf-labs/grf/pull/956)
+
+### Fixed
+- Fix the output name in `average_treatment_effect` when `method = "TMLE"`. [#864](https://github.com/grf-labs/grf/pull/864)
+- Fix pointwise variance estimates in (the very unlikely) zero variance case. [#907](https://github.com/grf-labs/grf/pull/907)
+- Fix `survival_forest` test set predictions with sample weights. [#969](https://github.com/grf-labs/grf/pull/969)
+- Make forest tuning respect the `seed` argument when drawing a random grid of parameter values, allowing reproducibility without an explicit `set.seed` before training. [#704](https://github.com/grf-labs/grf/pull/704)
+
 ## [1.2.0] - 2020-06-04
 
 ### Added
