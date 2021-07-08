@@ -44,6 +44,9 @@ TEST_CASE("multi causal predictions with one treatment is identical to causal fo
     117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130}
   };
   size_t num_nodes = leaf_samples.size();
+ Eigen::MatrixXd x(2, 2);
+ Eigen::MatrixXd y(5, 5);
+ Eigen::MatrixXd r = x*y;
 
   InstrumentalPredictionStrategy prediction_strategy;
   MultiCausalPredictionStrategy multi_prediction_strategy(1, 1);
