@@ -47,6 +47,10 @@ jobs:
     value: true
   steps:
   - script: |
+      sudo apt-get update -qq
+      sudo apt-get install -qq valgrind
+    displayName: Setup valgrind
+  - script: |
       curl -OLs https://eddelbuettel.github.io/r-ci/run.sh && chmod 0755 run.sh
       ./run.sh bootstrap
       ./run.sh install_deps
@@ -55,6 +59,11 @@ jobs:
   - script: ./run.sh run_tests
     workingDirectory: r-package/grf
     displayName: Test R package
+  - script: |
+      R CMD INSTALL .
+      R -d "valgrind --tool=memcheck --leak-check=full --error-exitcode=1" --vanilla < tests/valgrind/test_grf_valgrind.R
+    workingDirectory: r-package/grf
+    displayName: Valgrind check
   - script: ./run.sh dump_logs_by_extension "fail"
     condition: failed()
     workingDirectory: r-package/grf
@@ -68,7 +77,6 @@ jobs:
       sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'whisker', 'xml2', 'yaml'))"
       sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
       # Install dependencies needed for vignettes and install grf.
-      R CMD INSTALL .
       sudo Rscript -e "install.packages(c('DiagrammeR', 'ggplot2', 'glmnet', 'policytree'))"
       cp ../../README.md .
       cp ../../REFERENCE.md .
