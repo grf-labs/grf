@@ -24,7 +24,7 @@ jobs:
     displayName: Setup
   - script: |
       mkdir build && cd build
-      cmake -DCMAKE_CXX_COMPILER=$CXX .. && make
+      cmake -DCMAKE_CXX_COMPILER=$CXX .. && make debug
     workingDirectory: core
     displayName: Build
   - script: valgrind --leak-check=full --error-exitcode=1 ./build/grf
