@@ -33,6 +33,6 @@ Suggests:
     DiagrammeR,
     MASS,
     survival (>= 3.2-8),
-    testthat
+    testthat (>= 3.0.4)
 SystemRequirements: GNU make
 URL: https://github.com/grf-labs/grf
