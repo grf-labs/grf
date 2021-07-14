@@ -2,7 +2,7 @@
 # 1. Core C++ compiled with GCC and test with valgrind on latest Ubuntu.
 # 2. Core C++ compiled with Clang and test with valgrind on latest Ubuntu.
 # 3. Core C++ compiled with MSVC (release build with all optimizations).
-# 4. Latest R release (4.0) on Ubuntu.
+# 4. Latest R release on Ubuntu/MacOS.
 # The R setup here is based on https://eddelbuettel.github.io/r-ci/
 trigger:
 - master
@@ -50,8 +50,14 @@ jobs:
     displayName: Check
 
 - job: R_package
+  strategy:
+    matrix:
+      ubuntu:
+        imageName: "ubuntu-latest"
+      macos:
+        imageName: "macOS-latest"
   pool:
-    vmImage: "ubuntu-latest"
+    vmImage: $(imageName)
   variables:
   - name: R_LIBS_USER
     value: '$(Agent.BuildDirectory)/R/library'
@@ -78,12 +84,11 @@ jobs:
   - script: ./run.sh dump_logs_by_extension "fail"
     condition: failed()
     workingDirectory: r-package/grf
-    displayName: Print test failures
+    displayName: Print R failures
   # Final deploy step:
-  # Build the online docs and deploy to gh-pages - only done on master branch.
+  # Build the online docs and deploy to gh-pages - only done on master branch with Linux image.
   # `GITHUB_PAT` is a GitHub access token stored on Azure Pipelines.
   - script: |
-      set -e
       # Install a previous version of `pkgdown` and its dependencies, which appears less likely to break.
       sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'whisker', 'xml2', 'yaml'))"
       sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
@@ -110,5 +115,6 @@ jobs:
     workingDirectory: r-package/grf
     displayName: 'Publish GitHub Pages'
     condition: |
+      and(eq(variables['Agent.OS'], 'Linux'),
       and(not(eq(variables['Build.Reason'], 'PullRequest')),
-      eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      eq(variables['Build.SourceBranch'], 'refs/heads/master')))
