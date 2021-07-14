@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.0.2] - 2021-07-14
 
 ### Fixed
-- Minor patch release for CRAN Solaris. [#1011](https://github.com/grf-labs/grf/pull/1011)
+- Minor patch release for CRAN Solaris compatibility. [#1011](https://github.com/grf-labs/grf/pull/1011)
 
 ## [2.0.0] - 2021-06-22
 
