@@ -1,34 +1,22 @@
 project(grf)
-cmake_minimum_required(VERSION 2.0)
-
-## ======================================================================================##
-## Check for C++11. For GCC this is >=4.7
-## ======================================================================================##
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-if(COMPILER_SUPPORTS_CXX11)
-  message("Compiler with C++11 support found.")
-else()
-  message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler, i.e. gcc >= 4.7 or Clang >= 3.0.")
-endif()
+cmake_minimum_required(VERSION 3.1)
 
 ## ======================================================================================##
 ## Compiler flags
 ## ======================================================================================##
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11 -O2")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
-
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2")
+if(MSVC)
+  # Decrease warning level for verbose MSVC
+  add_compile_options(/W3)
+endif()
 
 ## ======================================================================================##
-## In Clang pthread flag only for compiler, not for linker. For
-## windows use static linking
+## Linker flags
 ## ======================================================================================##
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set_target_properties(${TARGET} PROPERTIES COMPILE_FLAGS -pthread)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows") 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread -static")
-else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+if(NOT MSVC)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 endif()
 
 ## ======================================================================================##
@@ -58,4 +46,3 @@ ADD_CUSTOM_TARGET(release
 ## Executable
 ## ======================================================================================##
 add_executable(grf ${SOURCES})
-

@@ -9,6 +9,21 @@
 #include <random>
 #include <type_traits>
 
+// MSVC compiler directives from:
+// https://github.com/llvm-mirror/libcxx/blob/master/include/__config#L180
+// https://github.com/llvm-mirror/libcxx/blob/master/include/support/win32/limits_msvc_win32.h#L25
+#ifdef _MSC_VER
+#define _LIBCPP_COMPILER_MSVC
+#define __CHAR_BIT__       CHAR_BIT
+#endif
+
+// https://github.com/llvm-mirror/libcxx/blob/master/include/__config#L278
+#if defined(_WIN32)
+#  if (defined(_M_AMD64) || defined(__x86_64__)) || (defined(_M_ARM) || defined(__arm__))
+#    define _LIBCPP_HAS_BITSCAN64
+#  endif
+#  endif
+
 #ifndef _LIBGRF_RANDOM
 #define _LIBGRF_RANDOM
 
