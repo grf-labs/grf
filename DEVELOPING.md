@@ -20,8 +20,6 @@ To build the R package from source, cd into `r-package` and run `build_package.R
 
 An alternative development workflow is to use the accompanying grf.Rproj and build and test the package with RStudio's build menu, which can be convenient for quickly iterating C++/R code changes. Compiling the package locally with `PKG_CPPFLAGS="-UNDEBUG"` (or set in `~/.R/Makevars`) may give helpful debug assertions, as the Eigen library will then perform bounds checks on matrix algebra.
 
-CRAN releases have a 3-digit version number, while the development version has 4 digits. This convention allows one to easily distinguish if a package was installed from CRAN or from GitHub (R does not allow version numbers with a "devel" tacked on).
-
 ### Note for Windows users:
 
 Symlinks in the src directory point to the core C++ and R bindings. On Windows one has to clone this repository with symlinks enabled: `git clone -c core.symlinks=true https://github.com/grf-labs/grf.git` (this command may have to be run as an administrator if the account does not have permission to create symlinks). Caveat: the above RStudio workflow is not tested on Windows.
