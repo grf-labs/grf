@@ -91,7 +91,7 @@ jobs:
     workingDirectory: r-package/grf
     displayName: Print R failures
   - script: |
-      sudo Rscript -e 'dir.create(file.path(.libPaths(), "grf")); file.copy("grf.Rcheck/grf/", .libPaths()[1], recursive = TRUE)' # copy R check's installation instead of reinstalling the package.
+      sudo Rscript -e 'dir.create(file.path(.libPaths()[1], "grf")); file.copy("grf.Rcheck/grf/", .libPaths()[1], recursive = TRUE)' # copy R check's installation instead of reinstalling the package.
       R -d "valgrind --tool=memcheck --leak-check=full --error-exitcode=1" --vanilla < tests/valgrind/test_grf_valgrind.R
     workingDirectory: r-package/grf
     displayName: Valgrind check
