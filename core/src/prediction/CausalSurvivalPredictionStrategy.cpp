@@ -26,8 +26,7 @@ namespace grf {
 
 const std::size_t CausalSurvivalPredictionStrategy::NUMERATOR = 0;
 const std::size_t CausalSurvivalPredictionStrategy::DENOMINATOR = 1;
-
-const std::size_t NUM_TYPES = 2;
+const std::size_t CausalSurvivalPredictionStrategy::NUM_TYPES = 2;
 
 size_t CausalSurvivalPredictionStrategy::prediction_length() const {
   return 1;
