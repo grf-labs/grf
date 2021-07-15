@@ -59,7 +59,7 @@ private:
                              double sum_node_w_squared,
                              size_t num_failures_node,
                              double min_child_size,
-                             double min_child_size_survival,
+                             size_t min_child_size_survival,
                              double& best_value,
                              size_t& best_var,
                              double& best_decrease,
