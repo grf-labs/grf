@@ -3,7 +3,7 @@
 # R -d "valgrind --tool=memcheck --leak-check=full" --vanilla  < test_grf_valgrind.R
 library(grf)
 p <- 6
-n <- 1000
+n <- 750
 
 X <- round(matrix(runif(n * p), n, p), 2)
 W <- rbinom(n, 1, 0.5)
