@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // compute_split_frequencies
 Rcpp::NumericMatrix compute_split_frequencies(const Rcpp::List& forest_object, size_t max_depth);
 RcppExport SEXP _grf_compute_split_frequencies(SEXP forest_objectSEXP, SEXP max_depthSEXP) {
