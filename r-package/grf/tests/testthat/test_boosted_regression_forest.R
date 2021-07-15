@@ -1,7 +1,7 @@
 library(grf)
 
 test_that("Boosted regression forest improves performance vs regular forest", {
-  n <- 500
+  n <- 750
   p <- 6
   X <- matrix(runif(n * p), n, p)
   mu <- 2 * X[, 1] * X[, 2] + 3 * X[, 3] + 4 * X[, 4]
