@@ -2,7 +2,7 @@
 # 1. Core C++ compiled with GCC and test with valgrind on latest Ubuntu.
 # 2. Core C++ compiled with Clang and test with valgrind on latest Ubuntu.
 # 3. Core C++ compiled with MSVC (release build with all optimizations).
-# 4. Latest R release on Ubuntu/MacOS.
+# 4. Latest R release on Ubuntu(+ small valgrind check)/MacOS.
 # The R setup here is based on https://eddelbuettel.github.io/r-ci/
 trigger:
 - master
@@ -73,6 +73,11 @@ jobs:
     value: true
   steps:
   - script: |
+      sudo apt-get update -qq
+      sudo apt-get install -qq valgrind
+    displayName: Setup valgrind
+    condition: eq(variables['Agent.OS'], 'Linux')
+  - script: |
       curl -OLs https://eddelbuettel.github.io/r-ci/run.sh && chmod 0755 run.sh
       ./run.sh bootstrap
       ./run.sh install_deps
@@ -85,15 +90,20 @@ jobs:
     condition: failed()
     workingDirectory: r-package/grf
     displayName: Print R failures
+  - script: |
+      sudo Rscript -e 'dir.create(file.path(.libPaths()[1], "grf")); file.copy("grf.Rcheck/grf/", .libPaths()[1], recursive = TRUE)' # copy R check's installation instead of reinstalling the package.
+      R -d "valgrind --tool=memcheck --leak-check=full --error-exitcode=1" --vanilla < tests/valgrind/test_grf_valgrind.R
+    workingDirectory: r-package/grf
+    displayName: Valgrind check
+    condition: eq(variables['Agent.OS'], 'Linux')
   # Final deploy step:
   # Build the online docs and deploy to gh-pages - only done on master branch with Linux image.
   # `GITHUB_PAT` is a GitHub access token stored on Azure Pipelines.
   - script: |
-      # Install a previous version of `pkgdown` and its dependencies, which appears less likely to break.
+      # Lock in a previous version of `pkgdown` and its dependencies.
       sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'whisker', 'xml2', 'yaml'))"
       sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
-      # Install dependencies needed for vignettes and install grf.
-      R CMD INSTALL .
+      # Install dependencies needed for vignettes.
       sudo Rscript -e "install.packages(c('DiagrammeR', 'ggplot2', 'glmnet', 'policytree'))"
       cp ../../README.md .
       cp ../../REFERENCE.md .
