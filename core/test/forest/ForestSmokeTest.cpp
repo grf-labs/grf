@@ -105,7 +105,7 @@ TEST_CASE("forests with different ci_group_size cannot be merged", "[regression,
   try {
     Forest big_forest = Forest::merge(forests);
     FAIL();
-  } catch (const std::runtime_error& e) {
+  } catch (const std::runtime_error&) {
     // Expected exception.
   }
 }
