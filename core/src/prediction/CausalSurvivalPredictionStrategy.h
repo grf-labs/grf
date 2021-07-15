@@ -33,6 +33,7 @@ class CausalSurvivalPredictionStrategy final: public OptimizedPredictionStrategy
 public:
   static const std::size_t NUMERATOR;
   static const std::size_t DENOMINATOR;
+  static const std::size_t NUM_TYPES;
 
   size_t prediction_value_length() const;
   PredictionValues precompute_prediction_values(

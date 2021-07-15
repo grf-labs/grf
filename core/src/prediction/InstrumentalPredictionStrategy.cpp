@@ -31,8 +31,7 @@ const std::size_t InstrumentalPredictionStrategy::OUTCOME_INSTRUMENT = 3;
 const std::size_t InstrumentalPredictionStrategy::TREATMENT_INSTRUMENT = 4;
 const std::size_t InstrumentalPredictionStrategy::INSTRUMENT_INSTRUMENT = 5;
 const std::size_t InstrumentalPredictionStrategy::WEIGHT = 6;
-
-const std::size_t NUM_TYPES = 7;
+const std::size_t InstrumentalPredictionStrategy::NUM_TYPES = 7;
 
 size_t InstrumentalPredictionStrategy::prediction_length() const {
     return 1;
