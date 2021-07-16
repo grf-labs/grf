@@ -49,7 +49,7 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
   for (const auto& entry : weights_by_sample) {
     size_t sample = entry.first;
     double forest_weight = entry.second;
-    size_t failure_time = train_data.get_outcome(sample);
+    size_t failure_time = static_cast<size_t>(train_data.get_outcome(sample));
     double sample_weight = train_data.get_weight(sample);
     if (train_data.is_failure(sample)) {
      count_failure[failure_time] += forest_weight * sample_weight;

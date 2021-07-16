@@ -58,7 +58,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
     throw std::runtime_error("The honesty fraction is too close to 1 or 0, as no observations will be sampled.");
   }
 
-  uint num_groups = (uint) num_trees / options.get_ci_group_size();
+  uint num_groups = static_cast<uint>(num_trees / options.get_ci_group_size());
 
   std::vector<uint> thread_ranges;
   split_sequence(thread_ranges, 0, num_groups - 1, options.get_num_threads());

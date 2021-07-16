@@ -53,7 +53,7 @@ bool RegressionSplittingRule::find_best_split(const Data& data,
                                               std::vector<bool>& send_missing_left) {
 
   size_t size_node = samples[node].size();
-  size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
+  size_t min_child_size = std::max<size_t>(static_cast<size_t>(std::ceil(size_node * alpha)), 1uL);
 
   // Precompute the sum of outcomes in this node.
   double sum_node = 0.0;

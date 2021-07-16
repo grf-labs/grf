@@ -38,7 +38,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
 
   size_t num_samples = data.get_num_rows();
   std::vector<uint> thread_ranges;
-  split_sequence(thread_ranges, 0, num_samples - 1, num_threads);
+  split_sequence(thread_ranges, 0, static_cast<uint>(num_samples - 1), num_threads);
 
   std::vector<std::future<std::vector<Prediction>>> futures;
   futures.reserve(thread_ranges.size());

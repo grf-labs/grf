@@ -138,7 +138,7 @@ std::vector<double> MultiCausalPredictionStrategy::compute_variance(
       group_rho += rho;
     }
 
-    group_rho /= ci_group_size;
+    group_rho /= static_cast<double>(ci_group_size);
     rho_grouped_squared += group_rho.array().square().matrix();
   }
 
