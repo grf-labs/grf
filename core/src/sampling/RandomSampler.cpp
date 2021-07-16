@@ -39,7 +39,7 @@ void RandomSampler::sample_clusters(size_t num_rows,
 void RandomSampler::sample(size_t num_samples,
                            double sample_fraction,
                            std::vector<size_t>& samples) {
-  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
+  size_t num_samples_inbag = static_cast<size_t>(num_samples * sample_fraction);
   shuffle_and_split(samples, num_samples, num_samples_inbag);
 }
 
@@ -187,7 +187,7 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
   // Draw without replacement using Fisher Yates algorithm
   nonstd::uniform_real_distribution<double> distribution(0.0, 1.0);
   for (size_t i = 0; i < num_samples; ++i) {
-    size_t j = i + distribution(random_number_generator) * (max - skip.size() - i);
+    size_t j = static_cast<size_t>(i + distribution(random_number_generator) * (max - skip.size() - i));
     std::swap(result[i], result[j]);
   }
 
@@ -195,7 +195,7 @@ void RandomSampler::draw_fisher_yates(std::vector<size_t>& result,
 }
 
 size_t RandomSampler::sample_poisson(size_t mean) {
-  nonstd::poisson_distribution<size_t> distribution(mean);
+  nonstd::poisson_distribution<size_t> distribution(static_cast<double>(mean));
   return distribution(random_number_generator);
 }
 

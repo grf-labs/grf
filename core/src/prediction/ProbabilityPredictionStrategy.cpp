@@ -116,7 +116,7 @@ PredictionValues ProbabilityPredictionStrategy::precompute_prediction_values(
     double weight_sum = 0.0;
     for (auto& sample : leaf_node) {
       // The data Yi will be relabeled to integers {0, ..., num_classes - 1}
-      size_t sample_class = data.get_outcome(sample);
+      size_t sample_class = static_cast<size_t>(data.get_outcome(sample));
       averages[sample_class] += data.get_weight(sample);
       weight_sum += data.get_weight(sample);
     }

@@ -35,7 +35,7 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
   leaf_nodes_by_tree.reserve(num_trees);
 
   std::vector<uint> thread_ranges;
-  split_sequence(thread_ranges, 0, num_trees - 1, num_threads);
+  split_sequence(thread_ranges, 0, static_cast<uint>(num_trees - 1), num_threads);
 
   std::vector<std::future<
       std::vector<std::vector<size_t>>>> futures;
