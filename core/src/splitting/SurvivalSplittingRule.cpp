@@ -65,7 +65,7 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
                                                      bool& best_send_missing_left,
                                                      double& best_logrank) {
   size_t size_node = samples.size();
-  size_t min_child_size = std::max<size_t>(std::ceil(size_node * alpha), 1uL);
+  size_t min_child_size = std::max<size_t>(static_cast<size_t>(std::ceil(size_node * alpha)), 1uL);
 
   // Get the failure values t1, ..., tm in this node
   std::vector<double> failure_values;
@@ -95,7 +95,7 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
   // with observed time greater than or equal to the given failure time. Entry 0 will be equal to the number
   // of samples (and the entries will always be monotonically decreasing)
   std::vector<double> at_risk(num_failures + 1);
-  at_risk[0] = size_node;
+  at_risk[0] = static_cast<double>(size_node);
 
   // allocating an N-sized (full data set size) array is faster than a hash table
   std::vector<size_t> relabeled_failures(data.get_num_rows());

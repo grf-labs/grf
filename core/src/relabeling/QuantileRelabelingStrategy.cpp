@@ -54,8 +54,8 @@ bool QuantileRelabelingStrategy::relabel(
     auto quantile = std::lower_bound(quantile_cutoffs.begin(),
                                      quantile_cutoffs.end(),
                                      outcome);
-    long quantile_index = quantile - quantile_cutoffs.begin();
-    responses_by_sample(sample, 0) = (uint) quantile_index;
+    long quantile_index = static_cast<long>(quantile - quantile_cutoffs.begin());
+    responses_by_sample(sample, 0) = static_cast<uint>(quantile_index);
   }
   return false;
 }
