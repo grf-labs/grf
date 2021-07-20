@@ -254,9 +254,13 @@ get_scores.multi_arm_causal_forest <- function(forest,
       "."
     ))
   }
+  IPW <- matrix(0, length(subset), nlevels(W.orig))
+  IPW[observed.treatment.idx] <- 1 / W.hat[observed.treatment.idx]
+  control <- IPW[, 1] != 0
+  IPW[control, -1] <- -1 * IPW[control, 1]
+
+  IPW <- IPW[, -1, drop = FALSE]
   W.hat <- W.hat[, -1, drop = FALSE]
-  W.matrix <- stats::model.matrix(~ W.orig - 1)
-  IPW <- (W.matrix[, -1] - W.hat) / (W.hat * (1 - W.hat))
   forest.pp <- predict(forest)
 
   .get.scores <- function(outcome) {
