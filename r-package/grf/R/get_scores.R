@@ -254,6 +254,8 @@ get_scores.multi_arm_causal_forest <- function(forest,
       "."
     ))
   }
+  # Fill in a [NxK] IPW matrix with inverse propensity estimates of the observed arm
+  # using the subsetting syntax "matrix[index.matrix]".
   IPW <- matrix(0, length(subset), nlevels(W.orig))
   IPW[observed.treatment.idx] <- 1 / W.hat[observed.treatment.idx]
   control <- IPW[, 1] != 0
