@@ -11,5 +11,7 @@ typedef unsigned int uint;
 
 static const uint DEFAULT_NUM_THREADS = 0;
 
+const double STATUS_INTERVAL = 2.0;
+
 } // namespace grf
 #endif /* GRF_GLOBALS_H_ */
