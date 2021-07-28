@@ -30,7 +30,8 @@ causal_forest(
   tune.num.draws = 1000,
   compute.oob.predictions = TRUE,
   num.threads = NULL,
-  seed = runif(1, 0, .Machine$integer.max)
+  seed = runif(1, 0, .Machine$integer.max),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -125,6 +126,8 @@ to select the optimal parameters. Default is 1000.}
 to the maximum hardware concurrency.}
 
 \item{seed}{The seed of the C++ random number generator.}
+
+\item{verbose}{Boolean variable for displaying training progress.}
 }
 \value{
 A trained causal forest object. If tune.parameters is enabled,

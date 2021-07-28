@@ -75,6 +75,7 @@
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
+#' @param verbose Boolean variable for displaying training progress.
 #'
 #' @return A trained causal forest object. If tune.parameters is enabled,
 #'  then tuning information will be included through the `tuning.output` attribute.
@@ -156,7 +157,8 @@ causal_forest <- function(X, Y, W,
                           tune.num.draws = 1000,
                           compute.oob.predictions = TRUE,
                           num.threads = NULL,
-                          seed = runif(1, 0, .Machine$integer.max)) {
+                          seed = runif(1, 0, .Machine$integer.max),
+                          verbose = FALSE) {
   has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
@@ -191,7 +193,8 @@ causal_forest <- function(X, Y, W,
                       ci.group.size = 1,
                       tune.parameters = tune.parameters,
                       num.threads = num.threads,
-                      seed = seed)
+                      seed = seed,
+                      verbose = verbose)
 
   if (is.null(Y.hat)) {
     forest.Y <- do.call(regression_forest, c(Y = list(Y), args.orthog))
@@ -231,6 +234,7 @@ causal_forest <- function(X, Y, W,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
+               verbose = verbose,
                reduced.form.weight = 0)
 
   tuning.output <- NULL
