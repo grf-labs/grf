@@ -39,7 +39,8 @@ class ForestTrainer {
 public:
   ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
                 std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
-                std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy);
+                std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy,
+                std::string verbose_operation_name);
 
   Forest train(const Data& data, const ForestOptions& options) const;
 
@@ -64,6 +65,8 @@ private:
                                                     const ForestOptions& options) const;
 
   TreeTrainer tree_trainer;
+
+  std::string operation_name;
 };
 
 } // namespace grf

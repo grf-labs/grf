@@ -30,10 +30,13 @@ namespace grf {
 
 ForestTrainer::ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_strategy,
                              std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
-                             std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy) :
+                             std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy,
+                             std::string verbose_operation_name) :
     tree_trainer(std::move(relabeling_strategy),
                  std::move(splitting_rule_factory),
-                 std::move(prediction_strategy)) {}
+                 std::move(prediction_strategy)) {
+    operation_name = verbose_operation_name;
+}
 
 Forest ForestTrainer::train(const Data& data, const ForestOptions& options) const {
   std::vector<std::unique_ptr<Tree>> trees = train_trees(data, options);
@@ -49,7 +52,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
   uint num_trees = options.get_num_trees();
   bool verbose = options.get_verbosity();
 
-  ProgressBar bar("making forest", num_trees, verbose);
+  ProgressBar bar(operation_name, num_trees, verbose);
   bar.set_initial_times();
   bar.set_bar_width(50); // way to more adaptively set width?
   bar.fill_bar_progress_with("■");
@@ -80,7 +83,6 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
   for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
     size_t start_index = thread_ranges[i];
     size_t num_trees_batch = thread_ranges[i + 1] - start_index;
-    std::cout << "num_trees_batch: " << num_trees_batch << std::endl;
     futures.push_back(std::async(std::launch::async,
                                  &ForestTrainer::train_batch,
                                  this,

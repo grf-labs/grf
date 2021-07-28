@@ -48,9 +48,12 @@ ForestTrainer instrumental_trainer(double reduced_form_weight,
           : std::unique_ptr<SplittingRuleFactory>(new RegressionSplittingRuleFactory());
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new InstrumentalPredictionStrategy());
 
+  std::string verbose_operation_name = "Growing instrumental forest";
+
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       std::move(prediction_strategy));
+                       std::move(prediction_strategy),
+                       verbose_operation_name);
 }
 
 ForestTrainer multi_causal_trainer(size_t num_treatments,
@@ -63,9 +66,12 @@ ForestTrainer multi_causal_trainer(size_t num_treatments,
     : std::unique_ptr<SplittingRuleFactory>(new MultiRegressionSplittingRuleFactory(response_length));
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new MultiCausalPredictionStrategy(num_treatments, num_outcomes));
 
+  std::string verbose_operation_name = "Growing multi-causal forest";
+
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       std::move(prediction_strategy));
+                       std::move(prediction_strategy),
+                       verbose_operation_name);
 }
 
 ForestTrainer quantile_trainer(const std::vector<double>& quantiles) {
@@ -73,9 +79,12 @@ ForestTrainer quantile_trainer(const std::vector<double>& quantiles) {
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(
       new ProbabilitySplittingRuleFactory(quantiles.size() + 1));
 
+  std::string verbose_operation_name = "Growing quantile forest";
+
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       nullptr);
+                       nullptr,
+                       verbose_operation_name);
 }
 
 ForestTrainer probability_trainer(size_t num_classes) {
@@ -83,9 +92,12 @@ ForestTrainer probability_trainer(size_t num_classes) {
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new ProbabilitySplittingRuleFactory(num_classes));
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new ProbabilityPredictionStrategy(num_classes));
 
+  std::string verbose_operation_name = "Growing probability forest";
+
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       std::move(prediction_strategy));
+                       std::move(prediction_strategy),
+                       verbose_operation_name);
 }
 
 ForestTrainer regression_trainer() {
@@ -93,9 +105,12 @@ ForestTrainer regression_trainer() {
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
 
+  std::string verbose_operation_name = "Growing regression forest";
+
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       std::move(prediction_strategy));
+                       std::move(prediction_strategy),
+                       verbose_operation_name);
 }
 
 ForestTrainer multi_regression_trainer(size_t num_outcomes) {
@@ -103,9 +118,12 @@ ForestTrainer multi_regression_trainer(size_t num_outcomes) {
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new MultiRegressionSplittingRuleFactory(num_outcomes));
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new MultiRegressionPredictionStrategy(num_outcomes));
 
+  std::string verbose_operation_name = "Growing multi-regression forest";
+
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       std::move(prediction_strategy));
+                       std::move(prediction_strategy),
+                       verbose_operation_name);
 }
 
 ForestTrainer ll_regression_trainer(double split_lambda,
@@ -118,18 +136,24 @@ ForestTrainer ll_regression_trainer(double split_lambda,
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new RegressionSplittingRuleFactory());
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new RegressionPredictionStrategy());
 
+  std::string verbose_operation_name = "Growing local linear regression forest";
+
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       std::move(prediction_strategy));
+                       std::move(prediction_strategy),
+                       verbose_operation_name);
 }
 
 ForestTrainer survival_trainer() {
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   std::unique_ptr<SplittingRuleFactory> splitting_rule_factory(new SurvivalSplittingRuleFactory());
 
+  std::string verbose_operation_name = "Growing survival forest";
+
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       nullptr);
+                       nullptr,
+                       verbose_operation_name);
 }
 
 ForestTrainer causal_survival_trainer(bool stabilize_splits) {
@@ -139,10 +163,12 @@ ForestTrainer causal_survival_trainer(bool stabilize_splits) {
           ? std::unique_ptr<SplittingRuleFactory>(new CausalSurvivalSplittingRuleFactory())
           : std::unique_ptr<SplittingRuleFactory>(new RegressionSplittingRuleFactory());
   std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy(new CausalSurvivalPredictionStrategy());
+  std::string verbose_operation_name = "Growing causal survival forest";
 
   return ForestTrainer(std::move(relabeling_strategy),
                        std::move(splitting_rule_factory),
-                       std::move(prediction_strategy));
+                       std::move(prediction_strategy),
+                       verbose_operation_name);
 }
 
 } // namespace grf

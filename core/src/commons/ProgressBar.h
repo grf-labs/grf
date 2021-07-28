@@ -6,7 +6,7 @@
 #include <utility>
 #include "commons/utility.h"
 #include "commons/globals.h"
-
+#include <Rcpp.h>
 
 using std::chrono::steady_clock;
 using std::chrono::duration_cast;
@@ -56,16 +56,12 @@ class ProgressBar {
             write_time_estimate(os);
         }
 
-        void write_time_estimate(std::ostream &os = std::cout) {
+        void write_time_estimate(std::ostream &os = Rcpp::Rcout) {
             std::unique_lock<std::mutex> lock{mutex_};
             elapsed_time_ = duration_cast<seconds>(steady_clock::now() - last_time_);
             if (progress_ > 0 && elapsed_time_.count() > grf::STATUS_INTERVAL){
                 double relative_progress = (double) progress_ / (double) max_progress;
                 seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time_);
-                os << " progress: " << progress_<< std::endl;
-                os << " max_progress: " << max_progress<< std::endl;
-                os << " relative_progress: " << relative_progress<< std::endl;
-                os << " time_from_start: " << time_from_start.count() << std::endl;
                 uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
                 if (verbose) {
                     os << operation << " Progress: " << round(100 * relative_progress) << "%. Estimated remaining time: "
