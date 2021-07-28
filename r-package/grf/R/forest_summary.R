@@ -5,7 +5,7 @@
 #' forest prediction as the sole two regressors. A coefficient of 1 for
 #' `mean.forest.prediction` suggests that the mean forest prediction is correct,
 #' whereas a coefficient of 1 for `differential.forest.prediction` additionally suggests
-#' that the forest has captured heterogeneity in the underlying signal.
+#' that the heterogeneity estimates from the forest are well calibrated.
 #' The p-value of the `differential.forest.prediction` coefficient
 #' also acts as an omnibus test for the presence of heterogeneity: If the coefficient
 #' is significantly greater than 0, then we can reject the null of
@@ -20,7 +20,7 @@
 #' @return A heteroskedasticity-consistent test of calibration.
 #'
 #' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
-#'  cluster-robust inference." Journal of human resources 50, no. 2 (2015): 317-372.
+#'  cluster-robust inference." Journal of Human Resources 50, no. 2 (2015): 317-372.
 #' @references Chernozhukov, Victor, Mert Demirer, Esther Duflo, and Ivan Fernandez-Val.
 #'             "Generic Machine Learning Inference on Heterogenous Treatment Effects in
 #'             Randomized Experiments." arXiv preprint arXiv:1712.04802 (2017).
