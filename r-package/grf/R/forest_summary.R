@@ -129,7 +129,7 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 #'  For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.
 #'
 #' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
-#'  cluster-robust inference." Journal of human resources 50, no. 2 (2015): 317-372.
+#'  cluster-robust inference." Journal of Human Resources 50, no. 2 (2015): 317-372.
 #' @references Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
 #'  "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests."
 #'  arXiv preprint arXiv:2001.09887, 2020.
