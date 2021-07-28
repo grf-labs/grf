@@ -21,6 +21,7 @@
 #include <stdexcept>
 
 #include "commons/utility.h"
+#include "commons/ProgressBar.h"
 #include "ForestTrainer.h"
 #include "random/random.hpp"
 
@@ -46,6 +47,13 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                                               const ForestOptions& options) const {
   size_t num_samples = data.get_num_rows();
   uint num_trees = options.get_num_trees();
+  bool verbose = options.get_verbosity();
+
+  ProgressBar bar("making forest", num_trees, verbose);
+  bar.set_initial_times();
+  bar.set_bar_width(50); // way to more adaptively set width?
+  bar.fill_bar_progress_with("■");
+  bar.fill_bar_remainder_with(" ");
 
   // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
   const TreeOptions& tree_options = options.get_tree_options();
@@ -72,12 +80,13 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
   for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
     size_t start_index = thread_ranges[i];
     size_t num_trees_batch = thread_ranges[i + 1] - start_index;
-
+    std::cout << "num_trees_batch: " << num_trees_batch << std::endl;
     futures.push_back(std::async(std::launch::async,
                                  &ForestTrainer::train_batch,
                                  this,
                                  start_index,
                                  num_trees_batch,
+                                 std::ref(bar),
                                  std::ref(data),
                                  options));
   }
@@ -95,6 +104,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
 std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
     size_t start,
     size_t num_trees,
+    ProgressBar& bar,
     const Data& data,
     const ForestOptions& options) const {
   size_t ci_group_size = options.get_ci_group_size();
@@ -117,6 +127,11 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
           std::make_move_iterator(group.begin()),
           std::make_move_iterator(group.end()));
     }
+  // temporarily display percentage and estimated time remaining
+  float progress_pct;
+  progress_pct = (i + 1.0) / num_trees * 100.0;
+  // when a tree finishes, increment by 1 * ci_group_size
+  bar.update(progress_pct, 1 * ci_group_size);
   }
   return trees;
 }
@@ -146,5 +161,6 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_ci_group(const Data& dat
   }
   return trees;
 }
+
 
 } // namespace grf

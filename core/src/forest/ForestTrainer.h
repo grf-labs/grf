@@ -19,11 +19,15 @@
 #define GRF_FORESTTRAINER_H
 
 #include <memory>
+#include <chrono>
+#include <mutex>
+#include <condition_variable>
 
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
 #include "splitting/factory/SplittingRuleFactory.h"
 
+#include "commons/ProgressBar.h"
 #include "tree/Tree.h"
 #include "tree/TreeTrainer.h"
 #include "forest/Forest.h"
@@ -47,6 +51,7 @@ private:
   std::vector<std::unique_ptr<Tree>> train_batch(
       size_t start,
       size_t num_trees,
+      ProgressBar& bar,
       const Data& data,
       const ForestOptions& options) const;
 

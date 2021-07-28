@@ -40,7 +40,8 @@ public:
                 uint num_threads,
                 uint random_seed,
                 const std::vector<size_t>& sample_clusters,
-                uint samples_per_cluster);
+                uint samples_per_cluster,
+                bool verbose);
 
   static uint validate_num_threads(uint num_threads);
 
@@ -54,6 +55,8 @@ public:
   uint get_num_threads() const;
   uint get_random_seed() const;
 
+  bool get_verbosity() const;
+
 private:
   uint num_trees;
   size_t ci_group_size;
@@ -64,6 +67,7 @@ private:
 
   uint num_threads;
   uint random_seed;
+  bool verbose;
 };
 
 } // namespace grf

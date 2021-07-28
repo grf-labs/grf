@@ -37,11 +37,12 @@ ForestOptions::ForestOptions(uint num_trees,
                              uint num_threads,
                              uint random_seed,
                              const std::vector<size_t>& sample_clusters,
-                             uint samples_per_cluster):
+                             uint samples_per_cluster,
+                             bool verbose):
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
     tree_options(mtry, min_node_size, honesty, honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty),
-    sampling_options(samples_per_cluster, sample_clusters) {
+    sampling_options(samples_per_cluster, sample_clusters), verbose(verbose){
 
   this->num_threads = validate_num_threads(num_threads);
 
@@ -60,6 +61,12 @@ ForestOptions::ForestOptions(uint num_trees,
     std::random_device random_device;
     this->random_seed = random_device();
   }
+
+  this->verbose = get_verbosity();
+}
+
+bool ForestOptions::get_verbosity() const {
+    return verbose;
 }
 
 uint ForestOptions::get_num_trees() const {
