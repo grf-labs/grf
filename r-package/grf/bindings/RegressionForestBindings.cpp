@@ -44,7 +44,8 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
                             unsigned int samples_per_cluster,
                             bool compute_oob_predictions,
                             unsigned int num_threads,
-                            unsigned int seed) {
+                            unsigned int seed,
+                            bool verbose) {
   ForestTrainer trainer = regression_trainer();
 
   Data data = RcppUtilities::convert_data(train_matrix);
@@ -54,7 +55,7 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
   }
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
+      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster, verbose);
   Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;
@@ -124,7 +125,8 @@ Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix,
                             std::vector<size_t> clusters,
                             unsigned int samples_per_cluster,
                             unsigned int num_threads,
-                            unsigned int seed) {
+                            unsigned int seed,
+                            bool verbose) {
   ForestTrainer trainer = ll_regression_trainer(ll_split_lambda, ll_split_weight_penalty, overall_beta,
                                                ll_split_cutoff, ll_split_variables);
 
@@ -132,7 +134,7 @@ Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix,
   data.set_outcome_index(outcome_index);
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-                        honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster);
+                        honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster, verbose);
   Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;
