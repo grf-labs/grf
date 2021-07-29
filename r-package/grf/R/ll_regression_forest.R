@@ -61,6 +61,7 @@
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
+#' @param verbose Boolean variable for displaying training progress.
 #'
 #' @return A trained local linear forest object.
 #'
@@ -98,7 +99,8 @@ ll_regression_forest <- function(X, Y,
                                 tune.num.reps = 100,
                                 tune.num.draws = 1000,
                                 num.threads = NULL,
-                                seed = runif(1, 0, .Machine$integer.max)) {
+                                seed = runif(1, 0, .Machine$integer.max),
+                                verbose = FALSE) {
 
   has.missing.values <- validate_X(X)
   Y <- validate_observations(Y, X)
@@ -137,7 +139,8 @@ ll_regression_forest <- function(X, Y,
                imbalance.penalty = imbalance.penalty,
                ci.group.size = ci.group.size,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               verbose = verbose)
   if (enable.ll.split && ll.split.cutoff > 0) {
     # find overall beta
     J <- diag(ncol(X) + 1)

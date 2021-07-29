@@ -97,6 +97,7 @@
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
+#' @param verbose Boolean variable for displaying training progress.
 #'
 #' @return A trained multi arm causal forest object.
 #'
@@ -183,7 +184,8 @@ multi_arm_causal_forest <- function(X, Y, W,
                                     ci.group.size = 2,
                                     compute.oob.predictions = TRUE,
                                     num.threads = NULL,
-                                    seed = runif(1, 0, .Machine$integer.max)) {
+                                    seed = runif(1, 0, .Machine$integer.max),
+                                    verbose = FALSE) {
   has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X, allow.matrix = TRUE)
@@ -217,7 +219,8 @@ multi_arm_causal_forest <- function(X, Y, W,
                       alpha = alpha,
                       imbalance.penalty = imbalance.penalty,
                       num.threads = num.threads,
-                      seed = seed)
+                      seed = seed,
+                      verbose = verbose)
 
   if (is.null(Y.hat)) {
     forest.Y <- do.call(multi_regression_forest, c(Y = list(Y), args.orthog))
@@ -263,7 +266,8 @@ multi_arm_causal_forest <- function(X, Y, W,
                ci.group.size = ci.group.size,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               verbose = verbose)
 
   forest <- do.call.rcpp(multi_causal_train, c(data, args))
   class(forest) <- c("multi_arm_causal_forest", "grf")

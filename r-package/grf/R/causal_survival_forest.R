@@ -105,6 +105,7 @@
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
+#' @param verbose Boolean variable for displaying training progress.
 #'
 #' @return A trained causal_survival_forest forest object.
 #'
@@ -182,7 +183,8 @@ causal_survival_forest <- function(X, Y, W, D,
                                    tune.parameters = "none",
                                    compute.oob.predictions = TRUE,
                                    num.threads = NULL,
-                                   seed = runif(1, 0, .Machine$integer.max)) {
+                                   seed = runif(1, 0, .Machine$integer.max),
+                                   verbose = FALSE) {
   has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
@@ -236,7 +238,8 @@ causal_survival_forest <- function(X, Y, W, D,
                       tune.parameters = tune.parameters,
                       compute.oob.predictions = TRUE,
                       num.threads = num.threads,
-                      seed = seed)
+                      seed = seed,
+                      verbose = verbose)
 
   if (is.null(W.hat)) {
     forest.W <- do.call(regression_forest, args.orthog)
@@ -263,7 +266,8 @@ causal_survival_forest <- function(X, Y, W, D,
                         prediction.type = "Nelson-Aalen",
                         compute.oob.predictions = FALSE,
                         num.threads = num.threads,
-                        seed = seed)
+                        seed = seed,
+                        verbose = verbose)
 
   # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
   if (is.null(E1.hat)) {
@@ -363,7 +367,8 @@ causal_survival_forest <- function(X, Y, W, D,
                ci.group.size = ci.group.size,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               verbose = verbose)
 
   forest <- do.call.rcpp(causal_survival_train, c(data, args))
   class(forest) <- c("causal_survival_forest", "grf")

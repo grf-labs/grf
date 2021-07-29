@@ -47,6 +47,7 @@
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
+#' @param verbose Boolean variable for displaying training progress.
 #'
 #' @return A trained quantile forest object.
 #'
@@ -94,7 +95,8 @@ quantile_forest <- function(X, Y,
                             imbalance.penalty = 0.0,
                             compute.oob.predictions = FALSE,
                             num.threads = NULL,
-                            seed = runif(1, 0, .Machine$integer.max)) {
+                            seed = runif(1, 0, .Machine$integer.max),
+                            verbose = FALSE) {
   if (!is.numeric(quantiles) || length(quantiles) < 1) {
     stop("Error: Must provide numeric quantiles")
   } else if (min(quantiles) <= 0 || max(quantiles) >= 1) {
@@ -124,7 +126,8 @@ quantile_forest <- function(X, Y,
                ci.group.size = 1,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               verbose = verbose)
 
   forest <- do.call.rcpp(quantile_train, c(data, args))
   class(forest) <- c("quantile_forest", "grf")
