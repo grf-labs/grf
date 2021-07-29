@@ -58,9 +58,6 @@ class ProgressBar {
         seconds elapsed_time_{};
         std::mutex mutex_;
         size_t progress_{0};
-        float progress_pct_{0.0f};
-        size_t bar_width_{60};
-        std::string fill_{"#"}, remainder_{" "}, status_text_{""};
 };
 
 
