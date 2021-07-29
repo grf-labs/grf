@@ -54,9 +54,6 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
 
   ProgressBar bar(operation_name, num_trees, verbose);
   bar.set_initial_times();
-  bar.set_bar_width(50); // way to more adaptively set width?
-  bar.fill_bar_progress_with("■");
-  bar.fill_bar_remainder_with(" ");
 
   // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
   const TreeOptions& tree_options = options.get_tree_options();
@@ -129,11 +126,8 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
           std::make_move_iterator(group.begin()),
           std::make_move_iterator(group.end()));
     }
-  // temporarily display percentage and estimated time remaining
-  float progress_pct;
-  progress_pct = (i + 1.0) / num_trees * 100.0;
   // when a tree finishes, increment by 1 * ci_group_size
-  bar.update(progress_pct, 1 * ci_group_size);
+  bar.update(1 * ci_group_size);
   }
   return trees;
 }
