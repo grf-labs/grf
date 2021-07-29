@@ -22,7 +22,8 @@ quantile_forest(
   imbalance.penalty = 0,
   compute.oob.predictions = FALSE,
   num.threads = NULL,
-  seed = runif(1, 0, .Machine$integer.max)
+  seed = runif(1, 0, .Machine$integer.max),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -87,6 +88,8 @@ Only applies if honesty is enabled. Default is TRUE.}
 to the maximum hardware concurrency.}
 
 \item{seed}{The seed of the C++ random number generator.}
+
+\item{verbose}{Boolean variable for displaying training progress.}
 }
 \value{
 A trained quantile forest object.

@@ -22,7 +22,8 @@ probability_forest(
   ci.group.size = 2,
   compute.oob.predictions = TRUE,
   num.threads = NULL,
-  seed = runif(1, 0, .Machine$integer.max)
+  seed = runif(1, 0, .Machine$integer.max),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -87,6 +88,8 @@ be at least 2. Default is 2.}
 to the maximum hardware concurrency.}
 
 \item{seed}{The seed of the C++ random number generator.}
+
+\item{verbose}{Boolean variable for displaying training progress.}
 }
 \value{
 A trained probability forest object.

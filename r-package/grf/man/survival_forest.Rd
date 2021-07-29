@@ -23,7 +23,8 @@ survival_forest(
   prediction.type = c("Kaplan-Meier", "Nelson-Aalen"),
   compute.oob.predictions = TRUE,
   num.threads = NULL,
-  seed = runif(1, 0, .Machine$integer.max)
+  seed = runif(1, 0, .Machine$integer.max),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -93,6 +94,8 @@ Only relevant if `compute.oob.predictions` is TRUE. Default is "Kaplan-Meier".}
 to the maximum hardware concurrency.}
 
 \item{seed}{The seed of the C++ random number generator.}
+
+\item{verbose}{Boolean variable for displaying training progress.}
 }
 \value{
 A trained survival_forest forest object.
