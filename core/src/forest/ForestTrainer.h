@@ -67,6 +67,10 @@ private:
   TreeTrainer tree_trainer;
 
   std::string operation_name;
+  std::unique_ptr<std::mutex> m_pMutex;
+  std::unique_ptr<std::condition_variable> m_pConditionVar;
+//  std::mutex mutex;
+//  std::condition_variable condition_var;
 };
 
 } // namespace grf

@@ -32,9 +32,11 @@ ForestTrainer::ForestTrainer(std::unique_ptr<RelabelingStrategy> relabeling_stra
                              std::unique_ptr<SplittingRuleFactory> splitting_rule_factory,
                              std::unique_ptr<OptimizedPredictionStrategy> prediction_strategy,
                              std::string verbose_operation_name) :
-    tree_trainer(std::move(relabeling_strategy),
+        tree_trainer(std::move(relabeling_strategy),
                  std::move(splitting_rule_factory),
-                 std::move(prediction_strategy)) {
+                 std::move(prediction_strategy)),
+                 m_pMutex(make_unique<std::mutex>()),
+                 m_pConditionVar(make_unique<std::condition_variable>()){
     operation_name = verbose_operation_name;
 }
 
@@ -53,7 +55,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
   bool verbose = options.get_verbosity();
 
   ProgressBar bar(operation_name, num_trees, verbose);
-  bar.set_initial_times();
+  bar.init_time_vars();
 
   // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
   const TreeOptions& tree_options = options.get_tree_options();
@@ -89,7 +91,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                  std::ref(data),
                                  options));
   }
-
+  bar.showProgress(*m_pMutex, *m_pConditionVar);
   for (auto& future : futures) {
     std::vector<std::unique_ptr<Tree>> thread_trees = future.get();
     trees.insert(trees.end(),
@@ -127,7 +129,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
           std::make_move_iterator(group.end()));
     }
   // when a tree finishes, increment by 1 * ci_group_size
-  bar.update(1 * ci_group_size);
+  bar.increment_progress(1 * ci_group_size, *m_pMutex, *m_pConditionVar);
   }
   return trees;
 }
