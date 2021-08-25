@@ -152,6 +152,8 @@ survival_forest <- function(X, Y, D,
   # etc. Will range from 0 to num.failures.
   if (is.null(failure.times)) {
     failure.times <- sort(unique(Y[D == 1]))
+  } else if (is.unsorted(failure.times, strictly = TRUE)) {
+    stop("Argument `failure.times` should be a vector with elements in increasing order.")
   }
   Y.relabeled <- findInterval(Y, failure.times)
 
@@ -274,6 +276,9 @@ predict.survival_forest <- function(object,
     failure.times <- object[["failure.times"]]
     Y.relabeled <- object[["Y.relabeled"]]
   } else {
+    if (is.unsorted(failure.times, strictly = TRUE)) {
+      stop("Argument `failure.times` should be a vector with elements in increasing order.")
+    }
     Y.relabeled <- findInterval(object[["Y.orig"]], failure.times)
   }
 
