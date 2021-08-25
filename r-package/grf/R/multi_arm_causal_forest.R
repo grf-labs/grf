@@ -401,7 +401,7 @@ predict.multi_arm_causal_forest <- function(object,
                num.threads = num.threads,
                estimate.variance = estimate.variance)
 
-   if (!is.null(newdata)) {
+  if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)
     test.data <- create_test_matrices(newdata)
     ret <- do.call.rcpp(multi_causal_predict, c(train.data, test.data, args))
