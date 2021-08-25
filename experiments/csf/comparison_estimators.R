@@ -71,6 +71,7 @@ estimate_IPCW_grf = function(data, data.test) {
   C.hat = predict(sf.censor)$predictions
   Y.relabeled = sf.censor$Y.relabeled
   C.Y.hat = rep(1, nrow(data$X)) # (for events before the first failure, C.Y.hat is one)
+  # Pick out S_C(Yi, X) from the estimated survival curve
   C.Y.hat[Y.relabeled != 0] = C.hat[cbind(1:nrow(data$X), Y.relabeled)]
   sample.weights = 1 / C.Y.hat
   subset = data$D == 1
