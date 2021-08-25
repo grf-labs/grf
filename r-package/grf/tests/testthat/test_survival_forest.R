@@ -56,6 +56,31 @@ test_that("a simple survival forest workflow works", {
   expect_equal(survival.grid, survival)
 })
 
+test_that("survival forest grid indexing works as expected", {
+  n <- 500
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  failure.time <- round(exp(0.5 * X[, 1]) * rexp(n), 2)
+  censor.time <- round(2 * rexp(n), 2)
+  Y <- pmin(failure.time, censor.time)
+  D <- as.integer(failure.time <= censor.time)
+  sf <- survival_forest(X, Y, D, num.trees = 250)
+  
+  # Pick out S(Yi, X) from the estimated survival curve in two identical ways
+  sf.pred1 <- predict(sf)
+  grid.index1 <- sf$Y.relabeled
+  S.hat1 <- sf.pred1$predictions
+  S.Y.hat1 <- rep(1, n)
+  S.Y.hat1[grid.index1 != 0] <- S.hat1[cbind(1:n, grid.index1)]
+  
+  sf.pred2 <- predict(sf, failure.times = sort(unique(Y)))
+  grid.index2 <- match(Y, sf.pred2$failure.times)
+  S.hat2 <- sf.pred2$predictions
+  S.Y.hat2 <- S.hat2[cbind(1:n, grid.index2)]
+  
+  expect_equal(S.Y.hat1, S.Y.hat2)
+})
+
 test_that("sample weighted survival prediction is invariant to weight rescaling", {
   # Estimates of the survival function adjusting each sample count
   # by its rescaled sample weight should leave predictions unchanged.
