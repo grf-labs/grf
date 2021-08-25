@@ -215,7 +215,7 @@ causal_survival_forest <- function(X, Y, W, D,
     warning(paste0("The number of events are more than 10% of the sample size. ",
                    "To reduce the computational burden of fitting survival and ",
                    "censoring curves, consider rounding the event values `Y` or ",
-                   "supplying a coarser grid with the `failure.times` argument. "))
+                   "supplying a coarser grid with the `failure.times` argument. "), immediate. = TRUE)
   }
 
   args.orthog <- list(X = X,
