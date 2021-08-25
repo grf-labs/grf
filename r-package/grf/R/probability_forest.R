@@ -109,8 +109,8 @@ probability_forest <- function(X, Y,
   if (!is.factor(Y)) {
     stop("The class labels must be a factor vector.")
   }
-  if (!identical(levels(Y), levels(droplevels(Y)))) {
-    warning("The class label vector Y contains unused levels.")
+  if (nlevels(Y) != nlevels(droplevels(Y))) {
+    warning("The class label vector Y contains unused levels (see `droplevels()` to drop unused levels).")
   }
   Y.relabeled <- as.numeric(Y) - 1 # convert to integers between 0 and num_classes
   class.names <- levels(Y)
