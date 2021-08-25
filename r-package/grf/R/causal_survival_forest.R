@@ -17,7 +17,7 @@
 #' thresholding Y before running causal_survival_forest: `D[Y >= Y.max] <- 1` and
 #' `Y[Y >= Y.max] <- Y.max`. For details see Cui et al. (2020). The computational
 #' complexity of this estimator scales with the cardinality of the event times Y.
-#' If the number of samples is large and the Y grid dense, consider rounding the
+#' If the number of samples is large and the Y grid dense, consider discretizing the
 #' event times (or supply a coarser grid with the `failure.times` argument).
 #'
 #' @param X The covariates.
@@ -214,7 +214,7 @@ causal_survival_forest <- function(X, Y, W, D,
   if (nrow(X) > 5000 && length(Y.grid) / nrow(X) > 0.1) {
     warning(paste0("The number of events are more than 10% of the sample size. ",
                    "To reduce the computational burden of fitting survival and ",
-                   "censoring curves, consider rounding the event values `Y` or ",
+                   "censoring curves, consider discretizing the event values `Y` or ",
                    "supplying a coarser grid with the `failure.times` argument. "))
   }
 

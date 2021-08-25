@@ -172,7 +172,7 @@ to some suitable maximum follow-up time Y.max. One can do this in practice by
 thresholding Y before running causal_survival_forest: `D[Y >= Y.max] <- 1` and
 `Y[Y >= Y.max] <- Y.max`. For details see Cui et al. (2020). The computational
 complexity of this estimator scales with the cardinality of the event times Y.
-If the number of samples is large and the Y grid dense, consider rounding the
+If the number of samples is large and the Y grid dense, consider discretizing the
 event times (or supply a coarser grid with the `failure.times` argument).
 }
 \examples{
