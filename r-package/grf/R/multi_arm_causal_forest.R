@@ -203,7 +203,7 @@ multi_arm_causal_forest <- function(X, Y, W,
     stop("Can not compute contrasts from a single treatment.")
   }
   if (!identical(levels(W), levels(droplevels(W)))) {
-    warning("The treatment vector W contains unused levels.")
+    warning("The treatment vector W contains unused levels (see `droplevels()` to drop unused levels).")
   }
 
   args.orthog <- list(X = X,
