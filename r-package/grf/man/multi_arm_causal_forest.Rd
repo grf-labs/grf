@@ -32,7 +32,8 @@ multi_arm_causal_forest(
 \arguments{
 \item{X}{The covariates used in the causal regression.}
 
-\item{Y}{The outcome (must be a numeric vector or matrix [one column per outcome] with no NAs).}
+\item{Y}{The outcome (must be a numeric vector or matrix [one column per outcome] with no NAs).
+Multiple outcomes should be on the same scale.}
 
 \item{W}{The treatment assignment (must be a factor vector with no NAs). The reference treatment
 is set to the first treatment according to the ordinality of the factors, this can be changed
