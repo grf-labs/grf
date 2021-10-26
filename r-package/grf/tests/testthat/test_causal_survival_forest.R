@@ -35,10 +35,16 @@ test_that("causal survival forest with complete non-censored data is identical t
   cf <- causal_forest(X, Y, W)
   pp.cf <- predict(cf, estimate.variance = TRUE)
   
+  ate.cs <- average_treatment_effect(cs.forest)
+  ate.cf <- average_treatment_effect(cf)
+  
   expect_lt(mean((pp.cs$predictions - pp.cf$predictions)^2), 0.0005)
   expect_equal(mean(pp.cs$predictions), mean(pp.cf$predictions), tolerance = 0.01)
   expect_lt(mean((pp.cs$variance.estimates - pp.cf$variance.estimates)^2), 0.0005)
   expect_equal(mean(pp.cs$variance.estimates), mean(pp.cf$variance.estimates), tolerance = 0.01)
+  
+  expect_equal(ate.cs[["estimate"]], ate.cf[["estimate"]], tolerance = 0.01)
+  expect_equal(ate.cs[["std.err"]], ate.cf[["std.err"]], tolerance = 0.001)
 })
 
 test_that("causal survival forest predictions are kernel weighted correctly", {
