@@ -19,6 +19,28 @@ test_that("causal survival forest is well-calibrated", {
   expect_lt(mse.test, 0.01)
 })
 
+test_that("causal survival forest with complete non-censored data is identical to causal forest", {
+  n <- 500
+  p <- 5
+  X <- matrix(runif(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  Y.max <- 1
+  failure.time <- pmin(rexp(n) * X[, 1] + W, Y.max)
+  censor.time <- 999 * runif(n)
+  Y <- pmin(failure.time, censor.time)
+  D <- as.integer(failure.time <= censor.time)
+  
+  cs.forest <- causal_survival_forest(X, Y, W, D)
+  pp.cs <- predict(cs.forest, estimate.variance = TRUE)
+  cf <- causal_forest(X, Y, W)
+  pp.cf <- predict(cf, estimate.variance = TRUE)
+  
+  expect_lt(mean((pp.cs$predictions - pp.cf$predictions)^2), 0.0005)
+  expect_equal(mean(pp.cs$predictions), mean(pp.cf$predictions), tolerance = 0.01)
+  expect_lt(mean((pp.cs$variance.estimates - pp.cf$variance.estimates)^2), 0.0005)
+  expect_equal(mean(pp.cs$variance.estimates), mean(pp.cf$variance.estimates), tolerance = 0.01)
+})
+
 test_that("causal survival forest predictions are kernel weighted correctly", {
   # Test that the sufficient statistic approach to solving the forest weighted
   # estimating equation is internally consistent.
