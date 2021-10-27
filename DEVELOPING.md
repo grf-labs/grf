@@ -153,7 +153,7 @@ _Input_: `X`: covariate matrix, `response`: the failure times, `min_child_size`:
 
 _Output_: The best split value and the direction to send missing values
 
-grf performs survival splits by finding the partition that maximizes the [log-rank](https://en.wikipedia.org/wiki/Logrank_test) test for the comparison of the survival distribution in the left and right node. Using the notation from [Ishwaran et. al (2008), equation 1](https://kogalur.github.io/randomForestSRC/theory.html) the statistic is:
+grf performs survival splits by finding the partition that maximizes the [log-rank](https://en.wikipedia.org/wiki/Logrank_test) test for the comparison of the survival distribution in the left and right node. The statistic is:
 
 ```
 logrank(x, split.value) =  sum over all times k up to m
