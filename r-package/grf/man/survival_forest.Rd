@@ -99,7 +99,7 @@ A trained survival_forest forest object.
 }
 \description{
 Trains a forest for right-censored surival data that can be used to estimate the
-conditional survival function S(t, x) = P[Y > t | X = x]
+conditional survival function S(t, x) = P[T > t | X = x]
 }
 \examples{
 \donttest{
