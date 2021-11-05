@@ -4,7 +4,7 @@
 #' conditional survival function S(t, x) = P[T > t | X = x]
 #'
 #' @param X The covariates.
-#' @param Y The event time (may be negative).
+#' @param Y The event time (must be non-negative).
 #' @param D The event type (0: censored, 1: failure).
 #' @param failure.times A vector of event times to fit the survival curve at. If NULL, then all the observed
 #'  failure times are used. This speeds up forest estimation by constraining the event grid. Observed event
@@ -132,6 +132,9 @@ survival_forest <- function(X, Y, D,
   has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
+  if (any(Y < 0)) {
+    stop("The event times must be non-negative.")
+  }
   D <- validate_observations(D, X)
   if (!all(D %in% c(0, 1))) {
     stop("The censor values can only be 0 or 1.")

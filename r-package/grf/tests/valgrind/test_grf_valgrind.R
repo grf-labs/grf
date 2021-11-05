@@ -10,7 +10,7 @@ W <- rbinom(n, 1, 0.5)
 W.factor <- as.factor(W)
 D <- rep(1, n)
 Y <- (X[, 1] > 0) * (2 * W - 1) + 2 * rnorm(n)
-Y.surv <- round(Y, 1)
+Y.surv <- abs(round(Y, 1))
 
 # Also checks regression_forest
 forest.causal <- causal_forest(X, Y, W, W.hat = 0.5, num.trees = 250, compute.oob.predictions = FALSE)
