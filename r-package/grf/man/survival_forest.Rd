@@ -29,7 +29,7 @@ survival_forest(
 \arguments{
 \item{X}{The covariates.}
 
-\item{Y}{The event time (non-negative).}
+\item{Y}{The event time (must be non-negative).}
 
 \item{D}{The event type (0: censored, 1: failure).}
 

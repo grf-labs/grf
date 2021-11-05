@@ -4,7 +4,7 @@
 #' conditional survival function S(t, x) = P[T > t | X = x]
 #'
 #' @param X The covariates.
-#' @param Y The event time (non-negative).
+#' @param Y The event time (must be non-negative).
 #' @param D The event type (0: censored, 1: failure).
 #' @param failure.times A vector of event times to fit the survival curve at. If NULL, then all the observed
 #'  failure times are used. This speeds up forest estimation by constraining the event grid. Observed event
