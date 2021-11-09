@@ -153,11 +153,15 @@ test_that("survival forest with complete data is ~equal to regression forest", {
   D <- as.integer(failure.time <= censor.time)
 
   sf <- survival_forest(X, Y, D, num.trees = 500)
+  sf.grid <- survival_forest(X, Y, D, failure.times = seq(min(Y), max(Y), length.out = 20), num.trees = 500)
   pp.sf <- predict(sf)
+  pp.sf.grid <- predict(sf.grid)
   Y.hat.sf <- expected_survival(pp.sf$predictions, pp.sf$failure.times) #integral of the survival function
+  Y.hat.sf.grid <- expected_survival(pp.sf.grid$predictions, pp.sf.grid$failure.times)
 
   rf <- regression_forest(X, Y, num.trees = 500)
-  pp.rf <- predict(rf)$predictions
+  Y.hat.rf <- predict(rf)$predictions
 
-  expect_equal(Y.hat.sf, pp.rf, tolerance = 0.075)
+  expect_equal(Y.hat.sf, Y.hat.rf, tolerance = 0.075)
+  expect_equal(Y.hat.sf.grid, Y.hat.rf, tolerance = 0.075)
 })
