@@ -44,13 +44,19 @@ tune_forest <- function(data,
     error <- small.forest$debiased.error
     mean(error, na.rm = TRUE)
   })
+  # Some estimates may be all NaN because of arbitrary inadmissible parameter draws,
+  # such as a very low sample.fraction on data with few clusters.
+  keep <- !is.na(small.forest.errors)
 
-  if (anyNA(small.forest.errors)) {
+  if (sum(keep) < 10) {
     warning(paste0(
-      "Could not tune forest because some small forest error estimates were NA.\n",
-      "Consider increasing tuning argument tune.num.trees."))
+      "Could not tune forest because nearly all small forest error estimates were NA.\n",
+      "Consider increasing tuning arguments tune.num.trees or tune.num.draws."))
     out <- get_tuning_output(params = c(tune.parameters.defaults), status = "failure")
     return(out)
+  } else {
+    small.forest.errors = small.forest.errors[keep]
+    fit.draws = fit.draws[keep, , drop = FALSE]
   }
 
   if (sd(small.forest.errors) == 0 || sd(small.forest.errors) / mean(small.forest.errors) < 1e-10) {
