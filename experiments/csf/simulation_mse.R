@@ -1,20 +1,19 @@
 rm(list = ls())
 library(grf)
 library(randomForestSRC)
-library(survival)
 set.seed(123)
 
 # *** Comparison methods ***
-source("comparison_estimators.R")
-estimators = list(estimate_rfsrc_X_W = estimate_rfsrc_X_W,
-                  estimate_rfsrc_XW_W = estimate_rfsrc_XW_W,
-                  estimate_rfsrc_twin = estimate_rfsrc_twin,
-                  estimate_IPCW_grf = estimate_IPCW_grf,
-                  estimate_grf = estimate_grf)
+source("estimators.R")
+estimators = list(SRC1 = SRC1,
+                  SRC2 = SRC2,
+                  VT = VT,
+                  IPCW = IPCW,
+                  CSF = CSF)
 
 # *** Setup ***
 out = list()
-n.sim = 200
+n.sim = 250
 n.mc = 100000
 grid = expand.grid(n = c(500, 1000, 2000, 5000),
                    p = 5,
@@ -23,7 +22,9 @@ grid = expand.grid(n = c(500, 1000, 2000, 5000),
                    stringsAsFactors = FALSE)
 
 for (i in 1:nrow(grid)) {
-  print(paste("grid", i))
+  print(Sys.time())
+  print(paste("grid", i, "of", nrow(grid)))
+  print(grid[i, ])
   n = grid$n[i]
   p = grid$p[i]
   n.test = grid$n.test[i]
@@ -32,18 +33,22 @@ for (i in 1:nrow(grid)) {
   for (sim in 1:n.sim) {
     print(paste("sim", sim))
     data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
+    data$Y = round(data$Y, 2)
     data.test = generate_causal_survival_data(n = n.test, p = p, dgp = dgp, n.mc = n.mc)
     true.cate = data.test$cate
+    true.cate.prob = data.test$cate.prob
     true.cate.sign = data.test$cate.sign
     estimator.output = list()
     for (j in 1:length(estimators)) {
-      estimator.name = names(estimators)[j]
-      predictions = estimators[[estimator.name]](data, data.test)
-      correct.classification = sign(predictions) == true.cate.sign
+      estimator = names(estimators)[j]
+      predictions = estimators[[j]](data, data.test)
       dfj = data.frame(
-        estimator.name = estimator.name,
-        mse = mean((predictions - true.cate)^2),
-        classif.rate = mean(correct.classification, na.rm = TRUE) # NA: to ignore X1 < 0.3 in DGP 4.
+        estimator = estimator,
+        target = c("RMST", "survival.probability"),
+        MSE = c(mean((predictions$pp - true.cate)^2),
+                mean((predictions$pp.prob - true.cate.prob)^2)),
+        classif.rate = c(mean(sign(predictions$pp) == true.cate.sign, na.rm = TRUE), # na.rm: to ignore X1 < 0.3 in DGP 4.
+                         mean(sign(predictions$pp.prob) == true.cate.sign, na.rm = TRUE))
         )
       estimator.output[[j]] = dfj
     }

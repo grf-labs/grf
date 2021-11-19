@@ -23,7 +23,7 @@ pp.forest.causal <- predict(forest.mcausal, X, estimate.variance = TRUE)
 pp.forest.causal.oob <- predict(forest.mcausal, estimate.variance = TRUE)
 
 # Also checks survival_forest
-forest.scausal <- causal_survival_forest(X, Y.surv, W, D, num.trees = 250, compute.oob.predictions = FALSE)
+forest.scausal <- causal_survival_forest(X, Y.surv, W, D, horizon = max(Y.surv), num.trees = 250, compute.oob.predictions = FALSE)
 pp.scausal <- predict(forest.scausal, X, estimate.variance = TRUE)
 pp.scausal.oob <- predict(forest.scausal, estimate.variance = TRUE)
 

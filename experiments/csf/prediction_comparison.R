@@ -5,16 +5,14 @@
 rm(list = ls())
 library(grf)
 library(randomForestSRC)
-library(survival)
 library(ggplot2)
 set.seed(123)
 
 # *** Comparison methods ***
-source("comparison_estimators.R")
-estimators = list(estimate_rfsrc_X_W = estimate_rfsrc_X_W,
-                  estimate_rfsrc_twin = estimate_rfsrc_twin,
-                  estimate_grf = estimate_grf)
-estimator.names = c("SRC", "VT", "CSF")
+source("estimators.R")
+estimators = list(SRC = SRC1,
+                  VT = VT,
+                  CSF = CSF)
 
 out = list()
 n = 2000
@@ -28,18 +26,18 @@ data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
 data.test = generate_causal_survival_data(n = n.test, p = p, dgp = dgp, n.mc = n.mc)
 true.cate = data.test$cate
 for (j in 1:length(estimators)) {
-  estimator.name = estimator.names[j]
-  predictions = estimators[[j]](data, data.test)
+  estimator = names(estimators)[j]
+  predictions = estimators[[j]](data, data.test)$pp
   out[[j]] = data.frame(
     predictions = predictions,
-    estimator.name = estimator.name,
+    estimator = estimator,
     true.cate = true.cate,
     mse = mean((predictions - true.cate)^2),
     cor = cor(predictions, true.cate)
     )
 }
 out = do.call(rbind, out)
-out$label = paste0(out$estimator.name,
+out$label = paste0(out$estimator,
                    " (mse: ",
                    round(100 * out$mse, 2), # scale by 100
                    ", cor: ",

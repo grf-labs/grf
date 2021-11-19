@@ -284,7 +284,7 @@ get_scores.multi_arm_causal_forest <- function(forest,
 
 #' Compute doubly robust scores for a causal survival forest.
 #'
-#' For details see section 3.2 and equation (20) in the causal survival forest paper.
+#' For details see section 3.2 in the causal survival forest paper.
 #'
 #' @param forest A trained causal survival forest.
 #' @param subset Specifies subset of the training examples over which we
@@ -312,19 +312,13 @@ get_scores.causal_survival_forest <- function(forest,
     ))
   }
 
-  eta <- forest$eta
+  eta <- forest[["_eta"]]
   numerator.one <- eta$numerator.one[subset]
   numerator.two <- eta$numerator.two[subset]
-  C.Y.hat <- eta$C.Y.hat[subset]
-  integral.update <- eta$integral.update[subset]
   W.hat <- forest$W.hat[subset]
   W.orig <- forest$W.orig[subset]
   cate.hat <- predict(forest)$predictions[subset]
-
-  W.centered <- W.orig - W.hat
-  term1 <- numerator.one - cate.hat * W.centered^2 / C.Y.hat
-  term2 <- numerator.two - cate.hat * integral.update * W.centered
-  correction <- term1 - term2
+  correction <- numerator.one - numerator.two - cate.hat * (W.orig - W.hat)^2
 
   cate.hat + correction * 1 / W.hat / (1 - W.hat)
 }

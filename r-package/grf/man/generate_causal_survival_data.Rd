@@ -8,6 +8,7 @@ generate_causal_survival_data(
   n,
   p,
   Y.max = NULL,
+  y0 = NULL,
   X = NULL,
   n.mc = 10000,
   dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")
@@ -20,6 +21,8 @@ generate_causal_survival_data(
 
 \item{Y.max}{The maximum follow-up time (optional).}
 
+\item{y0}{Query time to estimate P(T(1) > y0 | X) - P(T(0) > y0 | X) (optional).}
+
 \item{X}{The covariates (optional).}
 
 \item{n.mc}{The number of monte carlo draws to estimate the treatment effect with. Default is 10000.}
@@ -29,8 +32,9 @@ generate_causal_survival_data(
 \value{
 A list with entries:
  `X`: the covariates, `Y`: the event times, `W`: the treatment indicator, `D`: the censoring indicator,
- `cate`: the treatment effect estimated by monte carlo, `cate.sign`: the true sign of the cate for ITR comparison,
- `dgp`: the dgp name, `Y.max`: the maximum follow-up time.
+ `cate`: the treatment effect (RMST) estimated by monte carlo, `cate.prob` the difference in survival probability,
+ `cate.sign`: the true sign of the cate for ITR comparison, `dgp`: the dgp name, `Y.max`: the maximum follow-up time,
+ `y0`: the query time for difference in survival probability.
 }
 \description{
 The following DGPs are available for benchmarking purposes, T is the failure time

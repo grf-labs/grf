@@ -2,7 +2,6 @@ rm(list = ls())
 library(ggplot2)
 library(texreg)
 library(speff2trial) # "ACTG175" data set.
-library(lmtest)
 library(grf)
 set.seed(123)
 
@@ -27,10 +26,8 @@ ggsave("HIV_histogram.pdf", width = 6, height = 5)
 
 # Truncate Y at Y.max
 Y.max = 1000
-D[Y >= Y.max] = 1
-Y[Y >= Y.max] = Y.max
 
-cs.forest = causal_survival_forest(X, Y, W, D)
+cs.forest = causal_survival_forest(X, Y, W, D, horizon = Y.max)
 
 # BLP
 full = best_linear_projection(cs.forest, X)
