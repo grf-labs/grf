@@ -10,11 +10,8 @@ causal_survival_forest(
   W,
   D,
   W.hat = NULL,
-  E1.hat = NULL,
-  E0.hat = NULL,
-  S.hat = NULL,
-  C.hat = NULL,
-  lambda.C.hat = NULL,
+  target = c("RMST", "survival.probability"),
+  horizon = NULL,
   failure.times = NULL,
   num.trees = 2000,
   sample.weights = NULL,
@@ -39,37 +36,22 @@ causal_survival_forest(
 \arguments{
 \item{X}{The covariates.}
 
-\item{Y}{The event time (may be negative).}
+\item{Y}{The event time (must be non-negative).}
 
 \item{W}{The treatment assignment (must be a binary vector with no NAs).}
 
 \item{D}{The event type (0: censored, 1: failure).}
 
-\item{W.hat}{Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
+\item{W.hat}{Estimates of the treatment propensities E[W | X = x]. If W.hat = NULL,
 these are estimated using a separate regression forest. Default is NULL.}
 
-\item{E1.hat}{Estimates of the expected survival time conditional on being treated
-E[Y | X = x, W = 1]. If E1.hat is NULL, then this is estimated with an S-learner using
-a survival forest.}
+\item{target}{The target estimand. Choices are Restricted Mean Survival Time ("RMST") which estimates 1)
+E[min(T(1), horizon) - min(T(0), horizon) | X = x], or "survival.probability" which estimates 2)
+P(T(1) > horizon | X = x) - P(T(0) > horizon | X = x). Default is "RMST".}
 
-\item{E0.hat}{Estimates of the expected survival time conditional on being a control unit
-E[Y | X = x, W = 0]. If E0.hat is NULL, then this is estimated with an S-learner using
-a survival forest.}
-
-\item{S.hat}{Estimates of the conditional survival function S(t, x, w) = P[Y > t | X = x, W = w].
-If S.hat is NULL, this is estimated using a survival forest. If provided:
-a N*T matrix of survival estimates. The grid should correspond to the T unique events in Y.
-Default is NULL.}
-
-\item{C.hat}{Estimates of the conditional survival function for the censoring process S_C(t, x, w).
-If C.hat is NULL, this is estimated using a survival forest. If provided:
-a N*T matrix of survival estimates. The grid should correspond to the T unique events in Y.
-Default is NULL.}
-
-\item{lambda.C.hat}{Estimates of the conditional hazard function -d/dt log(S_C(t, x, w)) for the censoring process.
-If lambda.C.hat is NULL, this is estimated from C.hat using a forward difference. If provided:
-a matrix of same dimensionality has C.hat.
-Default is NULL.}
+\item{horizon}{A scalar that defines the estimand (required). If target is "RMST" then this defines
+the maximum follow-up time. If target is "survival.probability", then this defines the time point
+for the absolute risk difference estimate.}
 
 \item{failure.times}{A vector of event times to fit the survival curves at. If NULL, then all the unique
 event times are used. This speeds up forest estimation by constraining the event grid. Observed event
@@ -156,55 +138,36 @@ A trained causal_survival_forest forest object.
 }
 \description{
 Trains a causal survival forest that can be used to estimate
-conditional average treatment effects tau(X). When the treatment assignment
-is unconfounded, we have tau(X) = E[Y(1) - Y(0) | X = x],
-where Y is the survival time up to a fixed maximum follow-up time.
-Y(1) and Y(0) are potental outcomes corresponding to the two possible
-treatment states.
-}
-\details{
-An important assumption for identifying the conditional average treatment effect
-tau(X) is that there exists a fixed positive constant M such that the probability
-of observing an event time past the maximum follow-up time Y.max is at least M.
-This may be an issue with data where most endpoint observations are censored.
-The suggested resolution is to re-define the estimand as the treatment effect up
-to some suitable maximum follow-up time Y.max. One can do this in practice by
-thresholding Y before running causal_survival_forest: `D[Y >= Y.max] <- 1;
-Y[Y >= Y.max] <- Y.max`. For details see Cui et al. (2020). The computational
-complexity of this estimator scales with the cardinality of the event times Y.
-If the number of samples is large and the Y grid dense, consider discretizing the
-event times (or supply a coarser grid with the `failure.times` argument).
+conditional treatment effects tau(X) with right-censored outcomes.
+We estimate either 1)
+tau(X) = E[min(T(1), horizon) - min(T(0), horizon) | X = x],
+where T(1) and T(0) are potental outcomes corresponding to the two possible treatment states
+and `horizon` is the maximum follow-up time, or 2)
+tau(X) = P(T(1) > horizon | X = x) - P(T(0) > horizon | X = x), for a chosen time point `horizon`.
 }
 \examples{
 \donttest{
-# Train a standard causal survival forest.
-n <- 3000
+# Train a causal survival forest targeting a Restricted Mean Survival Time (RMST)
+# with maxium follow-up time set to `horizon`.
+n <- 2000
 p <- 5
 X <- matrix(runif(n * p), n, p)
 W <- rbinom(n, 1, 0.5)
-Y.max <- 1
-failure.time <- pmin(rexp(n) * X[, 1] + W, Y.max)
+horizon <- 1
+failure.time <- pmin(rexp(n) * X[, 1] + W, horizon)
 censor.time <- 2 * runif(n)
-Y <- pmin(failure.time, censor.time)
+# Discretizing continuous events decreases runtime.
+Y <- round(pmin(failure.time, censor.time), 2)
 D <- as.integer(failure.time <= censor.time)
-cs.forest <- causal_survival_forest(X, Y, W, D)
+cs.forest <- causal_survival_forest(X, Y, W, D, horizon = horizon)
 
 # Predict using the forest.
 X.test <- matrix(0.5, 10, p)
 X.test[, 1] <- seq(0, 1, length.out = 10)
-cs.pred <- predict(cs.forest, X.test, estimate.variance = TRUE)
+cs.pred <- predict(cs.forest, X.test)
 
-# Plot the estimated CATEs along with 95\% confidence bands.
-r.monte.carlo <- rexp(5000)
-cate <- rep(NA, 10)
-for (i in 1:10) {
-  cate[i] <- mean(pmin(r.monte.carlo * X.test[i, 1] + 1, Y.max) -
-                    pmin(r.monte.carlo * X.test[i, 1], Y.max))
-}
-plot(X.test[, 1], cate, type = 'l', col = 'red')
-points(X.test[, 1], cs.pred$predictions)
-lines(X.test[, 1], cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates), lty = 2)
-lines(X.test[, 1], cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates), lty = 2)
+# Predict on out-of-bag training samples.
+cs.pred <- predict(cs.forest)
 
 # Compute a doubly robust estimate of the average treatment effect.
 average_treatment_effect(cs.forest)
@@ -212,11 +175,9 @@ average_treatment_effect(cs.forest)
 # Compute the best linear projection on the first covariate.
 best_linear_projection(cs.forest, X[, 1])
 
-# Train the forest on a less granular grid.
-cs.forest.grid <- causal_survival_forest(X, Y, W, D,
-                                         failure.times = seq(min(Y), max(Y), length.out = 50))
-plot(X.test[, 1], cs.pred$predictions)
-points(X.test[, 1], predict(cs.forest.grid, X.test)$predictions, col = "blue")
+# Train a causal survival forest targeting an absolute risk difference
+# at the median timepoint `horizon`.
+cs.forest.prob <- causal_survival_forest(X, Y, W, D, target = "survival.probability", horizon = 0.5)
 }
 
 }

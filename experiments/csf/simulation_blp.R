@@ -24,7 +24,7 @@ res = replicate(nreps, {
   W = data$W
   D = data$D
 
-  sf = causal_survival_forest(X, Y, W, D)
+  sf = causal_survival_forest(X, Y, W, D, horizon = data$Y.max)
   cate.hat = predict(sf)$pred
   cate.hat.dr = get_scores(sf)
 

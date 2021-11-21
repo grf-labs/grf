@@ -20,5 +20,5 @@ the treatment Wi or the outcome Yi.}
 A vector of scores.
 }
 \description{
-For details see section 3.2 and equation (20) in the causal survival forest paper.
+For details see section 3.2 in the causal survival forest paper.
 }

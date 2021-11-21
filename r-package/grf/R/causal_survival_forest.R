@@ -1,49 +1,25 @@
 #' Causal survival forest (experimental)
 #'
 #' Trains a causal survival forest that can be used to estimate
-#' conditional average treatment effects tau(X). When the treatment assignment
-#' is unconfounded, we have tau(X) = E[Y(1) - Y(0) | X = x],
-#' where Y is the survival time up to a fixed maximum follow-up time.
-#' Y(1) and Y(0) are potental outcomes corresponding to the two possible
-#' treatment states.
-#'
-#'
-#' An important assumption for identifying the conditional average treatment effect
-#' tau(X) is that there exists a fixed positive constant M such that the probability
-#' of observing an event time past the maximum follow-up time Y.max is at least M.
-#' This may be an issue with data where most endpoint observations are censored.
-#' The suggested resolution is to re-define the estimand as the treatment effect up
-#' to some suitable maximum follow-up time Y.max. One can do this in practice by
-#' thresholding Y before running causal_survival_forest: `D[Y >= Y.max] <- 1;
-#' Y[Y >= Y.max] <- Y.max`. For details see Cui et al. (2020). The computational
-#' complexity of this estimator scales with the cardinality of the event times Y.
-#' If the number of samples is large and the Y grid dense, consider discretizing the
-#' event times (or supply a coarser grid with the `failure.times` argument).
+#' conditional treatment effects tau(X) with right-censored outcomes.
+#' We estimate either 1)
+#' tau(X) = E[min(T(1), horizon) - min(T(0), horizon) | X = x],
+#' where T(1) and T(0) are potental outcomes corresponding to the two possible treatment states
+#' and `horizon` is the maximum follow-up time, or 2)
+#' tau(X) = P(T(1) > horizon | X = x) - P(T(0) > horizon | X = x), for a chosen time point `horizon`.
 #'
 #' @param X The covariates.
-#' @param Y The event time (may be negative).
+#' @param Y The event time (must be non-negative).
 #' @param W The treatment assignment (must be a binary vector with no NAs).
 #' @param D The event type (0: censored, 1: failure).
-#' @param W.hat Estimates of the treatment propensities E[W | Xi]. If W.hat = NULL,
+#' @param W.hat Estimates of the treatment propensities E[W | X = x]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest. Default is NULL.
-#' @param E1.hat Estimates of the expected survival time conditional on being treated
-#'  E[Y | X = x, W = 1]. If E1.hat is NULL, then this is estimated with an S-learner using
-#'  a survival forest.
-#' @param E0.hat Estimates of the expected survival time conditional on being a control unit
-#'  E[Y | X = x, W = 0]. If E0.hat is NULL, then this is estimated with an S-learner using
-#'  a survival forest.
-#' @param S.hat Estimates of the conditional survival function S(t, x, w) = P[Y > t | X = x, W = w].
-#'  If S.hat is NULL, this is estimated using a survival forest. If provided:
-#'  a N*T matrix of survival estimates. The grid should correspond to the T unique events in Y.
-#'  Default is NULL.
-#' @param C.hat Estimates of the conditional survival function for the censoring process S_C(t, x, w).
-#'  If C.hat is NULL, this is estimated using a survival forest. If provided:
-#'  a N*T matrix of survival estimates. The grid should correspond to the T unique events in Y.
-#'  Default is NULL.
-#' @param lambda.C.hat Estimates of the conditional hazard function -d/dt log(S_C(t, x, w)) for the censoring process.
-#'  If lambda.C.hat is NULL, this is estimated from C.hat using a forward difference. If provided:
-#'  a matrix of same dimensionality has C.hat.
-#'  Default is NULL.
+#' @param target The target estimand. Choices are Restricted Mean Survival Time ("RMST") which estimates 1)
+#'  E[min(T(1), horizon) - min(T(0), horizon) | X = x], or "survival.probability" which estimates 2)
+#'  P(T(1) > horizon | X = x) - P(T(0) > horizon | X = x). Default is "RMST".
+#' @param horizon A scalar that defines the estimand (required). If target is "RMST" then this defines
+#'  the maximum follow-up time. If target is "survival.probability", then this defines the time point
+#'  for the absolute risk difference estimate.
 #' @param failure.times A vector of event times to fit the survival curves at. If NULL, then all the unique
 #'  event times are used. This speeds up forest estimation by constraining the event grid. Observed event
 #'  times are rounded down to the last sorted occurance less than or equal to the specified failure time.
@@ -114,34 +90,27 @@
 #'
 #' @examples
 #' \donttest{
-#' # Train a standard causal survival forest.
-#' n <- 3000
+#' # Train a causal survival forest targeting a Restricted Mean Survival Time (RMST)
+#' # with maxium follow-up time set to `horizon`.
+#' n <- 2000
 #' p <- 5
 #' X <- matrix(runif(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
-#' Y.max <- 1
-#' failure.time <- pmin(rexp(n) * X[, 1] + W, Y.max)
+#' horizon <- 1
+#' failure.time <- pmin(rexp(n) * X[, 1] + W, horizon)
 #' censor.time <- 2 * runif(n)
-#' Y <- pmin(failure.time, censor.time)
+#' # Discretizing continuous events decreases runtime.
+#' Y <- round(pmin(failure.time, censor.time), 2)
 #' D <- as.integer(failure.time <= censor.time)
-#' cs.forest <- causal_survival_forest(X, Y, W, D)
+#' cs.forest <- causal_survival_forest(X, Y, W, D, horizon = horizon)
 #'
 #' # Predict using the forest.
 #' X.test <- matrix(0.5, 10, p)
 #' X.test[, 1] <- seq(0, 1, length.out = 10)
-#' cs.pred <- predict(cs.forest, X.test, estimate.variance = TRUE)
+#' cs.pred <- predict(cs.forest, X.test)
 #'
-#' # Plot the estimated CATEs along with 95% confidence bands.
-#' r.monte.carlo <- rexp(5000)
-#' cate <- rep(NA, 10)
-#' for (i in 1:10) {
-#'   cate[i] <- mean(pmin(r.monte.carlo * X.test[i, 1] + 1, Y.max) -
-#'                     pmin(r.monte.carlo * X.test[i, 1], Y.max))
-#' }
-#' plot(X.test[, 1], cate, type = 'l', col = 'red')
-#' points(X.test[, 1], cs.pred$predictions)
-#' lines(X.test[, 1], cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates), lty = 2)
-#' lines(X.test[, 1], cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates), lty = 2)
+#' # Predict on out-of-bag training samples.
+#' cs.pred <- predict(cs.forest)
 #'
 #' # Compute a doubly robust estimate of the average treatment effect.
 #' average_treatment_effect(cs.forest)
@@ -149,21 +118,16 @@
 #' # Compute the best linear projection on the first covariate.
 #' best_linear_projection(cs.forest, X[, 1])
 #'
-#' # Train the forest on a less granular grid.
-#' cs.forest.grid <- causal_survival_forest(X, Y, W, D,
-#'                                          failure.times = seq(min(Y), max(Y), length.out = 50))
-#' plot(X.test[, 1], cs.pred$predictions)
-#' points(X.test[, 1], predict(cs.forest.grid, X.test)$predictions, col = "blue")
+#' # Train a causal survival forest targeting an absolute risk difference
+#' # at the median timepoint `horizon`.
+#' cs.forest.prob <- causal_survival_forest(X, Y, W, D, target = "survival.probability", horizon = 0.5)
 #' }
 #'
 #' @export
 causal_survival_forest <- function(X, Y, W, D,
                                    W.hat = NULL,
-                                   E1.hat = NULL,
-                                   E0.hat = NULL,
-                                   S.hat = NULL,
-                                   C.hat = NULL,
-                                   lambda.C.hat = NULL,
+                                   target = c("RMST", "survival.probability"),
+                                   horizon = NULL,
                                    failure.times = NULL,
                                    num.trees = 2000,
                                    sample.weights = NULL,
@@ -183,6 +147,10 @@ causal_survival_forest <- function(X, Y, W, D,
                                    compute.oob.predictions = TRUE,
                                    num.threads = NULL,
                                    seed = runif(1, 0, .Machine$integer.max)) {
+  target <- match.arg(target)
+  if (is.null(horizon) || !is.numeric(horizon) || length(horizon) != 1) {
+    stop("The `horizon` argument defining the estimand is required.")
+  }
   has.missing.values <- validate_X(X, allow.na = TRUE)
   validate_sample_weights(sample.weights, X)
   Y <- validate_observations(Y, X)
@@ -191,6 +159,9 @@ causal_survival_forest <- function(X, Y, W, D,
   clusters <- validate_clusters(clusters, X)
   samples.per.cluster <- validate_equalize_cluster_weights(equalize.cluster.weights, clusters, sample.weights)
   num.threads <- validate_num_threads(num.threads)
+  if (any(Y < 0)) {
+    stop("The event times must be non-negative.")
+  }
   if (!all(W %in% c(0, 1))) {
     stop("The treatment values can only be 0 or 1.")
   }
@@ -200,12 +171,20 @@ causal_survival_forest <- function(X, Y, W, D,
   if (sum(D) == 0) {
     stop("All observations are censored.")
   }
+  if (target == "RMST") {
+    # f(T) <- min(T, horizon)
+    D[Y >= horizon] <- 1
+    Y[Y >= horizon] <- horizon
+    fY <- Y
+  } else {
+    # f(T) <- 1{T > horizon}
+    fY <- as.numeric(Y > horizon)
+  }
   if (is.null(failure.times)) {
     Y.grid <- sort(unique(Y))
+  } else if (min(Y) < min(failure.times)) {
+    stop("If provided, `failure.times` should be a grid starting on or before min(Y).")
   } else {
-    if (is.unsorted(failure.times, strictly = TRUE)) {
-      stop("Argument `failure.times` should be a vector with elements in increasing order.")
-    }
     Y.grid <- failure.times
   }
   if (length(Y.grid) <= 2) {
@@ -218,28 +197,16 @@ causal_survival_forest <- function(X, Y, W, D,
                    "supplying a coarser grid with the `failure.times` argument. "), immediate. = TRUE)
   }
 
-  args.orthog <- list(X = X,
-                      Y = W,
-                      num.trees = max(50, num.trees / 4),
-                      sample.weights = sample.weights,
-                      clusters = clusters,
-                      equalize.cluster.weights = equalize.cluster.weights,
-                      sample.fraction = sample.fraction,
-                      mtry = mtry,
-                      min.node.size = 5,
-                      honesty = TRUE,
-                      honesty.fraction = 0.5,
-                      honesty.prune.leaves = TRUE,
-                      alpha = alpha,
-                      imbalance.penalty = imbalance.penalty,
-                      ci.group.size = 1,
-                      tune.parameters = tune.parameters,
-                      compute.oob.predictions = TRUE,
-                      num.threads = num.threads,
-                      seed = seed)
-
   if (is.null(W.hat)) {
-    forest.W <- do.call(regression_forest, args.orthog)
+    forest.W <- regression_forest(X, W, num.trees = max(50, num.trees / 4),
+                                  sample.weights = sample.weights, clusters = clusters,
+                                  equalize.cluster.weights = equalize.cluster.weights,
+                                  sample.fraction = sample.fraction, mtry = mtry,
+                                  min.node.size = 5, honesty = TRUE,
+                                  honesty.fraction = 0.5, honesty.prune.leaves = TRUE,
+                                  alpha = alpha, imbalance.penalty = imbalance.penalty,
+                                  ci.group.size = 1, compute.oob.predictions = TRUE,
+                                  num.threads = num.threads, seed = seed)
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == 1) {
     W.hat <- rep(W.hat, nrow(X))
@@ -249,7 +216,7 @@ causal_survival_forest <- function(X, Y, W, D,
   W.centered <- W - W.hat
 
   args.nuisance <- list(failure.times = failure.times,
-                        num.trees = max(50, num.trees / 4),
+                        num.trees = max(50, min(num.trees / 4, 500)),
                         sample.weights = sample.weights,
                         clusters = clusters,
                         equalize.cluster.weights = equalize.cluster.weights,
@@ -260,84 +227,77 @@ causal_survival_forest <- function(X, Y, W, D,
                         honesty.fraction = 0.5,
                         honesty.prune.leaves = TRUE,
                         alpha = alpha,
-                        prediction.type = "Nelson-Aalen",
+                        prediction.type = "Nelson-Aalen", # to guarantee non-zero estimates.
                         compute.oob.predictions = FALSE,
                         num.threads = num.threads,
                         seed = seed)
 
+  # E[f(T) | X] = e(X) E[f(T) | X, W = 1] + (1 - e(X)) E[f(T) | X, W = 0]
+  sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
   # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
-  if (is.null(E1.hat)) {
-    sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
-    S1.failure.times <- S0.failure.times <- sf.survival$failure.times
-    # Computing OOB estimates for modified training samples is not a workflow we have implemented,
-    # so we do it with a manual workaround here. Note that compute.oob.predictions has to be FALSE.
-    sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(1, nrow(X))
-    S1.hat <- predict(sf.survival)$predictions
-    sf.survival[["X.orig"]][, ncol(X) + 1] <- W
-    E1.hat <- expected_survival(S1.hat, S1.failure.times)
-  } else if (length(E1.hat) != nrow(X)) {
-    stop("E1.hat has incorrect length.")
-  }
-
+  # Computing OOB estimates for modified training samples is not a workflow we have implemented,
+  # so we do it with a manual workaround here. Note that compute.oob.predictions has to be FALSE.
+  sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(1, nrow(X))
+  S1.hat <- predict(sf.survival)$predictions
   # The survival function conditioning on being a control unit S(t, x, 0) estimated with an "S-learner".
-  if (is.null(E0.hat)) {
-    if (!exists("sf.survival", inherits = FALSE)) {
-      sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
-      S0.failure.times <- sf.survival$failure.times
+  sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(0, nrow(X))
+  S0.hat <- predict(sf.survival)$predictions
+  sf.survival[["X.orig"]][, ncol(X) + 1] <- W
+  if (target == "RMST") {
+    Y.hat <- W.hat * expected_survival(S1.hat, sf.survival$failure.times) +
+      (1 - W.hat) * expected_survival(S0.hat, sf.survival$failure.times)
+  } else {
+    horizonS.index <- findInterval(horizon, sf.survival$failure.times)
+    if (horizonS.index == 0) {
+      Y.hat <- rep(1, nrow(X))
+    } else {
+      Y.hat <- W.hat * S1.hat[, horizonS.index] + (1 - W.hat) * S0.hat[, horizonS.index]
     }
-    sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(0, nrow(X))
-    S0.hat <- predict(sf.survival)$predictions
-    sf.survival[["X.orig"]][, ncol(X) + 1] <- W
-    E0.hat <- expected_survival(S0.hat, S0.failure.times)
-  } else if (length(E0.hat) != nrow(X)) {
-    stop("E0.hat has incorrect length.")
   }
-  # Compute m(x) = e(X) E[T | X, W = 1] + (1 - e(X)) E[T | X, W = 0]
-  m.hat <- W.hat * E1.hat + (1 - W.hat) * E0.hat
 
   # The conditional survival function S(t, x, w).
-  if (is.null(S.hat)) {
-    if (!exists("sf.survival", inherits = FALSE)) {
-      sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
-    }
-    # We want the predicted survival curves S.hat and C.hat on the common grid Y.grid:
-    S.hat <- predict(sf.survival, failure.times = Y.grid)$predictions
-  } else if (NROW(S.hat) != nrow(X)) {
-    stop("S.hat has incorrect length.")
-  } else if (NCOL(S.hat) != length(Y.grid)) {
-    stop("S.hat has incorrect number of columns (should be equal to the number of events).")
-  }
-
+  S.hat <- predict(sf.survival, failure.times = Y.grid)$predictions
   # The conditional survival function for the censoring process S_C(t, x, w).
-  if (is.null(C.hat)) {
-    sf.censor <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = 1 - D), args.nuisance))
-    C.hat <- predict(sf.censor, failure.times = Y.grid)$predictions
-  } else if (NROW(C.hat) != nrow(X)) {
-    stop("C.hat has incorrect length.")
-  } else if (NCOL(C.hat) != length(Y.grid)) {
-    stop("C.hat has incorrect number of columns (should be equal to the number of events).")
+  args.nuisance$compute.oob.predictions <- TRUE
+  sf.censor <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = 1 - D), args.nuisance))
+  C.hat <- predict(sf.censor, failure.times = Y.grid)$predictions
+  if (target == "survival.probability") {
+    # P(Ci > min(Yi, horizon) | Xi, Wi)
+    horizonC.index <- findInterval(horizon, Y.grid)
+    if (horizonC.index == 0) {
+      C.hat[] <- 1
+    } else {
+      C.hat[, horizonC.index:ncol(C.hat)] <- C.hat[, horizonC.index]
+    }
   }
 
-  if (any(C.hat == 0.0)) {
-    stop("Some censoring probabilites are exactly zero.")
+  Y.index <- findInterval(Y, Y.grid) # (invariance: Y.index > 0)
+  C.Y.hat <- C.hat[cbind(seq_along(Y.index), Y.index)] # Pick out P[Ci > Yi | Xi, Wi]
+
+  if (target == "RMST" && any(C.Y.hat <= 0.05)) {
+    warning(paste("Estimated censoring probabilities go as low as:", round(min(C.Y.hat), 5),
+                  "- an identifying assumption is that there exists a fixed positive constant M",
+                  "such that the probability of observing an event past the maximum follow-up time ",
+                  "is at least M (i.e. P(T > horizon | X) > M).",
+                  "This warning appears when M is less than 0.05, at which point causal survival forest",
+                  "can not be expected to deliver reliable estimates."), immediate. = TRUE)
+  } else if (target == "RMST" && any(C.Y.hat < 0.2)) {
+    warning(paste("Estimated censoring probabilities are lower than 0.2",
+                  "- an identifying assumption is that there exists a fixed positive constant M",
+                  "such that the probability of observing an event past the maximum follow-up time ",
+                  "is at least M (i.e. P(T > horizon | X) > M)."))
+  } else if (target == "survival.probability" && any(C.Y.hat <= 0.001)) {
+    warning(paste("Estimated censoring probabilities go as low as:", round(min(C.Y.hat), 5),
+                  "- forest estimates will likely be very unstable, a larger target `horizon`",
+                  "is recommended."), immediate. = TRUE)
+  } else if (target == "survival.probability" && any(C.Y.hat < 0.05)) {
+    warning(paste("Estimated censoring probabilities are lower than 0.05",
+                  "and forest estimates may not be stable. Using a smaller target `horizon`",
+                  "may help."))
   }
 
-  if (any(C.hat <= 0.05)) {
-    warning(paste("Estimated censoring probabilites go as low as:", min(C.hat),
-                "- an identifying assumption is that there exists a fixed positive constant M",
-                "such that the probability of observing an event time past the maximum follow-up time Y.max",
-                "is at least M. Formally, we assume: P(Y >= Y.max | X) > M.",
-                "This warning appears when M is less than 0.05, at which point causal survival forest",
-                "can not be expected to deliver reliable estimates."))
-  } else if (any(C.hat < 0.2 & C.hat > 0.05)) {
-    warning(paste("Estimated censoring probabilites are lower than 0.2.",
-                  "An identifying assumption is that there exists a fixed positive constant M",
-                  "such that the probability of observing an event time past the maximum follow-up time Y.max",
-                  "is at least M. Formally, we assume: P(Y >= Y.max | X) > M."))
-  }
-
-  # Compute the pseudo outcomes
-  eta <- compute_eta(S.hat, C.hat, lambda.C.hat, Y.grid, Y, D, m.hat, W.centered)
+  eta <- compute_eta(S.hat, C.hat, C.Y.hat, Y.hat, W.centered,
+                     D, fY, Y.index, Y.grid, target, horizon)
   validate_observations(eta[["numerator"]], X)
   validate_observations(eta[["denominator"]], X)
 
@@ -367,16 +327,19 @@ causal_survival_forest <- function(X, Y, W, D,
 
   forest <- do.call.rcpp(causal_survival_train, c(data, args))
   class(forest) <- c("causal_survival_forest", "grf")
-  forest[["eta"]] <- eta
+  forest[["_eta"]] <- eta
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["W.orig"]] <- W
   forest[["D.orig"]] <- D
+  forest[["Y.hat"]] <- Y.hat
   forest[["W.hat"]] <- W.hat
   forest[["sample.weights"]] <- sample.weights
   forest[["clusters"]] <- clusters
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
   forest[["has.missing.values"]] <- has.missing.values
+  forest[["target"]] <- target
+  forest[["horizon"]] <- horizon
 
   forest
 }
@@ -397,38 +360,31 @@ causal_survival_forest <- function(X, Y, W, D,
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
-#' @return Vector of predictions.
+#' @return Vector of predictions along with optional variance estimates.
 #'
 #' @examples
 #' \donttest{
-#' # Train a standard causal survival forest.
-#' n <- 3000
+#' # Train a causal survival forest targeting a Restricted Mean Survival Time (RMST)
+#' # with maxium follow-up time set to `horizon`.
+#' n <- 2000
 #' p <- 5
 #' X <- matrix(runif(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
-#' Y.max <- 1
-#' failure.time <- pmin(rexp(n) * X[, 1] + W, Y.max)
+#' horizon <- 1
+#' failure.time <- pmin(rexp(n) * X[, 1] + W, horizon)
 #' censor.time <- 2 * runif(n)
-#' Y <- pmin(failure.time, censor.time)
+#' # Discretizing continuous events decreases runtime.
+#' Y <- round(pmin(failure.time, censor.time), 2)
 #' D <- as.integer(failure.time <= censor.time)
-#' cs.forest <- causal_survival_forest(X, Y, W, D)
+#' cs.forest <- causal_survival_forest(X, Y, W, D, horizon = horizon)
 #'
 #' # Predict using the forest.
 #' X.test <- matrix(0.5, 10, p)
 #' X.test[, 1] <- seq(0, 1, length.out = 10)
-#' cs.pred <- predict(cs.forest, X.test, estimate.variance = TRUE)
+#' cs.pred <- predict(cs.forest, X.test)
 #'
-#' # Plot the estimated CATEs along with 95% confidence bands.
-#' r.monte.carlo <- rexp(5000)
-#' cate <- rep(NA, 10)
-#' for (i in 1:10) {
-#'   cate[i] <- mean(pmin(r.monte.carlo * X.test[i, 1] + 1, Y.max) -
-#'                     pmin(r.monte.carlo * X.test[i, 1], Y.max))
-#' }
-#' plot(X.test[, 1], cate, type = 'l', col = 'red')
-#' points(X.test[, 1], cs.pred$predictions)
-#' lines(X.test[, 1], cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates), lty = 2)
-#' lines(X.test[, 1], cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates), lty = 2)
+#' # Predict on out-of-bag training samples.
+#' cs.pred <- predict(cs.forest)
 #'
 #' # Compute a doubly robust estimate of the average treatment effect.
 #' average_treatment_effect(cs.forest)
@@ -436,11 +392,9 @@ causal_survival_forest <- function(X, Y, W, D,
 #' # Compute the best linear projection on the first covariate.
 #' best_linear_projection(cs.forest, X[, 1])
 #'
-#' # Train the forest on a less granular grid.
-#' cs.forest.grid <- causal_survival_forest(X, Y, W, D,
-#'                                          failure.times = seq(min(Y), max(Y), length.out = 50))
-#' plot(X.test[, 1], cs.pred$predictions)
-#' points(X.test[, 1], predict(cs.forest.grid, X.test)$predictions, col = "blue")
+#' # Train a causal survival forest targeting an absolute risk difference
+#' # at the median timepoint `horizon`.
+#' cs.forest.prob <- causal_survival_forest(X, Y, W, D, target = "survival.probability", horizon = 0.5)
 #' }
 #'
 #' @method predict causal_survival_forest
@@ -479,113 +433,6 @@ predict.causal_survival_forest <- function(object,
   do.call(cbind.data.frame, ret[!empty])
 }
 
-#' Compute pseudo outcomes (based on the influence function of tau(X) for each unit)
-#' used for CART splitting.
-#'
-#' We compute:
-#' eta = [sum (W - W.hat)^2 (1 / C.hat - integral_{0}^{Y_i} (lambdaC / C.hat) dt)]^(-1) ("denominator")
-#'  * sum (Gamma / C.hat - integral_{0}^{Y_i} (lambdaC / C.hat)(W - W.hat)(Q(t) - m.hat)dt) ("numerator")
-#'
-#' where
-#' Gamma = (W - W.hat)(Y - m.hat) if D == 1 else (W - W.hat)(Q(Y) - m.hat)
-#' Q(t) - E[T | X, W, Y >= t]
-#' m(x) = e(X) E[T | X, W = 1] + (1 - e(X)) E[T | X, W = 0]
-#' lambda.C = -d/dt log(C.hat(t, x, w)) is the conditional hazard function of the censoring process.
-#'
-#' Some useful properties:
-#' The expected survival time E[T] is the integral of the survival function S(t).
-#' The conditional expected survival time E[T | T >= y] is y + the integral of S(t + y) / S(y).
-#'
-#' @param S.hat Estimates of the conditional survival function S(t, x, w).
-#' @param C.hat Estimates of the conditional survival function for the censoring process S_C(t, x, w).
-#' @param lambda.C.hat Estimates of the conditional hazard function for the censoring process S_C(t, x, w).
-#' @param Y.grid The time values corresponding to S.hat and C.hat.
-#' @param Y The event times.
-#' @param D The censoring indicator.
-#' @param m.hat Estimates of m(X).
-#' @param W.centered W - W.hat.
-#' @return A list with the numerator and denominator of eta.
-#' @keywords internal
-compute_eta <- function(S.hat,
-                        C.hat,
-                        lambda.C.hat,
-                        Y.grid,
-                        Y,
-                        D,
-                        m.hat,
-                        W.centered) {
-  # The event time values relabeled to consecutive integers 0/1 to length(Y.grid).
-  Y.relabeled <- findInterval(Y, Y.grid)
-  # S.hat and C.hat will have the same dimensions,
-  # they are survival estimates corresponding to the same grid Y.grid.
-  num.samples <- nrow(S.hat)
-  grid.length <- ncol(S.hat)
-  Y.diff <- diff(c(0, Y.grid))
-  if (Y.diff[1] == 0) {
-    Y.diff[1] = 1
-  }
-
-  # The censoring probabilities for the observed events.
-  # Depending on the optional grid `failure.times` the smallest `Y.relabeled` may be zero,
-  # which is why we subset appropriately here (for events before the first failure, C.Y.hat is one)
-  C.Y.hat <- rep(1, num.samples)
-  C.Y.hat[Y.relabeled != 0] <- C.hat[cbind(1:num.samples, Y.relabeled)]
-  Y.relabeled[Y.relabeled == 0] = 1
-
-  if (is.null(lambda.C.hat)) {
-    # The conditional hazard function lambda.C.hat = -d/dt log(C.hat(t, x, w))
-    # This simple forward difference approximation works reasonably well.
-    log.surv.C <- -log(cbind(1, C.hat))
-    lambda.C.hat <- log.surv.C[, 2:(grid.length + 1)] - log.surv.C[, 1:grid.length]
-    lambda.C.hat <- sweep(lambda.C.hat, 2, Y.diff, "/")
-  } else if (NROW(lambda.C.hat) != NROW(C.hat) || NCOL(lambda.C.hat) != NCOL(C.hat)) {
-    stop("lambda.C.hat has incorrect dimensions.")
-  }
-
-  # The denominator simplifies to this
-  denominator <- D * W.centered^2 / C.Y.hat
-
-  # Even though we only need to compute the integral up to Yi, it is more clear (and as fast)
-  # to simply compute everything for all time points t then at the end sum
-  # up to the appropriate column Yi.
-
-  # Compute Q(t, X) = E[T | X, W, T >= t]
-  # We can quickly compute all these t conditional expectations by updating backwards.
-  # For each time point t, the conditional expectation for sample i takes the form:
-  # t + Y.diff[(t + 1):grid.length] %*% S.hat[i, t:(grid.length - 1)] / S.hat[i, t]
-  Q.t.hat <- matrix(0, num.samples, grid.length)
-  dot.products <- sweep(S.hat[, 1:(grid.length - 1)], 2, Y.diff[2:grid.length], "*")
-  Q.t.hat[, 1] <- rowSums(dot.products)
-  for (i in 2:(grid.length - 1)) {
-    Q.t.hat[, i] <- Q.t.hat[, i - 1] - dot.products[, i - 1]
-  }
-  Q.t.hat <- Q.t.hat / S.hat
-  Q.t.hat[is.infinite(Q.t.hat)] <- 0 # The points where S.hat = 0
-  Q.t.hat <- sweep(Q.t.hat, 2, Y.grid, "+") # Add back t
-  Q.t.hat[, grid.length] <- max(Y.grid)
-
-  # Get Q.Y.hat = Q(Y, X) = E[T | X, W, T >= Y]
-  Q.Y.hat <- Q.t.hat[cbind(1:num.samples, Y.relabeled)]
-  numerator.one <- (D * (Y - m.hat) + (1 - D) * (Q.Y.hat - m.hat)) * W.centered / C.Y.hat
-
-  integrand <- sweep(lambda.C.hat / C.hat * (Q.t.hat - m.hat), 2, Y.diff, "*")
-  numerator.two <- rep(0, num.samples)
-  # Store additional coefficients for computing robust scores later on
-  integrand.update <- sweep(lambda.C.hat / C.hat, 2, Y.diff, "*")
-  integral.update <- rep(0, num.samples)
-  for (sample in 1:num.samples) {
-    Y.index <- Y.relabeled[sample]
-    numerator.two[sample] <- sum(integrand[sample, 1:Y.index]) * (W.centered[sample])
-    integral.update[sample]<- sum(integrand.update[sample, 1:Y.index]) * (W.centered[sample])
-  }
-
-  numerator <- numerator.one - numerator.two
-
-  list(numerator = numerator, denominator = denominator,
-       numerator.one = numerator.one, numerator.two = numerator.two,
-       integral.update = integral.update, C.Y.hat = C.Y.hat)
-}
-
 #' Compute E[T | X]
 #'
 #' @param S.hat The estimated survival curve.
@@ -596,4 +443,63 @@ expected_survival <- function(S.hat, Y.grid) {
   grid.diff <- diff(c(0, Y.grid, max(Y.grid)))
 
   c(cbind(1, S.hat) %*% grid.diff)
+}
+
+compute_eta <- function(S.hat,
+                        C.hat,
+                        C.Y.hat,
+                        Y.hat,
+                        W.centered,
+                        D,
+                        fY,
+                        Y.index,
+                        Y.grid,
+                        target,
+                        horizon) {
+  # Compute Q(t, X) = E[f(T) | X, W, T > t]
+  if (target == "RMST") {
+    # Q(t, X) = E[T | X, W, T > t]
+    # We can quickly compute all these t conditional expectations by updating backwards.
+    # For each time point t, the conditional expectation for sample i takes the form:
+    # t + Y.diff[(t + 1):grid.length] %*% S.hat[i, t:(grid.length - 1)] / S.hat[i, t]
+    Y.diff <- diff(c(0, Y.grid))
+    Q.hat <- matrix(NA, nrow(S.hat), ncol(S.hat))
+    dot.products <- sweep(S.hat[, 1:(ncol(S.hat) - 1)], 2, Y.diff[2:ncol(S.hat)], "*")
+    Q.hat[, 1] <- rowSums(dot.products)
+    for (i in 2:(ncol(Q.hat) - 1)) {
+      Q.hat[, i] <- Q.hat[, i - 1] - dot.products[, i - 1]
+    }
+    Q.hat <- Q.hat / S.hat
+    Q.hat <- sweep(Q.hat, 2, Y.grid, "+") # Add back t
+    Q.hat[, ncol(Q.hat)] <- max(Y.grid)
+    } else {
+    # Q(t, X) =  P(T > horizon | T > t)
+    horizonS.index <- findInterval(horizon, Y.grid)
+    Q.hat <- sweep(1 / S.hat, 1, S.hat[, horizonS.index], "*")
+    Q.hat[, horizonS.index:ncol(Q.hat)] <- 1
+  }
+
+  # Pick out Q(Yi, X)
+  Q.Y.hat <- Q.hat[cbind(seq_along(Y.index), Y.index)]
+  numerator.one <- (D * (fY - Y.hat) + (1 - D) * (Q.Y.hat - Y.hat)) * W.centered / C.Y.hat
+
+  # The conditional hazard function differential -d log(C.hat(t, x, w))
+  # This simple forward difference approximation works reasonably well.
+  # (note the "/dt" term is not needed as it cancels out in the lambda.C.hat / C.hat integral)
+  log.surv.C <- -log(cbind(1, C.hat))
+  dlambda.C.hat <- log.surv.C[, 2:(ncol(C.hat) + 1)] - log.surv.C[, 1:ncol(C.hat)]
+
+  integrand <- dlambda.C.hat / C.hat * (Q.hat - Y.hat)
+  numerator.two <- rep(0, length(Y.index))
+  for (sample in seq_along(Y.index)) {
+    Yi.index <- Y.index[sample]
+    numerator.two[sample] <- sum(integrand[sample, seq_len(Yi.index)]) * W.centered[sample]
+  }
+
+  numerator <- numerator.one - numerator.two
+  denominator <- W.centered^2 # denominator simplifies to this.
+
+  list(numerator = numerator, denominator = denominator,
+       numerator.one = numerator.one, numerator.two = numerator.two,
+       C.Y.hat = C.Y.hat)
 }

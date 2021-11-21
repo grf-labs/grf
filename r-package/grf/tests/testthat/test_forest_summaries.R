@@ -208,7 +208,7 @@ test_that("best linear projection works as expected with causal survival forest"
   p <- 5
   data <- generate_causal_survival_data(n, p, n.mc = 1, dgp = "simple1")
   data.test <- generate_causal_survival_data(5000, p, n.mc = 10000, dgp = "simple1")
-  cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500)
+  cs.forest <- causal_survival_forest(data$X, data$Y, data$W, data$D, horizon = data$Y.max, num.trees = 500)
 
   ate.true <- mean(data.test$cate)
   blp.ate <- best_linear_projection(cs.forest)
@@ -222,10 +222,11 @@ test_that("best linear projection works as expected with causal survival forest"
   weights <- rep(1, n)
   dup <- sample(1:n, 50)
   weights[dup] <- 2
-  cs.forest.weight <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 500, sample.weights = weights)
+  cs.forest.weight <- causal_survival_forest(data$X, data$Y, data$W, data$D, horizon = data$Y.max,
+                                             num.trees = 500, sample.weights = weights)
   cs.forest.dup <- causal_survival_forest(
     rbind(data$X, data$X[dup, ]), c(data$Y, data$Y[dup]), c(data$W, data$W[dup]), c(data$D, data$D[dup]),
-    num.trees = 500
+    horizon = data$Y.max, num.trees = 500
   )
 
   blp.weight <- best_linear_projection(cs.forest.weight)

@@ -30,41 +30,34 @@ automatically selects an appropriate amount.}
 \item{...}{Additional arguments (currently ignored).}
 }
 \value{
-Vector of predictions.
+Vector of predictions along with optional variance estimates.
 }
 \description{
 Gets estimates of tau(X) using a trained causal survival forest.
 }
 \examples{
 \donttest{
-# Train a standard causal survival forest.
-n <- 3000
+# Train a causal survival forest targeting a Restricted Mean Survival Time (RMST)
+# with maxium follow-up time set to `horizon`.
+n <- 2000
 p <- 5
 X <- matrix(runif(n * p), n, p)
 W <- rbinom(n, 1, 0.5)
-Y.max <- 1
-failure.time <- pmin(rexp(n) * X[, 1] + W, Y.max)
+horizon <- 1
+failure.time <- pmin(rexp(n) * X[, 1] + W, horizon)
 censor.time <- 2 * runif(n)
-Y <- pmin(failure.time, censor.time)
+# Discretizing continuous events decreases runtime.
+Y <- round(pmin(failure.time, censor.time), 2)
 D <- as.integer(failure.time <= censor.time)
-cs.forest <- causal_survival_forest(X, Y, W, D)
+cs.forest <- causal_survival_forest(X, Y, W, D, horizon = horizon)
 
 # Predict using the forest.
 X.test <- matrix(0.5, 10, p)
 X.test[, 1] <- seq(0, 1, length.out = 10)
-cs.pred <- predict(cs.forest, X.test, estimate.variance = TRUE)
+cs.pred <- predict(cs.forest, X.test)
 
-# Plot the estimated CATEs along with 95\% confidence bands.
-r.monte.carlo <- rexp(5000)
-cate <- rep(NA, 10)
-for (i in 1:10) {
-  cate[i] <- mean(pmin(r.monte.carlo * X.test[i, 1] + 1, Y.max) -
-                    pmin(r.monte.carlo * X.test[i, 1], Y.max))
-}
-plot(X.test[, 1], cate, type = 'l', col = 'red')
-points(X.test[, 1], cs.pred$predictions)
-lines(X.test[, 1], cs.pred$predictions + 2 * sqrt(cs.pred$variance.estimates), lty = 2)
-lines(X.test[, 1], cs.pred$predictions - 2 * sqrt(cs.pred$variance.estimates), lty = 2)
+# Predict on out-of-bag training samples.
+cs.pred <- predict(cs.forest)
 
 # Compute a doubly robust estimate of the average treatment effect.
 average_treatment_effect(cs.forest)
@@ -72,11 +65,9 @@ average_treatment_effect(cs.forest)
 # Compute the best linear projection on the first covariate.
 best_linear_projection(cs.forest, X[, 1])
 
-# Train the forest on a less granular grid.
-cs.forest.grid <- causal_survival_forest(X, Y, W, D,
-                                         failure.times = seq(min(Y), max(Y), length.out = 50))
-plot(X.test[, 1], cs.pred$predictions)
-points(X.test[, 1], predict(cs.forest.grid, X.test)$predictions, col = "blue")
+# Train a causal survival forest targeting an absolute risk difference
+# at the median timepoint `horizon`.
+cs.forest.prob <- causal_survival_forest(X, Y, W, D, target = "survival.probability", horizon = 0.5)
 }
 
 }
