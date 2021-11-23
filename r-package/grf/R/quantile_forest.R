@@ -128,6 +128,7 @@ quantile_forest <- function(X, Y,
 
   forest <- do.call.rcpp(quantile_train, c(data, args))
   class(forest) <- c("quantile_forest", "grf")
+  forest[["seed"]] <- seed
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["quantiles.orig"]] <- quantiles

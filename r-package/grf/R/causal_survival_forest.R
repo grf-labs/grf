@@ -327,6 +327,7 @@ causal_survival_forest <- function(X, Y, W, D,
 
   forest <- do.call.rcpp(causal_survival_train, c(data, args))
   class(forest) <- c("causal_survival_forest", "grf")
+  forest[["seed"]] <- seed
   forest[["_eta"]] <- eta
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
