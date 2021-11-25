@@ -179,6 +179,7 @@ survival_forest <- function(X, Y, D,
 
   forest <- do.call.rcpp(survival_train, c(data, args))
   class(forest) <- c("survival_forest", "grf")
+  forest[["seed"]] <- seed
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["Y.relabeled"]] <- Y.relabeled

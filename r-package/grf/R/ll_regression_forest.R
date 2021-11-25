@@ -197,6 +197,7 @@ ll_regression_forest <- function(X, Y,
   }
 
   class(forest) <- c("ll_regression_forest", "grf")
+  forest[["seed"]] <- seed
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y

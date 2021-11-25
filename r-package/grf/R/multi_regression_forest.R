@@ -109,6 +109,7 @@ multi_regression_forest <- function(X, Y,
 
   forest <- do.call.rcpp(multi_regression_train, c(data, args))
   class(forest) <- c("multi_regression_forest", "grf")
+  forest[["seed"]] <- seed
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["sample.weights"]] <- sample.weights
