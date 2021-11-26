@@ -45,6 +45,8 @@
 #'  Only applies if honesty is enabled. Default is TRUE.
 #' @param alpha A tuning parameter that controls the maximum imbalance of a split. The number of failures in
 #'  each child has to be at least one or `alpha` times the number of samples in the parent node. Default is 0.05.
+#'  (On data with very low event rate the default value may be too high for the forest to split
+#'  and lowering it may be beneficial).
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 #' Only relevant if `compute.oob.predictions` is TRUE. Default is "Kaplan-Meier".
