@@ -108,7 +108,7 @@ small/marginally powered data, but requires more trees (note: tuning does not ad
 Only applies if honesty is enabled. Default is TRUE.}
 
 \item{alpha}{A tuning parameter that controls the maximum imbalance of a split. This parameter plays the same
-role as in causal forest and surival forest, where for the latter the number of failures in
+role as in causal forest and survival forest, where for the latter the number of failures in
 each child has to be at least one or `alpha` times the number of samples in the parent node. Default is 0.05.
 (On data with very low event rate the default value may be too high for the forest to split
 and lowering it may be beneficial).}
