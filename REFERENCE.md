@@ -212,6 +212,16 @@ Qualitatively, these betas can be used to assess the association of the CATE fun
 
 The function `best_linear_projection` provides estimates of the coefficients beta in the above model. Note that this function does not simply regress the CATE estimates tau.hat(Xi) given by the causal forest against Ai. Instead, we use a doubly robust estimator that generalizes the augmented inverse-propensity weighted estimator for the average treatment effect described above.
 
+### Multiple outcomes and multiple treatments
+
+As mentioned above, causal forest choose splits that maximize the difference in the treatment effect tau between two child nodes by a gradient based approximation. When the response `Yi` and treatment `Wi` are real-valued this results in a scalar valued approximation &rho;i which is used by the subsequent splitting routine (see section 2.3 of the GRF paper for more details).
+
+There are however empirical applications where there are more than one primary outcome `Y` of interest, and a practitioner may wish to train a forest that jointly expresses heterogeneity in treatment effects across several outcomes `Yj`, j=1...M. The same algorithmic framework described above can be employed for this purpose (assuming all outcomes are on the same scale) by computing the gradient based approximation of tau_j across each outcome, then concatenating them to a M-sized pseudo response vector &rho; which is used by a subsequent CART regression splitting routine. The CART criterion GRF uses for vector-valued responses is the squared L2 norm.
+
+Another closely related practical application are settings where there are several interventions, as for example in medical trials with multiple treatment arms. In the event there are K mutually exclusive treatment choices, we can use the same algorithmic principles described above to build a forest that jointly targets heterogeneity across the K-1 different treatment contrasts. In the software package this is done with (20) from the GRF paper, where Wi is a vector encoded as {0, 1}^(K-1), and &xi; selects the K-1 gradient approximations of the contrasts.
+
+The functionality described above is available in `multi_arm_causal_forest`.
+
 ## Additional Features
 
 The following sections describe other features of GRF that may be of interest.
