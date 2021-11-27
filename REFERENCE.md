@@ -2,7 +2,7 @@
 
 <img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_wbg_cropped.png' align="right" height="120" />
 
-The following guide gives an introduction to the generalized random forests algorithm as implemented in the `grf` package. It aims to give a complete description of the training and prediction procedures, as well as the options available for tuning. This guide is intended as an informal and practical reference; for a theoretical treatment of GRF, please consult the 'Generalized Random Forests' paper.
+The following guide gives an introduction to the generalized random forests algorithm as implemented in the `grf` package. It aims to give a complete description of the training and prediction procedures, as well as the options available for tuning. This guide is intended as an informal and practical reference; for a theoretical treatment of GRF, please consult the 'Generalized Random Forests' [paper](https://arxiv.org/abs/1610.01271).
 
 GRF extends the idea of a classic random forest to allow for estimating other statistical quantities besides the expected outcome. Each forest type, for example `quantile_forest`, trains a random forest targeted at a particular problem, like quantile estimation. The most common use of GRF is in estimating treatment effects through the function `causal_forest`.
 
@@ -172,7 +172,7 @@ Beyond this core training procedure, causal forests incorporate some additions s
 
 ### Orthogonalization
 
-Recall that causal forests assume that potential outcomes are independent of treatment assignment, but only after we condition on features `X`. In this setting, in order to consistently estimate conditional average treatment effects, a naive causal forest would need to split both on features that affect treatment effects and those that affect treatment propensities. This can be wasteful, as splits 'spent' on modelling treatment propensities may not be useful in estimating treatment heterogeneity.
+Recall that causal forests assume that potential outcomes are independent of treatment assignment, but only after we condition on features `X`. In this setting, in order to consistently estimate conditional average treatment effects, a naive causal forest would need to split both on features that affect treatment effects and those that affect treatment propensities. This can be wasteful, as splits 'spent' on modeling treatment propensities may not be useful in estimating treatment heterogeneity.
 
 In GRF, we avoid this difficulty by 'orthogonalizing' our forest using Robinson's transformation (Robinson, 1988). Before running `causal_forest`, we compute estimates of the propensity scores `e(x) = E[W|X=x]` and marginal outcomes `m(x) = E[Y|X=x]` by training separate regression forests and performing out-of-bag prediction. We then compute the residual treatment `W - e(x)` and outcome `Y - m(x)`, and finally train a causal forest on these residuals. If propensity scores or marginal outcomes are known through prior means (as might be the case in a randomized trial) they can be specified through the training parameters `W.hat` and `Y.hat`. In this case, `causal_forest` will use these estimates instead of training separate regression forests.
 
@@ -229,7 +229,7 @@ GRF provides a cross-validation procedure to select values of these parameters t
 
 The cross-validation procedure works as follows:
 - Draw a number of random points in the space of possible parameter values. By default, 100 distinct sets of parameter values are chosen (`tune.num.reps`).
-- For each set of parameter values, train a forest with these values and compute the out-of-bag error. There are a couple important points to note about this error measure, outlined below. The exact procedure for computing the error can be found in the C++ methods that implement`OptimizedPredictionStrategy#compute_debiased_error`.
+- For each set of parameter values, train a forest with these values and compute the out-of-bag error. There are a couple important points to note about this error measure, outlined below. The exact procedure for computing the error can be found in the C++ methods that implement `OptimizedPredictionStrategy#compute_debiased_error`.
   - For tuning to be computationally tractable, we only train 'mini forests' composed of a small number of trees (`tune.num.trees`). With such a small number of trees, the out-of-bag error gives a biased estimate of the final forest error. We therefore debias the error through a simple variance decomposition.
   - While the notion of error is straightforward for regression forests, it can be more subtle in the context of treatment effect estimation. For causal forests, we use a measure of error developed in Nie and Wager (2021) motivated by residual-on-residual regression (Robinson, 1988).
 - Finally, given the debiased error estimates for each set of parameters, we apply a smoothing function to determine the optimal parameter values. The optimal parameters are the ones minimizing the predicted smoothed error on a new random draw of possible parameter values (of size `tune.num.draws`).
