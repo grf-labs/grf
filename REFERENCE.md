@@ -17,9 +17,11 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Orthogonalization](#orthogonalization)
   * [Selecting Balanced Splits](#selecting-balanced-splits)
   * [Average Treatment Effects](#average-treatment-effects)
-  * [Best Linear Projection of the CATE](#best-linear-projection-of-the-CATE)
+  * [Best Linear Projection of the CATE](#best-linear-projection-of-the-cate)
+  * [Multiple Outcomes and Multiple Treatments](#multiple-outcomes-and-multiple-treatments)
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
+  * [Merging Forests](#merging-forests)
   * [Boosted Regression Forests](#boosted-regression-forests)
   * [Cluster-Robust Estimation](#cluster-robust-estimation)
   * [Sample Weighting](#sample-weighting)
@@ -212,7 +214,7 @@ Qualitatively, these betas can be used to assess the association of the CATE fun
 
 The function `best_linear_projection` provides estimates of the coefficients beta in the above model. Note that this function does not simply regress the CATE estimates tau.hat(Xi) given by the causal forest against Ai. Instead, we use a doubly robust estimator that generalizes the augmented inverse-propensity weighted estimator for the average treatment effect described above.
 
-### Multiple outcomes and multiple treatments
+### Multiple Outcomes and Multiple Treatments
 
 As mentioned above, causal forest choose splits that maximize the difference in the treatment effect tau between two child nodes by a gradient based approximation. When the response `Yi` and treatment `Wi` are real-valued this results in a scalar valued approximation &rho;i which is used by the subsequent splitting routine (see section 2.3 of the GRF paper for more details).
 
