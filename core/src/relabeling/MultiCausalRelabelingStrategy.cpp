@@ -73,7 +73,7 @@ bool MultiCausalRelabelingStrategy::relabel(
   Eigen::MatrixXd A_p_inv = WW_bar.inverse();
   Eigen::MatrixXd beta = A_p_inv * W_centered.transpose() * weights.asDiagonal() * Y_centered; // [num_treatments X num_outcomes]
 
-  Eigen::MatrixXd rho_weight = W_centered * A_p_inv.transpose(); // [num_samples X num_treatments]
+  Eigen::MatrixXd rho_weight = W_centered * A_p_inv; // [num_samples X num_treatments]
   Eigen::MatrixXd residual = Y_centered - W_centered * beta; // [num_samples X num_outcomes]
 
   // Create the new outcomes, eq (20) in https://arxiv.org/pdf/1610.01271.pdf
