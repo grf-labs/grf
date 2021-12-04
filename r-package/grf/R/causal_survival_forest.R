@@ -266,13 +266,9 @@ causal_survival_forest <- function(X, Y, W, D,
   sf.censor <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = 1 - D), args.nuisance))
   C.hat <- predict(sf.censor, failure.times = Y.grid)$predictions
   if (target == "survival.probability") {
-    # P(Ci > min(Yi, horizon) | Xi, Wi)
-    horizonC.index <- findInterval(horizon, Y.grid)
-    if (horizonC.index == 0) {
-      C.hat[] <- 1
-    } else {
-      C.hat[, horizonC.index:ncol(C.hat)] <- C.hat[, horizonC.index]
-    }
+    # Evaluate psi up to horizon
+    D[Y > horizon] <- 1
+    Y[Y > horizon] <- horizon
   }
 
   Y.index <- findInterval(Y, Y.grid) # (invariance: Y.index > 0)
