@@ -1,6 +1,19 @@
 # Developing
 
+<img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_wbg_cropped.png' align="right" height="120" />
+
 In addition to providing out-of-the-box forests for quantile regression and instrumental variables, grf provides a framework for creating forests tailored to new statistical tasks. Certain components around splitting and prediction can be swapped out, within the general infrastructure for growing and predicting on trees.
+
+## Table of Contents
+* [Contributing](#contributing)
+* [Working with the code](#working-with-the-code)
+* [R package](#r-package)
+  * [Note for Windows users](#note-for-windows-users)
+* [Core C++](#core-c)
+  * [Code structure](#code-structure)
+  * [Creating a custom forest](#creating-a-custom-forest)
+  * [Current forests and main components](#current-forests-and-main-components)
+  * [Tree splitting algorithm](#tree-splitting-algorithm)
 
 ## Contributing
 
@@ -69,7 +82,7 @@ The following table shows the current collection of forests implemented and the 
 | regression_forest                    	| NoopRelabelingStrategy           	| RegressionSplittingRule      	| RegressionPredictionStrategy      	|
 | survival_forest                      	| NoopRelabelingStrategy           	| SurvivalSplittingRule        	| SurvivalPredictionStrategy        	|
 
-### Tree Splitting Algorithm
+### Tree splitting algorithm
 
 The follow section outlines pseudocode for some of the components listed above.
 
