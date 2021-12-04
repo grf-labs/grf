@@ -194,6 +194,9 @@ causal_survival_forest <- function(X, Y, W, D,
   if (length(Y.grid) <= 2) {
     stop("The number of distinct event times should be more than 2.")
   }
+  if (horizon < min(Y.grid)) {
+    stop("`horizon` cannot be before the first event.")
+  }
   if (nrow(X) > 5000 && length(Y.grid) / nrow(X) > 0.1) {
     warning(paste0("The number of events are more than 10% of the sample size. ",
                    "To reduce the computational burden of fitting survival and ",
