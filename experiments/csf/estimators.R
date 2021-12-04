@@ -92,6 +92,8 @@ IPCW = function(data, data.test) {
   sample.weights = 1 / C.Y.hat
   subset = data$D == 1
   cf = causal_forest(data$X[subset, ], data$Y[subset], data$W[subset], sample.weights = sample.weights[subset])
+
+  subset = data$D == 1 | data$Y > data$y0
   horizonC.index = findInterval(data$y0, sf.censor$failure.times)
   if (horizonC.index != 0) {
     C.Y.hat[data$Y > data$y0] = C.hat[data$Y > data$y0, horizonC.index]
