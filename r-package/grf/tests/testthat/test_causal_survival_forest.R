@@ -239,11 +239,6 @@ test_that("causal survival forest with survival target works as expected", {
   n <- 500
   p <- 5
   data <- generate_causal_survival_data(n, p, n.mc = 1, dgp = "simple1")
-  cs.forest.prob <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 250,
-                                           target = "survival.probability", horizon = -10)
-  cs.pred <- predict(cs.forest.prob)
-  expect_equal(cs.pred$predictions, rep(0, n))
-
   cs.default <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 250,
                                        target = "survival.probability", horizon = 0.4, seed = 42)
   cs.full.grid <- causal_survival_forest(data$X, data$Y, data$W, data$D, num.trees = 250,
