@@ -4,13 +4,12 @@ library(grf)
 set.seed(123)
 
 n = 2000
-p = 5
+p = 15
 dgp = "type3"
-nreps = 200
+nreps = 500
 
 # ground truth
-n.test = 50000
-data.test = generate_causal_survival_data(n.test, p, dgp=dgp, n.mc = 50000)
+data.test = generate_causal_survival_data(50000, p, dgp=dgp, n.mc = 50000)
 df = data.frame(cate=data.test$cate, x=data.test$X)
 lm1 = coeftest(lm(cate ~ x.1 + x.2, df))
 true = lm1[2, 1]
@@ -60,7 +59,7 @@ res = replicate(nreps, {
 # Figure 2:
 res.cov = round(rowMeans(res), 2)
 pdf("blp_simulation.pdf")
-breaks = 7
+breaks = 20
 par(mfrow = c(2, 2))
 hist(res["blp.cate", ], breaks = breaks, main = "BLP (CATE)", xlab = paste("coverage: ", res.cov["cov.blp.cate"]))
 abline(v=true, col = "red", lty = 2)

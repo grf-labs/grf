@@ -6,7 +6,7 @@ rm(list = ls())
 library(grf)
 library(randomForestSRC)
 library(ggplot2)
-set.seed(123)
+set.seed(42)
 
 # *** Comparison methods ***
 source("estimators.R")
@@ -16,14 +16,13 @@ estimators = list(SRC = SRC1,
 
 out = list()
 n = 2000
-p = 5
+p = 15
 n.test = 2000
 dgp = "type2"
 # dgp = "type3"
-n.mc = 100000
 
-data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
-data.test = generate_causal_survival_data(n = n.test, p = p, dgp = dgp, n.mc = n.mc)
+data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 1)
+data.test = generate_causal_survival_data(n = n.test, p = p, dgp = dgp, n.mc = 100000)
 true.cate = data.test$cate
 for (j in 1:length(estimators)) {
   estimator = names(estimators)[j]
@@ -52,8 +51,8 @@ ggplot(out, aes(y = predictions, x = true.cate)) +
   geom_abline(intercept = 0, slope = 1, col = "red", lty = 3) +
   facet_wrap(. ~ label, ncol = 3) +
   theme_bw() +
-  xlab("True effect") +
-  # xlab("") +
+  # xlab("True effect") +
+  xlab("") +
   ylab("Estimated effect")
 
 ggsave(paste0("prediction_comparsion_", dgp, ".pdf"), width = 6, height = 3)

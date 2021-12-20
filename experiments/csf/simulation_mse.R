@@ -14,9 +14,9 @@ estimators = list(SRC1 = SRC1,
 # *** Setup ***
 out = list()
 n.sim = 250
-n.mc = 100000
 grid = expand.grid(n = c(500, 1000, 2000, 5000),
-                   p = 5,
+                   p = 15,
+                   rho = c(0, 0.5),
                    n.test = 2000,
                    dgp = c("type1", "type2", "type3", "type4"),
                    stringsAsFactors = FALSE)
@@ -29,15 +29,16 @@ for (i in 1:nrow(grid)) {
   p = grid$p[i]
   n.test = grid$n.test[i]
   dgp = grid$dgp[i]
+  rho = grid$rho[i]
 
+  data.test = generate_causal_survival_data(n = n.test, p = p, dgp = dgp, rho = rho, n.mc = 100000)
+  true.cate = data.test$cate
+  true.cate.prob = data.test$cate.prob
+  true.cate.sign = data.test$cate.sign
   for (sim in 1:n.sim) {
     print(paste("sim", sim))
-    data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
+    data = generate_causal_survival_data(n = n, p = p, dgp = dgp, rho = rho, n.mc = 1)
     data$Y = round(data$Y, 2)
-    data.test = generate_causal_survival_data(n = n.test, p = p, dgp = dgp, n.mc = n.mc)
-    true.cate = data.test$cate
-    true.cate.prob = data.test$cate.prob
-    true.cate.sign = data.test$cate.sign
     estimator.output = list()
     for (j in 1:length(estimators)) {
       estimator = names(estimators)[j]
@@ -57,6 +58,7 @@ for (i in 1:nrow(grid)) {
     df$p = p
     df$n.test = n.test
     df$dgp = dgp
+    df$rho = rho
     df$sim = sim
 
     out = c(out, list(df))

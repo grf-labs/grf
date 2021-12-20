@@ -1,3 +1,5 @@
+# The following script reproduces the HIV application from
+# the manuscript.
 rm(list = ls())
 library(ggplot2)
 library(texreg)
@@ -13,7 +15,7 @@ Y = data$days
 W = as.numeric(data$arms == 1) # W = 0 : ddI, W = 1: ZDV+ddI
 D = data$cens
 
-# Figure 3 - histogram overlaid
+# Overlaid histogram with T.max
 ggplot(data.frame(Y, Censored = factor(D, labels = c("Yes", "No"))), aes(x = Y, fill = Censored)) +
         geom_histogram(alpha = 0.5) +
         geom_vline(xintercept = 1000, linetype = 2, col = "red") +
@@ -27,7 +29,7 @@ ggsave("HIV_histogram.pdf", width = 6, height = 5)
 # Truncate Y at Y.max
 Y.max = 1000
 
-cs.forest = causal_survival_forest(X, Y, W, D, horizon = Y.max)
+cs.forest = causal_survival_forest(X, Y, W, D, horizon = Y.max, num.trees = 10000, ci.group.size = 12)
 
 # BLP
 full = best_linear_projection(cs.forest, X)
@@ -41,7 +43,7 @@ varnames = c("Constant", "age", "weight", "Karnofsky score",
              "CD4 count 20+/-5 weeks", "CD8 count 20+/-5 weeks"
              )
 
-# Table 4
+# BLP Table
 texreg(list(full, age),
        custom.model.names = c("All covariates", "Age only"),
        table = FALSE,
@@ -51,14 +53,18 @@ texreg(list(full, age),
        custom.coef.names = varnames
 )
 
-# Figure 4
+# CATE plot
 X.median <- apply(X, 2, median)
 age.test = seq(min(X$age), max(X$age))
 X.test = matrix(rep(X.median, length(age.test)), length(age.test), byrow = TRUE)
 X.test[, 1] = age.test
-cs.pred = predict(cs.forest, X.test)
+cs.pred = predict(cs.forest, X.test, estimate.variance = TRUE)
 pt = cs.pred$predictions
+ub = pt + sqrt(cs.pred$variance.estimates) * qnorm(0.975)
+lb = pt - sqrt(cs.pred$variance.estimates) * qnorm(0.975)
 pdf("HIV_data.pdf")
-plot(X.test[, 1], pt, type = 'l', xlab = "Age (years)", ylab ="CATE (days)")
+plot(X.test[, 1], pt, type = 'l', xlab = "Age (years)", ylab ="CATE (days)", ylim = c(min(lb), max(ub)))
+lines(X.test[, 1], ub, lty = 2)
+lines(X.test[, 1], lb, lty = 2)
 grid()
 dev.off()

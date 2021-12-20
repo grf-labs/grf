@@ -10,6 +10,7 @@ generate_causal_survival_data(
   Y.max = NULL,
   y0 = NULL,
   X = NULL,
+  rho = 0,
   n.mc = 10000,
   dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")
 )
@@ -24,6 +25,8 @@ generate_causal_survival_data(
 \item{y0}{Query time to estimate P(T(1) > y0 | X) - P(T(0) > y0 | X) (optional).}
 
 \item{X}{The covariates (optional).}
+
+\item{rho}{The correlation coefficient of the X's covariance matrix V_{ij} = rho^|i-j|. Default is 0.}
 
 \item{n.mc}{The number of monte carlo draws to estimate the treatment effect with. Default is 10000.}
 

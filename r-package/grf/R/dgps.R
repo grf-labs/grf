@@ -218,6 +218,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
 #' @param Y.max The maximum follow-up time (optional).
 #' @param y0 Query time to estimate P(T(1) > y0 | X) - P(T(0) > y0 | X) (optional).
 #' @param X The covariates (optional).
+#' @param rho The correlation coefficient of the X's covariance matrix V_{ij} = rho^|i-j|. Default is 0.
 #' @param n.mc The number of monte carlo draws to estimate the treatment effect with. Default is 10000.
 #' @param dgp The type of DGP.
 #'
@@ -239,7 +240,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
 #' }
 #'
 #' @export
-generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NULL, n.mc = 10000,
+generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NULL, rho = 0, n.mc = 10000,
                                           dgp = c("simple1", "type1", "type2", "type3", "type4", "type5")) {
   .minp <- c(simple1 = 1, type1 = 5, type2 = 5, type3 = 5, type4 = 5, type5 = 5)
   dgp <- match.arg(dgp)
@@ -251,6 +252,11 @@ generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NUL
   if (p < minp) {
     stop(paste("Selected dgp", dgp, "requires a minimum of", minp, "variables."))
   }
+  if (rho !=0 ) {
+    if (!("MASS" %in% utils::installed.packages())) {
+      stop("`rho != 0` requires the MASS library.")
+    }
+  }
 
   if (dgp == "simple1") {
     if (is.null(Y.max)) {
@@ -260,7 +266,11 @@ generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NUL
       y0 <- 0.6
     }
     if (is.null(X)) {
-      X <- matrix(runif(n * p), n, p)
+      if (rho == 0) {
+        X <- matrix(runif(n * p), n, p)
+      } else {
+        X <- pnorm(MASS::mvrnorm(n, rep(0, p), stats::toeplitz(rho^seq(0, p - 1))))
+      }
     }
     W <- rbinom(n, 1, 0.5)
     failure.time <- pmin(rexp(n) * X[, 1] + W, Y.max)
@@ -281,10 +291,14 @@ generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NUL
       Y.max <- 1.5
     }
     if (is.null(y0)) {
-      y0 <- 0.2 # median of T
+      y0 <- 0.8 # 90-percentile of Y
     }
     if (is.null(X)) {
-      X <- matrix(runif(n * p), n, p)
+      if (rho == 0) {
+        X <- matrix(runif(n * p), n, p)
+      } else {
+        X <- pnorm(MASS::mvrnorm(n, rep(0, p), stats::toeplitz(rho^seq(0, p - 1))))
+      }
     }
     e <- (1 + dbeta(X[, 1], 2, 4)) / 4
     W <- rbinom(n, 1, e)
@@ -293,7 +307,7 @@ generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NUL
                 (0.7 - 0.4 * I1 - 0.4 * sqrt(X[, 2])) * W + rnorm(n))
     failure.time <- pmin(ft, Y.max)
     numerator <- -log(runif(n))
-    denominator <- exp(-1.75 - 0.5 * sqrt(X[, 2]) + 0.2 * X[, 3]  + (1.15 + 0.5 * I1 - 0.3 * sqrt(X[, 2])) * W)
+    denominator <- exp(-1.75 - 0.5 * sqrt(X[, 2]) + 0.2 * X[, 3] + (1.15 + 0.5 * I1 - 0.3 * sqrt(X[, 2])) * W)
     censor.time <- (numerator / denominator)^(1/2)
     Y <- pmin(failure.time, censor.time)
     D <- as.integer(failure.time <= censor.time)
@@ -314,10 +328,14 @@ generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NUL
       Y.max <- 2
     }
     if (is.null(y0)) {
-      y0 <- 0.17 # median T
+      y0 <- 1.2 # 90-percentile of Y
     }
     if (is.null(X)) {
-      X <- matrix(runif(n * p), n, p)
+      if (rho == 0) {
+        X <- matrix(runif(n * p), n, p)
+      } else {
+        X <- pnorm(MASS::mvrnorm(n, rep(0, p), stats::toeplitz(rho^seq(0, p - 1))))
+      }
     }
     e <- (1 + dbeta(X[, 1], 2, 4)) / 4
     W <- rbinom(n, 1, e)
@@ -343,10 +361,14 @@ generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NUL
       Y.max <- 15
     }
     if (is.null(y0)) {
-      y0 <- 7 # median T
+      y0 <- 10 # 90-percentile of Y
     }
     if (is.null(X)) {
-      X <- matrix(runif(n * p), n, p)
+      if (rho == 0) {
+        X <- matrix(runif(n * p), n, p)
+      } else {
+        X <- pnorm(MASS::mvrnorm(n, rep(0, p), stats::toeplitz(rho^seq(0, p - 1))))
+      }
     }
     e <- (1 + dbeta(X[, 1], 2, 4)) / 4
     W <- rbinom(n, 1, e)
@@ -373,10 +395,14 @@ generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NUL
       Y.max <- 3
     }
     if (is.null(y0)) {
-      y0 <- 1 # median T
+      y0 <- 2 # 90-percentile of Y
     }
     if (is.null(X)) {
-      X <- matrix(runif(n * p), n, p)
+      if (rho == 0) {
+        X <- matrix(runif(n * p), n, p)
+      } else {
+        X <- pnorm(MASS::mvrnorm(n, rep(0, p), stats::toeplitz(rho^seq(0, p - 1))))
+      }
     }
     e <- 1 / ((1 + exp(-X[, 1])) * (1 + exp(-X[, 2])))
     W <- rbinom(n, 1, e)
@@ -408,7 +434,11 @@ generate_causal_survival_data <- function(n, p, Y.max = NULL, y0 = NULL, X = NUL
       y0 <- 0.17
     }
     if (is.null(X)) {
-      X <- matrix(runif(n * p), n, p)
+      if (rho == 0) {
+        X <- matrix(runif(n * p), n, p)
+      } else {
+        X <- pnorm(MASS::mvrnorm(n, rep(0, p), stats::toeplitz(rho^seq(0, p - 1))))
+      }
     }
     e <- (1 + dbeta(X[, 1], 2, 4)) / 4
     W <- rbinom(n, 1, e)

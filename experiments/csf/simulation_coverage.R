@@ -4,10 +4,9 @@ set.seed(123)
 
 out = list()
 n.sim = 1000
-n.mc = 100000
-p = 5
-X.test = matrix(c(0.2, 0.4, 0.6, 0.8), 4, p)
 grid = expand.grid(n = c(2000),
+                   p = 15,
+                   rho = c(0, 0.5),
                    num.trees = c(10000),
                    dgp = c("type1", "type2", "type3", "type4"),
                    stringsAsFactors = FALSE)
@@ -17,16 +16,19 @@ for (i in 1:nrow(grid)) {
   print(paste("grid", i, "of", nrow(grid)))
   print(grid[i, ])
   n = grid$n[i]
+  p = grid$p[i]
   dgp = grid$dgp[i]
+  rho = grid$rho[i]
   num.trees = grid$num.trees[i]
+  X.test = matrix(c(0.2, 0.4, 0.6, 0.8), 4, p)
 
+  data.test = generate_causal_survival_data(n = nrow(X.test), p = p, X = X.test, dgp = dgp, rho = rho, n.mc = 100000)
+  cate.true = data.test$cate
+  cate.true.prob = data.test$cate.prob
   for (sim in 1:n.sim) {
     print(paste("sim", sim))
-    data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 10)
+    data = generate_causal_survival_data(n = n, p = p, dgp = dgp, rho = rho, n.mc = 1)
     data$Y = round(data$Y, 2)
-    data.test = generate_causal_survival_data(n = nrow(X.test), p = p, X = X.test, dgp = dgp, n.mc = n.mc)
-    cate.true = data.test$cate
-    cate.true.prob = data.test$cate.prob
     forest.W = regression_forest(data$X, data$W, num.trees = 500, ci.group.size = 1)
     W.hat = predict(forest.W)$predictions
 
@@ -52,7 +54,9 @@ for (i in 1:nrow(grid)) {
       coverage = c(coverage, coverage.prob),
       width = c(width, width.prob),
       n = n,
+      p = p,
       dgp = dgp,
+      rho = rho,
       num.trees = num.trees,
       sim = sim,
       X.test = X.test[, 1]
