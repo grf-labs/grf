@@ -5,6 +5,7 @@ library(ggplot2)
 library(texreg)
 library(speff2trial) # "ACTG175" data set.
 library(grf)
+library(xtable)
 set.seed(123)
 
 data = ACTG175[ACTG175$arms == 1 | ACTG175$arms == 3, ]
@@ -31,15 +32,31 @@ Y.max = 1000
 
 cs.forest = causal_survival_forest(X, Y, W, D, horizon = Y.max, num.trees = 10000, ci.group.size = 12)
 
+# Estimates and SEs for a random subset of individuals
+idx = sample(nrow(X), 10)
+pp = predict(cs.forest, estimate.variance = TRUE)
+vimp = variable_importance(cs.forest)
+colnames(X)[order(vimp)[1:4]]
+df = data.frame(
+        CATE = pp$predictions[idx],
+        CATE.se = sqrt(pp$variance.estimates[idx]),
+        hemophilia = ifelse(X[idx, "hemo"] == 1, "Yes", "No"),
+        gender = ifelse(X[idx, "gender"] == 1, "Male", "Female"),
+        homosexual.activity = ifelse(X[idx, "homo"] == 1, "Male", "Female"),
+        antiretroviral.history = ifelse(X[idx, "preanti"] == 1, "Experienced", "Naive")
+)
+print(xtable(df[order(df$CATE), ]
+             ), include.rownames = FALSE)
+
 # BLP
 full = best_linear_projection(cs.forest, X)
 age = best_linear_projection(cs.forest, X[, "age", drop = F])
 
 # Same names as in paper
-varnames = c("Constant", "age", "weight", "Karnofsky score",
-             "CD4 count", "CD8 count", "gender", "homosexual activity",
-             "race", "symptomatic status", "intravenous drug use",
-             "hemophilia", "antiretroviral history",
+varnames = c("Constant", "Age", "Weight", "Karnofsky score",
+             "CD4 count", "CD8 count", "Gender", "Homosexual activity",
+             "Race", "Symptomatic status", "Intravenous drug use",
+             "Hemophilia", "Antiretroviral history",
              "CD4 count 20+/-5 weeks", "CD8 count 20+/-5 weeks"
              )
 
