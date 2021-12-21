@@ -80,7 +80,7 @@ pt = cs.pred$predictions
 ub = pt + sqrt(cs.pred$variance.estimates) * qnorm(0.975)
 lb = pt - sqrt(cs.pred$variance.estimates) * qnorm(0.975)
 pdf("HIV_data.pdf")
-plot(X.test[, 1], pt, type = 'l', xlab = "Age (years)", ylab ="CATE (days)", ylim = c(min(lb), max(ub)))
+plot(X.test[, 1], pt, type = 'l', xlab = "Age (years)", ylab = "CATE (days)", ylim = c(min(lb), max(ub)))
 lines(X.test[, 1], ub, lty = 2)
 lines(X.test[, 1], lb, lty = 2)
 grid()
