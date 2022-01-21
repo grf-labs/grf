@@ -142,3 +142,62 @@ plot.grf_tree <- function(x, include.na.path = NULL, ...) {
   dot_file <- export_graphviz(x, include.na.path = include.na.path)
   DiagrammeR::grViz(dot_file)
 }
+
+#' Plot the Targeting Operator Characteristic curve.
+#' @param x The output of rank_average_treatment_effect.
+#' @param ... Additional arguments passed to plot.
+#'
+#' @examples
+#' \donttest{
+#' # Train a causal forest to estimate a priority ranking
+#' n <- 500
+#' p <- 5
+#' X <- matrix(rnorm(n * p), n, p)
+#' W <- rbinom(n, 1, 0.5)
+#' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+#' cf <- causal_forest(X, Y, W)
+#' prio <- runif(n)
+#' rate <- rank_average_treatment_effect(cf, prio)
+#'
+#' # Plot the Targeting Operating Characteristic curve.
+#' plot(rate)
+#'
+#' # Pass on simple options to plot method.
+#' plot(rate, main = "TOC", sub = "", col = 2)
+#'
+#' # For complete plot control access the TOC data.frame directly.
+#' TOC.df <- rate$TOC
+#' TOC.estimate <- TOC.df$estimate
+#' TOC.std.err <- TOC.df$std.err
+#' # plot ...
+#' }
+#' @method plot rank_average_treatment_effect
+#' @export
+plot.rank_average_treatment_effect <- function(x, ...) {
+  TOC <- x$TOC
+  q <- unique(TOC$q)
+  lb <- matrix(TOC$estimate - 1.96 * TOC$std.err, nrow = length(q))[, -3, drop = FALSE]
+  ub <- matrix(TOC$estimate + 1.96 * TOC$std.err, nrow = length(q))[, -3, drop = FALSE]
+  toc <- matrix(TOC$estimate, nrow = length(q))[, -3, drop = FALSE]
+  legend <- unique(TOC$rule)
+
+  plot.args <- list(
+    type = "l",
+    ylim = c(min(lb), max(ub)),
+    main = "Targeting Operator Characteristic",
+    sub = "(95 % confidence bars in dashed lines)",
+    ylab = "",
+    xlab = "q",
+    lty = 1,
+    col = 1:2
+  )
+  new.args <- list(...)
+  plot.args[names(new.args)] <- new.args
+  do.call(graphics::matplot, c(list(x = q, y = toc), plot.args))
+  graphics::matpoints(q, lb, type = "l", lty = 2, col = plot.args$col)
+  graphics::matpoints(q, ub, type = "l", lty = 2, col = plot.args$col)
+  graphics::abline(h = 0, lty = 3)
+  if (ncol(toc) > 1) {
+    graphics::legend("topright", legend[1:2], col = plot.args$col, bty = "n", lty = plot.args$lty)
+  }
+}
