@@ -139,8 +139,8 @@ rank_average_treatment_effect <- function(forest,
   } else if (nrow(priorities) != length(subset)) {
     stop("`priorities` must be a vector of length n or the subset length.")
   }
-  # store as factor, more efficient `tabulate()` for large |S| with many ties.
-  priorities[,] <- lapply(priorities, as.factor)
+  # remap to integers 1, ..., num.unique.prios for quicker tabulate().
+  priorities[,] <- lapply(priorities, function(x) as.integer(as.factor(x)))
   if (is.unsorted(q, strictly = TRUE) || min(q) <= 0 || max(q) != 1) {
     stop("`q` should correspond to a grid of fractions on the interval (0, 1].")
   }
@@ -173,7 +173,7 @@ rank_average_treatment_effect <- function(forest,
 
   # Compute estimates, a function to be passed on to boostrap routine.
   # @data: a data.frame with the original data, column 1: DR.scores*sample.weights, column 2: sample.weights,
-  #   column 3: priority scores (factor)
+  #   column 3: priority scores (integer vector)
   # @indices: a vector of indices which define the bootstrap sample.
   # @returns: an estimate of RATE, together with the TOC curve.
   estimate <- function(data, indices, q) {
@@ -199,8 +199,8 @@ rank_average_treatment_effect <- function(forest,
     sample.weights <- data[indices, 2][order(prio, decreasing = TRUE)] # all sort methods needs to be stable.
 
     num.ties <- tabulate(prio)
-    num.ties <- num.ties[num.ties != 0] # ignore potential levels not present in BS sample
-    grp.sum <- rowsum(data[indices, 1:2], as.integer(prio))
+    num.ties <- num.ties[num.ties != 0] # ignore potential ranks not present in BS sample
+    grp.sum <- rowsum(data[indices, 1:2], prio)
     DR.avg <- grp.sum[, 1] / grp.sum[, 2]
 
     DR.scores.sorted <- rev(rep.int(DR.avg, num.ties))
