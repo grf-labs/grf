@@ -196,15 +196,16 @@ rank_average_treatment_effect <- function(forest,
     grid.id <- rep.int(nq, c(nq[1], diff(nq)))
 
     prio <- data[indices, 3]
-    sample.weights <- data[indices, 2][order(prio, decreasing = TRUE)] # all sort methods needs to be stable.
+    idx <- order(prio, decreasing = TRUE)
+    sample.weights <- data[indices, 2][idx]
 
-    num.ties <- tabulate(prio)
+    num.ties <- tabulate(prio) # Count by rank in increasing order
     num.ties <- num.ties[num.ties != 0] # ignore potential ranks not present in BS sample
-    grp.sum <- rowsum(data[indices, 1:2], prio)
+    grp.sum <- rowsum(data[indices, 1:2][idx, ], prio[idx], reorder = FALSE)
     DR.avg <- grp.sum[, 1] / grp.sum[, 2]
 
-    DR.scores.sorted <- rev(rep.int(DR.avg, num.ties))
-    DR.scores.grid <- rowsum(cbind(DR.scores.sorted * sample.weights, sample.weights), grid.id)
+    DR.scores.sorted <- rep.int(DR.avg, rev(num.ties))
+    DR.scores.grid <- rowsum(cbind(DR.scores.sorted * sample.weights, sample.weights), grid.id, reorder = FALSE)
     ATE <- sum(DR.scores.sorted * sample.weights) / sum(sample.weights)
 
     TOC <- cumsum(DR.scores.sorted * sample.weights) / cumsum(sample.weights) - ATE
