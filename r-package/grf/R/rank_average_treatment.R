@@ -57,9 +57,9 @@
 #' train <- sample(1:n, n / 2)
 #' cf.priority <- causal_forest(X[train, ], Y[train], W[train])
 #'
-#' # Compute a prioritization based on estimated treatment effect quantiles.
+#' # Compute a prioritization based on estimated treatment effect deciles.
 #' tau.hats <- predict(cf.priority, X[-train, ])$predictions
-#' priority <- cut(tau.hats, breaks = quantile(tau.hats), include.lowest = TRUE)
+#' priority <- cut(tau.hats, breaks = quantile(tau.hats, seq(0, 1, 0.1)), include.lowest = TRUE)
 #'
 #' # Estimate AUTOC on held out data.
 #' cf <- causal_forest(X[-train, ], Y[-train], W[-train])
@@ -73,6 +73,7 @@
 #' priority.rand <- runif(n)[-train]
 #' rate.diff <- rank_average_treatment_effect(cf, cbind(priority, priority.rand))
 #' rate.diff
+#' plot(rate.diff)
 #' }
 #'
 #' @return A list of class `rank_average_treatment_effect` with elements \itemize{
@@ -110,12 +111,11 @@ rank_average_treatment_effect <- function(forest,
   subset.clusters <- clusters[subset]
   subset.weights <- observation.weight[subset]
   if (any(subset.weights == 0)) {
-    # This requires dropping samples with weight 0 during bootstrapping and will add unnecessary complexity to the
-    # TOC curve code in particular.
+    # This requires dropping samples with weight 0 during bootstrapping and will add unnecessary code complexity.
     stop("rank_average_treatment_effect only supports non-zero sample weights (consider dropping instead of giving weight 0).")
   }
   if (any(forest$W.hat[subset] %in% c(0, 1))) {
-    stop("Cannot compute a doubly robust estimate when some propensities are exactly zero/one.")
+    stop("Cannot compute a doubly robust estimate when some propensities are exactly zero or one.")
   }
   if (length(unique(subset.clusters)) <= 1) {
     stop("The specified subset must contain units from more than one cluster.")
@@ -129,7 +129,7 @@ rank_average_treatment_effect <- function(forest,
   }
   priorities <- as.data.frame(priorities)
   if (ncol(priorities) > 2) {
-    stop("`priorities` should be either a vector or a matrix with two rules.")
+    stop("`priorities` should be either a vector or a list/array with two rules.")
   }
   if (anyNA(priorities)) {
     stop("`priorities` contains missing values.")
@@ -199,7 +199,7 @@ rank_average_treatment_effect <- function(forest,
     idx <- order(prio, decreasing = TRUE)
     sample.weights <- data[indices, 2][idx]
 
-    num.ties <- tabulate(prio) # Count by rank in increasing order
+    num.ties <- tabulate(prio) # count by rank in increasing order
     num.ties <- num.ties[num.ties != 0] # ignore potential ranks not present in BS sample
     grp.sum <- rowsum(data[indices, 1:2][idx, ], prio[idx], reorder = FALSE)
     DR.avg <- grp.sum[, 1] / grp.sum[, 2]

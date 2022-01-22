@@ -88,9 +88,9 @@ Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
 train <- sample(1:n, n / 2)
 cf.priority <- causal_forest(X[train, ], Y[train], W[train])
 
-# Compute a prioritization based on estimated treatment effect quantiles.
+# Compute a prioritization based on estimated treatment effect deciles.
 tau.hats <- predict(cf.priority, X[-train, ])$predictions
-priority <- cut(tau.hats, breaks = quantile(tau.hats), include.lowest = TRUE)
+priority <- cut(tau.hats, breaks = quantile(tau.hats, seq(0, 1, 0.1)), include.lowest = TRUE)
 
 # Estimate AUTOC on held out data.
 cf <- causal_forest(X[-train, ], Y[-train], W[-train])
@@ -104,6 +104,7 @@ plot(rate)
 priority.rand <- runif(n)[-train]
 rate.diff <- rank_average_treatment_effect(cf, cbind(priority, priority.rand))
 rate.diff
+plot(rate.diff)
 }
 
 }
