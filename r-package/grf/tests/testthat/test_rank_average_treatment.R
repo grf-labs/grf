@@ -282,9 +282,9 @@ test_that("sample weighted rank_average_treatment_effect is approx. same as dupl
   cf.dupe <- causal_forest(X.dupe, Y.dupe, W.dupe, Y.hat = 0, W.hat = 0.5, num.trees = 250)
 
   autoc <- rank_average_treatment_effect(cf, tau, target = "AUTOC", R = 0)
-  qini <- rank_average_treatment_effect(cf, tau, target = "AUTOC", R = 0)
+  qini <- rank_average_treatment_effect(cf, tau, target = "QINI", R = 0)
   autoc.dupe <- rank_average_treatment_effect(cf.dupe, tau.dupe, target = "AUTOC", R = 0)
-  qini.dupe <- rank_average_treatment_effect(cf.dupe, tau.dupe, target = "AUTOC", R = 0)
+  qini.dupe <- rank_average_treatment_effect(cf.dupe, tau.dupe, target = "QINI", R = 0)
 
   expect_equal(autoc$estimate, autoc.dupe$estimate, tolerance = 0.01)
   expect_equal(qini$estimate, qini.dupe$estimate, tolerance = 0.01)
