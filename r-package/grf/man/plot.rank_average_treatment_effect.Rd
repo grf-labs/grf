@@ -14,28 +14,3 @@
 \description{
 Plot the Targeting Operator Characteristic curve.
 }
-\examples{
-\donttest{
-# Train a causal forest to estimate a priority ranking
-n <- 500
-p <- 5
-X <- matrix(rnorm(n * p), n, p)
-W <- rbinom(n, 1, 0.5)
-Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
-cf <- causal_forest(X, Y, W)
-prio <- runif(n)
-rate <- rank_average_treatment_effect(cf, prio)
-
-# Plot the Targeting Operating Characteristic curve.
-plot(rate)
-
-# Pass on simple options to plot method.
-plot(rate, main = "TOC", sub = "", col = 2)
-
-# For complete plot control access the TOC data.frame directly.
-TOC.df <- rate$TOC
-TOC.estimate <- TOC.df$estimate
-TOC.std.err <- TOC.df$std.err
-# plot ...
-}
-}
