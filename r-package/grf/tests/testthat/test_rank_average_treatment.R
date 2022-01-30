@@ -84,7 +84,6 @@ test_that("TOC grid works as expected", {
   prio <- tau
 
   # Computing TOC on grid 1/n <= q <= 1 agrees exactly with AUTOC.
-  # (Disable half-sample bootstrap (R=0) to be able to pass in such a granular grid)
   q.full <- seq(1/n, 1, by = 1/n)
   rate.full <-rank_average_treatment_effect(cf, prio, q = q.full, R = 0)
   autoc <- rate.full$estimate
@@ -117,8 +116,8 @@ test_that("sample weighted TOC grid works as expected", {
   sort.order <- order(prio, decreasing = TRUE)
 
   # Computing TOC on grid 1/n <= q <= 1 agrees exactly with AUTOC.
-  # (Disable half-sample bootstrap (R=0) to be able to pass in such a granular grid)
-  q.full <- seq(1/n, 1, by = 1/n)
+  q.full <- cumsum(wts[sort.order] / sum(wts))
+  q.full[length(q.full)] <- 1 # In case ~eps difference from 1.
   rate.full <-rank_average_treatment_effect(cf, prio, q = q.full, R = 0)
   autoc <- rate.full$estimate
   expect_equal(weighted.mean(rate.full$TOC$estimate, wts[sort.order]), autoc, tolerance = 1e-10)
@@ -288,6 +287,7 @@ test_that("sample weighted rank_average_treatment_effect is approx. same as dupl
 
   expect_equal(autoc$estimate, autoc.dupe$estimate, tolerance = 0.01)
   expect_equal(qini$estimate, qini.dupe$estimate, tolerance = 0.01)
+  expect_equal(autoc$TOC$estimate, autoc.dupe$TOC$estimate, tolerance = 0.01)
   expect_equal(autoc$TOC[nrow(autoc$TOC), "estimate"], 0, tolerance = 1e-10) # Last TOC curve entry (q=1) = zero.
 })
 
