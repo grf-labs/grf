@@ -187,9 +187,14 @@ rank_average_treatment_effect <- function(forest,
 
     num.ties <- tabulate(prio) # count by rank in increasing order
     num.ties <- num.ties[num.ties != 0] # ignore potential ranks not present in BS sample
-    grp.sum <- rowsum(data[indices, 1:2][sort.idx, ], prio[sort.idx], reorder = FALSE)
-    DR.avg <- grp.sum[, 1] / grp.sum[, 2]
-    DR.scores.sorted <- rep.int(DR.avg, rev(num.ties))
+    # if continuous scoring then no need for ~slower aggregation
+    if (all(num.ties == 1)) {
+      DR.scores.sorted <- (data[indices, 1] / data[indices, 2])[sort.idx]
+    } else {
+      grp.sum <- rowsum(data[indices, 1:2][sort.idx, ], prio[sort.idx], reorder = FALSE)
+      DR.avg <- grp.sum[, 1] / grp.sum[, 2]
+      DR.scores.sorted <- rep.int(DR.avg, rev(num.ties))
+    }
     sample.weights.cumsum <- cumsum(sample.weights)
     sample.weights.sum <- sample.weights.cumsum[length(sample.weights)]
     ATE <- sum(DR.scores.sorted * sample.weights) / sample.weights.sum
