@@ -13,15 +13,18 @@
 #' The Targeting Operating Characteristic (TOC) is a curve comparing the benefit of treating only a certain
 #' fraction q of units (as prioritized by S(Xi)), to the overall average treatment effect.
 #' The Rank-Weighted Average Treatment Effect (RATE) is a weighted sum of this curve,
-#' and is a measure designed to identify prioritization rules that effectively targets treatment.
+#' and is a measure designed to identify prioritization rules that effectively targets treatment
+#' (and can thus be used to test for the presence of heterogeneous treatment effects).
 #'
 #' @param forest The evaluation set forest.
 #' @param priorities Treatment prioritization scores S(Xi) for the units used to train the evaluation forest.
 #'  Two prioritization rules can be compared by supplying a two-column array or named list of priorities.
 #'  WARNING: for valid statistical performance, these scores should be constructed independently from the evaluation
 #'  forest training data.
-#' @param target The type of RATE estimate, options are `AUTOC` or `QINI`, corresponding to
-#'  identity or linear weighting. Default is `AUTOC`.
+#' @param target The type of RATE estimate, options are "AUTOC" (exhibits greater power when only a small subset
+#'  of the population experience nontrivial heterogeneous treatment effects) or "QINI" (exhibits greater power
+#'  when the entire population experience diffuse or substantial heterogeneous treatment effects).
+#'  Default is "AUTOC".
 #' @param q The grid q to compute the TOC curve on. Default is
 #'  (10\%, 20\%, ..., 100\%).
 #' @param R Number of bootstrap replicates for SEs. Default is 200.
