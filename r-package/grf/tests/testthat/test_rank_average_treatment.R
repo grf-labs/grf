@@ -370,7 +370,7 @@ test_that("sample weighted rank_average_treatment_effect is invariant to permuti
 
   expect_equal(r1$TOC$estimate, r2$TOC$estimate, tolerance = 1e-15)
   expect_equal(r1$estimate, r2$estimate, tolerance = 1e-2) # ascribed to finite precision...
-  expect_equal(r2.qini$estimate, r2.qini$estimate, tolerance = 1e-15)
+  expect_equal(r1.qini$estimate, r2.qini$estimate, tolerance = 1e-15)
   expect_equal(r1$TOC$estimate[length(q)], 0, tolerance = 1e-15)
 })
 
