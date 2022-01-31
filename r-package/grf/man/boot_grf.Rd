@@ -17,7 +17,7 @@ data is the original data, and indices a vector which defines the bootstrap samp
 \item{clusters}{Integer vector of cluster assignment, setting to 1:N corresponds to an ordinary
 unclustered bootstrap.}
 
-\item{half.sample}{Whether to do half sample boostrap (half the clusters are drawn). Default is TRUE.}
+\item{half.sample}{Whether to do half sample bootstrap (half the clusters are drawn). Default is TRUE.}
 
 \item{...}{Additional arguments passed on to statistic.}
 }
@@ -25,7 +25,7 @@ unclustered bootstrap.}
 A list with the original estimate t0, and bootstrap estimates t.
 }
 \description{
-Inspired by the `boot` function in the boostrap package with clusters + half-sampling added.
+Inspired by the `boot` function in the bootstrap package with clusters + half-sampling added.
 A future TODO could be to add parallel (not necessarily worth it)
 https://stat.ethz.ch/R-manual/R-devel/library/parallel/doc/parallel.pdf
 }

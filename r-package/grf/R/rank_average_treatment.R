@@ -161,7 +161,7 @@ rank_average_treatment_effect <- function(forest,
     wtd.mean <- function(x, w) sum(cumsum(w) / sum(w) * w * x) / sum(w)
   }
 
-  # Compute estimates, a function to be passed on to boostrap routine.
+  # Compute estimates, a function to be passed on to bootstrap routine.
   # @data: a data.frame with the original data, column 1: DR.scores*sample.weights, column 2: sample.weights,
   #   column 3: priority scores (integer vector)
   # @indices: a vector of indices which define the bootstrap sample.
@@ -257,7 +257,7 @@ rank_average_treatment_effect <- function(forest,
 
 #' Simple clustered bootstrap.
 #'
-#' Inspired by the `boot` function in the boostrap package with clusters + half-sampling added.
+#' Inspired by the `boot` function in the bootstrap package with clusters + half-sampling added.
 #' A future TODO could be to add parallel (not necessarily worth it)
 #' https://stat.ethz.ch/R-manual/R-devel/library/parallel/doc/parallel.pdf
 #'
@@ -267,7 +267,7 @@ rank_average_treatment_effect <- function(forest,
 #' @param R The number of bootstrap replications.
 #' @param clusters Integer vector of cluster assignment, setting to 1:N corresponds to an ordinary
 #'  unclustered bootstrap.
-#' @param half.sample Whether to do half sample boostrap (half the clusters are drawn). Default is TRUE.
+#' @param half.sample Whether to do half sample bootstrap (half the clusters are drawn). Default is TRUE.
 #' @param ... Additional arguments passed on to statistic.
 #' @return A list with the original estimate t0, and bootstrap estimates t.
 #'
