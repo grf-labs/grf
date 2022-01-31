@@ -316,6 +316,64 @@ test_that("IPCC weighting rank_average_treatment_effect improves complete-data R
   expect_gt(rate.full$estimate / rate.nowt$estimate, 1.2 * rate.full$estimate / rate.ipc$estimate)
 })
 
+test_that("rank_average_treatment_effect is invariant to permuting samples", {
+  n <- 10
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  tau <- pmax(X[, 1], 0)
+  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+  S <- c(10, 10, 10, 9, 8, 8, 7, 7, 7, 6)
+  q <- c(0.125, 0.3, 0.375, 0.5, 0.75, 0.8, 1)
+  cf <- causal_forest(X, Y, W, Y.hat = 0, W.hat = 0.5, num.trees = 250)
+
+  j <- c(2, 3, 1, 4, 6, 5, 8, 9, 7, 10)
+  cf.perm <- cf
+  cf.perm$Y.orig <- cf$Y.orig[j]
+  cf.perm$W.orig <- cf$W.orig[j]
+  cf.perm$predictions <- cf$predictions[j, , drop = FALSE]
+  cf.perm$sample.weights <- cf$sample.weights[j]
+  expect_equal(get_scores(cf.perm), get_scores(cf)[j])
+
+  r1 <- rank_average_treatment_effect(cf, S, q = q)
+  r2 <- rank_average_treatment_effect(cf.perm, S, q = q)
+
+  expect_equal(r1$TOC$estimate, r2$TOC$estimate, tolerance = 1e-15)
+  expect_equal(r1$estimate, r2$estimate, tolerance = 1e-15)
+  expect_equal(r1$TOC$estimate[length(q)], 0, tolerance = 1e-15)
+})
+
+test_that("sample weighted rank_average_treatment_effect is invariant to permuting samples", {
+  n <- 10
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  tau <- pmax(X[, 1], 0)
+  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+  S <- c(10, 10, 10, 9, 8, 8, 7, 7, 7, 6)
+  wts <- c(1, 3, 1, 1, 0.5, 1.5, 1, 1, 2, 4)
+  q <- c(0.125, 0.3, 0.375, 0.5, 0.75, 0.8, 1)
+  cf <- causal_forest(X, Y, W, Y.hat = 0, W.hat = 0.5, sample.weights = wts, num.trees = 250)
+
+  j <- c(2, 3, 1, 4, 6, 5, 8, 9, 7, 10)
+  cf.perm <- cf
+  cf.perm$Y.orig <- cf$Y.orig[j]
+  cf.perm$W.orig <- cf$W.orig[j]
+  cf.perm$predictions <- cf$predictions[j, , drop = FALSE]
+  cf.perm$sample.weights <- cf$sample.weights[j]
+  expect_equal(get_scores(cf.perm), get_scores(cf)[j])
+
+  r1 <- rank_average_treatment_effect(cf, S, q = q)
+  r1.qini <- rank_average_treatment_effect(cf, S, q = q, target = "QINI")
+  r2 <- rank_average_treatment_effect(cf.perm, S, q = q)
+  r2.qini <- rank_average_treatment_effect(cf.perm, S, q = q, target = "QINI")
+
+  expect_equal(r1$TOC$estimate, r2$TOC$estimate, tolerance = 1e-15)
+  expect_equal(r1$estimate, r2$estimate, tolerance = 1e-2) # ascribed to finite precision...
+  expect_equal(r2.qini$estimate, r2.qini$estimate, tolerance = 1e-15)
+  expect_equal(r1$TOC$estimate[length(q)], 0, tolerance = 1e-15)
+})
+
 test_that("cluster robust rank_average_treatment_effect is consistent", {
   n <- 500
   p <- 5

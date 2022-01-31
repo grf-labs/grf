@@ -212,8 +212,7 @@ rank_average_treatment_effect <- function(forest,
     uniq.idx <- unique(idx)
     grid.id <- rep.int(seq_along(uniq.idx), c(uniq.idx[1], diff(uniq.idx)))
     DR.scores.grid <- rowsum(cbind(DR.scores.sorted * sample.weights, sample.weights), grid.id, reorder = FALSE)
-    DR.scores.grid <- DR.scores.grid[grid.id[idx], , drop = FALSE]
-    TOC.grid <- (cumsum(DR.scores.grid[, 1]) + numerator.adj) / (cumsum(DR.scores.grid[, 2]) + denominator.adj) - ATE
+    TOC.grid <- (cumsum(DR.scores.grid[, 1])[grid.id[idx]] + numerator.adj) / (cumsum(DR.scores.grid[, 2])[grid.id[idx]] + denominator.adj) - ATE
 
     c(RATE, TOC.grid, use.names = FALSE)
   }
