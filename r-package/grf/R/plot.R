@@ -155,7 +155,7 @@ plot.rank_average_treatment_effect <- function(x, ...) {
   lb <- matrix(TOC$estimate - 1.96 * TOC$std.err, nrow = length(q))[, -3, drop = FALSE]
   ub <- matrix(TOC$estimate + 1.96 * TOC$std.err, nrow = length(q))[, -3, drop = FALSE]
   toc <- matrix(TOC$estimate, nrow = length(q))[, -3, drop = FALSE]
-  legend <- unique(TOC$rule)
+  legend <- unique(TOC$rule)[-3]
 
   plot.args <- list(
     type = "l",
@@ -174,6 +174,6 @@ plot.rank_average_treatment_effect <- function(x, ...) {
   graphics::matpoints(q, ub, type = "l", lty = 2, col = plot.args$col)
   graphics::abline(h = 0, lty = 3)
   if (ncol(toc) > 1) {
-    graphics::legend("topright", legend[1:2], col = plot.args$col, bty = "n", lty = plot.args$lty)
+    graphics::legend("topright", legend, col = plot.args$col, bty = "n", lty = plot.args$lty)
   }
 }
