@@ -107,6 +107,14 @@ plot(rate)
 priority.rand <- runif(n)[-train]
 rate.diff <- rank_average_treatment_effect(cf, cbind(priority, priority.rand))
 rate.diff
+
+# Construct a valid 95 \% confidence interval.
+# (a significant result suggests that there are HTEs and that the prioritization rule is effective
+# at stratifying the sample based on them. Conversely, a non-significant result suggests that either
+# there are no HTEs or the treatment prioritization rule does not predict them effectively.)
+rate.diff$estimate + data.frame(lower = -1.96 * rate.diff$std.err,
+                                upper = 1.96 * rate.diff$std.err)
+
 plot(rate.diff)
 }
 
