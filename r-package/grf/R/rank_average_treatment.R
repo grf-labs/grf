@@ -65,8 +65,8 @@
 #' priority <- cut(tau.hats, breaks = quantile(tau.hats, seq(0, 1, 0.1)), include.lowest = TRUE)
 #'
 #' # Estimate AUTOC on held out data.
-#' cf <- causal_forest(X[-train, ], Y[-train], W[-train])
-#' rate <- rank_average_treatment_effect(cf, priority)
+#' cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train])
+#' rate <- rank_average_treatment_effect(cf.eval, priority)
 #' rate
 #'
 #' # Plot the Targeting Operator Characteristic curve.
@@ -74,7 +74,7 @@
 #'
 #' # Test if two RATEs are equal.
 #' priority.rand <- runif(n)[-train]
-#' rate.diff <- rank_average_treatment_effect(cf, cbind(priority, priority.rand))
+#' rate.diff <- rank_average_treatment_effect(cf.eval, cbind(priority, priority.rand))
 #' rate.diff
 #'
 #' # Construct a 95 % confidence interval.
