@@ -93,7 +93,8 @@ cf.priority <- causal_forest(X[train, ], Y[train], W[train])
 
 # Compute a prioritization based on estimated treatment effect deciles.
 tau.hats <- predict(cf.priority, X[-train, ])$predictions
-priority <- cut(tau.hats, breaks = quantile(tau.hats, seq(0, 1, 0.1)), include.lowest = TRUE)
+priority <- cut(tau.hats, breaks = quantile(tau.hats, seq(0, 1, 0.1)),
+                include.lowest = TRUE, labels = FALSE)
 
 # Estimate AUTOC on held out data.
 cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train])
