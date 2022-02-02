@@ -248,17 +248,17 @@ rank_average_treatment_effect <- function(forest,
   if (R < 2) {
     std.errors[] <- 0
   }
-  rule <- c(colnames(priorities), paste(colnames(priorities), collapse = " - "))[1:length(point.estimate[1, ])]
+  priority <- c(colnames(priorities), paste(colnames(priorities), collapse = " - "))[1:length(point.estimate[1, ])]
 
   output <- list()
   class(output) <- "rank_average_treatment_effect"
   output[["estimate"]] <- point.estimate[1, ]
   output[["std.err"]] <- std.errors[1, ]
-  output[["target"]] <- paste(rule, "|", target)
+  output[["target"]] <- paste(priority, "|", target)
   output[["TOC"]] <- data.frame(estimate = c(point.estimate[-1, ]),
                                 std.err = c(std.errors[-1, ]),
                                 q = q,
-                                rule = rule[gl(length(rule), length(q))],
+                                priority = priority[gl(length(priority), length(q))],
                                 stringsAsFactors = FALSE)
 
   output

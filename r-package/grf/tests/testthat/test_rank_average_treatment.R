@@ -468,15 +468,15 @@ test_that("rank_average_treatment_effect is internally consistent", {
   expect_equal(rate22$estimate[[3]], 0)
   expect_equal(rate22$std.err[[3]], 0)
 
-  rule <- unique(rate12$TOC$rule)
-  rule21 <- unique(rate21$TOC$rule)
-  expect_equal(rate12$TOC[rate12$TOC$rule == rule[1], ], rate1$TOC)
-  expect_equal(as.matrix(rate12$TOC[rate12$TOC$rule == rule[2], -4], rownames.force = FALSE),
+  priority <- unique(rate12$TOC$priority)
+  priority21 <- unique(rate21$TOC$priority)
+  expect_equal(rate12$TOC[rate12$TOC$priority == priority[1], ], rate1$TOC)
+  expect_equal(as.matrix(rate12$TOC[rate12$TOC$priority == priority[2], -4], rownames.force = FALSE),
                as.matrix(rate2$TOC[, -4]))
-  expect_equal(rate12$TOC[rate12$TOC$rule == rule[3], "estimate"],
+  expect_equal(rate12$TOC[rate12$TOC$priority == priority[3], "estimate"],
                rate1$TOC$estimate - rate2$TOC$estimate)
-  expect_equal(rate12$TOC[rate12$TOC$rule == rule[3], "estimate"],
-               -rate21$TOC[rate21$TOC$rule == rule21[3], "estimate"])
-  expect_equal(rate12$TOC[rate12$TOC$rule == rule[3], "std.err"],
-               rate21$TOC[rate21$TOC$rule == rule21[3], "std.err"])
+  expect_equal(rate12$TOC[rate12$TOC$priority == priority[3], "estimate"],
+               -rate21$TOC[rate21$TOC$priority == priority21[3], "estimate"])
+  expect_equal(rate12$TOC[rate12$TOC$priority == priority[3], "std.err"],
+               rate21$TOC[rate21$TOC$priority == priority21[3], "std.err"])
 })
