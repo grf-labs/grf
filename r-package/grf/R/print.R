@@ -94,10 +94,10 @@ print.boosted_regression_forest <- function(x, ...) {
 #' @method print rank_average_treatment_effect
 #' @export
 print.rank_average_treatment_effect <- function(x, ...) {
-  print(
-    data.frame(estimate = x[["estimate"]], std.err = x[["std.err"]], target = x[["target"]]),
-    row.names = FALSE
-  )
+  df <- data.frame(estimate = x[["estimate"]], std.err = x[["std.err"]], target = x[["target"]],
+                   stringsAsFactors = FALSE)
+  print(df, row.names = FALSE)
+  invisible(x)
 }
 
 
