@@ -248,7 +248,7 @@ rank_average_treatment_effect <- function(forest,
   if (R < 2) {
     std.errors[] <- 0
   }
-  rule <- c(colnames(priorities), "difference")[1:length(point.estimate[1, ])]
+  rule <- c(colnames(priorities), paste(colnames(priorities), collapse = " - "))[1:length(point.estimate[1, ])]
 
   output <- list()
   class(output) <- "rank_average_treatment_effect"
