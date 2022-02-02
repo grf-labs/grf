@@ -155,7 +155,7 @@ plot.rank_average_treatment_effect <- function(x, ...) {
   lb <- matrix(TOC$estimate - 1.96 * TOC$std.err, nrow = length(q))[, -3, drop = FALSE]
   ub <- matrix(TOC$estimate + 1.96 * TOC$std.err, nrow = length(q))[, -3, drop = FALSE]
   toc <- matrix(TOC$estimate, nrow = length(q))[, -3, drop = FALSE]
-  legend <- unique(TOC$rule)[-3]
+  legend <- unique(TOC$priority)[-3]
 
   plot.args <- list(
     type = "l",
