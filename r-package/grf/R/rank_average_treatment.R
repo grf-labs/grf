@@ -139,10 +139,12 @@ rank_average_treatment_effect <- function(forest,
       stop("If specified, debiasing.weights must be a vector of length n or the subset length.")
     }
   }
-  priorities <- as.data.frame(priorities)
+  priorities <- as.data.frame(priorities, fix.empty.names = FALSE)
   if (ncol(priorities) > 2) {
     stop("`priorities` should be either a vector or a list/array with two rules.")
   }
+  empty.names <- colnames(priorities) == ""
+  colnames(priorities)[empty.names] <- c("priority1", "priority2")[1:ncol(priorities)][empty.names]
   if (anyNA(priorities)) {
     stop("`priorities` contains missing values.")
   }
