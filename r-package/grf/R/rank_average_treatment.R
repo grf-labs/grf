@@ -120,12 +120,11 @@ rank_average_treatment_effect <- function(forest,
   }
   observation.weight <- observation_weights(forest)
   subset <- validate_subset(forest, subset)
-  subset.clusters <- clusters[subset]
+  # Giving sample weight of 0 is effectively the same as dropping samples.
+  # Do it here with upfront subsetting instead of dealing with it in every bootstrap iteration.
+  subset <- intersect(subset, which(observation.weight != 0))
   subset.weights <- observation.weight[subset]
-  if (any(subset.weights == 0)) {
-    # This requires dropping samples with weight 0 during bootstrapping and will add unnecessary code complexity.
-    stop("rank_average_treatment_effect only supports non-zero sample weights (consider dropping instead of giving weight 0).")
-  }
+  subset.clusters <- clusters[subset]
   if (any(forest$W.hat[subset] %in% c(0, 1))) {
     stop("Cannot compute a doubly robust estimate when some propensities are exactly zero or one.")
   }
