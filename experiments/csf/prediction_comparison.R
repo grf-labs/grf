@@ -15,7 +15,7 @@ estimators = list(SRC = SRC1,
                   CSF = CSF)
 
 out = list()
-n = 2000
+n = 5000
 p = 15
 n.test = 2000
 dgp = "type2"
