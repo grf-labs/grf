@@ -405,7 +405,7 @@ test_that("cluster robust rank_average_treatment_effect is consistent", {
   expect_equal(qini[["std.err"]], qini.clust[["std.err"]], tolerance = 0.02)
 })
 
-test_that("internal bootstrap function `boot` works as expected", {
+test_that("internal bootstrap function `boot_grf` works as expected", {
   n <- 50
   mu <- 1 + rnorm(n)
   clust <- 1:n
@@ -479,4 +479,34 @@ test_that("rank_average_treatment_effect is internally consistent", {
                -rate21$TOC[rate21$TOC$priority == priority21[3], "estimate"])
   expect_equal(rate12$TOC[rate12$TOC$priority == priority[3], "std.err"],
                rate21$TOC[rate21$TOC$priority == priority21[3], "std.err"])
+})
+
+test_that("rank_average_treatment_effect has not changed", {
+  # Lock in current behavior. A user will expect a given R set.seed to produce the same
+  # standard errors. If a future change for example changes how random samples are drawn
+  # (a different algo is used, or it is done in parallel) standard errors will change.
+  # Even though they are equally valid it breaks user expectations.
+  X <- structure(c(3.2, 1, 0.3, -0.7, -1.7, 1.6, 0.3, -0.8, -0.3, -0.5,
+                   -1.4, 1.2, -0.8, 0, 0.1, -1.1, -1.6, -0.7, -0.3, 0.3, 0.1, -1.4,
+                   -1.8, -1.4, 0.7), .Dim = c(25L, 1L))
+  Y <- c(7.2, 4.3, -1.1, -1.9, -3.7, 1.7, 0.4, -0.8, 0.2, -2.4, -2.6,
+         2.7, -1.1, 0.3, 0.5, -2.4, -2.9, 0.2, -2.1, -0.1, -0.1, -4, -5.9,
+         -3.3, 1.8)
+  W <- c(1L, 1L, 0L, 0L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 0L,
+         0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 0L, 1L)
+
+  cf <- causal_forest(X, Y, W, Y.hat = 0, W.hat = 0.5, num.trees = 250, seed = 42, num.threads = 1)
+
+  set.seed(42)
+  rate <- rank_average_treatment_effect(cf, W)
+
+  expect_equal(rate$estimate, -0.84766553531391)
+  expect_equal(rate$TOC$estimate, c(-1.05976470588235, -1.05976470588235, -1.05976470588235, -1.05976470588235,
+                                    -1.05976470588235, -1.05976470588235, -0.965142857142857, -0.563,
+                                    -0.250222222222222, 0))
+
+  expect_equal(rate$std.err, 0.571871384204182)
+  expect_equal(rate$TOC$std.err, c(0.795638422842039, 0.795638422842039, 0.795638422842039, 0.787412259502468,
+                                   0.755534565676904, 0.714814376377961, 0.573841753475629, 0.394040294086509,
+                                   0.188648018385444, 0))
 })
