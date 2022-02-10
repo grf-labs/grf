@@ -4,12 +4,18 @@
 \alias{plot.rank_average_treatment_effect}
 \title{Plot the Targeting Operator Characteristic curve.}
 \usage{
-\method{plot}{rank_average_treatment_effect}(x, ...)
+\method{plot}{rank_average_treatment_effect}(x, ..., ci.args = list(), abline.args = list(), legend.args = list())
 }
 \arguments{
 \item{x}{The output of rank_average_treatment_effect.}
 
 \item{...}{Additional arguments passed to plot.}
+
+\item{ci.args}{Additional arguments passed to points.}
+
+\item{abline.args}{Additional arguments passed to abline.}
+
+\item{legend.args}{Additional arguments passed to legend.}
 }
 \description{
 Plot the Targeting Operator Characteristic curve.

@@ -13,6 +13,8 @@ test_that("rank_average_treatment_effect works as expected", {
   plot(rate)
   plot(rate, ylab = "42")
   plot(rate, ylab = "42", col = "green", sub = "sub")
+  plot(rate, xlab = "treated frac.", legend.args = list(legend = "a prio"),
+       abline.args = list(lty = 1), ci.args = list(lty = 3))
 
   q.length <- nrow(rate$TOC)
   expect_equal(rate$TOC[q.length, "estimate"], 0, tolerance = 1e-10) # Last TOC curve entry (q=1) = zero.
