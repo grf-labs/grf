@@ -174,13 +174,13 @@ plot.rank_average_treatment_effect <- function(x,
     lty = 1,
     col = 1:2
   )
-  points.args <- list(type = "l", lty = 2, col = 1:2)
-  ab.args <- list(h = 0, lty = 3)
-  leg.args <- list(x = "topright", legend = legend, col = 1:2, bty = "n", lty = 1)
   new.args <- list(...)
   plot.args[names(new.args)] <- new.args
+  points.args <- list(type = "l", lty = 2, col = plot.args$col)
   points.args[names(ci.args)] <- ci.args
+  ab.args <- list(h = 0, lty = 3)
   ab.args[names(abline.args)] <- abline.args
+  leg.args <- list(x = "topright", legend = legend, col = plot.args$col, bty = "n", lty = plot.args$lty)
   leg.args[names(legend.args)] <- legend.args
 
   do.call(graphics::matplot, c(list(x = q, y = toc), plot.args))
