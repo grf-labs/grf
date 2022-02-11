@@ -212,7 +212,8 @@ causal_survival_forest <- function(X, Y, W, D,
                                   min.node.size = 5, honesty = TRUE,
                                   honesty.fraction = 0.5, honesty.prune.leaves = TRUE,
                                   alpha = alpha, imbalance.penalty = imbalance.penalty,
-                                  ci.group.size = 1, compute.oob.predictions = TRUE,
+                                  ci.group.size = 1, tune.parameters = tune.parameters,
+                                  compute.oob.predictions = TRUE,
                                   num.threads = num.threads, seed = seed)
     W.hat <- predict(forest.W)$predictions
   } else if (length(W.hat) == 1) {
