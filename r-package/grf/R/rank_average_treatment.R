@@ -176,7 +176,7 @@ rank_average_treatment_effect <- function(forest,
   #   column 3: priority scores (integer vector)
   # @indices: a vector of indices which define the bootstrap sample.
   # @returns: an estimate of RATE, together with the TOC curve.
-  estimate <- function(data, indices, q) {
+  estimate <- function(data, indices, q, wtd.mean) {
     # Let q be a fraction in (0, 1].
     # we have 1) TOC(q; Sj) = 1/[qn] sum_{i=1}^{[qn]} Gamma_{i(j)} - ATE
     # and 2) RATE = 1/n sum_{i=1}^{n} TOC(i/n; Sj)
@@ -230,11 +230,12 @@ rank_average_treatment_effect <- function(forest,
   boot.output <- boot_grf(
     data = data.frame(DR.scores * subset.weights, subset.weights, priorities),
     # In case of two priorities do a paired bootstrap estimating both prios on same sample.
-    statistic = function(data, indices, q) lapply(c(4, 3)[1:ncol(priorities)], function(j) estimate(data[, -j], indices, q)),
+    statistic = function(data, indices, q, wtd.mean) lapply(c(4, 3)[1:ncol(priorities)], function(j) estimate(data[, -j], indices, q, wtd.mean)),
     R = R,
     clusters = subset.clusters,
     half.sample = TRUE,
-    q = q
+    q = q,
+    wtd.mean = wtd.mean
   )
   dim(boot.output[["t"]]) <- c(R, dim(boot.output[["t0"]]))
   point.estimate <- boot.output[["t0"]]
