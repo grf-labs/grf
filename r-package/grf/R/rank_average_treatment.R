@@ -171,66 +171,11 @@ rank_average_treatment_effect <- function(forest,
     wtd.mean <- function(x, w) sum(cumsum(w) / sum(w) * w * x) / sum(w)
   }
 
-  # Compute estimates, a function to be passed on to bootstrap routine.
-  # @data: a data.frame with the original data, column 1: DR.scores*sample.weights, column 2: sample.weights,
-  #   column 3: priority scores (integer vector)
-  # @indices: a vector of indices which define the bootstrap sample.
-  # @returns: an estimate of RATE, together with the TOC curve.
-  estimate <- function(data, indices, q, wtd.mean) {
-    # Let q be a fraction in (0, 1].
-    # we have 1) TOC(q; Sj) = 1/[qn] sum_{i=1}^{[qn]} Gamma_{i(j)} - ATE
-    # and 2) RATE = 1/n sum_{i=1}^{n} TOC(i/n; Sj)
-    # For bootstrapping the TOC curve, we fix q on some grid q'.
-    # For estimating the RATE we set 1/n <= q <= 1.
-    # Observations:
-    # a) the entire TOC curve can be computed as a cumulative sum of sorted DR.scores.
-    # b) taking ties into account amounts to using the average DR.scores within each
-    # tied group instead of the individual DR.scores.
-    # So the steps are:
-    # Compute average DR.scores by priority group in increasing order: DR.scores',
-    # repeat the possibly tied entries with the number of duplicates.
-    # Take the cumsum of this divided by ni to get the TOC curve. Take a (weighted) average
-    # of this to get RATE. This is what is being done below, using base R's fastest primitives for
-    # quick aggregation and grouping (using for example "rowsum"),
-    # To accomodate sample weights and arbitrary q', we allow for fractional use of observations
-    # when computing the TOC at user-specified grid points q'.
-    prio <- data[indices, 3]
-    sort.idx <- order(prio, decreasing = TRUE)
-    sample.weights <- data[indices, 2][sort.idx]
-
-    num.ties <- tabulate(prio) # count by rank in increasing order
-    num.ties <- num.ties[num.ties != 0] # ignore potential ranks not present in BS sample
-    # if continuous scoring then no need for ~slower aggregation
-    if (all(num.ties == 1)) {
-      DR.scores.sorted <- (data[indices, 1] / data[indices, 2])[sort.idx]
-    } else {
-      grp.sum <- rowsum(data[indices, 1:2][sort.idx, ], prio[sort.idx], reorder = FALSE)
-      DR.avg <- grp.sum[, 1] / grp.sum[, 2]
-      DR.scores.sorted <- rep.int(DR.avg, rev(num.ties))
-    }
-    sample.weights.cumsum <- cumsum(sample.weights)
-    sample.weights.sum <- sample.weights.cumsum[length(sample.weights)]
-    ATE <- sum(DR.scores.sorted * sample.weights) / sample.weights.sum
-    TOC <- cumsum(DR.scores.sorted * sample.weights) / sample.weights.cumsum - ATE
-    RATE <- wtd.mean(TOC, sample.weights)
-
-    nw <- q * sample.weights.sum
-    idx <- findInterval(nw + 1e-15, sample.weights.cumsum) # epsilon tol. since finite precision may cause not equal
-    denominator.adj <- nw - sample.weights.cumsum[pmax(idx, 1)] # \sum weight remainder, zero when no fractional obs. needed
-    numerator.adj <- denominator.adj * DR.scores.sorted[pmin(idx + 1, max(idx))]
-    idx[idx == 0] <- 1
-    uniq.idx <- unique(idx)
-    grid.id <- rep.int(seq_along(uniq.idx), c(uniq.idx[1], diff(uniq.idx)))
-    DR.scores.grid <- rowsum(cbind(DR.scores.sorted * sample.weights, sample.weights), grid.id, reorder = FALSE)
-    TOC.grid <- (cumsum(DR.scores.grid[, 1])[grid.id[idx]] + numerator.adj) /
-                (cumsum(DR.scores.grid[, 2])[grid.id[idx]] + denominator.adj) - ATE
-
-    c(RATE, TOC.grid, use.names = FALSE)
-  }
   boot.output <- boot_grf(
     data = data.frame(DR.scores * subset.weights, subset.weights, priorities),
     # In case of two priorities do a paired bootstrap estimating both prios on same sample.
-    statistic = function(data, indices, q, wtd.mean) lapply(c(4, 3)[1:ncol(priorities)], function(j) estimate(data[, -j], indices, q, wtd.mean)),
+    statistic = function(data, indices, q, wtd.mean)
+     lapply(c(4, 3)[1:ncol(priorities)], function(j) estimate_rate(data[, -j], indices, q, wtd.mean)),
     R = R,
     clusters = subset.clusters,
     half.sample = TRUE,
@@ -264,6 +209,67 @@ rank_average_treatment_effect <- function(forest,
                                 stringsAsFactors = FALSE)
 
   output
+}
+
+#' Compute rate estimates, a function to be passed on to bootstrap routine.
+#' @param data A data.frame with the original data, column 1: DR.scores*sample.weights, column 2: sample.weights,
+#'  column 3: priority scores (integer vector with scores 1,...,num.unique.prios).
+#' @param indices A vector of indices which define the bootstrap sample.
+#' @param q A vector of fractions to compute TOC on, with last entry = 1.
+#' @param wtd.mean A weighting function determining the type of RATE estimate.
+#' @return an estimate of RATE, together with the TOC curve.
+#'
+#' @keywords internal
+estimate_rate <- function(data, indices, q, wtd.mean) {
+  # Let q be a fraction in (0, 1].
+  # we have 1) TOC(q; Sj) = 1/[qn] sum_{i=1}^{[qn]} Gamma_{i(j)} - ATE
+  # and 2) RATE = 1/n sum_{i=1}^{n} TOC(i/n; Sj)
+  # For bootstrapping the TOC curve, we fix q on some grid q'.
+  # For estimating the RATE we set 1/n <= q <= 1.
+  # Observations:
+  # a) the entire TOC curve can be computed as a cumulative sum of sorted DR.scores.
+  # b) taking ties into account amounts to using the average DR.scores within each
+  # tied group instead of the individual DR.scores.
+  # So the steps are:
+  # Compute average DR.scores by priority group in increasing order: DR.scores',
+  # repeat the possibly tied entries with the number of duplicates.
+  # Take the cumsum of this divided by ni to get the TOC curve. Take a (weighted) average
+  # of this to get RATE. This is what is being done below, using base R's fastest primitives for
+  # quick aggregation and grouping (using for example "rowsum"),
+  # To accomodate sample weights and arbitrary q', we allow for fractional use of observations
+  # when computing the TOC at user-specified grid points q'.
+  prio <- data[indices, 3]
+  sort.idx <- order(prio, decreasing = TRUE)
+  sample.weights <- data[indices, 2][sort.idx]
+
+  num.ties <- tabulate(prio) # count by rank in increasing order
+  num.ties <- num.ties[num.ties != 0] # ignore potential ranks not present in BS sample
+  # if continuous scoring then no need for ~slower aggregation
+  if (all(num.ties == 1)) {
+    DR.scores.sorted <- (data[indices, 1] / data[indices, 2])[sort.idx]
+  } else {
+    grp.sum <- rowsum(data[indices, 1:2][sort.idx, ], prio[sort.idx], reorder = FALSE)
+    DR.avg <- grp.sum[, 1] / grp.sum[, 2]
+    DR.scores.sorted <- rep.int(DR.avg, rev(num.ties))
+  }
+  sample.weights.cumsum <- cumsum(sample.weights)
+  sample.weights.sum <- sample.weights.cumsum[length(sample.weights)]
+  ATE <- sum(DR.scores.sorted * sample.weights) / sample.weights.sum
+  TOC <- cumsum(DR.scores.sorted * sample.weights) / sample.weights.cumsum - ATE
+  RATE <- wtd.mean(TOC, sample.weights)
+
+  nw <- q * sample.weights.sum
+  idx <- findInterval(nw + 1e-15, sample.weights.cumsum) # epsilon tol. since finite precision may cause not equal
+  denominator.adj <- nw - sample.weights.cumsum[pmax(idx, 1)] # \sum weight remainder, zero when no fractional obs. needed
+  numerator.adj <- denominator.adj * DR.scores.sorted[pmin(idx + 1, max(idx))]
+  idx[idx == 0] <- 1
+  uniq.idx <- unique(idx)
+  grid.id <- rep.int(seq_along(uniq.idx), c(uniq.idx[1], diff(uniq.idx)))
+  DR.scores.grid <- rowsum(cbind(DR.scores.sorted * sample.weights, sample.weights), grid.id, reorder = FALSE)
+  TOC.grid <- (cumsum(DR.scores.grid[, 1])[grid.id[idx]] + numerator.adj) /
+              (cumsum(DR.scores.grid[, 2])[grid.id[idx]] + denominator.adj) - ATE
+
+  c(RATE, TOC.grid, use.names = FALSE)
 }
 
 #' Simple clustered bootstrap.
