@@ -10,8 +10,7 @@
 #'
 #'
 #' The causal survival forest paper defines the survival function in the 2nd estimand with weak inequality.
-#' It is defined using strict inequality in the R package for consistency
-#' with other software for survival analysis (note that P(T >= h) = P(T > h - epsilon)).
+#' It is defined using strict inequality in the R package (note that P(T >= h) = P(T > h - epsilon)).
 #'
 #' @param X The covariates.
 #' @param Y The event time (must be non-negative).
