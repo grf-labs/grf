@@ -8,6 +8,10 @@
 #' and `horizon` is the maximum follow-up time, or 2)
 #' tau(X) = P(T(1) > horizon | X = x) - P(T(0) > horizon | X = x), for a chosen time point `horizon`.
 #'
+#'
+#' The causal survival forest paper defines the survival function in the 2nd estimand with weak inequality.
+#' It is defined using strict inequality in the R package (note that P(T >= h) = P(T > h - epsilon)).
+#'
 #' @param X The covariates.
 #' @param Y The event time (must be non-negative).
 #' @param W The treatment assignment (must be a binary vector with no NAs).
