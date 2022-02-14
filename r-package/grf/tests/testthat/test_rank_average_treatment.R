@@ -483,6 +483,32 @@ test_that("rank_average_treatment_effect is internally consistent", {
                rate21$TOC[rate21$TOC$priority == priority21[3], "std.err"])
 })
 
+test_that("rank_average_treatment_effect is internally consistent wrt. subsetting", {
+  n <- 250
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  tau <- pmax(X[, 1], 0)
+  Y <- tau * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+  wts <- sample(c(1, 2), n, TRUE)
+  wts[110:121] <- 0 # This reduces the effective subset to units with wts > 0.
+  cf <- causal_forest(X, Y, W, Y.hat = 0, W.hat = 0.5, num.trees = 250)
+  prio <- runif(n)
+  debiasing.wts <- runif(n)
+
+  set.seed(42)
+  rate1 <- rank_average_treatment_effect(cf, prio, R = 25, subset = 100:150)
+  set.seed(42)
+  rate2 <- rank_average_treatment_effect(cf, prio[100:150], R = 25, subset = 100:150)
+  set.seed(42)
+  rate3 <- rank_average_treatment_effect(cf, prio, R = 25, subset = 100:150, debiasing.weights = debiasing.wts)
+  set.seed(42)
+  rate4 <- rank_average_treatment_effect(cf, prio, R = 25, subset = 100:150, debiasing.weights = debiasing.wts[100:150])
+
+  expect_equal(rate1, rate2)
+  expect_equal(rate3, rate4)
+})
+
 test_that("rank_average_treatment_effect has not changed", {
   # Lock in current behavior. A user will expect a given R set.seed to produce the same
   # standard errors. If a future change for example changes how random samples are drawn

@@ -119,10 +119,10 @@ rank_average_treatment_effect <- function(forest,
     1:NROW(forest$Y.orig)
   }
   observation.weight <- observation_weights(forest)
-  subset <- validate_subset(forest, subset)
+  subset.orig <- validate_subset(forest, subset)
   # Giving sample weight of 0 is effectively the same as dropping samples.
   # Do it here with upfront subsetting instead of dealing with it in every bootstrap iteration.
-  subset <- intersect(subset, which(observation.weight != 0))
+  subset <- intersect(subset.orig, which(observation.weight != 0))
   subset.weights <- observation.weight[subset]
   subset.clusters <- clusters[subset]
   if (any(forest$W.hat[subset] %in% c(0, 1))) {
@@ -134,8 +134,19 @@ rank_average_treatment_effect <- function(forest,
   if (!is.null(debiasing.weights)) {
     if (length(debiasing.weights) == NROW(forest$Y.orig)) {
       debiasing.weights <- debiasing.weights[subset]
-    } else if (length(debiasing.weights) != length(subset)) {
+    } else if (length(debiasing.weights) != length(subset.orig)) {
       stop("If specified, debiasing.weights must be a vector of length n or the subset length.")
+    } else {
+      debiasing.weights <- debiasing.weights[which(subset.orig %in% subset)]
+    }
+  }
+  if (!is.null(compliance.score)) {
+    if (length(compliance.score) == NROW(forest$Y.orig)) {
+      compliance.score <- compliance.score[subset]
+    } else if (length(compliance.score) != length(subset.orig)) {
+      stop("If specified, compliance.score must be a vector of length n or the subset length.")
+    } else {
+      compliance.score <- compliance.score[which(subset.orig %in% subset)]
     }
   }
   priorities <- as.data.frame(priorities, fix.empty.names = FALSE)
@@ -149,8 +160,10 @@ rank_average_treatment_effect <- function(forest,
   }
   if (nrow(priorities) == NROW(forest$Y.orig)) {
     priorities <- priorities[subset, , drop = FALSE]
-  } else if (nrow(priorities) != length(subset)) {
+  } else if (nrow(priorities) != length(subset.orig)) {
     stop("`priorities` must be a vector of length n or the subset length.")
+  } else {
+    priorities <- priorities[which(subset.orig %in% subset), , drop = FALSE]
   }
   # remap to integers 1, ..., num.unique.prios for quicker tabulate().
   priorities[,] <- lapply(priorities, function(x) as.integer(as.factor(x)))
