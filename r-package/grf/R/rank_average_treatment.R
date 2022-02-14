@@ -225,7 +225,7 @@ rank_average_treatment_effect <- function(forest,
 }
 
 #' Compute rate estimates, a function to be passed on to bootstrap routine.
-#' @param data A data.frame with the original data, column 1: DR.scores*sample.weights, column 2: sample.weights,
+#' @param data A data.frame with the original data, column 1: DR.scores*sample.weights, column 2: sample.weights (positive),
 #'  column 3: priority scores (integer vector with scores 1,...,num.unique.prios).
 #' @param indices A vector of indices which define the bootstrap sample.
 #' @param q A vector of fractions to compute TOC on, with last entry = 1.

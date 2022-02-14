@@ -7,7 +7,7 @@
 estimate_rate(data, indices, q, wtd.mean)
 }
 \arguments{
-\item{data}{A data.frame with the original data, column 1: DR.scores*sample.weights, column 2: sample.weights,
+\item{data}{A data.frame with the original data, column 1: DR.scores*sample.weights, column 2: sample.weights (positive),
 column 3: priority scores (integer vector with scores 1,...,num.unique.prios).}
 
 \item{indices}{A vector of indices which define the bootstrap sample.}
