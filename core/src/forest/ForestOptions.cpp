@@ -16,7 +16,6 @@
  #-------------------------------------------------------------------------------*/
  
 #include <thread>
-#include <random>
 #include <stdexcept>
 
 #include "forest/ForestOptions.h"
@@ -41,7 +40,8 @@ ForestOptions::ForestOptions(uint num_trees,
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
     tree_options(mtry, min_node_size, honesty, honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty),
-    sampling_options(samples_per_cluster, sample_clusters) {
+    sampling_options(samples_per_cluster, sample_clusters),
+    random_seed(random_seed) {
 
   this->num_threads = validate_num_threads(num_threads);
 
@@ -52,13 +52,6 @@ ForestOptions::ForestOptions(uint num_trees,
   if (ci_group_size > 1 && sample_fraction > 0.5) {
     throw std::runtime_error("When confidence intervals are enabled, the"
         " sampling fraction must be less than 0.5.");
-  }
-
-  if (random_seed != 0) {
-    this->random_seed = random_seed;
-  } else {
-    std::random_device random_device;
-    this->random_seed = random_device();
   }
 }
 
