@@ -250,6 +250,11 @@ multi_arm_causal_forest <- function(X, Y, W,
     if ((NROW(W.hat) != nrow(X)) || NCOL(W.hat) != nlevels(W)) {
       stop("W.hat has incorrect dimensions: should be a matrix of E[W_k | Xi] estimates.")
     }
+    if (!is.null(colnames(W.hat))) {
+      if (!identical(levels(W), colnames(W.hat))) {
+        warning("Column names are provided for W.hat, but do not correspond to the treatment levels W.")
+      }
+    }
   }
 
   W.matrix <- stats::model.matrix(~ W - 1)
