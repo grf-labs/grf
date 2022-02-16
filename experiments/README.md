@@ -14,7 +14,7 @@ This directory contains replication code for
 
 * Wager and Athey (2018): This paper is not based on GRF, but on the deprecated `causalForest`. For replication code see https://github.com/swager/causalForest
 
-* Yadlowsky, Fleming, Shah, Brunskill, and Wager (2021): The method is available in the GRF function `rank_average_treatment_effect`. For replication code see https://github.com/som-shahlab/rate-paper
+* Yadlowsky, Fleming, Shah, Brunskill, and Wager (2021): The method is available in the GRF function `rank_average_treatment_effect`. For replication code see https://github.com/som-shahlab/RATE-experiments
 
 ### References
 
