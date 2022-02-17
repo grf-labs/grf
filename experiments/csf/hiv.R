@@ -42,7 +42,7 @@ df = data.frame(
         CATE.se = sqrt(pp$variance.estimates[idx]),
         hemophilia = ifelse(X[idx, "hemo"] == 1, "Yes", "No"),
         gender = ifelse(X[idx, "gender"] == 1, "Male", "Female"),
-        homosexual.activity = ifelse(X[idx, "homo"] == 1, "Male", "Female"),
+        homosexual.activity = ifelse(X[idx, "homo"] == 1, "Yes", "No"),
         antiretroviral.history = ifelse(X[idx, "preanti"] == 1, "Experienced", "Naive")
 )
 print(xtable(df[order(df$CATE), ]
