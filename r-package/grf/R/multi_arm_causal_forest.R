@@ -252,7 +252,9 @@ multi_arm_causal_forest <- function(X, Y, W,
     }
     if (!is.null(colnames(W.hat))) {
       if (!identical(levels(W), colnames(W.hat))) {
-        warning("Column names are provided for W.hat, but do not correspond to the treatment levels W.")
+        warning(paste(
+          "Column names are provided for W.hat, but do not correspond to the treatment levels W",
+          "(multi_arm_causal_forest assume the following is TRUE: `identical(levels(W), colnames(W.hat))`)."))
       }
     }
   }
