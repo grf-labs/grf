@@ -83,7 +83,8 @@
 #' # at stratifying the sample based on them. Conversely, a non-significant result suggests that either
 #' # there are no HTEs or the treatment prioritization rule does not predict them effectively.)
 #' rate.diff$estimate + data.frame(lower = -1.96 * rate.diff$std.err,
-#'                                 upper = 1.96 * rate.diff$std.err)
+#'                                 upper = 1.96 * rate.diff$std.err,
+#'                                 row.names = rate.diff$target)
 #'
 #' plot(rate.diff)
 #' }
