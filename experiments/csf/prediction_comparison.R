@@ -6,7 +6,7 @@ rm(list = ls())
 library(grf)
 library(randomForestSRC)
 library(ggplot2)
-set.seed(42)
+set.seed(123)
 
 # *** Comparison methods ***
 source("estimators.R")
@@ -22,6 +22,7 @@ dgp = "type2"
 # dgp = "type3"
 
 data = generate_causal_survival_data(n = n, p = p, dgp = dgp, n.mc = 1)
+data$Y = round(data$Y, 2)
 data.test = generate_causal_survival_data(n = n.test, p = p, dgp = dgp, n.mc = 100000)
 true.cate = data.test$cate
 for (j in 1:length(estimators)) {
@@ -48,7 +49,7 @@ out$label = factor(out$label, levels = unique(out$label)[c(2, 1, 3)])
 
 ggplot(out, aes(y = predictions, x = true.cate)) +
   geom_point(size = 0.1) +
-  geom_abline(intercept = 0, slope = 1, col = "red", lty = 3) +
+  geom_abline(intercept = 0, slope = 1, col = "red", lty = 1) +
   facet_wrap(. ~ label, ncol = 3) +
   theme_bw() +
   # xlab("True effect") +
