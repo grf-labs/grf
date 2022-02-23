@@ -226,22 +226,37 @@ multi_arm_causal_forest <- function(X, Y, W,
   if (is.null(Y.hat)) {
     forest.Y <- do.call(multi_regression_forest, c(Y = list(Y), args.orthog))
     Y.hat <- predict(forest.Y)$predictions
-  } else if (length(Y.hat) == NCOL(Y)) {
+  } else if (is.numeric(Y.hat) && length(Y.hat) == NCOL(Y)) {
     Y.hat <- matrix(Y.hat, nrow = NROW(Y), ncol = NCOL(Y), byrow = TRUE)
-  } else if (NROW(Y.hat) == nrow(X) && NCOL(Y.hat) == 1) {
+  } else if (!(is.matrix(Y.hat) || is.data.frame(Y.hat) || is.vector(Y.hat))) {
+      stop("Y.hat should be a matrix of E[Y | Xi] estimates.")
+  } else {
     Y.hat <- as.matrix(Y.hat)
-  } else if (NROW(Y.hat) != nrow(X) || NCOL(Y.hat) != NCOL(Y)) {
-    stop("Y.hat has incorrect length.")
+    if (NROW(Y.hat) != nrow(X) || NCOL(Y.hat) != NCOL(Y)) {
+      stop("Y.hat has incorrect dimensions.")
+    }
   }
 
   if (is.null(W.hat)) {
     args.orthog$ci.group.size <- 1
     forest.W <- do.call(probability_forest, c(Y = list(W), args.orthog))
     W.hat <- predict(forest.W)$predictions
-  } else if (length(W.hat) == nlevels(W)) {
+  } else if (is.numeric(W.hat) && length(W.hat) == nlevels(W)) {
     W.hat <- matrix(W.hat, nrow = length(W), ncol = nlevels(W), byrow = TRUE)
-  } else if ((NROW(W.hat) != nrow(X)) || NCOL(W.hat) != nlevels(W)) {
-    stop("W.hat has incorrect dimensions: should be a matrix of propensities for each (observation, arm).")
+  } else if (!(is.matrix(W.hat) || is.data.frame(W.hat))) {
+    stop("W.hat should a matrix of E[W_k | Xi] estimates.")
+  } else {
+    W.hat <- as.matrix(W.hat)
+    if ((NROW(W.hat) != nrow(X)) || NCOL(W.hat) != nlevels(W)) {
+      stop("W.hat has incorrect dimensions: should be a matrix of E[W_k | Xi] estimates.")
+    }
+    if (!is.null(colnames(W.hat))) {
+      if (!identical(levels(W), colnames(W.hat))) {
+        warning(paste(
+          "Column names are provided for W.hat, but do not correspond to the treatment levels W",
+          "(multi_arm_causal_forest assume the following is TRUE: `identical(levels(W), colnames(W.hat))`)."))
+      }
+    }
   }
 
   W.matrix <- stats::model.matrix(~ W - 1)
