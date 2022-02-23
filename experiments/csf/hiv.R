@@ -19,7 +19,7 @@ D = data$cens
 # Overlaid histogram with T.max
 ggplot(data.frame(Y, Censored = factor(D, labels = c("Yes", "No"))), aes(x = Y, fill = Censored)) +
         geom_histogram(alpha = 0.5) +
-        geom_vline(xintercept = 1000, linetype = 2, col = "red") +
+        geom_vline(xintercept = 1000, linetype = 1, col = "red") +
         xlab("Survival time (days)") +
         ylab("Frequency") +
         theme_bw() +
