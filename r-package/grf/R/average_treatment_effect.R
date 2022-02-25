@@ -355,7 +355,8 @@ average_treatment_effect <- function(forest,
       sigma2.hat <- sum(correction.clust^2) / sum(subset.weights)^2 *
         length(correction.clust) / (length(correction.clust) - 1)
     } else {
-      sigma2.hat <- mean(dr.correction.all^2) / (length(dr.correction.all) - 1)
+      sigma2.hat <- sum(subset.weights^2 * dr.correction.all^2 / sum(subset.weights)^2) *
+        length(subset.weights) / (length(subset.weights) - 1)
     }
   } else if (method == "TMLE") {
     if (target.sample == "all") {
