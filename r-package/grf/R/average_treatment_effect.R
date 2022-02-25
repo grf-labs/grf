@@ -136,6 +136,9 @@ average_treatment_effect <- function(forest,
     if (cluster.se) {
       stop("TMLE has not yet been implemented with clustered observations.")
     }
+    if (!is.null(forest$sample.weights)) {
+      stop("TMLE has not yet been implemented with sample weighted observations.")
+    }
   }
 
   clusters <- if (cluster.se) {
