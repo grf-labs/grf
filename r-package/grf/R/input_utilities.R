@@ -294,3 +294,19 @@ validate_subset <- function(forest, subset) {
   }
   subset
 }
+
+# Up until version 3.0.x, the sandwich package did not handle SE's when
+# some sample weights were 0. For code that relies on this package and
+# that might encounter 0 weights, we provide guidance below.
+validate_sandwich <- function(subset.weights) {
+  if (any(subset.weights == 0)) {
+    if (utils::packageVersion("sandwich") < numeric_version("3.1.0")) {
+      stop(paste(
+        "Some sample weights are zero. This requires package `sandwich` version 3.1.0 or greater.",
+        "An alternative work-around is to use the optional `subset` argument, if available,",
+        "to specify non-zero samples: `subset = sample.weights > 0, or to re-train the forest",
+        "excluding zero-weighted observations."
+      ))
+    }
+  }
+}
