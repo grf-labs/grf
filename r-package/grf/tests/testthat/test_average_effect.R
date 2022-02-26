@@ -462,8 +462,6 @@ test_that("average effect estimation handles SE's with sample weights=0 consiste
   wts <- sample(c(0, 1, 2), n, replace = TRUE)
   cf <- causal_forest(X, Y, W, W.hat = 0.5, sample.weights = wts)
 
-  expect_equal(average_treatment_effect(cf),
-               average_treatment_effect(cf, subset = wts > 0))
   expect_equal(average_treatment_effect(cf, target.sample = "control"),
                average_treatment_effect(cf, target.sample = "control", subset = wts > 0))
   expect_equal(average_treatment_effect(cf, target.sample = "treated"),
@@ -472,8 +470,6 @@ test_that("average effect estimation handles SE's with sample weights=0 consiste
   cl <- sample(c(5:20), n, replace = TRUE)
   cf.clust <- causal_forest(X, Y, W, W.hat = 0.5, sample.weights = wts, clusters = cl)
 
-  expect_equal(average_treatment_effect(cf.clust),
-               average_treatment_effect(cf.clust, subset = wts > 0))
   expect_equal(average_treatment_effect(cf.clust, target.sample = "control"),
                average_treatment_effect(cf.clust, target.sample = "control", subset = wts > 0))
   expect_equal(average_treatment_effect(cf.clust, target.sample = "treated"),
