@@ -353,7 +353,7 @@ average_treatment_effect <- function(forest,
         transpose = TRUE
       ) %*% (dr.correction.all * subset.weights)
       sigma2.hat <- sum(correction.clust^2) / sum(subset.weights)^2 *
-        length(correction.clust) / (length(correction.clust) - 1)
+        Matrix::nnzero(correction.clust) / (Matrix::nnzero(correction.clust) - 1)
     } else {
       sigma2.hat <- sum(subset.weights^2 * dr.correction.all^2 / sum(subset.weights)^2) *
         length(subset.weights[subset.weights != 0]) / (length(subset.weights[subset.weights != 0]) - 1)
