@@ -452,3 +452,26 @@ test_that("average conditional local average treatment effect estimation is reas
   expect_equal(as.numeric(tau.x1p["estimate"]), mean(tau[X[,1] > 0]), tolerance = 0.3)
   expect_lt(abs(tau.x1p["estimate"] - mean(tau[X[,1] > 0])) / tau.x1p["std.err"], 3)
 })
+
+test_that("average effect estimation handles SE's with sample weights=0 consistently", {
+  n <- 100
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(n, 1, 0.5)
+  Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+  wts <- sample(c(0, 1, 2), n, replace = TRUE)
+  cf <- causal_forest(X, Y, W, W.hat = 0.5, sample.weights = wts)
+
+  expect_equal(average_treatment_effect(cf, target.sample = "control"),
+               average_treatment_effect(cf, target.sample = "control", subset = wts > 0))
+  expect_equal(average_treatment_effect(cf, target.sample = "treated"),
+               average_treatment_effect(cf, target.sample = "treated", subset = wts > 0))
+
+  cl <- sample(c(5:20), n, replace = TRUE)
+  cf.clust <- causal_forest(X, Y, W, W.hat = 0.5, sample.weights = wts, clusters = cl)
+
+  expect_equal(average_treatment_effect(cf.clust, target.sample = "control"),
+               average_treatment_effect(cf.clust, target.sample = "control", subset = wts > 0))
+  expect_equal(average_treatment_effect(cf.clust, target.sample = "treated"),
+               average_treatment_effect(cf.clust, target.sample = "treated", subset = wts > 0))
+})
