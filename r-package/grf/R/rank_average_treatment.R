@@ -219,7 +219,7 @@ rank_average_treatment_effect <- function(forest,
   output[["TOC"]] <- data.frame(estimate = c(point.estimate[-1, ]),
                                 std.err = c(std.errors[-1, ]),
                                 q = q,
-                                priority = priority[gl(length(priority), length(q))],
+                                priority = priority[rep(1:length(priority), each = length(q))],
                                 stringsAsFactors = FALSE)
 
   output
