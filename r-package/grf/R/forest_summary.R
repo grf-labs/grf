@@ -42,6 +42,7 @@
 #' @export
 test_calibration <- function(forest, vcov.type = "HC3") {
   observation.weight <- observation_weights(forest)
+  validate_sandwich(observation.weight)
   clusters <- if (length(forest$clusters) > 0) {
     forest$clusters
   } else {
