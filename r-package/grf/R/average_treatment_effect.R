@@ -262,6 +262,7 @@ average_treatment_effect <- function(forest,
   subset.Y.hat.1 <- subset.Y.hat + (1 - subset.W.hat) * tau.hat.pointwise
 
   if (target.sample == "overlap") {
+    validate_sandwich(subset.weights)
 
     # Address the overlap case separately, as this is a very different estimation problem.
     # The method argument (AIPW vs TMLE) is ignored in this case, as both methods are effectively
