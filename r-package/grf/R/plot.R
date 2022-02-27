@@ -176,7 +176,7 @@ plot.rank_average_treatment_effect <- function(x,
   )
   new.args <- list(...)
   plot.args[names(new.args)] <- new.args
-  points.args <- list(type = "l", lty = 2, col = plot.args$col[1:length(legend)])
+  points.args <- list(type = "l", lty = 2, col = plot.args$col[1:ncol(toc)])
   points.args[names(ci.args)] <- ci.args
   ab.args <- list(h = 0, lty = 3)
   ab.args[names(abline.args)] <- abline.args
