@@ -1,4 +1,4 @@
-7# The GRF Algorithm
+# The GRF Algorithm
 
 <img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_wbg_cropped.png' align="right" height="120" />
 
