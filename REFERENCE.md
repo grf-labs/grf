@@ -1,4 +1,4 @@
-# The GRF Algorithm
+7# The GRF Algorithm
 
 <img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_wbg_cropped.png' align="right" height="120" />
 
@@ -19,6 +19,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Average Treatment Effects](#average-treatment-effects)
   * [Best Linear Projection of the CATE](#best-linear-projection-of-the-cate)
   * [Multiple Outcomes and Multiple Treatments](#multiple-outcomes-and-multiple-treatments)
+  * [Right-Censored Survival Outcomes](#right-censored-survival-outcomes)
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
   * [Merging Forests](#merging-forests)
@@ -224,6 +225,14 @@ Another closely related practical application are settings where there are sever
 
 The functionality described above is available in `multi_arm_causal_forest`.
 
+### Right-Censored Survival Outcomes
+
+Many applications featuring time-to-event data involve right-censored responses where instead of observing the realised survival time `Ti` we observe `Yi = min(Ti, Ci)` along with a non-censoring indicator `Di = 1{Ti <= Ci}`. To estimate treatment effects in such a setting we need to account for censoring in order to obtain unbiased estimates.
+
+GRF supports this use-case in the function `causal_survival_forest`, which can be seen as a censoring-robust extension to the orthogonalization approach described in the previous section (see Cui et al., 2020 for more details). In addition to estimates of the propensity score, this approach relies on estimates of the survival functions `S(t, x) = P(T > t | X = x)` and `C(t, x) = P(C > t | X = x)`, which GRF estimates using a variant of random survival forests (Ishwaran et al., 2008), where the notable difference is GRF uses honest splitting and forest weights to produce a kernel-weighted survival function, instead of aggregating terminal node survival curves.
+
+The balanced split criterions described in the earlier paragraph are extended to take censoring into account. For both `causal_survival_forest` and `survival_forest` the `alpha` parameter controls the minimum number of non-censored samples each child node needs for splitting to proceed.
+
 ## Additional Features
 
 The following sections describe other features of GRF that may be of interest.
@@ -382,7 +391,11 @@ Athey, Susan, Julie Tibshirani and Stefan Wager. Generalized Random Forests, *An
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. Double/debiased machine learning for treatment and structural parameters. *The Econometrics Journal*, 2018.
 
+Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests. *arXiv preprint arXiv:2001.09887*, 2020.
+
 Ghosal, Indrayudh, and Giles Hooker. Boosting Random Forests to Reduce Bias; One-Step Boosted Forest and its Variance Estimate. *arXiv preprint arXiv:1803.08000*, 2018.
+
+Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer. Random survival forests. *The Annals of Applied Statistics*, 2008.
 
 Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. *Cambridge University Press*, 2015.
 
