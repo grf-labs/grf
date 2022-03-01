@@ -85,6 +85,7 @@ reference:
     desc: Functions for estimating various treatment effects.
     contents:
       - average_treatment_effect
+      - rank_average_treatment_effect
       - best_linear_projection
       - get_scores.causal_forest
       - get_scores.multi_arm_causal_forest
@@ -106,7 +107,9 @@ reference:
   - title: Plotting and printing
     contents:
       - plot.grf_tree
+      - plot.rank_average_treatment_effect
       - print.boosted_regression_forest
       - print.grf
       - print.grf_tree
+      - print.rank_average_treatment_effect
       - print.tuning_output

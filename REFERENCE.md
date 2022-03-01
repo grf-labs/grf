@@ -17,6 +17,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Orthogonalization](#orthogonalization)
   * [Selecting Balanced Splits](#selecting-balanced-splits)
   * [Average Treatment Effects](#average-treatment-effects)
+  * [Rank-Weighted Average Treatment Effects](#rank-weighted-average-treatment-effects)
   * [Best Linear Projection of the CATE](#best-linear-projection-of-the-cate)
   * [Multiple Outcomes and Multiple Treatments](#multiple-outcomes-and-multiple-treatments)
   * [Right-Censored Survival Outcomes](#right-censored-survival-outcomes)
@@ -204,6 +205,12 @@ The `average_treatment_effect` function implements two types of doubly robust av
 - The overlap-weighted average treatment effect (`target.sample = overlap`): `E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X))`, where `e(x) = P[Wi = 1 | Xi = x]`.
 
 This last estimand is recommended by Li et al. (2018) in case of poor overlap (i.e., when the treatment propensities e(x) may be very close to 0 or 1), as it doesn't involve dividing by estimated propensities.
+
+### Rank-Weighted Average Treatment Effects
+
+Even though there is treatment effect heterogeneity across the population or a sub-population, the average treatment effect might still be zero. To assess if the estimated CATE function `tau(x) = E[Y(1) - Y(0) | X = x]` does well in identifying personalised effects, another summary measure would be useful. One such proposed measure is the Rank-Weighted Average Treatment Effect (RATE), which uses the relative ranking of the estimated CATEs to gauge if it can effectively target individuals with high treatment effects on a separate evaluation data set (and can thus be used to test for the presence of heterogeneous treatment effects).
+
+This approach is implemented in the function `rank_average_treatment_effect`, which provides valid bootstrapped errors of the RATE, along with a Targeting Operator Characteristic (TOC) curve which can be used to visually inspect how well a CATE estimator performs in ordering observations according to treatment benefit. For more details on the RATE metric see Yadlowsky et al., 2021.
 
 ### Best Linear Projection of the CATE
 
@@ -414,3 +421,5 @@ Twala, B. E. T. H., M. C. Jones, and David J. Hand. Good methods for coping with
 Van Der Laan, Mark J., and Daniel Rubin. Targeted maximum likelihood learning. *The International Journal of Biostatistics*, 2006.
 
 Wager, Stefan, and Susan Athey. Estimation and inference of heterogeneous treatment effects using random forests. *Journal of the American Statistical Association*, 2018.
+
+Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. *arXiv preprint arXiv:2111.07966*, 2021.
