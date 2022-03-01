@@ -42,6 +42,7 @@
 #' @export
 test_calibration <- function(forest, vcov.type = "HC3") {
   observation.weight <- observation_weights(forest)
+  validate_sandwich(observation.weight)
   clusters <- if (length(forest$clusters) > 0) {
     forest$clusters
   } else {
@@ -170,6 +171,7 @@ best_linear_projection <- function(forest,
   subset <- validate_subset(forest, subset)
   subset.clusters <- clusters[subset]
   subset.weights <- observation.weight[subset]
+  validate_sandwich(subset.weights)
 
   if (length(unique(subset.clusters)) <= 1) {
     stop("The specified subset must contain units from more than one cluster.")

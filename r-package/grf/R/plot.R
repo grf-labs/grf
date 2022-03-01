@@ -142,3 +142,51 @@ plot.grf_tree <- function(x, include.na.path = NULL, ...) {
   dot_file <- export_graphviz(x, include.na.path = include.na.path)
   DiagrammeR::grViz(dot_file)
 }
+
+#' Plot the Targeting Operator Characteristic curve.
+#' @param x The output of rank_average_treatment_effect.
+#' @param ... Additional arguments passed to plot.
+#' @param ci.args Additional arguments passed to points.
+#' @param abline.args Additional arguments passed to abline.
+#' @param legend.args Additional arguments passed to legend.
+#'
+#' @method plot rank_average_treatment_effect
+#' @export
+plot.rank_average_treatment_effect <- function(x,
+                                               ...,
+                                               ci.args = list(),
+                                               abline.args = list(),
+                                               legend.args = list()) {
+  TOC <- x$TOC
+  q <- unique(TOC$q)
+  lb <- matrix(TOC$estimate - 1.96 * TOC$std.err, nrow = length(q))[, -3, drop = FALSE]
+  ub <- matrix(TOC$estimate + 1.96 * TOC$std.err, nrow = length(q))[, -3, drop = FALSE]
+  toc <- matrix(TOC$estimate, nrow = length(q))[, -3, drop = FALSE]
+  legend <- unique(TOC$priority)[-3]
+
+  plot.args <- list(
+    type = "l",
+    ylim = c(min(lb), max(ub)),
+    main = "Targeting Operator Characteristic",
+    sub = "(95 % confidence bars in dashed lines)",
+    ylab = "",
+    xlab = "q",
+    lty = 1,
+    col = 1:2
+  )
+  new.args <- list(...)
+  plot.args[names(new.args)] <- new.args
+  points.args <- list(type = "l", lty = 2, col = plot.args$col[1:ncol(toc)])
+  points.args[names(ci.args)] <- ci.args
+  ab.args <- list(h = 0, lty = 3)
+  ab.args[names(abline.args)] <- abline.args
+  leg.args <- list(x = "topright", legend = legend, col = plot.args$col, bty = "n", lty = plot.args$lty)
+  leg.args[names(legend.args)] <- legend.args
+
+  do.call(graphics::matplot, c(list(x = q, y = toc), plot.args))
+  do.call(graphics::matpoints, c(list(x = q, y = cbind(lb, ub)), points.args))
+  do.call(graphics::abline, ab.args)
+  if (ncol(toc) > 1 || length(legend.args) > 0) {
+    do.call(graphics::legend, leg.args)
+  }
+}

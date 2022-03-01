@@ -87,6 +87,20 @@ print.boosted_regression_forest <- function(x, ...) {
 }
 
 
+#' Print the Rank-Weighted Average Treatment Effect (RATE).
+#' @param x The output of rank_average_treatment_effect.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @method print rank_average_treatment_effect
+#' @export
+print.rank_average_treatment_effect <- function(x, ...) {
+  df <- data.frame(estimate = x[["estimate"]], std.err = x[["std.err"]], target = x[["target"]],
+                   stringsAsFactors = FALSE)
+  print(df, row.names = FALSE)
+  invisible(x)
+}
+
+
 #' Print tuning output.
 #' Displays average error for q-quantiles of tuned parameters.
 #' @param x The tuning output to print.

@@ -17,8 +17,10 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Orthogonalization](#orthogonalization)
   * [Selecting Balanced Splits](#selecting-balanced-splits)
   * [Average Treatment Effects](#average-treatment-effects)
+  * [Rank-Weighted Average Treatment Effects](#rank-weighted-average-treatment-effects)
   * [Best Linear Projection of the CATE](#best-linear-projection-of-the-cate)
   * [Multiple Outcomes and Multiple Treatments](#multiple-outcomes-and-multiple-treatments)
+  * [Right-Censored Survival Outcomes](#right-censored-survival-outcomes)
 * [Additional Features](#additional-features)
   * [Parameter Tuning](#parameter-tuning)
   * [Merging Forests](#merging-forests)
@@ -196,13 +198,19 @@ The above description of `min.node.size` assumes that the treatment is binary, w
 
 In addition to personalized treatment effects, causal forests can be used to estimate the average treatment effect across the training population. Naively, one might estimate the average treatment effect by averaging personalized treatment effects across training examples. However, a more accurate estimate can be obtained by plugging causal forest predictions into a doubly robust average treatment effect estimator. As discussed in Chernozhukov et al. (2018), such approaches can yield semiparametrically efficient average treatment effect estimates and accurate standard error estimates under considerable generality. GRF provides the dedicated function `average_treatment_effect` to compute these estimates.
 
-The `average_treatment_effect` function implements two types of doubly robust average treatment effect estimations: augmented inverse-propensity weighting (Robins et al., 1994), and targeted maximum likelihood estimation (van der Laan and Rubin, 2006). Which method to use can be specified through the `method` parameter. The following estimates are available:
+The `average_treatment_effect` function implements two types of doubly robust average treatment effect estimations: augmented inverse-propensity weighting "AIPW" (Robins et al., 1994), and targeted maximum likelihood estimation (van der Laan and Rubin, 2006). Which method to use can be specified through the `method` parameter. The following estimates are available:
 - The average treatment effect (`target.sample = all`): `E[Y(1) - Y(0)]`.
 - The average treatment effect on the treated (`target.sample = treated`): `E[Y(1) - Y(0) | Wi = 1]`.
 - The average treatment effect on the controls (`target.sample = control`): `E[Y(1) - Y(0) | Wi = 0]`.
 - The overlap-weighted average treatment effect (`target.sample = overlap`): `E[e(X) (1 - e(X)) (Y(1) - Y(0))] / E[e(X) (1 - e(X))`, where `e(x) = P[Wi = 1 | Xi = x]`.
 
 This last estimand is recommended by Li et al. (2018) in case of poor overlap (i.e., when the treatment propensities e(x) may be very close to 0 or 1), as it doesn't involve dividing by estimated propensities.
+
+### Rank-Weighted Average Treatment Effects
+
+Even though there is treatment effect heterogeneity across the population or a sub-population, the average treatment effect might still be zero. To assess if the estimated CATE function `tau(x) = E[Y(1) - Y(0) | X = x]` does well in identifying personalised effects, another summary measure would be useful. One such proposed measure is the Rank-Weighted Average Treatment Effect (RATE), which uses the relative ranking of the estimated CATEs to gauge if it can effectively target individuals with high treatment effects on a separate evaluation data set (and can thus be used to test for the presence of heterogeneous treatment effects).
+
+This approach is implemented in the function `rank_average_treatment_effect`, which provides valid bootstrapped errors of the RATE, along with a Targeting Operator Characteristic (TOC) curve which can be used to visually inspect how well a CATE estimator performs in ordering observations according to treatment benefit. For more details on the RATE metric see Yadlowsky et al., 2021.
 
 ### Best Linear Projection of the CATE
 
@@ -223,6 +231,14 @@ There are however empirical applications where there are more than one primary o
 Another closely related practical application are settings where there are several interventions, as for example in medical trials with multiple treatment arms. In the event there are K mutually exclusive treatment choices, we can use the same algorithmic principles described above to build a forest that jointly targets heterogeneity across the K-1 different treatment contrasts. In the software package this is done with (20) from the GRF paper, where Wi is a vector encoded as {0, 1}^(K-1), and &xi; selects the K-1 gradient approximations of the contrasts.
 
 The functionality described above is available in `multi_arm_causal_forest`.
+
+### Right-Censored Survival Outcomes
+
+Many applications featuring time-to-event data involve right-censored responses where instead of observing the survival time `Ti` we observe `Yi = min(Ti, Ci)` along with an event indicator `Di = 1{Ti <= Ci}`. To estimate treatment effects in such a setting we need to account for censoring in order to obtain unbiased estimates.
+
+GRF supports this use-case in the function `causal_survival_forest` by incorporating an extension of the celebrated AIPW score that is robust to censoring to the orthogonalization approach described in the previous section (see Cui et al., 2020 for more details). In addition to estimates of the propensity score, this approach relies on estimates of the survival functions `S(t, x) = P(T > t | X = x)` and `C(t, x) = P(C > t | X = x)`, which GRF estimates using a variant of random survival forests (Ishwaran et al., 2008), where the notable difference is GRF uses honest splitting and forest weights to produce a kernel-weighted survival function, instead of aggregating terminal node survival curves.
+
+The balanced split criterions described in the earlier paragraph are extended to take censoring into account. For both `causal_survival_forest` and `survival_forest` the `alpha` parameter controls the minimum number of non-censored samples each child node needs for splitting to proceed.
 
 ## Additional Features
 
@@ -382,7 +398,11 @@ Athey, Susan, Julie Tibshirani and Stefan Wager. Generalized Random Forests, *An
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. Double/debiased machine learning for treatment and structural parameters. *The Econometrics Journal*, 2018.
 
+Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests. *arXiv preprint arXiv:2001.09887*, 2020.
+
 Ghosal, Indrayudh, and Giles Hooker. Boosting Random Forests to Reduce Bias; One-Step Boosted Forest and its Variance Estimate. *arXiv preprint arXiv:1803.08000*, 2018.
+
+Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer. Random survival forests. *The Annals of Applied Statistics*, 2008.
 
 Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. *Cambridge University Press*, 2015.
 
@@ -401,3 +421,5 @@ Twala, B. E. T. H., M. C. Jones, and David J. Hand. Good methods for coping with
 Van Der Laan, Mark J., and Daniel Rubin. Targeted maximum likelihood learning. *The International Journal of Biostatistics*, 2006.
 
 Wager, Stefan, and Susan Athey. Estimation and inference of heterogeneous treatment effects using random forests. *Journal of the American Statistical Association*, 2018.
+
+Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. *arXiv preprint arXiv:2111.07966*, 2021.
