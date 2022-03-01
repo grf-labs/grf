@@ -40,14 +40,11 @@ reference:
   - title: Causal forest
     contents:
       - causal_forest
+      - causal_survival_forest
       - multi_arm_causal_forest
       - predict.causal_forest
-      - predict.multi_arm_causal_forest
-
-  - title: Causal survival forest
-    contents:
-      - causal_survival_forest
       - predict.causal_survival_forest
+      - predict.multi_arm_causal_forest
 
   - title: Instrumental forest
     contents:
