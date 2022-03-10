@@ -28,7 +28,7 @@ that the heterogeneity estimates from the forest are well calibrated.
 The p-value of the `differential.forest.prediction` coefficient
 also acts as an omnibus test for the presence of heterogeneity: If the coefficient
 is significantly greater than 0, then we can reject the null of
-no heterogeneity.
+no heterogeneity. For another class of omnnibus tests see \code{\link{rank_average_treatment_effect}}.
 }
 \examples{
 \donttest{
