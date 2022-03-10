@@ -2,8 +2,7 @@
 % Please edit documentation in R/forest_summary.R
 \name{best_linear_projection}
 \alias{best_linear_projection}
-\title{Estimate the best linear projection of a conditional average treatment effect
-using a causal forest, or causal survival forest.}
+\title{Estimate the best linear projection of a conditional average treatment effect.}
 \usage{
 best_linear_projection(
   forest,

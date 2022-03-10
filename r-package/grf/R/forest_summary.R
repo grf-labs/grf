@@ -93,8 +93,7 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 
 
 
-#' Estimate the best linear projection of a conditional average treatment effect
-#' using a causal forest, or causal survival forest.
+#' Estimate the best linear projection of a conditional average treatment effect.
 #'
 #' Let tau(Xi) = E[Y(1) - Y(0) | X = Xi] be the CATE, and Ai be a vector of user-provided
 #' covariates. This function provides a (doubly robust) fit to the linear model tau(Xi) ~ beta_0 + Ai * beta.
