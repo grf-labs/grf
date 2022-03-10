@@ -10,6 +10,8 @@ navbar:
     menu:
       - text: "Categorical inputs"
         href: articles/categorical_inputs.html
+      - text: "Causal forest with time-to-event-data"
+        href: articles/survival.html
       - text: "Confidence intervals and the number of trees"
         href: articles/ci_and_num.trees.html
       - text: "Estimating conditional means"
