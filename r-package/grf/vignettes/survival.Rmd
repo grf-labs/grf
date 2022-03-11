@@ -40,7 +40,8 @@ ggplot(data.frame(x=x, y, event.type), aes(x = x, y = y, fill = event.type)) +
   coord_flip() +
   xlab("") +
   ylab("days") +
-  ylim(c(0, 15))
+  ylim(c(0, 15)) +
+  theme_classic()
 ```
 
 Subject two and three: their measurement device malfunctions and they drop out of the study, all we know is they had not caught anything at the last measurement time. Subject one, four, and five catches their first prey during the first 10 days.
@@ -89,7 +90,8 @@ ggplot(df, aes(x = x, y = y, ymin = 0, ymax = y, fill = distribution)) +
   xlab("days") +
   ylab("density") +
   xlim(c(0, 60)) +
-  scale_fill_manual(values = c("#F8766D", "#00BFC4"))
+  scale_fill_manual(values = c("#F8766D", "#00BFC4")) +
+  theme_classic()
 ```
 
 One immediate thing to note from this plot is that we have to revise our target estimand: it is actually not possible to estimate the mean of $T$ as its density has support all the way up to 60+ days, and our study ends at 10 days. What we can estimate is a truncated mean, which we call the *restricted mean survival time* (RMST) defined as
@@ -109,8 +111,8 @@ dens.cens <- with(density(failure.time), data.frame(x, y))
 dens.obs <- with(density(Y[cc]), data.frame(x, y))
 dens.obs <- subset(dens.obs, x <= 10)
 df <- rbind(dens.cens, dens.obs)
-df$distribution = c(rep("Censored (T)", nrow(dens.cens)), rep("Observed (D*T)", nrow(dens.obs)))
-df$distribution[df$x >= 10] = "Truncate"
+df$distribution <- c(rep("Censored (T)", nrow(dens.cens)), rep("Observed (D*T)", nrow(dens.obs)))
+df$distribution[df$x >= 10] <- "Truncate"
 
 ggplot(df, aes(x = x, y = y, ymin = 0, ymax = y, fill = distribution, alpha = distribution)) +
   geom_line() +
@@ -125,7 +127,8 @@ ggplot(df, aes(x = x, y = y, ymin = 0, ymax = y, fill = distribution, alpha = di
   annotate(geom = 'text', x = 12, y = 0.03, color = 'black', hjust = -0.1,
            label = 'remap and treat as observed at t=10') +
   annotate("segment", x = 13, xend = 10, y = 0.03, yend = 0.03,
-           arrow = arrow(type = "closed", length = unit(0.02, "npc")))
+           arrow = arrow(type = "closed", length = unit(0.02, "npc"))) +
+  theme_classic()
 ```
 
 From this plot it is evident that we can't estimate $E[\hat T]$ using only the observed events, we need to take censoring into account, otterwise we'll get biased estimates. As seen from the plots, the two densities overlap, with significant mass in all regions up to $h$, which means that if we know the censoring probabilities, we can use inverse probability weighting to upweight the observed events and recover an unbiased estimate of $E[\hat T]$. Define the censoring probabilities $P[C > \hat T \,|\, \hat T] = E[\hat D \,|\, \hat T]$. If we upweight the observed events by $1 / E[\hat D \,|\, \hat T]$ we get (using the law of iterated expectations):
