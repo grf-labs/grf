@@ -97,7 +97,7 @@ ggplot(df, aes(x = x, y = y, ymin = 0, ymax = y, fill = distribution)) +
 One immediate thing to note from this plot is that we have to revise our target estimand: it is actually not possible to estimate the mean of $T$ as its density has support all the way up to 60+ days, and our study ends at 10 days. What we can estimate is a truncated mean, which we call the *restricted mean survival time* (RMST) defined as
 
 $$E[\min(T, h)] = E[T \land h],$$
-where $h$ is a truncation parameter (called `horizon` in the GRF package). If we set $h=10$ we can see from the plot that $E[T \land h]$ is defined since we observe events (blue graph) all up until $t=10$ days. Let's denote our new truncated survival time by $\hat T = T \land h$. This truncation also implies an updated event indicator: all samples still tracked at time $h$ are considered as having an observed event at time $h$ regardless whether they are censored or not because we know they must not have experienced the event at time $h$. Denote this by $\hat D = \max(D, \, 1\{T\geq h\}$. This looks like:
+where $h$ is a truncation parameter (called `horizon` in the GRF package). If we set $h=10$ we can see from the plot that $E[T \land h]$ is defined since we observe events (blue graph) all up until $t=10$ days. Let's denote our new truncated survival time by $\hat T = T \land h$. This truncation also implies an updated event indicator: all samples still tracked at time $h$ are considered as having an observed event at time $h$ regardless whether they are censored or not because we know they must not have experienced the event at time $h$. Denote this by $\hat D = \max(D, \, 1\{T\geq h\})$. This looks like:
 
 ```{r trunc-density, fig.cap="Truncated densities", echo=FALSE}
 n <- 1e5
