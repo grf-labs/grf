@@ -142,8 +142,6 @@ When training a causal forest, this parameter takes on a slightly different noti
 
 The `imbalance.penalty` parameter controls how harshly imbalanced splits are penalized. When determining which variable to split on, each split is assigned a 'goodness measure' related to how much it increases heterogeneity across the child nodes. The algorithm applies a penalty to this value to discourage child nodes from having very different sizes, specified by `imbalance.penalty * (1.0 / size(left.child) + 1.0 / size(right.child)`. This penalty can be seen as a complement to the hard restriction on splits provided by `alpha`.
 
-This parameter is still experimental, and unless `imbalance.penalty`is explicitly specified, it defaults to 0 so that no split penalty is applied.
-
 When training a causal forest, this parameter takes on a slightly different notion related to the number of treatment and control samples. More detail can be found in the 'Selecting Balanced Splits' section below, under the 'Causal Forests' heading.
 
 ### Variance Estimates
@@ -230,7 +228,7 @@ There are however empirical applications where there are more than one primary o
 
 Another closely related practical application are settings where there are several interventions, as for example in medical trials with multiple treatment arms. In the event there are K mutually exclusive treatment choices, we can use the same algorithmic principles described above to build a forest that jointly targets heterogeneity across the K-1 different treatment contrasts. In the software package this is done with (20) from the GRF paper, where Wi is a vector encoded as {0, 1}^(K-1), and &xi; selects the K-1 gradient approximations of the contrasts.
 
-The functionality described above is available in `multi_arm_causal_forest`. The intended use-case for this function is for a "handful" of arms or outcomes. Statistical considerations aside (s.t. limited overlap with many arms), our implementation has a memory scaling that for each tree takes the form `O(number.of.nodes * M * K^2)`. 
+The functionality described above is available in `multi_arm_causal_forest`. The intended use-case for this function is for a "handful" of arms or outcomes. Statistical considerations aside (s.t. limited overlap with many arms), our implementation has a memory scaling that for each tree takes the form `O(number.of.nodes * M * K^2)`.
 
 ### Right-Censored Survival Outcomes
 
@@ -245,8 +243,6 @@ The balanced split criterions described in the earlier paragraph are extended to
 The following sections describe other features of GRF that may be of interest.
 
 ### Parameter Tuning
-
-**Note:** tuning for `instrumental_forest` is considered 'experimental', and its implementation may change in future releases.
 
 The accuracy of a forest can be sensitive to several training parameters:
 - the core options tree-growing options `min.node.size`, `sample.fraction`, and `mtry`
@@ -273,8 +269,6 @@ GRF allows users to grow their forests separately and then create a single fores
 
 
 ### Boosted Regression Forests
-
-**Note:** boosting is considered 'experimental', and its implementation may change in future releases.
 
 Ghosal and Hooker (2018) show how a boosting step can reduce bias in random forest predictions. We provide a `boosted_regression_forest` method which trains a series of forests, each of which are trained on the OOB residuals from the previous step. `boosted_regression_forest` includes the same parameters as `regression_forest`, which are passed directly to the forest trained in each step.
 
