@@ -65,7 +65,7 @@ results.raw <- lapply(1:reps, function(iter) {
   )
 
   # survival forest
-  survival.time <- system.time(sf <- survival_forest(data$X[1:1500, ], data$Y[1:1500], data$W[1:1500],
+  survival.time <- system.time(sf <- survival_forest(data$X[1:1500, ], abs(data$Y[1:1500]), data$W[1:1500],
                                                      num.trees = num.trees, num.threads=1))
   survival.time.pred <- system.time(sf.test <- predict(sf, newdata = data.test$X, num.threads=1))
 
@@ -84,7 +84,7 @@ results.raw <- lapply(1:reps, function(iter) {
   data.surv.test <- generate_causal_survival_data(4000, 10, dgp = "type3")
 
   csf.time <- system.time(csf <- causal_survival_forest(data.surv$X, data.surv$Y, data.surv$W, data.surv$D,
-                                                        num.trees = num.trees, num.threads = 1))
+                                                        horizon = max(data.surv$Y), num.trees = num.trees, num.threads = 1))
   csf.time.pred <- system.time(csf.pred <- predict(csf, data.surv.test$X, num.threads = 1))
   csf.time.ci <- system.time(csf.ci <- predict(csf, data.surv.test$X, estimate.variance = TRUE, num.threads = 1))
 
