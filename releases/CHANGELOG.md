@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed (breaking)
 **IMPORTANT** Some of these changes might cause small differences in results compared to previous releases, even if the same random seed is used.
 - The optional event grid (`failure.times`) in `survival_forest` is now required to be strictly increasing. [#1034](https://github.com/grf-labs/grf/pull/1034)
-- The time values `Y` in `survival_forest` is now required to be non-negative. [#1058](https://github.com/grf-labs/grf/pull/1058)
+- The time values `Y` in `survival_forest` are now required to be non-negative. [#1058](https://github.com/grf-labs/grf/pull/1058)
 
 ### Added
 - Add new feature `rank_average_treatment_effect` ("RATE") which calculates a scalar metric together with a Targeting Operating Characteristic curve which can be used to assess how well a CATE estimator does in identifying subpopulations which benefit from treatment. [#1086](https://github.com/grf-labs/grf/pull/1086)
