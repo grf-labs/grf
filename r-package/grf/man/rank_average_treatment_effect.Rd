@@ -105,8 +105,8 @@ rate
 plot(rate)
 
 # Test if two RATEs are equal.
-priority.rand <- runif(n)[-train]
-rate.diff <- rank_average_treatment_effect(cf.eval, cbind(priority, priority.rand))
+priority.two <- tau.hats
+rate.diff <- rank_average_treatment_effect(cf.eval, cbind(priority, priority.two))
 rate.diff
 
 # Construct a 95 \% confidence interval.
@@ -116,8 +116,6 @@ rate.diff
 rate.diff$estimate + data.frame(lower = -1.96 * rate.diff$std.err,
                                 upper = 1.96 * rate.diff$std.err,
                                 row.names = rate.diff$target)
-
-plot(rate.diff)
 }
 
 }
