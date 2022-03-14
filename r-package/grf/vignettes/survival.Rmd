@@ -180,10 +180,6 @@ We can get a sense of what the second identifying assumption is by looking at th
 
 2. *Positivity*: each subject has some probability of having an event observed, $P[C_i \leq h \, | X_i, \, W_i] \leq 1 - \eta_C$ for some $\eta_C > 0$.
 
-We also make a third and final "convenience" assumption, that is strictly not required for identification, but which helps guarantee stability of our estimator. We already hinted that estimating the restricted mean involves dividing by censoring probabilities, if these get very low, explosive weights may cause very high variance estimates. In other words, the tail of the observed event density should not be too "thin". If we look at the untruncated density plot in the previous section, we can see that after 10 days there is still some chance of observing an event (the blue shaded region still has some mass). This final (stability) assumption is:
-
-3. *Tail condition*: Some units are able to survive up to time $h$ for every value of $x$, $P[T_i(w) \geq h \, | X_i] \geq \eta_T$ for some $\eta_T > 0$ and $w=0,1$.
-
 Continuing with the simple stylized example from the first section, we simulate the following setup, where we stop collecting samples after t=10 days, with random treatment assignment and where $\tau(X)$ depends on the first covariate $X_1$.
 
 ```{r}
@@ -232,13 +228,13 @@ b. It only considers observations with observed events. If many subjects are cen
 
 The method implemented in the function `causal_survival_forest` alleviates these drawbacks by leveraging insights from the survival literature on censoring robust estimating equations (Robins et al., 1994, Tsiatis, 2007). It does so by taking the (complete-data) causal forest estimating equation $\psi^{(c)}_{\tau(x)}(T, W, ...)$ (the "R-learner") and turn it into a censoring robust estimating equation $\psi_{\tau(x)}(Y, W, ...)$ by using estimates of the survival and censoring processes $P[C_i > t \, | X_i = X], \, P[T_i > t \, | X_i = X]$ ("$...$" refers to additional nuisance parameters). The upshot of this "orthogonal" estimating equation is that it will be consistent if either the survival or censoring process is correctly specified, which is very beneficial when we want to estimate these by modern ML tools, such as random survival forests. For more details see the causal survival forest [paper](https://arxiv.org/abs/2001.09887).
 
-We estimate this by specifying `target = "RMST"` and supplying the given `horizon` of t=10 months:
+We estimate this by specifying `target = "RMST"` and supplying the given `horizon` of t=10 days:
 ```{r}
 csf <- causal_survival_forest(X, Y, W, D, W.hat = 0.5, target = "RMST", horizon = 10)
 
 average_treatment_effect(csf)
 ```
-The associated standard errors are smaller than the previous section since unlike causal forest, CSF does not only use observations with observed events. (Note: when running the command you may see a warning that some estimated censoring probabilities are less than 0.2, this is fine for this application, CSF is just being conservative since as noted previously our estimation approach involves division by these).
+The associated standard errors are smaller than in the previous section since unlike causal forest, CSF does not only use observations with observed events. (Note: when running the command you may see a warning that some estimated censoring probabilities are less than 0.2, this is fine for this application, CSF is just being conservative since as noted previously our estimation approach involves division by these).
 
 We can use `best_linear_projection` to estimate a linear effect modification measure, and can see that an otter's size has significant impact, hunting lessons have a greater effect for bigger otter pups:
 
@@ -255,7 +251,7 @@ This extension can be made naturally using the estimation framework described in
 
 4. *Finite horizon*: The outcome transformation $y(\cdot)$ admits a maximal horizon $0 < h < \infty$, such that $y(t) = y(h)$ for all $t \geq h$.
 
-The CATE can then be defined as $\tau(x) = E[y(T(1)) - y(T(0)) \, | X = x]$. The restricted mean survival time is given by the outcome transformation $y(T) = T \land h$, and the survival function is given by the outcome transformation $y(T) = 1\{T \geq h\}$. As noted earlier this setup implies we only need to take into account events occurring up until time $h$. This means that any samples censored past $h$ can be treated at observed at $h$ since if we know they were "alive" in the future, they must have been alive at $h$. This leads to the new "effective" event indicator:
+The CATE can then be defined as $\tau(x) = E[y(T(1)) - y(T(0)) \, | X = x]$. The restricted mean survival time is given by the outcome transformation $y(T) = T \land h$, and the survival function is given by the outcome transformation $y(T) = 1\{T \geq h\}$. As noted earlier this setup implies we only need to take into account events occurring up until time $h$. This means that any samples censored past $h$ can be treated as observed at $h$ since if we know they were "alive" in the future, they must have been alive at $h$. This leads to the new "effective" event indicator:
 
 5. *Effective event indicator*: $D^h_i = D_i \lor 1\{Y_i \geq h\}$.
 
