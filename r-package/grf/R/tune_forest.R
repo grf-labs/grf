@@ -114,7 +114,7 @@ tune_forest <- function(data,
   default.forest <- do.call.rcpp(train, c(data, fit.parameters, tune.parameters.defaults))
   default.forest.error <- mean(default.forest$debiased.error, na.rm = TRUE)
 
-  if (!is.na(retrained.forest.error) || default.forest.error < retrained.forest.error) {
+  if (is.na(retrained.forest.error) || default.forest.error < retrained.forest.error) {
     out <- get_tuning_output(
       error = default.forest.error,
       params = tune.parameters.defaults,
