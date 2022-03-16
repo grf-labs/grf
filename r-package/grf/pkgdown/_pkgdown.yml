@@ -12,8 +12,6 @@ navbar:
         href: articles/categorical_inputs.html
       - text: "Causal forest with time-to-event-data"
         href: articles/survival.html
-      - text: "Confidence intervals and the number of trees"
-        href: articles/ci_and_num.trees.html
       - text: "Estimating conditional means"
         href: articles/muhats.html
       - text: "Evaluating a causal forest fit"
@@ -22,8 +20,6 @@ navbar:
         href: articles/llf.html
       - text: "Policy learning"
         href: articles/policy_learning.html
-      - text: "Sample weighting"
-        href: articles/sample_weighting_examples.html
       - text: "Visualize trees"
         href: articles/visualize_tree.html
   - text: "Algorithm reference"
