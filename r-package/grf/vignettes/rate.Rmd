@@ -42,7 +42,7 @@ Let $F$ be the distribution function of $\tau(X_i)$ and $q \in (0, 1]$ the fract
 \end{split}
 \end{equation*}
 
-If we as a toy example let $\tau(X_i) = X_1$ where $X_1 \sim N(0, 1)$, then the TOC curve would look like:
+The slightly intimidating name is derived from the *Receiver Operating Characteristic* (ROC), a widely used metric for assessing the performance of a classification rule (which again derives its name from its intended application in WW2 radar receivers). If we as a toy example let $\tau(X_i) = X_1$ where $X_1 \sim N(0, 1)$, then the TOC curve would look like:
 
 ```{r toc-plot, echo=FALSE}
 n <- 1000
