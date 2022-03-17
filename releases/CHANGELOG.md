@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Add new feature `rank_average_treatment_effect` ("RATE") which calculates a scalar metric together with a Targeting Operating Characteristic curve which can be used to assess how well a CATE estimator does in identifying subpopulations which benefit from treatment. [#1086](https://github.com/grf-labs/grf/pull/1086)
-- Add support for survival probability difference estimation with `causal_survival_forest` using new required arguments `target` and `horizon`. **NOTE**: this change breaks the experimental API from the previous release and marks a future stable interface. [#1055](https://github.com/grf-labs/grf/pull/1055)
+- Add support for survival probability difference estimation with `causal_survival_forest` using new required arguments `target` and `horizon`. **NOTE**: this change breaks the experimental API from the previous release and marks a new stable interface. [#1055](https://github.com/grf-labs/grf/pull/1055)
 - Add warning if `multi_arm_causal_forest` is trained with a treatment factor vector `W` which contains missing levels. [#1039](https://github.com/grf-labs/grf/pull/1039)
 - Add documentation to `multi_arm_causal_forest` emphasizing that in case multiple outcomes `Y` are supplied they should be on the same scale. [#1041](https://github.com/grf-labs/grf/pull/1041)
 - Add documentation note to `survival_forest` emphasizing that the `alpha` parameter works as a split constraint on the number of events in child nodes, thus suggesting that if the forest does not split on very low event-rate data lowering this may be useful. [#1072](https://github.com/grf-labs/grf/pull/1072)
