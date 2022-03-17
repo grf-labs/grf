@@ -8,6 +8,8 @@ navbar:
     href: reference/index.html
   - text: "Tutorials" # A collection of smaller vignettes, this list is kept alphabetical
     menu:
+      - text: "Assesing heterogeneity with RATE"
+        href: articles/rate.html
       - text: "Categorical inputs"
         href: articles/categorical_inputs.html
       - text: "Causal forest with time-to-event-data"
