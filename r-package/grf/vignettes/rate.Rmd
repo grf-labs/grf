@@ -1,0 +1,215 @@
+---
+title: "Assesing heterogeneity with RATE"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{rate}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+set.seed(123)
+options(warn = -1)
+```
+
+```{r setup}
+library(grf)
+library(ggplot2)
+```
+
+This vignette gives a brief introduction to how the *Rank-Weighted Average Treatment Effect* (*RATE*) available in the function `rank_average_treatment_effect` can be used to evaluate how good estimated conditional average treatment effects are at distinguishing subpopulations with different treatment effects, or whether there even is any notable heterogeneity present. The second part of the vignette gives a worked example from a medical setting using (synthetic) data from the SPRINT and ACCORD hypertension drug trials.
+
+## Quantifying treatment benefit: the Targeting Operator Characteristic
+We are in the familiar experimental or observational setting where we want to estimate the effect of a binary treatment $W=\{0, 1\}$ on outcomes $Y$ given some subject characteristics $X$. This conditional average treatment effect (CATE) is
+
+$$\tau(X_i) = E[Y_i(1) - Y_i(0) \,|\, X_i = x],$$
+where $Y(1)$ and $Y(0)$ are potential outcomes corresponding to the two treatment states.
+
+Consider an idealized world where we have direct access to $\tau(X_i)$. We are interested in the presence of heterogeneity and how much benefit there is to confer treatment based on this heterogeneity. By "benefit" we mean the value-add over using the estimated CATE to target treatment as opposed to treating a randomly chosen subset of the population.
+
+As a first step towards a suitable metric that helps us asses this, some visual aid would be nice. One reasonable thing to do would be to chop the population up into groups defined by $\tau(X_i)$, then compare the ATE in these groups to the overall ATE from treating everyone, then plot this over all groups. This is what the *Targeting Operator Characteristic* (TOC) does, where each group is the top q-th fraction of individuals with the largest treatment effect $\tau(X_i)$.
+
+Let $F$ be the distribution function of $\tau(X_i)$ and $q \in (0, 1]$ the fraction of samples treated, the TOC at $q$ is then defined by
+
+\begin{equation*}
+\begin{split}
+&\textrm{TOC}(q) = E[Y_i(1) - Y_i(0) \,|\, \tau(X_i) \geq F^{-1}(1 - q)]\\
+& \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  - E[Y_i(1) - Y_i(0)].
+\end{split}
+\end{equation*}
+
+If we as a toy example let $\tau(X_i) = X_1$ where $X_1 \sim N(0, 1)$, then the TOC curve would look like:
+
+```{r toc-plot, echo=FALSE}
+n <- 1000
+p <- 1
+X <- matrix(rnorm(n * p), n, p)
+tau <- X[, 1]
+
+ATE <- mean(tau)
+sort.idx <- order(tau, decreasing = TRUE)
+TOC <- rep(NA, n)
+for (i in 1:n) {
+  TOC[i] <- mean(tau[sort.idx[1:i]]) - ATE
+}
+q <- seq(1/n, 1, by = 1/n)
+df <- data.frame(q, TOC)
+ypoint <- df[df$q == 0.05, "TOC"]
+
+ggplot(df, aes(x = q, y = TOC)) +
+  geom_line() +
+  geom_hline(yintercept = 0, lty = 3) +
+  annotate(geom = 'text', x = .2, y = ypoint, color = 'black', hjust = -0.1,
+           label = 'ATE of top 5% minus ATE') +
+  annotate("segment", x = .2, xend = .1, y = ypoint, yend = ypoint,
+           arrow = arrow(type = "closed", length = unit(0.02, "npc"))) +
+  theme_classic()
+```
+
+Note how high the TOC is for the first few units treated: this is intuitive since our toy CATEs are normally distributed with mean zero, if we identify and treat only the top 5% of units with treatment effects greater than $z_{0.95}$, the benefit over treating everyone (0) is large. As we move further along, mixing in more people with lower treatment effect, we get closer to the ATE, until at $q=1$ we equal it.
+
+This suggests a quite natural way to asses the value of treating every according to their CATE: sum up the area under the curve. This is exactly how the **RATE** is defined, it is the *A*rea *U*nder the *TOC* ("AUTOC")
+
+$$\textrm{RATE} = \int_0^1 \textrm{TOC}(q) dq .$$
+If there is barely any heterogeneity in $\tau(X_i)$ this area will be vanishingly small and in the special case where $\tau(X_i)$ is constant, it's zero. Thinking one step ahead, if our *estimated* treatment effects $\hat \tau(X_i)$ do well in identifying the individuals with very different benefit of treatment, we would expect this metric to be *positive*. Conversely, if they do badly, or there barely are any benefit to stratifying treatment, we would expect it to be *negative* or close to *zero*, respectively.
+
+```{r toc-plot-autoc, echo=FALSE}
+n <- 1000
+p <- 1
+X <- matrix(rnorm(n * p), n, p)
+tau <- X[, 1]
+
+ATE <- mean(tau)
+sort.idx <- order(tau, decreasing = TRUE)
+TOC <- rep(NA, n)
+for (i in 1:n) {
+  TOC[i] <- mean(tau[sort.idx[1:i]]) - ATE
+}
+q <- seq(1/n, 1, by = 1/n)
+df <- data.frame(q, TOC)
+
+ggplot(df, aes(x = q, y = TOC)) +
+  geom_line() +
+  geom_hline(yintercept = 0, lty = 3) +
+  theme_classic() +
+  geom_ribbon(aes(ymin = 0), ymax=TOC, alpha = 0.5, fill = "red") +
+  annotate(geom = 'text', x = 0.15, y = 0.6, color = 'black', hjust = -0.1,
+         label = "RATE")
+```
+
+There are different ways this area can be summed up, which gives rise to different RATE metrics. We refer to the integral above as the "AUTOC". This implies placing more weight on areas under the curve where the expected treatment benefit is largest. When non-zero treatment effects are concentrated among a small subset of the population this weighting has greater power for testing against a sharp null (RATE=0) as upweighting the individuals with a non-zero treatment effect increases the RATE.
+
+Another way to sum this area would be to weight each point on the curve by $q$: $\int_0^1 q \textrm{TOC}(q) dq$. We refer to this metric as the "QINI" (Radcliffe, 2007). This weighting implies placing as much weight on units with low treatment effects as on units with high treatment effects. When non-zero treatment effects are more diffuse across the entire population, this weighting tends to give greater power when testing against a null effect.
+
+## Estimating the RATE
+The overview in the previous paragraph gave a stylized introduction where we imagined we knew $\tau(X_i)$. In practice these have to be estimated and the appropriate *feasible definition* is: the TOC curve ranks all observations on a test set $X^{test}$ according to a CATE function $\hat \tau^{train}(\cdot)$ estimated on a training set, and compares the ATE for the top q-th fraction of units prioritized by $\hat \tau^{train}(X^{test})$ to the overall ATE:
+
+\begin{equation*}
+\begin{split}
+&\textrm{TOC}(q) = E[Y^{test}_i(1) - Y^{test}_i(0) \,|\, \hat \tau^{train}(X^{test}_i) \geq \hat F^{-1}(1 - q)]\\
+& \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  - E[Y^{test}_i(1) - Y^{test}_i(0)],
+\end{split}
+\end{equation*}
+
+where $\hat F$ is the empirical distribution function of $\hat \tau^{train}(X^{test})$. GRF estimates
+
+$$\tau(X_i)= [Y^{test}_i(1) - Y^{test}_i(0) \,|\, X_i = x]$$
+
+using a suitable doubly robust score construction $\Gamma_i \approx \tau(X_i)$ which is valid in a variety of settings, enabling inference with the bootstrap, and the final AUTOC estimate is constructed from $\frac{1}{n} \sum_{i=1}^{n} \textrm{TOC}(\frac{i}{n})$. This functionality is implemented in the function `rank_average_treatment_effect` which as first argument takes an "evaluation" forest which computes the appropriate score construction $\hat \Gamma_i$ and second argument estimated treatment effects for units in the evaluation set, using a CATE function estimated on a training set (with additional support for forests trained with sample weights or clusters).
+
+## An application to SPRINT and ACCORD
+To illustrate RATE we consider an example application from a medical setting. Two large randomized trials *ACCORD* (ACCORD Study Group, 2010) and *SPRINT* (SPRINT Research Group, 2015) conducted on similar populations and designed to measure the effectiveness of a hypertension treatment find that the treatment is effective. However, the two trials differs in the magnitude of the estimated benefit. Various explanations for this finding have been proposed, we'll focus on one in particular here: the hypothesis that the difference is due to *heterogeneity in treatment effects* (see Yadlowsky et al., 2021 for references).
+
+This hypothesis has a testable implication implied by our previous section: if there is significant heterogeneity present and we are able to effectively estimate these with a powerful CATE estimator, then an estimated RATE on ACCORD and SPRINT should be positive and significant. In particular, our setup implies the following recipe:
+
+1) Estimate CATE functions $\hat \tau^{ACCORD}(\cdot)$ and $\hat \tau^{SPRINT}(\cdot)$ on ACCORD and SPRINT data.
+
+2) Use $\hat \tau^{ACCORD}(X^{SPRINT})$ to evaluate RATE on SPRINT, and vice versa: use $\hat \tau^{SPRINT}(X^{ACCORD})$ to evaluate RATE on ACCORD.
+
+3) If both populations exhibit systematic HTEs, then a powerful CATE estimator should yield a positive and significant RATE estimate.
+
+For the purpose of this vignette example we'll not analyse the original SPRINT/ACCORD data, but rather a *smaller simulated* example, stored in the [GRF repository](https://github.com/grf-labs/grf/blob/master/r-package/grf/vignettes/synthetic_SPRINT_ACCORD.RData). For details on the simulator see the [RATE repository](https://github.com/som-shahlab/RATE-experiments/blob/main/experiments/section_5_SPRINT_and_ACCORD/simulators/simulators_description.pdf).
+
+The outcome data in this trial is *right-censored*, so we cannot use any ordinary "out-of-the-box" CATE estimator to estimate treatment effects, rather, we need one that takes censoring into account. For this reason we use GRF's `causal_survival_forest` (and refer to the documentation for details). Below is an illustration of the simulated trial data.
+
+```{r}
+# Read in dummy data from https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes
+load("synthetic_SPRINT_ACCORD.RData")
+df <- data.frame(Y = c(Y.sprint, Y.accord),
+                 D = c(D.sprint, D.accord),
+                 data = c(rep("synthetic-SPRINT", length(Y.sprint)),
+                          rep("synthetic-ACCORD", length(Y.accord))))
+df$Censored <- factor(df$D, labels = c("Yes", "No"))
+
+ggplot(df, aes(x = Y, fill = Censored)) +
+  facet_wrap(data ~ .) +
+  geom_histogram(alpha = 0.5, bins = 30) +
+  xlab("Time until primary outcome (days)") +
+  ylab("Frequency") +
+  theme_classic()
+```
+
+The SPRINT trial was halted early due to a low number of events occurring and thus have a very high censoring rate. The target estimand we consider in this example is the difference in restricted mean survival time (RMST) conditional on covariates:
+
+$$\tau(x) = E[T(1) \land h - T(0) \land h \, | X = x],$$
+where $T$ is the (censored) survival time and we set $h$ (`horizon` in the GRF package) to ~ 3 years, after which the SPRINT trial data nearly stops exhibiting events. Since the treatment was randomized we set the propensity scores `W.hat`$=E[W_i \, | X_i = x]$ to the mean number of treated units.
+
+```{r}
+horizon <- 3 * 365
+csf.sprint <- causal_survival_forest(X.sprint, Y.sprint, W.sprint, D.sprint, num.trees = 100, #TOUPDATE
+                                     W.hat = mean(W.sprint), target = "RMST", horizon = horizon)
+
+csf.accord <- causal_survival_forest(X.accord, Y.accord, W.accord, D.accord, num.trees = 100, #TOUPDATE
+                                     W.hat = mean(W.accord), target = "RMST", horizon = horizon)
+
+tau.hat.accord <- predict(csf.sprint, X.accord)$predictions
+tau.hat.sprint <- predict(csf.accord, X.sprint)$predictions
+```
+
+Evaluating RATE on SPRINT and ACCORD, using estimated CATE functions from ACCORD and SPRINT then gives
+
+```{r}
+rate.sprint <- rank_average_treatment_effect(csf.sprint, tau.hat.sprint, target = "AUTOC")
+rate.accord <- rank_average_treatment_effect(csf.accord, tau.hat.accord, target = "AUTOC")
+
+rate.sprint
+rate.accord
+```
+
+```{r}
+par(mfrow = c(1, 2))
+plot(rate.sprint, xlab = "Treated fraction", main = "TOC evaluated on SPRINT\n tau(X) estimated on ACCORD")
+plot(rate.accord, xlab = "Treated fraction", main = "TOC evaluated on ACCORD\n tau(X) estimated on SPRINT")
+```
+
+In this toy example there is no evidence of significant HTEs in the two trials (note: this can also be attributed to a) low power, as perhaps the sample size is not large enough to detect HTEs, or b) that the HTE estimator does not detect them).
+
+## A general framework: treatment prioritization rules
+Let's reconsider the definition of the TOC given at the start of this vignette. Our setup does not rely directly on the numerical values of the estimated CATEs *per se*, rather, it relies on the ranking (thus the name *Rank-Weighted*) they induce: do the estimated CATEs effectively rank observations according to treatment benefit on an evaluation set? This means for a given treatment *prioritization* $S$ we can define the TOC as
+
+\begin{equation*}
+\begin{split}
+&\textrm{TOC}(q) = E[Y_i(1) - Y_i(0) \,|\, S(X_i) \geq F^{-1}_{S(X_i)}(1 - q)]\\
+& \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  - E[Y_i(1) - Y_i(0)],
+\end{split}
+\end{equation*}
+
+where $F_{S(X_i)}$ is the distribution function of $S(X_i)$. Setting $S(X_i) = \tau(X_i)$ gives the CATE example described earlier (note also that the "high-vs-low" out-of-bag CATE quantile construction used in Athey and Wager (2019) is a special case of a RATE, where in place of Qini's identity weighting it would have point mass at q = a given quantile).
+
+This general formulation is quite convenient: in many settings we have access to other measures of treatment benefit besides estimated CATEs, such as heuristics derived by domain experts, or simpler "risk" scores derived by other means. The RATE is a measure designed to effectively measure the *value* of such a prioritization rule. We can also imagine settings where we have an array of rules or CATE estimators (neural nets/random forests, various metalearners, etc) to chose from. RATE is measure that lets us compare them transparently. Our setup also implies a paired-bootstrap formulation for making inference on the incremental benefit of one rule over the other. For more details we refer to the [RATE paper](https://arxiv.org/abs/2111.07966).
+
+## References
+ACCORD Study Group. Effects of Intensive Blood-Pressure Control in Type 2 Diabetes Mellitus. _New England Journal of Medicine_, 362(17):1575–1585, 2010.
+
+Susan Athey and Stefan Wager. Estimating Treatment Effects with Causal Forests: An Application. _Observational Studies_, 5, 2019.
+
+Radcliffe, Nicholas. Using control groups to target on predicted lift: Building and assessing uplift model. _Direct Marketing Analytics Journal_ (14-21), 2007.
+
+SPRINT Research Group. A Randomized Trial of Intensive Versus Standard Blood-Pressure
+Control. _New England Journal of Medicine_, 373(22):2103–2116, 2015.
+
+Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _arXiv preprint arXiv:2111.07966_ ([arxiv](https://arxiv.org/abs/2111.07966))
