@@ -87,26 +87,28 @@ n <- 1500
 p <- 5
 X <- matrix(rnorm(n * p), n, p)
 W <- rbinom(n, 1, 0.5)
-Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+event.prob <- 1 / (1 + exp(2*(pmax(2*X[, 1], 0) * W - X[, 2] - runif(n))))
+Y <- rbinom(n, 1, event.prob)
 train <- sample(1:n, n / 2)
 cf.priority <- causal_forest(X[train, ], Y[train], W[train])
 
-# Compute a prioritization based on estimated treatment effect deciles.
-tau.hats <- predict(cf.priority, X[-train, ])$predictions
-priority <- cut(tau.hats, breaks = quantile(tau.hats, seq(0, 1, 0.1)),
-                include.lowest = TRUE, labels = FALSE)
+# Compute a prioritization based on estimated treatment effects.
+priority.cate <- predict(cf.priority, X[-train, ])$predictions
 
 # Estimate AUTOC on held out data.
 cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train])
-rate <- rank_average_treatment_effect(cf.eval, priority)
+rate <- rank_average_treatment_effect(cf.eval, priority.cate)
 rate
 
 # Plot the Targeting Operator Characteristic curve.
 plot(rate)
 
+# Compute a prioritization based on baseline risk.
+rf.risk <- regression_forest(X[W[train] == 0, ], Y[W[train] == 0])
+priority.risk <- predict(rf.risk, X[-train, ])$predictions
+
 # Test if two RATEs are equal.
-priority.two <- tau.hats
-rate.diff <- rank_average_treatment_effect(cf.eval, cbind(priority, priority.two))
+rate.diff <- rank_average_treatment_effect(cf.eval, cbind(priority.cate, priority.risk))
 rate.diff
 
 # Construct a 95 \% confidence interval.
