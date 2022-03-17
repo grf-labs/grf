@@ -87,13 +87,14 @@ n <- 1500
 p <- 5
 X <- matrix(rnorm(n * p), n, p)
 W <- rbinom(n, 1, 0.5)
-event.prob <- 1 / (1 + exp(2*(pmax(2*X[, 1], 0) * W - X[, 2] - runif(n))))
+event.prob <- 1 / (1 + exp(2*(pmax(2*X[, 1], 0) * W - X[, 2])))
 Y <- rbinom(n, 1, event.prob)
 train <- sample(1:n, n / 2)
 cf.priority <- causal_forest(X[train, ], Y[train], W[train])
 
 # Compute a prioritization based on estimated treatment effects.
-priority.cate <- predict(cf.priority, X[-train, ])$predictions
+# -1: in this example the treatment should reduce the risk of an event occuring.
+priority.cate <- -1 * predict(cf.priority, X[-train, ])$predictions
 
 # Estimate AUTOC on held out data.
 cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train])
