@@ -160,10 +160,10 @@ where $T$ is the (censored) survival time and we set $h$ (`horizon` in the GRF p
 
 ```{r}
 horizon <- 3 * 365
-csf.sprint <- causal_survival_forest(X.sprint, Y.sprint, W.sprint, D.sprint, num.trees = 100, #TOUPDATE
+csf.sprint <- causal_survival_forest(X.sprint, Y.sprint, W.sprint, D.sprint,
                                      W.hat = mean(W.sprint), target = "RMST", horizon = horizon)
 
-csf.accord <- causal_survival_forest(X.accord, Y.accord, W.accord, D.accord, num.trees = 100, #TOUPDATE
+csf.accord <- causal_survival_forest(X.accord, Y.accord, W.accord, D.accord,
                                      W.hat = mean(W.accord), target = "RMST", horizon = horizon)
 
 tau.hat.accord <- predict(csf.sprint, X.accord)$predictions
