@@ -4,7 +4,7 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.1.0] - 2022-03-?
+## [2.1.0] - 2022-03-17
 
 ### Fixed
 - Fix doubly robust scores for `multi_arm_causal_forest`. For forests trained with more than two treatments the doubly robust score construction used for ATE estimation had a typo which could lead to slight under-coverage. [#1021](https://github.com/grf-labs/grf/pull/1021)
