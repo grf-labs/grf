@@ -1,4 +1,4 @@
-#' Causal survival forest (experimental)
+#' Causal survival forest
 #'
 #' Trains a causal survival forest that can be used to estimate
 #' conditional treatment effects tau(X) with right-censored outcomes.
