@@ -72,7 +72,7 @@ ggplot(df, aes(x = q, y = TOC)) +
   geom_hline(yintercept = 0, lty = 3) +
   annotate(geom = 'text', x = .1, y = ypoint, color = 'black', hjust = -0.1,
            label = 'ATE of top 5% minus ATE') +
-  annotate("segment", x = .15, xend = .05, y = ypoint, yend = ypoint,
+  annotate("segment", x = .1, xend = .05, y = ypoint, yend = ypoint,
            arrow = arrow(type = "closed", length = unit(0.02, "npc"))) +
   theme_classic() +
   labs(y = "", title = "Targeting Operator Characteristic")
