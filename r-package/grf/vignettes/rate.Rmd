@@ -69,7 +69,8 @@ ggplot(df, aes(x = q, y = TOC)) +
            label = 'ATE of top 5% minus ATE') +
   annotate("segment", x = .15, xend = .05, y = ypoint, yend = ypoint,
            arrow = arrow(type = "closed", length = unit(0.02, "npc"))) +
-  theme_classic()
+  theme_classic() +
+  labs(y = "", title = "Targeting Operator Characteristic")
 ```
 
 Note how high the TOC is for the first few units treated: this is intuitive since our toy CATEs are normally distributed with mean zero, if we identify and treat only the top 5% of units with treatment effects greater than $z_{0.95}$, the benefit over treating everyone (0) is large. As we move further along, mixing in more people with lower treatment effect, we get closer to the ATE, until at $q=1$ we equal it.
@@ -98,9 +99,10 @@ ggplot(df, aes(x = q, y = TOC)) +
   geom_line() +
   geom_hline(yintercept = 0, lty = 3) +
   theme_classic() +
+  labs(y = "", title = "Targeting Operator Characteristic") +
   geom_ribbon(aes(ymin = 0), ymax=TOC, alpha = 0.5, fill = "red") +
   annotate(geom = 'text', x = 0.15, y = 0.6, color = 'black', hjust = -0.1,
-         label = "RATE")
+           label = "RATE")
 ```
 
 There are different ways this area can be summed up, which gives rise to different RATE metrics. We refer to the integral above as the "AUTOC". This implies placing more weight on areas under the curve where the expected treatment benefit is largest. When non-zero treatment effects are concentrated among a small subset of the population this weighting has greater power for testing against a sharp null (RATE=0) as upweighting the individuals with a non-zero treatment effect increases the RATE.
