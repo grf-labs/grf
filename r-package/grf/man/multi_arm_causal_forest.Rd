@@ -2,7 +2,7 @@
 % Please edit documentation in R/multi_arm_causal_forest.R
 \name{multi_arm_causal_forest}
 \alias{multi_arm_causal_forest}
-\title{Multi-arm causal forest (experimental)}
+\title{Multi-arm causal forest}
 \usage{
 multi_arm_causal_forest(
   X,

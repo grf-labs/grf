@@ -1,9 +1,8 @@
-#' Boosted regression forest (experimental)
+#' Boosted regression forest
 #'
 #' Trains a boosted regression forest that can be used to estimate
 #' the conditional mean function mu(x) = E[Y | X = x]. Selects
-#' number of boosting iterations based on cross-validation. This functionality
-#' is experimental and will likely change in future releases.
+#' number of boosting iterations based on cross-validation.
 #'
 #' @param X The covariates used in the regression.
 #' @param Y The outcome.

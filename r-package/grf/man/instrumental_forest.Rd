@@ -115,7 +115,7 @@ be at least 2. Default is 2.}
 splitting criterion that ignores the instrument (and
 instead emulates a causal forest).}
 
-\item{tune.parameters}{(experimental) A vector of parameter names to tune.
+\item{tune.parameters}{A vector of parameter names to tune.
 If "all": all tunable parameters are tuned by cross-validation. The following parameters are
 tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
  "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE the honesty.* parameters are not tuned.

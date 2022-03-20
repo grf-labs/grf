@@ -2,7 +2,7 @@
 % Please edit documentation in R/boosted_regression_forest.R
 \name{boosted_regression_forest}
 \alias{boosted_regression_forest}
-\title{Boosted regression forest (experimental)}
+\title{Boosted regression forest}
 \usage{
 boosted_regression_forest(
   X,
@@ -122,8 +122,7 @@ A boosted regression forest object. $error contains the mean debiased error for 
 \description{
 Trains a boosted regression forest that can be used to estimate
 the conditional mean function mu(x) = E[Y | X = x]. Selects
-number of boosting iterations based on cross-validation. This functionality
-is experimental and will likely change in future releases.
+number of boosting iterations based on cross-validation.
 }
 \examples{
 \donttest{

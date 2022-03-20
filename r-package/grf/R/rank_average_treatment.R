@@ -6,7 +6,7 @@
 #' \itemize{
 #'   \item The Rank-Weighted Average Treatment Effect (RATE):
 #'    \eqn{\int_{0}^{1} alpha(q) TOC(q; S) dq}, where alpha is a weighting method
-#'    corresponding to either `AUTOC` (identity-weighting) or `QINI` (linear weighting).
+#'    corresponding to either `AUTOC` or `QINI`.
 #'   \item The Targeting Operating Characteristic (TOC):
 #'     \eqn{E[Y(1) - Y(0) | F(S(Xi)) >= 1 - q] - E[Y(1) - Y(0)]}, where F(.) is the distribution function of S(Xi).
 #' }
@@ -56,26 +56,29 @@
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
-#' Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
+#' event.prob <- 1 / (1 + exp(2*(pmax(2*X[, 1], 0) * W - X[, 2])))
+#' Y <- rbinom(n, 1, event.prob)
 #' train <- sample(1:n, n / 2)
 #' cf.priority <- causal_forest(X[train, ], Y[train], W[train])
 #'
-#' # Compute a prioritization based on estimated treatment effect deciles.
-#' tau.hats <- predict(cf.priority, X[-train, ])$predictions
-#' priority <- cut(tau.hats, breaks = quantile(tau.hats, seq(0, 1, 0.1)),
-#'                 include.lowest = TRUE, labels = FALSE)
+#' # Compute a prioritization based on estimated treatment effects.
+#' # -1: in this example the treatment should reduce the risk of an event occuring.
+#' priority.cate <- -1 * predict(cf.priority, X[-train, ])$predictions
 #'
 #' # Estimate AUTOC on held out data.
 #' cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train])
-#' rate <- rank_average_treatment_effect(cf.eval, priority)
+#' rate <- rank_average_treatment_effect(cf.eval, priority.cate)
 #' rate
 #'
 #' # Plot the Targeting Operator Characteristic curve.
 #' plot(rate)
 #'
+#' # Compute a prioritization based on baseline risk.
+#' rf.risk <- regression_forest(X[W[train] == 0, ], Y[W[train] == 0])
+#' priority.risk <- predict(rf.risk, X[-train, ])$predictions
+#'
 #' # Test if two RATEs are equal.
-#' priority.rand <- runif(n)[-train]
-#' rate.diff <- rank_average_treatment_effect(cf.eval, cbind(priority, priority.rand))
+#' rate.diff <- rank_average_treatment_effect(cf.eval, cbind(priority.cate, priority.risk))
 #' rate.diff
 #'
 #' # Construct a 95 % confidence interval.
@@ -85,8 +88,6 @@
 #' rate.diff$estimate + data.frame(lower = -1.96 * rate.diff$std.err,
 #'                                 upper = 1.96 * rate.diff$std.err,
 #'                                 row.names = rate.diff$target)
-#'
-#' plot(rate.diff)
 #' }
 #'
 #' @return A list of class `rank_average_treatment_effect` with elements \itemize{

@@ -4,6 +4,30 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2022-03-17
+
+### Changed (breaking)
+**IMPORTANT** Some of these changes might cause small differences in results compared to previous releases, even if the same random seed is used.
+- The optional event grid (`failure.times`) in `survival_forest` is now required to be strictly increasing. [#1034](https://github.com/grf-labs/grf/pull/1034)
+- The time values `Y` in `survival_forest` are now required to be non-negative. [#1058](https://github.com/grf-labs/grf/pull/1058)
+
+### Added
+- Add new feature `rank_average_treatment_effect` ("RATE") which calculates a scalar metric together with a Targeting Operating Characteristic curve which can be used to assess how well a CATE estimator does in identifying subpopulations which benefit from treatment. [#1086](https://github.com/grf-labs/grf/pull/1086)
+- Add support for survival probability difference estimation with `causal_survival_forest` using new required arguments `target` and `horizon`. **NOTE**: this change breaks the experimental API from the previous release and marks a new stable interface. [#1055](https://github.com/grf-labs/grf/pull/1055)
+- Add warning if `multi_arm_causal_forest` is trained with a treatment factor vector `W` which contains missing levels. [#1039](https://github.com/grf-labs/grf/pull/1039)
+- Add documentation to `multi_arm_causal_forest` emphasizing that in case multiple outcomes `Y` are supplied they should be on the same scale. [#1041](https://github.com/grf-labs/grf/pull/1041)
+- Add documentation note to `survival_forest` emphasizing that the `alpha` parameter works as a split constraint on the number of events in child nodes, thus suggesting that if the forest does not split on very low event-rate data lowering this may be useful. [#1072](https://github.com/grf-labs/grf/pull/1072)
+
+### Fixed
+- Fix doubly robust scores for `multi_arm_causal_forest`. For forests trained with more than two treatments the doubly robust score construction used for ATE estimation had a typo which could lead to slight under-coverage. [#1021](https://github.com/grf-labs/grf/pull/1021)
+- Allow forest tuning to continue with tuning even when some random parameter draws are inadmissible. This prevents the message "Could not tune forest because some small forest error estimates were NA." from appearing in some cases. [#1067](https://github.com/grf-labs/grf/pull/1067)
+- For forests requiring estimates of additional nuisance components in summary functions (such as a causal forest with continuous treatment), use the original forest seed when estimating these with a new nuisance forest, avoiding confusion for users who expect the ATE summary functions to produce the exact same result across different invocations. [#1070](https://github.com/grf-labs/grf/pull/1070)
+- Fix sample weighted `average_treatment_effect` for `target.sample = c("treated", "control")` in the case the forest is trained without clusters. [#1103](https://github.com/grf-labs/grf/pull/1103)
+- Disable sample weighted `average_treatment_effect` for `method = "TMLE"` as these were silently ignored anyways. [#1102](https://github.com/grf-labs/grf/pull/1102)
+- Fix sample weighted `average_treatment_effect` for the rare case when some weights are zero. [#1104](https://github.com/grf-labs/grf/pull/1104), [#1105](https://github.com/grf-labs/grf/pull/1105)
+- Remove undocumented legacy "sentinel" `seed = 0` which meant a new random seed was drawn every time. [#1093](https://github.com/grf-labs/grf/pull/1093)
+- Fix documentation notation in `survival_forest` where `Y` appeared instead of `T`. [#1056](https://github.com/grf-labs/grf/pull/1056)
+
 ## [2.0.2] - 2021-07-14
 
 ### Fixed

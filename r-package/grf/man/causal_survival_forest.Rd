@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal_survival_forest.R
 \name{causal_survival_forest}
 \alias{causal_survival_forest}
-\title{Causal survival forest (experimental)}
+\title{Causal survival forest}
 \usage{
 causal_survival_forest(
   X,
