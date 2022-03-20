@@ -24,12 +24,12 @@ library(ggplot2)
 This vignette gives a brief introduction to how the *Rank-Weighted Average Treatment Effect* (*RATE*) available in the function `rank_average_treatment_effect` can be used to evaluate how good estimated conditional average treatment effects are at distinguishing subpopulations with different treatment effects, or whether there even is any notable heterogeneity present. The second part of the vignette gives a worked example from a medical setting using (synthetic) data from the SPRINT and ACCORD hypertension drug trials.
 
 ## Quantifying treatment benefit: the Targeting Operator Characteristic
-We are in the familiar experimental or observational setting where we want to estimate the effect of a binary treatment $W=\{0, 1\}$ on outcomes $Y$ given some subject characteristics $X$. This conditional average treatment effect (CATE) is
+We are in the familiar experimental (or unconfounded observational study) setting where we want to estimate the effect of a binary treatment $W=\{0, 1\}$ on outcomes $Y$ given some subject characteristics $X$. This conditional average treatment effect (CATE) is
 
 $$\tau(X_i) = E[Y_i(1) - Y_i(0) \,|\, X_i = x],$$
 where $Y(1)$ and $Y(0)$ are potential outcomes corresponding to the two treatment states.
 
-Consider an idealized world where we have direct access to $\tau(X_i)$. We are interested in the presence of heterogeneity and how much benefit there is to confer treatment based on this heterogeneity. By "benefit" we mean the value-add over using the estimated CATE to target treatment as opposed to treating a randomly chosen subset of the population.
+Consider an idealized world where we have direct access to $\tau(X_i)$. We are interested in the presence of heterogeneity and how much benefit can be gained by prioritizing treatment based on this heterogeneity. By "benefit" we mean the expected increase in outcomes from giving treatment to a fraction of the population with the largest CATE as opposed to giving treatment to a randomly selected fraction of the same size.
 
 As a first step towards a suitable metric that helps us asses this, some visual aid would be nice. One reasonable thing to do would be to chop the population up into groups defined by $\tau(X_i)$, then compare the ATE in these groups to the overall ATE from treating everyone, then plot this over all groups. This is what the *Targeting Operator Characteristic* (TOC) does, where each group is the top q-th fraction of individuals with the largest treatment effect $\tau(X_i)$.
 
@@ -42,7 +42,9 @@ Let $F$ be the distribution function of $\tau(X_i)$ and $q \in (0, 1]$ the fract
 \end{split}
 \end{equation*}
 
-The slightly intimidating name is derived from the *Receiver Operating Characteristic* (ROC), a widely used metric for assessing the performance of a classification rule (which again derives its name from its intended application in WW2 radar receivers). If we as a toy example let $\tau(X_i) = X_1$ where $X_1 \sim N(0, 1)$, then the TOC curve would look like:
+The TOC curve is motivated by the *Receiver Operating Characteristic* (ROC), a widely used metric for assessing the performance of a classification rule.
+
+As a toy example, suppose we let $\tau(X_i) = X_1$ where $X_1 \sim N(0, 1)$. Then the TOC curve when prioritizing using $\tau(X_i)$ looks like:
 
 ```{r toc-plot, echo=FALSE}
 n <- 1000
@@ -201,6 +203,9 @@ Let's reconsider the definition of the TOC given at the start of this vignette. 
 where $F_{S(X_i)}$ is the distribution function of $S(X_i)$. Setting $S(X_i) = \tau(X_i)$ gives the CATE example described earlier (note also that the "high-vs-low" out-of-bag CATE quantile construction used in Athey and Wager (2019) is a special case of a RATE, where in place of Qini's identity weighting it would have point mass at q = a given quantile).
 
 This general formulation is quite convenient: in many settings we have access to other measures of treatment benefit besides estimated CATEs, such as heuristics derived by domain experts, or simpler "risk" scores derived by other means. The RATE is a measure designed to effectively measure the *value* of such a prioritization rule. We can also imagine settings where we have an array of rules or CATE estimators (neural nets/random forests, various metalearners, etc) to chose from. RATE is measure that lets us compare them transparently. Our setup also implies a paired-bootstrap formulation for making inference on the incremental benefit of one rule over the other. For more details we refer to the [RATE paper](https://arxiv.org/abs/2111.07966).
+
+## Funding
+Development of the RATE functionality in GRF was supported in part by the award 5R01HL144555 from the National Institutes of Health.
 
 ## References
 ACCORD Study Group. Effects of Intensive Blood-Pressure Control in Type 2 Diabetes Mellitus. _New England Journal of Medicine_, 362(17):1575–1585, 2010.
