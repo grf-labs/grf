@@ -123,7 +123,7 @@ In addition to providing out-of-the-box forests for quantile regression and caus
 
 ### Funding
 
-Development of GRF is supported by the National Science Foundation, the Sloan Foundation, the Office of Naval Research (Grant N00014-17-1-2131) and Schmidt Futures.
+Development of GRF is supported by the National Institutes of Health, the National Science Foundation, the Sloan Foundation, the Office of Naval Research (Grant N00014-17-1-2131) and Schmidt Futures.
 
 ### References
 
