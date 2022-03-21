@@ -12,7 +12,7 @@ navbar:
         href: articles/rate.html
       - text: "Categorical inputs"
         href: articles/categorical_inputs.html
-      - text: "Causal forest with time-to-event-data"
+      - text: "Causal forest with time-to-event data"
         href: articles/survival.html
       - text: "Estimating conditional means"
         href: articles/muhats.html
