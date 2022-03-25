@@ -81,7 +81,7 @@ ggplot(df, aes(x = q, y = TOC)) +
 Note how high the TOC is for the first few units treated: this is intuitive since our toy CATEs are normally distributed with mean zero, if we identify and treat only the top 5% of units with treatment effects greater than $z_{0.95}$, the benefit over treating everyone (0) is large. As we move further along, mixing in more people with lower treatment effect, we get closer to the ATE, until at $q=1$ we equal it.
 
 ## RATE: The area under the TOC
-This picture suggests a quite natural way to asses the value of treating every according to $S(X_i)$: sum up the area under the curve. This is exactly how the **RATE** is defined, it is the *A*rea *U*nder the *TOC* ("AUTOC")
+This picture suggests a quite natural way to summarize the TOC curve in terms of the ability of $S(X_i)$ to rank individuals by treatment benefit: sum up the area under the curve. This is exactly how the **RATE** is defined, it is the *A*rea *U*nder the *TOC* ("AUTOC")
 
 $$\textrm{RATE} = \int_0^1 \textrm{TOC}(q) dq .$$
 If there is barely any heterogeneity in $\tau(X_i)$ this area will be vanishingly small and in the special case where $\tau(X_i)$ is constant, it's zero. Thinking one step ahead, if our *estimated* rule $S(X_i)$ do well in identifying the individuals with very different benefit of treatment, we would expect this metric to be *positive*. Conversely, if they do badly, or there barely are any benefit to stratifying treatment, we would expect it to be *negative* or close to *zero*, respectively.
