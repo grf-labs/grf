@@ -84,7 +84,7 @@ Note how high the TOC is for the first few units treated. This is intuitive sinc
 This picture suggests a quite natural way to summarize the TOC curve in terms of the ability of $S(X_i)$ to rank individuals by treatment benefit: sum up the area under the curve. This is exactly how the **RATE** is defined, it is the *A*rea *U*nder the *TOC* ("AUTOC")
 
 $$\textrm{RATE} = \int_0^1 \textrm{TOC}(q) dq .$$
-If there is barely any heterogeneity in $\tau(X_i)$ this area will be vanishingly small and in the special case where $\tau(X_i)$ is constant, it's zero. Thinking one step ahead, if our *estimated* rule $S(X_i)$ does well in identifying the individuals with very different benefits of treatment, we would expect this metric to be *positive*. Conversely, if it does badly, or there barely are any benefit to stratifying treatment, we would expect it to be *negative* or close to *zero*, respectively.
+If there is barely any heterogeneity in $\tau(X_i)$ this area will be vanishingly small and in the special case where $\tau(X_i)$ is constant, it's zero. Thinking one step ahead, if our *estimated* rule $S(X_i)$ does well in identifying the individuals with very different benefits of treatment, we would expect this metric to be *positive*. Conversely, if it does badly, or there are barely any benefits to stratifying treatment, we would expect it to be *negative* or close to *zero*, respectively.
 
 ```{r toc-plot-autoc, echo=FALSE}
 n <- 1000
