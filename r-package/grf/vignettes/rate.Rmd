@@ -47,7 +47,7 @@ Let $F$ be the distribution function of $S(X_i)$ and $q \in (0, 1]$ the fraction
 \end{split}
 \end{equation*}
 
-where $F_{S(X_i)}$ is the distribution function of $S(X_i)$.The TOC curve is motivated by the *Receiver Operating Characteristic* (ROC), a widely used metric for assessing the performance of a classification rule.
+where $F_{S(X_i)}$ is the distribution function of $S(X_i)$. The TOC curve is motivated by the *Receiver Operating Characteristic* (ROC), a widely used metric for assessing the performance of a classification rule.
 
 As a toy example, suppose we let $\tau(X_i) = X_1$ where $X_1 \sim N(0, 1)$. Then the TOC curve when prioritizing using $S(X_i) = \tau(X_i)$ looks like:
 
