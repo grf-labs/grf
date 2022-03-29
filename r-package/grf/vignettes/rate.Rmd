@@ -194,7 +194,7 @@ plot(rate.sprint, xlab = "Treated fraction", main = "TOC evaluated on SPRINT\n t
 plot(rate.accord, xlab = "Treated fraction", main = "TOC evaluated on ACCORD\n tau(X) estimated on SPRINT")
 ```
 
-In this semi-synthetic example example both AUTOCs are insignificant at conventional levels, suggesting there is no evidence of significant HTEs in the two trials. Note: this can also be attributed to a) low power, as perhaps the sample size is not large enough to detect HTEs, b) that the HTE estimator does not detect them, or c) the heterogeneity in the treatment effects along observable predictor variables are negligible. For a broader analysis comparing different prioritization strategies on the SPRINT and ACCORD datasets, see Yadlowsky et al. (2021).
+In this semi-synthetic example both AUTOCs are insignificant at conventional levels, suggesting there is no evidence of significant HTEs in the two trials. Note: this can also be attributed to a) low power, as perhaps the sample size is not large enough to detect HTEs, b) that the HTE estimator does not detect them, or c) the heterogeneity in the treatment effects along observable predictor variables are negligible. For a broader analysis comparing different prioritization strategies on the SPRINT and ACCORD datasets, see Yadlowsky et al. (2021).
 
 ## Funding
 Development of the RATE functionality in GRF was supported in part by the award 5R01HL144555 from the National Institutes of Health.
