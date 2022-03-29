@@ -82,6 +82,7 @@ dens.cens <- with(density(failure.time), data.frame(x, y))
 dens.obs <- with(density(Y[cc]), data.frame(x, y))
 df <- rbind(dens.cens, dens.obs)
 df$distribution <- c(rep("Survival time (T)", nrow(dens.cens)), rep("Observed (D*T)", nrow(dens.obs)))
+df$distribution <- factor(df$distribution, levels = c("Survival time (T)", "Observed (D*T)"))
 
 ggplot(df, aes(x = x, y = y, ymin = 0, ymax = y, fill = distribution)) +
   geom_line() +
@@ -113,6 +114,7 @@ dens.obs <- subset(dens.obs, x <= 10)
 df <- rbind(dens.cens, dens.obs)
 df$distribution <- c(rep("Survival time (T)", nrow(dens.cens)), rep("Observed (D*T)", nrow(dens.obs)))
 df$distribution[df$x >= 10] <- "Truncate"
+df$distribution <- factor(df$distribution, levels = c("Survival time (T)", "Observed (D*T)", "Truncate"))
 
 ggplot(df, aes(x = x, y = y, ymin = 0, ymax = y, fill = distribution, alpha = distribution)) +
   geom_line() +
