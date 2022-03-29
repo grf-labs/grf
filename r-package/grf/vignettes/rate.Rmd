@@ -127,11 +127,7 @@ The overview in the previous section gave a stylized introduction where we imagi
 \end{split}
 \end{equation*}
 
-where $\hat F$ is the empirical distribution function of $\hat \tau^{train}(X^{test})$. GRF estimates
-
-$$\tau(X_i)= [Y^{test}_i(1) - Y^{test}_i(0) \,|\, X_i = x]$$
-
-using a suitable doubly robust score construction $E[\hat \Gamma_i | X_i] \approx \tau(X_i)$ which is valid in a variety of settings, enabling inference with the bootstrap, and the final AUTOC estimate is constructed from $\frac{1}{n} \sum_{i=1}^{n} \widehat {\textrm{TOC}}(\frac{i}{n})$. This functionality is implemented in the function `rank_average_treatment_effect` which as first argument takes an "evaluation" forest which computes the appropriate score construction $\hat \Gamma_i$ (using estimates from the forest object) and as second argument the estimated treatment priorities for units in the evaluation set, using for example a CATE estimator trained on a training set (with additional support for forests trained with sample weights or clusters).
+where $\hat F$ is the empirical distribution function of $\hat \tau^{train}(X^{test})$. The `rank_average_treatment_effect` function delivers a AIPW-style[^1] doubly robust estimator of the TOC and RATE using a forest trained on a separate evaluation set. For details on the derivation of the doubly robust estimator and the associated central limit theorem, see Yadlowsky et al. (2021).
 
 ## An application to SPRINT and ACCORD
 To illustrate RATE we consider an example application from a medical setting. Two large randomized trials *ACCORD* (ACCORD Study Group, 2010) and *SPRINT* (SPRINT Research Group, 2015) conducted on similar populations and designed to measure the effectiveness of a hypertension treatment reach different conclusions. SPRINT found the treatment was effective, ACCORD found that the treatment was not effective. Various explanations for this finding have been proposed, we'll focus on one in particular here: the hypothesis that the difference is due to *heterogeneity in treatment effects* (see Yadlowsky et al., 2021 for references).
@@ -214,3 +210,5 @@ SPRINT Research Group. A Randomized Trial of Intensive Versus Standard Blood-Pre
 Control. _New England Journal of Medicine_, 373(22):2103–2116, 2015.
 
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _arXiv preprint arXiv:2111.07966_ ([arxiv](https://arxiv.org/abs/2111.07966))
+
+[^1]: AIPW = Augmented Inverse-Propensity Weighting (Robins, Rotnitzky, and Zhao, 1994)
