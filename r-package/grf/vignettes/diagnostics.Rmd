@@ -80,7 +80,7 @@ ate.high[["estimate"]] - ate.low[["estimate"]] +
   c(-1, 1) * qnorm(0.975) * sqrt(ate.high[["std.err"]]^2 + ate.low[["std.err"]]^2)
 ```
 
-For more details on these two checks, see section 2.2 in Athey and Wager (2019).
+For another way to assess heterogeneity, see the function `rank_average_treatment_effect` and the accompanying vignette.
 
 Athey et al. (2017) suggests a bias measure to gauge how much work the propensity and outcome models have to do to get an unbiased estimate, relative to looking at a simple difference-in-means: $bias(x) = (e(x) - p) \times (p(\mu(0, x) - \mu_0) + (1 - p) (\mu(1, x) - \mu_1)$.
 
