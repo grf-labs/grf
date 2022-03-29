@@ -8,7 +8,7 @@ navbar:
     href: reference/index.html
   - text: "Tutorials" # A collection of smaller vignettes, this list is kept alphabetical
     menu:
-      - text: "Assesing heterogeneity with RATE"
+      - text: "Assessing heterogeneity with RATE"
         href: articles/rate.html
       - text: "Categorical inputs"
         href: articles/categorical_inputs.html

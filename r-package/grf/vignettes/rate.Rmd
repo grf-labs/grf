@@ -1,5 +1,5 @@
 ---
-title: "Assesing heterogeneity with RATE"
+title: "Assessing heterogeneity with RATE"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{rate}
