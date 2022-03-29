@@ -21,7 +21,7 @@ library(ggplot2)
 library(grf)
 ```
 
-This vignette gives a brief beginner-friendly overview of how non-parametric estimators like GRF can be used to flexibly estimate treatment effects in a survival setting where we want to remain agnostic on assumptions for the censoring and survival process. The first part of this vignette gives a basic intro to right-censored data and issues with estimating an average survival time. The second part show how GRF can use `sample.weights` to construct an IPCW-based `causal_forest`, and explains the more powerful estimation approach available in the function `causal_survival_forest`.
+This vignette gives a brief beginner-friendly overview of how non-parametric estimators like GRF can be used to flexibly estimate treatment effects in a survival setting where we want to remain agnostic on assumptions for the censoring and survival process. The first part of this vignette gives a basic intro to right-censored data and issues with estimating an average survival time. The second part shows how GRF can use `sample.weights` to construct an IPCW-based `causal_forest`, and explains the more powerful estimation approach available in the function `causal_survival_forest`.
 
 ## Right-censored data
 <img src="California_Sea_Otter.jpg" align="right" height="120"/ alt="California sea otter, photo credit Michael Baird">
@@ -44,7 +44,7 @@ ggplot(data.frame(x=x, y, event.type), aes(x = x, y = y, fill = event.type)) +
   theme_classic()
 ```
 
-Subject two and three: their measurement device malfunctions and they drop out of the study, all we know is they had not caught anything at the last measurement time. Subject one, four, and five catches their first prey during the first 10 days.
+Subject two and three: their measurement device malfunctions and they drop out of the study, all we know is they had not caught anything at the last measurement time. Subjects one, four, and five catch their first prey during the first 10 days.
 
 This setup describes a typical data collection process in time-to-event studies called *right-censoring*. Instead of observing a subject's event time $T_i$ we observe $Y_i$ defined as
 
@@ -164,10 +164,10 @@ mean(Yh[observed.events]) # Biased
 weighted.mean(Yh[observed.events], sample.weights) # IPC weighted
 ```
 
-This section suggests one way to adopt a `causal_forest` for right-censored data would be *inverse probability of censoring weighting* (IPCW) and an important purely mechanical observation can be made before the subsequent CATE estimation paragraph: to get stable estimates we would like for $P[C_i > T_i]$ to not get too low as that implies explosive sample weights. Intuitively from the density plot, we want to set a threshold that have "considerable" probability of still observing events, if the tail is very thin our estimation task is harder.
+This section suggests one way to adopt a `causal_forest` for right-censored data would be *inverse probability of censoring weighting* (IPCW) and an important purely mechanical observation can be made before the subsequent CATE estimation paragraph: to get stable estimates we would like for $P[C_i > T_i]$ to not get too low as that implies explosive sample weights. Intuitively from the density plot, we want to set a threshold that has "considerable" probability of still observing events, if the tail is very thin our estimation task is harder.
 
 ## CATE estimation and right-censored data
-Continuing with the fictional experimental setup described in the beginning, imagine instead we randomly split the otter pups into two groups treated ($W=1$) and control ($W=0$). The treated group is given hunting lessons that we think helps them catch prey more effectively. The control group is given nothing. We also gather some subject specific covariates $X$ like $X_1$=otter size, etc. We are interested in measuring the expected difference in outcomes (RMST) conditional on covariates, defined as:
+Continuing with the fictional experimental setup described in the beginning, imagine instead we randomly split the otter pups into two groups: treated ($W=1$) and control ($W=0$). The treated group is given hunting lessons that we think helps them catch prey more effectively. The control group is given nothing. We also gather some subject specific covariates $X$ like $X_1$=otter size, etc. We are interested in measuring the expected difference in outcomes (RMST) conditional on covariates, defined as:
 
 $$\tau(x) = E[T(1) \land h - T(0) \land h \, | X = x],$$
 where $T(1)$ and $T(0)$ are potential outcomes corresponding to the two treatment states. In order to estimate this we require something beyond the standard identifying assumptions for CATE estimation with observational data (*unconfoundedness/ignorability* and *overlap*).
@@ -196,7 +196,7 @@ D <- as.integer(event.time <= censor.time)
 ```
 
 ## Causal forest with sample weights
-This section show how we can use estimated sample weights to adopt `causal_forest` for IPCW estimation. Most GRF estimators have an optional `sample.weights` argument which is taken into account during all steps of the GRF algorithm (relabeling/splitting/prediction). We start by using a `survival_forest` to estimate the censoring process $P[C_i > t \, | X_i = x]$, then pick out the appropriate censoring probabilities $P[C_i > \hat T_i \, | X_i = x]$. In our example the censoring probabilities are "easy" to estimate: they are all uniform. However, many applications involve more complex censoring patterns, it would not be unreasonable to expect that the size of the otter pup mattered for the censoring probabilities, as a larger pup might allow the measurement device to be strapped on more securely and thus less likely to break than on a smaller pup. Estimating $P[C_i > t \, | X_i = x]$ non-parametrically with GRF's `survival_forest` allows us to be agnostic to this.
+This section shows how we can use estimated sample weights to adopt `causal_forest` for IPCW estimation. Most GRF estimators have an optional `sample.weights` argument which is taken into account during all steps of the GRF algorithm (relabeling/splitting/prediction). We start by using a `survival_forest` to estimate the censoring process $P[C_i > t \, | X_i = x]$, then pick out the appropriate censoring probabilities $P[C_i > \hat T_i \, | X_i = x]$. In our example the censoring probabilities are "easy" to estimate: they are all uniform. However, many applications involve more complex censoring patterns, it would not be unreasonable to expect that the size of the otter pup mattered for the censoring probabilities, as a larger pup might allow the measurement device to be strapped on more securely and thus less likely to break than on a smaller pup. Estimating $P[C_i > t \, | X_i = x]$ non-parametrically with GRF's `survival_forest` allows us to be agnostic to this.
 
 ```{r}
 sf.censor <- survival_forest(X, Y, 1 - D)
@@ -218,13 +218,13 @@ cf <- causal_forest(X[observed.events, ], Y[observed.events], W[observed.events]
 average_treatment_effect(cf)
 ```
 
-The ATE is negative, which suggest that hunting lessons make the otter pup catch their first prey in fewer days than those in the control group. That is, the treatment has a positive estimated impact.
+The ATE is negative, which suggests that hunting lessons make the otter pup catch their first prey in fewer days than those in the control group. That is, the treatment has a positive estimated impact.
 
 ## Causal survival forest (CSF)
 Two drawbacks with the previous approach are:
 
 a. It relies on estimated censoring probabilities, and IPCW type estimators are typically not robust to estimation errors in these.
-b. It only considers observations with observed events. If many subjects are censored this suggest an efficiency loss.
+b. It only considers observations with observed events. If many subjects are censored this suggests an efficiency loss.
 
 The method implemented in the function `causal_survival_forest` alleviates these drawbacks by leveraging insights from the survival literature on censoring robust estimating equations (Robins et al., 1994, Tsiatis, 2007). It does so by taking the (complete-data) causal forest estimating equation $\psi^{(c)}_{\tau(x)}(T, W, ...)$ (the "R-learner") and turn it into a censoring robust estimating equation $\psi_{\tau(x)}(Y, W, ...)$ by using estimates of the survival and censoring processes $P[C_i > t \, | X_i = X], \, P[T_i > t \, | X_i = X]$ ("$...$" refers to additional nuisance parameters). The upshot of this "orthogonal" estimating equation is that it will be consistent if either the survival or censoring process is correctly specified, which is very beneficial when we want to estimate these by modern ML tools, such as random survival forests. For more details see the causal survival forest [paper](https://arxiv.org/abs/2001.09887).
 
@@ -260,7 +260,7 @@ This general setup can also give us some intuition for when we can expect the es
 ## References
 Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests. _arXiv preprint arXiv:2001.09887_ ([arxiv](https://arxiv.org/abs/2001.09887))
 
-Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. Estimation of Regression Coefficients When Some Regressors are not Always Observed. _Journal of the American statistical Association_ 89(427), 1994.
+Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. Estimation of Regression Coefficients When Some Regressors are not Always Observed. _Journal of the American Statistical Association_ 89(427), 1994.
 
 Tsiatis, Anastasios A. Semiparametric Theory and Missing Data. _Springer Series in Statistics. Springer
 New York_, 2007.
