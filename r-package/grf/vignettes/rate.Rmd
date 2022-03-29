@@ -174,8 +174,8 @@ csf.sprint <- causal_survival_forest(X.sprint, Y.sprint, W.sprint, D.sprint,
 csf.accord <- causal_survival_forest(X.accord, Y.accord, W.accord, D.accord,
                                      W.hat = mean(W.accord), target = "RMST", horizon = horizon)
 
-tau.hat.accord <- predict(csf.sprint, X.accord)$predictions
 tau.hat.sprint <- predict(csf.accord, X.sprint)$predictions
+tau.hat.accord <- predict(csf.sprint, X.accord)$predictions
 ```
 
 Evaluating RATE on SPRINT and ACCORD, using estimated CATE functions from ACCORD and SPRINT then gives
@@ -190,8 +190,8 @@ rate.accord
 
 ```{r}
 par(mfrow = c(1, 2))
-plot(rate.sprint, xlab = "Treated fraction", main = "TOC evaluated on SPRINT\n tau(X) estimated on ACCORD")
-plot(rate.accord, xlab = "Treated fraction", main = "TOC evaluated on ACCORD\n tau(X) estimated on SPRINT")
+plot(rate.sprint, xlab = "Treated fraction", main = "TOC evaluated on SPRINT\n tau(X) estimated from ACCORD")
+plot(rate.accord, xlab = "Treated fraction", main = "TOC evaluated on ACCORD\n tau(X) estimated from SPRINT")
 ```
 
 In this semi-synthetic example both AUTOCs are insignificant at conventional levels, suggesting there is no evidence of significant HTEs in the two trials. Note: this can also be attributed to a) low power, as perhaps the sample size is not large enough to detect HTEs, b) that the HTE estimator does not detect them, or c) the heterogeneity in the treatment effects along observable predictor variables are negligible. For a broader analysis comparing different prioritization strategies on the SPRINT and ACCORD datasets, see Yadlowsky et al. (2021).
