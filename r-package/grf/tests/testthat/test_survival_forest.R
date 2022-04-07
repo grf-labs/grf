@@ -79,6 +79,10 @@ test_that("survival forest grid indexing works as expected", {
                matrix(1, nrow = n))
   expect_equal(predict(sf, X[1:10, ], failure.times = -100)$predictions,
                matrix(1, nrow = 10))
+ pp <- predict(sf)
+ idx <- findInterval(mean(Y), pp$failure.times)
+ pp.t <- predict(sf, failure.times = mean(Y))
+ expect_equal(pp.t$predictions[,], pp$predictions[, idx])
 })
 
 test_that("sample weighted survival prediction is invariant to weight rescaling", {
