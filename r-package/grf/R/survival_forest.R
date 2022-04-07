@@ -302,8 +302,7 @@ predict.survival_forest <- function(object,
       return(list(predictions = object$predictions, failure.times = failure.times.orig))
     }
     idx <- findInterval(failure.times, failure.times.orig)
-    n.samples <- nrow(object$predictions)
-    out <- matrix(1, nrow = n.samples, ncol = length(failure.times))
+    out <- matrix(1, nrow = nrow(object$predictions), ncol = length(failure.times))
     out[, idx > 0] <- object$predictions[, idx]
     return(list(predictions = out, failure.times = failure.times))
   }
@@ -333,8 +332,7 @@ predict.survival_forest <- function(object,
   }
 
   idx <- findInterval(failure.times, failure.times.orig)
-  n.samples <- nrow(ret$predictions)
-  out <- matrix(1, nrow = n.samples, ncol = length(failure.times))
+  out <- matrix(1, nrow = nrow(ret$predictions), ncol = length(failure.times))
   out[, idx > 0] <- ret$predictions[, idx]
 
   list(predictions = out, failure.times = failure.times)
