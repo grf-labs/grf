@@ -75,9 +75,9 @@ test_that("survival forest grid indexing works as expected", {
                predict(sfOOB, failure.times = sf$failure.times)$predictions)
   expect_equal(predict(sf, X)$predictions,
                predict(sf, X, failure.times = sf$failure.times)$predictions)
-  expect_equal(predict(sf, failure.times = -100, prediction.times = "point")$predictions,
+  expect_equal(predict(sf, failure.times = -100)$predictions,
                matrix(1, nrow = n))
-  expect_equal(predict(sf, X[1:10, ], failure.times = -100, prediction.times = "point")$predictions,
+  expect_equal(predict(sf, X[1:10, ], failure.times = -100)$predictions,
                matrix(1, nrow = 10))
 })
 
