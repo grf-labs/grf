@@ -162,6 +162,6 @@ test_that("survival forest with complete data is ~equal to regression forest", {
   rf <- regression_forest(X, Y, num.trees = 500)
   Y.hat.rf <- predict(rf)$predictions
 
-  expect_equal(Y.hat.sf, Y.hat.rf, tolerance = 0.075)
-  expect_equal(Y.hat.sf.grid, Y.hat.rf, tolerance = 0.075)
+  expect_equal(Y.hat.sf, Y.hat.rf, tolerance = 0.1)
+  expect_equal(Y.hat.sf.grid, Y.hat.rf, tolerance = 0.1)
 })
