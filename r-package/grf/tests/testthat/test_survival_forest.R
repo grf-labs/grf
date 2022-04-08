@@ -64,21 +64,25 @@ test_that("survival forest grid indexing works as expected", {
   censor.time <- round(2 * rexp(n), 2)
   Y <- pmin(failure.time, censor.time)
   D <- as.integer(failure.time <= censor.time)
-  sf <- survival_forest(X, Y, D, num.trees = 250)
-  
-  # Pick out S(Yi, X) from the estimated survival curve in two identical ways
-  sf.pred1 <- predict(sf)
-  grid.index1 <- sf$Y.relabeled
-  S.hat1 <- sf.pred1$predictions
-  S.Y.hat1 <- rep(1, n)
-  S.Y.hat1[grid.index1 != 0] <- S.hat1[cbind(1:n, grid.index1)]
-  
-  sf.pred2 <- predict(sf, failure.times = sort(unique(Y)))
-  grid.index2 <- match(Y, sf.pred2$failure.times)
-  S.hat2 <- sf.pred2$predictions
-  S.Y.hat2 <- S.hat2[cbind(1:n, grid.index2)]
-  
-  expect_equal(S.Y.hat1, S.Y.hat2)
+  sf <- survival_forest(X, Y, D, num.trees = 250, seed = 42)
+  sfOOB <- survival_forest(X, Y, D, num.trees = 250, compute.oob.predictions = FALSE, seed = 42)
+
+  expect_equal(predict(sf)$predictions,
+               predict(sfOOB)$predictions)
+  expect_equal(predict(sf)$predictions,
+               predict(sf, failure.times = sf$failure.times)$predictions)
+  expect_equal(predict(sfOOB)$predictions,
+               predict(sfOOB, failure.times = sf$failure.times)$predictions)
+  expect_equal(predict(sf, X)$predictions,
+               predict(sf, X, failure.times = sf$failure.times)$predictions)
+  expect_equal(predict(sf, failure.times = -100)$predictions,
+               matrix(1, nrow = n))
+  expect_equal(predict(sf, X[1:10, ], failure.times = -100)$predictions,
+               matrix(1, nrow = 10))
+  pp <- predict(sf)
+  idx <- findInterval(mean(Y), pp$failure.times)
+  pp.t <- predict(sf, failure.times = mean(Y))
+  expect_equal(pp.t$predictions[,], pp$predictions[, idx])
 })
 
 test_that("sample weighted survival prediction is invariant to weight rescaling", {
@@ -162,6 +166,6 @@ test_that("survival forest with complete data is ~equal to regression forest", {
   rf <- regression_forest(X, Y, num.trees = 500)
   Y.hat.rf <- predict(rf)$predictions
 
-  expect_equal(Y.hat.sf, Y.hat.rf, tolerance = 0.075)
-  expect_equal(Y.hat.sf.grid, Y.hat.rf, tolerance = 0.075)
+  expect_equal(Y.hat.sf, Y.hat.rf, tolerance = 0.1)
+  expect_equal(Y.hat.sf.grid, Y.hat.rf, tolerance = 0.1)
 })

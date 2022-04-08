@@ -22,7 +22,7 @@ Xi using only trees that did not use the i-th training example). Note
 that this matrix should have the number of columns as the training
 matrix, and that the columns must appear in the same order.}
 
-\item{failure.times}{A vector of failure times to make predictions at. If NULL, then the
+\item{failure.times}{A vector of survival times to make predictions at. If NULL, then the
 failure times used for training the forest is used. The time points should be in increasing order. Default is NULL.}
 
 \item{prediction.type}{The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
@@ -34,13 +34,15 @@ automatically selects an appropriate amount.}
 \item{...}{Additional arguments (currently ignored).}
 }
 \value{
-A list with elements `failure.times`: a vector of event times t for the survival curve,
- and `predictions`: a matrix of survival curves. Each row is the survival curve for
- sample X_i: predictions[i, j] = S(failure.times[j], X_i).
+A list with elements \itemize{
+ \item predictions: a matrix of survival curves. Each row is the survival curve for
+ sample Xi: predictions[i, j] = S(failure.times[j], Xi).
+ \item failure.times: a vector of event times t for the survival curve.
+}
 }
 \description{
-Gets estimates of the conditional survival function S(t, x) using a trained survival forest. The curve can be
-estimated by Kaplan-Meier, or Nelson-Aalen.
+Gets estimates of the conditional survival function S(t, x) = P[T > t | X = x] using a trained survival forest.
+The curve can be estimated by Kaplan-Meier, or Nelson-Aalen.
 }
 \examples{
 \donttest{
