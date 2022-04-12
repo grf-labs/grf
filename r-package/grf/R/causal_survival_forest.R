@@ -99,7 +99,7 @@
 #' @examples
 #' \donttest{
 #' # Train a causal survival forest targeting a Restricted Mean Survival Time (RMST)
-#' # with maxium follow-up time set to `horizon`.
+#' # with maximum follow-up time set to `horizon`.
 #' n <- 2000
 #' p <- 5
 #' X <- matrix(runif(n * p), n, p)
