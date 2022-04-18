@@ -208,7 +208,11 @@ survival_forest <- function(X, Y, D,
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
 #' @param failure.times A vector of survival times to make predictions at. If NULL, then the
-#'  failure times used for training the forest is used. The time points should be in increasing order. Default is NULL.
+#'  failure times used for training the forest is used. If prediction.times = "curve" then the
+#'  time points should be in increasing order. Default is NULL.
+#' @param prediction.times "curve" predicts the entire survival curve on grid failure.times for each sample Xi.
+#'  "time" predicts at an event time failure.times[i] for each sample Xi.
+#'  Default is "curve".
 #' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 #'  The default is the prediction.type used to train the forest.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
@@ -216,8 +220,10 @@ survival_forest <- function(X, Y, D,
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A list with elements \itemize{
-#'  \item predictions: a matrix of survival curves. Each row is the survival curve for
-#'  sample Xi: predictions[i, j] = S(failure.times[j], Xi).
+#'  \item predictions: a matrix of survival curves. If prediction.times = "curve" then each row
+#'  is the survival curve for sample Xi: predictions[i, j] = S(failure.times[j], Xi).
+#'  If prediction.times = "time" then each row is the survival curve at time point failure.times[i]
+#'  for sample Xi: predictions[i, ] = S(failure.times[i], Xi).
 #'  \item failure.times: a vector of event times t for the survival curve.
 #' }
 #'
@@ -277,10 +283,11 @@ survival_forest <- function(X, Y, D,
 predict.survival_forest <- function(object,
                                     newdata = NULL,
                                     failure.times = NULL,
+                                    prediction.times = c("curve", "time"),
                                     prediction.type = c("Kaplan-Meier", "Nelson-Aalen"),
                                     num.threads = NULL, ...) {
   num.threads <- validate_num_threads(num.threads)
-  Y.relabeled <- object[["Y.relabeled"]]
+  prediction.times <- match.arg(prediction.times)
   default.prediction.type <- length(prediction.type) == 2
   prediction.type <- match.arg(prediction.type)
   if (default.prediction.type) {
@@ -290,27 +297,39 @@ predict.survival_forest <- function(object,
   } else if (prediction.type == "Nelson-Aalen") {
     prediction.type <- 1
   }
-  if (!is.null(failure.times) && is.unsorted(failure.times, strictly = TRUE)) {
-    stop("Argument `failure.times` should be a vector with elements in increasing order.")
+  failure.times.orig <- object[["failure.times"]]
+  prediction.type.orig <- object[["prediction.type"]]
+  if (is.null(failure.times)) {
+    failure.times <- failure.times.orig
+  }
+  if (prediction.times == "curve") {
+    if (!is.null(failure.times) && is.unsorted(failure.times, strictly = TRUE)) {
+      stop("Argument `failure.times` should be a vector with elements in increasing order.")
+    }
+  } else {
+    if ((is.null(newdata) && length(failure.times) != nrow(object[["X.orig"]])) ||
+        (!is.null(newdata) && length(failure.times) != nrow(newdata))) {
+      stop("Argument `failure.times` should be a vector with length equal to the number of samples.")
+    }
   }
 
   # If possible, use pre-computed predictions.
-  failure.times.orig <- object[["failure.times"]]
-  prediction.type.orig <- object[["prediction.type"]]
   if (is.null(newdata) && identical(prediction.type, prediction.type.orig) && !is.null(object$predictions)) {
-    if (is.null(failure.times)) {
-      return(list(predictions = object$predictions, failure.times = failure.times.orig))
-    }
     idx <- findInterval(failure.times, failure.times.orig)
-    out <- matrix(1, nrow = nrow(object$predictions), ncol = length(failure.times))
-    out[, idx > 0] <- object$predictions[, idx]
+    if (prediction.times == "curve") {
+      out <- matrix(1, nrow = nrow(object$predictions), ncol = length(failure.times))
+      out[, idx > 0] <- object$predictions[, idx]
+    } else {
+      out <- matrix(1, nrow = nrow(object$predictions), ncol = 1)
+      out[idx > 0] <- object$predictions[cbind(seq_along(idx), idx)]
+    }
     return(list(predictions = out, failure.times = failure.times))
   }
 
   forest.short <- object[-which(names(object) == "X.orig")]
   X <- object[["X.orig"]]
   train.data <- create_train_matrices(X,
-                                      outcome = Y.relabeled,
+                                      outcome = object[["Y.relabeled"]],
                                       censor = object[["D.orig"]],
                                       sample.weights = object[["sample.weights"]])
 
@@ -327,13 +346,14 @@ predict.survival_forest <- function(object,
     ret <- do.call.rcpp(survival_predict_oob, c(train.data, args))
   }
 
-  if (is.null(failure.times)) {
-    return(list(predictions = ret$predictions, failure.times = failure.times.orig))
-  }
-
   idx <- findInterval(failure.times, failure.times.orig)
-  out <- matrix(1, nrow = nrow(ret$predictions), ncol = length(failure.times))
-  out[, idx > 0] <- ret$predictions[, idx]
+  if (prediction.times == "curve") {
+    out <- matrix(1, nrow = nrow(ret$predictions), ncol = length(failure.times))
+    out[, idx > 0] <- ret$predictions[, idx]
+  } else {
+    out <- matrix(1, nrow = nrow(ret$predictions), ncol = 1)
+    out[idx > 0] <- ret$predictions[cbind(seq_along(idx), idx)]
+  }
 
   list(predictions = out, failure.times = failure.times)
 }
