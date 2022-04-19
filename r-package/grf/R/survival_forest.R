@@ -303,7 +303,7 @@ predict.survival_forest <- function(object,
     failure.times <- failure.times.orig
   }
   if (prediction.times == "curve") {
-    if (!is.null(failure.times) && is.unsorted(failure.times, strictly = TRUE)) {
+    if (is.unsorted(failure.times, strictly = TRUE)) {
       stop("Argument `failure.times` should be a vector with elements in increasing order.")
     }
   } else {
