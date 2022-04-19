@@ -169,3 +169,25 @@ test_that("survival forest with complete data is ~equal to regression forest", {
   expect_equal(Y.hat.sf, Y.hat.rf, tolerance = 0.1)
   expect_equal(Y.hat.sf.grid, Y.hat.rf, tolerance = 0.1)
 })
+
+test_that("survival forest predict is internally consistent", {
+  n <- 250
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  failure.time <- round(exp(0.5 * X[, 1]) * rexp(n), 2)
+  censor.time <- round(2 * rexp(n), 2)
+  Y <- pmin(failure.time, censor.time)
+  D <- as.integer(failure.time <= censor.time)
+  sf <- survival_forest(X, Y, D, num.trees = 250, seed = 42)
+  sfOOB <- survival_forest(X, Y, D, num.trees = 250, seed = 42, compute.oob.predictions = FALSE)
+
+  t0 <- median(Y)
+  expect_equal(predict(sf, failure.times = t0)$predictions,
+               predict(sfOOB, failure.times = rep(t0, n), prediction.times = "time")$predictions)
+  expect_equal(predict(sf, X[1:10, ], failure.times = t0)$predictions,
+               predict(sfOOB, X[1:10, ], failure.times = rep(t0, 10), prediction.times = "time")$predictions)
+  expect_equal(predict(sf, failure.times = min(Y) - 10)$predictions,
+               predict(sfOOB, failure.times = rep(min(Y) - 10, n), prediction.times = "time")$predictions)
+  expect_equal(predict(sf, failure.times = max(Y) + 10)$predictions,
+               predict(sfOOB, failure.times = rep(max(Y) + 10, n), prediction.times = "time")$predictions)
+})
