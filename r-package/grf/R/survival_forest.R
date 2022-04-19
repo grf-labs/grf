@@ -210,8 +210,8 @@ survival_forest <- function(X, Y, D,
 #' @param failure.times A vector of survival times to make predictions at. If NULL, then the
 #'  failure times used for training the forest is used. If prediction.times = "curve" then the
 #'  time points should be in increasing order. Default is NULL.
-#' @param prediction.times "curve" predicts the entire survival curve on grid failure.times for each sample Xi.
-#'  "time" predicts at an event time failure.times[i] for each sample Xi.
+#' @param prediction.times "curve" predicts the survival curve S(t, x) on grid t = failure.times for each sample Xi.
+#'  "time" predicts S(t, x) at an event time t = failure.times[i] for each sample Xi.
 #'  Default is "curve".
 #' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 #'  The default is the prediction.type used to train the forest.

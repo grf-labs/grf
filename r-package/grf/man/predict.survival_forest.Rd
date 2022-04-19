@@ -27,8 +27,8 @@ matrix, and that the columns must appear in the same order.}
 failure times used for training the forest is used. If prediction.times = "curve" then the
 time points should be in increasing order. Default is NULL.}
 
-\item{prediction.times}{"curve" predicts the entire survival curve on grid failure.times for each sample Xi.
-"time" predicts at an event time failure.times[i] for each sample Xi.
+\item{prediction.times}{"curve" predicts the survival curve S(t, x) on grid t = failure.times for each sample Xi.
+"time" predicts S(t, x) at an event time t = failure.times[i] for each sample Xi.
 Default is "curve".}
 
 \item{prediction.type}{The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
