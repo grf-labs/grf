@@ -23,7 +23,7 @@
 using namespace grf;
 
 Eigen::ArrayXXd get_relabeled_outcomes(
-  std::vector<double> observations, size_t num_samples, size_t num_treatments) {
+  std::vector<double> observations, size_t num_samples, size_t num_treatments, const std::vector<double>& gradient_weights) {
 
   Data data(observations, num_samples, 1 + num_treatments);
   data.set_outcome_index(0);
@@ -36,7 +36,7 @@ Eigen::ArrayXXd get_relabeled_outcomes(
     samples.push_back(i);
   }
 
-  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new MultiCausalRelabelingStrategy(num_treatments));
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new MultiCausalRelabelingStrategy(num_treatments, gradient_weights));
 
   Eigen::ArrayXXd relabeled_observations(num_samples, num_treatments);
   bool stop = relabeling_strategy->relabel(samples, data, relabeled_observations);
@@ -87,9 +87,36 @@ TEST_CASE("multi causal relabeling calculations are correct", "[multi causal, re
     0.109475829631935, -0.0878823962298169, -0.0391054192534192,
     -0.0708861117644095;
 
-  Eigen::ArrayXXd rho = get_relabeled_outcomes(observations, num_samples, num_treatments);
+  Eigen::ArrayXXd rho = get_relabeled_outcomes(observations, num_samples, num_treatments, {});
 
   double mean_influence_fcn = rho.mean();
   REQUIRE(equal_doubles(mean_influence_fcn, 0, 1e-10));
   REQUIRE(rho.isApprox(rho_expected, 1e-10));
+}
+
+TEST_CASE("multi causal relabeling with optional gradient weights works as expected", "[multi causal, relabeling]") {
+  size_t num_samples = 10;
+  size_t num_treatments = 2;
+  std::vector<double> observations = {
+    0.747, 0.207, 1.267, -0.503, -1.683, 3.547, 2.237, -5.123,
+    -0.493, -0.203, -0.634, -0.304, 1.486, -0.00399999999999999,
+    0.056, 1.646, 0.386, -1.344, -0.764, -0.524, 1.012, 0.152, 0.192,
+    -0.098, -0.768, 1.582, 0.292, -2.178, 0.492, -0.678
+  }; // [Y, W_1, W_2]
+
+  Eigen::ArrayXXd rho = get_relabeled_outcomes(observations, num_samples, num_treatments, {});
+  std::vector<double> only_w1 {1, 0};
+  Eigen::ArrayXXd rho_only_w1 = get_relabeled_outcomes(observations, num_samples, num_treatments, only_w1);
+  std::vector<double> only_w2 {0, 1};
+  Eigen::ArrayXXd rho_only_w2 = get_relabeled_outcomes(observations, num_samples, num_treatments, only_w2);
+  std::vector<double> times_4 {4, 4};
+  Eigen::ArrayXXd rho_times_4 = get_relabeled_outcomes(observations, num_samples, num_treatments, times_4);
+
+  REQUIRE((rho_only_w1.col(0) != 0).all());
+  REQUIRE((rho_only_w1.col(1) == 0).all());
+
+  REQUIRE((rho_only_w2.col(0) == 0).all());
+  REQUIRE((rho_only_w2.col(1) != 0).all());
+
+  REQUIRE((rho * 4.0 == rho_times_4).all());
 }

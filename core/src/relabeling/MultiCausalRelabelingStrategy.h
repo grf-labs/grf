@@ -35,12 +35,15 @@ namespace grf {
  * in which case we concatenate the influence vectors for each response.
  *
  * The output of this method is a vector with coefficient influences for each observation ordered according to:
- * [\delta \tau_{11}, ..., \delta \tau_{1K}, ..., \delta \tau_{M1}, ..., \delta \tau_{MK}]
+ * [\delta \tau_{11}, ..., \delta \tau_{1K}, ..., \delta \tau_{M1}, ..., \delta \tau_{MK}] * gradient_weight,
+ * where `*` denotes elementwise multiplication with the optional weight vector `gradient_weight` (by default
+ * equal to [1, ..., 1]).
  *
  */
 class MultiCausalRelabelingStrategy final: public RelabelingStrategy {
 public:
-  MultiCausalRelabelingStrategy(size_t response_length);
+  MultiCausalRelabelingStrategy(size_t response_length,
+                                const std::vector<double>& gradient_weights);
 
   bool relabel(
       const std::vector<size_t>& samples,
@@ -51,6 +54,7 @@ public:
 
 private:
   size_t response_length;
+  std::vector<double> gradient_weights;
 };
 
 } // namespace grf
