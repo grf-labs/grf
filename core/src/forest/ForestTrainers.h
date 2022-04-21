@@ -27,7 +27,8 @@ ForestTrainer instrumental_trainer(double reduced_form_weight,
 
 ForestTrainer multi_causal_trainer(size_t num_treatments,
                                    size_t num_outcomes,
-                                   bool stabilize_splits);
+                                   bool stabilize_splits,
+                                   const std::vector<double>& gradient_weights = {});
 
 ForestTrainer quantile_trainer(const std::vector<double>& quantiles);
 

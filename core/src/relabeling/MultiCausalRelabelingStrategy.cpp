@@ -20,8 +20,17 @@
 
 namespace grf {
 
-MultiCausalRelabelingStrategy::MultiCausalRelabelingStrategy(size_t response_length) :
-  response_length(response_length) {}
+MultiCausalRelabelingStrategy::MultiCausalRelabelingStrategy(size_t response_length,
+                                                             const std::vector<double>& gradient_weights) {
+  this->response_length = response_length;
+  if (gradient_weights.empty()) {
+    this->gradient_weights = std::vector<double> (response_length, 1.0);
+  } else if (gradient_weights.size() != response_length) {
+    throw std::runtime_error("Optional gradient weights vector must be same length as response_length.");
+  } else {
+    this->gradient_weights = gradient_weights;
+  }
+}
 
 bool MultiCausalRelabelingStrategy::relabel(
     const std::vector<size_t>& samples,
@@ -83,7 +92,7 @@ bool MultiCausalRelabelingStrategy::relabel(
     size_t j = 0;
     for (size_t outcome = 0; outcome < num_outcomes; outcome++) {
       for (size_t treatment = 0; treatment < num_treatments; treatment++) {
-        responses_by_sample(sample, j) = rho_weight(i, treatment) * residual(i, outcome);
+        responses_by_sample(sample, j) = rho_weight(i, treatment) * residual(i, outcome) * gradient_weights[j];
         j++;
       }
     }

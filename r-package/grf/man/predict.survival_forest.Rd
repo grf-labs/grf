@@ -8,6 +8,7 @@
   object,
   newdata = NULL,
   failure.times = NULL,
+  prediction.times = c("curve", "time"),
   prediction.type = c("Kaplan-Meier", "Nelson-Aalen"),
   num.threads = NULL,
   ...
@@ -23,7 +24,12 @@ that this matrix should have the number of columns as the training
 matrix, and that the columns must appear in the same order.}
 
 \item{failure.times}{A vector of survival times to make predictions at. If NULL, then the
-failure times used for training the forest is used. The time points should be in increasing order. Default is NULL.}
+failure times used for training the forest is used. If prediction.times = "curve" then the
+time points should be in increasing order. Default is NULL.}
+
+\item{prediction.times}{"curve" predicts the survival curve S(t, x) on grid t = failure.times for each sample Xi.
+"time" predicts S(t, x) at an event time t = failure.times[i] for each sample Xi.
+Default is "curve".}
 
 \item{prediction.type}{The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 The default is the prediction.type used to train the forest.}
@@ -35,8 +41,10 @@ automatically selects an appropriate amount.}
 }
 \value{
 A list with elements \itemize{
- \item predictions: a matrix of survival curves. Each row is the survival curve for
- sample Xi: predictions[i, j] = S(failure.times[j], Xi).
+ \item predictions: a matrix of survival curves. If prediction.times = "curve" then each row
+ is the survival curve for sample Xi: predictions[i, j] = S(failure.times[j], Xi).
+ If prediction.times = "time" then each row is the survival curve at time point failure.times[i]
+ for sample Xi: predictions[i, ] = S(failure.times[i], Xi).
  \item failure.times: a vector of event times t for the survival curve.
 }
 }
