@@ -96,7 +96,9 @@ test_that("TOC grid works as expected", {
   rate <- rank_average_treatment_effect(cf, rand.prio)
   TOC <- rate$TOC$estimate
   TOC.se <- rate$TOC$std.err
-  expect_equal(TOC, rep(0, length(TOC)), tolerance = 3 * TOC.se)
+  for (i in seq_along(TOC)) {
+    expect_equal(TOC[i], 0, tolerance = 3.1 * TOC.se[i])
+  }
 
   q5 <- seq(0.05, 1, by = 0.05)
   rate.q5 <- rank_average_treatment_effect(cf, rand.prio, q = q5)
@@ -129,7 +131,9 @@ test_that("sample weighted TOC grid works as expected", {
   rate <- rank_average_treatment_effect(cf, rand.prio)
   TOC <- rate$TOC$estimate
   TOC.se <- rate$TOC$std.err
-  expect_equal(TOC, rep(0, length(TOC)), tolerance = 3 * TOC.se)
+  for (i in seq_along(TOC)) {
+    expect_equal(TOC[i], 0, tolerance = 3.1 * TOC.se[i])
+  }
 
   q5 <- seq(0.05, 1, by = 0.05)
   rate.q5 <- rank_average_treatment_effect(cf, rand.prio, q = q5)
