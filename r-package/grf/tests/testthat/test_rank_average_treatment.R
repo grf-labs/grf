@@ -96,13 +96,17 @@ test_that("TOC grid works as expected", {
   rate <- rank_average_treatment_effect(cf, rand.prio)
   TOC <- rate$TOC$estimate
   TOC.se <- rate$TOC$std.err
-  expect_equal(TOC, rep(0, length(TOC)), tolerance = 3 * TOC.se)
+  for (i in seq_along(TOC)) {
+    expect_equal(TOC[i], 0, tolerance = 3.1 * TOC.se[i])
+  }
 
   q5 <- seq(0.05, 1, by = 0.05)
   rate.q5 <- rank_average_treatment_effect(cf, rand.prio, q = q5)
   TOC.q5 <- rate.q5$TOC$estimate
   TOC.q5.se <- rate.q5$TOC$std.err
-  expect_equal(TOC.q5, rep(0, length(TOC.q5)), tolerance = 3 * TOC.q5.se)
+  for (i in seq_along(TOC.q5)) {
+    expect_equal(TOC.q5[i], 0, tolerance = 3.1 * TOC.q5.se[i])
+  }
 })
 
 test_that("sample weighted TOC grid works as expected", {
@@ -129,13 +133,17 @@ test_that("sample weighted TOC grid works as expected", {
   rate <- rank_average_treatment_effect(cf, rand.prio)
   TOC <- rate$TOC$estimate
   TOC.se <- rate$TOC$std.err
-  expect_equal(TOC, rep(0, length(TOC)), tolerance = 3 * TOC.se)
+  for (i in seq_along(TOC)) {
+    expect_equal(TOC[i], 0, tolerance = 3.1 * TOC.se[i])
+  }
 
   q5 <- seq(0.05, 1, by = 0.05)
   rate.q5 <- rank_average_treatment_effect(cf, rand.prio, q = q5)
   TOC.q5 <- rate.q5$TOC$estimate
   TOC.q5.se <- rate.q5$TOC$std.err
-  expect_equal(TOC.q5, rep(0, length(TOC.q5)), tolerance = 3 * TOC.q5.se)
+  for (i in seq_along(TOC.q5)) {
+    expect_equal(TOC.q5[i], 0, tolerance = 3.1 * TOC.q5.se[i])
+  }
 })
 
 test_that("rank_average_treatment_effect agrees with plain brute-force calculation", {

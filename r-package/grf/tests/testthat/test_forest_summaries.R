@@ -217,7 +217,8 @@ test_that("best linear projection works as expected with causal survival forest"
   A1 <- data.test$X[, 1]
   blp.X1.true <- lm(data.test$cate ~ A1)$coefficients
   blp.X1 <- best_linear_projection(cs.forest, data$X[, 1])
-  expect_equal(blp.X1.true, blp.X1[, "Estimate"], tolerance = 2.1 * sqrt(blp.X1[, "Std. Error"]))
+  expect_equal(blp.X1.true[[1]], blp.X1[1, "Estimate"], tolerance = 2.1 * sqrt(blp.X1[1, "Std. Error"]))
+  expect_equal(blp.X1.true[[2]], blp.X1[2, "Estimate"], tolerance = 2.1 * sqrt(blp.X1[2, "Std. Error"]))
 
   weights <- rep(1, n)
   dup <- sample(1:n, 50)
