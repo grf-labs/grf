@@ -19,7 +19,8 @@ set.seed(123)
 library(grf)
 ```
 
-The following example demonstrates how to use GRF for heterogeneous treatment effect estimation. For examples of how to use types of forest, as for quantile regression and causal effect estimation using instrumental variables, please consult the R documentation on the relevant forest methods (quantile_forest, instrumental_forest, etc.).
+The following script demonstrates how to use GRF for heterogeneous treatment effect estimation. For examples
+of how to use other types of forests, please consult the R [documentation](https://grf-labs.github.io/grf/reference/index.html) on the relevant methods.
 
 Generate data and train a causal forest
 ```{r}
