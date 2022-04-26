@@ -14,8 +14,7 @@
 #' @examples
 #' \donttest{
 #' # The following script demonstrates how to use GRF for heterogeneous treatment
-#' # effect estimation. For examples of how to use other types of forest, as for
-#' # quantile regression and causal effect estimation using instrumental variables,
+#' # effect estimation. For examples of how to use other types of forest,
 #' # please consult the documentation on the relevant forest methods (quantile_forest,
 #' # instrumental_forest, etc.).
 #'

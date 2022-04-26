@@ -41,8 +41,7 @@ Note that to install from source, a compiler that implements C++11 is required (
 ### Usage Examples
 
 The following script demonstrates how to use GRF for heterogeneous treatment effect estimation. For examples
-of how to use types of forest, as for quantile regression and causal effect estimation using instrumental
-variables, please consult the R [documentation](https://grf-labs.github.io/grf/reference/index.html) on the relevant forest methods (quantile_forest, instrumental_forest, etc.).
+of how to use other types of forests, please consult the R [documentation](https://grf-labs.github.io/grf/reference/index.html) on the relevant methods.
 
 ```R
 library(grf)
