@@ -241,7 +241,7 @@ There are however empirical applications where there are more than one primary o
 
 Another closely related practical application are settings where there are several interventions, as for example in medical trials with multiple treatment arms. In the event there are K mutually exclusive treatment choices, we can use the same algorithmic principles described above to build a forest that jointly targets heterogeneity across the K-1 different treatment contrasts. In the software package this is done with (20) from the GRF paper, where Wi is a vector encoded as {0, 1}^(K-1), and &xi; selects the K-1 gradient approximations of the contrasts.
 
-The functionality described above is available in `multi_arm_causal_forest`. The intended use-case for this function is for a "handful" of arms or outcomes. Statistical considerations aside (s.t. limited overlap with many arms), our implementation has a memory scaling that for each tree takes the form `O(number.of.nodes * M * K^2)`.
+The functionality described above is available in `multi_arm_causal_forest`. The intended use-case for this function is for a "handful" of arms or outcomes. Statistical considerations aside (s.t. limited overlap with many arms), our implementation has a memory scaling that for each tree takes the form `O(number.of.nodes * M * K^2)`. The general case where all `Wk` are real-valued is implemented in the conditionally linear model forest: `lm_forest`.
 
 ### Right-Censored Survival Outcomes
 
