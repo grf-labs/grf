@@ -77,7 +77,7 @@
 #'
 #' @examples
 #' \donttest{
-#' # Train a LM Forest to estimate heterogeneous treatment effects in a regression discontinuity design.
+#' # Train a LM Forest to estimate CATEs in a regression discontinuity design.
 #' # Simulate a simple example with a heterogeneous jump in the CEF.
 #' n <- 2000
 #' p <- 5
@@ -263,7 +263,7 @@ lm_forest <- function(X, Y, W,
 #'
 #' @examples
 #' \donttest{
-#' # Train a LM Forest to estimate heterogeneous treatment effects in a regression discontinuity design.
+#' # Train a LM Forest to estimate CATEs in a regression discontinuity design.
 #' # Simulate a simple example with a heterogeneous jump in the CEF.
 #' n <- 2000
 #' p <- 5

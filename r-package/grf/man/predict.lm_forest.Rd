@@ -42,7 +42,7 @@ Gets estimates of \eqn{h_k(x)}, k = 1..K in the conditionally linear model
 }
 \examples{
 \donttest{
-# Train a LM Forest to estimate heterogeneous treatment effects in a regression discontinuity design.
+# Train a LM Forest to estimate CATEs in a regression discontinuity design.
 # Simulate a simple example with a heterogeneous jump in the CEF.
 n <- 2000
 p <- 5
