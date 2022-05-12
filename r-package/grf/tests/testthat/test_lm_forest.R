@@ -10,7 +10,7 @@ test_that("lm_forest with single W ~ causal forest", {
   Y.hat <- predict(regression_forest(X, Y, num.trees = 500))$predictions
   cf <- causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 250, stabilize.splits = FALSE)
   lmf <- lm_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 250)
-  expect_lt(mean((predict(cf)$predictions - predict(lmf)$predictions[,,])^2), 0.1)
+  expect_lt(mean((predict(cf)$predictions - predict(lmf)$predictions[,,])^2), 0.12)
   expect_equal(mean(predict(cf)$predictions), mean(predict(lmf)$predictions[,,]), tolerance = 0.12)
 
   # Continuous W
@@ -19,7 +19,7 @@ test_that("lm_forest with single W ~ causal forest", {
   Y.hat <- predict(regression_forest(X, Y, num.trees = 500))$predictions
   cfw <- causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 250, stabilize.splits = FALSE)
   lmfw <- lm_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 250)
-  expect_lt(mean((predict(cfw)$predictions - predict(lmfw)$predictions[,,])^2), 0.1)
+  expect_lt(mean((predict(cfw)$predictions - predict(lmfw)$predictions[,,])^2), 0.12)
   expect_equal(mean(predict(cfw)$predictions), mean(predict(lmfw)$predictions[,,]), tolerance = 0.12)
 })
 
