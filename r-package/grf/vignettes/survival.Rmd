@@ -81,8 +81,8 @@ cc <- (D==1)
 dens.cens <- with(density(failure.time), data.frame(x, y))
 dens.obs <- with(density(Y[cc]), data.frame(x, y))
 df <- rbind(dens.cens, dens.obs)
-df$distribution <- c(rep("Survival time (T)", nrow(dens.cens)), rep("Observed (D*T)", nrow(dens.obs)))
-df$distribution <- factor(df$distribution, levels = c("Survival time (T)", "Observed (D*T)"))
+df$distribution <- c(rep("Time to event (T)", nrow(dens.cens)), rep("Observed time (D*T)", nrow(dens.obs)))
+df$distribution <- factor(df$distribution, levels = c("Time to event (T)", "Observed time (D*T)"))
 
 ggplot(df, aes(x = x, y = y, ymin = 0, ymax = y, fill = distribution)) +
   geom_line() +
@@ -112,9 +112,9 @@ dens.cens <- with(density(failure.time), data.frame(x, y))
 dens.obs <- with(density(Y[cc]), data.frame(x, y))
 dens.obs <- subset(dens.obs, x <= 10)
 df <- rbind(dens.cens, dens.obs)
-df$distribution <- c(rep("Survival time (T)", nrow(dens.cens)), rep("Observed (D*T)", nrow(dens.obs)))
+df$distribution <- c(rep("Time to event (T)", nrow(dens.cens)), rep("Observed time (D*T)", nrow(dens.obs)))
 df$distribution[df$x >= 10] <- "Truncate"
-df$distribution <- factor(df$distribution, levels = c("Survival time (T)", "Observed (D*T)", "Truncate"))
+df$distribution <- factor(df$distribution, levels = c("Time to event (T)", "Observed time (D*T)", "Truncate"))
 
 ggplot(df, aes(x = x, y = y, ymin = 0, ymax = y, fill = distribution, alpha = distribution)) +
   geom_line() +
