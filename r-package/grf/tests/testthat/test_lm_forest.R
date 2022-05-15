@@ -1,26 +1,26 @@
 test_that("lm_forest with single W ~ causal forest", {
   # Binary W
-  n <- 500
+  n <- 1500
   p <- 5
   X <- matrix(rnorm(n * p), n, p)
   W <- rbinom(n, 1, 0.5)
   Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
   wts <- sample(1:2, n, TRUE)
 
-  Y.hat <- predict(regression_forest(X, Y, num.trees = 500))$predictions
-  cf <- causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 250, stabilize.splits = FALSE)
-  lmf <- lm_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 250)
-  expect_lt(mean((predict(cf)$predictions - predict(lmf)$predictions[,,])^2), 0.12)
-  expect_equal(mean(predict(cf)$predictions), mean(predict(lmf)$predictions[,,]), tolerance = 0.12)
+  Y.hat <- predict(regression_forest(X, Y, num.trees = 500, sample.weights = wts))$predictions
+  cf <- causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 500, stabilize.splits = FALSE)
+  lmf <- lm_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 500)
+  expect_lt(mean((predict(cf)$predictions - predict(lmf)$predictions[,,])^2), 0.025)
+  expect_equal(mean(predict(cf)$predictions), mean(predict(lmf)$predictions[,,]), tolerance = 0.025)
 
   # Continuous W
   W <- runif(n)
   Y <- pmax(X[, 1], 0) * W + X[, 2] + pmin(X[, 3], 0) + rnorm(n)
-  Y.hat <- predict(regression_forest(X, Y, num.trees = 500))$predictions
-  cfw <- causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 250, stabilize.splits = FALSE)
-  lmfw <- lm_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 250)
-  expect_lt(mean((predict(cfw)$predictions - predict(lmfw)$predictions[,,])^2), 0.12)
-  expect_equal(mean(predict(cfw)$predictions), mean(predict(lmfw)$predictions[,,]), tolerance = 0.12)
+  Y.hat <- predict(regression_forest(X, Y, num.trees = 500, sample.weights = wts))$predictions
+  cfw <- causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 500, stabilize.splits = FALSE)
+  lmfw <- lm_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 500)
+  expect_lt(mean((predict(cfw)$predictions - predict(lmfw)$predictions[,,])^2), 0.05)
+  expect_equal(mean(predict(cfw)$predictions), mean(predict(lmfw)$predictions[,,]), tolerance = 0.05)
 })
 
 test_that("lm_forest with dummy W = multi arm causal forest", {
