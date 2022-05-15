@@ -145,6 +145,9 @@ lm_forest <- function(X, Y, W,
   if (!(is.numeric(W) || is.logical(W)) || anyNA(W)) {
     stop("W should be numeric with no missing values.")
   }
+  if (any(apply(as.matrix(W), 2, sd) == 0)) {
+    warning("W contains column(s) with zero variation (a local intercept is always included).", immediate. = TRUE)
+  }
   if (is.null(gradient.weights)) {
     gradient.weights <- rep(1, NCOL(W) * NCOL(Y))
   } else {
