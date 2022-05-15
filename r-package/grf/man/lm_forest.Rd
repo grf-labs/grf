@@ -132,6 +132,7 @@ W a set of regressors.
 }
 \examples{
 \donttest{
+if (require("rdd", quietly = TRUE)) {
 # Train a LM Forest to estimate CATEs in a regression discontinuity design.
 # Simulate a simple example with a heterogeneous jump in the CEF.
 n <- 2000
@@ -144,15 +145,14 @@ tau <- pmax(0.5 * X[, 1], 0)
 Y <- tau * W  + 1 / (1 + exp(2 * Z)) + 0.2 * rnorm(n)
 
 # Compute the Imbens-Kalyanaraman MSE-optimal bandwidth for a local linear regression.
-if (require("rdd", quietly = TRUE)) {
-  bandwidth <- IKbandwidth(Z, Y, cutoff)
-  # Compute kernel weights for a triangular kernel.
-  sample.weights <- kernelwts(Z, cutoff, bandwidth, "triangular")
-} else {
-  bandwidth <- 1.1
-  dist <- abs((Z - cutoff) / bandwidth)
-  sample.weights <- (1 - dist) * (dist <= 1) / bandwidth
-}
+bandwidth <- IKbandwidth(Z, Y, cutoff)
+# Compute kernel weights for a triangular kernel.
+sample.weights <- kernelwts(Z, cutoff, bandwidth, "triangular")
+
+# Alternatively, specify bandwith and triangular kernel weights without using the `rdd` package.
+# bandwidth <- # user can hand-specify this.
+# dist <- abs((Z - cutoff) / bandwidth)
+# sample.weights <- (1 - dist) * (dist <= 1) / bandwidth
 
 # Estimate a local linear regression with the running variable Z conditional on covariates X = x:
 # Y = c(x) + tau(x) W + b(x) Z.
@@ -163,6 +163,7 @@ tau.hat <- predict(lmf)$predictions[, 1, ]
 # Plot estimated tau(x) vs simulated ground truth.
 plot(X[, 1], tau.hat)
 points(X[, 1], tau, col = "red", cex = 0.1)
+}
 }
 
 }
