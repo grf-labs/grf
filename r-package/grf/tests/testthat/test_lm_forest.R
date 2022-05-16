@@ -10,8 +10,8 @@ test_that("lm_forest with single W ~ causal forest", {
   Y.hat <- predict(regression_forest(X, Y, num.trees = 500, sample.weights = wts))$predictions
   cf <- causal_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 500, stabilize.splits = FALSE)
   lmf <- lm_forest(X, Y, W, Y.hat = Y.hat, W.hat = 0.5, sample.weights = wts, num.trees = 500)
-  expect_lt(mean((predict(cf)$predictions - predict(lmf)$predictions[,,])^2), 0.025)
-  expect_equal(mean(predict(cf)$predictions), mean(predict(lmf)$predictions[,,]), tolerance = 0.025)
+  expect_lt(mean((predict(cf)$predictions - predict(lmf)$predictions[,,])^2), 0.03)
+  expect_equal(mean(predict(cf)$predictions), mean(predict(lmf)$predictions[,,]), tolerance = 0.03)
 
   # Continuous W
   W <- runif(n)
