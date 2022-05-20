@@ -21,8 +21,7 @@
 #'                  getting accurate predictions. Default is 2000.
 #' @param sample.weights Weights given to each sample in estimation.
 #'                       If NULL, each observation receives the same weight.
-#'                       Note: To avoid introducing confounding, weights should be
-#'                       independent of the potential outcomes given X. Default is NULL.
+#'                       Default is NULL.
 #' @param gradient.weights Weights given to each coefficient h_k(x) when targeting heterogeneity
 #'  in the estimates. These enter the GRF algorithm through the split criterion \eqn{\Delta}:
 #'  the k-th coordinate of this is \eqn{\Delta_k} * gradient.weights[k].
