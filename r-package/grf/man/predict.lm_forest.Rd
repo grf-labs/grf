@@ -67,12 +67,15 @@ sample.weights <- kernelwts(Z, cutoff, bandwidth, "triangular")
 # Estimate a local linear regression with the running variable Z conditional on covariates X = x:
 # Y = c(x) + tau(x) W + b(x) Z.
 # Specify gradient.weights = c(1, 0) to target heterogeneity in the RDD coefficient tau(x).
-lmf <- lm_forest(X, Y, cbind(W, Z), sample.weights = sample.weights, gradient.weights = c(1, 0))
+# Also, fit forest on subset with non-zero weights for faster estimation.
+subset <- sample.weights > 0
+lmf <- lm_forest(X[subset, ], Y[subset], cbind(W, Z)[subset, ],
+                 sample.weights = sample.weights[subset], gradient.weights = c(1, 0))
 tau.hat <- predict(lmf)$predictions[, 1, ]
 
 # Plot estimated tau(x) vs simulated ground truth.
-plot(X[, 1], tau.hat)
-points(X[, 1], tau, col = "red", cex = 0.1)
+plot(X[subset, 1], tau.hat)
+points(X[subset, 1], tau[subset], col = "red", cex = 0.1)
 }
 }
 
