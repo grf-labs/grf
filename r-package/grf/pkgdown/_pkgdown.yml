@@ -51,6 +51,11 @@ reference:
       - instrumental_forest
       - predict.instrumental_forest
 
+  - title: Linear model forest
+    contents:
+      - lm_forest
+      - predict.lm_forest
+
   - title: Probability forest
     contents:
       - probability_forest

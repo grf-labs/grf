@@ -33,6 +33,7 @@ RoxygenNote: 7.1.2
 Suggests:
     DiagrammeR,
     MASS,
+    rdd,
     survival (>= 3.2-8),
     testthat (>= 3.0.4)
 SystemRequirements: GNU make
