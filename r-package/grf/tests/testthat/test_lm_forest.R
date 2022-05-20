@@ -1,4 +1,11 @@
 test_that("lm_forest with single W ~ causal forest", {
+  # These tests are not done with an epsilon tolerance due to forests'
+  # discontinuous nature. Even though these two calls are in principle identical (with the same seed),
+  # some splits futher down the tree might deviate by chance due to minor numerical differences in
+  # implementation, thus leading to final point predictions that can differ more than an epsilon.
+  # For tests that locks in an equivalence between Causal Forest and its multivariate extension
+  # see `MultiCausalSplittingRuleTest.cpp`
+
   # Binary W
   n <- 1500
   p <- 5
