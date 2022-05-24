@@ -173,6 +173,6 @@ points(X[subset, 1], tau[subset], col = "red", cex = 0.1)
 Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
  Annals of Statistics, 47(2), 2019.
 
-Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based recursive partitioning."
+Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based Recursive Partitioning."
  Journal of Computational and Graphical Statistics 17(2), 2008.
 }
