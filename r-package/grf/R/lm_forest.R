@@ -76,7 +76,7 @@
 #'
 #' @references Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
 #'  Annals of Statistics, 47(2), 2019.
-#' @references Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based recursive partitioning."
+#' @references Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based Recursive Partitioning."
 #'  Journal of Computational and Graphical Statistics 17(2), 2008.
 #'
 #' @examples
