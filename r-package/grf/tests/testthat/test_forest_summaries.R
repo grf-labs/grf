@@ -188,11 +188,11 @@ test_that("best linear projection is reasonable", {
 
   # should be ~ equal to an instrumental forest with Z = W.
   iv.forest <- instrumental_forest(X, Y, W, W,
-                                 Y.hat = forest$Y.hat,
-                                 W.hat = forest$W.hat,
-                                 Z.hat = forest$W.hat,
-                                 num.trees = 300,
-                                 seed = seed)
+                                   Y.hat = forest$Y.hat,
+                                   W.hat = forest$W.hat,
+                                   Z.hat = forest$W.hat,
+                                   num.trees = 300,
+                                   seed = seed)
   blp.iv.all <- best_linear_projection(iv.forest, X[, 1:2], compliance.score = rep(1, n))
   expect_equal(blp.iv.all[, "Estimate"], blp.all[, "Estimate"], tolerance = 1e-10)
   expect_equal(blp.iv.all[, "Std. Error"], blp.all[, "Std. Error"], tolerance = 1e-10)
