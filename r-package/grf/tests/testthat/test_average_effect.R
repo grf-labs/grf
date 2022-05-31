@@ -321,7 +321,7 @@ test_that("cluster robust average effects do weighting correctly", {
   forest.instrumental <- instrumental_forest(X, Y, W, W,
                                              Y.hat = forest.causal$Y.hat,
                                              W.hat = forest.causal$W.hat,
-                                             Z.hat = forest.causal$Z.hat,
+                                             Z.hat = forest.causal$W.hat,
                                              clusters = clust,
                                              equalize.cluster.weights = TRUE,
                                              num.trees = 400)
