@@ -9,6 +9,7 @@ best_linear_projection(
   A = NULL,
   subset = NULL,
   debiasing.weights = NULL,
+  compliance.score = NULL,
   num.trees.for.weights = 500,
   vcov.type = "HC3"
 )
@@ -27,6 +28,11 @@ the treatment Wi or the outcome Yi.}
 If NULL (default) these are obtained via the appropriate doubly robust score
 construction, e.g., in the case of causal_forests with a binary treatment, they
 are obtained via inverse-propensity weighting.}
+
+\item{compliance.score}{Only used with instrumental forests. An estimate of the causal
+effect of Z on W, i.e., Delta(X) = E[W | X, Z = 1] - E[W | X, Z = 0],
+which can then be used to produce debiasing.weights. If not provided,
+this is estimated via an auxiliary causal forest.}
 
 \item{num.trees.for.weights}{In some cases (e.g., with causal forests with a continuous
 treatment), we need to train auxiliary forests to learn debiasing weights.
