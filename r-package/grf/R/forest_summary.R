@@ -118,6 +118,10 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 #'               If NULL (default) these are obtained via the appropriate doubly robust score
 #'               construction, e.g., in the case of causal_forests with a binary treatment, they
 #'               are obtained via inverse-propensity weighting.
+#' @param compliance.score Only used with instrumental forests. An estimate of the causal
+#'               effect of Z on W, i.e., Delta(X) = E[W | X, Z = 1] - E[W | X, Z = 0],
+#'               which can then be used to produce debiasing.weights. If not provided,
+#'               this is estimated via an auxiliary causal forest.
 #' @param num.trees.for.weights In some cases (e.g., with causal forests with a continuous
 #'               treatment), we need to train auxiliary forests to learn debiasing weights.
 #'               This is the number of trees used for this task. Note: this argument is only
@@ -158,6 +162,7 @@ best_linear_projection <- function(forest,
                                    A = NULL,
                                    subset = NULL,
                                    debiasing.weights = NULL,
+                                   compliance.score = NULL,
                                    num.trees.for.weights = 500,
                                    vcov.type = "HC3") {
   clusters <- if (length(forest$clusters) > 0) {
@@ -197,11 +202,12 @@ best_linear_projection <- function(forest,
     }
   }
 
-  if (any(c("causal_forest", "causal_survival_forest") %in% class(forest))) {
+  if (any(c("causal_forest", "causal_survival_forest", "instrumental_forest") %in% class(forest))) {
     DR.scores <- get_scores(forest, subset = subset, debiasing.weights = debiasing.weights,
-                            num.trees.for.weights = num.trees.for.weights)
+                            compliance.score = compliance.score, num.trees.for.weights = num.trees.for.weights)
   } else {
-    stop("`best_linear_projection` is only implemented for `causal_forest` and `causal_survival_forest`")
+    stop(paste0("`best_linear_projection` is only implemented for ",
+      "`causal_forest`, `causal_survival_forest`, and `instrumental_forest`"))
   }
 
   if (!is.null(A)) {

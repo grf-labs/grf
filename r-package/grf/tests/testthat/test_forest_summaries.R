@@ -185,6 +185,21 @@ test_that("best linear projection is reasonable", {
 
   blp.2W <- best_linear_projection(forest.2W, X[,1:2])
   expect_equal(blp.all[, "Estimate"]/2, blp.2W[, "Estimate"], tolerance = 0.05)
+
+  # should be ~ equal to an instrumental forest with Z = W.
+  iv.forest <- instrumental_forest(X, Y, W, W,
+                                   Y.hat = forest$Y.hat,
+                                   W.hat = forest$W.hat,
+                                   Z.hat = forest$W.hat,
+                                   num.trees = 300,
+                                   seed = seed)
+  blp.iv.all <- best_linear_projection(iv.forest, X[, 1:2], compliance.score = rep(1, n))
+  expect_equal(blp.iv.all[, "Estimate"], blp.all[, "Estimate"], tolerance = 1e-10)
+  expect_equal(blp.iv.all[, "Std. Error"], blp.all[, "Std. Error"], tolerance = 1e-10)
+
+  blp.iv.subset <- best_linear_projection(iv.forest, X[, 1:2], compliance.score = rep(1, n), subset = (S == 1))
+  expect_equal(blp.iv.subset[, "Estimate"], blp.subset[, "Estimate"], tolerance = 1e-10)
+  expect_equal(blp.iv.subset[, "Std. Error"], blp.subset[, "Std. Error"], tolerance = 1e-10)
 })
 
 test_that("best linear projection works with edge case input types", {
@@ -233,4 +248,22 @@ test_that("best linear projection works as expected with causal survival forest"
   blp.weight <- best_linear_projection(cs.forest.weight)
   blp.dup <- best_linear_projection(cs.forest.dup)
   expect_equal(blp.weight[1, "Estimate"], blp.dup[1, "Estimate"], tolerance = 0.01)
+})
+
+test_that("best linear projection works as expected with instrumental forest", {
+  p <- 5
+  n <- 1000
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  A <- rnorm(n)
+  Z <- rbinom(n, 1, 0.5)
+  W <- A + Z * (1 + (X[,2] > 0))
+  tau <- X[,1] > 0
+  Y <- 2 * (X[,1] <= 0) * A + tau * W + (1 + (sqrt(3) - 1) * (X[,1] > 0)) * rnorm(n)
+
+  iv.forest <- instrumental_forest(X, Y, W, Z, num.trees = 500)
+  blp <- best_linear_projection(iv.forest)
+  ate <- average_treatment_effect(iv.forest)
+
+  expect_equal(blp[, "Estimate"], ate[["estimate"]], tolerance = 1e-10)
+  expect_equal(blp[, "Std. Error"], ate[["std.err"]], tolerance = 1e-4)
 })
