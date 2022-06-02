@@ -101,6 +101,7 @@ jobs:
   # Build the online docs and deploy to gh-pages - only done on master branch with Linux image.
   # `GITHUB_PAT` is a GitHub access token stored on Azure Pipelines.
   - script: |
+      set -e
       # Lock in a previous version of `pkgdown` and its dependencies.
       sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'whisker', 'xml2', 'yaml'))"
       sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
