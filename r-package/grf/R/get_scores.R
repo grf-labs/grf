@@ -32,10 +32,10 @@ get_scores <- function(forest, ...) {
 #'             possibly more covariates than observations." Journal of Econometrics
 #'             189(1), 2015.
 #' @references Graham, Bryan S., and Cristine Campos de Xavier Pinto. "Semiparametrically
-#'             efficient estimation of the average linear regression function." arXiv preprint
-#'             arXiv:1810.12511, 2018.
+#'             efficient estimation of the average linear regression function."
+#'             Journal of Econometrics 226(1), 2022.
 #' @references Hirshberg, David A., and Stefan Wager. "Augmented minimax linear estimation."
-#'             arXiv preprint arXiv:1712.00038, 2017.
+#'             The Annals of Statistics 49(6), 2021.
 #' @references Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
 #'             multivariate regression models with missing data." Journal of the
 #'             American Statistical Association 90(429), 1995.
