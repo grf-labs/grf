@@ -142,7 +142,7 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 #'  Journal of Econometrics 29.3 (1985): 305-325.
 #' @references Semenova, Vira, and Victor Chernozhukov. "Debiased Machine Learning of
 #'  Conditional Average Treatment Effects and Other Causal Functions".
-#'  The Econometrics Journal (2020).
+#'  The Econometrics Journal 24.2 (2021).
 #'
 #' @examples
 #' \donttest{
