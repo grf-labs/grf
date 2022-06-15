@@ -407,7 +407,7 @@ Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian H
 
 Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests. *arXiv preprint arXiv:2001.09887*, 2020.
 
-Ghosal, Indrayudh, and Giles Hooker. Boosting Random Forests to Reduce Bias; One-Step Boosted Forest and its Variance Estimate. *arXiv preprint arXiv:1803.08000*, 2018.
+Ghosal, Indrayudh, and Giles Hooker. Boosting Random Forests to Reduce Bias; One-Step Boosted Forest and its Variance Estimate. *Journal of Computational and Graphical Statistics*, 2020.
 
 Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer. Random survival forests. *The Annals of Applied Statistics*, 2008.
 
@@ -415,7 +415,7 @@ Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, a
 
 Li, Fan, Kari Lock Morgan, and Alan M. Zaslavsky. Balancing covariates via propensity score weighting. *Journal of the American Statistical Association*, 2018.
 
-Mayer, Imke, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager and Julie Josse. Doubly robust treatment effect estimation with missing attributes. *arXiv preprint arXiv:1910.10624*, 2019.
+Mayer, Imke, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager and Julie Josse. Doubly robust treatment effect estimation with missing attributes. *The Annals of Applied Statistics*, 2020.
 
 Nie, Xinkun, and Stefan Wager. Quasi-oracle estimation of heterogeneous treatment effects. *Biometrika*, 2021.
 
