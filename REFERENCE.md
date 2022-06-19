@@ -14,7 +14,7 @@ GRF extends the idea of a classic random forest to allow for estimating other st
   * [Training Options](#training-options)
   * [Variance Estimates](#variance-estimates)
 * [Causal Forests](#causal-forests)
-  * [Orthogonalization](#orthogonalization)
+  * [Orthogonalization (the R-learner)](#orthogonalization-the-r-learner)
   * [Selecting Balanced Splits](#selecting-balanced-splits)
   * [Average Treatment Effects](#average-treatment-effects)
   * [Rank-Weighted Average Treatment Effects](#rank-weighted-average-treatment-effects)
@@ -187,13 +187,13 @@ For a technical treatment of causal forest splitting and prediction, please refe
 
 Beyond this core training procedure, causal forests incorporate some additions specific to treatment effect estimation. These additions are described below.
 
-### Orthogonalization
+### Orthogonalization (the R-learner)
 
 Recall that causal forests assume that potential outcomes are independent of treatment assignment, but only after we condition on features `X`. In this setting, in order to consistently estimate conditional average treatment effects, a naive causal forest would need to split both on features that affect treatment effects and those that affect treatment propensities. This can be wasteful, as splits 'spent' on modeling treatment propensities may not be useful in estimating treatment heterogeneity.
 
 In GRF, we avoid this difficulty by 'orthogonalizing' our forest using Robinson's transformation (Robinson, 1988). Before running `causal_forest`, we compute estimates of the propensity scores `e(x) = E[W|X=x]` and marginal outcomes `m(x) = E[Y|X=x]` by training separate regression forests and performing out-of-bag prediction. We then compute the residual treatment `W - e(x)` and outcome `Y - m(x)`, and finally train a causal forest on these residuals. If propensity scores or marginal outcomes are known through prior means (as might be the case in a randomized trial) they can be specified through the training parameters `W.hat` and `Y.hat`. In this case, `causal_forest` will use these estimates instead of training separate regression forests.
 
-Empirically, we've found orthogonalization to be essential in obtaining accurate treatment effect estimates in observational studies. More details on the orthogonalization procedure in the context of forests can be found in section 6.1.1 of the GRF paper. For a broader discussion on Robinson's transformation for conditional average treatment effect estimation, including formal results, please see Nie and Wager (2021).
+Empirically, we've found orthogonalization to be essential in obtaining accurate treatment effect estimates in observational studies. This first-stage residualization is conceptually different from the GRF splitting routine described in the previous sections. It can be interpreted as giving rise to a loss function tailored for heterogeneous treatment effects. In recognition of the work of Robinson (1988) and to emphasize the role of residualization, we refer to this approach as the 'R-learner'. More details on the orthogonalization procedure in the context of forests can be found in section 6.1.1 of the GRF paper. For a broader discussion on Robinson's transformation for conditional average treatment effect estimation, including formal results, please see Nie and Wager (2021).
 
 ### Selecting Balanced Splits
 
