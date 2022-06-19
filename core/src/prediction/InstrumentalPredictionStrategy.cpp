@@ -217,7 +217,7 @@ std::vector<std::pair<double, double>> InstrumentalPredictionStrategy::compute_e
   double instrument = data.get_instrument(sample);
 
   // To justify the squared residual below as an error criterion in the case of CATE estimation
-  // with an unconfounded treatment assignment, see Nie and Wager (2017).
+  // with an unconfounded treatment assignment, see Nie and Wager (2021).
   double residual = outcome - (instrument - average.at(INSTRUMENT) / average.at(WEIGHT)) * reduced_form_estimate - average.at(OUTCOME) / average.at(WEIGHT);
   double error_raw = residual * residual;
 
