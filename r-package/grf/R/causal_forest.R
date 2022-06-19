@@ -308,7 +308,7 @@ causal_forest <- function(X, Y, W,
 #'         For out-of-bag estimates, we also output the following error measures.
 #'         First, column 'debiased.error' contains estimates of the 'R-loss' criterion,
 #          a quantity that is related to the true (infeasible) mean-squared error
-#'         (See Nie and Wager 2017 for a justification). Second, column 'excess.error'
+#'         (See Nie and Wager, 2021 for a justification). Second, column 'excess.error'
 #'         contains jackknife estimates of the Monte-carlo error (Wager, Hastie, Efron 2014),
 #'         a measure of how unstable estimates are if we grow forests of the same size
 #'         on the same data set. The sum of 'debiased.error' and 'excess.error' is the raw error
