@@ -359,10 +359,13 @@ If you observe poor performance on a dataset with a small number of examples, th
 
 ### GRF isn't working well on a massive dataset.
 
-GRF is a package designed for forest-based estimation on datasets of 'moderate' size. The tree building process can be sped up significantly on a machine with many cores, but note that on very large datasets the problem quickly becomes memory bound, due the information (sufficient statistics, etc.) stored by each tree. As a point of reference a `causal_forest` with 1 000 000 observations and 30 continuous covariates takes around 1 hour to train (using default settings on a machine with 24 cores and 150GB RAM), and the final forest takes up ca. 25 GB of memory (this is expected to scale linearly in the number of trees). In order to make forest training on very large data more manageable, we provide the following recommendations, with the caveat that they may affect the forest's performance:
-- Increase `min.node.size`, effectively growing shallower trees.
+GRF is a package designed for forest-based estimation on datasets of 'moderate' size. The tree building process can be sped up significantly on a machine with many cores, but note that on very large datasets the problem quickly becomes memory bound, due to the information (sufficient statistics, etc.) stored by each tree. As a point of reference a `causal_forest` with 1 000 000 observations and 30 continuous covariates takes around 1 hour to train (using default settings on a machine with 24 cores and 150 GB RAM), and the final forest takes up ca. 25 GB of memory (this is expected to scale linearly in the number of trees). In order to make forest training on very large data more manageable, we provide the following recommendations for parameters to experiment with:
+- Increase `min.node.size`, effectively growing shallower trees. Having a `min.node.size` in the thousands will make scaling to a data set in the millions perfectly feasible. 
+- Decrease the number of trees, `num.trees`. The default of 2000 is high in order to ensure good performance of the optionally estimated pointwise confidence intervals. If these are not needed, fewer trees might give very similar prediction performance.
+
+In addition, the following might also be useful, depending on application:
 - Decrease the subsampling rate `sample.fraction`, reducing the number of samples per tree.
-- Split up training and take a union of forests on a machine with more ram using `merge_forests` (note that merging is still a copy inducing operation).
+- Split up training and take a union of forests on a machine with more RAM using `merge_forests` (note that merging is still a copy inducing operation).
 - For a moderate gain in speed, one could also round down continuous covariates, effectively reducing the number of split points to search over.
 
 ### The variance estimates are jumpy or very large.
