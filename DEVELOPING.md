@@ -14,6 +14,7 @@ In addition to providing out-of-the-box forests for quantile regression and inst
   * [Creating a custom forest](#creating-a-custom-forest)
   * [Current forests and main components](#current-forests-and-main-components)
   * [Tree splitting algorithm](#tree-splitting-algorithm)
+  * [Computing point predictions](#computing-point-predictions)
 
 ## Contributing
 
@@ -51,7 +52,7 @@ ForestTrainer drives the tree-growing process, and has two pluggable components.
 
 The trained forest produces a [Forest](https://github.com/grf-labs/grf/blob/master/core/src/forest/Forest.h) object. This can then be passed to the ForestPredictor to predict on test samples. The predictor has a pluggable 'prediction strategy', which computes a prediction given a test sample. Prediction strategies can be one of two types:
 * [DefaultPredictionStrategy](https://github.com/grf-labs/grf/blob/master/core/src/prediction/DefaultPredictionStrategy.h) computes a prediction given a weighted list of training sample IDs that share a leaf with the test sample. Taking quantile forests as an example, this strategy would compute the quantiles of the weighted leaf samples.
-* [OptimizedPredictionStrategy](https://github.com/grf-labs/grf/blob/master/core/src/prediction/OptimizedPredictionStrategy.h) does not predict using a list of neighboring samples and weights, but instead precomputes summary values for each leaf during training, and uses these during prediction. This type of strategy will also be passed to ForestTrainer, so it can define how the summary values are computed.
+* [OptimizedPredictionStrategy](https://github.com/grf-labs/grf/blob/master/core/src/prediction/OptimizedPredictionStrategy.h) does not predict using a list of neighboring samples and weights, but instead precomputes summary values for each leaf during training, and uses these during prediction. This type of strategy will also be passed to ForestTrainer, so it can define how the summary values are computed. The section on computing point predictions provides more details.
 
 Prediction strategies can also compute variance estimates for the predictions, given a forest trained with grouped trees. Because of performance constraints, only 'optimized' prediction strategies can provide variance estimates.
 
@@ -74,7 +75,7 @@ The following table shows the current collection of forests implemented and the 
 | causal_forest with ll_causal_predict 	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| LLCausalPredictionStrategy        	|
 | causal_survival_forest               	| CausalSurvivalRelabelingStrategy 	| CausalSurvivalSplittingRule  	| CausalSurvivalPredictionStrategy  	|
 | instrumental_forest                  	| InstrumentalRelabelingStrategy   	| InstrumentalSplittingRule    	| InstrumentalPredictionStrategy    	|
-| ll_regression_forest                 	| LLRegressionRelabelingStrategy   	| RegressionSplittingRule      	| LocalLinearPredictionStrategy      |
+| ll_regression_forest                 	| LLRegressionRelabelingStrategy   	| RegressionSplittingRule      	| LocalLinearPredictionStrategy       |
 | lm_forest                            	| MultiCausalRelabelingStrategy    	| MultiRegressionSplittingRule  | MultiCausalPredictionStrategy     	|
 | multi_arm_causal_forest              	| MultiCausalRelabelingStrategy    	| MultiCausalSplittingRule      | MultiCausalPredictionStrategy     	|
 | multi_regression_forest              	| MultiNoopRelabelingStrategy      	| MultiRegressionSplittingRule 	| MultiRegressionPredictionStrategy 	|
@@ -197,3 +198,95 @@ The algorithm proceeds in the same manner as outlined above for RegressionSplitt
 ---
 
 ***Algorithm*** (`ProbabilitySplittingRule`): This splitting rule uses the Gini impurity measure from CART for categorical data. Sample weights are incorporated by counting the sample weight of an observation when forming class counts. The missing values adjustment is the same as for the other splitting rules.
+
+### Computing point predictions
+GRF point estimates, $\theta(x)$, for a target sample $X=x$, are given by a forest-specific estimating equation $\psi_{\theta(x)}(\cdot)$ solved using GRF forest weights $\alpha(x)$ (see equation (2) and (3) in the [GRF paper](https://arxiv.org/abs/1610.01271)). In the GRF software package we additionally incorporate sample weights $w_i$. For training samples $i = 1...n$, predictions at a target sample $X=x$ are given by:
+
+$$
+\sum_{i = 1}^{n} \alpha_i(x) w_i \psi_{\theta(x)}(\cdot) = 0.
+$$
+
+This is the construction the `DefaultPredictionStrategy` operates with. The forest weights $\alpha_i(x)$ are available through the method parameter `weights_by_sample`: entry i is the fraction of times the i-th training sample falls into the same leaf as the target sample $x$.
+
+For performance reasons, this is not the construction used for most forest predictions, since for many statistical tasks doing this summation over n training samples times the number of target samples involves redundant (repeated) computations. The `OptimizedPredictionStrategy` avoids this drawback by relying on precomputed forest-specific 'sufficient' statistics.
+
+***Example: regression forest***
+
+We'll illustrate with an example for regression forest. The estimating equation for the conditional mean $\mu(x)$ is $\psi_{\mu(x)}(Y_i) = Y_i - \mu(x)$. Plugging this into the moment equation above gives:
+
+
+$$
+\sum_{i = 1}^{n} \alpha_i(x) w_i (Y_i - \mu(x)) = 0.
+$$
+
+Solving for $\mu(x)$ gives
+
+$$
+\mu(x) =  \frac{\sum_{i = 1}^{n} \alpha_i(x) w_i Y_i}{\sum_{i = 1}^{n} \alpha_i(x) w_i}.
+$$
+
+Now, insert the definition of the forest weights:
+
+$$
+\alpha_i(x) = \frac{1}{B}\sum_{b=1}^{B} \frac{I(X_i\in L_b(x) )}{|L_b(x)|},
+$$
+
+where $L_b(x)$ is the set of training samples falling into the same leaf as $x$ in the b-th tree and $|L_b(x)|$ is the cardinality of this set. This gives us:
+
+$$
+\mu(x) = \frac{\sum_{i = 1}^{n} \bigg(\frac{1}{B}\sum_{b=1}^{B} \frac{I(X_i\in L_b(x) )}{|L_b(x)|}\bigg) w_i Y_i}{\sum_{i = 1}^{n} \bigg(\frac{1}{B}\sum_{b=1}^B \frac{I(X_i\in L_b(x) )}{|L_b(x)|}\bigg) w_i}.
+$$
+
+Now we change the order of summation, moving the summation over trees outside:
+
+$$
+\begin{split}
+    \mu(x) &= \frac{\frac{1}{B} \sum_{b = 1}^{B} \bigg( \frac{1}{|L_b(x)|}\sum_{i=1}^{n} I(X_i\in L_b(x) ) w_i Y_i\bigg)}{\frac{1}{B} \sum_{b = 1}^{B} \bigg(\frac{1}{|L_b(x)|}\sum_{i=1}^{n} I(X_i\in L_b(x) ) w_i\bigg)} \\
+    &= \frac{\frac{1}{B} \sum_{b = 1}^{B}  \bar Y_b(x)} {\frac{1}{B} \sum_{b = 1}^{B}  \bar w_b(x)},
+\end{split}
+$$
+
+where we define the two tree-specific sufficient statistics $\bar Y_b(x)$ and $\bar w_b(x)$ as:
+
+$$
+\bar Y_b(x) =\frac{1}{|L_b(x)|}\sum_{i=1}^{n} I(X_i\in L_b(x) ) w_i Y_i,
+$$
+
+and
+
+$$
+\bar w_b(x) =\frac{1}{|L_b(x)|}\sum_{i=1}^{n} I(X_i\in L_b(x) ) w_i.
+$$
+
+That is, computing a point estimate for $\mu(x)$ now involves a summation of B pre-computed sufficient statistic (done during training in the method `precompute_prediction_values`).
+
+***Example: causal forest***
+
+Causal forest and instrumental forest shares the same implementation since a causal forest equals an instrumental forest with the treatment assignment vector equal to the instrument. For simplicity, we here just state what the above decomposition would look like for a causal forest (see section 6.1 of the GRF paper), given centered outcomes and treatment assignments $(\tilde Y_i, \tilde W_i$) (see section 6.1.1 of the GRF paper). The point predictions $\tau(x)$ for target sample $X=x$ are given by:
+
+$$
+\tau(x) =
+\frac{\frac{1}{B} \sum_{b = 1}^{B} \bigg(  \bar {YW}_b(x) \bar w_b(x) - \bar Y_b(x) \bar W_b(x)  \bigg)} {\frac{1}{B} \sum_{b = 1}^{B} \bigg(  \bar W^2_b(x) \bar w_b(x) - \bar W_b(x) \bar W_b(x) \bigg) },
+$$
+
+where
+
+$$
+\bar Y_b(x) = \frac{1}{|L_b(x)|}\sum_{i=1}^{n} I(X_i\in L_b(x) ) w_i \tilde Y_i,
+$$
+
+$$
+\bar W_b(x) = \frac{1}{|L_b(x)|}\sum_{i=1}^{n} I(X_i\in L_b(x) ) w_i \tilde W_i,
+$$
+
+$$
+\bar W^2_b(x) = \frac{1}{|L_b(x)|}\sum_{i=1}^{n} I(X_i\in L_b(x) ) w_i \tilde W^2_i,
+$$
+
+$$
+\bar w_b(x) =\frac{1}{|L_b(x)|}\sum_{i=1}^{n} I(X_i\in L_b(x) ) w_i,
+$$
+
+$$
+\bar {YW}_b(x) =\frac{1}{|L_b(x)|}\sum_{i=1}^{n} I(X_i\in L_b(x) ) w_i \tilde Y_i \tilde W_i.
+$$
