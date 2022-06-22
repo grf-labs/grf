@@ -200,6 +200,7 @@ The algorithm proceeds in the same manner as outlined above for RegressionSplitt
 ***Algorithm*** (`ProbabilitySplittingRule`): This splitting rule uses the Gini impurity measure from CART for categorical data. Sample weights are incorporated by counting the sample weight of an observation when forming class counts. The missing values adjustment is the same as for the other splitting rules.
 
 ### Computing point predictions
+
 GRF point estimates, $\theta(x)$, for a target sample $X=x$, are given by a forest-specific estimating equation $\psi_{\theta(x)}(\cdot)$ solved using GRF forest weights $\alpha(x)$ (see equation (2) and (3) in the [GRF paper](https://arxiv.org/abs/1610.01271)). In the GRF software package we additionally incorporate sample weights $w_i$. For training samples $i = 1...n$, predictions at a target sample $X=x$ are given by:
 
 $$
