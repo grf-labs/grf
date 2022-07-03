@@ -508,7 +508,5 @@ compute_eta <- function(S.hat,
   numerator <- numerator.one - numerator.two
   denominator <- W.centered^2 # denominator simplifies to this.
 
-  list(numerator = numerator, denominator = denominator,
-       numerator.one = numerator.one, numerator.two = numerator.two,
-       C.Y.hat = C.Y.hat)
+  list(numerator = numerator, denominator = denominator, C.Y.hat = C.Y.hat)
 }
