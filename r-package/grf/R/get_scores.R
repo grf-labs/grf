@@ -314,9 +314,8 @@ get_scores.causal_survival_forest <- function(forest,
     ))
   }
 
-  eta <- forest[["_eta"]]
-  numerator <- eta$numerator[subset]
-  denominator <- eta$denominator[subset]
+  numerator <- forest[["_psi"]]$numerator[subset]
+  denominator <- forest[["_psi"]]$denominator[subset]
   W.hat <- forest$W.hat[subset]
   cate.hat <- predict(forest)$predictions[subset]
   psi <- numerator - denominator * cate.hat
