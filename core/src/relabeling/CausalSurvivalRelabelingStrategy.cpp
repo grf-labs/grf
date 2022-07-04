@@ -41,12 +41,12 @@ bool CausalSurvivalRelabelingStrategy::relabel(
     return true;
   }
 
-  double eta = numerator_sum / denominator_sum;
+  double tau = numerator_sum / denominator_sum;
 
   // Create the new outcomes.
   for (size_t sample : samples) {
     double response = (data.get_causal_survival_numerator(sample) -
-      data.get_causal_survival_denominator(sample) * eta) / denominator_sum;
+      data.get_causal_survival_denominator(sample) * tau) / denominator_sum;
     responses_by_sample(sample, 0) = response;
   }
   return false;
