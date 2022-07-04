@@ -42,7 +42,7 @@ std::vector<double> CausalSurvivalPredictionStrategy::compute_variance(
     size_t ci_group_size) const {
 
   double v_est = average.at(DENOMINATOR);
-  double average_eta = average.at(NUMERATOR) / average.at(DENOMINATOR);
+  double average_tau = average.at(NUMERATOR) / average.at(DENOMINATOR);
 
 
   double num_good_groups = 0;
@@ -67,7 +67,7 @@ std::vector<double> CausalSurvivalPredictionStrategy::compute_variance(
       size_t i = group * ci_group_size + j;
       const std::vector<double>& leaf_value = leaf_values.get_values(i);
 
-      double psi_1 = leaf_value.at(NUMERATOR) - leaf_value.at(DENOMINATOR) * average_eta;
+      double psi_1 = leaf_value.at(NUMERATOR) - leaf_value.at(DENOMINATOR) * average_tau;
 
       psi_squared += psi_1 * psi_1;
       group_psi += psi_1;
