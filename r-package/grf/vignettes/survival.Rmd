@@ -202,11 +202,9 @@ This section shows how we can use estimated sample weights to adopt `causal_fore
 
 ```{r}
 sf.censor <- survival_forest(X, Y, 1 - D)
-sf.pred <- predict(sf.censor)
+sf.pred <- predict(sf.censor, failure.times = Y, prediction.times = "time")
 
-censoring.prob <- rep(1, n)
-Y.index <- findInterval(Y, sf.pred$failure.times)
-censoring.prob[Y.index > 0] <- sf.pred$predictions[cbind(1:n, Y.index)]
+censoring.prob <- sf.pred$predictions
 observed.events <- (D == 1)
 sample.weights <- 1 / censoring.prob[observed.events]
 ```
