@@ -4,6 +4,16 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2022-07-??
+
+## Added
+- Add new "linear model" forest `lm_forest` allowing for forest-based estimation of the conditionally linear model Y = c(x) + h_1(x)W_1 + ... + h_K(x)W_K at X = x. [#1138](https://github.com/grf-labs/grf/pull/1138)
+- Add optional `prediction.times` argument to `predict.survival_forest`. The new option "times" allows for easier computation of IPCW-type weights. [#1139](https://github.com/grf-labs/grf/pull/1139)
+- Add support for `instrumental_forest` to `best_linear_projection`. [#1158](https://github.com/grf-labs/grf/pull/1158)
+
+## Fixed
+- Fix optional `failure.times` argument in `predict.survival_forest`. This only affects `survival_forest` predictions in cases the optional `failure.times` contains time points outside the training grid. [#1132](https://github.com/grf-labs/grf/pull/1132)
+
 ## [2.1.0] - 2022-03-17
 
 ### Changed (breaking)
