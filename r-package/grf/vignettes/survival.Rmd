@@ -203,11 +203,8 @@ This section shows how we can use estimated sample weights to adopt `causal_fore
 ```{r}
 sf.censor <- survival_forest(X, Y, 1 - D)
 sf.pred <- predict(sf.censor)
-
-censoring.prob <- rep(1, n)
-Y.index <- findInterval(Y, sf.pred$failure.times)
-censoring.prob[Y.index > 0] <- sf.pred$predictions[cbind(1:n, Y.index)]
-observed.events <- (D == 1)
+sf.pred <- predict(sf.censor, failure.times = Y, prediction.times = "time")
+censoring.prob <- sf.pred$predictions
 sample.weights <- 1 / censoring.prob[observed.events]
 ```
 Note: when doing inverse weighting it is usually a good idea to plot the histogram of the weights to get a sense of stability behavior. If you look at the simulated data, we also discretize the event values by rounding (`round(Y, 2)`): this is done because training a survival forest involves estimating a survival curve on a grid consisting of all unique event times, and having this grid unreasonably dense brings little benefits w.r.t statistical accuracy over the extra computational cost (the optional `failure.times` argument embeds this functionality).
