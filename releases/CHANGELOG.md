@@ -4,10 +4,10 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.2.0] - 2022-07-??
+## [2.2.0] - 2022-08-???
 
 ## Added
-- Add new "linear model" forest `lm_forest` allowing for forest-based estimation of the conditionally linear model Y = c(x) + h_1(x)W_1 + ... + h_K(x)W_K at X = x. [#1138](https://github.com/grf-labs/grf/pull/1138)
+- Add new "linear model" forest `lm_forest` allowing for forest-based estimation of the conditionally linear model Y = c(x) + h_1(x)W_1 + ... + h_K(x)W_K at X = x (this generalization nests causal and multi-arm causal forest). As an example, one could use this forest to estimate heterogeneous treatment effects in a regression discontinuity design by setting W_1 to 1{Z >= cutoff} and W_2 = Z, where Z is a running variable and "cutoff" a treatment threshold. [#1138](https://github.com/grf-labs/grf/pull/1138)
 - Add optional `prediction.times` argument to `predict.survival_forest`. The new option "times" allows for easier computation of IPCW-type weights. [#1139](https://github.com/grf-labs/grf/pull/1139)
 - Add support for `instrumental_forest` to `best_linear_projection`. [#1158](https://github.com/grf-labs/grf/pull/1158)
 
