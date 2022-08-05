@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Fixed
 - Fix optional `failure.times` argument in `predict.survival_forest`. This only affects `survival_forest` predictions in cases the optional `failure.times` contains time points outside the training grid. [#1132](https://github.com/grf-labs/grf/pull/1132)
+- Fix `ll_regression_forest` such that all allowable input types `X` work when `enable.ll.split = TRUE`. [#1198](https://github.com/grf-labs/grf/pull/1198)
 
 ## [2.1.0] - 2022-03-17
 
