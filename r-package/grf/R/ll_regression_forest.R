@@ -142,7 +142,7 @@ ll_regression_forest <- function(X, Y,
     # find overall beta
     J <- diag(ncol(X) + 1)
     J[1,1] <- 0
-    D <- cbind(1, X)
+    D <- cbind(1, as.matrix(X))
     overall.beta <- solve(t(D) %*% D + ll.split.lambda * J) %*% t(D) %*% Y
 
     # update arguments with LLF parameters
