@@ -283,7 +283,7 @@ validate_subset <- function(forest, subset) {
   if (is.null(subset)) {
     subset <- 1:NROW(forest$Y.orig)
   }
-  if (class(subset) == "logical" && length(subset) == NROW(forest$Y.orig)) {
+  if (is.logical(subset) && length(subset) == NROW(forest$Y.orig)) {
     subset <- which(subset)
   }
   if (!all(subset %in% 1:NROW(forest$Y.orig))) {
