@@ -14,6 +14,8 @@ navbar:
         href: articles/categorical_inputs.html
       - text: "Causal forest with time-to-event data"
         href: articles/survival.html
+      - text: "Estimating ATEs on a new target population"
+        href: articles/ate_transport.html
       - text: "Estimating conditional means"
         href: articles/muhats.html
       - text: "Evaluating a causal forest fit"
