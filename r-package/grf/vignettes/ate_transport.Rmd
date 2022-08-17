@@ -20,7 +20,7 @@ library(ggplot2)
 library(grf)
 ```
 
-This vignette gives a brief overview of how to use GRF to estimate average treatment effects (ATEs) on a new target population defined by some covariates $X_{test}$.
+This vignette gives a brief overview of how to use GRF to estimate average treatment effects (ATEs) on a new target population defined by some covariates $X_{test}$. The first part gives a brief overview of the setup and a doubly robust estimator, the second part gives a code example of how to implement the estimator using GRF.
 
 ## Transport overview
 The general problem of conducting inference on a new target population given estimates from a previous trial, is referred to as a transport problem, and there is a large literature covering the topic. In this vignette we consider the setup and doubly robust estimator proposed in Dahabreh et al. (2020).
@@ -55,7 +55,7 @@ Estimating $E[Y(1) - Y(0) | S = 0]$ given estimates of $E[Y(1) - Y(0) | S = 1]$ 
 Condition 1 is known as the _transport condition_ and is important, but untestable. Condition 2 essentially states that all covariate patterns in the target population should be present in the target population, and the plausibility of this can be gauged by inspecting the estimates of $P[S = 1 | X = x] > 0$.
 
 ### Estimator
-Some definitions first. $\hat \tau^{(-i)}(X_i)$ are estimates of the conditional average treatment effects $E[Y(1) - Y(0) | X = x]$. $\hat p^{(-i)}(X_i)$ are estimates of the conditional trial-inclusion probabilities $P[S = 1 | X = x]$. $\hat e^{(-i)}(X_i)$ are estimates of the treatment propensities $E[W_i | X = x]$ and $\mu^{(-i)}(X_i, W_i)$  are estimates of the conditional responses $E[Y_i | W_i, X = x]$. The superscript (-1) indicates cross-fitting, i.e. the estimate for unit $i$ is obtained without using unit $i$ for estimation. $n_{RCT}$ is the number of units participating in the trial, and $n_{obs}$ is the number of units in the target population.
+Some definitions first. $\hat \tau^{(-i)}(X_i)$ are estimates of the conditional average treatment effects $E[Y_i(1) - Y_i(0) | X_i = x]$. $\hat p^{(-i)}(X_i)$ are estimates of the conditional trial-inclusion probabilities $P[S = 1 | X_i = x]$. $\hat e^{(-i)}(X_i)$ are estimates of the treatment propensities $E[W_i | X_i = x]$ and $\mu^{(-i)}(X_i, W_i)$  are estimates of the conditional responses $E[Y_i | W_i = w, X_i = x]$. The superscript (-1) indicates cross-fitting, i.e. the estimate for unit $i$ is obtained without using unit $i$ for estimation. $n_{RCT}$ is the number of units participating in the trial, and $n_{obs}$ is the number of units in the target population.
 
 A doubly robust estimate of the ATE on the target population is:
 
@@ -66,10 +66,10 @@ A doubly robust estimate of the ATE on the target population is:
   \sum_{i \in obs} \hat \tau^{(-i)}(X_i) + \\ &
 
   \frac{1}{n_{obs}}
-  \sum_{i \in RCT} \left[
-  \frac{1 - \hat p^{(-i)}(X_i)}{\hat p^{(-i)}(X_i)}
-  \left(\frac{W_i}{\hat e^{(-i)}(X_i)} - \frac{1-W_i}{1-\hat e^{(-i)}(X_i)}\right)
-  \left(Y_i - \hat \mu^{(-i)}(X_i, W_i) \right) \right].
+  \sum_{i \in RCT}
+  \left(\frac{1 - \hat p^{(-i)}(X_i)}{\hat p^{(-i)}(X_i)}\right)
+  \left(\frac{W_i - \hat e^{(-i)}(X_i)}{\hat e^{(-i)}(X_i)(1-\hat e^{(-i)}(X_i))}\right)
+  \left(Y_i - \hat \mu^{(-i)}(X_i, W_i) \right).
 \end{split}
 \end{equation}
 
@@ -104,13 +104,13 @@ average_treatment_effect_test <- function(forest, X.test, p.hat = NULL) {
 
   tau.hat.test <- predict(forest, X.test)$predictions
   tau.hat.train <- predict(forest)$predictions
-  IO.weights <- (1 - p.hat) / p.hat *
-    (W.orig / W.hat - (1 - W.orig) / (1 - W.hat))
+  debiasing.weights <- (1 - p.hat) / p.hat *
+    (W.orig - W.hat) / (W.hat * (1 -W.hat))
   Y.residual <- Y.orig - (Y.hat + tau.hat.train * (W.orig - W.hat))
 
-  tau.hat <- mean(tau.hat.test) + sum(IO.weights * Y.residual) / n.obs
+  tau.hat <- mean(tau.hat.test) + sum(debiasing.weights * Y.residual) / n.obs
   sigma2.hat <- var(tau.hat.test) / n.obs +
-    sum(Y.residual^2 * (IO.weights / n.obs)^2)
+    sum(Y.residual^2 * (debiasing.weights / n.obs)^2)
 
   c(estimate = tau.hat, std.err = sqrt(sigma2.hat))
 }
