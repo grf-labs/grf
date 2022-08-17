@@ -66,10 +66,10 @@ A doubly robust estimate of the ATE on the target population is:
   \sum_{i \in obs} \hat \tau^{(-i)}(X_i) + \\ &
 
   \frac{1}{n_{obs}}
-  \sum_{i \in RCT} \left[
-  \frac{1 - \hat p^{(-i)}(X_i)}{\hat p^{(-i)}(X_i)}
-  \left(\frac{W_i}{\hat e^{(-i)}(X_i)} - \frac{1-W_i}{1-\hat e^{(-i)}(X_i)}\right)
-  \left(Y_i - \hat \mu^{(-i)}(X_i, W_i) \right) \right].
+  \sum_{i \in RCT}
+  \left(\frac{1 - \hat p^{(-i)}(X_i)}{\hat p^{(-i)}(X_i)}\right)
+  \left(\frac{W_i - \hat e^{(-i)}(X_i)}{\hat e^{(-i)}(X_i)(1-\hat e^{(-i)}(X_i))}\right)
+  \left(Y_i - \hat \mu^{(-i)}(X_i, W_i) \right).
 \end{split}
 \end{equation}
 
@@ -104,13 +104,13 @@ average_treatment_effect_test <- function(forest, X.test, p.hat = NULL) {
 
   tau.hat.test <- predict(forest, X.test)$predictions
   tau.hat.train <- predict(forest)$predictions
-  IO.weights <- (1 - p.hat) / p.hat *
-    (W.orig / W.hat - (1 - W.orig) / (1 - W.hat))
+  debiasing.weights <- (1 - p.hat) / p.hat *
+    (W.orig - W.hat) / (W.hat * (1 -W.hat))
   Y.residual <- Y.orig - (Y.hat + tau.hat.train * (W.orig - W.hat))
 
-  tau.hat <- mean(tau.hat.test) + sum(IO.weights * Y.residual) / n.obs
+  tau.hat <- mean(tau.hat.test) + sum(debiasing.weights * Y.residual) / n.obs
   sigma2.hat <- var(tau.hat.test) / n.obs +
-    sum(Y.residual^2 * (IO.weights / n.obs)^2)
+    sum(Y.residual^2 * (debiasing.weights / n.obs)^2)
 
   c(estimate = tau.hat, std.err = sqrt(sigma2.hat))
 }
