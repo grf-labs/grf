@@ -20,7 +20,7 @@ library(ggplot2)
 library(grf)
 ```
 
-This vignette gives a brief overview of how to use GRF to estimate average treatment effects (ATEs) on a new target population defined by some covariates $X_{test}$.
+This vignette gives a brief overview of how to use GRF to estimate average treatment effects (ATEs) on a new target population defined by some covariates $X_{test}$. The first part gives a brief overview of the setup and a doubly robust estimator, the second part gives a code example of how to implement the estimator using GRF.
 
 ## Transport overview
 The general problem of conducting inference on a new target population given estimates from a previous trial, is referred to as a transport problem, and there is a large literature covering the topic. In this vignette we consider the setup and doubly robust estimator proposed in Dahabreh et al. (2020).
