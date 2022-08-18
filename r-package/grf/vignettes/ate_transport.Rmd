@@ -104,13 +104,11 @@ average_treatment_effect_test <- function(forest, X.test, p.hat = NULL) {
 
   tau.hat.test <- predict(forest, X.test)$predictions
   tau.hat.train <- predict(forest)$predictions
-  debiasing.weights <- (1 - p.hat) / p.hat *
-    (W.orig - W.hat) / (W.hat * (1 -W.hat))
+  debiasing.weights <- (1 - p.hat) / p.hat * (W.orig - W.hat) / (W.hat * (1 - W.hat))
   Y.residual <- Y.orig - (Y.hat + tau.hat.train * (W.orig - W.hat))
 
   tau.hat <- mean(tau.hat.test) + sum(debiasing.weights * Y.residual) / n.obs
-  sigma2.hat <- var(tau.hat.test) / n.obs +
-    sum(Y.residual^2 * (debiasing.weights / n.obs)^2)
+  sigma2.hat <- var(tau.hat.test) / n.obs + sum(Y.residual^2 * (debiasing.weights / n.obs)^2)
 
   c(estimate = tau.hat, std.err = sqrt(sigma2.hat))
 }
