@@ -175,7 +175,7 @@ std.err <- ate.test[2]
 sprintf("Estimate: %1.2f", estimate)
 sprintf("95%% CI: (%1.2f, %1.2f)", estimate - 1.96 * std.err, estimate + 1.96 * std.err)
 sprintf("Naive estimate: %1.2f", mean(predict(forest, X.test)$predictions))
-sprintf("True estimate: %1.2f", mean(X.test[, 1] + 1))
+sprintf("True mean: %1.2f", mean(X.test[, 1] + 1))
 ```
 
 ## Appendix: estimating E[Y | X.test]
