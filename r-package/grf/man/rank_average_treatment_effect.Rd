@@ -105,7 +105,7 @@ rate
 plot(rate)
 
 # Compute a prioritization based on baseline risk.
-rf.risk <- regression_forest(X[W[train] == 0, ], Y[W[train] == 0])
+rf.risk <- regression_forest(X[train[W[train] == 0], ], Y[train[W[train] == 0]])
 priority.risk <- predict(rf.risk, X[-train, ])$predictions
 
 # Test if two RATEs are equal.
