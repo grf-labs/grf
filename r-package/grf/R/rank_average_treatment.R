@@ -157,15 +157,15 @@ rank_average_treatment_effect <- function(forest,
   }
   empty.names <- colnames(priorities) == ""
   colnames(priorities)[empty.names] <- c("priority1", "priority2")[1:ncol(priorities)][empty.names]
-  if (anyNA(priorities)) {
-    stop("`priorities` contains missing values.")
-  }
   if (nrow(priorities) == NROW(forest$Y.orig)) {
     priorities <- priorities[subset, , drop = FALSE]
   } else if (nrow(priorities) != length(subset.orig)) {
     stop("`priorities` must be a vector of length n or the subset length.")
   } else {
     priorities <- priorities[which(subset.orig %in% subset), , drop = FALSE]
+  }
+  if (anyNA(priorities)) {
+    stop("`priorities` contains missing values.")
   }
   # remap to integers 1, ..., num.unique.prios for quicker tabulate().
   priorities[,] <- lapply(priorities, function(x) as.integer(as.factor(x)))
