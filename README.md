@@ -116,7 +116,7 @@ tau.forest <- causal_forest(X[, selected.vars], Y, W,
 # the TOC and calculating a 95% CI for the AUTOC.
 rate <- rank_average_treatment_effect(tau.forest, predict(tau.forest)$predictions)
 plot(rate)
-paste("AUTOC:", round(rate$estimate, 2), "+/", 1.96 * round(rate$std.err, 2))
+paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
 ```
 
 ### Developing
