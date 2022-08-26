@@ -112,8 +112,11 @@ tau.forest <- causal_forest(X[, selected.vars], Y, W,
                             W.hat = W.hat, Y.hat = Y.hat,
                             tune.parameters = "all")
 
-# Check whether causal forest predictions are well calibrated.
-test_calibration(tau.forest)
+# See if the causal forest succeeded in capturing heterogeneity by plotting
+# the TOC and calculating a 95% CI for the AUTOC.
+rate <- rank_average_treatment_effect(tau.forest, predict(tau.forest)$predictions)
+plot(rate)
+paste("AUTOC:", round(rate$estimate, 2), "+/", 1.96 * round(rate$std.err, 2))
 ```
 
 ### Developing
