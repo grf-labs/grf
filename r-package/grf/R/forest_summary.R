@@ -211,7 +211,9 @@ best_linear_projection <- function(forest,
   }
 
   if (!is.null(A)) {
-    A <- as.matrix(A)
+    if (is.null(dim(A))) {
+      dim(A) <- c(length(A), 1L)
+    }
     if (nrow(A) == NROW(forest$Y.orig)) {
       A.subset <- A[subset, , drop = FALSE]
     } else if (nrow(A) == length(subset)) {
