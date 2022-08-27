@@ -100,7 +100,7 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 #'
 #' Procedurally, we do so by regressing doubly robust scores derived from the
 #' forest against the Ai. Note the covariates Ai may consist of a subset of the Xi,
-#' or they may be distinct The case of the null model tau(Xi) ~ beta_0 is equivalent
+#' or they may be distinct. The case of the null model tau(Xi) ~ beta_0 is equivalent
 #' to fitting an average treatment effect via AIPW.
 #'
 #' In the event the treatment is continuous the inverse-propensity weight component of the
@@ -211,7 +211,9 @@ best_linear_projection <- function(forest,
   }
 
   if (!is.null(A)) {
-    A <- as.matrix(A)
+    if (is.vector(A)) {
+      dim(A) <- c(length(A), 1L)
+    }
     if (nrow(A) == NROW(forest$Y.orig)) {
       A.subset <- A[subset, , drop = FALSE]
     } else if (nrow(A) == length(subset)) {

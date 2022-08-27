@@ -55,7 +55,7 @@ covariates. This function provides a (doubly robust) fit to the linear model tau
 \details{
 Procedurally, we do so by regressing doubly robust scores derived from the
 forest against the Ai. Note the covariates Ai may consist of a subset of the Xi,
-or they may be distinct The case of the null model tau(Xi) ~ beta_0 is equivalent
+or they may be distinct. The case of the null model tau(Xi) ~ beta_0 is equivalent
 to fitting an average treatment effect via AIPW.
 
 In the event the treatment is continuous the inverse-propensity weight component of the
