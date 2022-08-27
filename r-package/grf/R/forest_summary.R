@@ -211,7 +211,7 @@ best_linear_projection <- function(forest,
   }
 
   if (!is.null(A)) {
-    if (is.null(dim(A))) {
+    if (is.vector(A)) {
       dim(A) <- c(length(A), 1L)
     }
     if (nrow(A) == NROW(forest$Y.orig)) {
