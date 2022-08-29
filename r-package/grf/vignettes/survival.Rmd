@@ -242,6 +242,14 @@ We can use `best_linear_projection` to estimate a linear effect modification mea
 best_linear_projection(csf, X)
 ```
 
+We can plot the TOC curve by otter weight to assess how heterogeneity varies by a given covariate.
+```{r}
+rate <- rank_average_treatment_effect(csf, X[, "size"])
+plot(rate, ylab = "Days until first catch", main = "TOC: ranked by decreasing weight")
+# Estimate of the area under the TOC
+rate
+```
+
 ## Other estimation targets: survival probabilities
 CSF can also be used to estimate the difference in survival probabilities. This option is available through the argument `target = "survival.probability"` and estimates for a given `horizon` $h$:
 
