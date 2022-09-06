@@ -70,7 +70,7 @@
 #'             Econometrica 89.1 (2021): 133-161.
 #' @references Chernozhukov, Victor, Juan Carlos Escanciano, Hidehiko Ichimura,
 #'             Whitney K. Newey, and James M. Robins. "Locally robust semiparametric
-#'             estimation." arXiv preprint arXiv:1608.00033, 2016.
+#'             estimation." Econometrica 90(4), 2022.
 #' @references Imbens, Guido W., and Joshua D. Angrist. "Identification and Estimation of
 #'             Local Average Treatment Effects." Econometrica 62(2), 1994.
 #' @references Li, Fan, Kari Lock Morgan, and Alan M. Zaslavsky.
