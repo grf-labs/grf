@@ -360,7 +360,7 @@ If you observe poor performance on a dataset with a small number of examples, th
 ### GRF isn't working well on a massive dataset.
 
 GRF is a package designed for forest-based estimation on datasets of 'moderate' size. The tree building process can be sped up significantly on a machine with many cores, but note that on very large datasets the problem quickly becomes memory bound, due to the information (sufficient statistics, etc.) stored by each tree. As a point of reference a `causal_forest` with 1 000 000 observations and 30 continuous covariates takes around 1 hour to train (using default settings on a machine with 24 cores and 150 GB RAM), and the final forest takes up ca. 25 GB of memory (this is expected to scale linearly in the number of trees). In order to make forest training on very large data more manageable, we provide the following recommendations for parameters to experiment with:
-- Increase `min.node.size`, effectively growing shallower trees. Having a `min.node.size` in the thousands will make scaling to a data set in the millions perfectly feasible. 
+- Increase `min.node.size`, effectively growing shallower trees. Having a `min.node.size` in the thousands will make scaling to a data set in the millions perfectly feasible.
 - Decrease the number of trees, `num.trees`. The default of 2000 is high in order to ensure good performance of the optionally estimated pointwise confidence intervals. If these are not needed, fewer trees might give very similar prediction performance.
 
 In addition, the following might also be useful, depending on application:
@@ -410,7 +410,7 @@ Athey, Susan, Julie Tibshirani and Stefan Wager. Generalized Random Forests, *An
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. Double/debiased machine learning for treatment and structural parameters. *The Econometrics Journal*, 2018.
 
-Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests. *arXiv preprint arXiv:2001.09887*, 2020.
+Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests. *Journal of the Royal Statistical Society: Series B*, forthcoming.
 
 Ghosal, Indrayudh, and Giles Hooker. Boosting Random Forests to Reduce Bias; One-Step Boosted Forest and its Variance Estimate. *Journal of Computational and Graphical Statistics*, 2020.
 

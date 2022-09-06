@@ -81,7 +81,7 @@ Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
 
 Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
  "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests."
- arXiv preprint arXiv:2001.09887, 2020.
+ Journal of the Royal Statistical Society: Series B, forthcoming.
 
 MacKinnon, James G., and Halbert White. "Some heteroskedasticity-consistent
  covariance matrix estimators with improved finite sample properties."

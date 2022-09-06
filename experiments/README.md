@@ -30,7 +30,8 @@ Susan Athey, Julie Tibshirani and Stefan Wager.
 <a href="https://arxiv.org/abs/1610.01271">arxiv</a>]
 
 Yifan Cui, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
-<b>Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests.</b> 2020.
+<b>Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests.</b>
+<i>Journal of the Royal Statistical Society: Series B</i>, forthcoming.
 [<a href="https://arxiv.org/abs/2001.09887">arxiv</a>]
 
 Rina Friedberg, Julie Tibshirani, Susan Athey, and Stefan Wager.
