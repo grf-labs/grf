@@ -193,7 +193,7 @@ W <- rbinom(n, 1, 0.5)
 horizon <- 10
 event.time <- pmin(rexp(n, rate = 0.1 + W * X[, 1]), horizon)
 censor.time <- runif(n, 0, 12)
-Y <- round(pmin(event.time, censor.time), 2)
+Y <- round(pmin(event.time, censor.time), 1)
 D <- as.integer(event.time <= censor.time)
 ```
 
@@ -208,7 +208,7 @@ censoring.prob <- sf.pred$predictions
 observed.events <- (D == 1)
 sample.weights <- 1 / censoring.prob[observed.events]
 ```
-Note: when doing inverse weighting it is usually a good idea to plot the histogram of the weights to get a sense of stability behavior. If you look at the simulated data, we also discretize the event values by rounding (`round(Y, 2)`): this is done because training a survival forest involves estimating a survival curve on a grid consisting of all unique event times, and having this grid unreasonably dense brings little benefits w.r.t statistical accuracy over the extra computational cost (the optional `failure.times` argument embeds this functionality).
+Note: when doing inverse weighting it is usually a good idea to plot the histogram of the weights to get a sense of stability behavior. If you look at the simulated data, we also discretize the event values by rounding: this is done because training a survival forest involves estimating a survival curve on a grid consisting of all unique event times, and having this grid unreasonably dense brings little benefits w.r.t statistical accuracy over the extra computational cost (the optional `failure.times` argument embeds this functionality).
 
 Putting everything together we train a causal forest on all observed events, and pass in the appropriate sample weights. Since we know our study is randomized with equal treatment assignment we also supply the know propensity score `W.hat` $=E[W_i \, | X_i = x] = 0.5$:
 ```{r}
