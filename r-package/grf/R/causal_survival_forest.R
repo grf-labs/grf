@@ -126,6 +126,12 @@
 #' # Compute the best linear projection on the first covariate.
 #' best_linear_projection(cs.forest, X[, 1])
 #'
+#' # See if the forest succeeded in capturing heterogeneity by plotting
+#' # the TOC and calculating a 95% CI for the AUTOC.
+#' rate <- rank_average_treatment_effect(cs.forest, cs.pred)
+#' plot(rate)
+#' paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
+#'
 #' # Train a causal survival forest targeting an absolute risk difference
 #' # at the median timepoint `horizon`.
 #' cs.forest.prob <- causal_survival_forest(X, Y, W, D, target = "survival.probability", horizon = 0.5)
