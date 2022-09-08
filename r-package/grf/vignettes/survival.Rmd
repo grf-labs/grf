@@ -273,4 +273,4 @@ Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. Estimation of Regression 
 Tsiatis, Anastasios A. Semiparametric Theory and Missing Data. _Springer Series in Statistics. Springer
 New York_, 2007.
 
-Xu, Yizhe, Nikolaos Ignatiadis, Erik Sverdrup, Scott Fleming, Stefan Wager, and Nigam Shah. Treatment Heterogeneity with Survival Outcomes. _Handbook of Matching and Weighting Adjustments for Causal Inference._ Chapman & Hall/CRC Press, forthcoming ([arxiv](https://arxiv.org/abs/2207.07758))
+Xu, Yizhe, Nikolaos Ignatiadis, Erik Sverdrup, Scott Fleming, Stefan Wager, and Nigam Shah. Treatment Heterogeneity for Survival Outcomes. _Handbook of Matching and Weighting Adjustments for Causal Inference._ Chapman & Hall/CRC Press, forthcoming ([arxiv](https://arxiv.org/abs/2207.07758))
