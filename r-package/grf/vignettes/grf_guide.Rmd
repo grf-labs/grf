@@ -309,11 +309,10 @@ colnames(X.cf)[ranked.vars[1:5]]
 The outcome is the number of correct answer on a test measuring cognitive ability, so a negative CATE means an impairment in cognition due to poverty, so in computing the RATE (AUTOC) we rank by the most negative CATEs first, as well as age (from young to old) as indicated by the split frequency:
 ```{r}
 tau.hat.oob <- predict(cf)$predictions
-test_calibration(cf)
 rate.oob <- rank_average_treatment_effect(cf, list(cate = -1 *tau.hat.oob))
 rate.age <- rank_average_treatment_effect(cf, list(age = -1 * X$age))
 
-# par(mfrow = c(1, 2))
+par(mfrow = c(1, 2))
 plot(rate.oob, ylab = "Number of correct answers", main = "TOC: Rank by most negative CATEs")
 plot(rate.age, ylab = "Number of correct answers", main = "TOC: Rank by increasing age")
 ```
