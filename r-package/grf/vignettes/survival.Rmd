@@ -185,7 +185,7 @@ We can get a sense of what the second identifying assumption is by looking at th
 Continuing with the simple stylized example from the first section, we simulate the following setup, where we stop collecting samples after t=10 days, with random treatment assignment and where $\tau(X)$ depends on the first covariate $X_1$.
 
 ```{r}
-n <- 500
+n <- 700
 p <- 5
 X <- matrix(runif(n * p), n, p)
 colnames(X) <- c("size", "fur.density", "x3", "x4", "x5")
