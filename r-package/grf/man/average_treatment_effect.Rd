@@ -73,7 +73,7 @@ of Var[Wi | Xi = x]. By default, we get such estimates by training an auxiliary 
 however, these weights can also be passed manually by specifying debiasing.weights.
 
 In the case of instrumental forests with a binary treatment, we provide an estimate
-of the the Average (Conditional) Local Averate Treatment (ACLATE).
+of the the Average (Conditional) Local Average Treatment (ACLATE).
 Specifically, given an outcome Y, treatment W and instrument Z, the (conditional) local
 average treatment effect is tau(x) = Cov[Y, Z | X = x] / Cov[W, Z | X = x].
 This is the quantity that is estimated with an instrumental forest.
