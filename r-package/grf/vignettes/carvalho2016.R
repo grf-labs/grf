@@ -323,9 +323,9 @@ X$pay.day.amount.fraction.of.income = round(X$pay.day.amount.fraction.of.income,
 
 # Remove some redundant (perfectly colinear) variables
 summary(lm(Y2 ~as.matrix(X)))
-X$never_married=NULL
-X$other_race=NULL
-X$other_empstatus=NULL
+X$never.married=NULL
+X$other.race=NULL
+X$other.employment.status=NULL
 
 out = cbind(outcome.correct.ans.per.second = Y1, outcome.num.correct.ans = Y2, outcome.response.time = Y3,
             treatment = W, X)
