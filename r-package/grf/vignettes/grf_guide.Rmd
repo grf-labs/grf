@@ -276,7 +276,7 @@ hist(p.hat)
 ```
 The propensities looks reasonable in line with arising from an RCT, so we'll just continue treating this as an RCT and set the propensity to 0.5 and fit a causal forest.
 
-The data contains 2 480 observations of 27 covariates. Fitting at CATE estimator on such a large amount of covariates relative to the sample size is likely to be underpowered, so below we first predict the conditional mean $E[Y_i | X_i]$, then use a simple forest variable importance to choose which covariates to keep in the CATE estimation step.
+The data contains 2 480 observations of 24 covariates. Fitting at CATE estimator on such a large amount of covariates relative to the sample size is likely to be underpowered, so below we first predict the conditional mean $E[Y_i | X_i]$, then use a simple forest variable importance to choose which covariates to keep in the CATE estimation step.
 ```{r}
 Y.forest <- regression_forest(X, Y)
 Y.hat <- predict(Y.forest)$predictions
