@@ -283,8 +283,8 @@ Y.hat <- predict(Y.forest)$predictions
 
 varimp.Y <- variable_importance(Y.forest)
 
-# Keep the following variables for CATE estimation
-keep <- colnames(X)[which(varimp.Y > median(varimp.Y))]
+# Keep the top 10 variables for CATE estimation
+keep <- colnames(X)[order(varimp.Y, decreasing = TRUE)[1:10]]
 keep
 ```
 
