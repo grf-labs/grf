@@ -38,7 +38,7 @@ Gets estimates of tau(X) using a trained causal survival forest.
 \examples{
 \donttest{
 # Train a causal survival forest targeting a Restricted Mean Survival Time (RMST)
-# with maxium follow-up time set to `horizon`.
+# with maximum follow-up time set to `horizon`.
 n <- 2000
 p <- 5
 X <- matrix(runif(n * p), n, p)
@@ -64,6 +64,12 @@ average_treatment_effect(cs.forest)
 
 # Compute the best linear projection on the first covariate.
 best_linear_projection(cs.forest, X[, 1])
+
+# See if the forest succeeded in capturing heterogeneity by plotting
+# the TOC and calculating a 95\% CI for the AUTOC.
+rate <- rank_average_treatment_effect(cs.forest, cs.pred$predictions)
+plot(rate)
+paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
 
 # Train a causal survival forest targeting an absolute risk difference
 # at the median timepoint `horizon`.
