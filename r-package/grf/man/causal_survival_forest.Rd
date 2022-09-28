@@ -186,10 +186,11 @@ best_linear_projection(cs.forest, X[, 1])
 # See if a causal survival forest succeeded in capturing heterogeneity by plotting
 # the TOC and calculating a 95\% CI for the AUTOC.
 train <- sample(1:n, n / 2)
+eval <- -train
 train.forest <- causal_survival_forest(X[train, ], Y[train], W[train], D[train], horizon = horizon)
-eval.forest <- causal_survival_forest(X[-train, ], Y[-train], W[-train], D[-train], horizon = horizon)
+eval.forest <- causal_survival_forest(X[eval, ], Y[eval], W[eval], D[eval], horizon = horizon)
 rate <- rank_average_treatment_effect(eval.forest,
-                                      predict(train.forest, X[-train, ])$predictions)
+                                      predict(train.forest, X[eval, ])$predictions)
 plot(rate)
 paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
 
