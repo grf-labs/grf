@@ -126,9 +126,13 @@
 #' # Compute the best linear projection on the first covariate.
 #' best_linear_projection(cs.forest, X[, 1])
 #'
-#' # See if the forest succeeded in capturing heterogeneity by plotting
+#' # See if a causal survival forest succeeded in capturing heterogeneity by plotting
 #' # the TOC and calculating a 95% CI for the AUTOC.
-#' rate <- rank_average_treatment_effect(cs.forest, cs.pred$predictions)
+#' train <- sample(1:n, n / 2)
+#' train.forest <- causal_survival_forest(X[train, ], Y[train], W[train], D[train], horizon = horizon)
+#' eval.forest <- causal_survival_forest(X[-train, ], Y[-train], W[-train], D[-train], horizon = horizon)
+#' rate <- rank_average_treatment_effect(eval.forest,
+#'                                       predict(train.forest, X[-train, ])$predictions)
 #' plot(rate)
 #' paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
 #'
@@ -407,9 +411,13 @@ causal_survival_forest <- function(X, Y, W, D,
 #' # Compute the best linear projection on the first covariate.
 #' best_linear_projection(cs.forest, X[, 1])
 #'
-#' # See if the forest succeeded in capturing heterogeneity by plotting
+#' # See if a causal survival forest succeeded in capturing heterogeneity by plotting
 #' # the TOC and calculating a 95% CI for the AUTOC.
-#' rate <- rank_average_treatment_effect(cs.forest, cs.pred$predictions)
+#' train <- sample(1:n, n / 2)
+#' train.forest <- causal_survival_forest(X[train, ], Y[train], W[train], D[train], horizon = horizon)
+#' eval.forest <- causal_survival_forest(X[-train, ], Y[-train], W[-train], D[-train], horizon = horizon)
+#' rate <- rank_average_treatment_effect(eval.forest,
+#'                                       predict(train.forest, X[-train, ])$predictions)
 #' plot(rate)
 #' paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
 #'
