@@ -174,7 +174,6 @@ rank_average_treatment_effect <- function(forest,
   }
 
   # For all supported forest types, DR.scores is a subset-length vector
-  # TODO future support for multi_arm_causal_forest could potentially restrict to a single (outcome, contrast).
   DR.scores <- get_scores(forest, subset = subset, debiasing.weights = debiasing.weights,
                           compliance.score = compliance.score, num.trees.for.weights = num.trees.for.weights)
 
