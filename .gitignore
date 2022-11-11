@@ -1,2 +1,5 @@
 *.DS_Store
 .Rproj.user
+
+# vscode files
+.vscode/
