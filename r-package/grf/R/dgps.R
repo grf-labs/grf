@@ -119,7 +119,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
     m <- 2 * X[, 1] - 1 + e * tau
     V <- 1
   } else if (dgp == "ai1") {
-    X <- matrix(rnorm(n, p), n, p)
+    X <- matrix(rnorm(n * p), n, p)
     nu_x <- 0.5 * X[, 1] + X[, 2]
     tau <- 0.25 * X[, 1]
     e <- rep(0.5, n)
@@ -127,7 +127,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
     m <- nu_x + e * tau
     V <- 0.1^2
   } else if (dgp == "ai2") {
-    X <- matrix(rnorm(n, p), n, p)
+    X <- matrix(rnorm(n * p), n, p)
     nu_x <- 0.5 * X[, 1] + 0.5 * X[, 2] + X[, 3] + X[, 4] + X[, 5] + X[, 6]
     tau <- 0.5 * ((X[, 1] > 0) * X[, 1] + (X[, 2] > 0) * X[, 2])
     e <- rep(0.5, n)
