@@ -342,7 +342,6 @@ rank_average_treatment_effect.fit <- function(DR.scores,
     stop("`q` should correspond to a grid of fractions on the interval (0, 1].")
   }
 
-
   # *** Compute the TOC and RATE ***
 
   if (target == "AUTOC") {
