@@ -97,6 +97,8 @@
 #'  \item TOC: a data.frame with the Targeting Operator Characteristic curve
 #'    estimated on grid q, along with bootstrapped SEs.
 #' }
+#' @seealso \code{\link{rank_average_treatment_effect.fit}} for computing a RATE with user-supplied
+#'  doubly robust scores.
 #' @export
 rank_average_treatment_effect <- function(forest,
                                           priorities,
@@ -206,6 +208,169 @@ rank_average_treatment_effect <- function(forest,
   point.estimate[abs(point.estimate) < 1e-15] <- 0
   std.errors[abs(std.errors) < 1e-15] <- 0
   # ensure invariance: always >= 0
+  if (R < 2) {
+    std.errors[] <- 0
+  }
+  priority <- c(colnames(priorities), paste(colnames(priorities), collapse = " - "))[1:length(point.estimate[1, ])]
+
+  output <- list()
+  class(output) <- "rank_average_treatment_effect"
+  output[["estimate"]] <- point.estimate[1, ]
+  output[["std.err"]] <- std.errors[1, ]
+  output[["target"]] <- paste(priority, "|", target)
+  output[["TOC"]] <- data.frame(estimate = c(point.estimate[-1, ]),
+                                std.err = c(std.errors[-1, ]),
+                                q = q,
+                                priority = priority[rep(1:length(priority), each = length(q))],
+                                stringsAsFactors = FALSE)
+
+  output
+}
+
+#' Fitter function for Rank-Weighted Average Treatment Effect (RATE).
+#'
+#' Provides an optional interface to \code{\link{rank_average_treatment_effect}} which allows for user-supplied
+#' doubly robust scores for the evaluation set data.
+#'
+#' @param DR.scores The evaluation set doubly robust scores.
+#' @param priorities Treatment prioritization scores S(Xi) for the units in the evaluation set.
+#'  Two prioritization rules can be compared by supplying a two-column array or named list of priorities.
+#'  WARNING: for valid statistical performance, these scores should be constructed independently from the evaluation
+#'  dataset used to construct DR.scores.
+#' @param target The type of RATE estimate, options are "AUTOC" (exhibits greater power when only a small subset
+#'  of the population experience nontrivial heterogeneous treatment effects) or "QINI" (exhibits greater power
+#'  when the entire population experience diffuse or substantial heterogeneous treatment effects).
+#'  Default is "AUTOC".
+#' @param q The grid q to compute the TOC curve on. Default is
+#'  (10\%, 20\%, ..., 100\%).
+#' @param R Number of bootstrap replicates for SEs. Default is 200.
+#' @param sample.weights Weights given to an observation in estimation.
+#'  If NULL, each observation is given the same weight. Default is NULL.
+#' @param clusters Vector of integers or factors specifying which cluster each observation corresponds to.
+#'  Default is NULL (ignored).
+#'
+#' @examples
+#' \donttest{
+#' # Train a causal forest to estimate a CATE based priority ranking
+#' n <- 1500
+#' p <- 5
+#' X <- matrix(rnorm(n * p), n, p)
+#' W <- rbinom(n, 1, 0.5)
+#' event.prob <- 1 / (1 + exp(2*(pmax(2*X[, 1], 0) * W - X[, 2])))
+#' Y <- rbinom(n, 1, event.prob)
+#' train <- sample(1:n, n / 2)
+#' cf.priority <- causal_forest(X[train, ], Y[train], W[train])
+#'
+#' # Compute a prioritization based on estimated treatment effects.
+#' # -1: in this example the treatment should reduce the risk of an event occuring.
+#' priority.cate <- -1 * predict(cf.priority, X[-train, ])$predictions
+#'
+#' # Train a separate CATE estimator for the evaluation set.
+#' Y.forest.eval <- regression_forest(X[-train, ], Y[-train], num.trees = 500)
+#' Y.hat.eval <- predict(Y.forest.eval)$predictions
+#' W.forest.eval <- regression_forest(X[-train, ], W[-train], num.trees = 500)
+#' W.hat.eval <- predict(W.forest.eval)$predictions
+#' cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train],
+#'                          Y.hat = Y.hat.eval,
+#'                          W.hat = W.hat.eval)
+#'
+#' # Compute doubly robust scores corresponding to a binary treatment (AIPW).
+#' tau.hat.eval <- predict(cf.eval)$predictions
+#' debiasing.weights <- (W[-train] - W.hat.eval) / (W.hat.eval * (1 - W.hat.eval))
+#' Y.residual <- Y[-train] - (Y.hat.eval + tau.hat.eval * (W[-train] - W.hat.eval))
+#' DR.scores <- tau.hat.eval + debiasing.weights * Y.residual
+#'
+#' # Could equivalently be obtained by
+#' # DR.scores <- get_scores(cf.eval)
+#'
+#' # Estimate AUTOC.
+#' rate <- rank_average_treatment_effect.fit(DR.scores, priority.cate)
+#'
+#' # Same as
+#' rank_average_treatment_effect(cf.eval, priority.cate)
+#' }
+#'
+#' @return A list of class `rank_average_treatment_effect` with elements \itemize{
+#'  \item estimate: the RATE estimate.
+#'  \item std.err: bootstrapped standard error of RATE.
+#'  \item target: the type of estimate.
+#'  \item TOC: a data.frame with the Targeting Operator Characteristic curve
+#'    estimated on grid q, along with bootstrapped SEs.
+#' }
+#' @export
+rank_average_treatment_effect.fit <- function(DR.scores,
+                                              priorities,
+                                              target = c("AUTOC", "QINI"),
+                                              q = seq(0.1, 1, by = 0.1),
+                                              R = 200,
+                                              sample.weights = NULL,
+                                              clusters = NULL) {
+  target <- match.arg(target)
+  if (anyNA(DR.scores)) {
+    stop("`DR.scores` contains missing values.")
+  }
+  priorities <- as.data.frame(priorities, fix.empty.names = FALSE)
+  if (ncol(priorities) > 2) {
+    stop("`priorities` should be either a vector or a list/array with two rules.")
+  }
+  empty.names <- colnames(priorities) == ""
+  colnames(priorities)[empty.names] <- c("priority1", "priority2")[1:ncol(priorities)][empty.names]
+  if (anyNA(priorities)) {
+    stop("`priorities` contains missing values.")
+  }
+  priorities[,] <- lapply(priorities, function(x) as.integer(as.factor(x)))
+  if (length(DR.scores) != nrow(priorities)) {
+    stop("`DR.scores` and `priorities` are not of same length.")
+  }
+  if (is.null(clusters)) {
+    clusters <- 1:length(DR.scores)
+  } else if (length(clusters) != length(DR.scores) || anyNA(clusters)) {
+    stop("`clusters` has incorrect length.")
+  } else {
+    clusters <- as.numeric(as.factor(clusters)) - 1
+  }
+  if (is.null(sample.weights)) {
+    sample.weights <- rep(1, length(DR.scores))
+  } else if (length(sample.weights) != length(DR.scores) || anyNA(sample.weights)) {
+    stop("`sample.weights` has incorrect length.")
+  } else if (any(sample.weights <= 0)) {
+    stop("`sample.weights` should be > 0.")
+  } else {
+    sample.weights <- sample.weights / sum(sample.weights)
+  }
+  if (is.unsorted(q, strictly = TRUE) || min(q) <= 0 || max(q) != 1) {
+    stop("`q` should correspond to a grid of fractions on the interval (0, 1].")
+  }
+
+
+  # *** Compute the TOC and RATE ***
+
+  if (target == "AUTOC") {
+    wtd.mean <- function(x, w) sum(x * w) / sum(w)
+  } else if (target == "QINI") {
+    wtd.mean <- function(x, w) sum(cumsum(w) / sum(w) * w * x) / sum(w)
+  }
+
+  boot.output <- boot_grf(
+    data = data.frame(DR.scores * sample.weights, sample.weights, priorities),
+    # In case of two priorities do a paired bootstrap estimating both prios on same sample.
+    statistic = function(data, indices, q, wtd.mean)
+     lapply(c(4, 3)[1:ncol(priorities)], function(j) estimate_rate(data[, -j], indices, q, wtd.mean)),
+    R = R,
+    clusters = clusters,
+    half.sample = TRUE,
+    q = q,
+    wtd.mean = wtd.mean
+  )
+  dim(boot.output[["t"]]) <- c(R, dim(boot.output[["t0"]]))
+  point.estimate <- boot.output[["t0"]]
+  std.errors <- apply(boot.output[["t"]], c(2, 3), sd)
+  if (ncol(priorities) > 1) {
+    point.estimate <- cbind(point.estimate, point.estimate[, 1] - point.estimate[, 2])
+    std.errors <- cbind(std.errors, apply(boot.output[["t"]][,, 1] - boot.output[["t"]][,, 2], 2, sd))
+  }
+  point.estimate[abs(point.estimate) < 1e-15] <- 0
+  std.errors[abs(std.errors) < 1e-15] <- 0
   if (R < 2) {
     std.errors[] <- 0
   }
