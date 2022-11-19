@@ -313,15 +313,15 @@ rank_average_treatment_effect.fit <- function(DR.scores,
   if (ncol(priorities) > 2) {
     stop("`priorities` should be either a vector or a list/array with two rules.")
   }
-  empty.names <- colnames(priorities) == ""
-  colnames(priorities)[empty.names] <- c("priority1", "priority2")[1:ncol(priorities)][empty.names]
   if (anyNA(priorities)) {
     stop("`priorities` contains missing values.")
   }
-  priorities[,] <- lapply(priorities, function(x) as.integer(as.factor(x)))
-  if (length(DR.scores) != nrow(priorities)) {
+  if (nrow(priorities) != length(DR.scores)) {
     stop("`DR.scores` and `priorities` are not of same length.")
   }
+  empty.names <- colnames(priorities) == ""
+  colnames(priorities)[empty.names] <- c("priority1", "priority2")[1:ncol(priorities)][empty.names]
+  priorities[,] <- lapply(priorities, function(x) as.integer(as.factor(x)))
   if (is.null(clusters)) {
     clusters <- 1:length(DR.scores)
   } else if (length(clusters) != length(DR.scores) || anyNA(clusters)) {
