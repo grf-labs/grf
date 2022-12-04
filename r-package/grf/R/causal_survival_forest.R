@@ -139,10 +139,6 @@
 #'                                       predict(train.forest, X[eval, ])$predictions)
 #' plot(rate)
 #' paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
-#'
-#' # Train a causal survival forest targeting an absolute risk difference
-#' # at the median timepoint `horizon`.
-#' cs.forest.prob <- causal_survival_forest(X, Y, W, D, target = "survival.probability", horizon = 0.5)
 #' }
 #'
 #' @export
@@ -428,10 +424,6 @@ causal_survival_forest <- function(X, Y, W, D,
 #'                                       predict(train.forest, X[eval, ])$predictions)
 #' plot(rate)
 #' paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
-#'
-#' # Train a causal survival forest targeting an absolute risk difference
-#' # at the median timepoint `horizon`.
-#' cs.forest.prob <- causal_survival_forest(X, Y, W, D, target = "survival.probability", horizon = 0.5)
 #' }
 #'
 #' @method predict causal_survival_forest
