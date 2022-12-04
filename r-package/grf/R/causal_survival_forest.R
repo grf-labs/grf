@@ -107,9 +107,12 @@
 #' horizon <- 1
 #' failure.time <- pmin(rexp(n) * X[, 1] + W, horizon)
 #' censor.time <- 2 * runif(n)
-#' # Discretizing continuous events decreases runtime.
-#' Y <- round(pmin(failure.time, censor.time), 2)
+#' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
+#' # Constrain the event grid by discretizing continuous events.
+#' Y <- round(Y, 2)
+#' # Or by passing, for example:
+#' # failure.times <- seq(min(Y), max(Y), length.out = 150)
 #' cs.forest <- causal_survival_forest(X, Y, W, D, horizon = horizon)
 #'
 #' # Predict using the forest.
@@ -393,9 +396,12 @@ causal_survival_forest <- function(X, Y, W, D,
 #' horizon <- 1
 #' failure.time <- pmin(rexp(n) * X[, 1] + W, horizon)
 #' censor.time <- 2 * runif(n)
-#' # Discretizing continuous events decreases runtime.
-#' Y <- round(pmin(failure.time, censor.time), 2)
+#' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
+#' # Constrain the event grid by discretizing continuous events.
+#' Y <- round(Y, 2)
+#' # Or by passing, for example:
+#' # failure.times <- seq(min(Y), max(Y), length.out = 150)
 #' cs.forest <- causal_survival_forest(X, Y, W, D, horizon = horizon)
 #'
 #' # Predict using the forest.

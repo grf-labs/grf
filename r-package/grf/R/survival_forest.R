@@ -72,6 +72,10 @@
 #' censor.time <- 2 * rexp(n)
 #' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
+#' # Constrain the event grid by discretizing continuous events.
+#' Y <- round(Y, 2)
+#' # Or by passing, for example:
+#' # failure.times <- seq(min(Y[D==1]), max(Y[D==1]), length.out = 150)
 #' s.forest <- survival_forest(X, Y, D)
 #'
 #' # Predict using the forest.
@@ -91,19 +95,6 @@
 #'
 #' # Predict on out-of-bag training samples.
 #' s.pred <- predict(s.forest)
-#'
-#' # Plot the survival curve for the first five individuals.
-#' matplot(s.pred$failure.times, t(s.pred$predictions[1:5, ]),
-#'         xlab = "failure time", ylab = "survival function (OOB)",
-#'         type = "l", lty = 1)
-#'
-#' # Train the forest on a less granular grid.
-#' failure.summary <- summary(Y[D == 1])
-#' events <- seq(failure.summary["Min."], failure.summary["Max."], by = 0.1)
-#' s.forest.grid <- survival_forest(X, Y, D, failure.times = events)
-#' s.pred.grid <- predict(s.forest.grid)
-#' matpoints(s.pred.grid$failure.times, t(s.pred.grid$predictions[1:5, ]),
-#'           type = "l", lty = 2)
 #'
 #' # Compute OOB concordance based on the mortality score in Ishwaran et al. (2008).
 #' s.pred.nelson.aalen <- predict(s.forest, prediction.type = "Nelson-Aalen")
@@ -237,6 +228,10 @@ survival_forest <- function(X, Y, D,
 #' censor.time <- 2 * rexp(n)
 #' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
+#' # Constrain the event grid by discretizing continuous events.
+#' Y <- round(Y, 2)
+#' # Or by passing, for example:
+#' # failure.times <- seq(min(Y[D==1]), max(Y[D==1]), length.out = 150)
 #' s.forest <- survival_forest(X, Y, D)
 #'
 #' # Predict using the forest.
@@ -256,19 +251,6 @@ survival_forest <- function(X, Y, D,
 #'
 #' # Predict on out-of-bag training samples.
 #' s.pred <- predict(s.forest)
-#'
-#' # Plot the survival curve for the first five individuals.
-#' matplot(s.pred$failure.times, t(s.pred$predictions[1:5, ]),
-#'         xlab = "failure time", ylab = "survival function (OOB)",
-#'         type = "l", lty = 1)
-#'
-#' # Train the forest on a less granular grid.
-#' failure.summary <- summary(Y[D == 1])
-#' events <- seq(failure.summary["Min."], failure.summary["Max."], by = 0.1)
-#' s.forest.grid <- survival_forest(X, Y, D, failure.times = events)
-#' s.pred.grid <- predict(s.forest.grid)
-#' matpoints(s.pred.grid$failure.times, t(s.pred.grid$predictions[1:5, ]),
-#'           type = "l", lty = 2)
 #'
 #' # Compute OOB concordance based on the mortality score in Ishwaran et al. (2008).
 #' s.pred.nelson.aalen <- predict(s.forest, prediction.type = "Nelson-Aalen")
