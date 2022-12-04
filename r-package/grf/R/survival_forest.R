@@ -72,11 +72,11 @@
 #' censor.time <- 2 * rexp(n)
 #' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
-#' # Constrain the event grid by discretizing continuous events.
-#' Y <- round(Y, 2)
-#' # Or by passing, for example:
-#' # failure.times <- seq(min(Y[D==1]), max(Y[D==1]), length.out = 150)
-#' s.forest <- survival_forest(X, Y, D)
+#' # Save computation time by constraining the event grid by discretizing (rounding) continuous events.
+#' s.forest <- survival_forest(X, round(Y, 2), D)
+#' # Or do so more flexibly by defining your own time grid using the failure.times argument.
+#' # grid <- seq(min(Y[D==1]), max(Y[D==1]), length.out = 150)
+#' # s.forest <- survival_forest(X, Y, D, failure.times = grid)
 #'
 #' # Predict using the forest.
 #' X.test <- matrix(0, 3, p)
@@ -228,11 +228,11 @@ survival_forest <- function(X, Y, D,
 #' censor.time <- 2 * rexp(n)
 #' Y <- pmin(failure.time, censor.time)
 #' D <- as.integer(failure.time <= censor.time)
-#' # Constrain the event grid by discretizing continuous events.
-#' Y <- round(Y, 2)
-#' # Or by passing, for example:
-#' # failure.times <- seq(min(Y[D==1]), max(Y[D==1]), length.out = 150)
-#' s.forest <- survival_forest(X, Y, D)
+#' # Save computation time by constraining the event grid by discretizing (rounding) continuous events.
+#' s.forest <- survival_forest(X, round(Y, 2), D)
+#' # Or do so more flexibly by defining your own time grid using the failure.times argument.
+#' # grid <- seq(min(Y[D==1]), max(Y[D==1]), length.out = 150)
+#' # s.forest <- survival_forest(X, Y, D, failure.times = grid)
 #'
 #' # Predict using the forest.
 #' X.test <- matrix(0, 3, p)

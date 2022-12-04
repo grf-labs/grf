@@ -166,11 +166,11 @@ failure.time <- pmin(rexp(n) * X[, 1] + W, horizon)
 censor.time <- 2 * runif(n)
 Y <- pmin(failure.time, censor.time)
 D <- as.integer(failure.time <= censor.time)
-# Constrain the event grid by discretizing continuous events.
-Y <- round(Y, 2)
-# Or by passing, for example:
-# failure.times <- seq(min(Y), max(Y), length.out = 150)
-cs.forest <- causal_survival_forest(X, Y, W, D, horizon = horizon)
+# Save computation time by constraining the event grid by discretizing (rounding) continuous events.
+cs.forest <- causal_survival_forest(X, round(Y, 2), W, D, horizon = horizon)
+# Or do so more flexibly by defining your own time grid using the failure.times argument.
+# grid <- seq(min(Y), max(Y), length.out = 150)
+# cs.forest <- causal_survival_forest(X, Y, W, D, horizon = horizon, failure.times = grid)
 
 # Predict using the forest.
 X.test <- matrix(0.5, 10, p)
