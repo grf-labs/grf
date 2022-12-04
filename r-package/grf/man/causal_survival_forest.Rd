@@ -181,7 +181,7 @@ cs.pred <- predict(cs.forest, X.test)
 cs.pred <- predict(cs.forest)
 
 # Predict with confidence intervals; growing more trees is now recommended.
-c.pred <- predict(c.forest, X.test, estimate.variance = TRUE)
+c.pred <- predict(cs.forest, X.test, estimate.variance = TRUE)
 
 # Compute a doubly robust estimate of the average treatment effect.
 average_treatment_effect(cs.forest)
