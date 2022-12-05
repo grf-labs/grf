@@ -276,9 +276,9 @@ rank_average_treatment_effect <- function(forest,
 #'
 #' # Compute doubly robust scores corresponding to a binary treatment (AIPW).
 #' tau.hat.eval <- predict(cf.eval)$predictions
-#' debiasing.weights <- (W[-train] - W.hat.eval) / (W.hat.eval * (1 - W.hat.eval))
-#' Y.residual <- Y[-train] - (Y.hat.eval + tau.hat.eval * (W[-train] - W.hat.eval))
-#' DR.scores <- tau.hat.eval + debiasing.weights * Y.residual
+#' debiasing.weights.eval <- (W[-train] - W.hat.eval) / (W.hat.eval * (1 - W.hat.eval))
+#' Y.residual.eval <- Y[-train] - (Y.hat.eval + tau.hat.eval * (W[-train] - W.hat.eval))
+#' DR.scores <- tau.hat.eval + debiasing.weights.eval * Y.residual.eval
 #'
 #' # Could equivalently be obtained by
 #' # DR.scores <- get_scores(cf.eval)
