@@ -4,7 +4,7 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.2.1] - 2022-12-??
+## [2.2.1] - 2022-12-14
 
 ## Added
 - Add `rank_average_treatment_effect.fit`, an optional interface to RATE which allows for user-supplied doubly robust evaluation set scores. [#1242](https://github.com/grf-labs/grf/pull/1242)
