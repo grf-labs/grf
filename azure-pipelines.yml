@@ -10,7 +10,7 @@ trigger:
 jobs:
 - job: coreCPP
   pool:
-    vmImage: "ubuntu-20.04"
+    vmImage: "ubuntu-latest"
   strategy:
     matrix:
       clang:
