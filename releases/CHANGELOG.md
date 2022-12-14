@@ -4,6 +4,17 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2022-12-??
+
+## Added
+- Add `rank_average_treatment_effect.fit`, an optional interface to RATE which allows for user-supplied doubly robust evaluation set scores. [#1242](https://github.com/grf-labs/grf/pull/1242)
+
+## Fixed
+- Fix minor docstring example typo in `rank_average_treatment_effect`. [#1209](https://github.com/grf-labs/grf/pull/1209)
+- Move a missing values input check in `rank_average_treatment_effect`. [#1212](https://github.com/grf-labs/grf/pull/1212)
+- Allow factor variables in the covariate matrix `A` passed to `best_linear_projection`. [#1215](https://github.com/grf-labs/grf/pull/1215)
+- Fix the "ai1" and "ai2" example DGPs included in `dgps.R`. [#1241](https://github.com/grf-labs/grf/pull/1241)
+
 ## [2.2.0] - 2022-08-06
 
 ## Added
