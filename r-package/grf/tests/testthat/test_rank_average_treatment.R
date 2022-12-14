@@ -546,3 +546,28 @@ test_that("rank_average_treatment_effect has not changed", {
                                    0.755534565676904, 0.714814376377961, 0.573841753475629, 0.394040294086509,
                                    0.188648018385444, 0))
 })
+
+test_that("rank_average_treatment_effect.fit works as expected", {
+    n <- 500
+    p <- 5
+    X <- matrix(rnorm(n * p), n, p)
+    W <- rbinom(n, 1, 0.5)
+    tau <- pmax(X[, 1], 0)
+    Y <- tau * W + pmax(X[, 3], 0) + runif(n)
+    wts <- sample(1:2, n, TRUE)
+    clust <- sample(1:50, n, TRUE)
+    cf <- causal_forest(X, Y, W, W.hat = 0.5, num.trees = 250, sample.weights = wts, clusters = clust)
+    rand <- runif(n)
+
+    set.seed(42)
+    rate <- rank_average_treatment_effect(cf, tau)
+    set.seed(42)
+    rate.fit <- rank_average_treatment_effect.fit(get_scores(cf), tau, sample.weights = wts, clusters = clust)
+    expect_equal(rate, rate.fit)
+
+    set.seed(42)
+    rate <- rank_average_treatment_effect(cf, list(tau, rand))
+    set.seed(42)
+    rate.fit <- rank_average_treatment_effect.fit(get_scores(cf), list(tau, rand), sample.weights = wts, clusters = clust)
+    expect_equal(rate, rate.fit)
+})

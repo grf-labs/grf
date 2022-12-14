@@ -127,3 +127,7 @@ Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager.
  "Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects."
  arXiv preprint arXiv:2111.07966, 2021.
 }
+\seealso{
+\code{\link{rank_average_treatment_effect.fit}} for computing a RATE with user-supplied
+ doubly robust scores.
+}
