@@ -10,7 +10,7 @@ trigger:
 jobs:
 - job: coreCPP
   pool:
-    vmImage: "ubuntu-latest"
+    vmImage: "ubuntu-20.04" # bundled valgrind in ubuntu-latest breaks with clang (update to latest when available).
   strategy:
     matrix:
       clang:
@@ -102,6 +102,7 @@ jobs:
   # `GITHUB_PAT` is a GitHub access token stored on Azure Pipelines.
   - script: |
       set -e
+      sudo apt-get install -qq pandoc
       # Lock in a previous version of `pkgdown` and its dependencies.
       sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'rstudioapi', 'whisker', 'xml2', 'yaml'))"
       sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
