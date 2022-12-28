@@ -29,38 +29,95 @@ This vignette contains a [brief overview](#a-grf-overview) of the GRF algorithm 
 
 * [policytree](https://github.com/grf-labs/policytree) to find a tree-based policy using the estimated CATEs.
 
+TABLE OF CONTENT?
+
 ## A grf overview
+This section gives a lighting tour of some of the ideas behind GRF. It starts with describing how the predictive capabilities of the modern machine learning toolbox can be leveraged to non-parametrically control for counfounding when estimating average treatment effects, then covers how Breiman's (2001) random forest can be re-purposed as an adaptive nearest neighbor finder to detect treatment effect heterogeneity.
 
-### Why non-parametric estimation?
-Consider the problem of estimating the average treatment effect given a binary treatment $W=\{0, 1\}$:
+### Machine learning for causal inference
+Imagine we observe outcomes $Y_i$ along with a binary treatment indicator $W=\{0, 1\}$ and are interested in measuring the average causal effect of the intervention on the outcome. If we are not in a randomized control trial setting, but have collected a set of covariates $X_i$ which we believe could plausible account for confounding, then we could run a regression of the type (Imbens & Rubin, 2005)
 
-$$\tau = E[Y_i(1) - Y_i(0)],$$
-where where $Y(1)$ and $Y(0)$ are potential outcomes corresponding to the two treatment states. A traditional text book approach to causal inference under selection on observables is to estimate a linear regression of the type
+$$
+Y_i \sim \tau W_i + \beta X_i,
+$$
+and interpret the estimated $\hat \tau$ as an estimate of the average treatment effect $\tau = E[Y_i(1) - Y_i(0)]$, where $Y_i(1), Y_i(0)$ are potential outcomes corresponding to the two treatment states. This approach is justified if:
 
-$$Y_i = a + \tau W_i + \beta X_i + \varepsilon_i,$$
+1) $W_i$ is unconfounded given $X_i$ (i.e., treatment is as good as random given covariates).
+2) The confounders $X_i$ have a linear effect on $Y_i$.
+3) The treatment effect $\tau$ is constant.
 
-where $Y_i$ is the outcome for unit $i$, $W_i$ a binary treatment effect indicator and $X_i$ a vector of controls. Assuming this equation is correctly specificed, $\tau$ is a consistent estimate of the average treatment effect $E[Y(1) - Y(0)]$ where $Y(1), Y(0)$ are the potential outcomes corresponding to the two treatment states.
+Assumption 1) is an "identifying" assumption we have to live with, however 2) and 3) are modelling assumptions that we can question. Let's start with assumption 2): this is a strong parametric modelling assumption that requires the counfounders to have a linear effect on the outcome, and that we should be able to relax by relying on semi-parametric statistics.
 
-There are two limitations to this approach:
+*Relaxing assumption 1)*. We can instead posit the partially linear model:
 
-1. What if the the equation is mis-specified? I.e., controlling for $X_i$ is not sufficient to account for confounding.
-2. What if we are interested in subgroups? I.e., are there certain parts of the population which responds very positively, or negatively to treatment?
+$$
+Y_i = \tau W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
+$$
+where we assume a unit's baseline outcome are given by some unknown (possibly complex) function $f$, and that a treatment assignment shifts the outcome by a constant offset $\tau$. But how do we get around estimating $\tau$ when we do not know $f(X_i)$? Robinson (1988) shows that, if we define the following two intermediary objects:
 
-Point 1) could be remedied by for example augmenting the covariate vector $X_i$ with suitable squared/interactions terms, but still hinges on this being the correct functional form. Point 2) could be remedied by running the above regression for the subset we were interested in, however this requires pre-specifying what hypotheses and which subgroups we want to explore. Non-parametric estimation is a way to be agnostic to 1) and 2) by being flexible to the functional form needed, by adaptively estimating the subgroups with different treatment effects $\tau$. In particular, `causal_forest` estimates
+$$
+e(x) = E[W_i | X_i=x],
+$$
+(the propensity score) and
 
-$$Y_i = a(x) + \tau(x)W_i + \varepsilon_i,$$
+$$
+m(x) = E[Y_i | X_i = x] = f(x) + \tau e(x)
+$$
+(the conditional mean of $Y$), then we can rewrite the above equation on "centered" form:
 
-where $\tau(X)$ is a non-parametric estimate of the conditional average treatment effect $E[Y(1) - Y(0) | X_i = x]$, using "modern" machine learning machinery (at the cost of higher estimation uncertainty). It does so by levering insight from semi-parametric statistics and statistical learning theory to yield algorithms that although are flexible, still retains desirable statistics properties, such as consistency and unbiasedness.The next paragraphs gives a quick overview of the statistical background, and the [application](#a-grf-application-school-program-evaluatio) section practical usage examples.
+$$
+Y_i - m(x) = \tau (W_i - e(x)) + \varepsilon_i.
+$$
+This formulation has great practical appeal, as it means $\tau$ can be estimated by residual-on-residual regression: plug in estimates of $m(x)$ and $e(x)$ then regress the centered outcomes on the centered treatment indicator. Robinson (1988) show that this approach yields root-n consistent estimates of $\tau$, *even if* estimates of $m(x)$ and $e(x)$ converge at a slower rate ("4-th root" in particular). This property is often referred to as *orhogonality* and is a desireble property which essentially tells you that given noisy "nuisance" estimates ($m(x)$ and $e(x)$) you can still recover "good" estimates of your target parameter ($\tau$).
 
-### The GRF algorithm
-The GRF algorithm (Athey et al. 2019) re-purposes a machine learning algorithm, random forests (Breiman, 2001) that is very good at *prediction*, to instead use it for providing *estimates* of certain statistical quantities, $\theta$, conditional on covariates $X$. The particular statistical quantity $\theta$ we are interested in could be an average treatment effect, conditional on $X$, or a quantile, conditional on $X$. GRF takes as input the "recipe" for how to estimate $\theta$ without covariates, in the form of an estimating/scoring equation $\psi$, and outputs unit $i$ specific weights for a solution to $\psi$ at $X_i = x$, in the context of treatment effect estimation the estimating equation would consist of outcomes $Y_i$ and treatment assignments $W_i$.
+But how are you supposed to estimate $m(x)$ and $e(x)$, don't you still have to posit a parametric model (like for example a logistic regress for the propensity score)? This is where the modern machine learning toolkit comes in handy, by recognizing that for $m(x)$ and $e(x)$ we are only asking for good *predictions* of the outcome conditional on $X_i$, and the treatment assignment conditional on $X_i$. This is the type of problem modern machine learning methods like boosting, random forests, etc., excels at. Directly plugging in estimates of $m(x)$ and $e(x)$ into the residual-on-residual regression will typically lead to bias as modern ML methods regularize to trade of bias and variance, however Chernozhukov et al. shows that if you form these estimates in a "cross-fit" manner, meaning the prediction of observation i's outcome and treatment assignment is obtained without using unit i for estimation, then (given some regularity assumptions) you can still recover root-n consistent estimates of $\tau$.
+
+So, to recap so far: we have a way to adopt the modern ML toolkit to *non-parametrically control for counfounding* when estimating an average treatment effect, and still retain desirable statistical properties such as unbiasdness and consistency.
+
+***Non-constant treatment effects***. What if we wish to relax assumption 3)? We could a-priory specify certain subgroups and run separate regressions for each subgroup and obtain different estimates of $\tau$. Ideally How can we take a more data-adaptive approach? We can continue with Robinson's partially linear model from above, and instead just posit:
+
+$$
+Y_i = \color{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
+$$
+where $\color{red}{\tau(X)}$ is the conditional average treatment effect $E[Y(1) - Y(0) | X_i = x]$. How do we estimate this? If we imagine we had access to some neighborhood $\mathcal{N}(x)$ where $\tau$ was constant, we could proceed exactly as before, by doing a residual-on-residual regression on the samples belongig to \mathcal{N}(x), i.e.:
+
+$$
+\tau(x) := lm\Biggl( Y_i - m^{(-i)}(X_i) \sim W_i - e^{(-i)}(X_i), \text{weights} = 1\{X_i \in \mathcal{N}(x) \}\Biggr),
+$$
+(the superscript $^i$ denotes cross-fitting). This is conceptually what *Causal Forest* does, it estimates the treatment effect $\tau(x)$ for a target sample $X_i = x$ by running a weighted residual-on-residual regression on samples that have similar treatment effects. These *weights* play a crucial role, so how does `grf` find them? The next section quickly recaps Breiman's random forest for regression, then explains how it can be extended to an adaptive neighborhood finder.
+
+### Random forests as adaptive neighborhood finder
+
+Breiman's random forest for predicting the conditonal mean $\mu(x) = E[Y_i | X_i = x]$ can be briefly summarized in two steps:
+
+1) Building phase: Build $B$ trees which greedily places covariate splits that maximizes $n_L n_R (\bar y_L - \bar y_R)^2$.
+2) Prediction phase: Aggregate each tree's prediction to form final point estimate by averaging the outcomes $Y_i$ that fall into the same terminal leaf $L_b(X_i)$ as the targets sample $x$: $\hat \mu(x) = \frac{1}{B} \sum_{b=1}^{B} \sum_{i=1}^{n} \frac{Y_i 1\{Xi \in L_b(x)\}} {|L_b(x)|}$
+
+
+```{r, echo=FALSE}
+set.seed(2)
+n = 20; p = 1
+X = matrix(rnorm(n * p), n, p)
+Y = X[, 1] + rnorm(n)
+rf = regression_forest(X, Y, num.trees = 1, ci.group.size = 1, honesty = FALSE, sample.fraction = 1, num.threads = 1)
+t = get_tree(rf, 1)
+sval = t$nodes[[1]]$split_value
+
+plot(c(X, 1.5), c(Y, 2),
+     ylab = "Y",
+     xlab = "X_j",
+     col = c(as.integer(X[,1] <= sval) + 1, 4),
+     pch = c(rep(1, n), 3))
+abline(v = sval)
+```
+
+For a single tree and split, phase 1) Figure 1.
+
 
 A traditional random forest predicts the conditional mean $E[Y_i | X_i = x]$ by building trees where it recursively splits the covariate space into terminal nodes where the outcomes $Y$ are similar, then averaging the mean outcomes across terminal nodes in trees to produce a final point estimate for $E[Y_i | X_i = x]$. An equivalent description is that the random forest predictions for $X_i=x$ is a weighted average of $Y$, where the weight given to unit $j$ is the fraction of times across all trees in the forest unit $j$ lands in the same terminal node as unit $i$. GRF "generalizes" this algorithm (using the forest subsampling technique in Wager & Athey (2018)) to instead build trees where the terminal nodes yields similar parameter estimates $\theta$, and where the final forest weights essentially expresses how "similar" a target sample $X_i = x$ is to the training samples, and use those weights to produce the final estimate of $\theta(x)$. In the context of heterogeneous treatment effect estimation the forest essentially searches for terminal nodes where the treatment effect estimates are similar.
 
-### Statistical ingredients: orthogonalization and double robustness
-The process of recursively splitting the covariate space into leaf nodes where the estimated treatment effect estimates are similar is quite reasonable in a randomized control trial (RCT), since by definition the potential outcomes are independent of the covariates: $Y(1), Y(0) \perp W | X$ (*unconfoundedness*). In observational data, however, it is more problematic: this procedure might not lead to terminal nodes where conditional on covariates, treatment assignment is as good as random.
-
-So, before splittig we essentially need to take the treatment propensity into account. It turns out a general recipe, the *R-learner* (Nie & Wager, 2021) takes care of this by centering the outcomes $Y$ and treatment $W$ by estimates of the conditional mean $E[Y_i | X_i = x]$ and treatment propensities $E[W_i | X_i = x]$, then proceeding as usual with these "transformed" outcomes $\tilde Y_i$ and treatment indicator $\tilde W_i$. For forest based recursive partitioning stripping away the "baseline" effect $E[Y_i | X_i = x]$ yields another upshot in that it will more likely enable the forest to place splits that matter for the treatment effects, than having to worry about the baseline effects. This two-step approach (first estimate *nuisance parameters*, $E[Y_i | X_i = x]$ and $E[W_i | X_i = x]$, then target parameter $\tau(X)$) carries with it conveniences, since it breaks the estimation task into separate components: first fit a model that does well predicting the condidtional mean, then fit one that does well fitting the propensity score. By default GRF uses random forests for these nuisance components, but other machine learning methods can be used.
+### Final statistical ingredients: Doubly robust estimates
+note on efficiency when doing nonparam estimation, trades of flexibility for more uncertainty
 
 This *centering/orthogonalization* approach has additional benefits that comes in handy when we wish to use flexible machine learning methods for estimation: the estimation errors in these nuisance estimates cancel out in such a way that the final target parameter can attain a root-n rate of convergence even though the other estimators converge at slower rates. This is particularly important when using machine learning methods for estimation, since they typically converge at slower rates than parametric models. The general term for this (FIX sentence statement) is "orthogonal estimating equations" and "double robustness" and goes back to Robinson (1988), Robins et al. (1994), and van der Laan & Rose (2011), where Chernozhukov et al. (2018) show incorporating sample-splitting with these ingredients enables use of purely predictive-tuned methods.
 
