@@ -137,22 +137,24 @@ That is, *Causal Forest* is running a "forest"-localized version of Robinson's r
 
 The procedure we outlined above can be generalized (thus the name *generalized* random forest) to estimate other quantities beside heterogeneous treatment effects. The key ingredient is phase 1) above, by recognizing that Robinson's regression equivalently be expressed on "estimating equation" form given by a particular scoring function $\psi_{\tau}(\cdot)$. `grf` (Athey, Tibshirani & Wager, 2019) generalizes phase 1) to target heterogeneity in some arbitrary parameter given as the solution to this estimating equation. That is, `grf` essentially takes as input a formulation of how to estimate a certain parameter[^3] $\theta$ *without* the presence of covariates (in the form of the scoring function $\psi$) then finds forest weights $\alpha(x)$ that yields *covariate*-specific estimates $\theta(x)$.
 
-### Final statistical ingredient: Gaining efficiency with doubly robust estimates
-We briefly mentioned performing that Robinson's residual-on-residual  
+### Final statistical ingredient: Gaining efficiency with doubly robust estimation
+We briefly mentioned that Robinson's residual-on-residual satisfied an *orthogonality* property in the sense that the target parameter ($\tau$) could be estimated well (in the sense of root-n convergence) despite nuisance components ($m(x)$ and $e(x)$) were estimated at slower rates. This is a desirable property of an estimating equation $\psi$, particularly if we wish to estimate nuisance component machine learning methods, that while more flexible than parametric models, converge at slower rates (Stone, 1980).
+
+For estimating quantities that take the form of an average, such as an average treatment effect (ATE) $\tau = E[Y_i(1) - Y(0)]$, or an average of CATEs for a certain subgroup, there is yet another efficiency gain to obtain by drawing from classical insights from semi-parametric statistics: Robins et al. (1994) showed that so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators it has the lowest variance). It looks like the following:
+
+$$
+\hat \tau_{AIPW} = \frac{1}{n} \sum_{i=1}^{n}\left( \mu(X_i, 1) - \mu(X_i, 0) + W_i \frac{Y_i - \mu(X_i, 1)}{e(X_i)} - (1 - W_i)\frac{Y_i - \mu(X_i, 0)}{1 - e(X_i)} \right),
+$$
+where $\mu(X_i, 1),  \mu(X_i, 0)$ are estimates of the conditional means in the two treatment arms: $\mu(X_i, W_i) = E[Y_i | X_i = x, W_i = w]$. This expression can be arranged and expressed as
 
 
-note on efficiency when doing nonparam estimation, trades of flexibility for more uncertainty
+$$
+\frac{1}{n} \sum_{i=1}^{n}\left( \tau(X_i) + \frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]} \left(Y_i - \mu(X_i, W_i)\right) \right) \\
+= \frac{1}{n} \sum_{i=1}^{n} \Gamma_i.
+$$
+We can identify the 3 terms as: 1) an initial treatment effect estimate ($\tau(X_i)$), 2) a debiasing weight ($\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$), and 3) a residual ($Y_i - \mu(X_i, W_i)$). This formulation as a one-step plug-in update (i.e, an initial estimate plus a bias correction) is quite general and extends to other target parameters, such as for example a continuous treatment, but where the debiasing weights would differ. Moreover, when using "cross-fitting" when forming the nuisance estimates, the resulting estimator with plug-in values is still efficient (Zheng and van der Laan 2011, Chernozhukov et al., 2018).
 
- (remember that machine learning methods, while more flexible, converge at slower rates than typical parametric models, and so properties like orhtogonality is an important ingredient when using these tools for valid inference and estimation)
-
-
-This *centering/orthogonalization* approach has additional benefits that comes in handy when we wish to use flexible machine learning methods for estimation: the estimation errors in these nuisance estimates cancel out in such a way that the final target parameter can attain a root-n rate of convergence even though the other estimators converge at slower rates. This is particularly important when using machine learning methods for estimation, since they typically converge at slower rates than parametric models. The general term for this (FIX sentence statement) is "orthogonal estimating equations" and "double robustness" and goes back to Robinson (1988), Robins et al. (1994), and van der Laan & Rose (2011), where Chernozhukov et al. (2018) show incorporating sample-splitting with these ingredients enables use of purely predictive-tuned methods.
-
-The doubly robust estimation approach is employed throughout the grf package, and takes the form of a bias correction added to the final point estimates. This correction is performed automatically in most summary functions like `average_treatment_effect` and `best_linear_projection`, and can be accessed directly by calling the function `get_scores(forest)`. For a causal forest with binary treatment $W_i$ the bias correction gives rise to the well-known Augmented Inverse-Propensity Weights (AIPW) score:
-
-$$\hat \Gamma(X_i) = \hat \tau(X) + \frac{W_i - \hat e(X_i)}{\hat e(X_i)(1 - \hat e(X_i))}(Y_i - \hat \mu(X_i, W_i)),$$
-where $\hat e(X_i)$ are estimates of the propensity scores $E[W_i | X_i = x]$ and $\hat \mu(X_i, W_i)$ estimates of the conditional responses $E[Y_i | W_i = w, X_i = x]$. This can equivalently be written as $\hat \Gamma(X_i) =\hat \tau(X) + \frac{1}{\hat e(X_i)(1 - \hat e(X_i))}\psi_{\hat \tau(X)}$ where $\psi_{\hat \tau(X)}$ is the causal forest score equation evaluated at the estimated CATE values (and the denominator is an estimate of $Var[W_i | X_i = x]$).
-
+This is the estimation approach taken by `grf` when computing summary measures such as an average treatment effect, and the associated doubly robust scores $\hat \Gamma_i$ can be retrieved by `get_scores`. It is also the estimatin strategy that underlies summary measures such as the `RATE` and `best linear projection`.
 
 
 ## A grf application: school program evaluation
@@ -458,6 +460,12 @@ van der Laan, Mark J., and Sherri Rose. "Targeted learning: causal inference for
 Wager, Stefan, and Susan Athey. "Estimation and inference of heterogeneous treatment effects using random forests." Journal of the American Statistical Association 113.523 (2018): 1228-1242. ([arxiv](https://arxiv.org/abs/1510.04342))
 
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. "Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects." arXiv preprint arXiv:2111.07966 (2021). ([arxiv](https://arxiv.org/abs/2111.07966))
+
+Stone, Charles J. "Optimal rates of convergence for nonparametric estimators." The annals of Statistics (1980): 1348-1360.
+
+Zheng, Wenjing, and Mark J. Laan. "Cross-validated targeted minimum-loss-based estimation." In Targeted Learning, pp. 459-474. Springer, New York, NY, 2011.
+
+Van Der Laan, Mark J., and Daniel Rubin. "Targeted maximum likelihood learning." The international journal of biostatistics 2, no. 1 (2006).
 
 <center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
