@@ -117,12 +117,11 @@ Again, for a single tree with one split, Figure 1) shows a target sample $x$ we 
 \begin{equation*}
 \begin{split}
 & \hat \mu(x) = \sum_{i=1}^{n} \frac{1}{B} \sum_{b=1}^{B} Y_i \frac{1\{Xi \in L_b(x)\}} {|L_b(x)|} \\
-& = \sum_{i=1}^{n} Y_i \color{blue}{\alpha_i(x)} \\
-& = ``\color{blue}{\alpha_i(x)} - weighted \, outcomes'',
+& = \sum_{i=1}^{n} Y_i \color{blue}{\alpha_i(x)},
 \end{split}
 \end{equation*}
 
-where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. These weights are the so-called random forest adaptive neighbourhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$.  
+where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. I.e, random forest essentially predicts a weighted average of outcomes. These weights are the so-called random forest adaptive neighbourhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$. Zeileis, Hothorn & Hornik (2003).
 
 ***Causal Forest*** essentially combines Breiman (2001) and Robinson (1988) by:
 
@@ -464,6 +463,8 @@ Zheng, Wenjing, and Mark J. Laan. "Cross-validated targeted minimum-loss-based e
 Wager, Stefan, and Susan Athey. "Estimation and inference of heterogeneous treatment effects using random forests." Journal of the American Statistical Association 113.523 (2018): 1228-1242.
 
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. "Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects." arXiv preprint arXiv:2111.07966 (2021).
+
+Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based recursive partitioning." Journal of Computational and Graphical Statistics 17, no. 2 (2008): 492-514.
 
 <center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
