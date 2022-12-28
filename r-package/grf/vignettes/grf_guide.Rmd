@@ -21,7 +21,7 @@ library(grf)
 ```
 <center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_green.png" height="132"></center>
 
-This vignette contains a [brief overview](#a-grf-overview) of the GRF algorithm and machine learning based causal inference (that is, using insights from semi-parametric statistics to use predictive algorithms for reliable estimation and inference), as well as example applications: [the benefits of a financial education program](#a-grf-application-school-program-evaluation) and [meausuring the effect of poverty on attention](#a-grf-application-measuring-the-effect-of-poverty-on-attention), which walks through using GRF to estimate conditional average treatment effects (CATEs), summarize the estimates and assess fit using:
+This vignette contains a [brief overview](#a-grf-overview) of the GRF algorithm and example applications: 1) [the benefits of a financial education program](#a-grf-application-school-program-evaluation) and 2) [meausuring the effect of poverty on attention](#a-grf-application-measuring-the-effect-of-poverty-on-attention), which walks through using GRF to estimate conditional average treatment effects (CATEs), summarize the estimates and assess fit using:
 
 * The [best_linear_projection](https://grf-labs.github.io/grf/reference/best_linear_projection.html) as simple linear association measures which can provide a useful lower dimensional summary of the CATEs, while retaining good semi-parametric inferential properties.
 
@@ -30,8 +30,8 @@ This vignette contains a [brief overview](#a-grf-overview) of the GRF algorithm 
 * [policytree](https://github.com/grf-labs/policytree) to find a tree-based policy using the estimated CATEs.
 
 
-## A Causal Forest + grf overview
-This section gives a lighting tour of some of the conceptual ideas behind GRF, in the from of a walkthrough of *Causal Forests*. It starts with describing how the predictive capabilities of the modern machine learning toolbox can be leveraged to non-parametrically control for counfounding when estimating average treatment effects, then covers how Breiman's (2001) random forest can be re-purposed as an adaptive nearest neighbor finder to detect treatment effect heterogeneity.
+## A grf overview
+This section gives a lighting tour of some of the conceptual ideas behind GRF in the from of a walk through of *Causal Forests*. It starts with describing how the predictive capabilities of the modern machine learning toolbox can be leveraged to non-parametrically control for counfounding when estimating average treatment effects, and how Breiman's (2001) random forest can be re-purposed as an adaptive nearest neighbor finder to detect treatment effect heterogeneity.
 
 ### Machine learning for causal inference
 Imagine we observe outcomes $Y_i$ along with a binary treatment indicator $W=\{0, 1\}$ and are interested in measuring the average causal effect of the intervention on the outcome. If we are not in a randomized control trial setting, but have collected a set of covariates $X_i$ which we believe could plausible account for confounding, then we could run a regression of the type (Imbens & Rubin, 2005)
@@ -124,7 +124,7 @@ Again, for a single tree with one split, Figure 1) shows a target sample $x$ we 
 
 where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. These weights are the so-called random forest adaptive neighbourhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$.  
 
-*Causal Forest* essentially combines Breiman (2001) and Robinson (1988) by:
+***Causal Forest*** essentially combines Breiman (2001) and Robinson (1988) by:
 
 1) Building phase: Greedily places covariate splits that maximizes the squared difference in subgroup treatment effects $n_L n_R (\hat \tau_L - \hat \tau_R)^2$, where $\hat \tau$ is obtained by running Robinson's residual-on-residual regression for each possible split point[^1].
 2) Use the resulting forest weights $\color{blue}{\alpha_i(x)}$ to estimate
@@ -137,10 +137,10 @@ That is, *Causal Forest* is running a "forest"-localized version of Robinson's r
 
 The procedure we outlined above can be generalized (thus the name *generalized* random forest) to estimate other quantities beside heterogeneous treatment effects. The key ingredient is phase 1) above, by recognizing that Robinson's regression equivalently be expressed on "estimating equation" form given by a particular scoring function $\psi_{\tau}(\cdot)$. `grf` (Athey, Tibshirani & Wager, 2019) generalizes phase 1) to target heterogeneity in some arbitrary parameter given as the solution to this estimating equation. That is, `grf` essentially takes as input a formulation of how to estimate a certain parameter[^3] $\theta$ *without* the presence of covariates (in the form of the scoring function $\psi$) then finds forest weights $\alpha(x)$ that yields *covariate*-specific estimates $\theta(x)$.
 
-### Final statistical ingredient: Gaining efficiency with doubly robust estimation
+### Final ingredient: Gaining efficiency with doubly robust estimation
 We briefly mentioned that Robinson's residual-on-residual satisfied an *orthogonality* property in the sense that the target parameter ($\tau$) could be estimated well (in the sense of root-n convergence) despite nuisance components ($m(x)$ and $e(x)$) were estimated at slower rates. This is a desirable property of an estimating equation $\psi$, particularly if we wish to estimate nuisance component machine learning methods, that while more flexible than parametric models, converge at slower rates (Stone, 1980).
 
-For estimating quantities that take the form of an average, such as an average treatment effect (ATE) $\tau = E[Y_i(1) - Y(0)]$, or an average of CATEs for a certain subgroup, there is yet another efficiency gain to obtain by drawing from classical insights from semi-parametric statistics: Robins et al. (1994) showed that so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators it has the lowest variance). It looks like the following:
+For estimating quantities that take the form of an average, such as an average treatment effect (ATE) $\tau = E[Y_i(1) - Y(0)]$, or an average of CATEs for a certain subgroup, there is yet another efficiency gain to obtain by drawing from classical insights from semi-parametric statistics: Robins, Rotnitzky & Zhao (1994) showed that so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators it has the lowest variance). It looks like the following:
 
 $$
 \hat \tau_{AIPW} = \frac{1}{n} \sum_{i=1}^{n}\left( \mu(X_i, 1) - \mu(X_i, 0) + W_i \frac{Y_i - \mu(X_i, 1)}{e(X_i)} - (1 - W_i)\frac{Y_i - \mu(X_i, 0)}{1 - e(X_i)} \right),
@@ -152,9 +152,9 @@ $$
 \frac{1}{n} \sum_{i=1}^{n}\left( \tau(X_i) + \frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]} \left(Y_i - \mu(X_i, W_i)\right) \right) \\
 = \frac{1}{n} \sum_{i=1}^{n} \Gamma_i.
 $$
-We can identify the 3 terms as: 1) an initial treatment effect estimate ($\tau(X_i)$), 2) a debiasing weight ($\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$), and 3) a residual ($Y_i - \mu(X_i, W_i)$). This formulation as a one-step plug-in update (i.e, an initial estimate plus a bias correction) is quite general and extends to other target parameters, such as for example a continuous treatment, but where the debiasing weights would differ. Moreover, when using "cross-fitting" when forming the nuisance estimates, the resulting estimator with plug-in values is still efficient (Zheng and van der Laan 2011, Chernozhukov et al., 2018).
+We can identify the 3 terms as: 1) an initial treatment effect estimate ($\tau(X_i)$), 2) a debiasing weight ($\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$), and 3) a residual ($Y_i - \mu(X_i, W_i)$). This formulation as a one-step plug-in update (i.e, an initial estimate plus a bias correction) is quite general and extends to other target parameters, such as for example a continuous treatment, but where the debiasing weights would differ. Moreover, when using "cross-fitting" when forming the nuisance estimates, the resulting estimator with plug-in values is still efficient (Zheng & van der Laan 2011, Chernozhukov et al., 2018).
 
-This is the estimation approach taken by `grf` when computing summary measures such as an average treatment effect, and the associated doubly robust scores $\hat \Gamma_i$ can be retrieved by `get_scores`. It is also the estimatin strategy that underlies summary measures such as the `RATE` and `best linear projection`.
+This is the estimation approach taken by `grf` when computing summary measures such as an average treatment effect, and the associated doubly robust scores $\hat \Gamma_i$ can be retrieved by `get_scores`. It is also the estimation approach that underlies summary measures such as the `RATE` and `best linear projection` (as well as doubly robust policy learning). The next two sections walks through empirical examples.
 
 
 ## A grf application: school program evaluation
@@ -437,40 +437,38 @@ average_treatment_effect(cf, subset =  X$age < quantile(X$age, 0.1))
 
 
 ## References
-Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized random forests." The Annals of Statistics 47, no. 2 (2019): 1148-1178. ([arxiv](https://arxiv.org/abs/1610.01271))
+Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized random forests." The Annals of Statistics 47, no. 2 (2019): 1148-1178.
 
 Breiman, Leo. "Random forests." Machine learning 45, no. 1 (2001): 5-32.
 
-Bruhn, Miriam, Luciana de Souza Leão, Arianna Legovini, Rogelio Marchetti, and Bilal Zia. "The impact of high school financial education: Evidence from a large-scale evaluation in Brazil." American Economic Journal: Applied Economics 8, no. 4 (2016). ([paper](https://www.aeaweb.org/articles?id=10.1257/app.20150149))
+Bruhn, Miriam, Luciana de Souza Leão, Arianna Legovini, Rogelio Marchetti, and Bilal Zia. "The impact of high school financial education: Evidence from a large-scale evaluation in Brazil." American Economic Journal: Applied Economics 8, no. 4 (2016).
 
-Carvalho, Leandro S., Stephan Meier, and Stephanie W. Wang. "Poverty and economic decision-making: Evidence from changes in financial resources at payday." American economic review 106, no. 2 (2016): 260-84. ([paper](https://www.aeaweb.org/articles?id=10.1257/aer.20140481))
+Carvalho, Leandro S., Stephan Meier, and Stephanie W. Wang. "Poverty and economic decision-making: Evidence from changes in financial resources at payday." American economic review 106, no. 2 (2016): 260-84.
 
-Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. "Double/debiased machine learning for treatment and structural parameters." The Econometrics Journal, 2018. ([arxiv](https://arxiv.org/abs/1608.00060))
+Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. "Double/debiased machine learning for treatment and structural parameters." The Econometrics Journal, 2018.
 
-Farbmacher, Helmut, Heinrich Kögel, and Martin Spindler. "Heterogeneous effects of poverty on attention." Labour Economics 71 (2021): 102028. ([paper](https://www.sciencedirect.com/science/article/pii/S0927537121000634?casa_token=x3ZUb--q-kIAAAAA:F2Pspzj2STx7HgdyC-odk71KF21IYgX85tSkuDpnAb7WlCJvvCmyPzYmR-UqcBmXx5mSLSH13qsZ))
+Farbmacher, Helmut, Heinrich Kögel, and Martin Spindler. "Heterogeneous effects of poverty on attention." Labour Economics 71 (2021): 102028.
+
+Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. Cambridge University Press, 2015.
 
 Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. "Estimation of regression coefficients when some regressors are not always observed." Journal of the American statistical Association 89, no. 427 (1994): 846-866.
 
-Nie, Xinkun, and Stefan Wager. "Quasi-oracle estimation of heterogeneous treatment effects." Biometrika 108, no. 2 (2021): 299-319. ([arxiv](https://arxiv.org/abs/1712.04912))
+Stone, Charles J. "Optimal rates of convergence for nonparametric estimators." The annals of Statistics (1980): 1348-1360.
+
+Nie, Xinkun, and Stefan Wager. "Quasi-oracle estimation of heterogeneous treatment effects." Biometrika 108, no. 2 (2021): 299-319.
 
 Robinson, Peter M. "Root-N-consistent semiparametric regression." Econometrica: Journal of the Econometric Society (1988): 931-954.
 
-van der Laan, Mark J., and Sherri Rose. "Targeted learning: causal inference for observational and experimental data." Vol. 10. New York: Springer, 2011.
-
-Wager, Stefan, and Susan Athey. "Estimation and inference of heterogeneous treatment effects using random forests." Journal of the American Statistical Association 113.523 (2018): 1228-1242. ([arxiv](https://arxiv.org/abs/1510.04342))
-
-Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. "Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects." arXiv preprint arXiv:2111.07966 (2021). ([arxiv](https://arxiv.org/abs/2111.07966))
-
-Stone, Charles J. "Optimal rates of convergence for nonparametric estimators." The annals of Statistics (1980): 1348-1360.
-
 Zheng, Wenjing, and Mark J. Laan. "Cross-validated targeted minimum-loss-based estimation." In Targeted Learning, pp. 459-474. Springer, New York, NY, 2011.
 
-Van Der Laan, Mark J., and Daniel Rubin. "Targeted maximum likelihood learning." The international journal of biostatistics 2, no. 1 (2006).
+Wager, Stefan, and Susan Athey. "Estimation and inference of heterogeneous treatment effects using random forests." Journal of the American Statistical Association 113.523 (2018): 1228-1242.
+
+Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. "Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects." arXiv preprint arXiv:2111.07966 (2021).
 
 <center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
 [^1]: `grf` does not actually re-estimate a linear regression for each possible split point, that would be computationally infeasible. Instead, we estimate $\hat \tau$ *once* in the parent node, then use an approximation based on so-called "influence functions" to approximate how $\hat \tau$ would change if we moved a sample $i$ from the left to the right child.
 
-[^2]: For a nie wager
+[^2]: For a discussion of how Robinson's transformation can be used to motivate a generic loss function for heterogeneous treatment effects estimation (the *R-learner*), see Nie & Wager (2021).
 
-[^3]: Note that $\theta$ does not have to be a scalar, we 
+[^3]: Note that $\theta$ does not have to be a scalar, the same construction could be used to target heterogeneity in a vector-valued target parameter by defining the criterion as the squared L2 norm: $n_L n_R || \hat \tau_L - \hat \tau_R||^2$. This is the approach `grf`'s multi-arm causal forest takes.
