@@ -23,7 +23,7 @@ library(grf)
 
 This vignette contains a [brief overview](#a-grf-overview) of the GRF algorithm and example applications: 1) [The benefits of a financial education program](#application-school-program-evaluation) and 2) [Measuring the effect of poverty on attention](#application-measuring-the-effect-of-poverty-on-attention), which walks through using GRF to estimate conditional average treatment effects (CATEs), summarize the estimates and assess fit using:
 
-* The [best_linear_projection](https://grf-labs.github.io/grf/reference/best_linear_projection.html) as simple linear association measures which can provide a useful lower dimensional summary of the CATEs, while retaining good semi-parametric inferential properties.
+* The [best_linear_projection](https://grf-labs.github.io/grf/reference/best_linear_projection.html) as simple linear association measures which can provide a useful lower dimensional summary of the CATEs, that has desirable semi-parametric inferential properties.
 
 * The [rank_average_treatment_effect](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) (*RATE*) as a generic tool to assess heterogeneity and the effectiveness of "targeting rules", as well as how the associated *TOC* curve can help identify segments of a population that respond differently to treatment.
 
@@ -31,7 +31,7 @@ This vignette contains a [brief overview](#a-grf-overview) of the GRF algorithm 
 
 
 ## A grf overview
-This section gives a lighting tour of some of the conceptual ideas behind GRF in the form of a walk through of *Causal Forests*. It starts with describing how the predictive capabilities of the modern machine learning toolbox can be leveraged to non-parametrically control for confounding when estimating average treatment effects, and how Breiman's (2001) random forest can be repurposed as an adaptive nearest neighbor finder to detect treatment effect heterogeneity. (For a great overview of the fundamental tension between prediction and estimation, see the essay by Efron, 2020).
+This section gives a lighting tour of some of the conceptual ideas behind GRF in the form of a walk through of how *Causal Forest* works. It starts with describing how the predictive capabilities of the modern machine learning toolbox can be leveraged to non-parametrically control for confounding when estimating average treatment effects, and how Breiman's (2001) random forest can be repurposed as an adaptive nearest neighbor finder to detect treatment effect heterogeneity. (For a great overview of the fundamental tension between prediction and estimation, see the essay by Efron, 2020).
 
 ### Machine learning for causal inference
 Imagine we observe outcomes $Y_i$ along with a binary treatment indicator $W=\{0, 1\}$ and are interested in measuring the average causal effect of the intervention on the outcome. If we are not in a randomized control trial setting, but have collected a set of covariates $X_i$ which we believe could plausible account for confounding, then we could run a regression of the type (Imbens & Rubin, 2005)
@@ -57,23 +57,23 @@ where we assume a unit's baseline outcome are given by some unknown (possibly co
 $$
 e(x) = E[W_i | X_i=x],
 $$
-(the propensity score) and
+the propensity score, and
 
 $$
-m(x) = E[Y_i | X_i = x] = f(x) + \tau e(x)
+m(x) = E[Y_i | X_i = x] = f(x) + \tau e(x),
 $$
-(the conditional mean of $Y$), then we can rewrite the above equation on "centered" form:
+the conditional mean of $Y$, then we can rewrite the above equation on "centered" form:
 
 $$
 Y_i - m(x) = \tau (W_i - e(x)) + \varepsilon_i.
 $$
-This formulation has great practical appeal, as it means $\tau$ can be estimated by residual-on-residual regression: plug in estimates of $m(x)$ and $e(x)$ then regress the centered outcomes on the centered treatment indicator. Robinson (1988) show that this approach yields root-n consistent estimates of $\tau$, *even if* estimates of $m(x)$ and $e(x)$ converge at a slower rate ("4-th root" in particular). This property is often referred to as *orthogonality* and is a desirable property which essentially tells you that given noisy "nuisance" estimates ($m(x)$ and $e(x)$) you can still recover "good" estimates of your target parameter ($\tau$).
+This formulation has great practical appeal, as it means $\tau$ can be estimated by residual-on-residual regression: plug in estimates of $m(x)$ and $e(x)$ then regress the centered outcomes on the centered treatment indicator. Robinson (1988) show that this approach yields root-n consistent estimates of $\tau$, even if estimates of $m(x)$ and $e(x)$ converge at a slower rate ("4-th root" in particular). This property is often referred to as *orthogonality* and is a desirable property which essentially tells you that given noisy "nuisance" estimates ($m(x)$ and $e(x)$) you can still recover "good" estimates of your target parameter ($\tau$).
 
 But how are you supposed to estimate $m(x)$ and $e(x)$, don't you still have to posit a parametric model (like for example a logistic regress for the propensity score)? This is where the modern machine learning toolkit comes in handy, by recognizing that for $m(x)$ and $e(x)$ we are only asking for good *predictions* of the outcome conditional on $X_i$, and the treatment assignment conditional on $X_i$. This is the type of problem modern machine learning methods like boosting, random forests, etc., excels at. Directly plugging in estimates of $m(x)$ and $e(x)$ into the residual-on-residual regression will typically lead to bias as modern ML methods regularize to trade of bias and variance, however Chernozhukov et al. (2018) show that if you form these estimates in a "cross-fit" manner, meaning the prediction of observation i's outcome and treatment assignment is obtained without using unit i for estimation, then (given some regularity assumptions) you can still recover root-n consistent estimates of $\tau$.
 
 So, to recap so far: we have a way to adopt the modern ML toolkit to *non-parametrically control for confounding* when estimating an average treatment effect, and still retain desirable statistical properties such as unbiasedness and consistency.
 
-**Non-constant treatment effects**. What if we wish to relax assumption 3)? We could a-priory specify certain subgroups and run separate regressions for each subgroup and obtain different estimates of $\tau$. Ideally How can we take a more data-adaptive approach? We can continue with Robinson's partially linear model from above, and instead just posit:
+**Non-constant treatment effects**. What if we wish to relax assumption 3)? We could a-priory specify certain subgroups and run separate regressions for each subgroup and obtain different estimates of $\tau$. However, we are interested in taking a data-adaptive approach. We can continue with Robinson's partially linear model from above, and instead just posit:
 
 $$
 Y_i = \color{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
@@ -85,7 +85,7 @@ $$
 $$
 (the superscript $^i$ denotes cross-fit estimates). This is conceptually what *Causal Forest* does, it estimates the treatment effect $\tau(x)$ for a target sample $X_i = x$ by running a weighted residual-on-residual regression on samples that have similar treatment effects. These *weights* play a crucial role, so how does `grf` find them? The next section quickly recaps Breiman's random forest for regression, then explains how it can be extended to an adaptive neighborhood finder.
 
-### Random forests as adaptive neighborhood finder
+### Random forest as an adaptive neighborhood finder
 
 Breiman's random forest for predicting the conditional mean $\mu(x) = E[Y_i | X_i = x]$ can be briefly summarized in two steps:
 
@@ -110,9 +110,9 @@ plot(c(X, 1.5), c(Y, 2),
 abline(v = sval)
 ```
 
-For a single tree and single split, Figure 1) shows the optimal split point in phase 1): it's the vertical line that makes the left and right means of $Y_i$ as similar as possible (or equivalently, the difference in means as large as possible). An intuition for why slicing up the covariate space into many rectangles is a good approach, is that in high dimensions these rectangles might be "narrow" in directions which don't matter, but wide in those which does (unlike a typical k-NN "circular" neighborhood that needs to grow in radius).
+For a single tree and single split, Figure 1) shows the optimal split point in phase 1): it's the vertical line that makes the left and right means of $Y_i$ as similar as possible (or equivalently, the squared difference in means as large as possible).
 
-Again, for a single tree with one split, Figure 1) shows a target sample $x$ we wish to make a prediction for as a cross in the right hand leaf. Phase 2) would average the $Y_i$'s on this side, then repeat the same exercise for the rest of the $B$ trees, then average these to produce a final prediction. The expression for $\hat \mu(x)$ is a double sum, so we can swap the order of summation and write
+Figure 1) shows a target sample $x$ we wish to make a prediction for as a cross in the right hand leaf. Phase 2) would average the $Y_i$'s on this side, then repeat the same exercise for the rest of the $B$ trees, then average these to produce a final prediction. This procedure is a double summation, first over trees, then over training samples. We can swap the order of summation and obtain:
 
 \begin{equation*}
 \begin{split}
@@ -121,25 +121,25 @@ Again, for a single tree with one split, Figure 1) shows a target sample $x$ we 
 \end{split}
 \end{equation*}
 
-where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. I.e, random forest essentially predicts a weighted average of outcomes. These weights are the so-called random forest adaptive neighborhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$. Zeileis, Hothorn & Hornik (2003).
+where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. I.e, an equivalent description of random forest's prediction phase, is that it predicts a weighted average of outcomes. These weights are the so-called random forest adaptive neighborhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$ (this weighting view of random forests appear frequently in statistical applications of random forests, see for example Zeileis, Hothorn & Hornik (2003)).
 
-**Causal Forest** essentially combines Breiman (2001) and Robinson (1988) by:
+**Causal Forest** essentially combines Breiman (2001) and Robinson (1988) by modifying the steps above to:
 
 1) Building phase: Greedily places covariate splits that maximizes the squared difference in subgroup treatment effects $n_L n_R (\hat \tau_L - \hat \tau_R)^2$, where $\hat \tau$ is obtained by running Robinson's residual-on-residual regression for each possible split point[^1].
-2) Use the resulting forest weights $\color{blue}{\alpha_i(x)}$ to estimate
+2) Use the resulting forest weights $\color{blue}{\alpha(x)}$ to estimate
 
 
 $$
 \tau(x) := lm\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = \color{blue}{\alpha_i(x)} \Biggr).
 $$
-That is, *Causal Forest* is running a "forest"-localized version of Robinson's regression[^2]. This adaptive-weighting (instead of leaf-averaging) coupled with some other forest construction details known as "honesty" and "subsampling" can be used to give asymptotic guarantees for estimation and inference with random forests (Wager & Athey, 2018). The arguments `Y.hat` and `W.hat` supply estimates of $m(x)$ and $e(x)$.
+That is, *Causal Forest* is running a "forest"-localized version of Robinson's regression[^2]. This adaptive-weighting (instead of leaf-averaging) coupled with some other forest construction details known as "honesty" and "subsampling" can be used to give asymptotic guarantees for estimation and inference with random forests (Wager & Athey, 2018). In the function `causal_forest`, the arguments `Y.hat` and `W.hat` supply estimates of $m(x)$ and $e(x)$.
 
-The procedure we outlined above can be generalized (thus the name *generalized* random forest) to estimate other quantities beside heterogeneous treatment effects. The key ingredient is phase 1) above, by recognizing that Robinson's regression equivalently be expressed on "estimating equation" form given by a particular scoring function $\psi_{\tau}(\cdot)$. `grf` (Athey, Tibshirani & Wager, 2019) generalizes phase 1) to target heterogeneity in some arbitrary parameter given as the solution to this estimating equation. That is, `grf` essentially takes as input a formulation of how to estimate a certain parameter[^3] $\theta$ *without* the presence of covariates (in the form of the scoring function $\psi$) then finds forest weights $\alpha(x)$ that yields *covariate*-specific estimates $\theta(x)$.
+The procedure we outlined above can be generalized (thus the name *generalized* random forest) to estimate other quantities beside heterogeneous treatment effects. The key ingredient is phase 1) above, by recognizing that Robinson's regression equivalently be expressed on "estimating equation" form given by a particular scoring function $\psi_{\tau}(\cdot)$. GRF (Athey, Tibshirani & Wager, 2019) generalizes phase 1) to target heterogeneity in some arbitrary parameter given as the solution to this estimating equation. That is, GRF essentially takes as input a formulation of how to estimate a certain parameter[^3] $\theta$ *without* the presence of covariates (in the form of the scoring function $\psi$) then finds forest weights $\alpha(x)$ that yields *covariate*-specific estimates $\theta(x)$.
 
 ### Final ingredient: Gaining efficiency with doubly robust estimation
-We briefly mentioned that Robinson's residual-on-residual satisfied an *orthogonality* property in the sense that the target parameter ($\tau$) could be estimated well (in the sense of root-n convergence) despite nuisance components ($m(x)$ and $e(x)$) were estimated at slower rates. This is a desirable property of an estimating equation $\psi$, particularly if we wish to estimate nuisance component machine learning methods that, while more flexible than parametric models, converge at slower rates (Stone, 1980).
+We briefly mentioned that Robinson's residual-on-residual satisfied an *orthogonality* property in the sense that the target parameter ($\tau$) could be estimated well (in the sense of root-n convergence) despite nuisance components ($m(x)$ and $e(x)$) were estimated at slower rates. This is a desirable property of an estimating equation $\psi$, particularly if we wish to estimate nuisance components with machine learning methods that, while more flexible than parametric models, converge at slower rates (Stone, 1980).
 
-For estimating quantities that take the form of an average, such as an average treatment effect (ATE) $\tau = E[Y_i(1) - Y(0)]$, or an average of CATEs for a certain subgroup, there is yet another efficiency gain to obtain by drawing from classical insights from semi-parametric statistics: Robins, Rotnitzky & Zhao (1994) showed that so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators it has the lowest variance). It looks like the following:
+For estimating quantities that take the form of an average, such as an average treatment effect (ATE) $\tau = E[Y_i(1) - Y(0)]$, or an average of CATEs for a certain subgroup, there is yet another efficiency gain to obtain by drawing from classical insights from semi-parametric statistics: Robins, Rotnitzky & Zhao (1994) showed that the so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators it has the lowest variance). It looks like the following:
 
 $$
 \hat \tau_{AIPW} = \frac{1}{n} \sum_{i=1}^{n}\left( \mu(X_i, 1) - \mu(X_i, 0) + W_i \frac{Y_i - \mu(X_i, 1)}{e(X_i)} - (1 - W_i)\frac{Y_i - \mu(X_i, 0)}{1 - e(X_i)} \right),
@@ -151,9 +151,9 @@ $$
 \frac{1}{n} \sum_{i=1}^{n}\left( \tau(X_i) + \frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]} \left(Y_i - \mu(X_i, W_i)\right) \right) \\
 = \frac{1}{n} \sum_{i=1}^{n} \Gamma_i.
 $$
-We can identify the 3 terms as: 1) an initial treatment effect estimate ($\tau(X_i)$), 2) a debiasing weight ($\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$), and 3) a residual ($Y_i - \mu(X_i, W_i)$). This formulation as a one-step plug-in update (i.e, an initial estimate plus a bias correction) is quite general and extends to other target parameters, such as for example a continuous treatment, but where the debiasing weights would differ. Moreover, when using "cross-fitting" when forming the nuisance estimates, the resulting estimator with plug-in values is still efficient (Zheng & van der Laan 2011, Chernozhukov et al., 2018).
+We can identify the three terms as: 1) an initial treatment effect estimate $\tau(X_i)$, 2) a debiasing weight $\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$, and 3) a residual $Y_i - \mu(X_i, W_i)$. This formulation as a one-step plug-in update (i.e, an initial estimate plus a bias correction) is quite general and extends to other target parameters, such as for example a continuous treatment. The only thing that would differ is the debiasing weights. The asymptotic efficiency property of this plug-in construction continues to hold if we substitute in non-parametric estimates, as long as they are constructed using appropriate cross-fitting (Zheng & van der Laan 2011, Chernozhukov et al., 2018).
 
-This is the estimation approach taken by `grf` when computing summary measures such as an average treatment effect, and the associated doubly robust scores $\hat \Gamma_i$ can be retrieved by `get_scores`. It is also the estimation approach that underlies summary measures such as the `RATE` and `best linear projection` (as well as doubly robust policy learning). Summary measures built on these play a crucial role in interpreting non-parametric CATE estimates, as they are by the fundamental limits of non-parametric estimation (machine learning included), noisy point estimates. The next two sections walk through empirical examples.
+This is the estimation approach taken by `grf` when computing summary measures such as an average treatment effect, and the associated doubly robust scores $\hat \Gamma_i$ can be retrieved by `get_scores`. It is also the estimation approach that underlies summary measures such as the `RATE` and `best linear projection` (as well as doubly robust policy learning). Summary measures built on these play a crucial role in interpreting non-parametric CATE estimates, as they are by the fundamental limits of non-parametric estimation (machine learning included), *noisy* point estimates. The next two sections walk through empirical examples.
 
 
 ## Application: school program evaluation
@@ -392,6 +392,7 @@ qini.age
 
 * [Online seminar on estimating heterogeneous treatment effects in R](https://youtu.be/YBbnCDRCcAI)
 
+<center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
 ## References
 Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized random forests." The Annals of Statistics 47, no. 2 (2019): 1148-1178.
@@ -425,8 +426,6 @@ Wager, Stefan, and Susan Athey. "Estimation and inference of heterogeneous treat
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. "Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects." arXiv preprint arXiv:2111.07966 (2021).
 
 Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based recursive partitioning." Journal of Computational and Graphical Statistics 17, no. 2 (2008): 492-514.
-
-<center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
 [^1]: `grf` does not actually re-estimate a linear regression for each possible split point, that would be computationally infeasible. Instead, we estimate $\hat \tau$ *once* in the parent node, then use an approximation based on so-called "influence functions" to approximate how $\hat \tau$ would change if we moved a sample $i$ from the left to the right child.
 
