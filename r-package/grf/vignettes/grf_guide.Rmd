@@ -345,7 +345,7 @@ In this section we walk through an example following Farbmacher et al. (2021) wh
 ### Data overview
 ```{r}
 data <- read.csv("carvalho2016.csv")
-# There are other outcomes, we'll look at number of correct answers here
+# As outcomes we'll look at the number of correct answers.
 Y <- data$outcome.num.correct.ans
 W <- data$treatment
 X <- data[-(1:4)]
@@ -358,9 +358,8 @@ p.hat <- predict(rf)$predictions
 
 hist(p.hat)
 ```
-The propensities looks reasonable in line with arising from an RCT, so we'll just continue treating this as an RCT and set the propensity to 0.5 and fit a causal forest.
 
-The data contains 2 480 observations of 24 covariates. Fitting at CATE estimator on such a large amount of covariates relative to the sample size is likely to be underpowered, so below we first predict the conditional mean $E[Y_i | X_i]$, then use a simple forest variable importance to choose which covariates to keep in the CATE estimation step.
+The data contains 2 480 observations of 24 covariates. Fitting at CATE estimator on such a large amount of covariates relative to the sample size is likely to be underpowered in HTE detection, so below we first predict the conditional mean $E[Y_i | X_i]$, then use a simple forest variable importance to choose which covariates to keep in the CATE estimation step.
 ```{r}
 Y.forest <- regression_forest(X, Y)
 Y.hat <- predict(Y.forest)$predictions
@@ -372,54 +371,53 @@ keep <- colnames(X)[order(varimp.Y, decreasing = TRUE)[1:10]]
 keep
 ```
 
-### Analyzing heterogeneity
+### Analyzing heterogeneity with the TOC
 ```{r}
 X.cf <- X[, keep]
 W.hat <- 0.5
-cf <- causal_forest(X.cf, Y, W, Y.hat = Y.hat, W.hat = W.hat)
+
+# Set aside the first half of the data for training and the second for evaluation.
+# (Note that the results may change depending on which samples we hold out for training/evaluation)
+train <- 1:(nrow(X.cf) / 2)
+
+train.forest <- causal_forest(X.cf[train, ], Y[train], W[train], Y.hat = Y.hat[train], W.hat = W.hat)
+tau.hat.eval <- predict(train.forest, X.cf[-train, ])$predictions
+
+eval.forest <- causal_forest(X.cf[-train, ], Y[-train], W[-train], Y.hat = Y.hat[-train], W.hat = W.hat)
 ```
 
-In line with the previous study, there does not appear to be an effect on average:
+In line with the study mentioned above, there does not appear to be an effect on average:
 ```{r}
-average_treatment_effect(cf)
+average_treatment_effect(eval.forest)
 ```
 
 ```{r}
-varimp <- variable_importance(cf)
+varimp <- variable_importance(eval.forest)
 ranked.vars <- order(varimp, decreasing = TRUE)
 colnames(X.cf)[ranked.vars[1:5]]
 ```
 
-The outcome is the number of correct answer on a test measuring cognitive ability, so a negative CATE means an impairment in cognition due to poverty, so in computing the RATE (AUTOC) we rank by the most negative CATEs first, as well as age (from young to old) as indicated by the split frequency:
+The outcome is the number of correct answer on a test measuring cognitive ability, so a negative CATE means an impairment in cognition due to poverty, so in computing the RATE (AUTOC) we rank by the most negative CATEs. We also consider age (old to youn), as it shows up high in the split frequency.
 ```{r}
-tau.hat.oob <- predict(cf)$predictions
-rate.oob <- rank_average_treatment_effect(cf, list(cate = -1 *tau.hat.oob))
-rate.age <- rank_average_treatment_effect(cf, list(age = -1 * X$age))
+rate.cate <- rank_average_treatment_effect(eval.forest, list(cate = -1 *tau.hat.eval))
+rate.age <- rank_average_treatment_effect(eval.forest, list(age = X[-train, "age"]))
 
 par(mfrow = c(1, 2))
-plot(rate.oob, ylab = "Number of correct answers", main = "TOC: Rank by most negative CATEs")
-plot(rate.age, ylab = "Number of correct answers", main = "TOC: Rank by increasing age")
+plot(rate.cate, ylab = "Number of correct answers", main = "TOC: Rank by most negative CATEs")
+plot(rate.age, ylab = "Number of correct answers", main = "TOC: Rank decreasing increasing age")
+
+rate.cate
+rate.age
 ```
 
-The TOC is informative here since it is clearly indicating a lower quantile $q$ where there may be a decline in cognition. Farbmacher et al. (2021) indicates that there appears to be a small subset of the population experiencing adverse effects from poverty, and this is a setting where the AUTOC can be more more powerful than the so-called Qini coefficient (or cost curve AUC used in the marketing literature) in detecting heterogeneity. Computing the same evaluations using the Qini weighting yields much lower estimates.
-
-[TODO: ppl might ask about how to look at TOC based in interactions and not just sorts, i.e young ppl with low income?]
+The TOC is informative here since it appear to be indicating a lower quantile $q$ where there may be a decline in cognition. Farbmacher et al. (2021) indicates that there appears to be a small subset of the population experiencing adverse effects from poverty, and this is a setting where the AUTOC can be more more powerful than the so-called Qini coefficient in detecting heterogeneity. Computing the same evaluations using the Qini weighting yields lower estimates.
 
 ```{r}
-qini.oob <- rank_average_treatment_effect(cf, list(cate = -1 * tau.hat.oob), target = "QINI")
-qini.age <- rank_average_treatment_effect(cf, list(age = -1 * X$age), target = "QINI")
-```
+qini.cate <- rank_average_treatment_effect(eval.forest, list(cate = -1 *tau.hat.eval), target = "QINI")
+qini.age <- rank_average_treatment_effect(eval.forest, list(age = X[-train, "age"]), target = "QINI")
 
-```{r}
-rates <- list(rate.oob, qini.oob, rate.age, qini.age)
-do.call(rbind, lapply(rates, function(x) x[c("estimate", "std.err", "target")]))
-```
-
-While not significant, the AUTOC estimates are higher than Qini since it place more weight on that smaller part of the population which appears to experience an adverse effect, which according to the TOC seems to be the very youngest part of the sample.
-
-If we look at the ATE among the youngest population it appears there is a significant effect on decreased attention
-```{r}
-average_treatment_effect(cf, subset =  X$age < quantile(X$age, 0.1))
+qini.cate
+qini.age
 ```
 
 ## Further resources
@@ -431,8 +429,6 @@ average_treatment_effect(cf, subset =  X$age < quantile(X$age, 0.1))
 * [Stanford video lectures on machine learning & causal inference](https://youtube.com/playlist?list=PLxq_lXOUlvQAoWZEqhRqHNezS30lI49G-)
 
 * [Online seminar on estimating heterogeneous treatment effects in R](https://youtu.be/YBbnCDRCcAI)
-
-*other references?*
 
 
 ## References
