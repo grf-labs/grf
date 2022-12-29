@@ -127,7 +127,3 @@ jobs:
       git push --force https://$(GITHUB_PAT)@github.com/grf-labs/grf.git HEAD:gh-pages
     workingDirectory: r-package/grf
     displayName: 'Publish GitHub Pages'
-    condition: |
-      and(eq(variables['Agent.OS'], 'Linux'),
-      and(not(eq(variables['Build.Reason'], 'PullRequest')),
-      eq(variables['Build.SourceBranch'], 'refs/heads/master')))
