@@ -211,13 +211,13 @@ best_linear_projection(cf, X[ranked.vars[1:5]])
 Looking at the best linear projection (BLP) it appears students with high "financial autonomy index" benefits less from treatment, the RCT authors write that this is a "psychology-based financial autonomy index that aggregated a series of questions that measured whether students felt empowered, confident, and capable of making independent financial decisions and influencing the financial decisions of the households". The BLP appears to suggest that students that already are financially comfortable as measured by this index, don't benefit much from the training course.
 
 ### Evaluating CATE estimates and analyzing heterogeneity
-Causal inference is fundamentally more challenging that typical predictive use of machine learning algorithms that have a well defined scoring metric, such as a prediction error. Treatment effects are fundamentally unobserved, so we need other model selection or metrics to assess performance. The *R-loss* discussed in Nie & Wager (2021) is one such metric, and could for example be used a cross-validation criterion, however is does not tell us anything about whether there are HTEs present. Even though the true treatment effects are unobserved, we can use suitable *estimates* of treatment effects on held out data to evaluate models. The *Rank-Weighted Average Treatment Effect* ([RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html)) (Yadlowsky et al., 2022) is a metric that assesses how well a CATE estimator does in ranking units according to estimated treatment benefit. It can be thought of as an Area Under the Curve (AUC) measure for heterogeneity, where a larger number is better.
+Causal inference is fundamentally more challenging that typical predictive use of machine learning algorithms that have a well defined scoring metric, such as a prediction error. Treatment effects are fundamentally unobserved, so we need other model selection or metrics to assess performance. The *R-loss* discussed in Nie & Wager (2021) is one such metric, and could for example be used as a cross-validation criterion, however is does not tell us anything about whether there are HTEs present. Even though the true treatment effects are unobserved, we can use suitable *estimates* of treatment effects on held out data to evaluate models. The *Rank-Weighted Average Treatment Effect* ([RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html)) (Yadlowsky et al., 2022) is a metric that assesses how well a CATE estimator does in ranking units according to estimated treatment benefit. It can be thought of as an Area Under the Curve (AUC) measure for heterogeneity, where a larger number is better.
 
 The RATE has an appealing visual component, in that it is the area under the curve that traces out the following difference in expected values while varying the treated fraction $q \in [0, 1]$:
 $$TOC(q) = E[Y_i(1) - Y_i(0) | \hat \tau(X_i) \geq F^{-1}_{\hat \tau(X_i)}(1 - q)] - E[Y_i(1) - Y_i(0)],$$
 ($F(\cdot)$ is the distribution function). I.e. at $q = 0.2$ the TOC quantifies the incremental benefit of treating only the 20% with the largest estimated CATEs compared to the overall ATE. We refer to the area under the TOC as the *AUTOC*, there are other RATE metrics such as the *Qini*, which weights the area under the TOC differently.
 
-A recipe for valid inference with RATE is to split the data into a training and evaluation set, one for evaluating the RATE, and another to train a CATE estimator. The drawback of this approach is that we may detect different findings depending on the random sample used to define the evaluation and training sets. The the RCT was clustered at the school level, we'll draw random units at the school level.
+A recipe for valid inference with RATE is to split the data into a training and evaluation set, one for evaluating the RATE, and another to train a CATE estimator. A drawback of this approach is that we may detect different findings depending on the random sample used to define the evaluation and training sets. Since the RCT was clustered at the school level, we'll draw random units at the school level:
 
 ```{r}
 samples.by.school <- split(seq_along(school), school)
@@ -230,7 +230,7 @@ tau.hat.eval <- predict(train.forest, X[-train, ])$predictions
 eval.forest <- causal_forest(X[-train, ], Y[-train], W[-train], W.hat = 0.5, clusters = school[-train])
 
 rate.cate <- rank_average_treatment_effect(eval.forest, tau.hat.eval)
-plot(rate.cate, main = "TOC: Rank by decreasing estimated CATE")
+plot(rate.cate, main = "TOC: By decreasing estimated CATE")
 rate.cate
 ```
 
@@ -243,7 +243,7 @@ rate.fin.index <- rank_average_treatment_effect(
   -1 * X$financial.autonomy.index, # Multiply by -1 do order by decreasing index
   subset = !is.na(X$financial.autonomy.index) # Ignore missing X-values
   )
-plot(rate.fin.index, xlab = "Treated fraction", ylab = "Increase in test scores", main = "TOC: Rank by increasing financial autonomy")
+plot(rate.fin.index, xlab = "Treated fraction", ylab = "Increase in test scores", main = "TOC: By increasing financial autonomy")
 rate.fin.index
 ```
 The TOC suggest that students with a lower financial autonomy index benefits more than average from the program, and AUTOC is significant at conventional levels: `rate.fin.index$estimate / rate.fin.index$std.err` = `r rate.fin.index$estimate / rate.fin.index$std.err`. Compared to the standard deviation of the outcome `sd(Y)` = `r sd(Y)` the benefit also appears meaningful.
@@ -251,12 +251,12 @@ The TOC suggest that students with a lower financial autonomy index benefits mor
 ### Tree-based policy learning
 In this section we'll walk through finding a tree-based treatment policy using the GRF sister package [policytree](https://github.com/grf-labs/policytree). Since the RATE suggests that some parts of the population appears to benefit less from the education program, such as those students that are already highly "financial autonomous", we'll try to see if we can use a data adaptive algorithm to assign the treatment based on subgroup. One way to do this is to posit a simple covariate based rule that should determine program participation, this is what `policytree` does, by finding a shallow decision tree that maximizes the empirical "reward" of adhering to this treatment assignment policy.
 
-Denote a by $\pi(X_i)$ a function (policy) that takes a covariate vector $X_i$ and maps it to a binary decision of whether the subject should be treated or not: $\pi \mapsto \{0, 1\}$ (this can easily be extended to multiple treatments). The task of finding such a policy is often referred to as policy learning. Given doubly robust estimates $\hat \Gamma_i$ of binary treatment effects, `policytree` finds a tree-based policy $\pi(X_i)$ that maximizes
+Denote by $\pi(X_i)$ a function (policy) that takes a covariate vector $X_i$ and maps it to a binary decision of whether the subject should be treated or not: $\pi \mapsto \{0, 1\}$ (this can easily be extended to multiple treatments). The task of finding such a policy is often referred to as policy learning. Given doubly robust estimates $\hat \Gamma_i$ of binary treatment effects, `policytree` finds a tree-based policy $\pi(X_i)$ that maximizes
 
 $$\frac{1}{n} \sum_{i=1}^{n} (2\pi(X_i) - 1)\hat \Gamma_i.$$
 (note on where "2" comes from: since $\pi \in \{0, 1\}$ then $2\pi - 1 \in \{-1, 1\}$, i.e. the objective function increases by $\hat \Gamma_i$ when we give unit $i$ the treatment, and decrease by $-\hat \Gamma_i$ when we do not give unit $i$ the treatment).
 
-Below we'll walk through an example of using the [policy_tree](https://grf-labs.github.io/policytree/reference/policy_tree.html) function from `policytree` to find an optimal depth-2 decision tree policy. This function uses a purpose-built C++ solver to find a shallow and optimal decision rule, and there are some useful suggestions in the [docstring](https://grf-labs.github.io/policytree/reference/policy_tree.html) on how this approach can be expected to scale (for example, reducing the $X_j$ cardinality leads to fewer split points to search over). We are using separate data sets to fit and evaluate the policy:
+Below we'll walk through an example of using the [policy_tree](https://grf-labs.github.io/policytree/reference/policy_tree.html) function from `policytree` to find an optimal depth-2 decision tree policy. This function uses a purpose-built C++ solver to find a shallow and optimal decision rule[^4]. We are using separate data sets to fit and evaluate the policy:
 
 ```{r}
 library(policytree)
@@ -359,7 +359,7 @@ ranked.vars <- order(varimp, decreasing = TRUE)
 colnames(X.cf)[ranked.vars[1:5]]
 ```
 
-The outcome is the number of correct answer on a test measuring cognitive ability, so a negative CATE means an impairment in cognition due to poverty, so in computing the RATE (AUTOC) we rank by the most negative CATEs. We also consider age (old to youn), as it shows up high in the split frequency.
+The outcome is the number of correct answer on a test measuring cognitive ability, so a negative CATE means an impairment in cognition due to poverty, so in computing the RATE (AUTOC) we rank by the most negative CATEs. We also consider age (old to young), as it shows up high in the split frequency.
 ```{r}
 rate.cate <- rank_average_treatment_effect(eval.forest, list(cate = -1 *tau.hat.eval))
 rate.age <- rank_average_treatment_effect(eval.forest, list(age = X[-train, "age"]))
@@ -372,7 +372,7 @@ rate.cate
 rate.age
 ```
 
-The TOC is informative here since it appears to be indicating a lower quantile $q$ where there may be a decline in cognition. Farbmacher et al. (2021) indicates that there appears to be a small subset of the population experiencing adverse effects from poverty, and this is a setting where the AUTOC can be more powerful than the so-called Qini coefficient in detecting heterogeneity. Computing the same evaluations using the Qini weighting yields lower estimates.
+The TOC is informative here since it appears to be indicating a lower quantile $q$ where there may be a decline in cognition. Farbmacher et al. (2021) argue that there appears to be a small subset of the population experiencing adverse effects from poverty, and this is a setting where the AUTOC can be more powerful than the so-called Qini coefficient in detecting heterogeneity. Computing the same evaluations using the Qini weighting yields lower estimates.
 
 ```{r}
 qini.cate <- rank_average_treatment_effect(eval.forest, list(cate = -1 *tau.hat.eval), target = "QINI")
@@ -432,3 +432,5 @@ Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based recursive partiti
 [^2]: For a discussion of how Robinson's transformation can be used to motivate a generic loss function for heterogeneous treatment effects estimation (the *R-learner*), see Nie & Wager (2021).
 
 [^3]: Note that $\theta$ does not have to be a scalar, the same construction could be used to target heterogeneity in a vector-valued target parameter by defining the criterion as the squared L2 norm: $n_L n_R || \hat \tau_L - \hat \tau_R||^2$. This is the approach `grf`'s multi-arm causal forest takes.
+
+[^4]: The [documentation](https://grf-labs.github.io/policytree/reference/policy_tree.html) explains how this approach can be expected to scale to larger data sets (for example, reducing the $X_j$ cardinality leads to fewer split points to search over, and helps reduce the computational requirements of this approach).
