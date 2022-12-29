@@ -21,7 +21,7 @@ library(grf)
 ```
 <center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_green.png" height="132"></center>
 
-This vignette contains a [brief overview](#a-grf-overview) of the GRF algorithm and example applications: 1) [the benefits of a financial education program](#a-grf-application-school-program-evaluation) and 2) [measuring the effect of poverty on attention](#a-grf-application-measuring-the-effect-of-poverty-on-attention), which walks through using GRF to estimate conditional average treatment effects (CATEs), summarize the estimates and assess fit using:
+This vignette contains a [brief overview](#a-grf-overview) of the GRF algorithm and example applications: 1) [The benefits of a financial education program](#application-school-program-evaluation) and 2) [Measuring the effect of poverty on attention](#application-measuring-the-effect-of-poverty-on-attention), which walks through using GRF to estimate conditional average treatment effects (CATEs), summarize the estimates and assess fit using:
 
 * The [best_linear_projection](https://grf-labs.github.io/grf/reference/best_linear_projection.html) as simple linear association measures which can provide a useful lower dimensional summary of the CATEs, while retaining good semi-parametric inferential properties.
 
@@ -47,7 +47,7 @@ and interpret the estimated $\hat \tau$ as an estimate of the average treatment 
 
 Assumption 1) is an "identifying" assumption we have to live with, however 2) and 3) are modeling assumptions that we can question. Let's start with assumption 2): this is a strong parametric modeling assumption that requires the confounders to have a linear effect on the outcome, and that we should be able to relax by relying on semi-parametric statistics.
 
-*Relaxing assumption 1)*. We can instead posit the partially linear model:
+**Relaxing assumption 1)**. We can instead posit the partially linear model:
 
 $$
 Y_i = \tau W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
@@ -73,7 +73,7 @@ But how are you supposed to estimate $m(x)$ and $e(x)$, don't you still have to 
 
 So, to recap so far: we have a way to adopt the modern ML toolkit to *non-parametrically control for confounding* when estimating an average treatment effect, and still retain desirable statistical properties such as unbiasedness and consistency.
 
-***Non-constant treatment effects***. What if we wish to relax assumption 3)? We could a-priory specify certain subgroups and run separate regressions for each subgroup and obtain different estimates of $\tau$. Ideally How can we take a more data-adaptive approach? We can continue with Robinson's partially linear model from above, and instead just posit:
+**Non-constant treatment effects**. What if we wish to relax assumption 3)? We could a-priory specify certain subgroups and run separate regressions for each subgroup and obtain different estimates of $\tau$. Ideally How can we take a more data-adaptive approach? We can continue with Robinson's partially linear model from above, and instead just posit:
 
 $$
 Y_i = \color{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
@@ -123,7 +123,7 @@ Again, for a single tree with one split, Figure 1) shows a target sample $x$ we 
 
 where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. I.e, random forest essentially predicts a weighted average of outcomes. These weights are the so-called random forest adaptive neighborhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$. Zeileis, Hothorn & Hornik (2003).
 
-***Causal Forest*** essentially combines Breiman (2001) and Robinson (1988) by:
+**Causal Forest** essentially combines Breiman (2001) and Robinson (1988) by:
 
 1) Building phase: Greedily places covariate splits that maximizes the squared difference in subgroup treatment effects $n_L n_R (\hat \tau_L - \hat \tau_R)^2$, where $\hat \tau$ is obtained by running Robinson's residual-on-residual regression for each possible split point[^1].
 2) Use the resulting forest weights $\color{blue}{\alpha_i(x)}$ to estimate
@@ -156,7 +156,7 @@ We can identify the 3 terms as: 1) an initial treatment effect estimate ($\tau(X
 This is the estimation approach taken by `grf` when computing summary measures such as an average treatment effect, and the associated doubly robust scores $\hat \Gamma_i$ can be retrieved by `get_scores`. It is also the estimation approach that underlies summary measures such as the `RATE` and `best linear projection` (as well as doubly robust policy learning). The next two sections walk through empirical examples.
 
 
-## A grf application: school program evaluation
+## Application: school program evaluation
 In this section we walk through an example application of GRF. The data we are using is from Bruhn et al. (2016), which conducted an RCT in Brazil in which high schools were randomly assigned a financial education program (in settings like this it is common to randomize at the school level to avoid student-level interference). This program increased student student financial proficiency on average. Other outcomes are considered in the paper, we'll focus on the financial proficiency score here. A processed copy of this data, containing student-level data from around 17 000 students, is stored on the [github repo](https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes/bruhn2016.csv), it extracts basic student characteristics, as well as additional baseline survey responses we use as covariates (two of these are aggregated into an index by the authors to assess student's ability to save, and their financial autonomy).
 
 *Notation*: throughout we use variable names `Y` and `W` to denote outcomes and binary treatment assignment, and `Y.hat` to denote estimates of $E[Y_i | X_i = x]$, `W.hat` estimates of $E[W_i | X_i = x]$, and `tau.hat` estimates of $\tau(X_i) = E[Y_i(1) - Y_i(0) | X_i = x]$.
@@ -339,7 +339,7 @@ cbind(
 The ATE is not significant at conventional levels in the predicted groups, except for the final terminal node, where the algorithm apparently identifies a smaller set of students which a high financial autonomy index to benefit less than average from the treatment (that is, the ATE minus the cost is negative and borderline significant).
 
 
-## A grf application: measuring the effect of poverty on attention
+## Application: measuring the effect of poverty on attention
 In this section we walk through an example following Farbmacher et al. (2021) who studies a causal forest application using data from Carvalho et al. (2016). Carvalho et al. (2016) conducted an experiment where they randomly assigned low-income individuals to perform a cognitive test before ($W=1$) or after ($W=0$) payday. The outcome is the performance on a test designed to measure cognitive ability. The original study did not find an effect on average, however Farbmacher et al. (2021) conducts a HTE analysis and finds evidence suggesting there are parts of the population where poverty impairs cognitive function. A processed copy of this data is stored on the [github repo](https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes/carvalho2016.csv) and contains observations from around 2 500 individuals along with 27 characteristics such as age, income, etc. Education is stored as an ordinal value where a high value means high education and a low less education (4: college graduate, 3: some college, 2: high school graduate, 1: less than high school).
 
 ### Data overview
