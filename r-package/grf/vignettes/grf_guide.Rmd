@@ -52,7 +52,7 @@ Assumption 1) is an "identifying" assumption we have to live with, however 2) an
 $$
 Y_i = \tau W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
 $$
-where we assume a unit's baseline outcome are given by some unknown (possibly complex) function $f$, and that a treatment assignment shifts the outcome by a constant offset $\tau$. But how do we get around estimating $\tau$ when we do not know $f(X_i)$? Robinson (1988) shows that, if we define the following two intermediary objects:
+where we assume a unit's baseline outcome is given by some unknown (possibly complex) function $f$, and that a treatment assignment shifts the outcome by a constant offset $\tau$. But how do we get around estimating $\tau$ when we do not know $f(X_i)$? Robinson (1988) shows that, if we define the following two intermediary objects:
 
 $$
 e(x) = E[W_i | X_i=x],
@@ -67,7 +67,7 @@ the conditional mean of $Y$, then we can rewrite the above equation on "centered
 $$
 Y_i - m(x) = \tau (W_i - e(x)) + \varepsilon_i.
 $$
-This formulation has great practical appeal, as it means $\tau$ can be estimated by residual-on-residual regression: plug in estimates of $m(x)$ and $e(x)$ then regress the centered outcomes on the centered treatment indicator. Robinson (1988) show that this approach yields root-n consistent estimates of $\tau$, even if estimates of $m(x)$ and $e(x)$ converge at a slower rate ("4-th root" in particular). This property is often referred to as *orthogonality* and is a desirable property which essentially tells you that given noisy "nuisance" estimates ($m(x)$ and $e(x)$) you can still recover "good" estimates of your target parameter ($\tau$).
+This formulation has great practical appeal, as it means $\tau$ can be estimated by residual-on-residual regression: plug in estimates of $m(x)$ and $e(x)$ then regress the centered outcomes on the centered treatment indicator. Robinson (1988) shows that this approach yields root-n consistent estimates of $\tau$, even if estimates of $m(x)$ and $e(x)$ converge at a slower rate ("4-th root" in particular). This property is often referred to as *orthogonality* and is a desirable property which essentially tells you that given noisy "nuisance" estimates ($m(x)$ and $e(x)$) you can still recover "good" estimates of your target parameter ($\tau$).
 
 But how are you supposed to estimate $m(x)$ and $e(x)$, don't you still have to posit a parametric model (like for example a logistic regress for the propensity score)? This is where the modern machine learning toolkit comes in handy, by recognizing that for $m(x)$ and $e(x)$ we are only asking for good *predictions* of the outcome conditional on $X_i$, and the treatment assignment conditional on $X_i$. This is the type of problem modern machine learning methods like boosting, random forests, etc., excels at. Directly plugging in estimates of $m(x)$ and $e(x)$ into the residual-on-residual regression will typically lead to bias as modern ML methods regularize to trade of bias and variance, however Chernozhukov et al. (2018) show that if you form these estimates in a "cross-fit" manner, meaning the prediction of observation i's outcome and treatment assignment is obtained without using unit i for estimation, then (given some regularity assumptions) you can still recover root-n consistent estimates of $\tau$.
 
@@ -211,7 +211,7 @@ best_linear_projection(cf, X[ranked.vars[1:5]])
 Looking at the best linear projection (BLP) it appears students with high "financial autonomy index" benefits less from treatment, the RCT authors write that this is a "psychology-based financial autonomy index that aggregated a series of questions that measured whether students felt empowered, confident, and capable of making independent financial decisions and influencing the financial decisions of the households". The BLP appears to suggest that students that already are financially comfortable as measured by this index, don't benefit much from the training course.
 
 ### Evaluating CATE estimates and analyzing heterogeneity
-Causal inference is fundamentally more challenging that typical predictive use of machine learning algorithms that have a well defined scoring metric, such as a prediction error. Treatment effects are fundamentally unobserved, so we need other model selection or metrics to assess performance. The *R-loss* discussed in Nie & Wager (2021) is one such metric, and could for example be used as a cross-validation criterion, however is does not tell us anything about whether there are HTEs present. Even though the true treatment effects are unobserved, we can use suitable *estimates* of treatment effects on held out data to evaluate models. The *Rank-Weighted Average Treatment Effect* ([RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html)) (Yadlowsky et al., 2022) is a metric that assesses how well a CATE estimator does in ranking units according to estimated treatment benefit. It can be thought of as an Area Under the Curve (AUC) measure for heterogeneity, where a larger number is better.
+Causal inference is fundamentally more challenging that typical predictive use of machine learning algorithms that have a well defined scoring metric, such as a prediction error. Treatment effects are fundamentally unobserved, so we need other model selection or metrics to assess performance. The *R-loss* discussed in Nie & Wager (2021) is one such metric, and could for example be used as a cross-validation criterion, however it does not tell us anything about whether there are HTEs present. Even though the true treatment effects are unobserved, we can use suitable *estimates* of treatment effects on held out data to evaluate models. The *Rank-Weighted Average Treatment Effect* ([RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html)) (Yadlowsky et al., 2022) is a metric that assesses how well a CATE estimator does in ranking units according to estimated treatment benefit. It can be thought of as an Area Under the Curve (AUC) measure for heterogeneity, where a larger number is better.
 
 The RATE has an appealing visual component, in that it is the area under the curve that traces out the following difference in expected values while varying the treated fraction $q \in [0, 1]$:
 $$TOC(q) = E[Y_i(1) - Y_i(0) | \hat \tau(X_i) \geq F^{-1}_{\hat \tau(X_i)}(1 - q)] - E[Y_i(1) - Y_i(0)],$$
@@ -234,10 +234,10 @@ plot(rate.cate, main = "TOC: By decreasing estimated CATE")
 rate.cate
 ```
 
-For this data set in particular, whether the RATE is significant or not depends on if the CATE estimator is trained on a subsample with sufficient signal. There are more ways to utilize the RATE metric besides CATE rankings, we can compute the TOC by for example the ranking of some specific variable. The previous section suggested that students with high financial autonomy benefits less from the program. We can use the RATE to evaluate how prioritizing students based on this index does:
+For this data set in particular, whether the RATE is significant or not depends on if the CATE estimator is trained on a subsample with sufficient signal. There are more ways to utilize the RATE metric besides CATE rankings, we can compute the TOC by for example the ranking of some specific variable. The previous section suggested that students with high financial autonomy benefit less from the program. We can use the RATE to evaluate how prioritizing students based on this index does:
 
 ```{r}
-# We use the trained forest on the full data since are computing the RATE based on a covariate.
+# We use the trained forest on the full data since we are computing the RATE based on a covariate.
 rate.fin.index <- rank_average_treatment_effect(
   cf,
   -1 * X$financial.autonomy.index, # Multiply by -1 do order by decreasing index
@@ -249,7 +249,7 @@ rate.fin.index
 The TOC suggest that students with a lower financial autonomy index benefits more than average from the program, and AUTOC is significant at conventional levels: `rate.fin.index$estimate / rate.fin.index$std.err` = `r rate.fin.index$estimate / rate.fin.index$std.err`. Compared to the standard deviation of the outcome `sd(Y)` = `r sd(Y)` the benefit also appears meaningful.
 
 ### Tree-based policy learning
-In this section we'll walk through finding a tree-based treatment policy using the GRF sister package [policytree](https://github.com/grf-labs/policytree). Since the RATE suggests that some parts of the population appears to benefit less from the education program, such as those students that are already highly "financial autonomous", we'll try to see if we can use a data adaptive algorithm to assign the treatment based on subgroup. One way to do this is to posit a simple covariate based rule that should determine program participation, this is what `policytree` does, by finding a shallow decision tree that maximizes the empirical "reward" of adhering to this treatment assignment policy.
+In this section we'll walk through finding a tree-based treatment policy using the GRF sister package [policytree](https://github.com/grf-labs/policytree). Since the RATE suggests that some parts of the population appear to benefit less from the education program, such as those students that are already highly "financially autonomous", we'll try to see if we can use a data adaptive algorithm to assign the treatment based on subgroups. One way to do this is to posit a simple covariate based rule that should determine program participation, this is what `policytree` does, by finding a shallow decision tree that maximizes the empirical "reward" of adhering to this treatment assignment policy.
 
 Denote by $\pi(X_i)$ a function (policy) that takes a covariate vector $X_i$ and maps it to a binary decision of whether the subject should be treated or not: $\pi \mapsto \{0, 1\}$ (this can easily be extended to multiple treatments). The task of finding such a policy is often referred to as policy learning. Given doubly robust estimates $\hat \Gamma_i$ of binary treatment effects, `policytree` finds a tree-based policy $\pi(X_i)$ that maximizes
 
@@ -411,7 +411,7 @@ Farbmacher, Helmut, Heinrich Kögel, and Martin Spindler. "Heterogeneous effects
 
 Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. Cambridge University Press, 2015.
 
-Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. "Estimation of regression coefficients when some regressors are not always observed." Journal of the American statistical Association 89, no. 427 (1994): 846-866.
+Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. "Estimation of regression coefficients when some regressors are not always observed." Journal of the American Statistical Association 89, no. 427 (1994): 846-866.
 
 Stone, Charles J. "Optimal rates of convergence for nonparametric estimators." The annals of Statistics (1980): 1348-1360.
 
