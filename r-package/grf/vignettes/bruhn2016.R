@@ -13,7 +13,7 @@
 # Creative Commons Attribution 4.0 International Public License
 # (https://creativecommons.org/licenses/by/4.0/)
 # - applies to databases, images, tables, text, and any other objects
-# 
+#
 # COPYRIGHT 2016 American Economic Association
 #
 # =================================================================
@@ -307,7 +307,5 @@ X = round(X, 0)
 
 lm(Y ~ W) # Table 3 ATE ~ the same
 
-# Store in shuffled order.
-idx = sample(nrow(X))
-write.csv(cbind(outcome.test.score = Y, treatment = W, school = school, X)[idx, ],
+write.csv(cbind(outcome.test.score = Y, treatment = W, school = school, X),
           "bruhn2016.csv", row.names = FALSE, na = "NA")
