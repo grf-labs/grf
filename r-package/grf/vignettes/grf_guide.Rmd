@@ -31,7 +31,7 @@ This vignette contains a [brief overview](#a-grf-overview) of the GRF algorithm 
 
 
 ## A grf overview
-This section gives a lighting tour of some of the conceptual ideas behind GRF in the form of a walk through of *Causal Forests*. It starts with describing how the predictive capabilities of the modern machine learning toolbox can be leveraged to non-parametrically control for confounding when estimating average treatment effects, and how Breiman's (2001) random forest can be repurposed as an adaptive nearest neighbor finder to detect treatment effect heterogeneity.
+This section gives a lighting tour of some of the conceptual ideas behind GRF in the form of a walk through of *Causal Forests*. It starts with describing how the predictive capabilities of the modern machine learning toolbox can be leveraged to non-parametrically control for confounding when estimating average treatment effects, and how Breiman's (2001) random forest can be repurposed as an adaptive nearest neighbor finder to detect treatment effect heterogeneity. (For a great overview of the fundamental tension between prediction and estimation, see the essay by Efron, 2020).
 
 ### Machine learning for causal inference
 Imagine we observe outcomes $Y_i$ along with a binary treatment indicator $W=\{0, 1\}$ and are interested in measuring the average causal effect of the intervention on the outcome. If we are not in a randomized control trial setting, but have collected a set of covariates $X_i$ which we believe could plausible account for confounding, then we could run a regression of the type (Imbens & Rubin, 2005)
@@ -230,7 +230,7 @@ tau.hat.eval <- predict(train.forest, X[-train, ])$predictions
 eval.forest <- causal_forest(X[-train, ], Y[-train], W[-train], W.hat = 0.5, clusters = school[-train])
 
 rate.cate <- rank_average_treatment_effect(eval.forest, tau.hat.eval)
-plot(rate.cate, main = "TOC: Rank by decreasing CATE")
+plot(rate.cate, main = "TOC: Rank by decreasing estimated CATE")
 rate.cate
 ```
 
@@ -251,24 +251,17 @@ The TOC suggest that students with a lower financial autonomy index benefits mor
 ### Tree-based policy learning
 In this section we'll walk through finding a tree-based treatment policy using the GRF sister package [policytree](https://github.com/grf-labs/policytree). Since the RATE suggests that some parts of the population appears to benefit less from the education program, such as those students that are already highly "financial autonomous", we'll try to see if we can use a data adaptive algorithm to assign the treatment based on subgroup. One way to do this is to posit a simple covariate based rule that should determine program participation, this is what `policytree` does, by finding a shallow decision tree that maximizes the empirical "reward" of adhering to this treatment assignment policy.
 
-Denote a by $\pi(X_i)$ a function (policy) that takes a covariate vector $X_i$ and maps it to a binary decision of whether the subject should be treated or not: $\pi \mapsto \{0, 1\}$ (this can easily be extended to multiple treatments). The task of finding such a policy is often referred to as policy learning, or in the context of treatment assignment: empirical welfare maximization. Given doubly robust estimates $\hat \Gamma_i$ of binary treatment effects, `policytree` finds a tree-based function $\pi(X_i)$ that maximizes
+Denote a by $\pi(X_i)$ a function (policy) that takes a covariate vector $X_i$ and maps it to a binary decision of whether the subject should be treated or not: $\pi \mapsto \{0, 1\}$ (this can easily be extended to multiple treatments). The task of finding such a policy is often referred to as policy learning. Given doubly robust estimates $\hat \Gamma_i$ of binary treatment effects, `policytree` finds a tree-based policy $\pi(X_i)$ that maximizes
 
 $$\frac{1}{n} \sum_{i=1}^{n} (2\pi(X_i) - 1)\hat \Gamma_i.$$
 (note on where "2" comes from: since $\pi \in \{0, 1\}$ then $2\pi - 1 \in \{-1, 1\}$, i.e. the objective function increases by $\hat \Gamma_i$ when we give unit $i$ the treatment, and decrease by $-\hat \Gamma_i$ when we do not give unit $i$ the treatment).
 
-A natural question to ask in this section is: why not use the estimated CATEs as a policy, i.e $\pi(X_i) = 1\{\hat \tau(X_i) > 0 \}$? This is a perfectly valid policy, and one which may be useful depending on context. Situations a simple rule-based policy learning is useful in may be for example: a) settings in which we are deploying a data-driven rule which for transparency reasons needs to be interpretable (i.e. we couldn't say to Alice she didn't get a training program beacuse some black-box CATE estimator said so, but rather, her educational history suggested, encoded by some covariates $X_j$ fell below some recommended cutoff), or b) situations where we would like to find a few groups that benefit from different treatment assignments, or perhaps c) production systems which predict an action based on a costly and complex machine learning model that takes resources to train and maintain: a rule-based policy could replace this complex pipeline with a few "if-statements".
-
-Below we'll walk through an example of using the [policy_tree](https://grf-labs.github.io/policytree/reference/policy_tree.html) function from `policytree` to find a globally optimal depth-2 decision tree policy. This function uses a purpose-built C++ solver to find a shallow and optimal decision rule, and there are some useful suggestions in the [docstring]((https://grf-labs.github.io/policytree/reference/policy_tree.html) on how this approach can be expected to scale (for example, reducing the $X_j$ cardinality leads to fewer split points to search over). As before, we are using separate data sets to fit and evaluation the policy:
+Below we'll walk through an example of using the [policy_tree](https://grf-labs.github.io/policytree/reference/policy_tree.html) function from `policytree` to find an optimal depth-2 decision tree policy. This function uses a purpose-built C++ solver to find a shallow and optimal decision rule, and there are some useful suggestions in the [docstring](https://grf-labs.github.io/policytree/reference/policy_tree.html) on how this approach can be expected to scale (for example, reducing the $X_j$ cardinality leads to fewer split points to search over). We are using separate data sets to fit and evaluate the policy:
 
 ```{r}
 library(policytree)
-# Use first half of data for policy learning and second half for training
-# (the original data is stored in random order)
-# train <- 1:(nrow(X)/2)
-# eval <- (1:nrow(X))[-train]
-# eval <- -train
+# Use train/evaluation school split from above, but use non-missing units for policy_tree
 eval <- (1:nrow(X))[-train]
-
 not.missing <- which(complete.cases(X))
 train <- train[which(train %in% not.missing)]
 eval <- eval[which(eval %in% not.missing)]
@@ -283,7 +276,7 @@ dr.rewards <- cbind(control=-dr.scores, treat=dr.scores - cost)
 tree <- policy_tree(X[train, ], dr.rewards[train, ], min.node.size = 100)
 plot(tree, leaf.labels = c("dont treat", "treat"))
 ```
-The fitted rule can evidently discriminate between units that benefit more than average from the program. Students who apparently already have good financial habits as measured by the two indexes don't benefit as much as other groups. To assess the statistical validity of this we should evaluate it on a held out data set, where it won't necessarily give the same mean reward:
+The fitted rule can evidently discriminate between units that benefit more than average from the program in-sample. To assess the statistical validity of this we should evaluate it on a held out data set, where it won't necessarily give the same mean reward:
 
 ```{r}
 pi.hat <- predict(tree, X[eval,]) - 1
@@ -306,7 +299,6 @@ cbind(
             FUN = leaf_stats)
 )
 ```
-The ATE is not significant at conventional levels in the predicted groups, except for the final terminal node, where the algorithm apparently identifies a smaller set of students which a high financial autonomy index to benefit less than average from the treatment (that is, the ATE minus the cost is negative and borderline significant).
 
 
 ## Application: measuring the effect of poverty on attention
@@ -373,8 +365,8 @@ rate.cate <- rank_average_treatment_effect(eval.forest, list(cate = -1 *tau.hat.
 rate.age <- rank_average_treatment_effect(eval.forest, list(age = X[-train, "age"]))
 
 par(mfrow = c(1, 2))
-plot(rate.cate, ylab = "Number of correct answers", main = "TOC: Rank by most negative CATEs")
-plot(rate.age, ylab = "Number of correct answers", main = "TOC: Rank decreasing increasing age")
+plot(rate.cate, ylab = "Number of correct answers", main = "TOC: By most negative CATEs")
+plot(rate.age, ylab = "Number of correct answers", main = "TOC: By decreasing age")
 
 rate.cate
 rate.age
@@ -411,6 +403,8 @@ Bruhn, Miriam, Luciana de Souza Leão, Arianna Legovini, Rogelio Marchetti, and 
 Carvalho, Leandro S., Stephan Meier, and Stephanie W. Wang. "Poverty and economic decision-making: Evidence from changes in financial resources at payday." American economic review 106, no. 2 (2016): 260-84.
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. "Double/debiased machine learning for treatment and structural parameters." The Econometrics Journal, 2018.
+
+Efron, Bradley. "Prediction, estimation, and attribution." International Statistical Review 88 (2020): S28-S59.
 
 Farbmacher, Helmut, Heinrich Kögel, and Martin Spindler. "Heterogeneous effects of poverty on attention." Labour Economics 71 (2021): 102028.
 
