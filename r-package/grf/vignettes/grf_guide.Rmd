@@ -138,24 +138,24 @@ That is, *Causal Forest* is running a "forest"-localized version of Robinson's r
 
 The procedure we outlined above can be generalized (thus the name *generalized* random forest) to estimate other quantities beside heterogeneous treatment effects. The key ingredient is phase 1) above, by recognizing that Robinson's regression equivalently can be expressed on "estimating equation" form given by a particular scoring function $\psi_{\tau}(\cdot)$. GRF (Athey, Tibshirani & Wager, 2019) generalizes phase 1) to target heterogeneity in some arbitrary parameter given as the solution to this estimating equation. That is, GRF essentially takes as input a formulation of how to estimate a certain parameter[^3] $\theta$ *without* the presence of covariates (in the form of the scoring function $\psi$) then finds forest weights $\alpha(x)$ that yields *covariate*-specific estimates $\theta(x)$.
 
-### Final ingredient: Gaining efficiency with doubly robust estimation
-We briefly mentioned that Robinson's residual-on-residual satisfied an *orthogonality* property in the sense that the target parameter ($\tau$) could be estimated well (in the sense of root-n convergence) despite nuisance components ($m(x)$ and $e(x)$) being estimated at slower rates. This is a desirable property of an estimating equation $\psi$, particularly if we wish to estimate nuisance components with machine learning methods that, while more flexible than parametric models, converge at slower rates (Stone, 1980).
+### Efficiently estimating summary measures of the CATEs
+So far we have covered how Robinson's residual-on-residual satisfied an orthogonality property in the sense that the target parameter $\tau(x)$ could be estimated reasonably well despite nuisance components ($m(x)$ and $e(x)$) being estimated at slower rates. This is a desirable property of an estimating equation $\psi$, particularly if we wish to estimate nuisance components with machine learning methods that, while more flexible than parametric models, converge at slower rates (Stone, 1980). What about estimating summaries of $\tau(x)$, in terms of estimands like the average treatment effect (ATE), or the best linear projection (BLP), that have guaranteed root-n rate of convergence along with exact confidence intervals?
 
-For estimating quantities that take the form of an average, such as an average treatment effect (ATE) $\tau = E[Y_i(1) - Y(0)]$, or an average of CATEs for a certain subgroup, there is yet another efficiency gain to obtain by drawing from classical insights from semi-parametric statistics: Robins, Rotnitzky & Zhao (1994) showed that the so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators it has the lowest variance). It looks like the following:
+It turns out there are better approaches than simply averaging the $\hat \tau(x)$'s obtained with a causal forest[^4]. Robins, Rotnitzky & Zhao (1994) showed that the so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators it has the lowest variance). It looks like the following:
 
 $$
 \hat \tau_{AIPW} = \frac{1}{n} \sum_{i=1}^{n}\left( \mu(X_i, 1) - \mu(X_i, 0) + W_i \frac{Y_i - \mu(X_i, 1)}{e(X_i)} - (1 - W_i)\frac{Y_i - \mu(X_i, 0)}{1 - e(X_i)} \right),
 $$
-where $\mu(X_i, 1),  \mu(X_i, 0)$ are estimates of the conditional means in the two treatment arms: $\mu(X_i, W_i) = E[Y_i | X_i = x, W_i = w]$. This expression can be arranged and expressed as
+where $\mu(X_i, 1),  \mu(X_i, 0)$ are estimates of the conditional means in the two treatment arms: $\mu(X_i, W_i) = E[Y_i | X_i = x, W_i = w]$. This expression can be rearranged and expressed as
 
 
 $$
 \frac{1}{n} \sum_{i=1}^{n}\left( \tau(X_i) + \frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]} \left(Y_i - \mu(X_i, W_i)\right) \right) \\
 = \frac{1}{n} \sum_{i=1}^{n} \Gamma_i.
 $$
-We can identify the three terms as: 1) an initial treatment effect estimate $\tau(X_i)$, 2) a debiasing weight $\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$, and 3) a residual $Y_i - \mu(X_i, W_i)$. This formulation as a one-step plug-in update (i.e, an initial estimate plus a bias correction) is quite general and extends to other target parameters, such as for example a continuous treatment. The only thing that would differ is the debiasing weights. The asymptotic efficiency property of this plug-in construction continues to hold if we substitute in non-parametric estimates (subject to some regularity conditions), as long as they are constructed using appropriate cross-fitting (Zheng & van der Laan 2011, Chernozhukov et al., 2018).
+We can identify the three terms as: 1) an initial treatment effect estimate $\tau(X_i)$, 2) a debiasing weight $\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$, and 3) a residual $Y_i - \mu(X_i, W_i)$. The asymptotic efficiency property of this plug-in construction continues to hold if we substitute in non-parametric nuisance estimates obtained with causal forest (subject to some regularity conditions such as cross-fitting, Zheng & van der Laan (2011), Chernozhukov et al., (2018)).
 
-This is the estimation approach taken by `grf` when computing summary measures such as an average treatment effect, and the associated doubly robust scores $\hat \Gamma_i$ can be retrieved by `get_scores`. It is also the estimation approach that underlies summary measures such as the `RATE` and `best linear projection` (as well as doubly robust policy learning). Summary measures built on these play a crucial role in interpreting non-parametric CATE estimates, as they are by the fundamental limits of non-parametric estimation (machine learning included), *noisy* point estimates. The next two sections walk through empirical examples.
+In general the construction above gives rise to so-called **doubly robust** estimating equations, and it is the approach taken by `grf` when computing summary measures such as the ATE, BLP, and "RATE". The associated doubly robust scores $\hat \Gamma_i$ are accessible through the function `get_scores`. As a concrete example, the ATE is an average of $\hat \Gamma_i$'s, while the best linear projection is a regression of the $\hat \Gamma_i$'s on a set of covariates $X_i$. Summary measures built on these play a crucial role in interpreting non-parametric CATE estimates, as they are by the fundamental limits of non-parametric estimation (machine learning included), *noisy* point estimates. The next two sections walk through empirical examples.
 
 
 ## Application: school program evaluation
@@ -258,7 +258,7 @@ Denote by $\pi(X_i)$ a function (policy) that takes a covariate vector $X_i$ and
 $$\frac{1}{n} \sum_{i=1}^{n} (2\pi(X_i) - 1)\hat \Gamma_i.$$
 (note on where "2" comes from: since $\pi \in \{0, 1\}$ then $2\pi - 1 \in \{-1, 1\}$, i.e. the objective function increases by $\hat \Gamma_i$ when we give unit $i$ the treatment, and decrease by $-\hat \Gamma_i$ when we do not give unit $i$ the treatment).
 
-Below we'll walk through an example of using the [policy_tree](https://grf-labs.github.io/policytree/reference/policy_tree.html) function from `policytree` to find an optimal depth-2 decision tree policy. This function uses a purpose-built C++ solver to find a shallow and optimal decision rule[^4]. We are using separate data sets to fit and evaluate the policy:
+Below we'll walk through an example of using the [policy_tree](https://grf-labs.github.io/policytree/reference/policy_tree.html) function from `policytree` to find an optimal depth-2 decision tree policy. This function uses a purpose-built C++ solver to find a shallow and optimal decision rule[^5]. We are using separate data sets to fit and evaluate the policy:
 
 ```{r}
 library(policytree)
@@ -435,4 +435,6 @@ Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based recursive partiti
 
 [^3]: Note that $\theta$ does not have to be a scalar, the same construction could be used to target heterogeneity in a vector-valued target parameter by defining the criterion as the squared L2 norm: $n_L n_R || \hat \tau_L - \hat \tau_R||^2$. This is the approach `grf`'s multi-arm causal forest takes.
 
-[^4]: The [documentation](https://grf-labs.github.io/policytree/reference/policy_tree.html) explains how this approach can be expected to scale to larger data sets (for example, reducing the $X_j$ cardinality leads to fewer split points to search over, and helps reduce the computational requirements of this approach).
+[^4]: Technically, the individual predictions $\hat \tau(x)$ have errors that are too big, and these errors don't cancel out in the summary.
+
+[^5]: The [documentation](https://grf-labs.github.io/policytree/reference/policy_tree.html) explains how this approach can be expected to scale to larger data sets (for example, reducing the $X_j$ cardinality leads to fewer split points to search over, and helps reduce the computational requirements of this approach).
