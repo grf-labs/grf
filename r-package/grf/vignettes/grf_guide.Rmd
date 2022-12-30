@@ -388,11 +388,11 @@ qini.age
 
 *Some educational resources*
 
-* [Lecture notes - causal inference PhD course at Stanford](http://web.stanford.edu/~swager/stats361.pdf)
-
 * [Stanford video lectures on machine learning & causal inference](https://youtube.com/playlist?list=PLxq_lXOUlvQAoWZEqhRqHNezS30lI49G-)
 
 * [Online seminar on estimating heterogeneous treatment effects in R](https://youtu.be/YBbnCDRCcAI)
+
+* [Lecture notes - causal inference PhD course at Stanford](http://web.stanford.edu/~swager/stats361.pdf)
 
 <center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
