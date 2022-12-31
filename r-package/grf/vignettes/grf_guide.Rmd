@@ -302,6 +302,21 @@ cbind(
 )
 ```
 
+A depth-2 tree might be a big ask, if we instead ask for just a single split (treat/don't treat based on a single covariate cutoff), we get:
+```{r}
+tree.depth1 <- policy_tree(X[train, ], dr.rewards[train, ], depth = 1, min.node.size = 100)
+pi.hat.eval <- predict(tree.depth1, X[eval, ]) - 1
+
+treat.eval <- eval[pi.hat.eval == 1]
+dont.treat.eval <- eval[pi.hat.eval == 0]
+
+average_treatment_effect(cf, subset = treat.eval)
+average_treatment_effect(cf, subset = dont.treat.eval)
+```
+
+```{r}
+plot(tree.depth1, leaf.labels = c("dont treat", "treat"))
+```
 
 ## Application: measuring the effect of poverty on attention
 In this section we walk through an example following Farbmacher et al. (2021) who studies a causal forest application using data from Carvalho et al. (2016). Carvalho et al. (2016) conducted an experiment where they randomly assigned low-income individuals to perform a cognitive test before ($W=1$) or after ($W=0$) payday. The outcome is the performance on a test designed to measure cognitive ability. The original study did not find an effect on average, however Farbmacher et al. (2021) conducts a HTE analysis and finds evidence suggesting there are parts of the population where poverty impairs cognitive function. A processed copy of this data is stored on the [github repo](https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes/carvalho2016.csv) and contains observations from around 2 500 individuals along with 27 characteristics such as age, income, etc. Education is stored as an ordinal value where a high value means high education and a low less education (4: college graduate, 3: some college, 2: high school graduate, 1: less than high school).
