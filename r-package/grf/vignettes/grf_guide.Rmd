@@ -134,7 +134,7 @@ where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which th
 $$
 \tau(x) := lm\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = \color{blue}{\alpha_i(x)} \Biggr).
 $$
-That is, *Causal Forest* is running a "forest"-localized version of Robinson's regression[^2]. This adaptive-weighting (instead of leaf-averaging) coupled with some other forest construction details known as "honesty" and "subsampling" can be used to give asymptotic guarantees for estimation and inference with random forests (Wager & Athey, 2018). In the function `causal_forest`, the arguments `Y.hat` and `W.hat` supply estimates of $m(x)$ and $e(x)$.
+That is, *Causal Forest* is running a "forest"-localized version of Robinson's regression. This adaptive-weighting (instead of leaf-averaging) coupled with some other forest construction details known as "honesty" and "subsampling" can be used to give asymptotic guarantees for estimation and inference with random forests (Wager & Athey, 2018). In the function `causal_forest`, the arguments `Y.hat` and `W.hat` supply estimates of $m(x)$ and $e(x)$, which by default are estimated with separate regression forests[^2].
 
 The procedure we outlined above can be generalized (thus the name *generalized* random forest) to estimate other quantities beside heterogeneous treatment effects. The key ingredient is phase 1) above, by recognizing that Robinson's regression equivalently can be expressed on "estimating equation" form given by a particular scoring function $\psi_{\tau}(\cdot)$. GRF (Athey, Tibshirani & Wager, 2019) generalizes phase 1) to target heterogeneity in some arbitrary parameter given as the solution to this estimating equation. That is, GRF essentially takes as input a formulation of how to estimate a certain parameter[^3] $\theta$ *without* the presence of covariates (in the form of the scoring function $\psi$) then finds forest weights $\alpha(x)$ that yields *covariate*-specific estimates $\theta(x)$.
 
@@ -436,7 +436,7 @@ Nie, Xinkun, and Stefan Wager. "Quasi-oracle estimation of heterogeneous treatme
 
 Robinson, Peter M. "Root-N-consistent semiparametric regression." Econometrica: Journal of the Econometric Society (1988): 931-954.
 
-Zheng, Wenjing, and Mark J. Laan. "Cross-validated targeted minimum-loss-based estimation." In Targeted Learning, pp. 459-474. Springer, New York, NY, 2011.
+Zheng, Wenjing, and Mark J. van der Laan. "Cross-validated targeted minimum-loss-based estimation." In Targeted Learning, pp. 459-474. Springer, New York, NY, 2011.
 
 Wager, Stefan, and Susan Athey. "Estimation and inference of heterogeneous treatment effects using random forests." Journal of the American Statistical Association 113.523 (2018): 1228-1242.
 
@@ -446,7 +446,7 @@ Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based recursive partiti
 
 [^1]: `grf` does not actually re-estimate a linear regression for each possible split point, that would be computationally infeasible. Instead, we estimate $\hat \tau$ *once* in the parent node, then use an approximation based on so-called "influence functions" to approximate how $\hat \tau$ would change if we moved a sample $i$ from the left to the right child.
 
-[^2]: For a discussion of how Robinson's transformation can be used to motivate a generic loss function for heterogeneous treatment effects estimation (the *R-learner*), see Nie & Wager (2021).
+[^2]: For a broader discussion of how Robinson's transformation can be used to motivate a generic loss function for heterogeneous treatment effects estimation (the *R-learner*), as well as details on the role of $e(x)$ and $m(x)$, see Nie & Wager (2021).
 
 [^3]: Note that $\theta$ does not have to be a scalar, the same construction could be used to target heterogeneity in a vector-valued target parameter by defining the criterion as the squared L2 norm: $n_L n_R || \hat \tau_L - \hat \tau_R||^2$. This is the approach `grf`'s multi-arm causal forest takes.
 
