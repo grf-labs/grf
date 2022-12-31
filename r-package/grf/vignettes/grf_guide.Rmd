@@ -418,7 +418,7 @@ Breiman, Leo. "Random forests." Machine learning 45, no. 1 (2001): 5-32.
 
 Bruhn, Miriam, Luciana de Souza Leão, Arianna Legovini, Rogelio Marchetti, and Bilal Zia. "The impact of high school financial education: Evidence from a large-scale evaluation in Brazil." American Economic Journal: Applied Economics 8, no. 4 (2016).
 
-Carvalho, Leandro S., Stephan Meier, and Stephanie W. Wang. "Poverty and economic decision-making: Evidence from changes in financial resources at payday." American economic review 106, no. 2 (2016): 260-84.
+Carvalho, Leandro S., Stephan Meier, and Stephanie W. Wang. "Poverty and economic decision-making: Evidence from changes in financial resources at payday." American Economic Review 106, no. 2 (2016): 260-84.
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. "Double/debiased machine learning for treatment and structural parameters." The Econometrics Journal, 2018.
 
@@ -430,7 +430,7 @@ Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, a
 
 Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. "Estimation of regression coefficients when some regressors are not always observed." Journal of the American Statistical Association 89, no. 427 (1994): 846-866.
 
-Stone, Charles J. "Optimal rates of convergence for nonparametric estimators." The annals of Statistics (1980): 1348-1360.
+Stone, Charles J. "Optimal rates of convergence for nonparametric estimators." The Annals of Statistics (1980): 1348-1360.
 
 Nie, Xinkun, and Stefan Wager. "Quasi-oracle estimation of heterogeneous treatment effects." Biometrika 108, no. 2 (2021): 299-319.
 
