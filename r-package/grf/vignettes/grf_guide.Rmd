@@ -80,7 +80,7 @@ So, to recap so far: we have a way to adopt the modern ML toolkit to *non-parame
 $$
 Y_i = \color{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
 $$
-where $\color{red}{\tau(X)}$ is the conditional average treatment effect $E[Y(1) - Y(0) | X_i = x]$. How do we estimate this? If we imagine we had access to some neighborhood $\mathcal{N}(x)$ where $\tau$ was constant, we could proceed exactly as before, by doing a residual-on-residual regression on the samples belonging to $\mathcal{N}(x)$, i.e.:
+where $\color{red}{\tau(X_i)}$ is the conditional average treatment effect $E[Y(1) - Y(0) | X_i = x]$. How do we estimate this? If we imagine we had access to some neighborhood $\mathcal{N}(x)$ where $\tau$ was constant, we could proceed exactly as before, by doing a residual-on-residual regression on the samples belonging to $\mathcal{N}(x)$, i.e.:
 
 $$
 \tau(x) := lm\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = 1\{X_i \in \mathcal{N}(x) \}\Biggr),
