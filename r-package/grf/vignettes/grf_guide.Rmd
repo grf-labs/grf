@@ -236,7 +236,7 @@ plot(rate.cate, main = "TOC: By decreasing estimated CATE")
 rate.cate
 ```
 
-For this data set in particular, whether the RATE is significant or not depends on if the CATE estimator is trained on a subsample with sufficient signal. There are more ways to utilize the RATE metric besides CATE rankings, we can compute the TOC by for example the ranking of some specific variable. The previous section suggested that students with high financial autonomy benefit less from the program. We can use the RATE to evaluate how prioritizing students based on this index does:
+For this data set in particular, whether the RATE is significant or not depends on if the CATE estimator is trained on a subsample with sufficient signal (training models for `Y.hat` using different methods, such as boosting or penalized linear models, may sometimes be useful). There are more ways to utilize the RATE metric besides CATE rankings, we can compute the TOC by for example the ranking of some specific variable. The previous section suggested that students with high financial autonomy benefit less from the program. We can use the RATE to evaluate how prioritizing students based on this index does:
 
 ```{r}
 # We use the trained forest on the full data since we are computing the RATE based on a covariate.
