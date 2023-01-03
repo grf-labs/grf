@@ -242,7 +242,7 @@ For this data set in particular, whether the RATE is significant or not depends 
 # We use the trained forest on the full data since we are computing the RATE based on a covariate.
 rate.fin.index <- rank_average_treatment_effect(
   cf,
-  -1 * X$financial.autonomy.index, # Multiply by -1 do order by decreasing index
+  -1 * X$financial.autonomy.index, # Multiply by -1 to order by decreasing index
   subset = !is.na(X$financial.autonomy.index) # Ignore missing X-values
   )
 plot(rate.fin.index, xlab = "Treated fraction", ylab = "Increase in test scores", main = "TOC: By increasing financial autonomy")
