@@ -91,8 +91,8 @@ $$
 
 Breiman's random forest for predicting the conditional mean $\mu(x) = E[Y_i | X_i = x]$ can be briefly summarized in two steps:
 
-1) Building phase: Build $B$ trees which greedily places covariate splits that maximizes the squared difference in subgroups means $n_L n_R (\bar y_L - \bar y_R)^2$.
-2) Prediction phase: Aggregate each tree's prediction to form final point estimate by averaging the outcomes $Y_i$ that fall into the same terminal leaf $L_b(X_i)$ as the targets sample $x$: $\hat \mu(x) = \frac{1}{B} \sum_{b=1}^{B} \sum_{i=1}^{n} \frac{Y_i 1\{Xi \in L_b(x)\}} {|L_b(x)|}$
+1) Building phase: Build $B$ trees which greedily place covariate splits that maximize the squared difference in subgroups means $n_L n_R (\bar y_L - \bar y_R)^2$.
+2) Prediction phase: Aggregate each tree's prediction to form the final point estimate by averaging the outcomes $Y_i$ that fall into the same terminal leaf $L_b(X_i)$ as the targets sample $x$: $\hat \mu(x) = \frac{1}{B} \sum_{b=1}^{B} \sum_{i=1}^{n} \frac{Y_i 1\{Xi \in L_b(x)\}} {|L_b(x)|}$
 
 
 ```{r, echo=FALSE}
@@ -114,7 +114,7 @@ abline(v = sval)
 
 For a single tree and single split, Figure 1) shows the optimal split point in phase 1): it's the vertical line that makes the left and right means of $Y_i$ as similar as possible (or equivalently, the squared difference in means as large as possible).
 
-Figure 1) shows a target sample $x$ we wish to make a prediction for as a cross in the right hand leaf. Phase 2) would average the $Y_i$'s on this side, then repeat the same exercise for the rest of the $B$ trees, then average these to produce a final prediction. This procedure is a double summation, first over trees, then over training samples. We can swap the order of summation and obtain:
+Figure 1) shows a target sample $x$ we wish to make a prediction for as a cross in the right-hand leaf. Phase 2) would average the $Y_i$'s on this side, then repeat the same exercise for the rest of the $B$ trees, then average these to produce a final prediction. This procedure is a double summation, first over trees, then over training samples. We can swap the order of summation and obtain:
 
 \begin{equation*}
 \begin{split}
@@ -123,25 +123,25 @@ Figure 1) shows a target sample $x$ we wish to make a prediction for as a cross 
 \end{split}
 \end{equation*}
 
-where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. That is, an equivalent description of random forest's prediction phase, is that it predicts a weighted average of outcomes. These weights are the so-called random forest adaptive neighborhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$ (this weighting view of random forests appear frequently in statistical applications of random forests, see for example Zeileis, Hothorn & Hornik (2003)).
+where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. That is, an equivalent description of a random forest's prediction phase is that it predicts a weighted average of outcomes. These weights are the so-called random forest adaptive neighborhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$ (this weighting view of random forests appear frequently in statistical applications of random forests, see for example Zeileis, Hothorn & Hornik (2003)).
 
 **Causal Forest** essentially combines Breiman (2001) and Robinson (1988) by modifying the steps above to:
 
-1) Building phase: Greedily places covariate splits that maximizes the squared difference in subgroup treatment effects $n_L n_R (\hat \tau_L - \hat \tau_R)^2$, where $\hat \tau$ is obtained by running Robinson's residual-on-residual regression for each possible split point[^1].
+1) Building phase: Greedily places covariate splits that maximize the squared difference in subgroup treatment effects $n_L n_R (\hat \tau_L - \hat \tau_R)^2$, where $\hat \tau$ is obtained by running Robinson's residual-on-residual regression for each possible split point[^1].
 2) Use the resulting forest weights $\color{blue}{\alpha(x)}$ to estimate
 
 
 $$
 \tau(x) := lm\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = \color{blue}{\alpha_i(x)} \Biggr).
 $$
-That is, *Causal Forest* is running a "forest"-localized version of Robinson's regression. This adaptive-weighting (instead of leaf-averaging) coupled with some other forest construction details known as "honesty" and "subsampling" can be used to give asymptotic guarantees for estimation and inference with random forests (Wager & Athey, 2018). In the function `causal_forest`, the arguments `Y.hat` and `W.hat` supply estimates of $m(x)$ and $e(x)$, which by default are estimated with separate regression forests[^2].
+That is, *Causal Forest* is running a "forest"-localized version of Robinson's regression. This adaptive weighting (instead of leaf-averaging) coupled with some other forest construction details known as "honesty" and "subsampling" can be used to give asymptotic guarantees for estimation and inference with random forests (Wager & Athey, 2018). In the function `causal_forest`, the arguments `Y.hat` and `W.hat` supply estimates of $m(x)$ and $e(x)$, which by default are estimated with separate regression forests[^2].
 
-The procedure we outlined above can be generalized (thus the name *generalized* random forest) to estimate other quantities beside heterogeneous treatment effects. The key ingredient is phase 1) above, by recognizing that Robinson's regression equivalently can be expressed on "estimating equation" form given by a particular scoring function $\psi_{\tau}(\cdot)$. GRF (Athey, Tibshirani & Wager, 2019) generalizes phase 1) to target heterogeneity in some arbitrary parameter given as the solution to this estimating equation. That is, GRF essentially takes as input a formulation of how to estimate a certain parameter[^3] $\theta$ *without* the presence of covariates (in the form of the scoring function $\psi$) then finds forest weights $\alpha(x)$ that yields *covariate*-specific estimates $\theta(x)$.
+The procedure we outlined above can be generalized (thus the name *generalized* random forest) to estimate other quantities besides heterogeneous treatment effects. The key ingredient is phase 1) above, by recognizing that Robinson's regression equivalently can be expressed in "estimating equation" form given by a particular scoring function $\psi_{\tau}(\cdot)$. GRF (Athey, Tibshirani & Wager, 2019) generalizes phase 1) to target heterogeneity in some arbitrary parameter given as the solution to this estimating equation. That is, GRF essentially takes as input a formulation of how to estimate a certain parameter[^3] $\theta$ *without* the presence of covariates (in the form of the scoring function $\psi$) and then finds forest weights $\alpha(x)$ that yields *covariate*-specific estimates $\theta(x)$.
 
 ### Efficiently estimating summaries of the CATEs
 So far we have covered how Robinson's residual-on-residual satisfied an orthogonality property in the sense that the target parameter $\tau(x)$ could be estimated reasonably well despite nuisance components ($m(x)$ and $e(x)$) being estimated at slower rates. This is a desirable property of an estimating equation $\psi$, particularly if we wish to estimate nuisance components with machine learning methods that, while more flexible than parametric models, converge at slower rates (Stone, 1980). What about estimating summaries of $\tau(x)$, in terms of estimands like the average treatment effect (ATE), or the best linear projection (BLP), that have guaranteed root-n rate of convergence along with exact confidence intervals?
 
-It turns out there are better approaches than simply averaging the $\hat \tau(x)$'s obtained with a causal forest[^4]. Robins, Rotnitzky & Zhao (1994) showed that the so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators it has the lowest variance). It looks like the following:
+It turns out there are better approaches than simply averaging the $\hat \tau(x)$'s obtained with a causal forest[^4]. Robins, Rotnitzky & Zhao (1994) showed that the so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators, it has the lowest variance). It looks like the following:
 
 $$
 \hat \tau_{AIPW} = \frac{1}{n} \sum_{i=1}^{n}\left( \mu(X_i, 1) - \mu(X_i, 0) + W_i \frac{Y_i - \mu(X_i, 1)}{e(X_i)} - (1 - W_i)\frac{Y_i - \mu(X_i, 0)}{1 - e(X_i)} \right),
@@ -153,13 +153,13 @@ $$
 \frac{1}{n} \sum_{i=1}^{n}\left( \tau(X_i) + \frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]} \left(Y_i - \mu(X_i, W_i)\right) \right) \\
 = \frac{1}{n} \sum_{i=1}^{n} \Gamma_i.
 $$
-We can identify the three terms as: 1) an initial treatment effect estimate $\tau(X_i)$, 2) a debiasing weight $\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$, and 3) a residual $Y_i - \mu(X_i, W_i)$. The asymptotic efficiency property of this plug-in construction continues to hold if we substitute in non-parametric nuisance estimates obtained with causal forest (subject to some regularity conditions such as cross-fitting, Zheng & van der Laan (2011), Chernozhukov et al., (2018)).
+We can identify the three terms as 1) an initial treatment effect estimate $\tau(X_i)$, 2) a debiasing weight $\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$, and 3) a residual $Y_i - \mu(X_i, W_i)$. The asymptotic efficiency property of this plug-in construction continues to hold if we substitute in non-parametric nuisance estimates obtained with causal forest (subject to some regularity conditions such as cross-fitting, Zheng & van der Laan (2011), Chernozhukov et al., (2018)).
 
-In general the construction above gives rise to so-called **doubly robust** estimating equations, and it is the approach taken by `grf` when computing summary measures such as the ATE, BLP, and "RATE". The associated doubly robust scores $\hat \Gamma_i$ are accessible through the function `get_scores`. As a concrete example, the ATE is an average of $\hat \Gamma_i$'s, while the best linear projection is a regression of the $\hat \Gamma_i$'s on a set of covariates $X_i$. Summary measures built on these play a crucial role in interpreting non-parametric CATE estimates, as they are by the fundamental limits of non-parametric estimation (machine learning included), *noisy* point estimates. The next two sections walk through empirical examples.
+In general, the construction above gives rise to so-called **doubly robust** estimating equations, and it is the approach taken by `grf` when computing summary measures such as the ATE, BLP, and "RATE". The associated doubly robust scores $\hat \Gamma_i$ are accessible through the function `get_scores`. As a concrete example, the ATE is an average of $\hat \Gamma_i$'s, while the best linear projection is a regression of the $\hat \Gamma_i$'s on a set of covariates $X_i$. Summary measures built on these play a crucial role in interpreting non-parametric CATE estimates, as they are by the fundamental limits of non-parametric estimation (machine learning included), *noisy* point estimates. The next two sections walk through empirical examples.
 
 
 ## Application: school program evaluation
-In this section we walk through an example application of GRF. The data we are using is from Bruhn et al. (2016), which conducted an RCT in Brazil in which high schools were randomly assigned a financial education program (in settings like this it is common to randomize at the school level to avoid student-level interference). This program increased student student financial proficiency on average. Other outcomes are considered in the paper, we'll focus on the financial proficiency score here. A processed copy of this data, containing student-level data from around 17 000 students, is stored on the [github repo](https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes/bruhn2016.csv), it extracts basic student characteristics, as well as additional baseline survey responses we use as covariates (two of these are aggregated into an index by the authors to assess student's ability to save, and their financial autonomy).
+In this section, we walk through an example application of GRF. The data we are using is from Bruhn et al. (2016), which conducted an RCT in Brazil in which high schools were randomly assigned a financial education program (in settings like this it is common to randomize at the school level to avoid student-level interference). This program increased student financial proficiency on average. Other outcomes are considered in the paper, we'll focus on the financial proficiency score here. A processed copy of this data, containing student-level data from around 17 000 students, is stored on the [github repo](https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes/bruhn2016.csv), it extracts basic student characteristics, as well as additional baseline survey responses we use as covariates (two of these are aggregated into an index by the authors to assess student's ability to save, and their financial autonomy).
 
 *Notation*: throughout we use variable names `Y` and `W` to denote outcomes and binary treatment assignment, and `Y.hat` to denote estimates of $E[Y_i | X_i = x]$, `W.hat` estimates of $E[W_i | X_i = x]$, and `tau.hat` estimates of $\tau(X_i) = E[Y_i(1) - Y_i(0) | X_i = x]$.
 
@@ -171,7 +171,7 @@ W <- data$treatment
 school <- data$school
 X <- data[-(1:3)]
 
-# Around 30% has one or more missing covariates, the missingness-pattern doesn't seem
+# Around 30% have one or more missing covariates, the missingness pattern doesn't seem
 # to vary systematically between the treated and controls, so we'll keep them in the analysis
 # since GRF supports splitting on X's with missing values.
 sum(!complete.cases(X)) / nrow(X)
@@ -210,7 +210,7 @@ where $A_i$ is a vector of covariates. If we set $A$ to the covariates with the 
 best_linear_projection(cf, X[ranked.vars[1:5]])
 ```
 
-Looking at the best linear projection (BLP) it appears students with high "financial autonomy index" benefits less from treatment, the RCT authors write that this is a "psychology-based financial autonomy index that aggregated a series of questions that measured whether students felt empowered, confident, and capable of making independent financial decisions and influencing the financial decisions of the households". The BLP appears to suggest that students that already are financially comfortable as measured by this index, don't benefit much from the training course.
+Looking at the best linear projection (BLP) it appears students with a high "financial autonomy index" benefits less from treatment, the RCT authors write that this is a "psychology-based financial autonomy index that aggregated a series of questions that measured whether students felt empowered, confident, and capable of making independent financial decisions and influencing the financial decisions of the households". The BLP appears to suggest that students that already are financially comfortable as measured by this index, don't benefit much from the training course.
 
 ### Evaluating CATE estimates with RATE
 Causal inference is fundamentally more challenging that typical predictive use of machine learning algorithms that have a well defined scoring metric, such as a prediction error. Treatment effects are fundamentally unobserved, so we need other model selection or metrics to assess performance. The *R-loss* discussed in Nie & Wager (2021) is one such metric, and could for example be used as a cross-validation criterion, however it does not tell us anything about whether there are HTEs present. Even though the true treatment effects are unobserved, we can use suitable *estimates* of treatment effects on held out data to evaluate models. The *Rank-Weighted Average Treatment Effect* ([RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html)) (Yadlowsky et al., 2022) is a metric that assesses how well a CATE estimator does in ranking units according to estimated treatment benefit. It can be thought of as an Area Under the Curve (AUC) measure for heterogeneity, where a larger number is better.
