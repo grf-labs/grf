@@ -227,6 +227,10 @@ test_that("average treatment effect with overlap: larger example works", {
   tau.overlap <- sum(eX * (1 - eX) * TAU) / sum(eX * (1 - eX))
   expect_equal(wate[[1]], tau.overlap, tolerance = 0.2)
   expect_equal(wate[[1]], tau.overlap, tolerance = 3 * wate[2])
+
+  # Should be very similar to a best linear projection on a constant with target.sample = "overlap"
+  blp.wate <- best_linear_projection(forest, target.sample = "overlap")
+  expect_equal(blp.wate[1, 1], wate[[1]], tolerance = 0.1)
 })
 
 test_that("cluster robust average effects are consistent", {

@@ -11,7 +11,8 @@ best_linear_projection(
   debiasing.weights = NULL,
   compliance.score = NULL,
   num.trees.for.weights = 500,
-  vcov.type = "HC3"
+  vcov.type = "HC3",
+  target.sample = c("all", "overlap")
 )
 }
 \arguments{
@@ -44,6 +45,9 @@ options are HC0, ..., HC3. The default is "HC3", which is recommended in small
 samples and corresponds to the "shortcut formula" for the jackknife
 (see MacKinnon & White for more discussion, and Cameron & Miller for a review).
 For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.}
+
+\item{target.sample}{Which sample to compute the BLP over. The default is "all".
+Option "overlap" uses weights equal to e(X)(1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].}
 }
 \value{
 An estimate of the best linear projection, along with coefficient standard errors.

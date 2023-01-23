@@ -131,6 +131,8 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 #'  samples and corresponds to the "shortcut formula" for the jackknife
 #'  (see MacKinnon & White for more discussion, and Cameron & Miller for a review).
 #'  For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.
+#' @param target.sample Which sample to compute the BLP over. The default is "all".
+#'  Option "overlap" uses weights equal to e(X)(1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].
 #'
 #' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
 #'  cluster-robust inference." Journal of Human Resources 50, no. 2 (2015): 317-372.
@@ -164,17 +166,29 @@ best_linear_projection <- function(forest,
                                    debiasing.weights = NULL,
                                    compliance.score = NULL,
                                    num.trees.for.weights = 500,
-                                   vcov.type = "HC3") {
+                                   vcov.type = "HC3",
+                                   target.sample = c("all", "overlap")) {
+  target.sample <- match.arg(target.sample)
   clusters <- if (length(forest$clusters) > 0) {
     forest$clusters
   } else {
     1:NROW(forest$Y.orig)
   }
   observation.weight <- observation_weights(forest)
-
   subset <- validate_subset(forest, subset)
-  subset.clusters <- clusters[subset]
   subset.weights <- observation.weight[subset]
+  if (target.sample == "overlap") {
+    if (any(c("causal_forest", "causal_survival_forest") %in% class(forest))) {
+      overlap.weights <- forest$W.hat * (1 - forest$W.hat)
+      # some overlap weights might be exactly zero, these are currently not handled correctly in
+      # `sandwhich`'s SE calculation and we drop these units here.
+      subset <- intersect(subset, which(overlap.weights != 0))
+      subset.weights <- overlap.weights[subset]
+    } else {
+      stop("option `target.sample=overlap` is not supported for this forest type.")
+    }
+  }
+  subset.clusters <- clusters[subset]
   validate_sandwich(subset.weights)
 
   if (length(unique(subset.clusters)) <= 1) {
@@ -191,13 +205,15 @@ best_linear_projection <- function(forest,
 
   binary.W <- all(forest$W.orig %in% c(0, 1))
 
-  if (binary.W) {
+  if (binary.W && target.sample != "overlap") {
     if (min(forest$W.hat[subset]) <= 0.01 || max(forest$W.hat[subset]) >= 0.99) {
       rng <- range(forest$W.hat[subset])
       warning(paste0(
         "Estimated treatment propensities take values between ",
         round(rng[1], 3), " and ", round(rng[2], 3),
-        " and in particular get very close to 0 or 1."
+        " and in particular get very close to 0 or 1.",
+        " (using `target.sample=overlap`, or `subset` to filter data as in",
+        " Crump, Hotz, Imbens, and Mitnik (Biometrika, 2009) may be helpful.)"
       ))
     }
   }
