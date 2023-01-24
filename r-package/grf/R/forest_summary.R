@@ -183,7 +183,7 @@ best_linear_projection <- function(forest,
       # some overlap weights might be exactly zero, these are currently not handled correctly in
       # `sandwhich`'s SE calculation and we drop these units here.
       subset <- intersect(subset, which(overlap.weights != 0))
-      subset.weights <- overlap.weights[subset]
+      subset.weights <- observation.weight[subset] * overlap.weights[subset]
     } else {
       stop("option `target.sample=overlap` is not supported for this forest type.")
     }
