@@ -132,7 +132,8 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 #'  (see MacKinnon & White for more discussion, and Cameron & Miller for a review).
 #'  For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.
 #' @param target.sample Which sample to compute the BLP over. The default is "all".
-#'  Option "overlap" uses weights equal to e(X)(1 - e(X)), where e(x) = P[Wi = 1 | Xi = x].
+#'  Option "overlap" uses weights equal to e(X)(1 - e(X)), where e(x) are estimates of.
+#'  the propensity score.
 #'
 #' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
 #'  cluster-robust inference." Journal of Human Resources 50, no. 2 (2015): 317-372.
@@ -182,7 +183,7 @@ best_linear_projection <- function(forest,
       overlap.weights <- forest$W.hat * (1 - forest$W.hat)
       # some overlap weights might be exactly zero, these are currently not handled correctly in
       # `sandwhich`'s SE calculation and we drop these units here.
-      subset <- intersect(subset, which(overlap.weights != 0))
+      subset <- intersect(subset, which(overlap.weights > .Machine$double.eps))
       subset.weights <- observation.weight[subset] * overlap.weights[subset]
     } else {
       stop("option `target.sample=overlap` is not supported for this forest type.")
