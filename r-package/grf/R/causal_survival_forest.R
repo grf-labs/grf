@@ -263,10 +263,10 @@ causal_survival_forest <- function(X, Y, W, D,
   # Computing OOB estimates for modified training samples is not a workflow we have implemented,
   # so we do it with a manual workaround here. Note that compute.oob.predictions has to be FALSE.
   sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(1, nrow(X))
-  S1.hat <- predict(sf.survival)$predictions
+  S1.hat <- predict(sf.survival, num.threads = num.threads)$predictions
   # The survival function conditioning on being a control unit S(t, x, 0) estimated with an "S-learner".
   sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(0, nrow(X))
-  S0.hat <- predict(sf.survival)$predictions
+  S0.hat <- predict(sf.survival, num.threads = num.threads)$predictions
   sf.survival[["X.orig"]][, ncol(X) + 1] <- W
   if (target == "RMST") {
     Y.hat <- W.hat * expected_survival(S1.hat, sf.survival$failure.times) +
@@ -281,11 +281,11 @@ causal_survival_forest <- function(X, Y, W, D,
   }
 
   # The conditional survival function S(t, x, w).
-  S.hat <- predict(sf.survival, failure.times = Y.grid)$predictions
+  S.hat <- predict(sf.survival, failure.times = Y.grid, num.threads = num.threads)$predictions
   # The conditional survival function for the censoring process S_C(t, x, w).
   args.nuisance$compute.oob.predictions <- TRUE
   sf.censor <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = 1 - D), args.nuisance))
-  C.hat <- predict(sf.censor, failure.times = Y.grid)$predictions
+  C.hat <- predict(sf.censor, failure.times = Y.grid, num.threads = num.threads)$predictions
   if (target == "survival.probability") {
     # Evaluate psi up to horizon
     D[Y > horizon] <- 1
