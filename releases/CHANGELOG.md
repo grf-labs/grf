@@ -6,10 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.2.1] - 2022-12-14
 
-## Added
+### Added
 - Add `rank_average_treatment_effect.fit`, an optional interface to RATE which allows for user-supplied doubly robust evaluation set scores. [#1242](https://github.com/grf-labs/grf/pull/1242)
 
-## Fixed
+### Fixed
 - Fix minor docstring example typo in `rank_average_treatment_effect`. [#1209](https://github.com/grf-labs/grf/pull/1209)
 - Move a missing values input check in `rank_average_treatment_effect`. [#1212](https://github.com/grf-labs/grf/pull/1212)
 - Allow factor variables in the covariate matrix `A` passed to `best_linear_projection`. [#1215](https://github.com/grf-labs/grf/pull/1215)
@@ -17,12 +17,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.2.0] - 2022-08-06
 
-## Added
+### Added
 - Add new "linear model" forest `lm_forest` allowing for forest-based estimation of the conditionally linear model Y = c(x) + h_1(x)W_1 + ... + h_K(x)W_K at X = x (this generalization nests causal and multi-arm causal forest). As an example, one could use this forest to estimate heterogeneous treatment effects in a regression discontinuity design by setting W_1 to 1{Z >= cutoff} and W_2 = Z, where Z is a running variable and "cutoff" a treatment threshold. [#1138](https://github.com/grf-labs/grf/pull/1138)
 - Add optional `prediction.times` argument to `predict.survival_forest`. The new option "times" allows for easier computation of IPCW-type weights. [#1139](https://github.com/grf-labs/grf/pull/1139)
 - Add support for `instrumental_forest` to `best_linear_projection`. [#1158](https://github.com/grf-labs/grf/pull/1158)
 
-## Fixed
+### Fixed
 - Fix optional `failure.times` argument in `predict.survival_forest`. This only affects `survival_forest` predictions in cases the optional `failure.times` contains time points outside the training grid. [#1132](https://github.com/grf-labs/grf/pull/1132)
 - Fix `ll_regression_forest` such that all allowable input types `X` work when `enable.ll.split = TRUE`. [#1198](https://github.com/grf-labs/grf/pull/1198)
 
