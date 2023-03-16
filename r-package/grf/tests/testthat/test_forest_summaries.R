@@ -267,3 +267,68 @@ test_that("best linear projection works as expected with instrumental forest", {
   expect_equal(blp[, "Estimate"], ate[["estimate"]], tolerance = 1e-10)
   expect_equal(blp[, "Std. Error"], ate[["std.err"]], tolerance = 1e-4)
 })
+
+test_that("ground truth does better than forest-estimates of overlap weights", {
+  # A hard setup
+  n <- 1000
+  p <- 5
+  X <- matrix(rnorm(n * (p)), n, p)
+  eX <- 1 / (1 + exp(-10 * X[, 2]))
+  W <- rbinom(n, 1, eX)
+  M <- X[, 2]
+  TAU <- (1 + X[, 2])^2
+  Y <- M + (W - 0.5) * TAU + rnorm(n)
+
+  W.forest <- regression_forest(X, W)
+  W.hat.forest <- predict(W.forest)$predictions
+  suppressWarnings(W.lm <- glm(W ~ X, family = "binomial"))
+  W.hat.lm <- predict(W.lm, type = "response")
+
+  blp.true <- lm(TAU ~ X, weights = eX * (1 - eX))
+  blp.lm.wts <- lm(TAU ~ X, weights = W.hat.lm * (1 - W.hat.lm))
+  blp.forest.wts <- lm(TAU ~ X, weights = W.hat.forest * (1 - W.hat.forest))
+
+  expect_equal(coef(blp.lm.wts), coef(blp.true), tolerance = 0.1)
+  expect_equal(coef(blp.forest.wts), coef(blp.true), tolerance = 0.5)
+})
+
+test_that("overlap weighted best linear projection works as expected in a simple setup", {
+  n <- 1000
+  p <- 5
+  X <- matrix(rnorm(n * (p)), n, p)
+  eX <- 1 / (1 + exp(-3 * X[, 1]))
+  W <- rbinom(n, 1, eX)
+  TAU <- X[, 2]
+  Y <- X[, 1] + (W - 0.5) * TAU + rnorm(n)
+  true.blp <- lm(TAU ~ X, weights = eX * (1 - eX))
+
+  cf <- causal_forest(X, Y, W)
+  blp.wate <- best_linear_projection(cf, X, target.sample = "overlap")
+  expect_equal(blp.wate[3, 1], coef(true.blp)[[3]], tolerance = 3 * blp.wate[3, 2])
+
+  # The overlap-weighted SEs are on average smaller:
+  # https://github.com/grf-labs/grf/pull/1258#discussion_r1137992471
+
+  # suppressWarnings(blp <- best_linear_projection(cf, X))
+  # se.ratio <- blp.wate[, "Std. Error"] / blp[, "Std. Error"]
+  # expect_true(all(se.ratio < 0.95))
+})
+
+test_that("causal forest overlap weighted BLP ~same as complete data causal survival BLP", {
+  n <- 1000
+  p <- 5
+  X <- matrix(runif(n * (p)), n, p)
+  eX <- 1 / (1 + exp(-3 * X[, 1]))
+  W <- rbinom(n, 1, eX)
+  TAU <- X[, 2]
+  Y <- X[, 1] + W * TAU + runif(n)
+
+  cf <- causal_forest(X, Y, W)
+  csf <- causal_survival_forest(X, Y, W, rep(1, n), W.hat = cf$W.hat, horizon = max(Y))
+
+  blp.cf <- best_linear_projection(cf, X, target.sample = "overlap")
+  blp.csf <- best_linear_projection(csf, X, target.sample = "overlap")
+
+  expect_equal(blp.cf[, "Estimate"], blp.csf[, "Estimate"], tolerance = 0.05)
+  expect_equal(blp.cf[, "Std. Error"], blp.csf[, "Std. Error"], tolerance = 0.05)
+})
