@@ -212,9 +212,9 @@ best_linear_projection <- function(forest,
       warning(paste0(
         "Estimated treatment propensities take values between ",
         round(rng[1], 3), " and ", round(rng[2], 3),
-        " and in particular get very close to 0 or 1.",
-        " (using `target.sample=overlap`, or `subset` to filter data as in",
-        " Crump, Hotz, Imbens, and Mitnik (Biometrika, 2009) may be helpful)"
+        " and in particular get very close to 0 or 1. ",
+        "In this case, using `target.sample=overlap`, or `subset` to filter data as in ",
+        "Crump, Hotz, Imbens, and Mitnik (Biometrika, 2009) may be helpful."
       ), immediate. = TRUE)
     }
   }
