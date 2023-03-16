@@ -327,7 +327,7 @@ test_that("causal forest overlap weighted BLP ~same as complete data causal surv
   csf <- causal_survival_forest(X, Y, W, rep(1, n), W.hat = cf$W.hat, horizon = max(Y))
 
   blp.cf <- best_linear_projection(cf, X, target.sample = "overlap")
-  suppressWarnings(blp.csf <- best_linear_projection(csf, X, target.sample = "overlap"))
+  blp.csf <- best_linear_projection(csf, X, target.sample = "overlap")
 
   expect_equal(blp.cf[, "Estimate"], blp.csf[, "Estimate"], tolerance = 0.05)
   expect_equal(blp.cf[, "Std. Error"], blp.csf[, "Std. Error"], tolerance = 0.05)
