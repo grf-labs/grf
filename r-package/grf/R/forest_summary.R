@@ -220,8 +220,12 @@ best_linear_projection <- function(forest,
   }
 
   if (any(c("causal_forest", "causal_survival_forest", "instrumental_forest") %in% class(forest))) {
-    DR.scores <- get_scores(forest, subset = subset, debiasing.weights = debiasing.weights,
-                            compliance.score = compliance.score, num.trees.for.weights = num.trees.for.weights)
+    .no.warnings <- function(func) func
+    if (any(c("causal_survival_forest") %in% class(forest))) {
+      .no.warnings <- function(func) suppressWarnings(func)
+    }
+    DR.scores <- .no.warnings(get_scores(forest, subset = subset, debiasing.weights = debiasing.weights,
+      compliance.score = compliance.score, num.trees.for.weights = num.trees.for.weights))
   } else {
     stop(paste0("`best_linear_projection` is only implemented for ",
       "`causal_forest`, `causal_survival_forest`, and `instrumental_forest`"))
