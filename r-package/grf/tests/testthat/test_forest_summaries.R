@@ -306,8 +306,12 @@ test_that("overlap weighted best linear projection works as expected in a simple
   blp.wate <- best_linear_projection(cf, X, target.sample = "overlap")
   expect_equal(blp.wate[3, 1], coef(true.blp)[[3]], tolerance = 3 * blp.wate[3, 2])
 
-  # TODO these SEs are not smaller than with overlap:
-  #suppressWarnings(blp <- best_linear_projection(cf, X))
+  # The overlap-weighted SEs are on average smaller:
+  # https://github.com/grf-labs/grf/pull/1258#discussion_r1137992471
+
+  # suppressWarnings(blp <- best_linear_projection(cf, X))
+  # se.ratio <- blp.wate[, "Std. Error"] / blp[, "Std. Error"]
+  # expect_true(all(se.ratio < 0.95))
 })
 
 test_that("causal forest overlap weighted BLP ~same as complete data causal survival BLP", {
