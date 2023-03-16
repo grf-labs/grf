@@ -47,7 +47,7 @@ samples and corresponds to the "shortcut formula" for the jackknife
 For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.}
 
 \item{target.sample}{Which sample to compute the BLP over. The default is "all".
-Option "overlap" uses weights equal to e(X)(1 - e(X)), where e(x) are estimates of.
+Option "overlap" uses weights equal to e(X)(1 - e(X)), where e(x) are estimates of
 the propensity score.}
 }
 \value{

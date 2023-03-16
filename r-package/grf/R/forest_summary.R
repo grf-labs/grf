@@ -132,7 +132,7 @@ test_calibration <- function(forest, vcov.type = "HC3") {
 #'  (see MacKinnon & White for more discussion, and Cameron & Miller for a review).
 #'  For large data sets with clusters, "HC0" or "HC1" are significantly faster to compute.
 #' @param target.sample Which sample to compute the BLP over. The default is "all".
-#'  Option "overlap" uses weights equal to e(X)(1 - e(X)), where e(x) are estimates of.
+#'  Option "overlap" uses weights equal to e(X)(1 - e(X)), where e(x) are estimates of
 #'  the propensity score.
 #'
 #' @references Cameron, A. Colin, and Douglas L. Miller. "A practitioner's guide to
