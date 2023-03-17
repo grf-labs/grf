@@ -4,7 +4,7 @@
 \alias{get_scores.multi_arm_causal_forest}
 \title{Compute doubly robust scores for a multi arm causal forest.}
 \usage{
-\method{get_scores}{multi_arm_causal_forest}(forest, subset = NULL, ...)
+\method{get_scores}{multi_arm_causal_forest}(forest, subset = NULL, drop = FALSE, ...)
 }
 \arguments{
 \item{forest}{A trained multi arm causal forest.}
@@ -13,6 +13,8 @@
 estimate the ATE. WARNING: For valid statistical performance,
 the subset should be defined only using features Xi, not using
 the treatment Wi or the outcome Yi.}
+
+\item{drop}{If TRUE, coerce the result to the lowest possible dimension. Default is FALSE.}
 
 \item{...}{Additional arguments (currently ignored).}
 }
