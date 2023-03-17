@@ -226,6 +226,7 @@ predict.probability_forest <- function(object,
     ret <- do.call.rcpp(probability_predict_oob, c(train.data, args))
   }
   colnames(ret$predictions) <- class.names
+  colnames(ret$variance.estimates) <- if (estimate.variance) class.names
 
   list(predictions = ret$predictions,
        variance.estimates = if (estimate.variance) ret$variance.estimates)

@@ -437,6 +437,7 @@ predict.multi_arm_causal_forest <- function(object,
   predictions <- array(ret$predictions,
                        dim = c(NROW(ret$predictions), num.treatments, num.outcomes),
                        dimnames = dimnames)
+  colnames(ret$variance.estimates) <- if (estimate.variance) contrast.names
 
   list(predictions = predictions[, , , drop = drop],
        variance.estimates = if (estimate.variance) ret$variance.estimates[, , drop = drop])
