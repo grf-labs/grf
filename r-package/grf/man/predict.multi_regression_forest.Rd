@@ -4,7 +4,7 @@
 \alias{predict.multi_regression_forest}
 \title{Predict with a multi regression forest}
 \usage{
-\method{predict}{multi_regression_forest}(object, newdata = NULL, num.threads = NULL, ...)
+\method{predict}{multi_regression_forest}(object, newdata = NULL, num.threads = NULL, drop = FALSE, ...)
 }
 \arguments{
 \item{object}{The trained forest.}
@@ -17,6 +17,8 @@ matrix, and that the columns must appear in the same order.}
 
 \item{num.threads}{Number of threads used in training. If set to NULL, the software
 automatically selects an appropriate amount.}
+
+\item{drop}{If TRUE, coerce the prediction result to the lowest possible dimension. Default is FALSE.}
 
 \item{...}{Additional arguments (currently ignored).}
 }

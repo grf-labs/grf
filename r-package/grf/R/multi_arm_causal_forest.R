@@ -117,13 +117,14 @@
 #' mc.forest <- multi_arm_causal_forest(X, Y, W)
 #'
 #' # Predict contrasts (out-of-bag) using the forest.
-#' # By default, the first ordinal treatment is used as baseline ("A" in this example),
-#' # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
-#' mc.pred <- predict(mc.forest)
 #' # Fitting several outcomes jointly is supported, and the returned prediction array has
 #' # dimension [num.samples, num.contrasts, num.outcomes]. Since num.outcomes is one in
-#' # this example, we can `drop()` this singleton dimension using the `[,,]` shorthand.
-#' tau.hat <- mc.pred$predictions[,,]
+#' # this example, we use drop = TRUE to ignore this singleton dimension.
+#' mc.pred <- predict(mc.forest, drop = TRUE)
+#'
+#' # By default, the first ordinal treatment is used as baseline ("A" in this example),
+#' # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
+#' tau.hat <- mc.pred$predictions
 #'
 #' plot(X[, 2], tau.hat[, "B - A"], ylab = "tau.contrast")
 #' abline(0, 1, col = "red")
@@ -318,6 +319,7 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
 #'                          (for confidence intervals). This option is currently
 #'                          only supported for univariate outcomes Y.
+#' @param drop If TRUE, coerce the prediction result to the lowest possible dimension. Default is FALSE.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A list with elements `predictions`: a 3d array of dimension [num.samples, K-1, M] with
@@ -336,13 +338,14 @@ multi_arm_causal_forest <- function(X, Y, W,
 #' mc.forest <- multi_arm_causal_forest(X, Y, W)
 #'
 #' # Predict contrasts (out-of-bag) using the forest.
-#' # By default, the first ordinal treatment is used as baseline ("A" in this example),
-#' # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
-#' mc.pred <- predict(mc.forest)
 #' # Fitting several outcomes jointly is supported, and the returned prediction array has
 #' # dimension [num.samples, num.contrasts, num.outcomes]. Since num.outcomes is one in
-#' # this example, we can `drop()` this singleton dimension using the `[,,]` shorthand.
-#' tau.hat <- mc.pred$predictions[,,]
+#' # this example, we use drop = TRUE to ignore this singleton dimension.
+#' mc.pred <- predict(mc.forest, drop = TRUE)
+#'
+#' # By default, the first ordinal treatment is used as baseline ("A" in this example),
+#' # giving two contrasts tau_B = Y(B) - Y(A), tau_C = Y(C) - Y(A)
+#' tau.hat <- mc.pred$predictions
 #'
 #' plot(X[, 2], tau.hat[, "B - A"], ylab = "tau.contrast")
 #' abline(0, 1, col = "red")
@@ -389,6 +392,7 @@ predict.multi_arm_causal_forest <- function(object,
                                             newdata = NULL,
                                             num.threads = NULL,
                                             estimate.variance = FALSE,
+                                            drop = FALSE,
                                             ...) {
   if (estimate.variance && NCOL(object[["Y.orig"]]) > 1) {
     stop("Pointwise variance estimates are only supported for one outcome.")
@@ -406,9 +410,10 @@ predict.multi_arm_causal_forest <- function(object,
   dimnames <- list(NULL, contrast.names, outcome.names)
   # If possible, use pre-computed predictions.
   if (is.null(newdata) && !estimate.variance && !is.null(object$predictions)) {
-    predictions <- array(object$predictions, dim = c(NROW(object$predictions), num.treatments, num.outcomes),
+    predictions <- array(object$predictions,
+                         dim = c(NROW(object$predictions), num.treatments, num.outcomes),
                          dimnames = dimnames)
-    return(list(predictions = predictions))
+    return(list(predictions = predictions[, , , drop = drop]))
   }
 
   num.threads <- validate_num_threads(num.threads)
@@ -429,9 +434,10 @@ predict.multi_arm_causal_forest <- function(object,
   } else {
     ret <- do.call.rcpp(multi_causal_predict_oob, c(train.data, args))
   }
-  predictions <- array(ret$predictions, dim = c(NROW(ret$predictions), num.treatments, num.outcomes),
+  predictions <- array(ret$predictions,
+                       dim = c(NROW(ret$predictions), num.treatments, num.outcomes),
                        dimnames = dimnames)
 
-  list(predictions = predictions,
-       variance.estimates = if (estimate.variance) ret$variance.estimates)
+  list(predictions = predictions[, , , drop = drop],
+       variance.estimates = if (estimate.variance) ret$variance.estimates[, , drop = drop])
 }

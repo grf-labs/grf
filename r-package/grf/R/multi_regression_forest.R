@@ -132,6 +132,7 @@ multi_regression_forest <- function(X, Y,
 #'                matrix, and that the columns must appear in the same order.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
+#' @param drop If TRUE, coerce the prediction result to the lowest possible dimension. Default is FALSE.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A list containing `predictions`: a matrix of predictions for each outcome.
@@ -159,6 +160,7 @@ multi_regression_forest <- function(X, Y,
 predict.multi_regression_forest <- function(object,
                                             newdata = NULL,
                                             num.threads = NULL,
+                                            drop = FALSE,
                                             ...) {
   outcome.names <- if (is.null(colnames(object[["Y.orig"]]))) {
     paste0("Y", 1:NCOL(object[["Y.orig"]]))
@@ -168,7 +170,7 @@ predict.multi_regression_forest <- function(object,
   # If possible, use pre-computed predictions.
   if (is.null(newdata) && !is.null(object$predictions)) {
     colnames(object$predictions) <- outcome.names
-    return(list(predictions = object$predictions))
+    return(list(predictions = object$predictions[, , drop = drop]))
   }
 
   num.threads <- validate_num_threads(num.threads)
@@ -189,5 +191,5 @@ predict.multi_regression_forest <- function(object,
   }
   colnames(ret$predictions) <- outcome.names
 
-  list(predictions = ret$predictions)
+  list(predictions = ret$predictions[, , drop = drop])
 }

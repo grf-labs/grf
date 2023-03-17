@@ -226,6 +226,7 @@ get_scores.instrumental_forest <- function(forest,
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
+#' @param drop If TRUE, coerce the result to the lowest possible dimension. Default is FALSE.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return An array of scores for each contrast and outcome.
@@ -234,6 +235,7 @@ get_scores.instrumental_forest <- function(forest,
 #' @export
 get_scores.multi_arm_causal_forest <- function(forest,
                                                subset = NULL,
+                                               drop = FALSE,
                                                ...) {
   subset <- validate_subset(forest, subset)
   W.orig <- forest$W.orig[subset]
@@ -281,7 +283,9 @@ get_scores.multi_arm_causal_forest <- function(forest,
 
   scores <- lapply(1:NCOL(forest$Y.orig), function(col) .get.scores(col))
 
-  array(unlist(scores), dim = c(length(subset), dim(forest.pp$predictions)[-1]), dimnames = dimnames(forest.pp$predictions))
+  array(unlist(scores),
+        dim = c(length(subset), dim(forest.pp$predictions)[-1]),
+        dimnames = dimnames(forest.pp$predictions))[, , , drop = drop]
 }
 
 #' Compute doubly robust scores for a causal survival forest.
