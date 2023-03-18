@@ -262,7 +262,7 @@ get_scores.multi_arm_causal_forest <- function(forest,
   # using the subsetting syntax "matrix[index.matrix]".
   IPW <- matrix(0, length(subset), nlevels(W.orig))
   IPW[observed.treatment.idx] <- 1 / W.hat[observed.treatment.idx]
-  control <- IPW[, 1] != 0
+  control <- IPW[, 1] > 0
   IPW[control, -1] <- -1 * IPW[control, 1]
 
   IPW <- IPW[, -1, drop = FALSE]

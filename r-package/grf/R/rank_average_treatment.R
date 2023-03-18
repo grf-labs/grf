@@ -126,7 +126,7 @@ rank_average_treatment_effect <- function(forest,
   subset.orig <- validate_subset(forest, subset)
   # Giving sample weight of 0 is effectively the same as dropping samples.
   # Do it here with upfront subsetting instead of dealing with it in every bootstrap iteration.
-  subset <- intersect(subset.orig, which(observation.weight != 0))
+  subset <- intersect(subset.orig, which(observation.weight > 0))
   subset.weights <- observation.weight[subset]
   subset.clusters <- clusters[subset]
   if (any(forest$W.hat[subset] %in% c(0, 1))) {
@@ -421,7 +421,7 @@ estimate_rate <- function(data, indices, q, wtd.mean) {
   sample.weights <- data[indices, 2][sort.idx]
 
   num.ties <- tabulate(prio) # count by rank in increasing order
-  num.ties <- num.ties[num.ties != 0] # ignore potential ranks not present in BS sample
+  num.ties <- num.ties[num.ties > 0] # ignore potential ranks not present in BS sample
   # if continuous scoring then no need for ~slower aggregation
   if (all(num.ties == 1)) {
     DR.scores.sorted <- (data[indices, 1] / data[indices, 2])[sort.idx]
