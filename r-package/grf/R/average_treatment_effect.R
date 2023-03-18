@@ -203,7 +203,7 @@ average_treatment_effect <- function(forest,
     .sigma2.hat <- function(DR.scores, tau.hat) {
       correction.clust <- Matrix::sparse.model.matrix(~ factor(subset.clusters) + 0, transpose = TRUE) %*%
         (sweep(as.matrix(DR.scores), 2, tau.hat, "-") * subset.weights)
-      n.adj <- sum(rowsum(subset.weights, subset.clusters) != 0) # effective number of samples(clusters) is all with > 0 weight.
+      n.adj <- sum(rowsum(subset.weights, subset.clusters) > 0) # effective number of samples(clusters) is all with > 0 weight.
 
       Matrix::colSums(correction.clust^2) / sum(subset.weights)^2 *
         n.adj / (n.adj - 1)
@@ -354,12 +354,12 @@ average_treatment_effect <- function(forest,
         ~ factor(subset.clusters) + 0,
         transpose = TRUE
       ) %*% (dr.correction.all * subset.weights)
-      n.adj <- sum(rowsum(subset.weights, subset.clusters) != 0) # effective number of clusters is all with > 0 weight.
+      n.adj <- sum(rowsum(subset.weights, subset.clusters) > 0) # effective number of clusters is all with > 0 weight.
       sigma2.hat <- sum(correction.clust^2) / sum(subset.weights)^2 *
         n.adj / (n.adj - 1)
     } else {
       sigma2.hat <- sum(subset.weights^2 * dr.correction.all^2 / sum(subset.weights)^2) *
-        length(subset.weights[subset.weights != 0]) / (length(subset.weights[subset.weights != 0]) - 1)
+        length(subset.weights[subset.weights > 0]) / (length(subset.weights[subset.weights > 0]) - 1)
     }
   } else if (method == "TMLE") {
     if (target.sample == "all") {
