@@ -285,7 +285,7 @@ causal_survival_forest <- function(X, Y, W, D,
   # The conditional survival function for the censoring process S_C(t, x, w).
   args.nuisance$compute.oob.predictions <- TRUE
   sf.censor <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = 1 - D), args.nuisance))
-  C.hat <- predict(sf.censor, failure.times = Y.grid, num.threads = num.threads)$predictions
+  C.hat <- predict(sf.censor, failure.times = Y.grid)$predictions
   if (target == "survival.probability") {
     # Evaluate psi up to horizon
     D[Y > horizon] <- 1
