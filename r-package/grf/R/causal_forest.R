@@ -203,6 +203,7 @@ causal_forest <- function(X, Y, W,
                       num.threads = num.threads,
                       seed = seed)
 
+  forest.Y <- NULL
   if (is.null(Y.hat)) {
     forest.Y <- do.call(regression_forest, c(Y = list(Y), args.orthog))
     Y.hat <- predict(forest.Y)$predictions
@@ -212,6 +213,7 @@ causal_forest <- function(X, Y, W,
     stop("Y.hat has incorrect length.")
   }
 
+  forest.W <- NULL
   if (is.null(W.hat)) {
     forest.W <- do.call(regression_forest, c(Y = list(W), args.orthog))
     W.hat <- predict(forest.W)$predictions
@@ -275,7 +277,9 @@ causal_forest <- function(X, Y, W,
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["W.orig"]] <- W
+  forest[["forest.Y"]] <- forest.Y
   forest[["Y.hat"]] <- Y.hat
+  forest[["forest.W"]] <- forest.W
   forest[["W.hat"]] <- W.hat
   forest[["clusters"]] <- clusters
   forest[["equalize.cluster.weights"]] <- equalize.cluster.weights
