@@ -257,8 +257,14 @@ causal_survival_forest <- function(X, Y, W, D,
                         num.threads = num.threads,
                         seed = seed)
 
+  # Compute survival-based nuisance components (https://arxiv.org/abs/2001.09887)
+  # m(x) relies on the survival function conditional on only X, while Q(x) relies on the conditioning (X, W).
+  # Instead of fitting two separate survival forests, we can use the forest fit on (X, W) to compute m(X)
+  # using the identity
   # E[f(T) | X] = e(X) E[f(T) | X, W = 1] + (1 - e(X)) E[f(T) | X, W = 0]
+  # (for this to work W has to be binary).
   sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
+
   # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
   # Computing OOB estimates for modified training samples is not a workflow we have implemented,
   # so we do it with a manual workaround here. Note that compute.oob.predictions has to be FALSE.
@@ -268,6 +274,7 @@ causal_survival_forest <- function(X, Y, W, D,
   sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(0, nrow(X))
   S0.hat <- predict(sf.survival, num.threads = num.threads)$predictions
   sf.survival[["X.orig"]][, ncol(X) + 1] <- W
+
   if (target == "RMST") {
     Y.hat <- W.hat * expected_survival(S1.hat, sf.survival$failure.times) +
       (1 - W.hat) * expected_survival(S0.hat, sf.survival$failure.times)
@@ -280,8 +287,9 @@ causal_survival_forest <- function(X, Y, W, D,
     }
   }
 
-  # The conditional survival function S(t, x, w).
+  # The conditional survival function S(t, x, w) used to construct Q(x).
   S.hat <- predict(sf.survival, failure.times = Y.grid, num.threads = num.threads)$predictions
+
   # The conditional survival function for the censoring process S_C(t, x, w).
   args.nuisance$compute.oob.predictions <- TRUE
   sf.censor <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = 1 - D), args.nuisance))
