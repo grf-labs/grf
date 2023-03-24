@@ -326,6 +326,21 @@ test_that("causal survival forest for partial effect estimation works as expecte
   csf <- suppressWarnings(causal_survival_forest(X, Y, W, D, horizon = max(Y)))
   ate <- average_treatment_effect(csf)
   expect_equal(ate[["estimate"]], mean(tau), tolerance = 3 * ate[["std.err"]])
+
+  # a complete-data CSF is ~same as CF
+  p <- 6
+  n <- 1000
+  X <- matrix(2 * runif(n * p) - 1, n, p)
+  W <- rbinom(n, 1, 0.5) + abs(rnorm(n))
+  TAU <- 4 * (X[, 1] > 0)
+  Y <- TAU * W + runif(n)
+
+  cf <- causal_forest(X, Y, W, num.trees = 500)
+  csf.complete <- causal_survival_forest(X, Y, W, rep(1, n), horizon = max(Y), num.trees = 500)
+  ate.cf <- average_treatment_effect(cf)
+  ate.csf.complete <- average_treatment_effect(csf.complete)
+  expect_equal(ate.cf[[1]], ate.csf.complete[[1]], tolerance = 0.02)
+  expect_equal(ate.cf[[2]], ate.csf.complete[[2]], tolerance = 0.005)
 })
 
 test_that("causal survival forest utility functions are internally consistent", {
