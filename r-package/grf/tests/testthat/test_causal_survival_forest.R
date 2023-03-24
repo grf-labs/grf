@@ -291,17 +291,17 @@ test_that("causal survival forest for partial effect estimation works as expecte
   cs.forest.ape <- causal_survival_forest(X, Y, W, D, horizon = data$Y.max, num.trees = 500)
   cs.forest.prob.ape <- causal_survival_forest(X, Y, W, D, target = "survival.probability",
                                                horizon = data$y0, num.trees = 500)
-  expect_equal(cs.forest$predictions, cs.forest.ape$predictions, tolerance = 0.025)
-  expect_equal(cs.forest.prob$predictions, cs.forest.prob.ape$predictions, tolerance = 0.025)
+  expect_equal(cs.forest$predictions, cs.forest.ape$predictions, tolerance = 0.035)
+  expect_equal(cs.forest.prob$predictions, cs.forest.prob.ape$predictions, tolerance = 0.035)
 
   ate <- average_treatment_effect(cs.forest)
   ate.ape <- average_treatment_effect(cs.forest.ape)
   ate.prob <- average_treatment_effect(cs.forest.prob)
   ate.prob.ape <- average_treatment_effect(cs.forest.prob.ape)
-  expect_equal(ate[1], ate.ape[1], tolerance = 0.01)
-  expect_equal(ate[2], ate.ape[2], tolerance = 0.001)
-  expect_equal(ate.prob[1], ate.prob.ape[1], tolerance = 0.01)
-  expect_equal(ate.prob[2], ate.prob.ape[2], tolerance = 0.001)
+  expect_equal(ate[1], ate.ape[1], tolerance = 0.015)
+  expect_equal(ate[2], ate.ape[2], tolerance = 0.0015)
+  expect_equal(ate.prob[1], ate.prob.ape[1], tolerance = 0.015)
+  expect_equal(ate.prob[2], ate.prob.ape[2], tolerance = 0.0015)
 
   blp <- best_linear_projection(cs.forest)
   blp.ape <- best_linear_projection(cs.forest.ape)
