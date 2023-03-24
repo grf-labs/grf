@@ -217,7 +217,6 @@ causal_survival_forest <- function(X, Y, W, D,
                    "censoring curves, consider discretizing the event values `Y` or ",
                    "supplying a coarser grid with the `failure.times` argument. "), immediate. = TRUE)
   }
-  binary.W <- all(W %in% c(0, 1))
 
   if (is.null(W.hat)) {
     forest.W <- regression_forest(X, W, num.trees = max(50, num.trees / 4),
@@ -263,6 +262,7 @@ causal_survival_forest <- function(X, Y, W, D,
   # (for this to work W has to be binary).
   sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
 
+  binary.W <- all(W %in% c(0, 1))
   if (binary.W) {
     # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
     # Computing OOB estimates for modified training samples is not a workflow we have implemented,
