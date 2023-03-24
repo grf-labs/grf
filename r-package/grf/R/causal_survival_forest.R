@@ -183,9 +183,6 @@ causal_survival_forest <- function(X, Y, W, D,
   if (any(Y < 0)) {
     stop("The event times must be non-negative.")
   }
-  if (!all(W %in% c(0, 1))) {
-    stop("The treatment values can only be 0 or 1.")
-  }
   if (!all(D %in% c(0, 1))) {
     stop("The censor values can only be 0 or 1.")
   }
@@ -220,6 +217,7 @@ causal_survival_forest <- function(X, Y, W, D,
                    "censoring curves, consider discretizing the event values `Y` or ",
                    "supplying a coarser grid with the `failure.times` argument. "), immediate. = TRUE)
   }
+  binary.W <- all(W %in% c(0, 1))
 
   if (is.null(W.hat)) {
     forest.W <- regression_forest(X, W, num.trees = max(50, num.trees / 4),
@@ -265,28 +263,43 @@ causal_survival_forest <- function(X, Y, W, D,
   # (for this to work W has to be binary).
   sf.survival <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = D), args.nuisance))
 
-  # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
-  # Computing OOB estimates for modified training samples is not a workflow we have implemented,
-  # so we do it with a manual workaround here (deleting/re-inserting precomputed predictions)
-  .predictions <- sf.survival[["predictions"]]
-  sf.survival[["predictions"]] <- NULL
-  sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(1, nrow(X))
-  S1.hat <- predict(sf.survival, num.threads = num.threads)$predictions
-  # The survival function conditioning on being a control unit S(t, x, 0) estimated with an "S-learner".
-  sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(0, nrow(X))
-  S0.hat <- predict(sf.survival, num.threads = num.threads)$predictions
-  sf.survival[["X.orig"]][, ncol(X) + 1] <- W
-  sf.survival[["predictions"]] <- .predictions
-
-  if (target == "RMST") {
-    Y.hat <- W.hat * expected_survival(S1.hat, sf.survival$failure.times) +
-      (1 - W.hat) * expected_survival(S0.hat, sf.survival$failure.times)
-  } else {
-    horizonS.index <- findInterval(horizon, sf.survival$failure.times)
-    if (horizonS.index == 0) {
-      Y.hat <- rep(1, nrow(X))
+  if (binary.W) {
+    # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
+    # Computing OOB estimates for modified training samples is not a workflow we have implemented,
+    # so we do it with a manual workaround here (deleting/re-inserting precomputed predictions)
+    .predictions <- sf.survival[["predictions"]]
+    sf.survival[["predictions"]] <- NULL
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(1, nrow(X))
+    S1.hat <- predict(sf.survival, num.threads = num.threads)$predictions
+    # The survival function conditioning on being a control unit S(t, x, 0) estimated with an "S-learner".
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(0, nrow(X))
+    S0.hat <- predict(sf.survival, num.threads = num.threads)$predictions
+    sf.survival[["X.orig"]][, ncol(X) + 1] <- W
+    sf.survival[["predictions"]] <- .predictions
+    if (target == "RMST") {
+      Y.hat <- W.hat * expected_survival(S1.hat, sf.survival$failure.times) +
+        (1 - W.hat) * expected_survival(S0.hat, sf.survival$failure.times)
     } else {
-      Y.hat <- W.hat * S1.hat[, horizonS.index] + (1 - W.hat) * S0.hat[, horizonS.index]
+      horizonS.index <- findInterval(horizon, sf.survival$failure.times)
+      if (horizonS.index == 0) {
+        Y.hat <- rep(1, nrow(X))
+      } else {
+        Y.hat <- W.hat * S1.hat[, horizonS.index] + (1 - W.hat) * S0.hat[, horizonS.index]
+      }
+    }
+  } else {
+    # If continuous W fit a separate survival forest to estimate E[f(T) | X].
+    sf.Y <- do.call(survival_forest, c(list(X = X, Y = Y, D = D), args.nuisance))
+    SY.hat <- predict(sf.Y)$predictions
+    if (target == "RMST") {
+      Y.hat <- expected_survival(SY.hat, sf.Y$failure.times)
+    } else {
+      horizonS.index <- findInterval(horizon, sf.survival$failure.times)
+      if (horizonS.index == 0) {
+        Y.hat <- rep(1, nrow(X))
+      } else {
+        Y.hat <- SY.hat[, horizonS.index]
+      }
     }
   }
 
