@@ -275,6 +275,59 @@ test_that("causal survival forest summary functions works as expected", {
   expect_equal(ate.subset[["estimate"]], mean(tau[X[, 1] > 0.5]), tolerance = 3 * ate.subset[["std.err"]])
 })
 
+test_that("causal survival forest for partial effect estimation works as expected", {
+  n <- 500
+  p <- 5
+  data <- generate_causal_survival_data(n, p, Y.max = 1, dgp = "simple1")
+  X <- data$X
+  W <- data$W
+  Y <- data$Y
+  D <- data$D
+  cs.forest <- causal_survival_forest(X, Y, W, D, horizon = data$Y.max, num.trees = 500)
+  cs.forest.prob <- causal_survival_forest(X, Y, W, D, target = "survival.probability",
+                                           horizon = data$y0, num.trees = 500)
+  # The following forests should be ~ identical
+  W[1] <- W[1] + 1e-10
+  cs.forest.ape <- causal_survival_forest(X, Y, W, D, horizon = data$Y.max, num.trees = 500)
+  cs.forest.prob.ape <- causal_survival_forest(X, Y, W, D, target = "survival.probability",
+                                               horizon = data$y0, num.trees = 500)
+  expect_equal(cs.forest$predictions, cs.forest.ape$predictions, tolerance = 0.025)
+  expect_equal(cs.forest.prob$predictions, cs.forest.prob.ape$predictions, tolerance = 0.025)
+
+  ate <- average_treatment_effect(cs.forest)
+  ate.ape <- average_treatment_effect(cs.forest.ape)
+  ate.prob <- average_treatment_effect(cs.forest.prob)
+  ate.prob.ape <- average_treatment_effect(cs.forest.prob.ape)
+  expect_equal(ate[1], ate.ape[1], tolerance = 0.01)
+  expect_equal(ate[2], ate.ape[2], tolerance = 0.001)
+  expect_equal(ate.prob[1], ate.prob.ape[1], tolerance = 0.01)
+  expect_equal(ate.prob[2], ate.prob.ape[2], tolerance = 0.001)
+
+  blp <- best_linear_projection(cs.forest)
+  blp.ape <- best_linear_projection(cs.forest.ape)
+  blp.prob <- best_linear_projection(cs.forest.prob)
+  blp.prob.ape <- best_linear_projection(cs.forest.prob.ape)
+  expect_equal(blp[1], blp.ape[1], tolerance = 0.015)
+  expect_equal(blp[2], blp.ape[2], tolerance = 0.0015)
+  expect_equal(blp.prob[1], blp.prob.ape[1], tolerance = 0.015)
+  expect_equal(blp.prob[2], blp.prob.ape[2], tolerance = 0.0015)
+
+  # CSF estimates what it's supposed to in a simple setup
+  n <- 1500
+  p <- 5
+  X <- matrix(runif(n*p), n, p)
+  W <- runif(n, max = X[, 2] * 2)
+  tau <- pmax(X[, 1], 0.5)
+  Yt <- tau * W + X[, 4] + runif(n)
+  censor.time <- 5 * runif(n)
+  Y <- round(pmin(Yt, censor.time), 1)
+  D <- as.integer(Yt <= censor.time)
+
+  csf <- suppressWarnings(causal_survival_forest(X, Y, W, D, horizon = max(Y)))
+  ate <- average_treatment_effect(csf)
+  expect_equal(ate[["estimate"]], mean(tau), tolerance = 3 * ate[["std.err"]])
+})
+
 test_that("causal survival forest utility functions are internally consistent", {
   n <- 500
   p <- 5
