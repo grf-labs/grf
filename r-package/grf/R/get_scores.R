@@ -297,6 +297,9 @@ get_scores.multi_arm_causal_forest <- function(forest,
 #'               estimate the ATE. WARNING: For valid statistical performance,
 #'               the subset should be defined only using features Xi, not using
 #'               the treatment Wi or the outcome Yi.
+#' @param num.trees.for.weights Number of trees used to estimate Var[W | X = x]. Note: this
+#'  argument is only used in the case of a continuous treatment
+#'  (see \code{\link{get_scores.causal_forest}} for details).
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A vector of scores.
@@ -305,24 +308,46 @@ get_scores.multi_arm_causal_forest <- function(forest,
 #' @export
 get_scores.causal_survival_forest <- function(forest,
                                               subset = NULL,
+                                              num.trees.for.weights = 500,
                                               ...) {
   subset <- validate_subset(forest, subset)
-
-  if (min(forest$W.hat[subset]) <= 0.05 || max(forest$W.hat[subset]) >= 0.95) {
-    rng <- range(forest$W.hat[subset])
-    warning(paste0(
-      "Estimated treatment propensities take values very close to 0 or 1.",
-      " The estimated propensities are between ",
-      round(rng[1], 3), " and ", round(rng[2], 3),
-      ", meaning some estimates may not be well identified."
-    ))
-  }
-
   numerator <- forest[["_psi"]]$numerator[subset]
   denominator <- forest[["_psi"]]$denominator[subset]
-  W.hat <- forest$W.hat[subset]
   cate.hat <- predict(forest)$predictions[subset]
   psi <- numerator - denominator * cate.hat
 
-  cate.hat + psi * 1 / W.hat / (1 - W.hat)
+  binary.W <- all(forest$W.orig %in% c(0, 1))
+
+  if (binary.W) {
+    if (min(forest$W.hat[subset]) <= 0.05 || max(forest$W.hat[subset]) >= 0.95) {
+      rng <- range(forest$W.hat[subset])
+      warning(paste0(
+        "Estimated treatment propensities take values very close to 0 or 1.",
+        " The estimated propensities are between ",
+        round(rng[1], 3), " and ", round(rng[2], 3),
+        ", meaning some estimates may not be well identified."
+      ))
+    }
+  }
+
+  if (binary.W) {
+    W.hat <- forest$W.hat[subset]
+    V.hat <- W.hat * (1 - W.hat)
+  } else {
+    clusters <- if (length(forest$clusters) > 0) {
+      forest$clusters
+    } else {
+      1:length(forest$Y.orig)
+    }
+    variance_forest <- regression_forest(forest$X.orig,
+                                         (forest$W.orig - forest$W.hat)^2,
+                                         clusters = clusters,
+                                         sample.weights = forest$sample.weights,
+                                         num.trees = num.trees.for.weights,
+                                         ci.group.size = 1,
+                                         seed = forest$seed)
+    V.hat <- predict(variance_forest)$predictions[subset]
+  }
+
+  cate.hat + psi / V.hat
 }
