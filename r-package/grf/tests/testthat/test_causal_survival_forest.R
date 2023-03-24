@@ -1,5 +1,3 @@
-library(grf)
-
 test_that("causal survival forest is well-calibrated", {
   n <- 1000
   p <- 5
