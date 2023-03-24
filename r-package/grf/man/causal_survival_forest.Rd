@@ -38,7 +38,7 @@ causal_survival_forest(
 
 \item{Y}{The event time (must be non-negative).}
 
-\item{W}{The treatment assignment (must be a binary vector with no NAs).}
+\item{W}{The treatment assignment (must be a binary or real numeric vector with no NAs).}
 
 \item{D}{The event type (0: censored, 1: failure).}
 
