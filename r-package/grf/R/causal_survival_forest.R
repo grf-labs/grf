@@ -253,7 +253,7 @@ causal_survival_forest <- function(X, Y, W, D,
                         honesty.prune.leaves = TRUE,
                         alpha = alpha,
                         prediction.type = "Nelson-Aalen", # to guarantee non-zero estimates.
-                        compute.oob.predictions = FALSE,
+                        compute.oob.predictions = TRUE,
                         num.threads = num.threads,
                         seed = seed)
 
@@ -267,13 +267,16 @@ causal_survival_forest <- function(X, Y, W, D,
 
   # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
   # Computing OOB estimates for modified training samples is not a workflow we have implemented,
-  # so we do it with a manual workaround here. Note that compute.oob.predictions has to be FALSE.
+  # so we do it with a manual workaround here (deleting/re-inserting precomputed predictions)
+  .predictions <- sf.survival[["predictions"]]
+  sf.survival[["predictions"]] <- NULL
   sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(1, nrow(X))
   S1.hat <- predict(sf.survival, num.threads = num.threads)$predictions
   # The survival function conditioning on being a control unit S(t, x, 0) estimated with an "S-learner".
   sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(0, nrow(X))
   S0.hat <- predict(sf.survival, num.threads = num.threads)$predictions
   sf.survival[["X.orig"]][, ncol(X) + 1] <- W
+  sf.survival[["predictions"]] <- .predictions
 
   if (target == "RMST") {
     Y.hat <- W.hat * expected_survival(S1.hat, sf.survival$failure.times) +
@@ -288,10 +291,9 @@ causal_survival_forest <- function(X, Y, W, D,
   }
 
   # The conditional survival function S(t, x, w) used to construct Q(x).
-  S.hat <- predict(sf.survival, failure.times = Y.grid, num.threads = num.threads)$predictions
+  S.hat <- predict(sf.survival, failure.times = Y.grid)$predictions
 
   # The conditional survival function for the censoring process S_C(t, x, w).
-  args.nuisance$compute.oob.predictions <- TRUE
   sf.censor <- do.call(survival_forest, c(list(X = cbind(X, W), Y = Y, D = 1 - D), args.nuisance))
   C.hat <- predict(sf.censor, failure.times = Y.grid)$predictions
   if (target == "survival.probability") {
