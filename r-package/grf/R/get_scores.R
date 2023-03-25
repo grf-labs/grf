@@ -317,7 +317,6 @@ get_scores.causal_survival_forest <- function(forest,
   psi <- numerator - denominator * cate.hat
 
   binary.W <- all(forest$W.orig %in% c(0, 1))
-
   if (binary.W) {
     if (min(forest$W.hat[subset]) <= 0.05 || max(forest$W.hat[subset]) >= 0.95) {
       rng <- range(forest$W.hat[subset])
@@ -328,12 +327,10 @@ get_scores.causal_survival_forest <- function(forest,
         ", meaning some estimates may not be well identified."
       ))
     }
-  }
-
-  if (binary.W) {
     W.hat <- forest$W.hat[subset]
     V.hat <- W.hat * (1 - W.hat)
   } else {
+    # Estimate Var[W | X = x], as in get_scores.causal_forest.
     clusters <- if (length(forest$clusters) > 0) {
       forest$clusters
     } else {
