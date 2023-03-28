@@ -9,6 +9,7 @@
   newdata = NULL,
   num.threads = NULL,
   estimate.variance = FALSE,
+  drop = FALSE,
   ...
 )
 }
@@ -27,6 +28,8 @@ automatically selects an appropriate amount.}
 \item{estimate.variance}{Whether variance estimates for hat{h_k}(x) are desired
 (for confidence intervals). This option is currently
 only supported for univariate outcomes Y.}
+
+\item{drop}{If TRUE, coerce the prediction result to the lowest possible dimension. Default is FALSE.}
 
 \item{...}{Additional arguments (currently ignored).}
 }
