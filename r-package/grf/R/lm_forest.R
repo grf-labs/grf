@@ -265,6 +265,7 @@ lm_forest <- function(X, Y, W,
 #' @param estimate.variance Whether variance estimates for hat{h_k}(x) are desired
 #'                          (for confidence intervals). This option is currently
 #'                          only supported for univariate outcomes Y.
+#' @param drop If TRUE, coerce the prediction result to the lowest possible dimension. Default is FALSE.
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return A list with elements `predictions`: a 3d array of dimension [num.samples, K, M] with
@@ -317,6 +318,7 @@ predict.lm_forest <- function(object,
                               newdata = NULL,
                               num.threads = NULL,
                               estimate.variance = FALSE,
+                              drop = FALSE,
                               ...) {
   if (estimate.variance && NCOL(object[["Y.orig"]]) > 1) {
     stop("Pointwise variance estimates are only supported for one outcome.")
@@ -338,9 +340,10 @@ predict.lm_forest <- function(object,
   dimnames <- list(NULL, W.names, outcome.names)
   # If possible, use pre-computed predictions.
   if (is.null(newdata) && !estimate.variance && !is.null(object$predictions)) {
-    predictions <- array(object$predictions, dim = c(NROW(object$predictions), num.W, num.outcomes),
+    predictions <- array(object$predictions,
+                         dim = c(NROW(object$predictions), num.W, num.outcomes),
                          dimnames = dimnames)
-    return(list(predictions = predictions))
+    return(list(predictions = predictions[, , , drop = drop]))
   }
 
   num.threads <- validate_num_threads(num.threads)
@@ -361,9 +364,11 @@ predict.lm_forest <- function(object,
   } else {
     ret <- do.call.rcpp(multi_causal_predict_oob, c(train.data, args))
   }
-  predictions <- array(ret$predictions, dim = c(NROW(ret$predictions), num.W, num.outcomes),
+  predictions <- array(ret$predictions,
+                       dim = c(NROW(ret$predictions), num.W, num.outcomes),
                        dimnames = dimnames)
+  colnames(ret$variance.estimates) <- if (estimate.variance) W.names
 
-  list(predictions = predictions,
-       variance.estimates = if (estimate.variance) ret$variance.estimates)
+  list(predictions = predictions[, , , drop = drop],
+       variance.estimates = if (estimate.variance) ret$variance.estimates[, , drop = drop])
 }
