@@ -16,7 +16,7 @@
 #' @param X The covariates.
 #' @param Y The event time (must be non-negative).
 #' @param W The treatment assignment (must be a binary or real numeric vector with no NAs).
-#' @param D The event type (0: censored, 1: failure).
+#' @param D The event type (0: censored, 1: failure/observed event).
 #' @param W.hat Estimates of the treatment propensities E[W | X = x]. If W.hat = NULL,
 #'              these are estimated using a separate regression forest. Default is NULL.
 #' @param target The target estimand. Choices are Restricted Mean Survival Time ("RMST") which estimates 1)
