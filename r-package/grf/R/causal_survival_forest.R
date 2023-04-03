@@ -9,8 +9,6 @@
 #' tau(X) = P[T(1) > horizon | X = x] - P[T(0) > horizon | X = x], for a chosen time point `horizon`.
 #'
 #'
-#' The causal survival forest paper defines the survival function in the 2nd estimand with weak inequality.
-#' It is defined using strict inequality in the R package (note that P[T >= h] = P[T > h - epsilon]).
 #' When W is continuous, we effectively estimate an average partial effect corresponding to
 #' 1) Cov[min(T, horizon), W | X = x] / Var[W | X = x] or 2) Cov[1(T > horizon), W | X = x] / Var[W | X = x],
 #' and interpret it as a treatment effect given unconfoundedness.
