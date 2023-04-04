@@ -53,7 +53,7 @@ This setup describes a typical data collection process in time-to-event studies 
     \begin{cases}
       T_i & \text{if} \, T_i \leq C_i \\
       C_i & \text{otherwise}
-    \end{cases}       
+    \end{cases}
 \end{equation}
 
 along with an event indicator $D_i$
@@ -176,7 +176,7 @@ where $T(1)$ and $T(0)$ are potential outcomes corresponding to the two treatmen
 
 As the example in the previous section made clear, the censoring mechanism was completely random (failing batteries and measuring devices). This is a crucial assumption, and we require:
 
-1. *Ignorable censoring*: censoring is independent of survival time conditionally on treatment and covariates, $T_i \perp C_i \mid X_i, \, W_i$.  
+1. *Ignorable censoring*: censoring is independent of survival time conditionally on treatment and covariates, $T_i \perp C_i \mid X_i, \, W_i$.
 
 We can get a sense of what the second identifying assumption is by looking at the density plots from the previous section. We saw that for the restricted mean to be identified, we needed there to be some chance of observing an event during our study period, captured by the `horizon` parameter $h$. This second assumption make that requirement:
 
