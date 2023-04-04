@@ -253,9 +253,9 @@ rate
 ## Other estimation targets: survival probabilities
 CSF can also be used to estimate the difference in survival probabilities. This option is available through the argument `target = "survival.probability"` and estimates for a given `horizon` $h$:
 
-$$\tau(x) = P[T(1) \geq h \, | X = x] - P[T(0) \geq h \, | X = x].$$
+$$\tau(x) = P[T(1) > h \, | X = x] - P[T(0) > h \, | X = x].$$
 
-This extension can be made naturally using the estimation framework described in the previous section. The rest of this vignette contains details on the general setup. Let $y(\cdot)$ be a deterministic function that satisfies the following:
+This extension can be made using the estimation framework described in the previous section. The rest of this vignette contains details on the general setup. Let $y(\cdot)$ be a deterministic function that satisfies the following:
 
 4. *Finite horizon*: The outcome transformation $y(\cdot)$ admits a maximal horizon $0 < h < \infty$, such that $y(t) = y(h)$ for all $t \geq h$.
 
