@@ -53,7 +53,7 @@ This setup describes a typical data collection process in time-to-event studies 
     \begin{cases}
       T_i & \text{if} \, T_i \leq C_i \\
       C_i & \text{otherwise}
-    \end{cases}       
+    \end{cases}
 \end{equation}
 
 along with an event indicator $D_i$
@@ -176,11 +176,11 @@ where $T(1)$ and $T(0)$ are potential outcomes corresponding to the two treatmen
 
 As the example in the previous section made clear, the censoring mechanism was completely random (failing batteries and measuring devices). This is a crucial assumption, and we require:
 
-1. *Ignorable censoring*: censoring is independent of survival time conditionally on treatment and covariates, $T_i \perp C_i \mid X_i, \, W_i$.  
+1. *Ignorable censoring*: censoring is independent of survival time conditionally on treatment and covariates, $T_i \perp C_i \mid X_i, \, W_i$.
 
 We can get a sense of what the second identifying assumption is by looking at the density plots from the previous section. We saw that for the restricted mean to be identified, we needed there to be some chance of observing an event during our study period, captured by the `horizon` parameter $h$. This second assumption make that requirement:
 
-2. *Positivity*: each subject has some probability of having an event observed, $P[C_i \leq h \, | X_i, \, W_i] \leq 1 - \eta_C$ for some $\eta_C > 0$.
+2. *Positivity*: each subject has some probability of having an event observed, $P[C_i < h \, | X_i, \, W_i] \leq 1 - \eta_C$ for some $\eta_C > 0$.
 
 Continuing with the simple stylized example from the first section, we simulate the following setup, where we stop collecting samples after t=10 days, with random treatment assignment and where $\tau(X)$ depends on the first covariate $X_1$.
 
@@ -253,9 +253,9 @@ rate
 ## Other estimation targets: survival probabilities
 CSF can also be used to estimate the difference in survival probabilities. This option is available through the argument `target = "survival.probability"` and estimates for a given `horizon` $h$:
 
-$$\tau(x) = P[T(1) \geq h \, | X = x] - P[T(0) \geq h \, | X = x].$$
+$$\tau(x) = P[T(1) > h \, | X = x] - P[T(0) > h \, | X = x].$$
 
-This extension can be made naturally using the estimation framework described in the previous section. The rest of this vignette contains details on the general setup. Let $y(\cdot)$ be a deterministic function that satisfies the following:
+This extension can be made using the estimation framework described in the previous section. The rest of this vignette contains details on the general setup. Let $y(\cdot)$ be a deterministic function that satisfies the following:
 
 4. *Finite horizon*: The outcome transformation $y(\cdot)$ admits a maximal horizon $0 < h < \infty$, such that $y(t) = y(h)$ for all $t \geq h$.
 
