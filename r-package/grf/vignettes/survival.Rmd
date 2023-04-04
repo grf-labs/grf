@@ -180,7 +180,7 @@ As the example in the previous section made clear, the censoring mechanism was c
 
 We can get a sense of what the second identifying assumption is by looking at the density plots from the previous section. We saw that for the restricted mean to be identified, we needed there to be some chance of observing an event during our study period, captured by the `horizon` parameter $h$. This second assumption make that requirement:
 
-2. *Positivity*: each subject has some probability of having an event observed, $P[C_i \leq h \, | X_i, \, W_i] \leq 1 - \eta_C$ for some $\eta_C > 0$.
+2. *Positivity*: each subject has some probability of having an event observed, $P[C_i < h \, | X_i, \, W_i] \leq 1 - \eta_C$ for some $\eta_C > 0$.
 
 Continuing with the simple stylized example from the first section, we simulate the following setup, where we stop collecting samples after t=10 days, with random treatment assignment and where $\tau(X)$ depends on the first covariate $X_1$.
 
