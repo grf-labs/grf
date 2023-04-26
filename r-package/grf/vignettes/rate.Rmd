@@ -145,7 +145,7 @@ For the purpose of this vignette example we'll not analyse the original SPRINT/A
 The outcome data in this trial is *right-censored*, so we cannot use any ordinary "out-of-the-box" CATE estimator to estimate treatment effects, rather, we need one that takes censoring into account. For this reason we use GRF's `causal_survival_forest` (and refer to the [documentation](https://grf-labs.github.io/grf/reference/causal_survival_forest.html) for details). Below is an illustration of the simulated trial data.
 
 ```{r}
-# Read in dummy data from https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes
+# Read in semi-synthetic data from https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes
 load("synthetic_SPRINT_ACCORD.RData")
 df <- data.frame(Y = c(Y.sprint, Y.accord),
                  D = c(D.sprint, D.accord),
