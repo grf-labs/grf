@@ -114,13 +114,13 @@ for each unique value u in x:
   decrease[u, missing = on_right] = sum_left[u]^2 / weight_sum_left[u]
                                   + (sum_right[u] + sum_missing)^2 / (weight_sums_right[u] + weight_sum_missing)
 
-return (u, missing) that maximizes decrease such that                                 
+return (u, missing) that maximizes decrease such that
 count_left[u] and count_right[u] >= min_child_size
 ```
 
 ---
 
-***Algorithm*** (Decrease calculation in weighted CART): find the best split `Sj` for variable `Xj`. The impurity criterion is the sum of weighted mean squared errors, which for a specific split `Sj` is minimized by the weighted sample average `Ybar` (see for example [Elements of Statistical Learning, Ch 9](https://web.stanford.edu/~hastie/ElemStatLearn/)).
+***Algorithm*** (Decrease calculation in weighted CART): find the best split `Sj` for variable `Xj`. The impurity criterion is the sum of weighted mean squared errors, which for a specific split `Sj` is minimized by the weighted sample average `Ybar` (see for example [Elements of Statistical Learning, Ch 9](https://hastie.su.domains/ElemStatLearn/)).
 
 _Input_: `Xj` : Covariate j, `w`: sample weight vector, `y`: response vector
 
