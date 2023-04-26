@@ -388,7 +388,7 @@ If there is strong overlap, the histogram will be concentrated away from 0 and 1
 
 For further discussion of the overlap assumption, please see Imbens and Rubin (2015). In practice, this assumption is often violated due to incorrect modeling decision: for example one covariate may be a deterministic indicator that the example received treatment.
 
-### Subgroups based on out-of-bag (OOB) estimates
+#### Subgroups based on out-of-bag (OOB) estimates
 
 When forming subgroups based on which quantile of the OOB treatment effect estimates a unit belongs to, it is possible to observe the counterintuitive result that the average treatment effect in the high group is small, and the average treatment effect in the low group is large.
 
