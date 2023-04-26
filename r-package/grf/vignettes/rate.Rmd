@@ -140,12 +140,12 @@ This hypothesis has a testable implication implied by the previous section: if t
 
 3) If both populations exhibit similar HTEs, then a powerful CATE estimator should yield a positive and significant RATE estimate.
 
-For the purpose of this vignette example we'll not analyse the original SPRINT/ACCORD data, but rather a *smaller simulated* example, stored in the [GRF repository](https://github.com/grf-labs/grf/blob/master/r-package/grf/vignettes/synthetic_SPRINT_ACCORD.RData). For details on the simulator see the [RATE repository](https://github.com/som-shahlab/RATE-experiments/blob/main/experiments/section_5_SPRINT_and_ACCORD/simulators/simulators_description.pdf).
+For the purpose of this vignette example we'll not analyse the original SPRINT/ACCORD data, but rather a *smaller simulated* example, stored in the [GRF repository](https://github.com/grf-labs/grf/blob/master/r-package/grf/vignettes/synthetic_SPRINT_ACCORD.RData). For details on the simulator see the [paper repository](https://github.com/som-shahlab/RATE-experiments/).
 
 The outcome data in this trial is *right-censored*, so we cannot use any ordinary "out-of-the-box" CATE estimator to estimate treatment effects, rather, we need one that takes censoring into account. For this reason we use GRF's `causal_survival_forest` (and refer to the [documentation](https://grf-labs.github.io/grf/reference/causal_survival_forest.html) for details). Below is an illustration of the simulated trial data.
 
 ```{r}
-# Read in dummy data from https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes
+# Read in semi-synthetic data from https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes
 load("synthetic_SPRINT_ACCORD.RData")
 df <- data.frame(Y = c(Y.sprint, Y.accord),
                  D = c(D.sprint, D.accord),
