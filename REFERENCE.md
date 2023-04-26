@@ -374,6 +374,8 @@ In this case, it would be good to try growing a larger number of trees. Obtainin
 
 ### The causal forest method is producing nonsensical results.
 
+#### Overlap issues
+
 If the output of the `causal_forest` method doesn't pass a sanity check based on your knowledge of the data, it may be worth checking whether the overlap assumption is violated. In order for conditional average treatment effects to be properly identified, a dataset's propensity scores must be bounded away from 0 and 1. A simple way to validate this assumption is to calculate the propensity scores by regressing the treatment assignments W against X, and examining the out-of-bag predictions. Concretely, you can perform the following steps:
 
 ```
@@ -385,6 +387,12 @@ hist(W.hat, xlab = "propensity score")
 If there is strong overlap, the histogram will be concentrated away from 0 and 1. If the data is instead concentrated at the extremes, the overlap assumption likely does not hold.
 
 For further discussion of the overlap assumption, please see Imbens and Rubin (2015). In practice, this assumption is often violated due to incorrect modeling decision: for example one covariate may be a deterministic indicator that the example received treatment.
+
+### Subgroups based on out-of-bag (OOB) estimates
+
+When forming subgroups based on which quantile of the OOB treatment effect estimates a unit belongs to, it is possible to observe the counterintuitive result that the average treatment effect in the high group is small, and the average treatment effect in the low group is large.
+
+This is unfortunately a known artifact of using OOB estimates for this kind of exercise and can be avoided by doing for example a train/test split where one sample is used to estimate subgroups and another to estimate average treatment effects. See for example the documentation for the function `rank_average_treatment_effect`.
 
 ### Regression forest predictions differ from those of the randomForest and ranger packages.
 
