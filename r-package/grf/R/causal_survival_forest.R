@@ -21,7 +21,7 @@
 #'              these are estimated using a separate regression forest. Default is NULL.
 #' @param target The target estimand. Choices are Restricted Mean Survival Time ("RMST") which estimates 1)
 #'  E[min(T(1), horizon) - min(T(0), horizon) | X = x], or "survival.probability" which estimates 2)
-#'  P(T(1) > horizon | X = x) - P(T(0) > horizon | X = x). Default is "RMST".
+#'  P[T(1) > horizon | X = x] - P[T(0) > horizon | X = x]. Default is "RMST".
 #' @param horizon A scalar that defines the estimand (required). If target is "RMST" then this defines
 #'  the maximum follow-up time. If target is "survival.probability", then this defines the time point
 #'  for the absolute risk difference estimate.
