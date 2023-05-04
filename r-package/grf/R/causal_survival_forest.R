@@ -95,7 +95,7 @@
 #'
 #' @references Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
 #'  "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests."
-#'  Journal of the Royal Statistical Society: Series B, forthcoming.
+#'  Journal of the Royal Statistical Society: Series B, 85(2), 2023.
 #'
 #' @examples
 #' \donttest{
