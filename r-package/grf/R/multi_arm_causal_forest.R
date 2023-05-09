@@ -1,4 +1,4 @@
-#' Multi-arm causal forest
+#' Multi-arm/multi-outcome causal forest
 #'
 #' Trains a causal forest that can be used to estimate
 #' conditional average treatment effects tau_k(X). When
@@ -33,7 +33,7 @@
 #' all outcomes simultaneously (specifically, we concatenate the gradient
 #' vector for each outcome).
 #'
-#' For a single treatment, this forest is equivalent to a causal forest, however,
+#' For a single treatment and outcome, this forest is equivalent to a causal forest, however,
 #' they may produce different results due to differences in numerics.
 #'
 #' @param X The covariates used in the causal regression.
