@@ -2,7 +2,7 @@
 % Please edit documentation in R/multi_arm_causal_forest.R
 \name{multi_arm_causal_forest}
 \alias{multi_arm_causal_forest}
-\title{Multi-arm causal forest}
+\title{Multi-arm/multi-outcome causal forest}
 \usage{
 multi_arm_causal_forest(
   X,
@@ -151,7 +151,7 @@ be vector-valued) - in which case the splitting rule takes into account
 all outcomes simultaneously (specifically, we concatenate the gradient
 vector for each outcome).
 
-For a single treatment, this forest is equivalent to a causal forest, however,
+For a single treatment and outcome, this forest is equivalent to a causal forest, however,
 they may produce different results due to differences in numerics.
 }
 \examples{
