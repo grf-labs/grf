@@ -101,7 +101,7 @@ jobs:
   - script: ./run.sh run_tests
     workingDirectory: r-package/grf
     displayName: Test R package
-  - script: ./run.sh dump_logs_by_extension "fail"
+  - script: ./run.sh dump_logs
     condition: failed()
     workingDirectory: r-package/grf
     displayName: Print R failures
