@@ -19,6 +19,7 @@ package.name <- "grf"
 if (!is.na(args[1]) && args[1] == "--as-cran") {
   write_union("grf/.Rbuildignore", "^tests/testthat/test_((?!cran).).*")
   write_union("grf/.Rbuildignore", "^tests/testthat/data")
+  write_union("grf/.Rbuildignore", "^tests/testthat/Rplots.pdf")
 }
 
 # Auto-generate documentation files
