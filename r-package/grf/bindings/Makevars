@@ -1,6 +1,3 @@
-## Use c++11
-CXX_STD = CXX11
-
 PKG_CXXFLAGS = -I. -Isrc -DR_BUILD
 
 SOURCES = $(wildcard *.cpp */*.cpp */*/*.cpp */*/*/*.cpp)
