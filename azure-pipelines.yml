@@ -56,24 +56,16 @@ jobs:
         imageName: "ubuntu-latest"
       macos11:
         imageName: "macOS-latest"
-        variables:
-          - name: CXX_STD
-          - value: 'CXX11'
+        CXX_STD: "CXX11"
       macos14:
         imageName: "macOS-latest"
-        variables:
-          - name: CXX_STD
-          - value: 'CXX14'
+        CXX_STD: "CXX14"
       macos17:
         imageName: "macOS-latest"
-        variables:
-          - name: CXX_STD
-          - value: 'CXX17'
+        CXX_STD: "CXX17"
       macos20:
         imageName: "macOS-latest"
-        variables:
-          - name: CXX_STD
-          - value: 'CXX20'
+        CXX_STD: "CXX20"
   pool:
     vmImage: $(imageName)
   variables:
