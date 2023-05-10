@@ -54,7 +54,6 @@ jobs:
     matrix:
       ubuntu:
         imageName: "ubuntu-latest"
-        cppVer: "CXX11"
       macos_cpp11:
         imageName: "macOS-latest"
         cppVer: "CXX11"
@@ -92,6 +91,7 @@ jobs:
       echo CXX_STD = $(cppVer) >> Makevars
     workingDirectory: r-package/grf/bindings
     displayName: Specify CXX_STD in R Makevars
+    condition: ne(variables['Agent.OS'], 'Linux')
   - script: |
       curl -OLs https://eddelbuettel.github.io/r-ci/run.sh && chmod 0755 run.sh
       ./run.sh bootstrap
