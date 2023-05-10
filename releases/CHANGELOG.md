@@ -4,7 +4,7 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.3.0] - 2023-05-??
+## [2.3.0] - 2023-05-10
 
 ### Added
 - Add support for a continuous treatment `W` in `causal_survival_forest`, mimicking the average partial effect estimand in `causal_forest`. [#1280](https://github.com/grf-labs/grf/pull/1280)
