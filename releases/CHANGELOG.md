@@ -4,6 +4,18 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2023-05-10
+
+### Added
+- Add support for a continuous treatment `W` in `causal_survival_forest`, mimicking the average partial effect estimand in `causal_forest`. [#1280](https://github.com/grf-labs/grf/pull/1280)
+- Add `target.sample = "overlap"` option to `best_linear_projection` allowing for estimation with weights equal to e(X)(1 - e(X)). [#1258](https://github.com/grf-labs/grf/pull/1258)
+- Add optional `drop` argument to `predict.multi_arm_causal_forest`, `predict.multi_regression_forest`, and `predict.lm_forest` which drops the singleton dimension in the prediction array in case the forest is fit with only a single outcome. [#1271](https://github.com/grf-labs/grf/pull/1271), [#1281](https://github.com/grf-labs/grf/pull/1282)
+- Add column names to the `variance.estimates` matrix when calling `predict.multi_arm_causal_forest`, `predict.probability_forest`, and `predict.lm_forest`. [#1272](https://github.com/grf-labs/grf/pull/1272), [#1283](https://github.com/grf-labs/grf/pull/1283)
+
+### Fixed
+- Fix missing `num.threads` argument in internal `causal_survival_forest` nuisance estimation that would cause some components to utilize all available threads even though the `num.threads` arguments specified less. [#1267](https://github.com/grf-labs/grf/pull/1267)
+- Drop C++11 compiler flag in src/Makevars per latest CRAN guidelines. [#1305](https://github.com/grf-labs/grf/pull/1305)
+
 ## [2.2.1] - 2022-12-14
 
 ### Added
