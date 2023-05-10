@@ -82,8 +82,6 @@ jobs:
     value: true
   - name: WARNINGS_ARE_ERRORS
     value: true
-  - name: CXX_STD
-    value: $(CXX_STD)
   steps:
   - script: |
       sudo apt-get update -qq
