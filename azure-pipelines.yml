@@ -54,6 +54,7 @@ jobs:
     matrix:
       ubuntu:
         imageName: "ubuntu-latest"
+        CXX_STD: "CXX11"
       macos11:
         imageName: "macOS-latest"
         CXX_STD: "CXX11"
@@ -81,6 +82,8 @@ jobs:
     value: true
   - name: WARNINGS_ARE_ERRORS
     value: true
+  - name: CXX_STD
+    value: $(CXX_STD)
   steps:
   - script: |
       sudo apt-get update -qq
