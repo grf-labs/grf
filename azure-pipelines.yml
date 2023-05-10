@@ -54,8 +54,26 @@ jobs:
     matrix:
       ubuntu:
         imageName: "ubuntu-latest"
-      macos:
+      macos11:
         imageName: "macOS-latest"
+        variables:
+          - name: CXX_STD
+          - value: 'CXX11'
+      macos14:
+        imageName: "macOS-latest"
+        variables:
+          - name: CXX_STD
+          - value: 'CXX14'
+      macos17:
+        imageName: "macOS-latest"
+        variables:
+          - name: CXX_STD
+          - value: 'CXX17'
+      macos20:
+        imageName: "macOS-latest"
+        variables:
+          - name: CXX_STD
+          - value: 'CXX20'
   pool:
     vmImage: $(imageName)
   variables:
