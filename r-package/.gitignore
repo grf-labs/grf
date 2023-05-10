@@ -24,3 +24,6 @@ docs/
 
 # clion files
 .idea/
+
+# pdf output
+*.pdf
