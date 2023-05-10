@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Fix missing `num.threads` argument in internal `causal_survival_forest` nuisance estimation that would cause some components to utilize all available threads even though the `num.threads` arguments specified less. [#1267](https://github.com/grf-labs/grf/pull/1267)
+- Drop C++11 compiler flag in src/Makevars per latest CRAN guidelines. [#1305](https://github.com/grf-labs/grf/pull/1305)
 
 ## [2.2.1] - 2022-12-14
 
