@@ -2,7 +2,7 @@
 
 ## What are these files?
 
-They are copies of `random` and `algorithm` headers from the [llvm](https://github.com/llvm-mirror/libcxx/blob/master/include/) standard library.
+They are copies of `random` and `algorithm` headers from the [llvm](https://github.com/llvm-mirror/libcxx/tree/master/include) standard library.
 
 
 ## Motivation
