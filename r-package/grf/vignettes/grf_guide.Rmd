@@ -403,7 +403,7 @@ qini.age
 
 *Some educational resources*
 
-* [Stanford video lectures on machine learning & causal inference](https://youtube.com/playlist?list=PLxq_lXOUlvQAoWZEqhRqHNezS30lI49G-)
+* [Stanford video lectures on machine learning & causal inference](https://www.youtube.com/playlist?list=PLxq_lXOUlvQAoWZEqhRqHNezS30lI49G-)
 
 * [Online seminar on estimating heterogeneous treatment effects in R](https://youtu.be/YBbnCDRCcAI)
 
