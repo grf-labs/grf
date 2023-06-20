@@ -422,7 +422,7 @@ Carvalho, Leandro S., Stephan Meier, and Stephanie W. Wang. "Poverty and economi
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. "Double/debiased machine learning for treatment and structural parameters." The Econometrics Journal, 2018.
 
-Efron, Bradley. "Prediction, estimation, and attribution." International Statistical Review 88 (2020): S28-S59.
+Efron, Bradley. "Prediction, estimation, and attribution." International Statistical Review 88 (2020): S28-S59. ([link](https://efron.ckirby.su.domains/papers/2019PredictEstimatAttribut.pdf))
 
 Farbmacher, Helmut, Heinrich Kögel, and Martin Spindler. "Heterogeneous effects of poverty on attention." Labour Economics 71 (2021): 102028.
 
