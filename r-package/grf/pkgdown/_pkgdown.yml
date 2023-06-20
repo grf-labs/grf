@@ -12,7 +12,7 @@ navbar:
         href: articles/grf_guide.html
       - text: "Assessing heterogeneity with RATE"
         href: articles/rate.html
-      - text: "Categorical inputs"
+      - text: "Categorical covariates"
         href: articles/categorical_inputs.html
       - text: "Causal forest with time-to-event data"
         href: articles/survival.html
