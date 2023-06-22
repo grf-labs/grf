@@ -220,7 +220,7 @@ The mean treatment fractions are
 ```{r}
 colMeans(pi.hat)
 ```
-i.e., at this spend level assigning `r mean(pi.hat[,1])` % of the units to arm 1 and `r mean(pi.hat[,2])` % of the units to arm 2 is optimal.
+i.e., at this spend level assigning `r round(100*mean(pi.hat[,1]), 0)` % of the units to arm 1 and `r round(100*mean(pi.hat[,2]), 0)` % of the units to arm 2 (and `r round(100 - 100*sum(colMeans(pi.hat)), 0)` % to the control) is optimal.
 
 Finally, we can also construct and plot a “baseline” policy that optimally selects among the two treatment arms based on only the ATE:
 ```{r}
