@@ -1,5 +1,5 @@
 ---
-title: "Categorical inputs"
+title: "Categorical covariates"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{categorical_inputs}
