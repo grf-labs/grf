@@ -1,5 +1,5 @@
 ---
-title: "Policy learning"
+title: "Policy learning via decision trees"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{policy_learning}
