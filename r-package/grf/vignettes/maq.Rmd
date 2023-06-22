@@ -31,7 +31,7 @@ where $Y(1)$ and $Y(0)$ are potential outcomes corresponding to the two treatmen
 
 There are many approaches to obtain estimates of the function $\tau(X_i)$, *Causal Forest* being one of them. Now, once we an estimated $\hat \tau(\cdot)$ function, or set of functions, what *metric* can we use to evaluate them with? Recall that, as opposed to a classical prediction problem, we never observe ground truth treatment effects, so we cannot use a held-out test sample to compute something like a mean squared prediction error $E[(f(X_i) - Y_i)^2]$.
 
-A metric we propose for this purpose is called the [RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) and is covered in [this vignette](https://grf-labs.github.io/grf/articles/rate.html). With RATE we take a *policy evaluation* approach to guide the construction of a metric: assume we have obtained an estimated CATE function $\hat \tau(\cdot)$ on some *training set* and on a held-out *test set* $X_{test}$ we have observed outcomes $Y_i(W_i)$ for people who were treated, or not treated. 
+A metric we propose for this purpose is called the [RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) and is covered in [this vignette](https://grf-labs.github.io/grf/articles/rate.html). With RATE we take a *policy evaluation* approach to guide the construction of a metric: assume we have obtained an estimated CATE function $\hat \tau(\cdot)$ on some *training set* and on a held-out *test set* $X_{test}$ we have observed outcomes $Y_i(W_i)$ for people who were treated, or not treated.
 
 The estimated CATE function $\hat \tau(\cdot)$ induces a family of *policies*, which refer to as $\hat \pi(\cdot)$, that takes covariates $X_i$ and maps them to a treatment decision $\{0: \text{don't treat}, 1: \text{treat}\}$. For example, on the held-out test set, the predictions $\hat \tau(X_{test})$ implicitly tell us that a reasonable policy to determine treatment allocation with is: "If the estimated CATE for Alice is highest, then treat Alice first”, and "If the estimated CATE for Bob is the second highest, then treat Bob second", and so on.
 
@@ -62,7 +62,7 @@ In the previous section we left out the exact details of how to *evaluate* a pol
 $$
 \frac{1}{n} \sum_{i}^{n} \hat \pi_B(X_i) \left( \frac{W_i Y_i}{P[W_i = 1|X_i]} - \frac{(1-W_i)Y_i}{P[W_i = 0|X_i]} \right).
 $$
-IPW (the terms in parenthesis) accounts for the fact that the prescribed policy $\hat \pi_B(X_i)$ might not match the observed treatment $W_i$ for unit i. 
+IPW (the terms in parenthesis) accounts for the fact that the prescribed policy $\hat \pi_B(X_i)$ might not match the observed treatment $W_i$ for unit i.
 
 The *Qini curve* traces out the above estimated value, as we increase the budget. The following code example gives a toy example, where we to keep the exposition simple, assume each unit has the same cost, assigning treatment to both Bob and Alice costs 1.0, on some chosen denomination (a nice property of the Qini as an evaluation metric is that it does not require costs and treatment effects to be denominated on the same scale, only their ratio matters[^c]):
 
@@ -85,7 +85,7 @@ tau.hat <- predict(c.forest, X[test, ])$predictions
 Y.ipw.test <- ifelse(W[test] == 1, Y[test]/0.5, -Y[test]/0.5)
 cost <- 1
 max.budget <- 1
-  
+
 # Use the maq package to fit a Qini curve, using 200 bootstrap replicates for SEs.
 qini <- maq(tau.hat, cost, max.budget, Y.ipw.test, R = 200)
 
@@ -154,11 +154,11 @@ The Qini curve is useful if you are in a setting where it is natural to undertak
 ## Qini curves with multi-armed treatment
 Consider now the case where we have $k = 0,\ldots K$ arms available, where $k=0$ is a zero cost control arm. For example, $k=1$ could be a low cost drug, and $k=2$ could be a higher cost drug, but which is more effective (and $k=0$ could be a placebo control).
 
-Given estimated treatment effects $\hat \tau(\cdot)$ and costs $\hat C(\cdot)$ (remember that these objects are now vector-valued, i.e. the $k$-th element of $\hat \tau(X_i)$ is an estimate of the CATE for arm $k$ for units with covariates $X_i$) - we now ask: how can we conduct a similar exercise as above where we evaluate allocating treatment optimally in accordance with our estimated CATEs (and costs), as we vary the available budget? 
+Given estimated treatment effects $\hat \tau(\cdot)$ and costs $\hat C(\cdot)$ (remember that these objects are now vector-valued, i.e. the $k$-th element of $\hat \tau(X_i)$ is an estimate of the CATE for arm $k$ for units with covariates $X_i$) - we now ask: how can we conduct a similar exercise as above where we evaluate allocating treatment optimally in accordance with our estimated CATEs (and costs), as we vary the available budget?
 
 It turns out that in order to perform this exercise, we need to solve a constrained optimization problem, as the underlying policy object $\hat \pi_B(X_i)$ now has to optimally select among many potential arms (with different costs) for each unit. For example, at each spend level, we have to decide whether we should allocate some *initial* arm to Alice, *or* perhaps, if Bob was already an assigned arm, if we instead should *upgrade* Bob to a costlier, but more effective arm.
 
-The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently, and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective but costlier:
+The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently, and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective but costlier, and the costs vary by unit based on some known characteristic:
 ```{r}
 # Simulate two treatment arms (1 and 2) and a control arm 0.
 n <- 3000
@@ -182,18 +182,18 @@ Y.mat[cbind(seq_along(observed.W), observed.W)] <- Y
 Y.ipw <- sweep(Y.mat, 2, rep(1/3, 3), "/")
 Y.ipw.test <- Y.ipw[test, -1] - Y.ipw[test, 1]
 
-# The cost of arm B and C (these can also vary by unit, in which case we can supply a matrix).
-cost <- c(1/4, 2)
+# The cost of arm 1 and 2
+cost <- cbind(X[test, 4] / 4, X[test, 5])
 max.budget <- 2
 
 ma.qini <- maq(tau.hat, cost, max.budget, Y.ipw.test, R = 200)
-plot(ma.qini) 
+plot(ma.qini)
 ```
 
 We can also compute single Qini curves for each treatment arm and overlay them in the plot:
 ```{r}
-qini.arm1 <- maq(tau.hat[, 1], cost[1], max.budget, Y.ipw.test[, 1], R = 200)
-qini.arm2 <- maq(tau.hat[, 2], cost[2], max.budget, Y.ipw.test[, 2], R = 200)
+qini.arm1 <- maq(tau.hat[, 1], cost[, 1], max.budget, Y.ipw.test[, 1], R = 200)
+qini.arm2 <- maq(tau.hat[, 2], cost[, 2], max.budget, Y.ipw.test[, 2], R = 200)
 
 plot(ma.qini, ci.args = NULL) # leave out CIs for legibility.
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
@@ -204,14 +204,14 @@ legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
 
 The blue line (arm 1) plateaus at a spend level of around `r max(qini.arm1[["_path"]]$spend)`, since once we have reached this spend level, we are already giving treatment to all units believed to benefit from arm 1, and so cannot achieve further gains via increased spending.
 
-The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?" For example, at $B = 0.5$ this difference over arm 1 would be would be
+The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?" For example, at $B = 0.1$ this difference over arm 1 would be would be
 ```{r}
-difference_gain(ma.qini, qini.arm1, spend = 0.5)
+difference_gain(ma.qini, qini.arm1, spend = 0.1)
 ```
 
-We can retrieve the underlying estimated multi-armed policy through `predict`, for example at $B=0.5$:
+We can retrieve the underlying estimated multi-armed policy through `predict`, for example at $B=0.1$:
 ```{r}
-pi.hat <- predict(ma.qini, spend = 0.5)
+pi.hat <- predict(ma.qini, spend = 0.1)
 head(pi.hat)
 ```
 $\hat \pi_B(X_i)$ is now a $K$-dimensional vector, i.e. the $i$-th row above has a 1 in the $k$-th column if we at that spend level assign arm $k$ to that unit, with all entries zero if the control arm is assigned. (Note that at most one unit will have a non-integer entry in this row matrix. If the particular budget is not enough to give unit $i$ the treatment, then this unit will either have a single fractional entry, or two fractional entries, depending on whether the unit is being assigned an initial arm or upgraded to a costlier arm. These fractions can be interpreted as a probability of arm assignment.)
@@ -237,7 +237,7 @@ legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
 
 We can conduct similar hypotheses tests as above, now assessing the value of optimally targeting based on covariates, against just allocating arbitrary units based on the arm ATEs:
 ```{r}
-difference_gain(ma.qini, ma.qini.basline, spend = 0.5)
+difference_gain(ma.qini, ma.qini.basline, spend = 0.1)
 ```
 
 For more details, including a central limit theorem covering the standard errors above, we refer to the [paper](https://arxiv.org/abs/2306.11979).
@@ -274,7 +274,7 @@ f.con <- rbind(A.mat, c.coeff)
 f.dir <- rep("<=", nrow(f.con))
 
 # Solve it for a specific budget B.
-B <- 0.5
+B <- 0.2
 f.rhs <- c(rep(1, nrow(A.mat)), B)
 lp.res <- lp("max", x.coeffs, f.con, f.dir, f.rhs)
 
