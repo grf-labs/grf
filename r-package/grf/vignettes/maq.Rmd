@@ -254,40 +254,8 @@ $$
 & \pi_B(X_i) \geq 0.
 \end{aligned}
 $$
-Below is how one could solve for this policy using a generic solver like `lpSolve`.
-```{r}
-library(lpSolve)
 
-# Encode the problem according to lpSolve.
-K <- ncol(tau.hat)
-x.coeffs <- c(t(tau.hat)) / nrow(tau.hat)
-A.mat <- matrix(0, nrow(tau.hat), length(x.coeffs))
-start <- 1
-for (row in 1:nrow(A.mat)) {
-  end <- start + K -1
-  A.mat[row, start:end] <- 1
-  start <- end + 1
-}
-costs <- matrix(cost, nrow(tau.hat), ncol(tau.hat), byrow = TRUE)
-c.coeff <- c(t(costs)) / nrow(costs)
-f.con <- rbind(A.mat, c.coeff)
-f.dir <- rep("<=", nrow(f.con))
-
-# Solve it for a specific budget B.
-B <- 0.2
-f.rhs <- c(rep(1, nrow(A.mat)), B)
-lp.res <- lp("max", x.coeffs, f.con, f.dir, f.rhs)
-
-pi.mat.lp <- matrix(lp.res$solution, nrow = nrow(tau.hat), byrow = TRUE)
-
-# A single point on the curve:
-sum(pi.mat.lp * Y.ipw.test) / nrow(tau.hat)
-
-# maq has already computed the entire path, and deliver the estimated value at B with:
-average_gain(ma.qini, spend = B)
-```
-
-Note that manually estimating the policy $\hat \pi_B$ involves repeatedly solving `lp` with different budget constraints, `f.rhs`, one for each point on the spend curve. This would quickly get computationally infeasible, particularly for large $n$. `maq` computes the entire *solution path* to the above linear program for all $B$ constraints, for details see Algorithm 2 in the [paper](https://arxiv.org/abs/2306.11979).
+It is possible to solve this using off-the-shelf convex solvers, such as for example `lpSolve`. Note that solving for $\hat \pi_B$ involves repeatedly invoking an LP solver with different budget constraints, one for each point on the spend curve. This would quickly get computationally infeasible, particularly for large $n$. `maq` computes the entire *solution path* to the above linear program for all $B$ constraints, for details see Algorithm 2 in the [paper](https://arxiv.org/abs/2306.11979).
 
 
 ## References
