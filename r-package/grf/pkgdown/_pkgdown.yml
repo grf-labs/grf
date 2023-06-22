@@ -28,8 +28,6 @@ navbar:
         href: articles/policy_learning.html
       - text: "Qini curves: Automatic cost-benefit analysis"
         href: articles/maq.html
-      - text: "Visualize trees"
-        href: articles/visualize_tree.html
   - text: "Algorithm reference"
     href: REFERENCE.html
   - text: "Developing"
