@@ -54,18 +54,12 @@ jobs:
     matrix:
       ubuntu:
         imageName: "ubuntu-latest"
+      macos:
+        imageName: "macOS-latest"
+        cppVer: "CXX20"
       macos_cpp11:
         imageName: "macOS-latest"
         cppVer: "CXX11"
-      macos_cpp14:
-        imageName: "macOS-latest"
-        cppVer: "CXX14"
-      macos_cpp17:
-        imageName: "macOS-latest"
-        cppVer: "CXX17"
-      macos_cpp20:
-        imageName: "macOS-latest"
-        cppVer: "CXX20"
   pool:
     vmImage: $(imageName)
   variables:
