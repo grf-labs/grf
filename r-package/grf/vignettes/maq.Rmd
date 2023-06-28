@@ -22,6 +22,8 @@ library(maq)
 ```
 This vignette gives a brief overview of how Qini curves (or cost curves) can act as an attractive and intuitive metric for evaluating treatment rules when there are costs associated with deploying treatment, as well as how they can be generalized to many treatment arms, as implemented in the companion package [maq](https://github.com/grf-labs/maq). For complete details, we refer to [this paper](https://arxiv.org/abs/2306.11979).
 
+The [first section](#cate-evaluation-as-a-policy-evaluation-exercise) of this vignette recaps evaluation metrics for treatment effect estimators. The [second section](#evaluation-metrics-when-treatment-assignment-is-costly) introduces Qini curves for when treatment assignment has associated costs, and the [third section](#qini-curves-with-multi-armed-treatment) covers how Qini curves can be generalized to multiple treatment arms.
+
 ## CATE evaluation as a policy evaluation exercise
 Before jumping into Qini curves, let’s start by defining some terminology and refreshing some concepts. Consider a binary treatment assignment $W_i = \{0, 1\}$ and some outcome of interest $Y_i$. In order to determine if there are certain subgroups of the population, as defined by some observable characteristics $X_i$, that benefit differently from the treatment assignment, a central object of interest is the conditional average treatment effect (CATE)
 
@@ -83,10 +85,10 @@ tau.hat <- predict(c.forest, X[test, ])$predictions
 
 # 3) Form a Qini curve with inverse-propensity weighted test set outcomes.
 Y.ipw.test <- ifelse(W[test] == 1, Y[test]/0.5, -Y[test]/0.5)
-cost <- 1
-max.budget <- 1
 
 # Use the maq package to fit a Qini curve, using 200 bootstrap replicates for SEs.
+cost <- 1
+max.budget <- 1 # Fit the curve up to a maximum spend per unit where each unit expected to benefit from treatment, is treated.
 qini <- maq(tau.hat, cost, max.budget, Y.ipw.test, R = 200)
 
 # Form a baseline Qini curve that uses the ATE rather than the CATE to assign treatment.
@@ -184,7 +186,7 @@ Y.ipw.test <- Y.ipw[test, -1] - Y.ipw[test, 1]
 
 # The cost of arm 1 and 2
 cost <- cbind(X[test, 4] / 4, X[test, 5])
-max.budget <- 2
+max.budget <- 1
 
 ma.qini <- maq(tau.hat, cost, max.budget, Y.ipw.test, R = 200)
 plot(ma.qini)
@@ -208,8 +210,9 @@ The multi-armed Qini generalization allows us to answer questions such as "For a
 ```{r}
 difference_gain(ma.qini, qini.arm1, spend = 0.1)
 ```
+Points on arbitrary curves can be compared with this function, yielding paired standard errors that account for the correlation between Qini curves fit on the same test data.
 
-We can retrieve the underlying estimated multi-armed policy through `predict`, for example at $B=0.1$:
+We can retrieve the underlying estimated policy through `predict`, for example at $B=0.1$:
 ```{r}
 pi.hat <- predict(ma.qini, spend = 0.1)
 head(pi.hat)
