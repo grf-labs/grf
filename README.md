@@ -36,7 +36,7 @@ The current development version can be installed from source using devtools.
 devtools::install_github("grf-labs/grf", subdir = "r-package/grf")
 ```
 
-Note that to install from source, a compiler that implements C++11 or later is required (clang 3.3 or higher, or g++ 4.8 or higher). If installing on Windows, the RTools toolchain is also required.
+Note that to install from source, a compiler that implements C++11 or later is required. If installing on Windows, the RTools toolchain is also required.
 
 ### Usage Examples
 
