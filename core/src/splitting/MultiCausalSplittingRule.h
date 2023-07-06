@@ -25,7 +25,7 @@ namespace grf {
 
 /**
  * This splitting rule is a multivariate extension of {@link InstrumentalSplittingRule}.
- * The contraints are
+ * The constraints are
  * (1)
  * Define A_ik = W_ik < \bar{W}_k,
  * where k = 1,...,K (number of treatments) and \bar(W)_k is the average of the k'th
