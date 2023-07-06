@@ -29,7 +29,7 @@ Before jumping into Qini curves, let's start by defining some terminology and re
 
  $$\tau(X_i) = E[Y_i(1) - Y_i(0) \,|\, X_i = x],$$
 
-where $Y(1)$ and $Y(0)$ are potential outcomes corresponding to the two treatment states: control or treatment arm.
+where $Y(1)$ and $Y(0)$ are potential outcomes corresponding to the two treatment states: treatment or control arm.
 
 There are many approaches to obtain estimates of the function $\tau(X_i)$, *Causal Forest* being one of them. Now, once we an estimated $\hat \tau(\cdot)$ function, or set of functions, what *metric* can we use to evaluate them with? Recall that, as opposed to a classical prediction problem, we never observe ground truth treatment effects, so we cannot use a held-out test sample to compute something like a mean squared prediction error $E[(f(X_i) - Y_i)^2]$.
 
