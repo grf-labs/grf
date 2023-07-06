@@ -157,7 +157,7 @@ Rina Friedberg, Julie Tibshirani, Susan Athey, and Stefan Wager.
 
 Imke Mayer, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager and Julie Josse.
 <b>Doubly Robust Treatment Effect Estimation with Missing Attributes.</b>
-<i>Annals of Applied Statistics</i>, 14(3) 2020.
+<i>Annals of Applied Statistics</i>, 14(3), 2020.
 [<a href="https://projecteuclid.org/euclid.aoas/1600454872">paper</a>,
 <a href="https://arxiv.org/pdf/1910.10624.pdf">arxiv</a>]
 
