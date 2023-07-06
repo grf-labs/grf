@@ -25,7 +25,7 @@ This vignette gives a brief overview of how Qini curves (or cost curves) can act
 The [first section](#cate-evaluation-as-a-policy-evaluation-exercise) of this vignette recaps evaluation metrics for treatment effect estimators. The [second section](#evaluation-metrics-when-treatment-assignment-is-costly) introduces Qini curves for when treatment assignment has associated costs, and the [third section](#qini-curves-with-multi-armed-treatment) covers how Qini curves can be generalized to multiple treatment arms.
 
 ## CATE evaluation as a policy evaluation exercise
-Before jumping into Qini curves, let’s start by defining some terminology and refreshing some concepts. Consider a binary treatment assignment $W_i = \{0, 1\}$ and some outcome of interest $Y_i$. In order to determine if there are certain subgroups of the population, as defined by some observable characteristics $X_i$, that benefit differently from the treatment assignment, a central object of interest is the conditional average treatment effect (CATE)
+Before jumping into Qini curves, let's start by defining some terminology and refreshing some concepts. Consider a binary treatment assignment $W_i = \{0, 1\}$ and some outcome of interest $Y_i$. In order to determine if there are certain subgroups of the population, as defined by some observable characteristics $X_i$, that benefit differently from the treatment assignment, a central object of interest is the conditional average treatment effect (CATE)
 
  $$\tau(X_i) = E[Y_i(1) - Y_i(0) \,|\, X_i = x],$$
 
@@ -55,7 +55,7 @@ Consider now the case where assigning treatment incurs a cost, where we let $C_i
 
 The question we now ask is, given a budget $B$, what is a suitable approach to quantify the cost-benefit tradeoff of assigning treatment in accordance with our estimated CATEs? It turns out that incorporating costs into the policy evaluation framework we outlined in the previous section is straightforward - but the curve is going to capture something different than the TOC.
 
-Recall the policy $\hat \pi(X_i)$ is a function that maps covariates $X_i$ to a treatment decision. In this section, this function will depend on the budget $B$ which we denote by the subscript $\hat \pi_B(X_i)$. It turns out that this policy can be expressed, just as in the previous section, as a treatment prioritization rule that essentially says “If you have $b$ available to spend, then treat Alice first if her estimated cost-benefit ratio, CATE/cost is the highest”, and so on.
+Recall the policy $\hat \pi(X_i)$ is a function that maps covariates $X_i$ to a treatment decision. In this section, this function will depend on the budget $B$ which we denote by the subscript $\hat \pi_B(X_i)$. It turns out that this policy can be expressed, just as in the previous section, as a treatment prioritization rule that essentially says "If you have $b$ available to spend, then treat Alice first if her estimated cost-benefit ratio, CATE/cost is the highest", and so on.
 
 Just as before, we have available a test set with $n$ observed outcomes to perform evaluation on. We are interested in quantifying the expected *gain* (measured by the ATE) we can achieve by assigning treatment in accordance with $\hat \pi_B$ at different *spend* levels $B$.
 
@@ -100,7 +100,7 @@ plot(qini.baseline, add = TRUE, lty = 2)
 
 The solid curve shows the expected gain (y-axis) as we assign treatment to units predicted to benefit the most per unit spent, as we increase the amount we are willing to spend per unit (x-axis). The straight dashed line shows the Qini curve when we assign treatment without considering the CATE, i.e., at the end of the x-axis, at which point we have exhausted the budget and given everyone the treatment, our gain is equal to the ATE of around `r mean(Y.ipw.test)`. (So, points on the dashed-line represent the fraction of the ATE we can expect when targeting an arbitrary group of the population at different spend levels, thus it does not have to be a 45-degree line)
 
-The solid black curve is the Qini curve that uses the estimated CATEs to predict which test set subjects have the highest treatment effect per unit spent. As this curve rises sharply above the dashed straight line that “ignores” the CATE, it suggests there is a benefit to targeting treatment to a subpopulation as implied by the estimated CATEs, that is most responsive per unit spent.
+The solid black curve is the Qini curve that uses the estimated CATEs to predict which test set subjects have the highest treatment effect per unit spent. As this curve rises sharply above the dashed straight line that "ignores" the CATE, it suggests there is a benefit to targeting treatment to a subpopulation as implied by the estimated CATEs, that is most responsive per unit spent.
 
 We can read off estimates on the curve at various $B$ through:
 
@@ -152,7 +152,15 @@ The TOC curve is useful if you are in a setting where you are interested in whet
 
 The Qini curve is useful if you are in a setting where it is natural to undertake some cost-benefit analysis. The Qini curve is helpful because it clearly reveals the expected gain you can achieve by targeting the most responsive units, per spend, at various levels of budget allocations available. Another benefit of the Qini curve is that it is also more natural to be extended to many treatment arms, as the cost element carries over a similar cost-benefit tradeoff, but now across both arms, and units.
 
-*Note on terminology:* We call the area under the TOC curve a RATE metric. This metric depends on a weighting method. "AUTOC" is the RATE when we place higher weight on units with higher estimated CATEs. "QINI" is the RATE when we give each unit the same weight. For details see Yadlowsky et al. (2021)
+*Note on terminology:* We call the area under the TOC curve a RATE metric, as it can be represented as a *rank-weighted* ATE. The area under the TOC curve ("AUTOC") can be expressed as an ATE with weights equal to the term in $\color{red}{()}$:
+$$
+\text{AUTOC} = E\big[\color{red}{\big(-\log[1 - F(\hat \tau(X_i))] - 1\big)} (Y_i(1) - Y_i(0))\big],
+$$
+where $F(\cdot)$ is the distribution function. That is, the AUTOC strongly upweights treatment effects for the first units prioritized by $\hat \tau(X_i)$. The "QINI" is a RATE that weights the unit's treatment effect symmetrically, as it has the following representation:
+$$
+\text{QINI} = E\big[\color{red}{\big(F(\hat \tau(X_i)) - 1 \big)} (Y_i(1) - Y_i(0))\big].
+$$
+These two weighting methods have different statistical properties. The AUTOC can yield better power in tests for treatment effect heterogeneity when a small subset of the population exhibits HTEs, while the QINI can yield better power when the HTEs are more diffuse across the population. For more details see Yadlowsky et al. (2021).
 
 
 ## Qini curves with multi-armed treatment
@@ -227,7 +235,7 @@ colMeans(pi.hat)
 ```
 i.e., at this spend level assigning `r round(100*mean(pi.hat[,1]), 0)` % of the units to arm 1 and `r round(100*mean(pi.hat[,2]), 0)` % of the units to arm 2 (and `r round(100 - 100*sum(colMeans(pi.hat)), 0)` % to the control) is optimal.
 
-Finally, we can also construct and plot a “baseline” policy that optimally selects among the two treatment arms based on only the ATE:
+Finally, we can also construct and plot a "baseline" policy that optimally selects among the two treatment arms based on only the ATE:
 ```{r}
 ma.qini.basline <- maq(tau.hat, cost, max.budget, Y.ipw.test, target.with.covariates = FALSE, R = 200)
 
