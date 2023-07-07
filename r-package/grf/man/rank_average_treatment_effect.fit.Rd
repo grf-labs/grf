@@ -89,7 +89,12 @@ DR.scores <- tau.hat.eval + debiasing.weights.eval * Y.residual.eval
 rate <- rank_average_treatment_effect.fit(DR.scores, priority.cate)
 
 # Same as
-rank_average_treatment_effect(cf.eval, priority.cate)
+# rank_average_treatment_effect(cf.eval, priority.cate)
+
+# If the treatment randomization probabilities are known, then an alternative to
+# evaluation via doubly robust scores is to use inverse-propensity weighting.
+ipw.scores <- ifelse(W[-train] == 1, Y[-train]/0.5, -Y[-train]/0.5)
+rate.ipw <- rank_average_treatment_effect.fit(ipw.scores, priority.cate)
 }
 
 }
