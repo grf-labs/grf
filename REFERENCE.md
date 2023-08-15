@@ -392,7 +392,7 @@ For further discussion of the overlap assumption, please see Imbens and Rubin (2
 
 When forming subgroups based on which quantile of the OOB treatment effect estimates a unit belongs to, it is possible to observe the counterintuitive result that the average treatment effect in the high group is small, and the average treatment effect in the low group is large.
 
-This is unfortunately a known artifact of using OOB estimates for this kind of exercise and can be avoided by doing for example a train/test split where one sample is used to estimate subgroups and another to estimate average treatment effects. See for example the documentation for the function `rank_average_treatment_effect`.
+This is a known artifact of using OOB estimates for this kind of exercise and can be avoided by doing for example a train/test split where one sample is used to estimate subgroups and another to estimate average treatment effects. See for example the documentation for the function `rank_average_treatment_effect`.
 
 ### Regression forest predictions differ from those of the randomForest and ranger packages.
 
