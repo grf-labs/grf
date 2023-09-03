@@ -10,7 +10,7 @@
 #'
 #' This forest fits a multi-arm treatment estimate following the multivariate
 #' extension of the "R-learner" suggested in Nie and Wager (2021), with kernel
-#' weights derived by the GRF algortim (Athey, Tibshirani, and Wager, 2019).
+#' weights derived by the GRF algorithm (Athey, Tibshirani, and Wager, 2019).
 #' In particular, with K arms, and W encoded as \{0, 1\}^(K-1), we estimate, for
 #' a target sample x, and a chosen baseline arm:
 #'
