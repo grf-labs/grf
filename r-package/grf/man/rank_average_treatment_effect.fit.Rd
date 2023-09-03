@@ -49,7 +49,7 @@ A list of class `rank_average_treatment_effect` with elements \itemize{
 }
 \description{
 Provides an optional interface to \code{\link{rank_average_treatment_effect}} which allows for user-supplied
-doubly robust scores for the evaluation set data.
+evaluation scores.
 }
 \examples{
 \donttest{

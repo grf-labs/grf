@@ -230,7 +230,7 @@ rank_average_treatment_effect <- function(forest,
 #' Fitter function for Rank-Weighted Average Treatment Effect (RATE).
 #'
 #' Provides an optional interface to \code{\link{rank_average_treatment_effect}} which allows for user-supplied
-#' doubly robust scores for the evaluation set data.
+#' evaluation scores.
 #'
 #' @param DR.scores A vector with the evaluation set doubly robust scores.
 #' @param priorities Treatment prioritization scores S(Xi) for the units in the evaluation set.
