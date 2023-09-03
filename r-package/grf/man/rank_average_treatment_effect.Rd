@@ -64,7 +64,7 @@ A list of class `rank_average_treatment_effect` with elements \itemize{
 }
 }
 \description{
-Consider a rule S(Xi) assigning scores to units in decreasing order of treatment prioritization.
+Consider a rule \eqn{S(X_i)} assigning scores to units in decreasing order of treatment prioritization.
 In the case of a forest with binary treatment, we provide estimates of the following, where
 1/n <= q <= 1 represents the fraction of treated units:
 \itemize{
@@ -72,10 +72,11 @@ In the case of a forest with binary treatment, we provide estimates of the follo
    \eqn{\int_{0}^{1} alpha(q) TOC(q; S) dq}, where alpha is a weighting method
    corresponding to either `AUTOC` or `QINI`.
   \item The Targeting Operating Characteristic (TOC):
-    \eqn{E[Y(1) - Y(0) | F(S(Xi)) >= 1 - q] - E[Y(1) - Y(0)]}, where F(.) is the distribution function of S(Xi).
+    \eqn{E[Y_i(1) - Y_i(0) | F(S(X_i)) >= 1 - q] - E[Y_i(1) - Y_i(0)]},
+   where \eqn{F(\cdot)} is the distribution function of \eqn{S(X_i)}.
 }
 The Targeting Operating Characteristic (TOC) is a curve comparing the benefit of treating only a certain
-fraction q of units (as prioritized by S(Xi)), to the overall average treatment effect.
+fraction q of units (as prioritized by \eqn{S(X_i)}), to the overall average treatment effect.
 The Rank-Weighted Average Treatment Effect (RATE) is a weighted sum of this curve,
 and is a measure designed to identify prioritization rules that effectively targets treatment
 (and can thus be used to test for the presence of heterogeneous treatment effects).
