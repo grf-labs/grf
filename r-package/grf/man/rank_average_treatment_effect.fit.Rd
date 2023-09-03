@@ -15,7 +15,7 @@ rank_average_treatment_effect.fit(
 )
 }
 \arguments{
-\item{DR.scores}{A vector with the evaluation set doubly robust scores.}
+\item{DR.scores}{A vector with the evaluation set scores.}
 
 \item{priorities}{Treatment prioritization scores S(Xi) for the units in the evaluation set.
 Two prioritization rules can be compared by supplying a two-column array or named list of priorities.

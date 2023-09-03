@@ -232,7 +232,7 @@ rank_average_treatment_effect <- function(forest,
 #' Provides an optional interface to \code{\link{rank_average_treatment_effect}} which allows for user-supplied
 #' evaluation scores.
 #'
-#' @param DR.scores A vector with the evaluation set doubly robust scores.
+#' @param DR.scores A vector with the evaluation set scores.
 #' @param priorities Treatment prioritization scores S(Xi) for the units in the evaluation set.
 #'  Two prioritization rules can be compared by supplying a two-column array or named list of priorities.
 #'  WARNING: for valid statistical performance, these scores should be constructed independently from the evaluation
