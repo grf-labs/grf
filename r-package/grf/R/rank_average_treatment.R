@@ -8,7 +8,7 @@
 #'    \eqn{\int_{0}^{1} alpha(q) TOC(q; S) dq}, where alpha is a weighting method
 #'    corresponding to either `AUTOC` or `QINI`.
 #'   \item The Targeting Operating Characteristic (TOC):
-#'     \eqn{E[Y_i(1) - Y_i(0) | F(S(X_i)) >= 1 - q] - E[Y_i(1) - Y_i(0)]},
+#'     \eqn{E[Y_i(1) - Y_i(0) | F(S(X_i)) \geq 1 - q] - E[Y_i(1) - Y_i(0)]},
 #'    where \eqn{F(\cdot)} is the distribution function of \eqn{S(X_i)}.
 #' }
 #' The Targeting Operating Characteristic (TOC) is a curve comparing the benefit of treating only a certain
