@@ -153,16 +153,6 @@ The TOC curve is useful if you are in a setting where you are interested in whet
 
 The Qini curve is useful if you are in a setting where it is natural to undertake some cost-benefit analysis. The Qini curve is helpful because it clearly reveals the expected gain you can achieve by targeting the most responsive units, per spend, at various levels of budget allocations available. Another benefit of the Qini curve is that it is also more natural to be extended to many treatment arms, as the cost element carries over a similar cost-benefit tradeoff, but now across both arms, and units.
 
-*Note on terminology:* We call the area under the TOC curve a RATE metric, as it can be represented as a *rank-weighted* ATE. The area under the TOC curve ("AUTOC") can be expressed as an ATE with weights equal to the term in $\color{red}{()}$:
-$$
-\text{AUTOC} = E\big[\color{red}{\big(-\log[1 - F(\hat \tau(X_i))] - 1\big)} (Y_i(1) - Y_i(0))\big],
-$$
-where $F(\cdot)$ is the distribution function. That is, the AUTOC strongly upweights treatment effects for the first units prioritized by $\hat \tau(X_i)$. The "QINI" is a RATE that weights the unit's treatment effect symmetrically, as it has the following representation:
-$$
-\text{QINI} = E\big[\color{red}{\big(F(\hat \tau(X_i)) - 1 \big)} (Y_i(1) - Y_i(0))\big].
-$$
-These two weighting methods have different statistical properties. The AUTOC can yield better power in tests for treatment effect heterogeneity when a small subset of the population exhibits HTEs, while the QINI can yield better power when the HTEs are more diffuse across the population. For more details see Yadlowsky et al. (2021).
-
 
 ## Qini curves with multi-armed treatment
 Consider now the case where we have $k = 0,\ldots K$ arms available, where $k=0$ is a zero cost control arm. For example, $k=1$ could be a low cost drug, and $k=2$ could be a higher cost drug, but which is more effective (and $k=0$ could be a placebo control).
@@ -272,3 +262,14 @@ Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. E
 [^r]: There are many approaches to estimating CATEs in the single-armed setting that can be adopted in the multi-armed case by simply fitting separate CATE functions for the different treatment arms. In this example, we use GRF's `multi_arm_causal_forest`, which jointly estimates treatment effects for the arms.
 
 [^f]: Note that at most one unit will have a non-integer entry in this row matrix. If the particular budget is not enough to give the final $i$-th unit a treatment, then this unit will either have a single fractional entry, or two fractional entries, depending on whether the unit is being assigned an initial arm or upgraded to a costlier arm. These fractions can be interpreted as a probability of arm assignment.
+
+### Appendix: Note on AUC terminology
+We call the area under the TOC curve a RATE metric, as it can be represented as a *rank-weighted* ATE. The area under the TOC curve ("AUTOC") can be expressed as an ATE with weights equal to the term in $\color{red}{()}$:
+$$
+\text{AUTOC} = E\big[\color{red}{\big(-\log[1 - F(\hat \tau(X_i))] - 1\big)} (Y_i(1) - Y_i(0))\big],
+$$
+where $F(\cdot)$ is the distribution function. That is, the AUTOC strongly upweights treatment effects for the first units prioritized by the estimates $\hat \tau(X_i)$. Another appealing weighting method is to weight each unit's estimated treatment effect symmetrically. This looks like the following:
+$$
+\text{QINI} = E\big[\color{red}{\big(F(\hat \tau(X_i)) - 1 \big)} (Y_i(1) - Y_i(0))\big].
+$$
+For historical reasons, we refer to this RATE metric as the "QINI". These two weighting methods have different statistical properties. The AUTOC can yield better power in tests for treatment effect heterogeneity when a small subset of the population exhibits HTEs, while the QINI can yield better power when the HTEs are more diffuse across the population. For more details see Yadlowsky et al. (2021).
