@@ -194,6 +194,8 @@ Y.mat[cbind(seq_along(observed.W), observed.W)] <- Y
 Y.ipw <- sweep(Y.mat, 2, rep(1/3, 3), "/")
 IPW.scores <- Y.ipw[test, -1] - Y.ipw[test, 1]
 
+# Note: "maq" has a convenience function that does the above via `get_ipw_scores(Y[test], W[test])`.
+
 # The cost of arm 1 and 2
 cost <- cbind(X[test, 4] / 4, X[test, 5])
 max.budget <- 1
