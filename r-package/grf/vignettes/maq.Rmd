@@ -267,7 +267,7 @@ Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. E
 
 [^f]: Note that at most one unit will have a non-integer entry in this row matrix. If the particular budget is not enough to give the final $i$-th unit a treatment, then this unit will either have a single fractional entry, or two fractional entries, depending on whether the unit is being assigned an initial arm or upgraded to a costlier arm. These fractions can be interpreted as a probability of arm assignment.
 
-### Appendix: Note on AUC terminology
+## Appendix: Note on AUC terminology
 We call the area under the TOC curve a RATE metric, as it can be represented as a *rank-weighted* ATE. The area under the TOC curve ("AUTOC") can be expressed as an ATE with weights equal to the term in $\color{red}{()}$:
 $$
 \text{AUTOC} = E\big[\color{red}{\big(-\log[1 - F(\hat \tau(X_i))] - 1\big)} (Y_i(1) - Y_i(0))\big],
