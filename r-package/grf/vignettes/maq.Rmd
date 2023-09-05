@@ -113,7 +113,7 @@ That is, at a spend of 0.2 per unit, a 95 % confidence interval for the average 
 *Note on policy evaluation:* whenever IPW can solve a problem, there is generally a doubly robust method (here Augmented-IPW) that can do better in terms of statistical power. In this vignette, we'll stick to evaluating with IPW for simplicity, but note that with GRF you could train a separate test set forest and retrieve doubly robust test set scores through the function `get_scores(forest)` that could be used in place of `IPW.scores`, yielding a doubly robust estimate of the Qini curve.
 
 ### Aside: The Qini curve vs the TOC curve
-We have thus far introduced *two curves* that may seem to both serve a similar purpose. What's the difference? That depends on the application. If we look closer, which of these curves are useful depends on what questions we are interested in. Below is a side-by-side illustration of what the [TOC](https://grf-labs.github.io/grf/articles/rate.html#quantifying-treatment-benefit-the-targeting-operator-characteristic-1) and Qini curves could look like
+We have thus far introduced *two curves* that may seem to both serve a similar purpose. What's the difference? That depends on the application. If we look closer, which of these curves is useful depends on what questions we are interested in. Below is a side-by-side illustration of what the [TOC](https://grf-labs.github.io/grf/articles/rate.html#quantifying-treatment-benefit-the-targeting-operator-characteristic-1) and Qini curves could look like in the case the ATE is positive, but there are subgroups of people with both positive and negative treatment effects (the dashed line in the Qini plot represent the ATE).
 ```{r, echo=FALSE}
 n <- 2000
 p <- 5
@@ -139,19 +139,23 @@ rate <- rank_average_treatment_effect.fit(DR.test, cate.hat.test)
 # Qini
 cost <- 1
 max.budget <- 1
-qini <- maq(cate.hat.test, cost, max.budget, DR.test, R = 200)
+ex.qini <- maq(cate.hat.test, cost, max.budget, DR.test, R = 200)
 qini.ate <- maq(cate.hat.test, cost, max.budget, DR.test, target.with.covariates = FALSE)
 
 par(mfrow = c(1, 2))
 plot(rate, sub = "", xlab = "Treated fraction", main = "TOC curve")
 
-plot(qini, ylab = "", xlab = "Spend", main = "Qini curve", xlim = c(0, 1))
+plot(ex.qini, ylab = "", xlab = "Spend", main = "Qini curve", xlim = c(0, 1))
 plot(qini.ate, add = TRUE, lty = 2)
 ```
 
-The TOC curve is useful if you are in a setting where you are interested in whether there is a group of people that benefit more than average from being treated. If costs are not directly relevant, and you are more interested in detecting a presence of heterogeneity, then the TOC is helpful because it clearly reveals the quantile where targeting helps. The TOC thus serves as a general tool for measuring heterogeneity.
+The TOC quantifies an average treatment effect over the quantiles of some scoring rule. The Qini curve quantifies an average treatment effect for units predicted to benefit from treatment (that is, the predictions $\hat \tau(X_i)$ are positive) as we vary a budget constraint (thus taking an optimization approach for evaluation).
 
-The Qini curve is useful if you are in a setting where it is natural to undertake some cost-benefit analysis. The Qini curve is helpful because it clearly reveals the expected gain you can achieve by targeting the most responsive units, per spend, at various levels of budget allocations available. Another benefit of the Qini curve is that it is also more natural to be extended to many treatment arms, as the cost element carries over a similar cost-benefit tradeoff, but now across both arms, and units.
+So: The TOC curve is useful if you are in a setting where you are interested in whether there is a group of people that benefit more than average from being treated. If costs are not directly relevant, and you are more interested in detecting the presence of heterogeneity, then the TOC is helpful because it clearly reveals the quantile where targeting helps. The TOC thus serves as a general tool for measuring heterogeneity.
+
+The Qini curve is useful if you are in a setting where it is natural to undertake some cost-benefit analysis. The Qini curve is helpful because it clearly reveals the expected gain you can achieve by targeting the most responsive units, per spend, at various levels of budget allocations available. Another benefit of the Qini curve is that it is also more natural to be extended to many treatment arms, as the cost element carries over a similar cost-benefit tradeoff, but now across both arms and units.
+
+*Note on constant costs:* For a single treatment arm, when each unit has the same cost $C_i(X_i) = 1$, we can also interpret the x-axis on the Qini curve plot above as the treated fraction. In that case, the solid black line reveals that when using the estimated CATEs, we can achieve a gain of around `r average_gain(qini, 0.1)[1]` by treating the fraction 0.1 of units most responsive.
 
 
 ## Qini curves with multi-armed treatment
