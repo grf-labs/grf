@@ -267,18 +267,3 @@ Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. E
 [^c]: In the case of a binary treatment, when costs are unknown and have to be estimated, there turns out to be a more efficient approach to forming estimates of the cost-benefit ratio than estimating CATEs and costs separately. In some settings one may achieve an efficiency gain by instead targeting the ratio directly. This can be done through an instrumental variable formulation, as described in Sun et al. (2021).
 
 [^f]: Note that at most one unit will have a non-integer entry in this row matrix. If the particular budget is not enough to give the final $i$-th unit a treatment, then this unit will either have a single fractional entry, or two fractional entries, depending on whether the unit is being assigned an initial arm or upgraded to a costlier arm. These fractions can be interpreted as a probability of arm assignment.
-
-
-## Appendix: The underlying optimization problem
-To give an idea of the problem `maq` is solving under the hood, for a test set $i=1\ldots n$ with CATE estimates $\hat \tau(X_i)$ and costs $\widehat C(X_i)$ and a spend level $B$, the multi-armed policy is the solution to the following linear program,
-
-$$
-\begin{aligned}
-\max_{\pi_B} \quad & \sum_{i=1}^{n} \langle \pi_B(X_i),~ \hat \tau(X_i) \rangle \\
-\textrm{s.t.} \quad & \sum_{i=1}^{n} \langle \pi_B(X_i),~ \widehat C(X_i) \rangle \leq B \\
-& \langle \pi_B(X_i),~ \mathbf{1} \rangle \leq 1 \\
-& \pi_B(X_i) \geq 0.
-\end{aligned}
-$$
-
-It is possible to solve this using off-the-shelf convex solvers, such as for example `lpSolve`. Note that solving for $\hat \pi_B$ involves repeatedly invoking an LP solver with different budget constraints, one for each point on the spend curve. This would quickly get computationally infeasible, particularly for large $n$. `maq` computes the entire *solution path* to the above linear program for all $B$ constraints, for details see Algorithm 2 in the [paper](https://arxiv.org/abs/2306.11979).
