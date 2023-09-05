@@ -120,7 +120,7 @@ p <- 5
 # training set
 X.train <- matrix(rnorm(n * p), n, p)
 W.train <- rbinom(n, 1, 0.5)
-Y.train <- pmax(X.train[, 1], -0.1) * W.train + X.train[, 2] + pmin(X.train[, 3], 0) + 0.5 * rnorm(n)
+Y.train <- pmax(X.train[, 1], -0.1) * W.train + X.train[, 2] + pmin(X.train[, 3], 0) + rnorm(n)
 cf.train <- causal_forest(X.train, Y.train, W.train, W.hat = 0.5, num.trees = 500)
 
 # test set
