@@ -166,7 +166,7 @@ These two weighting methods have different statistical properties. The AUTOC can
 ## Qini curves with multi-armed treatment
 Consider now the case where we have $k = 0,\ldots K$ arms available, where $k=0$ is a zero cost control arm. For example, $k=1$ could be a low cost drug, and $k=2$ could be a higher cost drug, but which is more effective (and $k=0$ could be a placebo control).
 
-Given estimated treatment effects $\hat \tau(\cdot)$ and costs $\hat C(\cdot)$ (remember that these objects are now vector-valued, i.e. the $k$-th element of $\hat \tau(X_i)$ is an estimate of the CATE for arm $k$ for units with covariates $X_i$) - we now ask: how can we conduct a similar exercise as above where we evaluate allocating treatment optimally in accordance with our estimated CATEs (and costs), as we vary the available budget?
+Given estimated treatment effects $\hat \tau(\cdot)$, and costs $C(\cdot)$ (remember that these objects are now vector-valued, i.e. the $k$-th element of $\hat \tau(X_i)$ is an estimate of the CATE for arm $k$ for units with covariates $X_i$) - we now ask: how can we conduct a similar exercise as above where we evaluate allocating treatment optimally in accordance with our estimated CATEs (and costs), as we vary the available budget?
 
 It turns out that in order to perform this exercise, we need to solve a constrained optimization problem, as the underlying policy object $\hat \pi_B(X_i)$ now has to optimally select among many potential arms (with different costs) for each unit. For example, at each spend level, we have to decide whether we should allocate some *initial* arm to Alice, *or* perhaps, if Bob was already an assigned arm, if we instead should *upgrade* Bob to a costlier, but more effective arm.
 
