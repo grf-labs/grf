@@ -84,21 +84,21 @@ test <- -train
 tau.hat <- predict(c.forest, X[test, ])$predictions
 
 # 3) Form a Qini curve with inverse-propensity weighted test set outcomes.
-Y.ipw.test <- ifelse(W[test] == 1, Y[test]/0.5, -Y[test]/0.5)
+IPW.scores <- ifelse(W[test] == 1, Y[test]/0.5, -Y[test]/0.5)
 
 # Use the maq package to fit a Qini curve, using 200 bootstrap replicates for SEs.
 cost <- 1
 max.budget <- 1 # Fit the curve up to a maximum spend per unit where each unit expected to benefit from treatment, is treated.
-qini <- maq(tau.hat, cost, max.budget, Y.ipw.test, R = 200)
+qini <- maq(tau.hat, cost, max.budget, IPW.scores, R = 200)
 
 # Form a baseline Qini curve that uses the ATE rather than the CATE to assign treatment.
-qini.baseline <- maq(tau.hat, cost, max.budget, Y.ipw.test, target.with.covariates = FALSE)
+qini.baseline <- maq(tau.hat, cost, max.budget, IPW.scores, target.with.covariates = FALSE)
 
 plot(qini)
 plot(qini.baseline, add = TRUE, lty = 2)
 ```
 
-The solid curve shows the expected gain (y-axis) as we assign treatment to units predicted to benefit the most per unit spent, as we increase the amount we are willing to spend per unit (x-axis). The straight dashed line shows the Qini curve when we assign treatment without considering the CATE, i.e., at the end of the x-axis, at which point we have exhausted the budget and given everyone the treatment, our gain is equal to the ATE of around `r mean(Y.ipw.test)`. (So, points on the dashed-line represent the fraction of the ATE we can expect when targeting an arbitrary group of the population at different spend levels, thus it does not have to be a 45-degree line)
+The solid curve shows the expected gain (y-axis) as we assign treatment to units predicted to benefit the most per unit spent, as we increase the amount we are willing to spend per unit (x-axis). The straight dashed line shows the Qini curve when we assign treatment without considering the CATE, i.e., at the end of the x-axis, at which point we have exhausted the budget and given everyone the treatment, our gain is equal to the ATE of around `r mean(IPW.scores)`. (So, points on the dashed-line represent the fraction of the ATE we can expect when targeting an arbitrary group of the population at different spend levels, thus it does not have to be a 45-degree line)
 
 The solid black curve is the Qini curve that uses the estimated CATEs to predict which test set subjects have the highest treatment effect per unit spent. As this curve rises sharply above the dashed straight line that "ignores" the CATE, it suggests there is a benefit to targeting treatment to a subpopulation as implied by the estimated CATEs, that is most responsive per unit spent.
 
@@ -110,7 +110,7 @@ average_gain(qini, spend = 0.2)
 
 That is, at a spend of 0.2 per unit, a 95 % confidence interval for the average treatment effect for the units predicted to be the most responsive per unit spent, is `r average_gain(qini, spend = 0.2)[1]` $\pm$ 1.96 * `r average_gain(qini, spend = 0.2)[2]`.
 
-*Note on policy evaluation:* whenever IPW can solve a problem, there is generally a doubly robust method (here Augmented-IPW) that can do better in terms of statistical power. In this vignette, we'll stick to evaluating with IPW for simplicity, but note that with GRF you could train a separate test set forest and retrieve doubly robust test set scores through the function `get_scores(forest)` that could be used in place of `Y.ipw.test`.
+*Note on policy evaluation:* whenever IPW can solve a problem, there is generally a doubly robust method (here Augmented-IPW) that can do better in terms of statistical power. In this vignette, we'll stick to evaluating with IPW for simplicity, but note that with GRF you could train a separate test set forest and retrieve doubly robust test set scores through the function `get_scores(forest)` that could be used in place of `IPW.scores`, yielding a doubly robust estimate of the Qini curve.
 
 ### Aside: The Qini curve vs the TOC curve
 We have thus far introduced *two curves* that may seem to both serve a similar purpose. What's the difference? That depends on the application. If we look closer, which of these curves are useful depends on what questions we are interested in. Below is a side-by-side illustration of what the [TOC](https://grf-labs.github.io/grf/articles/rate.html#quantifying-treatment-benefit-the-targeting-operator-characteristic-1) and Qini curves could look like
@@ -192,20 +192,20 @@ observed.W <- match(W, levels(W))
 Y.mat <- matrix(0, length(W), nlevels(W))
 Y.mat[cbind(seq_along(observed.W), observed.W)] <- Y
 Y.ipw <- sweep(Y.mat, 2, rep(1/3, 3), "/")
-Y.ipw.test <- Y.ipw[test, -1] - Y.ipw[test, 1]
+IPW.scores <- Y.ipw[test, -1] - Y.ipw[test, 1]
 
 # The cost of arm 1 and 2
 cost <- cbind(X[test, 4] / 4, X[test, 5])
 max.budget <- 1
 
-ma.qini <- maq(tau.hat, cost, max.budget, Y.ipw.test, R = 200)
+ma.qini <- maq(tau.hat, cost, max.budget, IPW.scores, R = 200)
 plot(ma.qini)
 ```
 
 We can also compute single Qini curves for each treatment arm and overlay them in the plot:
 ```{r}
-qini.arm1 <- maq(tau.hat[, 1], cost[, 1], max.budget, Y.ipw.test[, 1], R = 200)
-qini.arm2 <- maq(tau.hat[, 2], cost[, 2], max.budget, Y.ipw.test[, 2], R = 200)
+qini.arm1 <- maq(tau.hat[, 1], cost[, 1], max.budget, IPW.scores[, 1], R = 200)
+qini.arm2 <- maq(tau.hat[, 2], cost[, 2], max.budget, IPW.scores[, 2], R = 200)
 
 plot(ma.qini, ci.args = NULL) # leave out CIs for legibility.
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
@@ -237,7 +237,7 @@ i.e., at this spend level assigning `r round(100*mean(pi.hat[,1]), 0)` % of the 
 
 Finally, we can also construct and plot a "baseline" policy that optimally selects among the two treatment arms based on only the ATE:
 ```{r}
-ma.qini.basline <- maq(tau.hat, cost, max.budget, Y.ipw.test, target.with.covariates = FALSE, R = 200)
+ma.qini.basline <- maq(tau.hat, cost, max.budget, IPW.scores, target.with.covariates = FALSE, R = 200)
 
 plot(ma.qini, ci.args = NULL)
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
