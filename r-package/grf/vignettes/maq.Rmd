@@ -115,22 +115,22 @@ That is, at a spend of 0.2 per unit, a 95 % confidence interval for the average 
 ### Aside: The Qini curve vs the TOC curve
 We have thus far introduced *two curves* that may seem to both serve a similar purpose. What's the difference? That depends on the application. If we look closer, which of these curves are useful depends on what questions we are interested in. Below is a side-by-side illustration of what the [TOC](https://grf-labs.github.io/grf/articles/rate.html#quantifying-treatment-benefit-the-targeting-operator-characteristic-1) and Qini curves could look like
 ```{r, echo=FALSE}
-n <- 1000
+n <- 2000
 p <- 5
 # training set
 X.train <- matrix(rnorm(n * p), n, p)
 W.train <- rbinom(n, 1, 0.5)
-Y.train <- pmax(X.train[, 1], 0) * W.train + X.train[, 2] + pmin(X.train[, 3], 0) + rnorm(n)
-cf.train <- causal_forest(X.train, Y.train, W.train, num.trees = 500)
+Y.train <- pmax(X.train[, 1], -0.1) * W.train + X.train[, 2] + pmin(X.train[, 3], 0) + rnorm(n)
+cf.train <- causal_forest(X.train, Y.train, W.train, W.hat = 0.5, num.trees = 500)
 
 # test set
 X.test <- matrix(rnorm(n * p), n, p)
 W.test <- rbinom(n, 1, 0.5)
-Y.test <- pmax(X.test[, 1], 0) * W.test + X.test[, 2] + pmin(X.test[, 3], 0) + rnorm(n)
+Y.test <- pmax(X.test[, 1], -0.1) * W.test + X.test[, 2] + pmin(X.test[, 3], 0) + rnorm(n)
 
 # evaluation
 cate.hat.test <- predict(cf.train, X.test)$predictions
-cf.test <- causal_forest(X.test, Y.test, W.test, num.trees = 500)
+cf.test <- causal_forest(X.test, Y.test, W.test, W.hat = 0.5, num.trees = 500)
 DR.test <- get_scores(cf.test)
 
 # TOC
@@ -138,13 +138,14 @@ rate <- rank_average_treatment_effect.fit(DR.test, cate.hat.test)
 
 # Qini
 cost <- 1
-qini <- maq(cate.hat.test, cost, 10, DR.test, R = 200)
-qini.ate <- maq(cate.hat.test, cost, 10, DR.test, target.with.covariates = FALSE)
+max.budget <- 1
+qini <- maq(cate.hat.test, cost, max.budget, DR.test, R = 200)
+qini.ate <- maq(cate.hat.test, cost, max.budget, DR.test, target.with.covariates = FALSE)
 
 par(mfrow = c(1, 2))
 plot(rate, sub = "", xlab = "Treated fraction", main = "TOC curve")
 
-plot(qini, ylab = "", xlab = "Spend", main = "Qini curve")
+plot(qini, ylab = "", xlab = "Spend", main = "Qini curve", xlim = c(0, 1))
 plot(qini.ate, add = TRUE, lty = 2)
 ```
 
