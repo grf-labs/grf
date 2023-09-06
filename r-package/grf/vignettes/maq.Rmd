@@ -103,7 +103,7 @@ The solid curve shows the expected gain (y-axis) as we assign treatment to units
 
 The solid black curve is the Qini curve that uses the estimated CATEs to predict which test set subjects have the highest treatment effect per unit spent. As this curve rises sharply above the dashed straight line that "ignores" the CATE, it suggests there is a benefit to targeting treatment to a subpopulation as implied by the estimated CATEs, that is most responsive per unit spent.
 
-We can read off estimates on the curve at various $B$ through:
+We can read off estimates on the curve at various $B$ through
 
 ```{r}
 average_gain(qini, spend = 0.2)
@@ -204,7 +204,7 @@ The Qini curve when using both treatment arms looks like
 plot(ma.qini)
 ```
 
-We can also compute Qini curves using each treatment arm separately and overlay them in the plot:
+We can also compute Qini curves using each treatment arm separately and overlay them in the plot
 ```{r}
 qini.arm1 <- maq(tau.hat[, 1], cost[, 1], max.budget, IPW.scores[, 1], R = 200)
 qini.arm2 <- maq(tau.hat[, 2], cost[, 2], max.budget, IPW.scores[, 2], R = 200)
@@ -224,7 +224,7 @@ difference_gain(ma.qini, qini.arm1, spend = 0.1)
 ```
 Points on arbitrary curves can be compared with this function, yielding paired standard errors that account for the correlation between Qini curves fit on the same test data.
 
-We can retrieve the underlying estimated policy through `predict`, for example at $B=0.1$:
+We can retrieve the underlying estimated policy through `predict`, for example at $B=0.1$
 ```{r}
 pi.hat <- predict(ma.qini, spend = 0.1)
 head(pi.hat)
@@ -237,7 +237,7 @@ colMeans(pi.hat)
 ```
 i.e., at this spend level assigning `r round(100*mean(pi.hat[,1]), 0)` % of the units to arm 1 and `r round(100*mean(pi.hat[,2]), 0)` % of the units to arm 2 (and `r round(100 - 100*sum(colMeans(pi.hat)), 0)` % to the control) is optimal.
 
-Finally, we can also construct and plot a "baseline" policy that optimally selects among the two treatment arms based on only the ATE:
+Finally, we can also construct and plot a "baseline" policy that optimally selects among the two treatment arms based on only the ATE.
 ```{r}
 ma.qini.basline <- maq(tau.hat, cost, max.budget, IPW.scores, target.with.covariates = FALSE, R = 200)
 
@@ -248,9 +248,10 @@ plot(ma.qini.basline, add = TRUE, lty = 2, ci.args = NULL)
 legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
        col = c("black", "blue", "red"), lty = 1)
 ```
+
 The "non-targeting" baseline curve has a kink because, at a lower spend, it is optimal to employ the arm that on average is most cost-effective, while at a higher spend it is optimal to use the arm that is less cost-effective but that has a higher ATE.[^h]
 
-We can conduct similar hypotheses tests as above, now assessing the value of optimally targeting with all arms based on covariates, against just allocating arbitrary units based on the arm ATEs:
+We can conduct similar hypotheses tests as above, now assessing the value of optimally targeting with all arms based on covariates, against just allocating arbitrary units based on the arm ATEs
 ```{r}
 difference_gain(ma.qini, ma.qini.basline, spend = 0.1)
 ```
@@ -281,6 +282,6 @@ $$
 $$
 where $F(\cdot)$ is the distribution function. That is, the AUTOC strongly upweights treatment effects for the first units prioritized by the estimates $\hat \tau(X_i)$. Another appealing weighting method is to weight each unit's estimated treatment effect symmetrically. This looks like the following:
 $$
-\text{QINI} = E\big[\color{red}{\big(F(\hat \tau(X_i)) - 1 \big)} (Y_i(1) - Y_i(0))\big].
+E\big[\color{red}{\big(F(\hat \tau(X_i)) - 1 \big)} (Y_i(1) - Y_i(0))\big].
 $$
 For historical reasons, we refer to this RATE metric as the "QINI". These two weighting methods have different statistical properties. The AUTOC can yield better power in tests for treatment effect heterogeneity when a small subset of the population exhibits HTEs, while the QINI can yield better power when the HTEs are more diffuse across the population. For more details see Yadlowsky et al. (2021).
