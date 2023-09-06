@@ -83,12 +83,13 @@ c.forest <- causal_forest(X[train, ], Y[train], W[train])
 test <- -train
 tau.hat <- predict(c.forest, X[test, ])$predictions
 
-# 3) Form a Qini curve with inverse-propensity weighted test set outcomes.
+# 3) Estimate a Qini curve using inverse-propensity weighted test set outcomes.
 IPW.scores <- ifelse(W[test] == 1, Y[test]/0.5, -Y[test]/0.5)
-
-# Use the maq package to fit a Qini curve, using 200 bootstrap replicates for SEs.
+# Assume each unit incur the same cost.
 cost <- 1
-max.budget <- 1 # Fit the curve up to a maximum spend per unit where each unit expected to benefit from treatment, is treated.
+# The maximum spend per unit to fit the curve on.
+max.budget <- 1
+# Use the maq package to fit a Qini curve, using 200 bootstrap replicates for SEs.
 qini <- maq(tau.hat, cost, max.budget, IPW.scores, R = 200)
 
 # Form a baseline Qini curve that uses the ATE rather than the CATE to assign treatment.
