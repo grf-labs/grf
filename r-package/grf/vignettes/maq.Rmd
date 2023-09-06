@@ -184,13 +184,7 @@ test <- -train
 tau.hat <- predict(c.forest, X[test, ], drop = TRUE)$predictions
 
 # 3) Form a multi-armed Qini curve based on IPW.
-observed.W <- match(W, levels(W))
-Y.mat <- matrix(0, length(W), nlevels(W))
-Y.mat[cbind(seq_along(observed.W), observed.W)] <- Y
-Y.ipw <- sweep(Y.mat, 2, rep(1/3, 3), "/")
-IPW.scores <- Y.ipw[test, -1] - Y.ipw[test, 1]
-
-# Note: "maq" has a convenience function that does the above via `get_ipw_scores(Y[test], W[test])`.
+IPW.scores <- get_ipw_scores(Y[test], W[test]) # a convenience function part of `maq`.
 
 # The cost of arm 1 and 2
 cost <- cbind(X[test, 4] / 4, X[test, 5])
