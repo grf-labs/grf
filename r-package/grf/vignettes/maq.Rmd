@@ -93,13 +93,13 @@ max.budget <- 1
 qini <- maq(tau.hat, cost, max.budget, IPW.scores, R = 200)
 
 # Form a baseline Qini curve that uses the ATE rather than the CATE to assign treatment.
-qini.baseline <- maq(tau.hat, cost, max.budget, IPW.scores, target.with.covariates = FALSE)
+qini.baseline <- maq(tau.hat, cost, max.budget, IPW.scores, target.with.covariates = FALSE, R = 200)
 
-plot(qini)
-plot(qini.baseline, add = TRUE, lty = 2)
+plot(qini, xlim = c(0, 1))
+plot(qini.baseline, add = TRUE, lty = 2, ci.args = NULL) # leave out CIs for legibility.
 ```
 
-The solid curve shows the expected gain (y-axis) as we assign treatment to units predicted to benefit the most per unit spent, as we increase the amount we are willing to spend per unit (x-axis). The straight dashed line shows the Qini curve when we assign treatment without considering the CATE, i.e., at the end of the x-axis, at which point we have exhausted the budget and given everyone the treatment, our gain is equal to the ATE of around `r mean(IPW.scores)`. (So, points on the dashed-line represent the fraction of the ATE we can expect when targeting an arbitrary group of the population at different spend levels, thus it does not have to be a 45-degree line)
+The solid curve shows the expected gain (y-axis) as we assign treatment to units predicted to benefit the most per unit spent, as we increase the amount we are willing to spend per unit (x-axis). The dashed line shows the Qini curve when we assign treatment without considering the CATE, i.e., at the end of this line, at which point we have exhausted the budget and given everyone the treatment, our gain is equal to the ATE of around `r mean(IPW.scores)`. (So, points on the dashed-line represent the fraction of the ATE we can expect when targeting an arbitrary group of the population at different spend levels, thus it does not have to be a 45-degree line)
 
 The solid black curve is the Qini curve that uses the estimated CATEs to predict which test set subjects have the highest treatment effect per unit spent. As this curve rises sharply above the dashed straight line that "ignores" the CATE, it suggests there is a benefit to targeting treatment to a subpopulation as implied by the estimated CATEs, that is most responsive per unit spent.
 
@@ -110,6 +110,12 @@ average_gain(qini, spend = 0.2)
 ```
 
 That is, at a spend of 0.2 per unit, a 95 % confidence interval for the average treatment effect for the units predicted to be the most responsive per unit spent, is `r average_gain(qini, spend = 0.2)[1]` $\pm$ 1.96 * `r average_gain(qini, spend = 0.2)[2]`.
+
+Had we instead used the same amount of budget to treat an arbitrary group of the population, our estimated gain would be
+
+```{r}
+average_gain(qini.baseline, spend = 0.2)
+```
 
 *Note on policy evaluation:* whenever IPW can solve a problem, there is generally a doubly robust method (here Augmented-IPW) that can do better in terms of statistical power. In this vignette, we'll stick to evaluating with IPW for simplicity, but note that with GRF you could train a separate test set forest and retrieve doubly robust test set scores through the function `get_scores(forest)` that could be used in place of `IPW.scores`, yielding a doubly robust estimate of the Qini curve.
 
