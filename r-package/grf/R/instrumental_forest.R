@@ -94,6 +94,9 @@
 #'
 #' # Predict on out-of-bag training samples.
 #' iv.pred <- predict(iv.forest)
+#'
+#' # Estimate a (local) average treatment effect.
+#' average_treatment_effect(iv.forest)
 #' }
 #'
 #' @export
