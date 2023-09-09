@@ -196,7 +196,7 @@ get_scores.instrumental_forest <- function(forest,
         "treatment effect estimation."
       ))
     }
-    if (abs(min(compliance.score)) <= 0.01 * sd(W.orig)) {
+    if (min(abs(compliance.score)) <= 0.01 * sd(W.orig)) {
       warning(paste0(
         "The instrument appears to be weak, with some compliance scores as ",
         "low as ", round(min(compliance.score), 4)
