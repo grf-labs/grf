@@ -20,7 +20,9 @@ rank_average_treatment_effect(
 \item{forest}{The evaluation set forest.}
 
 \item{priorities}{Treatment prioritization scores S(Xi) for the units used to train the evaluation forest.
-Two prioritization rules can be compared by supplying a two-column array or named list of priorities.
+Two prioritization rules can be compared by supplying a two-column array or named list of priorities
+(yielding paired standard errors that account for the correlation between RATE metrics estimated on
+the same evaluation data).
 WARNING: for valid statistical performance, these scores should be constructed independently from the evaluation
 forest training data.}
 
