@@ -174,8 +174,8 @@ validate_sample_weights <- function(sample.weights, X) {
     if (length(sample.weights) != nrow(X)) {
       stop("sample.weights has incorrect length")
     }
-    if (any(sample.weights < 0)) {
-      stop("sample.weights must be nonnegative")
+    if (anyNA(sample.weights) || any(sample.weights < 0) || any(is.infinite(sample.weights))) {
+      stop("sample.weights must be nonnegative and without missing values")
     }
   }
 }
