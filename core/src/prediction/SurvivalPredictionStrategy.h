@@ -42,6 +42,13 @@ public:
    * The event times retrieved from data.get_outcome(sample) will always be
    * integers in the range 0, ..., num_failures.
    *
+   * Note: The reason we don't use OptimizedPredictionStrategy for survival
+   * curves is that it may require a large memory footprint in the form of
+   * storing sufficient statistics with a size equal to the length of the
+   * survival curve. DefaultPredictionStrategy requires less memory. A 
+   * drawback is, particularly in the case of shallow trees (as will be
+   * the case with very few events), more CPU time spent in hash table
+   * lookups, as a target sample x will match many training samples.
    */
   SurvivalPredictionStrategy(size_t num_failures,
                              int prediction_type);
