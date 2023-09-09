@@ -19,7 +19,9 @@
 #'
 #' @param forest The evaluation set forest.
 #' @param priorities Treatment prioritization scores S(Xi) for the units used to train the evaluation forest.
-#'  Two prioritization rules can be compared by supplying a two-column array or named list of priorities.
+#'  Two prioritization rules can be compared by supplying a two-column array or named list of priorities
+#'  (yielding paired standard errors that account for the correlation between RATE metrics estimated on
+#'  the same evaluation data).
 #'  WARNING: for valid statistical performance, these scores should be constructed independently from the evaluation
 #'  forest training data.
 #' @param target The type of RATE estimate, options are "AUTOC" (exhibits greater power when only a small subset
@@ -235,7 +237,9 @@ rank_average_treatment_effect <- function(forest,
 #'
 #' @param DR.scores A vector with the evaluation set scores.
 #' @param priorities Treatment prioritization scores S(Xi) for the units in the evaluation set.
-#'  Two prioritization rules can be compared by supplying a two-column array or named list of priorities.
+#'  Two prioritization rules can be compared by supplying a two-column array or named list of priorities
+#'  (yielding paired standard errors that account for the correlation between RATE metrics estimated on
+#'  the same evaluation data).
 #'  WARNING: for valid statistical performance, these scores should be constructed independently from the evaluation
 #'  dataset used to construct DR.scores.
 #' @param target The type of RATE estimate, options are "AUTOC" (exhibits greater power when only a small subset
