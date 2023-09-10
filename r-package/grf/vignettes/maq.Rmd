@@ -169,7 +169,7 @@ Given estimated treatment effects $\hat \tau(\cdot)$, and costs $C(\cdot)$ (reme
 
 It turns out that in order to perform this exercise, we need to solve a constrained optimization problem, as the underlying policy object $\hat \pi_B(X_i)$ now has to optimally select among many potential arms (with different costs) for each unit. For example, at each spend level, we have to decide whether we should allocate some *initial* arm to Alice, *or* perhaps, if Bob was already assigned an arm, if we instead should *upgrade* Bob to a costlier, but more effective arm.
 
-The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently (by computing a solution path via a tailored algorithm), and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective but costlier, and the costs vary by unit based on some known characteristic:[^r]
+The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently (by computing a solution path via a tailored algorithm), and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective but costlier, and the costs vary by unit based on some known characteristic.[^r]
 ```{r}
 # Simulate two treatment arms (1 and 2) and a control arm 0.
 n <- 3000
