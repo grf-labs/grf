@@ -87,13 +87,11 @@ tau.hat <- predict(c.forest, X[test, ])$predictions
 IPW.scores <- ifelse(W[test] == 1, Y[test]/0.5, -Y[test]/0.5)
 # Assume each unit incur the same cost.
 cost <- 1
-# The maximum spend per unit to fit the curve on.
-max.budget <- 1
 # Use the maq package to fit a Qini curve, using 200 bootstrap replicates for SEs.
-qini <- maq(tau.hat, cost, max.budget, IPW.scores, R = 200)
+qini <- maq(tau.hat, cost, IPW.scores, R = 200)
 
 # Form a baseline Qini curve that uses the ATE rather than the CATE to assign treatment.
-qini.baseline <- maq(tau.hat, cost, max.budget, IPW.scores, target.with.covariates = FALSE, R = 200)
+qini.baseline <- maq(tau.hat, cost, IPW.scores, target.with.covariates = FALSE, R = 200)
 
 plot(qini, xlim = c(0, 1))
 plot(qini.baseline, add = TRUE, lty = 2, ci.args = NULL) # leave out CIs for legibility.
@@ -145,9 +143,8 @@ rate <- rank_average_treatment_effect.fit(DR.test, cate.hat.test)
 
 # Qini
 cost <- 1
-max.budget <- 1
-ex.qini <- maq(cate.hat.test, cost, max.budget, DR.test, R = 200)
-qini.ate <- maq(cate.hat.test, cost, max.budget, DR.test, target.with.covariates = FALSE)
+ex.qini <- maq(cate.hat.test, cost, DR.test, R = 200)
+qini.ate <- maq(cate.hat.test, cost, DR.test, target.with.covariates = FALSE)
 
 par(mfrow = c(1, 2))
 plot(rate, sub = "", xlab = "Treated fraction", main = "TOC curve")
@@ -172,7 +169,7 @@ Given estimated treatment effects $\hat \tau(\cdot)$, and costs $C(\cdot)$ (reme
 
 It turns out that in order to perform this exercise, we need to solve a constrained optimization problem, as the underlying policy object $\hat \pi_B(X_i)$ now has to optimally select among many potential arms (with different costs) for each unit. For example, at each spend level, we have to decide whether we should allocate some *initial* arm to Alice, *or* perhaps, if Bob was already assigned an arm, if we instead should *upgrade* Bob to a costlier, but more effective arm.
 
-The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently (by computing a solution path via a tailored algorithm), and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective but costlier, and the costs vary by unit based on some known characteristic:[^r]
+The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently (by computing a solution path via a tailored algorithm), and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective but costlier, and the costs vary by unit based on some known characteristic.[^r]
 ```{r}
 # Simulate two treatment arms (1 and 2) and a control arm 0.
 n <- 3000
@@ -194,9 +191,8 @@ IPW.scores <- get_ipw_scores(Y[test], W[test]) # a convenience function part of 
 
 # The cost of arm 1 and 2
 cost <- cbind(X[test, 4] / 4, X[test, 5])
-max.budget <- 1
 
-ma.qini <- maq(tau.hat, cost, max.budget, IPW.scores, R = 200)
+ma.qini <- maq(tau.hat, cost, IPW.scores, R = 200)
 ```
 
 The Qini curve when using both treatment arms looks like
@@ -206,8 +202,8 @@ plot(ma.qini)
 
 We can also compute Qini curves using each treatment arm separately and overlay them in the plot
 ```{r}
-qini.arm1 <- maq(tau.hat[, 1], cost[, 1], max.budget, IPW.scores[, 1], R = 200)
-qini.arm2 <- maq(tau.hat[, 2], cost[, 2], max.budget, IPW.scores[, 2], R = 200)
+qini.arm1 <- maq(tau.hat[, 1], cost[, 1], IPW.scores[, 1], R = 200)
+qini.arm2 <- maq(tau.hat[, 2], cost[, 2], IPW.scores[, 2], R = 200)
 
 plot(ma.qini, ci.args = NULL) # leave out CIs for legibility.
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
@@ -224,6 +220,37 @@ difference_gain(ma.qini, qini.arm1, spend = 0.1)
 ```
 Points on arbitrary curves can be compared with this function, yielding paired standard errors that account for the correlation between Qini curves fit on the same test data.
 
+We can also compare different targeting strategies across a range of spend levels. The function `integrated_difference` estimates an area between two Qini curves. An estimate of the shaded area below,
+
+```{r, echo=FALSE}
+plot(ma.qini, ci.args = NULL)
+plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
+plot(qini.arm2, add = TRUE, col = "red", ci.args = NULL)
+legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
+       col = c("black", "blue", "red"), lty = 1)
+
+end <- 0.2
+path.ma <- summary(ma.qini)
+path.2 <- summary(qini.arm2)
+ix.ma <- findInterval(end, path.ma$spend)
+ix.2 <- findInterval(end, path.2$spend)
+a.ma <- approx(path.ma$spend[1:ix.ma], path.ma$gain[1:ix.ma], n = 1000)
+a.2 <- approx(path.2$spend[1:ix.2], path.2$gain[1:ix.2], n = 1000)
+
+polygon(
+  c(a.ma$x, rev(a.ma$x)),
+  c(a.ma$y, rev(a.2$y)),
+  col = scales::alpha("gray", 0.5)
+)
+abline(v = end, lwd = 3)
+```
+
+is given by
+
+```{r}
+integrated_difference(ma.qini, qini.arm2, spend = 0.2)
+```
+
 We can retrieve the underlying estimated policy through `predict`, for example at $B=0.1$
 ```{r}
 pi.hat <- predict(ma.qini, spend = 0.1)
@@ -239,7 +266,7 @@ i.e., at this spend level assigning `r round(100*mean(pi.hat[,1]), 0)` % of the 
 
 Finally, we can also construct and plot a "baseline" policy that optimally selects among the two treatment arms based on only the ATE.
 ```{r}
-ma.qini.basline <- maq(tau.hat, cost, max.budget, IPW.scores, target.with.covariates = FALSE, R = 200)
+ma.qini.basline <- maq(tau.hat, cost, IPW.scores, target.with.covariates = FALSE, R = 200)
 
 plot(ma.qini, ci.args = NULL)
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)

@@ -117,6 +117,9 @@ jobs:
       sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
       # Install dependencies needed for vignettes.
       sudo Rscript -e "install.packages(c('DiagrammeR', 'ggplot2', 'glmnet', 'maq', 'policytree', 'rdd'))"
+      # TODO: remove the following two lines when 0.3.0 is on CRAN
+      sudo Rscript -e "install.packages(c('devtools'))"
+      sudo Rscript -e "devtools::install_github('grf-labs/maq', subdir = 'r-package/maq')"
       cp ../../README.md .
       cp ../../REFERENCE.md .
       cp ../../DEVELOPING.md .
