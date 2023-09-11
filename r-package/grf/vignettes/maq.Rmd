@@ -256,7 +256,6 @@ polygon(
   c(a.ma$y, rev(a.2$y)),
   col = scales::alpha("gray", 0.5)
 )
-abline(v = end, lwd = 3)
 ```
 
 is given by
