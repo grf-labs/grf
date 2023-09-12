@@ -123,3 +123,7 @@ q.hat <- predict(meins.forest, X.test, quantiles = c(0.1, 0.5, 0.9))
 }
 
 }
+\references{
+Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
+ Annals of Statistics, 47(2), 2019.
+}
