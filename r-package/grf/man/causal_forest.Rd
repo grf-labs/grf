@@ -204,3 +204,13 @@ paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
 }
 
 }
+\references{
+Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
+ Annals of Statistics, 47(2), 2019.
+
+Wager, Stefan, and Susan Athey. "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests".
+ Journal of the American Statistical Association, 113(523), 2018.
+
+Nie, Xinkun, and Stefan Wager. "Quasi-Oracle Estimation of Heterogeneous Treatment Effects".
+ Biometrika, 108(2), 2021.
+}

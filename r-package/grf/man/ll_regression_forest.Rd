@@ -134,3 +134,7 @@ forest <- ll_regression_forest(X, Y)
 }
 
 }
+\references{
+Friedberg, Rina, Julie Tibshirani, Susan Athey, and Stefan Wager. "Local Linear Forests".
+ Journal of Computational and Graphical Statistics, 30(2), 2020.
+}

@@ -79,6 +79,13 @@
 #' @return A trained causal forest object. If tune.parameters is enabled,
 #'  then tuning information will be included through the `tuning.output` attribute.
 #'
+#' @references Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
+#'  Annals of Statistics, 47(2), 2019.
+#' @references  Wager, Stefan, and Susan Athey. "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests".
+#'  Journal of the American Statistical Association, 113(523), 2018.
+#' @references Nie, Xinkun, and Stefan Wager. "Quasi-Oracle Estimation of Heterogeneous Treatment Effects".
+#'  Biometrika, 108(2), 2021.
+#'
 #' @examples
 #' \donttest{
 #' # Train a causal forest.
@@ -325,6 +332,14 @@ causal_forest <- function(X, Y, W,
 #'         attained by the current forest, and 'debiased.error' alone is an estimate of the error
 #'         attained by a forest with an infinite number of trees. We recommend that users grow
 #'         enough forests to make the 'excess.error' negligible.
+#'
+#' @references Friedberg, Rina, Julie Tibshirani, Susan Athey, and Stefan Wager. "Local Linear Forests".
+#'  Journal of Computational and Graphical Statistics, 30(2), 2020.
+#' @references Wager, Stefan, Trevor Hastie, and Bradley Efron.
+#'  "Confidence intervals for random forests: The jackknife and the infinitesimal jackknife."
+#'  The Journal of Machine Learning Research 15(1), 2014.
+#' @references Nie, Xinkun, and Stefan Wager. "Quasi-Oracle Estimation of Heterogeneous Treatment Effects".
+#'  Biometrika, 108(2), 2021.
 #'
 #' @examples
 #' \donttest{
