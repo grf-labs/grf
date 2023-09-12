@@ -167,3 +167,7 @@ average_treatment_effect(iv.forest)
 }
 
 }
+\references{
+Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
+ Annals of Statistics, 47(2), 2019.
+}

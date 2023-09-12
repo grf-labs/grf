@@ -79,6 +79,9 @@
 #'
 #' @return A trained instrumental forest object.
 #'
+#' @references Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized Random Forests".
+#'  Annals of Statistics, 47(2), 2019.
+#'
 #' @examples
 #' \donttest{
 #' # Train an instrumental forest.
