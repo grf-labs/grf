@@ -64,6 +64,9 @@
 #'
 #' @return A trained local linear forest object.
 #'
+#' @references Friedberg, Rina, Julie Tibshirani, Susan Athey, and Stefan Wager. "Local Linear Forests".
+#'  Journal of Computational and Graphical Statistics, 30(2), 2020.
+#'
 #' @examples
 #' \donttest{
 #' # Train a standard regression forest.
