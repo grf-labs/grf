@@ -76,6 +76,9 @@
 #' @references Li, Fan, Kari Lock Morgan, and Alan M. Zaslavsky.
 #'             "Balancing covariates via propensity score weighting."
 #'             Journal of the American Statistical Association 113(521), 2018.
+#' @references Mayer, Imke, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager, and Julie Josse.
+#'             "Doubly robust treatment effect estimation with missing attributes."
+#'             Annals of Applied Statistics, 14(3), 2020.
 #' @references Robins, James M., and Andrea Rotnitzky. "Semiparametric efficiency in
 #'             multivariate regression models with missing data." Journal of the
 #'             American Statistical Association 90(429), 1995.
