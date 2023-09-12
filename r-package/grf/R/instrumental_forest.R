@@ -293,6 +293,9 @@ instrumental_forest <- function(X, Y, W, Z,
 #'
 #' # Predict on out-of-bag training samples.
 #' iv.pred <- predict(iv.forest)
+#'
+#' # Estimate a (local) average treatment effect.
+#' average_treatment_effect(iv.forest)
 #' }
 #'
 #' @method predict instrumental_forest
