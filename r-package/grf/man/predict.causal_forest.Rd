@@ -85,3 +85,14 @@ c.pred <- predict(c.forest, X.test, estimate.variance = TRUE)
 }
 
 }
+\references{
+Friedberg, Rina, Julie Tibshirani, Susan Athey, and Stefan Wager. "Local Linear Forests".
+ Journal of Computational and Graphical Statistics, 30(2), 2020.
+
+Wager, Stefan, Trevor Hastie, and Bradley Efron.
+ "Confidence intervals for random forests: The jackknife and the infinitesimal jackknife."
+ The Journal of Machine Learning Research 15(1), 2014.
+
+Nie, Xinkun, and Stefan Wager. "Quasi-Oracle Estimation of Heterogeneous Treatment Effects".
+ Biometrika, 108(2), 2021.
+}
