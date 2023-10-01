@@ -4,6 +4,12 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2023-10-1
+
+### Fixed
+- Fix weak instrument warning in `get_scores.instrumental_forest`. [#1351](https://github.com/grf-labs/grf/pull/1351)
+- Add extra input validation to `sample.weights` argument. [#1352](https://github.com/grf-labs/grf/pull/1352)
+
 ## [2.3.0] - 2023-05-10
 
 ### Added
