@@ -169,7 +169,10 @@ Given estimated treatment effects $\hat \tau(\cdot)$, and costs $C(\cdot)$ (reme
 
 It turns out that in order to perform this exercise, we need to solve a constrained optimization problem, as the underlying policy object $\hat \pi_B(X_i)$ now has to optimally select among many potential arms (with different costs) for each unit. For example, at each spend level, we have to decide whether we should allocate some *initial* arm to Alice, *or* perhaps, if Bob was already assigned an arm, if we instead should *upgrade* Bob to a costlier, but more effective arm.
 
-The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently (by computing a solution path via a tailored algorithm), and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective but costlier, and the costs vary by unit based on some known characteristic.[^r]
+The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently (by computing a solution path via a tailored algorithm), and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective on average but costlier. We are imagining the cost of assigning any unit to the first arm is 0.2 (on some chosen denomination), and the cost of assigning each unit to the second arm is 0.5 (costs could also vary by units based on some known characteristics, in which case we could supply a matrix as the `cost` argument below).
+
+
+[^r]
 ```{r}
 # Simulate two treatment arms (1 and 2) and a control arm 0.
 n <- 3000
@@ -186,8 +189,8 @@ c.forest <- multi_arm_causal_forest(X[train, ], Y[train], W[train])
 test <- -train
 tau.hat <- predict(c.forest, X[test, ], drop = TRUE)$predictions
 
-# 3) Form a multi-armed Qini curve based on IPW.
-IPW.scores <- get_ipw_scores(Y[test], W[test]) # a convenience function part of `maq`.
+# 3) Form a multi-armed Qini curve based on IPW (convenience function part of `maq`).
+IPW.scores <- get_ipw_scores(Y[test], W[test])
 
 # The cost of arm 1 and 2
 cost <- c(0.2, 0.5)
