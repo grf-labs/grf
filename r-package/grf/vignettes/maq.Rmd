@@ -149,8 +149,9 @@ qini.ate <- maq(cate.hat.test, cost, DR.test, target.with.covariates = FALSE)
 par(mfrow = c(1, 2))
 plot(rate, sub = "", xlab = "Treated fraction", main = "TOC curve")
 
-plot(ex.qini, ylab = "", xlab = "Spend per unit", main = "Qini curve", xlim = c(0, 1))
-plot(qini.ate, add = TRUE, lty = 2)
+plot(qini.ate, ylab = "", xlab = "Spend per unit", main = "Qini curve",
+     lty = 2, ylim = c(0, 0.5))
+plot(ex.qini, add = TRUE)
 ```
 
 The TOC compares an average treatment effect over the quantiles of some scoring rule to the overall average treatment effect. The Qini curve quantifies an average treatment effect for units predicted to benefit the most from treatment, per unit spent (that is, the predictions $\hat \tau(X_i)$ are positive) as we vary a budget constraint (thus taking an optimization approach for evaluation).
