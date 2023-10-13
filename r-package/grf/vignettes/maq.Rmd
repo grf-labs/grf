@@ -154,13 +154,13 @@ plot(qini.ate, ylab = "", xlab = "Spend per unit", main = "Qini curve",
 plot(ex.qini, add = TRUE)
 ```
 
-The TOC compares an average treatment effect over the quantiles of some scoring rule to the overall average treatment effect. The Qini curve quantifies an average treatment effect for units predicted to benefit the most from treatment, per unit spent (that is, the predictions $\hat \tau(X_i)$ are positive) as we vary a budget constraint (thus taking an optimization approach for evaluation).
+The TOC compares an average treatment effect over the quantiles of some scoring rule to the overall average treatment effect. The Qini curve quantifies an average treatment effect per unit as we vary a budget constraint on spend per unit.
 
 So: The TOC curve is useful if you are in a setting where you are interested in whether there is a group of people that benefit more than average from being treated. If costs are not directly relevant, and you are more interested in detecting the presence of heterogeneity, then the TOC is helpful because it clearly reveals the quantile where targeting helps. The TOC thus serves as a general tool for measuring heterogeneity.
 
 The Qini curve is useful if you are in a setting where it is natural to undertake some cost-benefit analysis. The Qini curve is helpful because it clearly reveals the expected gain you can achieve by targeting the most responsive units, per spend, at various levels of budget allocations available. Another benefit of the Qini curve is that it is also more natural to be extended to many treatment arms, as the cost element carries over a similar cost-benefit tradeoff, but now across both arms and units.
 
-*Note on constant costs:* For a single treatment arm, when each unit has the same cost $C_i(X_i) = 1$, we can also interpret the x-axis on the Qini curve plot above as the treated fraction. In that case, the solid black line reveals that when using the estimated CATEs, we can achieve a gain of around `r average_gain(qini, 0.2)[1]` by treating the fraction 0.2 of units most responsive.
+*Note on constant costs:* For a single treatment arm, when each unit has the same cost $C_i(X_i) = 1$, we can also interpret the x-axis on the Qini curve plot above as the treated fraction.
 
 
 ## Qini curves with multi-armed treatment
