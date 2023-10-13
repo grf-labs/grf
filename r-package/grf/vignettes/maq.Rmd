@@ -150,7 +150,7 @@ par(mfrow = c(1, 2))
 plot(rate, sub = "", xlab = "Treated fraction", main = "TOC curve")
 
 plot(qini.ate, ylab = "", xlab = "Spend per unit", main = "Qini curve",
-     lty = 2, ylim = c(0, 0.5))
+     lty = 2, ylim = c(0, 0.55))
 plot(ex.qini, add = TRUE)
 ```
 
