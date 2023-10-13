@@ -165,14 +165,11 @@ The Qini curve is useful if you are in a setting where it is natural to undertak
 ## Qini curves with multi-armed treatment
 Consider now the case where we have $k = 0,\ldots K$ arms available, where $k=0$ is a zero cost control arm. For example, $k=1$ could be a low cost drug, and $k=2$ could be a higher cost drug, but which is more effective (and $k=0$ could be a placebo control).
 
-Given estimated treatment effects $\hat \tau(\cdot)$, and costs $C(\cdot)$ (remember that these objects are now vector-valued, i.e. the $k$-th element of $\hat \tau(X_i)$ is an estimate of the CATE for arm $k$ for units with covariates $X_i$) - we now ask: how can we conduct a similar exercise as above where we evaluate allocating treatment optimally in accordance with our estimated CATEs (and costs), as we vary the available budget?
+Given estimated treatment effects $\hat \tau(\cdot)$, and costs $C(\cdot)$ (remember that these objects are now vector-valued, i.e. the $k$-th element of $\hat \tau(X_i)$ is an estimate of the CATE for arm $k$ for units with covariates $X_i$[^r]) - we now ask: how can we conduct a similar exercise as above where we evaluate allocating treatment optimally in accordance with our estimated CATEs (and costs), as we vary the available budget?
 
 It turns out that in order to perform this exercise, we need to solve a constrained optimization problem, as the underlying policy object $\hat \pi_B(X_i)$ now has to optimally select among many potential arms (with different costs) for each unit. For example, at each spend level, we have to decide whether we should allocate some *initial* arm to Alice, *or* perhaps, if Bob was already assigned an arm, if we instead should *upgrade* Bob to a costlier, but more effective arm.
 
 The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently (by computing a solution path via a tailored algorithm), and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective on average but costlier. We are imagining the cost of assigning any unit to the first arm is 0.2 (on some chosen denomination), and the cost of assigning each unit to the second arm is 0.5 (costs could also vary by units based on some known characteristics, in which case we could supply a matrix as the `cost` argument below).
-
-
-[^r]
 ```{r}
 # Simulate two treatment arms (1 and 2) and a control arm 0.
 n <- 3000
@@ -308,7 +305,7 @@ Sverdrup, Erik, Han Wu, Susan Athey, and Stefan Wager. Qini Curves for Multi-Arm
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _arXiv preprint arXiv:2111.07966_ ([arxiv](https://arxiv.org/abs/2111.07966))
 
 
-[^r]: There are many approaches to estimating CATEs in the single-armed setting that can be adopted in the multi-armed case by simply fitting separate CATE functions for the different treatment arms. In this example, we use GRF's `multi_arm_causal_forest`, which jointly estimates treatment effects for the arms.
+[^r]: There are many approaches to estimating CATEs in the single-armed setting that can be adopted in the multi-armed case by simply fitting separate CATE functions for the different treatment arms. In this vignette, we use GRF's `multi_arm_causal_forest`, which jointly estimates treatment effects for the arms.
 
 [^f]: Note that at most one unit will have a non-integer entry in this row matrix. If the particular budget is not enough to give the final $i$-th unit a treatment, then this unit will either have a single fractional entry, or two fractional entries, depending on whether the unit is being assigned an initial arm or upgraded to a costlier arm. These fractions can be interpreted as a probability of arm assignment.
 
