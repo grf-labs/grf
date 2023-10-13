@@ -66,7 +66,7 @@ $$
 $$
 IPW (the terms in parenthesis) accounts for the fact that the prescribed policy $\hat \pi_B(X_i)$ might not match the observed treatment $W_i$ for unit i. The empirical **Qini curve** $\hat Q(B)$ traces out the above value as we vary the available budget $B$, yielding an estimate of $E[\pi_B(X_i) (Y_i(1) - Y_i(0))] = E[\pi_B(X_i) \tau(X_i)]$ - the gain we can achieve when assigning treatment in accordance with our *estimated* CATEs, and costs, at various values of the budget B.
 
-The following code example gives a toy example, where we to keep the exposition simple, assume each unit has the same cost, assigning treatment to both Bob and Alice costs 1.0, on some chosen denomination (a nice property of the Qini as an evaluation metric is that it does not require costs and treatment effects to be denominated on the same scale, only their ratio matters[^c]).
+The following code example gives a toy example, where we to keep the exposition simple, assume each unit has the same cost, assigning treatment to both Bob and Alice costs 1.0, on some chosen denomination (a nice property of the Qini as an evaluation metric is that it does not require costs and treatment effects to be denominated on the same scale, only their ratio matters).
 
 ```{r}
 n <- 2000
@@ -300,14 +300,10 @@ For more details, including a central limit theorem for the Qini curve, we refer
 
 
 ## References
-Sun, Hao, Evan Munro, Georgy Kalashnov, Shuyang Du, and Stefan Wager. Treatment Allocation under Uncertain Costs. _arXiv preprint arXiv:2103.11066_ ([arxiv](https://arxiv.org/abs/2103.11066v3))
-
 Sverdrup, Erik, Han Wu, Susan Athey, and Stefan Wager. Qini Curves for Multi-Armed Treatment Rules. _arXiv preprint arXiv:2306.11979_ ([arxiv](https://arxiv.org/abs/2306.11979))
 
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _arXiv preprint arXiv:2111.07966_ ([arxiv](https://arxiv.org/abs/2111.07966))
 
-
-[^c]: In the case of a binary treatment, when costs are unknown and have to be estimated, there turns out to be a more efficient approach to forming estimates of the cost-benefit ratio than estimating CATEs and costs separately. In some settings one may achieve an efficiency gain by instead targeting the ratio directly. This can be done through an instrumental variable formulation, as described in Sun et al. (2021).
 
 [^r]: There are many approaches to estimating CATEs in the single-armed setting that can be adopted in the multi-armed case by simply fitting separate CATE functions for the different treatment arms. In this example, we use GRF's `multi_arm_causal_forest`, which jointly estimates treatment effects for the arms.
 
