@@ -190,7 +190,7 @@ tau.hat <- predict(c.forest, X[test, ], drop = TRUE)$predictions
 IPW.scores <- get_ipw_scores(Y[test], W[test]) # a convenience function part of `maq`.
 
 # The cost of arm 1 and 2
-cost <- cbind(X[test, 4] / 4, X[test, 5])
+cost <- c(0.2, 0.5)
 
 ma.qini <- maq(tau.hat, cost, IPW.scores, R = 200)
 ```
@@ -202,8 +202,8 @@ plot(ma.qini)
 
 We can also compute Qini curves using each treatment arm separately and overlay them in the plot
 ```{r, eval=FALSE}
-qini.arm1 <- maq(tau.hat[, 1], cost[, 1], IPW.scores[, 1], R = 200)
-qini.arm2 <- maq(tau.hat[, 2], cost[, 2], IPW.scores[, 2], R = 200)
+qini.arm1 <- maq(tau.hat[, 1], cost[1], IPW.scores[, 1], R = 200)
+qini.arm2 <- maq(tau.hat[, 2], cost[2], IPW.scores[, 2], R = 200)
 
 plot(ma.qini, ci.args = NULL) # leave out CIs for legibility.
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
@@ -212,8 +212,8 @@ legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
        col = c("black", "blue", "red"), lty = 1)
 ```
 ```{r, echo=FALSE}
-qini.arm1 <- maq(tau.hat[, 1], cost[, 1], IPW.scores[, 1], R = 200)
-qini.arm2 <- maq(tau.hat[, 2], cost[, 2], IPW.scores[, 2], R = 200)
+qini.arm1 <- maq(tau.hat[, 1], cost[1], IPW.scores[, 1], R = 200)
+qini.arm2 <- maq(tau.hat[, 2], cost[2], IPW.scores[, 2], R = 200)
 
 plot(ma.qini, ci.args = NULL) # leave out CIs for legibility.
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
@@ -221,16 +221,16 @@ plot(qini.arm2, add = TRUE, col = "red", ci.args = NULL)
 legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
        col = c("black", "blue", "red"), lty = 1)
 
-segments(0.1, average_gain(qini.arm1, 0.1)[[1]],
-         0.1, average_gain(ma.qini, 0.1)[[1]],
+segments(0.3, average_gain(qini.arm1, 0.3)[[1]],
+         0.3, average_gain(ma.qini, 0.3)[[1]],
          col = "orange", lwd = 2)
 ```
 
 The blue line (arm 1) plateaus at a spend level of around `r max(qini.arm1[["_path"]]$spend)`, since once we have reached this spend level, we are already giving treatment to all units believed to benefit from arm 1, and so cannot achieve further gains via increased spending.
 
-The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?" For example, at $B = 0.1$ this difference over arm 1 (illustrated by the orange vertical line in the above plot) would be would be
+The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?" For example, at $B = 0.3$ this difference over arm 1 (illustrated by the orange vertical line in the above plot) would be would be
 ```{r}
-difference_gain(ma.qini, qini.arm1, spend = 0.1)
+difference_gain(ma.qini, qini.arm1, spend = 0.3)
 ```
 Points on arbitrary curves can be compared with this function, yielding paired standard errors that account for the correlation between Qini curves fit on the same test data.
 
@@ -243,7 +243,7 @@ plot(qini.arm2, add = TRUE, col = "red", ci.args = NULL)
 legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
        col = c("black", "blue", "red"), lty = 1)
 
-end <- 0.2
+end <- 0.3
 path.ma <- summary(ma.qini)
 path.2 <- summary(qini.arm2)
 ix.ma <- findInterval(end, path.ma$spend)
@@ -261,12 +261,12 @@ polygon(
 is given by
 
 ```{r}
-integrated_difference(ma.qini, qini.arm2, spend = 0.2)
+integrated_difference(ma.qini, qini.arm2, spend = 0.3)
 ```
 
-We can retrieve the underlying estimated policy through `predict`, for example at $B=0.1$
+We can retrieve the underlying estimated policy through `predict`, for example at $B=0.3$
 ```{r}
-pi.hat <- predict(ma.qini, spend = 0.1)
+pi.hat <- predict(ma.qini, spend = 0.3)
 head(pi.hat)
 ```
 $\hat \pi_B(X_i)$ is now a $K$-dimensional vector, i.e. the $i$-th row above has a 1 in the $k$-th column if we at that spend level assign arm $k$ to that unit, with all entries zero if the control arm is assigned.[^f]
@@ -293,7 +293,7 @@ The "non-targeting" baseline curve has a kink because, at a lower spend, it is o
 
 We can conduct similar hypotheses tests as above, now assessing the value of optimally targeting with all arms based on covariates, against just allocating arbitrary units based on the arm ATEs
 ```{r}
-difference_gain(ma.qini, ma.qini.basline, spend = 0.1)
+difference_gain(ma.qini, ma.qini.basline, spend = 0.3)
 ```
 
 For more details, including a central limit theorem for the Qini curve, we refer to the [paper](https://arxiv.org/abs/2306.11979).
