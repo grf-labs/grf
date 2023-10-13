@@ -149,7 +149,7 @@ qini.ate <- maq(cate.hat.test, cost, DR.test, target.with.covariates = FALSE)
 par(mfrow = c(1, 2))
 plot(rate, sub = "", xlab = "Treated fraction", main = "TOC curve")
 
-plot(ex.qini, ylab = "", xlab = "Spend", main = "Qini curve", xlim = c(0, 1))
+plot(ex.qini, ylab = "", xlab = "Spend per unit", main = "Qini curve", xlim = c(0, 1))
 plot(qini.ate, add = TRUE, lty = 2)
 ```
 
