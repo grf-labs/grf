@@ -64,9 +64,9 @@ In the previous section we left out the exact details of how to *evaluate* a pol
 $$
 \frac{1}{n} \sum_{i}^{n} \hat \pi_B(X_i) \left( \frac{W_i Y_i}{P[W_i = 1|X_i]} - \frac{(1-W_i)Y_i}{P[W_i = 0|X_i]} \right).
 $$
-IPW (the terms in parenthesis) accounts for the fact that the prescribed policy $\hat \pi_B(X_i)$ might not match the observed treatment $W_i$ for unit i. The empirical *Qini curve* $\hat Q(B)$ traces out the above value as we vary the available budget $B$, yielding an estimate of $E[\pi_B(X_i) \tau(X_i)] = E[\pi_B(X_i) (Y_i(1) - Y_i(0))]$ - the gain we can achieve when assigning treatment in accordance with our *estimated* CATEs, and costs, at various values of the budget B.
+IPW (the terms in parenthesis) accounts for the fact that the prescribed policy $\hat \pi_B(X_i)$ might not match the observed treatment $W_i$ for unit i. The empirical **Qini curve** $\hat Q(B)$ traces out the above value as we vary the available budget $B$, yielding an estimate of $Q(B) = E[\pi_B(X_i) (Y_i(1) - Y_i(0))] = E[\pi_B(X_i) \tau(X_i)]$ - the gain we can achieve when assigning treatment in accordance with our *estimated* CATEs, and costs, at various values of the budget B.
 
-The following code example gives a toy example, where we to keep the exposition simple, assume each unit has the same cost, assigning treatment to both Bob and Alice costs 1.0, on some chosen denomination (a nice property of the Qini as an evaluation metric is that it does not require costs and treatment effects to be denominated on the same scale, only their ratio matters[^c]).
+The following code example gives a toy example, where we to keep the exposition simple, assume each unit has the same cost, assigning treatment to both Bob and Alice costs 1.0, on some chosen denomination (a nice property of the Qini as an evaluation metric is that it does not require costs and treatment effects to be denominated on the same scale, only their ratio matters).
 
 ```{r}
 n <- 2000
@@ -107,7 +107,7 @@ We can read off estimates on the curve at various $B$ through
 average_gain(qini, spend = 0.2)
 ```
 
-That is, at a spend of 0.2 per unit, a 95 % confidence interval for the average treatment effect for the units predicted to be the most responsive per unit spent, is `r average_gain(qini, spend = 0.2)[1]` $\pm$ 1.96 * `r average_gain(qini, spend = 0.2)[2]`.
+That is, at an average spend of $B=0.2$ a 95% confidence interval for the average benefit per unit is `r average_gain(qini, spend = 0.2)[1]` $\pm$ `r 1.96 * average_gain(qini, spend = 0.2)[2]`. (these standard errors are conditional on the estimated function $\hat \tau(\cdot)$ and quantify test set uncertainty in estimating the Qini curve).
 
 Had we instead used the same amount of budget to treat an arbitrary group of the population, our estimated gain would be
 
@@ -149,27 +149,28 @@ qini.ate <- maq(cate.hat.test, cost, DR.test, target.with.covariates = FALSE)
 par(mfrow = c(1, 2))
 plot(rate, sub = "", xlab = "Treated fraction", main = "TOC curve")
 
-plot(ex.qini, ylab = "", xlab = "Spend", main = "Qini curve", xlim = c(0, 1))
-plot(qini.ate, add = TRUE, lty = 2)
+plot(qini.ate, ylab = "", xlab = "Spend per unit", main = "Qini curve",
+     lty = 2, ylim = c(0, 0.55))
+plot(ex.qini, add = TRUE)
 ```
 
-The TOC compares an average treatment effect over the quantiles of some scoring rule to the overall average treatment effect. The Qini curve quantifies an average treatment effect for units predicted to benefit the most from treatment, per unit spent (that is, the predictions $\hat \tau(X_i)$ are positive) as we vary a budget constraint (thus taking an optimization approach for evaluation).
+The TOC compares an average treatment effect over the quantiles of some scoring rule to the overall average treatment effect. The Qini curve quantifies an average treatment effect per unit as we vary a budget constraint on spend per unit.
 
 So: The TOC curve is useful if you are in a setting where you are interested in whether there is a group of people that benefit more than average from being treated. If costs are not directly relevant, and you are more interested in detecting the presence of heterogeneity, then the TOC is helpful because it clearly reveals the quantile where targeting helps. The TOC thus serves as a general tool for measuring heterogeneity.
 
 The Qini curve is useful if you are in a setting where it is natural to undertake some cost-benefit analysis. The Qini curve is helpful because it clearly reveals the expected gain you can achieve by targeting the most responsive units, per spend, at various levels of budget allocations available. Another benefit of the Qini curve is that it is also more natural to be extended to many treatment arms, as the cost element carries over a similar cost-benefit tradeoff, but now across both arms and units.
 
-*Note on constant costs:* For a single treatment arm, when each unit has the same cost $C_i(X_i) = 1$, we can also interpret the x-axis on the Qini curve plot above as the treated fraction. In that case, the solid black line reveals that when using the estimated CATEs, we can achieve a gain of around `r average_gain(qini, 0.2)[1]` by treating the fraction 0.2 of units most responsive.
+*Note on constant costs:* For a single treatment arm, when each unit has the same cost $C_i(X_i) = 1$, we can also interpret the x-axis on the Qini curve plot above as the treated fraction.
 
 
 ## Qini curves with multi-armed treatment
 Consider now the case where we have $k = 0,\ldots K$ arms available, where $k=0$ is a zero cost control arm. For example, $k=1$ could be a low cost drug, and $k=2$ could be a higher cost drug, but which is more effective (and $k=0$ could be a placebo control).
 
-Given estimated treatment effects $\hat \tau(\cdot)$, and costs $C(\cdot)$ (remember that these objects are now vector-valued, i.e. the $k$-th element of $\hat \tau(X_i)$ is an estimate of the CATE for arm $k$ for units with covariates $X_i$) - we now ask: how can we conduct a similar exercise as above where we evaluate allocating treatment optimally in accordance with our estimated CATEs (and costs), as we vary the available budget?
+Given estimated treatment effects $\hat \tau(\cdot)$, and costs $C(\cdot)$ (remember that these objects are now vector-valued, i.e. the $k$-th element of $\hat \tau(X_i)$ is an estimate of the CATE for arm $k$ for units with covariates $X_i$[^r]) - we now ask: how can we conduct a similar exercise as above where we evaluate allocating treatment optimally in accordance with our estimated CATEs (and costs), as we vary the available budget?
 
 It turns out that in order to perform this exercise, we need to solve a constrained optimization problem, as the underlying policy object $\hat \pi_B(X_i)$ now has to optimally select among many potential arms (with different costs) for each unit. For example, at each spend level, we have to decide whether we should allocate some *initial* arm to Alice, *or* perhaps, if Bob was already assigned an arm, if we instead should *upgrade* Bob to a costlier, but more effective arm.
 
-The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently (by computing a solution path via a tailored algorithm), and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective but costlier, and the costs vary by unit based on some known characteristic.[^r]
+The [maq](https://github.com/grf-labs/maq) package performs this exercise efficiently (by computing a solution path via a tailored algorithm), and we’ll here jump straight into a toy example with 2 treatment arms and a control. We are simulating a simple example where one treatment arm (number 2) is more effective on average but costlier. We are imagining the cost of assigning any unit to the first arm is 0.2 (on some chosen denomination), and the cost of assigning each unit to the second arm is 0.5 (costs could also vary by units based on some known characteristics, in which case we could supply a matrix as the `cost` argument below).
 ```{r}
 # Simulate two treatment arms (1 and 2) and a control arm 0.
 n <- 3000
@@ -186,24 +187,24 @@ c.forest <- multi_arm_causal_forest(X[train, ], Y[train], W[train])
 test <- -train
 tau.hat <- predict(c.forest, X[test, ], drop = TRUE)$predictions
 
-# 3) Form a multi-armed Qini curve based on IPW.
-IPW.scores <- get_ipw_scores(Y[test], W[test]) # a convenience function part of `maq`.
+# 3) Form a multi-armed Qini curve based on IPW (convenience function part of `maq`).
+IPW.scores <- get_ipw_scores(Y[test], W[test])
 
 # The cost of arm 1 and 2
-cost <- cbind(X[test, 4] / 4, X[test, 5])
+cost <- c(0.2, 0.5)
 
 ma.qini <- maq(tau.hat, cost, IPW.scores, R = 200)
 ```
 
-The Qini curve when using both treatment arms looks like
+The Qini curve for a multi-armed policy looks like
 ```{r}
 plot(ma.qini)
 ```
 
 We can also compute Qini curves using each treatment arm separately and overlay them in the plot
 ```{r, eval=FALSE}
-qini.arm1 <- maq(tau.hat[, 1], cost[, 1], IPW.scores[, 1], R = 200)
-qini.arm2 <- maq(tau.hat[, 2], cost[, 2], IPW.scores[, 2], R = 200)
+qini.arm1 <- maq(tau.hat[, 1], cost[1], IPW.scores[, 1], R = 200)
+qini.arm2 <- maq(tau.hat[, 2], cost[2], IPW.scores[, 2], R = 200)
 
 plot(ma.qini, ci.args = NULL) # leave out CIs for legibility.
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
@@ -212,8 +213,8 @@ legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
        col = c("black", "blue", "red"), lty = 1)
 ```
 ```{r, echo=FALSE}
-qini.arm1 <- maq(tau.hat[, 1], cost[, 1], IPW.scores[, 1], R = 200)
-qini.arm2 <- maq(tau.hat[, 2], cost[, 2], IPW.scores[, 2], R = 200)
+qini.arm1 <- maq(tau.hat[, 1], cost[1], IPW.scores[, 1], R = 200)
+qini.arm2 <- maq(tau.hat[, 2], cost[2], IPW.scores[, 2], R = 200)
 
 plot(ma.qini, ci.args = NULL) # leave out CIs for legibility.
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
@@ -221,16 +222,16 @@ plot(qini.arm2, add = TRUE, col = "red", ci.args = NULL)
 legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
        col = c("black", "blue", "red"), lty = 1)
 
-segments(0.1, average_gain(qini.arm1, 0.1)[[1]],
-         0.1, average_gain(ma.qini, 0.1)[[1]],
+segments(0.3, average_gain(qini.arm1, 0.3)[[1]],
+         0.3, average_gain(ma.qini, 0.3)[[1]],
          col = "orange", lwd = 2)
 ```
 
 The blue line (arm 1) plateaus at a spend level of around `r max(qini.arm1[["_path"]]$spend)`, since once we have reached this spend level, we are already giving treatment to all units believed to benefit from arm 1, and so cannot achieve further gains via increased spending.
 
-The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?" For example, at $B = 0.1$ this difference over arm 1 (illustrated by the orange vertical line in the above plot) would be would be
+The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?" For example, at $B = 0.3$ this difference over arm 1 (illustrated by the orange vertical line in the above plot) would be would be
 ```{r}
-difference_gain(ma.qini, qini.arm1, spend = 0.1)
+difference_gain(ma.qini, qini.arm1, spend = 0.3)
 ```
 Points on arbitrary curves can be compared with this function, yielding paired standard errors that account for the correlation between Qini curves fit on the same test data.
 
@@ -243,7 +244,7 @@ plot(qini.arm2, add = TRUE, col = "red", ci.args = NULL)
 legend("topleft", c("Qini (both arms)", "Qini (arm 1)", "Qini (arm 2)"),
        col = c("black", "blue", "red"), lty = 1)
 
-end <- 0.2
+end <- 0.3
 path.ma <- summary(ma.qini)
 path.2 <- summary(qini.arm2)
 ix.ma <- findInterval(end, path.ma$spend)
@@ -261,12 +262,12 @@ polygon(
 is given by
 
 ```{r}
-integrated_difference(ma.qini, qini.arm2, spend = 0.2)
+integrated_difference(ma.qini, qini.arm2, spend = 0.3)
 ```
 
-We can retrieve the underlying estimated policy through `predict`, for example at $B=0.1$
+We can retrieve the underlying estimated policy through `predict`, for example at $B=0.3$
 ```{r}
-pi.hat <- predict(ma.qini, spend = 0.1)
+pi.hat <- predict(ma.qini, spend = 0.3)
 head(pi.hat)
 ```
 $\hat \pi_B(X_i)$ is now a $K$-dimensional vector, i.e. the $i$-th row above has a 1 in the $k$-th column if we at that spend level assign arm $k$ to that unit, with all entries zero if the control arm is assigned.[^f]
@@ -293,23 +294,19 @@ The "non-targeting" baseline curve has a kink because, at a lower spend, it is o
 
 We can conduct similar hypotheses tests as above, now assessing the value of optimally targeting with all arms based on covariates, against just allocating arbitrary units based on the arm ATEs
 ```{r}
-difference_gain(ma.qini, ma.qini.basline, spend = 0.1)
+difference_gain(ma.qini, ma.qini.basline, spend = 0.3)
 ```
 
 For more details, including a central limit theorem for the Qini curve, we refer to the [paper](https://arxiv.org/abs/2306.11979).
 
 
 ## References
-Sun, Hao, Evan Munro, Georgy Kalashnov, Shuyang Du, and Stefan Wager. Treatment Allocation under Uncertain Costs. _arXiv preprint arXiv:2103.11066_ ([arxiv](https://arxiv.org/abs/2103.11066v3))
-
 Sverdrup, Erik, Han Wu, Susan Athey, and Stefan Wager. Qini Curves for Multi-Armed Treatment Rules. _arXiv preprint arXiv:2306.11979_ ([arxiv](https://arxiv.org/abs/2306.11979))
 
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _arXiv preprint arXiv:2111.07966_ ([arxiv](https://arxiv.org/abs/2111.07966))
 
 
-[^c]: In the case of a binary treatment, when costs are unknown and have to be estimated, there turns out to be a more efficient approach to forming estimates of the cost-benefit ratio than estimating CATEs and costs separately. In some settings one may achieve an efficiency gain by instead targeting the ratio directly. This can be done through an instrumental variable formulation, as described in Sun et al. (2021).
-
-[^r]: There are many approaches to estimating CATEs in the single-armed setting that can be adopted in the multi-armed case by simply fitting separate CATE functions for the different treatment arms. In this example, we use GRF's `multi_arm_causal_forest`, which jointly estimates treatment effects for the arms.
+[^r]: There are many approaches to estimating CATEs in the single-armed setting that can be adopted in the multi-armed case by simply fitting separate CATE functions for the different treatment arms. In this vignette, we use GRF's `multi_arm_causal_forest`, which jointly estimates treatment effects for the arms.
 
 [^f]: Note that at most one unit will have a non-integer entry in this row matrix. If the particular budget is not enough to give the final $i$-th unit a treatment, then this unit will either have a single fractional entry, or two fractional entries, depending on whether the unit is being assigned an initial arm or upgraded to a costlier arm. These fractions can be interpreted as a probability of arm assignment.
 
