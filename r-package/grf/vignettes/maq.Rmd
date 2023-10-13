@@ -107,7 +107,7 @@ We can read off estimates on the curve at various $B$ through
 average_gain(qini, spend = 0.2)
 ```
 
-That is, at a spend of 0.2 per unit, a 95 % confidence interval for the average treatment effect for the units predicted to be the most responsive per unit spent, is `r average_gain(qini, spend = 0.2)[1]` $\pm$ 1.96 * `r average_gain(qini, spend = 0.2)[2]`.
+That is, at an average spend of $B=0.2$ a 95% confidence interval for the average benefit per unit is `r average_gain(qini, spend = 0.2)[1]` $\pm$ `r 1.96 * average_gain(qini, spend = 0.2)[2]`.
 
 Had we instead used the same amount of budget to treat an arbitrary group of the population, our estimated gain would be
 
