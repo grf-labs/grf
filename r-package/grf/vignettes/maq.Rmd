@@ -195,7 +195,7 @@ cost <- c(0.2, 0.5)
 ma.qini <- maq(tau.hat, cost, IPW.scores, R = 200)
 ```
 
-The Qini curve when using both treatment arms looks like
+The Qini curve for a multi-armed policy looks like
 ```{r}
 plot(ma.qini)
 ```
