@@ -251,7 +251,7 @@ segments(0.3, average_gain(qini.arm2, 0.3)[[1]],
 
 The blue line (arm 1) plateaus at a spend level of around `r max(qini.arm1[["_path"]]$spend)`, since once we have reached this spend level, we are already giving treatment to all units believed to benefit from arm 1 (i.e. $\hat \tau_1(X_i) > 0$), and so cannot achieve further gains via increased spending.
 
-The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?". Let's call $\hat Q(B)$ the estimated Qini curve for the multi-armed policy and $\hat Q_2B)$ the estimated Qini curve for arm 2. At $B = 0.3$, the difference $\hat Q(B) - \hat Q_2(B)$ (illustrated by the green vertical line in the above plot) is
+The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?". Let's call $\hat Q(B)$ the estimated Qini curve for the multi-armed policy and $\hat Q_2(B)$ the estimated Qini curve for arm 2. At $B = 0.3$, the difference $\hat Q(B) - \hat Q_2(B)$ (illustrated by the green vertical line in the above plot) is
 ```{r}
 difference_gain(ma.qini, qini.arm2, spend = 0.3)
 ```
