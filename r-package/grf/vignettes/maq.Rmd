@@ -289,8 +289,6 @@ is given by
 integrated_difference(ma.qini, qini.arm2, spend = 0.3)
 ```
 
-For more details, we refer to the [paper](https://arxiv.org/abs/2306.11979).
-
 ## References
 Sverdrup, Erik, Han Wu, Susan Athey, and Stefan Wager. Qini Curves for Multi-Armed Treatment Rules. _arXiv preprint arXiv:2306.11979_ ([arxiv](https://arxiv.org/abs/2306.11979))
 
