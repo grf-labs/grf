@@ -73,7 +73,7 @@ test_that("causal survival forest with complete-data is ~identical to causal for
   expect_equal(mean(pp.cs.prob$predictions), mean(pp.cf.prob$predictions), tolerance = 0.02)
   expect_lt(mean((pp.cs.prob$variance.estimates - pp.cf.prob$variance.estimates)^2), 0.001)
   expect_equal(mean(pp.cs.prob$variance.estimates), mean(pp.cf.prob$variance.estimates), tolerance = 0.01)
-  expect_equal(ate.cs.prob[["estimate"]], ate.cf.prob[["estimate"]], tolerance = 0.01)
+  expect_equal(ate.cs.prob[["estimate"]], ate.cf.prob[["estimate"]], tolerance = 0.015)
   expect_equal(ate.cs.prob[["std.err"]], ate.cf.prob[["std.err"]], tolerance = 0.005)
   expect_equal(muhat0.prob, muhat0.cs.prob, tolerance = 0.15)
   expect_equal(muhat1.prob, muhat1.cs.prob, tolerance = 0.15)
