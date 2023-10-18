@@ -264,6 +264,7 @@ We can also compare different targeting strategies across a range of spend level
 plot(ma.qini, ci.args = NULL)
 plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
 plot(qini.arm2, add = TRUE, col = "red", ci.args = NULL)
+plot(ma.qini.baseline, add = TRUE, lty = 2, ci.args = NULL)
 legend("topleft", c("both arms", "arm 1", "arm 2"),
        col = c("black", "blue", "red"), lty = 1)
 
