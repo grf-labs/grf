@@ -261,12 +261,9 @@ In this example, a multi-armed policy achieves a larger gain than the arm 1 poli
 We can also compare different targeting strategies across a range of spend levels. The function `integrated_difference` estimates an area between two Qini curves. An estimate of the shaded area below (the integral $\int_{0}^{0.3} \left(Q(B) - Q_2(B)\right)dB$)
 
 ```{r, echo=FALSE}
-plot(ma.qini, ci.args = NULL)
-plot(qini.arm1, add = TRUE, col = "blue", ci.args = NULL)
-plot(qini.arm2, add = TRUE, col = "red", ci.args = NULL)
-plot(ma.qini.baseline, add = TRUE, lty = 2, ci.args = NULL)
-legend("topleft", c("both arms", "arm 1", "arm 2"),
-       col = c("black", "blue", "red"), lty = 1)
+plot(ma.qini.baseline, lty = 2, ci.args = NULL, xlim = c(0, 0.4))
+legend("topleft", c("both arms", "arm 2"),
+       col = c("black", "red"), lty = 1)
 
 end <- 0.3
 path.ma <- summary(ma.qini)
@@ -281,6 +278,8 @@ polygon(
   c(a.ma$y, rev(a.2$y)),
   col = scales::alpha("gray", 0.5)
 )
+plot(ma.qini, add = TRUE, ci.args = NULL)
+plot(qini.arm2, add = TRUE, col = "red", ci.args = NULL)
 ```
 
 is given by
