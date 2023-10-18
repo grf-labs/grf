@@ -221,7 +221,7 @@ head(pi.hat)
 ```
 $\pi_B(X_i)$ is now a $K$-dimensional vector, i.e. the $i$-th row above has a 1 in the $k$-th column if we at that spend level assign arm $k$ to that unit, with all entries zero if the control arm is assigned.[^f]
 
-We can also compute Qini curves for single-armed policies.
+We can also compare with single-armed treatment policies by computing Qini curves for each arm.
 ```{r, eval=FALSE}
 qini.arm1 <- maq(tau.hat[, 1], cost[1], IPW.scores[, 1], R = 200)
 qini.arm2 <- maq(tau.hat[, 2], cost[2], IPW.scores[, 2], R = 200)
