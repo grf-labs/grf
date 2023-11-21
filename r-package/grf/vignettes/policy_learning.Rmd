@@ -20,7 +20,7 @@ library(grf)
 library(policytree)
 ```
 
-Using GRF it is possible to non-parametrically estimate a CATE function $\hat \tau(\cdot)$, then use this as a treatment assignment policy, by for example treating units where the predictions $\hat \tau(X_i)$ are positive.Let's denote our policy by the symbol $\pi$, which is a function that takes as input covariates $X_i$ describing characteristics of a unit and outputs a treatment decision where $0$ means don't treat and $1$ treat, i.e.
+Using GRF it is possible to non-parametrically estimate a CATE function $\hat \tau(\cdot)$, then use this as a treatment assignment policy, by for example treating units where the predictions $\hat \tau(X_i)$ are positive. Let's denote our policy by the symbol $\pi$, which is a function that takes as input covariates $X_i$ describing characteristics of a unit and outputs a treatment decision where $0$ means don't treat and $1$ treat, i.e.
 
 $$
 \pi(\cdot) \mapsto \{0, 1\}
