@@ -43,7 +43,7 @@ A first ingredient of RATE is to essentially take the estimated $\hat \tau(\cdot
 
 This approach to evaluation can essentially be summarized as follows:
 
-* A CATE estimator (causal forest, neural network, etc.) gives you an estimated function $\hat \tau (\cdot)$.
+* A CATE estimator (causal forest, X-learner, stacked R-learner, etc) gives you an estimated function $\hat \tau (\cdot)$.
 * This CATE function "induces" a policy $\hat \pi$ that you can evaluate on a test set by plotting a TOC curve.
 * The RATE is a metric that can be used to quantify the value of this policy on a test set.
 
