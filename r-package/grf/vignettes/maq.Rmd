@@ -43,7 +43,7 @@ A first ingredient of RATE is to essentially take the estimated $\hat \tau(\cdot
 
 This approach to evaluation can essentially be summarized as follows:
 
-* A CATE estimator (causal forest, neural network, etc.) gives you an estimated function $\hat \tau (\cdot)$.
+* A CATE estimator (causal forest, X-learner, stacked R-learner, etc) gives you an estimated function $\hat \tau (\cdot)$.
 * This CATE function "induces" a policy $\hat \pi$ that you can evaluate on a test set by plotting a TOC curve.
 * The RATE is a metric that can be used to quantify the value of this policy on a test set.
 
@@ -64,7 +64,12 @@ In the previous section we left out the exact details of how to *evaluate* a pol
 $$
 \frac{1}{n} \sum_{i}^{n} \hat \pi_B(X_i) \left( \frac{W_i Y_i}{P[W_i = 1|X_i]} - \frac{(1-W_i)Y_i}{P[W_i = 0|X_i]} \right).
 $$
-IPW (the terms in parenthesis) accounts for the fact that the prescribed policy $\hat \pi_B(X_i)$ might not match the observed treatment $W_i$ for unit i. The empirical **Qini curve** $\hat Q(B)$ traces out the above value as we vary the available budget $B$, yielding an estimate of $Q(B) = E[\pi_B(X_i) (Y_i(1) - Y_i(0))] = E[\pi_B(X_i) \tau(X_i)]$ - the gain we can achieve when assigning treatment in accordance with our *estimated* CATEs, and costs, at various values of the budget B.
+IPW (the terms in parenthesis) accounts for the fact that the prescribed policy $\hat \pi_B(X_i)$ might not match the observed treatment $W_i$ for unit i. The **Qini curve** traces out the above value as we vary the available budget $B$, yielding an estimate of
+
+$$
+Q(B) = E[\pi_B(X_i) (Y_i(1) - Y_i(0))] = E[\pi_B(X_i) \tau(X_i)],
+$$
+the gain we can achieve when assigning treatment in accordance with our *estimated* CATEs, and costs, at various values of the budget $B$.
 
 The following code example gives a toy example, where we to keep the exposition simple, assume each unit has the same cost, assigning treatment to both Bob and Alice costs 1.0, on some chosen denomination (a nice property of the Qini as an evaluation metric is that it does not require costs and treatment effects to be denominated on the same scale, only their ratio matters).
 
