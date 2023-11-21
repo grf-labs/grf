@@ -24,7 +24,7 @@ navbar:
         href: articles/diagnostics.html
       - text: "Local linear forests"
         href: articles/llf.html
-      - text: "Policy learning via decision trees"
+      - text: "Policy learning via optimal decision trees"
         href: articles/policy_learning.html
       - text: "Qini curves: Automatic cost-benefit analysis"
         href: articles/maq.html

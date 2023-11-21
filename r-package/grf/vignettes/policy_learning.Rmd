@@ -1,5 +1,5 @@
 ---
-title: "Policy learning via decision trees"
+title: "Policy learning via optimal decision trees"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{policy_learning}
@@ -20,11 +20,21 @@ library(grf)
 library(policytree)
 ```
 
-## Estimating tree-based treatment assignment rules
+Using GRF it is possible to non-parametrically estimate a CATE function $\hat \tau(\cdot)$, then use this as a treatment assignment policy, by for example treating units where the predictions $\hat \tau(X_i)$ are positive. Let's denote our policy by the symbol $\pi$, which is a function that takes as input covariates $X_i$ describing characteristics of a unit and outputs a treatment decision where $0$ means don't treat and $1$ treat, i.e.
 
-Using suitable estimates of individual treatment effects, Athey and Wager (2021) show that one can estimate policies with favorable statistical properties (low regret). The case where we restrict our candidate policies to be a (shallow) tree, is implemented in the companion package [policytree](https://github.com/grf-labs/policytree) (Sverdrup et. al, 2020).
+$$
+\pi(\cdot) \mapsto \{0, 1\}
+$$
 
-The example below demonstrates fitting a depth-2 tree on doubly robust treatment effect estimates obtained from a causal forest. The function `policy_tree` and `double_robust_scores` belong to the `policytree` package.
+If we are using our estimated CATEs to assign treatment we may express $\pi$ simply as $\pi(X_i) = 1(\hat \tau(X_i) > 0)$. The vignette on *Qini curves* gives some examples of metrics one can construct on a held-out test set in order to evaluate this policy, as well as how to incorporate budget constraints.
+
+In some settings, assigning treatment in this manner may be undesirable. Consider for example a welfare program that gives people job training skills. Deciding who to assign this program to based on a complicated black-box CATE function may be undesirable if policymakers want transparent criteria for who should be eligible for the program. Likewise, it may be problematic for potential recipients to learn they were denied a  beneficial job training program solely because a black-box algorithm predicted they would not benefit sufficiently. In settings like these, we are interested in *interpretable* policies. I.e., we want a simple rule that looks at a unit's characteristics $X_i$ and gives a treatment decision. An example could be "Alice is assigned treatment because she is under 25 and lives in a disadvantaged neighborhood". An example of such an interpretable policy would be the policy embedded in a shallow decision tree.
+
+## Tree-based treatment assignment rules
+
+In order to learn a policy $\pi$ from experimental or observational data, we need an efficient scoring rule, and an algorithm to find trees. The approach where we use "doubly robust" scoring and decision trees that optimize empirical welfare, is implemented in the package [policytree](https://github.com/grf-labs/policytree). In order to learn a *good* shallow decision tree it is important to learn the branching decisions right at each level. Typical approaches to decision tree learning are based on greedy criteria (such as "CART") and may not necessarily learn globally optimal branching decisions, the `policytree` package takes a tree learning approach that is more computationally involved but finds a globally optimal decision tree.[^algo]
+
+The brief example below demonstrates learning a depth-2 tree using doubly robust scores obtained from a causal forest. The function `policy_tree` and `double_robust_scores` belong to the `policytree` package.
 
 ```{r}
 # Fit a causal forest.
@@ -37,6 +47,8 @@ Y <- X[, 3] + W * tau + rnorm(n)
 c.forest <- causal_forest(X, Y, W)
 
 # Compute doubly robust scores.
+# (In observational settings it is usually a good idea to plot the estimated propensity
+# scores (`hist(c.forest$W.hat)`) to ensure we have sufficient overlap)
 dr.scores <- double_robust_scores(c.forest)
 head(dr.scores)
 
@@ -58,7 +70,7 @@ legend("topright", c("control", "treat"), col = c(1, 2), pch = 19)
 abline(0, -1, lty = 2)
 ```
 
-Alternatively, `predict` can return the leaf node each sample falls into, which we can use to calculate statistics for each group (note that for valid inference, statistics like these should all be computed on test set separate from the one used for learning the policy).
+Alternatively, `predict` can return the leaf node each sample falls into, which we can use to calculate statistics, such as average treatment effects, for each group (note that to avoid overfitting, statistics like these should be computed on a held-out test set separate from the one used for learning the policy, and can thus serve as a practical way do to train/test evaluation of a fit policy).
 
 ```{r}
 node.id <- predict(tree, X, type = "node.id")
@@ -69,9 +81,6 @@ values <- aggregate(dr.scores, by = list(leaf.node = node.id),
 print(values, digits = 2)
 ```
 
-For more details (such as the computational aspect of the tree search in `policy_tree`) please see the `policytree` package.
+For more statistical details please see the chapter on *Policy Learning* in [these lecture notes](https://web.stanford.edu/~swager/stats361.pdf).
 
-## References
-Susan Athey and Stefan Wager. Policy Learning With Observational Data. _Econometrica, 2021_. [[arxiv](https://arxiv.org/abs/1702.02896)]
-
-Sverdrup, Erik, Ayush Kanodia, Zhengyuan Zhou, Susan Athey, and Stefan Wager. policytree: Policy learning via doubly robust empirical welfare maximization over trees. _Journal of Open Source Software 5, no. 50 (2020): 2232._ [[paper](https://joss.theoj.org/papers/10.21105/joss.02232.pdf)]
+[^algo]: A description of the tree search algorithm is given in [this paper](https://joss.theoj.org/papers/10.21105/joss.02232.pdf).
