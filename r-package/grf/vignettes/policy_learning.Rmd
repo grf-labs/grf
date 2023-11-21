@@ -48,6 +48,8 @@ Y <- X[, 3] + W * tau + rnorm(n)
 c.forest <- causal_forest(X, Y, W)
 
 # Compute doubly robust scores.
+# (In observational settings it is usually a good idea to plot the estimated propensity
+# scores (`hist(c.forest$W.hat)`) to ensure we have sufficient overlap)
 dr.scores <- double_robust_scores(c.forest)
 head(dr.scores)
 
