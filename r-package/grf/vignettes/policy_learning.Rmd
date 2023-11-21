@@ -38,8 +38,7 @@ The brief example below demonstrates learning a depth-2 tree using doubly robust
 
 ```{r}
 # Fit a causal forest.
-n <- 150
-# n <- 15000
+n <- 15000
 p <- 5
 X <- round(matrix(rnorm(n * p), n, p), 2)
 W <- rbinom(n, 1, 1 / (1 + exp(X[, 3])))
