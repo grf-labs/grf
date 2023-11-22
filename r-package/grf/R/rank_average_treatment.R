@@ -135,6 +135,13 @@ rank_average_treatment_effect <- function(forest,
   if (any(forest$W.hat[subset] %in% c(0, 1))) {
     stop("Cannot compute a doubly robust estimate when some propensities are exactly zero or one.")
   }
+  if (min(forest$W.hat[subset]) <= 0.05 || max(forest$W.hat[subset]) >= 0.95) {
+    rng <- range(forest$W.hat[subset])
+    warning(paste("Estimated treatment propensities take values between",
+    round(rng[1], 3), "and", round(rng[2], 3),
+    "and in particular get very close to 0 or 1. In this case, using the `subset` argument on `forest$W.hat`",
+    "to filter data as in Crump, Hotz, Imbens, and Mitnik (Biometrika, 2009) may be helpful."))
+  }
   if (length(unique(subset.clusters)) <= 1) {
     stop("The specified subset must contain units from more than one cluster.")
   }
