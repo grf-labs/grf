@@ -4,7 +4,7 @@
 #'
 #' The following DGPs are available for benchmarking purposes:
 #' \itemize{
-#'  \item "simple": tau = max(X1, 0), e = 0.4 + 0.2 * 1{X1 > 0}.
+#'  \item "simple": tau = max(X1, 0), e = 0.4 + 0.2 * 1(X1 > 0).
 #'  \item "aw1": equation (27) of https://arxiv.org/pdf/1510.04342.pdf
 #'  \item "aw2": equation (28) of https://arxiv.org/pdf/1510.04342.pdf
 #'  \item "aw3": confounding is from "aw1" and tau is from "aw2"
@@ -218,7 +218,7 @@ generate_causal_data <- function(n, p, sigma.m = 1, sigma.tau = 0.1, sigma.noise
 #' @param Y.max The maximum follow-up time (optional).
 #' @param y0 Query time to estimate P(T(1) > y0 | X) - P(T(0) > y0 | X) (optional).
 #' @param X The covariates (optional).
-#' @param rho The correlation coefficient of the X's covariance matrix V_{ij} = rho^|i-j|. Default is 0.
+#' @param rho The correlation coefficient of the X's covariance matrix V_(ij) = rho^|i-j|. Default is 0.
 #' @param n.mc The number of monte carlo draws to estimate the treatment effect with. Default is 10000.
 #' @param dgp The type of DGP.
 #'
