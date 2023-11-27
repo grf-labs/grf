@@ -34,7 +34,7 @@ A list consisting of:
 \description{
 The following DGPs are available for benchmarking purposes:
 \itemize{
- \item "simple": tau = max(X1, 0), e = 0.4 + 0.2 * 1{X1 > 0}.
+ \item "simple": tau = max(X1, 0), e = 0.4 + 0.2 * 1(X1 > 0).
  \item "aw1": equation (27) of https://arxiv.org/pdf/1510.04342.pdf
  \item "aw2": equation (28) of https://arxiv.org/pdf/1510.04342.pdf
  \item "aw3": confounding is from "aw1" and tau is from "aw2"

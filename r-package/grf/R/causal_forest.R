@@ -314,7 +314,7 @@ causal_forest <- function(X, Y, W,
 #'                  or penalize all covariates equally (FALSE). Penalizes equally by default.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
-#' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
+#' @param estimate.variance Whether variance estimates for \eqn{\hat\tau(x)} are desired
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'

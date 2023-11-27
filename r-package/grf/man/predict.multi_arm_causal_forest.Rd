@@ -25,7 +25,7 @@ matrix, and that the columns must appear in the same order.}
 \item{num.threads}{Number of threads used in training. If set to NULL, the software
 automatically selects an appropriate amount.}
 
-\item{estimate.variance}{Whether variance estimates for hat{tau}(x) are desired
+\item{estimate.variance}{Whether variance estimates for \eqn{\hat\tau(x)} are desired
 (for confidence intervals). This option is currently
 only supported for univariate outcomes Y.}
 

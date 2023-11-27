@@ -26,7 +26,7 @@ generate_causal_survival_data(
 
 \item{X}{The covariates (optional).}
 
-\item{rho}{The correlation coefficient of the X's covariance matrix V_{ij} = rho^|i-j|. Default is 0.}
+\item{rho}{The correlation coefficient of the X's covariance matrix V_(ij) = rho^|i-j|. Default is 0.}
 
 \item{n.mc}{The number of monte carlo draws to estimate the treatment effect with. Default is 10000.}
 
