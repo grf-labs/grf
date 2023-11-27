@@ -262,7 +262,7 @@ lm_forest <- function(X, Y, W,
 #'                matrix, and that the columns must appear in the same order.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
-#' @param estimate.variance Whether variance estimates for hat{h_k}(x) are desired
+#' @param estimate.variance Whether variance estimates for \eqn{\hat h_k(x)} are desired
 #'                          (for confidence intervals). This option is currently
 #'                          only supported for univariate outcomes Y.
 #' @param drop If TRUE, coerce the prediction result to the lowest possible dimension. Default is FALSE.

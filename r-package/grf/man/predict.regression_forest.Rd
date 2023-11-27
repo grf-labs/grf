@@ -38,7 +38,7 @@ or penalize all covariates equally (FALSE). Defaults to FALSE.}
 \item{num.threads}{Number of threads used in training. If set to NULL, the software
 automatically selects an appropriate amount.}
 
-\item{estimate.variance}{Whether variance estimates for hat{tau}(x) are desired
+\item{estimate.variance}{Whether variance estimates for \eqn{\hat\tau(x)} are desired
 (for confidence intervals).}
 
 \item{...}{Additional arguments (currently ignored).}

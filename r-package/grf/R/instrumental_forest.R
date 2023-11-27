@@ -275,7 +275,7 @@ instrumental_forest <- function(X, Y, W, Z,
 #'                matrix, and that the columns must appear in the same order.
 #' @param num.threads Number of threads used in training. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
-#' @param estimate.variance Whether variance estimates for hat{tau}(x) are desired
+#' @param estimate.variance Whether variance estimates for \eqn{\hat\tau(x)} are desired
 #'                          (for confidence intervals).
 #' @param ... Additional arguments (currently ignored).
 #'
