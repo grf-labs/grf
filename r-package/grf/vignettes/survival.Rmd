@@ -259,11 +259,17 @@ This extension can be made using the estimation framework described in the previ
 
 4. *Finite horizon*: The outcome transformation $y(\cdot)$ admits a maximal horizon $0 < h < \infty$, such that $y(t) = y(h)$ for all $t \geq h$.
 
-The CATE can then be defined as $\tau(x) = E[y(T(1)) - y(T(0)) \, | X = x]$. The restricted mean survival time is given by the outcome transformation $y(T) = T \land h$, and the survival function is given by the outcome transformation $y(T) = 1\{T \geq h\}$. As noted earlier this setup implies we only need to take into account events occurring up until time $h$. This means that any samples censored past $h$ can be treated as observed at $h$ since if we know they were "alive" in the future, they must have been alive at $h$. This leads to the new "effective" event indicator:
+The CATE can then be defined as $\tau(x) = E[y(T(1)) - y(T(0)) \, | X = x]$. The restricted mean survival time is given by the outcome transformation $y(T) = T \land h$, and the survival function is given by the outcome transformation $y(T) = 1\{T > h\}$. As noted earlier this setup implies we only need to take into account events occurring up until time $h$. This means that any samples censored past $h$ can be treated as observed at $h$ since if we know they were "alive" in the future, they must have been alive at $h$. This leads to the new "effective" event indicator:
 
 5. *Effective event indicator*: $D^h_i = D_i \lor 1\{Y_i \geq h\}$.
 
-This general setup can also give us some intuition for when we can expect the estimation approach in CSF to give us an efficiency benefit over IPCW: namely when the data has many samples censored before $h$. The IPCW approach would discard these, but CSF uses them for efficient estimation. Empirically, CSF also does well in settings with complex censoring processes, where the double robustness property comes in handy. For more details on the benefits of different non-parametric estimation techniques across many different survival settings, see Xu et al., (2022).
+This general setup can also give us some intuition for when we can expect the estimation approach in CSF to give us an efficiency benefit over IPCW: namely when the data has many samples censored before $h$. The IPCW approach would discard these, but CSF uses them for efficient estimation.
+
+## Further resources
+
+* [This review article](https://arxiv.org/abs/2312.02482) walks through an application of `causal_survival_forest` to analyze heterogeneity in unemployment duration using data from an RCT.
+
+* [This handbook chapter](https://arxiv.org/abs/2207.07758) by Xu et al. (2022) gives some examples of how to use `grf` to construct inverse-probability-of-censoring weighting estimators.
 
 ## References
 Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests. _Journal of the Royal Statistical Society: Series B_, 85(2), 2023. ([arxiv](https://arxiv.org/abs/2001.09887))
