@@ -49,7 +49,7 @@ and interpret the estimated $\hat \tau$ as an estimate of the average treatment 
 
 Assumption 1) is an "identifying" assumption we have to live with, however 2) and 3) are modeling assumptions that we can question. Let's start with assumption 2): this is a strong parametric modeling assumption that requires the confounders to have a linear effect on the outcome, and that we should be able to relax by relying on semi-parametric statistics.
 
-**Relaxing assumption 1)**. We can instead posit the partially linear model:
+**Relaxing assumption 2)**. We can instead posit the partially linear model:
 
 $$
 Y_i = \tau W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
