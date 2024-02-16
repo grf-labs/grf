@@ -54,40 +54,76 @@
 #'
 #' @examples
 #' \donttest{
-#' # Train a causal forest to estimate a CATE based priority ranking
-#' n <- 1500
+#' # Simulate a simple medical example with a binary outcome and heterogeneous treatment effects.
+#' # We're imagining that the treatment W decreases the risk of getting a stroke for some units,
+#' # while having no effect on the other units (those with X2 < 0).
+#' n <- 2000
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
-#' event.prob <- 1 / (1 + exp(2*(pmax(2*X[, 1], 0) * W - X[, 2])))
-#' Y <- rbinom(n, 1, event.prob)
+#' stroke.probability <- 1 / (1 + exp(2 * (pmax(2 * X[, 1], 0) * W - X[, 2])))
+#' Y.stroke <- rbinom(n, 1, stroke.probability)
+#'
+#' # We'll label the outcome Y such that "large" values are "good" to make interpretation easier.
+#' # With Y=1 ("no stroke") and Y=0 ("stroke"), then an average treatment effect,
+#' # E[Y(1) - Y(0)] = P[Y(1) = 1] - P[Y(0) = 1], quantifies the counterfactual risk difference
+#' # of being stroke-free with treatment over being stroke-free without treatment.
+#' # This will be positive if the treatment decreases the risk of getting a stroke.
+#' Y <- 1 - Y.stroke
+#'
+#' # Train a CATE estimator on a training set.
 #' train <- sample(1:n, n / 2)
 #' cf.priority <- causal_forest(X[train, ], Y[train], W[train])
 #'
-#' # Compute a prioritization based on estimated treatment effects.
-#' # -1: in this example the treatment should reduce the risk of an event occuring.
-#' priority.cate <- -1 * predict(cf.priority, X[-train, ])$predictions
+#' # Predict treatment effects on a held-out test set.
+#' test <- -train
+#' cate.hat <-  predict(cf.priority, X[test, ])$predictions
 #'
-#' # Estimate AUTOC on held out data.
-#' cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train])
-#' rate <- rank_average_treatment_effect(cf.eval, priority.cate)
-#' rate
+#' # Next, use the RATE metric to assess heterogeneity.
 #'
-#' # Plot the Targeting Operator Characteristic curve.
+#' # Fit an evaluation forest for estimating the RATE.
+#' cf.test <- causal_forest(X[test, ], Y[test], W[test])
+#'
+#' # Form a doubly robust RATE estimate on the held-out test set.
+#' rate <- rank_average_treatment_effect(cf.test, cate.hat)
+#'
+#' # Plot the Targeting Operator Characteristic (TOC) curve.
+#' # In this example, the ATE among the units with high predicted CATEs
+#' # is substantially larger than the overall ATE.
 #' plot(rate)
 #'
-#' # Compute a prioritization based on baseline risk.
-#' rf.risk <- regression_forest(X[train[W[train] == 0], ], Y[train[W[train] == 0]])
-#' priority.risk <- predict(rf.risk, X[-train, ])$predictions
+#' # Get an estimate of the area under the TOC (AUTOC).
+#' rate
 #'
-#' # Test if two RATEs are equal.
-#' rate.diff <- rank_average_treatment_effect(cf.eval, cbind(priority.cate, priority.risk))
-#' rate.diff
+#' # Construct a 95% CI for the AUTOC.
+#' # A significant result suggests that there are HTEs and that the CATE-based prioritization rule
+#' # is effective at stratifying the sample.
+#' # A non-significant result would suggest that either there are no HTEs
+#' # or that the treatment prioritization rule does not predict them effectively.
+#' rate$estimate + 1.96*c(-1, 1)*rate$std.err
 #'
-#' # Construct a 95 % confidence interval.
-#' # (a significant result suggests that there are HTEs and that the prioritization rule is effective
-#' # at stratifying the sample based on them. Conversely, a non-significant result suggests that either
-#' # there are no HTEs or the treatment prioritization rule does not predict them effectively.)
+#' # In some applications, we may be interested in other ways to target treatment.
+#' # One example is baseline risk. In our example, we could estimate the probability of getting
+#' # a stroke in the absence of treatment, and then use this as a non-causal heuristic
+#' # to prioritize individuals with a high baseline risk.
+#' # The hope would be that patients with a high predicted risk of getting a stroke,
+#' # also have a high treatment effect.
+#'
+#' # We can use the RATE metric to evaluate this treatment prioritization rule.
+#'
+#' # First, fit a baseline risk model on the training set control group (W=0).
+#' train.control <- train[W[train] == 0]
+#' rf.risk <- regression_forest(X[train.control, ], Y[train.control])
+#'
+#' # Then, on the test set, predict the baseline risk of getting a stroke.
+#' # We're interested in P[stroke | X] = 1 - P[no stroke | X].
+#' baseline.risk.hat <- 1 - predict(rf.risk, X[test, ])$predictions
+#'
+#' # Use RATE to compare CATE and risk-based prioritization rules.
+#' rate.diff <- rank_average_treatment_effect(cf.test, cbind(cate.hat, baseline.risk.hat))
+#' plot(rate.diff)
+#'
+#' # Construct a 95 % CI for the AUTOC and the difference in AUTOC.
 #' rate.diff$estimate + data.frame(lower = -1.96 * rate.diff$std.err,
 #'                                 upper = 1.96 * rate.diff$std.err,
 #'                                 row.names = rate.diff$target)
