@@ -1,12 +1,12 @@
 # GRF Logos
 
-The GRF logo, leaf, and vertical leaf in Scalable Vector Graphics (SVG) format:
+The GRF logo, leaf, and vertical leaf in Scalable Vector Graphics (**SVG**) format:
 
 <p><img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo.svg' height="120" /></p>
 <p><img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf.svg' height="120" /></p>
 <p><img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_vertical.svg' height="120" /></p>
 
-The GRF logo with a white background, and in forest green (HEX code #195E54), in PNG:
+The GRF logo with a white background, and in forest green (HEX code _#195E54_), in **PNG**:
 
 <p><img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_wbg_cropped.png' height="120" /></p>
 <p><img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_green.png' height="120" /></p>
