@@ -170,7 +170,7 @@ plot.rank_average_treatment_effect <- function(x,
     main = "Targeting Operator Characteristic",
     sub = "(95 % confidence bars in dashed lines)",
     ylab = "",
-    xlab = "q",
+    xlab = "Treated fraction (q)",
     lty = 1,
     col = 1:2
   )
