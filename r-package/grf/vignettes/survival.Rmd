@@ -276,7 +276,7 @@ Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. Es
 
 Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. Estimation of Regression Coefficients When Some Regressors are not Always Observed. _Journal of the American Statistical Association_ 89(427), 1994.
 
-Sverdrup, Erik, and Stefan Wager. "Treatment Heterogeneity with Right-Censored Outcomes Using grf." _ASA Lifetime Data Science Newsletter_, January 2024. ([arxiv](https://arxiv.org/abs/2312.02482))
+Sverdrup, Erik, and Stefan Wager. Treatment Heterogeneity with Right-Censored Outcomes Using grf. _ASA Lifetime Data Science Newsletter_, January 2024. ([arxiv](https://arxiv.org/abs/2312.02482))
 
 Tsiatis, Anastasios A. Semiparametric Theory and Missing Data. _Springer Series in Statistics. Springer
 New York_, 2007.
