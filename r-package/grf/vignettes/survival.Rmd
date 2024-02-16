@@ -267,14 +267,16 @@ This general setup can also give us some intuition for when we can expect the es
 
 ## Further resources
 
-* [This review article](https://arxiv.org/abs/2312.02482) walks through an application of `causal_survival_forest` to analyze heterogeneity in unemployment duration using data from an RCT.
+* [This brief example article](https://arxiv.org/abs/2312.02482) by Sverdrup and Wager (2024) walks through an application of `causal_survival_forest` to analyze heterogeneity in unemployment duration using data from an RCT.
 
-* [This handbook chapter](https://arxiv.org/abs/2207.07758) by Xu et al. (2022) gives some examples of how to use `grf` to construct inverse-probability-of-censoring weighting estimators.
+* [This handbook chapter](https://arxiv.org/abs/2207.07758) by Xu et al. (2023) gives examples of how to use `grf` to construct inverse-probability-of-censoring weighting estimators and other forest-based survival estimators.
 
 ## References
 Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests. _Journal of the Royal Statistical Society: Series B_, 85(2), 2023. ([arxiv](https://arxiv.org/abs/2001.09887))
 
 Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. Estimation of Regression Coefficients When Some Regressors are not Always Observed. _Journal of the American Statistical Association_ 89(427), 1994.
+
+Sverdrup, Erik, and Stefan Wager. "Treatment Heterogeneity with Right-Censored Outcomes Using grf." _ASA Lifetime Data Science Newsletter_, January 2024. ([arxiv](https://arxiv.org/abs/2312.02482))
 
 Tsiatis, Anastasios A. Semiparametric Theory and Missing Data. _Springer Series in Statistics. Springer
 New York_, 2007.
