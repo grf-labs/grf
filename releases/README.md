@@ -1,30 +1,39 @@
 # GRF Release Process
 
 **Prepare release notes**
+
 Go over PRs since last PR named “Prepare the x.x.x release.”, add all changes to https://github.com/grf-labs/grf/blob/master/releases/CHANGELOG.md
 
 **Bump version in DESCRIPTION**
+
 Bump patch release version (1.0.0 → 1.0.1), or minor version if it’s a bigger release (1.0.2 → 1.1.0).
 
 **Make sure there are no performance regressions**
+
 See below for example scripts to run.
 
 **Add/delete removed functions**
+
 In case of a major release with breaking functionality, or a subsequent minor release, update the removed functions list in `deprecated.R`.
 
 **Make sure the bundled Eigen version is up to date**
+
 Ideally RcppEigen and the bundled version will be the same.
 
 **Create release tarball**
+
 Run `Rscript build_package.R --as-cran` from `r-package` directory. The —as-cran argument makes sure to omit most tests from the package build. Only the test grf/tests/testthat/test_cran_smoke_test.R will be run. The command will make a change to .Rbuildignore, do not commit it.
 
 **Run CRAN checks**
+
 Run R CMD check --as-cran --run-donttest <release tarball>. There should only be 1 or 2 NOTEs, no WARNINGs or ERRORs. There might be some NOTEs around Makefiles, these are okay to ignore. Fix any failing checks. (The flag —run-donttest runs all documentation examples).
 
 **Check package using win-builder**
+
 Upload the release tarball to https://win-builder.r-project.org/upload.aspx to check it against the latest R-devel and also R-release on Windows. To test a larger release extra carefully on even more systems you can check it here as well: https://builder.r-hub.io/. For extra checks for a major release, upload a tarball that includes all the R tests not intended to be run on CRAN.
 
 **Submit to CRAN**
+
 Upload package here: https://cran.r-project.org/submit.html
 
 **Tag the release**
@@ -74,10 +83,13 @@ For a big release, can also run `R CMD check --as-cran --run-donttest --use-valg
 ## Previous performance test results
 
 **2.3.1**
+
 This is only a patch release with two minor R fixes.
 
 **2.3.0**
+
 (Machine: Sherlock 12 cores/150G/R version 3.5.1)
+
 statistical performance
 
 ```
@@ -149,10 +161,13 @@ memory usage
 ```
 
 **2.2.1**
+
 This is just a minor patch release which does not touch any perf code.
 
 **2.2.0**
+
 (Machine: Sherlock 12 cores/150G/R version 3.5.1)
+
 statistical performance
 
 ```
@@ -231,7 +246,9 @@ memory usage
 ```
 
 **2.1.0**
+
 (Machine: Sherlock 12 cores/150G/R version 3.5.1)
+
 statistical performance
 
 ```
@@ -310,10 +327,13 @@ memory usage
 ```
 
 **2.0.2**
+
 Patch release to retain CRAN  Solaris compatibility
 
 **2.0.0**
+
 (Machine: Sherlock 12 cores/150G/R version 3.5.1)
+
 statistical performance
 
 ```
@@ -375,7 +395,9 @@ memory usage
 ```
 
 **1.2.0**
+
 (Machine: Sherlock 12 cores/150G/R version 3.5.1)
+
 statistical performance
 
 ```
@@ -431,7 +453,9 @@ memory usage
 ```
 
 **1.1.0**
+
 (Machine: Sherlock 12 cores/150G/R version 3.5.1)
+
 statistical performance
 
 ```
@@ -480,8 +504,10 @@ memory usage
 
 **1.0.1** (patch release with only one commit that fixes the print order of trees on the R side)
 
-1.0.0
+**1.0.0**
+
 (Machine: Sherlock 12 cores/150G/R version 3.5.1)
+
 statistical performance
 
 ```
@@ -530,6 +556,7 @@ memory usage
 ```
 
 **0.10.4**
+
 statistical performance
 
 ```
