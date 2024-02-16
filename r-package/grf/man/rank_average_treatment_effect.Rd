@@ -144,11 +144,10 @@ rate$estimate + 1.96*c(-1, 1)*rate$std.err
 
 # First, fit a baseline risk model on the training set control group (W=0).
 train.control <- train[W[train] == 0]
-rf.risk <- regression_forest(X[train.control, ], Y[train.control])
+rf.risk <- regression_forest(X[train.control, ], Y.stroke[train.control])
 
 # Then, on the test set, predict the baseline risk of getting a stroke.
-# We're interested in P[stroke | X] = 1 - P[no stroke | X].
-baseline.risk.hat <- 1 - predict(rf.risk, X[test, ])$predictions
+baseline.risk.hat <- predict(rf.risk, X[test, ])$predictions
 
 # Use RATE to compare CATE and risk-based prioritization rules.
 rate.diff <- rank_average_treatment_effect(cf.test, cbind(cate.hat, baseline.risk.hat))
