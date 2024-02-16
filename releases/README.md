@@ -22,11 +22,11 @@ Ideally RcppEigen and the bundled version will be the same.
 
 **Create release tarball**
 
-Run `Rscript build_package.R --as-cran` from `r-package` directory. The —as-cran argument makes sure to omit most tests from the package build. Only the test grf/tests/testthat/test_cran_smoke_test.R will be run. The command will make a change to .Rbuildignore, do not commit it.
+Run `Rscript build_package.R --as-cran` from `r-package` directory. The —as-cran argument makes sure to omit most tests from the package build. Only the test grf/tests/testthat/test_cran_smoke_test.R will be run. The command will make a change to `.Rbuildignore`, do not commit it.
 
 **Run CRAN checks**
 
-Run R CMD check --as-cran --run-donttest <release tarball>. There should only be 1 or 2 NOTEs, no WARNINGs or ERRORs. There might be some NOTEs around Makefiles, these are okay to ignore. Fix any failing checks. (The flag —run-donttest runs all documentation examples).
+Run `R CMD check --as-cran --run-donttest <release tarball>`. There should only be 1 or 2 NOTEs, no WARNINGs or ERRORs. There might be some NOTEs around Makefiles, these are okay to ignore. Fix any failing checks. (The flag `—run-donttest` runs all documentation examples).
 
 **Check package using win-builder**
 
