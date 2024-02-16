@@ -177,7 +177,7 @@ sprintf("True mean: %1.2f", mean(X.test[, 1] + 1))
 ```
 
 ## References
-Dahabreh, Issa J., Sarah E. Robertson, Jon A. Steingrimsson, Elizabeth A. Stuart, and Miguel A. Hernan. Extending inferences from a randomized trial to a new target population. Statistics in Medicine 39(14), 2020. ([paper](https://onlinelibrary.wiley.com/doi/10.1002/sim.8426))
+Dahabreh, Issa J., Sarah E. Robertson, Jon A. Steingrimsson, Elizabeth A. Stuart, and Miguel A. Hernan. Extending inferences from a randomized trial to a new target population. Statistics in Medicine 39(14), 2020. ([paper](https://onlinelibrary.wiley.com/doi/10.1002/sim.8426), [arxiv](https://arxiv.org/abs/1805.00550))
 
 ## Appendix: estimating E[Y | X.test]
 The case where we just want an estimate of the conditional mean $E[Y | X_{test}]$ can also be derived as a special case of the transport routine described above. There is however a simpler way to achieve this using just a plain causal forest with a dummy treatment indicator: denote the original training data by $(X_{train}, Y_{train})$ and the new test data by $X_{test}$. Augment the data the following way with a dummy treatment and response variable $(X, Y, W)$: $(X_{train}, Y_{train}, 1)$ and $(X_{test}, 0, 0)$. Then the average treatment effect on controls (ATC) from a  causal forest fit on this augmented data will give an estimate of $E[Y | X_{test}]$: since we "defined" the potential outcomes to be $Y(1) = Y$ and $Y(0) = 0$, we have that $E[Y(1) - Y(0) | X_{test}] = E[Y | X_{test}]$.
