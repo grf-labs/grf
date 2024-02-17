@@ -104,19 +104,19 @@ Y <- 1 - Y.stroke
 
 # Train a CATE estimator on a training set.
 train <- sample(1:n, n / 2)
-cf.priority <- causal_forest(X[train, ], Y[train], W[train])
+cf.cate <- causal_forest(X[train, ], Y[train], W[train])
 
 # Predict treatment effects on a held-out test set.
 test <- -train
-cate.hat <-  predict(cf.priority, X[test, ])$predictions
+cate.hat <-  predict(cf.cate, X[test, ])$predictions
 
 # Next, use the RATE metric to assess heterogeneity.
 
 # Fit an evaluation forest for estimating the RATE.
-cf.test <- causal_forest(X[test, ], Y[test], W[test])
+cf.eval <- causal_forest(X[test, ], Y[test], W[test])
 
 # Form a doubly robust RATE estimate on the held-out test set.
-rate <- rank_average_treatment_effect(cf.test, cate.hat)
+rate <- rank_average_treatment_effect(cf.eval, cate.hat)
 
 # Plot the Targeting Operator Characteristic (TOC) curve.
 # In this example, the ATE among the units with high predicted CATEs
@@ -150,7 +150,7 @@ rf.risk <- regression_forest(X[train.control, ], Y.stroke[train.control])
 baseline.risk.hat <- predict(rf.risk, X[test, ])$predictions
 
 # Use RATE to compare CATE and risk-based prioritization rules.
-rate.diff <- rank_average_treatment_effect(cf.test, cbind(cate.hat, baseline.risk.hat))
+rate.diff <- rank_average_treatment_effect(cf.eval, cbind(cate.hat, baseline.risk.hat))
 plot(rate.diff)
 
 # Construct a 95 \% CI for the AUTOC and the difference in AUTOC.
