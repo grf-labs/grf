@@ -55,48 +55,56 @@ evaluation scores.
 }
 \examples{
 \donttest{
-# Train a causal forest to estimate a CATE based priority ranking
-n <- 1500
+# Estimate CATEs with a causal forest.
+n <- 2000
 p <- 5
 X <- matrix(rnorm(n * p), n, p)
 W <- rbinom(n, 1, 0.5)
-event.prob <- 1 / (1 + exp(2*(pmax(2*X[, 1], 0) * W - X[, 2])))
-Y <- rbinom(n, 1, event.prob)
+event.probability <- 1 / (1 + exp(2 * (pmax(2 * X[, 1], 0) * W - X[, 2])))
+Y <- 1 - rbinom(n, 1, event.probability)
+
 train <- sample(1:n, n / 2)
-cf.priority <- causal_forest(X[train, ], Y[train], W[train])
+cf.cate <- causal_forest(X[train, ], Y[train], W[train])
 
-# Compute a prioritization based on estimated treatment effects.
-# -1: in this example the treatment should reduce the risk of an event occuring.
-priority.cate <- -1 * predict(cf.priority, X[-train, ])$predictions
+# Predict treatment effects on a held-out test set.
+test <- -train
+cate.hat <-  predict(cf.cate, X[test, ])$predictions
 
-# Train a separate CATE estimator for the evaluation set.
-Y.forest.eval <- regression_forest(X[-train, ], Y[-train], num.trees = 500)
+# Estimate AIPW nuisance components on the held-out test set.
+Y.forest.eval <- regression_forest(X[test, ], Y[test], num.trees = 500)
 Y.hat.eval <- predict(Y.forest.eval)$predictions
-W.forest.eval <- regression_forest(X[-train, ], W[-train], num.trees = 500)
+W.forest.eval <- regression_forest(X[test, ], W[test], num.trees = 500)
 W.hat.eval <- predict(W.forest.eval)$predictions
-cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train],
+cf.eval <- causal_forest(X[test, ], Y[test], W[test],
                          Y.hat = Y.hat.eval,
                          W.hat = W.hat.eval)
 
-# Compute doubly robust scores corresponding to a binary treatment (AIPW).
+# Form doubly robust scores.
 tau.hat.eval <- predict(cf.eval)$predictions
-debiasing.weights.eval <- (W[-train] - W.hat.eval) / (W.hat.eval * (1 - W.hat.eval))
-Y.residual.eval <- Y[-train] - (Y.hat.eval + tau.hat.eval * (W[-train] - W.hat.eval))
+debiasing.weights.eval <- (W[test] - W.hat.eval) / (W.hat.eval * (1 - W.hat.eval))
+Y.residual.eval <- Y[test] - (Y.hat.eval + tau.hat.eval * (W[test] - W.hat.eval))
 DR.scores <- tau.hat.eval + debiasing.weights.eval * Y.residual.eval
 
 # Could equivalently be obtained by
 # DR.scores <- get_scores(cf.eval)
 
-# Estimate AUTOC.
-rate <- rank_average_treatment_effect.fit(DR.scores, priority.cate)
+# Form a doubly robust RATE estimate on the held-out test set.
+rate <- rank_average_treatment_effect.fit(DR.scores, cate.hat)
+rate
 
 # Same as
-# rank_average_treatment_effect(cf.eval, priority.cate)
+# rate <- rank_average_treatment_effect(cf.eval, cate.hat)
 
-# If the treatment randomization probabilities are known, then an alternative to
-# evaluation via doubly robust scores is to use inverse-propensity weighting.
-IPW.scores <- ifelse(W[-train] == 1, Y[-train]/0.5, -Y[-train]/0.5)
-rate.ipw <- rank_average_treatment_effect.fit(IPW.scores, priority.cate)
+# In settings where the treatment randomization probabilities W.hat are known, an
+# alternative to AIPW scores is to use inverse-propensity weighting (IPW):
+# 1(W=1) * Y / W.hat - 1(W=0) * Y / (1 - W.hat).
+# Here, W.hat = 0.5, and an IPW-based estimate of RATE is:
+IPW.scores <- ifelse(W[test] == 1, Y[test] / 0.5, -Y[test] / 0.5)
+rate.ipw <- rank_average_treatment_effect.fit(IPW.scores, cate.hat)
+rate.ipw
+
+# IPW-based estimators typically have higher variance. For details on
+# score constructions for other causal estimands, please see the RATE paper.
 }
 
 }

@@ -54,40 +54,75 @@
 #'
 #' @examples
 #' \donttest{
-#' # Train a causal forest to estimate a CATE based priority ranking
-#' n <- 1500
+#' # Simulate a simple medical example with a binary outcome and heterogeneous treatment effects.
+#' # We're imagining that the treatment W decreases the risk of getting a stroke for some units,
+#' # while having no effect on the other units (those with X2 < 0).
+#' n <- 2000
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
-#' event.prob <- 1 / (1 + exp(2*(pmax(2*X[, 1], 0) * W - X[, 2])))
-#' Y <- rbinom(n, 1, event.prob)
+#' stroke.probability <- 1 / (1 + exp(2 * (pmax(2 * X[, 1], 0) * W - X[, 2])))
+#' Y.stroke <- rbinom(n, 1, stroke.probability)
+#'
+#' # We'll label the outcome Y such that "large" values are "good" to make interpretation easier.
+#' # With Y=1 ("no stroke") and Y=0 ("stroke"), then an average treatment effect,
+#' # E[Y(1) - Y(0)] = P[Y(1) = 1] - P[Y(0) = 1], quantifies the counterfactual risk difference
+#' # of being stroke-free with treatment over being stroke-free without treatment.
+#' # This will be positive if the treatment decreases the risk of getting a stroke.
+#' Y <- 1 - Y.stroke
+#'
+#' # Train a CATE estimator on a training set.
 #' train <- sample(1:n, n / 2)
-#' cf.priority <- causal_forest(X[train, ], Y[train], W[train])
+#' cf.cate <- causal_forest(X[train, ], Y[train], W[train])
 #'
-#' # Compute a prioritization based on estimated treatment effects.
-#' # -1: in this example the treatment should reduce the risk of an event occuring.
-#' priority.cate <- -1 * predict(cf.priority, X[-train, ])$predictions
+#' # Predict treatment effects on a held-out test set.
+#' test <- -train
+#' cate.hat <-  predict(cf.cate, X[test, ])$predictions
 #'
-#' # Estimate AUTOC on held out data.
-#' cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train])
-#' rate <- rank_average_treatment_effect(cf.eval, priority.cate)
-#' rate
+#' # Next, use the RATE metric to assess heterogeneity.
 #'
-#' # Plot the Targeting Operator Characteristic curve.
+#' # Fit an evaluation forest for estimating the RATE.
+#' cf.eval <- causal_forest(X[test, ], Y[test], W[test])
+#'
+#' # Form a doubly robust RATE estimate on the held-out test set.
+#' rate <- rank_average_treatment_effect(cf.eval, cate.hat)
+#'
+#' # Plot the Targeting Operator Characteristic (TOC) curve.
+#' # In this example, the ATE among the units with high predicted CATEs
+#' # is substantially larger than the overall ATE.
 #' plot(rate)
 #'
-#' # Compute a prioritization based on baseline risk.
-#' rf.risk <- regression_forest(X[train[W[train] == 0], ], Y[train[W[train] == 0]])
-#' priority.risk <- predict(rf.risk, X[-train, ])$predictions
+#' # Get an estimate of the area under the TOC (AUTOC).
+#' rate
 #'
-#' # Test if two RATEs are equal.
-#' rate.diff <- rank_average_treatment_effect(cf.eval, cbind(priority.cate, priority.risk))
-#' rate.diff
+#' # Construct a 95% CI for the AUTOC.
+#' # A significant result suggests that there are HTEs and that the CATE-based prioritization rule
+#' # is effective at stratifying the sample.
+#' # A non-significant result would suggest that either there are no HTEs
+#' # or that the treatment prioritization rule does not predict them effectively.
+#' rate$estimate + 1.96*c(-1, 1)*rate$std.err
 #'
-#' # Construct a 95 % confidence interval.
-#' # (a significant result suggests that there are HTEs and that the prioritization rule is effective
-#' # at stratifying the sample based on them. Conversely, a non-significant result suggests that either
-#' # there are no HTEs or the treatment prioritization rule does not predict them effectively.)
+#' # In some applications, we may be interested in other ways to target treatment.
+#' # One example is baseline risk. In our example, we could estimate the probability of getting
+#' # a stroke in the absence of treatment, and then use this as a non-causal heuristic
+#' # to prioritize individuals with a high baseline risk.
+#' # The hope would be that patients with a high predicted risk of getting a stroke,
+#' # also have a high treatment effect.
+#'
+#' # We can use the RATE metric to evaluate this treatment prioritization rule.
+#'
+#' # First, fit a baseline risk model on the training set control group (W=0).
+#' train.control <- train[W[train] == 0]
+#' rf.risk <- regression_forest(X[train.control, ], Y.stroke[train.control])
+#'
+#' # Then, on the test set, predict the baseline risk of getting a stroke.
+#' baseline.risk.hat <- predict(rf.risk, X[test, ])$predictions
+#'
+#' # Use RATE to compare CATE and risk-based prioritization rules.
+#' rate.diff <- rank_average_treatment_effect(cf.eval, cbind(cate.hat, baseline.risk.hat))
+#' plot(rate.diff)
+#'
+#' # Construct a 95 % CI for the AUTOC and the difference in AUTOC.
 #' rate.diff$estimate + data.frame(lower = -1.96 * rate.diff$std.err,
 #'                                 upper = 1.96 * rate.diff$std.err,
 #'                                 row.names = rate.diff$target)
@@ -263,48 +298,56 @@ rank_average_treatment_effect <- function(forest,
 #'
 #' @examples
 #' \donttest{
-#' # Train a causal forest to estimate a CATE based priority ranking
-#' n <- 1500
+#' # Estimate CATEs with a causal forest.
+#' n <- 2000
 #' p <- 5
 #' X <- matrix(rnorm(n * p), n, p)
 #' W <- rbinom(n, 1, 0.5)
-#' event.prob <- 1 / (1 + exp(2*(pmax(2*X[, 1], 0) * W - X[, 2])))
-#' Y <- rbinom(n, 1, event.prob)
+#' event.probability <- 1 / (1 + exp(2 * (pmax(2 * X[, 1], 0) * W - X[, 2])))
+#' Y <- 1 - rbinom(n, 1, event.probability)
+#'
 #' train <- sample(1:n, n / 2)
-#' cf.priority <- causal_forest(X[train, ], Y[train], W[train])
+#' cf.cate <- causal_forest(X[train, ], Y[train], W[train])
 #'
-#' # Compute a prioritization based on estimated treatment effects.
-#' # -1: in this example the treatment should reduce the risk of an event occuring.
-#' priority.cate <- -1 * predict(cf.priority, X[-train, ])$predictions
+#' # Predict treatment effects on a held-out test set.
+#' test <- -train
+#' cate.hat <-  predict(cf.cate, X[test, ])$predictions
 #'
-#' # Train a separate CATE estimator for the evaluation set.
-#' Y.forest.eval <- regression_forest(X[-train, ], Y[-train], num.trees = 500)
+#' # Estimate AIPW nuisance components on the held-out test set.
+#' Y.forest.eval <- regression_forest(X[test, ], Y[test], num.trees = 500)
 #' Y.hat.eval <- predict(Y.forest.eval)$predictions
-#' W.forest.eval <- regression_forest(X[-train, ], W[-train], num.trees = 500)
+#' W.forest.eval <- regression_forest(X[test, ], W[test], num.trees = 500)
 #' W.hat.eval <- predict(W.forest.eval)$predictions
-#' cf.eval <- causal_forest(X[-train, ], Y[-train], W[-train],
+#' cf.eval <- causal_forest(X[test, ], Y[test], W[test],
 #'                          Y.hat = Y.hat.eval,
 #'                          W.hat = W.hat.eval)
 #'
-#' # Compute doubly robust scores corresponding to a binary treatment (AIPW).
+#' # Form doubly robust scores.
 #' tau.hat.eval <- predict(cf.eval)$predictions
-#' debiasing.weights.eval <- (W[-train] - W.hat.eval) / (W.hat.eval * (1 - W.hat.eval))
-#' Y.residual.eval <- Y[-train] - (Y.hat.eval + tau.hat.eval * (W[-train] - W.hat.eval))
+#' debiasing.weights.eval <- (W[test] - W.hat.eval) / (W.hat.eval * (1 - W.hat.eval))
+#' Y.residual.eval <- Y[test] - (Y.hat.eval + tau.hat.eval * (W[test] - W.hat.eval))
 #' DR.scores <- tau.hat.eval + debiasing.weights.eval * Y.residual.eval
 #'
 #' # Could equivalently be obtained by
 #' # DR.scores <- get_scores(cf.eval)
 #'
-#' # Estimate AUTOC.
-#' rate <- rank_average_treatment_effect.fit(DR.scores, priority.cate)
+#' # Form a doubly robust RATE estimate on the held-out test set.
+#' rate <- rank_average_treatment_effect.fit(DR.scores, cate.hat)
+#' rate
 #'
 #' # Same as
-#' # rank_average_treatment_effect(cf.eval, priority.cate)
+#' # rate <- rank_average_treatment_effect(cf.eval, cate.hat)
 #'
-#' # If the treatment randomization probabilities are known, then an alternative to
-#' # evaluation via doubly robust scores is to use inverse-propensity weighting.
-#' IPW.scores <- ifelse(W[-train] == 1, Y[-train]/0.5, -Y[-train]/0.5)
-#' rate.ipw <- rank_average_treatment_effect.fit(IPW.scores, priority.cate)
+#' # In settings where the treatment randomization probabilities W.hat are known, an
+#' # alternative to AIPW scores is to use inverse-propensity weighting (IPW):
+#' # 1(W=1) * Y / W.hat - 1(W=0) * Y / (1 - W.hat).
+#' # Here, W.hat = 0.5, and an IPW-based estimate of RATE is:
+#' IPW.scores <- ifelse(W[test] == 1, Y[test] / 0.5, -Y[test] / 0.5)
+#' rate.ipw <- rank_average_treatment_effect.fit(IPW.scores, cate.hat)
+#' rate.ipw
+#'
+#' # IPW-based estimators typically have higher variance. For details on
+#' # score constructions for other causal estimands, please see the RATE paper.
 #' }
 #'
 #' @return A list of class `rank_average_treatment_effect` with elements \itemize{
