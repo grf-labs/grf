@@ -7,11 +7,11 @@
 #'   \item The Rank-Weighted Average Treatment Effect (RATE):
 #'    \eqn{\int_{0}^{1} alpha(q) TOC(q; S) dq}, where alpha is a weighting method
 #'    corresponding to either `AUTOC` or `QINI`.
-#'   \item The Targeting Operating Characteristic (TOC):
+#'   \item The Targeting Operator Characteristic (TOC):
 #'     \eqn{E[Y_i(1) - Y_i(0) | F(S(X_i)) \geq 1 - q] - E[Y_i(1) - Y_i(0)]},
 #'    where \eqn{F(\cdot)} is the distribution function of \eqn{S(X_i)}.
 #' }
-#' The Targeting Operating Characteristic (TOC) is a curve comparing the benefit of treating only a certain
+#' The Targeting Operator Characteristic (TOC) is a curve comparing the benefit of treating only a certain
 #' fraction q of units (as prioritized by \eqn{S(X_i)}), to the overall average treatment effect.
 #' The Rank-Weighted Average Treatment Effect (RATE) is a weighted sum of this curve,
 #' and is a measure designed to identify prioritization rules that effectively targets treatment
