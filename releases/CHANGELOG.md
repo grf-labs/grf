@@ -4,6 +4,15 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.2] - 2024-02-25
+
+### Fixed
+- Emit an overlap warning in `rank_average_treatment_effect` if evaluation forest treatment propensities get too low/high. [#1378](https://github.com/grf-labs/grf/pull/1378)
+- Make the default TOC plot x-axis label more informative. [#1388](https://github.com/grf-labs/grf/pull/1388)
+- Improve the RATE docstring examples. [#1390](https://github.com/grf-labs/grf/pull/1390)
+- Fix a typo in the TOC docstring. [#1395](https://github.com/grf-labs/grf/pull/1395)
+- Address a 'lost braces' docstring Note in latest R CMD CHECK. [#1379](https://github.com/grf-labs/grf/pull/1379)
+
 ## [2.3.1] - 2023-10-01
 
 ### Fixed

@@ -1,14 +1,14 @@
 Package: grf
 Title: Generalized Random Forests
-Version: 2.3.1
+Version: 2.3.2
 Authors@R: c(
-    person("Julie", "Tibshirani", role = c("aut", "cre"), email = "jtibs@cs.stanford.edu"),
+    person("Julie", "Tibshirani", role = "aut", email = "jtibs@cs.stanford.edu"),
     person("Susan", "Athey", role = "aut"),
     person("Rina", "Friedberg", role = "ctb"),
     person("Vitor", "Hadad", role = "ctb"),
     person("David", "Hirshberg", role = "ctb"),
     person("Luke", "Miner", role = "ctb"),
-    person("Erik", "Sverdrup", role = "aut"),
+    person("Erik", "Sverdrup", role = c("aut", "cre"), email = "erik.sverdrup@monash.edu"),
     person("Stefan", "Wager", role = "aut"),
     person("Marvin", "Wright", role = "ctb")
     )
