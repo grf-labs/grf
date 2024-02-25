@@ -205,6 +205,11 @@ paste("AUTOC:", round(rate$estimate, 2), "+/", round(1.96 * rate$std.err, 2))
 }
 \references{
 Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
- "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests."
+ "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests".
  Journal of the Royal Statistical Society: Series B, 85(2), 2023.
+
+Sverdrup, Erik, and Stefan Wager.
+ "Treatment Heterogeneity with Right-Censored Outcomes Using grf".
+ ASA Lifetime Data Science Newsletter, January 2024
+ (\href{https://arxiv.org/abs/2312.02482}{arXiv:2312.02482}).
 }
