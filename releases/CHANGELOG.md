@@ -4,7 +4,7 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.3.2] - 2024-02-??
+## [2.3.2] - 2024-02-25
 
 ### Fixed
 - Emit an overlap warning in `rank_average_treatment_effect` if evaluation forest treatment propensities get too low/high. [#1378](https://github.com/grf-labs/grf/pull/1378)
