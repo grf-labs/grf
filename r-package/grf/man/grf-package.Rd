@@ -114,12 +114,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Julie Tibshirani \email{jtibs@cs.stanford.edu}
+\strong{Maintainer}: Erik Sverdrup \email{erik.sverdrup@monash.edu}
 
 Authors:
 \itemize{
+  \item Julie Tibshirani \email{jtibs@cs.stanford.edu}
   \item Susan Athey
-  \item Erik Sverdrup
   \item Stefan Wager
 }
 
