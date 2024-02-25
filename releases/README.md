@@ -82,6 +82,10 @@ For a big release, can also run `R CMD check --as-cran --run-donttest --use-valg
 
 ## Previous performance test results
 
+**2.3.2**
+
+This is only a patch release with minor aesthetic R fixes.
+
 **2.3.1**
 
 This is only a patch release with two minor R fixes.
