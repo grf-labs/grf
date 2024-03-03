@@ -442,7 +442,7 @@ Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. "
 
 Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based recursive partitioning." Journal of Computational and Graphical Statistics 17, no. 2 (2008): 492-514.
 
-[^1]: `grf` does not actually re-estimate a linear regression for each possible split point, that would be computationally infeasible. Instead, we estimate $\hat \tau$ *once* in the parent node, then use an approximation based on so-called "influence functions" to approximate how $\hat \tau$ would change if we moved a sample $i$ from the left to the right child.
+[^1]: `grf` does not actually re-estimate a linear regression for each possible split point, that would be computationally infeasible. Instead, `grf` estimates $\hat \tau$ *once* in the parent node, then use an approximation based on so-called "influence functions" to approximate how $\hat \tau$ would change if we moved a sample $i$ from the left to the right child. Algorithmically, the way this is operationalized is via a "pseudo-outcome" transformation detailed in the GRF paper.
 
 [^2]: For a broader discussion of how Robinson's transformation can be used to motivate a generic loss function for heterogeneous treatment effects estimation (the *R-learner*), as well as details on the role of $e(x)$ and $m(x)$, see Nie & Wager (2021).
 
