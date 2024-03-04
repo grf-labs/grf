@@ -11,7 +11,7 @@
 **Stickers**
 
 * $\textbf{grf}$ ([matte](https://www.zazzle.com/z/zbkbrw8r) / [transparent](https://www.zazzle.com/z/atwmynaw))
-* $\textbf{leaf}$ ([matte](https://www.zazzle.com/z/apf8z8h6) / [transparent](https://www.zazzle.com/z/exa5ynyz))
+* $\textbf{grf leaf}$ ([matte](https://www.zazzle.com/z/apf8z8h6) / [transparent](https://www.zazzle.com/z/exa5ynyz))
 * $\textbf{\textcolor{#195E54}{grf}}$ ([matte](https://www.zazzle.com/z/ys11m7c2) / [transparent](https://www.zazzle.com/z/53j7d2y1))
 * $\textbf{\textcolor{#195E54}{grf leaf}}$ ([matte](https://www.zazzle.com/z/swn2jhot) / [transparent](https://www.zazzle.com/z/f5eagrgn))
 
@@ -19,5 +19,9 @@
 * [grf mug](https://www.zazzle.com/z/a3cmanu3)
 
 **T-shirt** 👕
-* [Men's](https://www.zazzle.com/z/pisi5kym)
-* [Women's](https://www.zazzle.com/z/axt98ip9)
+* [Unisex](https://www.zazzle.com/z/pisi5kym)
+* [Trim fit](https://www.zazzle.com/z/axt98ip9)
+
+## Design
+
+The GRF logo design is by [Egil Paulsen](https://www.egilpaulsen.com/) and Gjermund Bohne.
