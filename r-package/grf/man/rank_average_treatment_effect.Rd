@@ -87,7 +87,7 @@ and is a measure designed to identify prioritization rules that effectively targ
 \donttest{
 # Simulate a simple medical example with a binary outcome and heterogeneous treatment effects.
 # We're imagining that the treatment W decreases the risk of getting a stroke for some units,
-# while having no effect on the other units (those with X2 < 0).
+# while having no effect on the other units (those with X1 < 0).
 n <- 2000
 p <- 5
 X <- matrix(rnorm(n * p), n, p)
