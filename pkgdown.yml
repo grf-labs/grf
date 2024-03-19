@@ -1,0 +1,20 @@
+pandoc: 2.9.2.1
+pkgdown: 1.5.1
+pkgdown_sha: ~
+articles:
+  ate_transport: ate_transport.html
+  categorical_inputs: categorical_inputs.html
+  diagnostics: diagnostics.html
+  grf: grf.html
+  grf_guide: grf_guide.html
+  llf: llf.html
+  maq: maq.html
+  muhats: muhats.html
+  policy_learning: policy_learning.html
+  rate: rate.html
+  survival: survival.html
+last_built: 2024-03-19T01:48Z
+urls:
+  reference: https://github.com/grf-labs/grf/reference
+  article: https://github.com/grf-labs/grf/articles
+
