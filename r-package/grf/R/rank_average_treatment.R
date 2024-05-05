@@ -532,7 +532,7 @@ estimate_rate <- function(data, indices, q, wtd.mean) {
 boot_grf <- function(data, statistic, R, clusters, half.sample = TRUE, ...) {
   samples.by.cluster <- split(seq_along(clusters), clusters)
   n <- length(samples.by.cluster) # number of clusters
-  if (n <= 1 || (half.sample && floor(n / 2) <= 1)) {
+  if (n <= 1 || (half.sample && floor(n / 2) < 1)) {
     stop("Cannot bootstrap sample with only one effective unit.")
   }
   if (half.sample) {
