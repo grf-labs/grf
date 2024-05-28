@@ -26,7 +26,7 @@ This vignette gives a brief introduction to how the *Rank-Weighted Average Treat
 ## Treatment prioritization rules
 We are in the familiar experimental setting (or unconfounded observational study) and are interested in the problem of determining which individuals to assign a binary treatment $W=\{0, 1\}$ and the associated value of this treatment allocation strategy. Given some subject characteristics $X_i$ we have access to a subject-specific treatment *prioritization rule* $S(X_i)$ which assigns scores to subjects. This prioritization rule should give a high score to units which we believe to have a large benefit of treatment and a low score to units with a low benefit of treatment. By benefit of treatment, we mean the difference in outcomes $Y$ from receiving the treatment given some subject characteristics $X_i$, as given by the conditional average treatment effect (CATE)
 
-$$\tau(X_i) = E[Y_i(1) - Y_i(0) \,|\, X_i = x],$$
+$$\tau(x) = E[Y_i(1) - Y_i(0) \,|\, X_i = x],$$
 where $Y(1)$ and $Y(0)$ are potential outcomes corresponding to the two treatment states.
 
 You might ask: why the general focus on an arbitrary rule $S(X_i)$ when you define benefit as measured by $\tau(X_i)$? Isn't it obvious that the estimated CATEs would serve the best purpose for treatment targeting? The answer is that this general problem formulation is quite convenient, as in some settings we may lack sufficient data to power an accurate CATE estimator and have to rely on other approaches to target treatment. Examples of other approaches are heuristics derived by domain experts or simpler models predicting risk scores (where risk is defined as $P[Y = 1 | X_i =  x]$ and $Y \in \{0, 1\}$ with $Y=1$ being an adverse outcome), which is quite common in clinical applications. Consequently, in finite samples we may sometimes do better by relying on simpler rules which are correlated with the CATEs, than on noisy and complicated CATE estimates (remember: CATE estimation is a hard statistical task, and by focusing on a general rule we may circumvent some of the problems of obtaining accurate non-parametric point estimates by instead asking for estimates that *rank* units according to treatment benefit). Also, even if you have an accurate CATE estimator, there may be many to choose from (neural nets/random forests/various metalearners/etc). The question is: given a set of treatment prioritization rules $S(X_i)$, which one (if any) should we use?
@@ -195,6 +195,8 @@ plot(rate.accord, xlab = "Treated fraction", main = "TOC evaluated on ACCORD\n t
 ```
 
 In this semi-synthetic example both AUTOCs are insignificant at conventional levels, suggesting there is no evidence of significant HTEs in the two trials. Note: this can also be attributed to a) low power, as perhaps the sample size is not large enough to detect HTEs, b) that the HTE estimator does not detect them, or c) the heterogeneity in the treatment effects along observable predictor variables are negligible. For a broader analysis comparing different prioritization strategies on the SPRINT and ACCORD datasets, see Yadlowsky et al. (2021).
+
+For a discussion of alternatives to estimating RATEs that do not rely on a single train/test split, we refer to [this vignette](https://grf-labs.github.io/grf/articles/rate_cv.html).
 
 ## Funding
 Development of the RATE functionality in GRF was supported in part by the award 5R01HL144555 from the National Institutes of Health.
