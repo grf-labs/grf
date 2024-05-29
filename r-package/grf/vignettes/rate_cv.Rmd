@@ -120,7 +120,7 @@ rate_cv_naive = function(X, Y, W, num.folds = 5) {
 
   p.value.naive = 2 * pnorm(-abs(sum(t.statistics) / sqrt(num.folds)))
 
-  c("Pr(>|t|)" = p.value.naive)
+  p.value.naive
 }
 ```
 Next, we simulate synthetic data with no treatment heterogeneity, and form a Monte Carlo estimate of our naive procedure's rejection probability, using a 5% confidence level:
@@ -224,7 +224,7 @@ rate_sequential = function(X, Y, W, num.folds = 5) {
 
   p.value = 2 * pnorm(-abs(sum(t.statistics) / sqrt(num.folds - 1)))
 
-  c("Pr(>|t|)" = p.value)
+  p.value
 }
 ```
 
@@ -382,7 +382,7 @@ rate_cv_median = function(X, Y, W, num.folds = 5) {
 
   p.value.median = median(2 * pnorm(-abs(t.statistics)))
 
-  c("Pr(>|t|)" = p.value.median)
+  p.value.median
 }
 ```
 
