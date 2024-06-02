@@ -247,7 +247,9 @@ paste("Rejection rate:", mean(res) * 100, "%")
 #> [1] "Rejection rate: 5.4 %"
 ```
 
-Now that we have a valid test for treatment heterogeneity using several folds, let's try it out on a simulated example and compare its performance with simple sample splitting. Below we generate data from synthetic observational data (Setup A in Nie & Wager (2021)) where treatment effect heterogeneity is hard to detect. In this case, we want our test to reject $H_0$ of no heterogeneity.
+Now that we have a valid test for treatment heterogeneity that uses several folds, let's try it out on a simulated example and examine how it performs in detecting treatment effect heterogeneity. The baseline we are comparing with is sample splitting, which is proven to be valid in the RATE paper, but which has potentially lower power since we are only using a fraction of our data for validation.
+
+Below we generate data from synthetic observational data (Setup A in Nie & Wager (2021)) where treatment effect heterogeneity is hard to detect. Remember, in this case, we want our test to reject $H_0$ of no heterogeneity.
 
 ```{r, eval=FALSE}
 res = t(replicate(500, {
@@ -280,7 +282,7 @@ colMeans(res) * 100
 #> 56.6                 47.0
 ```
 
-Reassuringly, in this example, cross-fold estimation is able to improve power to detect treatment heterogeneity over a single train/test split.
+Reassuringly, in this example, cross-fold estimation is able to improve power to detect treatment heterogeneity over our baseline.
 
 ## Heuristic: out-of-bag estimation with one-sided tests
 The fundamental challenge with estimating CATEs and evaluating the presence of heterogeneity using the same data is overfitting: we're simply constrained by the fact that we can't simply estimate and evaluate something using the same data set. Random forests come with a neat algorithmic workaround for this issue: out-of-bag (OOB) estimation. With this strategy, we can train a forest using all our data and obtain predictions for the same data. In terms of breaking dependence between training and evaluation, out-of-bag estimation is not as strong as sample splitting, but it can serve as a very useful middle ground.
