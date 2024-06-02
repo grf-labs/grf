@@ -184,7 +184,7 @@ text(3, 5.5, "Train", col = "blue")
 text(4, 5.5, "Test", col = "red")
 ```
 
-This construction is going to make our $t$-values satisfy a martingale property and allow for valid aggregation. The steps are:
+This construction is going to make our $t$-values satisfy a martingale property and allow for valid aggregation (Luedtke & van der Laan (2016), and Wager (2024)). The steps are:
 
 1. Randomly split the data into $k=1,\ldots,K$ evenly sized folds.
 
@@ -281,8 +281,6 @@ colMeans(res) * 100
 ```
 
 Reassuringly, in this example, cross-fold estimation is able to improve power to detect treatment heterogeneity over a single train/test split.
-
-The sequential estimation construction in this section is motivated by a martingale central limit theorem by Luedtke & van der Laan (2016), and as discussed in Wager (2024) can deliver powerful tests for the presence of treatment heterogeneity.
 
 ## Heuristic: out-of-bag estimation with one-sided tests
 The fundamental challenge with estimating CATEs and evaluating the presence of heterogeneity using the same data is overfitting: we're simply constrained by the fact that we can't simply estimate and evaluate something using the same data set. Random forests come with a neat algorithmic workaround for this issue: out-of-bag (OOB) estimation. With this strategy, we can train a forest using all our data and obtain predictions for the same data. In terms of breaking dependence between training and evaluation, out-of-bag estimation is not as strong as sample splitting, but it can serve as a very useful middle ground.
