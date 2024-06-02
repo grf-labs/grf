@@ -145,7 +145,7 @@ paste("Rejection rate:", mean(res) * 100, "%")
 At a 5% level, any test with a rejection rate above 5% is an invalid test.
 
 ## Sequential cross-fold estimation
-We can improve on the above by considering another form of cross-fold estimation. In **sequential** cross-fold estimation we break the independence structure between folds by only using training folds in sequential order. As illustrated in the figure below, this strategy will give us $K - 1$ separate $t$-values.
+It turns out, however, that there exists a simple algorithmic fix that can address the shortcomings of naive cross-fold validation. This approach, which we call **sequential** cross-fold estimation, breaks up the correlation between RATE metrics across folds by only using training folds in sequential order. As illustrated in the figure below, this strategy will give us $K - 1$ separate $t$-values.
 
 ```{r, echo=FALSE}
 plot(NULL, xlim = c(1, 6), ylim = c(1, 6), xaxt = 'n', yaxt = 'n',
