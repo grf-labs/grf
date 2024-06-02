@@ -285,8 +285,11 @@ colMeans(res) * 100
 Reassuringly, in this example, cross-fold estimation is able to improve power to detect treatment heterogeneity over our baseline.
 
 ## Heuristic: out-of-bag estimation with one-sided tests
-The fundamental challenge with estimating CATEs and evaluating the presence of heterogeneity using the same data is overfitting: we're simply constrained by the fact that we can't simply estimate and evaluate something using the same data set. Random forests come with a neat algorithmic workaround for this issue: out-of-bag (OOB) estimation. With this strategy, we can train a forest using all our data and obtain predictions for the same data. In terms of breaking dependence between training and evaluation, out-of-bag estimation is not as strong as sample splitting, but it can serve as a very useful middle ground.
-Performing traditional two-sided tests with OOB-estimated RATEs is problematic as estimates are going to be biased downwards. However, if we are willing to commit to a one-sided test, then we can use OOB estimates and still be relatively confident we are maintaining nominal error guarantees (we caution that this is a *heuristic* not backed by a formal central-limit result). In the example below we compare a two-sided test for RATE $\neq 0$ with a one-sided test for RATE $>0$ at a 5% level.
+The fundamental challenge with estimating CATEs and evaluating the presence of heterogeneity using the same data is overfitting: we're simply constrained by the fact that we can't simply estimate and evaluate something using the same data set. We saw that naive cross-fold estimation did not overcome this challenge due to between-fold correlations (that biases our estimate downwards). A *heuristic* to salvage this naive aggregation is to use **one-sided** $p$-values. If we are willing to commit to a one-sided test, for example, RATE $>0$, this can serve as a useful strategy.
+
+Random forests, however, have a more computationally efficient alternative to simple cross-fold estimation. The forest-native version of leave-one-out estimation is *out-of-bag* (OOB) estimation. For a given unit $i$, these are estimates that are formed using all the trees in the random forest grown on subsamples that does not include the $i$-th unit. OOB-estimated RATEs paired with one-sided tests can serve as a useful heuristic when we want to use all our data to fit and evaluate heterogeneity.
+
+In the example below we compare a two-sided test for RATE $\neq 0$ with a one-sided test for RATE $>0$ at a 5% level.
 
 ```{r, eval=FALSE}
 res = t(replicate(500, {
