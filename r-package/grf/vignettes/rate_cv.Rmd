@@ -33,7 +33,7 @@ $$
 t = \frac{\widehat{RATE}}{\sqrt{Var(\widehat{RATE})}}.
 $$
 
-Using a confidence level $\alpha$ of 5%, we reject $H_0$ if the $p$-value $2\Phi(|t|)$ is less than 5%.
+Using a confidence level $\alpha$ of 5%, we reject $H_0$ if the $p$-value $2\Phi(-|t|)$ is less than 5%.
 
 A drawback of this approach is that we are only utilizing a subset of our data to train a CATE estimator. In regimes with small sample sizes and hard-to-detect heterogeneity, this can be inconvenient. One appealing alternative could be to use cross-fold estimation, where we divide the data into $K$ folds and then alternate which subset we use for training a CATE estimator and which subset we use to estimate the RATE.
 The figure below illustrates the case when using $K=5$ folds: fit a CATE estimator on the blue sample, and evaluate the RATE on the red sample.
