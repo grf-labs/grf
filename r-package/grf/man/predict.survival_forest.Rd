@@ -34,7 +34,7 @@ Default is "curve".}
 \item{prediction.type}{The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 The default is the prediction.type used to train the forest.}
 
-\item{num.threads}{Number of threads used in training. If set to NULL, the software
+\item{num.threads}{Number of threads used in prediction. If set to NULL, the software
 automatically selects an appropriate amount.}
 
 \item{...}{Additional arguments (currently ignored).}

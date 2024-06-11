@@ -231,7 +231,7 @@ ll_regression_forest <- function(X, Y,
 #' @param ll.lambda Ridge penalty for local linear predictions. Defaults to NULL and will be cross-validated.
 #' @param ll.weight.penalty Option to standardize ridge penalty by covariance (TRUE),
 #'                            or penalize all covariates equally (FALSE). Defaults to FALSE.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
+#' @param num.threads Number of threads used in prediction. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param estimate.variance Whether variance estimates for \eqn{\hat\tau(x)} are desired
 #'                          (for confidence intervals).
