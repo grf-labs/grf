@@ -1,0 +1,66 @@
+name: Deploy gh-pages
+
+on:
+  push:
+    branches: ["master"]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup build
+        working-directory: r-package/grf
+        run: |
+          # Install pandoc
+          sudo apt-get install -qq pandoc
+
+          # Install R
+          curl -OLs https://eddelbuettel.github.io/r-ci/run.sh && chmod 0755 run.sh
+          ./run.sh bootstrap
+          ./run.sh install_all
+
+          # Install grf
+          R CMD INSTALL .
+      - name: Setup docs
+        working-directory: r-package/grf
+        run: |
+          # Install pkgdown v1.5
+          sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'rstudioapi', 'whisker', 'xml2', 'yaml'))"
+          sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
+
+          # Install packages used in vignettes
+          sudo Rscript -e "install.packages(c('ggplot2', 'glmnet', 'maq', 'policytree'))"
+      - name: Build docs
+        working-directory: r-package/grf
+        run: |
+          # Build site
+          cp ../../README.md .
+          cp ../../REFERENCE.md .
+          cp ../../DEVELOPING.md .
+          cp ../../releases/CHANGELOG.md .
+          Rscript -e "pkgdown::build_site()"
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'r-package/grf/docs'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
