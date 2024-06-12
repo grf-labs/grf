@@ -106,37 +106,3 @@ jobs:
     workingDirectory: r-package/grf
     displayName: Valgrind check
     condition: eq(variables['Agent.OS'], 'Linux')
-  # Final deploy step:
-  # Build the online docs and deploy to gh-pages - only done on master branch with Linux image.
-  # `GITHUB_PAT` is a GitHub access token stored on Azure Pipelines.
-  - script: |
-      set -e
-      sudo apt-get install -qq pandoc
-      # Lock in a previous version of `pkgdown` and its dependencies.
-      sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'rstudioapi', 'whisker', 'xml2', 'yaml'))"
-      sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
-      # Install dependencies needed for vignettes.
-      sudo Rscript -e "install.packages(c('DiagrammeR', 'ggplot2', 'glmnet', 'maq', 'policytree', 'rdd'))"
-      cp ../../README.md .
-      cp ../../REFERENCE.md .
-      cp ../../DEVELOPING.md .
-      cp ../../releases/CHANGELOG.md .
-      # Build and deploy page. This requires that the branch `gh-pages` exists.
-      # git worktree is used to only commit the doc folder (docs/) as the root.
-      # update-ref is used to not keep a commit history of the generated docs.
-      git config --local user.email "azuredevops@microsoft.com"
-      git config --local user.name "Azure Pipelines"
-      git worktree add -B gh-pages docs/ origin/gh-pages
-      rm -rf docs/*
-      Rscript -e "pkgdown::build_site()"
-      cd docs
-      git add --all
-      git update-ref -d refs/heads/gh-pages
-      git commit --allow-empty -m "Update gh-pages ***NO_CI***"
-      git push --force https://$(GITHUB_PAT)@github.com/grf-labs/grf.git HEAD:gh-pages
-    workingDirectory: r-package/grf
-    displayName: 'Publish GitHub Pages'
-    condition: |
-      and(eq(variables['Agent.OS'], 'Linux'),
-      and(not(eq(variables['Build.Reason'], 'PullRequest')),
-      eq(variables['Build.SourceBranch'], 'refs/heads/master')))
