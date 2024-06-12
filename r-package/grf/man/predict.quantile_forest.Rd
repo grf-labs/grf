@@ -18,7 +18,7 @@ matrix, and that the columns must appear in the same order.}
 \item{quantiles}{Vector of quantiles at which estimates are required. If NULL, the quantiles
 used to train the forest is used. Default is NULL.}
 
-\item{num.threads}{Number of threads used in training. If set to NULL, the software
+\item{num.threads}{Number of threads used in prediction. If set to NULL, the software
 automatically selects an appropriate amount.}
 
 \item{...}{Additional arguments (currently ignored).}

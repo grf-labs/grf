@@ -35,7 +35,7 @@ prediction considerably. Defaults to NULL.}
 \item{ll.weight.penalty}{Option to standardize ridge penalty by covariance (TRUE),
 or penalize all covariates equally (FALSE). Penalizes equally by default.}
 
-\item{num.threads}{Number of threads used in training. If set to NULL, the software
+\item{num.threads}{Number of threads used in prediction. If set to NULL, the software
 automatically selects an appropriate amount.}
 
 \item{estimate.variance}{Whether variance estimates for \eqn{\hat\tau(x)} are desired

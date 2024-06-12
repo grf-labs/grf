@@ -130,7 +130,7 @@ multi_regression_forest <- function(X, Y,
 #'                Xi using only trees that did not use the i-th training example). Note
 #'                that this matrix should have the number of columns as the training
 #'                matrix, and that the columns must appear in the same order.
-#' @param num.threads Number of threads used in training. If set to NULL, the software
+#' @param num.threads Number of threads used in prediction. If set to NULL, the software
 #'                    automatically selects an appropriate amount.
 #' @param drop If TRUE, coerce the prediction result to the lowest possible dimension. Default is FALSE.
 #' @param ... Additional arguments (currently ignored).
