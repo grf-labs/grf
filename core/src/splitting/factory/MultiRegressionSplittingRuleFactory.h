@@ -1,4 +1,6 @@
 /*-------------------------------------------------------------------------------
+  Copyright (c) 2024 GRF Contributors.
+
   This file is part of generalized random forest (grf).
 
   grf is free software: you can redistribute it and/or modify
@@ -37,7 +39,7 @@ public:
                                         const TreeOptions& options) const;
 private:
   size_t num_outcomes;
-  
+
   DISALLOW_COPY_AND_ASSIGN(MultiRegressionSplittingRuleFactory);
 };
 

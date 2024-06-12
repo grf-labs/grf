@@ -1,4 +1,6 @@
 /*-------------------------------------------------------------------------------
+  Copyright (c) 2024 GRF Contributors.
+
   This file is part of generalized random forest (grf).
 
   grf is free software: you can redistribute it and/or modify
@@ -45,7 +47,7 @@ public:
    * Note: The reason we don't use OptimizedPredictionStrategy for survival
    * curves is that it may require a large memory footprint in the form of
    * storing sufficient statistics with a size equal to the length of the
-   * survival curve. DefaultPredictionStrategy requires less memory. A 
+   * survival curve. DefaultPredictionStrategy requires less memory. A
    * drawback is, particularly in the case of shallow trees (as will be
    * the case with very few events), more CPU time spent in hash table
    * lookups, as a target sample x will match many training samples.
