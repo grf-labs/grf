@@ -1,8 +1,5 @@
 /*-------------------------------------------------------------------------------
-  Copyright (c) 2024 GRF Contributors.
-
-  This file is part of generalized random forest (grf).
-
+  This file is part of generalized-random-forest.
 
   grf is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
