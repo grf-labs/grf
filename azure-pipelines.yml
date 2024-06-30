@@ -69,8 +69,6 @@ jobs:
     value: 'https://cloud.r-project.org'
   - name: _R_CHECK_FORCE_SUGGESTS_
     value: false
-  - name: _R_CHECK_DONTTEST_EXAMPLES_
-    value: true
   - name: USE_BSPM
     value: true
   - name: WARNINGS_ARE_ERRORS
