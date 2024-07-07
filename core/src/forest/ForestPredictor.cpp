@@ -59,17 +59,28 @@ std::vector<Prediction> ForestPredictor::predict(const Forest& forest,
                                                  const Data& data,
                                                  bool estimate_variance,
                                                  bool oob_prediction) const {
-  if (estimate_variance && forest.get_ci_group_size() <= 1) {
-    throw std::runtime_error("To estimate variance during prediction, the forest must"
-       " be trained with ci_group_size greater than 1.");
-  }
+    // debug information
+    std::cout << "Entering ForestPredictor::predict" << std::endl;
+    std::cout << "Number of trees: " << forest.get_trees().size() << std::endl;
+    std::cout << "Train data dimensions: " << train_data.get_num_rows() << "x" << train_data.get_num_cols() << std::endl;
+    std::cout << "Test data dimensions: " << data.get_num_rows() << "x" << data.get_num_cols() << std::endl;
 
-  std::vector<std::vector<size_t>> leaf_nodes_by_tree = tree_traverser.get_leaf_nodes(forest, data, oob_prediction);
-  std::vector<std::vector<bool>> trees_by_sample = tree_traverser.get_valid_trees_by_sample(forest, data, oob_prediction);
+    if (estimate_variance && forest.get_ci_group_size() <= 1) {
+        throw std::runtime_error("To estimate variance during prediction, the forest must"
+           " be trained with ci_group_size greater than 1.");
+    }
 
-  return prediction_collector->collect_predictions(forest, train_data, data,
-      leaf_nodes_by_tree, trees_by_sample,
-      estimate_variance, oob_prediction);
+    std::vector<std::vector<size_t>> leaf_nodes_by_tree = tree_traverser.get_leaf_nodes(forest, data, oob_prediction);
+    // debug
+    std::cout << "Leaf nodes by tree size: " << leaf_nodes_by_tree.size() << std::endl;
+
+    std::vector<std::vector<bool>> trees_by_sample = tree_traverser.get_valid_trees_by_sample(forest, data, oob_prediction);
+    // debug
+    std::cout << "Trees by sample size: " << trees_by_sample.size() << std::endl;
+
+    return prediction_collector->collect_predictions(forest, train_data, data,
+        leaf_nodes_by_tree, trees_by_sample,
+        estimate_variance, oob_prediction);
 }
 
 } // namespace grf

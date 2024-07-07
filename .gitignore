@@ -3,3 +3,7 @@
 
 # vscode files
 .vscode/
+python/build/*
+python/grf/__pycache__/*
+python/grf.egg-info/*
+python/grf/**/*.so
