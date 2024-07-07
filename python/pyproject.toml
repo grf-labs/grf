@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=40.8.0", "wheel", "pybind11"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grf"
+version = "0.1"
+description = "Python bindings for GRF"
+authors = [
+    {name = "Apoorva Lal", email = "lal.apoorva@gmail.com"},
+]
+
+[tool.setuptools]
+packages = ["grf"]
