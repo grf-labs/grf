@@ -1,7 +1,7 @@
 # generalized random forests <a href='https://grf-labs.github.io/grf/'><img src='https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_wbg_cropped.png' align="right" height="120" /></a>
 
 [![CRANstatus](https://www.r-pkg.org/badges/version/grf)](https://cran.r-project.org/package=grf)
-![CRAN Downloads overall](http://cranlogs.r-pkg.org/badges/grand-total/grf)
+[![](https://cranlogs.r-pkg.org/badges/grand-total/grf)](https://cran.r-project.org/package=grf)
 [![Build Status](https://dev.azure.com/grf-labs/grf/_apis/build/status/grf-labs.grf?branchName=master)](https://dev.azure.com/grf-labs/grf/_build/latest?definitionId=2&branchName=master)
 
 A package for forest-based statistical estimation and inference. GRF provides non-parametric methods for heterogeneous treatment effects estimation (optionally using right-censored outcomes, multiple treatment arms or outcomes, or instrumental variables), as well as least-squares regression, quantile regression, and survival regression, all with support for missing covariates.
