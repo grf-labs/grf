@@ -231,7 +231,6 @@ df.plot.hist = rbind(df.lo, df.hi)
 ggplot(df.plot.hist, aes(x = covariate.value, fill = cate.estimates)) +
   geom_histogram(alpha = 0.7, position = "identity") +
   facet_wrap(~ covariate.name, scales = "free", ncol = 2)
-  labs(fill = "CATE estimates")
 
 
 # *** Best linear projections (BLP) ****
