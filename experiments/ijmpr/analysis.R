@@ -79,7 +79,6 @@ df.plot.ate = data.frame(
 ggplot(df.plot.ate, aes(x = group, y = estimate)) +
   geom_point() +
   geom_errorbar(aes(ymin = estimate - 1.96 * std.err, ymax = estimate + 1.96 * std.err, width = 0.2)) +
-  geom_hline(yintercept = 0, lty = 3) +
   xlab("Estimated CATE quantile") +
   ylab("Average treatment effect")
 
