@@ -29,7 +29,7 @@ cf.full = causal_forest(X, Y, W)
 average_treatment_effect(cf.full)
 
 # A histogram of the estimated propensity scores.
-# Overlap requires that these  don't get too close to either 0 or 1.
+# Overlap requires that these don't get too close to either 0 or 1.
 hist(cf.full$W.hat, xlab = "Estimated propensity scores", main = "")
 
 
@@ -53,7 +53,7 @@ hist(tau.hat.test, xlab = "Estimated CATEs", main = "")
 # What we often care about is whether they capture meaningful heterogeneity.
 
 # Here we construct groups according to which quartile of the predicted CATEs the unit belongs.
-# Then, we calculate ATEs in each of these groups, and see if they differ.
+# Then, we calculate ATEs in each of these groups and see if they differ.
 num.groups = 4 # 4 for quartiles, 5 for quintiles, etc.
 quartile = cut(tau.hat.test,
                quantile(tau.hat.test, seq(0, 1, by = 1 / num.groups)),
