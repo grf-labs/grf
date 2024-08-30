@@ -245,6 +245,7 @@ instrumental_forest <- function(X, Y, W, Z,
   forest <- do.call.rcpp(instrumental_train, c(data, args))
   class(forest) <- c("instrumental_forest", "grf")
   forest[["seed"]] <- seed
+  forest[["num.threads"]] <- num.threads
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y

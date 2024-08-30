@@ -137,6 +137,7 @@ probability_forest <- function(X, Y,
   forest <- do.call.rcpp(probability_train, c(data, args))
   class(forest) <- c("probability_forest", "grf")
   forest[["seed"]] <- seed
+  forest[["num.threads"]] <- num.threads
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["Y.relabeled"]] <- Y.relabeled
