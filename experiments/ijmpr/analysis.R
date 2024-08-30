@@ -6,9 +6,7 @@ library(maq) # For Qini curves.
 library(ggplot2)
 
 # Read in data and specify outcome Y, treatment W, and (numeric) matrix of covariates X.
-# data = read.csv("https://raw.githubusercontent.com/grf-labs/grf/master/experiments/IJMPR/synthetic_data.csv")
-data = read.csv("synthetic_data.csv") # TODO change with above line later.
-
+data = read.csv("https://raw.githubusercontent.com/grf-labs/grf/master/experiments/ijmpr/synthetic_data.csv")
 Y = data$outcome
 W = data$treatment
 X = data[, -c(1, 2)]
