@@ -278,6 +278,7 @@ causal_forest <- function(X, Y, W,
   forest <- do.call.rcpp(causal_train, c(data, args))
   class(forest) <- c("causal_forest", "grf")
   forest[["seed"]] <- seed
+  forest[["num.threads"]] <- num.threads
   forest[["ci.group.size"]] <- ci.group.size
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y

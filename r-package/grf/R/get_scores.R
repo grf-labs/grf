@@ -79,7 +79,8 @@ get_scores.causal_forest <- function(forest,
                                            sample.weights = forest$sample.weights,
                                            num.trees = num.trees.for.weights,
                                            ci.group.size = 1,
-                                           seed = forest$seed)
+                                           seed = forest$seed,
+                                           num.threads = forest$num.threads)
       V.hat <- predict(variance_forest)$predictions
       debiasing.weights.all <- (forest$W.orig - forest$W.hat) / V.hat
       debiasing.weights <- debiasing.weights.all[subset]
@@ -178,7 +179,8 @@ get_scores.instrumental_forest <- function(forest,
                                          sample.weights = forest$sample.weights,
                                          clusters = clusters,
                                          num.trees = num.trees.for.weights,
-                                         seed = forest$seed)
+                                         seed = forest$seed,
+                                         num.threads = forest$num.threads)
       compliance.score <- predict(compliance.forest)$predictions
       compliance.score <- compliance.score[subset]
     } else if (length(compliance.score) == length(forest$Y.orig)) {
@@ -342,7 +344,8 @@ get_scores.causal_survival_forest <- function(forest,
                                          sample.weights = forest$sample.weights,
                                          num.trees = num.trees.for.weights,
                                          ci.group.size = 1,
-                                         seed = forest$seed)
+                                         seed = forest$seed,
+                                         num.threads = forest$num.threads)
     V.hat <- predict(variance_forest)$predictions[subset]
   }
 
