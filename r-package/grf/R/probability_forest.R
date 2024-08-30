@@ -46,7 +46,8 @@
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
-#' @param seed The seed of the C++ random number generator.
+#' @param seed The seed of the C++ random number generator. \emph{Note}: For consistent results across
+#'  different platforms, ensure the `num.threads` argument is set to the same value.
 #'
 #' @return A trained probability forest object.
 #'
@@ -137,6 +138,7 @@ probability_forest <- function(X, Y,
   forest <- do.call.rcpp(probability_train, c(data, args))
   class(forest) <- c("probability_forest", "grf")
   forest[["seed"]] <- seed
+  forest[["num.threads"]] <- num.threads
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y
   forest[["Y.relabeled"]] <- Y.relabeled

@@ -89,7 +89,8 @@
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
-#' @param seed The seed of the C++ random number generator.
+#' @param seed The seed of the C++ random number generator. \emph{Note}: For consistent results across
+#'  different platforms, ensure the `num.threads` argument is set to the same value.
 #'
 #' @return A trained causal_survival_forest forest object.
 #'
@@ -378,6 +379,7 @@ causal_survival_forest <- function(X, Y, W, D,
   forest <- do.call.rcpp(causal_survival_train, c(data, args))
   class(forest) <- c("causal_survival_forest", "grf")
   forest[["seed"]] <- seed
+  forest[["num.threads"]] <- num.threads
   forest[["_psi"]] <- psi
   forest[["X.orig"]] <- X
   forest[["Y.orig"]] <- Y

@@ -86,7 +86,8 @@ be at least 2. Default is 2.}
 \item{num.threads}{Number of threads used in training. By default, the number of threads is set
 to the maximum hardware concurrency.}
 
-\item{seed}{The seed of the C++ random number generator.}
+\item{seed}{The seed of the C++ random number generator. \emph{Note}: For consistent results across
+different platforms, ensure the `num.threads` argument is set to the same value.}
 }
 \value{
 A trained probability forest object.
