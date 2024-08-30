@@ -74,7 +74,8 @@
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
-#' @param seed The seed of the C++ random number generator.
+#' @param seed The seed of the C++ random number generator. \emph{Note}: For consistent results across
+#'  different platforms, ensure the `num.threads` argument is set to the same value.
 #'
 #' @return A trained causal forest object. If tune.parameters is enabled,
 #'  then tuning information will be included through the `tuning.output` attribute.
