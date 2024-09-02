@@ -1,4 +1,4 @@
-_This folder has replication files for the paper "Estimating Treatment Effect Heterogeneity using Causal Forests: An Application to Stress Resilience" by Sverdrup, Petukhova, and Wager._
+_This folder has replication files for the paper "Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests" by Sverdrup, Petukhova, and Wager._
 
 The file `analysis.R` contains example code to run the type of analysis described in the paper using synthetic data. This script relies on the packages `"grf", "maq", "ggplot2"`.
 

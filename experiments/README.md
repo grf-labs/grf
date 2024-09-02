@@ -49,7 +49,7 @@ Imke Mayer, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager and Juli
 <a href="https://arxiv.org/pdf/1910.10624.pdf">arxiv</a>]
 
 Erik Sverdrup, Maria Petukhova, and Stefan Wager
-<b>Estimating Treatment Effect Heterogeneity using Causal Forests: An Application to Stress Resilience.</b> 2024.
+<b>Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests.</b> 2024.
 [<a href="TODO">arxiv</a>]
 
 Stefan Wager and Susan Athey.
