@@ -106,57 +106,6 @@ print(rate.cate)
 # https://grf-labs.github.io/grf/articles/rate_cv.html]
 
 
-# *** Evaluate CATE models via the AUTOC ***
-
-# Causal forest is a two-step algorithm that first accounts for confounding and baseline effects
-# via the propensity score e(x) and a conditional mean model m(x), then in the second step estimates
-# treatment effect heterogeneity. In some settings we may want to try using different covariates (or
-# possibly models) for e(x), m(x), and CATE predictions.
-
-# Estimate m(x) = E[Y | X = x] using a regression forest.
-Y.forest = regression_forest(X[train, ], Y[train], num.trees = 500)
-Y.hat = predict(Y.forest)$predictions
-
-# Estimate e(x) = E[W | X = x] using a regression forest.
-W.forest = regression_forest(X[train, ], W[train], num.trees = 500)
-W.hat = predict(W.forest)$predictions
-
-# Select the covariates X with, for example, m(x) variable importance in the top 25%.
-varimp.Y = variable_importance(Y.forest)
-selected.vars = which(varimp.Y >= quantile(varimp.Y, 0.75))
-print(colnames(X)[selected.vars])
-
-if (length(selected.vars) <= 1) stop("You should really try and use more than just one predictor variable with forests.")
-
-# Try and fit a CATE model using this smaller set of potential heterogeneity predictors.
-X.subset = X[, selected.vars]
-cate.forest.restricted = causal_forest(X.subset[train, ], Y[train], W[train],
-                                       Y.hat = Y.hat, W.hat = W.hat)
-# Predict CATEs on test set.
-tau.hat.test.restricted = predict(cate.forest.restricted, X.test[, selected.vars])$predictions
-
-# Compare CATE models with AUTOC.
-rate.cate.compare = rank_average_treatment_effect(
-  eval.forest,
-  cbind(tau.hat.test, tau.hat.test.restricted)
-)
-# Get an estimate of the AUTOCs, as well as difference in AUTOC.
-print(rate.cate.compare)
-
-# Get a p-value for the AUTOCs and difference in AUTOCs.
-data.frame(
-  p.value = 2 * pnorm(-abs(rate.cate.compare$estimate / rate.cate.compare$std.err)),
-  target = rate.cate.compare$target
-)
-
-# Or equivalently, we could construct a 2-sided confidence interval.
-rate.cate.compare$estimate + data.frame(lower = -1.96 * rate.cate.compare$std.err,
-                                        upper = 1.96 * rate.cate.compare$std.err,
-                                        row.names = rate.cate.compare$target)
-
-# [In this example the restricted CATE model does not do much better.]
-
-
 # *** Policy evaluation with Qini curves ****
 
 # We can use the `maq` package for this exercise. This package is more general
@@ -265,3 +214,54 @@ print(rate.risk)
 rate.risk$estimate + data.frame(lower = -1.96 * rate.risk$std.err,
                                 upper = 1.96 * rate.risk$std.err,
                                 row.names = rate.risk$target)
+
+
+# *** Appendix: Evaluate CATE models via the AUTOC ***
+
+# Causal forest is a two-step algorithm that first accounts for confounding and baseline effects
+# via the propensity score e(x) and a conditional mean model m(x), then in the second step estimates
+# treatment effect heterogeneity. In some settings we may want to try using different covariates (or
+# possibly models) for e(x), m(x), and CATE predictions.
+
+# Estimate m(x) = E[Y | X = x] using a regression forest.
+Y.forest = regression_forest(X[train, ], Y[train], num.trees = 500)
+Y.hat = predict(Y.forest)$predictions
+
+# Estimate e(x) = E[W | X = x] using a regression forest.
+W.forest = regression_forest(X[train, ], W[train], num.trees = 500)
+W.hat = predict(W.forest)$predictions
+
+# Select the covariates X with, for example, m(x) variable importance in the top 25%.
+varimp.Y = variable_importance(Y.forest)
+selected.vars = which(varimp.Y >= quantile(varimp.Y, 0.75))
+print(colnames(X)[selected.vars])
+
+if (length(selected.vars) <= 1) stop("You should really try and use more than just one predictor variable with forests.")
+
+# Try and fit a CATE model using this smaller set of potential heterogeneity predictors.
+X.subset = X[, selected.vars]
+cate.forest.restricted = causal_forest(X.subset[train, ], Y[train], W[train],
+                                       Y.hat = Y.hat, W.hat = W.hat)
+# Predict CATEs on test set.
+tau.hat.test.restricted = predict(cate.forest.restricted, X.test[, selected.vars])$predictions
+
+# Compare CATE models with AUTOC.
+rate.cate.compare = rank_average_treatment_effect(
+  eval.forest,
+  cbind(tau.hat.test, tau.hat.test.restricted)
+)
+# Get an estimate of the AUTOCs, as well as difference in AUTOC.
+print(rate.cate.compare)
+
+# Get a p-value for the AUTOCs and difference in AUTOCs.
+data.frame(
+  p.value = 2 * pnorm(-abs(rate.cate.compare$estimate / rate.cate.compare$std.err)),
+  target = rate.cate.compare$target
+)
+
+# Or equivalently, we could construct a 2-sided confidence interval.
+rate.cate.compare$estimate + data.frame(lower = -1.96 * rate.cate.compare$std.err,
+                                        upper = 1.96 * rate.cate.compare$std.err,
+                                        row.names = rate.cate.compare$target)
+
+# [In this synthetic example the restricted CATE model does not do much better.]
