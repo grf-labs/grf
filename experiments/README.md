@@ -12,6 +12,8 @@ This directory contains replication code for
 
 * Mayer, Sverdrup, Gauss, Moyer, Wager, and Josse (2020): This is available at https://github.com/imkemayer/causal-inference-missing
 
+* Sverdrup, Petukhova, and Wager (2024): `ijmpr`
+
 * Wager and Athey (2018): This paper is not based on GRF, but on the deprecated `causalForest`. For replication code see https://github.com/swager/causalForest
 
 * Yadlowsky, Fleming, Shah, Brunskill, and Wager (2021): The method is available in the GRF function `rank_average_treatment_effect`. For replication code see https://github.com/som-shahlab/RATE-experiments
@@ -45,6 +47,10 @@ Imke Mayer, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager and Juli
 <i>Annals of Applied Statistics</i>, 14(3) 2020.
 [<a href="https://projecteuclid.org/euclid.aoas/1600454872">paper</a>,
 <a href="https://arxiv.org/pdf/1910.10624.pdf">arxiv</a>]
+
+Erik Sverdrup, Maria Petukhova, and Stefan Wager.
+<b>Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests.</b> 2024.
+[<a href="https://arxiv.org/abs/2409.01578">arxiv</a>]
 
 Stefan Wager and Susan Athey.
 <b>Estimation and Inference of Heterogeneous Treatment Effects using Random Forests.</b>
