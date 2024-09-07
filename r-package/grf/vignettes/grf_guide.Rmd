@@ -405,7 +405,7 @@ qini.age
 
 * [Machine Learning & Causal Inference: A Short Course](https://www.youtube.com/playlist?list=PLxq_lXOUlvQAoWZEqhRqHNezS30lI49G-) (video lectures)
 
-* [Lecture notes - causal inference PhD course at Stanford](http://web.stanford.edu/~swager/stats361.pdf)
+* [Causal Inference: A Statistical Learning Approach](https://web.stanford.edu/~swager/causal_inf_book.pdf) (book)
 
 <center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
