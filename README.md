@@ -171,6 +171,10 @@ Stefan Wager and Susan Athey.
 [<a href="https://www.tandfonline.com/eprint/v7p66PsDhHCYiPafTJwC/full">paper</a>,
 <a href="https://arxiv.org/abs/1510.04342">arxiv</a>]
 
+Stefan Wager.
+<b>Causal Inference: A Statistical Learning Approach.</b> 2024.
+[<a href="https://web.stanford.edu/~swager/causal_inf_book.pdf">pdf</a>]
+
 Steve Yadlowsky, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager.
 <b>Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects.</b> 2021.
 [<a href="https://arxiv.org/abs/2111.07966">arxiv</a>]
