@@ -165,6 +165,10 @@ Erik Sverdrup, Maria Petukhova, and Stefan Wager.
 <b>Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests.</b> 2024.
 [<a href="https://arxiv.org/abs/2409.01578">arxiv</a>]
 
+Stefan Wager.
+<b>Causal Inference: A Statistical Learning Approach.</b> 2024.
+[<a href="https://web.stanford.edu/~swager/causal_inf_book.pdf">pdf</a>]
+
 Stefan Wager and Susan Athey.
 <b>Estimation and Inference of Heterogeneous Treatment Effects using Random Forests.</b>
 <i>Journal of the American Statistical Association</i>, 113(523), 2018.

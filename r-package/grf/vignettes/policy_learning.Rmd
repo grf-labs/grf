@@ -81,6 +81,6 @@ values <- aggregate(dr.scores, by = list(leaf.node = node.id),
 print(values, digits = 2)
 ```
 
-For more statistical details please see the chapter on *Policy Learning* in [these lecture notes](https://web.stanford.edu/~swager/stats361.pdf).
+For more statistical details, please see the chapter on *Policy Learning* in [Causal Inference: A Statistical Learning Approach](https://web.stanford.edu/~swager/causal_inf_book.pdf).
 
 [^algo]: A description of the tree search algorithm is given in [this paper](https://joss.theoj.org/papers/10.21105/joss.02232.pdf).
