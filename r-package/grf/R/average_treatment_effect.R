@@ -29,8 +29,8 @@
 #' assumption, tau(x) is simply the CATE at x. When W is binary
 #' and there are no "defiers", Imbens and Angrist (1994) show that tau(x) can
 #' be interpreted as an average treatment effect on compliers. This function
-#' provides and estimate of tau = E[tau(X)]. See Chernozhukov
-#' et al. (2016) for a discussion, and Section 5.2 of Athey and Wager (2021)
+#' provides an estimate of tau = E[tau(X)]. See Chernozhukov
+#' et al. (2022) for a discussion, and Section 5.2 of Athey and Wager (2021)
 #' for an example using forests.
 #'
 #' If clusters are specified, then each unit gets equal weight by default. For
