@@ -42,8 +42,9 @@ ForestOptions ForestTestUtilities::default_options(bool honesty,
   uint samples_per_cluster = 0;
   uint num_threads = 4;
   uint seed = 42;
+  bool legacy_seed = true;
 
   return ForestOptions(num_trees,
           ci_group_size, sample_fraction, mtry, min_node_size, honesty, honesty_fraction,
-      prune, alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
+      prune, alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster, legacy_seed);
 }

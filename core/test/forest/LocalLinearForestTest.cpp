@@ -49,7 +49,7 @@ TEST_CASE("LLF gives reasonable prediction on friedman data", "[local linear], [
   ForestOptions options (
       num_trees, ci_group_size, sample_fraction,
       mtry, min_node_size, honesty, honesty_fraction, prune,
-      alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
+      alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster, true);
   ForestTrainer trainer = regression_trainer();
   Forest forest = trainer.train(data, options);
 
@@ -136,7 +136,7 @@ TEST_CASE("local linear forests give reasonable variance estimates", "[regressio
   ForestOptions options (
       num_trees, ci_group_size, sample_fraction,
       mtry, min_node_size, honesty, honesty_fraction, prune,
-      alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
+      alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster, true);
   ForestTrainer trainer = regression_trainer();
   Forest forest = trainer.train(data, options);
 
