@@ -121,3 +121,7 @@ reference:
       - print.grf_tree
       - print.rank_average_treatment_effect
       - print.tuning_output
+
+  - title: grf package options
+    contents:
+      - grf_options()
