@@ -231,7 +231,7 @@ lm_forest <- function(X, Y, W,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = getOption("grf.legacy.seed", default = FALSE))
+               legacy.seed = get_legacy_seed())
 
   forest <- do.call.rcpp(multi_causal_train, c(data, args))
   class(forest) <- c("lm_forest", "grf")

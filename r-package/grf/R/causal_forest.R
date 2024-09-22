@@ -250,7 +250,7 @@ causal_forest <- function(X, Y, W,
                num.threads = num.threads,
                seed = seed,
                reduced.form.weight = 0,
-               legacy.seed = getOption("grf.legacy.seed", default = FALSE))
+               legacy.seed = get_legacy_seed())
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {

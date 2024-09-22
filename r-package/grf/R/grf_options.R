@@ -26,6 +26,6 @@
 #' @export
 grf_options <- function() {
     print(c(
-        grf.legacy.seed = getOption("grf.legacy.seed", default = FALSE)
+        grf.legacy.seed = get_legacy_seed()
     ))
 }

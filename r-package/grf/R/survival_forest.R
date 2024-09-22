@@ -170,7 +170,7 @@ survival_forest <- function(X, Y, D,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = getOption("grf.legacy.seed", default = FALSE))
+               legacy.seed = get_legacy_seed())
 
   forest <- do.call.rcpp(survival_train, c(data, args))
   class(forest) <- c("survival_forest", "grf")
