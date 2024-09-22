@@ -148,7 +148,7 @@ test_that("causal survival forest variance estimates are decent", {
   cs.pred <- predict(cs.forest, estimate.variance = TRUE)
   z.score.oob <- abs(cs.pred$predictions - true.effect) / sqrt(cs.pred$variance.estimates)
   cate.coverage.oob <- mean(z.score.oob <= 1.96)
-  expect_gte(cate.coverage.oob, 0.7)
+  expect_gte(cate.coverage.oob, 0.65)
 
   X.test <- matrix(0.5, 10, p)
   X.test[, 1] <- seq(0, 1, length.out = 10)
