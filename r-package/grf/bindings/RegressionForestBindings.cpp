@@ -57,7 +57,7 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
   }
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster, legacy_seed);
+      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
   Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;
@@ -136,7 +136,7 @@ Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix,
   data.set_outcome_index(outcome_index);
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-    honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, clusters, samples_per_cluster, legacy_seed);
+    honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
   Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;

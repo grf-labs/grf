@@ -41,9 +41,9 @@ public:
                 double imbalance_penalty,
                 uint num_threads,
                 uint random_seed,
+                bool legacy_seed,
                 const std::vector<size_t>& sample_clusters,
-                uint samples_per_cluster,
-                bool legacy_seed);
+                uint samples_per_cluster);
 
   static uint validate_num_threads(uint num_threads);
 
@@ -56,7 +56,6 @@ public:
 
   uint get_num_threads() const;
   uint get_random_seed() const;
-
   // Toggle between seed and num_threads dependence to reproduce behavior prior to grf 2.4.0.
   bool get_legacy_seed() const;
 
