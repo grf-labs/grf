@@ -216,7 +216,8 @@ instrumental_forest <- function(X, Y, W, Z,
               reduced.form.weight = reduced.form.weight,
               compute.oob.predictions = compute.oob.predictions,
               num.threads = num.threads,
-              seed = seed)
+              seed = seed,
+              legacy.seed = getOption("grf.legacy.seed", default = FALSE))
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {

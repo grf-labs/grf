@@ -374,7 +374,8 @@ causal_survival_forest <- function(X, Y, W, D,
                ci.group.size = ci.group.size,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               legacy.seed = getOption("grf.legacy.seed", default = FALSE))
 
   forest <- do.call.rcpp(causal_survival_train, c(data, args))
   class(forest) <- c("causal_survival_forest", "grf")

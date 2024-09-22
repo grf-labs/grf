@@ -139,7 +139,8 @@ regression_forest <- function(X, Y,
                ci.group.size = ci.group.size,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               legacy.seed = getOption("grf.legacy.seed", default = FALSE))
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {
