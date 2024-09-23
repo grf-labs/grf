@@ -10,13 +10,12 @@ grf_options()
 Prints the current grf package options.
 }
 \description{
-grf package options can be set using R's `options` command.
+grf package options can be set using R's \code{\link{options}} command.
 The current available options are:
 \itemize{
- \item `grf.legacy.seed`: controls whether grf's random seed depends on
- the number of threads used to train the forest. The default value is `FALSE`.
- Set to `TRUE` to restore past behavior and replicate results produced with
- grf versions prior to 2.4.0.
+ \item `grf.legacy.seed`: controls whether grf's random seed behavior depends on
+ the number of CPU threads used to train the forest. The default value is `FALSE`.
+ Set to `TRUE` to reproduce results produced with grf versions prior to 2.4.0.
 }
 }
 \examples{
