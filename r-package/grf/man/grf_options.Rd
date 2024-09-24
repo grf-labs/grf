@@ -15,7 +15,7 @@ The current available options are:
 \itemize{
  \item `grf.legacy.seed`: controls whether grf's random seed behavior depends on
  the number of CPU threads used to train the forest. The default value is `FALSE`.
- Set to `TRUE` to reproduce results produced with grf versions prior to 2.4.0.
+ Set to `TRUE` to recover results produced with grf versions prior to 2.4.0.
 }
 }
 \examples{
