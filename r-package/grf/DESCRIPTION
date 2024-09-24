@@ -29,7 +29,7 @@ Imports:
     methods,
     Rcpp (>= 0.12.15),
     sandwich (>= 2.4-0)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.2.3
 Suggests:
     DiagrammeR,
     MASS,
