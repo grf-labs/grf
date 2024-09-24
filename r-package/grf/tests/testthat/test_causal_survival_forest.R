@@ -140,7 +140,7 @@ test_that("causal survival forest predictions are kernel weighted correctly", {
 })
 
 test_that("causal survival forest variance estimates are decent", {
-  n <- 1000
+  n <- 1500
   p <- 5
   data <- generate_causal_survival_data(n, p, Y.max = 1, n.mc = 5000, dgp = "simple1")
   true.effect <- data$cate
@@ -156,7 +156,7 @@ test_that("causal survival forest variance estimates are decent", {
   cs.pred.test <- predict(cs.forest, X.test, estimate.variance = TRUE)
   z.score.test <- abs(cs.pred.test$predictions - true.effect.test) / sqrt(cs.pred.test$variance.estimates)
   cate.coverage.test <- mean(z.score.test <= 1.96)
-  expect_gte(cate.coverage.test, 0.5)
+  expect_gte(cate.coverage.test, 0.6)
 
   # Duplicate some samples
   sample.weights <- sample(c(1, 2), n, TRUE)
