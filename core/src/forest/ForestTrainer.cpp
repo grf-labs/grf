@@ -111,7 +111,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
     if (options.get_legacy_seed()) {
       tree_seed = udist(random_number_generator);
     } else {
-      tree_seed = options.get_random_seed() + start + i;
+      tree_seed = static_cast<uint>(options.get_random_seed() + start + i);
     }
     RandomSampler sampler(tree_seed, options.get_sampling_options());
 
