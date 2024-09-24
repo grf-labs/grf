@@ -101,19 +101,18 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
     const ForestOptions& options) const {
   size_t ci_group_size = options.get_ci_group_size();
 
-  std::mt19937_64 random_number_generator;
-  if (options.get_legacy_seed()) {
-    random_number_generator.seed(options.get_random_seed() + start);
-  }
+  std::mt19937_64 random_number_generator(options.get_random_seed() + start);
   nonstd::uniform_int_distribution<uint> udist;
   std::vector<std::unique_ptr<Tree>> trees;
   trees.reserve(num_trees * ci_group_size);
 
   for (size_t i = 0; i < num_trees; i++) {
-    if (!options.get_legacy_seed()) {
-      random_number_generator.seed(options.get_random_seed() + start + i);
+    uint tree_seed;
+    if (options.get_legacy_seed()) {
+      tree_seed = udist(random_number_generator);
+    } else {
+      tree_seed = options.get_random_seed() + start + i;
     }
-    uint tree_seed = udist(random_number_generator);
     RandomSampler sampler(tree_seed, options.get_sampling_options());
 
     if (ci_group_size == 1) {
