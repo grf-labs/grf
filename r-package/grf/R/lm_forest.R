@@ -230,7 +230,8 @@ lm_forest <- function(X, Y, W,
                ci.group.size = ci.group.size,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               legacy.seed = get_legacy_seed())
 
   forest <- do.call.rcpp(multi_causal_train, c(data, args))
   class(forest) <- c("lm_forest", "grf")

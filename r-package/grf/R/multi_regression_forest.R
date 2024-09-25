@@ -105,7 +105,8 @@ multi_regression_forest <- function(X, Y,
                imbalance.penalty = imbalance.penalty,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               legacy.seed = get_legacy_seed())
 
   forest <- do.call.rcpp(multi_regression_train, c(data, args))
   class(forest) <- c("multi_regression_forest", "grf")

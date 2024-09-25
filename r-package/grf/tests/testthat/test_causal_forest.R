@@ -422,3 +422,21 @@ test_that("a causal forest workflow with missing values works as expected", {
 
   expect_equal(which.max(varimp), 1)
 })
+
+test_that("causal forest with legacy seed behaves as expected", {
+  n <- 200
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  W <- rbinom(p = 0.5, size = 1, n = n)
+  Y <- 0.5 * X[, 1] * (2 * W - 1) + 0.1 * rnorm(n)
+
+  options(grf.legacy.seed = TRUE)
+  cf1 <- causal_forest(X, Y, W, seed = 42, num.threads = 4)
+  cf2 <- causal_forest(X, Y, W, seed = 42, num.threads = 12)
+  expect_true(!all(cf1$predictions == cf2$predictions))
+
+  options(grf.legacy.seed = FALSE)
+  cf3 <- causal_forest(X, Y, W, seed = 42, num.threads = 4)
+  cf4 <- causal_forest(X, Y, W, seed = 42, num.threads = 12)
+  expect_equal(cf3$predictions, cf4$predictions)
+})

@@ -132,7 +132,8 @@ probability_forest <- function(X, Y,
                ci.group.size = ci.group.size,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               legacy.seed = get_legacy_seed())
 
   forest <- do.call.rcpp(probability_train, c(data, args))
   class(forest) <- c("probability_forest", "grf")

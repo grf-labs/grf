@@ -248,7 +248,8 @@ causal_forest <- function(X, Y, W,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
-               reduced.form.weight = 0)
+               reduced.form.weight = 0,
+               legacy.seed = get_legacy_seed())
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {

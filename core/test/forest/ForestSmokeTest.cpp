@@ -52,7 +52,7 @@ TEST_CASE("forests don't crash when there are fewer trees than threads", "[fores
   uint samples_per_cluster = 0;
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty, honesty_fraction,
-          prune, alpha, imbalance_penalty, num_threads, seed, empty_clusters, samples_per_cluster);
+          prune, alpha, imbalance_penalty, num_threads, seed, true, empty_clusters, samples_per_cluster);
 
   Forest forest = trainer.train(data, options);
   ForestPredictor predictor = regression_predictor(4);

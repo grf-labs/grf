@@ -127,7 +127,8 @@ quantile_forest <- function(X, Y,
                ci.group.size = 1,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
-               seed = seed)
+               seed = seed,
+               legacy.seed = get_legacy_seed())
 
   forest <- do.call.rcpp(quantile_train, c(data, args))
   class(forest) <- c("quantile_forest", "grf")
