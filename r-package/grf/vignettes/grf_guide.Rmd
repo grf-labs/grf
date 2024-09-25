@@ -27,7 +27,7 @@ This vignette gives a [brief overview](#a-grf-overview) of the GRF algorithm and
 
 * The [rank_average_treatment_effect](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) (*RATE*) as a generic tool to assess heterogeneity and the effectiveness of "targeting rules", as well as how the associated *TOC* curve can help identify segments of a population that respond differently to a treatment.
 
-* [policytree](https://github.com/grf-labs/policytree) to find a tree-based policy using the estimated CATEs.
+* [policytree](https://github.com/grf-labs/policytree) to find a tree-based policy.
 
 
 ## A grf overview
@@ -405,7 +405,9 @@ qini.age
 
 * [Machine Learning & Causal Inference: A Short Course](https://www.youtube.com/playlist?list=PLxq_lXOUlvQAoWZEqhRqHNezS30lI49G-) (video lectures)
 
-* [Causal Inference: A Statistical Learning Approach](https://web.stanford.edu/~swager/causal_inf_book.pdf) (book)
+* [Estimating Heterogeneous Treatment Effects in R](https://www.youtube.com/watch?v=YBbnCDRCcAI) (video tutorial)
+
+* [Causal Inference: A Statistical Learning Approach](https://web.stanford.edu/~swager/causal_inf_book.pdf) (textbook)
 
 <center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
