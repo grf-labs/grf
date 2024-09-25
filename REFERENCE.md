@@ -401,9 +401,11 @@ While the algorithm in `regression_forest` is very similar to that of classic ra
 
 ### Forests predict different values depending on the platform even though the seed is the same
 
-Overall, GRF is designed to produce the same estimates across platforms when using a consistent value for the random seed through the training option seed. However, there are still some cases where GRF can produce different estimates across platforms. When it comes to cross-platform predictions, the output of GRF may depend on a few factors beyond the forest seed.
+Overall, GRF is designed to produce the same estimates across platforms when using a consistent value for the random seed through the training option seed. However, there are still some cases where GRF can produce different estimates across platforms. When it comes to cross-platform predictions, the output of GRF will depend on a few factors beyond the forest seed.
 
 One such factor is the compiler that was used to build GRF. Different compilers may have different default behavior around floating-point behavior and instruction optimizations, and these could lead to slightly different forest splits if the data requires numerical precision. In addition to setting the seed argument, rounding all input data to at most 8 significant digits may help.
+
+Even though the compiler is the same, different CPU architectures may produce slightly different output. One such example is GRF compiled with clang and run on x86 (Intel) vs. ARM (Apple Silicon).
 
 Prior to GRF version 2.4.0, another factor was how the forest construction was distributed across different threads. In these versions, our forest splitting algorithm can give different results depending on the number of threads used to build the forest, meaning that the num.threads argument had to be the same for cross-platform reproducibility. To restore this behavior in current versions of GRF, you can set the global R option `options(grf.legacy.seed=TRUE)` and exactly recover results produced with past versions of the package.
 
