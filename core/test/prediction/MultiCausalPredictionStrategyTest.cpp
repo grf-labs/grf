@@ -21,6 +21,7 @@
 #include "commons/utility.h"
 #include "prediction/InstrumentalPredictionStrategy.h"
 #include "prediction/MultiCausalPredictionStrategy.h"
+#include<iostream>
 
 #include "catch.hpp"
 
@@ -152,6 +153,7 @@ TEST_CASE("multi causal predictions with one continuous treatment and sample wei
     } else {
       std::vector<double> prediction = prediction_strategy.predict(prediction_values.get_values(i));
       std::vector<double> prediction_multi = multi_prediction_strategy.predict(multi_prediction_values.get_values(i));
+        std::cout << prediction[0] << ", " << prediction_multi[1] <<"\n";
       REQUIRE(prediction.size() == prediction_multi.size());
       if (std::isinf(prediction[0]) && std::isinf(prediction_multi[0])) {
         continue;
