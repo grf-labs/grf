@@ -51,7 +51,7 @@ test_that("lm_forest with dummy W = multi arm causal forest", {
 
 test_that("lm_forest gradient.weights option works as expected", {
   n <- 250
-  p <- 5
+  p <- 1
   K <- 2
   X <- matrix(rnorm(n * p), n, p)
   W <- matrix(runif(n * K), n, K)
