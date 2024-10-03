@@ -55,7 +55,7 @@ test_that("lm_forest gradient.weights option works as expected", {
   K <- 2
   X <- matrix(rnorm(n * p), n, p)
   W <- matrix(runif(n * K), n, K)
-  Y <- X[, 1] - W[, 1] * pmax(X[, 2], 0) + W[, 2] + rnorm(n)
+  Y <- X[, 1] - W[, 1] * pmax(X[, 1], 0) + W[, 2] + rnorm(n)
 
   lmf <- lm_forest(X, Y, W, num.trees = 250, gradient.weights = c(0.5, 1), seed = 42)
   lmf2 <- lm_forest(X, cbind(Y, Y), W, num.trees = 250, gradient.weights = c(0.5, 1), seed = 42)
