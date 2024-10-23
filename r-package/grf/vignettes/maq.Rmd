@@ -31,20 +31,20 @@ Before jumping into Qini curves, let's start by defining some terminology and re
 
 where $Y_i(1)$ and $Y_i(0)$ are potential outcomes corresponding to the two treatment states: treatment or control arm.
 
-There are many approaches to obtain estimates of the function $\tau(X_i)$, *Causal Forest* being one of them. Now, once we an estimated $\hat \tau(\cdot)$ function, obtained on some training set, what *metric*, on a held out test-set can we use to evaluate them with? That depends on our intended use-case. In many cases we are interested in using $\hat \tau(\cdot)$ to inform treatment allocation. The estimated CATE function $\hat \tau(\cdot)$ implicitly gives us a family of *policies*, which we refer to as $\pi(\cdot)$, that takes covariates $X_i$ and maps them to a treatment decision $\{0: \text{don't treat}, 1: \text{treat}\}$. For example, we may have limited resources available, and decide we want to treat a maximum of 10% of units. The policy to treat the 10% of units with the highest predicted benefit is
+There are many approaches to obtain estimates of the function $\tau(X_i)$, *Causal Forest* being one of them. Now, once we an estimated $\hat \tau(\cdot)$ function, obtained on some training set, what *metric*, on a held-out test set can we use to evaluate them with? That depends on our intended use case. In many cases, we are interested in using $\hat \tau(\cdot)$ to inform treatment allocation. The estimated CATE function $\hat \tau(\cdot)$ implicitly gives us a family of *policies*, which we refer to as $\pi(\cdot)$, that takes covariates $X_i$ and maps them to a treatment decision $\{0: \text{don't treat}, 1: \text{treat}\}$. For example, we may have limited resources available, and decide we want to treat a maximum of 10% of units. The policy to treat the 10% of units with the highest predicted benefit is
 
 $$
-\pi(X_i) = 
+\pi(X_i) =
 \begin{cases}
     1,& \text{if CATE predictions } \hat \tau(X_i) \geq \text{top 10%}\\
     0,              & \text{otherwise}.
 \end{cases}
 $$
-The value of this policy is $E[\pi(X_i) (Y_i(1) - Y_i(0))]$, and the associated policy can be expressed as a simple *priority rule*: treat units with predicted treatments effects above a certain threshold. This policy value satisfies a central-limit theorem, i.e., even though the underlying function $\hat \tau(\cdot)$ used to decide treatment allocation may be derived from complicated "black-box" machine learning algorithms, we can still get estimates and confidence intervals for how this policy is going to perform when deployed in the real world.
+The value of this policy is $E[\pi(X_i) (Y_i(1) - Y_i(0))]$, and the associated policy can be expressed as a simple *priority rule*: treat units with predicted treatment effects above a certain threshold. This policy value satisfies a central limit theorem, i.e., even though the underlying function $\hat \tau(\cdot)$ used to decide treatment allocation may be derived from complicated "black-box" machine learning algorithms, we can still get estimates and confidence intervals for how this policy is going to perform when deployed in the real world.
 
 
 ## Qini curves: Evaluating policies over many decision thresholds
-Consider now, for the sake of generality, the case where assigning treatment incurs a cost, where we let $C_i(1)$ denote the cost of assigning unit $i$ the treatment arm (and assume that withholding treatment is costless, $C_i(0)=0$). An example where costs may vary by unit could be in administering vaccines: getting medicines to people who live very far away from healthcare centers is likely more costly than getting medicines to people who live close by. Costs does not have to be monetary, they could also capture something more abstract, such as negative externalities.
+Consider now, for the sake of generality, the case where assigning treatment incurs a cost, where we let $C_i(1)$ denote the cost of assigning unit $i$ the treatment arm (and assume that withholding treatment is costless, $C_i(0)=0$). An example where costs may vary by unit could be in administering vaccines: getting medicines to people who live very far away from healthcare centers is likely more costly than getting medicines to people who live close by. Costs do not have to be monetary, they could also capture something more abstract, such as negative externalities.
 
 The question we now ask is, given a budget $B$, what is a suitable approach to quantify the cost-benefit tradeoff of assigning treatment in accordance with our estimated CATEs? It turns out that incorporating costs into the policy evaluation framework we outlined in the previous section is straightforward.
 
@@ -52,7 +52,7 @@ Recall the policy $\pi(X_i)$ is a function that maps covariates $X_i$ to a treat
 
 We have available a test set with $n$ observed outcomes and treatment assignments to perform evaluation on. We are interested in quantifying the expected *gain* (measured by the ATE) we can achieve by assigning treatment in accordance with $\pi_B$ at different *spend* levels $B$.
 
-In the previous section we left out the exact details of how to *evaluate* a policy. Luckily, it turns out this is simple: if we know the treatment randomization probabilities, then we can use inverse-propensity weighting (IPW) to estimate the value of the gain we achieve through averaging the difference in test set outcomes that matches our policy prescription:
+In the previous section, we left out the exact details of how to *evaluate* a policy. Luckily, it turns out this is simple: if we know the treatment randomization probabilities, then we can use inverse-propensity weighting (IPW) to estimate the value of the gain we achieve through averaging the difference in test set outcomes that matches our policy prescription:
 
 $$
 \frac{1}{n} \sum_{i}^{n} \pi_B(X_i) \left( \frac{W_i Y_i}{P[W_i = 1|X_i]} - \frac{(1-W_i)Y_i}{P[W_i = 0|X_i]} \right).
@@ -113,7 +113,7 @@ Had we instead used the same amount of budget to treat an arbitrary group of the
 average_gain(qini.baseline, spend = 0.2)
 ```
 
-**Note on policy evaluation:** whenever IPW can solve a problem, there is generally a doubly robust method (here Augmented-IPW) that can do better in terms of statistical power. In this vignette, we'll stick to evaluating with IPW for simplicity, but note that with GRF you could train a separate test set forest and retrieve doubly robust test set scores through the function `get_scores(forest)` that could be used in place of `IPW.scores`, yielding a doubly robust estimate of the Qini curve.
+**Note on policy evaluation:** Whenever IPW can solve a problem, there is generally a doubly robust method (here Augmented-IPW) that can do better in terms of statistical power. In this vignette, we'll stick to evaluating with IPW for simplicity, but note that with GRF you could train a separate test set forest and retrieve doubly robust test set scores through the function `get_scores(forest)` that could be used in place of `IPW.scores`, yielding a doubly robust estimate of the Qini curve.
 
 ### Aside: The Qini curve vs the TOC curve
 We have thus far introduced *two curves* that may seem to both serve a similar purpose. What's the difference? That depends on the application. If we look closer, which of these curves is useful depends on what questions we are interested in. Below is a side-by-side illustration of what the [TOC](https://grf-labs.github.io/grf/articles/rate.html#quantifying-treatment-benefit-the-targeting-operator-characteristic-1) and Qini curves could look like in the case the ATE is positive, but there are subgroups of people with both positive and negative treatment effects (the dashed line in the Qini plot represent the ATE).
@@ -162,7 +162,7 @@ The Qini curve is useful if you are in a setting where it is natural to undertak
 
 
 ## Qini curves with multi-armed treatment
-Consider now the case where we have $k = 0,\ldots K$ arms available, where $k=0$ is a zero cost control arm. For example, $k=1$ could be a low cost drug, and $k=2$ could be a higher cost drug, but which is more effective (and $k=0$ could be a placebo control).
+Consider now the case where we have $k = 0,\ldots K$ arms available, where $k=0$ is a zero cost control arm. For example, $k=1$ could be a low-cost drug, and $k=2$ could be a higher-cost drug, but which is more effective (and $k=0$ could be a placebo control).
 
 Given estimated treatment effects $\hat \tau(\cdot)$, and costs $C(\cdot)$ (remember that these objects are now vector-valued, i.e. the $k$-th element of $\hat \tau(X_i)$ is an estimate of the CATE for arm $k$ for units with covariates $X_i$[^r]) - we now ask: how can we conduct a similar exercise as above where we evaluate allocating treatment optimally in accordance with our estimated CATEs (and costs), as we vary the available budget?
 
@@ -249,7 +249,7 @@ segments(0.3, average_gain(qini.arm2, 0.3)[[1]],
 
 The blue line (arm 1) plateaus at a spend level of around `r max(qini.arm1[["_path"]]$spend)`, since once we have reached this spend level, we are already giving treatment to all units believed to benefit from arm 1 (i.e. $\hat \tau_1(X_i) > 0$), and so cannot achieve further gains via increased spending.
 
-Qini curves for single-armed treatment rules can help assessing the value of targeting with a specific arm or targeting function. The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?". Let's call $\hat Q(B)$ the estimated Qini curve for the multi-armed policy and $\hat Q_2(B)$ the estimated Qini curve for arm 2. At $B = 0.3$, the difference $\hat Q(B) - \hat Q_2(B)$ (illustrated by the green vertical line in the above plot) is
+Qini curves for single-armed treatment rules can help assess the value of targeting with a specific arm or targeting function. The multi-armed Qini generalization allows us to answer questions such as "For a specific spend level, what is the estimated increase in gain when optimally targeting with both arms as opposed to using only a single arm?". Let's call $\hat Q(B)$ the estimated Qini curve for the multi-armed policy and $\hat Q_2(B)$ the estimated Qini curve for arm 2. At $B = 0.3$, the difference $\hat Q(B) - \hat Q_2(B)$ (illustrated by the green vertical line in the above plot) is
 ```{r}
 difference_gain(ma.qini, qini.arm2, spend = 0.3)
 ```
