@@ -180,7 +180,7 @@ points(X[, 2], tau.hat[, "C - A"], col = "blue")
 abline(0, -1.5, col = "red")
 legend("topleft", c("B - A", "C - A"), col = c("black", "blue"), pch = 19)
 
-# The average treatment effect of the arms with "A" as baseline.
+# A doubly robust estimate (AIPW) of the average treatment effect of the arms.
 average_treatment_effect(mc.forest)
 
 # The conditional response surfaces mu_k(X) for a single outcome can be reconstructed from
