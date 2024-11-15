@@ -4,7 +4,7 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.4.0] - 2024-11-??
+## [2.4.0] - 2024-11-15
 
 ### Fixed
 - **IMPORTANT:** Make random seed behavior independent of the number of cores the forest is trained with. This fix means code from previous versions will produce slightly different results, even with the same random seed. A global package option `options(grf.legacy.seed)` is added for users who wish to exactly recover past results without reinstalling a previous grf version. [#1447](https://github.com/grf-labs/grf/pull/1447)
