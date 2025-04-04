@@ -411,7 +411,7 @@ qini.age
 
 * [Estimating Treatment Effects with Causal Forests: An Application](https://arxiv.org/abs/1902.07409) (tutorial paper)
 
-* [Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests](https://arxiv.org/abs/2409.01578) (tutorial paper)
+* [Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests](https://doi.org/10.1002/mpr.70015) (tutorial paper)
 
 <center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
