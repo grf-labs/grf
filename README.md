@@ -162,8 +162,10 @@ Imke Mayer, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager and Juli
 <a href="https://arxiv.org/pdf/1910.10624.pdf">arxiv</a>]
 
 Erik Sverdrup, Maria Petukhova, and Stefan Wager.
-<b>Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests.</b> 2024.
-[<a href="https://arxiv.org/abs/2409.01578">arxiv</a>]
+<b>Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests.</b>
+<i>International Journal of Methods in Psychiatric Research</i>, 34(2), 2025.
+[<a href="https://doi.org/10.1002/mpr.70015">paper</a>,
+<a href="https://arxiv.org/abs/2409.01578">arxiv</a>]
 
 Stefan Wager.
 <b>Causal Inference: A Statistical Learning Approach.</b> 2024.
