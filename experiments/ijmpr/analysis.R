@@ -111,32 +111,34 @@ print(rate.cate)
 # We can use the `maq` package for this exercise. This package is more general
 # and accepts CATE estimates from multiple treatment arms along with costs that
 # denominate what we spend by assigning a unit a treatment. In this application
-# we can simply treat the number of units we are considering deploying as the cost.
+# we can simply set cost to 1 and compute a Qini curve with fraction treated on
+# the x-axis.
 
-# Form a doubly robust estimate of a CATE-based Qini curve (using eval.forest).
-num.units = nrow(X)
-qini = maq(tau.hat.test,
-           num.units,
-           get_scores(eval.forest) * num.units,
-           R = 200)
+# Form a doubly robust estimate of the Qini curve, using R=200 bootstrap replications for std.errors.
+cost = 1
+qini = maq(tau.hat.test, cost, get_scores(eval.forest), R = 200)
 
 # Form a baseline Qini curve that assigns treatment uniformly.
-qini.baseline = maq(tau.hat.test,
-                    num.units,
-                    get_scores(eval.forest) * num.units,
-                    R = 200,
+qini.baseline = maq(tau.hat.test, cost, get_scores(eval.forest), R = 200,
                     target.with.covariates = FALSE)
 
 # Plot the Qini curve along with 95% confidence lines.
-plot(qini, ylab = "PTSD cases prevented", xlab = "Units held back from deployment", xlim = c(0, num.units))
-plot(qini.baseline, add = TRUE, ci.args = NULL)
+# Use `maq_scale` to remap our policy values to a hypothetical intervention of a maximum of n=2000 units.
+max.deployment = 2000
+maq_scale(qini, max.deployment) |>
+  plot(ylab = "PTSD cases prevented",
+       xlab = "Units held back from deployment")
+
+# Add a baseline curve on top.
+maq_scale(qini.baseline, max.deployment) |>
+  plot(add = TRUE, ci.args = NULL)
 
 # Get estimates from the curve, at for example 500 deployed units.
-average_gain(qini, 500)
+average_gain(maq_scale(qini, max.deployment), 500)
 
 # Compare the benefit of targeting the 500 units predicted to benefit the most with the baseline.
-difference_gain(qini, qini.baseline, 500)
-
+difference_gain(maq_scale(qini, max.deployment),
+                maq_scale(qini.baseline, max.deployment), 500)
 
 # [The paper shows Qini curves embellished with ggplot. We could have retrieved
 # the data underlying the curves and customized our plots further.
@@ -145,7 +147,7 @@ difference_gain(qini, qini.baseline, 500)
 
 # *** Describing the fit CATE function ****
 
-# Our `cate.forest` has given us some estimated function \tau(x).
+# Our `cate.forest` has given us some estimated function \hat tau().
 # Let's have a closer look at how this function stratifies our sample in terms of "covariate" profiles.
 # One way to do so is to look at histograms of our covariates by for example low / high CATE predictions.
 
