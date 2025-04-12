@@ -122,9 +122,14 @@ qini = maq(tau.hat.test, cost, get_scores(eval.forest), R = 200)
 qini.baseline = maq(tau.hat.test, cost, get_scores(eval.forest), R = 200,
                     target.with.covariates = FALSE)
 
-# Plot the Qini curve along with 95% confidence lines.
-# Use `maq_scale` to remap our policy values to a hypothetical intervention of a maximum of n=2000 units.
+# Plot the Qini curve with 95% confidence intervals.
+# This shows the expected gain from withholding units from deployments in order of predicted benefit.
+
+# Suppose the application allows intervening on up to 2000 units.
+# We use `maq_scale()` to rescale the Qini curve to this real-world deployment size.
 max.deployment = 2000
+
+# Plot the scaled Qini curve.
 maq_scale(qini, max.deployment) |>
   plot(ylab = "PTSD cases prevented",
        xlab = "Units held back from deployment")
