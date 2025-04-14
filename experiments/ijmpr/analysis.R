@@ -130,20 +130,20 @@ qini.baseline = maq(tau.hat.test, cost, get_scores(eval.forest), R = 200,
 max.deployment = 2000
 
 # Plot the scaled Qini curve.
-maq_scale(qini, max.deployment) |>
+scale_maq(qini, max.deployment) |>
   plot(ylab = "PTSD cases prevented",
        xlab = "Units held back from deployment")
 
 # Add a baseline curve on top.
-maq_scale(qini.baseline, max.deployment) |>
+scale_maq(qini.baseline, max.deployment) |>
   plot(add = TRUE, ci.args = NULL)
 
 # Get estimates from the curve, at for example 500 deployed units.
-average_gain(maq_scale(qini, max.deployment), 500)
+average_gain(scale_maq(qini, max.deployment), 500)
 
 # Compare the benefit of targeting the 500 units predicted to benefit the most with the baseline.
-difference_gain(maq_scale(qini, max.deployment),
-                maq_scale(qini.baseline, max.deployment), 500)
+difference_gain(scale_maq(qini, max.deployment),
+                scale_maq(qini.baseline, max.deployment), 500)
 
 # [The paper shows Qini curves embellished with ggplot. We could have retrieved
 # the data underlying the curves and customized our plots further.
