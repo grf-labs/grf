@@ -287,7 +287,7 @@ integrated_difference(ma.qini, qini.arm2, spend = 0.3)
 ```
 
 ## References
-Sverdrup, Erik, Han Wu, Susan Athey, and Stefan Wager. Qini Curves for Multi-Armed Treatment Rules. _arXiv preprint arXiv:2306.11979_ ([arxiv](https://arxiv.org/abs/2306.11979))
+Sverdrup, Erik, Han Wu, Susan Athey, and Stefan Wager. Qini Curves for Multi-Armed Treatment Rules. _Journal of Computational and Graphical Statistics_, 2025. ([arxiv](https://arxiv.org/abs/2306.11979))
 
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _Journal of the American Statistical Association_, 120(549), 2025. ([arxiv](https://arxiv.org/abs/2111.07966))
 
