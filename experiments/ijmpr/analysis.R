@@ -147,7 +147,7 @@ difference_gain(scale_maq(qini, max.deployment),
 
 # [The paper shows Qini curves embellished with ggplot. We could have retrieved
 # the data underlying the curves and customized our plots further.
-# For more details we refer to https://github.com/grf-labs/maq]
+# For examples see https://grf-labs.github.io/maq/reference/plot.maq.html]
 
 
 # *** Describing the fit CATE function ****
