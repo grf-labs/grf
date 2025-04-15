@@ -223,7 +223,7 @@ This last estimand is recommended by Li et al. (2018) in case of poor overlap (i
 
 Even though there is treatment effect heterogeneity across the population or a sub-population, the average treatment effect might still be zero. To assess if the estimated CATE function `tau(x) = E[Y(1) - Y(0) | X = x]` does well in identifying personalised effects, another summary measure would be useful. One such proposed measure is the Rank-Weighted Average Treatment Effect (RATE), which uses the relative ranking of the estimated CATEs to gauge if it can effectively target individuals with high treatment effects on a separate evaluation data set (and can thus be used to test for the presence of heterogeneous treatment effects).
 
-This approach is implemented in the function `rank_average_treatment_effect`, which provides valid bootstrapped errors of the RATE, along with a Targeting Operator Characteristic (TOC) curve which can be used to visually inspect how well a CATE estimator performs in ordering observations according to treatment benefit. For more details on the RATE metric see Yadlowsky et al., 2021.
+This approach is implemented in the function `rank_average_treatment_effect`, which provides valid bootstrapped errors of the RATE, along with a Targeting Operator Characteristic (TOC) curve which can be used to visually inspect how well a CATE estimator performs in ordering observations according to treatment benefit. For more details on the RATE metric see Yadlowsky et al. (2025).
 
 ### Best Linear Projection of the CATE
 
@@ -440,4 +440,4 @@ Van Der Laan, Mark J., and Daniel Rubin. Targeted maximum likelihood learning. *
 
 Wager, Stefan, and Susan Athey. Estimation and inference of heterogeneous treatment effects using random forests. *Journal of the American Statistical Association*, 2018.
 
-Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. *arXiv preprint arXiv:2111.07966*, 2021.
+Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. *Journal of the American Statistical Association*, 2025.
