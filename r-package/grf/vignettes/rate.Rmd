@@ -127,10 +127,10 @@ The overview in the previous section gave a stylized introduction where we imagi
 \end{split}
 \end{equation*}
 
-where $\hat F$ is the empirical distribution function of $\hat \tau^{train}(X^{test})$. The `rank_average_treatment_effect` function delivers a AIPW-style[^1] doubly robust estimator of the TOC and RATE using a forest trained on a separate evaluation set. For details on the derivation of the doubly robust estimator and the associated central limit theorem, see Yadlowsky et al. (2021).
+where $\hat F$ is the empirical distribution function of $\hat \tau^{train}(X^{test})$. The `rank_average_treatment_effect` function delivers a AIPW-style[^1] doubly robust estimator of the TOC and RATE using a forest trained on a separate evaluation set. For details on the derivation of the doubly robust estimator and the associated central limit theorem, see Yadlowsky et al. (2025).
 
 ## An application to SPRINT and ACCORD
-To illustrate RATE we consider an example application from a medical setting. Two large randomized trials *ACCORD* (ACCORD Study Group, 2010) and *SPRINT* (SPRINT Research Group, 2015) conducted on similar populations and designed to measure the effectiveness of a hypertension treatment reach different conclusions. SPRINT found the treatment was effective, ACCORD found that the treatment was not effective. Various explanations for this finding have been proposed, we'll focus on one in particular here: the hypothesis that the difference is due to *heterogeneity in treatment effects* (see Yadlowsky et al., 2021 for references).
+To illustrate RATE we consider an example application from a medical setting. Two large randomized trials *ACCORD* (ACCORD Study Group, 2010) and *SPRINT* (SPRINT Research Group, 2015) conducted on similar populations and designed to measure the effectiveness of a hypertension treatment reach different conclusions. SPRINT found the treatment was effective, ACCORD found that the treatment was not effective. Various explanations for this finding have been proposed, we'll focus on one in particular here: the hypothesis that the difference is due to *heterogeneity in treatment effects* (see Yadlowsky et al., 2025, for references).
 
 This hypothesis has a testable implication implied by the previous section: if there is significant heterogeneity present and we are able to effectively estimate these with a powerful CATE estimator, then an estimated RATE on ACCORD and SPRINT should be positive and significant. In particular, our setup implies the following recipe:
 
@@ -194,7 +194,7 @@ plot(rate.sprint, xlab = "Treated fraction", main = "TOC evaluated on SPRINT\n t
 plot(rate.accord, xlab = "Treated fraction", main = "TOC evaluated on ACCORD\n tau(X) estimated from SPRINT")
 ```
 
-In this semi-synthetic example both AUTOCs are insignificant at conventional levels, suggesting there is no evidence of significant HTEs in the two trials. Note: this can also be attributed to a) low power, as perhaps the sample size is not large enough to detect HTEs, b) that the HTE estimator does not detect them, or c) the heterogeneity in the treatment effects along observable predictor variables are negligible. For a broader analysis comparing different prioritization strategies on the SPRINT and ACCORD datasets, see Yadlowsky et al. (2021).
+In this semi-synthetic example both AUTOCs are insignificant at conventional levels, suggesting there is no evidence of significant HTEs in the two trials. Note: this can also be attributed to a) low power, as perhaps the sample size is not large enough to detect HTEs, b) that the HTE estimator does not detect them, or c) the heterogeneity in the treatment effects along observable predictor variables are negligible. For a broader analysis comparing different prioritization strategies on the SPRINT and ACCORD datasets, see Yadlowsky et al. (2025).
 
 For a discussion of alternatives to estimating RATEs that do not rely on a single train/test split, we refer to [this vignette](https://grf-labs.github.io/grf/articles/rate_cv.html).
 
@@ -211,6 +211,6 @@ Radcliffe, Nicholas. Using control groups to target on predicted lift: Building 
 SPRINT Research Group. A Randomized Trial of Intensive Versus Standard Blood-Pressure
 Control. _New England Journal of Medicine_, 373(22):2103–2116, 2015.
 
-Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _arXiv preprint arXiv:2111.07966_ ([arxiv](https://arxiv.org/abs/2111.07966))
+Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _Journal of the American Statistical Association_, 120(549), 2025 ([arxiv](https://arxiv.org/abs/2111.07966))
 
 [^1]: AIPW = Augmented Inverse-Propensity Weighting (Robins, Rotnitzky, and Zhao, 1994)

@@ -163,7 +163,7 @@ rate.diff$estimate + data.frame(lower = -1.96 * rate.diff$std.err,
 \references{
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager.
  "Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects."
- arXiv preprint arXiv:2111.07966, 2021.
+ Journal of the American Statistical Association, 120(549), 2025.
 }
 \seealso{
 \code{\link{rank_average_treatment_effect.fit}} for computing a RATE with user-supplied

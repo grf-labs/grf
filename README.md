@@ -178,5 +178,7 @@ Stefan Wager and Susan Athey.
 <a href="https://arxiv.org/abs/1510.04342">arxiv</a>]
 
 Steve Yadlowsky, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager.
-<b>Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects.</b> 2021.
-[<a href="https://arxiv.org/abs/2111.07966">arxiv</a>]
+<b>Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects.</b>
+<i>Journal of the American Statistical Association</i>, 120(549), 2025.
+[<a href="https://doi.org/10.1080/01621459.2024.2393466">paper</a>,
+<a href="https://arxiv.org/abs/2111.07966">arxiv</a>]
