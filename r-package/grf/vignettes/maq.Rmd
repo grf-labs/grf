@@ -289,7 +289,7 @@ integrated_difference(ma.qini, qini.arm2, spend = 0.3)
 ## References
 Sverdrup, Erik, Han Wu, Susan Athey, and Stefan Wager. Qini Curves for Multi-Armed Treatment Rules. _arXiv preprint arXiv:2306.11979_ ([arxiv](https://arxiv.org/abs/2306.11979))
 
-Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _arXiv preprint arXiv:2111.07966_ ([arxiv](https://arxiv.org/abs/2111.07966))
+Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects. _Journal of the American Statistical Association_, 120(549), 2025. ([arxiv](https://arxiv.org/abs/2111.07966))
 
 
 [^r]: There are many approaches to estimating CATEs in the single-armed setting that can be adopted in the multi-armed case by simply fitting separate CATE functions for the different treatment arms. In this vignette, we use GRF's `multi_arm_causal_forest`, which jointly estimates treatment effects for the arms.

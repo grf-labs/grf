@@ -50,7 +50,7 @@
 #'
 #' @references Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager.
 #'  "Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects."
-#'  arXiv preprint arXiv:2111.07966, 2021.
+#'  Journal of the American Statistical Association, 120(549), 2025.
 #'
 #' @examples
 #' \donttest{
