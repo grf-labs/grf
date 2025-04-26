@@ -409,7 +409,7 @@ qini.age
 
 * [Causal Inference: A Statistical Learning Approach](https://web.stanford.edu/~swager/causal_inf_book.pdf) (textbook)
 
-* [Estimating Treatment Effects with Causal Forests: An Application](https://arxiv.org/abs/1902.07409) (tutorial paper)
+* [Estimating Treatment Effects with Causal Forests: An Application](https://doi.org/10.1353/obs.2019.0001) (tutorial paper)
 
 * [Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests](https://doi.org/10.1002/mpr.70015) (tutorial paper)
 
