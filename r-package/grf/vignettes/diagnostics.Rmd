@@ -104,16 +104,15 @@ ate.lowB <- average_treatment_effect(cfB, subset = !high.effectB)
 
 ```
 
-Which gives the following 95% confidence interval for the difference in ATE
+Which gives us 95% confidence intervals for the difference in ATE for each fold using the same approach as above. 
 
 ```{r}
-mean(c(
-  ate.highA[["estimate"]] - ate.lowA[["estimate"]],
-  ate.highB[["estimate"]] - ate.lowB[["estimate"]])) +
-  c(-1, 1) * qnorm(0.975) * sqrt(
-    ate.highA[["std.err"]]^2 + ate.lowA[["std.err"]]^2 +
-    ate.highB[["std.err"]]^2 + ate.lowB[["std.err"]]^2
-  )/2
+ate.highA[["estimate"]] - ate.lowA[["estimate"]] +
+  c(-1, 1) * qnorm(0.975) * sqrt(ate.highA[["std.err"]]^2 + ate.lowA[["std.err"]]^2)
+
+ate.highB[["estimate"]] - ate.lowB[["estimate"]] +
+  c(-1, 1) * qnorm(0.975) * sqrt(ate.highB[["std.err"]]^2 + ate.lowB[["std.err"]]^2)
+
 ```
 
 For another way to assess heterogeneity, see the function [rank_average_treatment_effect](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) and the accompanying [vignette](https://grf-labs.github.io/grf/articles/rate.html).
