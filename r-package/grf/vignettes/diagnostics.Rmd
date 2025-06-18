@@ -80,6 +80,42 @@ ate.high[["estimate"]] - ate.low[["estimate"]] +
   c(-1, 1) * qnorm(0.975) * sqrt(ate.high[["std.err"]]^2 + ate.low[["std.err"]]^2)
 ```
 
+While this approach may give some qualitative insight into heterogeneity, the grouping is naive, because the doubly robust scores used to determine subgroups are not independent of the scores used to estimate those group ATEs (see Athey and Wager, 2019). 
+
+To avoid this, we can use a cross-fitting approach, where the data is split into two folds, and the "high"/"low" groups are determined by the models fit on the other fold, while the ATEs are estimated using the default out of bag predictions using the [average_treatment_effect](https://grf-labs.github.io/grf/reference/average_treatment_effect.html) function. 
+
+```{r}
+folds <- sample(rep(1:2, length.out = nrow(X)))
+idxA <- which(folds == 1)
+idxB <- which(folds == 2)
+
+cfA <- causal_forest(X[idxA,], Y[idxA], W[idxA])
+cfB <- causal_forest(X[idxB,], Y[idxB], W[idxB])
+
+tau.hatB <- predict(cfA, newdata = X[idxB,])$predictions
+high.effectB <- tau.hatB > median(tau.hatB)
+tau.hatA <- predict(cfB, newdata = X[idxA,])$predictions
+high.effectA <- tau.hatA > median(tau.hatA)
+
+ate.highA <- average_treatment_effect(cfA, subset = high.effectA)
+ate.lowA <- average_treatment_effect(cfA, subset = !high.effectB)
+ate.highB <- average_treatment_effect(cfB, subset = high.effectB)
+ate.lowB <- average_treatment_effect(cfB, subset = !high.effectB)
+
+```
+
+Which gives the following 95% confidence interval for the difference in ATE
+
+```{r}
+mean(c(
+  ate.highA[["estimate"]] - ate.lowA[["estimate"]],
+  ate.highB[["estimate"]] - ate.lowB[["estimate"]])) +
+  c(-1, 1) * qnorm(0.975) * sqrt(
+    ate.highA[["std.err"]]^2 + ate.lowA[["std.err"]]^2 +
+    ate.highB[["std.err"]]^2 + ate.lowB[["std.err"]]^2
+  )
+```
+
 For another way to assess heterogeneity, see the function [rank_average_treatment_effect](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) and the accompanying [vignette](https://grf-labs.github.io/grf/articles/rate.html).
 
 Athey et al. (2017) suggests a bias measure to gauge how much work the propensity and outcome models have to do to get an unbiased estimate, relative to looking at a simple difference-in-means: $bias(x) = (e(x) - p) \times (p(\mu(0, x) - \mu_0) + (1 - p) (\mu(1, x) - \mu_1)$.
