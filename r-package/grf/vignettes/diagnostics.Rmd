@@ -98,7 +98,7 @@ tau.hatA <- predict(cfB, newdata = X[idxA,])$predictions
 high.effectA <- tau.hatA > median(tau.hatA)
 
 ate.highA <- average_treatment_effect(cfA, subset = high.effectA)
-ate.lowA <- average_treatment_effect(cfA, subset = !high.effectB)
+ate.lowA <- average_treatment_effect(cfA, subset = !high.effectA)
 ate.highB <- average_treatment_effect(cfB, subset = high.effectB)
 ate.lowB <- average_treatment_effect(cfB, subset = !high.effectB)
 
@@ -113,7 +113,7 @@ mean(c(
   c(-1, 1) * qnorm(0.975) * sqrt(
     ate.highA[["std.err"]]^2 + ate.lowA[["std.err"]]^2 +
     ate.highB[["std.err"]]^2 + ate.lowB[["std.err"]]^2
-  )
+  )/2
 ```
 
 For another way to assess heterogeneity, see the function [rank_average_treatment_effect](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) and the accompanying [vignette](https://grf-labs.github.io/grf/articles/rate.html).
