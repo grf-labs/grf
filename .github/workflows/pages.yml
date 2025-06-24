@@ -41,7 +41,7 @@ jobs:
         working-directory: r-package/grf
         run: |
           # Install pkgdown v1.5
-          sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'rstudioapi', 'whisker', 'xml2', 'yaml', 'rematch2'))"
+          sudo Rscript -e "install.packages(c('fs', 'highlight', 'httr', 'memoise', 'openssl', 'purrr', 'rmarkdown', 'rstudioapi', 'whisker', 'xml2', 'yaml', 'rematch2', 'fansi'))"
           sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_1.5.1.tar.gz', repos = NULL, type = 'source')"
 
           # Install packages used in vignettes
