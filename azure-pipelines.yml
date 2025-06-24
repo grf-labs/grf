@@ -10,7 +10,7 @@ trigger:
 jobs:
 - job: coreCPP
   pool:
-    vmImage: "ubuntu-20.04" # bundled valgrind in ubuntu-latest breaks with clang (update to latest when available).
+    vmImage: "ubuntu-latest"
   strategy:
     matrix:
       clang:
