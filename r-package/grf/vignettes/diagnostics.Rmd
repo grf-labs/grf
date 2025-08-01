@@ -64,31 +64,16 @@ The forest summary function [test_calibration](https://grf-labs.github.io/grf/re
 test_calibration(cf)
 ```
 
-For another way to assess heterogeneity, see the function [rank_average_treatment_effect](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) and the accompanying [vignette](https://grf-labs.github.io/grf/articles/rate.html).
+This exercise and function is motivated by earlier developments in the econometrics literature. A more intuitive exercise is to look at subgroup ATEs where the subgroups are formed according to low or high CATE predictions (Athey & Wager, 2019). 
+While this approach may give some qualitative insight into heterogeneity, the grouping is naive, because the doubly robust scores used to determine subgroups are not independent of the scores used to estimate those group ATEs. 
 
-A heuristic for testing for heterogeneity involves grouping observations into a high and low CATE group, then estimating average treatment effects in each subgroup. The function [average_treatment_effect](https://grf-labs.github.io/grf/reference/average_treatment_effect.html) estimates ATEs using a double robust approach:
-
-```{r}
-tau.hat <- predict(cf)$predictions
-high.effect <- tau.hat > median(tau.hat)
-ate.high <- average_treatment_effect(cf, subset = high.effect)
-ate.low <- average_treatment_effect(cf, subset = !high.effect)
-```
-
-Which gives the following 95% confidence interval for the difference in ATE
-
-```{r}
-ate.high[["estimate"]] - ate.low[["estimate"]] +
-  c(-1, 1) * qnorm(0.975) * sqrt(ate.high[["std.err"]]^2 + ate.low[["std.err"]]^2)
-```
-
-While this approach may give some qualitative insight into heterogeneity, the grouping is naive, because the doubly robust scores used to determine subgroups are not independent of the scores used to estimate those group ATEs (see Athey and Wager, 2019). 
-
-To avoid this, we can use a cross-fitting approach, where the data is split into two folds, and the "high"/"low" groups are determined by the models fit on the other fold, while the ATEs are estimated using the default out of bag predictions using the [average_treatment_effect](https://grf-labs.github.io/grf/reference/average_treatment_effect.html) function. 
+The [RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) function automates this exercise over all possible subgroups using the quantiles of the CATE predictions. If we use separate data to fit CATE models and estimate RATE metrics, we obtain a test statistic with expectation zero under no heterogeneity, which can be used to construct confidence intervals for the presence of treatment effect heterogeneity. For more details on this preferred approach, please see [this vignette](https://grf-labs.github.io/grf/articles/rate.html). 
 
 Athey et al. (2017) suggests a bias measure to gauge how much work the propensity and outcome models have to do to get an unbiased estimate, relative to looking at a simple difference-in-means: $bias(x) = (e(x) - p) \times (p(\mu(0, x) - \mu_0) + (1 - p) (\mu(1, x) - \mu_1)$.
 
 ```{r}
+tau.hat <- predict(cf)$predictions
+
 p <- mean(W)
 Y.hat.0 <- cf$Y.hat - e.hat * tau.hat
 Y.hat.1 <- cf$Y.hat + (1 - e.hat) * tau.hat
