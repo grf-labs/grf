@@ -506,7 +506,8 @@ TEST_CASE("survival forest predictions have not changed", "[survival], [characte
   data.set_outcome_index(5);
   data.set_censor_index(6);
 
-  ForestTrainer trainer = survival_trainer();
+  bool fast_logrank = false;
+  ForestTrainer trainer = survival_trainer(fast_logrank);
   ForestOptions options = ForestTestUtilities::default_options();
   Forest forest = trainer.train(data, options);
 
@@ -536,7 +537,8 @@ TEST_CASE("survival forest predictions with NaNs have not changed", "[NaN], [sur
   data.set_outcome_index(5);
   data.set_censor_index(6);
 
-  ForestTrainer trainer = survival_trainer();
+  bool fast_logrank = false;
+  ForestTrainer trainer = survival_trainer(fast_logrank);
   ForestOptions options = ForestTestUtilities::default_options();
   Forest forest = trainer.train(data, options);
 

@@ -18,14 +18,19 @@
  #-------------------------------------------------------------------------------*/
 
 #include "splitting/factory/SurvivalSplittingRuleFactory.h"
+#include "splitting/AcceleratedSurvivalSplittingRule.h"
 #include "splitting/SurvivalSplittingRule.h"
 
 namespace grf {
 
+SurvivalSplittingRuleFactory::SurvivalSplittingRuleFactory(bool fast_logrank):
+  fast_logrank(fast_logrank) {}
+
 std::unique_ptr<SplittingRule> SurvivalSplittingRuleFactory::create(size_t max_num_unique_values,
                                                                     const TreeOptions& options) const {
-  return std::unique_ptr<SplittingRule>(new SurvivalSplittingRule(
-      options.get_alpha()));
+  return fast_logrank
+    ? std::unique_ptr<SplittingRule>(new AcceleratedSurvivalSplittingRule(options.get_alpha()))
+    : std::unique_ptr<SplittingRule>(new SurvivalSplittingRule(options.get_alpha()));
 }
 
 } // namespace grf

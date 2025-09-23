@@ -133,8 +133,8 @@ ll_regression_predict_oob <- function(forest_object, train_matrix, outcome_index
     .Call('_grf_ll_regression_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance)
 }
 
-survival_train <- function(train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, num_failures, clusters, samples_per_cluster, compute_oob_predictions, prediction_type, num_threads, seed, legacy_seed) {
-    .Call('_grf_survival_train', PACKAGE = 'grf', train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, num_failures, clusters, samples_per_cluster, compute_oob_predictions, prediction_type, num_threads, seed, legacy_seed)
+survival_train <- function(train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, num_failures, clusters, samples_per_cluster, compute_oob_predictions, prediction_type, fast_logrank, num_threads, seed, legacy_seed) {
+    .Call('_grf_survival_train', PACKAGE = 'grf', train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, num_failures, clusters, samples_per_cluster, compute_oob_predictions, prediction_type, fast_logrank, num_threads, seed, legacy_seed)
 }
 
 survival_predict <- function(forest_object, train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, test_matrix, num_threads, num_failures) {

@@ -22,6 +22,7 @@ survival_forest(
   alpha = 0.05,
   prediction.type = c("Kaplan-Meier", "Nelson-Aalen"),
   compute.oob.predictions = TRUE,
+  fast.logrank = FALSE,
   num.threads = NULL,
   seed = runif(1, 0, .Machine$integer.max)
 )
@@ -90,6 +91,12 @@ and lowering it may be beneficial).}
 Only relevant if `compute.oob.predictions` is TRUE. Default is "Kaplan-Meier".}
 
 \item{compute.oob.predictions}{Whether OOB predictions on training set should be precomputed. Default is TRUE.}
+
+\item{fast.logrank}{If TRUE, uses a fast approximate log-rank
+criterion that greatly speeds up computation with negligible loss of
+accuracy. Predictions may differ slightly from the exact method.
+Defaults to FALSE for consistency with earlier versions.
+For details see TODO.}
 
 \item{num.threads}{Number of threads used in training. By default, the number of threads is set
 to the maximum hardware concurrency.}

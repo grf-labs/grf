@@ -87,6 +87,11 @@
 #'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE the honesty.* parameters are not tuned.
 #'  Default is "none" (no parameters are tuned).
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
+#' @param fast.logrank If TRUE, uses a fast approximate log-rank criterion
+#'  that greatly speeds up computation of survival curves with negligible
+#'  loss of accuracy. Predictions may differ slightly from the exact method.
+#'  Defaults to FALSE for consistency with earlier versions. For details
+#'  see TODO.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -172,6 +177,7 @@ causal_survival_forest <- function(X, Y, W, D,
                                    ci.group.size = 2,
                                    tune.parameters = "none",
                                    compute.oob.predictions = TRUE,
+                                   fast.logrank = FALSE,
                                    num.threads = NULL,
                                    seed = runif(1, 0, .Machine$integer.max)) {
   target <- match.arg(target)
@@ -257,6 +263,7 @@ causal_survival_forest <- function(X, Y, W, D,
                         alpha = alpha,
                         prediction.type = "Nelson-Aalen", # to guarantee non-zero estimates.
                         compute.oob.predictions = TRUE,
+                        fast.logrank = fast.logrank,
                         num.threads = num.threads,
                         seed = seed)
 

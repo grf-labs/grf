@@ -46,10 +46,11 @@ Rcpp::List survival_train(const Rcpp::NumericMatrix& train_matrix,
                           unsigned int samples_per_cluster,
                           bool compute_oob_predictions,
                           int prediction_type,
+                          bool fast_logrank,
                           unsigned int num_threads,
                           unsigned int seed,
                           bool legacy_seed) {
-  ForestTrainer trainer = survival_trainer();
+  ForestTrainer trainer = survival_trainer(fast_logrank);
 
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);

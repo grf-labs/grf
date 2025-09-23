@@ -18,6 +18,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include "splitting/SurvivalSplittingRule.h"
+#include "splitting/AcceleratedSurvivalSplittingRule.h"
 #include "relabeling/NoopRelabelingStrategy.h"
 
 #include "commons/utility.h"
@@ -32,9 +33,10 @@ using namespace grf;
 // returning a vector of the best logrank statistic for each feature.
 std::vector<double> run_splits(const Data& data,
                                const TreeOptions& options,
-                               const std::unique_ptr<SurvivalSplittingRule>& splitting_rule,
                                const std::unique_ptr<RelabelingStrategy>& relabeling_strategy,
-                               size_t num_features) {
+                               size_t num_features,
+                               const std::unique_ptr<SurvivalSplittingRule>& splitting_rule = nullptr,
+                               const std::unique_ptr<AcceleratedSurvivalSplittingRule>& accelerated_splitting_rule = nullptr) {
   std::vector<double> best_logranks;
 
   size_t node = 0;
@@ -53,14 +55,25 @@ std::vector<double> run_splits(const Data& data,
     std::vector<size_t> possible_split_vars;
     possible_split_vars.push_back(split_var);
     double best_logrank = 0;
-    splitting_rule->find_best_split_internal(data,
-                                             possible_split_vars,
-                                             responses_by_sample,
-                                             samples[node],
-                                             split_value,
-                                             split_variable,
-                                             send_missing_left,
-                                             best_logrank);
+    if (splitting_rule != nullptr) {
+      splitting_rule->find_best_split_internal(data,
+        possible_split_vars,
+        responses_by_sample,
+        samples[node],
+        split_value,
+        split_variable,
+        send_missing_left,
+        best_logrank);
+    } else {
+      accelerated_splitting_rule->find_best_split_internal(data,
+        possible_split_vars,
+        responses_by_sample,
+        samples[node],
+        split_value,
+        split_variable,
+        send_missing_left,
+        best_logrank);
+    }
     best_logranks.push_back(best_logrank);
    }
 
@@ -79,7 +92,7 @@ TEST_CASE("survival splitting logrank calculation is correct", "[survival], [spl
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
   std::unique_ptr<SurvivalSplittingRule> surv_splitting_rule(new SurvivalSplittingRule(options.get_alpha()));
 
-  std::vector<double> logranks = run_splits(data, options, surv_splitting_rule, relabeling_strategy, num_features);
+  std::vector<double> logranks = run_splits(data, options, relabeling_strategy, num_features, surv_splitting_rule);
 
   std::vector<std::vector<double>> expected_logranks = FileTestUtilities::read_csv_file(
       "test/splitting/resources/survival_data_logrank_expected.csv");
@@ -89,4 +102,35 @@ TEST_CASE("survival splitting logrank calculation is correct", "[survival], [spl
     double expected_logrank = expected_logranks[i][0];
     REQUIRE(equal_doubles(logrank, expected_logrank, 1e-6));
   }
+}
+
+TEST_CASE("accelerated survival splitting logrank approximates exact criterion", "[survival], [splitting]") {
+  auto data_vec = load_data("test/splitting/resources/survival_data_logrank.csv");
+  Data data(data_vec);
+  size_t num_features = 500;
+  data.set_outcome_index(num_features);
+  data.set_censor_index(num_features + 1);
+
+  TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
+
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
+  std::unique_ptr<AcceleratedSurvivalSplittingRule> surv_splitting_rule(new AcceleratedSurvivalSplittingRule(options.get_alpha()));
+
+  std::vector<double> logranks = run_splits(data, options, relabeling_strategy, num_features, nullptr, surv_splitting_rule);
+
+  std::vector<std::vector<double>> expected_logranks = FileTestUtilities::read_csv_file(
+      "test/splitting/resources/survival_data_logrank_expected.csv");
+
+  double n = 0;
+  double mean_diff = 0;
+  for (size_t i = 0; i < logranks.size(); ++i) {
+    double logrank = logranks[i];
+    double expected_logrank = expected_logranks[i][0];
+    double diff =  std::abs(1 - expected_logrank / logrank);
+    REQUIRE(diff < 0.5);
+    mean_diff += diff;
+    n++;
+  }
+  mean_diff /= n;
+  REQUIRE(mean_diff < 0.075);
 }

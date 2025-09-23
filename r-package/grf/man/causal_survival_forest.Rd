@@ -29,6 +29,7 @@ causal_survival_forest(
   ci.group.size = 2,
   tune.parameters = "none",
   compute.oob.predictions = TRUE,
+  fast.logrank = FALSE,
   num.threads = NULL,
   seed = runif(1, 0, .Machine$integer.max)
 )
@@ -131,6 +132,12 @@ tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
 Default is "none" (no parameters are tuned).}
 
 \item{compute.oob.predictions}{Whether OOB predictions on training set should be precomputed. Default is TRUE.}
+
+\item{fast.logrank}{If TRUE, uses a fast approximate log-rank criterion
+that greatly speeds up computation of survival curves with negligible
+loss of accuracy. Predictions may differ slightly from the exact method.
+Defaults to FALSE for consistency with earlier versions. For details
+see TODO.}
 
 \item{num.threads}{Number of threads used in training. By default, the number of threads is set
 to the maximum hardware concurrency.}
