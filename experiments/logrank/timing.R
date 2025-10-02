@@ -60,6 +60,11 @@ tab.df$n = as.character(tab.df$n)
 tab.df$p = as.character(tab.df$p)
 print(xtable(tab.df), include.rownames = FALSE)
 
+data = get_data(100000, 50)
+print(m1 <- microbenchmark(survival_forest(data$X, data$Y, data$D, fast.logrank = FALSE, num.trees = 500, compute.oob.predictions = FALSE), times = 1, unit = "seconds"))
+print(m2 <- microbenchmark(survival_forest(data$X, data$Y, data$D, fast.logrank = TRUE, num.trees = 500, compute.oob.predictions = FALSE), times = 1, unit = "seconds"))
+summary(m1)$mean / summary(m2)$mean
+
 # n = 100000
 # p = 50
 # data = get_data(n, p)
