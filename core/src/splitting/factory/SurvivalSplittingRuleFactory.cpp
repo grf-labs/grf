@@ -23,10 +23,10 @@
 namespace grf {
 
 std::unique_ptr<SplittingRule> SurvivalSplittingRuleFactory::create(size_t max_num_unique_values,
-                                                                    size_t num_data_rows,
+                                                                    const Data& data,
                                                                     const TreeOptions& options) const {
   return std::unique_ptr<SplittingRule>(new SurvivalSplittingRule(
-      options.get_alpha()));
+      data.get_num_rows(), options.get_alpha()));
 }
 
 } // namespace grf
