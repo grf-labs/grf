@@ -27,6 +27,7 @@ ProbabilitySplittingRuleFactory::ProbabilitySplittingRuleFactory(size_t num_clas
     num_classes(num_classes) {}
 
 std::unique_ptr<SplittingRule> ProbabilitySplittingRuleFactory::create(size_t max_num_unique_values,
+                                                                       const Data& data,
                                                                        const TreeOptions& options) const {
   return std::unique_ptr<SplittingRule>(new ProbabilitySplittingRule(
       max_num_unique_values,

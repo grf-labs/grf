@@ -23,8 +23,8 @@
 
 namespace grf {
 
-SurvivalSplittingRule::SurvivalSplittingRule(double alpha):
-    alpha(alpha) {
+SurvivalSplittingRule::SurvivalSplittingRule(size_t num_data_rows, double alpha):
+    relabeled_failures(num_data_rows, 0), alpha(alpha) {
 }
 
 bool SurvivalSplittingRule::find_best_split(const Data& data,
@@ -99,9 +99,6 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
   std::vector<double> at_risk(num_failures + 1);
   at_risk[0] = static_cast<double>(size_node);
 
-  // allocating an N-sized (full data set size) array is faster than a hash table
-  std::vector<size_t> relabeled_failures(data.get_num_rows());
-
   std::vector<double> numerator_weights(num_failures + 1);
   std::vector<double> denominator_weights(num_failures + 1);
 
@@ -135,7 +132,7 @@ void SurvivalSplittingRule::find_best_split_internal(const Data& data,
 
   for (auto& var : possible_split_vars) {
     find_best_split_value(data, var, size_node, min_child_size, num_failures_node, num_failures,
-                          best_value, best_var, best_logrank, best_send_missing_left, samples, relabeled_failures,
+                          best_value, best_var, best_logrank, best_send_missing_left, samples,
                           count_failure, at_risk, numerator_weights, denominator_weights);
   }
 }
@@ -151,7 +148,6 @@ void SurvivalSplittingRule::find_best_split_value(const Data& data,
                                                   double& best_logrank,
                                                   bool& best_send_missing_left,
                                                   const std::vector<size_t>& samples,
-                                                  const std::vector<size_t>& relabeled_failures,
                                                   const std::vector<double>& count_failure,
                                                   const std::vector<double>& at_risk,
                                                   const std::vector<double>& numerator_weights,
