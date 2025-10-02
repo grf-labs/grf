@@ -61,7 +61,7 @@ std::unique_ptr<Tree> TreeTrainer::train(const Data& data,
 
   // nodes[0].size() is the number of samples subsampled for this tree.
   std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(
-      data.get_num_rows(), nodes[0].size(), options);
+      nodes[0].size(), data, options);
 
   size_t num_open_nodes = 1;
   size_t i = 0;

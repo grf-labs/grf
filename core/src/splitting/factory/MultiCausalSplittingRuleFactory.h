@@ -30,7 +30,7 @@ public:
                                   size_t num_treatments);
 
   std::unique_ptr<SplittingRule> create(size_t max_num_unique_values,
-                                        size_t num_data_rows,
+                                        const Data& data,
                                         const TreeOptions& options) const;
 private:
   size_t response_length;
