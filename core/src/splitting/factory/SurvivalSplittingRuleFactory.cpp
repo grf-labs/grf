@@ -27,10 +27,11 @@ SurvivalSplittingRuleFactory::SurvivalSplittingRuleFactory(bool fast_logrank):
   fast_logrank(fast_logrank) {}
 
 std::unique_ptr<SplittingRule> SurvivalSplittingRuleFactory::create(size_t max_num_unique_values,
+                                                                    const Data& data,
                                                                     const TreeOptions& options) const {
   return fast_logrank
-    ? std::unique_ptr<SplittingRule>(new AcceleratedSurvivalSplittingRule(options.get_alpha()))
-    : std::unique_ptr<SplittingRule>(new SurvivalSplittingRule(options.get_alpha()));
+    ? std::unique_ptr<SplittingRule>(new AcceleratedSurvivalSplittingRule(data.get_num_rows(), options.get_alpha()))
+    : std::unique_ptr<SplittingRule>(new SurvivalSplittingRule(data.get_num_rows(), options.get_alpha()));
 }
 
 } // namespace grf

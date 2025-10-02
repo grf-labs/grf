@@ -90,7 +90,7 @@ TEST_CASE("survival splitting logrank calculation is correct", "[survival], [spl
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
-  std::unique_ptr<SurvivalSplittingRule> surv_splitting_rule(new SurvivalSplittingRule(options.get_alpha()));
+  std::unique_ptr<SurvivalSplittingRule> surv_splitting_rule(new SurvivalSplittingRule(data.get_num_rows(), options.get_alpha()));
 
   std::vector<double> logranks = run_splits(data, options, relabeling_strategy, num_features, surv_splitting_rule);
 
@@ -114,7 +114,7 @@ TEST_CASE("accelerated survival splitting logrank approximates exact criterion",
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
-  std::unique_ptr<AcceleratedSurvivalSplittingRule> surv_splitting_rule(new AcceleratedSurvivalSplittingRule(options.get_alpha()));
+  std::unique_ptr<AcceleratedSurvivalSplittingRule> surv_splitting_rule(new AcceleratedSurvivalSplittingRule(data.get_num_rows(), options.get_alpha()));
 
   std::vector<double> logranks = run_splits(data, options, relabeling_strategy, num_features, nullptr, surv_splitting_rule);
 

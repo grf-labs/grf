@@ -33,6 +33,7 @@ public:
   SurvivalSplittingRuleFactory(bool fast_logrank);
 
   std::unique_ptr<SplittingRule> create(size_t max_num_unique_values,
+                                        const Data& data,
                                         const TreeOptions& options) const;
 private:
   bool fast_logrank;

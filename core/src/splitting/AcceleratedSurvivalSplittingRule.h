@@ -30,7 +30,7 @@ namespace grf {
 
 class AcceleratedSurvivalSplittingRule final: public SplittingRule {
 public:
-  AcceleratedSurvivalSplittingRule(double alpha);
+  AcceleratedSurvivalSplittingRule(size_t num_data_rows, double alpha);
 
   bool find_best_split(const Data& data,
                        size_t node,
@@ -66,10 +66,10 @@ private:
                              double& best_logrank,
                              bool& best_send_missing_left,
                              const std::vector<size_t>& samples,
-                             const std::vector<size_t>& relabeled_failures,
                              const std::vector<double>& cumsum_weights,
                              double gamma_node);
 
+  std::vector<size_t> relabeled_failures;
   double alpha;
 
   DISALLOW_COPY_AND_ASSIGN(AcceleratedSurvivalSplittingRule);

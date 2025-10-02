@@ -23,6 +23,7 @@
 namespace grf {
 
 std::unique_ptr<SplittingRule> RegressionSplittingRuleFactory::create(size_t max_num_unique_values,
+                                                                      const Data& data,
                                                                       const TreeOptions& options) const {
   return std::unique_ptr<SplittingRule>(new RegressionSplittingRule(
       max_num_unique_values,
