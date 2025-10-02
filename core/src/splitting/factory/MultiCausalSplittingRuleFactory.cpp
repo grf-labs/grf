@@ -28,6 +28,7 @@ MultiCausalSplittingRuleFactory::MultiCausalSplittingRuleFactory(size_t response
   num_treatments(num_treatments) {}
 
 std::unique_ptr<SplittingRule> MultiCausalSplittingRuleFactory::create(size_t max_num_unique_values,
+                                                                       size_t num_data_rows,
                                                                        const TreeOptions& options) const {
   return std::unique_ptr<SplittingRule>(new MultiCausalSplittingRule(
       max_num_unique_values,

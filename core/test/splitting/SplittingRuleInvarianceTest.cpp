@@ -41,7 +41,7 @@ void run_one_split(const Data& data,
                    size_t num_features,
                    size_t& split_var,
                    double& split_value) {
-  std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(data.get_num_rows(), options);
+  std::unique_ptr<SplittingRule> splitting_rule = splitting_rule_factory->create(data.get_num_rows(), data.get_num_rows(), options);
   std::vector<size_t> possible_split_vars(num_features - 1);
   // Fill with {0, 1, 2, ..., Xj}
   std::iota(possible_split_vars.begin(), possible_split_vars.end(), 0);

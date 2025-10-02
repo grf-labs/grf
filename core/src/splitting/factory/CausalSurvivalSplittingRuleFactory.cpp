@@ -23,7 +23,8 @@
 namespace grf {
 
 std::unique_ptr<SplittingRule> CausalSurvivalSplittingRuleFactory::create(size_t max_num_unique_values,
-                                                                        const TreeOptions& options) const {
+                                                                          size_t num_data_rows,
+                                                                          const TreeOptions& options) const {
   return std::unique_ptr<SplittingRule>(new CausalSurvivalSplittingRule(
       max_num_unique_values,
       options.get_min_node_size(),

@@ -34,6 +34,7 @@ public:
   virtual ~SplittingRuleFactory() = default;
 
   virtual std::unique_ptr<SplittingRule> create(size_t max_num_unique_values,
+                                                size_t num_data_rows,
                                                 const TreeOptions& options) const = 0;
 };
 
