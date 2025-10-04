@@ -66,6 +66,9 @@
 #'  Journal of the Royal Statistical Society: Series B, 85(2), 2023.
 #' @references Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer.
 #'   "Random survival forests." The Annals of Applied Statistics 2.3 (2008): 841-860.
+#' @references Sverdrup, Erik, James Yang, and Michael LeBlanc.
+#'  "Efficient Log-Rank Updates for Random Survival Forests."
+#'  arXiv preprint arXiv:TODO, 2025.
 #'
 #' @examples
 #' \donttest{

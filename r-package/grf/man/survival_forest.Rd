@@ -160,4 +160,8 @@ Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
 
 Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer.
   "Random survival forests." The Annals of Applied Statistics 2.3 (2008): 841-860.
+
+Sverdrup, Erik, James Yang, and Michael LeBlanc.
+ "Efficient Log-Rank Updates for Random Survival Forests."
+ arXiv preprint arXiv:TODO, 2025.
 }
