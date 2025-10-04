@@ -50,11 +50,9 @@
 #' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 #' Only relevant if `compute.oob.predictions` is TRUE. Default is "Kaplan-Meier".
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
-#' @param fast.logrank If TRUE, uses a fast approximate log-rank
-#'  criterion that greatly speeds up computation with negligible loss of
-#'  accuracy. Predictions may differ slightly from the exact method.
-#'  Defaults to FALSE for consistency with earlier versions.
-#'  For details see TODO.
+#' @param fast.logrank If TRUE, uses a fast approximate log-rank criterion that speeds up forest training without
+#'  loss of accuracy. When enabled, there is no need to discretize, or constrain the event grid to improve speed.
+#'  Predictions may differ slightly from the exact method. Default is FALSE for consistency with earlier versions.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.

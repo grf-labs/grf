@@ -92,11 +92,9 @@ Only relevant if `compute.oob.predictions` is TRUE. Default is "Kaplan-Meier".}
 
 \item{compute.oob.predictions}{Whether OOB predictions on training set should be precomputed. Default is TRUE.}
 
-\item{fast.logrank}{If TRUE, uses a fast approximate log-rank
-criterion that greatly speeds up computation with negligible loss of
-accuracy. Predictions may differ slightly from the exact method.
-Defaults to FALSE for consistency with earlier versions.
-For details see TODO.}
+\item{fast.logrank}{If TRUE, uses a fast approximate log-rank criterion that speeds up forest training without
+loss of accuracy. When enabled, there is no need to discretize, or constrain the event grid to improve speed.
+Predictions may differ slightly from the exact method. Default is FALSE for consistency with earlier versions.}
 
 \item{num.threads}{Number of threads used in training. By default, the number of threads is set
 to the maximum hardware concurrency.}
