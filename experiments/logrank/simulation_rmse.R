@@ -179,14 +179,9 @@ generate_data <- function(n, p, Y.max = NULL, y0 = NULL, rho = 0, n.mc = 10000, 
 
 
 dgps = c("type1", "type2", "type3", "type4", "type5")
-# nsim = 50
 nsim = 250
 n = 5000
 p = 10
-
-# dgp = "type1"
-# p = 5
-# sim=1
 
 out = list()
 for (dgp in dgps) {
