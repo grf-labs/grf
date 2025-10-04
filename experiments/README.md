@@ -14,6 +14,8 @@ This directory contains replication code for
 
 * Sverdrup, Petukhova, and Wager (2025): `ijmpr`
 
+* Sverdrup, Yang, and LeBlanc (2025): `logrank`
+
 * Wager and Athey (2018): This paper is not based on GRF, but on the deprecated `causalForest`. For replication code see https://github.com/swager/causalForest
 
 * Yadlowsky, Fleming, Shah, Brunskill, and Wager (2025): The method is available in the GRF function `rank_average_treatment_effect`. For replication code see https://github.com/som-shahlab/RATE-experiments
@@ -53,6 +55,10 @@ Erik Sverdrup, Maria Petukhova, and Stefan Wager.
 <i>International Journal of Methods in Psychiatric Research</i>, 34(2), 2025.
 [<a href="https://doi.org/10.1002/mpr.70015">paper</a>,
 <a href="https://arxiv.org/abs/2409.01578">arxiv</a>]
+
+Erik Sverdrup, James Yang, and Michael LeBlanc.
+<b>Efficient Log-Rank Updates for Random Survival Forests.</b> 2025.
+[<a href="TODO">arxiv</a>]
 
 Stefan Wager and Susan Athey.
 <b>Estimation and Inference of Heterogeneous Treatment Effects using Random Forests.</b>
