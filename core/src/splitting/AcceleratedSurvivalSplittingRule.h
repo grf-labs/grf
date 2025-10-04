@@ -28,6 +28,11 @@
 
 namespace grf {
 
+/**
+  * This splitting rule is an accelerated version of SurvivalSplittingRule.
+  * It computes an approximation of the logrank criterion that can be
+  * updated quickly at every split point.
+  */
 class AcceleratedSurvivalSplittingRule final: public SplittingRule {
 public:
   AcceleratedSurvivalSplittingRule(size_t num_data_rows, double alpha);
