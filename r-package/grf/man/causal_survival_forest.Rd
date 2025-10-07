@@ -29,6 +29,7 @@ causal_survival_forest(
   ci.group.size = 2,
   tune.parameters = "none",
   compute.oob.predictions = TRUE,
+  fast.logrank = FALSE,
   num.threads = NULL,
   seed = runif(1, 0, .Machine$integer.max)
 )
@@ -131,6 +132,9 @@ tunable: ("sample.fraction", "mtry", "min.node.size", "honesty.fraction",
 Default is "none" (no parameters are tuned).}
 
 \item{compute.oob.predictions}{Whether OOB predictions on training set should be precomputed. Default is TRUE.}
+
+\item{fast.logrank}{Whether to use the `fast.logrank` option when estimating censoring corrections with
+`survival_forest`. Default is FALSE.}
 
 \item{num.threads}{Number of threads used in training. By default, the number of threads is set
 to the maximum hardware concurrency.}

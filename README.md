@@ -167,6 +167,10 @@ Erik Sverdrup, Maria Petukhova, and Stefan Wager.
 [<a href="https://doi.org/10.1002/mpr.70015">paper</a>,
 <a href="https://arxiv.org/abs/2409.01578">arxiv</a>]
 
+Erik Sverdrup, James Yang, and Michael LeBlanc.
+<b>Efficient Log-Rank Updates for Random Survival Forests.</b> 2025.
+[<a href="https://arxiv.org/abs/2510.03665">arxiv</a>]
+
 Stefan Wager.
 <b>Causal Inference: A Statistical Learning Approach.</b> 2024.
 [<a href="https://web.stanford.edu/~swager/causal_inf_book.pdf">pdf</a>]

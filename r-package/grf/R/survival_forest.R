@@ -47,9 +47,12 @@
 #'  each child has to be at least one or `alpha` times the number of samples in the parent node. Default is 0.05.
 #'  (On data with very low event rate the default value may be too high for the forest to split
 #'  and lowering it may be beneficial).
-#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
 #' @param prediction.type The type of estimate of the survival function, choices are "Kaplan-Meier" or "Nelson-Aalen".
 #' Only relevant if `compute.oob.predictions` is TRUE. Default is "Kaplan-Meier".
+#' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
+#' @param fast.logrank If TRUE, uses a fast approximate log-rank criterion that speeds up forest training without
+#'  loss of accuracy. When enabled, there is no need to discretize, or constrain the event grid to improve speed.
+#'  Predictions may differ slightly from the exact method. Default is FALSE for consistency with earlier versions.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -61,6 +64,9 @@
 #'  Journal of the Royal Statistical Society: Series B, 85(2), 2023.
 #' @references Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer.
 #'   "Random survival forests." The Annals of Applied Statistics 2.3 (2008): 841-860.
+#' @references Sverdrup, Erik, James Yang, and Michael LeBlanc.
+#'  "Efficient Log-Rank Updates for Random Survival Forests."
+#'  arXiv preprint arXiv:2510.03665, 2025.
 #'
 #' @examples
 #' \donttest{
@@ -120,6 +126,7 @@ survival_forest <- function(X, Y, D,
                             alpha = 0.05,
                             prediction.type = c("Kaplan-Meier", "Nelson-Aalen"),
                             compute.oob.predictions = TRUE,
+                            fast.logrank = FALSE,
                             num.threads = NULL,
                             seed = runif(1, 0, .Machine$integer.max)) {
   has.missing.values <- validate_X(X, allow.na = TRUE)
@@ -167,6 +174,7 @@ survival_forest <- function(X, Y, D,
                num.failures = length(failure.times),
                prediction.type = prediction.type,
                compute.oob.predictions = compute.oob.predictions,
+               fast.logrank = fast.logrank,
                num.threads = num.threads,
                seed = seed,
                legacy.seed = get_legacy_seed())

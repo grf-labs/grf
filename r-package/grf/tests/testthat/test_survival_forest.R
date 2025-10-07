@@ -1,5 +1,3 @@
-library(grf)
-
 test_that("a simple survival forest workflow works", {
   n <- 100
   p <- 5
@@ -190,4 +188,75 @@ test_that("survival forest predict is internally consistent", {
                predict(sfOOB, failure.times = rep(min(Y) - 10, n), prediction.times = "time")$predictions)
   expect_equal(predict(sf, failure.times = max(Y) + 10)$predictions,
                predict(sfOOB, failure.times = rep(max(Y) + 10, n), prediction.times = "time")$predictions)
+})
+
+test_that("survival_forest with fast logrank splitting works as expected with missing values", {
+  n <- 1000
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
+  censor.time <- rexp(n)
+  Y <- pmin(failure.time, censor.time)
+  D <- as.integer(failure.time <= censor.time)
+  nmissing <- 500
+  X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
+
+  sf <- survival_forest(X, Y, D, num.trees = 500, fast.logrank = TRUE)
+
+  # MIA with data duplication
+  Xl <- X
+  Xr <- X
+  Xl[is.nan(Xl)] <- -1e9
+  Xr[is.nan(Xr)] <- 1e9
+  X.mia <- cbind(Xl, Xr)
+  sf.mia <- survival_forest(X.mia, Y, D, num.trees = 500, fast.logrank = TRUE)
+
+  mse.oob.diff <- mean(rowMeans((predict(sf)$predictions - predict(sf.mia)$predictions)^2))
+  mse.diff <- mean(rowMeans((predict(sf, X)$predictions - predict(sf.mia, X.mia)$predictions)^2))
+
+  expect_equal(mse.oob.diff, 0, tolerance = 0.001)
+  expect_equal(mse.diff, 0, tolerance = 0.001)
+})
+
+test_that("survival_forest with fast logrank splitting is similar to exact criterion", {
+  # Simple dgp
+  n <- 1000
+  p <- 5
+  X <- matrix(rnorm(n * p), n, p)
+  failure.time <- -log(runif(n)) * exp(0.1 * X[, 1])
+  censor.time <- rexp(n)
+  Y <- round(pmin(failure.time, censor.time), 2)
+  D <- as.integer(failure.time <= censor.time)
+
+  sf.exact <- survival_forest(X, Y, D, num.trees = 500, fast.logrank = FALSE, seed = 42)
+  sf.approx <- survival_forest(X, Y, D, num.trees = 500, fast.logrank = TRUE, seed = 42)
+  mean.rmse1 <- sqrt(mean(rowMeans((sf.exact$predictions - sf.approx$predictions)^2)))
+  expect_lt(mean.rmse1, 0.025)
+
+  # With NaNs
+  nmissing <- 1000
+  X[cbind(sample(1:n, nmissing), sample(1:p, nmissing, replace = TRUE))] <- NaN
+
+  sf.exact <- survival_forest(X, Y, D, num.trees = 500, fast.logrank = FALSE, seed = 42)
+  sf.approx <- survival_forest(X, Y, D, num.trees = 500, fast.logrank = TRUE, seed = 42)
+  mean.rmse2 <- sqrt(mean(rowMeans((sf.exact$predictions - sf.approx$predictions)^2)))
+  expect_lt(mean.rmse2, 0.025)
+})
+
+test_that("survival_forest with fast logrank splits on NaN works as expected", {
+  # This should split on -1 and send NaN right
+  n <- 1000
+  p <- 1
+  X <- round(matrix(rnorm(n * p), n, p), 0)
+  failure.time <- exp(2 * (X[, 1] >= 0)) * rexp(n)
+  censor.time <- 10 * rexp(n)
+  Y <- pmin(failure.time, censor.time)
+  D <- as.integer(failure.time <= censor.time)
+  Y <- round(Y,2)
+
+  X[X[, 1] == 1, 1] <- NaN
+  sf.right <- survival_forest(X, Y, D, num.trees = 1, fast.logrank = TRUE,
+                        sample.fraction = 1, min.node.size = n / 4)
+  expect_equal(sf.right[["_split_values"]][[1]][1], -1)
+  expect_equal(sf.right[["_send_missing_left"]][[1]][1], FALSE)
 })

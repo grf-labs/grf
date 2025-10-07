@@ -168,8 +168,39 @@ TEST_CASE("survival splitting on Xij then setting all values to the left to NaN 
 
   TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
 
+  bool fast_logrank = false;
   std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
-  auto splitting_rule_factory = std::unique_ptr<SplittingRuleFactory>(new SurvivalSplittingRuleFactory());
+  auto splitting_rule_factory = std::unique_ptr<SplittingRuleFactory>(new SurvivalSplittingRuleFactory(fast_logrank));
+
+  size_t split_var, split_var_nan;
+  double split_val, split_val_nan;
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var, split_val);
+
+  // Set all values to the left of the split to missing
+  for(size_t row = 0; row < data.get_num_rows(); ++row) {
+    double value = data.get(row, split_var);
+    if (value < split_val) {
+      set_data(data_vec, row, split_var, NAN);
+    }
+  }
+
+  run_one_split(data, options, splitting_rule_factory, relabeling_strategy, num_features, split_var_nan, split_val_nan);
+  REQUIRE(split_var == split_var_nan);
+  REQUIRE(split_val == split_val_nan);
+}
+
+TEST_CASE("accelerated survival splitting on Xij then setting all values to the left to NaN yields the same split", "[NaN], [survival], [splitting]") {
+  auto data_vec = load_data("test/forest/resources/survival_data_MIA.csv");
+  Data data(data_vec);
+  size_t num_features = 5;
+  data.set_outcome_index(5);
+  data.set_censor_index(6);
+
+  TreeOptions options = ForestTestUtilities::default_options().get_tree_options();
+
+  bool fast_logrank = true;
+  std::unique_ptr<RelabelingStrategy> relabeling_strategy(new NoopRelabelingStrategy());
+  auto splitting_rule_factory = std::unique_ptr<SplittingRuleFactory>(new SurvivalSplittingRuleFactory(fast_logrank));
 
   size_t split_var, split_var_nan;
   double split_val, split_val_nan;

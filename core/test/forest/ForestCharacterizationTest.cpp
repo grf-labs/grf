@@ -506,7 +506,8 @@ TEST_CASE("survival forest predictions have not changed", "[survival], [characte
   data.set_outcome_index(5);
   data.set_censor_index(6);
 
-  ForestTrainer trainer = survival_trainer();
+  bool fast_logrank = false;
+  ForestTrainer trainer = survival_trainer(fast_logrank);
   ForestOptions options = ForestTestUtilities::default_options();
   Forest forest = trainer.train(data, options);
 
@@ -536,7 +537,8 @@ TEST_CASE("survival forest predictions with NaNs have not changed", "[NaN], [sur
   data.set_outcome_index(5);
   data.set_censor_index(6);
 
-  ForestTrainer trainer = survival_trainer();
+  bool fast_logrank = false;
+  ForestTrainer trainer = survival_trainer(fast_logrank);
   ForestOptions options = ForestTestUtilities::default_options();
   Forest forest = trainer.train(data, options);
 
@@ -556,6 +558,68 @@ TEST_CASE("survival forest predictions with NaNs have not changed", "[NaN], [sur
 
   std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
       "test/forest/resources/survival_predictions_MIA.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+}
+
+TEST_CASE("survival forest (fast logrank) predictions have not changed", "[survival], [characterization]") {
+  size_t num_failures = 149;
+  auto data_vec = load_data("test/forest/resources/survival_data.csv");
+  Data data(data_vec);
+  data.set_outcome_index(5);
+  data.set_censor_index(6);
+
+  bool fast_logrank = true;
+  ForestTrainer trainer = survival_trainer(fast_logrank);
+  ForestOptions options = ForestTestUtilities::default_options();
+  Forest forest = trainer.train(data, options);
+
+  int prediction_type = 0;
+  ForestPredictor predictor = survival_predictor(4, num_failures, prediction_type);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data, false);
+  std::vector<Prediction> predictions = predictor.predict(forest, data, data, false);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/survival_fastlogrank_oob_predictions.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/survival_fastlogrank_predictions.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/survival_fastlogrank_oob_predictions.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/survival_fastlogrank_predictions.csv");
+  REQUIRE(equal_predictions(predictions, expected_predictions));
+}
+
+TEST_CASE("survival forest (fast logrank) predictions with NaNs have not changed", "[NaN], [survival], [characterization]") {
+  size_t num_failures = 149;
+  auto data_vec = load_data("test/forest/resources/survival_data_MIA.csv");
+  Data data(data_vec);
+  data.set_outcome_index(5);
+  data.set_censor_index(6);
+
+  bool fast_logrank = true;
+  ForestTrainer trainer = survival_trainer(fast_logrank);
+  ForestOptions options = ForestTestUtilities::default_options();
+  Forest forest = trainer.train(data, options);
+
+  int prediction_type = 0;
+  ForestPredictor predictor = survival_predictor(4, num_failures, prediction_type);
+  std::vector<Prediction> oob_predictions = predictor.predict_oob(forest, data, false);
+  std::vector<Prediction> predictions = predictor.predict(forest, data, data, false);
+
+#ifdef UPDATE_PREDICTION_FILES
+  update_predictions_file("test/forest/resources/survival_fastlogrank_oob_predictions_MIA.csv", oob_predictions);
+  update_predictions_file("test/forest/resources/survival_fastlogrank_predictions_MIA.csv", predictions);
+#endif
+
+  std::vector<std::vector<double>> expected_oob_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/survival_fastlogrank_oob_predictions_MIA.csv");
+  REQUIRE(equal_predictions(oob_predictions, expected_oob_predictions));
+
+  std::vector<std::vector<double>> expected_predictions = FileTestUtilities::read_csv_file(
+      "test/forest/resources/survival_fastlogrank_predictions_MIA.csv");
   REQUIRE(equal_predictions(predictions, expected_predictions));
 }
 
