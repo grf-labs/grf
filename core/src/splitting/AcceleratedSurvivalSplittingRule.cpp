@@ -249,7 +249,7 @@ void AcceleratedSurvivalSplittingRule::find_best_split_value(const Data& data,
       // If the next sample value is different we can evaluate a split here
       if (sample_value != next_sample_value) {
         // The numerator is identical to the one in SurvivalSplittingRule, but calculated in O(1) updates
-        // The denominator is an approximation, but which can be updated in O(1) (details are in arXiv TODO)
+        // The denominator is an approximation, but which can be updated in O(1) (details are in https://arxiv.org/abs/2510.03665)
         double logrank = 0;
         if (E1 > 0 && E2 > 0) {
           double denominator = 1 / E1 + 1 / E2;

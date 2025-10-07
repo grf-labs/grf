@@ -161,5 +161,5 @@ Ishwaran, Hemant, Udaya B. Kogalur, Eugene H. Blackstone, and Michael S. Lauer.
 
 Sverdrup, Erik, James Yang, and Michael LeBlanc.
  "Efficient Log-Rank Updates for Random Survival Forests."
- arXiv preprint arXiv:TODO, 2025.
+ arXiv preprint arXiv:2510.03665, 2025.
 }

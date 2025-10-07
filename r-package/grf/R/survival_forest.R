@@ -66,7 +66,7 @@
 #'   "Random survival forests." The Annals of Applied Statistics 2.3 (2008): 841-860.
 #' @references Sverdrup, Erik, James Yang, and Michael LeBlanc.
 #'  "Efficient Log-Rank Updates for Random Survival Forests."
-#'  arXiv preprint arXiv:TODO, 2025.
+#'  arXiv preprint arXiv:2510.03665, 2025.
 #'
 #' @examples
 #' \donttest{
