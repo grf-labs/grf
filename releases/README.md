@@ -30,7 +30,7 @@ Run `R CMD check --as-cran --run-donttest <release tarball>`. There should only 
 
 **Check package using win-builder**
 
-Upload the release tarball to https://win-builder.r-project.org/upload.aspx to check it against the latest R-devel and also R-release on Windows. To test a larger release extra carefully on even more systems you can check it here as well: https://builder.r-hub.io/. For extra checks for a major release, upload a tarball that includes all the R tests not intended to be run on CRAN.
+Upload the release tarball to https://win-builder.r-project.org/upload.aspx to check it against the latest R-devel and also R-release on Windows. To test a larger release extra carefully on even more systems you can check it on R-Hub. For extra checks for a major release, upload a tarball that includes all the R tests not intended to be run on CRAN.
 
 **Submit to CRAN**
 
