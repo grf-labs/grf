@@ -1,0 +1,5 @@
+/Users/sermetpekin/Desktop/git_repos/grf/build/CMakeFiles/debug.dir
+/Users/sermetpekin/Desktop/git_repos/grf/build/CMakeFiles/release.dir
+/Users/sermetpekin/Desktop/git_repos/grf/build/CMakeFiles/grf.dir
+/Users/sermetpekin/Desktop/git_repos/grf/build/CMakeFiles/edit_cache.dir
+/Users/sermetpekin/Desktop/git_repos/grf/build/CMakeFiles/rebuild_cache.dir

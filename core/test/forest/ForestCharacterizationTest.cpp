@@ -29,7 +29,7 @@
 
 #include "catch.hpp"
 
-//#define UPDATE_PREDICTION_FILES
+// #define UPDATE_PREDICTION_FILES
 
 using namespace grf;
 
