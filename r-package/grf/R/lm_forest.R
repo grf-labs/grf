@@ -81,7 +81,7 @@
 #'
 #' @examples
 #' \donttest{
-#' if (require("rdd", quietly = TRUE)) {
+#' if (require("rdrobust", quietly = TRUE)) {
 #' # Train a LM Forest to estimate CATEs in a regression discontinuity design.
 #' # Simulate a simple example with a heterogeneous jump in the CEF.
 #' n <- 2000
@@ -93,15 +93,11 @@
 #' tau <- pmax(0.5 * X[, 1], 0)
 #' Y <- tau * W  + 1 / (1 + exp(2 * Z)) + 0.2 * rnorm(n)
 #'
-#' # Compute the Imbens-Kalyanaraman MSE-optimal bandwidth for a local linear regression.
-#' bandwidth <- IKbandwidth(Z, Y, cutoff)
+#' # Compute the MSE-optimal bandwidth for a local linear regression.
+#' bandwidth <- rdrobust::rdbwselect(Y, Z, cutoff)$bws[[1]] # Alternatively, specify bandwith manually.
 #' # Compute kernel weights for a triangular kernel.
-#' sample.weights <- kernelwts(Z, cutoff, bandwidth, "triangular")
-#'
-#' # Alternatively, specify bandwith and triangular kernel weights without using the `rdd` package.
-#' # bandwidth <- # user can hand-specify this.
-#' # dist <- abs((Z - cutoff) / bandwidth)
-#' # sample.weights <- (1 - dist) * (dist <= 1) / bandwidth
+#' dist <- abs((Z - cutoff) / bandwidth)
+#' sample.weights <- (1 - dist) * (dist <= 1) / bandwidth
 #'
 #' # Estimate a local linear regression with the running variable Z conditional on covariates X = x:
 #' # Y = c(x) + tau(x) W + b(x) Z.
@@ -276,7 +272,7 @@ lm_forest <- function(X, Y, W,
 #'
 #' @examples
 #' \donttest{
-#' if (require("rdd", quietly = TRUE)) {
+#' if (require("rdrobust", quietly = TRUE)) {
 #' # Train a LM Forest to estimate CATEs in a regression discontinuity design.
 #' # Simulate a simple example with a heterogeneous jump in the CEF.
 #' n <- 2000
@@ -288,15 +284,11 @@ lm_forest <- function(X, Y, W,
 #' tau <- pmax(0.5 * X[, 1], 0)
 #' Y <- tau * W  + 1 / (1 + exp(2 * Z)) + 0.2 * rnorm(n)
 #'
-#' # Compute the Imbens-Kalyanaraman MSE-optimal bandwidth for a local linear regression.
-#' bandwidth <- IKbandwidth(Z, Y, cutoff)
+#' # Compute the MSE-optimal bandwidth for a local linear regression.
+#' bandwidth <- rdrobust::rdbwselect(Y, Z, cutoff)$bws[[1]] # Alternatively, specify bandwith manually.
 #' # Compute kernel weights for a triangular kernel.
-#' sample.weights <- kernelwts(Z, cutoff, bandwidth, "triangular")
-#'
-#' # Alternatively, specify bandwith and triangular kernel weights without using the `rdd` package.
-#' # bandwidth <- # user can hand-specify this.
-#' # dist <- abs((Z - cutoff) / bandwidth)
-#' # sample.weights <- (1 - dist) * (dist <= 1) / bandwidth
+#' dist <- abs((Z - cutoff) / bandwidth)
+#' sample.weights <- (1 - dist) * (dist <= 1) / bandwidth
 #'
 #' # Estimate a local linear regression with the running variable Z conditional on covariates X = x:
 #' # Y = c(x) + tau(x) W + b(x) Z.

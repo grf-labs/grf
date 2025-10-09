@@ -1,6 +1,6 @@
 Package: grf
 Title: Generalized Random Forests
-Version: 2.4.0
+Version: 2.5.0
 Authors@R: c(
     person("Julie", "Tibshirani", role = "aut", email = "jtibs@cs.stanford.edu"),
     person("Susan", "Athey", role = "aut"),
@@ -33,7 +33,7 @@ RoxygenNote: 7.3.2
 Suggests:
     DiagrammeR,
     MASS,
-    rdd,
+    rdrobust,
     survival (>= 3.2-8),
     testthat (>= 3.0.4)
 SystemRequirements: GNU make
