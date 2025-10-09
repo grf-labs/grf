@@ -4,7 +4,7 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.5.0] - 2025-10-TODO
+## [2.5.0] - 2025-10-09
 
 ### Added
 - Add option `fast.logrank` for faster survival forest training in `survival_forest` and `causal_survival_forest`. This algorithmic approximation speeds up computation of the forest training criterion, making training time ~independent of the number of time points in the data. Statistical performance is essentially unchanged, but prediction outputs may differ slightly from previous versions. For backward compatibility, this option is currently disabled (FALSE) by default. [#1509](https://github.com/grf-labs/grf/pull/1509)
