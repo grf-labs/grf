@@ -314,6 +314,15 @@ validate_sandwich <- function(subset.weights) {
   }
 }
 
+get_progress_bar <- function() {
+  opt <- getOption("grf.progress.bar", default = FALSE)
+  if (!is.logical(opt) || length(opt) != 1) {
+    stop("grf option `grf.progress.bar` should be either TRUE or FALSE.")
+  }
+
+  opt
+}
+
 get_legacy_seed <- function() {
   opt <- getOption("grf.legacy.seed", default = FALSE)
   if (!is.logical(opt) || length(opt) != 1) {
