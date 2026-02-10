@@ -20,6 +20,7 @@
 #ifndef GRF_FORESTOPTIONS_H
 #define GRF_FORESTOPTIONS_H
 
+#include <iostream>
 
 #include "commons/globals.h"
 #include "sampling/SamplingOptions.h"
@@ -43,7 +44,8 @@ public:
                 uint random_seed,
                 bool legacy_seed,
                 const std::vector<size_t>& sample_clusters,
-                uint samples_per_cluster);
+                uint samples_per_cluster,
+                std::ostream* progress_bar_output = nullptr);
 
   static uint validate_num_threads(uint num_threads);
 
@@ -59,6 +61,8 @@ public:
   // Toggle between seed and num_threads dependence to reproduce behavior prior to grf 2.4.0.
   bool get_legacy_seed() const;
 
+  std::ostream* get_progress_bar_output() const;
+
 private:
   uint num_trees;
   size_t ci_group_size;
@@ -70,6 +74,8 @@ private:
   uint num_threads;
   uint random_seed;
   bool legacy_seed;
+
+  std::ostream* progress_bar_output;
 };
 
 } // namespace grf

@@ -70,6 +70,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
 
   std::vector<std::unique_ptr<Tree>> trees;
   trees.reserve(num_trees);
+  ProgressBar progress_bar(num_trees, options.get_progress_bar_output());
 
   for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
     size_t start_index = thread_ranges[i];
@@ -81,8 +82,10 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                  start_index,
                                  num_trees_batch,
                                  std::ref(data),
-                                 options));
+                                 options,
+                                 std::ref(progress_bar)));
   }
+  progress_bar.finish();
 
   for (auto& future : futures) {
     std::vector<std::unique_ptr<Tree>> thread_trees = future.get();
@@ -90,7 +93,6 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                  std::make_move_iterator(thread_trees.begin()),
                  std::make_move_iterator(thread_trees.end()));
   }
-
   return trees;
 }
 
@@ -98,7 +100,8 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
     size_t start,
     size_t num_trees,
     const Data& data,
-    const ForestOptions& options) const {
+    const ForestOptions& options,
+    ProgressBar& progress_bar) const {
   size_t ci_group_size = options.get_ci_group_size();
 
   std::mt19937_64 random_number_generator(options.get_random_seed() + start);
@@ -118,11 +121,13 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
     if (ci_group_size == 1) {
       std::unique_ptr<Tree> tree = train_tree(data, sampler, options);
       trees.push_back(std::move(tree));
+      progress_bar.increment(1);
     } else {
       std::vector<std::unique_ptr<Tree>> group = train_ci_group(data, sampler, options);
       trees.insert(trees.end(),
           std::make_move_iterator(group.begin()),
           std::make_move_iterator(group.end()));
+      progress_bar.increment(ci_group_size);
     }
   }
   return trees;
@@ -152,6 +157,31 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_ci_group(const Data& dat
     trees.push_back(std::move(tree));
   }
   return trees;
+}
+
+ForestTrainer::ProgressBar::ProgressBar(int total,
+                                        std::ostream* os) {
+  this->total = total;
+  if (os == nullptr) {
+    bar.set_display(true); //TODO
+    bar.set_ostream(std::cerr);
+  } else {
+    bar.set_display(true);
+    bar.set_ostream(*os);
+  }
+}
+
+void ForestTrainer::ProgressBar::increment(int n) {
+  int v = done.fetch_add(n, std::memory_order_relaxed) + n;
+  if (try_lock.try_lock()) {
+    bar.update(v, total);
+    try_lock.unlock();
+  }
+}
+
+void ForestTrainer::ProgressBar::finish() {
+  std::lock_guard<std::mutex> g(try_lock);
+  bar.update(total, total);
 }
 
 } // namespace grf

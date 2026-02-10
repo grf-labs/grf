@@ -39,13 +39,15 @@ ForestOptions::ForestOptions(uint num_trees,
                              uint random_seed,
                              bool legacy_seed,
                              const std::vector<size_t>& sample_clusters,
-                             uint samples_per_cluster):
+                             uint samples_per_cluster,
+                             std::ostream* progress_bar_output):
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
     tree_options(mtry, min_node_size, honesty, honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty),
     sampling_options(samples_per_cluster, sample_clusters),
     random_seed(random_seed),
-    legacy_seed(legacy_seed) {
+    legacy_seed(legacy_seed),
+    progress_bar_output(progress_bar_output) {
 
   this->num_threads = validate_num_threads(num_threads);
 
@@ -99,6 +101,10 @@ uint ForestOptions::validate_num_threads(uint num_threads) {
   } else {
     throw std::runtime_error("A negative number of threads was provided.");
   }
+}
+
+std::ostream* ForestOptions::get_progress_bar_output() const {
+  return progress_bar_output;
 }
 
 } // namespace grf
