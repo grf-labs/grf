@@ -85,14 +85,13 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                  options,
                                  std::ref(progress_bar)));
   }
-  progress_bar.finish();
-
   for (auto& future : futures) {
     std::vector<std::unique_ptr<Tree>> thread_trees = future.get();
     trees.insert(trees.end(),
-                 std::make_move_iterator(thread_trees.begin()),
-                 std::make_move_iterator(thread_trees.end()));
+    std::make_move_iterator(thread_trees.begin()),
+    std::make_move_iterator(thread_trees.end()));
   }
+  progress_bar.finish();
   return trees;
 }
 
