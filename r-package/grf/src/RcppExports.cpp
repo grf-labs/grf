@@ -617,8 +617,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // ll_regression_train
-Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix, size_t outcome_index, double ll_split_lambda, bool ll_split_weight_penalty, std::vector<size_t> ll_split_variables, size_t ll_split_cutoff, std::vector<double> overall_beta, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, unsigned int num_threads, unsigned int seed, bool legacy_seed);
-RcppExport SEXP _grf_ll_regression_train(SEXP train_matrixSEXP, SEXP outcome_indexSEXP, SEXP ll_split_lambdaSEXP, SEXP ll_split_weight_penaltySEXP, SEXP ll_split_variablesSEXP, SEXP ll_split_cutoffSEXP, SEXP overall_betaSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP num_threadsSEXP, SEXP seedSEXP, SEXP legacy_seedSEXP) {
+Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix, size_t outcome_index, double ll_split_lambda, bool ll_split_weight_penalty, std::vector<size_t> ll_split_variables, size_t ll_split_cutoff, std::vector<double> overall_beta, unsigned int mtry, unsigned int num_trees, unsigned int min_node_size, double sample_fraction, bool honesty, double honesty_fraction, bool honesty_prune_leaves, size_t ci_group_size, double alpha, double imbalance_penalty, std::vector<size_t> clusters, unsigned int samples_per_cluster, unsigned int num_threads, unsigned int seed, bool progress_bar, bool legacy_seed);
+RcppExport SEXP _grf_ll_regression_train(SEXP train_matrixSEXP, SEXP outcome_indexSEXP, SEXP ll_split_lambdaSEXP, SEXP ll_split_weight_penaltySEXP, SEXP ll_split_variablesSEXP, SEXP ll_split_cutoffSEXP, SEXP overall_betaSEXP, SEXP mtrySEXP, SEXP num_treesSEXP, SEXP min_node_sizeSEXP, SEXP sample_fractionSEXP, SEXP honestySEXP, SEXP honesty_fractionSEXP, SEXP honesty_prune_leavesSEXP, SEXP ci_group_sizeSEXP, SEXP alphaSEXP, SEXP imbalance_penaltySEXP, SEXP clustersSEXP, SEXP samples_per_clusterSEXP, SEXP num_threadsSEXP, SEXP seedSEXP, SEXP progress_barSEXP, SEXP legacy_seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -643,8 +643,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< unsigned int >::type samples_per_cluster(samples_per_clusterSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< bool >::type progress_bar(progress_barSEXP);
     Rcpp::traits::input_parameter< bool >::type legacy_seed(legacy_seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(ll_regression_train(train_matrix, outcome_index, ll_split_lambda, ll_split_weight_penalty, ll_split_variables, ll_split_cutoff, overall_beta, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, num_threads, seed, legacy_seed));
+    rcpp_result_gen = Rcpp::wrap(ll_regression_train(train_matrix, outcome_index, ll_split_lambda, ll_split_weight_penalty, ll_split_variables, ll_split_cutoff, overall_beta, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, num_threads, seed, progress_bar, legacy_seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -789,7 +790,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_grf_regression_train", (DL_FUNC) &_grf_regression_train, 21},
     {"_grf_regression_predict", (DL_FUNC) &_grf_regression_predict, 6},
     {"_grf_regression_predict_oob", (DL_FUNC) &_grf_regression_predict_oob, 5},
-    {"_grf_ll_regression_train", (DL_FUNC) &_grf_ll_regression_train, 22},
+    {"_grf_ll_regression_train", (DL_FUNC) &_grf_ll_regression_train, 23},
     {"_grf_ll_regression_predict", (DL_FUNC) &_grf_ll_regression_predict, 9},
     {"_grf_ll_regression_predict_oob", (DL_FUNC) &_grf_ll_regression_predict_oob, 8},
     {"_grf_survival_train", (DL_FUNC) &_grf_survival_train, 23},
