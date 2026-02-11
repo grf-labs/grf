@@ -124,8 +124,8 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
     } else {
       std::vector<std::unique_ptr<Tree>> group = train_ci_group(data, sampler, options);
       trees.insert(trees.end(),
-          std::make_move_iterator(group.begin()),
-          std::make_move_iterator(group.end()));
+                   std::make_move_iterator(group.begin()),
+                   std::make_move_iterator(group.end()));
       progress_bar.increment(ci_group_size);
     }
   }
