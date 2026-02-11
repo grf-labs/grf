@@ -49,6 +49,7 @@ Rcpp::List survival_train(const Rcpp::NumericMatrix& train_matrix,
                           bool fast_logrank,
                           unsigned int num_threads,
                           unsigned int seed,
+                          bool progress_bar,
                           bool legacy_seed) {
   ForestTrainer trainer = survival_trainer(fast_logrank);
 
@@ -61,8 +62,10 @@ Rcpp::List survival_train(const Rcpp::NumericMatrix& train_matrix,
 
   size_t ci_group_size = 1;
   size_t imbalance_penalty = 0;
+  std::ostream* progress_bar_output = progress_bar ? &Rcpp::Rcout : nullptr;
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
+      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster,
+      progress_bar_output);
   Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;

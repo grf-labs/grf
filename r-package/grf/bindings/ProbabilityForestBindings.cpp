@@ -48,6 +48,7 @@ Rcpp::List probability_train(const Rcpp::NumericMatrix& train_matrix,
                              bool compute_oob_predictions,
                              int num_threads,
                              unsigned int seed,
+                             bool progress_bar,
                              bool legacy_seed) {
   ForestTrainer trainer = probability_trainer(num_classes);
 
@@ -56,9 +57,11 @@ Rcpp::List probability_train(const Rcpp::NumericMatrix& train_matrix,
   if (use_sample_weights) {
     data.set_weight_index(sample_weight_index);
   }
+  std::ostream* progress_bar_output = progress_bar ? &Rcpp::Rcout : nullptr;
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
+      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster,
+      progress_bar_output);
   Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;
