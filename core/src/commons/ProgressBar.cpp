@@ -35,10 +35,24 @@ ProgressBar::ProgressBar(int total,
 
 void ProgressBar::increment(int n) {
   done.fetch_add(n, std::memory_order_relaxed);
-  if (try_lock.try_lock()) {
-    int current_v = done.load(std::memory_order_relaxed);
-    pb.update(current_v, total);
-    try_lock.unlock();
+
+  if (mtx.try_lock()) {
+    refresh(done.load(std::memory_order_relaxed));
+    mtx.unlock();
+  }
+}
+
+// Ensure PB hits 100% at the end
+// (last_reported: to avoid updates if the bar is already at 100%)
+void ProgressBar::finish() {
+  std::lock_guard<std::mutex> lock(mtx);
+  refresh(done.load(std::memory_order_relaxed));
+}
+
+void ProgressBar::refresh(int value) {
+  if (value > last_reported) {
+    pb.update(value, total);
+    last_reported = value;
   }
 }
 

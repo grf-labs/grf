@@ -29,20 +29,25 @@
 namespace grf {
 
 /**
- * Simple thread-safe wrapper around the tqdm progress bar.
+ * Simple non-blocking thread-safe wrapper around the tqdm progress bar.
  *
  */
 class ProgressBar {
   public:
     ProgressBar(int total, std::ostream* out);
     void increment(int n);
+    void finish();
 
   private:
+    void refresh(int value);
+
     int total;
-    tq::progress_bar pb;
+    int last_reported{-1};
     std::atomic<int> done {0};
-    std::mutex try_lock;
-};
+    std::mutex mtx;
+
+    tq::progress_bar pb;
+  };
 
 } // namespace grf
 
