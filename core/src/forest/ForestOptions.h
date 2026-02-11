@@ -45,7 +45,7 @@ public:
                 bool legacy_seed,
                 const std::vector<size_t>& sample_clusters,
                 uint samples_per_cluster,
-                std::ostream* progress_bar_output = nullptr);
+                std::ostream* verbose_stream = nullptr);
 
   static uint validate_num_threads(uint num_threads);
 
@@ -61,7 +61,7 @@ public:
   // Toggle between seed and num_threads dependence to reproduce behavior prior to grf 2.4.0.
   bool get_legacy_seed() const;
 
-  std::ostream* get_progress_bar_output() const;
+  std::ostream* get_verbose_stream() const;
 
 private:
   uint num_trees;
@@ -75,7 +75,7 @@ private:
   uint random_seed;
   bool legacy_seed;
 
-  std::ostream* progress_bar_output;
+  std::ostream* verbose_stream;
 };
 
 } // namespace grf
