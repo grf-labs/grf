@@ -77,7 +77,7 @@ jobs:
     condition: eq(variables['Agent.OS'], 'Linux')
   - script: |
       curl -OLs https://eddelbuettel.github.io/r-ci/run.sh && chmod 0755 run.sh
-      BOOTSTRAP_MACOS_OPENMP=FALSE ./run.sh bootstrap
+      ./run.sh bootstrap
       ./run.sh install_all
     workingDirectory: r-package/grf
     displayName: Setup R
