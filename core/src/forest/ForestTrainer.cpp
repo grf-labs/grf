@@ -70,7 +70,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
 
   std::vector<std::unique_ptr<Tree>> trees;
   trees.reserve(num_trees);
-  ProgressBar progress_bar(num_trees, options.get_verbose_stream());
+  ProgressBar progress_bar(num_trees, options.get_verbose_stream(), "Building forest: ");
 
   for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
     size_t start_index = thread_ranges[i];
