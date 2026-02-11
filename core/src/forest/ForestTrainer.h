@@ -68,12 +68,12 @@ private:
   TreeTrainer tree_trainer;
 
   struct ProgressBar {
-      ProgressBar(int total, std::ostream* os);
+      ProgressBar(int total, std::ostream* progress_bar_output);
       void increment(int n);
       void finish();
 
       int total;
-      tq::progress_bar bar;
+      tq::progress_bar pb;
       std::atomic<int> done {0};
       std::mutex try_lock;
   };

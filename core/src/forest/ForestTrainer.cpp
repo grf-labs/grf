@@ -159,27 +159,27 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_ci_group(const Data& dat
 }
 
 ForestTrainer::ProgressBar::ProgressBar(int total,
-                                        std::ostream* os) {
+                                        std::ostream* progress_bar_output) {
   this->total = total;
-  if (os == nullptr) {
-    bar.set_display(false);
+  if (progress_bar_output == nullptr) {
+    pb.set_display(false);
   } else {
-    bar.set_ostream(*os);
-    bar.set_display(true);
+    pb.set_ostream(*progress_bar_output);
+    pb.set_display(true);
   }
 }
 
 void ForestTrainer::ProgressBar::increment(int n) {
   int v = done.fetch_add(n, std::memory_order_relaxed) + n;
   if (try_lock.try_lock()) {
-    bar.update(v, total);
+    pb.update(v, total);
     try_lock.unlock();
   }
 }
 
 void ForestTrainer::ProgressBar::finish() {
   std::lock_guard<std::mutex> g(try_lock);
-  bar.update(total, total);
+  pb.update(total, total);
 }
 
 } // namespace grf
