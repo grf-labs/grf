@@ -24,12 +24,18 @@ The current available options are:
 \donttest{
 # Enable progress bar when training forests.
 options(grf.progress.bar = TRUE)
+n <- 1500
+p <- 10
+X <- matrix(rnorm(n * p), n, p)
+Y <- X[, 1] * rnorm(n)
+r.forest <- regression_forest(X, Y)
+
+# Print current package options.
+options(grf.progress.bar = FALSE)
+grf_options()
 
 # Use random seed behavior prior to version 2.4.0.
 options(grf.legacy.seed = TRUE)
-
-# Print current package options.
-grf_options()
 
 # Use random seed independent of num.threads (default as of version 2.4.0 and higher).
 options(grf.legacy.seed = FALSE)
