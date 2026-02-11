@@ -29,6 +29,7 @@ ProgressBar::ProgressBar(int total,
   } else {
     pb.set_ostream(*progress_bar_output);
     pb.set_display(true);
+    pb.set_bar_symbol("\033[38;5;65m\u2588\033[0m"); // grf forest-greenish color.
   }
 }
 

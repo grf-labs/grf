@@ -111,6 +111,7 @@ public:
     void set_bar_size(int size) { bar_size_ = size; }
     void set_min_update_time(double time) { min_time_per_update_ = time; }
     void set_display(bool b) { display_ = b; }
+    void set_bar_symbol(std::string s) { bar_symbol_ = std::move(s); }
 
     template <class T>
     progress_bar& operator<<(const T& t)
@@ -201,8 +202,7 @@ private:
         auto num_filled = static_cast<index>(std::round(filled*bar_size_));
         ss << '|';
         for (int i = 0; i < num_filled; ++i) {
-            // ss << "\033[1;32m\u2588\033[0m"; // orig
-            ss << "\033[38;5;65m\u2588\033[0m"; // grf NOTE: added forest-greenish color.
+            ss << bar_symbol_;
         }
         ss << std::string(bar_size_ - num_filled, ' ') << '|';
     }
@@ -222,6 +222,7 @@ private:
 
     std::string prefix_{};
     std::stringstream suffix_{};
+    std::string bar_symbol_ = "\033[1;32m\u2588\033[0m";
 };
 
 
@@ -339,6 +340,7 @@ public:
     void set_bar_size(int size) { bar_.set_bar_size(size); }
     void set_min_update_time(double time) { bar_.set_min_update_time(time); }
     void set_display(bool b) { bar_.set_display(b); }
+    void set_symbol(std::string s) { bar_.set_bar_symbol(std::move(s)); }
 
     template <class T>
     tqdm_for_lvalues& operator<<(const T& t)
