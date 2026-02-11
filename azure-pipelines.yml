@@ -37,7 +37,7 @@ jobs:
   steps:
   - script: |
       mkdir build && cd build
-      cmake -DCMAKE_CXX_FLAGS="/w /EHsc" ..
+      cmake -DCMAKE_CXX_FLAGS="/w /EHsc" .. # Disable warnings
     workingDirectory: core
     displayName: CMake
   - task: VSBuild@1
