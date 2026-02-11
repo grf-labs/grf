@@ -43,6 +43,7 @@ public:
   Forest train(const Data& data, const ForestOptions& options) const;
 
 private:
+
   std::vector<std::unique_ptr<Tree>> train_trees(const Data& data,
                                                  const ForestOptions& options) const;
 
