@@ -37,7 +37,7 @@ jobs:
   steps:
   - script: |
       mkdir build && cd build
-      cmake -DCMAKE_CXX_COMPILER=CL.exe -DCMAKE_CXX_FLAGS="/W0" ..
+      cmake -DCMAKE_CXX_FLAGS="/W0" -DCMAKE_CXX_FLAGS_RELEASE="/W0" ..
     workingDirectory: core
     displayName: CMake
   - task: VSBuild@1
