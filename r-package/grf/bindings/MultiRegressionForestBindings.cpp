@@ -53,12 +53,12 @@ Rcpp::List multi_regression_train(const Rcpp::NumericMatrix& train_matrix,
   if (use_sample_weights) {
     data.set_weight_index(sample_weight_index);
   }
-  std::ostream* progress_bar_output = progress_bar ? &Rcpp::Rcout : nullptr;
+  std::ostream* verbose_stream = progress_bar ? &Rcpp::Rcout : nullptr;
 
   size_t ci_group_size = 1;
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster,
-      progress_bar_output);
+      verbose_stream);
   ForestTrainer trainer = multi_regression_trainer(data.get_num_outcomes());
   Forest forest = trainer.train(data, options);
 
