@@ -91,7 +91,6 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                  std::make_move_iterator(thread_trees.begin()),
                  std::make_move_iterator(thread_trees.end()));
   }
-  progress_bar.finish();
   return trees;
 }
 
@@ -156,30 +155,6 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_ci_group(const Data& dat
     trees.push_back(std::move(tree));
   }
   return trees;
-}
-
-ForestTrainer::ProgressBar::ProgressBar(int total,
-                                        std::ostream* progress_bar_output) {
-  this->total = total;
-  if (progress_bar_output == nullptr) {
-    pb.set_display(false);
-  } else {
-    pb.set_ostream(*progress_bar_output);
-    pb.set_display(true);
-  }
-}
-
-void ForestTrainer::ProgressBar::increment(int n) {
-  int v = done.fetch_add(n, std::memory_order_relaxed) + n;
-  if (try_lock.try_lock()) {
-    pb.update(v, total);
-    try_lock.unlock();
-  }
-}
-
-void ForestTrainer::ProgressBar::finish() {
-  std::lock_guard<std::mutex> g(try_lock);
-  pb.update(total, total);
 }
 
 } // namespace grf

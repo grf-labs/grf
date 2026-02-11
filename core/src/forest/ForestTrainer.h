@@ -20,11 +20,9 @@
 #ifndef GRF_FORESTTRAINER_H
 #define GRF_FORESTTRAINER_H
 
-#include <atomic>
 #include <memory>
-#include <mutex>
 
-#include "tqdm/tqdm.hpp"
+#include "commons/ProgressBar.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
 #include "splitting/factory/SplittingRuleFactory.h"
@@ -45,8 +43,6 @@ public:
   Forest train(const Data& data, const ForestOptions& options) const;
 
 private:
-  struct ProgressBar;
-
   std::vector<std::unique_ptr<Tree>> train_trees(const Data& data,
                                                  const ForestOptions& options) const;
 
@@ -66,17 +62,6 @@ private:
                                                     const ForestOptions& options) const;
 
   TreeTrainer tree_trainer;
-
-  struct ProgressBar {
-      ProgressBar(int total, std::ostream* progress_bar_output);
-      void increment(int n);
-      void finish();
-
-      int total;
-      tq::progress_bar pb;
-      std::atomic<int> done {0};
-      std::mutex try_lock;
-  };
 };
 
 } // namespace grf
