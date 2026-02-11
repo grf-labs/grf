@@ -162,8 +162,6 @@ ForestTrainer::ProgressBar::ProgressBar(int total,
                                         std::ostream* os) {
   this->total = total;
   if (os == nullptr) {
-    std::ostringstream oss; // temporary null stream
-    bar.set_ostream(oss);
     bar.set_display(false);
   } else {
     bar.set_ostream(*os);
