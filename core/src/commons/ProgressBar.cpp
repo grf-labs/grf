@@ -34,9 +34,10 @@ ProgressBar::ProgressBar(int total,
 }
 
 void ProgressBar::increment(int n) {
-  int v = done.fetch_add(n, std::memory_order_relaxed) + n;
+  done.fetch_add(n, std::memory_order_relaxed);
   if (try_lock.try_lock()) {
-    pb.update(v, total);
+    int current_v = done.load(std::memory_order_relaxed);
+    pb.update(current_v, total);
     try_lock.unlock();
   }
 }
