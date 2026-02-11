@@ -93,6 +93,10 @@ bool ForestOptions::get_legacy_seed() const {
   return legacy_seed;
 }
 
+std::ostream* ForestOptions::get_progress_bar_output() const {
+  return progress_bar_output;
+}
+
 uint ForestOptions::validate_num_threads(uint num_threads) {
   if (num_threads == DEFAULT_NUM_THREADS) {
     return std::thread::hardware_concurrency();
@@ -101,10 +105,6 @@ uint ForestOptions::validate_num_threads(uint num_threads) {
   } else {
     throw std::runtime_error("A negative number of threads was provided.");
   }
-}
-
-std::ostream* ForestOptions::get_progress_bar_output() const {
-  return progress_bar_output;
 }
 
 } // namespace grf
