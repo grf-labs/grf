@@ -27,13 +27,11 @@ jobs:
       - name: Setup build
         working-directory: r-package/grf
         run: |
-          # Install pandoc
-          sudo apt-get install -qq pandoc
-
           # Install R
           curl -OLs https://eddelbuettel.github.io/r-ci/run.sh && chmod 0755 run.sh
           ./run.sh bootstrap
           ./run.sh install_all
+          ./run.sh install_aptget pandoc
 
           # Install grf
           R CMD INSTALL .
