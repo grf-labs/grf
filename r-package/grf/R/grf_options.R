@@ -3,8 +3,7 @@
 #' grf package options can be set using R's \code{\link{options}} command.
 #' The current available options are:
 #' \itemize{
-#' \item `grf.progress.bar`: controls whether a progress bar is displayed when training a forest.
-#'  The default value is `FALSE`.
+#' \item `grf.progress.bar`: controls whether a progress bar is displayed. The default value is `FALSE`.
 #'  \item `grf.legacy.seed`: controls whether grf's random seed behavior depends on
 #'  the number of CPU threads used to train the forest. The default value is `FALSE`.
 #'  Set to `TRUE` to recover results produced with grf versions prior to 2.4.0.
@@ -14,7 +13,7 @@
 #'
 #' @examples
 #' \donttest{
-#' # Enable progress bar when training forests.
+#' # Enable progress bar.
 #' options(grf.progress.bar = TRUE)
 #' n <- 1500
 #' p <- 10
