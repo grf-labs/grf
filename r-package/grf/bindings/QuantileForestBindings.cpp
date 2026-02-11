@@ -47,8 +47,8 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
                           bool compute_oob_predictions,
                           int num_threads,
                           unsigned int seed,
-                          bool progress_bar,
-                          bool legacy_seed) {
+                          bool legacy_seed,
+                          bool progress_bar) {
   ForestTrainer trainer = regression_splitting
       ? regression_trainer()
       : quantile_trainer(quantiles);

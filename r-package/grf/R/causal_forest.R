@@ -249,8 +249,8 @@ causal_forest <- function(X, Y, W,
                num.threads = num.threads,
                seed = seed,
                reduced.form.weight = 0,
-               progress.bar = get_progress_bar(),
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               progress.bar = get_progress_bar())
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {

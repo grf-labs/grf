@@ -46,8 +46,8 @@ Rcpp::List multi_regression_train(const Rcpp::NumericMatrix& train_matrix,
                                   bool compute_oob_predictions,
                                   unsigned int num_threads,
                                   unsigned int seed,
-                                  bool progress_bar,
-                                  bool legacy_seed) {
+                                  bool legacy_seed,
+                                  bool progress_bar) {
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
   if (use_sample_weights) {

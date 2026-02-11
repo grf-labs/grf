@@ -51,8 +51,8 @@ Rcpp::List instrumental_train(const Rcpp::NumericMatrix& train_matrix,
                               bool compute_oob_predictions,
                               unsigned int num_threads,
                               unsigned int seed,
-                              bool progress_bar,
-                              bool legacy_seed) {
+                              bool legacy_seed,
+                              bool progress_bar) {
   ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
 
   Data data = RcppUtilities::convert_data(train_matrix);

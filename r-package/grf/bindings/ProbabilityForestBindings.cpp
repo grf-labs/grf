@@ -48,8 +48,8 @@ Rcpp::List probability_train(const Rcpp::NumericMatrix& train_matrix,
                              bool compute_oob_predictions,
                              int num_threads,
                              unsigned int seed,
-                             bool progress_bar,
-                             bool legacy_seed) {
+                             bool legacy_seed,
+                             bool progress_bar) {
   ForestTrainer trainer = probability_trainer(num_classes);
 
   Data data = RcppUtilities::convert_data(train_matrix);

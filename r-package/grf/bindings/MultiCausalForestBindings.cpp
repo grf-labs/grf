@@ -50,8 +50,8 @@ Rcpp::List multi_causal_train(const Rcpp::NumericMatrix& train_matrix,
                               bool compute_oob_predictions,
                               unsigned int num_threads,
                               unsigned int seed,
-                              bool progress_bar,
-                              bool legacy_seed) {
+                              bool legacy_seed,
+                              bool progress_bar) {
   size_t num_treatments = treatment_index.size();
   size_t num_outcomes = outcome_index.size();
   ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes, stabilize_splits, gradient_weights);

@@ -49,8 +49,8 @@ Rcpp::List survival_train(const Rcpp::NumericMatrix& train_matrix,
                           bool fast_logrank,
                           unsigned int num_threads,
                           unsigned int seed,
-                          bool progress_bar,
-                          bool legacy_seed) {
+                          bool legacy_seed,
+                          bool progress_bar) {
   ForestTrainer trainer = survival_trainer(fast_logrank);
 
   Data data = RcppUtilities::convert_data(train_matrix);

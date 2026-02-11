@@ -47,8 +47,8 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
                             bool compute_oob_predictions,
                             unsigned int num_threads,
                             unsigned int seed,
-                            bool progress_bar,
-                            bool legacy_seed) {
+                            bool legacy_seed,
+                            bool progress_bar) {
   ForestTrainer trainer = regression_trainer();
 
   Data data = RcppUtilities::convert_data(train_matrix);
@@ -131,8 +131,8 @@ Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix,
                             unsigned int samples_per_cluster,
                             unsigned int num_threads,
                             unsigned int seed,
-                            bool progress_bar,
-                            bool legacy_seed) {
+                            bool legacy_seed,
+                            bool progress_bar) {
   ForestTrainer trainer = ll_regression_trainer(ll_split_lambda, ll_split_weight_penalty, overall_beta,
                                                ll_split_cutoff, ll_split_variables);
 
