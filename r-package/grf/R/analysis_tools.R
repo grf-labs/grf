@@ -201,7 +201,8 @@ get_forest_weights <- function(forest, newdata = NULL, num.threads = NULL) {
   X <- forest[["X.orig"]]
   train.data <- create_train_matrices(X)
   args <- list(forest.object = forest.short,
-               num.threads = num.threads)
+               num.threads = num.threads,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     test.data <- create_test_matrices(newdata)

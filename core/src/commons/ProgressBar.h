@@ -36,7 +36,8 @@ namespace grf {
 class ProgressBar {
   public:
     ProgressBar(int total,
-                const std::string& prefix = "");
+                const std::string& prefix = "",
+                std::ostream* out = nullptr);
     void increment(int n);
     void finish();
 

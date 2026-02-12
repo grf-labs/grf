@@ -24,8 +24,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // compute_weights
-Eigen::SparseMatrix<double> compute_weights(const Rcpp::List& forest_object, const Rcpp::NumericMatrix& train_matrix, const Rcpp::NumericMatrix& test_matrix, unsigned int num_threads);
-RcppExport SEXP _grf_compute_weights(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP test_matrixSEXP, SEXP num_threadsSEXP) {
+Eigen::SparseMatrix<double> compute_weights(const Rcpp::List& forest_object, const Rcpp::NumericMatrix& train_matrix, const Rcpp::NumericMatrix& test_matrix, unsigned int num_threads, bool verbose);
+RcppExport SEXP _grf_compute_weights(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP test_matrixSEXP, SEXP num_threadsSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -33,20 +33,22 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type test_matrix(test_matrixSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_weights(forest_object, train_matrix, test_matrix, num_threads));
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_weights(forest_object, train_matrix, test_matrix, num_threads, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
 // compute_weights_oob
-Eigen::SparseMatrix<double> compute_weights_oob(const Rcpp::List& forest_object, const Rcpp::NumericMatrix& train_matrix, unsigned int num_threads);
-RcppExport SEXP _grf_compute_weights_oob(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP num_threadsSEXP) {
+Eigen::SparseMatrix<double> compute_weights_oob(const Rcpp::List& forest_object, const Rcpp::NumericMatrix& train_matrix, unsigned int num_threads, bool verbose);
+RcppExport SEXP _grf_compute_weights_oob(SEXP forest_objectSEXP, SEXP train_matrixSEXP, SEXP num_threadsSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type forest_object(forest_objectSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type train_matrix(train_matrixSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type num_threads(num_threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_weights_oob(forest_object, train_matrix, num_threads));
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_weights_oob(forest_object, train_matrix, num_threads, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -783,8 +785,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_grf_compute_split_frequencies", (DL_FUNC) &_grf_compute_split_frequencies, 2},
-    {"_grf_compute_weights", (DL_FUNC) &_grf_compute_weights, 4},
-    {"_grf_compute_weights_oob", (DL_FUNC) &_grf_compute_weights_oob, 3},
+    {"_grf_compute_weights", (DL_FUNC) &_grf_compute_weights, 5},
+    {"_grf_compute_weights_oob", (DL_FUNC) &_grf_compute_weights_oob, 4},
     {"_grf_merge", (DL_FUNC) &_grf_merge, 1},
     {"_grf_causal_train", (DL_FUNC) &_grf_causal_train, 24},
     {"_grf_causal_predict", (DL_FUNC) &_grf_causal_predict, 8},
