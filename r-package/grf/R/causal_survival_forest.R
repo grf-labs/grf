@@ -334,7 +334,7 @@ causal_survival_forest <- function(X, Y, W, D,
                   "such that the probability of observing an event past the maximum follow-up time ",
                   "is at least M (i.e. P(T > horizon | X) > M).",
                   "This warning appears when M is less than 0.05, at which point causal survival forest",
-                  "can not be expected to deliver reliable estimates."), immediate. = TRUE)
+                  "can not be expected to deliver reliable estimates."))
   } else if (target == "RMST" && any(C.Y.hat < 0.2)) {
     warning(paste("Estimated censoring probabilities are lower than 0.2",
                   "- an identifying assumption is that there exists a fixed positive constant M",
@@ -343,7 +343,7 @@ causal_survival_forest <- function(X, Y, W, D,
   } else if (target == "survival.probability" && any(C.Y.hat <= 0.001)) {
     warning(paste("Estimated censoring probabilities go as low as:", round(min(C.Y.hat), 5),
                   "- forest estimates will likely be very unstable, a larger target `horizon`",
-                  "is recommended."), immediate. = TRUE)
+                  "is recommended."))
   } else if (target == "survival.probability" && any(C.Y.hat < 0.05)) {
     warning(paste("Estimated censoring probabilities are lower than 0.05",
                   "and forest estimates may not be stable. Using a smaller target `horizon`",
