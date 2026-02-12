@@ -47,14 +47,14 @@ Rcpp::List multi_regression_train(const Rcpp::NumericMatrix& train_matrix,
                                   unsigned int num_threads,
                                   unsigned int seed,
                                   bool legacy_seed,
-                                  bool progress_bar) {
+                                  bool verbose) {
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
   if (use_sample_weights) {
     data.set_weight_index(sample_weight_index);
   }
   std::string forest_name = "multi-regression";
-  std::ostream* verbose_stream = progress_bar ? &Rcpp::Rcout : nullptr;
+  std::ostream* verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
 
   size_t ci_group_size = 1;
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,

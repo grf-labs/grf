@@ -129,7 +129,7 @@ quantile_forest <- function(X, Y,
                num.threads = num.threads,
                seed = seed,
                legacy.seed = get_legacy_seed(),
-               progress.bar = get_progress_bar())
+               verbose = get_verbose())
 
   forest <- do.call.rcpp(quantile_train, c(data, args))
   class(forest) <- c("quantile_forest", "grf")

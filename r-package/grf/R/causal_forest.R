@@ -250,7 +250,7 @@ causal_forest <- function(X, Y, W,
                seed = seed,
                reduced.form.weight = 0,
                legacy.seed = get_legacy_seed(),
-               progress.bar = get_progress_bar())
+               verbose = get_verbose())
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {

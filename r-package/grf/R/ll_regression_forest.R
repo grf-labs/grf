@@ -142,7 +142,7 @@ ll_regression_forest <- function(X, Y,
                num.threads = num.threads,
                seed = seed,
                legacy.seed = get_legacy_seed(),
-               progress.bar = get_progress_bar())
+               verbose = get_verbose())
   if (enable.ll.split && ll.split.cutoff > 0) {
     # find overall beta
     J <- diag(ncol(X) + 1)

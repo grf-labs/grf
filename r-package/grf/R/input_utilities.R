@@ -314,10 +314,10 @@ validate_sandwich <- function(subset.weights) {
   }
 }
 
-get_progress_bar <- function() {
-  opt <- getOption("grf.progress.bar", default = FALSE)
+get_verbose <- function() {
+  opt <- getOption("grf.verbose", default = FALSE)
   if (!is.logical(opt) || length(opt) != 1) {
-    stop("grf option `grf.progress.bar` should be either TRUE or FALSE.")
+    stop("grf option `grf.verbose` should be either TRUE or FALSE.")
   }
 
   opt

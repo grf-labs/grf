@@ -286,7 +286,7 @@ multi_arm_causal_forest <- function(X, Y, W,
                num.threads = num.threads,
                seed = seed,
                legacy.seed = get_legacy_seed(),
-               progress.bar = get_progress_bar())
+               verbose = get_verbose())
 
   forest <- do.call.rcpp(multi_causal_train, c(data, args))
   class(forest) <- c("multi_arm_causal_forest", "grf")

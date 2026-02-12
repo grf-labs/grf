@@ -48,7 +48,7 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
                             unsigned int num_threads,
                             unsigned int seed,
                             bool legacy_seed,
-                            bool progress_bar) {
+                            bool verbose) {
   ForestTrainer trainer = regression_trainer();
 
   Data data = RcppUtilities::convert_data(train_matrix);
@@ -57,7 +57,7 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
     data.set_weight_index(sample_weight_index);
   }
   std::string forest_name = "regression";
-  std::ostream* verbose_stream = progress_bar ? &Rcpp::Rcout : nullptr;
+  std::ostream* verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster,
@@ -133,14 +133,14 @@ Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix,
                             unsigned int num_threads,
                             unsigned int seed,
                             bool legacy_seed,
-                            bool progress_bar) {
+                            bool verbose) {
   ForestTrainer trainer = ll_regression_trainer(ll_split_lambda, ll_split_weight_penalty, overall_beta,
                                                ll_split_cutoff, ll_split_variables);
 
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
   std::string forest_name = "ll regression";
-  std::ostream* verbose_stream = progress_bar ? &Rcpp::Rcout : nullptr;
+  std::ostream* verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
     honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster,

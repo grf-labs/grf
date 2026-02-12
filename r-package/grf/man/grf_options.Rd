@@ -13,7 +13,8 @@ Prints the current grf package options.
 grf package options can be set using R's \code{\link{options}} command.
 The current available options are:
 \itemize{
-\item `grf.progress.bar`: controls whether a progress bar is displayed. The default value is `FALSE`.
+\item `grf.verbose`: controls whether information is printed during training.
+ The default value is `FALSE`.
  \item `grf.legacy.seed`: controls whether grf's random seed behavior depends on
  the number of CPU threads used to train the forest. The default value is `FALSE`.
  Set to `TRUE` to recover results produced with grf versions prior to 2.4.0.
@@ -21,8 +22,8 @@ The current available options are:
 }
 \examples{
 \donttest{
-# Enable progress bar.
-options(grf.progress.bar = TRUE)
+# Enable progress output during training.
+options(grf.verbose = TRUE)
 n <- 1500
 p <- 10
 X <- matrix(rnorm(n * p), n, p)
@@ -30,7 +31,7 @@ Y <- X[, 1] * rnorm(n)
 r.forest <- regression_forest(X, Y)
 
 # Print current package options.
-options(grf.progress.bar = FALSE)
+options(grf.verbose = FALSE)
 grf_options()
 
 # Use random seed behavior prior to version 2.4.0.

@@ -217,7 +217,7 @@ instrumental_forest <- function(X, Y, W, Z,
               num.threads = num.threads,
               seed = seed,
               legacy.seed = get_legacy_seed(),
-              progress.bar = get_progress_bar())
+              verbose = get_verbose())
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {
