@@ -52,6 +52,8 @@ Rcpp::List multi_causal_train(const Rcpp::NumericMatrix& train_matrix,
                               unsigned int seed,
                               bool legacy_seed,
                               bool verbose) {
+  grf::runtime_context.forest_name = "multi-causal";
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   size_t num_treatments = treatment_index.size();
   size_t num_outcomes = outcome_index.size();
   ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes, stabilize_splits, gradient_weights);
@@ -62,12 +64,9 @@ Rcpp::List multi_causal_train(const Rcpp::NumericMatrix& train_matrix,
   if (use_sample_weights) {
     data.set_weight_index(sample_weight_index);
   }
-  std::string forest_name = "multi-causal";
-  std::ostream* verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
 
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
-      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster,
-      forest_name, verbose_stream);
+      honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
   Forest forest = trainer.train(data, options);
 
   std::vector<Prediction> predictions;

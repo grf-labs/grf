@@ -17,40 +17,10 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
-#ifndef GRF_PROGRESSBAR_H_
-#define GRF_PROGRESSBAR_H_
-
-#include <atomic>
-#include <mutex>
-#include <iostream>
-
-#include "tqdm/tqdm.hpp"
 #include "RuntimeContext.h"
 
 namespace grf {
 
-/**
- * Simple non-blocking thread-safe wrapper around the tqdm progress bar.
- *
- */
-class ProgressBar {
-  public:
-    ProgressBar(int total,
-                const std::string& prefix = "");
-    void increment(int n);
-    void finish();
+RuntimeContext runtime_context{};
 
-  private:
-    void refresh(int value);
-
-    int total;
-    int last_reported{-1};
-    std::atomic<int> done {0};
-    std::mutex mtx;
-
-    tq::progress_bar pb;
-  };
-
-} // namespace grf
-
-#endif /* GRF_PROGRESSBAR_H_ */
+}
