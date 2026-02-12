@@ -54,4 +54,4 @@ class ProgressBar {
 
 } // namespace grf
 
-#endif /* GRF_PROGRESSBAR_H_ */
+#endif // GRF_PROGRESSBAR_H_
