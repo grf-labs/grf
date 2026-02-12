@@ -32,7 +32,6 @@ tune_forest <- function(data,
   fit.parameters[["ci.group.size"]] <- 1
   fit.parameters[["compute.oob.predictions"]] <- TRUE
   fit.parameters[["verbose"]] <- FALSE
-  fit.parameters[["legacy.seed"]] <- get_legacy_seed()
 
   # 1. Train several mini-forests, and gather their debiased OOB error estimates.
   num.params <- length(tune.parameters)
