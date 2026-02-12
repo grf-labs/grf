@@ -20,6 +20,7 @@
 #ifndef GRF_FORESTOPTIONS_H
 #define GRF_FORESTOPTIONS_H
 
+
 #include "commons/globals.h"
 #include "sampling/SamplingOptions.h"
 #include "tree/TreeOptions.h"
