@@ -40,13 +40,15 @@ ForestOptions::ForestOptions(uint num_trees,
                              bool legacy_seed,
                              const std::vector<size_t>& sample_clusters,
                              uint samples_per_cluster,
-                             std::ostream* verbose_stream):
+                             std::string forest_name,
+                             std::ostream* verbose_stream) :
     ci_group_size(ci_group_size),
     sample_fraction(sample_fraction),
     tree_options(mtry, min_node_size, honesty, honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty),
     sampling_options(samples_per_cluster, sample_clusters),
     random_seed(random_seed),
     legacy_seed(legacy_seed),
+    forest_name(forest_name),
     verbose_stream(verbose_stream) {
 
   this->num_threads = validate_num_threads(num_threads);
@@ -91,6 +93,10 @@ uint ForestOptions::get_random_seed() const {
 
 bool ForestOptions::get_legacy_seed() const {
   return legacy_seed;
+}
+
+const std::string& ForestOptions::get_forest_name() const {
+  return forest_name;
 }
 
 std::ostream* ForestOptions::get_verbose_stream() const {
