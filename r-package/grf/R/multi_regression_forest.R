@@ -183,7 +183,8 @@ predict.multi_regression_forest <- function(object,
 
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
-               num.outcomes = NCOL(object[["Y.orig"]]))
+               num.outcomes = NCOL(object[["Y.orig"]]),
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

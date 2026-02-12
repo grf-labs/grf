@@ -329,7 +329,8 @@ predict.survival_forest <- function(object,
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
                num.failures = length(failure.times.orig),
-               prediction.type = prediction.type)
+               prediction.type = prediction.type,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

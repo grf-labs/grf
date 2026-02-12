@@ -61,6 +61,7 @@ Rcpp::List multi_regression_train(const Rcpp::NumericMatrix& train_matrix,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
   ForestTrainer trainer = multi_regression_trainer(data.get_num_outcomes());
   Forest forest = trainer.train(data, options);
+  grf::runtime_context.verbose_stream = nullptr;
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
@@ -76,7 +77,9 @@ Rcpp::List multi_regression_predict(const Rcpp::List& forest_object,
                                     const Rcpp::NumericMatrix& train_matrix,
                                     const Rcpp::NumericMatrix& test_matrix,
                                     size_t num_outcomes,
-                                    unsigned int num_threads) {
+                                    unsigned int num_threads,
+                                    bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
 
   Data data = RcppUtilities::convert_data(test_matrix);
@@ -84,6 +87,7 @@ Rcpp::List multi_regression_predict(const Rcpp::List& forest_object,
   bool estimate_variance = false;
   ForestPredictor predictor = multi_regression_predictor(num_threads, num_outcomes);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
+  grf::runtime_context.verbose_stream = nullptr;
 
   return RcppUtilities::create_prediction_object(predictions);
 }
@@ -92,7 +96,9 @@ Rcpp::List multi_regression_predict(const Rcpp::List& forest_object,
 Rcpp::List multi_regression_predict_oob(const Rcpp::List& forest_object,
                                         const Rcpp::NumericMatrix& train_matrix,
                                         size_t num_outcomes,
-                                        unsigned int num_threads) {
+                                        unsigned int num_threads,
+                                        bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);
@@ -101,5 +107,6 @@ Rcpp::List multi_regression_predict_oob(const Rcpp::List& forest_object,
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
+  grf::runtime_context.verbose_stream = nullptr;
   return result;
 }

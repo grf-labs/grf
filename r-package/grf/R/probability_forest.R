@@ -219,7 +219,8 @@ predict.probability_forest <- function(object,
   args <- list(forest.object = forest.short,
                num.classes = object[["num.classes"]],
                num.threads = num.threads,
-               estimate.variance = estimate.variance)
+               estimate.variance = estimate.variance,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig, allow.na = TRUE)

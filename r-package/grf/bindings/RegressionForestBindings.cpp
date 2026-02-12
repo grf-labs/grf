@@ -62,6 +62,7 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
   Forest forest = trainer.train(data, options);
+  grf::runtime_context.verbose_stream = nullptr;
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
@@ -78,7 +79,9 @@ Rcpp::List regression_predict(const Rcpp::List& forest_object,
                               size_t outcome_index,
                               const Rcpp::NumericMatrix& test_matrix,
                               unsigned int num_threads,
-                              unsigned int estimate_variance) {
+                              unsigned int estimate_variance,
+                              bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
   train_data.set_outcome_index(outcome_index);
 
@@ -87,6 +90,7 @@ Rcpp::List regression_predict(const Rcpp::List& forest_object,
 
   ForestPredictor predictor = regression_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
+  grf::runtime_context.verbose_stream = nullptr;
 
   return RcppUtilities::create_prediction_object(predictions);
 }
@@ -96,7 +100,9 @@ Rcpp::List regression_predict_oob(const Rcpp::List& forest_object,
                                   const Rcpp::NumericMatrix& train_matrix,
                                   size_t outcome_index,
                                   unsigned int num_threads,
-                                  bool estimate_variance) {
+                                  bool estimate_variance,
+                                  bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
 
@@ -106,6 +112,7 @@ Rcpp::List regression_predict_oob(const Rcpp::List& forest_object,
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
+  grf::runtime_context.verbose_stream = nullptr;
   return result;
 }
 
@@ -144,6 +151,7 @@ Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix,
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
     honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
   Forest forest = trainer.train(data, options);
+  grf::runtime_context.verbose_stream = nullptr;
 
   std::vector<Prediction> predictions;
   return RcppUtilities::create_forest_object(forest, predictions);
@@ -158,7 +166,9 @@ Rcpp::List ll_regression_predict(const Rcpp::List& forest_object,
                                 bool ll_weight_penalty,
                                 std::vector<size_t> linear_correction_variables,
                                 unsigned int num_threads,
-                                bool estimate_variance) {
+                                bool estimate_variance,
+                                bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
   train_data.set_outcome_index(outcome_index);
   Data data = RcppUtilities::convert_data(test_matrix);
@@ -169,6 +179,7 @@ Rcpp::List ll_regression_predict(const Rcpp::List& forest_object,
       ll_lambda, ll_weight_penalty, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict(deserialized_forest, train_data, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
+  grf::runtime_context.verbose_stream = nullptr;
 
   return result;
 }
@@ -181,7 +192,9 @@ Rcpp::List ll_regression_predict_oob(const Rcpp::List& forest_object,
                                     bool ll_weight_penalty,
                                     std::vector<size_t> linear_correction_variables,
                                     unsigned int num_threads,
-                                    bool estimate_variance) {
+                                    bool estimate_variance,
+                                    bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
 
@@ -191,6 +204,7 @@ Rcpp::List ll_regression_predict_oob(const Rcpp::List& forest_object,
       ll_lambda, ll_weight_penalty, linear_correction_variables);
   std::vector<Prediction> predictions = predictor.predict_oob(deserialized_forest, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
+  grf::runtime_context.verbose_stream = nullptr;
 
   return result;
 }

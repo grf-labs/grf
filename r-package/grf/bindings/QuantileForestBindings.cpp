@@ -61,6 +61,7 @@ Rcpp::List quantile_train(std::vector<double> quantiles,
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
   Forest forest = trainer.train(data, options);
+  grf::runtime_context.verbose_stream = nullptr;
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
@@ -77,7 +78,9 @@ Rcpp::NumericMatrix quantile_predict(const Rcpp::List& forest_object,
                                      const Rcpp::NumericMatrix& train_matrix,
                                      size_t outcome_index,
                                      const Rcpp::NumericMatrix& test_matrix,
-                                     unsigned int num_threads) {
+                                     unsigned int num_threads,
+                                     bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
   Data data = RcppUtilities::convert_data(test_matrix);
   train_data.set_outcome_index(outcome_index);
@@ -87,6 +90,7 @@ Rcpp::NumericMatrix quantile_predict(const Rcpp::List& forest_object,
   ForestPredictor predictor = quantile_predictor(num_threads, quantiles);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
+  grf::runtime_context.verbose_stream = nullptr;
 
   return result;
 }
@@ -96,7 +100,9 @@ Rcpp::NumericMatrix quantile_predict_oob(const Rcpp::List& forest_object,
                                          std::vector<double> quantiles,
                                          const Rcpp::NumericMatrix& train_matrix,
                                          size_t outcome_index,
-                                         unsigned int num_threads) {
+                                         unsigned int num_threads,
+                                         bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
 
@@ -105,6 +111,7 @@ Rcpp::NumericMatrix quantile_predict_oob(const Rcpp::List& forest_object,
   ForestPredictor predictor = quantile_predictor(num_threads, quantiles);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
+  grf::runtime_context.verbose_stream = nullptr;
 
   return result;
 }

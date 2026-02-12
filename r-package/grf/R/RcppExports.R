@@ -21,127 +21,127 @@ causal_train <- function(train_matrix, outcome_index, treatment_index, sample_we
     .Call('_grf_causal_train', PACKAGE = 'grf', train_matrix, outcome_index, treatment_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose)
 }
 
-causal_predict <- function(forest_object, train_matrix, outcome_index, treatment_index, test_matrix, num_threads, estimate_variance) {
-    .Call('_grf_causal_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, test_matrix, num_threads, estimate_variance)
+causal_predict <- function(forest_object, train_matrix, outcome_index, treatment_index, test_matrix, num_threads, estimate_variance, verbose) {
+    .Call('_grf_causal_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, test_matrix, num_threads, estimate_variance, verbose)
 }
 
-causal_predict_oob <- function(forest_object, train_matrix, outcome_index, treatment_index, num_threads, estimate_variance) {
-    .Call('_grf_causal_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, num_threads, estimate_variance)
+causal_predict_oob <- function(forest_object, train_matrix, outcome_index, treatment_index, num_threads, estimate_variance, verbose) {
+    .Call('_grf_causal_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, num_threads, estimate_variance, verbose)
 }
 
-ll_causal_predict <- function(forest_object, train_matrix, outcome_index, treatment_index, test_matrix, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
-    .Call('_grf_ll_causal_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, test_matrix, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance)
+ll_causal_predict <- function(forest_object, train_matrix, outcome_index, treatment_index, test_matrix, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance, verbose) {
+    .Call('_grf_ll_causal_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, test_matrix, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance, verbose)
 }
 
-ll_causal_predict_oob <- function(forest_object, train_matrix, outcome_index, treatment_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
-    .Call('_grf_ll_causal_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance)
+ll_causal_predict_oob <- function(forest_object, train_matrix, outcome_index, treatment_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance, verbose) {
+    .Call('_grf_ll_causal_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance, verbose)
 }
 
 causal_survival_train <- function(train_matrix, causal_survival_numerator_index, causal_survival_denominator_index, treatment_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose) {
     .Call('_grf_causal_survival_train', PACKAGE = 'grf', train_matrix, causal_survival_numerator_index, causal_survival_denominator_index, treatment_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose)
 }
 
-causal_survival_predict <- function(forest_object, train_matrix, test_matrix, num_threads, estimate_variance) {
-    .Call('_grf_causal_survival_predict', PACKAGE = 'grf', forest_object, train_matrix, test_matrix, num_threads, estimate_variance)
+causal_survival_predict <- function(forest_object, train_matrix, test_matrix, num_threads, estimate_variance, verbose) {
+    .Call('_grf_causal_survival_predict', PACKAGE = 'grf', forest_object, train_matrix, test_matrix, num_threads, estimate_variance, verbose)
 }
 
-causal_survival_predict_oob <- function(forest_object, train_matrix, num_threads, estimate_variance) {
-    .Call('_grf_causal_survival_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, num_threads, estimate_variance)
+causal_survival_predict_oob <- function(forest_object, train_matrix, num_threads, estimate_variance, verbose) {
+    .Call('_grf_causal_survival_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, num_threads, estimate_variance, verbose)
 }
 
 instrumental_train <- function(train_matrix, outcome_index, treatment_index, instrument_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose) {
     .Call('_grf_instrumental_train', PACKAGE = 'grf', train_matrix, outcome_index, treatment_index, instrument_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, reduced_form_weight, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose)
 }
 
-instrumental_predict <- function(forest_object, train_matrix, outcome_index, treatment_index, instrument_index, test_matrix, num_threads, estimate_variance) {
-    .Call('_grf_instrumental_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, instrument_index, test_matrix, num_threads, estimate_variance)
+instrumental_predict <- function(forest_object, train_matrix, outcome_index, treatment_index, instrument_index, test_matrix, num_threads, estimate_variance, verbose) {
+    .Call('_grf_instrumental_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, instrument_index, test_matrix, num_threads, estimate_variance, verbose)
 }
 
-instrumental_predict_oob <- function(forest_object, train_matrix, outcome_index, treatment_index, instrument_index, num_threads, estimate_variance) {
-    .Call('_grf_instrumental_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, instrument_index, num_threads, estimate_variance)
+instrumental_predict_oob <- function(forest_object, train_matrix, outcome_index, treatment_index, instrument_index, num_threads, estimate_variance, verbose) {
+    .Call('_grf_instrumental_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, treatment_index, instrument_index, num_threads, estimate_variance, verbose)
 }
 
 multi_causal_train <- function(train_matrix, outcome_index, treatment_index, sample_weight_index, use_sample_weights, gradient_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose) {
     .Call('_grf_multi_causal_train', PACKAGE = 'grf', train_matrix, outcome_index, treatment_index, sample_weight_index, use_sample_weights, gradient_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, stabilize_splits, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose)
 }
 
-multi_causal_predict <- function(forest_object, train_matrix, test_matrix, num_outcomes, num_treatments, num_threads, estimate_variance) {
-    .Call('_grf_multi_causal_predict', PACKAGE = 'grf', forest_object, train_matrix, test_matrix, num_outcomes, num_treatments, num_threads, estimate_variance)
+multi_causal_predict <- function(forest_object, train_matrix, test_matrix, num_outcomes, num_treatments, num_threads, estimate_variance, verbose) {
+    .Call('_grf_multi_causal_predict', PACKAGE = 'grf', forest_object, train_matrix, test_matrix, num_outcomes, num_treatments, num_threads, estimate_variance, verbose)
 }
 
-multi_causal_predict_oob <- function(forest_object, train_matrix, num_outcomes, num_treatments, num_threads, estimate_variance) {
-    .Call('_grf_multi_causal_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, num_outcomes, num_treatments, num_threads, estimate_variance)
+multi_causal_predict_oob <- function(forest_object, train_matrix, num_outcomes, num_treatments, num_threads, estimate_variance, verbose) {
+    .Call('_grf_multi_causal_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, num_outcomes, num_treatments, num_threads, estimate_variance, verbose)
 }
 
 multi_regression_train <- function(train_matrix, outcome_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose) {
     .Call('_grf_multi_regression_train', PACKAGE = 'grf', train_matrix, outcome_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose)
 }
 
-multi_regression_predict <- function(forest_object, train_matrix, test_matrix, num_outcomes, num_threads) {
-    .Call('_grf_multi_regression_predict', PACKAGE = 'grf', forest_object, train_matrix, test_matrix, num_outcomes, num_threads)
+multi_regression_predict <- function(forest_object, train_matrix, test_matrix, num_outcomes, num_threads, verbose) {
+    .Call('_grf_multi_regression_predict', PACKAGE = 'grf', forest_object, train_matrix, test_matrix, num_outcomes, num_threads, verbose)
 }
 
-multi_regression_predict_oob <- function(forest_object, train_matrix, num_outcomes, num_threads) {
-    .Call('_grf_multi_regression_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, num_outcomes, num_threads)
+multi_regression_predict_oob <- function(forest_object, train_matrix, num_outcomes, num_threads, verbose) {
+    .Call('_grf_multi_regression_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, num_outcomes, num_threads, verbose)
 }
 
 probability_train <- function(train_matrix, outcome_index, sample_weight_index, use_sample_weights, num_classes, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose) {
     .Call('_grf_probability_train', PACKAGE = 'grf', train_matrix, outcome_index, sample_weight_index, use_sample_weights, num_classes, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose)
 }
 
-probability_predict <- function(forest_object, train_matrix, outcome_index, num_classes, test_matrix, num_threads, estimate_variance) {
-    .Call('_grf_probability_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, num_classes, test_matrix, num_threads, estimate_variance)
+probability_predict <- function(forest_object, train_matrix, outcome_index, num_classes, test_matrix, num_threads, estimate_variance, verbose) {
+    .Call('_grf_probability_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, num_classes, test_matrix, num_threads, estimate_variance, verbose)
 }
 
-probability_predict_oob <- function(forest_object, train_matrix, outcome_index, num_classes, num_threads, estimate_variance) {
-    .Call('_grf_probability_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, num_classes, num_threads, estimate_variance)
+probability_predict_oob <- function(forest_object, train_matrix, outcome_index, num_classes, num_threads, estimate_variance, verbose) {
+    .Call('_grf_probability_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, num_classes, num_threads, estimate_variance, verbose)
 }
 
 quantile_train <- function(quantiles, regression_splitting, train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose) {
     .Call('_grf_quantile_train', PACKAGE = 'grf', quantiles, regression_splitting, train_matrix, outcome_index, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose)
 }
 
-quantile_predict <- function(forest_object, quantiles, train_matrix, outcome_index, test_matrix, num_threads) {
-    .Call('_grf_quantile_predict', PACKAGE = 'grf', forest_object, quantiles, train_matrix, outcome_index, test_matrix, num_threads)
+quantile_predict <- function(forest_object, quantiles, train_matrix, outcome_index, test_matrix, num_threads, verbose) {
+    .Call('_grf_quantile_predict', PACKAGE = 'grf', forest_object, quantiles, train_matrix, outcome_index, test_matrix, num_threads, verbose)
 }
 
-quantile_predict_oob <- function(forest_object, quantiles, train_matrix, outcome_index, num_threads) {
-    .Call('_grf_quantile_predict_oob', PACKAGE = 'grf', forest_object, quantiles, train_matrix, outcome_index, num_threads)
+quantile_predict_oob <- function(forest_object, quantiles, train_matrix, outcome_index, num_threads, verbose) {
+    .Call('_grf_quantile_predict_oob', PACKAGE = 'grf', forest_object, quantiles, train_matrix, outcome_index, num_threads, verbose)
 }
 
 regression_train <- function(train_matrix, outcome_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose) {
     .Call('_grf_regression_train', PACKAGE = 'grf', train_matrix, outcome_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, compute_oob_predictions, num_threads, seed, legacy_seed, verbose)
 }
 
-regression_predict <- function(forest_object, train_matrix, outcome_index, test_matrix, num_threads, estimate_variance) {
-    .Call('_grf_regression_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, test_matrix, num_threads, estimate_variance)
+regression_predict <- function(forest_object, train_matrix, outcome_index, test_matrix, num_threads, estimate_variance, verbose) {
+    .Call('_grf_regression_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, test_matrix, num_threads, estimate_variance, verbose)
 }
 
-regression_predict_oob <- function(forest_object, train_matrix, outcome_index, num_threads, estimate_variance) {
-    .Call('_grf_regression_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, num_threads, estimate_variance)
+regression_predict_oob <- function(forest_object, train_matrix, outcome_index, num_threads, estimate_variance, verbose) {
+    .Call('_grf_regression_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, num_threads, estimate_variance, verbose)
 }
 
 ll_regression_train <- function(train_matrix, outcome_index, ll_split_lambda, ll_split_weight_penalty, ll_split_variables, ll_split_cutoff, overall_beta, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, num_threads, seed, legacy_seed, verbose) {
     .Call('_grf_ll_regression_train', PACKAGE = 'grf', train_matrix, outcome_index, ll_split_lambda, ll_split_weight_penalty, ll_split_variables, ll_split_cutoff, overall_beta, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, ci_group_size, alpha, imbalance_penalty, clusters, samples_per_cluster, num_threads, seed, legacy_seed, verbose)
 }
 
-ll_regression_predict <- function(forest_object, train_matrix, outcome_index, test_matrix, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
-    .Call('_grf_ll_regression_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, test_matrix, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance)
+ll_regression_predict <- function(forest_object, train_matrix, outcome_index, test_matrix, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance, verbose) {
+    .Call('_grf_ll_regression_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, test_matrix, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance, verbose)
 }
 
-ll_regression_predict_oob <- function(forest_object, train_matrix, outcome_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance) {
-    .Call('_grf_ll_regression_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance)
+ll_regression_predict_oob <- function(forest_object, train_matrix, outcome_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance, verbose) {
+    .Call('_grf_ll_regression_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, ll_lambda, ll_weight_penalty, linear_correction_variables, num_threads, estimate_variance, verbose)
 }
 
 survival_train <- function(train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, num_failures, clusters, samples_per_cluster, compute_oob_predictions, prediction_type, fast_logrank, num_threads, seed, legacy_seed, verbose) {
     .Call('_grf_survival_train', PACKAGE = 'grf', train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, mtry, num_trees, min_node_size, sample_fraction, honesty, honesty_fraction, honesty_prune_leaves, alpha, num_failures, clusters, samples_per_cluster, compute_oob_predictions, prediction_type, fast_logrank, num_threads, seed, legacy_seed, verbose)
 }
 
-survival_predict <- function(forest_object, train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, test_matrix, num_threads, num_failures) {
-    .Call('_grf_survival_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, test_matrix, num_threads, num_failures)
+survival_predict <- function(forest_object, train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, test_matrix, num_threads, num_failures, verbose) {
+    .Call('_grf_survival_predict', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, test_matrix, num_threads, num_failures, verbose)
 }
 
-survival_predict_oob <- function(forest_object, train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, num_threads, num_failures) {
-    .Call('_grf_survival_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, num_threads, num_failures)
+survival_predict_oob <- function(forest_object, train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, num_threads, num_failures, verbose) {
+    .Call('_grf_survival_predict_oob', PACKAGE = 'grf', forest_object, train_matrix, outcome_index, censor_index, sample_weight_index, use_sample_weights, prediction_type, num_threads, num_failures, verbose)
 }
 

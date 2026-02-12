@@ -20,6 +20,7 @@
 #ifndef GRF_TREETRAVERSER_H
 #define GRF_TREETRAVERSER_H
 
+#include "commons/ProgressBar.h"
 #include "forest/Forest.h"
 
 namespace grf {
@@ -43,7 +44,8 @@ private:
       size_t num_trees,
       const Forest& forest,
       const Data& data,
-      bool oob_prediction) const;
+      bool oob_prediction,
+      ProgressBar& progress_bar) const;
 
   std::vector<bool> get_valid_samples(size_t num_samples,
                                       const std::unique_ptr<Tree>& tree,

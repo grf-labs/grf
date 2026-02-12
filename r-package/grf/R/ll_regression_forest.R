@@ -290,7 +290,8 @@ predict.ll_regression_forest <- function(object, newdata = NULL,
                estimate.variance = estimate.variance,
                ll.lambda = ll.lambda,
                ll.weight.penalty = ll.weight.penalty,
-               linear.correction.variables = linear.correction.variables)
+               linear.correction.variables = linear.correction.variables,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X)

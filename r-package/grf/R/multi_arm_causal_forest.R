@@ -428,7 +428,8 @@ predict.multi_arm_causal_forest <- function(object,
                num.outcomes = num.outcomes,
                num.treatments = num.treatments,
                num.threads = num.threads,
-               estimate.variance = estimate.variance)
+               estimate.variance = estimate.variance,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

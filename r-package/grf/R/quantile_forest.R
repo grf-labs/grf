@@ -209,7 +209,8 @@ predict.quantile_forest <- function(object,
 
   args <- list(forest.object = forest.short,
                quantiles = quantiles,
-               num.threads = num.threads)
+               num.threads = num.threads,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig, allow.na = TRUE)

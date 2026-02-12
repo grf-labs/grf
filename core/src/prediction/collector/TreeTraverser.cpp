@@ -42,6 +42,7 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
   std::vector<std::future<
       std::vector<std::vector<size_t>>>> futures;
   futures.reserve(thread_ranges.size());
+  ProgressBar progress_bar(num_trees, "prediction [traversal]: ");
 
   for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
     size_t start_index = thread_ranges[i];
@@ -53,7 +54,8 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
                                  num_trees_batch,
                                  std::ref(forest),
                                  std::ref(data),
-                                 oob_prediction));
+                                 oob_prediction,
+                                 std::ref(progress_bar)));
   }
 
   for (auto& future : futures) {
@@ -62,6 +64,7 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
                               leaf_nodes.begin(),
                               leaf_nodes.end());
   }
+  progress_bar.finish();
 
   return leaf_nodes_by_tree;
 };
@@ -88,7 +91,8 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_node_batch(
     size_t num_trees,
     const Forest& forest,
     const Data& data,
-    bool oob_prediction) const {
+    bool oob_prediction,
+    ProgressBar& progress_bar) const {
 
   size_t num_samples = data.get_num_rows();
   std::vector<std::vector<size_t>> all_leaf_nodes(num_trees);
@@ -99,6 +103,7 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_node_batch(
     std::vector<bool> valid_samples = get_valid_samples(num_samples, tree, oob_prediction);
     std::vector<size_t> leaf_nodes = tree->find_leaf_nodes(data, valid_samples);
     all_leaf_nodes[i] = leaf_nodes;
+    progress_bar.increment(1);
   }
 
   return all_leaf_nodes;

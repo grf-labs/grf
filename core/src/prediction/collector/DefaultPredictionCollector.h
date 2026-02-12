@@ -21,6 +21,7 @@
 #define GRF_DEFAULTPREDICTIONCOLLECTOR_H
 
 
+#include "commons/ProgressBar.h"
 #include "forest/Forest.h"
 #include "prediction/collector/PredictionCollector.h"
 #include "prediction/collector/SampleWeightComputer.h"
@@ -53,7 +54,8 @@ private:
                                                     const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                     bool estimate_variance,
                                                     size_t start,
-                                                    size_t num_samples) const;
+                                                    size_t num_samples,
+                                                    ProgressBar& progress_bar) const;
 
   void validate_prediction(size_t sample, const Prediction& prediction) const;
 

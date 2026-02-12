@@ -330,7 +330,8 @@ predict.instrumental_forest <- function(object, newdata = NULL,
   train.data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered, instrument = Z.centered)
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
-               estimate.variance = estimate.variance)
+               estimate.variance = estimate.variance,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

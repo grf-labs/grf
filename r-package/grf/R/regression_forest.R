@@ -286,7 +286,8 @@ predict.regression_forest <- function(object, newdata = NULL,
   }
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
-               estimate.variance = estimate.variance)
+               estimate.variance = estimate.variance,
+               verbose = get_verbose())
   ll.args <- list(ll.lambda = ll.lambda,
                   ll.weight.penalty = ll.weight.penalty,
                   linear.correction.variables = linear.correction.variables)
