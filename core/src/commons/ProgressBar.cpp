@@ -22,16 +22,15 @@
 namespace grf {
 
 ProgressBar::ProgressBar(int total,
-                         const std::string& prefix,
-                         std::ostream* out) :
+                         const std::string& prefix) :
     total(total) {
-  auto stream = (out != nullptr) ? out : grf::runtime_context.verbose_stream;
+  auto* out = grf::runtime_context.verbose_stream;
 
-  if (stream == nullptr) {
+  if (out == nullptr) {
     pb.set_display(false);
   } else {
     pb.set_display(true);
-    pb.set_ostream(*stream);
+    pb.set_ostream(*out);
     pb.set_prefix(prefix);
     pb.set_bar_symbol("\033[38;5;65m\u2588\033[0m"); // grf forest-greenish color.
   }
