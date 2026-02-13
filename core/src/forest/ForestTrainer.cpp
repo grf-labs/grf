@@ -48,6 +48,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                                               const ForestOptions& options) const {
   size_t num_samples = data.get_num_rows();
   uint num_trees = options.get_num_trees();
+  ProgressBar progress_bar(num_trees, grf::runtime_context.forest_name + " training: ");
 
   // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
   const TreeOptions& tree_options = options.get_tree_options();
@@ -70,7 +71,6 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
 
   std::vector<std::unique_ptr<Tree>> trees;
   trees.reserve(num_trees);
-  ProgressBar progress_bar(num_trees, grf::runtime_context.forest_name + " training: ");
 
   for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
     size_t start_index = thread_ranges[i];

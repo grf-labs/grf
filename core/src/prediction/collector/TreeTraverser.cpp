@@ -32,6 +32,7 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
     const Data& data,
     bool oob_prediction) const {
   size_t num_trees = forest.get_trees().size();
+  ProgressBar progress_bar(num_trees, "prediction [traversal]: ");
 
   std::vector<std::vector<size_t>> leaf_nodes_by_tree;
   leaf_nodes_by_tree.reserve(num_trees);
@@ -42,7 +43,6 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
   std::vector<std::future<
       std::vector<std::vector<size_t>>>> futures;
   futures.reserve(thread_ranges.size());
-  ProgressBar progress_bar(num_trees, "prediction [traversal]: ");
 
   for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
     size_t start_index = thread_ranges[i];

@@ -36,6 +36,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                                                           bool estimate_variance,
                                                                           bool estimate_error) const {
   size_t num_samples = data.get_num_rows();
+  ProgressBar progress_bar(num_samples, "prediction [collection]: ");
   std::vector<uint> thread_ranges;
   split_sequence(thread_ranges, 0, static_cast<uint>(num_samples - 1), num_threads);
 
@@ -44,7 +45,6 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
 
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
-  ProgressBar progress_bar(num_samples, "prediction [collection]: ");
 
   for (uint i = 0; i < thread_ranges.size() - 1; ++i) {
     size_t start_index = thread_ranges[i];
