@@ -61,10 +61,10 @@ Rcpp::List multi_regression_train(const Rcpp::NumericMatrix& train_matrix,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
   ForestTrainer trainer = multi_regression_trainer(data.get_num_outcomes());
   Forest forest = trainer.train(data, options);
-  grf::runtime_context.verbose_stream = nullptr;
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
+    grf::runtime_context.verbose_stream = nullptr;
     ForestPredictor predictor = multi_regression_predictor(num_threads, data.get_num_outcomes());
     predictions = predictor.predict_oob(forest, data, false);
   }

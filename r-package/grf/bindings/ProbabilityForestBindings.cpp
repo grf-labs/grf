@@ -63,10 +63,10 @@ Rcpp::List probability_train(const Rcpp::NumericMatrix& train_matrix,
   ForestOptions options(num_trees, ci_group_size, sample_fraction, mtry, min_node_size, honesty,
       honesty_fraction, honesty_prune_leaves, alpha, imbalance_penalty, num_threads, seed, legacy_seed, clusters, samples_per_cluster);
   Forest forest = trainer.train(data, options);
-  grf::runtime_context.verbose_stream = nullptr;
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
+    grf::runtime_context.verbose_stream = nullptr;
     ForestPredictor predictor = probability_predictor(num_threads, num_classes);
     predictions = predictor.predict_oob(forest, data, false);
   }
