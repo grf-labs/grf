@@ -92,7 +92,6 @@ Rcpp::List probability_predict(const Rcpp::List& forest_object,
 
   ForestPredictor predictor = probability_predictor(num_threads, num_classes);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
-  grf::runtime_context.verbose_stream = nullptr;
 
   return RcppUtilities::create_prediction_object(predictions);
 }
@@ -113,7 +112,6 @@ Rcpp::List probability_predict_oob(const Rcpp::List& forest_object,
 
   ForestPredictor predictor = probability_predictor(num_threads, num_classes);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
-  grf::runtime_context.verbose_stream = nullptr;
 
   return RcppUtilities::create_prediction_object(predictions);
 }

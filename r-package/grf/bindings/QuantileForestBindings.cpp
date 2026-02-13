@@ -90,7 +90,6 @@ Rcpp::NumericMatrix quantile_predict(const Rcpp::List& forest_object,
   ForestPredictor predictor = quantile_predictor(num_threads, quantiles);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
-  grf::runtime_context.verbose_stream = nullptr;
 
   return result;
 }
@@ -111,7 +110,6 @@ Rcpp::NumericMatrix quantile_predict_oob(const Rcpp::List& forest_object,
   ForestPredictor predictor = quantile_predictor(num_threads, quantiles);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, false);
   Rcpp::NumericMatrix result = RcppUtilities::create_prediction_matrix(predictions);
-  grf::runtime_context.verbose_stream = nullptr;
 
   return result;
 }

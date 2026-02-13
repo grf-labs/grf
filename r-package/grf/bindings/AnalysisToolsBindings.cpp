@@ -102,7 +102,6 @@ Eigen::SparseMatrix<double> compute_weights(const Rcpp::List& forest_object,
   grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   return compute_sample_weights(forest_object, train_matrix,
                                 test_matrix, num_threads, false);
-  grf::runtime_context.verbose_stream = nullptr;
 }
 
 // [[Rcpp::export]]
@@ -113,7 +112,6 @@ Eigen::SparseMatrix<double> compute_weights_oob(const Rcpp::List& forest_object,
   grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   return compute_sample_weights(forest_object, train_matrix,
                                 train_matrix, num_threads, true);
-  grf::runtime_context.verbose_stream = nullptr;
 }
 
 // [[Rcpp::export]]

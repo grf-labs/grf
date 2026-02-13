@@ -101,7 +101,6 @@ Rcpp::List instrumental_predict(const Rcpp::List& forest_object,
   ForestPredictor predictor = instrumental_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
-  grf::runtime_context.verbose_stream = nullptr;
 
   return result;
 }
@@ -126,7 +125,6 @@ Rcpp::List instrumental_predict_oob(const Rcpp::List& forest_object,
   ForestPredictor predictor = instrumental_predictor(num_threads);
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
-  grf::runtime_context.verbose_stream = nullptr;
 
   return result;
 }

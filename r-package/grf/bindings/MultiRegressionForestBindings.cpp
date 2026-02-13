@@ -87,7 +87,6 @@ Rcpp::List multi_regression_predict(const Rcpp::List& forest_object,
   bool estimate_variance = false;
   ForestPredictor predictor = multi_regression_predictor(num_threads, num_outcomes);
   std::vector<Prediction> predictions = predictor.predict(forest, train_data, data, estimate_variance);
-  grf::runtime_context.verbose_stream = nullptr;
 
   return RcppUtilities::create_prediction_object(predictions);
 }
@@ -107,6 +106,5 @@ Rcpp::List multi_regression_predict_oob(const Rcpp::List& forest_object,
   std::vector<Prediction> predictions = predictor.predict_oob(forest, data, estimate_variance);
 
   Rcpp::List result = RcppUtilities::create_prediction_object(predictions);
-  grf::runtime_context.verbose_stream = nullptr;
   return result;
 }
