@@ -36,7 +36,6 @@ std::pair<std::vector<size_t>, std::vector<double>> SampleWeightComputer::comput
   auto& weights = weights_by_sample.second;
 
   // Create a list of weighted neighbors for this sample.
-  double total_weight = 0.0;
   for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
     if (!valid_trees_by_sample[sample][tree_index]) {
       continue;
@@ -52,13 +51,17 @@ std::pair<std::vector<size_t>, std::vector<double>> SampleWeightComputer::comput
     }
 
     double sample_weight = 1.0 / samples.size();
-    total_weight += sample_weight;
     for (auto neighbor : samples) {
       if (buffer[neighbor] <= 0.0) {
           indices.push_back(neighbor);
       }
       buffer[neighbor] += sample_weight;
     }
+  }
+
+  double total_weight = 0.0;
+  for (auto neighbor : indices) {
+    total_weight += buffer[neighbor];
   }
 
   weights.reserve(indices.size());
