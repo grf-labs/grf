@@ -70,9 +70,9 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
 
     // cumulative_weight += weights_by_sample.at(sample);
     // TODO: better fix for this (linear lookup: sample -> index in sparse vector)
-    for (size_t i = 0; i < indices.size(); ++i) {
-      if (indices[i] == sample) {
-        cumulative_weight += weights[i];
+    for (size_t i = 0; i < weights_by_sample.first.size(); ++i) {
+      if (weights_by_sample.first[i] == sample) {
+        cumulative_weight += weights_by_sample.second[i];
         break;
       }
     }

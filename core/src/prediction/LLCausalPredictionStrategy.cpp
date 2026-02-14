@@ -46,7 +46,7 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   // Number of predictor variables to use in local linear regression step
   size_t num_variables = linear_correction_variables.size();
 
-  size_t num_nonzero_weights = weights_by_sampleID.size();
+  size_t num_nonzero_weights = weights_by_sampleID.first.size();
   size_t num_lambdas = lambdas.size();
 
   // Creating a vector of neighbor weights weights
@@ -59,13 +59,11 @@ std::vector<double> LLCausalPredictionStrategy::predict(
   std::vector<size_t> indices(num_nonzero_weights);
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
   {
-    size_t i = 0;
-    for (const auto& it : weights_by_sampleID) {
-      size_t index = it.first;
-      double weight = it.second;
+    for (size_t i = 0; i < weights_by_sampleID.first.size(); i++) {
+      size_t index = weights_by_sampleID.first[i];
+      double weight = weights_by_sampleID.second[i];
       indices[i] = index;
       weights_vec(i) = weight;
-      i++;
     }
   }
 
@@ -155,21 +153,19 @@ std::vector<double> LLCausalPredictionStrategy::compute_variance(
   double lambda = lambdas[0];
 
   size_t num_variables = linear_correction_variables.size();
-  size_t num_nonzero_weights = weights_by_sampleID.size();
+  size_t num_nonzero_weights = weights_by_sampleID.first.size();
 
   std::vector<size_t> sample_index_map(train_data.get_num_rows());
   std::vector<size_t> indices(num_nonzero_weights);
 
   Eigen::MatrixXd weights_vec = Eigen::VectorXd::Zero(num_nonzero_weights);
   {
-    size_t i = 0;
-    for (auto& it : weights_by_sampleID) {
-      size_t index = it.first;
-      double weight = it.second;
+    for (size_t i = 0; i < weights_by_sampleID.first.size(); i++) {
+      size_t index = weights_by_sampleID.first[i];
+      double weight = weights_by_sampleID.second[i];
       indices[i] = index;
       sample_index_map[index] = i;
       weights_vec(i) = weight;
-      i++;
     }
   }
 

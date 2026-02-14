@@ -35,7 +35,7 @@ public:
   size_t prediction_length() const;
 
   std::vector<double> predict(size_t prediction_sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
     const Data& train_data,
     const Data& data) const;
 
