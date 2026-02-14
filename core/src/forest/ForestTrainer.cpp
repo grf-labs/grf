@@ -48,7 +48,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                                               const ForestOptions& options) const {
   size_t num_samples = data.get_num_rows();
   uint num_trees = options.get_num_trees();
-  ProgressBar progress_bar(num_trees, "training [" + grf::runtime_context.forest_name + "] :" );
+  ProgressBar progress_bar(num_trees, "training [" + grf::runtime_context.forest_name + "]: " );
 
   // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
   const TreeOptions& tree_options = options.get_tree_options();
