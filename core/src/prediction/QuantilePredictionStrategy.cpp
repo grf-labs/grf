@@ -35,12 +35,12 @@ size_t QuantilePredictionStrategy::prediction_length() const {
 
 std::vector<double> QuantilePredictionStrategy::predict(
     size_t prediction_sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
     const Data& train_data,
     const Data& data) const {
   std::vector<std::pair<size_t, double>> samples_and_values;
-  for (const auto& entry : weights_by_sample) {
-    size_t sample = entry.first;
+  for (size_t i = 0; i < weights_by_sample.first.size(); i++) {
+    size_t sample = weights_by_sample.first[i];
     samples_and_values.emplace_back(sample, train_data.get_outcome(sample));
   }
 
@@ -48,7 +48,7 @@ std::vector<double> QuantilePredictionStrategy::predict(
 }
 
 std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
-    const std::unordered_map<size_t, double>& weights_by_sample,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
     std::vector<std::pair<size_t, double>>& samples_and_values) const {
   std::sort(samples_and_values.begin(),
             samples_and_values.end(),
@@ -68,7 +68,14 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
     size_t sample = entry.first;
     double value = entry.second;
 
-    cumulative_weight += weights_by_sample.at(sample);
+    // cumulative_weight += weights_by_sample.at(sample);
+    // TODO: better fix for this (linear lookup: sample -> index in sparse vector)
+    for (size_t i = 0; i < indices.size(); ++i) {
+      if (indices[i] == sample) {
+        cumulative_weight += weights[i];
+        break;
+      }
+    }
     while (quantile_it != quantiles.end() && cumulative_weight >= *quantile_it) {
       quantile_cutoffs.push_back(value);
       ++quantile_it;
@@ -85,7 +92,7 @@ std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
 std::vector<double> QuantilePredictionStrategy::compute_variance(
     size_t sampleID,
     const std::vector<std::vector<size_t>>& samples_by_tree,
-    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sampleID,
     const Data& train_data,
     const Data& data,
     size_t ci_group_size) const {

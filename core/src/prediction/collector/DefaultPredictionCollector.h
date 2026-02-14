@@ -23,7 +23,6 @@
 
 #include "forest/Forest.h"
 #include "prediction/collector/PredictionCollector.h"
-#include "prediction/collector/SampleWeightComputer.h"
 #include "prediction/DefaultPredictionStrategy.h"
 
 namespace grf {
@@ -58,7 +57,6 @@ private:
   void validate_prediction(size_t sample, const Prediction& prediction) const;
 
   std::unique_ptr<DefaultPredictionStrategy> strategy;
-  SampleWeightComputer weight_computer;
   uint num_threads;
 };
 

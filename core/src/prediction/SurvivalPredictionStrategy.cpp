@@ -39,7 +39,7 @@ size_t SurvivalPredictionStrategy::prediction_length() const {
 }
 
 std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
     const Data& train_data,
     const Data& data) const {
   // the event times will always range from 0, ..., num_failures
@@ -48,9 +48,9 @@ std::vector<double> SurvivalPredictionStrategy::predict(size_t prediction_sample
   std::vector<double> count_censor(num_failures + 1);
   double sum = 0;
   double sum_weight = 0;
-  for (const auto& entry : weights_by_sample) {
-    size_t sample = entry.first;
-    double forest_weight = entry.second;
+  for (size_t i = 0; i < weights_by_sample.first.size(); i++) {
+    size_t sample = weights_by_sample.first[i];
+    double forest_weight = weights_by_sample.second[i];
     size_t failure_time = static_cast<size_t>(train_data.get_outcome(sample));
     double sample_weight = train_data.get_weight(sample);
     if (train_data.is_failure(sample)) {
@@ -123,7 +123,7 @@ std::vector<double> SurvivalPredictionStrategy::predict_nelson_aalen(
 std::vector<double> SurvivalPredictionStrategy::compute_variance(
     size_t sample,
     const std::vector<std::vector<size_t>>& samples_by_tree,
-    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sampleID,
     const Data& train_data,
     const Data& data,
     size_t ci_group_size) const {

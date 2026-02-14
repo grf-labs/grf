@@ -21,6 +21,7 @@
 #include <stdexcept>
 
 #include "prediction/collector/DefaultPredictionCollector.h"
+#include "prediction/collector/SampleWeightComputer.h"
 #include "commons/utility.h"
 
 namespace grf {
@@ -91,7 +92,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
   predictions.reserve(num_samples);
 
   for (size_t sample = start; sample < num_samples + start; ++sample) {
-    std::unordered_map<size_t, double> weights_by_sample = weight_computer.compute_weights(
+    std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample = weight_computer.compute_weights(
         sample, forest, leaf_nodes_by_tree, valid_trees_by_sample);
     std::vector<std::vector<size_t>> samples_by_tree;
 

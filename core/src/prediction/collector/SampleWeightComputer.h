@@ -22,7 +22,6 @@
 
 #include "forest/Forest.h"
 
-#include <unordered_map>
 #include <vector>
 
 namespace grf {

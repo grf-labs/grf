@@ -20,7 +20,6 @@
 #ifndef GRF_DEFAULTPREDICTIONSTRATEGY_H
 #define GRF_DEFAULTPREDICTIONSTRATEGY_H
 
-#include <unordered_map>
 #include <vector>
 
 #include "commons/globals.h"
@@ -59,7 +58,7 @@ public:
    *     be the same as the training matrix.
    */
   virtual std::vector<double> predict(size_t sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
     const Data& train_data,
     const Data& data) const = 0;
 
@@ -81,7 +80,7 @@ public:
   virtual std::vector<double> compute_variance(
       size_t sample,
       const std::vector<std::vector<size_t>>& samples_by_tree,
-      const std::unordered_map<size_t, double>& weights_by_sampleID,
+      const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sampleID,
       const Data& train_data,
       const Data& data,
       size_t ci_group_size) const = 0;

@@ -39,7 +39,7 @@ size_t LLCausalPredictionStrategy::prediction_length() const {
 
 std::vector<double> LLCausalPredictionStrategy::predict(
         size_t sampleID,
-        const std::unordered_map<size_t, double>& weights_by_sampleID,
+        const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sampleID,
         const Data& train_data,
         const Data& test_data) const {
 
@@ -147,7 +147,7 @@ std::vector<double> LLCausalPredictionStrategy::predict(
 std::vector<double> LLCausalPredictionStrategy::compute_variance(
         size_t sampleID,
         const std::vector<std::vector<size_t>>& samples_by_tree,
-        const std::unordered_map<size_t, double>& weights_by_sampleID,
+        const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sampleID,
         const Data& train_data,
         const Data& test_data,
         size_t ci_group_size) const {
