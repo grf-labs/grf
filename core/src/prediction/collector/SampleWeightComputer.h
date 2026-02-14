@@ -27,18 +27,17 @@
 
 namespace grf {
 
+/* Not thread-safe: intended for thread-local use only. */
 class SampleWeightComputer {
 public:
-  std::unordered_map<size_t, double> compute_weights(size_t sample,
-                                                     const Forest& forest,
-                                                     const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                                     const std::vector<std::vector<bool>>& valid_trees_by_sample) const;
+  SampleWeightComputer(size_t num_train_samples);
 
-private:
-  void add_sample_weights(const std::vector<size_t>& samples,
-                          std::unordered_map<size_t, double>& weights_by_sample) const;
+  std::pair<std::vector<size_t>, std::vector<double>> compute_weights(size_t sample,
+                                                                      const Forest& forest,
+                                                                      const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                                      const std::vector<std::vector<bool>>& valid_trees_by_sample);
 
-  void normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sample) const;
+  std::vector<double> buffer;
 };
 
 } // namespace grf

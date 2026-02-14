@@ -23,13 +23,20 @@
 
 namespace grf {
 
-std::unordered_map<size_t, double> SampleWeightComputer::compute_weights(size_t sample,
-                                                                         const Forest& forest,
-                                                                         const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                                                         const std::vector<std::vector<bool>>& valid_trees_by_sample) const {
-  std::unordered_map<size_t, double> weights_by_sample;
+SampleWeightComputer::SampleWeightComputer(size_t num_train_samples) :
+    buffer(num_train_samples, 0.0) {}
+
+std::pair<std::vector<size_t>, std::vector<double>> SampleWeightComputer::compute_weights(
+    size_t sample,
+    const Forest& forest,
+    const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+    const std::vector<std::vector<bool>>& valid_trees_by_sample) {
+  std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample;
+  auto& indices = weights_by_sample.first;
+  auto& weights = weights_by_sample.second;
 
   // Create a list of weighted neighbors for this sample.
+  double total_weight = 0.0;
   for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
     if (!valid_trees_by_sample[sample][tree_index]) {
       continue;
@@ -40,33 +47,27 @@ std::unordered_map<size_t, double> SampleWeightComputer::compute_weights(size_t 
 
     const std::unique_ptr<Tree>& tree = forest.get_trees()[tree_index];
     const std::vector<size_t>& samples = tree->get_leaf_samples()[node];
-    if (!samples.empty()) {
-      add_sample_weights(samples, weights_by_sample);
+    if (samples.empty()) {
+      continue;
+    }
+
+    double sample_weight = 1.0 / samples.size();
+    total_weight += sample_weight;
+    for (auto neighbor : samples) {
+      if (buffer[neighbor] <= 0.0) {
+          indices.push_back(neighbor);
+      }
+      buffer[neighbor] += sample_weight;
     }
   }
 
-  normalize_sample_weights(weights_by_sample);
+  weights.reserve(indices.size());
+  for (auto neighbor : indices) {
+    weights.push_back(buffer[neighbor] / total_weight);
+    buffer[neighbor] = 0.0; // Note: reset for the next test sample
+  }
+
   return weights_by_sample;
-}
-
-void SampleWeightComputer::add_sample_weights(const std::vector<size_t>& samples,
-                                              std::unordered_map<size_t, double>& weights_by_sample) const {
-  double sample_weight = 1.0 / samples.size();
-
-  for (auto& sample : samples) {
-    weights_by_sample[sample] += sample_weight;
-  }
-}
-
-void SampleWeightComputer::normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sample) const {
-  double total_weight = 0.0;
-  for (const auto& entry : weights_by_sample) {
-    total_weight += entry.second;
-  }
-
-  for (auto& entry : weights_by_sample) {
-    entry.second/= total_weight;
-  }
 }
 
 } // namespace grf
