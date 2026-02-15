@@ -37,25 +37,19 @@ ProgressBar::ProgressBar(int total,
 }
 
 void ProgressBar::increment(int n) {
-  done.fetch_add(n, std::memory_order_relaxed);
-
+  int current = done.fetch_add(n, std::memory_order_relaxed) + n;
   if (mtx.try_lock()) {
-    refresh(done.load(std::memory_order_relaxed));
+    pb.update(current, total);
+    last_reported = current;
     mtx.unlock();
   }
 }
 
-// Ensure PB hits 100% at the end
-// (last_reported: to avoid updates if the bar is already at 100%)
+// Only do a final update if the progress bar hasn't already been updated to the total.
 void ProgressBar::finish() {
-  std::lock_guard<std::mutex> lock(mtx);
-  refresh(done.load(std::memory_order_relaxed));
-}
-
-void ProgressBar::refresh(int value) {
-  if (value > last_reported) {
-    pb.update(value, total);
-    last_reported = value;
+  std::lock_guard<std::mutex> lock(mtx); // final call happens outside the multi-threaded context, but we keep the lock just for safety.
+  if (last_reported < total) {
+    pb.update(total, total);
   }
 }
 

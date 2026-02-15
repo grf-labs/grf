@@ -38,13 +38,11 @@ class ProgressBar {
     ProgressBar(int total,
                 const std::string& prefix = "");
     void increment(int n);
-    void finish();
+    void finish(); // (not necesasry in single-threaded contexts)
 
   private:
-    void refresh(int value);
-
     int total;
-    int last_reported{-1};
+    int last_reported {-1};
     std::atomic<int> done {0};
     std::mutex mtx;
 
