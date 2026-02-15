@@ -23,11 +23,14 @@
 
 namespace grf {
 
-std::unordered_map<size_t, double> SampleWeightComputer::compute_weights(size_t sample,
-                                                                         const Forest& forest,
-                                                                         const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-                                                                         const std::vector<std::vector<bool>>& valid_trees_by_sample) const {
-  std::unordered_map<size_t, double> weights_by_sample;
+SampleWeightComputer::SampleWeightComputer(size_t num_train_samples) :
+    buffer(num_train_samples, 0.0) {}
+
+std::pair<std::vector<size_t>, std::vector<double>> SampleWeightComputer::compute_weights(size_t sample,
+                                                                                          const Forest& forest,
+                                                                                          const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                                                          const std::vector<std::vector<bool>>& valid_trees_by_sample) {
+  std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample;
 
   // Create a list of weighted neighbors for this sample.
   for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
@@ -50,22 +53,28 @@ std::unordered_map<size_t, double> SampleWeightComputer::compute_weights(size_t 
 }
 
 void SampleWeightComputer::add_sample_weights(const std::vector<size_t>& samples,
-                                              std::unordered_map<size_t, double>& weights_by_sample) const {
+                                              std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample) {
   double sample_weight = 1.0 / samples.size();
 
-  for (auto& sample : samples) {
-    weights_by_sample[sample] += sample_weight;
+  for (auto sample : samples) {
+    if (buffer[sample] <= 0.0) {
+      weights_by_sample.first.push_back(sample);
+    }
+    buffer[sample] += sample_weight;
   }
 }
 
-void SampleWeightComputer::normalize_sample_weights(std::unordered_map<size_t, double>& weights_by_sample) const {
+void SampleWeightComputer::normalize_sample_weights(std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample){
   double total_weight = 0.0;
-  for (const auto& entry : weights_by_sample) {
-    total_weight += entry.second;
+  for (auto sample : weights_by_sample.first) {
+    total_weight += buffer[sample];
   }
 
-  for (auto& entry : weights_by_sample) {
-    entry.second/= total_weight;
+  size_t num_samples = weights_by_sample.first.size();
+  weights_by_sample.second.reserve(num_samples);
+  for (auto sample : weights_by_sample.first) {
+    weights_by_sample.second.push_back(buffer[sample] / total_weight);
+    buffer[sample] = 0.0; // NOTE: reset for the next test sample
   }
 }
 

@@ -47,10 +47,7 @@ public:
    * Note: The reason we don't use OptimizedPredictionStrategy for survival
    * curves is that it may require a large memory footprint in the form of
    * storing sufficient statistics with a size equal to the length of the
-   * survival curve. DefaultPredictionStrategy requires less memory. A
-   * drawback is, particularly in the case of shallow trees (as will be
-   * the case with very few events), more CPU time spent in hash table
-   * lookups, as a target sample x will match many training samples.
+   * survival curve.
    */
   SurvivalPredictionStrategy(size_t num_failures,
                              int prediction_type);
@@ -58,14 +55,14 @@ public:
   size_t prediction_length() const;
 
   std::vector<double> predict(size_t prediction_sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
     const Data& train_data,
     const Data& data) const;
 
   std::vector<double> compute_variance(
     size_t sample,
     const std::vector<std::vector<size_t>>& samples_by_tree,
-    const std::unordered_map<size_t, double>& weights_by_sampleID,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sampleID,
     const Data& train_data,
     const Data& data,
     size_t ci_group_size) const;

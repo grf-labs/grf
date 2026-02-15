@@ -26,9 +26,10 @@
 using namespace grf;
 
 TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
-  std::unordered_map<size_t, double> weights_by_sample = {
-      {0, 0.0}, {1, 0.1}, {2, 0.2}, {3, 0.1}, {4, 0.1},
-      {5, 0.1}, {6, 0.2}, {7, 0.1}, {8, 0.0}, {9, 0.1}};
+  std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample = {
+    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+    {0.0, 0.1, 0.2, 0.1, 0.1, 0.1, 0.2, 0.1, 0.0, 0.1}
+  };
 
   std::vector<double> outcomes = { -9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                    -5.62082, -9.05911, 3.57729, 3.58593, 8.69386 };
@@ -43,9 +44,10 @@ TEST_CASE("simple quantile prediction", "[quantile, prediction]") {
 }
 
 TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
-  std::unordered_map<size_t, double> weights_by_sample = {
-      {0, 0.0}, {1, 0.1}, {2, 0.2}, {3, 0.1}, {4, 0.1},
-      {5, 0.1}, {6, 0.2}, {7, 0.1}, {8, 0.0}, {9, 0.1}};
+  std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample = {
+    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+    {0.0, 0.1, 0.2, 0.1, 0.1, 0.1, 0.2, 0.1, 0.0, 0.1}
+  };
 
   std::vector<double> outcomes =  { -1.99984, -0.36924, 0.11211, -1.826997, 1.655345,
                                     -1.62082, -0.05911, 0.57729, 0.58593, 1.69386 };
@@ -63,9 +65,10 @@ TEST_CASE("prediction with skewed quantiles", "[quantile, prediction]") {
 }
 
 TEST_CASE("prediction with repeated quantiles", "[quantile, prediction]") {
-  std::unordered_map<size_t, double> weights_by_sample = {
-      {0, 0.0}, {1, 0.1}, {2, 0.2}, {3, 0.1}, {4, 0.1},
-      {5, 0.1}, {6, 0.2}, {7, 0.1}, {8, 0.0}, {9, 0.1}};
+  std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample = {
+    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+    {0.0, 0.1, 0.2, 0.1, 0.1, 0.1, 0.2, 0.1, 0.0, 0.1}
+  };
 
   std::vector<double> outcomes  = { -9.99984, -7.36924, 5.11211, -0.826997, 0.655345,
                                     -5.62082, -9.05911, 3.57729, 3.58593, 8.69386 };
