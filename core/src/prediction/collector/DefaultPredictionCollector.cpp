@@ -21,6 +21,7 @@
 #include <stdexcept>
 
 #include "prediction/collector/DefaultPredictionCollector.h"
+#include "prediction/collector/SampleWeightComputer.h"
 #include "commons/utility.h"
 
 namespace grf {
@@ -90,14 +91,15 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
   std::vector<Prediction> predictions;
   predictions.reserve(num_samples);
 
+  SampleWeightComputer weight_computer(train_data.get_num_rows());
   for (size_t sample = start; sample < num_samples + start; ++sample) {
-    std::unordered_map<size_t, double> weights_by_sample = weight_computer.compute_weights(
+    std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample = weight_computer.compute_weights(
         sample, forest, leaf_nodes_by_tree, valid_trees_by_sample);
     std::vector<std::vector<size_t>> samples_by_tree;
 
     // If this sample has no neighbors, then return placeholder predictions. Note
     // that this can only occur when honesty is enabled, and is expected to be rare.
-    if (weights_by_sample.empty()) {
+    if (weights_by_sample.first.empty()) {
       std::vector<double> nan(strategy->prediction_length(), NAN);
       std::vector<double> empty;
       predictions.emplace_back(nan, estimate_variance ? nan : empty, empty, empty);

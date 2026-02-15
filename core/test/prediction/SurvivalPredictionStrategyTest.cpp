@@ -54,9 +54,10 @@ TEST_CASE("Kaplan-Meier survival estimates are correct", "[survival], [predictio
   data.set_outcome_index(outcome_index);
   data.set_censor_index(outcome_index + 1);
 
-  std::unordered_map<size_t, double> weights_by_sample;
+  std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample;
   for (size_t i = 0; i < num_rows; i++) {
-    weights_by_sample[i] = 1.0;
+    weights_by_sample.first.push_back(i);
+    weights_by_sample.second.push_back(1.0);
   }
 
   int prediction_type = 0; // Kaplan-Meier
@@ -116,16 +117,18 @@ TEST_CASE("Kaplan-Meier estimates on duplicated data is the same as with sample 
   data_duplicated.set_outcome_index(outcome_index);
   data_duplicated.set_censor_index(outcome_index + 1);
 
-  std::unordered_map<size_t, double> weights_by_sample;
+  std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample;
   for (size_t i = 0; i < num_rows; i++) {
-    weights_by_sample[i] = 1.0;
+    weights_by_sample.first.push_back(i);
+    weights_by_sample.second.push_back(1.0);
   }
 
   int prediction_type = 0;
   SurvivalPredictionStrategy prediction_strategy(num_failures, prediction_type);
   std::vector<double> predictions_weighted = prediction_strategy.predict(0, weights_by_sample, data, data);
   for (size_t i = num_rows; i < num_rows + num_duplicates; i++) {
-    weights_by_sample[i] = 1.0;
+    weights_by_sample.first.push_back(i);
+    weights_by_sample.second.push_back(1.0);
   }
   std::vector<double> predictions_duplicated = prediction_strategy.predict(0, weights_by_sample, data_duplicated, data_duplicated);
 
@@ -163,9 +166,10 @@ TEST_CASE("Nelson-Aalen survival estimates are correct", "[survival], [predictio
   data.set_outcome_index(outcome_index);
   data.set_censor_index(outcome_index + 1);
 
-  std::unordered_map<size_t, double> weights_by_sample;
+  std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample;
   for (size_t i = 0; i < num_rows; i++) {
-    weights_by_sample[i] = 1.0;
+    weights_by_sample.first.push_back(i);
+    weights_by_sample.second.push_back(1.0);
   }
 
   int prediction_type = 1; // Nelson-Aalen
@@ -225,16 +229,18 @@ TEST_CASE("Nelson-Aalen estimates on duplicated data is the same as with sample 
   data_duplicated.set_outcome_index(outcome_index);
   data_duplicated.set_censor_index(outcome_index + 1);
 
-  std::unordered_map<size_t, double> weights_by_sample;
+  std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample;
   for (size_t i = 0; i < num_rows; i++) {
-    weights_by_sample[i] = 1.0;
+    weights_by_sample.first.push_back(i);
+    weights_by_sample.second.push_back(1.0);
   }
 
   int prediction_type = 1;
   SurvivalPredictionStrategy prediction_strategy(num_failures, prediction_type);
   std::vector<double> predictions_weighted = prediction_strategy.predict(0, weights_by_sample, data, data);
   for (size_t i = num_rows; i < num_rows + num_duplicates; i++) {
-    weights_by_sample[i] = 1.0;
+    weights_by_sample.first.push_back(i);
+    weights_by_sample.second.push_back(1.0);
   }
   std::vector<double> predictions_duplicated = prediction_strategy.predict(0, weights_by_sample, data_duplicated, data_duplicated);
 

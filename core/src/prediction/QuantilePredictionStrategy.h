@@ -22,7 +22,6 @@
 
 
 #include <cstddef>
-#include <unordered_map>
 #include "commons/Data.h"
 #include "prediction/DefaultPredictionStrategy.h"
 #include "prediction/PredictionValues.h"
@@ -36,21 +35,21 @@ public:
   size_t prediction_length() const;
 
   std::vector<double> predict(size_t prediction_sample,
-    const std::unordered_map<size_t, double>& weights_by_sample,
+    const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
     const Data& train_data,
     const Data& data) const;
 
   std::vector<double> compute_variance(
       size_t sampleID,
       const std::vector<std::vector<size_t>>& samples_by_tree,
-      const std::unordered_map<size_t, double>& weights_by_sampleID,
+      const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sampleID,
       const Data& train_data,
       const Data& data,
       size_t ci_group_size) const;
 
 private:
-  std::vector<double> compute_quantile_cutoffs(const std::unordered_map<size_t, double>& weights_by_sample,
-                                               std::vector<std::pair<size_t, double>>& samples_and_values) const;
+  std::vector<double> compute_quantile_cutoffs(const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
+                                               const std::vector<double>& values) const;
 
   std::vector<double> quantiles;
 };
