@@ -27,15 +27,19 @@ ProgressBar::ProgressBar(int total,
   std::ostream* out = grf::runtime_context.verbose_stream;
   if (out == nullptr) {
     pb.set_display(false);
+    enabled = false;
   } else {
     pb.set_display(true);
     pb.set_ostream(*out);
     pb.set_prefix(prefix);
     pb.set_bar_symbol("\033[38;5;65m\u2588\033[0m"); // grf forest-greenish color.
+    enabled = true;
   }
 }
 
 void ProgressBar::increment(int n) {
+  if (!enabled) return;
+
   int current = done.fetch_add(n, std::memory_order_relaxed) + n;
   if (mtx.try_lock()) {
     pb.update(current, total);
@@ -46,6 +50,8 @@ void ProgressBar::increment(int n) {
 
 // Only do a final update if the progress bar hasn't already been updated to the total.
 void ProgressBar::finish() {
+  if (!enabled) return;
+
   std::lock_guard<std::mutex> lock(mtx); // final call happens outside the multi-threaded context, but we keep the lock just for safety.
   if (last_reported < total) {
     pb.update(total, total);
