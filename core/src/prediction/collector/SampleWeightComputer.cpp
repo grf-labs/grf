@@ -31,8 +31,6 @@ std::pair<std::vector<size_t>, std::vector<double>> SampleWeightComputer::comput
                                                                                           const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
                                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample) {
   std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample;
-  auto& indices = weights_by_sample.first;
-  auto& weights = weights_by_sample.second;
 
   // Create a list of weighted neighbors for this sample.
   for (size_t tree_index = 0; tree_index < forest.get_trees().size(); ++tree_index) {
@@ -45,31 +43,39 @@ std::pair<std::vector<size_t>, std::vector<double>> SampleWeightComputer::comput
 
     const std::unique_ptr<Tree>& tree = forest.get_trees()[tree_index];
     const std::vector<size_t>& samples = tree->get_leaf_samples()[node];
-    if (samples.empty()) {
-      continue;
-    }
-
-    double sample_weight = 1.0 / samples.size();
-    for (auto neighbor : samples) {
-      if (buffer[neighbor] <= 0.0) {
-          indices.push_back(neighbor);
-      }
-      buffer[neighbor] += sample_weight;
+    if (!samples.empty()) {
+      add_sample_weights(samples, weights_by_sample);
     }
   }
 
-  double total_weight = 0.0;
-  for (auto neighbor : indices) {
-    total_weight += buffer[neighbor];
-  }
-
-  weights.reserve(indices.size());
-  for (auto neighbor : indices) {
-    weights.push_back(buffer[neighbor] / total_weight);
-    buffer[neighbor] = 0.0; // Note: reset for the next test sample
-  }
-
+  normalize_sample_weights(weights_by_sample);
   return weights_by_sample;
+}
+
+void SampleWeightComputer::add_sample_weights(const std::vector<size_t>& samples,
+                                              std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample) {
+  double sample_weight = 1.0 / samples.size();
+
+  for (auto sample : samples) {
+    if (buffer[sample] <= 0.0) {
+      weights_by_sample.first.push_back(sample);
+    }
+    buffer[sample] += sample_weight;
+  }
+}
+
+void SampleWeightComputer::normalize_sample_weights(std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample){
+  double total_weight = 0.0;
+  for (auto sample : weights_by_sample.first) {
+    total_weight += buffer[sample];
+  }
+
+  size_t num_samples = weights_by_sample.first.size();
+  weights_by_sample.second.reserve(num_samples);
+  for (auto sample : weights_by_sample.first) {
+    weights_by_sample.second.push_back(buffer[sample] / total_weight);
+    buffer[sample] = 0.0; // NOTE: reset for the next test sample
+  }
 }
 
 } // namespace grf
