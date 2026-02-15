@@ -22,6 +22,7 @@
 
 #include <atomic>
 #include <mutex>
+#include <string>
 #include <iostream>
 
 #include "tqdm/tqdm.hpp"
