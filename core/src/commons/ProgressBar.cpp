@@ -24,7 +24,7 @@ namespace grf {
 ProgressBar::ProgressBar(int total,
                          const std::string& prefix) :
     total(total) {
-  auto* out = grf::runtime_context.verbose_stream;
+  std::ostream* out = grf::runtime_context.verbose_stream;
 
   if (out == nullptr) {
     pb.set_display(false);
