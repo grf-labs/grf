@@ -49,7 +49,7 @@ public:
 
 private:
   std::vector<double> compute_quantile_cutoffs(const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
-                                               const std::vector<double>& samples_and_values) const;
+                                               const std::vector<double>& values) const;
 
   std::vector<double> quantiles;
 };
