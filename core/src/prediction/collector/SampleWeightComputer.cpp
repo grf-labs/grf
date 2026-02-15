@@ -26,11 +26,10 @@ namespace grf {
 SampleWeightComputer::SampleWeightComputer(size_t num_train_samples) :
     buffer(num_train_samples, 0.0) {}
 
-std::pair<std::vector<size_t>, std::vector<double>> SampleWeightComputer::compute_weights(
-    size_t sample,
-    const Forest& forest,
-    const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
-    const std::vector<std::vector<bool>>& valid_trees_by_sample) {
+std::pair<std::vector<size_t>, std::vector<double>> SampleWeightComputer::compute_weights(size_t sample,
+                                                                                          const Forest& forest,
+                                                                                          const std::vector<std::vector<size_t>>& leaf_nodes_by_tree,
+                                                                                          const std::vector<std::vector<bool>>& valid_trees_by_sample) {
   std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample;
   auto& indices = weights_by_sample.first;
   auto& weights = weights_by_sample.second;
