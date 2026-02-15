@@ -43,10 +43,11 @@ class ProgressBar {
 
   private:
     int total;
-    int last_reported {-1};
     bool enabled;
+
     std::atomic<int> done {0};
     std::mutex mtx;
+    int last_reported {-1};
 
     tq::progress_bar pb;
   };
