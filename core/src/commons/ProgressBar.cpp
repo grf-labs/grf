@@ -25,7 +25,6 @@ ProgressBar::ProgressBar(int total,
                          const std::string& prefix) :
     total(total) {
   std::ostream* out = grf::runtime_context.verbose_stream;
-
   if (out == nullptr) {
     pb.set_display(false);
   } else {
