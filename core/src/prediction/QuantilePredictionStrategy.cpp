@@ -18,6 +18,7 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
+#include <numeric>
 #include <vector>
 
 #include "commons/Data.h"
@@ -38,51 +39,49 @@ std::vector<double> QuantilePredictionStrategy::predict(
     const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
     const Data& train_data,
     const Data& data) const {
-  std::vector<std::pair<size_t, double>> samples_and_values;
+  std::vector<double> values;
+  values.reserve(weights_by_sample.first.size());
   for (size_t i = 0; i < weights_by_sample.first.size(); i++) {
     size_t sample = weights_by_sample.first[i];
-    samples_and_values.emplace_back(sample, train_data.get_outcome(sample));
+    values.push_back(train_data.get_outcome(sample));
   }
 
-  return compute_quantile_cutoffs(weights_by_sample, samples_and_values);
+  return compute_quantile_cutoffs(weights_by_sample, values);
 }
 
 std::vector<double> QuantilePredictionStrategy::compute_quantile_cutoffs(
     const std::pair<std::vector<size_t>, std::vector<double>>& weights_by_sample,
-    std::vector<std::pair<size_t, double>>& samples_and_values) const {
-  std::sort(samples_and_values.begin(),
-            samples_and_values.end(),
-            [](std::pair<size_t, double> first_pair, std::pair<size_t, double> second_pair) {
+    const std::vector<double>& values) const {
+  const auto& samples = weights_by_sample.first;
+  const auto& weights = weights_by_sample.second;
+  std::vector<size_t> sorted_index(samples.size());
+  std::iota(sorted_index.begin(), sorted_index.end(), 0);
+  std::sort(sorted_index.begin(),
+            sorted_index.end(),
+            [&](size_t first_index, size_t second_index) {
               // Note: we add a tie-breaker here to ensure that this sort consistently produces the
               // same element ordering. Otherwise, different runs of the algorithm could result in
               // different quantile predictions on the same data.
-              return first_pair.second < second_pair.second
-                  || (first_pair.second == second_pair.second && first_pair.first < second_pair.first);
+              return values[first_index] < values[second_index]
+                  || (values[first_index] == values[second_index] && samples[first_index] < samples[second_index]);
             });
 
   std::vector<double> quantile_cutoffs;
   auto quantile_it = quantiles.begin();
   double cumulative_weight = 0.0;
 
-  for (const auto& entry : samples_and_values) {
-    size_t sample = entry.first;
-    double value = entry.second;
+  for (auto index : sorted_index) {
+    size_t sample = samples[index];
+    double value = values[index];
 
-    // cumulative_weight += weights_by_sample.at(sample);
-    // TODO: better fix for this (linear lookup: sample -> index in sparse vector)
-    for (size_t i = 0; i < weights_by_sample.first.size(); ++i) {
-      if (weights_by_sample.first[i] == sample) {
-        cumulative_weight += weights_by_sample.second[i];
-        break;
-      }
-    }
+    cumulative_weight += weights[index];
     while (quantile_it != quantiles.end() && cumulative_weight >= *quantile_it) {
       quantile_cutoffs.push_back(value);
       ++quantile_it;
     }
   }
 
-  double last_value = samples_and_values.back().second;
+  double last_value = values[sorted_index.back()];
   for (; quantile_it != quantiles.end(); ++quantile_it) {
     quantile_cutoffs.push_back(last_value);
   }
