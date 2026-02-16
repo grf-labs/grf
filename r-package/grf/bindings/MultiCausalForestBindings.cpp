@@ -50,7 +50,10 @@ Rcpp::List multi_causal_train(const Rcpp::NumericMatrix& train_matrix,
                               bool compute_oob_predictions,
                               unsigned int num_threads,
                               unsigned int seed,
-                              bool legacy_seed) {
+                              bool legacy_seed,
+                              bool verbose) {
+  grf::runtime_context.forest_name = "multi-causal";
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   size_t num_treatments = treatment_index.size();
   size_t num_outcomes = outcome_index.size();
   ForestTrainer trainer = multi_causal_trainer(num_treatments, num_outcomes, stabilize_splits, gradient_weights);
@@ -68,6 +71,7 @@ Rcpp::List multi_causal_train(const Rcpp::NumericMatrix& train_matrix,
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
+    grf::runtime_context.verbose_stream = nullptr;
     ForestPredictor predictor = multi_causal_predictor(num_threads, num_treatments, num_outcomes);
     predictions = predictor.predict_oob(forest, data, false);
   }
@@ -82,7 +86,9 @@ Rcpp::List multi_causal_predict(const Rcpp::List& forest_object,
                                 size_t num_outcomes,
                                 size_t num_treatments,
                                 unsigned int num_threads,
-                                bool estimate_variance) {
+                                bool estimate_variance,
+                                bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
   Data data = RcppUtilities::convert_data(test_matrix);
 
@@ -101,7 +107,9 @@ Rcpp::List multi_causal_predict_oob(const Rcpp::List& forest_object,
                                     size_t num_outcomes,
                                     size_t num_treatments,
                                     unsigned int num_threads,
-                                    bool estimate_variance) {
+                                    bool estimate_variance,
+                                    bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);

@@ -249,7 +249,8 @@ causal_forest <- function(X, Y, W,
                num.threads = num.threads,
                seed = seed,
                reduced.form.weight = 0,
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               verbose = get_verbose())
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {
@@ -412,7 +413,8 @@ predict.causal_forest <- function(object, newdata = NULL,
    }
    args <- list(forest.object = forest.short,
                 num.threads = num.threads,
-                estimate.variance = estimate.variance)
+                estimate.variance = estimate.variance,
+                verbose = get_verbose())
    ll.args <- list(ll.lambda = ll.lambda,
                    ll.weight.penalty = ll.weight.penalty,
                    linear.correction.variables = linear.correction.variables)

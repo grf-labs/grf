@@ -36,7 +36,8 @@ tune_ll_regression_forest <- function(forest,
                estimate.variance = FALSE,
                ll.lambda = ll.lambda,
                ll.weight.penalty = ll.weight.penalty,
-               linear.correction.variables = linear.correction.variables)
+               linear.correction.variables = linear.correction.variables,
+               verbose = FALSE)
 
   prediction.object <- do.call.rcpp(ll_regression_predict_oob, c(train.data, args))
   predictions <- prediction.object$predictions

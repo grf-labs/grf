@@ -51,7 +51,10 @@ Rcpp::List instrumental_train(const Rcpp::NumericMatrix& train_matrix,
                               bool compute_oob_predictions,
                               unsigned int num_threads,
                               unsigned int seed,
-                              bool legacy_seed) {
+                              bool legacy_seed,
+                              bool verbose) {
+  grf::runtime_context.forest_name = "instrumental";
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   ForestTrainer trainer = instrumental_trainer(reduced_form_weight, stabilize_splits);
 
   Data data = RcppUtilities::convert_data(train_matrix);
@@ -68,6 +71,7 @@ Rcpp::List instrumental_train(const Rcpp::NumericMatrix& train_matrix,
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
+    grf::runtime_context.verbose_stream = nullptr;
     ForestPredictor predictor = instrumental_predictor(num_threads);
     predictions = predictor.predict_oob(forest, data, false);
   }
@@ -83,7 +87,9 @@ Rcpp::List instrumental_predict(const Rcpp::List& forest_object,
                                 size_t instrument_index,
                                 const Rcpp::NumericMatrix& test_matrix,
                                 unsigned int num_threads,
-                                bool estimate_variance) {
+                                bool estimate_variance,
+                                bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
   train_data.set_outcome_index(outcome_index);
   train_data.set_treatment_index(treatment_index);
@@ -106,7 +112,9 @@ Rcpp::List instrumental_predict_oob(const Rcpp::List& forest_object,
                                     size_t treatment_index,
                                     size_t instrument_index,
                                     unsigned int num_threads,
-                                    bool estimate_variance) {
+                                    bool estimate_variance,
+                                    bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
   data.set_treatment_index(treatment_index);

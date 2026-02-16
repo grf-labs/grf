@@ -45,3 +45,11 @@ with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ## LLVM
 
 Licensed under the Apache License v2.0 with LLVM Exceptions: https://llvm.org/LICENSE.txt
+
+## tqdm
+
+Original tqdm.hpp by Miguel Raggi (2018-2019), licensed under the MIT License.
+
+Modified by James Yang (2023) in the [adelie project](https://github.com/JamesYang007/adelie/tree/main/adelie/src/include/adelie_core/util) to support generic output streams.
+
+License: MIT License

@@ -41,7 +41,8 @@ tune_ll_causal_forest <- function(forest,
                estimate.variance = FALSE,
                ll.lambda = ll.lambda,
                ll.weight.penalty = ll.weight.penalty,
-               linear.correction.variables = linear.correction.variables)
+               linear.correction.variables = linear.correction.variables,
+               verbose = FALSE)
 
   # Find sequence of predictions by lambda
   prediction.object <- do.call.rcpp(ll_causal_predict_oob, c(train.data, args))

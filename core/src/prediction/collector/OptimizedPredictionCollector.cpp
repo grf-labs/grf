@@ -36,6 +36,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                                                           bool estimate_variance,
                                                                           bool estimate_error) const {
   size_t num_samples = data.get_num_rows();
+  ProgressBar progress_bar(num_samples, "prediction [collection]: ");
   std::vector<uint> thread_ranges;
   split_sequence(thread_ranges, 0, static_cast<uint>(num_samples - 1), num_threads);
 
@@ -60,7 +61,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                  estimate_variance,
                                  estimate_error,
                                  start_index,
-                                 num_samples_batch));
+                                 num_samples_batch,
+                                 std::ref(progress_bar)));
   }
 
   for (auto& future : futures) {
@@ -69,6 +71,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                        std::make_move_iterator(thread_predictions.begin()),
                        std::make_move_iterator(thread_predictions.end()));
   }
+  progress_bar.finish();
 
   return predictions;
 }
@@ -81,7 +84,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions_batch(
                                                                                 bool estimate_variance,
                                                                                 bool estimate_error,
                                                                                 size_t start,
-                                                                                size_t num_samples) const {
+                                                                                size_t num_samples,
+                                                                                ProgressBar& progress_bar) const {
   size_t num_trees = forest.get_trees().size();
   bool record_leaf_values = estimate_variance || estimate_error;
 
@@ -149,6 +153,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions_batch(
 
     validate_prediction(sample, prediction);
     predictions.push_back(prediction);
+    progress_bar.increment(1);
   }
   return predictions;
 }

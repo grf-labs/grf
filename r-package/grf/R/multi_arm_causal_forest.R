@@ -285,7 +285,8 @@ multi_arm_causal_forest <- function(X, Y, W,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               verbose = get_verbose())
 
   forest <- do.call.rcpp(multi_causal_train, c(data, args))
   class(forest) <- c("multi_arm_causal_forest", "grf")
@@ -427,7 +428,8 @@ predict.multi_arm_causal_forest <- function(object,
                num.outcomes = num.outcomes,
                num.treatments = num.treatments,
                num.threads = num.threads,
-               estimate.variance = estimate.variance)
+               estimate.variance = estimate.variance,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

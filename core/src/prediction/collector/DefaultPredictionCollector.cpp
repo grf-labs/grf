@@ -40,6 +40,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     bool estimate_error) const {
 
   size_t num_samples = data.get_num_rows();
+  ProgressBar progress_bar(num_samples, "prediction [collection]: ");
   std::vector<uint> thread_ranges;
   split_sequence(thread_ranges, 0, static_cast<uint>(num_samples - 1), num_threads);
 
@@ -63,7 +64,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
                                  std::ref(valid_trees_by_sample),
                                  estimate_variance,
                                  start_index,
-                                 num_samples_batch));
+                                 num_samples_batch,
+                                 std::ref(progress_bar)));
   }
 
   for (auto& future : futures) {
@@ -72,6 +74,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
                        std::make_move_iterator(thread_predictions.begin()),
                        std::make_move_iterator(thread_predictions.end()));
   }
+  progress_bar.finish();
 
   return predictions;
 }
@@ -84,7 +87,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
     bool estimate_variance,
     size_t start,
-    size_t num_samples) const {
+    size_t num_samples,
+    ProgressBar& progress_bar) const {
   size_t num_trees = forest.get_trees().size();
   bool record_leaf_samples = estimate_variance;
 
@@ -140,6 +144,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
     Prediction prediction(point_prediction, variance, {}, {});
     validate_prediction(sample, point_prediction);
     predictions.push_back(prediction);
+    progress_bar.increment(1);
   }
 
   return predictions;

@@ -177,7 +177,8 @@ survival_forest <- function(X, Y, D,
                fast.logrank = fast.logrank,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               verbose = get_verbose())
 
   forest <- do.call.rcpp(survival_train, c(data, args))
   class(forest) <- c("survival_forest", "grf")
@@ -328,7 +329,8 @@ predict.survival_forest <- function(object,
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
                num.failures = length(failure.times.orig),
-               prediction.type = prediction.type)
+               prediction.type = prediction.type,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

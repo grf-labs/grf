@@ -141,7 +141,8 @@ ll_regression_forest <- function(X, Y,
                ci.group.size = ci.group.size,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               verbose = get_verbose())
   if (enable.ll.split && ll.split.cutoff > 0) {
     # find overall beta
     J <- diag(ncol(X) + 1)
@@ -289,7 +290,8 @@ predict.ll_regression_forest <- function(object, newdata = NULL,
                estimate.variance = estimate.variance,
                ll.lambda = ll.lambda,
                ll.weight.penalty = ll.weight.penalty,
-               linear.correction.variables = linear.correction.variables)
+               linear.correction.variables = linear.correction.variables,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X)

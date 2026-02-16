@@ -139,7 +139,8 @@ regression_forest <- function(X, Y,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               verbose = get_verbose())
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {
@@ -285,7 +286,8 @@ predict.regression_forest <- function(object, newdata = NULL,
   }
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
-               estimate.variance = estimate.variance)
+               estimate.variance = estimate.variance,
+               verbose = get_verbose())
   ll.args <- list(ll.lambda = ll.lambda,
                   ll.weight.penalty = ll.weight.penalty,
                   linear.correction.variables = linear.correction.variables)

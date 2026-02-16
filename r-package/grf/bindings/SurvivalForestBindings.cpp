@@ -49,7 +49,10 @@ Rcpp::List survival_train(const Rcpp::NumericMatrix& train_matrix,
                           bool fast_logrank,
                           unsigned int num_threads,
                           unsigned int seed,
-                          bool legacy_seed) {
+                          bool legacy_seed,
+                          bool verbose) {
+  grf::runtime_context.forest_name = "survival";
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   ForestTrainer trainer = survival_trainer(fast_logrank);
 
   Data data = RcppUtilities::convert_data(train_matrix);
@@ -67,6 +70,7 @@ Rcpp::List survival_train(const Rcpp::NumericMatrix& train_matrix,
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
+    grf::runtime_context.verbose_stream = nullptr;
     ForestPredictor predictor = survival_predictor(num_threads, num_failures, prediction_type);
     predictions = predictor.predict_oob(forest, data, false);
   }
@@ -84,7 +88,9 @@ Rcpp::List survival_predict(const Rcpp::List& forest_object,
                             int prediction_type,
                             const Rcpp::NumericMatrix& test_matrix,
                             unsigned int num_threads,
-                            size_t num_failures) {
+                            size_t num_failures,
+                            bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
   train_data.set_outcome_index(outcome_index);
   train_data.set_censor_index(censor_index);
@@ -111,7 +117,9 @@ Rcpp::List survival_predict_oob(const Rcpp::List& forest_object,
                                 bool use_sample_weights,
                                 int prediction_type,
                                 unsigned int num_threads,
-                                size_t num_failures) {
+                                size_t num_failures,
+                                bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
   data.set_censor_index(censor_index);

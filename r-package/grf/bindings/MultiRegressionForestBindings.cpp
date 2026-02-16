@@ -46,7 +46,10 @@ Rcpp::List multi_regression_train(const Rcpp::NumericMatrix& train_matrix,
                                   bool compute_oob_predictions,
                                   unsigned int num_threads,
                                   unsigned int seed,
-                                  bool legacy_seed) {
+                                  bool legacy_seed,
+                                  bool verbose) {
+  grf::runtime_context.forest_name = "multi-regression";
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
   if (use_sample_weights) {
@@ -61,6 +64,7 @@ Rcpp::List multi_regression_train(const Rcpp::NumericMatrix& train_matrix,
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
+    grf::runtime_context.verbose_stream = nullptr;
     ForestPredictor predictor = multi_regression_predictor(num_threads, data.get_num_outcomes());
     predictions = predictor.predict_oob(forest, data, false);
   }
@@ -73,7 +77,9 @@ Rcpp::List multi_regression_predict(const Rcpp::List& forest_object,
                                     const Rcpp::NumericMatrix& train_matrix,
                                     const Rcpp::NumericMatrix& test_matrix,
                                     size_t num_outcomes,
-                                    unsigned int num_threads) {
+                                    unsigned int num_threads,
+                                    bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
 
   Data data = RcppUtilities::convert_data(test_matrix);
@@ -89,7 +95,9 @@ Rcpp::List multi_regression_predict(const Rcpp::List& forest_object,
 Rcpp::List multi_regression_predict_oob(const Rcpp::List& forest_object,
                                         const Rcpp::NumericMatrix& train_matrix,
                                         size_t num_outcomes,
-                                        unsigned int num_threads) {
+                                        unsigned int num_threads,
+                                        bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
 
   Forest forest = RcppUtilities::deserialize_forest(forest_object);

@@ -133,7 +133,8 @@ probability_forest <- function(X, Y,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               verbose = get_verbose())
 
   forest <- do.call.rcpp(probability_train, c(data, args))
   class(forest) <- c("probability_forest", "grf")
@@ -218,7 +219,8 @@ predict.probability_forest <- function(object,
   args <- list(forest.object = forest.short,
                num.classes = object[["num.classes"]],
                num.threads = num.threads,
-               estimate.variance = estimate.variance)
+               estimate.variance = estimate.variance,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig, allow.na = TRUE)

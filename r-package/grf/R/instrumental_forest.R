@@ -216,7 +216,8 @@ instrumental_forest <- function(X, Y, W, Z,
               compute.oob.predictions = compute.oob.predictions,
               num.threads = num.threads,
               seed = seed,
-              legacy.seed = get_legacy_seed())
+              legacy.seed = get_legacy_seed(),
+              verbose = get_verbose())
 
   tuning.output <- NULL
   if (!identical(tune.parameters, "none")) {
@@ -329,7 +330,8 @@ predict.instrumental_forest <- function(object, newdata = NULL,
   train.data <- create_train_matrices(X, outcome = Y.centered, treatment = W.centered, instrument = Z.centered)
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
-               estimate.variance = estimate.variance)
+               estimate.variance = estimate.variance,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

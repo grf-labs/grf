@@ -48,6 +48,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                                               const ForestOptions& options) const {
   size_t num_samples = data.get_num_rows();
   uint num_trees = options.get_num_trees();
+  ProgressBar progress_bar(num_trees, "training [" + grf::runtime_context.forest_name + "]: " );
 
   // Ensure that the sample fraction is not too small and honesty fraction is not too extreme.
   const TreeOptions& tree_options = options.get_tree_options();
@@ -81,7 +82,8 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                  start_index,
                                  num_trees_batch,
                                  std::ref(data),
-                                 options));
+                                 options,
+                                 std::ref(progress_bar)));
   }
 
   for (auto& future : futures) {
@@ -90,6 +92,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                  std::make_move_iterator(thread_trees.begin()),
                  std::make_move_iterator(thread_trees.end()));
   }
+  progress_bar.finish();
 
   return trees;
 }
@@ -98,7 +101,8 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
     size_t start,
     size_t num_trees,
     const Data& data,
-    const ForestOptions& options) const {
+    const ForestOptions& options,
+    ProgressBar& progress_bar) const {
   size_t ci_group_size = options.get_ci_group_size();
 
   std::mt19937_64 random_number_generator(options.get_random_seed() + start);
@@ -118,11 +122,13 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
     if (ci_group_size == 1) {
       std::unique_ptr<Tree> tree = train_tree(data, sampler, options);
       trees.push_back(std::move(tree));
+      progress_bar.increment(1);
     } else {
       std::vector<std::unique_ptr<Tree>> group = train_ci_group(data, sampler, options);
       trees.insert(trees.end(),
           std::make_move_iterator(group.begin()),
           std::make_move_iterator(group.end()));
+      progress_bar.increment(ci_group_size);
     }
   }
   return trees;

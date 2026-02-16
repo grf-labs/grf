@@ -47,7 +47,10 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
                             bool compute_oob_predictions,
                             unsigned int num_threads,
                             unsigned int seed,
-                            bool legacy_seed) {
+                            bool legacy_seed,
+                            bool verbose) {
+  grf::runtime_context.forest_name = "regression";
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   ForestTrainer trainer = regression_trainer();
 
   Data data = RcppUtilities::convert_data(train_matrix);
@@ -62,6 +65,7 @@ Rcpp::List regression_train(const Rcpp::NumericMatrix& train_matrix,
 
   std::vector<Prediction> predictions;
   if (compute_oob_predictions) {
+    grf::runtime_context.verbose_stream = nullptr;
     ForestPredictor predictor = regression_predictor(num_threads);
     predictions = predictor.predict_oob(forest, data, false);
   }
@@ -75,7 +79,9 @@ Rcpp::List regression_predict(const Rcpp::List& forest_object,
                               size_t outcome_index,
                               const Rcpp::NumericMatrix& test_matrix,
                               unsigned int num_threads,
-                              unsigned int estimate_variance) {
+                              unsigned int estimate_variance,
+                              bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
   train_data.set_outcome_index(outcome_index);
 
@@ -93,7 +99,9 @@ Rcpp::List regression_predict_oob(const Rcpp::List& forest_object,
                                   const Rcpp::NumericMatrix& train_matrix,
                                   size_t outcome_index,
                                   unsigned int num_threads,
-                                  bool estimate_variance) {
+                                  bool estimate_variance,
+                                  bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
 
@@ -128,7 +136,10 @@ Rcpp::List ll_regression_train(const Rcpp::NumericMatrix& train_matrix,
                             unsigned int samples_per_cluster,
                             unsigned int num_threads,
                             unsigned int seed,
-                            bool legacy_seed) {
+                            bool legacy_seed,
+                            bool verbose) {
+  grf::runtime_context.forest_name = "ll regression";
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   ForestTrainer trainer = ll_regression_trainer(ll_split_lambda, ll_split_weight_penalty, overall_beta,
                                                ll_split_cutoff, ll_split_variables);
 
@@ -152,7 +163,9 @@ Rcpp::List ll_regression_predict(const Rcpp::List& forest_object,
                                 bool ll_weight_penalty,
                                 std::vector<size_t> linear_correction_variables,
                                 unsigned int num_threads,
-                                bool estimate_variance) {
+                                bool estimate_variance,
+                                bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data train_data = RcppUtilities::convert_data(train_matrix);
   train_data.set_outcome_index(outcome_index);
   Data data = RcppUtilities::convert_data(test_matrix);
@@ -175,7 +188,9 @@ Rcpp::List ll_regression_predict_oob(const Rcpp::List& forest_object,
                                     bool ll_weight_penalty,
                                     std::vector<size_t> linear_correction_variables,
                                     unsigned int num_threads,
-                                    bool estimate_variance) {
+                                    bool estimate_variance,
+                                    bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   Data data = RcppUtilities::convert_data(train_matrix);
   data.set_outcome_index(outcome_index);
 

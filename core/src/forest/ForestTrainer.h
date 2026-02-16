@@ -22,6 +22,7 @@
 
 #include <memory>
 
+#include "commons/ProgressBar.h"
 #include "prediction/OptimizedPredictionStrategy.h"
 #include "relabeling/RelabelingStrategy.h"
 #include "splitting/factory/SplittingRuleFactory.h"
@@ -50,7 +51,8 @@ private:
       size_t start,
       size_t num_trees,
       const Data& data,
-      const ForestOptions& options) const;
+      const ForestOptions& options,
+      ProgressBar& progress_bar) const;
 
   std::unique_ptr<Tree> train_tree(const Data& data,
                                    RandomSampler& sampler,

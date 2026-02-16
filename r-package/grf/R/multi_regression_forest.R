@@ -106,7 +106,8 @@ multi_regression_forest <- function(X, Y,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               verbose = get_verbose())
 
   forest <- do.call.rcpp(multi_regression_train, c(data, args))
   class(forest) <- c("multi_regression_forest", "grf")
@@ -182,7 +183,8 @@ predict.multi_regression_forest <- function(object,
 
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
-               num.outcomes = NCOL(object[["Y.orig"]]))
+               num.outcomes = NCOL(object[["Y.orig"]]),
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

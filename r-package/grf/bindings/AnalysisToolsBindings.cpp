@@ -22,6 +22,7 @@
 
 #include "Eigen/Sparse"
 #include "analysis/SplitFrequencyComputer.h"
+#include "commons/ProgressBar.h"
 #include "commons/globals.h"
 #include "forest/Forest.h"
 #include "prediction/collector/SampleWeightComputer.h"
@@ -74,6 +75,7 @@ Eigen::SparseMatrix<double> compute_sample_weights(const Rcpp::List& forest_obje
   std::vector<Eigen::Triplet<double>> triplet_list;
   triplet_list.reserve(num_neighbors);
   Eigen::SparseMatrix<double> result(num_samples, num_neighbors);
+  ProgressBar progress_bar(num_samples, "prediction [weights]: ");
 
   for (size_t sample = 0; sample < num_samples; sample++) {
     std::pair<std::vector<size_t>, std::vector<double>> weights = weight_computer.compute_weights(
@@ -83,6 +85,7 @@ Eigen::SparseMatrix<double> compute_sample_weights(const Rcpp::List& forest_obje
       double weight = weights.second[i];
       triplet_list.emplace_back(sample, neighbor, weight);
     }
+    progress_bar.increment(1);
   }
   result.setFromTriplets(triplet_list.begin(), triplet_list.end());
 
@@ -93,7 +96,9 @@ Eigen::SparseMatrix<double> compute_sample_weights(const Rcpp::List& forest_obje
 Eigen::SparseMatrix<double> compute_weights(const Rcpp::List& forest_object,
                                             const Rcpp::NumericMatrix& train_matrix,
                                             const Rcpp::NumericMatrix& test_matrix,
-                                            unsigned int num_threads) {
+                                            unsigned int num_threads,
+                                            bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   return compute_sample_weights(forest_object, train_matrix,
                                 test_matrix, num_threads, false);
 }
@@ -101,7 +106,9 @@ Eigen::SparseMatrix<double> compute_weights(const Rcpp::List& forest_object,
 // [[Rcpp::export]]
 Eigen::SparseMatrix<double> compute_weights_oob(const Rcpp::List& forest_object,
                                                 const Rcpp::NumericMatrix& train_matrix,
-                                                unsigned int num_threads) {
+                                                unsigned int num_threads,
+                                                bool verbose) {
+  grf::runtime_context.verbose_stream = verbose ? &Rcpp::Rcout : nullptr;
   return compute_sample_weights(forest_object, train_matrix,
                                 train_matrix, num_threads, true);
 }

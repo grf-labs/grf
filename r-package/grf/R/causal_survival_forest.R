@@ -277,6 +277,7 @@ causal_survival_forest <- function(X, Y, W, D,
     # The survival function conditioning on being treated S(t, x, 1) estimated with an "S-learner".
     # Computing OOB estimates for modified training samples is not a workflow we have implemented,
     # so we do it with a manual workaround here (deleting/re-inserting precomputed predictions)
+    grf.verbose <- options("grf.verbose" = FALSE)
     .predictions <- sf.survival[["predictions"]]
     sf.survival[["predictions"]] <- NULL
     sf.survival[["X.orig"]][, ncol(X) + 1] <- rep(1, nrow(X))
@@ -286,6 +287,7 @@ causal_survival_forest <- function(X, Y, W, D,
     S0.hat <- predict(sf.survival, num.threads = num.threads)$predictions
     sf.survival[["X.orig"]][, ncol(X) + 1] <- W
     sf.survival[["predictions"]] <- .predictions
+    options(grf.verbose)
     if (target == "RMST") {
       Y.hat <- W.hat * expected_survival(S1.hat, sf.survival$failure.times) +
         (1 - W.hat) * expected_survival(S0.hat, sf.survival$failure.times)
@@ -378,7 +380,8 @@ causal_survival_forest <- function(X, Y, W, D,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               verbose = get_verbose())
 
   forest <- do.call.rcpp(causal_survival_train, c(data, args))
   class(forest) <- c("causal_survival_forest", "grf")
@@ -487,7 +490,8 @@ predict.causal_survival_forest <- function(object,
 
   args <- list(forest.object = forest.short,
                num.threads = num.threads,
-               estimate.variance = estimate.variance)
+               estimate.variance = estimate.variance,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, X, allow.na = TRUE)

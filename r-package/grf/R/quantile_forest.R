@@ -128,7 +128,8 @@ quantile_forest <- function(X, Y,
                compute.oob.predictions = compute.oob.predictions,
                num.threads = num.threads,
                seed = seed,
-               legacy.seed = get_legacy_seed())
+               legacy.seed = get_legacy_seed(),
+               verbose = get_verbose())
 
   forest <- do.call.rcpp(quantile_train, c(data, args))
   class(forest) <- c("quantile_forest", "grf")
@@ -208,7 +209,8 @@ predict.quantile_forest <- function(object,
 
   args <- list(forest.object = forest.short,
                quantiles = quantiles,
-               num.threads = num.threads)
+               num.threads = num.threads,
+               verbose = get_verbose())
 
   if (!is.null(newdata)) {
     validate_newdata(newdata, object$X.orig, allow.na = TRUE)
