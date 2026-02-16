@@ -823,7 +823,9 @@ static const R_CallMethodDef CallEntries[] = {
     {NULL, NULL, 0}
 };
 
+void init_grf_interrupt_handler(DllInfo* dll);
 RcppExport void R_init_grf(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
+    init_grf_interrupt_handler(dll);
 }
