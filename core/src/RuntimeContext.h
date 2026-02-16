@@ -20,6 +20,7 @@
 #ifndef GRF_RUNTIME_CONTEXT_H_
 #define GRF_RUNTIME_CONTEXT_H_
 
+#include <functional>
 #include <ostream>
 #include <string>
 
@@ -28,6 +29,7 @@ namespace grf {
 struct RuntimeContext {
   std::string forest_name = "grf";
   std::ostream* verbose_stream = nullptr;
+  std::function<void()> interrupt_handler = []() {};
 };
 
 extern RuntimeContext runtime_context;
