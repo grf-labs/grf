@@ -86,6 +86,7 @@ Eigen::SparseMatrix<double> compute_sample_weights(const Rcpp::List& forest_obje
       triplet_list.emplace_back(sample, neighbor, weight);
     }
     progress_bar.increment(1);
+    Rcpp::checkUserInterrupt();
   }
   result.setFromTriplets(triplet_list.begin(), triplet_list.end());
 
