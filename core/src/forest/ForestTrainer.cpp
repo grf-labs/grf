@@ -95,6 +95,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
     while (future.wait_for(std::chrono::milliseconds(100)) != std::future_status::ready) {
       try {
         grf::runtime_context.interrupt_handler();
+        progress_bar.update();
       } catch (...) {
         user_interrupt_flag = true;
         throw;
