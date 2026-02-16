@@ -23,6 +23,7 @@
 #include <exception>
 #include <future>
 #include <stdexcept>
+#include <thread>
 
 #include "commons/utility.h"
 #include "ForestTrainer.h"

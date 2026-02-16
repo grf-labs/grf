@@ -29,17 +29,13 @@
 
 namespace grf {
 
-/**
- * Thread-safe wrapper around the tqdm progress bar.
- *
- */
 class ProgressBar {
   public:
     ProgressBar(int total,
                 const std::string& prefix = "");
-    void update(); // called by main thread
+    void update(); // should only be called by main thread
     void final_update(); // ensure PB ends at 100 %
-    void increment(int n); // called by worked threads
+    void increment(int n); // called by worker threads
 
   private:
     int total;

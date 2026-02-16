@@ -21,6 +21,7 @@
 #include <exception>
 #include <future>
 #include <stdexcept>
+#include <thread>
 
 #include "prediction/collector/DefaultPredictionCollector.h"
 #include "prediction/collector/SampleWeightComputer.h"
