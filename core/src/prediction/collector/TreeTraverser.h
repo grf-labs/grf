@@ -20,6 +20,8 @@
 #ifndef GRF_TREETRAVERSER_H
 #define GRF_TREETRAVERSER_H
 
+#include <atomic>
+
 #include "commons/ProgressBar.h"
 #include "forest/Forest.h"
 
@@ -45,7 +47,8 @@ private:
       const Forest& forest,
       const Data& data,
       bool oob_prediction,
-      ProgressBar& progress_bar) const;
+      ProgressBar& progress_bar,
+      std::atomic<bool>& user_interrupt_flag) const;
 
   std::vector<bool> get_valid_samples(size_t num_samples,
                                       const std::unique_ptr<Tree>& tree,

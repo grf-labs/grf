@@ -21,6 +21,7 @@
 #include "commons/utility.h"
 
 #include <future>
+#include <thread>
 
 namespace grf {
 
@@ -31,6 +32,8 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
     const Forest& forest,
     const Data& data,
     bool oob_prediction) const {
+  std::atomic<bool> user_interrupt_flag {false};
+
   size_t num_trees = forest.get_trees().size();
   ProgressBar progress_bar(num_trees, "prediction [traversal]: ");
 
@@ -55,9 +58,40 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
                                  std::ref(forest),
                                  std::ref(data),
                                  oob_prediction,
-                                 std::ref(progress_bar)));
+                                 std::ref(progress_bar),
+                                 std::ref(user_interrupt_flag)));
   }
 
+  // Periodically check for user interrupts + update progress bar while threads are working.
+  bool working = true;
+  while (working) {
+    try {
+      grf::runtime_context.interrupt_handler();
+      progress_bar.update();
+    } catch (...) {
+      user_interrupt_flag = true;
+      // Adhere to good C++ hygiene and clean up the futures before rethrowing
+      for (auto& future : futures) {
+        if (future.valid()) {
+          try { future.get(); } catch (...) {}
+        }
+      }
+      throw;
+    }
+    // Check if we can stop working
+    working = false;
+    for (const auto& future : futures) {
+      if (future.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
+        working = true;
+        break;
+      }
+    }
+    if (working) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+  }
+
+  // Collect the final results
   for (auto& future : futures) {
     std::vector<std::vector<size_t>> leaf_nodes = future.get();
     leaf_nodes_by_tree.insert(leaf_nodes_by_tree.end(),
@@ -92,12 +126,16 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_node_batch(
     const Forest& forest,
     const Data& data,
     bool oob_prediction,
-    ProgressBar& progress_bar) const {
+    ProgressBar& progress_bar,
+    std::atomic<bool>& user_interrupt_flag) const {
 
   size_t num_samples = data.get_num_rows();
   std::vector<std::vector<size_t>> all_leaf_nodes(num_trees);
 
   for (size_t i = 0; i < num_trees; ++i) {
+    if (user_interrupt_flag) {
+      return all_leaf_nodes;
+    }
     const std::unique_ptr<Tree>& tree = forest.get_trees()[start + i];
 
     std::vector<bool> valid_samples = get_valid_samples(num_samples, tree, oob_prediction);

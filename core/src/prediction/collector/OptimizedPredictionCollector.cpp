@@ -19,6 +19,7 @@
 
 #include <future>
 #include <stdexcept>
+#include <thread>
 
 #include "prediction/collector/OptimizedPredictionCollector.h"
 #include "commons/utility.h"
@@ -68,7 +69,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                  std::ref(user_interrupt_flag)));
   }
 
-   // Periodically check for user interrupts + update progress bar while threads are working.
+  // Periodically check for user interrupts + update progress bar while threads are working.
   bool working = true;
   while (working) {
     try {
@@ -127,6 +128,9 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions_batch(
   predictions.reserve(num_samples);
 
   for (size_t sample = start; sample < num_samples + start; ++sample) {
+    if (user_interrupt_flag) {
+      return predictions;
+    }
     std::vector<double> average_value;
     std::vector<std::vector<double>> leaf_values;
     if (record_leaf_values) {
