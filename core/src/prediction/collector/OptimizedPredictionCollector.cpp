@@ -35,6 +35,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                                                           const std::vector<std::vector<bool>>& valid_trees_by_sample,
                                                                           bool estimate_variance,
                                                                           bool estimate_error) const {
+  std::atomic<bool> user_interrupt_flag {false};
+
   size_t num_samples = data.get_num_rows();
   ProgressBar progress_bar(num_samples, "prediction [collection]: ");
   std::vector<uint> thread_ranges;
@@ -62,9 +64,40 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions(const 
                                  estimate_error,
                                  start_index,
                                  num_samples_batch,
-                                 std::ref(progress_bar)));
+                                 std::ref(progress_bar),
+                                 std::ref(user_interrupt_flag)));
   }
 
+   // Periodically check for user interrupts + update progress bar while threads are working.
+  bool working = true;
+  while (working) {
+    try {
+      grf::runtime_context.interrupt_handler();
+      progress_bar.update();
+    } catch (...) {
+      user_interrupt_flag = true;
+      // Adhere to good C++ hygiene and clean up the futures before rethrowing
+      for (auto& future : futures) {
+        if (future.valid()) {
+          try { future.get(); } catch (...) {}
+        }
+      }
+      throw;
+    }
+    // Check if we can stop working
+    working = false;
+    for (const auto& future : futures) {
+      if (future.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
+        working = true;
+        break;
+      }
+    }
+    if (working) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+  }
+
+  // Collect the final results
   for (auto& future : futures) {
     std::vector<Prediction> thread_predictions = future.get();
     predictions.insert(predictions.end(),
@@ -85,7 +118,8 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions_batch(
                                                                                 bool estimate_error,
                                                                                 size_t start,
                                                                                 size_t num_samples,
-                                                                                ProgressBar& progress_bar) const {
+                                                                                ProgressBar& progress_bar,
+                                                                                std::atomic<bool>& user_interrupt_flag) const {
   size_t num_trees = forest.get_trees().size();
   bool record_leaf_values = estimate_variance || estimate_error;
 
