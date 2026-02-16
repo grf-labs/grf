@@ -64,7 +64,7 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_nodes(
                               leaf_nodes.begin(),
                               leaf_nodes.end());
   }
-  progress_bar.finish();
+  progress_bar.final_update();
 
   return leaf_nodes_by_tree;
 };

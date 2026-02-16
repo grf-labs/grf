@@ -38,8 +38,8 @@ class ProgressBar {
     ProgressBar(int total,
                 const std::string& prefix = "");
     void update(); // called by main thread
+    void final_update(); // ensure PB ends at 100 %
     void increment(int n); // called by worked threads
-    void finish();
 
   private:
     int total;

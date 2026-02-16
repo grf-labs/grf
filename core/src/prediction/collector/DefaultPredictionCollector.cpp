@@ -74,7 +74,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
                        std::make_move_iterator(thread_predictions.begin()),
                        std::make_move_iterator(thread_predictions.end()));
   }
-  progress_bar.finish();
+  progress_bar.final_update();
 
   return predictions;
 }

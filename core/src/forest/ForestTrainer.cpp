@@ -106,7 +106,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                  std::make_move_iterator(thread_trees.begin()),
                  std::make_move_iterator(thread_trees.end()));
   }
-  progress_bar.finish();
+  progress_bar.final_update();
 
   return trees;
 }

@@ -45,19 +45,18 @@ void ProgressBar::update() {
   last_reported = current;
 }
 
-void ProgressBar::increment(int n) {
-  if (!enabled) return;
-
-  done.fetch_add(n, std::memory_order_relaxed);
-}
-
-// Only do a final update if the progress bar hasn't already been updated to the total.
-void ProgressBar::finish() {
+void ProgressBar::final_update() {
   if (!enabled) return;
 
   if (last_reported < total) {
     pb.update(total, total);
   }
+}
+
+void ProgressBar::increment(int n) {
+  if (!enabled) return;
+
+  done.fetch_add(n, std::memory_order_relaxed);
 }
 
 } // namespace grf
