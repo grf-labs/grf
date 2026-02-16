@@ -25,11 +25,6 @@
 
 using namespace grf;
 
-// [[Rcpp::init]]
-void init_grf_interrupt_handler(DllInfo* dll) {
-  grf::runtime_context.interrupt_handler = []() { Rcpp::checkUserInterrupt(); };
-}
-
 Rcpp::List RcppUtilities::create_forest_object(Forest& forest,
                                                const std::vector<Prediction>& predictions) {
   Rcpp::List result = serialize_forest(forest);
