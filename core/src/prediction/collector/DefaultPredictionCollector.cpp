@@ -77,6 +77,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     while (future.wait_for(std::chrono::milliseconds(100)) != std::future_status::ready) {
       try {
         grf::runtime_context.interrupt_handler();
+        progress_bar.update();
       } catch (...) {
         user_interrupt_flag = true;
         throw;
