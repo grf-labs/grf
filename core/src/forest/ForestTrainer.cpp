@@ -149,7 +149,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
 
   for (size_t i = 0; i < num_trees; i++) {
     if (user_interrupt_flag) {
-      return trees;
+      return std::vector<std::unique_ptr<Tree>>();
     }
     uint tree_seed;
     if (options.get_legacy_seed()) {

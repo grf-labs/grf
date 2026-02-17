@@ -135,7 +135,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
   SampleWeightComputer weight_computer(train_data.get_num_rows());
   for (size_t sample = start; sample < num_samples + start; ++sample) {
     if (user_interrupt_flag) {
-      return predictions;
+      return std::vector<Prediction>();
     }
     std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample = weight_computer.compute_weights(
         sample, forest, leaf_nodes_by_tree, valid_trees_by_sample);

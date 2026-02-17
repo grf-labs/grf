@@ -129,7 +129,7 @@ std::vector<Prediction> OptimizedPredictionCollector::collect_predictions_batch(
 
   for (size_t sample = start; sample < num_samples + start; ++sample) {
     if (user_interrupt_flag) {
-      return predictions;
+      return std::vector<Prediction>();
     }
     std::vector<double> average_value;
     std::vector<std::vector<double>> leaf_values;

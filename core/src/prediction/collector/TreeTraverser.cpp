@@ -134,7 +134,7 @@ std::vector<std::vector<size_t>> TreeTraverser::get_leaf_node_batch(
 
   for (size_t i = 0; i < num_trees; ++i) {
     if (user_interrupt_flag) {
-      return all_leaf_nodes;
+      return std::vector<std::vector<size_t>>();
     }
     const std::unique_ptr<Tree>& tree = forest.get_trees()[start + i];
 
