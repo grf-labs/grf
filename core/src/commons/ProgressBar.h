@@ -28,6 +28,11 @@
 
 namespace grf {
 
+/**
+ * Wrapper around the tqdm progress bar that supports multi-threaded updates.
+ * The main thread should call update() to update the progress bar, and worker threads should call increment() to report progress.
+ * In a multi-threaded context, the main thread should call final_update() at the end to ensure the progress bar ends at 100 %.
+ */
 class ProgressBar {
   public:
     ProgressBar(int total,
@@ -38,12 +43,12 @@ class ProgressBar {
     void update();
 
     /**
-     * Called by worker threads, or main thread if not using multi-threading.
+     * Ensure PB ends at 100 % if used in multi-threaded context. Should only be called by main thread.
      */
     void final_update();
 
     /**
-     * Ensure PB ends at 100 % if used in multi-threaded context. Should only be called by main thread.
+     * Called by worker threads, or main thread if not using multi-threading.
      */
     void increment(int n);
 
