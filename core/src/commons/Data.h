@@ -20,12 +20,12 @@
 #ifndef GRF_DATA_H_
 #define GRF_DATA_H_
 
+#include <optional>
 #include <set>
 #include <vector>
 
 #include "Eigen/Dense"
 #include "globals.h"
-#include "optional/optional.hpp"
 
 namespace grf {
 
@@ -126,13 +126,13 @@ private:
   size_t num_cols;
 
   std::set<size_t> disallowed_split_variables;
-  nonstd::optional<std::vector<size_t>> outcome_index;
-  nonstd::optional<std::vector<size_t>> treatment_index;
-  nonstd::optional<size_t> instrument_index;
-  nonstd::optional<size_t> weight_index;
-  nonstd::optional<size_t> causal_survival_numerator_index;
-  nonstd::optional<size_t> causal_survival_denominator_index;
-  nonstd::optional<size_t> censor_index;
+  std::optional<std::vector<size_t>> outcome_index;
+  std::optional<std::vector<size_t>> treatment_index;
+  std::optional<size_t> instrument_index;
+  std::optional<size_t> weight_index;
+  std::optional<size_t> causal_survival_numerator_index;
+  std::optional<size_t> causal_survival_denominator_index;
+  std::optional<size_t> censor_index;
 };
 
 // inline appropriate getters
