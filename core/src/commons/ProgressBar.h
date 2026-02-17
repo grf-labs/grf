@@ -32,11 +32,19 @@ class ProgressBar {
   public:
     ProgressBar(int total,
                 const std::string& prefix = "");
-    // Should only be called by main thread
+    /**
+     * Should only be called by main thread
+     */
     void update();
-    // Ensure PB ends at 100 % if used in multi-threaded context. Should only be called by main thread.
+
+    /**
+     * Called by worker threads, or main thread if not using multi-threading.
+     */
     void final_update();
-    // Called by worker threads, or main thread if not using multi-threading.
+
+    /**
+     * Ensure PB ends at 100 % if used in multi-threaded context. Should only be called by main thread.
+     */
     void increment(int n);
 
   private:
