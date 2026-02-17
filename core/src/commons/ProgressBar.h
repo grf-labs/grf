@@ -21,7 +21,6 @@
 #define GRF_PROGRESSBAR_H_
 
 #include <atomic>
-#include <mutex>
 #include <string>
 
 #include "tqdm/tqdm.hpp"
@@ -33,16 +32,18 @@ class ProgressBar {
   public:
     ProgressBar(int total,
                 const std::string& prefix = "");
-    void update(); // should only be called by main thread
-    void final_update(); // ensure PB ends at 100 %
-    void increment(int n); // called by worker threads
+    // Should only be called by main thread
+    void update();
+    // Ensure PB ends at 100 % if used in multi-threaded context. Should only be called by main thread.
+    void final_update();
+    // Called by worker threads, or main thread if not using multi-threading.
+    void increment(int n);
 
   private:
     int total;
     bool enabled;
 
     std::atomic<int> done {0};
-    std::mutex mtx;
     int last_reported {-1};
 
     tq::progress_bar pb;
