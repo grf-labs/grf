@@ -18,9 +18,12 @@
  #-------------------------------------------------------------------------------*/
 
 #include <algorithm>
+#include <chrono>
 #include <ctime>
+#include <exception>
 #include <future>
 #include <stdexcept>
+#include <thread>
 
 #include "commons/utility.h"
 #include "ForestTrainer.h"
@@ -46,6 +49,8 @@ Forest ForestTrainer::train(const Data& data, const ForestOptions& options) cons
 
 std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                                               const ForestOptions& options) const {
+  std::atomic<bool> user_interrupt_flag {false};
+
   size_t num_samples = data.get_num_rows();
   uint num_trees = options.get_num_trees();
   ProgressBar progress_bar(num_trees, "training [" + grf::runtime_context.forest_name + "]: " );
@@ -83,16 +88,47 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
                                  num_trees_batch,
                                  std::ref(data),
                                  options,
-                                 std::ref(progress_bar)));
+                                 std::ref(progress_bar),
+                                 std::ref(user_interrupt_flag)));
   }
 
+  // Periodically check for user interrupts + update progress bar while threads are working.
+  bool working = true;
+  while (working) {
+    try {
+      grf::runtime_context.interrupt_handler();
+      progress_bar.update();
+    } catch (...) {
+      user_interrupt_flag = true;
+      // Adhere to good C++ hygiene and clean up the futures before rethrowing
+      for (auto& future : futures) {
+        if (future.valid()) {
+          try { future.get(); } catch (...) {}
+        }
+      }
+      throw;
+    }
+    // Check if we can stop working
+    working = false;
+    for (const auto& future : futures) {
+      if (future.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
+        working = true;
+        break;
+      }
+    }
+    if (working) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+  }
+
+  // Collect the final results
   for (auto& future : futures) {
     std::vector<std::unique_ptr<Tree>> thread_trees = future.get();
     trees.insert(trees.end(),
                  std::make_move_iterator(thread_trees.begin()),
                  std::make_move_iterator(thread_trees.end()));
   }
-  progress_bar.finish();
+  progress_bar.final_update();
 
   return trees;
 }
@@ -102,7 +138,8 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
     size_t num_trees,
     const Data& data,
     const ForestOptions& options,
-    ProgressBar& progress_bar) const {
+    ProgressBar& progress_bar,
+    std::atomic<bool>& user_interrupt_flag) const {
   size_t ci_group_size = options.get_ci_group_size();
 
   std::mt19937_64 random_number_generator(options.get_random_seed() + start);
@@ -111,6 +148,9 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_batch(
   trees.reserve(num_trees * ci_group_size);
 
   for (size_t i = 0; i < num_trees; i++) {
+    if (user_interrupt_flag) {
+      return std::vector<std::unique_ptr<Tree>>();
+    }
     uint tree_seed;
     if (options.get_legacy_seed()) {
       tree_seed = udist(random_number_generator);

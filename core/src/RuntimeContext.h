@@ -20,14 +20,26 @@
 #ifndef GRF_RUNTIME_CONTEXT_H_
 #define GRF_RUNTIME_CONTEXT_H_
 
+#include <functional>
 #include <ostream>
 #include <string>
 
 namespace grf {
 
+/**
+ * Runtime context for language bindings.
+ *
+ * - forest_name: Used in progress bar labels
+ * - verbose_stream: Output stream for verbose logging (nullptr disables)
+ * - interrupt_handler: Called periodically during long operations to check for
+ *   user interrupts (e.g., Ctrl-C). Language bindings should set this to their
+ *   interrupt check function (R: Rcpp::checkUserInterrupt, Python: PyErr_CheckSignals).
+ *   Default is a no-op for standalone C++ usage.
+ */
 struct RuntimeContext {
   std::string forest_name = "grf";
   std::ostream* verbose_stream = nullptr;
+  std::function<void()> interrupt_handler = []() {};
 };
 
 extern RuntimeContext runtime_context;

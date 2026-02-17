@@ -21,9 +21,9 @@
 #' X <- matrix(rnorm(n * p), n, p)
 #' Y <- X[, 1] * rnorm(n)
 #' r.forest <- regression_forest(X, Y)
+#' options(grf.verbose = FALSE)
 #'
 #' # Print current package options.
-#' options(grf.verbose = FALSE)
 #' grf_options()
 #'
 #' # Use random seed behavior prior to version 2.4.0.

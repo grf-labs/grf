@@ -37,25 +37,26 @@ ProgressBar::ProgressBar(int total,
   }
 }
 
-void ProgressBar::increment(int n) {
+void ProgressBar::update() {
   if (!enabled) return;
 
-  int current = done.fetch_add(n, std::memory_order_relaxed) + n;
-  if (mtx.try_lock()) {
-    pb.update(current, total);
-    last_reported = current;
-    mtx.unlock();
-  }
+  int current = done.load(std::memory_order_relaxed);
+  pb.update(current, total);
+  last_reported = current;
 }
 
-// Only do a final update if the progress bar hasn't already been updated to the total.
-void ProgressBar::finish() {
+void ProgressBar::final_update() {
   if (!enabled) return;
 
-  std::lock_guard<std::mutex> lock(mtx); // final call happens outside the multi-threaded context, but we keep the lock just for safety.
   if (last_reported < total) {
     pb.update(total, total);
   }
+}
+
+void ProgressBar::increment(int n) {
+  if (!enabled) return;
+
+  done.fetch_add(n, std::memory_order_relaxed);
 }
 
 } // namespace grf

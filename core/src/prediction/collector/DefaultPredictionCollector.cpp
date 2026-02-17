@@ -17,8 +17,11 @@
   along with grf. If not, see <http://www.gnu.org/licenses/>.
  #-------------------------------------------------------------------------------*/
 
+#include <chrono>
+#include <exception>
 #include <future>
 #include <stdexcept>
+#include <thread>
 
 #include "prediction/collector/DefaultPredictionCollector.h"
 #include "prediction/collector/SampleWeightComputer.h"
@@ -38,6 +41,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
     const std::vector<std::vector<bool>>& valid_trees_by_sample,
     bool estimate_variance,
     bool estimate_error) const {
+
+  std::atomic<bool> user_interrupt_flag {false};
 
   size_t num_samples = data.get_num_rows();
   ProgressBar progress_bar(num_samples, "prediction [collection]: ");
@@ -65,16 +70,47 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
                                  estimate_variance,
                                  start_index,
                                  num_samples_batch,
-                                 std::ref(progress_bar)));
+                                 std::ref(progress_bar),
+                                 std::ref(user_interrupt_flag)));
   }
 
+  // Periodically check for user interrupts + update progress bar while threads are working.
+  bool working = true;
+  while (working) {
+    try {
+      grf::runtime_context.interrupt_handler();
+      progress_bar.update();
+    } catch (...) {
+      user_interrupt_flag = true;
+      // Adhere to good C++ hygiene and clean up the futures before rethrowing
+      for (auto& future : futures) {
+        if (future.valid()) {
+          try { future.get(); } catch (...) {}
+        }
+      }
+      throw;
+    }
+    // Check if we can stop working
+    working = false;
+    for (const auto& future : futures) {
+      if (future.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
+        working = true;
+        break;
+      }
+    }
+    if (working) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+  }
+
+  // Collect the final results
   for (auto& future : futures) {
     std::vector<Prediction> thread_predictions = future.get();
     predictions.insert(predictions.end(),
                        std::make_move_iterator(thread_predictions.begin()),
                        std::make_move_iterator(thread_predictions.end()));
   }
-  progress_bar.finish();
+  progress_bar.final_update();
 
   return predictions;
 }
@@ -88,7 +124,8 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
     bool estimate_variance,
     size_t start,
     size_t num_samples,
-    ProgressBar& progress_bar) const {
+    ProgressBar& progress_bar,
+    std::atomic<bool>& user_interrupt_flag) const {
   size_t num_trees = forest.get_trees().size();
   bool record_leaf_samples = estimate_variance;
 
@@ -97,6 +134,9 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions_batch(
 
   SampleWeightComputer weight_computer(train_data.get_num_rows());
   for (size_t sample = start; sample < num_samples + start; ++sample) {
+    if (user_interrupt_flag) {
+      return std::vector<Prediction>();
+    }
     std::pair<std::vector<size_t>, std::vector<double>> weights_by_sample = weight_computer.compute_weights(
         sample, forest, leaf_nodes_by_tree, valid_trees_by_sample);
     std::vector<std::vector<size_t>> samples_by_tree;

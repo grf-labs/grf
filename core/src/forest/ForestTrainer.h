@@ -20,6 +20,7 @@
 #ifndef GRF_FORESTTRAINER_H
 #define GRF_FORESTTRAINER_H
 
+#include <atomic>
 #include <memory>
 
 #include "commons/ProgressBar.h"
@@ -52,7 +53,8 @@ private:
       size_t num_trees,
       const Data& data,
       const ForestOptions& options,
-      ProgressBar& progress_bar) const;
+      ProgressBar& progress_bar,
+      std::atomic<bool>& user_interrupt_flag) const;
 
   std::unique_ptr<Tree> train_tree(const Data& data,
                                    RandomSampler& sampler,
