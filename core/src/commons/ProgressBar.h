@@ -30,8 +30,16 @@ namespace grf {
 
 /**
  * Wrapper around the tqdm progress bar that supports multi-threaded updates.
- * The main thread should call update() to update the progress bar, and worker threads should call increment() to report progress.
- * In a multi-threaded context, the main thread should call final_update() at the end to ensure the progress bar ends at 100 %.
+ *
+ * The main thread should call update() to update the progress bar, and worker
+ * threads should call increment() to report progress. In a multi-threaded context,
+ * the main thread should call final_update() at the end to ensure the progress bar
+ * ends at 100%.
+ *
+ * Design: Workers atomically increment a shared counter via increment().
+ * The main thread periodically reads this counter and updates the display via update().
+ * This is intentionally "lossy": the display may lag behind actual progress by a few
+ * units, but this is acceptable for a progress indicator and avoids mutex contention.
  */
 class ProgressBar {
   public:
