@@ -53,6 +53,12 @@ jobs:
           cp ../../DEVELOPING.md .
           cp ../../releases/CHANGELOG.md .
           Rscript -e "pkgdown::build_site()"
+      - name: Inject KaTeX into vignettes
+        working-directory: r-package/grf
+        run: |
+          find docs/articles -name "*.html" -type f | while IFS= read -r f; do
+            sed -i '/<head>/a <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>' "$f"
+          done
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
