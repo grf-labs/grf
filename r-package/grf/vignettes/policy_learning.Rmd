@@ -1,6 +1,8 @@
 ---
 title: "Policy learning via optimal decision trees"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    math_method: katex
 vignette: >
   %\VignetteIndexEntry{policy_learning}
   %\VignetteEngine{knitr::rmarkdown}

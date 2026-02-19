@@ -1,6 +1,8 @@
 ---
 title: "Categorical covariates"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    math_method: katex
 vignette: >
   %\VignetteIndexEntry{categorical_inputs}
   %\VignetteEngine{knitr::rmarkdown}

@@ -1,6 +1,8 @@
 ---
 title: "Evaluating a causal forest fit"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    math_method: katex
 vignette: >
   %\VignetteIndexEntry{diagnostics}
   %\VignetteEngine{knitr::rmarkdown}
@@ -64,10 +66,10 @@ The forest summary function [test_calibration](https://grf-labs.github.io/grf/re
 test_calibration(cf)
 ```
 
-This exercise and function is motivated by earlier developments in the econometrics literature. A more intuitive exercise is to look at subgroup ATEs where the subgroups are formed according to low or high CATE predictions (Athey & Wager, 2019). 
-While this approach may give some qualitative insight into heterogeneity, the grouping is naive, because the doubly robust scores used to determine subgroups are not independent of the scores used to estimate those group ATEs. 
+This exercise and function is motivated by earlier developments in the econometrics literature. A more intuitive exercise is to look at subgroup ATEs where the subgroups are formed according to low or high CATE predictions (Athey & Wager, 2019).
+While this approach may give some qualitative insight into heterogeneity, the grouping is naive, because the doubly robust scores used to determine subgroups are not independent of the scores used to estimate those group ATEs.
 
-The [RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) function automates this exercise over all possible subgroups using the quantiles of the CATE predictions. If we use separate data to fit CATE models and estimate RATE metrics, we obtain a test statistic with expectation zero under no heterogeneity, which can be used to construct confidence intervals for the presence of treatment effect heterogeneity. For more details on this preferred approach, please see [this vignette](https://grf-labs.github.io/grf/articles/rate.html). 
+The [RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) function automates this exercise over all possible subgroups using the quantiles of the CATE predictions. If we use separate data to fit CATE models and estimate RATE metrics, we obtain a test statistic with expectation zero under no heterogeneity, which can be used to construct confidence intervals for the presence of treatment effect heterogeneity. For more details on this preferred approach, please see [this vignette](https://grf-labs.github.io/grf/articles/rate.html).
 
 Athey et al. (2017) suggests a bias measure to gauge how much work the propensity and outcome models have to do to get an unbiased estimate, relative to looking at a simple difference-in-means: $bias(x) = (e(x) - p) \times (p(\mu(0, x) - \mu_0) + (1 - p) (\mu(1, x) - \mu_1)$.
 

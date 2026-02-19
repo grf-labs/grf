@@ -1,6 +1,8 @@
 ---
 title: "Estimating ATEs on a new target population"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    math_method: katex
 vignette: >
   %\VignetteIndexEntry{ate_transport}
   %\VignetteEngine{knitr::rmarkdown}
