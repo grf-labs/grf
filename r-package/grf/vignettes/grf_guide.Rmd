@@ -80,9 +80,9 @@ So, to recap so far: we have a way to adopt the modern ML toolkit to *non-parame
 **Non-constant treatment effects**. What if we wish to relax assumption 3)? We could specify certain subgroups and run separate regressions for each subgroup and obtain different estimates of $\tau$. To avoid false discoveries, this approach would require us to specify potential subgroups without looking at the data. How can we use the data to inform us of potential subgroups? We can continue with Robinson's partially linear model from above, and instead just posit:
 
 $$
-Y_i = \color{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
+Y_i = \textcolor{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
 $$
-where $\color{red}{\tau(X_i)}$ is the conditional average treatment effect $E[Y(1) - Y(0) | X_i = x]$. How do we estimate this? If we imagine we had access to some neighborhood $\mathcal{N}(x)$ where $\tau$ was constant, we could proceed exactly as before, by doing a residual-on-residual regression on the samples belonging to $\mathcal{N}(x)$, i.e.:
+where $\textcolor{red}{\tau(X_i)}$ is the conditional average treatment effect $E[Y(1) - Y(0) | X_i = x]$. How do we estimate this? If we imagine we had access to some neighborhood $\mathcal{N}(x)$ where $\tau$ was constant, we could proceed exactly as before, by doing a residual-on-residual regression on the samples belonging to $\mathcal{N}(x)$, i.e.:
 
 $$
 \tau(x) := lm\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = 1\{X_i \in \mathcal{N}(x) \}\Biggr),
@@ -121,20 +121,20 @@ Figure 1) shows a target sample $x$ we wish to make a prediction for as a cross 
 \begin{equation*}
 \begin{split}
 & \hat \mu(x) = \sum_{i=1}^{n} \frac{1}{B} \sum_{b=1}^{B} Y_i \frac{1\{Xi \in L_b(x)\}} {|L_b(x)|} \\
-& = \sum_{i=1}^{n} Y_i \color{blue}{\alpha_i(x)},
+& = \sum_{i=1}^{n} Y_i \textcolor{blue}{\alpha_i(x)},
 \end{split}
 \end{equation*}
 
-where we have defined $\color{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. That is, an equivalent description of a random forest's prediction phase is that it predicts a weighted average of outcomes. These weights are the so-called random forest adaptive neighborhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$ (this weighting view of random forests appear frequently in statistical applications of random forests, see for example Zeileis, Hothorn & Hornik (2003)).
+where we have defined $\textcolor{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. That is, an equivalent description of a random forest's prediction phase is that it predicts a weighted average of outcomes. These weights are the so-called random forest adaptive neighborhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$ (this weighting view of random forests appear frequently in statistical applications of random forests, see for example Zeileis, Hothorn & Hornik (2003)).
 
 **Causal Forest** essentially combines Breiman (2001) and Robinson (1988) by modifying the steps above to:
 
 1) Building phase: Greedily places covariate splits that maximize the squared difference in subgroup treatment effects $n_L n_R (\hat \tau_L - \hat \tau_R)^2$, where $\hat \tau$ is obtained by running Robinson's residual-on-residual regression for each possible split point[^1].
-2) Use the resulting forest weights $\color{blue}{\alpha(x)}$ to estimate
+2) Use the resulting forest weights $\textcolor{blue}{\alpha(x)}$ to estimate
 
 
 $$
-\tau(x) := lm\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = \color{blue}{\alpha_i(x)} \Biggr).
+\tau(x) := lm\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = \textcolor{blue}{\alpha_i(x)} \Biggr).
 $$
 That is, *Causal Forest* is running a "forest"-localized version of Robinson's regression. This adaptive weighting (instead of leaf-averaging) coupled with some other forest construction details known as "honesty" and "subsampling" can be used to give asymptotic guarantees for estimation and inference with random forests (Wager & Athey, 2018). In the function `causal_forest`, the arguments `Y.hat` and `W.hat` supply estimates of $m(x)$ and $e(x)$, which by default are estimated with separate regression forests[^2].
 
