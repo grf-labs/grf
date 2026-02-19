@@ -50,7 +50,7 @@ public:
    * Computes a prediction for a single test sample.
    *
    * sample: the ID of the test sample.
-   * weights_by_sample: a map from neighboring sample ID, to a weight specifying
+   * weights_by_sample: a collection of neighboring sample IDs and weights specifying
    *     how often the sample appeared in the same leaf as the test sample. Note that
    *     these weights are normalized and will sum to 1.
    * train_data: the training data matrix.
@@ -68,7 +68,7 @@ public:
    * sample: the ID of the test sample.
    * samples_by_tree: vector of samples in the same leaf as the test point,
    *    for each tree
-   * weights_by_sampleID: a map from neighboring sample ID, to a weight specifying
+   * weights_by_sampleID: a collection of neighboring sample IDs and weights specifying
    *     how often the sample appeared in the same leaf as the test sample. Note that
    *     these weights are normalized and will sum to 1.
    * train_data: the training data matrix.
