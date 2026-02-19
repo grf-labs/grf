@@ -1,7 +1,3 @@
-template:
-  params:
-    mathjax: true
-
 url: https://github.com/grf-labs/grf
 navbar:
   type: default
