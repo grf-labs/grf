@@ -1,6 +1,8 @@
 ---
 title: "Introduction to grf"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    math_method: katex
 vignette: >
   %\VignetteIndexEntry{grf}
   %\VignetteEngine{knitr::rmarkdown}

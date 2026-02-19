@@ -1,6 +1,8 @@
 ---
 title: "Qini curves: Automatic cost-benefit analysis"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    math_method: katex
 vignette: >
   %\VignetteIndexEntry{maq}
   %\VignetteEngine{knitr::rmarkdown}

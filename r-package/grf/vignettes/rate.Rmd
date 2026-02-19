@@ -1,6 +1,8 @@
 ---
 title: "Assessing heterogeneity with RATE"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    math_method: katex
 vignette: >
   %\VignetteIndexEntry{rate}
   %\VignetteEngine{knitr::rmarkdown}

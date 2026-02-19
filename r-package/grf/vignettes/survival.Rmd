@@ -1,6 +1,8 @@
 ---
 title: "Causal forest with time-to-event data"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    math_method: katex
 vignette: >
   %\VignetteIndexEntry{survival}
   %\VignetteEngine{knitr::rmarkdown}
