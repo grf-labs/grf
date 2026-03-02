@@ -20,6 +20,12 @@ if (!is.na(args[1]) && args[1] == "--as-cran") {
   write_union("grf/.Rbuildignore", "^tests/testthat/test_((?!cran).).*")
   write_union("grf/.Rbuildignore", "^tests/testthat/data")
   write_union("grf/.Rbuildignore", "^tests/testthat/Rplots.pdf")
+
+  # Update vignettes in .Rbuildignore to exclude all files except intro vignette.
+  x <- readLines("grf/.Rbuildignore")
+  x <- x[x != "^vignettes"]
+  writeLines(x, "grf/.Rbuildignore")
+  write_union("grf/.Rbuildignore", "^vignettes/(?!grf_guide\\.Rmd$|grf_leaf_green\\.png$|grf_logo_green\\.png$)")
 }
 
 # Auto-generate documentation files
