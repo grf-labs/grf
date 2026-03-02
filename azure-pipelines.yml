@@ -71,17 +71,6 @@ jobs:
     value: true
   steps:
   - script: |
-      if [ "$(Agent.OS)" = "Linux" ]; then
-          export BOOTSTRAP_LATEX=true
-          export R_BUILD_ARGS="--no-manual"
-          export R_CHECK_ARGS="--no-manual --as-cran"
-      else
-          export BOOTSTRAP_LATEX=false
-          export R_BUILD_ARGS="--no-build-vignettes --no-manual"
-          export R_CHECK_ARGS="--no-vignettes --no-manual --as-cran"
-      fi
-    displayName: Set platform-specific vignette test options
-  - script: |
       sudo apt-get update -qq
       sudo apt-get install -qq valgrind
     displayName: Setup valgrind
