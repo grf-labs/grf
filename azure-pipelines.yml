@@ -77,9 +77,6 @@ jobs:
       sudo apt-get install -qq valgrind
     displayName: Setup valgrind
     condition: eq(variables['Agent.OS'], 'Linux')
-  - script: sudo apt-get install -y texlive-xetex
-    displayName: Install XeLaTeX
-    condition: eq(variables['Agent.OS'], 'Linux')
   - script: |
       curl -OLs https://eddelbuettel.github.io/r-ci/run.sh && chmod 0755 run.sh
       ./run.sh bootstrap

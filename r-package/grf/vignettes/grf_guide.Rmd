@@ -10,7 +10,6 @@ date: "`r format(Sys.time(), '%B, %Y')`"
 output:
   pdf_document:
     toc: no
-    latex_engine: xelatex
 colorlinks: true
 linkcolor: blue
 vignette: >
