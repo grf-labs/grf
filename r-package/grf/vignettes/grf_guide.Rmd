@@ -482,7 +482,7 @@ plot(rate.cate, main = "TOC: By decreasing CATEs")
 
 
 
-```{r, echo=FALSE, fig.align='center', out.height='1.375in', results='asis'}
+```{r, echo=FALSE, fig.align='center', out.height='0.667in', results='asis'}
 if (knitr::is_html_output()) {
   cat('<center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>')
 } else {
