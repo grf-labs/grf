@@ -1,7 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^bindings$
-^vignettes/
+^vignettes
 ^tests/benchmarks
 ^tests/valgrind
 ^_pkgdown\.yml$
