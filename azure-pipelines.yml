@@ -81,7 +81,7 @@ jobs:
       ./run.sh install_all
     workingDirectory: r-package/grf
     displayName: Setup R
-  - script: R_BUILD_ARGS="" R_CHECK_ARGS="--as-cran" ./run.sh run_tests
+  - script: R_BUILD_ARGS="--no-manual" R_CHECK_ARGS="--no-manual --as-cran" ./run.sh run_tests
     workingDirectory: r-package/grf
     displayName: Test R package
   - script: ./run.sh dump_logs_by_extension "fail"
