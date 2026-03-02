@@ -36,6 +36,6 @@ Suggests:
     rdrobust,
     survival (>= 3.2-8),
     testthat (>= 3.0.4)
-SystemRequirements: C++17
+SystemRequirements: C++17, GNU make
 URL: https://github.com/grf-labs/grf
 Encoding: UTF-8
