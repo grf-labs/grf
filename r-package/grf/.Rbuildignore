@@ -1,7 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^bindings$
-^vignettes
+^vignettes/(?!grf_guide\.Rmd$|grf_leaf_green\.png$|grf_logo_green\.png$)
 ^tests/benchmarks
 ^tests/valgrind
 ^_pkgdown\.yml$

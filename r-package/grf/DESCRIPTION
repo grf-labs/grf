@@ -33,9 +33,13 @@ RoxygenNote: 7.3.3
 Suggests:
     DiagrammeR,
     MASS,
+    policytree,
     rdrobust,
     survival (>= 3.2-8),
-    testthat (>= 3.0.4)
+    testthat (>= 3.0.4),
+    knitr,
+    rmarkdown
 SystemRequirements: C++17, GNU make
 URL: https://github.com/grf-labs/grf
 Encoding: UTF-8
+VignetteBuilder: knitr
