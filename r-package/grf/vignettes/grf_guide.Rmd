@@ -13,9 +13,6 @@ output:
     latex_engine: xelatex
 colorlinks: true
 linkcolor: blue
-# output:
-#   rmarkdown::html_vignette:
-#     math_method: katex
 vignette: >
   %\VignetteIndexEntry{An introduction to grf}
   %\VignetteEngine{knitr::rmarkdown}
