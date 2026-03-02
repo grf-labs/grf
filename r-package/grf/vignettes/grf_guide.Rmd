@@ -36,8 +36,7 @@ options(digits = 2)
 
 library(grf)
 
-# has.policytree = requireNamespace("policytree", quietly = TRUE) # and then ```{r, eval=has.policytree}```
-# TODO: add policytree to Suggests
+has.policytree = requireNamespace("policytree", quietly = TRUE)
 ```
 
 
@@ -370,7 +369,7 @@ Next, we consider learning a simple policy that maps covariates `X` to a treatme
 We perform this task on the observations without missing covariate values. First, we retrieve doubly robust scores for the quantities $\text{E}[Y_i(0)]$ and $\text{E}[Y_i(1)]$ using the function `double_robust_scores` from the `policytree` package.
 
 
-```{r}
+```{r, eval=has.policytree}
 library(policytree)
 
 Gamma.hat <- double_robust_scores(c.forest)
@@ -381,13 +380,13 @@ Gamma.nm <- Gamma.hat[no.missing, ]
 
 A doubly robust estimate of the average financial proficiency score in the two treatment states is
 
-```{r}
+```{r, eval=has.policytree}
 colMeans(Gamma.nm)
 ```
 
 In this application, it is hard to imagine that some students do _not_ benefit from the treatment, and  the _treat everyone_ policy likely increases the overall financial proficiency of the population. Treating everyone is costly; hence, it is natural to ask if there is a policy that delivers an overall population benefit on a cost-adjusted basis. Here, we imagine we are paying the ATE when we assign treatment and offset this in our objective:
 
-```{r}
+```{r, eval=has.policytree}
 Gamma.nm[, "treated"] <- Gamma.nm[, "treated"] - ate["estimate"]
 ```
 
@@ -397,7 +396,7 @@ $$
 $$
 where $\pi(X_i) \in \{1, 2\}$ corresponds to the control and treated column of the `Gamma` matrix.
 
-```{r}
+```{r, eval=has.policytree}
 ptree <- policy_tree(X.nm, Gamma.nm, depth = 1)
 print(ptree)
 ```
