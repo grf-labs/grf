@@ -52,6 +52,7 @@ jobs:
           cp ../../REFERENCE.md .
           cp ../../DEVELOPING.md .
           cp ../../releases/CHANGELOG.md .
+          sed -i '3,14d' vignettes/grf_guide.Rmd
           Rscript -e "pkgdown::build_site()"
       - name: Inject KaTeX into vignettes
         working-directory: r-package/grf
