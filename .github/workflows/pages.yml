@@ -56,6 +56,7 @@ jobs:
           # Some minor touchups for intro vignette's html output
           sed -i '3,14d' vignettes/grf_guide.Rmd
           sed -i 's/^print(ptree)$/plot(ptree)/' vignettes/grf_guide.Rmd
+          perl -0777 -pi -e 's/,\s*num\.threads\s*=\s*[0-9]+//g; s/> \*\*Remark\*\*: We use `num\.threads[^\n]*\n+//g' vignettes/grf_guide.Rmd
 
           Rscript -e "pkgdown::build_site()"
       - name: Inject KaTeX into vignettes
