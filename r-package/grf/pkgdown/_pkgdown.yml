@@ -8,7 +8,7 @@ navbar:
     href: reference/index.html
   - text: "Tutorials" # A collection of smaller vignettes, this list is kept alphabetical
     menu:
-      - text: "A grf guided tour"
+      - text: "An introduction to grf"
         href: articles/grf_guide.html
       - text: "Assessing heterogeneity with RATE"
         href: articles/rate.html

@@ -1,101 +1,134 @@
 ---
-title: "A grf guided tour"
+title: "An introduction to `grf`"
+author:
+  - Erik Sverdrup
+  - Vitor Hadad
+  - Susan Athey
+  - Julie Tibshirani
+  - Stefan Wager
+date: "`r format(Sys.time(), '%B, %Y')`"
 output:
-  rmarkdown::html_vignette:
-    math_method: katex
+  pdf_document:
+    toc: no
+colorlinks: true
+linkcolor: blue
 vignette: >
-  %\VignetteIndexEntry{grf_guide}
+  %\VignetteIndexEntry{An introduction to grf}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  warning = FALSE,
+  fig.width = 5,
+  fig.height = 4,
+  fig.align = "center"
 )
 set.seed(123)
 options(digits = 2)
-```
 
-```{r setup}
 library(grf)
+
+has.policytree = requireNamespace("policytree", quietly = TRUE)
 ```
-<center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_green.png" height="132"></center>
-
-This vignette gives a [brief overview](#a-grf-overview) of the GRF algorithm and contains two example applications: 1) [The benefits of a financial education program](#application-school-program-evaluation) and 2) [Measuring the effect of poverty on attention](#application-measuring-the-effect-of-poverty-on-attention), which walks through using GRF to estimate conditional average treatment effects (CATEs) using:
-
-* The [best_linear_projection](https://grf-labs.github.io/grf/reference/best_linear_projection.html) as simple linear association measures which can provide a useful lower dimensional summary of the CATEs, that has desirable semi-parametric inferential properties.
-
-* The [rank_average_treatment_effect](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html) (*RATE*) as a generic tool to assess heterogeneity and the effectiveness of "targeting rules", as well as how the associated *TOC* curve can help identify segments of a population that respond differently to a treatment.
-
-* [policytree](https://github.com/grf-labs/policytree) to find a tree-based policy.
 
 
-## A grf overview
-This section gives a lightning tour of some of the conceptual ideas behind GRF in the form of a walkthrough of how *Causal Forest* works. It starts with describing how the predictive capabilities of the modern machine learning toolbox can be leveraged to non-parametrically control for confounding when estimating average treatment effects, and how Breiman's (2001) random forest can be repurposed as an adaptive nearest neighbor finder to detect treatment effect heterogeneity.
+```{r, echo=FALSE, fig.align='center', out.height='1.375in', results='asis'}
+if (knitr::is_html_output()) {
+  cat('<center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_green.png" height="132"></center>')
+} else {
+  knitr::include_graphics("grf_logo_green.png")
+}
+```
+
+This vignette introduces forest-based causal inference using the `grf` package for `R`.
+Generalized random forests (Athey, Tibshirani, and Wager, [2019](https://doi.org/10.1214/18-AOS1709)) extend Breiman ([2001](https://doi.org/10.1023/A:1010933404324))'s random forest to enable data-driven estimation of heterogeneity in causal parameters, such as conditional average treatment effects under unconfoundedness.
+We outline core functionality, including doubly robust estimation of average treatment effects, best linear projections, tools for assessing heterogeneity using TOC curves, evaluation of treatment rules via Qini curves, and methods for learning interpretable tree-based policies. The vignette contains two applied examples illustrating treatment effect heterogeneity in practice.
+For further details, see the package documentation and additional applied tutorials by Athey & Wager ([2019](https://doi.org/10.1353/obs.2019.0001)), and Sverdrup, Petukhova, and Wager ([2024](https://doi.org/https://doi.org/10.1002/mpr.70015)).
+
+_Vignette sections_:
+
+1) [_A grf guided tour_](#a-grf-guided-tour)
+
+2) [_Example: Treatment heterogeneity and financial proficiency_](#example-treatment-heterogeneity-and-financial-proficiency)
+
+3) [_Example: The effect of poverty on attention_](#example-the-effect-of-poverty-on-attention)
+
+
+<!-- -------------------GRF OVERVIEW------------------- -->
+
+## A grf guided tour
+We describe how modern machine learning can flexibly control for confounding when estimating average treatment effects, how Breiman's (2001) random forest can be adapted to target treatment effect heterogeneity, and how this approach extends to a broad class of settings, including instrumental variables and right-censored outcomes.
+Further info is provided in Athey & Wager ([2019](https://doi.org/10.1353/obs.2019.0001)), Cui et al. ([2023](https://doi.org/10.1093/jrsssb/qkac001)), Dandl et al. ([2024](https://doi.org/10.1214/23-AOAS1799)), Friedberg et al. ([2020](https://doi.org/10.1080/10618600.2020.1831930)), and Sverdrup et al. ([2024](https://doi.org/https://doi.org/10.1002/mpr.70015)).
+For a more detailed theoretical treatment, Wager ([2024](https://web.stanford.edu/~swager/causal_inf_book.pdf)) provides a textbook-style discussion.
+
 
 ### Machine learning for causal inference
-Machine learning algorithms are great at prediction. In the context of estimating treatment effects, however, what matters is estimation and inference (for a great overview of the fundamental tension between prediction and estimation, see the essay by Efron (2020)). The following section outlines how, if carefully adapted and paired with best practices from semi-parametric statistics, modern machine learning can be used to augment the causal inference toolbox with more model-agnostic tools.
+Machine learning methods are designed for prediction. In causal applications, however, our goal is often inference rather than prediction. Although statistical _estimation_ and statistical _prediction_ are distinct tasks (Efron, [2020](https://efron.ckirby.su.domains/papers/2019PredictEstimatAttribut.pdf)), predictive tools can support valid inference when used appropriately.
+This section outlines how modern machine learning, combined with ideas from semi-parametric statistics, can provide flexible and model-agnostic tools for causal inference.
 
-Imagine we observe outcomes $Y_i$ along with a binary treatment indicator $W=\{0, 1\}$ and are interested in measuring the average causal effect of the intervention on the outcome. If we are not in a randomized control trial setting but have collected a set of covariates $X_i$ which we believe could plausibly account for confounding, then we could run a regression of the type (Imbens & Rubin, 2005)
-
+Suppose we observe outcomes $Y_i$, a binary treatment indicator $W_i \in {0,1}$, and covariates $X_i$. Our goal is to estimate the average treatment effect $\tau = \text{E}[Y_i(1) - Y_i(0)]$. In an observational study, we might run a regression
 $$
 Y_i \sim \tau W_i + \beta X_i,
 $$
-and interpret the estimated $\hat \tau$ as an estimate of the average treatment effect $\tau = E[Y_i(1) - Y_i(0)]$, where $Y_i(1), Y_i(0)$ are potential outcomes corresponding to the two treatment states. This approach is justified if:
+and interpret $\hat\tau$ as an estimate of the ATE. This interpretation relies on:
 
-1) $W_i$ is unconfounded given $X_i$ (i.e., treatment is as good as random given covariates).
-2) The confounders $X_i$ have a linear effect on $Y_i$.
-3) The treatment effect $\tau$ is constant.
+1) $W$ being unconfounded given $X$ (e.g., Rosenbaum and Rubin, [1983](https://doi.org/10.1093/biomet/70.1.41)).
+2) The confounders $X$ having a linear effect on $Y$.
+3) The treatment effect $\tau$ being constant.
 
-Assumption 1) is an "identifying" assumption we have to live with, however 2) and 3) are modeling assumptions that we can question. Let's start with assumption 2): this is a strong parametric modeling assumption that requires the confounders to have a linear effect on the outcome, and that we should be able to relax by relying on semi-parametric statistics.
+Assumption 1) is an _identifying_ assumption and something we choose to live with depending on domain knowledge. Assumptions 2) and 3) are _modeling_ choices that we may wish to relax.
 
-**Relaxing assumption 2)**. We can instead posit the partially linear model:
+***Relaxing assumption 2)***. Instead of assuming linearity, consider the partially linear model
+$$
+Y_i = \tau W_i + f(X_i) + \varepsilon_i, \quad \text{E}[\varepsilon_i \mid X_i, W_i] = 0,
+$$
+where $f$ is an unknown function. The challenge is that $f(X_i)$ is not specified.
 
+Robinson ([1988](https://doi.org/10.2307/1912705)) shows that via the following intermediary objects, the _propensity score_
 $$
-Y_i = \tau W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
+e(x) = \text{E}[W_i \mid X_i=x],
 $$
-where we assume a unit's baseline outcome is given by some unknown (possibly complex) function $f$, and that a treatment assignment shifts the outcome by a constant offset $\tau$. But how do we get around estimating $\tau$ when we do not know $f(X_i)$? Robinson (1988) shows that, if we define the following two intermediary objects:
+and the _conditional mean_,
+$$
+m(x) = \text{E}[Y_i \mid X_i = x] = f(x) + \tau e(x),
+$$
+we can rewrite the model in centered form:
+$$
+Y_i - m(x) = \tau \Big(W_i - e(x)\Big) + \varepsilon_i.
+$$
+This means that $\tau$ can be estimated by regressing the residualized outcome on the residualized treatment. Importantly, Robinson ([1988](https://doi.org/10.2307/1912705)) showed that this estimator is root-$n$ consistent even if $m(x)$ and $e(x)$ are estimated more slowly. This robustness is often called orthogonality: small errors in _nuisance_ estimates do not substantially bias the target parameter.
 
-$$
-e(x) = E[W_i | X_i=x],
-$$
-the propensity score, and
+How do we flexibly estimate $m(x)$ and $e(x)$? These are standard regression problems: predict $Y_i$ from $X_i$, and $W_i$ from $X_i$. Modern machine learning methods, such as boosting or random forests, are well suited for this task (James et al., [2013](https://doi.org/10.1007/978-1-0716-1418-1)).
+A wrinkle is that directly plugging machine learning estimates into this estimator can lead to bias due to regularization.
+A standard technique in semi-parametric estimation is sample splitting, where separate data subsets are used to train and evaluate these components.
+Cross-fitting, alternating which folds are used for training and estimation, is a common implementation (Chernozhukov et al., [2018](https://doi.org/10.1111/ectj.12097); Zheng & van der Laan, [2011](https://doi.org/10.1007/978-1-4419-9782-1_27)).
+In `grf`, _out-of-bag_ predictions provide a forest-native leave-one-out form of cross-fitting.
 
+***Non-constant treatment effects***. To relax Assumption 3), suppose treatment effects vary with covariates:
 $$
-m(x) = E[Y_i | X_i = x] = f(x) + \tau e(x),
+Y_i = \textcolor{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, \text{E}[\varepsilon_i \mid X_i, W_i] = 0,
 $$
-the conditional mean of $Y$, then we can rewrite the above equation in "centered" form:
+where $\textcolor{red}{\tau(x)}$ is the conditional average treatment effect $\text{E}[Y_i(1) - Y_i(0) \mid X_i = x]$.
+If we had access to a neighborhood $\mathcal{N}(x)$ where $\tau$ were approximately constant, we could proceed exactly as before, by performing a residual-on-residual regression on the samples belonging to $\mathcal{N}(x)$, i.e.:
+$$
+\tau(x) := \text{lm}\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = 1\{X_i \in \mathcal{N}(x) \}\Biggr),
+$$
+where $^{{(-i)}}$ denotes out-of-bag estimates.
+Conceptually, causal forest estimates $\tau(x)$ by running a locally weighted residual-on-residual regression using samples predicted to have similar treatment effects.
 
-$$
-Y_i - m(x) = \tau (W_i - e(x)) + \varepsilon_i.
-$$
-This formulation has great practical appeal, as it means $\tau$ can be estimated by residual-on-residual regression: plug in estimates of $m(x)$ and $e(x)$ then regress the centered outcomes on the centered treatment indicator. Robinson (1988) shows that this approach yields root-n consistent estimates of $\tau$, even if estimates of $m(x)$ and $e(x)$ converge at a slower rate ("4-th root" in particular). This property is often referred to as *orthogonality* and is a desirable property that essentially tells you that given noisy "nuisance" estimates ($m(x)$ and $e(x)$) you can still recover "good" estimates of your target parameter ($\tau$).
-
-But how are you supposed to estimate $m(x)$ and $e(x)$, don't you still have to posit a parametric model (like for example a logistic regression for the propensity score)? This is where the modern machine learning toolkit comes in handy, by recognizing that for $m(x)$ and $e(x)$ we are only asking for good *predictions* of the outcome conditional on $X_i$, and the treatment assignment conditional on $X_i$. This is the type of problem modern machine learning methods like boosting, random forests, etc., excel at. Directly plugging in estimates of $m(x)$ and $e(x)$ into the residual-on-residual regression will typically lead to bias as modern ML methods regularize to trade of bias and variance, however, Zheng & van der Laan (2011) and Chernozhukov et al. (2018) show that if you form these estimates in a "cross-fit" manner, meaning the prediction of observation i's outcome and treatment assignment is obtained without using unit i for estimation, then (given some regularity assumptions) you can still recover root-n consistent estimates of $\tau$.
-
-So, to recap so far: we have a way to adopt the modern ML toolkit to *non-parametrically control for confounding* when estimating an average treatment effect, and still retain desirable statistical properties such as unbiasedness and consistency.
-
-**Non-constant treatment effects**. What if we wish to relax assumption 3)? We could specify certain subgroups and run separate regressions for each subgroup and obtain different estimates of $\tau$. To avoid false discoveries, this approach would require us to specify potential subgroups without looking at the data. How can we use the data to inform us of potential subgroups? We can continue with Robinson's partially linear model from above, and instead just posit:
-
-$$
-Y_i = \textcolor{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, E[\varepsilon_i | X_i, W_i] = 0,
-$$
-where $\textcolor{red}{\tau(X_i)}$ is the conditional average treatment effect $E[Y(1) - Y(0) | X_i = x]$. How do we estimate this? If we imagine we had access to some neighborhood $\mathcal{N}(x)$ where $\tau$ was constant, we could proceed exactly as before, by doing a residual-on-residual regression on the samples belonging to $\mathcal{N}(x)$, i.e.:
-
-$$
-\tau(x) := lm\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = 1\{X_i \in \mathcal{N}(x) \}\Biggr),
-$$
-(the superscript $^i$ denotes cross-fit estimates). This is conceptually what *Causal Forest* does, it estimates the treatment effect $\tau(x)$ for a target sample $X_i = x$ by running a weighted residual-on-residual regression on samples that have similar treatment effects. These *weights* play a crucial role, so how does `grf` find them? The next section quickly recaps Breiman's random forest for regression, then explains how it can be extended to an adaptive neighborhood finder.
+The key question is how to construct these weights. The next section reviews Breiman's random forest and explains how it serves as an adaptive neighborhood finder.
 
 ### Random forest as an adaptive neighborhood finder
 
-Breiman's random forest for predicting the conditional mean $\mu(x) = E[Y_i | X_i = x]$ can be briefly summarized in two steps:
+Breiman's random forest estimates the conditional mean $\mu(x) = \text{E}[Y_i \mid X_i = x]$ in two phases:
 
-1) Building phase: Build $B$ trees which greedily place covariate splits that maximize the squared difference in subgroups means $n_L n_R (\bar y_L - \bar y_R)^2$.
-2) Prediction phase: Aggregate each tree's prediction to form the final point estimate by averaging the outcomes $Y_i$ that fall into the same terminal leaf $L_b(X_i)$ as the targets sample $x$: $\hat \mu(x) = \frac{1}{B} \sum_{b=1}^{B} \sum_{i=1}^{n} \frac{Y_i 1\{Xi \in L_b(x)\}} {|L_b(x)|}$
+1) **Building phase**: Grow $B$ trees by greedily choosing covariate splits that maximize the squared difference in subgroup means $n_L n_R (\bar y_L - \bar y_R)^2$.
 
+2) **Prediction phase**: For a target sample $x$, average the outcomes $Y_i$ in the same terminal leaf $L_b(x)$ across trees: $\hat \mu(x) = \frac{1}{B} \sum\limits_{b=1}^{B} \sum\limits_{i=1}^{n} Y_i \dfrac{1\{Xi \in L_b(x)\}} {|L_b(x)|}$.
 
 ```{r, echo=FALSE}
 set.seed(2)
@@ -108,317 +141,358 @@ sval = t$nodes[[1]]$split_value
 
 plot(c(X, 1.5), c(Y, 2),
      ylab = "Y",
-     xlab = "X_j",
+     xlab = expression(X[j]),
      col = c(as.integer(X[,1] <= sval) + 1, 4),
      pch = c(rep(1, n), 3))
 abline(v = sval)
 ```
 
-For a single tree and single split, Figure 1) shows the optimal split point in phase 1): it's the vertical line that makes the left and right means of $Y_i$ as similar as possible (or equivalently, the squared difference in means as large as possible).
+For a single tree and split, Figure 1 shows the chosen split point: the vertical line that maximizes the difference in leaf means. A target point $x$ falls into one leaf, and prediction averages outcomes in that leaf. Repeating over trees and averaging yields the final estimate.
 
-Figure 1) shows a target sample $x$ we wish to make a prediction for as a cross in the right-hand leaf. Phase 2) would average the $Y_i$'s on this side, then repeat the same exercise for the rest of the $B$ trees, then average these to produce a final prediction. This procedure is a double summation, first over trees, then over training samples. We can swap the order of summation and obtain:
-
+Rewriting the prediction as
 \begin{equation*}
 \begin{split}
-& \hat \mu(x) = \sum_{i=1}^{n} \frac{1}{B} \sum_{b=1}^{B} Y_i \frac{1\{Xi \in L_b(x)\}} {|L_b(x)|} \\
-& = \sum_{i=1}^{n} Y_i \textcolor{blue}{\alpha_i(x)},
+\hat \mu(x) & = \sum_{i=1}^{n} \frac{1}{B} \sum_{b=1}^{B} Y_i \frac{1\{X_i \in L_b(x)\}} {|L_b(x)|} \\
+& = \sum_{i=1}^{n} Y_i \textcolor{magenta}{\alpha_i(x)},
 \end{split}
 \end{equation*}
+shows that a random forest prediction is a weighted average of outcomes. The weights $\textcolor{magenta}{\alpha_i(x)}$ reflect how often training sample $i$ shares a leaf with $x$. They can be interpreted as adaptive similarity weights.
+This weighting view of random forests appears frequently in statistical applications, see for example Zeileis, Hothorn & Hornik ([2003](https://doi.org/10.1198/106186008X319331)).
 
-where we have defined $\textcolor{blue}{\alpha_i(x)}$ as the frequency with which the $i$-th training sample falls into the same leaf as $x$. That is, an equivalent description of a random forest's prediction phase is that it predicts a weighted average of outcomes. These weights are the so-called random forest adaptive neighborhood weights, and they capture how "similar" a target sample $x$ is to each of the training samples $X_i$, $i = 1 \ldots n$ (this weighting view of random forests appear frequently in statistical applications of random forests, see for example Zeileis, Hothorn & Hornik (2003)).
+_Causal forests_ combines this forest weighting with Robinson's approach:
 
-**Causal Forest** essentially combines Breiman (2001) and Robinson (1988) by modifying the steps above to:
+1) **Building phase**: Choose splits that maximize the squared difference in estimated subgroup treatment effects, $n_L n_R (\hat \tau_L - \hat \tau_R)^2$, where $\hat\tau$ is computed via residual-on-residual regression.
 
-1) Building phase: Greedily places covariate splits that maximize the squared difference in subgroup treatment effects $n_L n_R (\hat \tau_L - \hat \tau_R)^2$, where $\hat \tau$ is obtained by running Robinson's residual-on-residual regression for each possible split point[^1].
-2) Use the resulting forest weights $\textcolor{blue}{\alpha(x)}$ to estimate
-
-
+2) **Prediction phase**: Use the resulting forest weights $\textcolor{magenta}{\alpha(x)}$ to estimate
 $$
-\tau(x) := lm\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i), \text{weights} = \textcolor{blue}{\alpha_i(x)} \Biggr).
+\tau(x) := \text{lm}\Biggl( Y_i - \hat m^{(-i)}(X_i) \sim W_i - \hat e^{(-i)}(X_i),~ \text{weights} = \textcolor{magenta}{\alpha_i(x)} \Biggr).
 $$
-That is, *Causal Forest* is running a "forest"-localized version of Robinson's regression. This adaptive weighting (instead of leaf-averaging) coupled with some other forest construction details known as "honesty" and "subsampling" can be used to give asymptotic guarantees for estimation and inference with random forests (Wager & Athey, 2018). In the function `causal_forest`, the arguments `Y.hat` and `W.hat` supply estimates of $m(x)$ and $e(x)$, which by default are estimated with separate regression forests[^2].
 
-The procedure we outlined above can be generalized (thus the name *generalized* random forest) to estimate other quantities besides heterogeneous treatment effects. The key ingredient is phase 1) above, by recognizing that Robinson's regression equivalently can be expressed in "estimating equation" form given by a particular scoring function $\psi_{\tau}(\cdot)$. GRF (Athey, Tibshirani & Wager, 2019) generalizes phase 1) to target heterogeneity in some arbitrary parameter given as the solution to this estimating equation. That is, GRF essentially takes as input a formulation of how to estimate a certain parameter[^3] $\theta$ *without* the presence of covariates (in the form of the scoring function $\psi$) and then finds forest weights $\alpha(x)$ that yields *covariate*-specific estimates $\theta(x)$.
+Thus, causal forest performs a forest-localized version of Robinson's regression. In `causal_forest`, the arguments `Y.hat` and `W.hat` provide estimates of $m(x)$ and $e(x)$, by default obtained from separate regression forests. If we are in a randomized setting where we know the propensity score, we can simply supply these via the `W.hat` argument.
+Robinson's transformation also motivates a general loss function for heterogeneous treatment effects (Nie & Wager, [2021](https://doi.org/10.1093/biomet/asaa076)), which `causal_forest` uses to guide the selection of tuning parameters.
+
+The same idea extends beyond treatment effects and residual-on-residual regressions. In the generalized random forest framework, the forest is tailored to target heterogeneity in any parameter defined by an estimating equation $\psi_\theta(\cdot)$. Given an estimating equation that identifies a parameter $\theta$ without covariates, `grf` then constructs weights $\alpha(x)$ that yield covariate-specific estimates $\theta(x)$, using Breiman's random forest as a blueprint. For causal forests, this estimating equation corresponds to Robinson's regression.
+
+Orthogonal estimating equations offers practical advantages by separating the statistical tasks. Other forests, such as `instrumental_forest` and `causal_survival_forest`, use similar constructions. For example, `causal_survival_forest` fits two separate survival forests to construct
+right-censoring adjustments. These are then used to construct an orthogonal estimating equation, and `grf` trains a final random forest targeting heterogeneity in the treatment effect parameter.
+
+For computational and implementation reasons, `grf` does not re-estimate the target parameter at every candidate split in the _building phase_. Instead, it uses an influence-function-based approximation computed once in the parent node. `grf` then reuses the standard random forest machinery (Breiman-style tree growth and regression-based splitting) but replaces the raw outcomes with pseudo-outcomes derived from the orthogonal score. From an implementation perspective, this means that new forest estimators can be built by specifying the appropriate score and pseudo-outcome, while leaving the underlying random forest algorithm unchanged.
+
+> **Note**: The target parameter $\theta$ may be vector-valued. In that case, splits are based on the squared $\ell_2$ distance $n_L n_R \lVert \hat\theta_L - \hat\theta_R \rVert^2$, as in `grf`'s `multi_arm_causal_forest` and `lm_forest`.
+
+
 
 ### Efficiently estimating summaries of the CATEs
-So far we have covered how Robinson's residual-on-residual satisfied an orthogonality property in the sense that the target parameter $\tau(x)$ could be estimated reasonably well despite nuisance components ($m(x)$ and $e(x)$) being estimated at slower rates. This is a desirable property of an estimating equation $\psi$, particularly if we wish to estimate nuisance components with machine learning methods that, while more flexible than parametric models, converge at slower rates (Stone, 1980). What about estimating summaries of $\tau(x)$, in terms of estimands like the average treatment effect (ATE), or the best linear projection (BLP), that have guaranteed root-n rate of convergence along with exact confidence intervals?
 
-It turns out there are better approaches than simply averaging the $\hat \tau(x)$'s obtained with a causal forest[^4]. Robins, Rotnitzky & Zhao (1994) showed that the so-called Augmented Inverse Probability Weighted (AIPW) estimator is asymptotically optimal for $\tau$ (meaning that among all non-parametric estimators, it has the lowest variance). It looks like the following:
+Robinson's residual-on-residual approach is orthogonal, which makes it well suited for estimates that converge slowly. But what if we want summaries of $\tau(x)$, such as the ATE or a best linear projection (BLP), that have guaranteed root-$n$ rate of convergence along with exact confidence intervals?
 
-$$
-\hat \tau_{AIPW} = \frac{1}{n} \sum_{i=1}^{n}\left( \mu(X_i, 1) - \mu(X_i, 0) + W_i \frac{Y_i - \mu(X_i, 1)}{e(X_i)} - (1 - W_i)\frac{Y_i - \mu(X_i, 0)}{1 - e(X_i)} \right),
-$$
-where $\mu(X_i, 1),  \mu(X_i, 0)$ are estimates of the conditional means in the two treatment arms: $\mu(X_i, W_i) = E[Y_i | X_i = x, W_i = w]$. This expression can be rearranged and expressed as
-
+Simply averaging the estimates $\hat\tau(X_i)$ is not optimal: prediction errors are too large and do not cancel out. Robins, Rotnitzky & Zhao ([1994](https://doi.org/10.1080/01621459.1994.10476818)) proposed the Augmented Inverse Probability Weighted (AIPW) estimator, which combines propensity scores and conditional mean estimates in a way that is robust to estimation errors in either component. It can be expressed as a one-step debiasing correction, taking the following form
 
 $$
-\frac{1}{n} \sum_{i=1}^{n}\left( \tau(X_i) + \frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]} \left(Y_i - \mu(X_i, W_i)\right) \right) \\
-= \frac{1}{n} \sum_{i=1}^{n} \Gamma_i.
+\hat \Gamma_i = \hat \tau^{(-i)}(X_i) + \frac{W_i - \hat e^{(-i)}(X_i)}{\hat e^{(-i)}(X_i)[1 - \hat e^{(-i)}(X_i)]} \Big(Y_i - \hat \mu^{(-i)}(X_i, W_i)\Big),
 $$
-We can identify the three terms as 1) an initial treatment effect estimate $\tau(X_i)$, 2) a debiasing weight $\frac{W_i - e(X_i)}{e(X_i)[1 - e(X_i)]}$, and 3) a residual $Y_i - \mu(X_i, W_i)$. The asymptotic efficiency property of this plug-in construction continues to hold if we substitute in non-parametric nuisance estimates obtained with causal forest (subject to some regularity conditions such as cross-fitting, Zheng & van der Laan (2011), Chernozhukov et al., (2018)).
+where $\mu(x, w) = E[Y_i \mid X_i = x, W_i = w]$ (this can be backed out from a causal forest fit). The forest-based ATE is then given by
+$$
+\hat \tau_{\text{AIPW}} = \frac{1}{n} \sum_{i=1}^{n} \hat \Gamma_i.
+$$
 
-In general, the construction above gives rise to so-called **doubly robust** estimating equations, and it is the approach taken by `grf` when computing summary measures such as the ATE, BLP, and "RATE". The associated doubly robust scores $\hat \Gamma_i$ are accessible through the function `get_scores`. As a concrete example, the ATE is an average of $\hat \Gamma_i$'s, while the best linear projection is a regression of the $\hat \Gamma_i$'s on a set of covariates $X_i$. Summary measures built on these play a crucial role in interpreting non-parametric CATE estimates, as they are by the fundamental limits of non-parametric estimation (machine learning included), *noisy* point estimates. The next two sections walk through empirical examples.
+This construction yields **doubly robust** estimating equations and forms the basis of summary methods in `grf`, including `average_treatment_effect` and `best_linear_projection`. The associated doubly robust scores $\hat \Gamma_i$ are accessible through the function `get_scores`.
+As a concrete example, the ATE is an average of $\hat \Gamma_i$'s, while the best linear projection is a regression of the $\hat \Gamma_i$'s on a set of covariates $X_i$.
 
 
-## Application: school program evaluation
-In this section, we walk through an example application of GRF. The data we are using is from Bruhn et al. (2016), which conducted an RCT in Brazil in which high schools were randomly assigned a financial education program (in settings like this it is common to randomize at the school level to avoid student-level interference). This program increased student financial proficiency on average. Other outcomes are considered in the paper, we'll focus on the financial proficiency score here. A processed copy of this data, containing student-level data from around 17 000 students, is stored on the [github repo](https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes/data/), it extracts basic student characteristics, as well as additional baseline survey responses we use as covariates (two of these are aggregated into an index by the authors to assess student's ability to save, and their financial autonomy).
+### Assessing heterogeneity with TOC curves
 
-*Notation*: throughout we use variable names `Y` and `W` to denote outcomes and binary treatment assignment, and `Y.hat` to denote estimates of $E[Y_i | X_i = x]$, `W.hat` estimates of $E[W_i | X_i = x]$, and `tau.hat` estimates of $\tau(X_i) = E[Y_i(1) - Y_i(0) | X_i = x]$.
+Combined with techniques such as honesty and subsampling (Wager & Athey, [2018](https://doi.org/10.1080/01621459.2017.1319839)), the generalized random forest algorithm supports pointwise asymptotic guarantees. Results like these are reassuring, as they characterize the large-sample behavior of the forest. For practical purposes, however, there are more direct and transparent ways to assess whether meaningful heterogeneity is present in a given dataset.
 
-### Data overview
+A simple and pragmatic approach is **train/test evaluation**. We fit a CATE model on a training set, then on a held-out test set, we form subgroups based on predicted treatment effects and examine whether average treatment effects differ systematically across these groups.
+This approach is quite general: we may evaluate any machine-learned targeting function, including alternative effect measures, such as predicted risk or other quantities that may be aligned with treatment benefit in a given application. As long as higher values correspond to higher expected treatment gains, the same evaluation logic applies.
+
+The `rank_average_treatment_effect` function provides an automated implementation of this exercise by stratifying the test sample according to quantiles of the estimated targeting function. The _Targeting Operator Characteristic_ (TOC) curve (Yadlowsky et al., [2024](https://doi.org/10.1080/01621459.2024.2393466)) compares the average treatment effect among units with predicted CATEs in the top $q$-th quantile to the overall ATE.
+$$
+\text{TOC}(q) = \text{E}[Y_i(1) - Y_i(0) \mid \text{Estimated CATE}(X_i) \geq (1 - q)\text{-th quantile}] - \text{ATE}.
+$$
+Given a trained evaluation forest, `grf` provides doubly robust estimates of the TOC and the area under the TOC, along with standard errors that enable a simple and valid $t$-test for the presence of heterogeneity.
+Under the null of constant treatment effects, the area under the TOC curve is zero in expectation.
+
+
+### Policy evaluation with Qini curves
+We are often interested in data-driven rules to guide treatment allocation decisions, also referred to as _policies_. Under a binary treatment, a policy is a rule $\pi(X_i) \in \{0, 1\}$ that maps covariates to a treatment decision. The value of a policy is the expected gain from following it,
+$$
+G(\pi) = \text{E}[\pi(X_i)\{Y_i(1) - Y_i(0)\}].
+$$
+Given doubly robust scores $\hat \Gamma_i$, we can estimate the value of any fixed policy by averaging $\hat \Gamma_i$ over the sample for which $\pi(X_i) = 1$.
+An estimated CATE function $\hat\tau(\cdot)$ naturally induces targeting rules. A simple example is the threshold policy
+$$
+\pi_0(X_i) =
+\begin{cases}
+    1,& \hat \tau(X_i) \geq 0\\
+    0,              & \text{otherwise}.
+\end{cases}
+$$
+If the true CATE were known, the optimal policy would treat units with $\tau(X_i) \geq 0$. Since we only have access to estimates $\hat\tau(\cdot)$, we instead evaluate how well such data-driven policies perform by estimating their value $G(\pi_0)$.
+
+Often, treatment is costly or limited, and we may only treat a fraction of the population.
+For example, we might target the top 20% of units ranked by predicted effect by thresholding at the 80-th percentile.
+Varying this threshold produces a family of policies indexed by the fraction treated budget $B \in (0,1]$. The _Qini curve_ summarizes their performance by plotting
+$$
+G(\pi_B) = \text{E}[\pi_B(X_i)\{Y_i(1) - Y_i(0)\}],
+$$
+where
+$$
+\pi_B(X_i) =
+\begin{cases}
+1, & \hat\tau(X_i) > 0 \text{ and } \hat\tau(X_i) \ge 1-B\text{-th quantile of positive predicted CATEs} \\
+0, & \text{otherwise}.
+\end{cases}
+$$
+Using doubly robust scores and appropriate resampling methods, we can obtain confidence intervals for $G(\pi_B)$ across the curve.
+This approach is implemented in the sister package [`maq`](https://CRAN.R-project.org/package=maq), which also supports multiple treatment arms with variable costs by solving an intermediate linear program that maps predicted effects and costs into budget-constrained policies.
+
+
+### Learning interpretable policies
+In some applications, directly assigning treatment based on complex, black-box CATE predictions may be undesirable. Decision makers often require transparent and interpretable decision rules that assign treatment based on a small number of observable characteristics. These policies are easy to communicate and implement (e.g., via a few conditional statements in a database query), while still leveraging heterogeneity in treatment effects.
+
+Given experimental or observational data, we can learn such interpretable policies by maximizing the policy value
+$$
+V(\pi) = \text{E}[Y_i(\pi(X_i))],
+$$
+where we restrict the policy $\pi$ to belong to a class of pre-specified rules, for example shallow decision trees.
+Because we never observe both potential outcomes, we need suitable reward proxies. It turns out (Athey & Wager, [2021](https://doi.org/10.3982/ECTA15732)) that we can solve the empirical counterpart of this problem efficiently by using doubly robust scores for $\text{E}[Y_i(1)]$ and $\text{E}[Y_i(0)]$ as reward proxies. The `grf` package constructs these scores automatically, and the sister package [`policytree`](https://CRAN.R-project.org/package=policytree) solves the optimization problem for shallow depth-$k$ decision trees. This yields simple treatment rules that can be evaluated on held-out data and compared to natural benchmarks such as treating everyone or no one.
+
+
+<!-- -------------------APPLICATION: BRAZIL --------------------->
+## Example: Treatment heterogeneity and financial proficiency
+As a simple empirical illustration, we use the `causal_forest` function to analyze a randomized controlled trial measuring the effect of financial education.
+Bruhn et al. ([2016](https://doi.org/10.1257/app.20150149)) randomly assigned Brazilian high schools to a financial education program and measured outcomes such as financial proficiency. Randomization at the school level avoids interference between students. We use a processed copy of the data included in `grf`, containing student-level information for around 17,000 students at 850 high schools. The outcome is post-treatment financial literacy, and there are 13 pre-treatment covariates, including survey responses and two indices measuring students' ability to save and their financial autonomy.
+
+Between 4% and 10% of the covariates contain missing values (`NA`). We assume missingness is random and retain them, as `grf` handles missing data via "missingness incorporated in attributes" (MIA) splitting (Mayer et al., [2020](https://doi.org/10.1214/20-AOAS1356); Twala et al., [2008](https://doi.org/10.1016/j.patrec.2008.01.010)).
+
+
 ```{r}
-data <- read.csv("data/bruhn2016.csv")
-Y <- data$outcome
-W <- data$treatment
-school <- data$school
-X <- data[-(1:3)]
-
-# Around 30% have one or more missing covariates, the missingness pattern doesn't seem
-# to vary systematically between the treated and controls, so we'll keep them in the analysis
-# since GRF supports splitting on X's with missing values.
-sum(!complete.cases(X)) / nrow(X)
-t.test(W ~ !complete.cases(X))
+data("schoolrct")
+Y <- schoolrct$outcome
+W <- schoolrct$treatment
+school <- schoolrct$school
+X <- schoolrct[-(1:3)]
 ```
 
-### Estimating and summarizing CATEs
-Throughout we'll fix the propensity score to `W.hat = 0.5` since we know this is an RCT (otherwise we'd fit a propensity model for `W.hat`, and inspect the histogram of estimated probabilities to assess how plausible the overlap assumption is).
+Here, we thought it would be interesting to define the CATE in terms of the following pre-treatment covariates
+
 ```{r}
-cf <- causal_forest(X, Y, W, W.hat = 0.5, clusters = school)
+colnames(X)
 ```
 
-Compute a doubly robust ATE estimate.
+Next, we fit a causal forest using default settings. Since this is an RCT, we pass the trial randomization probabilities via `W.hat = 0.5`. We also pass `clusters = school` to account for clustering at the school level in variance estimates.
+
+> **Remark**: On large datasets, setting `options(grf.verbose = TRUE)` can display progress during training and prediction.
+
 ```{r}
-ate <- average_treatment_effect(cf)
+c.forest <- causal_forest(X, Y, W, W.hat = 0.5, clusters = school)
+```
+
+Computing the ATE:
+
+```{r}
+ate <- average_treatment_effect(c.forest)
 ate
-```
-The benefit appears to be quite strong compared to the overall outcome scale:
-`ate[1] / sd(Y)`= `r ate[1] / sd(Y)`, and is in line with Bruhn et al. (2016).
-
-A very simple way to see which variables appear to make a difference for treatment effects is to inspect `variable_importance`, which measures how often a variable $X_j$ was split on.
-```{r}
-varimp <- variable_importance(cf)
-ranked.vars <- order(varimp, decreasing = TRUE)
-
-# Top 5 variables according to this measure
-colnames(X)[ranked.vars[1:5]]
+ate[1] / sd(Y) # effect in SD units
 ```
 
-An easy to interpret summary measure of the CATEs is the [best linear projection](https://grf-labs.github.io/grf/reference/best_linear_projection.html), which provides a doubly robust estimate of the linear model
+The effect of the program is positive and significant, increasing proficiency by roughly a quarter of a standard deviation.
 
-$$\tau(X_i) = \beta_0 + A_i \beta,$$
-where $A_i$ is a vector of covariates. If we set $A$ to the covariates with the highest variable importance we can estimate a simple linear association measure for the CATEs:
+Next, we summarize $\tau(X_i)$ by estimating a best linear projection on selected covariates:
+$$
+\tau(X_i) \sim a + \beta_1\text{is.female}_i + \beta_2\text{family.receives.cash.transfer}_i + \beta_3\text{is.unemployed}_i + \beta_4 \text{financial.autonomy.index}_i.
+$$
+We get a doubly robust estimate of the coefficients in the model via
 
 ```{r}
-best_linear_projection(cf, X[ranked.vars[1:5]])
+best_linear_projection(c.forest, X[c("is.female",
+                                     "family.receives.cash.transfer",
+                                     "is.unemployed",
+                                     "financial.autonomy.index")])
 ```
 
-Looking at the best linear projection (BLP) it appears students with a high "financial autonomy index" benefits less from treatment, the RCT authors write that this is a "psychology-based financial autonomy index that aggregated a series of questions that measured whether students felt empowered, confident, and capable of making independent financial decisions and influencing the financial decisions of the households". The BLP appears to suggest that students that already are financially comfortable as measured by this index, don't benefit much from the training course.
+We see that students with higher financial autonomy, on average, benefit less from the training program.
 
-### Evaluating CATE estimates with RATE
-Causal inference is fundamentally more challenging than the typical predictive use of machine learning algorithms that have a well-defined scoring metric, such as a prediction error. Treatment effects are fundamentally unobserved, so we need alternative metrics to assess performance. The *R-loss* discussed in Nie & Wager (2021) is one such metric, and could, for example, be used as a cross-validation criterion, however, it does not tell us anything about whether there are HTEs present. Even though the true treatment effects are unobserved, we can use suitable *estimates* of treatment effects on held out data to evaluate models. The *Rank-Weighted Average Treatment Effect* ([RATE](https://grf-labs.github.io/grf/reference/rank_average_treatment_effect.html)) (Yadlowsky et al., 2025) is a metric that assesses how well a CATE estimator does in ranking units according to estimated treatment benefit. It can be thought of as an Area Under the Curve (AUC) measure for heterogeneity, where a larger number is better.
-
-The RATE has an appealing visual component, in that it is the area under the curve that traces out the following difference in expected values while varying the treated fraction $q \in [0, 1]$:
-$$TOC(q) = E[Y_i(1) - Y_i(0) | \hat \tau(X_i) \geq F^{-1}_{\hat \tau(X_i)}(1 - q)] - E[Y_i(1) - Y_i(0)],$$
-($F(\cdot)$ is the distribution function). I.e. at $q = 0.2$ the TOC quantifies the incremental benefit of treating only the 20% with the largest estimated CATEs compared to the overall ATE. We refer to the area under the TOC as the *AUTOC*, there are other RATE metrics such as the *Qini*, which weights the area under the TOC differently.
-
-A recipe for valid inference with RATE is to split the data into a training and evaluation set, one for evaluating the RATE, and another to train a CATE estimator. A drawback of this approach is that we may detect different findings depending on the random sample used to define the evaluation and training sets. Since the RCT was clustered at the school level, we'll draw random units at the school level:
+Next, we estimate out-of-bag CATE predictions along all 13 covariates:
 
 ```{r}
-samples.by.school <- split(seq_along(school), school)
-num.schools <- length(samples.by.school)
-train <- unlist(samples.by.school[sample(1:num.schools, num.schools / 2)])
-
-train.forest <- causal_forest(X[train, ], Y[train], W[train], W.hat = 0.5, clusters = school[train])
-tau.hat.eval <- predict(train.forest, X[-train, ])$predictions
-
-eval.forest <- causal_forest(X[-train, ], Y[-train], W[-train], W.hat = 0.5, clusters = school[-train])
-
-rate.cate <- rank_average_treatment_effect(eval.forest, tau.hat.eval)
-plot(rate.cate, main = "TOC: By decreasing estimated CATE")
-rate.cate
+tau.hat.oob <- predict(c.forest)$predictions
+hist(tau.hat.oob)
 ```
 
-For this data set in particular, whether the RATE is significant or not depends on if the CATE estimator is trained on a subsample with sufficient signal (training models for `Y.hat` using different methods, such as boosting or penalized linear models, may sometimes be useful). There are more ways to utilize the RATE metric besides CATE rankings, we can compute the TOC by for example the ranking of some specific variable. The previous section suggested that students with high financial autonomy benefit less from the program. We can use the RATE to evaluate how prioritizing students based on this index does:
+The histogram shows most students have effects near the overall ATE, with some variation. To assess whether these capture meaningful heterogeneity, we estimate the area under the TOC:
 
 ```{r}
-# We use the trained forest on the full data since we are computing the RATE based on a covariate.
-rate.fin.index <- rank_average_treatment_effect(
-  cf,
-  -1 * X$financial.autonomy.index, # Multiply by -1 to order by decreasing index
-  subset = !is.na(X$financial.autonomy.index) # Ignore missing X-values
-  )
-plot(rate.fin.index, xlab = "Treated fraction", ylab = "Increase in test scores", main = "TOC: By increasing financial autonomy")
-rate.fin.index
+rate.oob <- rank_average_treatment_effect(c.forest, tau.hat.oob)
+t.stat.oob <- rate.oob$estimate / rate.oob$std.err
+pnorm(t.stat.oob, lower.tail = FALSE)  # one-sided p-value Pr(>t)
 ```
-The TOC suggests that students with a lower financial autonomy index benefits more than average from the program, and AUTOC is significant at conventional levels: `rate.fin.index$estimate / rate.fin.index$std.err` = `r rate.fin.index$estimate / rate.fin.index$std.err`. Compared to the standard deviation of the outcome `sd(Y)` = `r sd(Y)` the benefit also appears meaningful.
 
-### Tree-based policy learning
-In this section, we'll walk through finding a tree-based treatment policy using the GRF sister package [policytree](https://github.com/grf-labs/policytree). Since the RATE suggests that some parts of the population appear to benefit less from the education program, such as those students that are already highly "financially autonomous", we'll try to see if we can use a data adaptive algorithm to assign the treatment based on subgroups. One way to do this is to posit that a simple and interpretable covariate based rule should determine program participation, this is what `policytree` does, by finding a shallow decision tree that maximizes the empirical "reward" of adhering to this treatment assignment policy.
+Here we use out-of-bag predictions both to construct $\hat\tau(\cdot)$ and to evaluate the TOC. Since the same data are reused, exact finite-sample guarantees for the resulting $t$-statistic are not available. Instead of performing an explicit train/test split, we adopt a pragmatic heuristic and report a one-sided test in the direction of interest (AUTOC $> 0$).
+In this example, the one-sided test rejects the null of no heterogeneity. This should be interpreted as suggestive evidence rather than a formally validated inference procedure based on sample splitting.
 
-Denote by $\pi(X_i)$ a function (policy) that takes a covariate vector $X_i$ and maps it to a binary decision of whether the subject should be treated or not: $\pi \mapsto \{0, 1\}$ (this can easily be extended to multiple treatments). The task of finding such a policy is referred to as policy learning. Given empirical "reward scores" $\hat \Gamma_i$, `policytree` finds a *tree-based* policy $\pi(X_i)$ that maximizes
-
-$$\frac{1}{n} \sum_{i=1}^{n} (2\pi(X_i) - 1)\hat \Gamma_i.$$
-(note on where "2" comes from: since $\pi \in \{0, 1\}$ then $2\pi - 1 \in \{-1, 1\}$, i.e. the objective function increases by $\hat \Gamma_i$ when we give unit $i$ the treatment and decrease by $-\hat \Gamma_i$ when we do not give unit $i$ the treatment).
-
-Below we'll walk through an example of using the [policy_tree](https://grf-labs.github.io/policytree/reference/policy_tree.html) function from `policytree` to find an optimal depth-2 decision tree policy. This function uses a C++ solver to find a shallow and optimal decision rule[^5]. We are using separate data sets to fit and evaluate the policy:
+However, the TOC remains useful for evaluating alternative prioritization strategies.
+For example, students with low financial autonomy may benefit more. The causal forest variable importance confirms `financial.autonomy.index` is a key predictor:
 
 ```{r}
+var.imp <- variable_importance(c.forest)
+head(colnames(X)[order(var.imp, decreasing = TRUE)])
+```
+
+We can construct a TOC prioritizing students with lower financial autonomy:
+
+```{r}
+rate.autonomy <- rank_average_treatment_effect(
+  c.forest,
+  -1 * X$financial.autonomy.index, # Negate priorities to rank by lowest first.
+  q = seq(0.05, 1, length.out = 100),
+  subset = !is.na(X$financial.autonomy.index))
+plot(rate.autonomy, main = "TOC: By increasing financial autonomy")
+```
+
+This reveals that students in the lower 20% of financial autonomy have an ATE roughly 1.1 points above the overall average, with a confidence interval excluding zero.
+
+Training programs like these typically require resources to implement and scale to many students. The analysis here suggests that targeting students with low financial autonomy may be a desirable strategy. If we estimate the area under this TOC we get a $t$-value above 1.96. We would reject a null at conventional levels, leading us to conclude this prioritization strategy is effective.
+
+```{r}
+rate.autonomy
+rate.autonomy$estimate / rate.autonomy$std.err
+```
+
+Next, we consider learning a simple policy that maps covariates `X` to a treatment decision using the `policytree` package.
+We perform this task on the observations without missing covariate values. First, we retrieve doubly robust scores for the quantities $\text{E}[Y_i(0)]$ and $\text{E}[Y_i(1)]$ using the function `double_robust_scores` from the `policytree` package.
+
+
+```{r, eval=has.policytree}
 library(policytree)
-# Use train/evaluation school split from above, but use non-missing units for policy_tree
-eval <- (1:nrow(X))[-train]
-not.missing <- which(complete.cases(X))
-train <- train[which(train %in% not.missing)]
-eval <- eval[which(eval %in% not.missing)]
 
-# Compute doubly robust scores
-dr.scores <- get_scores(cf)
-# Use as the ATE as a "cost" of program treatment to find something non-trivial
-cost <- ate[["estimate"]]
-dr.rewards <- cbind(control=-dr.scores, treat=dr.scores - cost)
-
-# Fit depth 2 tree on training subset
-tree <- policy_tree(X[train, ], dr.rewards[train, ], min.node.size = 100)
-plot(tree, leaf.labels = c("dont treat", "treat"))
+Gamma.hat <- double_robust_scores(c.forest)
+no.missing <- complete.cases(X)
+X.nm <- X[no.missing, ]
+Gamma.nm <- Gamma.hat[no.missing, ]
 ```
-The fitted rule can evidently discriminate between units that benefit more than average from the program in-sample. To assess the statistical validity of this we should evaluate it on a held out data set, where it won't necessarily give the same mean reward:
+
+A doubly robust estimate of the average financial proficiency score in the two treatment states is
+
+```{r, eval=has.policytree}
+colMeans(Gamma.nm)
+```
+
+In this application, it is hard to imagine that some students do _not_ benefit from the treatment, and  the _treat everyone_ policy likely increases the overall financial proficiency of the population. Treating everyone is costly; hence, it is natural to ask if there is a policy that delivers an overall population benefit on a cost-adjusted basis. Here, we imagine we are paying the ATE when we assign treatment and offset this in our objective:
+
+```{r, eval=has.policytree}
+Gamma.nm[, "treated"] <- Gamma.nm[, "treated"] - ate["estimate"]
+```
+
+Then, we let `policy_tree` perform the maximization
+$$
+\underset{\pi \in \text{depth-1 trees}}{\text{argmax}} \frac{1}{n}\sum_{i=1}^{n} \hat \Gamma[\pi(X_i)],
+$$
+where $\pi(X_i) \in \{1, 2\}$ corresponds to the control and treated column of the `Gamma` matrix.
+
+```{r, eval=has.policytree}
+ptree <- policy_tree(X.nm, Gamma.nm, depth = 1)
+print(ptree)
+```
+
+Here, we arrive at the simple decision rule "assign financial education training program if financial autonomy score is $\leq$ 41", reaffirming our previous analysis that indicated the pre-treatment variable `financial.autonomy.index` could serve as a good candidate for treatment decisions (_Note_: in practice, we would have set aside a held-out test set to estimate the value of this policy).
+
+
+
+<!-- -------------------APPLICATION: POVERTY------------------- -->
+
+## Example: The effect of poverty on attention
+
+In this section, we analyze experimental data originally studied by Carvalho et al. ([2016](https://www.aeaweb.org/articles?id=10.1257/aer.20140481)). The authors conducted a randomized experiment in which low-income individuals completed a cognitive test either before payday or after payday. The outcome is the number of correct answers on a test designed to measure cognitive ability.
+The original study did not find a statistically significant average effect. However, subsequent analyses suggest that poverty may impair cognitive function for certain subgroups (Farbmacher et al., [2021](https://doi.org/10.1016/j.labeco.2021.102028)).
+A processed version of the data is available in `grf`. It contains around 2,500 individuals and 24 pre-treatment characteristics (age, income, education, etc.). Education is coded ordinally (4: college graduate; 3: some college; 2: high school graduate; 1: less than high school), and may therefore be used directly in the random forest splitting.
+
+We code treatment status so that $W_i=1$ if the individual was observed after payday. With this coding, positive treatment effects correspond to improved cognitive performance (i.e., reduced impairment). This choice simplifies interpretation: for example, the TOC curve is then positive when prioritization successfully targets individuals who benefit most.
+Using potential outcomes notation, let $Y_i(1)$ denote the number of correct answers under "no poverty" (after payday) and $Y_i(0)$ the number under financial distress (before payday). The average treatment is
+$$
+\text{E}[Y_i(1) - Y_i(0)],
+$$
+which measures the average improvement in cognitive performance when individuals are not financially constrained. The CATE then captures heterogeneity in this improvement.
+
 
 ```{r}
-pi.hat <- predict(tree, X[eval,]) - 1
-mean((dr.scores[eval] - cost) * (2*pi.hat - 1))
+data("attentionrct")
+Y <- attentionrct$outcome.correct.ans.per.second
+W <- 1 - attentionrct$treatment
+X <- attentionrct[-(1:4)]
 ```
-We can decompose the ATE into the subgroups implied by the tree, and look at some summary statistics on the held out sample, such as the ATE minus cost:
+
+Given the moderate sample size relative to the number of predictors, fitting a CATE estimator on all covariates with train/test evaluation may be underpowered.
+To reduce dimensionality, we first estimate the conditional mean $\text{E}[Y_i \mid X_i]$ and use forest variable importance to select a subset of covariates for the CATE. In the example below, keeping the top 10 variables by importance is a simple heuristic.
 
 ```{r}
-leaf.node <- predict(tree, X[eval, ], type = "node.id")
-action.by.leaf <- unlist(lapply(split(pi.hat, leaf.node), unique))
+train <- sample(nrow(X), nrow(X) * 0.6)
+test <- -train
 
-# Define a function to compute summary statistics
-leaf_stats <- function(leaf) {
-  c(ATE.minus.cost = mean(leaf), std.err = sd(leaf) / sqrt(length(leaf)), size = length(leaf))
-}
+Y.forest <- regression_forest(X[train, ], Y[train], num.trees = 500)
+varimp.Y <- variable_importance(Y.forest)
+keep <- colnames(X)[order(varimp.Y, decreasing = TRUE)[1:10]]
+X.cate <- X[, keep]
+print(keep)
+```
 
-cbind(
-  rule = ifelse(action.by.leaf == 0, "dont treat", "treat"),
-  aggregate(dr.scores[eval] - cost, by = list(leaf.node = leaf.node),
-            FUN = leaf_stats)
+Next, we fit a CATE forest on the training sample and evaluate heterogeneity on the held-out test sample. Because the data come from a randomized experiment, we supply the known randomization probability through the `W.hat` argument.
+
+```{r}
+# Estimate CATE function.
+Y.hat.train <- predict(Y.forest)$predictions
+cate.forest <- causal_forest(
+  X.cate[train, ],
+  Y[train],
+  W[train],
+  Y.hat = Y.hat.train,
+  W.hat = 0.5
+)
+tau.hat.eval <- predict(cate.forest, X.cate[test, ])$predictions
+
+# Fit evaluation forest.
+eval.forest <- causal_forest(
+  X[test, ],
+  Y[test],
+  W[test],
+  W.hat = 0.5
 )
 ```
 
-A depth-2 tree might be a big ask, if we instead ask for just a single split (treat/don't treat based on a single covariate cutoff), we get:
-```{r}
-tree.depth1 <- policy_tree(X[train, ], dr.rewards[train, ], depth = 1, min.node.size = 100)
-pi.hat.eval <- predict(tree.depth1, X[eval, ]) - 1
-
-treat.eval <- eval[pi.hat.eval == 1]
-dont.treat.eval <- eval[pi.hat.eval == 0]
-
-average_treatment_effect(cf, subset = treat.eval)
-average_treatment_effect(cf, subset = dont.treat.eval)
-```
+Next, we assess whether the estimated CATEs captures heterogeneity in cognitive impairment by estimating the TOC and area under the TOC.
 
 ```{r}
-plot(tree.depth1, leaf.labels = c("dont treat", "treat"))
+rate.cate <- rank_average_treatment_effect(
+  eval.forest,
+  tau.hat.eval,
+  q = seq(0.05, 1, length.out = 100)
+)
+print(rate.cate)
+rate.cate$estimate / rate.cate$std.err # t-statistic
+
+plot(rate.cate, main = "TOC: By decreasing CATEs")
 ```
 
-## Application: measuring the effect of poverty on attention
-In this section, we walk through an example following Farbmacher et al. (2021) who studies a causal forest application using data from Carvalho et al. (2016). Carvalho et al. (2016) conducted an experiment where they randomly assigned low-income individuals to perform a cognitive test before ($W=1$) or after ($W=0$) payday. The outcome is the performance on a test designed to measure cognitive ability. The original study did not find an effect on average, however, Farbmacher et al. (2021) conducts an HTE analysis and finds evidence suggesting there are parts of the population where poverty impairs cognitive function. A processed copy of this data is stored on the [github repo](https://github.com/grf-labs/grf/tree/master/r-package/grf/vignettes/data) and contains observations from around 2 500 individuals along with 27 characteristics such as age, income, etc. Education is stored as an ordinal value where a high value means high education and low less education (4: college graduate, 3: some college, 2: high school graduate, 1: less than high school).
 
-### Data overview
-```{r}
-data <- read.csv("data/carvalho2016.csv")
-# As outcomes we'll look at the number of correct answers.
-Y <- data$outcome.num.correct.ans
-W <- data$treatment
-X <- data[-(1:4)]
+
+```{r, echo=FALSE, fig.align='center', out.height='0.667in', results='asis'}
+if (knitr::is_html_output()) {
+  cat('<center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>')
+} else {
+  knitr::include_graphics("grf_leaf_green.png")
+}
 ```
 
-The study was reported to be conducted as an RCT, just to be sure we estimate the propensity score to verify we might not unintentionally miss a lack of overlap:
-```{r}
-rf <- regression_forest(X, W, num.trees = 500)
-p.hat <- predict(rf)$predictions
-
-hist(p.hat)
-```
-
-The data contains 2 480 observations of 24 covariates. Fitting at CATE estimator on such a large amount of covariates relative to the sample size is likely to be underpowered in HTE detection, so below we first predict the conditional mean $E[Y_i | X_i]$, then use a simple forest variable importance to choose which covariates to keep in the CATE estimation step.
-```{r}
-Y.forest <- regression_forest(X, Y)
-Y.hat <- predict(Y.forest)$predictions
-
-varimp.Y <- variable_importance(Y.forest)
-
-# Keep the top 10 variables for CATE estimation
-keep <- colnames(X)[order(varimp.Y, decreasing = TRUE)[1:10]]
-keep
-```
-
-### Analyzing heterogeneity with the TOC
-```{r}
-X.cf <- X[, keep]
-W.hat <- 0.5
-
-# Set aside the first half of the data for training and the second for evaluation.
-# (Note that the results may change depending on which samples we hold out for training/evaluation)
-train <- 1:(nrow(X.cf) / 2)
-
-train.forest <- causal_forest(X.cf[train, ], Y[train], W[train], Y.hat = Y.hat[train], W.hat = W.hat)
-tau.hat.eval <- predict(train.forest, X.cf[-train, ])$predictions
-
-eval.forest <- causal_forest(X.cf[-train, ], Y[-train], W[-train], Y.hat = Y.hat[-train], W.hat = W.hat)
-```
-
-In line with the study mentioned above, there does not appear to be an effect on average:
-```{r}
-average_treatment_effect(eval.forest)
-```
-
-```{r}
-varimp <- variable_importance(eval.forest)
-ranked.vars <- order(varimp, decreasing = TRUE)
-colnames(X.cf)[ranked.vars[1:5]]
-```
-
-The outcome is the number of correct answers on a test measuring cognitive ability, so a negative CATE means an impairment in cognition due to poverty, so in computing the RATE (AUTOC) we rank by the most negative CATEs. We also consider age (old to young), as it shows up high in the split frequency.
-```{r}
-rate.cate <- rank_average_treatment_effect(eval.forest, list(cate = -1 *tau.hat.eval))
-rate.age <- rank_average_treatment_effect(eval.forest, list(age = X[-train, "age"]))
-
-par(mfrow = c(1, 2))
-plot(rate.cate, ylab = "Number of correct answers", main = "TOC: By most negative CATEs")
-plot(rate.age, ylab = "Number of correct answers", main = "TOC: By decreasing age")
-
-rate.cate
-rate.age
-```
-
-The TOC is informative here since it appears to be indicating a lower quantile $q$ where there may be a decline in cognition. Farbmacher et al. (2021) argue that there appears to be a small subset of the population experiencing adverse effects from poverty, and this is a setting where the AUTOC can be more powerful than the so-called Qini coefficient in detecting heterogeneity. Computing the same evaluations using the Qini weighting yields lower estimates.
-
-```{r}
-qini.cate <- rank_average_treatment_effect(eval.forest, list(cate = -1 *tau.hat.eval), target = "QINI")
-qini.age <- rank_average_treatment_effect(eval.forest, list(age = X[-train, "age"]), target = "QINI")
-
-qini.cate
-qini.age
-```
-
-## Further resources
-
-*Some educational resources*
-
-* [Machine Learning & Causal Inference: A Short Course](https://www.youtube.com/playlist?list=PLxq_lXOUlvQAoWZEqhRqHNezS30lI49G-) (video lectures)
-
-* [Estimating Heterogeneous Treatment Effects in R](https://www.youtube.com/watch?v=YBbnCDRCcAI) (video tutorial)
-
-* [Causal Inference: A Statistical Learning Approach](https://web.stanford.edu/~swager/causal_inf_book.pdf) (textbook)
-
-* [Estimating Treatment Effects with Causal Forests: An Application](https://doi.org/10.1353/obs.2019.0001) (tutorial paper)
-
-* [Estimating Treatment Effect Heterogeneity in Psychiatry: A Review and Tutorial with Causal Forests](https://doi.org/10.1002/mpr.70015) (tutorial paper)
-
-<center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>
 
 ## References
+
 Athey, Susan, Julie Tibshirani, and Stefan Wager. "Generalized random forests." The Annals of Statistics 47, no. 2 (2019): 1148-1178.
+
+Athey, Susan, and Stefan Wager. "Estimating treatment effects with causal forests: An application." Observational studies 5, no. 2 (2019): 37-51.
+
+Athey, Susan, and Stefan Wager. "Policy learning with observational data." Econometrica 89, no. 1 (2021): 133-161.
 
 Breiman, Leo. "Random forests." Machine learning 45, no. 1 (2001): 5-32.
 
@@ -428,34 +502,38 @@ Carvalho, Leandro S., Stephan Meier, and Stephanie W. Wang. "Poverty and economi
 
 Chernozhukov, Victor, Denis Chetverikov, Mert Demirer, Esther Duflo, Christian Hansen, Whitney Newey, and James Robins. "Double/debiased machine learning for treatment and structural parameters." The Econometrics Journal, 2018.
 
-Efron, Bradley. "Prediction, estimation, and attribution." International Statistical Review 88 (2020): S28-S59. ([link](https://efron.ckirby.su.domains/papers/2019PredictEstimatAttribut.pdf))
+Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu. "Estimating heterogeneous treatment effects with right-censored data via causal survival forests." Journal of the Royal Statistical Society Series B: Statistical Methodology 85, no. 2 (2023): 179-211.
+
+Dandl, Susanne, Christian Haslinger, Torsten Hothorn, Heidi Seibold, Erik Sverdrup, Stefan Wager, and Achim Zeileis. "What makes forest-based heterogeneous treatment effect estimators work?." The Annals of Applied Statistics 18, no. 1 (2024): 506-528.
+
+Efron, Bradley. "Prediction, estimation, and attribution." International Statistical Review 88 (2020): S28-S59.
 
 Farbmacher, Helmut, Heinrich Kögel, and Martin Spindler. "Heterogeneous effects of poverty on attention." Labour Economics 71 (2021): 102028.
 
-Imbens, Guido W., and Donald B. Rubin. Causal inference in statistics, social, and biomedical sciences. Cambridge University Press, 2015.
+Friedberg, Rina, Julie Tibshirani, Susan Athey, and Stefan Wager. "Local linear forests." Journal of Computational and Graphical Statistics 30, no. 2 (2020): 503-517.
+
+James, Gareth, Daniela Witten, Trevor Hastie, and Robert Tibshirani. An introduction to statistical learning: with applications in R. Vol. 103. New York: springer, 2013.
+
+Mayer, Imke, Erik Sverdrup, Tobias Gauss, Jean-Denis Moyer, Stefan Wager, and Julie Josse. "Doubly robust treatment effect estimation with missing attributes." The Annals of Applied Statistics 14, no. 3 (2020): 1409-1431.
 
 Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. "Estimation of regression coefficients when some regressors are not always observed." Journal of the American Statistical Association 89, no. 427 (1994): 846-866.
-
-Stone, Charles J. "Optimal rates of convergence for nonparametric estimators." The Annals of Statistics (1980): 1348-1360.
 
 Nie, Xinkun, and Stefan Wager. "Quasi-oracle estimation of heterogeneous treatment effects." Biometrika 108, no. 2 (2021): 299-319.
 
 Robinson, Peter M. "Root-N-consistent semiparametric regression." Econometrica: Journal of the Econometric Society (1988): 931-954.
 
+Rosenbaum, Paul R., and Donald B. Rubin. "The central role of the propensity score in observational studies for causal effects." Biometrika 70, no. 1 (1983): 41-55.
+
+Sverdrup, Erik, Maria Petukhova, and Stefan Wager. "Estimating treatment effect heterogeneity in psychiatry: A review and tutorial with causal forests." International Journal of Methods in Psychiatric Research 34, no. 2 (2025): e70015.
+
+Twala, Bheki ETH, M. C. Jones, and David J. Hand. "Good methods for coping with missing data in decision trees." Pattern Recognition Letters 29, no. 7 (2008): 950-956.
+
 Zheng, Wenjing, and Mark J. van der Laan. "Cross-validated targeted minimum-loss-based estimation." In Targeted Learning, pp. 459-474. Springer, New York, NY, 2011.
+
+Wager, Stefan. Causal Inference: A Statistical Learning Approach. Cambridge University Press (in preparation), 2024.
 
 Wager, Stefan, and Susan Athey. "Estimation and inference of heterogeneous treatment effects using random forests." Journal of the American Statistical Association 113.523 (2018): 1228-1242.
 
 Yadlowsky, Steve, Scott Fleming, Nigam Shah, Emma Brunskill, and Stefan Wager. "Evaluating Treatment Prioritization Rules via Rank-Weighted Average Treatment Effects." Journal of the American Statistical Association, 120(549), 2025.
 
 Zeileis, Achim, Torsten Hothorn, and Kurt Hornik. "Model-based recursive partitioning." Journal of Computational and Graphical Statistics 17, no. 2 (2008): 492-514.
-
-[^1]: `grf` does not actually re-estimate a linear regression for each possible split point, that would be computationally infeasible. Instead, `grf` estimates $\hat \tau$ *once* in the parent node, then use an approximation based on so-called "influence functions" to approximate how $\hat \tau$ would change if we moved a sample $i$ from the left to the right child. Algorithmically, the way this is operationalized is via a "pseudo-outcome" transformation detailed in the GRF paper.
-
-[^2]: For a broader discussion of how Robinson's transformation can be used to motivate a generic loss function for heterogeneous treatment effects estimation (the *R-learner*), as well as details on the role of $e(x)$ and $m(x)$, see Nie & Wager (2021).
-
-[^3]: Note that $\theta$ does not have to be a scalar, the same construction could be used to target heterogeneity in a vector-valued target parameter by defining the criterion as the squared L2 norm: $n_L n_R || \hat \tau_L - \hat \tau_R||^2$. This is the approach `grf`'s multi-arm causal forest takes.
-
-[^4]: Technically, the individual predictions $\hat \tau(x)$ have errors that are too big, and these errors don't cancel out in the summary.
-
-[^5]: The [documentation](https://grf-labs.github.io/policytree/reference/policy_tree.html) explains how this approach can be expected to scale to larger data sets (for example, reducing the $X_j$ cardinality leads to fewer split points to search over, and helps reduce the computational requirements of this approach).
