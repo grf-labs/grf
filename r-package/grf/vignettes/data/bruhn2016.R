@@ -1,6 +1,6 @@
 # This file reads in replication data from
 # Bruhn, M., Leão, L. D. S., Legovini, A., Marchetti, R., & Zia, B. (2016). The impact of high school financial education: Evidence from a large-scale evaluation in Brazil. American Economic Journal: Applied Economics, 8(4), 256-95.
-# and stores processed covariate/treatment/outcome info in bruhn2016.csv
+# and saves processed covariate/treatment/outcome info for use in the grf package.
 
 # Data license copy/paste:
 
