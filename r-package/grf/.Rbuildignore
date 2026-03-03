@@ -1,5 +1,4 @@
 ^src/.*\.o$
-^build/
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^bindings$
