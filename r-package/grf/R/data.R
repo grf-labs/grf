@@ -31,7 +31,7 @@
 #' This dataset provides student-level information from a randomized controlled trial
 #' evaluating the effect of a high school financial education program in Brazil.
 #' Schools were randomly assigned to the program, and post-treatment financial literacy
-#' was measured. Randomization is at the school level.
+#' was measured.
 #' The data includes information on student outcomes and a variety of pre-treatment
 #' characteristics such as survey responses and indices measuring students' ability
 #' to save and their financial autonomy.
