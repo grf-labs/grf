@@ -5,7 +5,7 @@
 \alias{attentionrct}
 \title{Payday cognitive attention experiment}
 \format{
-A data frame containing individual outcomes and pre-treatment
+A data frame containing outcomes and pre-treatment
 characteristics for each participant.
 }
 \source{

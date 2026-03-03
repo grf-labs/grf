@@ -10,7 +10,7 @@
 #' Original data licensed under Creative Commons Attribution 4.0 (CC BY 4.0).
 #' This version has been lightly processed for demonstration purposes.
 #'
-#' @format A data frame containing individual outcomes and pre-treatment
+#' @format A data frame containing outcomes and pre-treatment
 #' characteristics for each participant.
 #'
 #' @source American Economic Association replication archive.
