@@ -37,7 +37,7 @@ roxygen2::roxygenise(package.name)
 # access to the library through RcppEigen.
 compileAttributes(package.name)
 clean_dll(package.name)
-build(package.name)
+build(package.name, args = "--compact-vignettes=both") # reduce the size of the bundled pdf vignette
 
 # Test installation and run some smoke tests.
 install(package.name)

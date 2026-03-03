@@ -36,7 +36,7 @@ has.policytree = requireNamespace("policytree", quietly = TRUE)
 ```
 
 
-```{r, echo=FALSE, fig.align='center', out.height='1.375in', results='asis'}
+```{r, echo=FALSE, fig.align='center', out.height='1.375in', results='asis', out.extra='keepaspectratio'}
 if (knitr::is_html_output()) {
   cat('<center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_logo_green.png" height="132"></center>')
 } else {
@@ -286,8 +286,10 @@ Next, we fit a causal forest using default settings. Since this is an RCT, we pa
 
 > **Remark**: On large datasets, setting `options(grf.verbose = TRUE)` can display progress during training and prediction.
 
+> **Remark**: We use `num.threads = 2` here to limit CPU usage. The default (`NULL`) uses all available cores.
+
 ```{r}
-c.forest <- causal_forest(X, Y, W, W.hat = 0.5, clusters = school)
+c.forest <- causal_forest(X, Y, W, W.hat = 0.5, clusters = school, num.threads = 2)
 ```
 
 Computing the ATE:
@@ -431,7 +433,7 @@ To reduce dimensionality, we first estimate the conditional mean $\text{E}[Y_i \
 train <- sample(nrow(X), nrow(X) * 0.6)
 test <- -train
 
-Y.forest <- regression_forest(X[train, ], Y[train], num.trees = 500)
+Y.forest <- regression_forest(X[train, ], Y[train], num.trees = 500, num.threads = 2)
 varimp.Y <- variable_importance(Y.forest)
 keep <- colnames(X)[order(varimp.Y, decreasing = TRUE)[1:10]]
 X.cate <- X[, keep]
@@ -448,7 +450,8 @@ cate.forest <- causal_forest(
   Y[train],
   W[train],
   Y.hat = Y.hat.train,
-  W.hat = 0.5
+  W.hat = 0.5,
+  num.threads = 2
 )
 tau.hat.eval <- predict(cate.forest, X.cate[test, ])$predictions
 
@@ -457,7 +460,8 @@ eval.forest <- causal_forest(
   X[test, ],
   Y[test],
   W[test],
-  W.hat = 0.5
+  W.hat = 0.5,
+  num.threads = 2
 )
 ```
 
@@ -477,7 +481,7 @@ plot(rate.cate, main = "TOC: By decreasing CATEs")
 
 
 
-```{r, echo=FALSE, fig.align='center', out.height='0.667in', results='asis'}
+```{r, echo=FALSE, fig.align='center', out.height='0.667in', results='asis', out.extra='keepaspectratio'}
 if (knitr::is_html_output()) {
   cat('<center><img src="https://raw.githubusercontent.com/grf-labs/grf/master/images/logo/grf_leaf_green.png" height="64"></center>')
 } else {
