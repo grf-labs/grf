@@ -1,7 +1,7 @@
 # This file reads in replication data from
 # Carvalho, L. S., Meier, S., & Wang, S. W. (2016). Poverty and economic decision-making: Evidence from changes in financial resources at payday. American economic review, 106(2), 260-84.
 # Farbmacher, H., Kögel, H., & Spindler, M. (2021). Heterogeneous effects of poverty on attention. Labour Economics, 71, 102028.
-# and stores processed covariate/treatment/outcome info in carvalho2016.csv
+# and saves processed covariate/treatment/outcome info for use in the grf package.
 
 # Data license copy/paste:
 

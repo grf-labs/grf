@@ -43,3 +43,4 @@ SystemRequirements: C++17, GNU make
 URL: https://github.com/grf-labs/grf
 Encoding: UTF-8
 VignetteBuilder: knitr
+LazyData: true
