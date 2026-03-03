@@ -85,7 +85,7 @@ std::vector<Prediction> DefaultPredictionCollector::collect_predictions(
       // Adhere to good C++ hygiene and clean up the futures before rethrowing
       for (auto& future : futures) {
         if (future.valid()) {
-          try { future.get(); } catch (...) {}
+          try { (void) future.get(); } catch (...) {}
         }
       }
       throw;

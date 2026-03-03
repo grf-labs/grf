@@ -103,7 +103,7 @@ std::vector<std::unique_ptr<Tree>> ForestTrainer::train_trees(const Data& data,
       // Adhere to good C++ hygiene and clean up the futures before rethrowing
       for (auto& future : futures) {
         if (future.valid()) {
-          try { future.get(); } catch (...) {}
+          try { (void) future.get(); } catch (...) {}
         }
       }
       throw;
