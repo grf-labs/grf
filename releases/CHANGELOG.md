@@ -4,6 +4,17 @@ All notable changes to `grf` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-03-03
+
+### Added
+- Add a _tqdm_ progress bar to display progress during training and prediction. This can be enabled via `options(grf.verbose = TRUE)`. Interrupt handling is also added, allowing users to cancel long-running training jobs without restarting R. [#1527](https://github.com/grf-labs/grf/pull/1527), [#1532](https://github.com/grf-labs/grf/pull/1532)
+- Improve the speed of `DefaultPredictionCollector`, which is used for forest prediction in models such as `survival_forest` and `quantile_forest`. [#1531](https://github.com/grf-labs/grf/pull/1531)
+- Add two RCT example datasets used in the vignettes. These can be loaded via `data("schoolrct")` and `data("attentionrct")`. [#1545](https://github.com/grf-labs/grf/pull/1545)
+- Add an updated introductory vignette and bundle the [PDF version](https://cran.r-project.org/web/packages/grf/vignettes/grf_guide.pdf) with the CRAN package. [#1544](https://github.com/grf-labs/grf/pull/1544)
+
+### Changed
+- Require C++17 or higher for compilation (added to SystemRequirements). On older systems where packages are installed from source, mixing packages compiled under different C++ standards may lead to runtime issues. In such cases, users may need to enable C++17 (or higher) in _~/.R/Makevars_ and recompile all relevant dependencies (e.g., `Rcpp`) before installing `grf`. [#1543](https://github.com/grf-labs/grf/pull/1543)
+
 ## [2.5.0] - 2025-10-09
 
 ### Added
