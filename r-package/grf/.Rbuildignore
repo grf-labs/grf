@@ -1,3 +1,4 @@
+^src/.*\.o$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^bindings$
