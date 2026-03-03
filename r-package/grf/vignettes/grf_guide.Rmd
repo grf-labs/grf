@@ -269,15 +269,11 @@ Between 4% and 10% of the covariates contain missing values (`NA`). We assume mi
 
 
 ```{r}
-# TODO: use "data(education)"!
-data <- read.csv(paste0(
-  "https://raw.githubusercontent.com/grf-labs/grf/",
-  "refs/heads/master/r-package/grf/vignettes/data/bruhn2016.csv")
-)
-Y <- data$outcome
-W <- data$treatment
-school <- data$school
-X <- data[-(1:3)]
+data("schoolrct")
+Y <- schoolrct$outcome
+W <- schoolrct$treatment
+school <- schoolrct$school
+X <- schoolrct[-(1:3)]
 ```
 
 Here, we thought it would be interesting to define the CATE in terms of the following pre-treatment covariates
@@ -422,11 +418,10 @@ which measures the average improvement in cognitive performance when individuals
 
 
 ```{r}
-# TODO: data("attention")
-data <- read.csv("https://raw.githubusercontent.com/grf-labs/grf/refs/heads/master/r-package/grf/vignettes/data/carvalho2016.csv")
-Y <- data$outcome.correct.ans.per.second
-W <- 1 - data$treatment
-X <- data[-(1:4)]
+data("attentionrct")
+Y <- attentionrct$outcome.correct.ans.per.second
+W <- 1 - attentionrct$treatment
+X <- attentionrct[-(1:4)]
 ```
 
 Given the moderate sample size relative to the number of predictors, fitting a CATE estimator on all covariates with train/test evaluation may be underpowered.
