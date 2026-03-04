@@ -82,6 +82,10 @@ For a big release, can also run `R CMD check --as-cran --run-donttest --use-valg
 
 ## Previous performance test results
 
+**2.6.1**
+
+This is only a patch release that silences an innocuous compiler warning flagged by CRAN.
+
 **2.6.0**
 
 (Machine: Sherlock 12 cores/50G/R version 4.2.0)
