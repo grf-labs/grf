@@ -333,7 +333,7 @@ pnorm(t.stat.oob, lower.tail = FALSE)  # one-sided p-value Pr(>t)
 ```
 
 Here we use out-of-bag predictions both to construct $\hat\tau(\cdot)$ and to evaluate the TOC. Since the same data are reused, exact finite-sample guarantees for the resulting $t$-statistic are not available. Instead of performing an explicit train/test split, we adopt a pragmatic heuristic and report a one-sided test in the direction of interest (AUTOC $> 0$).
-In this example, the one-sided test rejects the null of no heterogeneity. This should be interpreted as suggestive evidence rather than a formally validated inference procedure based on sample splitting.
+In this example, the one-sided test does not reject the null of no heterogeneity.
 
 However, the TOC remains useful for evaluating alternative prioritization strategies.
 For example, students with low financial autonomy may benefit more. The causal forest variable importance confirms `financial.autonomy.index` is a key predictor:
