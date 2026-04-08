@@ -68,6 +68,14 @@ get_cerror = function(forest) {
                     rowSums(-log(forest$predictions)), reverse = TRUE)$concordance
 }
 
+get_IBS = function(forest) {
+  pred = predict(forest)
+  survex::integrated_brier_score(
+    survival::Surv(forest$Y.orig, forest$D.orig),
+    surv = pred$predictions,
+    times = pred$failure.times)
+}
+
 datasets = c("lung", "veteran", "pbc", "heart", "rotterdam")
 nsim = 250
 
@@ -84,7 +92,8 @@ for (name in datasets) {
     sf.approx = survival_forest(X, Y, D, fast.logrank = TRUE, seed = seed, prediction.type = "Nelson-Aalen", num.trees = 500)
 
     df = data.frame(
-      error = get_cerror(sf.exact) - get_cerror(sf.approx),
+      metric = c("concordance", "IBS"),
+      error = c(get_cerror(sf.exact) - get_cerror(sf.approx), get_IBS(sf.exact) - get_IBS(sf.approx)),
       sim = sim,
       name = name)
     out = c(out, list(df))
@@ -95,7 +104,7 @@ out.df = do.call(rbind, out)
 aggregate(
   list(value = out.df$error),
   by = list(
-    name = out.df$name
+    metric = out.df$metric, name = out.df$name
   ),
   FUN = mean
 )
@@ -103,7 +112,7 @@ aggregate(
 # Result
 library(ggplot2)
 
-ggplot(out.df, aes(y = error)) +
+ggplot(out.df[out.df$metric == "concordance", ], aes(y = error)) +
   geom_boxplot() +
   facet_wrap(~ name, nrow = 1) +
   geom_hline(yintercept = 0, lty = 2, col = "red") +
@@ -111,9 +120,22 @@ ggplot(out.df, aes(y = error)) +
   ggtitle("Difference in concordance") +
   theme_classic() +
   theme(
-    axis.text.x  = element_blank(),
+    axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
   )
-
 ggsave("concordance.pdf", width = 5, height = 3, scale = 1)
-write.csv(out.df, "concordance.csv", row.names = FALSE)
+
+ggplot(out.df[out.df$metric == "IBS", ], aes(y = error)) +
+  geom_boxplot() +
+  facet_wrap(~ name, nrow = 1) +
+  geom_hline(yintercept = 0, lty = 2, col = "red") +
+  ylab(NULL) +
+  ggtitle("Difference in integrated Brier Score") +
+  theme_classic() +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+  )
+ggsave("IBS.pdf", width = 5, height = 3, scale = 1)
+
+write.csv(out.df, "benchmark.csv", row.names = FALSE)
