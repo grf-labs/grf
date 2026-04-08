@@ -139,3 +139,57 @@ ggplot(out.df[out.df$metric == "IBS", ], aes(y = error)) +
 ggsave("IBS.pdf", width = 5, height = 3, scale = 1)
 
 write.csv(out.df, "benchmark.csv", row.names = FALSE)
+
+
+# Basic timings repeated
+library(microbenchmark)
+library(xtable)
+
+fbench = function(data, fast.logrank) {
+  survival_forest(data$X, data$Y, data$D, fast.logrank = fast.logrank,
+                  compute.oob.predictions = FALSE,
+                  num.trees = 1, sample.fraction = 1, mtry = ncol(data$X))
+}
+
+times = 100
+out = list()
+for (name in datasets) {
+  data = get_data(name)
+
+  bench.exact = microbenchmark(fbench(data, FALSE), times = times, unit = "milliseconds")
+  time.exact = summary(bench.exact)$mean
+  bench.approx = microbenchmark(fbench(data, TRUE), times = times, unit = "milliseconds")
+  time.approx = summary(bench.approx)$mean
+
+  diff = time.exact - time.approx
+  ratio = time.exact / time.approx
+  df = data.frame(
+    metric = c("exact(ms)", "approx(ms)", "difference(ms)", "speedup.factor"),
+    value = c(time.exact, time.approx, diff, ratio),
+    name = name)
+  out = c(out, list(df))
+}
+out.df = do.call(rbind, out)
+
+tab.df = reshape(
+  out.df,
+  idvar = c("name"),
+  timevar = "metric",
+  direction = "wide"
+)
+
+print(xtable(tab.df[-4]), include.rownames = FALSE)
+# \begin{table}[ht]
+# \centering
+# \begin{tabular}{lrrr}
+# \hline
+# name & value.exact(ms) & value.approx(ms) & value.speedup.factor \\
+# \hline
+# lung & 1.40 & 1.40 & 1.00 \\
+# veteran & 1.40 & 1.38 & 1.01 \\
+# pbc & 1.40 & 1.40 & 1.00 \\
+# heart & 1.40 & 1.40 & 1.00 \\
+# rotterdam & 8.57 & 3.98 & 2.15 \\
+# \hline
+# \end{tabular}
+# \end{table}
