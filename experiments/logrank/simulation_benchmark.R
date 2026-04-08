@@ -130,7 +130,7 @@ ggplot(out.df[out.df$metric == "IBS", ], aes(y = error)) +
   facet_wrap(~ name, nrow = 1) +
   geom_hline(yintercept = 0, lty = 2, col = "red") +
   ylab(NULL) +
-  ggtitle("Difference in integrated Brier Score") +
+  ggtitle("Difference in integrated Brier score") +
   theme_classic() +
   theme(
     axis.text.x = element_blank(),
