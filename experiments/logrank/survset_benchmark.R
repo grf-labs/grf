@@ -17,6 +17,7 @@ datasets = df_ds |>
   subset(n >= 1000) |>
   subset(is_td == "False")
 datasets = datasets$ds
+length(datasets) # 23
 
 get_data = function(name) {
   options(na.action = "na.pass")
