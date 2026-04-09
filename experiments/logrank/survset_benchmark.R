@@ -74,7 +74,7 @@ out.df = do.call(rbind, out)
 out.df
 write.csv(out.df, "survset_benchmark.csv", row.names = FALSE)
 
-print(xtable(df, digits = 5),
+print(xtable(out.df, digits = 5),
       sanitize.text.function = identity,
       include.rownames = FALSE,
       format.args = list(big.mark = " ", decimal.mark = "."))
@@ -104,7 +104,7 @@ out.df = do.call(rbind, out)
 out.df
 write.csv(out.df, "survset_benchmark_alpha0.csv", row.names = FALSE)
 
-print(xtable(df, digits = 5),
+print(xtable(out.df, digits = 5),
       sanitize.text.function = identity,
       include.rownames = FALSE,
       format.args = list(big.mark = " ", decimal.mark = "."))
