@@ -1,7 +1,7 @@
-# Update these accordingly:
-Sys.setenv(RETICULATE_PYTHON = "/Users/erikcs/mamba/bin/python")
+# Update these paths accordingly:
+Sys.setenv(RETICULATE_PYTHON = "~/mamba/bin/python")
 old_path <- Sys.getenv("PATH")
-Sys.setenv(PATH = paste0("/Users/erikcs/mamba/bin:", old_path))
+Sys.setenv(PATH = paste0("~/mamba/bin:", old_path))
 
 library(grf)
 library(reticulate)
