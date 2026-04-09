@@ -216,4 +216,8 @@ Sverdrup, Erik, and Stefan Wager.
  "Treatment Heterogeneity with Right-Censored Outcomes Using grf".
  ASA Lifetime Data Science Newsletter, January 2024
  (\href{https://arxiv.org/abs/2312.02482}{arXiv:2312.02482}).
+
+Sverdrup, Erik, James Yang, and Michael LeBlanc.
+ "Efficient Log-Rank Updates for Random Survival Forests."
+ arXiv preprint arXiv:2510.03665, 2025.
 }
