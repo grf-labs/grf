@@ -30,15 +30,7 @@ get_data = function(n, p, M = c("20", "130", "260", "500")) {
   list(X = X, Y = Y, D = D)
 }
 
-# n = 100000
-# p = 50
-# M = 500
-# data = get_data(n, p, as.character(M))
-# X = data$X; Y=data$Y; D=data$D
-# mean(D)
-# length(unique(Y[D==1]))
-# length(unique(X[,1]))
-
+# Table 1 runtimes
 fbench = function(data, fast.logrank) {
   survival_forest(data$X, data$Y, data$D, fast.logrank = fast.logrank,
                   compute.oob.predictions = FALSE,
@@ -90,7 +82,7 @@ tab.df$p = as.character(tab.df$p)
 tab.df$M = as.character(tab.df$M)
 print(xtable(tab.df[-6]), include.rownames = FALSE)
 
-
+# Intro text simple runtime example
 data = get_data(100000, 50, "260")
 print(m1 <- microbenchmark(survival_forest(data$X, data$Y, data$D, fast.logrank = FALSE, num.trees = 500, compute.oob.predictions = FALSE), times = 2, unit = "seconds"))
 print(m2 <- microbenchmark(survival_forest(data$X, data$Y, data$D, fast.logrank = TRUE, num.trees = 500, compute.oob.predictions = FALSE), times = 2, unit = "seconds"))
