@@ -87,8 +87,8 @@
 #'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE the honesty.* parameters are not tuned.
 #'  Default is "none" (no parameters are tuned).
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
-#' @param fast.logrank Whether to use the `fast.logrank` option when estimating censoring corrections with
-#'   `survival_forest`. Default is FALSE.
+#' @param fast.logrank Whether to use the `fast.logrank` option when estimating doubly robust censoring corrections with
+#'   `survival_forest`. When enabled, training time is approximately independent of the number of time points. Default is FALSE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.

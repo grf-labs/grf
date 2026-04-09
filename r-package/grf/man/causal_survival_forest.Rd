@@ -133,8 +133,8 @@ Default is "none" (no parameters are tuned).}
 
 \item{compute.oob.predictions}{Whether OOB predictions on training set should be precomputed. Default is TRUE.}
 
-\item{fast.logrank}{Whether to use the `fast.logrank` option when estimating censoring corrections with
-`survival_forest`. Default is FALSE.}
+\item{fast.logrank}{Whether to use the `fast.logrank` option when estimating doubly robust censoring corrections with
+`survival_forest`. When enabled, training time is approximately independent of the number of time points. Default is FALSE.}
 
 \item{num.threads}{Number of threads used in training. By default, the number of threads is set
 to the maximum hardware concurrency.}
