@@ -179,17 +179,3 @@ tab.df = reshape(
 )
 
 print(xtable(tab.df[-4]), include.rownames = FALSE)
-# \begin{table}[ht]
-# \centering
-# \begin{tabular}{lrrr}
-# \hline
-# name & value.exact(ms) & value.approx(ms) & value.speedup.factor \\
-# \hline
-# lung & 1.40 & 1.40 & 1.00 \\
-# veteran & 1.40 & 1.38 & 1.01 \\
-# pbc & 1.40 & 1.40 & 1.00 \\
-# heart & 1.40 & 1.40 & 1.00 \\
-# rotterdam & 8.57 & 3.98 & 2.15 \\
-# \hline
-# \end{tabular}
-# \end{table}

@@ -237,3 +237,45 @@ ggplot(out.df, aes(y = error)) +
 
 ggsave("rmse.pdf", width = 5, height = 3, scale = 1)
 write.csv(out.df, "rmse.csv", row.names = FALSE)
+
+# Basic timings repeated
+library(microbenchmark)
+library(xtable)
+
+fbench = function(data, fast.logrank) {
+  survival_forest(data$X, data$Y, data$D, fast.logrank = fast.logrank,
+                  compute.oob.predictions = FALSE,
+                  num.trees = 1, sample.fraction = 1, mtry = ncol(data$X))
+}
+
+times = 100
+out = list()
+for (dgp in dgps) {
+  data = generate_data(n = n, p = p, dgp = dgp)
+  Y = round(data$Y, 2)
+  D = data$D
+  X = data$X
+
+  bench.exact = microbenchmark(fbench(data, FALSE), times = times, unit = "milliseconds")
+  time.exact = summary(bench.exact)$mean
+  bench.approx = microbenchmark(fbench(data, TRUE), times = times, unit = "milliseconds")
+  time.approx = summary(bench.approx)$mean
+
+  diff = time.exact - time.approx
+  ratio = time.exact / time.approx
+  df = data.frame(
+    metric = c("exact(ms)", "approx(ms)", "difference(ms)", "speedup.factor"),
+    value = c(time.exact, time.approx, diff, ratio),
+    name = dgp)
+  out = c(out, list(df))
+}
+out.df = do.call(rbind, out)
+
+tab.df = reshape(
+  out.df,
+  idvar = c("name"),
+  timevar = "metric",
+  direction = "wide"
+)
+
+print(xtable(tab.df[-4]), include.rownames = FALSE)
