@@ -78,7 +78,7 @@ out.df = do.call(rbind, out)
 out.df
 write.csv(out.df, "survset_benchmark.csv", row.names = FALSE)
 
-out.df = out.df[rev(order(out.df$metric)), ]
+out.df = out.df[rev(order(out.df$metric, out.df$Data.set)), ]
 print(xtable(out.df, digits = 5),
       sanitize.text.function = identity,
       include.rownames = FALSE,
