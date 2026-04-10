@@ -60,49 +60,23 @@ for (name in datasets) {
   sf.exact = survival_forest(X, Y, D, fast.logrank = FALSE, seed = 42, prediction.type = "Nelson-Aalen", num.trees = 500)
   sf.approx = survival_forest(X, Y, D, fast.logrank = TRUE, seed = 42, prediction.type = "Nelson-Aalen", num.trees = 500)
 
+  sf.exact0 = survival_forest(X, Y, D, fast.logrank = FALSE, seed = 42, prediction.type = "Nelson-Aalen", num.trees = 500, alpha = 0)
+  sf.approx0 = survival_forest(X, Y, D, fast.logrank = TRUE, seed = 42, prediction.type = "Nelson-Aalen", num.trees = 500, alpha = 0)
+
   df = data.frame(
     Data.set = paste0("$\\emph{", name, "}$"),
     n = nrow(X),
     p = ncol(X),
     M = length(unique(Y[D==1])),
     metric = c("$\\Delta PE_C$", "$\\Delta PE_{IBS}$"),
-    value = c(get_cerror(sf.exact) - get_cerror(sf.approx), get_IBS(sf.exact) - get_IBS(sf.approx))
+    value = c(get_cerror(sf.exact) - get_cerror(sf.approx), get_IBS(sf.exact) - get_IBS(sf.approx)),
+    value0 = c(get_cerror(sf.exact0) - get_cerror(sf.approx0), get_IBS(sf.exact0) - get_IBS(sf.approx0))
     )
   out = c(out, list(df))
 }
 out.df = do.call(rbind, out)
 out.df
 write.csv(out.df, "survset_benchmark.csv", row.names = FALSE)
-
-print(xtable(out.df, digits = 5),
-      sanitize.text.function = identity,
-      include.rownames = FALSE,
-      format.args = list(big.mark = " ", decimal.mark = "."))
-
-# with alpha = 0
-out = list()
-for (name in datasets) {
-  data = get_data(name); cat(name, "\n")
-  Y = data$Y
-  D = data$D
-  X = data$X
-
-  sf.exact = survival_forest(X, Y, D, fast.logrank = FALSE, seed = 42, prediction.type = "Nelson-Aalen", num.trees = 500, alpha = 0)
-  sf.approx = survival_forest(X, Y, D, fast.logrank = TRUE, seed = 42, prediction.type = "Nelson-Aalen", num.trees = 500, alpha = 0)
-
-  df = data.frame(
-    Data.set = paste0("$\\emph{", name, "}$"),
-    n = nrow(X),
-    p = ncol(X),
-    M = length(unique(Y[D==1])),
-    metric = c("$\\Delta PE_C$", "$\\Delta PE_{IBS}$"),
-    value = c(get_cerror(sf.exact) - get_cerror(sf.approx), get_IBS(sf.exact) - get_IBS(sf.approx))
-    )
-  out = c(out, list(df))
-}
-out.df = do.call(rbind, out)
-out.df
-write.csv(out.df, "survset_benchmark_alpha0.csv", row.names = FALSE)
 
 print(xtable(out.df, digits = 5),
       sanitize.text.function = identity,
