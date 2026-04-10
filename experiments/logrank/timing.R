@@ -31,10 +31,11 @@ get_data = function(n, p, M = c("20", "130", "260", "500")) {
 }
 
 # Table 1 runtimes
-fbench = function(data, fast.logrank) {
+fbench = function(data, fast.logrank, alpha = 0.05) {
   survival_forest(data$X, data$Y, data$D, fast.logrank = fast.logrank,
                   compute.oob.predictions = FALSE,
-                  num.trees = 1, sample.fraction = 1, mtry = ncol(data$X))
+                  num.trees = 1, sample.fraction = 1, mtry = ncol(data$X),
+                  alpha = alpha)
 }
 
 grid = expand.grid(
@@ -87,3 +88,40 @@ data = get_data(100000, 50, "260")
 print(m1 <- microbenchmark(survival_forest(data$X, data$Y, data$D, fast.logrank = FALSE, num.trees = 500, compute.oob.predictions = FALSE), times = 2, unit = "seconds"))
 print(m2 <- microbenchmark(survival_forest(data$X, data$Y, data$D, fast.logrank = TRUE, num.trees = 500, compute.oob.predictions = FALSE), times = 2, unit = "seconds"))
 summary(m1)$mean / summary(m2)$mean
+
+# Table with alpha=0
+times = 5
+out = list()
+for (i in 1:nrow(grid)) {
+  n = grid[i, ]$n
+  p = grid[i, ]$p
+  M = grid[i, ]$M
+  data = get_data(n = n, p = p, M = as.character(M))
+
+  bench.exact = microbenchmark(fbench(data, FALSE, 0), times = times, unit = "seconds")
+  time.exact = summary(bench.exact)$mean
+  bench.approx = microbenchmark(fbench(data, TRUE, 0), times = times, unit = "seconds")
+  time.approx = summary(bench.approx)$mean
+
+  diff = time.exact - time.approx
+  ratio = time.exact / time.approx
+  df = data.frame(
+    metric = c("exact(s)", "approx(s)", "difference(s)", "speedup.factor"),
+    value = c(time.exact, time.approx, diff, ratio),
+    n = n,
+    p = p,
+    M = M)
+  out = c(out, list(df))
+}
+out.df = do.call(rbind, out)
+tab.df = reshape(
+  out.df,
+  idvar = c("n", "p", "M"),
+  timevar = "metric",
+  direction = "wide"
+)
+
+tab.df$n = as.character(tab.df$n)
+tab.df$p = as.character(tab.df$p)
+tab.df$M = as.character(tab.df$M)
+print(xtable(tab.df[-6]), include.rownames = FALSE)
