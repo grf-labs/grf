@@ -8,7 +8,7 @@ _This folder has replication files for the paper "Efficient Log-Rank Updates for
 
 These scripts rely on the packages
 ```
-grf, survival, survex, microbenchmark, ggplot2 xtable
+grf, survival, survex, microbenchmark, ggplot2, xtable
 ```
 
 * Appendix: `survset_benchmark.R` (requires the `reticulate` package along with the Python package `SurvSet`)
