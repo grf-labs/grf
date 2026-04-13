@@ -1,5 +1,5 @@
 ---
-title: "Introduction to grf"
+title: "Get started"
 output:
   rmarkdown::html_vignette:
     math_method: katex
