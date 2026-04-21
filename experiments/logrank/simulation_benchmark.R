@@ -109,7 +109,7 @@ aggregate(
   FUN = mean
 )
 
-# Result
+# Figure 1
 library(ggplot2)
 
 ggplot(out.df[out.df$metric == "concordance", ], aes(y = error)) +
@@ -141,7 +141,7 @@ ggsave("IBS.pdf", width = 5, height = 3, scale = 1)
 write.csv(out.df, "benchmark.csv", row.names = FALSE)
 
 
-# Basic timings repeated
+# Table 2 - Basic timings repeated
 library(microbenchmark)
 library(xtable)
 
@@ -178,4 +178,5 @@ tab.df = reshape(
   direction = "wide"
 )
 
+# Table 2 - upper panel
 print(xtable(tab.df[-4]), include.rownames = FALSE)

@@ -81,6 +81,8 @@ tab.df = reshape(
 tab.df$n = as.character(tab.df$n)
 tab.df$p = as.character(tab.df$p)
 tab.df$M = as.character(tab.df$M)
+
+# Table 1
 print(xtable(tab.df[-6]), include.rownames = FALSE)
 
 # Intro text simple runtime example
@@ -124,4 +126,6 @@ tab.df = reshape(
 tab.df$n = as.character(tab.df$n)
 tab.df$p = as.character(tab.df$p)
 tab.df$M = as.character(tab.df$M)
+
+# Appendix table 3
 print(xtable(tab.df[-6]), include.rownames = FALSE)

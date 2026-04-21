@@ -79,7 +79,11 @@ out.df
 write.csv(out.df, "survset_benchmark.csv", row.names = FALSE)
 
 out.df = out.df[rev(order(out.df$metric, out.df$n)), ]
+# Appendix table 4
 print(xtable(out.df, digits = 5),
       sanitize.text.function = identity,
       include.rownames = FALSE,
       format.args = list(big.mark = " ", decimal.mark = "."))
+
+# Overall mean
+print(mean(out.df$value0))

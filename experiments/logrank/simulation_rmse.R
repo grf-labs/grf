@@ -219,7 +219,7 @@ aggregate(
   FUN = mean
 )
 
-# Results
+# Figure 2
 library(ggplot2)
 
 out.df$dgp = factor(out.df$dgp, labels = c("Setting 1", "Setting 2", "Setting 3", "Setting 4", "Setting 5"))
@@ -238,7 +238,7 @@ ggplot(out.df, aes(y = error)) +
 ggsave("rmse.pdf", width = 5, height = 3, scale = 1)
 write.csv(out.df, "rmse.csv", row.names = FALSE)
 
-# Basic timings repeated
+# Table 2 - Basic timings repeated
 library(microbenchmark)
 library(xtable)
 
@@ -278,4 +278,5 @@ tab.df = reshape(
   direction = "wide"
 )
 
+# Table 2 - bottom panel
 print(xtable(tab.df[-4]), include.rownames = FALSE)
