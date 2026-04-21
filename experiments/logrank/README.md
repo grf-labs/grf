@@ -2,9 +2,9 @@ _This folder has replication files for the paper "Efficient Log-Rank Updates for
 
 * Table 1 and Table 3: `timings.R`
 
-* Figure 1 & Table 2: `simulation_benchmark.R`
+* Figure 1 and Table 2: `simulation_benchmark.R`
 
-* Figure 2 & Table 2: `simulation_rmse.R`
+* Figure 2 and Table 2: `simulation_rmse.R`
 
 These scripts rely on the packages
 ```
