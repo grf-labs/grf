@@ -1,6 +1,6 @@
 _This folder has replication files for the paper "Efficient Log-Rank Updates for Random Survival Forests" by Sverdrup, Yang, and LeBlanc._
 
-* Table 1 and Table 3: `timings.R`
+* Table 1 and Table 3: `timing.R`
 
 * Figure 1 and Table 2: `simulation_benchmark.R`
 
