@@ -87,3 +87,6 @@ print(xtable(out.df, digits = 5),
 
 # Overall mean
 print(mean(out.df$value0))
+
+# To split ignoring the log-rank denominator, set `denominator = 1` in the code below, then recompile GRF and rerun this script.
+# https://github.com/grf-labs/grf/blob/2f9f202b682d47fa68dd69888fdca0d69eb58c8e/core/src/splitting/AcceleratedSurvivalSplittingRule.cpp#L255
