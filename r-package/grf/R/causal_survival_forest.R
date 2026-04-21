@@ -87,8 +87,8 @@
 #'   "honesty.prune.leaves", "alpha", "imbalance.penalty"). If honesty is FALSE the honesty.* parameters are not tuned.
 #'  Default is "none" (no parameters are tuned).
 #' @param compute.oob.predictions Whether OOB predictions on training set should be precomputed. Default is TRUE.
-#' @param fast.logrank Whether to use the `fast.logrank` option when estimating censoring corrections with
-#'   `survival_forest`. Default is FALSE.
+#' @param fast.logrank Whether to use the `fast.logrank` option when estimating doubly robust censoring corrections with
+#'   `survival_forest`. When enabled, training time is approximately independent of the number of time points. Default is FALSE.
 #' @param num.threads Number of threads used in training. By default, the number of threads is set
 #'                    to the maximum hardware concurrency.
 #' @param seed The seed of the C++ random number generator.
@@ -98,11 +98,13 @@
 #' @references Cui, Yifan, Michael R. Kosorok, Erik Sverdrup, Stefan Wager, and Ruoqing Zhu.
 #'  "Estimating Heterogeneous Treatment Effects with Right-Censored Data via Causal Survival Forests".
 #'  Journal of the Royal Statistical Society: Series B, 85(2), 2023.
-#'
 #' @references Sverdrup, Erik, and Stefan Wager.
 #'  "Treatment Heterogeneity with Right-Censored Outcomes Using grf".
 #'  ASA Lifetime Data Science Newsletter, January 2024
 #'  (\href{https://arxiv.org/abs/2312.02482}{arXiv:2312.02482}).
+#' @references Sverdrup, Erik, James Yang, and Michael LeBlanc.
+#'  "Efficient Log-Rank Updates for Random Survival Forests."
+#'  arXiv preprint arXiv:2510.03665, 2025.
 #'
 #' @examples
 #' \donttest{
