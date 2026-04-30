@@ -241,7 +241,7 @@ where
 $$
 \pi_B(X_i) =
 \begin{cases}
-1, & \hat\tau(X_i) > 0 \text{ and } \hat\tau(X_i) \ge 1-B\text{-th quantile of positive predicted CATEs} \\
+1, & \hat\tau(X_i) > 0 \text{ and } \hat\tau(X_i) \ge (1-B)\text{-th quantile of positive predicted CATEs} \\
 0, & \text{otherwise}.
 \end{cases}
 $$
