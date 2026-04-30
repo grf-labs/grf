@@ -45,9 +45,9 @@ if (knitr::is_html_output()) {
 ```
 
 This vignette introduces forest-based causal inference using the `grf` package for `R`.
-Generalized random forests (Athey, Tibshirani, and Wager, [2019](https://doi.org/10.1214/18-AOS1709)) extend Breiman ([2001](https://doi.org/10.1023/A:1010933404324))'s random forest to enable data-driven estimation of heterogeneity in causal parameters, such as conditional average treatment effects under unconfoundedness.
+Generalized random forests (Athey, Tibshirani, & Wager, [2019](https://doi.org/10.1214/18-AOS1709)) extend Breiman ([2001](https://doi.org/10.1023/A:1010933404324))'s random forest to enable data-driven estimation of heterogeneity in causal parameters, such as conditional average treatment effects under unconfoundedness.
 We outline core functionality, including doubly robust estimation of average treatment effects, best linear projections, tools for assessing heterogeneity using TOC curves, evaluation of treatment rules via Qini curves, and methods for learning interpretable tree-based policies. The vignette contains two applied examples illustrating treatment effect heterogeneity in practice.
-For further details, see the package documentation and additional applied tutorials by Athey & Wager ([2019](https://doi.org/10.1353/obs.2019.0001)), and Sverdrup, Petukhova, and Wager ([2024](https://doi.org/https://doi.org/10.1002/mpr.70015)).
+For further details, see the package documentation and additional applied tutorials by Athey & Wager ([2019](https://doi.org/10.1353/obs.2019.0001)), and Sverdrup, Petukhova, & Wager ([2024](https://doi.org/https://doi.org/10.1002/mpr.70015)).
 
 _Vignette sections_:
 
@@ -108,7 +108,7 @@ A standard technique in semi-parametric estimation is sample splitting, where se
 Cross-fitting, alternating which folds are used for training and estimation, is a common implementation (Chernozhukov et al., [2018](https://doi.org/10.1111/ectj.12097); Zheng & van der Laan, [2011](https://doi.org/10.1007/978-1-4419-9782-1_27)).
 In `grf`, _out-of-bag_ predictions provide a forest-native leave-one-out form of cross-fitting.
 
-***Non-constant treatment effects***. To relax Assumption 3), suppose treatment effects vary with covariates:
+***Relaxing assumption 3)***. Instead of assuming constant treatment effects, suppose treatment effects vary with covariates:
 $$
 Y_i = \textcolor{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, \text{E}[\varepsilon_i \mid X_i, W_i] = 0,
 $$
@@ -205,14 +205,16 @@ As a concrete example, the ATE is an average of $\hat \Gamma_i$'s, while the bes
 Combined with techniques such as honesty and subsampling (Wager & Athey, [2018](https://doi.org/10.1080/01621459.2017.1319839)), the generalized random forest algorithm supports pointwise asymptotic guarantees. Results like these are reassuring, as they characterize the large-sample behavior of the forest. For practical purposes, however, there are more direct and transparent ways to assess whether meaningful heterogeneity is present in a given dataset.
 
 A simple and pragmatic approach is **train/test evaluation**. We fit a CATE model on a training set, then on a held-out test set, we form subgroups based on predicted treatment effects and examine whether average treatment effects differ systematically across these groups.
-This approach is quite general: we may evaluate any machine-learned targeting function, including alternative effect measures, such as predicted risk or other quantities that may be aligned with treatment benefit in a given application. As long as higher values correspond to higher expected treatment gains, the same evaluation logic applies.
+This approach is quite general: we may evaluate any machine-learned targeting function, including alternative effect measures, such as predicted risk or other quantities that may be aligned with treatment benefit in a given application. As long as higher values correspond to higher expected treatment gains, the same evaluation logic applies (for approaches that do not rely on a single train/test split, see, for example, Wager ([2024](https://arxiv.org/abs/2405.05534))).
 
-The `rank_average_treatment_effect` function provides an automated implementation of this exercise by stratifying the test sample according to quantiles of the estimated targeting function. The _Targeting Operator Characteristic_ (TOC) curve (Yadlowsky et al., [2024](https://doi.org/10.1080/01621459.2024.2393466)) compares the average treatment effect among units with predicted CATEs in the top $q$-th quantile to the overall ATE.
+The `rank_average_treatment_effect` function provides an automated implementation of this exercise by stratifying the test sample according to all quantiles of the estimated targeting function. The _Targeting Operator Characteristic_ (TOC) curve (Yadlowsky et al., [2024](https://doi.org/10.1080/01621459.2024.2393466)) compares the average treatment effect among units with predicted CATEs in the top $q$-th quantile to the overall ATE.
 $$
 \text{TOC}(q) = \text{E}[Y_i(1) - Y_i(0) \mid \text{Estimated CATE}(X_i) \geq (1 - q)\text{-th quantile}] - \text{ATE}.
 $$
 Given a trained evaluation forest, `grf` provides doubly robust estimates of the TOC and the area under the TOC, along with standard errors that enable a simple and valid $t$-test for the presence of heterogeneity.
 Under the null of constant treatment effects, the area under the TOC curve is zero in expectation.
+
+A user can also supply two estimated CATEs or, more generally, two targeting scores in order to compare prioritization strategies. The `rank_average_treatment_effect` function then returns estimates and confidence intervals for the difference in the area under the TOC curves, which can be used to test whether the two targeting scores differ significantly in their ability to prioritize units for treatment.
 
 
 ### Policy evaluation with Qini curves
@@ -241,12 +243,12 @@ where
 $$
 \pi_B(X_i) =
 \begin{cases}
-1, & \hat\tau(X_i) > 0 \text{ and } \hat\tau(X_i) \ge 1-B\text{-th quantile of positive predicted CATEs} \\
+1, & \hat\tau(X_i) > 0 \text{ and } \hat\tau(X_i) \ge (1-B)\text{-th quantile of positive predicted CATEs} \\
 0, & \text{otherwise}.
 \end{cases}
 $$
 Using doubly robust scores and appropriate resampling methods, we can obtain confidence intervals for $G(\pi_B)$ across the curve.
-This approach is implemented in the sister package [`maq`](https://CRAN.R-project.org/package=maq), which also supports multiple treatment arms with variable costs by solving an intermediate linear program that maps predicted effects and costs into budget-constrained policies.
+This approach is implemented in the sister package [`maq`](https://CRAN.R-project.org/package=maq) (Sverdrup et al., [2025](https://doi.org/10.1080/10618600.2024.2418820)), which also supports multiple treatment arms with variable costs by solving an intermediate linear program that maps predicted effects and costs into budget-constrained policies.
 
 
 ### Learning interpretable policies
@@ -257,7 +259,7 @@ $$
 V(\pi) = \text{E}[Y_i(\pi(X_i))],
 $$
 where we restrict the policy $\pi$ to belong to a class of pre-specified rules, for example shallow decision trees.
-Because we never observe both potential outcomes, we need suitable reward proxies. It turns out (Athey & Wager, [2021](https://doi.org/10.3982/ECTA15732)) that we can solve the empirical counterpart of this problem efficiently by using doubly robust scores for $\text{E}[Y_i(1)]$ and $\text{E}[Y_i(0)]$ as reward proxies. The `grf` package constructs these scores automatically, and the sister package [`policytree`](https://CRAN.R-project.org/package=policytree) solves the optimization problem for shallow depth-$k$ decision trees. This yields simple treatment rules that can be evaluated on held-out data and compared to natural benchmarks such as treating everyone or no one.
+Because we never observe both potential outcomes, we need suitable reward proxies. It turns out (Athey & Wager, [2021](https://doi.org/10.3982/ECTA15732)) that we can solve the empirical counterpart of this problem efficiently by using doubly robust scores for $\text{E}[Y_i(1)]$ and $\text{E}[Y_i(0)]$ as reward proxies. The `grf` package constructs these scores automatically, and the sister package [`policytree`](https://CRAN.R-project.org/package=policytree) (Sverdrup et al., [2020](https://doi.org/10.21105/joss.02232)) solves the optimization problem for shallow depth-$k$ decision trees. This yields simple treatment rules that can be evaluated on held-out data and compared to natural benchmarks such as treating everyone or no one.
 
 
 <!-- -------------------APPLICATION: BRAZIL --------------------->
@@ -479,6 +481,7 @@ rate.cate$estimate / rate.cate$std.err # t-statistic
 plot(rate.cate, main = "TOC: By decreasing CATEs")
 ```
 
+The AUTOC is not statistically distinguishable from zero at conventional levels. However, visual inspection of the TOC curve suggests that a small subset of individuals may experience an effect. If one is willing to pre-specify a quantile, this can be formally assessed by examining the confidence interval at that point on the TOC curve.
 
 
 ```{r, echo=FALSE, fig.align='center', out.height='0.667in', results='asis', out.extra='keepaspectratio'}
@@ -530,11 +533,17 @@ Rosenbaum, Paul R., and Donald B. Rubin. "The central role of the propensity sco
 
 Sverdrup, Erik, Maria Petukhova, and Stefan Wager. "Estimating treatment effect heterogeneity in psychiatry: A review and tutorial with causal forests." International Journal of Methods in Psychiatric Research 34, no. 2 (2025): e70015.
 
+Sverdrup, Erik, Han Wu, Susan Athey, and Stefan Wager. "Qini curves for multi-armed treatment rules." Journal of Computational and Graphical Statistics 34, no. 3 (2025): 948-960.
+
+Sverdrup, Erik, Ayush Kanodia, Zhengyuan Zhou, Susan Athey, and Stefan Wager. "policytree: Policy learning via doubly robust empirical welfare maximization over trees." Journal of Open Source Software 5, no. 50 (2020): 2232.
+
 Twala, Bheki ETH, M. C. Jones, and David J. Hand. "Good methods for coping with missing data in decision trees." Pattern Recognition Letters 29, no. 7 (2008): 950-956.
 
 Zheng, Wenjing, and Mark J. van der Laan. "Cross-validated targeted minimum-loss-based estimation." In Targeted Learning, pp. 459-474. Springer, New York, NY, 2011.
 
 Wager, Stefan. Causal Inference: A Statistical Learning Approach. Cambridge University Press (in preparation), 2024.
+
+Wager, Stefan. Sequential validation of treatment heterogeneity. arXiv preprint arXiv:2405.05534 (2024).
 
 Wager, Stefan, and Susan Athey. "Estimation and inference of heterogeneous treatment effects using random forests." Journal of the American Statistical Association 113.523 (2018): 1228-1242.
 
