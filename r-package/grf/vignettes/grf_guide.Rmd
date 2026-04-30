@@ -248,7 +248,7 @@ $$
 \end{cases}
 $$
 Using doubly robust scores and appropriate resampling methods, we can obtain confidence intervals for $G(\pi_B)$ across the curve.
-This approach is implemented in the sister package [`maq`](https://CRAN.R-project.org/package=maq), which also supports multiple treatment arms with variable costs by solving an intermediate linear program that maps predicted effects and costs into budget-constrained policies.
+This approach is implemented in the sister package [`maq`](https://CRAN.R-project.org/package=maq) (Sverdrup et al., [2025](https://doi.org/10.1080/10618600.2024.2418820)), which also supports multiple treatment arms with variable costs by solving an intermediate linear program that maps predicted effects and costs into budget-constrained policies.
 
 
 ### Learning interpretable policies
@@ -259,7 +259,7 @@ $$
 V(\pi) = \text{E}[Y_i(\pi(X_i))],
 $$
 where we restrict the policy $\pi$ to belong to a class of pre-specified rules, for example shallow decision trees.
-Because we never observe both potential outcomes, we need suitable reward proxies. It turns out (Athey & Wager, [2021](https://doi.org/10.3982/ECTA15732)) that we can solve the empirical counterpart of this problem efficiently by using doubly robust scores for $\text{E}[Y_i(1)]$ and $\text{E}[Y_i(0)]$ as reward proxies. The `grf` package constructs these scores automatically, and the sister package [`policytree`](https://CRAN.R-project.org/package=policytree) solves the optimization problem for shallow depth-$k$ decision trees. This yields simple treatment rules that can be evaluated on held-out data and compared to natural benchmarks such as treating everyone or no one.
+Because we never observe both potential outcomes, we need suitable reward proxies. It turns out (Athey & Wager, [2021](https://doi.org/10.3982/ECTA15732)) that we can solve the empirical counterpart of this problem efficiently by using doubly robust scores for $\text{E}[Y_i(1)]$ and $\text{E}[Y_i(0)]$ as reward proxies. The `grf` package constructs these scores automatically, and the sister package [`policytree`](https://CRAN.R-project.org/package=policytree) (Sverdrup et al., [2020](https://doi.org/10.21105/joss.02232)) solves the optimization problem for shallow depth-$k$ decision trees. This yields simple treatment rules that can be evaluated on held-out data and compared to natural benchmarks such as treating everyone or no one.
 
 
 <!-- -------------------APPLICATION: BRAZIL --------------------->
@@ -532,6 +532,10 @@ Robinson, Peter M. "Root-N-consistent semiparametric regression." Econometrica: 
 Rosenbaum, Paul R., and Donald B. Rubin. "The central role of the propensity score in observational studies for causal effects." Biometrika 70, no. 1 (1983): 41-55.
 
 Sverdrup, Erik, Maria Petukhova, and Stefan Wager. "Estimating treatment effect heterogeneity in psychiatry: A review and tutorial with causal forests." International Journal of Methods in Psychiatric Research 34, no. 2 (2025): e70015.
+
+Sverdrup, Erik, Han Wu, Susan Athey, and Stefan Wager. "Qini curves for multi-armed treatment rules." Journal of Computational and Graphical Statistics 34, no. 3 (2025): 948-960.
+
+Sverdrup, Erik, Ayush Kanodia, Zhengyuan Zhou, Susan Athey, and Stefan Wager. "policytree: Policy learning via doubly robust empirical welfare maximization over trees." Journal of Open Source Software 5, no. 50 (2020): 2232.
 
 Twala, Bheki ETH, M. C. Jones, and David J. Hand. "Good methods for coping with missing data in decision trees." Pattern Recognition Letters 29, no. 7 (2008): 950-956.
 
