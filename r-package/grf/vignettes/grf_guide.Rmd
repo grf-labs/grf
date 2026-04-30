@@ -108,7 +108,7 @@ A standard technique in semi-parametric estimation is sample splitting, where se
 Cross-fitting, alternating which folds are used for training and estimation, is a common implementation (Chernozhukov et al., [2018](https://doi.org/10.1111/ectj.12097); Zheng & van der Laan, [2011](https://doi.org/10.1007/978-1-4419-9782-1_27)).
 In `grf`, _out-of-bag_ predictions provide a forest-native leave-one-out form of cross-fitting.
 
-***Non-constant treatment effects***. To relax Assumption 3), suppose treatment effects vary with covariates:
+***Relaxing assumption 3)***. Instead of assuming constant treatment effects, suppose treatment effects vary with covariates:
 $$
 Y_i = \textcolor{red}{\tau(X_i)}W_i + f(X_i) + \varepsilon_i, \, \, \text{E}[\varepsilon_i \mid X_i, W_i] = 0,
 $$
