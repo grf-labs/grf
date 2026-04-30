@@ -479,6 +479,7 @@ rate.cate$estimate / rate.cate$std.err # t-statistic
 plot(rate.cate, main = "TOC: By decreasing CATEs")
 ```
 
+The AUTOC is not statistically distinguishable from zero at conventional levels. However, visual inspection of the TOC curve suggests that a small subset of individuals may experience an effect. If one is willing to pre-specify a quantile, this can be formally assessed by examining the confidence interval at that point on the TOC curve.
 
 
 ```{r, echo=FALSE, fig.align='center', out.height='0.667in', results='asis', out.extra='keepaspectratio'}
