@@ -205,7 +205,7 @@ As a concrete example, the ATE is an average of $\hat \Gamma_i$'s, while the bes
 Combined with techniques such as honesty and subsampling (Wager & Athey, [2018](https://doi.org/10.1080/01621459.2017.1319839)), the generalized random forest algorithm supports pointwise asymptotic guarantees. Results like these are reassuring, as they characterize the large-sample behavior of the forest. For practical purposes, however, there are more direct and transparent ways to assess whether meaningful heterogeneity is present in a given dataset.
 
 A simple and pragmatic approach is **train/test evaluation**. We fit a CATE model on a training set, then on a held-out test set, we form subgroups based on predicted treatment effects and examine whether average treatment effects differ systematically across these groups.
-This approach is quite general: we may evaluate any machine-learned targeting function, including alternative effect measures, such as predicted risk or other quantities that may be aligned with treatment benefit in a given application. As long as higher values correspond to higher expected treatment gains, the same evaluation logic applies.
+This approach is quite general: we may evaluate any machine-learned targeting function, including alternative effect measures, such as predicted risk or other quantities that may be aligned with treatment benefit in a given application. As long as higher values correspond to higher expected treatment gains, the same evaluation logic applies (for approaches that do not rely on a single train/test split, see, for example, Wager ([2024](https://arxiv.org/abs/2405.05534))).
 
 The `rank_average_treatment_effect` function provides an automated implementation of this exercise by stratifying the test sample according to all quantiles of the estimated targeting function. The _Targeting Operator Characteristic_ (TOC) curve (Yadlowsky et al., [2024](https://doi.org/10.1080/01621459.2024.2393466)) compares the average treatment effect among units with predicted CATEs in the top $q$-th quantile to the overall ATE.
 $$
@@ -538,6 +538,8 @@ Twala, Bheki ETH, M. C. Jones, and David J. Hand. "Good methods for coping with 
 Zheng, Wenjing, and Mark J. van der Laan. "Cross-validated targeted minimum-loss-based estimation." In Targeted Learning, pp. 459-474. Springer, New York, NY, 2011.
 
 Wager, Stefan. Causal Inference: A Statistical Learning Approach. Cambridge University Press (in preparation), 2024.
+
+Wager, Stefan. Sequential validation of treatment heterogeneity. arXiv preprint arXiv:2405.05534 (2024).
 
 Wager, Stefan, and Susan Athey. "Estimation and inference of heterogeneous treatment effects using random forests." Journal of the American Statistical Association 113.523 (2018): 1228-1242.
 
