@@ -45,9 +45,9 @@ if (knitr::is_html_output()) {
 ```
 
 This vignette introduces forest-based causal inference using the `grf` package for `R`.
-Generalized random forests (Athey, Tibshirani, and Wager, [2019](https://doi.org/10.1214/18-AOS1709)) extend Breiman ([2001](https://doi.org/10.1023/A:1010933404324))'s random forest to enable data-driven estimation of heterogeneity in causal parameters, such as conditional average treatment effects under unconfoundedness.
+Generalized random forests (Athey, Tibshirani, & Wager, [2019](https://doi.org/10.1214/18-AOS1709)) extend Breiman ([2001](https://doi.org/10.1023/A:1010933404324))'s random forest to enable data-driven estimation of heterogeneity in causal parameters, such as conditional average treatment effects under unconfoundedness.
 We outline core functionality, including doubly robust estimation of average treatment effects, best linear projections, tools for assessing heterogeneity using TOC curves, evaluation of treatment rules via Qini curves, and methods for learning interpretable tree-based policies. The vignette contains two applied examples illustrating treatment effect heterogeneity in practice.
-For further details, see the package documentation and additional applied tutorials by Athey & Wager ([2019](https://doi.org/10.1353/obs.2019.0001)), and Sverdrup, Petukhova, and Wager ([2024](https://doi.org/https://doi.org/10.1002/mpr.70015)).
+For further details, see the package documentation and additional applied tutorials by Athey & Wager ([2019](https://doi.org/10.1353/obs.2019.0001)), and Sverdrup, Petukhova, & Wager ([2024](https://doi.org/https://doi.org/10.1002/mpr.70015)).
 
 _Vignette sections_:
 
