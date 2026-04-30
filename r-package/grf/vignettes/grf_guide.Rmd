@@ -207,12 +207,14 @@ Combined with techniques such as honesty and subsampling (Wager & Athey, [2018](
 A simple and pragmatic approach is **train/test evaluation**. We fit a CATE model on a training set, then on a held-out test set, we form subgroups based on predicted treatment effects and examine whether average treatment effects differ systematically across these groups.
 This approach is quite general: we may evaluate any machine-learned targeting function, including alternative effect measures, such as predicted risk or other quantities that may be aligned with treatment benefit in a given application. As long as higher values correspond to higher expected treatment gains, the same evaluation logic applies.
 
-The `rank_average_treatment_effect` function provides an automated implementation of this exercise by stratifying the test sample according to quantiles of the estimated targeting function. The _Targeting Operator Characteristic_ (TOC) curve (Yadlowsky et al., [2024](https://doi.org/10.1080/01621459.2024.2393466)) compares the average treatment effect among units with predicted CATEs in the top $q$-th quantile to the overall ATE.
+The `rank_average_treatment_effect` function provides an automated implementation of this exercise by stratifying the test sample according to all quantiles of the estimated targeting function. The _Targeting Operator Characteristic_ (TOC) curve (Yadlowsky et al., [2024](https://doi.org/10.1080/01621459.2024.2393466)) compares the average treatment effect among units with predicted CATEs in the top $q$-th quantile to the overall ATE.
 $$
 \text{TOC}(q) = \text{E}[Y_i(1) - Y_i(0) \mid \text{Estimated CATE}(X_i) \geq (1 - q)\text{-th quantile}] - \text{ATE}.
 $$
 Given a trained evaluation forest, `grf` provides doubly robust estimates of the TOC and the area under the TOC, along with standard errors that enable a simple and valid $t$-test for the presence of heterogeneity.
 Under the null of constant treatment effects, the area under the TOC curve is zero in expectation.
+
+A user can also supply two estimated CATEs or, more generally, two targeting scores in order to compare prioritization strategies. The `rank_average_treatment_effect` function then returns estimates and confidence intervals for the difference in the area under the TOC curves, which can be used to test whether the two targeting scores differ significantly in their ability to prioritize units for treatment.
 
 
 ### Policy evaluation with Qini curves
